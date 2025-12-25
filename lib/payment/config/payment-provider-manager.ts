@@ -1,6 +1,6 @@
-import { LemonSqueezyProvider, StripeProvider, PolarProvider } from '..';
-import { paymentConfig, coreConfig } from '@/lib/config/config-service';
+import { LemonSqueezyProvider, StripeProvider, PolarProvider, SolidgateProvider } from '..';
 import { PaymentProviderInterface } from '../types/payment-types';
+import { paymentConfig, coreConfig } from '@/lib/config/config-service';
 
 // Centralized configuration for all providers
 interface ProviderConfig {
@@ -17,7 +17,7 @@ interface ProviderConfig {
 			[key: string]: any;
 		};
 	};
-	solidgate?: {
+	solidgate: {
 		apiKey: string;
 		webhookSecret: string;
 		options: {
@@ -65,6 +65,13 @@ class ConfigManager {
 	private static polarAppUrl: string = appUrl;
 	private static polarSandbox: boolean = paymentConfig.polar.sandbox;
 
+	// Solidgate configuration
+	private static solidgateApiKey: string = process.env.SOLIDGATE_API_KEY || '';
+	private static solidgateWebhookSecret: string = process.env.SOLIDGATE_WEBHOOK_SECRET || '';
+	private static solidgatePublishableKey: string = process.env.NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY || '';
+	private static solidgateMerchantId: string = process.env.SOLIDGATE_MERCHANT_ID || '';
+	private static solidgateApiBaseUrl: string = process.env.SOLIDGATE_API_BASE_URL || 'https://api.solidgate.com/v1';
+
 	private static ensureConfig(): ProviderConfig {
 		if (!this.config) {
 			this.config = {
@@ -92,6 +99,15 @@ class ConfigManager {
 						organizationId: this.polarOrganizationId || '',
 						appUrl: this.polarAppUrl || '',
 						sandbox: this.polarSandbox
+					}
+				},
+				solidgate: {
+					apiKey: this.solidgateApiKey || '',
+					webhookSecret: this.solidgateWebhookSecret || '',
+					options: {
+						publishableKey: this.solidgatePublishableKey || '',
+						merchantId: this.solidgateMerchantId || '',
+						apiBaseUrl: this.solidgateApiBaseUrl || ''
 					}
 				}
 			};
@@ -126,6 +142,14 @@ class ConfigManager {
 			this.initializedProviders.add('polar');
 		}
 		return this.ensureConfig().polar;
+	}
+
+	public static getSolidgateConfig() {
+		if (!this.initializedProviders.has('solidgate')) {
+			this.validateSolidgateConfig();
+			this.initializedProviders.add('solidgate');
+		}
+		return this.ensureConfig().solidgate;
 	}
 
 	private static validateStripeConfig(): void {
@@ -201,6 +225,30 @@ class ConfigManager {
 
 		console.log('✅ Polar configuration validated successfully');
 	}
+
+	private static validateSolidgateConfig(): void {
+		const solidgateApiKey = this.solidgateApiKey;
+		const solidgateWebhookSecret = this.solidgateWebhookSecret;
+		const solidgatePublishableKey = this.solidgatePublishableKey;
+		const solidgateMerchantId = this.solidgateMerchantId;
+		const solidgateApiBaseUrl = this.solidgateApiBaseUrl;
+
+		if (!solidgateApiKey) {
+			throw new Error('Solidgate configuration is incomplete. Required: SOLIDGATE_API_KEY');
+		}
+
+		this.ensureConfig().solidgate = {
+			apiKey: solidgateApiKey,
+			webhookSecret: solidgateWebhookSecret || '',
+			options: {
+				publishableKey: solidgatePublishableKey || solidgateApiKey,
+				merchantId: solidgateMerchantId || '',
+				apiBaseUrl: solidgateApiBaseUrl
+			}
+		};
+
+		console.log('✅ Solidgate configuration validated successfully');
+	}
 }
 
 export class PaymentProviderManager {
@@ -247,6 +295,11 @@ export class PaymentProviderManager {
 	public static getPolarProvider(): PolarProvider {
 		const polarConfig = ConfigManager.getPolarConfig();
 		return this.getProvider('polar', polarConfig, PolarProvider);
+	}
+
+	public static getSolidgateProvider(): SolidgateProvider {
+		const solidgateConfig = ConfigManager.getSolidgateConfig();
+		return this.getProvider('solidgate', solidgateConfig, SolidgateProvider);
 	}
 
 	public static reset(): void {
@@ -301,10 +354,22 @@ export function getOrCreatePolarProvider(): PolarProvider {
 	return getPolarProvider() || initializePolarProvider();
 }
 
+export function initializeSolidgateProvider(): SolidgateProvider {
+	return PaymentProviderManager.getSolidgateProvider();
+}
+
+export function getSolidgateProvider(): SolidgateProvider | null {
+	return PaymentProviderManager.isInitialized('solidgate') ? PaymentProviderManager.getSolidgateProvider() : null;
+}
+
+export function getOrCreateSolidgateProvider(): SolidgateProvider {
+	return getSolidgateProvider() || initializeSolidgateProvider();
+}
+
 /**
  * Generic function to get or create a payment provider instance by provider name
- * Supports all payment providers: stripe, lemonsqueezy, polar
- * @param providerName - The name of the payment provider (e.g., 'stripe', 'lemonsqueezy', 'polar')
+ * Supports all payment providers: stripe, lemonsqueezy, polar, solidgate
+ * @param providerName - The name of the payment provider (e.g., 'stripe', 'lemonsqueezy', 'polar', 'solidgate')
  * @returns The payment provider instance
  * @throws Error if the provider is not supported
  */
@@ -318,6 +383,8 @@ export function getOrCreateProvider(providerName: string): PaymentProviderInterf
 			return getOrCreateLemonsqueezyProvider();
 		case 'polar':
 			return getOrCreatePolarProvider();
+		case 'solidgate':
+			return getOrCreateSolidgateProvider();
 		default:
 			throw new Error(`Unsupported payment provider: ${providerName}`);
 	}
