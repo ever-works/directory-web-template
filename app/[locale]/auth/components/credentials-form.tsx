@@ -14,6 +14,7 @@ import { RECAPTCHA_SITE_KEY } from "@/lib/constants";
 import { useAutoRecaptchaVerification } from '../hooks/useRecaptchaVerification';
 import { useUserCache } from '@/hooks/use-current-user';
 import { AuthErrorCode } from '@/lib/auth/auth-error-codes';
+import { useSession } from "next-auth/react";
 
 
 export function CredentialsForm({
@@ -38,6 +39,7 @@ export function CredentialsForm({
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const { verifyToken, isLoading: isVerifying, error: verificationError } = useAutoRecaptchaVerification();
   const { invalidateAllUserData } = useUserCache();
+  const { update: refreshSession } = useSession();
   const [isPending, startTransition] = useTransition();
 
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
@@ -72,21 +74,27 @@ export function CredentialsForm({
   };
 
   useEffect(() => {
-    if (state.success) {
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        const redirectPath = state.redirect || redirect || "/client/dashboard";
-        // Handle locale preservation for redirects
-        const finalRedirectPath = state.preserveLocale && locale !== 'en'
-          ? `/${locale}${redirectPath}`
-          : redirectPath;
-        // Invalidate user cache so dashboard fetches fresh user data for menu
-        invalidateAllUserData();
-        router.push(finalRedirectPath);
+    if (!state.success) return;
+
+    // Only refresh session and user cache if called from a modal (onSuccess is set)
+    if (onSuccess) {
+      invalidateAllUserData();
+      if (refreshSession) {
+        void refreshSession();
       }
+      router.refresh();
+      onSuccess();
+      return;
     }
-  }, [state, redirect, router, onSuccess, locale, invalidateAllUserData]);
+
+    // Default redirect logic for /auth/signin and normal pages
+    const redirectPath = state.redirect || redirect || "/client/dashboard";
+    const finalRedirectPath = state.preserveLocale && locale !== 'en'
+      ? `/${locale}${redirectPath}`
+      : redirectPath;
+    invalidateAllUserData();
+    router.push(finalRedirectPath);
+  }, [state.success, state.redirect, state.preserveLocale, redirect, router, onSuccess, locale, invalidateAllUserData, refreshSession]);
 
   useEffect(() => {
     if (RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
