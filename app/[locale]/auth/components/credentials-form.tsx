@@ -109,7 +109,7 @@ export function CredentialsForm({
       : redirectPath;
     invalidateAllUserData();
     router.push(finalRedirectPath);
-  }, [state.success, state.redirect, state.preserveLocale, redirect, router, onSuccess, locale, invalidateAllUserData, refreshSession]);
+  }, [state.success, state.redirect, state.preserveLocale, redirect, router, onSuccess, locale, invalidateAllUserData, refreshSession, tCred]);
 
   useEffect(() => {
     if (RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
