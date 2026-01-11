@@ -68,6 +68,10 @@ export function CredentialsForm({
         return tCred("RATE_LIMITED");
       case AuthErrorCode.USE_OAUTH_PROVIDER:
         return tCred("USE_OAUTH_PROVIDER");
+      case AuthErrorCode.SESSION_REFRESH_FAILED:
+        return tCred("SESSION_REFRESH_FAILED");
+      case AuthErrorCode.PAGE_REFRESH_FAILED:
+        return tCred("PAGE_REFRESH_FAILED");
       case AuthErrorCode.GENERIC_ERROR:
       default:
         return tCred("GENERIC_ERROR_MESSAGE");
@@ -87,7 +91,7 @@ export function CredentialsForm({
           await refreshSession();
         } catch (err) {
           console.error('Failed to refresh session after auth', err);
-          setAuthSyncError('Unable to refresh session. Please try again.');
+          setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
           return;
         }
         // Next.js router.refresh() is synchronous
@@ -95,7 +99,7 @@ export function CredentialsForm({
           router.refresh();
         } catch (err) {
           console.error('Failed to refresh router after auth', err);
-          setAuthSyncError('Unable to update the page. Please try again.');
+          setAuthSyncError(tCred('PAGE_REFRESH_FAILED'));
           return;
         }
         onSuccess();

@@ -2750,7 +2750,9 @@
 			"PROFILE_NOT_FOUND": "Account profile not found. Please contact support.",
 			"GENERIC_ERROR_MESSAGE": "An error occurred. Please try again.",
 			"RATE_LIMITED": "Too many attempts. Please wait a few minutes before trying again.",
-			"USE_OAUTH_PROVIDER": "This account uses social login. Please sign in with your social provider."
+			"USE_OAUTH_PROVIDER": "This account uses social login. Please sign in with your social provider.",
+			"SESSION_REFRESH_FAILED": "Unable to refresh your session. Please try again.",
+			"PAGE_REFRESH_FAILED": "Unable to refresh the page. Please try again."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "Forgot Password?",
