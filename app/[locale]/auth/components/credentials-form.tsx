@@ -95,13 +95,7 @@ export function CredentialsForm({
           return;
         }
         // Next.js router.refresh() is synchronous
-        try {
-          router.refresh();
-        } catch (err) {
-          console.error('Failed to refresh router after auth', err);
-          setAuthSyncError(tCred('PAGE_REFRESH_FAILED'));
-          return;
-        }
+        router.refresh();
         onSuccess();
       };
       void doModalSuccess();
