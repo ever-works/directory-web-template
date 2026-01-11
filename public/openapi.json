@@ -11,12 +11,8 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Development server"
-    },
-    {
-      "url": "https://your-production-domain.com",
-      "description": "Production server"
+      "url": "/",
+      "description": "Current Environment"
     }
   ],
   "components": {
@@ -7052,6 +7048,38 @@
             },
             "description": "Filter by tag",
             "example": "saas"
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "updated_at",
+                "status",
+                "submitted_at"
+              ],
+              "default": "updated_at"
+            },
+            "description": "Field to sort by",
+            "example": "updated_at"
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            },
+            "description": "Sort order direction",
+            "example": "desc"
           }
         ],
         "responses": {

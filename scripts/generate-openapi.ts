@@ -33,12 +33,8 @@ const swaggerOptions = {
 		},
 		servers: [
 			{
-				url: 'http://localhost:3000',
-				description: 'Development server'
-			},
-			{
-				url: 'https://your-production-domain.com',
-				description: 'Production server'
+				url: '/',
+				description: 'Current Environment'
 			}
 		],
 		components: {
@@ -213,7 +209,10 @@ function mergeOpenAPISpecs(existing: any, generated: any): any {
 		merged.info = { ...generated.info, ...existing.info };
 	}
 
-	if (existing.servers) {
+	// Always use generated servers configuration to ensure environment awareness
+	if (generated.servers) {
+		merged.servers = generated.servers;
+	} else if (existing.servers) {
 		merged.servers = existing.servers;
 	}
 
