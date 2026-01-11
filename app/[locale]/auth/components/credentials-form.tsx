@@ -77,13 +77,25 @@ export function CredentialsForm({
     if (!state.success) return;
 
     // Only refresh session and user cache if called from a modal (onSuccess is set)
+
     if (onSuccess) {
-      invalidateAllUserData();
-      if (refreshSession) {
-        void refreshSession();
-      }
-      router.refresh();
-      onSuccess();
+      const doModalSuccess = async () => {
+        invalidateAllUserData();
+        try {
+          if (refreshSession) {
+            await refreshSession();
+          }
+        } catch (err) {
+          console.error('Failed to refresh session after auth', err);
+        }
+        try {
+          await router.refresh();
+        } catch (err) {
+          console.error('Failed to refresh router after auth', err);
+        }
+        onSuccess();
+      };
+      void doModalSuccess();
       return;
     }
 
