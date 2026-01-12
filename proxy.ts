@@ -38,6 +38,69 @@ function resolveLocalePrefix(pathname: string): { prefix: string; hasLocale: boo
   };
 }
 
+/* ────────────────────────────────── Client Auth Guards ────────────────────────────── */
+
+async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse | null> {
+  try {
+    const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+    if (token) {
+      // User is authenticated
+      return null; // null means "allow access"
+    }
+  } catch (error) {
+    console.error(
+      'NextAuth client guard error',
+      error instanceof Error ? { name: error.name, message: error.message } : undefined
+    );
+  }
+
+  // Not authenticated - redirect to signin with callback
+  const url = req.nextUrl.clone();
+  const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
+  url.pathname = `${rootLocalePrefix}/auth/signin`;
+  url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+  const redirectRes = NextResponse.redirect(url);
+  baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+  return redirectRes;
+}
+
+async function supabaseClientGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse | null> {
+  // Refresh Supabase session & get proper cookies
+  const supRes = await supabaseUpdate(req);
+  supRes.cookies.getAll().forEach((cookie) => {
+    baseRes.cookies.set(cookie);
+  });
+
+  // Get user from Supabase
+  const { createServerClient } = await import('@supabase/ssr');
+  const { data: { user } } = await createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return req.cookies.getAll(); },
+        setAll(cookiesToSet: CookieToSet[]) {
+          cookiesToSet.forEach((cookie) => baseRes.cookies.set(cookie));
+        },
+      },
+    }
+  ).auth.getUser();
+
+  if (user) {
+    // User is authenticated
+    return null; // null means "allow access"
+  }
+
+  // Not authenticated - redirect to signin with callback
+  const url = req.nextUrl.clone();
+  const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
+  url.pathname = `${rootLocalePrefix}/auth/signin`;
+  url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+  const redirectRes = NextResponse.redirect(url);
+  baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+  return redirectRes;
+}
+
 /* ────────────────────────────────── NextAuth guard ────────────────────────────────── */
 
 async function nextAuthGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse> {
@@ -121,12 +184,29 @@ export default async function proxy(req: NextRequest) {
 
   const { prefix: localePrefix, pathWithoutLocale } = resolveLocalePrefix(originalPathname);
 
-  // Only redirect admins away from /client/* without DB calls.
+  // Protect /client/* routes - require authentication and redirect admins to /admin
   if (pathWithoutLocale === "/client" || pathWithoutLocale.startsWith("/client/")) {
     if (cfg.provider === "next-auth") {
-      // For NextAuth, we'll skip admin redirect in Edge Runtime to avoid Node.js modules
-      // Admin redirect will be handled by the client-side logic
+      // Check if user is authenticated
+      const authRedirect = await nextAuthClientGuard(req, intlResponse);
+      if (authRedirect) {
+        return authRedirect; // Not authenticated, redirect to signin
+      }
+      // User is authenticated - check if admin (redirect to /admin)
+      const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+      if (token?.isAdmin === true) {
+        const url = req.nextUrl.clone();
+        url.pathname = `${localePrefix}/admin`;
+        const redirectRes = NextResponse.redirect(url);
+        intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+        return redirectRes;
+      }
     } else if (cfg.provider === "supabase") {
+      // Check if user is authenticated
+      const authRedirect = await supabaseClientGuard(req, intlResponse);
+      if (authRedirect) {
+        return authRedirect; // Not authenticated, redirect to signin
+      }
       // For Supabase, check user metadata for admin flag
       const { createServerClient } = await import('@supabase/ssr');
       const { data: { user } } = await createServerClient(
@@ -151,21 +231,24 @@ export default async function proxy(req: NextRequest) {
         return redirectRes;
       }
     } else if (cfg.provider === "both") {
-      // Check NextAuth first; if it's allowed (admin), redirect to /admin without DB calls.
-      // If it redirects (unauthorized or import failure), fallback to Supabase.
-      const nextAuthRes = await nextAuthGuard(req, intlResponse);
-      const isRedirect =
-        nextAuthRes.redirected || (nextAuthRes.status >= 300 && nextAuthRes.status < 400);
-      if (!isRedirect) {
+      // Check NextAuth first for authentication
+      const nextAuthRedirect = await nextAuthClientGuard(req, intlResponse);
+      if (nextAuthRedirect) {
+        // NextAuth says not authenticated - try Supabase
+        const supabaseRedirect = await supabaseClientGuard(req, intlResponse);
+        if (supabaseRedirect) {
+          return supabaseRedirect; // Neither authenticated, redirect to signin
+        }
+      }
+      // User is authenticated - check if admin
+      const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+      if (token?.isAdmin === true) {
         const url = req.nextUrl.clone();
-        const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
-        url.pathname = `${rootLocalePrefix}${ADMIN_PREFIX}`;
+        url.pathname = `${localePrefix}/admin`;
         const redirectRes = NextResponse.redirect(url);
-        nextAuthRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+        intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
         return redirectRes;
       }
-      // NextAuth denied or failed — try Supabase
-      return supabaseGuard(req, intlResponse);
     }
     return intlResponse;
   }
