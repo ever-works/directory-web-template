@@ -79,9 +79,12 @@ export function BulkActionBar({
 				<Button
 					size="sm"
 					color="success"
-					variant="flat"
+					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
 					onPress={onApprove}
 					isDisabled={!canApproveOrReject || isProcessing}
+					className={cn(
+						!canApproveOrReject && "opacity-40 cursor-not-allowed"
+					)}
 					startContent={
 						processingAction === "approve" ? (
 							<Loader2 className="w-4 h-4 animate-spin" />
@@ -97,9 +100,12 @@ export function BulkActionBar({
 				<Button
 					size="sm"
 					color="warning"
-					variant="flat"
+					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
 					onPress={onReject}
 					isDisabled={!canApproveOrReject || isProcessing}
+					className={cn(
+						!canApproveOrReject && "opacity-40 cursor-not-allowed"
+					)}
 					startContent={
 						processingAction === "reject" ? (
 							<Loader2 className="w-4 h-4 animate-spin" />
@@ -115,7 +121,7 @@ export function BulkActionBar({
 				<Button
 					size="sm"
 					color="danger"
-					variant="flat"
+					variant="solid"
 					onPress={onDelete}
 					isDisabled={isProcessing}
 					startContent={
