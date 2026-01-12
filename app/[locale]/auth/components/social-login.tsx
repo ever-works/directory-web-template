@@ -26,7 +26,7 @@ export function SocialLogin() {
   const t = useTranslations("common");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const redirectUrl = searchParams.get("redirect") || "/client/dashboard";
+  const redirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl") || "/client/dashboard";
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};

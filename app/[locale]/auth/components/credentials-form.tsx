@@ -28,7 +28,7 @@ export function CredentialsForm({
   const tCred = useTranslations("admin.CREDENTIALS_FORM");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect");
+  const redirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};
@@ -76,7 +76,7 @@ export function CredentialsForm({
       if (onSuccess) {
         onSuccess();
       } else {
-        const redirectPath = state.redirect || redirect || "/client/dashboard";
+        const redirectPath = redirect || state.redirect || "/client/dashboard";
         // Handle locale preservation for redirects
         const finalRedirectPath = state.preserveLocale && locale !== 'en'
           ? `/${locale}${redirectPath}`
@@ -160,7 +160,7 @@ export function CredentialsForm({
       if (res && !res.error) {
         setClientSuccess(true);
         setTimeout(() => {
-          const redirectPath = clientMode ? "/admin" : "/client/dashboard";
+          const redirectPath = redirect || (clientMode ? "/admin" : "/client/dashboard");
           // Handle locale preservation for client-side redirects
           const finalRedirectPath = locale !== 'en' 
             ? `/${locale}${redirectPath}` 
