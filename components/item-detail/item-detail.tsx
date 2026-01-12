@@ -70,7 +70,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	});
 
 	return (
-		<div className="min-h-screen  relative overflow-hidden">
+		<div className="min-h-screen relative overflow-hidden">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
@@ -79,7 +79,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
 				<div className="flex flex-col lg:flex-row gap-8">
 					{/* Left column */}
-					<div className="flex-1 lg:w-2/3">
+					<div className="lg:w-2/3">
 						{/* Video Showcase */}
 						<div className="mb-8">
 							<div className="mb-8 transform transition-all duration-500 hover:scale-[1.01]">
@@ -204,7 +204,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 					</div>
 
 					{/* Right column */}
-					<div className="lg:w-96 space-y-6">
+					<div className="lg:w-1/3 space-y-6">
 						<div className="bg-white/95 dark:bg-gray-900/95 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
 							<div className="flex items-center gap-4 mb-6">
 								<div className="p-3 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
