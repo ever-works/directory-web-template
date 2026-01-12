@@ -63,9 +63,7 @@ export function Modal({
 		}
 
 		return () => {
-			if (!isOpen) {
-				document.body.style.overflow = 'unset';
-			}
+			document.body.style.overflow = 'unset';
 		};
 	}, [isOpen, animationDuration]);
 
