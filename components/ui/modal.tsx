@@ -48,24 +48,24 @@ export function Modal({
 	useEffect(() => {
 		if (isOpen) {
 			setIsRendered(true);
-			// Small delay to trigger animation
+			// Small delay to trigger animation after render
 			requestAnimationFrame(() => {
-				requestAnimationFrame(() => {
-					setIsAnimating(true);
-				});
+				setIsAnimating(true);
 			});
 			document.body.style.overflow = 'hidden';
 		} else {
 			setIsAnimating(false);
 			const timer = setTimeout(() => {
 				setIsRendered(false);
+				document.body.style.overflow = 'unset';
 			}, animationDuration);
-			document.body.style.overflow = 'unset';
 			return () => clearTimeout(timer);
 		}
 
 		return () => {
-			document.body.style.overflow = 'unset';
+			if (!isOpen) {
+				document.body.style.overflow = 'unset';
+			}
 		};
 	}, [isOpen, animationDuration]);
 
@@ -121,13 +121,14 @@ export function Modal({
 			className={cn(
 				'fixed inset-0 z-50 flex items-center justify-center p-4',
 				backdropClasses[backdrop],
-				'transition-opacity duration-200',
+				'transition-opacity',
 				isAnimating ? 'opacity-100' : 'opacity-0'
 			)}
+			style={{ transitionDuration: `${animationDuration}ms` }}
 			onClick={handleBackdropClick}
 			role="dialog"
 			aria-modal="true"
-			aria-labelledby={title ? 'modal-title' : undefined}
+			aria-labelledby={!customHeader && title ? 'modal-title' : undefined}
 		>
 			<div
 				className={cn(
@@ -137,10 +138,11 @@ export function Modal({
 					'rounded-2xl shadow-2xl',
 					'border border-gray-200/50 dark:border-gray-700/50',
 					'overflow-hidden',
-					'transform transition-all duration-200',
+					'transform transition-all',
 					isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4',
 					className
 				)}
+				style={{ transitionDuration: `${animationDuration}ms` }}
 				onClick={(e) => e.stopPropagation()}
 			>
 				{/* Custom header or default header */}
