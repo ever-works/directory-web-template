@@ -2132,6 +2132,7 @@
 			"REJECT": "Từ chối",
 			"REJECTING": "Đang từ chối...",
 			"EDIT": "Chỉnh sửa",
+			"DUPLICATE": "Nhân bản",
 			"DELETE": "Xóa",
 			"DELETING": "Đang xóa...",
 			"MORE_TAGS": "+{count} thêm",

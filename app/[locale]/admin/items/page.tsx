@@ -204,6 +204,39 @@ export default function AdminItemsPage() {
     setIsModalOpen(true);
   };
 
+  // Helper function to generate slug from name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  };
+
+  const openDuplicateModal = (item: ItemData) => {
+    const duplicatedName = `${item.name} (Copy)`;
+    const duplicateItem: ItemData = {
+      ...item,
+      id: '', // Clear ID - user must enter new unique ID
+      name: duplicatedName,
+      slug: generateSlug(duplicatedName),
+      status: 'draft', // Reset to draft
+      featured: false, // Reset featured flag
+      // Clear submission/review metadata
+      submitted_by: undefined,
+      submitted_at: undefined,
+      reviewed_by: undefined,
+      reviewed_at: undefined,
+      review_notes: undefined,
+      deleted_at: undefined,
+    };
+
+    setFormMode('create');
+    setSelectedItem(duplicateItem);
+    setIsModalOpen(true);
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(undefined);
@@ -691,6 +724,7 @@ export default function AdminItemsPage() {
                           item={item}
                           onViewSource={() => handleOpenExternal(item.source_url)}
                           onEdit={() => openEditModal(item)}
+                          onDuplicate={() => openDuplicateModal(item)}
                           onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
                           onApprove={() => handleApproveItem(item.id)}
                           onReject={() => openRejectModal(item)}

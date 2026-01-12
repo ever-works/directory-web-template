@@ -2036,6 +2036,7 @@
 			"REJECT": "דחה",
 			"REJECTING": "דוחה...",
 			"EDIT": "ערוך",
+			"DUPLICATE": "שכפול",
 			"DELETE": "מחק",
 			"DELETING": "מוחק...",
 			"MORE_TAGS": "+{count} נוספים",

@@ -2133,6 +2133,7 @@
 			"REJECT": "Rejeter",
 			"REJECTING": "Rejet...",
 			"EDIT": "Modifier",
+			"DUPLICATE": "Dupliquer",
 			"DELETE": "Supprimer",
 			"DELETING": "Suppression...",
 			"MORE_TAGS": "+{count} autres",

@@ -2132,6 +2132,7 @@
 			"REJECT": "Tolak",
 			"REJECTING": "Menolak...",
 			"EDIT": "Edit",
+			"DUPLICATE": "Duplikat",
 			"DELETE": "Hapus",
 			"DELETING": "Menghapus...",
 			"MORE_TAGS": "+{count} lagi",

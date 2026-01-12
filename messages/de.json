@@ -2075,6 +2075,7 @@
 			"REJECT": "Ablehnen",
 			"REJECTING": "Lehne ab...",
 			"EDIT": "Bearbeiten",
+			"DUPLICATE": "Duplizieren",
 			"DELETE": "Löschen",
 			"DELETING": "Lösche...",
 			"MORE_TAGS": "+{count} weitere",
