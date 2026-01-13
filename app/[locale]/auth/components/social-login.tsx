@@ -49,9 +49,10 @@ export function SocialLogin() {
 
   useEffect(() => {
     if (state.success) {
-      // Handle locale preservation for social login redirects
-      const finalRedirectUrl = locale !== 'en' 
-        ? `/${locale}${redirectUrl}` 
+      // Handle locale preservation for social login redirects (avoid double prefix if path already has locale)
+      const shouldPrefixLocale = locale !== 'en' && !redirectUrl.startsWith(`/${locale}`);
+      const finalRedirectUrl = shouldPrefixLocale
+        ? `/${locale}${redirectUrl}`
         : redirectUrl;
       router.push(finalRedirectUrl);
       router.refresh();
