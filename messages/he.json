@@ -2622,7 +2622,9 @@
 			"PROFILE_NOT_FOUND": "פרופיל החשבון לא נמצא. אנא פנה לתמיכה.",
 			"GENERIC_ERROR_MESSAGE": "אירעה שגיאה. אנא נסה שוב.",
 			"RATE_LIMITED": "יותר מדי ניסיונות. אנא המתן מספר דקות לפני שתנסה שוב.",
-			"USE_OAUTH_PROVIDER": "חשבון זה משתמש בהתחברות חברתית. אנא התחבר באמצעות Google או GitHub."
+			"USE_OAUTH_PROVIDER": "חשבון זה משתמש בהתחברות חברתית. אנא התחבר באמצעות Google או GitHub.",
+			"SESSION_REFRESH_FAILED": "לא ניתן לרענן את הסשן. אנא נסה שוב.",
+			"PAGE_REFRESH_FAILED": "לא ניתן לרענן את הדף. אנא נסה שוב."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "שכחת סיסמה?",

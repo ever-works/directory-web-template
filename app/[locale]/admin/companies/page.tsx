@@ -155,6 +155,7 @@ export default function CompaniesPage() {
 
 	const handlePageChange = useCallback((page: number) => {
 		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
 
 	// Loading state - only show skeleton on initial page load
