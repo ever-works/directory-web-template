@@ -1,16 +1,18 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@heroui/react";
+import { Spinner, Checkbox } from "@heroui/react";
 import { MultiStepItemForm } from "@/components/admin/items/multi-step-item-form";
 import { ItemFilters } from "@/components/admin/items/item-filters";
 import { ActiveItemFilters } from "@/components/admin/items/active-item-filters";
 import { ItemRejectModal } from "@/components/admin/items/item-reject-modal";
 import { ItemHistoryModal } from "@/components/admin/items/item-history-modal";
+import { BulkActionBar } from "@/components/admin/items/bulk-action-bar";
+import { BulkConfirmDialog } from "@/components/admin/items/bulk-confirm-dialog";
 import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/item-list-sorting";
 import { ItemActionsMenu } from "@/components/admin/items/item-actions-menu";
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITEM_STATUS_COLORS } from "@/lib/types/item";
@@ -75,10 +77,15 @@ export default function AdminItemsPage() {
     isRejecting,
     isDeleting,
     pendingItemId,
+    isBulkProcessing,
+    bulkActionType,
     createItem,
     updateItem,
     deleteItem,
     reviewItem,
+    bulkApprove,
+    bulkReject,
+    bulkDelete,
   } = useAdminItems({
     page: currentPage,
     limit: PageSize,
@@ -138,6 +145,75 @@ export default function AdminItemsPage() {
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
   const [selectedItemForHistory, setSelectedItemForHistory] = useState<ItemData | null>(null);
 
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | 'delete' | null>(null);
+
+  // Clear selection when page changes
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [currentPage]);
+
+  // Selection handlers
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === items.length) {
+        return new Set();
+      }
+      return new Set(items.map((item) => item.id));
+    });
+  }, [items]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // Calculate selection states for "Select All" checkbox
+  const isAllSelected = items.length > 0 && selectedIds.size === items.length;
+  const isPartiallySelected = selectedIds.size > 0 && selectedIds.size < items.length;
+  const pendingSelectedCount = items.filter(
+    (item) => selectedIds.has(item.id) && item.status === 'pending'
+  ).length;
+
+  // Bulk action handlers
+  const handleBulkApprove = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkApprove(ids);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkApprove, clearSelection]);
+
+  const handleBulkReject = useCallback(async (reason: string) => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkReject(ids, reason);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkReject, clearSelection]);
+
+  const handleBulkDelete = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkDelete(ids);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkDelete, clearSelection]);
 
   const handleCreateItem = async (data: CreateItemRequest) => {
     const success = await createItem(data);
@@ -536,9 +612,21 @@ export default function AdminItemsPage() {
           {/* Table Header with Integrated Filters and Sorting */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center justify-between gap-4 flex-wrap">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {t('ITEMS_TABLE_TITLE', { count: totalItems })}
-              </h3>
+              <div className="flex items-center gap-4">
+                {/* Select All Checkbox */}
+                {items.length > 0 && (
+                  <Checkbox
+                    isSelected={isAllSelected}
+                    isIndeterminate={isPartiallySelected}
+                    onValueChange={toggleSelectAll}
+                    aria-label={t('SELECT_ALL')}
+                    color="primary"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t('ITEMS_TABLE_TITLE', { count: totalItems })}
+                </h3>
+              </div>
               <div className="flex items-center gap-3">
                 <ItemFilters
                   statusFilter={statusFilter}
@@ -601,11 +689,17 @@ export default function AdminItemsPage() {
               const statusColors = getStatusColor(item.status);
               const categories = Array.isArray(item.category) ? item.category : [item.category];
               const isProcessingThisItem = pendingItemId === item.id && (isApproving || isRejecting || isDeleting);
+              const isSelected = selectedIds.has(item.id);
 
               return (
                 <div
                   key={item.id}
-                  className="group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  className={cn(
+                    "group relative rounded-xl border transition-all duration-300 overflow-hidden",
+                    isSelected
+                      ? "bg-theme-primary/5 dark:bg-theme-primary/10 border-theme-primary/30"
+                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg"
+                  )}
                 >
                   {/* Loading overlay */}
                   {isProcessingThisItem && (
@@ -621,6 +715,16 @@ export default function AdminItemsPage() {
 
                   <div className="p-6">
                     <div className="flex items-start justify-between">
+                      {/* Checkbox for selection */}
+                      <div className="shrink-0 mr-4 pt-1">
+                        <Checkbox
+                          isSelected={isSelected}
+                          onValueChange={() => toggleSelection(item.id)}
+                          aria-label={t('SELECT_ITEM', { name: item.name })}
+                          color="primary"
+                        />
+                      </div>
+
                       {/* Left Section: Item Info */}
                       <div className="flex-1 space-y-3">
                         <div className="flex items-start space-x-3">
@@ -820,6 +924,37 @@ export default function AdminItemsPage() {
           onClose={closeHistoryModal}
         />
       )}
+
+      {/* Bulk Action Bar */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        items={items}
+        onApprove={() => setBulkAction('approve')}
+        onReject={() => setBulkAction('reject')}
+        onDelete={() => setBulkAction('delete')}
+        onClear={clearSelection}
+        isProcessing={isBulkProcessing}
+        processingAction={bulkActionType}
+      />
+
+      {/* Bulk Confirm Dialog */}
+      <BulkConfirmDialog
+        isOpen={bulkAction !== null}
+        action={bulkAction}
+        selectedCount={selectedIds.size}
+        pendingCount={pendingSelectedCount}
+        isProcessing={isBulkProcessing}
+        onConfirm={(reason) => {
+          if (bulkAction === 'approve') {
+            handleBulkApprove();
+          } else if (bulkAction === 'reject' && reason) {
+            handleBulkReject(reason);
+          } else if (bulkAction === 'delete') {
+            handleBulkDelete();
+          }
+        }}
+        onClose={() => setBulkAction(null)}
+      />
     </div>
   );
 } 
