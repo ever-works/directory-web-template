@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState } from 'react';
 import { Spinner } from '@heroui/react';
 import * as Select from '@radix-ui/react-select';
@@ -372,6 +374,13 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 	useEffect(() => {
 		setPage(1);
 	}, [actionFilter]);
+
+	// Reset state when opening for a new item
+	useEffect(() => {
+		if (!isOpen) return;
+		setPage(1);
+		setActionFilter(null);
+	}, [isOpen, itemId]);
 
 	// Handle Escape key to close modal
 	useEffect(() => {
