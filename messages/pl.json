@@ -807,7 +807,7 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "Dokończ płatność"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",

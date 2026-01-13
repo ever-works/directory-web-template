@@ -886,7 +886,7 @@
 			"failed": "Ödeme başarısız",
 			"pending": "Ödeme bekleniyor"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "Ödemeyi Tamamla"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Profesyonel Dizin Platformu Oluşturucu",

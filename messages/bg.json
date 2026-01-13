@@ -886,7 +886,7 @@
 			"failed": "Плащането е неуспешно",
 			"pending": "Плащането е в процес на обработка"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "Завършване на плащането"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Създателят на професионални директорни платформи",

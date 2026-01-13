@@ -886,7 +886,7 @@
 			"failed": "Pembayaran gagal",
 			"pending": "Pembayaran tertunda"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "Selesaikan Pembayaran"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Pembangun Platform Direktori Profesional",

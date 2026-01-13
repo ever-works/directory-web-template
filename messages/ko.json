@@ -886,7 +886,7 @@
 			"failed": "결제 실패",
 			"pending": "결제 보류 중"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "결제 완료"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "프로페셔널 디렉토리 플랫폼 빌더",
