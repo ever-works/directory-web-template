@@ -807,7 +807,8 @@
 			"success": "Paiement réussi",
 			"failed": "Paiement échoué",
 			"pending": "Paiement en attente"
-		}
+		},
+		"COMPLETE_PAYMENT": "Finaliser le paiement"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Maintenant disponible sur GitHub",
