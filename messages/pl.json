@@ -2043,6 +2043,7 @@
 			"REJECTING": "Odrzucanie...",
 			"EDIT": "Edytuj",
 			"DUPLICATE": "Duplikuj",
+			"DUPLICATING": "Duplikowanie...",
 			"DELETE": "Usuń",
 			"DELETING": "Usuwanie...",
 			"MORE_TAGS": "+{count} więcej",

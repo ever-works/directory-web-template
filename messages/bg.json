@@ -2133,6 +2133,7 @@
 			"REJECTING": "Отхвърляне...",
 			"EDIT": "Редактирай",
 			"DUPLICATE": "Дублиране",
+			"DUPLICATING": "Дублиране...",
 			"DELETE": "Изтрий",
 			"DELETING": "Изтриване...",
 			"MORE_TAGS": "+ още {count}",

@@ -134,6 +134,10 @@ export default function AdminItemsPage() {
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
+  // Duplicate state
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicatingItemId, setDuplicatingItemId] = useState<string | null>(null);
+
 
   const handleCreateItem = async (data: CreateItemRequest) => {
     const success = await createItem(data);
@@ -215,23 +219,34 @@ export default function AdminItemsPage() {
   };
 
   const handleDuplicateItem = async (item: ItemData) => {
-    const duplicatedName = `${item.name} (Copy)`;
-    const newId = crypto.randomUUID();
+    // Prevent multiple clicks while duplicating
+    if (isDuplicating && duplicatingItemId === item.id) return;
 
-    const duplicateData: CreateItemRequest = {
-      id: newId,
-      name: duplicatedName,
-      slug: generateSlug(duplicatedName),
-      description: item.description,
-      source_url: item.source_url,
-      icon_url: item.icon_url,
-      category: item.category,
-      tags: item.tags,
-      status: 'draft',
-      featured: false,
-    };
+    setIsDuplicating(true);
+    setDuplicatingItemId(item.id);
 
-    await createItem(duplicateData);
+    try {
+      const duplicatedName = `${item.name} (Copy)`;
+      const newId = crypto.randomUUID();
+
+      const duplicateData: CreateItemRequest = {
+        id: newId,
+        name: duplicatedName,
+        slug: generateSlug(duplicatedName),
+        description: item.description,
+        source_url: item.source_url,
+        icon_url: item.icon_url,
+        category: item.category,
+        tags: item.tags,
+        status: 'draft',
+        featured: false,
+      };
+
+      await createItem(duplicateData);
+    } finally {
+      setIsDuplicating(false);
+      setDuplicatingItemId(null);
+    }
   };
 
   const closeModal = () => {
@@ -621,7 +636,8 @@ export default function AdminItemsPage() {
             {items.map((item) => {
               const statusColors = getStatusColor(item.status);
               const categories = Array.isArray(item.category) ? item.category : [item.category];
-              const isProcessingThisItem = pendingItemId === item.id && (isApproving || isRejecting || isDeleting);
+              const isDuplicatingThisItem = isDuplicating && duplicatingItemId === item.id;
+              const isProcessingThisItem = (pendingItemId === item.id && (isApproving || isRejecting || isDeleting)) || isDuplicatingThisItem;
 
               return (
                 <div
@@ -634,7 +650,7 @@ export default function AdminItemsPage() {
                       <div className="flex flex-col items-center gap-2">
                         <Spinner size="lg" color="primary" />
                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : t('DELETING')}
+                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : isDuplicatingThisItem ? t('DUPLICATING') : t('DELETING')}
                         </span>
                       </div>
                     </div>
@@ -730,6 +746,7 @@ export default function AdminItemsPage() {
                           isApproving={isApproving && pendingItemId === item.id}
                           isRejecting={isRejecting && pendingItemId === item.id}
                           isDeleting={isDeleting && pendingItemId === item.id}
+                          isDuplicating={isDuplicatingThisItem}
                         />
                       </div>
                     </div>

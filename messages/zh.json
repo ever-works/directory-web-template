@@ -2075,6 +2075,7 @@
 			"REJECTING": "拒绝中...",
 			"EDIT": "编辑",
 			"DUPLICATE": "复制",
+			"DUPLICATING": "复制中...",
 			"DELETE": "删除",
 			"DELETING": "删除中...",
 			"MORE_TAGS": "+{count} 更多",

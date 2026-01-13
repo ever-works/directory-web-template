@@ -2132,6 +2132,7 @@
 			"REJECTING": "Отклонение...",
 			"EDIT": "Редактировать",
 			"DUPLICATE": "Дублировать",
+			"DUPLICATING": "Дублирование...",
 			"DELETE": "Удалить",
 			"DELETING": "Удаление...",
 			"MORE_TAGS": "+{count} еще",

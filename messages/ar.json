@@ -2063,6 +2063,7 @@
 			"REJECTING": "جاري الرفض...",
 			"EDIT": "تعديل",
 			"DUPLICATE": "تكرار",
+			"DUPLICATING": "جاري التكرار...",
 			"DELETE": "حذف",
 			"DELETING": "جاري الحذف...",
 			"MORE_TAGS": "+{count} أخرى",

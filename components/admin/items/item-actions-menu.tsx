@@ -19,6 +19,7 @@ interface ItemActionsMenuProps {
   isApproving?: boolean;
   isRejecting?: boolean;
   isDeleting?: boolean;
+  isDuplicating?: boolean;
 }
 
 export function ItemActionsMenu({
@@ -34,6 +35,7 @@ export function ItemActionsMenu({
   isApproving = false,
   isRejecting = false,
   isDeleting = false,
+  isDuplicating = false,
 }: ItemActionsMenuProps) {
   const t = useTranslations("admin.ADMIN_ITEMS_PAGE");
   const tSurvey = useTranslations("survey");
@@ -130,8 +132,12 @@ export function ItemActionsMenu({
             onSelect={onDuplicate}
             disabled={isProcessing}
           >
-            <Copy className="w-4 h-4" />
-            {t("DUPLICATE")}
+            {isDuplicating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+            {isDuplicating ? t("DUPLICATING") : t("DUPLICATE")}
           </DropdownMenu.Item>
 
           {/* Create Survey */}

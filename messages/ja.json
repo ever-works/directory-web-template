@@ -2043,6 +2043,7 @@
 			"REJECTING": "却下中...",
 			"EDIT": "編集",
 			"DUPLICATE": "複製",
+			"DUPLICATING": "複製中...",
 			"DELETE": "削除",
 			"DELETING": "削除中...",
 			"MORE_TAGS": "+{count} 件",

@@ -2043,6 +2043,7 @@
 			"REJECTING": "กำลังปฏิเสธ...",
 			"EDIT": "แก้ไข",
 			"DUPLICATE": "ทำซ้ำ",
+			"DUPLICATING": "กำลังทำซ้ำ...",
 			"DELETE": "ลบ",
 			"DELETING": "กำลังลบ...",
 			"MORE_TAGS": "+{count} เพิ่มเติม",

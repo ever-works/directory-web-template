@@ -2076,6 +2076,7 @@
 			"REJECTING": "Lehne ab...",
 			"EDIT": "Bearbeiten",
 			"DUPLICATE": "Duplizieren",
+			"DUPLICATING": "Dupliziere...",
 			"DELETE": "Löschen",
 			"DELETING": "Lösche...",
 			"MORE_TAGS": "+{count} weitere",

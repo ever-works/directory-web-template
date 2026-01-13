@@ -2133,6 +2133,7 @@
 			"REJECTING": "거부 중...",
 			"EDIT": "편집",
 			"DUPLICATE": "복제",
+			"DUPLICATING": "복제 중...",
 			"DELETE": "삭제",
 			"DELETING": "삭제 중...",
 			"MORE_TAGS": "+{count}개 더",
