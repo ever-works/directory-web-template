@@ -65,6 +65,7 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
             totalCount={props.items.length}
             filteredCount={props.filteredAndSortedItems.length}
             searchEnabled={props.searchEnabled}
+            isSticky={isSticky}
           />
         </div>
         <ListingClient
