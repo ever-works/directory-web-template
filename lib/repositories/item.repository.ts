@@ -2,6 +2,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest, ItemList
 import { createItemGitService, ItemGitServiceConfig, ItemGitService } from '@/lib/services/item-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
+import { itemAuditService, type AuditUser } from '@/lib/services/item-audit.service';
 
 export class ItemRepository {
   private gitService: ItemGitService | null = null;
@@ -115,18 +116,33 @@ export class ItemRepository {
     return await gitService.readItemsBySlugs(slugs, includeDeleted);
   }
 
-  async create(data: CreateItemRequest): Promise<ItemData> {
+  async create(data: CreateItemRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateCreateData(data);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.createItem(data);
+    const item = await gitService.createItem(data);
+
+    // Log creation to audit trail
+    await itemAuditService.logCreation(item, auditUser);
+
+    return item;
   }
 
-  async update(id: string, data: UpdateItemRequest): Promise<ItemData> {
+  async update(id: string, data: UpdateItemRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateUpdateData(id, data);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.updateItem(id, data);
+
+    // Get previous state for change detection
+    const previousItem = await gitService.findItemById(id, true);
+    const updatedItem = await gitService.updateItem(id, data);
+
+    // Log update to audit trail (only if previous state was found)
+    if (previousItem) {
+      await itemAuditService.logUpdate(previousItem, updatedItem, auditUser);
+    }
+
+    return updatedItem;
   }
 
   async batchUpdate(updates: Array<{ id: string; data: UpdateItemRequest }>): Promise<ItemData[]> {
@@ -148,26 +164,55 @@ export class ItemRepository {
     return results;
   }
 
-  async review(id: string, reviewData: ReviewRequest): Promise<ItemData> {
+  async review(id: string, reviewData: ReviewRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateReviewData(reviewData);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.reviewItem(id, reviewData);
+
+    // Get previous status for audit log
+    const previousItem = await gitService.findItemById(id, true);
+    const previousStatus = previousItem?.status ?? 'unknown';
+
+    const item = await gitService.reviewItem(id, reviewData);
+
+    // Log review to audit trail
+    await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
+
+    return item;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, auditUser?: AuditUser): Promise<void> {
     const gitService = await this.getGitService();
+
+    // Get item info before deletion for audit log
+    const item = await gitService.findItemById(id, true);
+
     await gitService.deleteItem(id);
+
+    // Log hard deletion to audit trail
+    if (item) {
+      await itemAuditService.logDeletion(item, auditUser, false);
+    }
   }
 
-  async softDelete(id: string): Promise<ItemData> {
+  async softDelete(id: string, auditUser?: AuditUser): Promise<ItemData> {
     const gitService = await this.getGitService();
-    return await gitService.softDeleteItem(id);
+    const item = await gitService.softDeleteItem(id);
+
+    // Log soft deletion to audit trail
+    await itemAuditService.logDeletion(item, auditUser, true);
+
+    return item;
   }
 
-  async restore(id: string): Promise<ItemData> {
+  async restore(id: string, auditUser?: AuditUser): Promise<ItemData> {
     const gitService = await this.getGitService();
-    return await gitService.restoreItem(id);
+    const item = await gitService.restoreItem(id);
+
+    // Log restoration to audit trail
+    await itemAuditService.logRestoration(item, auditUser);
+
+    return item;
   }
 
   async checkDuplicateId(id: string): Promise<boolean> {

@@ -460,7 +460,6 @@
 		"REGISTER": "Регистрация",
 		"ADMIN": "Админ"
 	},
-
 	"settings": {
 		"PROFILE": "Вашият профил",
 		"PAYMENT": "Плащане",
@@ -2178,7 +2177,8 @@
 			"NO_CATEGORIES_AVAILABLE": "Няма налични категории",
 			"NO_TAGS_AVAILABLE": "Няма налични тагове",
 			"REMOVE_FILTER": "Премахни филтър {name}",
-			"CLEAR_ALL_FILTERS": "Изчисти всички"
+			"CLEAR_ALL_FILTERS": "Изчисти всички",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Управление на потребители",
@@ -2860,6 +2860,29 @@
 			"RETRY": "Опитайте отново",
 			"LOADING": "Зареждане...",
 			"REACHED_THE_END": "Стигнахте до края"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Одобрено",
+			"ACTION_REJECTED": "Отхвърлено",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "от {name}",
+			"WAS_STATUS": "беше {status}",
+			"REASON_LABEL": "Причина:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
@@ -2934,7 +2957,6 @@
 			"EDIT_STATUS_WARNING": "Редактирането на одобрени елементи изисква повторно одобрение",
 			"SUCCESS_UPDATED": "Подаденият материал е актуализиран успешно",
 			"SUCCESS_DELETED": "Подаденият материал е изтрит и преместен в кошчето",
-
 			"TRASH_TITLE": "Кошче",
 			"TRASH_DESCRIPTION": "Елементи, които сте изтрили. Можете да ги възстановите по всяко време.",
 			"TRASH_EMPTY": "Вашето кошче е празно",
@@ -2947,12 +2969,10 @@
 			"BACK_TO_SUBMISSIONS": "Обратно към Подадени материали",
 			"UNKNOWN_DATE": "Неизвестна дата",
 			"INVALID_DATE": "Невалидна дата",
-
 			"STATUS_APPROVED": "Одобрен",
 			"STATUS_PENDING": "Чакащ преглед",
 			"STATUS_REJECTED": "Отхвърлен",
 			"STATUS_DRAFT": "Чернова",
-
 			"NA": "Н/П",
 			"VIEWS": "Прегледи",
 			"LIKES": "Харесвания",
@@ -2965,7 +2985,6 @@
 			"MORE_TAGS": "+ още {count}",
 			"VIEWS_COUNT": "{count} прегледа",
 			"LIKES_COUNT": "{count} харесвания",
-
 			"CANCEL": "Отказ",
 			"CLOSE": "Затвори",
 			"EDIT": "Редактирай",
@@ -2976,28 +2995,22 @@
 			"VIEW_SUBMISSION": "Вижте подадения материал",
 			"EDIT_SUBMISSION": "Редактирайте подадения материал",
 			"DELETE_SUBMISSION": "Изтрийте подадения материал",
-
 			"TOTAL_SUBMISSIONS": "Общо подадени материали",
 			"APPROVED": "Одобрени",
 			"PENDING": "Чакащи",
 			"REJECTED": "Отхвърлени",
 			"DRAFTS": "Чернови",
-
 			"SEARCH_PLACEHOLDER": "Търсене по заглавие или описание...",
 			"SEARCH_PLACEHOLDER_SHORT": "Търсене...",
-
 			"NO_SUBMISSIONS_TITLE": "Все още няма подадени материали",
 			"NO_SUBMISSIONS_DESC": "Започнете изграждането на вашето портфолио, като подадете първия си проект. Споделете вашата работа с общността и получете обратна връзка от други разработчици.",
 			"SUBMIT_FIRST_PROJECT": "Подайте първия си проект",
-
 			"SHOWING_RESULTS": "Показване на {start}-{end} от {total} подадени материали",
 			"PAGE_INFO": "Страница {page} от {totalPages}",
-
 			"SUBMISSION_DETAILS": "Детайли на подадения материал",
 			"VIEW_SUBMISSION_INFO": "Вижте информацията за вашия подаден материал",
 			"DESCRIPTION": "Описание",
 			"REJECTION_REASON": "Причина за отхвърляне",
-
 			"EDIT_SUBMISSION_TITLE": "Редактиране на подаден материал",
 			"UPDATE_DETAILS": "Актуализирайте детайлите на вашия подаден материал",
 			"RE_REVIEW_REQUIRED": "Изисква се повторен преглед",
@@ -3009,12 +3022,10 @@
 			"URL_LABEL": "Уебсайт / Изходен URL",
 			"URL_PLACEHOLDER": "https://example.com",
 			"TAGS_CANNOT_EDIT": "Етикетите не могат да се редактират в момента.",
-
 			"DELETE_SUBMISSION_TITLE": "Изтриване на подаден материал",
 			"DELETE_UNDONE_LATER": "Това действие може да бъде отменено по-късно",
 			"SOFT_DELETE": "Меко изтриване",
 			"SOFT_DELETE_DESC": "Вашият подаден материал ще бъде скрит от публичен изглед, но не и изтрит за постоянно. Можете да го възстановите по всяко време от вашето Кошче.",
-
 			"BACK_TO_SETTINGS": "Обратно към Настройки",
 			"SUBMISSIONS_MANAGEMENT": "Управление на подадени материали",
 			"SUBMISSIONS_MANAGEMENT_DESC": "Проследявайте и управлявайте вашите подадени материали към директорията.",
@@ -3039,12 +3050,10 @@
 			"PAGE_DESCRIPTION": "Проследявайте и управлявайте вашите подадени материали за спонсорски реклами.",
 			"YOUR_SPONSORSHIPS": "Вашите спонсорства",
 			"NEW_SPONSORSHIP": "Ново спонсорство",
-
 			"TOTAL_SPONSORSHIPS": "Общо",
 			"ACTIVE": "Активни",
 			"PENDING": "Чакащи",
 			"EXPIRED": "Изтекли",
-
 			"STATUS_ALL": "Всички",
 			"STATUS_ACTIVE": "Активен",
 			"STATUS_PENDING": "Чакащ",
@@ -3053,24 +3062,19 @@
 			"STATUS_PENDING_PAYMENT": "Очаква плащане",
 			"STATUS_PENDING_REVIEW": "В процес на преглед",
 			"STATUS_REJECTED": "Отхвърлен",
-
 			"INTERVAL_ALL": "Всички типове",
 			"INTERVAL_WEEKLY": "Седмично",
 			"INTERVAL_MONTHLY": "Месечно",
-
 			"SEARCH_PLACEHOLDER": "Търсене по име на елемент...",
 			"EMPTY_STATE_TITLE": "Все още няма спонсорства",
 			"EMPTY_STATE_DESC": "Увеличете видимостта на вашия проект, като създадете спонсорство. Препоръчаните елементи получават изпъкнало позициониране в директорията.",
 			"CREATE_FIRST_SPONSORSHIP": "Създайте първото си спонсорство",
-
 			"SHOWING_PAGE": "Страница {page} от {totalPages}",
 			"PREVIOUS": "Предишна",
 			"NEXT": "Следваща",
-
 			"REJECTION_REASON": "Причина",
 			"CANCEL_REASON": "Причина за отмяна",
 			"SPONSORSHIP": "спонсорство",
-
 			"VIEW_DETAILS": "Вижте детайли",
 			"MODAL_TITLE": "Детайли на спонсорството",
 			"ITEM_INFORMATION": "Информация за елемента",
@@ -3086,25 +3090,21 @@
 			"CLOSE": "Затвори",
 			"LOAD_ERROR": "Неуспешно зареждане на детайли на спонсорството",
 			"RETRY": "Опитайте отново",
-
 			"PAY_NOW": "Плати сега",
 			"RENEW": "Подновете",
 			"CANCEL": "Отмени",
 			"OPTIONAL": "по избор",
-
 			"CANCEL_SPONSORSHIP": "Отмени спонсорството",
 			"RENEW_SPONSORSHIP": "Подновете спонсорството",
 			"CONFIRM_CANCEL_MESSAGE": "Сигурни ли сте, че искате да отмените това спонсорство? Това действие не може да бъде отменено.",
 			"CONFIRM_CANCEL": "Да, Отмени",
 			"CANCEL_NO": "Не, Запази го",
 			"CANCEL_SUCCESS": "Спонсорството е отменено успешно",
-
 			"CANCEL_DIALOG_TITLE": "Отмяна на спонсорството",
 			"CANCEL_DIALOG_WARNING": "Това действие не може да бъде отменено. Вашето спонсорство ще бъде отменено незабавно и ще загубите оставащото време.",
 			"CANCEL_REASON_LABEL": "Причина за отмяна",
 			"CANCEL_REASON_PLACEHOLDER": "Кажете ни защо отменяте (по избор)...",
 			"KEEP_SPONSORSHIP": "Запази спонсорството",
-
 			"RENEW_DIALOG_TITLE": "Подновяване на спонсорството",
 			"RENEW_DIALOG_DESCRIPTION": "Удължете вашето спонсорство, за да продължите да препоръчвате вашия елемент изпъкнато в директорията.",
 			"RENEWAL_PRICE": "Цена за подновяване",
@@ -3118,7 +3118,6 @@
 			"WELCOME_BACK": "Добре дошли отново, {name}! Ето прегледа на вашата активност.",
 			"REFRESH": "Опресни",
 			"FAILED_TO_LOAD": "Неуспешно зареждане на статистики за таблото",
-
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Общо подадени материали",
 				"CONTENT_CREATED": "Съдържание, което сте създали",
@@ -3129,7 +3128,6 @@
 				"COMMENTS_RECEIVED": "Получени коментари",
 				"COMMENTS_ON_CONTENT": "Коментари за вашето съдържание"
 			},
-
 			"PERIOD_COMPARISON": {
 				"TITLE": "Седмична производителност",
 				"THIS_WEEK": "Тази седмица",
@@ -3142,7 +3140,6 @@
 				"NO_DATA": "Няма налични данни",
 				"NO_DATA_DESC": "Започнете да създавате съдържание, за да видите вашата седмична производителност."
 			},
-
 			"CATEGORY_PERFORMANCE": {
 				"TITLE": "Производителност по категории",
 				"SUBTITLE": "Най-добри категории по средна ангажираност",
@@ -3153,7 +3150,6 @@
 				"NO_DATA": "Няма данни за категории",
 				"NO_DATA_DESC": "Подавайте елементи, за да видите метрики за производителност по категории."
 			},
-
 			"APPROVAL_TREND": {
 				"TITLE": "Тенденция на процента на одобрение",
 				"SUBTITLE": "Месечен процент на успешно одобрение",
@@ -3163,7 +3159,6 @@
 				"NO_DATA": "Няма данни за одобрение",
 				"NO_DATA_DESC": "Подавайте елементи, за да проследявате процента на одобрение във времето."
 			},
-
 			"ENGAGEMENT_RATE": {
 				"TITLE": "Коефициент на ангажираност",
 				"SUBTITLE": "Ангажираност на подаден материал във времето",
@@ -3171,7 +3166,6 @@
 				"NO_DATA": "Няма данни за ангажираност",
 				"NO_DATA_DESC": "Създавайте съдържание, за да видите тенденциите на коефициента на ангажираност."
 			},
-
 			"SUBMISSION_CALENDAR": {
 				"TITLE": "Активност на подадени материали",
 				"SUBTITLE": "Вашата постоянност в подаванията през последните 3 месеца",
@@ -3183,11 +3177,9 @@
 				"LESS": "По-малко",
 				"MORE": "Повече"
 			},
-
 			"STATUS_BREAKDOWN": {
 				"TITLE": "Статус на подадените материали"
 			},
-
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Разпределение на ангажираността",
 				"SUBTITLE": "Как се разпределя ангажираността между вашите най-добри елементи",
@@ -3196,12 +3188,10 @@
 				"NO_DATA": "Няма данни за ангажираност",
 				"NO_DATA_DESC": "Получете гласове и коментари, за да видите как се разпределя ангажираността."
 			},
-
 			"COMMON": {
 				"VS": "срещу",
 				"AVG": "Ср."
 			},
-
 			"CHARTS": {
 				"LOADING": "Зареждане на данни за диаграмата...",
 				"ERROR": "Неуспешно зареждане на диаграма",

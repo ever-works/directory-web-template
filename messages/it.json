@@ -2088,7 +2088,8 @@
 			"NO_CATEGORIES_AVAILABLE": "Nessuna categoria disponibile",
 			"NO_TAGS_AVAILABLE": "Nessun tag disponibile",
 			"REMOVE_FILTER": "Rimuovi filtro {name}",
-			"CLEAR_ALL_FILTERS": "Cancella tutto"
+			"CLEAR_ALL_FILTERS": "Cancella tutto",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2745,6 +2746,29 @@
 			"RETRY": "Retry",
 			"LOADING": "Loading...",
 			"REACHED_THE_END": "You've reached the end"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approvato",
+			"ACTION_REJECTED": "Rifiutato",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "da {name}",
+			"WAS_STATUS": "era {status}",
+			"REASON_LABEL": "Motivo:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -1126,3 +1126,69 @@ export type SurveyItem = Survey & {
 export type NewSurvey = typeof surveys.$inferInsert;
 export type SurveyResponse = typeof surveyResponses.$inferSelect;
 export type NewSurveyResponse = typeof surveyResponses.$inferInsert;
+
+// ######################### Item Audit Log Schema #########################
+/**
+ * Item Audit Action Enum
+ * Tracks the type of action performed on an item
+ */
+export const ItemAuditAction = {
+	CREATED: 'created',
+	UPDATED: 'updated',
+	STATUS_CHANGED: 'status_changed',
+	REVIEWED: 'reviewed',
+	DELETED: 'deleted',
+	RESTORED: 'restored'
+} as const;
+
+export type ItemAuditActionValues = (typeof ItemAuditAction)[keyof typeof ItemAuditAction];
+
+/**
+ * Item Audit Logs Table
+ *
+ * Stores the complete history of changes for items in the admin panel.
+ * Since items are stored in Git (not in the database), itemId is just
+ * the slug, not a foreign key. User info is denormalized for display.
+ */
+export const itemAuditLogs = pgTable(
+	'item_audit_logs',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		itemId: text('item_id').notNull(), // Item slug (not FK since items are in Git)
+		itemName: text('item_name').notNull(), // Denormalized for display
+		action: text('action', {
+			enum: [
+				ItemAuditAction.CREATED,
+				ItemAuditAction.UPDATED,
+				ItemAuditAction.STATUS_CHANGED,
+				ItemAuditAction.REVIEWED,
+				ItemAuditAction.DELETED,
+				ItemAuditAction.RESTORED
+			]
+		}).notNull(),
+		previousStatus: text('previous_status'), // For status changes
+		newStatus: text('new_status'), // For status changes
+		changes: jsonb('changes'), // Field-level changes: { field: { old, new } }
+		performedBy: text('performed_by').references(() => users.id, { onDelete: 'set null' }),
+		performedByName: text('performed_by_name'), // Denormalized for display
+		notes: text('notes'), // Review notes or other context
+		metadata: jsonb('metadata'), // Additional context (e.g., source IP, user agent)
+		createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => ({
+		itemIdIndex: index('item_audit_logs_item_id_idx').on(table.itemId),
+		actionIndex: index('item_audit_logs_action_idx').on(table.action),
+		performedByIndex: index('item_audit_logs_performed_by_idx').on(table.performedBy),
+		createdAtIndex: index('item_audit_logs_created_at_idx').on(table.createdAt),
+		itemIdActionIndex: index('item_audit_logs_item_id_action_idx').on(table.itemId, table.action)
+	})
+);
+
+// ######################### Item Audit Log Types #########################
+export type ItemAuditLog = typeof itemAuditLogs.$inferSelect;
+export type NewItemAuditLog = typeof itemAuditLogs.$inferInsert;
+
+/** Type for field-level changes stored in the changes column */
+export type ItemAuditChanges = Record<string, { old: unknown; new: unknown }>;

@@ -2110,7 +2110,8 @@
 			"NO_CATEGORIES_AVAILABLE": "No hay categorías disponibles",
 			"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
 			"REMOVE_FILTER": "Eliminar filtro {name}",
-			"CLEAR_ALL_FILTERS": "Borrar todo"
+			"CLEAR_ALL_FILTERS": "Borrar todo",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Gestión de Usuarios",
@@ -2767,6 +2768,29 @@
 			"RETRY": "Reintentar",
 			"LOADING": "Cargando...",
 			"REACHED_THE_END": "Has llegado al final"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Aprobado",
+			"ACTION_REJECTED": "Rechazado",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "por {name}",
+			"WAS_STATUS": "era {status}",
+			"REASON_LABEL": "Motivo:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

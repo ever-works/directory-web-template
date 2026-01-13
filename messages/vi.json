@@ -2178,7 +2178,8 @@
 			"NO_CATEGORIES_AVAILABLE": "Không có danh mục nào",
 			"NO_TAGS_AVAILABLE": "Không có thẻ nào",
 			"REMOVE_FILTER": "Xóa bộ lọc {name}",
-			"CLEAR_ALL_FILTERS": "Xóa tất cả"
+			"CLEAR_ALL_FILTERS": "Xóa tất cả",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Quản lý người dùng",
@@ -2860,6 +2861,29 @@
 			"CANCEL": "Hủy bỏ",
 			"UPDATE_REPORT": "Cập nhật báo cáo",
 			"UPDATING": "Đang cập nhật..."
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Đã duyệt",
+			"ACTION_REJECTED": "Từ chối",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "bởi {name}",
+			"WAS_STATUS": "trước đó là {status}",
+			"REASON_LABEL": "Lý do:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

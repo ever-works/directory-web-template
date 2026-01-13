@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -10,6 +10,7 @@ import { MultiStepItemForm } from "@/components/admin/items/multi-step-item-form
 import { ItemFilters } from "@/components/admin/items/item-filters";
 import { ActiveItemFilters } from "@/components/admin/items/active-item-filters";
 import { ItemRejectModal } from "@/components/admin/items/item-reject-modal";
+import { ItemHistoryModal } from "@/components/admin/items/item-history-modal";
 import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/item-list-sorting";
 import { ItemActionsMenu } from "@/components/admin/items/item-actions-menu";
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITEM_STATUS_COLORS } from "@/lib/types/item";
@@ -27,14 +28,12 @@ import { ItemSearch } from "./components/item-filters";
 export default function AdminItemsPage() {
   const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
   const router = useRouter();
-  const params = useParams<{ locale: string }>();
   const PageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortField>("updated_at");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [searchTerm, setSearchTerm] = useState("");
   const hasLoadedOnce = useRef(false);
-  const modalRef = useRef<HTMLDivElement>(null);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -90,7 +89,7 @@ export default function AdminItemsPage() {
     sortOrder,
   });
 
-  // Check if search is active (>= 2 chars after trimming, matching query behavior)
+// Check if search is active (>= 2 chars after trimming, matching query behavior)
   const hasActiveSearch = searchTerm.trim().length >= 2;
   // Calculate active filter count (only count search when >= 2 chars, matching query behavior)
   const activeFilterCount = (hasActiveSearch ? 1 : 0) + (statusFilter ? 1 : 0) + categoriesFilter.length + tagsFilter.length;
@@ -133,6 +132,10 @@ export default function AdminItemsPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+
+  // History modal state
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedItemForHistory, setSelectedItemForHistory] = useState<ItemData | null>(null);
 
 
   const handleCreateItem = async (data: CreateItemRequest) => {
@@ -181,6 +184,16 @@ export default function AdminItemsPage() {
     setRejectionReason('');
   };
 
+  const openHistoryModal = (item: ItemData) => {
+    setSelectedItemForHistory(item);
+    setHistoryModalOpen(true);
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryModalOpen(false);
+    setSelectedItemForHistory(null);
+  };
+
   const handleRejectConfirm = async () => {
     // Prevent multiple clicks while rejecting
     if (isRejecting) return;
@@ -222,11 +235,6 @@ export default function AdminItemsPage() {
     // Add escape key listener
     document.addEventListener("keydown", handleKeyDown);
 
-    // Focus the modal when it opens
-    if (modalRef.current) {
-      modalRef.current.focus();
-    }
-
     // Prevent body scroll when modal is open
     document.body.style.overflow = "hidden";
 
@@ -248,17 +256,16 @@ export default function AdminItemsPage() {
     }
   };
 
-  // Secure external link handler (Feedback 3)
-  const handleOpenExternal = useCallback((rawUrl?: string) => {
+  // Secure external link handler
+  const handleOpenExternal = (rawUrl?: string) => {
     if (!rawUrl) return;
     try {
       const url = new URL(rawUrl);
-      const w = window.open(url.toString(), "_blank", "noopener,noreferrer");
-      if (w) w.opener = null;
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
     } catch {
       // Invalid URL, silently ignore
     }
-  }, []);
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -539,6 +546,7 @@ export default function AdminItemsPage() {
                   onStatusChange={setStatusFilter}
                   onCategoriesChange={setCategoriesFilter}
                   onTagsChange={setTagsFilter}
+                  onClearAll={handleClearAllFilters}
                   categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
                   tags={allTags.map(t => ({ id: t.id, name: t.name }))}
                   itemCounts={{
@@ -678,7 +686,7 @@ export default function AdminItemsPage() {
                               </span>
                               <span className="inline-flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-                                {formatDate(item.updated_at)}
+{new Date(item.updated_at || Date.now()).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
@@ -689,9 +697,10 @@ export default function AdminItemsPage() {
                       <div className="flex items-center ml-4">
                         <ItemActionsMenu
                           item={item}
-                          onViewSource={() => handleOpenExternal(item.source_url)}
-                          onEdit={() => openEditModal(item)}
-                          onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
+                          onViewSource={() => window.open(item.source_url || '#', '_blank')}
+                          onEdit={() => openEditModal(item as any)}
+                          onViewHistory={() => openHistoryModal(item)}
+                          onCreateSurvey={() => router.push(`/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
                           onApprove={() => handleApproveItem(item.id)}
                           onReject={() => openRejectModal(item)}
                           onDelete={() => handleDeleteItem(item.id)}
@@ -764,7 +773,6 @@ export default function AdminItemsPage() {
       {/* Item Form Modal */}
       {isModalOpen && (
         <div
-          ref={modalRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby="item-form-modal-title"
@@ -801,6 +809,16 @@ export default function AdminItemsPage() {
         onConfirm={handleRejectConfirm}
         onClose={closeRejectModal}
       />
+
+      {/* Item History Modal */}
+      {selectedItemForHistory && (
+        <ItemHistoryModal
+          isOpen={historyModalOpen}
+          itemId={selectedItemForHistory.id}
+          itemName={selectedItemForHistory.name}
+          onClose={closeHistoryModal}
+        />
+      )}
     </div>
   );
 } 

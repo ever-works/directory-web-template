@@ -2177,7 +2177,8 @@
 			"NO_CATEGORIES_AVAILABLE": "Нет доступных категорий",
 			"NO_TAGS_AVAILABLE": "Нет доступных тегов",
 			"REMOVE_FILTER": "Удалить фильтр {name}",
-			"CLEAR_ALL_FILTERS": "Очистить все"
+			"CLEAR_ALL_FILTERS": "Очистить все",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Управление пользователями",
@@ -2859,6 +2860,29 @@
 			"RETRY": "Повторить",
 			"LOADING": "Загрузка...",
 			"REACHED_THE_END": "Вы достигли конца"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Одобрено",
+			"ACTION_REJECTED": "Отклонено",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "от {name}",
+			"WAS_STATUS": "был {status}",
+			"REASON_LABEL": "Причина:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
@@ -2933,7 +2957,6 @@
 			"EDIT_STATUS_WARNING": "Редактирование одобренных элементов требует повторного одобрения",
 			"SUCCESS_UPDATED": "Заявка успешно обновлена",
 			"SUCCESS_DELETED": "Заявка удалена и перемещена в корзину",
-
 			"TRASH_TITLE": "Корзина",
 			"TRASH_DESCRIPTION": "Элементы, которые вы удалили. Вы можете восстановить их в любое время.",
 			"TRASH_EMPTY": "Ваша корзина пуста",
@@ -2946,12 +2969,10 @@
 			"BACK_TO_SUBMISSIONS": "Назад к заявкам",
 			"UNKNOWN_DATE": "Неизвестная дата",
 			"INVALID_DATE": "Неверная дата",
-
 			"STATUS_APPROVED": "Одобрена",
 			"STATUS_PENDING": "Ожидает проверки",
 			"STATUS_REJECTED": "Отклонена",
 			"STATUS_DRAFT": "Черновик",
-
 			"NA": "Н/Д",
 			"VIEWS": "Просмотры",
 			"LIKES": "Лайки",
@@ -2964,7 +2985,6 @@
 			"MORE_TAGS": "+{count} еще",
 			"VIEWS_COUNT": "{count} просмотров",
 			"LIKES_COUNT": "{count} лайков",
-
 			"CANCEL": "Отмена",
 			"CLOSE": "Закрыть",
 			"EDIT": "Редактировать",
@@ -2975,28 +2995,22 @@
 			"VIEW_SUBMISSION": "Просмотреть заявку",
 			"EDIT_SUBMISSION": "Редактировать заявку",
 			"DELETE_SUBMISSION": "Удалить заявку",
-
 			"TOTAL_SUBMISSIONS": "Всего заявок",
 			"APPROVED": "Одобрено",
 			"PENDING": "Ожидает",
 			"REJECTED": "Отклонено",
 			"DRAFTS": "Черновики",
-
 			"SEARCH_PLACEHOLDER": "Поиск по названию или описанию...",
 			"SEARCH_PLACEHOLDER_SHORT": "Поиск...",
-
 			"NO_SUBMISSIONS_TITLE": "Заявок пока нет",
 			"NO_SUBMISSIONS_DESC": "Начните строить ваше портфолио, отправив ваш первый проект. Поделитесь своей работой с сообществом и получайте обратную связь от других разработчиков.",
 			"SUBMIT_FIRST_PROJECT": "Отправить ваш первый проект",
-
 			"SHOWING_RESULTS": "Показано {start}-{end} из {total} заявок",
 			"PAGE_INFO": "Страница {page} из {totalPages}",
-
 			"SUBMISSION_DETAILS": "Детали заявки",
 			"VIEW_SUBMISSION_INFO": "Просмотр информации о вашей заявке",
 			"DESCRIPTION": "Описание",
 			"REJECTION_REASON": "Причина отклонения",
-
 			"EDIT_SUBMISSION_TITLE": "Редактировать заявку",
 			"UPDATE_DETAILS": "Обновите детали вашей заявки",
 			"RE_REVIEW_REQUIRED": "Требуется повторная проверка",
@@ -3008,12 +3022,10 @@
 			"URL_LABEL": "Веб-сайт / Исходный URL",
 			"URL_PLACEHOLDER": "https://example.com",
 			"TAGS_CANNOT_EDIT": "Теги нельзя редактировать в настоящее время.",
-
 			"DELETE_SUBMISSION_TITLE": "Удалить заявку",
 			"DELETE_UNDONE_LATER": "Это действие можно будет отменить позже",
 			"SOFT_DELETE": "Мягкое удаление",
 			"SOFT_DELETE_DESC": "Ваша заявка будет скрыта из публичного просмотра, но не удалена навсегда. Вы можете восстановить её в любое время из вашей корзины.",
-
 			"BACK_TO_SETTINGS": "Назад к настройкам",
 			"SUBMISSIONS_MANAGEMENT": "Управление заявками",
 			"SUBMISSIONS_MANAGEMENT_DESC": "Отслеживайте и управляйте вашими заявками в каталог.",
@@ -3038,12 +3050,10 @@
 			"PAGE_DESCRIPTION": "Отслеживайте и управляйте вашими заявками на спонсорскую рекламу.",
 			"YOUR_SPONSORSHIPS": "Ваши спонсорства",
 			"NEW_SPONSORSHIP": "Новое спонсорство",
-
 			"TOTAL_SPONSORSHIPS": "Всего",
 			"ACTIVE": "Активные",
 			"PENDING": "Ожидающие",
 			"EXPIRED": "Истекшие",
-
 			"STATUS_ALL": "Все",
 			"STATUS_ACTIVE": "Активные",
 			"STATUS_PENDING": "Ожидающие",
@@ -3052,24 +3062,19 @@
 			"STATUS_PENDING_PAYMENT": "Ожидает оплаты",
 			"STATUS_PENDING_REVIEW": "На проверке",
 			"STATUS_REJECTED": "Отклоненные",
-
 			"INTERVAL_ALL": "Все типы",
 			"INTERVAL_WEEKLY": "Еженедельные",
 			"INTERVAL_MONTHLY": "Ежемесячные",
-
 			"SEARCH_PLACEHOLDER": "Поиск по названию элемента...",
 			"EMPTY_STATE_TITLE": "Спонсорств пока нет",
 			"EMPTY_STATE_DESC": "Повысьте видимость вашего проекта, создав спонсорство. Рекомендуемые элементы получают заметное размещение по всему каталогу.",
 			"CREATE_FIRST_SPONSORSHIP": "Создать ваше первое спонсорство",
-
 			"SHOWING_PAGE": "Страница {page} из {totalPages}",
 			"PREVIOUS": "Предыдущая",
 			"NEXT": "Следующая",
-
 			"REJECTION_REASON": "Причина",
 			"CANCEL_REASON": "Причина отмены",
 			"SPONSORSHIP": "спонсорство",
-
 			"VIEW_DETAILS": "Подробнее",
 			"MODAL_TITLE": "Детали спонсорства",
 			"ITEM_INFORMATION": "Информация об элементе",
@@ -3085,25 +3090,21 @@
 			"CLOSE": "Закрыть",
 			"LOAD_ERROR": "Не удалось загрузить детали спонсорства",
 			"RETRY": "Повторить",
-
 			"PAY_NOW": "Оплатить сейчас",
 			"RENEW": "Продлить",
 			"CANCEL": "Отменить",
 			"OPTIONAL": "необязательно",
-
 			"CANCEL_SPONSORSHIP": "Отменить спонсорство",
 			"RENEW_SPONSORSHIP": "Продлить спонсорство",
 			"CONFIRM_CANCEL_MESSAGE": "Вы уверены, что хотите отменить это спонсорство? Это действие нельзя отменить.",
 			"CONFIRM_CANCEL": "Да, Отменить",
 			"CANCEL_NO": "Нет, Оставить",
 			"CANCEL_SUCCESS": "Спонсорство успешно отменено",
-
 			"CANCEL_DIALOG_TITLE": "Отменить спонсорство",
 			"CANCEL_DIALOG_WARNING": "Это действие нельзя отменить. Ваше спонсорство будет отменено немедленно, и вы потеряете оставшееся время.",
 			"CANCEL_REASON_LABEL": "Причина отмены",
 			"CANCEL_REASON_PLACEHOLDER": "Расскажите, почему вы отменяете (необязательно)...",
 			"KEEP_SPONSORSHIP": "Оставить спонсорство",
-
 			"RENEW_DIALOG_TITLE": "Продлить спонсорство",
 			"RENEW_DIALOG_DESCRIPTION": "Продлите ваше спонсорство, чтобы продолжить заметное размещение вашего элемента в каталоге.",
 			"RENEWAL_PRICE": "Цена продления",
@@ -3176,11 +3177,9 @@
 				"LESS": "Меньше",
 				"MORE": "Больше"
 			},
-
 			"STATUS_BREAKDOWN": {
 				"TITLE": "Статус заявок"
 			},
-
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Распределение вовлечения",
 				"SUBTITLE": "Как вовлечение распределено по вашим лучшим элементам",

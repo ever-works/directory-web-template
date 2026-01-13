@@ -2177,7 +2177,8 @@
 			"NO_CATEGORIES_AVAILABLE": "Mevcut kategori yok",
 			"NO_TAGS_AVAILABLE": "Mevcut etiket yok",
 			"REMOVE_FILTER": "{name} filtresini kaldır",
-			"CLEAR_ALL_FILTERS": "Tümünü temizle"
+			"CLEAR_ALL_FILTERS": "Tümünü temizle",
+			"VIEW_HISTORY": "View History"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Kullanıcı Yönetimi",
@@ -2859,6 +2860,29 @@
 			"RETRY": "Yeniden Dene",
 			"LOADING": "Yükleniyor...",
 			"REACHED_THE_END": "Sonuna ulaştınız"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Onaylandı",
+			"ACTION_REJECTED": "Reddedildi",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "{name} tarafından",
+			"WAS_STATUS": "{status} idi",
+			"REASON_LABEL": "Sebep:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

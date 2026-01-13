@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MoreHorizontal, ExternalLink, Edit, FileText, CheckCircle, XCircle, Trash2, Loader2 } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Edit, FileText, CheckCircle, XCircle, Trash2, Loader2, History } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ItemData } from "@/lib/types/item";
@@ -10,6 +10,7 @@ interface ItemActionsMenuProps {
   item: ItemData;
   onViewSource: () => void;
   onEdit: () => void;
+  onViewHistory: () => void;
   onCreateSurvey: () => void;
   onApprove: () => void;
   onReject: () => void;
@@ -24,6 +25,7 @@ export function ItemActionsMenu({
   item,
   onViewSource,
   onEdit,
+  onViewHistory,
   onCreateSurvey,
   onApprove,
   onReject,
@@ -120,6 +122,15 @@ export function ItemActionsMenu({
           >
             <Edit className="w-4 h-4" />
             {t("EDIT")}
+          </DropdownMenu.Item>
+
+{/* View History */}
+          <DropdownMenu.Item
+            className={menuItemClass}
+            onSelect={onViewHistory}
+          >
+            <History className="w-4 h-4" />
+            {t("VIEW_HISTORY")}
           </DropdownMenu.Item>
 
           {/* Create Survey */}
