@@ -24,7 +24,7 @@ function ListingCategoriesContent(props: ListingCategoriesProps) {
 			<Hero
 				badgeText={t('listing.CATEGORIES')}
 				title={
-					<span className="bg-linear-to-r from-theme-primary via-purple-500 to-theme-primary bg-clip-text text-transparent">
+					<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 						{t('listing.CATEGORIES', { defaultValue: 'Open Source Software Categories' })}
 					</span>
 				}
