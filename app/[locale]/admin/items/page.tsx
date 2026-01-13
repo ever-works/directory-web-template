@@ -135,9 +135,9 @@ export default function AdminItemsPage() {
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
-  // Duplicate state
-  const [isDuplicating, setIsDuplicating] = useState(false);
+  // Duplicate state - derive isDuplicating from duplicatingItemId to prevent race conditions
   const [duplicatingItemId, setDuplicatingItemId] = useState<string | null>(null);
+  const isDuplicating = duplicatingItemId !== null;
 
 
   const handleCreateItem = async (data: CreateItemRequest) => {
@@ -210,10 +210,9 @@ export default function AdminItemsPage() {
   };
 
   const handleDuplicateItem = async (item: ItemData) => {
-    // Prevent multiple clicks while duplicating
-    if (isDuplicating && duplicatingItemId === item.id) return;
+    // Block all duplications while one is in progress to prevent race conditions
+    if (isDuplicating) return;
 
-    setIsDuplicating(true);
     setDuplicatingItemId(item.id);
 
     try {
@@ -237,7 +236,6 @@ export default function AdminItemsPage() {
 
       await createItem(duplicateData);
     } finally {
-      setIsDuplicating(false);
       setDuplicatingItemId(null);
     }
   };
