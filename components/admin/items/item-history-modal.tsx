@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Select, SelectItem, Spinner } from '@heroui/react';
+import { Spinner } from '@heroui/react';
+import * as Select from '@radix-ui/react-select';
 import {
 	Clock,
 	Plus,
@@ -12,7 +13,8 @@ import {
 	ChevronDown,
 	ChevronUp,
 	X,
-	Filter
+	Filter,
+	Check
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useItemHistory, type ItemAuditLogEntry } from '@/hooks/use-item-history';
@@ -290,27 +292,63 @@ function ActionFilterSelect({
 
 	return (
 		<div className="mb-4">
-			<Select
-				size="sm"
-				variant="bordered"
-				placeholder={t('FILTER_ALL')}
-				selectedKeys={selected ? [selected] : []}
-				onSelectionChange={(keys) => {
-					const arr = Array.from(keys) as string[];
-					onChange(arr.length > 0 ? (arr[0] as ItemAuditActionValues) : null);
-				}}
-				startContent={<Filter className="w-4 h-4 text-gray-400" />}
-				className="max-w-[200px]"
-				classNames={{
-					trigger: 'h-9 min-h-9'
+			<Select.Root
+				value={selected || 'all'}
+				onValueChange={(value) => {
+					if (value === 'all') {
+						onChange(null);
+					} else {
+						onChange(value as ItemAuditActionValues);
+					}
 				}}
 			>
-				{ACTION_FILTERS.map((action) => (
-					<SelectItem key={action}>
-						{getActionLabel(action)}
-					</SelectItem>
-				))}
-			</Select>
+				<Select.Trigger
+					className={cn(
+						'flex h-9 w-[200px] items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm',
+						'focus:outline-none focus:ring-2 focus:ring-blue-500',
+						'disabled:cursor-not-allowed disabled:opacity-50'
+					)}
+				>
+					<div className="flex items-center gap-2">
+						<Filter className="w-4 h-4 text-gray-400" />
+						<Select.Value placeholder={t('FILTER_ALL')} />
+					</div>
+					<Select.Icon>
+						<ChevronDown className="h-4 w-4 opacity-50" />
+					</Select.Icon>
+				</Select.Trigger>
+				<Select.Portal>
+					<Select.Content
+						className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+						position="popper"
+						sideOffset={4}
+					>
+						<Select.Viewport className="p-1">
+							<Select.Item
+								value="all"
+								className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+							>
+								<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+									<Check className="h-4 w-4" />
+								</Select.ItemIndicator>
+								<Select.ItemText>{t('FILTER_ALL')}</Select.ItemText>
+							</Select.Item>
+							{ACTION_FILTERS.map((action) => (
+								<Select.Item
+									key={action}
+									value={action}
+									className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+								>
+									<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
+										<Check className="h-4 w-4" />
+									</Select.ItemIndicator>
+									<Select.ItemText>{getActionLabel(action)}</Select.ItemText>
+								</Select.Item>
+							))}
+						</Select.Viewport>
+					</Select.Content>
+				</Select.Portal>
+			</Select.Root>
 		</div>
 	);
 }
