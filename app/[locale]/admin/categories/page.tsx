@@ -105,6 +105,7 @@ export default function AdminCategoriesPage() {
 
 	const handlePageChange = useCallback((page: number) => {
 		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
 
 	const { isInitialLoad } = useNavigation();

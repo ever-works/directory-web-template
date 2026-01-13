@@ -160,6 +160,7 @@ export default function AdminSponsorshipsPage() {
 	const handlePageChange = useCallback(
 		(page: number) => {
 			setCurrentPage(page);
+			window.scrollTo({ top: 0, behavior: 'smooth' });
 		},
 		[setCurrentPage]
 	);
