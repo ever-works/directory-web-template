@@ -1,7 +1,7 @@
 "use client";
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { MoreHorizontal, ExternalLink, Edit, FileText, CheckCircle, XCircle, Trash2, Loader2, History } from "lucide-react";
+import { MoreHorizontal, ExternalLink, Edit, Copy, FileText, CheckCircle, XCircle, Trash2, Loader2, History } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { ItemData } from "@/lib/types/item";
@@ -10,6 +10,7 @@ interface ItemActionsMenuProps {
   item: ItemData;
   onViewSource: () => void;
   onEdit: () => void;
+  onDuplicate: () => void;
   onViewHistory: () => void;
   onCreateSurvey: () => void;
   onApprove: () => void;
@@ -19,12 +20,14 @@ interface ItemActionsMenuProps {
   isApproving?: boolean;
   isRejecting?: boolean;
   isDeleting?: boolean;
+  isDuplicating?: boolean;
 }
 
 export function ItemActionsMenu({
   item,
   onViewSource,
   onEdit,
+  onDuplicate,
   onViewHistory,
   onCreateSurvey,
   onApprove,
@@ -34,6 +37,7 @@ export function ItemActionsMenu({
   isApproving = false,
   isRejecting = false,
   isDeleting = false,
+  isDuplicating = false,
 }: ItemActionsMenuProps) {
   const t = useTranslations("admin.ADMIN_ITEMS_PAGE");
   const tSurvey = useTranslations("survey");
@@ -124,7 +128,21 @@ export function ItemActionsMenu({
             {t("EDIT")}
           </DropdownMenu.Item>
 
-{/* View History */}
+          {/* Duplicate */}
+          <DropdownMenu.Item
+            className={isProcessing ? disabledItemClass : menuItemClass}
+            onSelect={onDuplicate}
+            disabled={isProcessing}
+          >
+            {isDuplicating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Copy className="w-4 h-4" />
+            )}
+            {isDuplicating ? t("DUPLICATING") : t("DUPLICATE")}
+          </DropdownMenu.Item>
+
+          {/* View History */}
           <DropdownMenu.Item
             className={menuItemClass}
             onSelect={onViewHistory}

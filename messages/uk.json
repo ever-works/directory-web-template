@@ -2043,6 +2043,8 @@
 			"REJECT": "Відхилити",
 			"REJECTING": "Відхилення...",
 			"EDIT": "Редагувати",
+			"DUPLICATE": "Дублювати",
+			"DUPLICATING": "Дублювання...",
 			"DELETE": "Видалити",
 			"DELETING": "Видалення...",
 			"MORE_TAGS": "+{count} ще",
