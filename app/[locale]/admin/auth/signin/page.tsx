@@ -11,7 +11,13 @@ export default function AdminLoginPage() {
 
   const handleLoginSuccess = () => {
     const redirectPath = getSafeRedirectPath(callbackUrl, `/${params.locale}/admin`);
-    window.location.href = redirectPath;
+    const locale = String(params.locale ?? "en");
+    // Add locale prefix for non-English users if path doesn't already have it
+    const finalRedirectPath =
+      locale !== "en" && !redirectPath.startsWith(`/${locale}`)
+        ? `/${locale}${redirectPath}`
+        : redirectPath;
+    window.location.href = finalRedirectPath;
   };
 
   return (
