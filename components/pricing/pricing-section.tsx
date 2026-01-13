@@ -20,7 +20,6 @@ interface PricingSectionProps {
 
 export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: PricingSectionProps) {
 	const { isOpen: isModalOpen, onOpen: onOpenSelectorModal, onClose: onCloseSelectorModal } = useDisclosure();
-	// Prefetch Stripe SetupIntent
 
 	const {
 		FREE,
@@ -479,6 +478,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				currency={currency}
 				clientSecret={clientSecret || ''}
 				isReady={isReady}
+				isError={paymentForm.isError}
 			/>
 		</div>
 	);

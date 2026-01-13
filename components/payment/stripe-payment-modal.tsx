@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '../ui/modal';
@@ -48,6 +49,7 @@ export function StripePaymentModal({
 	clientSecret,
 	isReady
 }: StripePaymentModalProps) {
+	const t = useTranslations('payment');
 	const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
 	const handleSuccess = useCallback(
@@ -88,7 +90,9 @@ export function StripePaymentModal({
 							<CreditCard className="w-5 h-5 text-white" />
 						</div>
 						<div>
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">Complete Payment</h3>
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+								{t('COMPLETE_PAYMENT')}
+							</h3>
 							{planName && (
 								<p className="text-sm text-gray-500 dark:text-gray-400">
 									{planName} {planPrice && `- ${planPrice}`}

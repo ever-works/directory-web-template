@@ -23,7 +23,20 @@ const getUserFriendlyErrorMessage = (originalMessage: string): string => {
 	return key ? ERROR_TRANSLATIONS[key] : originalMessage;
 };
 
-export function StripePaymentForm({ onSuccess, onError, clientSecret, successUrl, isSubscription }: PaymentFormProps) {
+interface StripePaymentFormProps extends Pick<
+	PaymentFormProps,
+	'onSuccess' | 'onError' | 'successUrl' | 'isSubscription'
+> {
+	clientSecret: string | undefined;
+}
+
+export function StripePaymentForm({
+	onSuccess,
+	onError,
+	clientSecret,
+	successUrl,
+	isSubscription
+}: StripePaymentFormProps) {
 	const stripe = useStripe();
 	const elements = useElements();
 	const [status, setStatus] = useState<'idle' | 'loading' | 'processed' | 'error'>('idle');
@@ -56,6 +69,9 @@ export function StripePaymentForm({ onSuccess, onError, clientSecret, successUrl
 					setStatus('processed');
 					onSuccess(setupIntent.payment_method as string);
 					return;
+				}
+				if (setupIntent?.status === 'canceled') {
+					throw new Error('This setup has been canceled. Please start again.');
 				}
 				// If status is not succeeded, proceed with normal confirmation flow
 
@@ -95,7 +111,18 @@ export function StripePaymentForm({ onSuccess, onError, clientSecret, successUrl
 				const intent = result.setupIntent || result.paymentIntent;
 				if (intent?.status === 'succeeded') {
 					setStatus('processed');
-					onSuccess(isSubscription ? intent.payment_method : intent.id);
+
+					// Normalize the ID to return a string
+					let resultId = intent.id;
+
+					if (isSubscription && intent.payment_method) {
+						resultId =
+							typeof intent.payment_method === 'string'
+								? intent.payment_method
+								: intent.payment_method.id;
+					}
+
+					onSuccess(resultId);
 				} else if (intent?.status === 'processing') {
 					setStatus('loading'); // Keep loading UI
 					setErrorMessage('Processing payment...');

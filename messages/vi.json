@@ -885,7 +885,8 @@
 			"success": "Thanh toán thành công",
 			"failed": "Thanh toán thất bại",
 			"pending": "Thanh toán đang chờ xử lý"
-		}
+		},
+		"COMPLETE_PAYMENT": "Complete Payment"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Trình tạo Nền tảng Thư mục Chuyên nghiệp",

@@ -460,7 +460,6 @@
 		"REGISTER": "Daftar",
 		"ADMIN": "Admin"
 	},
-
 	"settings": {
 		"PROFILE": "Profil Anda",
 		"PAYMENT": "Pembayaran",
@@ -886,7 +885,8 @@
 			"success": "Pembayaran berhasil",
 			"failed": "Pembayaran gagal",
 			"pending": "Pembayaran tertunda"
-		}
+		},
+		"COMPLETE_PAYMENT": "Complete Payment"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Pembangun Platform Direktori Profesional",
@@ -2934,7 +2934,6 @@
 			"EDIT_STATUS_WARNING": "Mengedit item yang disetujui memerlukan persetujuan ulang",
 			"SUCCESS_UPDATED": "Kiriman berhasil diperbarui",
 			"SUCCESS_DELETED": "Kiriman dihapus dan dipindahkan ke tempat sampah",
-
 			"TRASH_TITLE": "Tempat Sampah",
 			"TRASH_DESCRIPTION": "Item yang telah Anda hapus. Anda dapat memulihkannya kapan saja.",
 			"TRASH_EMPTY": "Tempat sampah Anda kosong",
@@ -2947,12 +2946,10 @@
 			"BACK_TO_SUBMISSIONS": "Kembali ke Kiriman",
 			"UNKNOWN_DATE": "Tanggal tidak diketahui",
 			"INVALID_DATE": "Tanggal tidak valid",
-
 			"STATUS_APPROVED": "Disetujui",
 			"STATUS_PENDING": "Menunggu Tinjauan",
 			"STATUS_REJECTED": "Ditolak",
 			"STATUS_DRAFT": "Draf",
-
 			"NA": "T/A",
 			"VIEWS": "Tampilan",
 			"LIKES": "Suka",
@@ -2965,7 +2962,6 @@
 			"MORE_TAGS": "+{count} lagi",
 			"VIEWS_COUNT": "{count} tampilan",
 			"LIKES_COUNT": "{count} suka",
-
 			"CANCEL": "Batal",
 			"CLOSE": "Tutup",
 			"EDIT": "Edit",
@@ -2976,28 +2972,22 @@
 			"VIEW_SUBMISSION": "Lihat kiriman",
 			"EDIT_SUBMISSION": "Edit kiriman",
 			"DELETE_SUBMISSION": "Hapus kiriman",
-
 			"TOTAL_SUBMISSIONS": "Total Kiriman",
 			"APPROVED": "Disetujui",
 			"PENDING": "Tertunda",
 			"REJECTED": "Ditolak",
 			"DRAFTS": "Draf",
-
 			"SEARCH_PLACEHOLDER": "Cari berdasarkan judul atau deskripsi...",
 			"SEARCH_PLACEHOLDER_SHORT": "Cari...",
-
 			"NO_SUBMISSIONS_TITLE": "Belum ada kiriman",
 			"NO_SUBMISSIONS_DESC": "Mulai bangun portofolio Anda dengan mengirimkan proyek pertama. Bagikan karya Anda dengan komunitas dan dapatkan umpan balik dari pengembang lain.",
 			"SUBMIT_FIRST_PROJECT": "Kirim Proyek Pertama Anda",
-
 			"SHOWING_RESULTS": "Menampilkan {start}-{end} dari {total} kiriman",
 			"PAGE_INFO": "Halaman {page} dari {totalPages}",
-
 			"SUBMISSION_DETAILS": "Detail Kiriman",
 			"VIEW_SUBMISSION_INFO": "Lihat informasi kiriman Anda",
 			"DESCRIPTION": "Deskripsi",
 			"REJECTION_REASON": "Alasan Penolakan",
-
 			"EDIT_SUBMISSION_TITLE": "Edit Kiriman",
 			"UPDATE_DETAILS": "Perbarui detail kiriman Anda",
 			"RE_REVIEW_REQUIRED": "Tinjauan Ulang Diperlukan",
@@ -3009,12 +2999,10 @@
 			"URL_LABEL": "Situs Web / URL Sumber",
 			"URL_PLACEHOLDER": "https://example.com",
 			"TAGS_CANNOT_EDIT": "Tag tidak dapat diedit saat ini.",
-
 			"DELETE_SUBMISSION_TITLE": "Hapus Kiriman",
 			"DELETE_UNDONE_LATER": "Tindakan ini dapat dibatalkan nanti",
 			"SOFT_DELETE": "Hapus Lunak",
 			"SOFT_DELETE_DESC": "Kiriman Anda akan disembunyikan dari pandangan publik tetapi tidak dihapus secara permanen. Anda dapat memulihkannya kapan saja dari Tempat Sampah Anda.",
-
 			"BACK_TO_SETTINGS": "Kembali ke Pengaturan",
 			"SUBMISSIONS_MANAGEMENT": "Manajemen Kiriman",
 			"SUBMISSIONS_MANAGEMENT_DESC": "Lacak dan kelola kiriman direktori Anda.",
@@ -3039,12 +3027,10 @@
 			"PAGE_DESCRIPTION": "Lacak dan kelola kiriman iklan sponsor Anda.",
 			"YOUR_SPONSORSHIPS": "Sponsor Anda",
 			"NEW_SPONSORSHIP": "Sponsor Baru",
-
 			"TOTAL_SPONSORSHIPS": "Total",
 			"ACTIVE": "Aktif",
 			"PENDING": "Tertunda",
 			"EXPIRED": "Kedaluwarsa",
-
 			"STATUS_ALL": "Semua",
 			"STATUS_ACTIVE": "Aktif",
 			"STATUS_PENDING": "Tertunda",
@@ -3053,24 +3039,19 @@
 			"STATUS_PENDING_PAYMENT": "Menunggu Pembayaran",
 			"STATUS_PENDING_REVIEW": "Sedang Ditinjau",
 			"STATUS_REJECTED": "Ditolak",
-
 			"INTERVAL_ALL": "Semua Jenis",
 			"INTERVAL_WEEKLY": "Mingguan",
 			"INTERVAL_MONTHLY": "Bulanan",
-
 			"SEARCH_PLACEHOLDER": "Cari berdasarkan nama item...",
 			"EMPTY_STATE_TITLE": "Belum ada sponsor",
 			"EMPTY_STATE_DESC": "Tingkatkan visibilitas proyek Anda dengan membuat sponsor. Item unggulan mendapatkan penempatan menonjol di seluruh direktori.",
 			"CREATE_FIRST_SPONSORSHIP": "Buat Sponsor Pertama Anda",
-
 			"SHOWING_PAGE": "Halaman {page} dari {totalPages}",
 			"PREVIOUS": "Sebelumnya",
 			"NEXT": "Berikutnya",
-
 			"REJECTION_REASON": "Alasan",
 			"CANCEL_REASON": "Alasan pembatalan",
 			"SPONSORSHIP": "sponsor",
-
 			"VIEW_DETAILS": "Lihat Detail",
 			"MODAL_TITLE": "Detail Sponsor",
 			"ITEM_INFORMATION": "Informasi Item",
@@ -3086,25 +3067,21 @@
 			"CLOSE": "Tutup",
 			"LOAD_ERROR": "Gagal memuat detail sponsor",
 			"RETRY": "Coba Lagi",
-
 			"PAY_NOW": "Bayar Sekarang",
 			"RENEW": "Perpanjang",
 			"CANCEL": "Batal",
 			"OPTIONAL": "opsional",
-
 			"CANCEL_SPONSORSHIP": "Batalkan Sponsor",
 			"RENEW_SPONSORSHIP": "Perpanjang Sponsor",
 			"CONFIRM_CANCEL_MESSAGE": "Apakah Anda yakin ingin membatalkan sponsor ini? Tindakan ini tidak dapat dibatalkan.",
 			"CONFIRM_CANCEL": "Ya, Batalkan",
 			"CANCEL_NO": "Tidak, Pertahankan",
 			"CANCEL_SUCCESS": "Sponsor berhasil dibatalkan",
-
 			"CANCEL_DIALOG_TITLE": "Batalkan Sponsor",
 			"CANCEL_DIALOG_WARNING": "Tindakan ini tidak dapat dibatalkan. Sponsor Anda akan dibatalkan segera dan Anda akan kehilangan sisa waktu.",
 			"CANCEL_REASON_LABEL": "Alasan Pembatalan",
 			"CANCEL_REASON_PLACEHOLDER": "Beritahu kami mengapa Anda membatalkan (opsional)...",
 			"KEEP_SPONSORSHIP": "Pertahankan Sponsor",
-
 			"RENEW_DIALOG_TITLE": "Perpanjang Sponsor",
 			"RENEW_DIALOG_DESCRIPTION": "Perpanjang sponsor Anda untuk terus menampilkan item Anda secara menonjol di direktori.",
 			"RENEWAL_PRICE": "Harga Perpanjangan",
@@ -3177,7 +3154,6 @@
 				"LESS": "Kurang",
 				"MORE": "Lebih"
 			},
-
 			"STATUS_BREAKDOWN": {
 				"TITLE": "Status Kiriman"
 			},

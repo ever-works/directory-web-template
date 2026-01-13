@@ -54,12 +54,6 @@ interface SetupIntentResponse extends SetupIntentData {
 	message?: string;
 }
 
-// Consumed type (flat structure for app usage)
-interface SetupIntentResponse extends SetupIntentData {
-	success?: boolean;
-	message?: string;
-}
-
 interface CreateSetupIntentParams {
 	customer_id?: string;
 	payment_method_types?: string[];

@@ -508,22 +508,20 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 					return;
 				}
 
-				toast.loading('Creating subscription...');
+				const toastId = toast.loading('Creating subscription...');
 
 				try {
 					await createSubscription.mutateAsync({
 						priceId: planForPayment.stripePriceId,
 						paymentMethodId
 					});
-					toast.dismiss();
-					toast.success('Subscription created successfully!');
+					toast.success('Subscription created successfully!', { id: toastId });
 					setShowPaymentForm(false);
 					setPlanForPayment(null);
 					// Optionally redirect to success page or dashboard
 					router.push('/checkout/success');
 				} catch (error) {
-					toast.dismiss();
-					toast.error('Failed to create subscription. Please try again or contact support.');
+					toast.error('Failed to create subscription. Please try again or contact support.', { id: toastId });
 					console.error('Subscription creation failed:', error);
 				}
 			},
