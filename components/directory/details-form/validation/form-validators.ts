@@ -61,7 +61,8 @@ export const STEP_INDICATOR_CLASSES = {
 		base: 'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 mb-2',
 		active: 'scale-110 shadow-lg',
 		completed: 'bg-green-500 text-white shadow-lg',
-		accessible: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
+		accessible:
+			'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
 		inaccessible: 'bg-gray-200 dark:bg-gray-700 text-gray-400'
 	},
 	label: {
@@ -125,11 +126,14 @@ export const TAG_CLASSES = {
 	button: {
 		base: 'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 hover:scale-105 border-2 capitalize',
 		selected: 'text-white border-transparent shadow-lg bg-theme-primary-500',
-		unselected: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+		unselected:
+			'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	},
-	showMore: 'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 hover:scale-105 border-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 flex items-center gap-2',
+	showMore:
+		'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 hover:scale-105 border-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 flex items-center gap-2',
 	selectedSummary: {
-		container: 'p-4 bg-theme-primary-50 dark:bg-gray-800 rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
+		container:
+			'p-4 bg-theme-primary-50 dark:bg-gray-800 rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
 		header: 'flex items-center gap-2 mb-2',
 		icon: 'w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400',
 		label: 'text-sm font-semibold text-theme-primary-700 dark:text-theme-primary-300',
@@ -151,7 +155,8 @@ export const STEP_CARD_CLASSES = {
 	reviewCard: {
 		wrapper: 'relative group animate-fade-in-up',
 		glow: 'absolute inset-0 bg-linear-to-r from-orange-500/20 to-red-500/20 dark:from-orange-400/30 dark:to-red-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500',
-		content: 'relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl',
+		content:
+			'relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl',
 		header: {
 			wrapper: 'flex items-center gap-3 mb-8',
 			icon: 'w-12 h-12 rounded-2xl bg-linear-to-r from-orange-500 to-red-500 flex items-center justify-center',
@@ -167,14 +172,18 @@ export const STEP_CARD_CLASSES = {
 export const NAVIGATION_CLASSES = {
 	container: 'flex flex-col sm:flex-row justify-between gap-6 pt-8 animate-fade-in-up',
 	button: {
-		base: 'h-14 px-8 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 border-2',
+		base: 'h-12 px-6 sm:h-14 sm:px-8 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 border-2',
 		next: {
-			enabled: 'h-14 px-12 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[200px] bg-theme-primary-500 text-white hover:shadow-theme-primary-500/30',
-			disabled: 'h-14 px-12 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+			enabled:
+				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-theme-primary-500 text-white hover:shadow-theme-primary-500/30',
+			disabled:
+				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
 		},
 		submit: {
-			enabled: 'h-14 px-12 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[200px] bg-linear-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700 text-white hover:shadow-green-500/30',
-		disabled: 'h-14 px-12 rounded-2xl font-bold text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+			enabled:
+				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-linear-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700 text-white hover:shadow-green-500/30',
+			disabled:
+				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
 		}
 	}
 };
@@ -221,7 +230,7 @@ export const ALLOWED_VIDEO_HOSTS = [
 export function isValidVideoUrl(url: string): boolean {
 	try {
 		const parsedUrl = new URL(url);
-		return ALLOWED_VIDEO_HOSTS.includes(parsedUrl.hostname as typeof ALLOWED_VIDEO_HOSTS[number]);
+		return ALLOWED_VIDEO_HOSTS.includes(parsedUrl.hostname as (typeof ALLOWED_VIDEO_HOSTS)[number]);
 	} catch {
 		return false;
 	}
