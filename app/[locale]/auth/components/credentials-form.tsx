@@ -79,8 +79,9 @@ export function CredentialsForm({
         onSuccess();
       } else {
         const redirectPath = redirect || state.redirect || "/client/dashboard";
-        // Handle locale preservation for redirects
-        const finalRedirectPath = state.preserveLocale && locale !== 'en'
+        // Handle locale preservation for redirects (avoid double prefix if path already has locale)
+        const shouldPrefixLocale = state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+        const finalRedirectPath = shouldPrefixLocale
           ? `/${locale}${redirectPath}`
           : redirectPath;
         // Invalidate user cache so dashboard fetches fresh user data for menu
@@ -163,9 +164,10 @@ export function CredentialsForm({
         setClientSuccess(true);
         setTimeout(() => {
           const redirectPath = redirect || (clientMode ? "/admin" : "/client/dashboard");
-          // Handle locale preservation for client-side redirects
-          const finalRedirectPath = locale !== 'en' 
-            ? `/${locale}${redirectPath}` 
+          // Handle locale preservation for client-side redirects (avoid double prefix if path already has locale)
+          const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+          const finalRedirectPath = shouldPrefixLocale
+            ? `/${locale}${redirectPath}`
             : redirectPath;
           router.push(finalRedirectPath);
           router.refresh();
