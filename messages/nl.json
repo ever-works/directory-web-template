@@ -806,7 +806,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Betaling afronden"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2090,7 +2091,26 @@
 			"NO_CATEGORIES_AVAILABLE": "Geen categorieën beschikbaar",
 			"NO_TAGS_AVAILABLE": "Geen tags beschikbaar",
 			"REMOVE_FILTER": "Filter {name} verwijderen",
-			"CLEAR_ALL_FILTERS": "Alles wissen"
+			"CLEAR_ALL_FILTERS": "Alles wissen",
+			"SELECT_ALL": "Alles selecteren",
+			"SELECT_ITEM": "{name} selecteren",
+			"BULK_ACTIONS": "Bulkacties",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 item geselecteerd} other {# items geselecteerd}}",
+			"BULK_APPROVE": "Goedkeuren",
+			"BULK_REJECT": "Afwijzen",
+			"BULK_DELETE": "Verwijderen",
+			"BULK_DESELECT_ALL": "Selectie opheffen",
+			"BULK_CONFIRM_APPROVE_TITLE": "Items goedkeuren",
+			"BULK_CONFIRM_APPROVE_DESC": "Weet u zeker dat u {count, plural, =1 {1 item} other {# items}} wilt goedkeuren? Ze worden openbaar zichtbaar.",
+			"BULK_CONFIRM_APPROVE_BTN": "Alles goedkeuren",
+			"BULK_CONFIRM_REJECT_TITLE": "Items afwijzen",
+			"BULK_CONFIRM_REJECT_DESC": "Weet u zeker dat u {count, plural, =1 {1 item} other {# items}} wilt afwijzen? De indieners worden op de hoogte gesteld.",
+			"BULK_CONFIRM_REJECT_BTN": "Alles afwijzen",
+			"BULK_CONFIRM_DELETE_TITLE": "Items verwijderen",
+			"BULK_CONFIRM_DELETE_DESC": "Weet u zeker dat u {count, plural, =1 {1 item} other {# items}} wilt verwijderen?",
+			"BULK_CONFIRM_DELETE_BTN": "Alles verwijderen",
+			"BULK_DELETE_WARNING": "Deze actie kan niet ongedaan worden gemaakt.",
+			"VIEW_HISTORY": "Geschiedenis bekijken"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2747,6 +2767,29 @@
 			"RETRY": "Retry",
 			"LOADING": "Loading...",
 			"REACHED_THE_END": "You've reached the end"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -796,7 +796,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "השלם תשלום"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2084,7 +2085,26 @@
 			"NO_CATEGORIES_AVAILABLE": "אין קטגוריות זמינות",
 			"NO_TAGS_AVAILABLE": "אין תגיות זמינות",
 			"REMOVE_FILTER": "הסר סינון {name}",
-			"CLEAR_ALL_FILTERS": "נקה הכל"
+			"CLEAR_ALL_FILTERS": "נקה הכל",
+			"SELECT_ALL": "בחר הכל",
+			"SELECT_ITEM": "בחר {name}",
+			"BULK_ACTIONS": "פעולות מרובות",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {פריט אחד נבחר} other {# פריטים נבחרו}}",
+			"BULK_APPROVE": "אשר",
+			"BULK_REJECT": "דחה",
+			"BULK_DELETE": "מחק",
+			"BULK_DESELECT_ALL": "בטל בחירה",
+			"BULK_CONFIRM_APPROVE_TITLE": "אישור פריטים",
+			"BULK_CONFIRM_APPROVE_DESC": "האם אתה בטוח שברצונך לאשר {count, plural, =1 {פריט אחד} other {# פריטים}}? הם יהיו גלויים לציבור.",
+			"BULK_CONFIRM_APPROVE_BTN": "אשר הכל",
+			"BULK_CONFIRM_REJECT_TITLE": "דחיית פריטים",
+			"BULK_CONFIRM_REJECT_DESC": "האם אתה בטוח שברצונך לדחות {count, plural, =1 {פריט אחד} other {# פריטים}}? המגישים יקבלו הודעה.",
+			"BULK_CONFIRM_REJECT_BTN": "דחה הכל",
+			"BULK_CONFIRM_DELETE_TITLE": "מחיקת פריטים",
+			"BULK_CONFIRM_DELETE_DESC": "האם אתה בטוח שברצונך למחוק {count, plural, =1 {פריט אחד} other {# פריטים}}?",
+			"BULK_CONFIRM_DELETE_BTN": "מחק הכל",
+			"BULK_DELETE_WARNING": "לא ניתן לבטל פעולה זו.",
+			"VIEW_HISTORY": "צפה בהיסטוריה"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2623,7 +2643,9 @@
 			"PROFILE_NOT_FOUND": "פרופיל החשבון לא נמצא. אנא פנה לתמיכה.",
 			"GENERIC_ERROR_MESSAGE": "אירעה שגיאה. אנא נסה שוב.",
 			"RATE_LIMITED": "יותר מדי ניסיונות. אנא המתן מספר דקות לפני שתנסה שוב.",
-			"USE_OAUTH_PROVIDER": "חשבון זה משתמש בהתחברות חברתית. אנא התחבר באמצעות Google או GitHub."
+			"USE_OAUTH_PROVIDER": "חשבון זה משתמש בהתחברות חברתית. אנא התחבר באמצעות Google או GitHub.",
+			"SESSION_REFRESH_FAILED": "לא ניתן לרענן את הסשן. אנא נסה שוב.",
+			"PAGE_REFRESH_FAILED": "לא ניתן לרענן את הדף. אנא נסה שוב."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "שכחת סיסמה?",
@@ -2741,6 +2763,29 @@
 			"RETRY": "Retry",
 			"LOADING": "Loading...",
 			"REACHED_THE_END": "You've reached the end"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -812,7 +812,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Completar pago"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2112,7 +2113,26 @@
 			"NO_CATEGORIES_AVAILABLE": "No hay categorías disponibles",
 			"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
 			"REMOVE_FILTER": "Eliminar filtro {name}",
-			"CLEAR_ALL_FILTERS": "Borrar todo"
+			"CLEAR_ALL_FILTERS": "Borrar todo",
+			"SELECT_ALL": "Seleccionar todo",
+			"SELECT_ITEM": "Seleccionar {name}",
+			"BULK_ACTIONS": "Acciones masivas",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 elemento seleccionado} other {# elementos seleccionados}}",
+			"BULK_APPROVE": "Aprobar",
+			"BULK_REJECT": "Rechazar",
+			"BULK_DELETE": "Eliminar",
+			"BULK_DESELECT_ALL": "Deseleccionar todo",
+			"BULK_CONFIRM_APPROVE_TITLE": "Aprobar elementos",
+			"BULK_CONFIRM_APPROVE_DESC": "¿Está seguro de que desea aprobar {count, plural, =1 {1 elemento} other {# elementos}}? Serán visibles públicamente.",
+			"BULK_CONFIRM_APPROVE_BTN": "Aprobar todo",
+			"BULK_CONFIRM_REJECT_TITLE": "Rechazar elementos",
+			"BULK_CONFIRM_REJECT_DESC": "¿Está seguro de que desea rechazar {count, plural, =1 {1 elemento} other {# elementos}}? Los remitentes serán notificados.",
+			"BULK_CONFIRM_REJECT_BTN": "Rechazar todo",
+			"BULK_CONFIRM_DELETE_TITLE": "Eliminar elementos",
+			"BULK_CONFIRM_DELETE_DESC": "¿Está seguro de que desea eliminar {count, plural, =1 {1 elemento} other {# elementos}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Eliminar todo",
+			"BULK_DELETE_WARNING": "Esta acción no se puede deshacer.",
+			"VIEW_HISTORY": "Ver historial"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Gestión de Usuarios",
@@ -2769,6 +2789,29 @@
 			"RETRY": "Reintentar",
 			"LOADING": "Cargando...",
 			"REACHED_THE_END": "Has llegado al final"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -885,7 +885,8 @@
 			"success": "Thanh toán thành công",
 			"failed": "Thanh toán thất bại",
 			"pending": "Thanh toán đang chờ xử lý"
-		}
+		},
+		"COMPLETE_PAYMENT": "Hoàn tất thanh toán"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Trình tạo Nền tảng Thư mục Chuyên nghiệp",
@@ -2180,7 +2181,26 @@
 			"NO_CATEGORIES_AVAILABLE": "Không có danh mục nào",
 			"NO_TAGS_AVAILABLE": "Không có thẻ nào",
 			"REMOVE_FILTER": "Xóa bộ lọc {name}",
-			"CLEAR_ALL_FILTERS": "Xóa tất cả"
+			"CLEAR_ALL_FILTERS": "Xóa tất cả",
+			"SELECT_ALL": "Chọn tất cả",
+			"SELECT_ITEM": "Chọn {name}",
+			"BULK_ACTIONS": "Thao tác hàng loạt",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {Đã chọn 1 mục} other {Đã chọn # mục}}",
+			"BULK_APPROVE": "Phê duyệt",
+			"BULK_REJECT": "Từ chối",
+			"BULK_DELETE": "Xóa",
+			"BULK_DESELECT_ALL": "Bỏ chọn tất cả",
+			"BULK_CONFIRM_APPROVE_TITLE": "Phê duyệt mục",
+			"BULK_CONFIRM_APPROVE_DESC": "Bạn có chắc chắn muốn phê duyệt {count, plural, =1 {1 mục} other {# mục}}? Chúng sẽ được hiển thị công khai.",
+			"BULK_CONFIRM_APPROVE_BTN": "Phê duyệt tất cả",
+			"BULK_CONFIRM_REJECT_TITLE": "Từ chối mục",
+			"BULK_CONFIRM_REJECT_DESC": "Bạn có chắc chắn muốn từ chối {count, plural, =1 {1 mục} other {# mục}}? Người gửi sẽ được thông báo.",
+			"BULK_CONFIRM_REJECT_BTN": "Từ chối tất cả",
+			"BULK_CONFIRM_DELETE_TITLE": "Xóa mục",
+			"BULK_CONFIRM_DELETE_DESC": "Bạn có chắc chắn muốn xóa {count, plural, =1 {1 mục} other {# mục}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Xóa tất cả",
+			"BULK_DELETE_WARNING": "Hành động này không thể hoàn tác.",
+			"VIEW_HISTORY": "Xem lịch sử"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Quản lý người dùng",
@@ -2862,6 +2882,29 @@
 			"CANCEL": "Hủy bỏ",
 			"UPDATE_REPORT": "Cập nhật báo cáo",
 			"UPDATING": "Đang cập nhật..."
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -822,7 +822,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "完成支付"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2122,7 +2123,26 @@
 			"NO_CATEGORIES_AVAILABLE": "没有可用的分类",
 			"NO_TAGS_AVAILABLE": "没有可用的标签",
 			"REMOVE_FILTER": "移除{name}筛选",
-			"CLEAR_ALL_FILTERS": "清除全部"
+			"CLEAR_ALL_FILTERS": "清除全部",
+			"SELECT_ALL": "全选",
+			"SELECT_ITEM": "选择{name}",
+			"BULK_ACTIONS": "批量操作",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {已选择1个项目} other {已选择#个项目}}",
+			"BULK_APPROVE": "批准",
+			"BULK_REJECT": "拒绝",
+			"BULK_DELETE": "删除",
+			"BULK_DESELECT_ALL": "取消全选",
+			"BULK_CONFIRM_APPROVE_TITLE": "批准项目",
+			"BULK_CONFIRM_APPROVE_DESC": "您确定要批准{count, plural, =1 {1个项目} other {#个项目}}吗？它们将公开可见。",
+			"BULK_CONFIRM_APPROVE_BTN": "全部批准",
+			"BULK_CONFIRM_REJECT_TITLE": "拒绝项目",
+			"BULK_CONFIRM_REJECT_DESC": "您确定要拒绝{count, plural, =1 {1个项目} other {#个项目}}吗？提交者将收到通知。",
+			"BULK_CONFIRM_REJECT_BTN": "全部拒绝",
+			"BULK_CONFIRM_DELETE_TITLE": "删除项目",
+			"BULK_CONFIRM_DELETE_DESC": "您确定要删除{count, plural, =1 {1个项目} other {#个项目}}吗？",
+			"BULK_CONFIRM_DELETE_BTN": "全部删除",
+			"BULK_DELETE_WARNING": "此操作无法撤消。",
+			"VIEW_HISTORY": "查看历史"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "用户管理",
@@ -2779,6 +2799,29 @@
 			"RETRY": "重试",
 			"LOADING": "加载中...",
 			"REACHED_THE_END": "您已到达末尾"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

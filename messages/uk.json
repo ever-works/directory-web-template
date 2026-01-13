@@ -806,7 +806,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Завершити оплату"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2090,7 +2091,26 @@
 			"NO_CATEGORIES_AVAILABLE": "Немає доступних категорій",
 			"NO_TAGS_AVAILABLE": "Немає доступних тегів",
 			"REMOVE_FILTER": "Видалити фільтр {name}",
-			"CLEAR_ALL_FILTERS": "Очистити все"
+			"CLEAR_ALL_FILTERS": "Очистити все",
+			"SELECT_ALL": "Вибрати все",
+			"SELECT_ITEM": "Вибрати {name}",
+			"BULK_ACTIONS": "Масові дії",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 елемент вибрано} other {# елементів вибрано}}",
+			"BULK_APPROVE": "Схвалити",
+			"BULK_REJECT": "Відхилити",
+			"BULK_DELETE": "Видалити",
+			"BULK_DESELECT_ALL": "Зняти вибір",
+			"BULK_CONFIRM_APPROVE_TITLE": "Схвалити елементи",
+			"BULK_CONFIRM_APPROVE_DESC": "Ви впевнені, що хочете схвалити {count, plural, =1 {1 елемент} other {# елементів}}? Вони стануть публічно видимими.",
+			"BULK_CONFIRM_APPROVE_BTN": "Схвалити все",
+			"BULK_CONFIRM_REJECT_TITLE": "Відхилити елементи",
+			"BULK_CONFIRM_REJECT_DESC": "Ви впевнені, що хочете відхилити {count, plural, =1 {1 елемент} other {# елементів}}? Відправники будуть повідомлені.",
+			"BULK_CONFIRM_REJECT_BTN": "Відхилити все",
+			"BULK_CONFIRM_DELETE_TITLE": "Видалити елементи",
+			"BULK_CONFIRM_DELETE_DESC": "Ви впевнені, що хочете видалити {count, plural, =1 {1 елемент} other {# елементів}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Видалити все",
+			"BULK_DELETE_WARNING": "Цю дію неможливо скасувати.",
+			"VIEW_HISTORY": "Переглянути історію"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2629,7 +2649,9 @@
 			"PROFILE_NOT_FOUND": "Профіль облікового запису не знайдено. Будь ласка, зверніться до служби підтримки.",
 			"GENERIC_ERROR_MESSAGE": "Виникла помилка. Будь ласка, спробуйте ще раз.",
 			"RATE_LIMITED": "Забагато спроб. Будь ласка, зачекайте кілька хвилин і спробуйте знову.",
-			"USE_OAUTH_PROVIDER": "Цей обліковий запис використовує соціальний вхід. Увійдіть через Google або GitHub."
+			"USE_OAUTH_PROVIDER": "Цей обліковий запис використовує соціальний вхід. Увійдіть через Google або GitHub.",
+			"SESSION_REFRESH_FAILED": "Не вдалося оновити сесію. Будь ласка, спробуйте ще раз.",
+			"PAGE_REFRESH_FAILED": "Не вдалося оновити сторінку. Будь ласка, спробуйте ще раз."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "Забули пароль?",
@@ -2747,6 +2769,29 @@
 			"RETRY": "Retry",
 			"LOADING": "Loading...",
 			"REACHED_THE_END": "You've reached the end"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

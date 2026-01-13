@@ -823,7 +823,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Zahlung abschließen"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2123,7 +2124,26 @@
 			"NO_CATEGORIES_AVAILABLE": "Keine Kategorien verfügbar",
 			"NO_TAGS_AVAILABLE": "Keine Tags verfügbar",
 			"REMOVE_FILTER": "Filter {name} entfernen",
-			"CLEAR_ALL_FILTERS": "Alle löschen"
+			"CLEAR_ALL_FILTERS": "Alle löschen",
+			"SELECT_ALL": "Alle Elemente auswählen",
+			"SELECT_ITEM": "{name} auswählen",
+			"BULK_ACTIONS": "Massenaktionen",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 Element ausgewählt} other {# Elemente ausgewählt}}",
+			"BULK_APPROVE": "Genehmigen",
+			"BULK_REJECT": "Ablehnen",
+			"BULK_DELETE": "Löschen",
+			"BULK_DESELECT_ALL": "Alle abwählen",
+			"BULK_CONFIRM_APPROVE_TITLE": "Elemente genehmigen",
+			"BULK_CONFIRM_APPROVE_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} genehmigen? Diese werden öffentlich sichtbar.",
+			"BULK_CONFIRM_APPROVE_BTN": "Alle genehmigen",
+			"BULK_CONFIRM_REJECT_TITLE": "Elemente ablehnen",
+			"BULK_CONFIRM_REJECT_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} ablehnen? Die Einreicher werden benachrichtigt.",
+			"BULK_CONFIRM_REJECT_BTN": "Alle ablehnen",
+			"BULK_CONFIRM_DELETE_TITLE": "Elemente löschen",
+			"BULK_CONFIRM_DELETE_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} löschen?",
+			"BULK_CONFIRM_DELETE_BTN": "Alle löschen",
+			"BULK_DELETE_WARNING": "Diese Aktion kann nicht rückgängig gemacht werden.",
+			"VIEW_HISTORY": "Verlauf anzeigen"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Benutzerverwaltung",
@@ -2780,6 +2800,29 @@
 			"RETRY": "Wiederholen",
 			"LOADING": "Wird geladen...",
 			"REACHED_THE_END": "Sie haben das Ende erreicht"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

@@ -21,8 +21,8 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     if (!session) {
       console.log("No session, redirecting to signin");
       hasRedirectedRef.current = true;
-      // Not authenticated, redirect to admin signin
-      router.replace("/admin/auth/signin");
+      // Not authenticated, redirect to admin signin with callback URL
+      router.replace(`/admin/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
       return;
     }
 
@@ -36,7 +36,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     }
 
     console.log("User authenticated and is admin");
-  }, [session, status, router, isAuthPage]);
+  }, [session, status, router, isAuthPage, pathname]);
 
   // Show loading while checking auth
   // if (status === "loading") {

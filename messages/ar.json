@@ -810,7 +810,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "إكمال الدفع"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2110,7 +2111,26 @@
 			"NO_CATEGORIES_AVAILABLE": "لا توجد فئات متاحة",
 			"NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
 			"REMOVE_FILTER": "إزالة فلتر {name}",
-			"CLEAR_ALL_FILTERS": "مسح الكل"
+			"CLEAR_ALL_FILTERS": "مسح الكل",
+			"SELECT_ALL": "تحديد الكل",
+			"SELECT_ITEM": "تحديد {name}",
+			"BULK_ACTIONS": "إجراءات جماعية",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {عنصر واحد محدد} other {# عناصر محددة}}",
+			"BULK_APPROVE": "موافقة",
+			"BULK_REJECT": "رفض",
+			"BULK_DELETE": "حذف",
+			"BULK_DESELECT_ALL": "إلغاء تحديد الكل",
+			"BULK_CONFIRM_APPROVE_TITLE": "الموافقة على العناصر",
+			"BULK_CONFIRM_APPROVE_DESC": "هل أنت متأكد من الموافقة على {count, plural, =1 {عنصر واحد} other {# عناصر}}؟ ستصبح مرئية للعامة.",
+			"BULK_CONFIRM_APPROVE_BTN": "الموافقة على الكل",
+			"BULK_CONFIRM_REJECT_TITLE": "رفض العناصر",
+			"BULK_CONFIRM_REJECT_DESC": "هل أنت متأكد من رفض {count, plural, =1 {عنصر واحد} other {# عناصر}}؟ سيتم إخطار المرسلين.",
+			"BULK_CONFIRM_REJECT_BTN": "رفض الكل",
+			"BULK_CONFIRM_DELETE_TITLE": "حذف العناصر",
+			"BULK_CONFIRM_DELETE_DESC": "هل أنت متأكد من حذف {count, plural, =1 {عنصر واحد} other {# عناصر}}؟",
+			"BULK_CONFIRM_DELETE_BTN": "حذف الكل",
+			"BULK_DELETE_WARNING": "لا يمكن التراجع عن هذا الإجراء.",
+			"VIEW_HISTORY": "عرض السجل"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "إدارة المستخدمين",
@@ -2649,7 +2669,9 @@
 			"PROFILE_NOT_FOUND": "لم يتم العثور على ملف الحساب. يرجى الاتصال بالدعم.",
 			"GENERIC_ERROR_MESSAGE": "حدث خطأ. يرجى المحاولة مرة أخرى.",
 			"RATE_LIMITED": "محاولات كثيرة جداً. يرجى الانتظار بضع دقائق قبل المحاولة مرة أخرى.",
-			"USE_OAUTH_PROVIDER": "يستخدم هذا الحساب تسجيل الدخول الاجتماعي. يرجى تسجيل الدخول باستخدام Google أو GitHub."
+			"USE_OAUTH_PROVIDER": "يستخدم هذا الحساب تسجيل الدخول الاجتماعي. يرجى تسجيل الدخول باستخدام Google أو GitHub.",
+			"SESSION_REFRESH_FAILED": "تعذر تحديث الجلسة. يرجى المحاولة مرة أخرى.",
+			"PAGE_REFRESH_FAILED": "تعذر تحديث الصفحة. يرجى المحاولة مرة أخرى."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "نسيت كلمة المرور؟",
@@ -2767,6 +2789,29 @@
 			"RETRY": "إعادة المحاولة",
 			"LOADING": "جاري التحميل...",
 			"REACHED_THE_END": "لقد وصلت إلى النهاية"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {

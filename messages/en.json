@@ -888,7 +888,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Complete Payment"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2188,7 +2189,49 @@
 			"NO_CATEGORIES_AVAILABLE": "No categories available",
 			"NO_TAGS_AVAILABLE": "No tags available",
 			"REMOVE_FILTER": "Remove {name} filter",
-			"CLEAR_ALL_FILTERS": "Clear all"
+			"CLEAR_ALL_FILTERS": "Clear all",
+			"VIEW_HISTORY": "View History",
+			"SELECT_ALL": "Select all items",
+			"SELECT_ITEM": "Select {name}",
+			"BULK_ACTIONS": "Bulk actions",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 item selected} other {# items selected}}",
+			"BULK_APPROVE": "Approve",
+			"BULK_REJECT": "Reject",
+			"BULK_DELETE": "Delete",
+			"BULK_DESELECT_ALL": "Deselect all",
+			"BULK_CONFIRM_APPROVE_TITLE": "Approve Items",
+			"BULK_CONFIRM_APPROVE_DESC": "Are you sure you want to approve {count, plural, =1 {1 item} other {# items}}? This will make them publicly visible.",
+			"BULK_CONFIRM_APPROVE_BTN": "Approve All",
+			"BULK_CONFIRM_REJECT_TITLE": "Reject Items",
+			"BULK_CONFIRM_REJECT_DESC": "Are you sure you want to reject {count, plural, =1 {1 item} other {# items}}? The submitters will be notified.",
+			"BULK_CONFIRM_REJECT_BTN": "Reject All",
+			"BULK_CONFIRM_DELETE_TITLE": "Delete Items",
+			"BULK_CONFIRM_DELETE_DESC": "Are you sure you want to delete {count, plural, =1 {1 item} other {# items}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Delete All",
+			"BULK_DELETE_WARNING": "This action cannot be undone."
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2752,7 +2795,9 @@
 			"PROFILE_NOT_FOUND": "Account profile not found. Please contact support.",
 			"GENERIC_ERROR_MESSAGE": "An error occurred. Please try again.",
 			"RATE_LIMITED": "Too many attempts. Please wait a few minutes before trying again.",
-			"USE_OAUTH_PROVIDER": "This account uses social login. Please sign in with your social provider."
+			"USE_OAUTH_PROVIDER": "This account uses social login. Please sign in with your social provider.",
+			"SESSION_REFRESH_FAILED": "Unable to refresh your session. Please try again.",
+			"PAGE_REFRESH_FAILED": "Unable to refresh the page. Please try again."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "Forgot Password?",

@@ -806,7 +806,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Concluir pagamento"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2090,7 +2091,26 @@
 			"NO_CATEGORIES_AVAILABLE": "Nenhuma categoria disponível",
 			"NO_TAGS_AVAILABLE": "Nenhuma tag disponível",
 			"REMOVE_FILTER": "Remover filtro {name}",
-			"CLEAR_ALL_FILTERS": "Limpar tudo"
+			"CLEAR_ALL_FILTERS": "Limpar tudo",
+			"SELECT_ALL": "Selecionar tudo",
+			"SELECT_ITEM": "Selecionar {name}",
+			"BULK_ACTIONS": "Ações em massa",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 item selecionado} other {# itens selecionados}}",
+			"BULK_APPROVE": "Aprovar",
+			"BULK_REJECT": "Rejeitar",
+			"BULK_DELETE": "Excluir",
+			"BULK_DESELECT_ALL": "Desmarcar tudo",
+			"BULK_CONFIRM_APPROVE_TITLE": "Aprovar itens",
+			"BULK_CONFIRM_APPROVE_DESC": "Tem certeza de que deseja aprovar {count, plural, =1 {1 item} other {# itens}}? Eles ficarão visíveis publicamente.",
+			"BULK_CONFIRM_APPROVE_BTN": "Aprovar tudo",
+			"BULK_CONFIRM_REJECT_TITLE": "Rejeitar itens",
+			"BULK_CONFIRM_REJECT_DESC": "Tem certeza de que deseja rejeitar {count, plural, =1 {1 item} other {# itens}}? Os remetentes serão notificados.",
+			"BULK_CONFIRM_REJECT_BTN": "Rejeitar tudo",
+			"BULK_CONFIRM_DELETE_TITLE": "Excluir itens",
+			"BULK_CONFIRM_DELETE_DESC": "Tem certeza de que deseja excluir {count, plural, =1 {1 item} other {# itens}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Excluir tudo",
+			"BULK_DELETE_WARNING": "Esta ação não pode ser desfeita.",
+			"VIEW_HISTORY": "Ver histórico"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",
@@ -2747,6 +2767,29 @@
 			"RETRY": "Retry",
 			"LOADING": "Loading...",
 			"REACHED_THE_END": "You've reached the end"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
