@@ -7,7 +7,7 @@ import { getSafeRedirectPath } from "@/lib/auth/validate-callback-url";
 export default function AdminLoginPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl");
+  const callbackUrl = searchParams.get("callbackUrl") ?? null;
 
   const handleLoginSuccess = () => {
     const redirectPath = getSafeRedirectPath(callbackUrl, `/${params.locale}/admin`);
