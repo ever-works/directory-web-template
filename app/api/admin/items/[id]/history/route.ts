@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { itemAuditService } from '@/lib/services/item-audit.service';
 import { ItemAuditAction, type ItemAuditActionValues } from '@/lib/db/schema';
+import { ItemRepository } from '@/lib/repositories/item.repository';
 
 /**
  * @swagger
@@ -160,6 +161,16 @@ export async function GET(
 
 		const resolvedParams = await params;
 		const itemId = resolvedParams.id;
+
+		// Check if item exists
+		const itemRepository = new ItemRepository();
+		const item = await itemRepository.findById(itemId, true); // include deleted items
+		if (!item) {
+			return NextResponse.json(
+				{ success: false, error: 'Item not found' },
+				{ status: 404 }
+			);
+		}
 
 		// Parse query parameters
 		const { searchParams } = new URL(request.url);
