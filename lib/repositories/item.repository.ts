@@ -148,6 +148,8 @@ export class ItemRepository {
       } catch (err) {
         console.warn('Audit logUpdate failed:', err);
       }
+    } else {
+      console.warn(`Audit skipped for update: previous state not found for id=${id}`);
     }
 
     return updatedItem;
@@ -197,15 +199,19 @@ export class ItemRepository {
 
     // Get previous status for audit log
     const previousItem = await gitService.findItemById(id, true);
-    const previousStatus = previousItem?.status ?? 'unknown';
+    const previousStatus = previousItem?.status;
 
     const item = await gitService.reviewItem(id, reviewData);
 
-    // Log review to audit trail (best-effort)
-    try {
-      await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
-    } catch (err) {
-      console.warn('Audit logReview failed:', err);
+    // Log review to audit trail (best-effort, only if previous status was found)
+    if (previousStatus) {
+      try {
+        await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
+      } catch (err) {
+        console.warn('Audit logReview failed:', err);
+      }
+    } else {
+      console.warn(`Audit skipped for review: previous status not found for id=${id}`);
     }
 
     return item;
