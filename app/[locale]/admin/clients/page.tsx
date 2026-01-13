@@ -255,6 +255,7 @@ export default function ClientsPage() {
 	// Pagination
 	const handlePageChange = useCallback((page: number) => {
 		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
 
 	// Handle edit URL parameter
@@ -272,10 +273,9 @@ export default function ClientsPage() {
 			if (!isLoading) {
 				toast.error(t('CLIENT_NOT_FOUND'));
 			}
-		} else {
-			if (isOpen) onClose();
-			setSelectedClient(null);
 		}
+		// Note: Don't close the modal here - it should only be closed explicitly
+		// by user action or when edit param is removed after being set
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [searchParams, clients, isLoading]);
 

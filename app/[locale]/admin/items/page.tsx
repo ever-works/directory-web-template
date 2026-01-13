@@ -1,41 +1,135 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "@heroui/react";
+import { Spinner, Checkbox } from "@heroui/react";
 import { MultiStepItemForm } from "@/components/admin/items/multi-step-item-form";
+import { ItemFilters } from "@/components/admin/items/item-filters";
+import { ActiveItemFilters } from "@/components/admin/items/active-item-filters";
 import { ItemRejectModal } from "@/components/admin/items/item-reject-modal";
+import { ItemHistoryModal } from "@/components/admin/items/item-history-modal";
+import { BulkActionBar } from "@/components/admin/items/bulk-action-bar";
+import { BulkConfirmDialog } from "@/components/admin/items/bulk-confirm-dialog";
+import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/item-list-sorting";
+import { ItemActionsMenu } from "@/components/admin/items/item-actions-menu";
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITEM_STATUS_COLORS } from "@/lib/types/item";
 import { UniversalPagination } from "@/components/universal-pagination";
-import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag, Hash, Link2, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useAdminItems } from "@/hooks/use-admin-items";
+import { useAllCategories } from "@/hooks/use-admin-categories";
+import { useAllTags } from "@/hooks/use-admin-tags";
 import { useTranslations } from 'next-intl';
 import { AdminSurveyCreationButton } from "@/components/surveys/admin-survey-creation-button";
+import { useDebounceSearch } from "@/hooks/use-debounced-search";
+import { ItemSearch } from "./components/item-filters";
 
 export default function AdminItemsPage() {
   const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
+  const router = useRouter();
+  const params = useParams<{ locale: string }>();
   const PageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  
-  // Use custom hook
+  const [sortBy, setSortBy] = useState<SortField>("updated_at");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const [searchTerm, setSearchTerm] = useState("");
+  const hasLoadedOnce = useRef(false);
+
+  // Filter state
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [categoriesFilter, setCategoriesFilter] = useState<string[]>([]);
+  const [tagsFilter, setTagsFilter] = useState<string[]>([]);
+
+  // Debounced search (min 2 trimmed characters to trigger, 300ms delay)
+  const { debouncedValue: debouncedSearchTerm, isSearching } = useDebounceSearch({
+    searchValue: searchTerm.trim().length >= 2 ? searchTerm.trim() : "",
+    delay: 300,
+    onSearch: () => {
+      // Reset to page 1 on new search
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      }
+    },
+  });
+
+  // Reset page when filters or sorting change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, categoriesFilter, tagsFilter, sortBy, sortOrder]);
+
+  // Fetch categories and tags for filter dropdowns
+  const { data: allCategories = [] } = useAllCategories();
+  const { data: allTags = [] } = useAllTags();
+
+  // Use custom hook with filter and sort params
   const {
     items,
     total: totalItems,
     totalPages,
     stats,
     isLoading,
+    isFetching,
     isSubmitting,
     isApproving,
     isRejecting,
     isDeleting,
     pendingItemId,
+    isBulkProcessing,
+    bulkActionType,
     createItem,
     updateItem,
     deleteItem,
     reviewItem,
-  } = useAdminItems({ page: currentPage, limit: PageSize });
+    bulkApprove,
+    bulkReject,
+    bulkDelete,
+  } = useAdminItems({
+    page: currentPage,
+    limit: PageSize,
+    search: debouncedSearchTerm || undefined,
+    status: statusFilter || undefined,
+    categories: categoriesFilter.length > 0 ? categoriesFilter : undefined,
+    tags: tagsFilter.length > 0 ? tagsFilter : undefined,
+    sortBy,
+    sortOrder,
+  });
+
+// Check if search is active (>= 2 chars after trimming, matching query behavior)
+  const hasActiveSearch = searchTerm.trim().length >= 2;
+  // Calculate active filter count (only count search when >= 2 chars, matching query behavior)
+  const activeFilterCount = (hasActiveSearch ? 1 : 0) + (statusFilter ? 1 : 0) + categoriesFilter.length + tagsFilter.length;
+  const hasActiveFilters = activeFilterCount > 0;
+
+  // Clear all filters (including search)
+  const handleClearAllFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("");
+    setCategoriesFilter([]);
+    setTagsFilter([]);
+    setCurrentPage(1);
+  };
+
+  // Sort handlers
+  const handleSortByChange = (newSortBy: SortField) => {
+    setSortBy(newSortBy);
+  };
+
+  const handleSortOrderChange = (newSortOrder: SortOrder) => {
+    setSortOrder(newSortOrder);
+  };
+
+  // Track if we've loaded data at least once
+  useEffect(() => {
+    if (!isLoading) {
+      hasLoadedOnce.current = true;
+    }
+  }, [isLoading]);
+
+  // Only show skeleton on initial load, not on sort/page changes
+  const showSkeleton = isLoading && !hasLoadedOnce.current;
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,9 +141,82 @@ export default function AdminItemsPage() {
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
+  // History modal state
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedItemForHistory, setSelectedItemForHistory] = useState<ItemData | null>(null);
+
+  // Bulk selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | 'delete' | null>(null);
+
+  // Clear selection when page changes
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [currentPage]);
+
+  // Selection handlers
+  const toggleSelection = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleSelectAll = useCallback(() => {
+    setSelectedIds((prev) => {
+      if (prev.size === items.length) {
+        return new Set();
+      }
+      return new Set(items.map((item) => item.id));
+    });
+  }, [items]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  // Calculate selection states for "Select All" checkbox
+  const isAllSelected = items.length > 0 && selectedIds.size === items.length;
+  const isPartiallySelected = selectedIds.size > 0 && selectedIds.size < items.length;
+  const pendingSelectedCount = items.filter(
+    (item) => selectedIds.has(item.id) && item.status === 'pending'
+  ).length;
+
+  // Bulk action handlers
+  const handleBulkApprove = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkApprove(ids);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkApprove, clearSelection]);
+
+  const handleBulkReject = useCallback(async (reason: string) => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkReject(ids, reason);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkReject, clearSelection]);
+
+  const handleBulkDelete = useCallback(async () => {
+    const ids = Array.from(selectedIds);
+    const result = await bulkDelete(ids);
+    if (result) {
+      clearSelection();
+      setBulkAction(null);
+    }
+  }, [selectedIds, bulkDelete, clearSelection]);
 
   const handleCreateItem = async (data: CreateItemRequest) => {
-    const success = await createItem(data as any);
+    const success = await createItem(data);
     if (success) {
       setIsModalOpen(false);
     }
@@ -57,8 +224,8 @@ export default function AdminItemsPage() {
 
   const handleUpdateItem = async (data: UpdateItemRequest) => {
     if (!selectedItem) return;
-    
-    const success = await updateItem(selectedItem.id, data as any);
+
+    const success = await updateItem(selectedItem.id, data);
     if (success) {
       setIsModalOpen(false);
     }
@@ -94,6 +261,16 @@ export default function AdminItemsPage() {
     setRejectionReason('');
   };
 
+  const openHistoryModal = (item: ItemData) => {
+    setSelectedItemForHistory(item);
+    setHistoryModalOpen(true);
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryModalOpen(false);
+    setSelectedItemForHistory(null);
+  };
+
   const handleRejectConfirm = async () => {
     // Prevent multiple clicks while rejecting
     if (isRejecting) return;
@@ -122,6 +299,51 @@ export default function AdminItemsPage() {
     setSelectedItem(undefined);
   };
 
+  // Modal accessibility: Escape key handler and focus management (Feedback 4)
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    };
+
+    // Add escape key listener
+    document.addEventListener("keydown", handleKeyDown);
+
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "";
+    };
+  }, [isModalOpen]);
+
+  // Format date with fallback for missing/invalid values (Feedback 2)
+  const formatDate = (dateValue: string | null | undefined): string => {
+    if (!dateValue) return "—";
+    try {
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return "—";
+      return date.toLocaleDateString();
+    } catch {
+      return "—";
+    }
+  };
+
+  // Secure external link handler
+  const handleOpenExternal = (rawUrl?: string) => {
+    if (!rawUrl) return;
+    try {
+      const url = new URL(rawUrl);
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
+    } catch {
+      // Invalid URL, silently ignore
+    }
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -135,18 +357,35 @@ export default function AdminItemsPage() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  // Compact status labels for cleaner UI
+  const getStatusLabel = (status: string) => {
     switch (status) {
       case 'draft':
-        return <Package className="w-4 h-4" />;
+        return t('STATUS_DRAFT');
       case 'pending':
-        return <Clock className="w-4 h-4" />;
+        return t('STATUS_PENDING');
       case 'approved':
-        return <CheckCircle className="w-4 h-4" />;
+        return t('STATUS_APPROVED');
       case 'rejected':
-        return <XCircle className="w-4 h-4" />;
+        return t('STATUS_REJECTED');
       default:
-        return <Package className="w-4 h-4" />;
+        return status;
+    }
+  };
+
+  // Status dot color classes
+  const getStatusDotColor = (status: string) => {
+    switch (status) {
+      case 'draft':
+        return 'bg-gray-400';
+      case 'pending':
+        return 'bg-yellow-400';
+      case 'approved':
+        return 'bg-green-400';
+      case 'rejected':
+        return 'bg-red-400';
+      default:
+        return 'bg-gray-400';
     }
   };
 
@@ -179,7 +418,7 @@ export default function AdminItemsPage() {
     return statusClasses[color as keyof typeof statusClasses] || statusClasses.gray;
   };
 
-  if (isLoading) {
+  if (showSkeleton) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header Skeleton */}
@@ -360,27 +599,107 @@ export default function AdminItemsPage() {
         </Card>
       </div>
 
+      {/* Search */}
+      <ItemSearch
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        isSearching={isSearching}
+      />
+
       {/* Items Table */}
       <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
         <CardContent className="p-0">
-          {/* Table Header */}
+          {/* Table Header with Integrated Filters and Sorting */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              {t('ITEMS_TABLE_TITLE', { count: totalItems })}
-            </h3>
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                {/* Select All Checkbox */}
+                {items.length > 0 && (
+                  <Checkbox
+                    isSelected={isAllSelected}
+                    isIndeterminate={isPartiallySelected}
+                    onValueChange={toggleSelectAll}
+                    aria-label={t('SELECT_ALL')}
+                    color="primary"
+                  />
+                )}
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {t('ITEMS_TABLE_TITLE', { count: totalItems })}
+                </h3>
+              </div>
+              <div className="flex items-center gap-3">
+                <ItemFilters
+                  statusFilter={statusFilter}
+                  categoriesFilter={categoriesFilter}
+                  tagsFilter={tagsFilter}
+                  onStatusChange={setStatusFilter}
+                  onCategoriesChange={setCategoriesFilter}
+                  onTagsChange={setTagsFilter}
+                  onClearAll={handleClearAllFilters}
+                  categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
+                  tags={allTags.map(t => ({ id: t.id, name: t.name }))}
+                  itemCounts={{
+                    draft: stats.draft,
+                    pending: stats.pending,
+                    approved: stats.approved,
+                    rejected: stats.rejected,
+                  }}
+                  activeFilterCount={activeFilterCount}
+                />
+                <ItemListSorting
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSortByChange={handleSortByChange}
+                  onSortOrderChange={handleSortOrderChange}
+                  isLoading={isFetching}
+                />
+              </div>
+            </div>
+            {/* Active Filter Chips */}
+            {(categoriesFilter.length > 0 || tagsFilter.length > 0) && (
+              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                <ActiveItemFilters
+                  categoriesFilter={categoriesFilter}
+                  tagsFilter={tagsFilter}
+                  onRemoveCategory={(catId) => setCategoriesFilter(prev => prev.filter(c => c !== catId))}
+                  onRemoveTag={(tagId) => setTagsFilter(prev => prev.filter(t => t !== tagId))}
+                  onClearAll={handleClearAllFilters}
+                  categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
+                  tags={allTags.map(t => ({ id: t.id, name: t.name }))}
+                />
+              </div>
+            )}
           </div>
 
           {/* Items List */}
-          <div className="p-6 space-y-4">
+          <div className={cn(
+            "p-6 space-y-4 relative transition-opacity duration-200",
+            isFetching && !isLoading && "opacity-60"
+          )}>
+            {/* Loading overlay for tab/filter changes */}
+            {isFetching && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className="bg-white/90 dark:bg-gray-900/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING')}</span>
+                </div>
+              </div>
+            )}
             {items.map((item) => {
               const statusColors = getStatusColor(item.status);
               const categories = Array.isArray(item.category) ? item.category : [item.category];
               const isProcessingThisItem = pendingItemId === item.id && (isApproving || isRejecting || isDeleting);
+              const isSelected = selectedIds.has(item.id);
 
               return (
                 <div
                   key={item.id}
-                  className="group relative bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 overflow-hidden"
+                  className={cn(
+                    "group relative rounded-xl border transition-all duration-300 overflow-hidden",
+                    isSelected
+                      ? "bg-theme-primary/5 dark:bg-theme-primary/10 border-theme-primary/30"
+                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg"
+                  )}
                 >
                   {/* Loading overlay */}
                   {isProcessingThisItem && (
@@ -396,6 +715,16 @@ export default function AdminItemsPage() {
 
                   <div className="p-6">
                     <div className="flex items-start justify-between">
+                      {/* Checkbox for selection */}
+                      <div className="shrink-0 mr-4 pt-1">
+                        <Checkbox
+                          isSelected={isSelected}
+                          onValueChange={() => toggleSelection(item.id)}
+                          aria-label={t('SELECT_ITEM', { name: item.name })}
+                          color="primary"
+                        />
+                      </div>
+
                       {/* Left Section: Item Info */}
                       <div className="flex-1 space-y-3">
                         <div className="flex items-start space-x-3">
@@ -408,13 +737,13 @@ export default function AdminItemsPage() {
                           
                           {/* Item Details */}
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2 mb-2">
+                            <div className="flex items-center gap-2 mb-2">
                               <h4 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
                                 {item.name || t('UNTITLED')}
                               </h4>
-                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors.bg} ${statusColors.text}`}>
-                                {getStatusIcon(item.status)}
-                                <span className="ml-1">{ITEM_STATUS_LABELS[item.status as keyof typeof ITEM_STATUS_LABELS]}</span>
+                              <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium ${statusColors.bg} ${statusColors.text}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${getStatusDotColor(item.status)}`} />
+                                {getStatusLabel(item.status)}
                               </span>
                             </div>
                             
@@ -427,150 +756,64 @@ export default function AdminItemsPage() {
                               {categories.map((cat, index) => (
                                 <span
                                   key={index}
-                                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400"
                                 >
+                                  <Folder className="w-3 h-3" />
                                   {cat}
                                 </span>
                               ))}
                               {item.tags.slice(0, 3).map((tag, index) => (
                                 <span
                                   key={index}
-                                  className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                 >
+                                  <Tag className="w-3 h-3" />
                                   {tag}
                                 </span>
                               ))}
                               {item.tags.length > 3 && (
-                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                  <Tag className="w-3 h-3" />
                                   {t('MORE_TAGS', { count: item.tags.length - 3 })}
                                 </span>
                               )}
                             </div>
                             
                             {/* Meta Info */}
-                            <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
-                              <span>{t('ID_LABEL')} {item.id}</span>
-                              <span>{t('SLUG_LABEL')} {item.slug}</span>
-                              <span>{t('UPDATED_LABEL')} {new Date(item.updated_at || Date.now()).toLocaleDateString()}</span>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+                              <span className="inline-flex items-center gap-1">
+                                <Hash className="w-3 h-3" />
+                                {item.id}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <Link2 className="w-3 h-3" />
+                                {item.slug}
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {formatDate(item.updated_at)}
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Right Section: Actions */}
-                      <div className="flex items-center space-x-2 ml-4">
-                        {/* External Link */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => window.open(item.source_url || '#', '_blank')}
-                          className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20"
-                          title={t('VIEW_SOURCE')}
-                        >
-                          <ExternalLink size={14} />
-                        </Button>
-
-                        {/* Review Actions */}
-                        {item.status === 'pending' && (() => {
-                          const isApprovingThis = isApproving && pendingItemId === item.id;
-                          const isRejectingThis = isRejecting && pendingItemId === item.id;
-                          const isDeletingThis = isDeleting && pendingItemId === item.id;
-                          const isProcessingThis = isApprovingThis || isRejectingThis || isDeletingThis;
-
-                          return (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleApproveItem(item.id)}
-                                disabled={isProcessingThis}
-                                className={`h-8 w-8 p-0 transition-all duration-200 ${
-                                  isProcessingThis
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20'
-                                }`}
-                                title={isApprovingThis ? t('APPROVING') : t('APPROVE')}
-                              >
-                                {isApprovingThis ? (
-                                  <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                  <CheckCircle size={14} />
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => openRejectModal(item)}
-                                disabled={isProcessingThis}
-                                className={`h-8 w-8 p-0 transition-all duration-200 ${
-                                  isProcessingThis
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
-                                }`}
-                                title={isRejectingThis ? t('REJECTING') : t('REJECT')}
-                              >
-                                {isRejectingThis ? (
-                                  <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                  <XCircle size={14} />
-                                )}
-                              </Button>
-                            </>
-                          );
-                        })()}
-
-                        {/* Survey Creation */}
-                        <AdminSurveyCreationButton
-                          itemId={item.id}
-                          variant="ghost"
-                          size="sm"
-                          className="w-8 p-0 hover:bg-yellow-500/10 hover:text-yellow-600"
+                      {/* Right Section: Actions Menu */}
+                      <div className="flex items-center ml-4">
+                        <ItemActionsMenu
+                          item={item}
+                          onViewSource={() => handleOpenExternal(item.source_url)}
+                          onEdit={() => openEditModal(item as any)}
+                          onViewHistory={() => openHistoryModal(item)}
+                          onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
+                          onApprove={() => handleApproveItem(item.id)}
+                          onReject={() => openRejectModal(item)}
+                          onDelete={() => handleDeleteItem(item.id)}
+                          isProcessing={isProcessingThisItem}
+                          isApproving={isApproving && pendingItemId === item.id}
+                          isRejecting={isRejecting && pendingItemId === item.id}
+                          isDeleting={isDeleting && pendingItemId === item.id}
                         />
-
-                        {/* Edit and Delete */}
-                        {(() => {
-                          const isApprovingThis = isApproving && pendingItemId === item.id;
-                          const isRejectingThis = isRejecting && pendingItemId === item.id;
-                          const isDeletingThis = isDeleting && pendingItemId === item.id;
-                          const isProcessingThis = isApprovingThis || isRejectingThis || isDeletingThis;
-
-                          return (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => openEditModal(item as any)}
-                                disabled={isProcessingThis}
-                                className={`h-8 w-8 p-0 transition-all duration-200 ${
-                                  isProcessingThis
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:bg-theme-primary/10 hover:text-theme-primary'
-                                }`}
-                                title={t('EDIT')}
-                              >
-                                <Edit size={14} />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => handleDeleteItem(item.id)}
-                                disabled={isProcessingThis}
-                                className={`h-8 w-8 p-0 transition-all duration-200 ${
-                                  isProcessingThis
-                                    ? 'opacity-50 cursor-not-allowed'
-                                    : 'hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20'
-                                }`}
-                                title={isDeletingThis ? t('DELETING') : t('DELETE')}
-                              >
-                                {isDeletingThis ? (
-                                  <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                  <Trash2 size={14} />
-                                )}
-                              </Button>
-                            </>
-                          );
-                        })()}
                       </div>
                     </div>
                   </div>
@@ -587,19 +830,34 @@ export default function AdminItemsPage() {
                   <Package className="w-8 h-8 text-theme-primary opacity-60" />
                 </div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                  {t('NO_ITEMS_FOUND')}
+                  {hasActiveFilters ? t('NO_FILTER_RESULTS') : t('NO_ITEMS_FOUND')}
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
-                  {t('NO_ITEMS_DESCRIPTION')}
+                  {hasActiveSearch
+                    ? t('NO_ITEMS_FOUND_SEARCH_DESC', { term: searchTerm })
+                    : hasActiveFilters
+                      ? t('NO_FILTER_RESULTS_DESCRIPTION')
+                      : t('NO_ITEMS_DESCRIPTION')
+                  }
                 </p>
-                <Button
-                  color="primary"
-                  onPress={openCreateModal}
-                  startContent={<Plus size={16} />}
-                  className="bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90"
-                >
-                  {t('CREATE_ITEM')}
-                </Button>
+                {hasActiveFilters ? (
+                  <Button
+                    color="primary"
+                    onPress={handleClearAllFilters}
+                    className="bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90"
+                  >
+                    {t('CLEAR_ALL')}
+                  </Button>
+                ) : (
+                  <Button
+                    color="primary"
+                    onPress={openCreateModal}
+                    startContent={<Plus size={16} />}
+                    className="bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90"
+                  >
+                    {t('CREATE_ITEM')}
+                  </Button>
+                )}
               </div>
             </div>
           )}
@@ -619,9 +877,21 @@ export default function AdminItemsPage() {
 
       {/* Item Form Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="item-form-modal-title"
+          tabIndex={-1}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto focus:outline-none"
+          onClick={(e) => {
+            // Close modal when clicking backdrop
+            if (e.target === e.currentTarget) {
+              closeModal();
+            }
+          }}
+        >
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="max-w-4xl w-full">
+            <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
               <MultiStepItemForm
                 item={selectedItem}
                 mode={formMode}
@@ -643,6 +913,47 @@ export default function AdminItemsPage() {
         onReasonChange={setRejectionReason}
         onConfirm={handleRejectConfirm}
         onClose={closeRejectModal}
+      />
+
+      {/* Item History Modal */}
+      {selectedItemForHistory && (
+        <ItemHistoryModal
+          isOpen={historyModalOpen}
+          itemId={selectedItemForHistory.id}
+          itemName={selectedItemForHistory.name}
+          onClose={closeHistoryModal}
+        />
+      )}
+
+      {/* Bulk Action Bar */}
+      <BulkActionBar
+        selectedIds={selectedIds}
+        items={items}
+        onApprove={() => setBulkAction('approve')}
+        onReject={() => setBulkAction('reject')}
+        onDelete={() => setBulkAction('delete')}
+        onClear={clearSelection}
+        isProcessing={isBulkProcessing}
+        processingAction={bulkActionType}
+      />
+
+      {/* Bulk Confirm Dialog */}
+      <BulkConfirmDialog
+        isOpen={bulkAction !== null}
+        action={bulkAction}
+        selectedCount={selectedIds.size}
+        pendingCount={pendingSelectedCount}
+        isProcessing={isBulkProcessing}
+        onConfirm={(reason) => {
+          if (bulkAction === 'approve') {
+            handleBulkApprove();
+          } else if (bulkAction === 'reject' && reason) {
+            handleBulkReject(reason);
+          } else if (bulkAction === 'delete') {
+            handleBulkDelete();
+          }
+        }}
+        onClose={() => setBulkAction(null)}
       />
     </div>
   );

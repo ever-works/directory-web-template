@@ -7,6 +7,7 @@ import { UniversalPagination } from "@/components/universal-pagination";
 import DeleteCommentDialog from "@/components/admin/comments/delete-comment-dialog";
 import { useAdminComments, AdminCommentItem } from "@/hooks/use-admin-comments";
 import { useTranslations } from "next-intl";
+import { useNavigation } from "@/components/providers";
 
 export default function AdminCommentsPage() {
   const t = useTranslations('admin.ADMIN_COMMENTS_PAGE');
@@ -55,7 +56,10 @@ export default function AdminCommentsPage() {
     closeDeleteDialog();
   };
 
-  if (isLoading) {
+  const { isInitialLoad } = useNavigation();
+  const shouldShowSkeleton = isInitialLoad && isLoading;
+
+  if (shouldShowSkeleton) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         {/* Loading Header */}

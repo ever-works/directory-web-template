@@ -6,7 +6,8 @@ import { getCachedItems } from '@/lib/content';
 import { requireAuth } from '@/lib/auth/guards';
 import { getFeatureFlags } from '@/lib/config/feature-flags';
 import { notFound } from 'next/navigation';
-
+// Force dynamic rendering for authenticated pages to prevent auth bypasses
+export const dynamic = 'force-dynamic';
 
 export default async function FavoritesPage({
     params,

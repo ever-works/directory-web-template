@@ -1,5 +1,6 @@
 import { revalidateTag } from 'next/cache';
 import { CACHE_TAGS } from './cache-config';
+import { clearFetchItemsCache } from './content';
 
 /**
  * Check if error is a Next.js render phase restriction error
@@ -65,6 +66,9 @@ export async function invalidateContentCaches(): Promise<void> {
   safeRevalidateTag(CACHE_TAGS.TAGS);
   safeRevalidateTag(CACHE_TAGS.COLLECTIONS);
   safeRevalidateTag(CACHE_TAGS.PAGES);
+
+  // Clear in-memory fetchItems cache
+  await clearFetchItemsCache();
 
   console.log('[CACHE] Content caches invalidated successfully');
 }

@@ -12,6 +12,7 @@ import { CollectionForm } from '@/components/admin/collections/collection-form';
 import { AssignItemsModal } from '@/components/admin/collections/assign-items-modal';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
 import { CollectionsSkeleton } from '@/components/admin/collections/collections-skeleton';
+import { useNavigation } from '@/components/providers';
 
 export default function AdminCollectionsPage() {
 	const t = useTranslations('common');
@@ -118,7 +119,10 @@ export default function AdminCollectionsPage() {
 		await assignItems(selectedCollection.id, itemSlugs);
 	};
 
-	if (isLoading) {
+	const { isInitialLoad } = useNavigation();
+	const shouldShowSkeleton = isInitialLoad && isLoading;
+
+	if (shouldShowSkeleton) {
 		return <CollectionsSkeleton itemCount={PageSize} />;
 	}
 

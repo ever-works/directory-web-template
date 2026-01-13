@@ -3,8 +3,8 @@ import { getCachedItems } from "@/lib/content";
 import { paginateMeta } from "@/lib/paginate";
 import { Collection } from "@/types/collection";
 
-// Keep paging view reasonably fresh while leveraging ISR like the paged sibling route
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

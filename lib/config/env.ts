@@ -36,10 +36,10 @@ export const env = envSchema.parse({
 	API_RETRY_ATTEMPTS: Number(process.env.API_RETRY_ATTEMPTS) || 3,
 	API_RETRY_DELAY: Number(process.env.API_RETRY_DELAY) || 1000,
 	NODE_ENV: process.env.NODE_ENV,
-	AUTH_ENDPOINT_LOGIN: process.env.AUTH_ENDPOINT_LOGIN,
-	AUTH_ENDPOINT_REFRESH: process.env.AUTH_ENDPOINT_REFRESH,
-	AUTH_ENDPOINT_LOGOUT: process.env.AUTH_ENDPOINT_LOGOUT,
-	AUTH_ENDPOINT_CHECK: process.env.AUTH_ENDPOINT_CHECK,
-	PLATFORM_API_URL: process.env.PLATFORM_API_URL,
-	PLATFORM_API_SECRET_TOKEN: process.env.PLATFORM_API_SECRET_TOKEN
+	AUTH_ENDPOINT_LOGIN: process.env.AUTH_ENDPOINT_LOGIN?.trim() || undefined,
+	AUTH_ENDPOINT_REFRESH: process.env.AUTH_ENDPOINT_REFRESH?.trim() || undefined,
+	AUTH_ENDPOINT_LOGOUT: process.env.AUTH_ENDPOINT_LOGOUT?.trim() || undefined,
+	AUTH_ENDPOINT_CHECK: process.env.AUTH_ENDPOINT_CHECK?.trim() || undefined,
+	PLATFORM_API_URL: process.env.PLATFORM_API_URL?.trim() || undefined,
+	PLATFORM_API_SECRET_TOKEN: process.env.PLATFORM_API_SECRET_TOKEN?.trim() || undefined
 });

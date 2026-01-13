@@ -40,22 +40,22 @@ export default function ItemSkeleton({
 
 								{/* Title skeleton */}
 								<div className="flex-1 min-w-0">
-									<div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-1" />
+									<div className="h-5 w-full max-w-[120px] sm:max-w-[160px] bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-1" />
 									<div className="w-0 h-0.5 bg-gray-200 dark:bg-gray-700" />
 								</div>
 							</div>
 
 							{/* Right side badges skeleton */}
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-2 shrink-0">
 								<div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
-								<div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+								<div className="w-12 sm:w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
 							</div>
 						</div>
 
 						{/* Category skeleton */}
 						{showCategory && (
 							<div className="flex items-center gap-2">
-								<div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
+								<div className="h-6 w-20 sm:w-24 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse" />
 							</div>
 						)}
 					</div>
@@ -75,32 +75,33 @@ export default function ItemSkeleton({
 						{/* Hashtags skeleton */}
 						{showHashtags && (
 							<div className="flex flex-wrap gap-2">
-								<div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
-								<div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
-								<div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
-								<div className="h-6 w-22 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
+								<div className="h-6 w-16 sm:w-20 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
+								<div className="h-6 w-20 sm:w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
+								<div className="h-6 w-14 sm:w-16 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse" />
 							</div>
 						)}
 					</div>
 				</CardBody>
-			</div> 
+			</div>
 		</Card>
 	);
 }
 
 // Grid skeleton component for multiple items
 export function ItemSkeletonGrid({
-	count = 6,
-	LayoutComponent,
+	count = 15,
+	LayoutComponent
 }: {
 	count?: number;
 	LayoutComponent: React.ComponentType<{ children: React.ReactNode }>;
 }) {
 	return (
-		<LayoutComponent>
-			{Array.from({ length: count }).map((_, i) => (
-				<ItemSkeleton key={i} />
-			))}
-		</LayoutComponent>
+		<div className="min-h-screen pb-20">
+			<LayoutComponent>
+				{Array.from({ length: count }).map((_, i) => (
+					<ItemSkeleton key={i} />
+				))}
+			</LayoutComponent>
+		</div>
 	);
 }

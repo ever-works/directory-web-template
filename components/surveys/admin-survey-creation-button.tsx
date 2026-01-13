@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {  FileText } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 interface AdminSurveyCreationButtonProps {
   itemId?: string;
@@ -29,11 +30,16 @@ export function AdminSurveyCreationButton({
     : '/admin/surveys/create';
 
   return (
-    <Link href={createSurveyUrl} title={t('CREATE_SURVEY')}>
+    <Link href={createSurveyUrl}>
       <Button
         variant={variant}
         size={size}
-        className={`flex items-center justify-center ${showLabel ? 'gap-2' : ''} ${className}`}
+        className={cn(
+          'flex items-center justify-center',
+          showLabel && 'gap-2',
+          className
+        )}
+        aria-label={t('CREATE_SURVEY')}
       >
         <FileText className="w-4 h-4" />
         {showLabel && t('CREATE_SURVEY')}

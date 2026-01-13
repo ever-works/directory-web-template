@@ -11,7 +11,7 @@ import { z } from 'zod';
 export const productPricingSchema = z.object({
 	free: z.number().default(0),
 	standard: z.number().default(10),
-	premium: z.number().default(20),
+	premium: z.number().default(20)
 });
 
 /**
@@ -20,7 +20,7 @@ export const productPricingSchema = z.object({
 export const trialAmountSchema = z.object({
 	standardTrialAmountId: z.string().optional(),
 	premiumTrialAmountId: z.string().optional(),
-	authorized: z.boolean().default(false),
+	authorized: z.boolean().default(false)
 });
 
 /**
@@ -34,11 +34,11 @@ export const stripeConfigSchema = z
 		// Price IDs
 		freePriceId: z.string().optional(),
 		standardPriceId: z.string().optional(),
-		premiumPriceId: z.string().optional(),
+		premiumPriceId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.secretKey && data.publishableKey),
+		enabled: Boolean(data.secretKey && data.publishableKey)
 	}));
 
 /**
@@ -55,11 +55,11 @@ export const lemonSqueezyConfigSchema = z
 		// Variant IDs
 		freeVariantId: z.string().optional(),
 		standardVariantId: z.string().optional(),
-		premiumVariantId: z.string().optional(),
+		premiumVariantId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.apiKey && data.storeId),
+		enabled: Boolean(data.apiKey && data.storeId)
 	}));
 
 /**
@@ -75,11 +75,11 @@ export const polarConfigSchema = z
 		// Plan IDs
 		freePlanId: z.string().optional(),
 		standardPlanId: z.string().optional(),
-		premiumPlanId: z.string().optional(),
+		premiumPlanId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.accessToken && data.organizationId),
+		enabled: Boolean(data.accessToken && data.organizationId)
 	}));
 
 /**
@@ -95,7 +95,7 @@ export const paymentConfigSchema = z.object({
 	// Payment providers
 	stripe: stripeConfigSchema.optional().default({ enabled: false }),
 	lemonSqueezy: lemonSqueezyConfigSchema.optional().default({ enabled: false, testMode: false }),
-	polar: polarConfigSchema.optional().default({ enabled: false, sandbox: true }),
+	polar: polarConfigSchema.optional().default({ enabled: false, sandbox: true })
 });
 
 /**
@@ -120,21 +120,20 @@ export function collectPaymentConfig(): z.input<typeof paymentConfigSchema> {
 		pricing: {
 			free: parseFloatOrUndefined(process.env.NEXT_PUBLIC_PRODUCT_PRICE_FREE),
 			standard: parseFloatOrUndefined(process.env.NEXT_PUBLIC_PRODUCT_PRICE_STANDARD),
-			premium: parseFloatOrUndefined(process.env.NEXT_PUBLIC_PRODUCT_PRICE_PREMIUM),
+			premium: parseFloatOrUndefined(process.env.NEXT_PUBLIC_PRODUCT_PRICE_PREMIUM)
 		},
 		trial: {
 			standardTrialAmountId: process.env.NEXT_PUBLIC_STANDARD_TRIAL_AMOUNT_ID,
 			premiumTrialAmountId: process.env.NEXT_PUBLIC_PREMIUM_TRIAL_AMOUNT_ID,
-			authorized: process.env.NEXT_PUBLIC_AUTHORIZED_TRIAL_AMOUNT === 'true',
+			authorized: process.env.NEXT_PUBLIC_AUTHORIZED_TRIAL_AMOUNT === 'true'
 		},
 		stripe: {
 			secretKey: process.env.STRIPE_SECRET_KEY,
-			publishableKey:
-				process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLISHABLE_KEY,
+			publishableKey: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || process.env.STRIPE_PUBLISHABLE_KEY,
 			webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
 			freePriceId: process.env.NEXT_PUBLIC_STRIPE_FREE_PRICE,
 			standardPriceId: process.env.NEXT_PUBLIC_STRIPE_STANDARD_PRICE_ID,
-			premiumPriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID,
+			premiumPriceId: process.env.NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID
 		},
 		lemonSqueezy: {
 			apiKey: process.env.LEMONSQUEEZY_API_KEY,
@@ -145,7 +144,7 @@ export function collectPaymentConfig(): z.input<typeof paymentConfigSchema> {
 			variantId: process.env.LEMONSQUEEZY_VARIANT_ID,
 			freeVariantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_FREE_VARIANT_ID,
 			standardVariantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_STANDARD_VARIANT_ID,
-			premiumVariantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PREMIUM_VARIANT_ID,
+			premiumVariantId: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PREMIUM_VARIANT_ID
 		},
 		polar: {
 			accessToken: process.env.POLAR_ACCESS_TOKEN,
@@ -155,7 +154,7 @@ export function collectPaymentConfig(): z.input<typeof paymentConfigSchema> {
 			apiUrl: process.env.POLAR_API_URL,
 			freePlanId: process.env.NEXT_PUBLIC_POLAR_FREE_PLAN_ID,
 			standardPlanId: process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID,
-			premiumPlanId: process.env.NEXT_PUBLIC_POLAR_PREMIUM_PLAN_ID,
-		},
+			premiumPlanId: process.env.NEXT_PUBLIC_POLAR_PREMIUM_PLAN_ID
+		}
 	};
 }

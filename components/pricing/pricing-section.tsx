@@ -10,6 +10,7 @@ import { usePricingSection } from '@/hooks/use-pricing-section';
 import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { StripePaymentModal } from '@/components/payment/stripe-payment-modal';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -45,14 +46,20 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		handleCheckout,
 		calculatePrice,
 		getSavingsText,
+		clientSecret,
+		isReady,
+
 		freePlanFeatures,
 		standardPlanFeatures,
 		premiumPlanFeatures,
 		loginModal,
-		formatPrice
+		formatPrice,
+		currency,
+		paymentForm
 	} = usePricingSection({
 		onSelectPlan: onSelectPlan,
-		initialSelectedPlan: initialSelectedPlan
+		initialSelectedPlan: initialSelectedPlan,
+		isReview
 	});
 
 	return (
@@ -316,7 +323,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 			{/* Sponsor Ads Block */}
 			<div className="mt-16 mb-12 max-w-4xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-				<div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200/50 dark:border-blue-800/50 p-8 md:p-10">
+				<div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200/50 dark:border-theme-primary-800/50 p-8 md:p-10">
 					{/* Background pattern */}
 					<div
 						className="absolute inset-0 opacity-5 dark:opacity-10"
@@ -329,15 +336,15 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					<div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
 						{/* Icon */}
 						<div className="shrink-0">
-							<div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/25">
+							<div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 flex items-center justify-center shadow-lg shadow-theme-primary-500/25">
 								<Megaphone className="w-10 h-10 text-white" />
 							</div>
 						</div>
 
 						{/* Content */}
 						<div className="flex-1 text-center md:text-left">
-							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-sm font-medium mb-3">
-								<span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-900/50 text-theme-primary-700 dark:text-theme-primary-300 text-sm font-medium mb-3">
+								<span className="w-2 h-2 bg-theme-primary-500 rounded-full animate-pulse" />
 								{t('SPONSOR_BADGE')}
 							</div>
 							<h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
@@ -376,7 +383,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									{t('SPONSOR_OR')} ${SponsorAdPricing.MONTHLY}/{t('SPONSOR_MONTH')}
 								</div>
 								<Link href="/sponsor">
-									<Button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg">
+									<Button className="w-full bg-gradient-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg">
 										{t('SPONSOR_CTA')}
 									</Button>
 								</Link>
@@ -455,6 +462,23 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				isOpen={isModalOpen}
 				onClose={onCloseSelectorModal}
 				onSelect={handleFlowSelect}
+			/>
+
+			{/* Stripe Payment Form Modal */}
+			<StripePaymentModal
+				isOpen={paymentForm.isOpen}
+				onClose={paymentForm.closePaymentForm}
+				onSuccess={paymentForm.onPaymentSuccess}
+				onError={paymentForm.onPaymentError}
+				planName={paymentForm.planForPayment?.name}
+				planPrice={
+					paymentForm.planForPayment ? formatPrice(calculatePrice(paymentForm.planForPayment)) : undefined
+				}
+				amount={paymentForm.planForPayment ? calculatePrice(paymentForm.planForPayment) : 0}
+				currency={currency}
+				clientSecret={clientSecret || ''}
+				isReady={isReady}
+				isError={paymentForm.isError}
 			/>
 		</div>
 	);

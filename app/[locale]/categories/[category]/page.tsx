@@ -3,7 +3,8 @@ import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getCategoriesEnabled } from "@/lib/utils/settings";
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 /**
  * Single category route - renders homepage with category filter

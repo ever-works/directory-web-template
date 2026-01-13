@@ -1,10 +1,11 @@
-'use client';
-
 import { PricingSection } from '@/components/pricing/pricing-section';
 import { Container } from '@/components/ui/container';
 import { cn } from '@/lib/utils';
 
-function PricingPage() {
+// Enable ISR with 1 hour revalidation for pricing page
+export const revalidate = 3600;
+
+export default function PricingPage() {
 	return (
 		<div
 			className={cn(
@@ -18,4 +19,3 @@ function PricingPage() {
 		</div>
 	);
 }
-export default PricingPage;

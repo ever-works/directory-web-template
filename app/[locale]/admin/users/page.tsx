@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
 import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
+import { useNavigation } from "@/components/providers";
 
 // Helper function to generate consistent avatar colors based on user identifier
 function getAvatarColor(identifier: string): string {
@@ -96,7 +97,10 @@ export default function AdminUsersPage() {
   };
 
 
-  if (isLoading) {
+  const { isInitialLoad } = useNavigation();
+  const shouldShowSkeleton = isInitialLoad && isLoading;
+
+  if (shouldShowSkeleton) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         {/* Loading Header */}

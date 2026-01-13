@@ -1,20 +1,21 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef, useTransition } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 
 interface NavigationContextType {
 	isInitialLoad: boolean;
-	isNavigating: boolean;
 }
 
-const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
+const NavigationContext = createContext<NavigationContextType | null>(null);
 
-export function useNavigation() {
+export function useNavigation(): NavigationContextType {
 	const context = useContext(NavigationContext);
+
 	if (!context) {
 		throw new Error('useNavigation must be used within NavigationProvider');
 	}
+
 	return context;
 }
 
@@ -23,38 +24,30 @@ interface NavigationProviderProps {
 }
 
 export function NavigationProvider({ children }: NavigationProviderProps) {
-	// isInitialLoad remains true until first client-side navigation occurs
-	// This allows pages to show skeletons during their initial data loading
-	const [isInitialLoad, setIsInitialLoad] = useState(true);
-	const [isPending, startTransition] = useTransition();
 	const pathname = usePathname();
-	const previousPathname = useRef<string | null>(null);
+	const previousPathnameRef = useRef<string | null>(null);
+
+	const [isInitialLoad, setIsInitialLoad] = useState(true);
 
 	useEffect(() => {
-		// On first render, just track the pathname
-		if (previousPathname.current === null) {
-			previousPathname.current = pathname;
+		if (previousPathnameRef.current === null) {
+			previousPathnameRef.current = pathname;
 			return;
 		}
 
-		// Detect client-side navigation (pathname changed)
-		if (previousPathname.current !== pathname) {
-			// First navigation marks the end of initial load
-			if (isInitialLoad) {
-				startTransition(() => {
-					setIsInitialLoad(false);
-				});
-			}
-
-			previousPathname.current = pathname;
+		if (previousPathnameRef.current !== pathname) {
+			setIsInitialLoad(false);
+			previousPathnameRef.current = pathname;
 		}
-	}, [pathname, isInitialLoad]);
+	}, [pathname]);
 
-	// isNavigating is derived from React's transition state
-	// This automatically tracks when React is processing updates,
-	// which includes navigation and rendering of new content
-	// Pages should use their own loading states (isLoading, isPending) for data-specific indicators
-	const isNavigating = isPending;
-
-	return <NavigationContext.Provider value={{ isInitialLoad, isNavigating }}>{children}</NavigationContext.Provider>;
+	return (
+		<NavigationContext.Provider
+			value={{
+				isInitialLoad
+			}}
+		>
+			{children}
+		</NavigationContext.Provider>
+	);
 }

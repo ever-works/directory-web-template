@@ -823,7 +823,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Zahlung abschließen"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2082,6 +2083,21 @@
 			"NO_ITEMS_DESCRIPTION": "Erstellen Sie Ihr erstes Element, um mit dem Aufbau Ihrer Sammlung zu beginnen.",
 			"CREATE_ITEM": "Element erstellen",
 			"CONFIRM_DELETE_ITEM": "Sind Sie sicher, dass Sie dieses Element löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+			"FILTERS": "Filter",
+			"FILTER_BY_STATUS": "Nach Status filtern",
+			"FILTER_BY_CATEGORY": "Nach Kategorie filtern",
+			"FILTER_BY_TAGS": "Nach Tags filtern",
+			"ALL_STATUSES": "Alle Status",
+			"ALL_CATEGORIES": "Alle Kategorien",
+			"ALL_TAGS": "Alle Tags",
+			"CLEAR_ALL": "Alle Löschen",
+			"NO_FILTER_RESULTS": "Keine Elemente entsprechen den ausgewählten Filtern",
+			"NO_FILTER_RESULTS_DESCRIPTION": "Versuchen Sie, Ihre Filter anzupassen, um das Gesuchte zu finden.",
+			"ACTIVE_FILTERS": "Aktive Filter",
+			"STATUS_LABEL": "Status",
+			"CATEGORY_LABEL": "Kategorie",
+			"TAGS_LABEL": "Tags",
+			"SELECT_TAGS": "Tags auswählen...",
 			"CANCEL": "Abbrechen",
 			"REJECT_MODAL_TITLE": "Element ablehnen",
 			"REJECT_MODAL_DESCRIPTION": "Bitte geben Sie einen Grund für die Ablehnung dieses Elements an. Dieser wird dem Einreicher mitgeteilt.",
@@ -2089,7 +2105,43 @@
 			"REJECTION_REASON_LABEL": "Ablehnungsgrund",
 			"REJECTION_REASON_PLACEHOLDER": "Erklären Sie, warum dieses Element abgelehnt wird...",
 			"REJECTION_REASON_MIN_LENGTH": "Der Ablehnungsgrund muss mindestens 10 Zeichen lang sein",
-			"CONFIRM_REJECT": "Element ablehnen"
+			"CONFIRM_REJECT": "Element ablehnen",
+			"STATUS_DRAFT": "Entwurf",
+			"STATUS_PENDING": "Ausstehend",
+			"STATUS_APPROVED": "Genehmigt",
+			"STATUS_REJECTED": "Abgelehnt",
+			"ACTIONS": "Aktionen",
+			"SEARCH_PLACEHOLDER": "Elemente suchen...",
+			"NO_ITEMS_FOUND_SEARCH": "Keine Elemente gefunden",
+			"NO_ITEMS_FOUND_SEARCH_DESC": "Keine Elemente entsprechen \"{term}\". Versuchen Sie eine andere Suche.",
+			"CLEAR_SEARCH": "Suche löschen",
+			"FILTER_SEARCH_PLACEHOLDER": "Suchen...",
+			"LOADING": "Wird geladen...",
+			"STATUS_ALL": "Alle",
+			"NO_RESULTS": "Keine Ergebnisse",
+			"NO_CATEGORIES_AVAILABLE": "Keine Kategorien verfügbar",
+			"NO_TAGS_AVAILABLE": "Keine Tags verfügbar",
+			"REMOVE_FILTER": "Filter {name} entfernen",
+			"CLEAR_ALL_FILTERS": "Alle löschen",
+			"SELECT_ALL": "Alle Elemente auswählen",
+			"SELECT_ITEM": "{name} auswählen",
+			"BULK_ACTIONS": "Massenaktionen",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 Element ausgewählt} other {# Elemente ausgewählt}}",
+			"BULK_APPROVE": "Genehmigen",
+			"BULK_REJECT": "Ablehnen",
+			"BULK_DELETE": "Löschen",
+			"BULK_DESELECT_ALL": "Alle abwählen",
+			"BULK_CONFIRM_APPROVE_TITLE": "Elemente genehmigen",
+			"BULK_CONFIRM_APPROVE_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} genehmigen? Diese werden öffentlich sichtbar.",
+			"BULK_CONFIRM_APPROVE_BTN": "Alle genehmigen",
+			"BULK_CONFIRM_REJECT_TITLE": "Elemente ablehnen",
+			"BULK_CONFIRM_REJECT_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} ablehnen? Die Einreicher werden benachrichtigt.",
+			"BULK_CONFIRM_REJECT_BTN": "Alle ablehnen",
+			"BULK_CONFIRM_DELETE_TITLE": "Elemente löschen",
+			"BULK_CONFIRM_DELETE_DESC": "Möchten Sie wirklich {count, plural, =1 {1 Element} other {# Elemente}} löschen?",
+			"BULK_CONFIRM_DELETE_BTN": "Alle löschen",
+			"BULK_DELETE_WARNING": "Diese Aktion kann nicht rückgängig gemacht werden.",
+			"VIEW_HISTORY": "Verlauf anzeigen"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Benutzerverwaltung",
@@ -2746,6 +2798,29 @@
 			"RETRY": "Wiederholen",
 			"LOADING": "Wird geladen...",
 			"REACHED_THE_END": "Sie haben das Ende erreicht"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
@@ -2899,7 +2974,6 @@
 			"WELCOME_BACK": "Willkommen zurück, {name}! Hier ist Ihre Aktivitätsübersicht.",
 			"REFRESH": "Aktualisieren",
 			"FAILED_TO_LOAD": "Fehler beim Laden der Dashboard-Statistiken",
-
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Gesamte Einreichungen",
 				"CONTENT_CREATED": "Von Ihnen erstellte Inhalte",
@@ -2910,7 +2984,6 @@
 				"COMMENTS_RECEIVED": "Erhaltene Kommentare",
 				"COMMENTS_ON_CONTENT": "Kommentare zu Ihren Inhalten"
 			},
-
 			"PERIOD_COMPARISON": {
 				"TITLE": "Wöchentliche Leistung",
 				"THIS_WEEK": "Diese Woche",
@@ -2923,7 +2996,6 @@
 				"NO_DATA": "Keine Daten verfügbar",
 				"NO_DATA_DESC": "Beginnen Sie mit der Erstellung von Inhalten, um Ihren wöchentlichen Leistungsvergleich zu sehen."
 			},
-
 			"CATEGORY_PERFORMANCE": {
 				"TITLE": "Kategorie-Leistung",
 				"SUBTITLE": "Top-Kategorien nach durchschnittlichem Engagement",
@@ -2934,7 +3006,6 @@
 				"NO_DATA": "Keine Kategoriedaten",
 				"NO_DATA_DESC": "Reichen Sie Elemente ein, um Kategorie-Leistungsmetriken zu sehen."
 			},
-
 			"APPROVAL_TREND": {
 				"TITLE": "Genehmigungstrend",
 				"SUBTITLE": "Monatliche Genehmigungsrate",
@@ -2944,7 +3015,6 @@
 				"NO_DATA": "Keine Genehmigungsdaten",
 				"NO_DATA_DESC": "Reichen Sie Elemente ein, um Ihre Genehmigungsrate zu verfolgen."
 			},
-
 			"ENGAGEMENT_RATE": {
 				"TITLE": "Engagement-Rate",
 				"SUBTITLE": "Engagement pro Einreichung im Zeitverlauf",
@@ -2952,7 +3022,6 @@
 				"NO_DATA": "Keine Engagement-Daten",
 				"NO_DATA_DESC": "Erstellen Sie Inhalte, um Ihre Engagement-Trends zu sehen."
 			},
-
 			"SUBMISSION_CALENDAR": {
 				"TITLE": "Einreichungsaktivität",
 				"SUBTITLE": "Ihre Einreichungskonsistenz der letzten 3 Monate",
@@ -2964,7 +3033,6 @@
 				"LESS": "Weniger",
 				"MORE": "Mehr"
 			},
-
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Engagement-Verteilung",
 				"SUBTITLE": "Wie das Engagement auf Ihre Top-Elemente verteilt ist",
@@ -2973,12 +3041,10 @@
 				"NO_DATA": "Keine Engagement-Daten",
 				"NO_DATA_DESC": "Erhalten Sie Stimmen und Kommentare, um die Engagement-Verteilung zu sehen."
 			},
-
 			"COMMON": {
 				"VS": "vs",
 				"AVG": "Durchschn."
 			},
-
 			"CHARTS": {
 				"LOADING": "Diagrammdaten werden geladen...",
 				"ERROR": "Fehler beim Laden des Diagramms",

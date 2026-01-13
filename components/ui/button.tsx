@@ -40,21 +40,21 @@ export interface ButtonProps extends Omit<React.ComponentPropsWithRef<typeof Her
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
     // Map shadcn variants to HeroUI variants
-    const heroVariant = 
+    const heroVariant =
       variant === "default" ? "solid" :
       variant === "destructive" ? "solid" :
       variant === "outline-solid" ? "bordered" :
       variant === "secondary" ? "flat" :
       variant === "ghost" ? "ghost" :
       variant === "link" ? "light" : "solid";
-    
+
     // Map shadcn sizes to HeroUI sizes
-    const heroSize = 
+    const heroSize =
       size === "xs" ? "xs" :
       size === "sm" ? "sm" :
       size === "lg" ? "lg" :
       "md";
-    
+
     // Add custom classes for variants not directly supported by HeroUI
     let additionalClassNames = "";
     if (variant === "destructive") {
@@ -66,7 +66,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     if (size === "icon") {
       additionalClassNames += " w-9 h-9 p-0";
     }
-    
+
     return (
       <HeroButton
         className={cn(buttonVariants({ variant, size }), additionalClassNames, className)}

@@ -8,6 +8,10 @@ permissions:
   contents: read
   deployments: write
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
     Vercel:
         if: ${{ vars.DEPLOY_PROVIDER == 'vercel' }}

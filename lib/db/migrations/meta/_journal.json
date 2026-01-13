@@ -169,6 +169,13 @@
       "when": 1767040562703,
       "tag": "0023_boring_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1767999360743,
+      "tag": "0024_deep_wrecker",
+      "breakpoints": true
     }
   ]
 }

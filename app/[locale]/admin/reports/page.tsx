@@ -3,14 +3,26 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectItem } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { Flag, Search, Eye, Filter, X, User, Calendar, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import {
+	Flag,
+	Search,
+	Eye,
+	Filter,
+	X,
+	User,
+	Calendar,
+	FileText,
+	AlertTriangle,
+	CheckCircle,
+	Clock
+} from 'lucide-react';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminReports, type AdminReportItem } from '@/hooks/use-admin-reports';
 import { ReportStatus, ReportContentType, ReportReason } from '@/lib/db/schema';
 import type { ReportStatusValues, ReportContentTypeValues, ReportReasonValues } from '@/lib/db/schema';
 import ReportReviewDialog from '@/components/admin/reports/report-review-dialog';
 import { useTranslations } from 'next-intl';
+import { useNavigation } from '@/components/providers';
 
 // Extracted className constants for better maintainability
 const CLASSES = {
@@ -23,16 +35,17 @@ const CLASSES = {
 		'bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6',
 	headerContent: 'flex flex-col sm:flex-row sm:items-center justify-between gap-4',
 	headerLeft: 'flex items-center space-x-4',
-	headerIcon: 'w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg',
+	headerIcon:
+		'w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg',
 	headerTitle:
 		'text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent',
 	headerSubtitle: 'text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2',
-	pendingBadge: 'text-sm px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full font-medium',
+	pendingBadge:
+		'text-sm px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full font-medium',
 
 	// Stats cards
 	statsGrid: 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-6',
-	statCard:
-		'rounded-xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 group p-5',
+	statCard: 'rounded-xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 group p-5',
 	statCardTotal: 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
 	statCardPending: 'bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
 	statCardResolved: 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
@@ -94,7 +107,11 @@ const CLASSES = {
 const STATUS_STYLES: Record<ReportStatusValues, { bg: string; text: string; icon: typeof Clock }> = {
 	pending: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', icon: Clock },
 	reviewed: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', icon: Eye },
-	resolved: { bg: 'bg-green-100 dark:bg-green-900/30', text: 'text-green-700 dark:text-green-300', icon: CheckCircle },
+	resolved: {
+		bg: 'bg-green-100 dark:bg-green-900/30',
+		text: 'text-green-700 dark:text-green-300',
+		icon: CheckCircle
+	},
 	dismissed: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', icon: X }
 };
 
@@ -168,8 +185,12 @@ export default function AdminReportsPage() {
 		});
 	};
 
+	// Check if skeleton should be shown (only on initial page load)
+	const { isInitialLoad } = useNavigation();
+	const shouldShowSkeleton = isInitialLoad && isLoading;
+
 	// Loading state
-	if (isLoading) {
+	if (shouldShowSkeleton) {
 		return (
 			<div className={CLASSES.pageContainer}>
 				{/* Loading Header */}
@@ -256,7 +277,9 @@ export default function AdminReportsPage() {
 					<div className={`${CLASSES.statCard} ${CLASSES.statCardTotal}`}>
 						<div className={CLASSES.statContent}>
 							<div>
-								<p className={`${CLASSES.statLabel} text-blue-600 dark:text-blue-400`}>{t('TOTAL_REPORTS')}</p>
+								<p className={`${CLASSES.statLabel} text-blue-600 dark:text-blue-400`}>
+									{t('TOTAL_REPORTS')}
+								</p>
 								<p className={`${CLASSES.statValue} text-blue-700 dark:text-blue-300`}>{stats.total}</p>
 							</div>
 							<div className={`${CLASSES.statIcon} bg-blue-500/20`}>
@@ -267,8 +290,12 @@ export default function AdminReportsPage() {
 					<div className={`${CLASSES.statCard} ${CLASSES.statCardPending}`}>
 						<div className={CLASSES.statContent}>
 							<div>
-								<p className={`${CLASSES.statLabel} text-orange-600 dark:text-orange-400`}>{t('PENDING')}</p>
-								<p className={`${CLASSES.statValue} text-orange-700 dark:text-orange-300`}>{stats.pendingCount}</p>
+								<p className={`${CLASSES.statLabel} text-orange-600 dark:text-orange-400`}>
+									{t('PENDING')}
+								</p>
+								<p className={`${CLASSES.statValue} text-orange-700 dark:text-orange-300`}>
+									{stats.pendingCount}
+								</p>
 							</div>
 							<div className={`${CLASSES.statIcon} bg-orange-500/20`}>
 								<AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
@@ -278,8 +305,12 @@ export default function AdminReportsPage() {
 					<div className={`${CLASSES.statCard} ${CLASSES.statCardResolved}`}>
 						<div className={CLASSES.statContent}>
 							<div>
-								<p className={`${CLASSES.statLabel} text-green-600 dark:text-green-400`}>{t('RESOLVED')}</p>
-								<p className={`${CLASSES.statValue} text-green-700 dark:text-green-300`}>{stats.resolvedCount}</p>
+								<p className={`${CLASSES.statLabel} text-green-600 dark:text-green-400`}>
+									{t('RESOLVED')}
+								</p>
+								<p className={`${CLASSES.statValue} text-green-700 dark:text-green-300`}>
+									{stats.resolvedCount}
+								</p>
 							</div>
 							<div className={`${CLASSES.statIcon} bg-green-500/20`}>
 								<CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
@@ -289,7 +320,9 @@ export default function AdminReportsPage() {
 					<div className={`${CLASSES.statCard} ${CLASSES.statCardItems}`}>
 						<div className={CLASSES.statContent}>
 							<div>
-								<p className={`${CLASSES.statLabel} text-purple-600 dark:text-purple-400`}>{t('BY_ITEMS')}</p>
+								<p className={`${CLASSES.statLabel} text-purple-600 dark:text-purple-400`}>
+									{t('BY_ITEMS')}
+								</p>
 								<p className={`${CLASSES.statValue} text-purple-700 dark:text-purple-300`}>
 									{stats.byContentType?.item || 0}
 								</p>
@@ -379,7 +412,12 @@ export default function AdminReportsPage() {
 					</Select>
 
 					{hasActiveFilters && (
-						<Button variant="ghost" size="sm" onClick={clearFilters} className="text-red-600 hover:text-red-700 hover:bg-red-50">
+						<Button
+							variant="ghost"
+							size="sm"
+							onClick={clearFilters}
+							className="text-red-600 hover:text-red-700 hover:bg-red-50"
+						>
 							<X className="w-4 h-4 mr-1" />
 							{t('CLEAR_ALL')}
 						</Button>
@@ -430,7 +468,9 @@ export default function AdminReportsPage() {
 											{t(`CONTENT_TYPES.${report.contentType}`)}
 										</span>
 										{/* Reason Badge */}
-										<span className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}>
+										<span
+											className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
+										>
 											{t(`REASONS.${report.reason}`)}
 										</span>
 									</div>
@@ -486,9 +526,7 @@ export default function AdminReportsPage() {
 								</span>
 							</div>
 							<div className={CLASSES.paginationMeta}>
-								<span>
-									{t('PAGE_OF', { current: currentPage, total: totalPages })}
-								</span>
+								<span>{t('PAGE_OF', { current: currentPage, total: totalPages })}</span>
 								<span>•</span>
 								<span>10 {t('PER_PAGE')}</span>
 							</div>
@@ -496,7 +534,12 @@ export default function AdminReportsPage() {
 					</div>
 
 					<div className={CLASSES.paginationCenter}>
-						<UniversalPagination page={currentPage} totalPages={totalPages} onPageChange={handlePageChange} className="shadow-lg" />
+						<UniversalPagination
+							page={currentPage}
+							totalPages={totalPages}
+							onPageChange={handlePageChange}
+							className="shadow-lg"
+						/>
 					</div>
 				</div>
 			)}

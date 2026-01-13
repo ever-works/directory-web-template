@@ -3,7 +3,8 @@ import ListingCategories from './listing-categories';
 import { notFound } from 'next/navigation';
 import { getCategoriesEnabled } from '@/lib/utils/settings';
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

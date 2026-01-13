@@ -89,7 +89,20 @@ export default async function RootLayout({
 
 	// Fetch items data server-side to determine existence flags
 	// This is cached and shared across requests
-	const { categories, tags, collections } = await getCachedItems({ lang: locale });
+	let categories: Awaited<ReturnType<typeof getCachedItems>>['categories'] = [];
+	let tags: Awaited<ReturnType<typeof getCachedItems>>['tags'] = [];
+	let collections: Awaited<ReturnType<typeof getCachedItems>>['collections'] = [];
+
+	try {
+		const itemsData = await getCachedItems({ lang: locale });
+		categories = itemsData.categories;
+		tags = itemsData.tags;
+		collections = itemsData.collections;
+	} catch (error) {
+		// If content fetch fails (malformed YAML, file system errors, etc.), use empty arrays
+		// This prevents the root layout from crashing
+		console.error('[Layout] Failed to fetch cached items:', error);
+	}
 
 	// Read settings server-side for instant availability
 	const categoriesEnabled = getCategoriesEnabled();

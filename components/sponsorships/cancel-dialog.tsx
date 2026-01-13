@@ -5,6 +5,7 @@ import { Button, Textarea } from '@heroui/react';
 import { XCircle, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { SponsorAd } from '@/lib/db/schema';
+import { formatSlugToTitle } from './constants';
 
 interface CancelDialogProps {
 	isOpen: boolean;
@@ -22,14 +23,8 @@ const MODAL_CONTAINER = 'w-full max-w-md bg-white dark:bg-gray-900 rounded-xl sh
 const MODAL_HEADER = 'bg-linear-to-r from-amber-500 to-amber-600 px-6 py-4';
 const MODAL_BODY = 'p-6';
 const ITEM_PREVIEW = 'p-3 bg-gray-100 dark:bg-gray-800 rounded-lg';
-const WARNING_BOX = 'flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/50';
-
-function formatSlugToTitle(slug: string): string {
-	return slug
-		.split('-')
-		.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(' ');
-}
+const WARNING_BOX =
+	'flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/50';
 
 /**
  * Cancel Dialog Component
@@ -42,7 +37,7 @@ export function CancelDialog({
 	isSubmitting,
 	onReasonChange,
 	onConfirm,
-	onClose,
+	onClose
 }: CancelDialogProps) {
 	const t = useTranslations('client.sponsorships');
 
@@ -58,12 +53,12 @@ export function CancelDialog({
 			document.addEventListener('keydown', handleEscape);
 			// Prevent body scroll when modal is open
 			document.body.style.overflow = 'hidden';
-		}
 
-		return () => {
-			document.removeEventListener('keydown', handleEscape);
-			document.body.style.overflow = '';
-		};
+			return () => {
+				document.removeEventListener('keydown', handleEscape);
+				document.body.style.overflow = '';
+			};
+		}
 	}, [isOpen, isSubmitting, onClose]);
 
 	if (!isOpen) return null;
@@ -86,9 +81,7 @@ export function CancelDialog({
 					{/* Warning */}
 					<div className={WARNING_BOX}>
 						<AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-						<p className="text-sm text-amber-800 dark:text-amber-200">
-							{t('CANCEL_DIALOG_WARNING')}
-						</p>
+						<p className="text-sm text-amber-800 dark:text-amber-200">{t('CANCEL_DIALOG_WARNING')}</p>
 					</div>
 
 					{/* Item Preview */}
@@ -98,14 +91,17 @@ export function CancelDialog({
 								{formatSlugToTitle(sponsorAd.itemSlug)}
 							</p>
 							<p className="text-sm text-gray-500 dark:text-gray-400">
-								{t(`INTERVAL_${sponsorAd.interval?.toUpperCase()}`)} {t('SPONSORSHIP')}
+								{t(`INTERVAL_${(sponsorAd.interval ?? 'monthly').toUpperCase()}`)} {t('SPONSORSHIP')}
 							</p>
 						</div>
 					)}
 
 					{/* Optional Cancel Reason */}
 					<div className="mt-4">
-						<label htmlFor="cancelReason" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						<label
+							htmlFor="cancelReason"
+							className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+						>
 							{t('CANCEL_REASON_LABEL')} <span className="text-gray-400">({t('OPTIONAL')})</span>
 						</label>
 						<Textarea
@@ -116,30 +112,18 @@ export function CancelDialog({
 							minRows={3}
 							maxLength={500}
 							classNames={{
-								input: 'text-sm',
+								input: 'text-sm'
 							}}
 						/>
-						<p className="text-xs text-gray-400 mt-1">
-							{cancelReason.length}/500
-						</p>
+						<p className="text-xs text-gray-400 mt-1">{cancelReason.length}/500</p>
 					</div>
 
 					{/* Actions */}
 					<div className="flex justify-end space-x-3 mt-6">
-						<Button
-							color="default"
-							variant="bordered"
-							onPress={onClose}
-							isDisabled={isSubmitting}
-						>
+						<Button color="default" variant="bordered" onPress={onClose} isDisabled={isSubmitting}>
 							{t('KEEP_SPONSORSHIP')}
 						</Button>
-						<Button
-							color="danger"
-							onPress={onConfirm}
-							isLoading={isSubmitting}
-							isDisabled={isSubmitting}
-						>
+						<Button color="danger" onPress={onConfirm} isLoading={isSubmitting} isDisabled={isSubmitting}>
 							{t('CONFIRM_CANCEL')}
 						</Button>
 					</div>

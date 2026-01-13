@@ -13,8 +13,9 @@ interface PageProps {
 	params: Promise<{ slug: string; locale: string }>;
 }
 
-// Disable static generation to allow dynamic pages
-export const dynamic = 'force-dynamic';
+// Enable ISR with 10 minutes revalidation
+// dynamicParams allows on-demand generation for any slug
+export const revalidate = 600;
 export const dynamicParams = true;
 
 const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 'http://localhost:3000';

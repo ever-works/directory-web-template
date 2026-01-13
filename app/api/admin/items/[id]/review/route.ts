@@ -156,12 +156,16 @@ export async function POST(
       );
     }
 
-    // Review the item
+    // Review the item with audit logging
     const resolvedParams = await params;
+    const auditUser = session.user.id
+      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+      : undefined;
+
     const item = await itemRepository.review(resolvedParams.id, {
       status,
       review_notes,
-    });
+    }, auditUser);
 
     // Debug: Log item details for troubleshooting
     console.log('[Review] Item reviewed:', {

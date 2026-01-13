@@ -812,7 +812,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "Completar pago"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2071,6 +2072,21 @@
 			"NO_ITEMS_DESCRIPTION": "Cree su primer elemento para comenzar a construir su colección.",
 			"CREATE_ITEM": "Crear Elemento",
 			"CONFIRM_DELETE_ITEM": "¿Está seguro de que desea eliminar este elemento? Esta acción no se puede deshacer.",
+			"FILTERS": "Filtros",
+			"FILTER_BY_STATUS": "Filtrar por estado",
+			"FILTER_BY_CATEGORY": "Filtrar por categoría",
+			"FILTER_BY_TAGS": "Filtrar por etiquetas",
+			"ALL_STATUSES": "Todos los Estados",
+			"ALL_CATEGORIES": "Todas las Categorías",
+			"ALL_TAGS": "Todas las Etiquetas",
+			"CLEAR_ALL": "Limpiar Todo",
+			"NO_FILTER_RESULTS": "No hay elementos que coincidan con los filtros seleccionados",
+			"NO_FILTER_RESULTS_DESCRIPTION": "Intente ajustar sus filtros para encontrar lo que busca.",
+			"ACTIVE_FILTERS": "Filtros Activos",
+			"STATUS_LABEL": "Estado",
+			"CATEGORY_LABEL": "Categoría",
+			"TAGS_LABEL": "Etiquetas",
+			"SELECT_TAGS": "Seleccionar etiquetas...",
 			"CANCEL": "Cancelar",
 			"REJECT_MODAL_TITLE": "Rechazar elemento",
 			"REJECT_MODAL_DESCRIPTION": "Por favor proporcione una razón para rechazar este elemento. Esto será enviado al remitente.",
@@ -2078,7 +2094,43 @@
 			"REJECTION_REASON_LABEL": "Razón del rechazo",
 			"REJECTION_REASON_PLACEHOLDER": "Explique por qué se rechaza este elemento...",
 			"REJECTION_REASON_MIN_LENGTH": "La razón del rechazo debe tener al menos 10 caracteres",
-			"CONFIRM_REJECT": "Rechazar elemento"
+			"CONFIRM_REJECT": "Rechazar elemento",
+			"STATUS_DRAFT": "Borrador",
+			"STATUS_PENDING": "Pendiente",
+			"STATUS_APPROVED": "Aprobado",
+			"STATUS_REJECTED": "Rechazado",
+			"ACTIONS": "Acciones",
+			"SEARCH_PLACEHOLDER": "Buscar elementos...",
+			"NO_ITEMS_FOUND_SEARCH": "No se encontraron elementos",
+			"NO_ITEMS_FOUND_SEARCH_DESC": "No hay elementos que coincidan con \"{term}\". Intenta una búsqueda diferente.",
+			"CLEAR_SEARCH": "Limpiar búsqueda",
+			"FILTER_SEARCH_PLACEHOLDER": "Buscar...",
+			"LOADING": "Cargando...",
+			"STATUS_ALL": "Todos",
+			"NO_RESULTS": "Sin resultados",
+			"NO_CATEGORIES_AVAILABLE": "No hay categorías disponibles",
+			"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
+			"REMOVE_FILTER": "Eliminar filtro {name}",
+			"CLEAR_ALL_FILTERS": "Borrar todo",
+			"SELECT_ALL": "Seleccionar todo",
+			"SELECT_ITEM": "Seleccionar {name}",
+			"BULK_ACTIONS": "Acciones masivas",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {1 elemento seleccionado} other {# elementos seleccionados}}",
+			"BULK_APPROVE": "Aprobar",
+			"BULK_REJECT": "Rechazar",
+			"BULK_DELETE": "Eliminar",
+			"BULK_DESELECT_ALL": "Deseleccionar todo",
+			"BULK_CONFIRM_APPROVE_TITLE": "Aprobar elementos",
+			"BULK_CONFIRM_APPROVE_DESC": "¿Está seguro de que desea aprobar {count, plural, =1 {1 elemento} other {# elementos}}? Serán visibles públicamente.",
+			"BULK_CONFIRM_APPROVE_BTN": "Aprobar todo",
+			"BULK_CONFIRM_REJECT_TITLE": "Rechazar elementos",
+			"BULK_CONFIRM_REJECT_DESC": "¿Está seguro de que desea rechazar {count, plural, =1 {1 elemento} other {# elementos}}? Los remitentes serán notificados.",
+			"BULK_CONFIRM_REJECT_BTN": "Rechazar todo",
+			"BULK_CONFIRM_DELETE_TITLE": "Eliminar elementos",
+			"BULK_CONFIRM_DELETE_DESC": "¿Está seguro de que desea eliminar {count, plural, =1 {1 elemento} other {# elementos}}?",
+			"BULK_CONFIRM_DELETE_BTN": "Eliminar todo",
+			"BULK_DELETE_WARNING": "Esta acción no se puede deshacer.",
+			"VIEW_HISTORY": "Ver historial"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Gestión de Usuarios",
@@ -2735,6 +2787,29 @@
 			"RETRY": "Reintentar",
 			"LOADING": "Cargando...",
 			"REACHED_THE_END": "Has llegado al final"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
@@ -2888,7 +2963,6 @@
 			"WELCOME_BACK": "¡Bienvenido de nuevo, {name}! Aquí está tu resumen de actividad.",
 			"REFRESH": "Actualizar",
 			"FAILED_TO_LOAD": "Error al cargar las estadísticas del panel",
-
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total de Envíos",
 				"CONTENT_CREATED": "Contenido que has creado",
@@ -2899,7 +2973,6 @@
 				"COMMENTS_RECEIVED": "Comentarios Recibidos",
 				"COMMENTS_ON_CONTENT": "Comentarios en tu contenido"
 			},
-
 			"PERIOD_COMPARISON": {
 				"TITLE": "Rendimiento Semanal",
 				"THIS_WEEK": "Esta Semana",
@@ -2912,7 +2985,6 @@
 				"NO_DATA": "Sin datos disponibles",
 				"NO_DATA_DESC": "Comienza a crear contenido para ver tu comparación de rendimiento semanal."
 			},
-
 			"CATEGORY_PERFORMANCE": {
 				"TITLE": "Rendimiento por Categoría",
 				"SUBTITLE": "Principales categorías por participación promedio",
@@ -2923,7 +2995,6 @@
 				"NO_DATA": "Sin datos de categoría",
 				"NO_DATA_DESC": "Envía elementos para ver métricas de rendimiento por categoría."
 			},
-
 			"APPROVAL_TREND": {
 				"TITLE": "Tendencia de Aprobación",
 				"SUBTITLE": "Tasa de éxito de aprobación mensual",
@@ -2933,7 +3004,6 @@
 				"NO_DATA": "Sin datos de aprobación",
 				"NO_DATA_DESC": "Envía elementos para seguir tu tasa de aprobación a lo largo del tiempo."
 			},
-
 			"ENGAGEMENT_RATE": {
 				"TITLE": "Tasa de Participación",
 				"SUBTITLE": "Participación por envío a lo largo del tiempo",
@@ -2941,7 +3011,6 @@
 				"NO_DATA": "Sin datos de participación",
 				"NO_DATA_DESC": "Crea contenido para ver tus tendencias de participación."
 			},
-
 			"SUBMISSION_CALENDAR": {
 				"TITLE": "Actividad de Envíos",
 				"SUBTITLE": "Tu consistencia de envíos en los últimos 3 meses",
@@ -2953,7 +3022,6 @@
 				"LESS": "Menos",
 				"MORE": "Más"
 			},
-
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Distribución de Participación",
 				"SUBTITLE": "Cómo se distribuye la participación entre tus principales elementos",
@@ -2962,12 +3030,10 @@
 				"NO_DATA": "Sin datos de participación",
 				"NO_DATA_DESC": "Obtén votos y comentarios para ver cómo se distribuye la participación."
 			},
-
 			"COMMON": {
 				"VS": "vs",
 				"AVG": "Prom."
 			},
-
 			"CHARTS": {
 				"LOADING": "Cargando datos del gráfico...",
 				"ERROR": "Error al cargar el gráfico",

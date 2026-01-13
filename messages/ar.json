@@ -810,7 +810,8 @@
 			"success": "Payment successful",
 			"failed": "Payment failed",
 			"pending": "Payment pending"
-		}
+		},
+		"COMPLETE_PAYMENT": "إكمال الدفع"
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -2068,7 +2069,22 @@
 			"NO_ITEMS_FOUND": "لم يتم العثور على عناصر",
 			"NO_ITEMS_DESCRIPTION": "أنشئ عنصرك الأول لبدء بناء مجموعتك.",
 			"CREATE_ITEM": "إنشاء عنصر",
-			"CONFIRM_DELETE_ITEM": "هل أنت متأكد من حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.",
+			"CONFIRM_DELETE_ITEM": "هل أنت متأكد من أنك تريد حذف هذا العنصر؟ لا يمكن التراجع عن هذا الإجراء.",
+			"FILTERS": "الفلاتر",
+			"FILTER_BY_STATUS": "تصفية حسب الحالة",
+			"FILTER_BY_CATEGORY": "تصفية حسب الفئة",
+			"FILTER_BY_TAGS": "تصفية حسب الوسوم",
+			"ALL_STATUSES": "جميع الحالات",
+			"ALL_CATEGORIES": "جميع الفئات",
+			"ALL_TAGS": "جميع الوسوم",
+			"CLEAR_ALL": "مسح الكل",
+			"NO_FILTER_RESULTS": "لا توجد عناصر تطابق الفلاتر المحددة",
+			"NO_FILTER_RESULTS_DESCRIPTION": "حاول تعديل الفلاتر للعثور على ما تبحث عنه.",
+			"ACTIVE_FILTERS": "الفلاتر النشطة",
+			"STATUS_LABEL": "الحالة",
+			"CATEGORY_LABEL": "الفئة",
+			"TAGS_LABEL": "الوسوم",
+			"SELECT_TAGS": "اختر الوسوم...",
 			"CANCEL": "إلغاء",
 			"REJECT_MODAL_TITLE": "رفض العنصر",
 			"REJECT_MODAL_DESCRIPTION": "يرجى تقديم سبب لرفض هذا العنصر. سيتم إرسال هذا السبب إلى المُرسِل.",
@@ -2076,7 +2092,43 @@
 			"REJECTION_REASON_LABEL": "سبب الرفض",
 			"REJECTION_REASON_PLACEHOLDER": "اشرح سبب رفض هذا العنصر...",
 			"REJECTION_REASON_MIN_LENGTH": "يجب أن يكون سبب الرفض 10 أحرف على الأقل",
-			"CONFIRM_REJECT": "رفض العنصر"
+			"CONFIRM_REJECT": "رفض العنصر",
+			"STATUS_DRAFT": "مسودة",
+			"STATUS_PENDING": "قيد الانتظار",
+			"STATUS_APPROVED": "موافق عليه",
+			"STATUS_REJECTED": "مرفوض",
+			"ACTIONS": "الإجراءات",
+			"SEARCH_PLACEHOLDER": "البحث في العناصر...",
+			"NO_ITEMS_FOUND_SEARCH": "لم يتم العثور على عناصر",
+			"NO_ITEMS_FOUND_SEARCH_DESC": "لا توجد عناصر تطابق \"{term}\". جرب بحثًا مختلفًا.",
+			"CLEAR_SEARCH": "مسح البحث",
+			"FILTER_SEARCH_PLACEHOLDER": "بحث...",
+			"LOADING": "جاري التحميل...",
+			"STATUS_ALL": "الكل",
+			"NO_RESULTS": "لا توجد نتائج",
+			"NO_CATEGORIES_AVAILABLE": "لا توجد فئات متاحة",
+			"NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
+			"REMOVE_FILTER": "إزالة فلتر {name}",
+			"CLEAR_ALL_FILTERS": "مسح الكل",
+			"SELECT_ALL": "تحديد الكل",
+			"SELECT_ITEM": "تحديد {name}",
+			"BULK_ACTIONS": "إجراءات جماعية",
+			"BULK_SELECTED_COUNT": "{count, plural, =1 {عنصر واحد محدد} other {# عناصر محددة}}",
+			"BULK_APPROVE": "موافقة",
+			"BULK_REJECT": "رفض",
+			"BULK_DELETE": "حذف",
+			"BULK_DESELECT_ALL": "إلغاء تحديد الكل",
+			"BULK_CONFIRM_APPROVE_TITLE": "الموافقة على العناصر",
+			"BULK_CONFIRM_APPROVE_DESC": "هل أنت متأكد من الموافقة على {count, plural, =1 {عنصر واحد} other {# عناصر}}؟ ستصبح مرئية للعامة.",
+			"BULK_CONFIRM_APPROVE_BTN": "الموافقة على الكل",
+			"BULK_CONFIRM_REJECT_TITLE": "رفض العناصر",
+			"BULK_CONFIRM_REJECT_DESC": "هل أنت متأكد من رفض {count, plural, =1 {عنصر واحد} other {# عناصر}}؟ سيتم إخطار المرسلين.",
+			"BULK_CONFIRM_REJECT_BTN": "رفض الكل",
+			"BULK_CONFIRM_DELETE_TITLE": "حذف العناصر",
+			"BULK_CONFIRM_DELETE_DESC": "هل أنت متأكد من حذف {count, plural, =1 {عنصر واحد} other {# عناصر}}؟",
+			"BULK_CONFIRM_DELETE_BTN": "حذف الكل",
+			"BULK_DELETE_WARNING": "لا يمكن التراجع عن هذا الإجراء.",
+			"VIEW_HISTORY": "عرض السجل"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "إدارة المستخدمين",
@@ -2615,7 +2667,9 @@
 			"PROFILE_NOT_FOUND": "لم يتم العثور على ملف الحساب. يرجى الاتصال بالدعم.",
 			"GENERIC_ERROR_MESSAGE": "حدث خطأ. يرجى المحاولة مرة أخرى.",
 			"RATE_LIMITED": "محاولات كثيرة جداً. يرجى الانتظار بضع دقائق قبل المحاولة مرة أخرى.",
-			"USE_OAUTH_PROVIDER": "يستخدم هذا الحساب تسجيل الدخول الاجتماعي. يرجى تسجيل الدخول باستخدام Google أو GitHub."
+			"USE_OAUTH_PROVIDER": "يستخدم هذا الحساب تسجيل الدخول الاجتماعي. يرجى تسجيل الدخول باستخدام Google أو GitHub.",
+			"SESSION_REFRESH_FAILED": "تعذر تحديث الجلسة. يرجى المحاولة مرة أخرى.",
+			"PAGE_REFRESH_FAILED": "تعذر تحديث الصفحة. يرجى المحاولة مرة أخرى."
 		},
 		"FORGOT_PASSWORD_PAGE": {
 			"TITLE": "نسيت كلمة المرور؟",
@@ -2733,6 +2787,29 @@
 			"RETRY": "إعادة المحاولة",
 			"LOADING": "جاري التحميل...",
 			"REACHED_THE_END": "لقد وصلت إلى النهاية"
+		},
+		"ITEM_HISTORY": {
+			"TITLE": "Item History",
+			"NO_HISTORY": "No history available",
+			"ERROR_LOADING": "Failed to load history",
+			"FILTER_ALL": "All actions",
+			"ACTION_CREATED": "Created",
+			"ACTION_UPDATED": "Updated",
+			"ACTION_STATUS_CHANGED": "Status Changed",
+			"ACTION_REVIEWED": "Reviewed",
+			"ACTION_APPROVED": "Approved",
+			"ACTION_REJECTED": "Rejected",
+			"ACTION_DELETED": "Deleted",
+			"ACTION_RESTORED": "Restored",
+			"SYSTEM": "System",
+			"BY_USER": "by {name}",
+			"WAS_STATUS": "was {status}",
+			"REASON_LABEL": "Reason:",
+			"JUST_NOW": "Just now",
+			"MINUTES_AGO": "{count} min ago",
+			"HOURS_AGO": "{count}h ago",
+			"DAYS_AGO": "{count}d ago",
+			"VIEW_CHANGES": "View {count} changes"
 		}
 	},
 	"pages": {
@@ -2882,7 +2959,6 @@
 			"WELCOME_BACK": "مرحباً بعودتك، {name}! إليك نظرة عامة على نشاطك.",
 			"REFRESH": "تحديث",
 			"FAILED_TO_LOAD": "فشل في تحميل إحصائيات لوحة التحكم",
-
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "إجمالي التقديمات",
 				"CONTENT_CREATED": "المحتوى الذي أنشأته",
@@ -2893,7 +2969,6 @@
 				"COMMENTS_RECEIVED": "التعليقات المستلمة",
 				"COMMENTS_ON_CONTENT": "تعليقات على محتواك"
 			},
-
 			"PERIOD_COMPARISON": {
 				"TITLE": "الأداء الأسبوعي",
 				"THIS_WEEK": "هذا الأسبوع",
@@ -2906,7 +2981,6 @@
 				"NO_DATA": "لا توجد بيانات",
 				"NO_DATA_DESC": "ابدأ بإنشاء محتوى لرؤية مقارنة أدائك الأسبوعي."
 			},
-
 			"CATEGORY_PERFORMANCE": {
 				"TITLE": "أداء الفئات",
 				"SUBTITLE": "أفضل الفئات حسب متوسط التفاعل",
@@ -2917,7 +2991,6 @@
 				"NO_DATA": "لا توجد بيانات للفئات",
 				"NO_DATA_DESC": "قدم عناصر لرؤية مقاييس أداء الفئات."
 			},
-
 			"APPROVAL_TREND": {
 				"TITLE": "اتجاه الموافقة",
 				"SUBTITLE": "معدل نجاح الموافقة الشهري",
@@ -2927,7 +3000,6 @@
 				"NO_DATA": "لا توجد بيانات موافقة",
 				"NO_DATA_DESC": "قدم عناصر لتتبع معدل الموافقة عبر الزمن."
 			},
-
 			"ENGAGEMENT_RATE": {
 				"TITLE": "معدل التفاعل",
 				"SUBTITLE": "التفاعل لكل تقديم عبر الزمن",
@@ -2935,7 +3007,6 @@
 				"NO_DATA": "لا توجد بيانات تفاعل",
 				"NO_DATA_DESC": "أنشئ محتوى لرؤية اتجاهات تفاعلك."
 			},
-
 			"SUBMISSION_CALENDAR": {
 				"TITLE": "نشاط التقديم",
 				"SUBTITLE": "انتظامك في التقديم خلال الـ 3 أشهر الماضية",
@@ -2947,7 +3018,6 @@
 				"LESS": "أقل",
 				"MORE": "أكثر"
 			},
-
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "توزيع التفاعل",
 				"SUBTITLE": "كيف يتوزع التفاعل على أفضل عناصرك",
@@ -2956,12 +3026,10 @@
 				"NO_DATA": "لا توجد بيانات تفاعل",
 				"NO_DATA_DESC": "احصل على أصوات وتعليقات لرؤية توزيع التفاعل."
 			},
-
 			"COMMON": {
 				"VS": "مقابل",
 				"AVG": "المعدل"
 			},
-
 			"CHARTS": {
 				"LOADING": "جاري تحميل بيانات الرسم البياني...",
 				"ERROR": "فشل في تحميل الرسم البياني",

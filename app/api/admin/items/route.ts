@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
-import { CreateItemRequest } from '@/lib/types/item';
+import { CreateItemRequest, SortField, SortOrder } from '@/lib/types/item';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 
 const itemRepository = new ItemRepository();
@@ -57,6 +57,24 @@ const itemRepository = new ItemRepository();
  *           type: string
  *         description: "Filter by tag"
  *         example: "saas"
+ *       - name: "sortBy"
+ *         in: "query"
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: ["name", "updated_at", "status", "submitted_at"]
+ *           default: "updated_at"
+ *         description: "Field to sort by"
+ *         example: "updated_at"
+ *       - name: "sortOrder"
+ *         in: "query"
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: ["asc", "desc"]
+ *           default: "desc"
+ *         description: "Sort order direction"
+ *         example: "desc"
  *     responses:
  *       200:
  *         description: "Items list retrieved successfully"
@@ -193,20 +211,77 @@ export async function GET(request: NextRequest) {
     const { page, limit } = paginationResult;
 
     const statusParam = searchParams.get('status');
-    const category = searchParams.get('category') || undefined;
-    const tag = searchParams.get('tag') || undefined;
+    const sortByParam = searchParams.get('sortBy');
+    const sortOrderParam = searchParams.get('sortOrder');
 
-    // Validate status parameter
+    // Trim whitespace-only search strings to undefined
+    const searchRaw = searchParams.get('search');
+    const search = searchRaw?.trim() ? searchRaw.trim() : undefined;
+
+    // Helper to parse CSV params and normalize empty arrays to undefined
+    const parseCsv = (value: string | null): string[] | undefined => {
+      if (!value) return undefined;
+      const arr = value.split(',').map(v => v.trim()).filter(Boolean);
+      return arr.length ? arr : undefined;
+    };
+
+    const categories = parseCsv(searchParams.get('categories'));
+    const tags = parseCsv(searchParams.get('tags'));
+
+    // Validate status parameter with type-safe guard
     const validStatuses = ['draft', 'pending', 'approved', 'rejected'] as const;
-    const status = statusParam && validStatuses.includes(statusParam as any) 
-      ? (statusParam as 'draft' | 'pending' | 'approved' | 'rejected') 
-      : undefined;
+    type ItemStatus = (typeof validStatuses)[number];
+    const isItemStatus = (s: string): s is ItemStatus =>
+      (validStatuses as readonly string[]).includes(s);
+    let status: ItemStatus | undefined = undefined;
+    if (statusParam) {
+      if (!isItemStatus(statusParam)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid status parameter. Must be one of: ${validStatuses.join(', ')}` },
+          { status: 400 }
+        );
+      }
+      status = statusParam;
+    }
+
+    // Validate sortBy parameter with type-safe guard
+    const validSortFields: readonly SortField[] = ['name', 'updated_at', 'status', 'submitted_at'];
+    const isSortField = (s: string): s is SortField =>
+      (validSortFields as readonly string[]).includes(s);
+    let sortBy: SortField | undefined = undefined;
+    if (sortByParam) {
+      if (!isSortField(sortByParam)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid sortBy parameter. Must be one of: ${validSortFields.join(', ')}` },
+          { status: 400 }
+        );
+      }
+      sortBy = sortByParam;
+    }
+
+    // Validate sortOrder parameter with type-safe guard
+    const validSortOrders: readonly SortOrder[] = ['asc', 'desc'];
+    const isSortOrder = (s: string): s is SortOrder =>
+      (validSortOrders as readonly string[]).includes(s);
+    let sortOrder: SortOrder | undefined = undefined;
+    if (sortOrderParam) {
+      if (!isSortOrder(sortOrderParam)) {
+        return NextResponse.json(
+          { success: false, error: `Invalid sortOrder parameter. Must be one of: ${validSortOrders.join(', ')}` },
+          { status: 400 }
+        );
+      }
+      sortOrder = sortOrderParam;
+    }
 
     // Get paginated items
     const result = await itemRepository.findAllPaginated(page, limit, {
       status,
-      category,
-      tag,
+      search,
+      categories,
+      tags,
+      sortBy,
+      sortOrder,
     });
 
     return NextResponse.json({
@@ -442,7 +517,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create item
+    // Create item with audit logging
+    const auditUser = session.user.id
+      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+      : undefined;
+
     const item = await itemRepository.create({
       id,
       name,
@@ -455,7 +534,7 @@ export async function POST(request: NextRequest) {
       icon_url,
       status: status || 'draft',
       submitted_by: session.user.id,
-    });
+    }, auditUser);
 
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
     const crmEnabled = process.env.TWENTY_CRM_ENABLED === 'true';

@@ -9,14 +9,14 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Star, ExternalLink, Hash, Folder, Image as ImageIcon, FileText, Link as LinkIcon } from 'lucide-react';
-import { ITEM_STATUSES } from '@/lib/types/item';
+import { ITEM_STATUSES, ItemStatus } from '@/lib/types/item';
 import { useTranslations } from 'next-intl';
 import { ItemCompanyManager } from '@/components/admin/items/item-company-manager';
 import { useCompaniesEnabled } from '@/hooks/use-companies-enabled';
 
 export interface ReviewData {
   featured: boolean;
-  status: string;
+  status: ItemStatus;
 }
 
 interface ReviewStepProps {
@@ -71,7 +71,7 @@ export function ReviewStep({
     return newErrors;
   }, [data, t]);
 
-  const handleFieldChange = (field: keyof ReviewData, value: boolean | string) => {
+  const handleFieldChange = (field: keyof ReviewData, value: boolean | ItemStatus) => {
     const newData = { ...data, [field]: value };
     onChange(newData);
     setTouchedFields(prev => new Set(prev).add(field));
@@ -93,7 +93,7 @@ export function ReviewStep({
     onValidationChange(Object.keys(allErrors).length === 0);
   }, [data, touchedFields, onValidationChange, validateData]);
 
-  const getStatusBadgeVariant = (status: string) => {
+  const getStatusBadgeVariant = (status: ItemStatus) => {
     switch (status) {
       case ITEM_STATUSES.DRAFT:
         return 'secondary';
@@ -144,7 +144,7 @@ export function ReviewStep({
               </Label>
               <Select
                 selectedKeys={data.status ? [data.status] : []}
-                onSelectionChange={(keys) => handleFieldChange('status', keys[0])}
+                onSelectionChange={(keys) => handleFieldChange('status', keys[0] as ItemStatus)}
                 placeholder={t('FIELDS.STATUS.PLACEHOLDER')}
                 className={errors.status ? 'border-red-500' : ''}
               >

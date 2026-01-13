@@ -2,9 +2,9 @@
 
 import 'server-only';
 import yaml from 'yaml';
-import * as fs from 'fs';
-import * as fsp from 'fs/promises';
-import * as path from 'path';
+import * as fs from 'node:fs';
+import * as fsp from 'node:fs/promises';
+import * as path from 'node:path';
 import { parse } from 'date-fns';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { unstable_cache } from 'next/cache';
@@ -114,6 +114,7 @@ interface PrUpdate {
 	title: string;
 	body: string;
 }
+
 interface Identifiable {
 	id: string;
 	name: string;
@@ -124,6 +125,7 @@ interface TypePagination {
 	type: 'standard' | 'infinite';
 	itemsPerPage: number;
 }
+
 export interface PricingConfig {
 	id: string;
 	name: string;
@@ -225,12 +227,13 @@ export type NovuMail = {
 	template_id?: string;
 	default_from: string;
 	backend_url?: string;
-};
+}
 
 export type ResendMail = {
 	provider: 'resend';
 	default_from: string;
-};
+}
+
 export type AuthProviderType = 'supabase' | 'next-auth' | 'both';
 
 export interface AuthConfig {
@@ -254,6 +257,7 @@ export interface AuthConfig {
 		providers?: any[];
 	};
 }
+
 export interface HeaderSettings {
 	submitEnabled: boolean;
 	pricingEnabled: boolean;
@@ -478,7 +482,7 @@ async function readCollection<T extends Identifiable>(
 		return collection;
 	} catch (err) {
 		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
-			// Bootstrap missing collection files so first read creates the YAML on disk
+			// Bootstrap missing collection files, so first read creates the YAML on disk
 			try {
 				const contentPath = getContentPath();
 				const collectionDir = path.join(contentPath, type);
@@ -569,7 +573,66 @@ interface FetchItemsResult {
 	collections: Collection[];
 }
 
+// IN-MEMORY CACHE INFRASTRUCTURE
+// These caches avoid repeated filesystem reads and are invalidated on Git sync
+
+// In-memory cache for fetchItems to avoid repeated filesystem reads
+// Cache is invalidated intelligently based on directory modification time
+const fetchItemsCache = new Map<string, { data: FetchItemsResult; timestamp: number }>();
+
+const FETCH_ITEMS_CACHE_TTL = 600000; // 10 minutes in milliseconds
+
+// Directory metadata cache to avoid repeated readdir() calls
+// Stores: { files: string[], mtime: number, categories, tags, collections }
+type DirectoryCache = {
+	files: string[];
+	mtime: number;
+	categories: Map<string, Category>;
+	tags: Map<string, Tag>;
+	collections: Map<string, Collection>;
+	timestamp: number;
+};
+
+const directoryCache = new Map<string, DirectoryCache>();
+const DIRECTORY_CACHE_TTL = 600000; // 10 minutes in milliseconds
+
+// Separate caches for categories and tags (used by fetchItem)
+const categoriesCache = new Map<string, { data: Map<string, Category>; timestamp: number }>();
+const tagsCache = new Map<string, { data: Map<string, Tag>; timestamp: number }>();
+const METADATA_CACHE_TTL = 600000; // 10 minutes in milliseconds
+
+/**
+ * Clear the in-memory fetchItems cache
+ * Called when content is synced from Git repository
+ * Now uses smart invalidation: only clears if directory actually changed
+ */
+export async function clearFetchItemsCache() {
+	// Clear the results cache
+	fetchItemsCache.clear();
+
+	// Clear directory metadata cache to force re-check on next access
+	// This allows detecting if Git sync actually changed files
+	directoryCache.clear();
+
+	// Clear categories and tags caches
+	categoriesCache.clear();
+	tagsCache.clear();
+
+	console.log('[CACHE] In-memory fetchItems, directory, categories, and tags caches cleared');
+}
+
 export async function fetchItems(options: FetchOptions = {}): Promise<FetchItemsResult> {
+	// Create cache key from options
+	const cacheKey = JSON.stringify(options);
+
+	// Check in-memory cache first
+	const cached = fetchItemsCache.get(cacheKey);
+	
+	if (cached && Date.now() - cached.timestamp < FETCH_ITEMS_CACHE_TTL) {
+		console.log('[CACHE] Returning cached fetchItems result for:', cacheKey);
+		return cached.data;
+	}
+
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable, dirExists } = await import('./lib');
 	await ensureContentAvailable();
@@ -577,7 +640,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	// Repository sync now handled by background sync manager (lib/services/sync-service.ts)
 	const dest = path.join(getContentPath(), 'data');
 
-	// Check if data directory exists before trying to read it
+	// Check if the data directory exists before trying to read it
 	// This prevents ENOENT errors when DATA_REPOSITORY is not configured
 	if (!(await dirExists(dest))) {
 		console.warn('[CONTENT] Data directory does not exist:', dest);
@@ -590,14 +653,57 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 		};
 	}
 
-	const files = await fs.promises.readdir(dest);
-	const categories = await readCategories(options);
-	const tags = await readTags(options);
-	const collections = await readCollections(options);
+	/// Smart directory caching
+	// Instead of reading the directory on every call, cache the file list and metadata
+	// Only re-read if directory modification time changed
+
+	const dirCacheKey = `${dest}:${options.lang || 'en'}`;
+	let files: string[];
+	let categories: Map<string, Category>;
+	let tags: Map<string, Tag>;
+	let collections: Map<string, Collection>;
+
+	// Check if we have cached directory metadata
+	const cachedDir = directoryCache.get(dirCacheKey);
+
+	// Get current directory modification time
+	const dirStat = await fsp.stat(dest);
+	const currentMtime = dirStat.mtimeMs;
+
+	// Use cached directory data if:
+	// 1. Cache exists
+	// 2. Directory hasn't been modified (mtime unchanged)
+	// 3. Cache is still fresh (within TTL)
+	if (cachedDir && cachedDir.mtime === currentMtime && Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL) {
+		console.log('[CACHE] Using cached directory metadata for:', dirCacheKey);
+		files = cachedDir.files;
+		// Deep clone Maps to prevent mutation of cached data by populate() functions
+		categories = new Map(Array.from(cachedDir.categories.entries()).map(([k, v]) => [k, { ...v }]));
+		tags = new Map(Array.from(cachedDir.tags.entries()).map(([k, v]) => [k, { ...v }]));
+		collections = new Map(Array.from(cachedDir.collections.entries()).map(([k, v]) => [k, { ...v }]));
+	} else {
+		// Directory changed, or cache expired - read from filesystem
+		console.log('[CACHE] Reading directory metadata from filesystem:', dirCacheKey);
+		files = await fsp.readdir(dest);
+		categories = await readCategories(options);
+		tags = await readTags(options);
+		collections = await readCollections(options);
+
+		// Store in directory cache
+		directoryCache.set(dirCacheKey, {
+			files,
+			mtime: currentMtime,
+			categories,
+			tags,
+			collections,
+			timestamp: Date.now()
+		});
+		console.log('[CACHE] Stored directory metadata in cache for:', dirCacheKey);
+	}
 
 	const itemsPromises = files.map(async (slug) => {
 		try {
-			// Sanitize slug even though it comes from filesystem
+			// Sanitize slug even though it comes from the filesystem
 			const sanitizedSlug = sanitizeFilename(slug);
 
 			const base = path.join(dest, sanitizedSlug);
@@ -605,6 +711,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 			validatePath(base, dest);
 
 			const item = await parseItem(base, `${sanitizedSlug}.yml`);
+
 			if (options.lang && options.lang !== 'en') {
 				// Validate language code to prevent path traversal
 				if (!validateLanguageCode(options.lang)) {
@@ -642,17 +749,23 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	const tagsArray = Array.from(tags.values());
 	const sortedTags = options.sortTags ? tagsArray.sort((a, b) => a.name.localeCompare(b.name)) : tagsArray;
 
-	return {
+	const result = {
 		total: items.length,
 		items: items.sort((a, b) => {
 			if (a.featured && !b.featured) return -1;
 			if (!a.featured && b.featured) return 1;
-			return b.updatedAt.getDate() - a.updatedAt.getDate();
+			return b.updatedAt.getTime() - a.updatedAt.getTime();
 		}),
 		categories: Array.from(categories.values()),
 		tags: sortedTags,
 		collections: Array.from(collections.values())
 	};
+
+	// Store in cache
+	fetchItemsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+	console.log('[CACHE] Stored fetchItems result in cache for:', cacheKey);
+
+	return result;
 }
 
 // Cache for similarity calculations to avoid recomputing
@@ -825,7 +938,7 @@ export async function fetchSimilarItems(
 }
 
 /**
- * Normalizes tags to array of strings for consistent comparison
+ * Normalizes tags to an array of strings for consistent comparison
  * @param tags - Tags in various formats
  * @returns string[] - Normalized array of tag names
  */
@@ -846,7 +959,7 @@ function normalizeTags(tags: any): string[] {
 }
 
 /**
- * Normalizes categories to array of strings for consistent comparison
+ * Normalizes categories to an array of strings for consistent comparison
  * @param category - Category in various formats
  * @returns string[] - Normalized array of category names
  */
@@ -914,6 +1027,68 @@ function calculateSimilarityScore(
 	return Math.min(scaledScore, 1);
 }
 
+// CACHED METADATA HELPERS
+// These helpers provide cached access to categories and tags for individual
+// item fetching, avoiding repeated filesystem reads
+
+/**
+ * Get categories with in-memory caching
+ * Used by fetchItem() to avoid repeated filesystem reads
+ */
+async function getCachedCategoriesInternal(options: FetchOptions = {}): Promise<Map<string, Category>> {
+	const locale = options.lang || 'en';
+	const cacheKey = `categories:${locale}`;
+
+	// Check cache
+	const cached = categoriesCache.get(cacheKey);
+	if (cached && Date.now() - cached.timestamp < METADATA_CACHE_TTL) {
+		console.log('[CACHE] Using cached categories for:', locale);
+		// Deep clone to prevent mutation of cached data by populate() functions
+		return new Map(Array.from(cached.data.entries()).map(([k, v]) => [k, { ...v }]));
+	}
+
+	// Cache miss - read from filesystem
+	console.log('[CACHE] Reading categories from filesystem for:', locale);
+	const categories = await readCategories(options);
+
+	// Store in cache
+	categoriesCache.set(cacheKey, {
+		data: categories,
+		timestamp: Date.now()
+	});
+
+	return categories;
+}
+
+/**
+ * Get tags with in-memory caching
+ * Used by fetchItem() to avoid repeated filesystem reads
+ */
+async function getCachedTagsInternal(options: FetchOptions = {}): Promise<Map<string, Tag>> {
+	const locale = options.lang || 'en';
+	const cacheKey = `tags:${locale}`;
+
+	// Check cache
+	const cached = tagsCache.get(cacheKey);
+	if (cached && Date.now() - cached.timestamp < METADATA_CACHE_TTL) {
+		console.log('[CACHE] Using cached tags for:', locale);
+		// Deep clone to prevent mutation of cached data by populate() functions
+		return new Map(Array.from(cached.data.entries()).map(([k, v]) => [k, { ...v }]));
+	}
+
+	// Cache miss - read from filesystem
+	console.log('[CACHE] Reading tags from filesystem for:', locale);
+	const tags = await readTags(options);
+
+	// Store in cache
+	tagsCache.set(cacheKey, {
+		data: tags,
+		timestamp: Date.now()
+	});
+
+	return tags;
+}
+
 export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable } = await import('./lib');
@@ -940,8 +1115,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	validatePath(mdxPath, path.join(base, dataDir));
 	validatePath(mdPath, path.join(base, dataDir));
 
-	const categories = await readCategories(options);
-	const tags = await readTags(options);
+	// Use cached categories and tags to avoid repeated filesystem reads
+	const categories = await getCachedCategoriesInternal(options);
+	const tags = await getCachedTagsInternal(options);
 
 	try {
 		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`);

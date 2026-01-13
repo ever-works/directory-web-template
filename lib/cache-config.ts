@@ -5,16 +5,17 @@
 
 /**
  * Cache TTL (Time To Live) in seconds
+ * Optimized for performance: longer cache duration reduces filesystem reads
  */
 export const CACHE_TTL = {
-  /** Content cache duration - 60 seconds */
-  CONTENT: 60,
-  /** Individual item cache duration - 60 seconds */
-  ITEM: 60,
-  /** Site config cache duration - 60 seconds */
-  CONFIG: 60,
-  /** Static pages cache duration - 60 seconds */
-  PAGES: 60,
+  /** Content cache duration - 10 minutes (600 seconds) */
+  CONTENT: 600,
+  /** Individual item cache duration - 10 minutes (600 seconds) */
+  ITEM: 600,
+  /** Site config cache duration - 10 minutes (600 seconds) */
+  CONFIG: 600,
+  /** Static pages cache duration - 10 minutes (600 seconds) */
+  PAGES: 600,
 } as const;
 
 /**
@@ -22,17 +23,17 @@ export const CACHE_TTL = {
  * Used with revalidateTag() to invalidate specific caches
  */
 export const CACHE_TAGS = {
-  /** Master content tag - invalidates all content-related caches */
-  CONTENT: 'content',
+	/** Master content tag - invalidates all content-related caches */
+	CONTENT: 'content',
 
-  /** All items collection */
-  ITEMS: 'items',
+	/** All items collection */
+	ITEMS: 'items',
 
-  /** Specific item by slug */
-  ITEM: (slug: string) => `item:${slug}`,
+	/** Specific item by slug */
+	ITEM: (slug: string) => `item:${slug}`,
 
-  /** All categories */
-  CATEGORIES: 'categories',
+	/** All categories */
+	CATEGORIES: 'categories',
 
 	/** All tags */
 	TAGS: 'tags',
@@ -42,16 +43,16 @@ export const CACHE_TAGS = {
 
 	/** Site configuration */
 	CONFIG: 'config',  /** All static pages */
-  PAGES: 'pages',
+	PAGES: 'pages',
 
-  /** Specific page by slug */
-  PAGE: (slug: string) => `page:${slug}`,
+	/** Specific page by slug */
+	PAGE: (slug: string) => `page:${slug}`,
 
-  /** Items filtered by locale */
-  ITEMS_LOCALE: (locale: string) => `items:${locale}`,
+	/** Items filtered by locale */
+	ITEMS_LOCALE: (locale: string) => `items:${locale}`,
 
-  /** Categories by locale */
-  CATEGORIES_LOCALE: (locale: string) => `categories:${locale}`,
+	/** Categories by locale */
+	CATEGORIES_LOCALE: (locale: string) => `categories:${locale}`,
 
 	/** Tags by locale */
 	TAGS_LOCALE: (locale: string) => `tags:${locale}`,

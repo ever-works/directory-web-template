@@ -3,6 +3,10 @@ name: "Disable Default CodeQL"
 on:
   workflow_dispatch:  # Manual trigger only
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   disable-default:
     name: Disable Default CodeQL Configuration

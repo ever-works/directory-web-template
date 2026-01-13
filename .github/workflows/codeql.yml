@@ -9,6 +9,10 @@ on:
     - cron: '0 6 * * 1'  # Weekly on Monday at 6 AM
   workflow_dispatch:  # Allow manual triggering
 
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})

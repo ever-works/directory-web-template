@@ -4,7 +4,8 @@ import { CollectionDetail } from "@/components/collections";
 import { collectionRepository } from "@/lib/repositories/collection.repository";
 import { logger } from "@/lib/logger";
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

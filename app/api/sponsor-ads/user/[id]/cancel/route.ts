@@ -53,11 +53,19 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		const { id } = await params;
 
 		// Parse and validate optional body for cancel reason using Zod schema
-		const body = await request.json().catch(() => ({}));
+		// Guard against JSON null: if client sends null, we coalesce to {}
+		const body = (await request.json().catch(() => ({}))) ?? {};
 		const parsed = cancelSponsorAdSchema.omit({ id: true }).safeParse(body);
-		const cancelReason = parsed.success && parsed.data.cancelReason?.trim()
-			? parsed.data.cancelReason.trim()
-			: 'Cancelled by user';
+
+		// If validation fails and cancelReason was provided, return 400 error
+		// This handles cases like cancelReason exceeding 500 character limit
+		if (!parsed.success && body.cancelReason !== undefined) {
+			const errorMessage = parsed.error.issues[0]?.message || 'Invalid cancel reason';
+			return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+		}
+
+		const cancelReason =
+			parsed.success && parsed.data.cancelReason?.trim() ? parsed.data.cancelReason.trim() : 'Cancelled by user';
 
 		// Get the sponsor ad to verify ownership
 		const sponsorAd = await sponsorAdService.getSponsorAdById(id);

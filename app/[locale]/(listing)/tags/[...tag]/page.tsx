@@ -4,8 +4,10 @@ import Listing from "../../listing";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { notFound } from "next/navigation";
 
-// Disable static generation to prevent content loading errors during build
-export const dynamic = 'force-dynamic';
+// Enable ISR with 10 minutes revalidation
+// Using dynamicParams allows on-demand generation without build-time content errors
+export const revalidate = 600;
+export const dynamicParams = true;
 
 // Remove generateStaticParams to prevent build-time content loading
 // export async function generateStaticParams() {

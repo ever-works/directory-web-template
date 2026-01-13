@@ -2,7 +2,8 @@ import { getCachedItemsByCategory, getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import Listing from "../../../(listing)/listing";
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

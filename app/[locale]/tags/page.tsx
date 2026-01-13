@@ -3,7 +3,8 @@ import TagsGridClient from "./tags-grid-client";
 import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 export default async function TagsPage({
   params,

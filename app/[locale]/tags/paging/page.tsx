@@ -4,7 +4,8 @@ import ListingTags from "../listing-tags";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { notFound } from "next/navigation";
 
-export const revalidate = 10;
+// Enable ISR with 10 minutes revalidation
+export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;
