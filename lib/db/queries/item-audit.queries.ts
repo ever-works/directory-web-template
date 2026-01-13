@@ -1,4 +1,4 @@
-import { eq, desc, and, inArray, sql, count } from 'drizzle-orm';
+import { eq, desc, and, inArray, count } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	itemAuditLogs,
