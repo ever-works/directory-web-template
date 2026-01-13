@@ -10,14 +10,6 @@ interface UniversalPaginationProps {
 export function UniversalPagination({ page, totalPages, onPageChange, className = "" }: UniversalPaginationProps) {
   if (totalPages <= 1) return null;
 
-  // Wrap the onPageChange to scroll to top
-  const handlePageChange = (newPage: number) => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-    onPageChange(newPage);
-  };
-
   return (
     <div className={cn("flex flex-col items-center gap-6 mt-16 mb-12 px-4 sm:px-8 lg:px-16 w-full", className)}>
       {/* Page info */}
@@ -35,7 +27,7 @@ export function UniversalPagination({ page, totalPages, onPageChange, className 
             showControls
             total={totalPages}
             page={page}
-            onChange={handlePageChange}
+            onChange={onPageChange}
             radius="lg"
             size="lg"
             classNames={{
