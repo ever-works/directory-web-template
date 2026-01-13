@@ -128,6 +128,7 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 	// Sync page state for standard pagination
 	const handlePageChange = (newPage: number) => {
 		setPage(newPage);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
 	};
 
 	return (
