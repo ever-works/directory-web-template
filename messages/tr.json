@@ -2132,6 +2132,8 @@
 			"REJECT": "Reddet",
 			"REJECTING": "Reddediliyor...",
 			"EDIT": "Düzenle",
+			"DUPLICATE": "Çoğalt",
+			"DUPLICATING": "Çoğaltılıyor...",
 			"DELETE": "Sil",
 			"DELETING": "Siliniyor...",
 			"MORE_TAGS": "+{count} daha",
