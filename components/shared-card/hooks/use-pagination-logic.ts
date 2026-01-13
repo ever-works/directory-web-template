@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
+import { clampAndScrollToTop } from '@/utils/pagination';
 import type { ItemData } from "@/lib/content";
 import { PER_PAGE } from "@/lib/paginate";
 
@@ -38,8 +39,8 @@ export function usePaginationLogic(
   }, [items, currentPage, perPage, options.showPagination]);
 
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+    clampAndScrollToTop(page, totalPages, setCurrentPage);
+  }, [totalPages]);
 
   const resetToFirstPage = useCallback(() => {
     setCurrentPage(1);

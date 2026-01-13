@@ -3,6 +3,7 @@ import { useState, useMemo, useRef, Suspense, useEffect, useCallback } from 'rea
 import { Tag } from '@/lib/content';
 import { TagsCards } from '@/components/tags-cards';
 import UniversalPagination from '@/components/universal-pagination';
+import { clampAndScrollToTop } from '@/utils/pagination';
 import Hero from '@/components/hero';
 import { useTranslations } from 'next-intl';
 import { useLayoutTheme } from '@/components/context';
@@ -125,10 +126,9 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 		);
 	}
 
-	// Sync page state for standard pagination
+
 	const handlePageChange = (newPage: number) => {
-		setPage(newPage);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		clampAndScrollToTop(newPage, totalPages, setPage);
 	};
 
 	return (
