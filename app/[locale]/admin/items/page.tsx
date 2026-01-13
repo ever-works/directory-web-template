@@ -16,6 +16,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITE
 import { UniversalPagination } from "@/components/universal-pagination";
 import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag, Hash, Link2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { slugify } from "@/lib/utils/slug";
 import { useAdminItems } from "@/hooks/use-admin-items";
 import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
@@ -208,16 +209,6 @@ export default function AdminItemsPage() {
     setIsModalOpen(true);
   };
 
-  // Helper function to generate slug from name
-  const generateSlug = (name: string): string => {
-    return name
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-');
-  };
-
   const handleDuplicateItem = async (item: ItemData) => {
     // Prevent multiple clicks while duplicating
     if (isDuplicating && duplicatingItemId === item.id) return;
@@ -228,11 +219,13 @@ export default function AdminItemsPage() {
     try {
       const duplicatedName = `${item.name} (Copy)`;
       const newId = crypto.randomUUID();
+      // Use last 8 chars of UUID to ensure slug uniqueness across multiple duplications
+      const uniqueSlug = `${slugify(duplicatedName)}-${newId.slice(-8)}`;
 
       const duplicateData: CreateItemRequest = {
         id: newId,
         name: duplicatedName,
-        slug: generateSlug(duplicatedName),
+        slug: uniqueSlug,
         description: item.description,
         source_url: item.source_url,
         icon_url: item.icon_url,
