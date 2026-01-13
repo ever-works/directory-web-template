@@ -11,7 +11,6 @@ import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { StripePaymentModal } from '@/components/payment/stripe-payment-modal';
-import { useSetupIntent } from '@/hooks/use-setup-intent';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -22,10 +21,6 @@ interface PricingSectionProps {
 export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: PricingSectionProps) {
 	const { isOpen: isModalOpen, onOpen: onOpenSelectorModal, onClose: onCloseSelectorModal } = useDisclosure();
 	// Prefetch Stripe SetupIntent
-	const { clientSecret, isReady, isError } = useSetupIntent({
-		suppressSuccessToast: true,
-		enabled: !isReview
-	});
 
 	const {
 		FREE,
@@ -52,6 +47,9 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		handleCheckout,
 		calculatePrice,
 		getSavingsText,
+		clientSecret,
+		isReady,
+
 		freePlanFeatures,
 		standardPlanFeatures,
 		premiumPlanFeatures,
@@ -61,7 +59,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		paymentForm
 	} = usePricingSection({
 		onSelectPlan: onSelectPlan,
-		initialSelectedPlan: initialSelectedPlan
+		initialSelectedPlan: initialSelectedPlan,
+		isReview
 	});
 
 	return (
@@ -478,9 +477,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				}
 				amount={paymentForm.planForPayment ? calculatePrice(paymentForm.planForPayment) : 0}
 				currency={currency}
-				clientSecret={clientSecret}
+				clientSecret={clientSecret || ''}
 				isReady={isReady}
-				isError={isError}
 			/>
 		</div>
 	);

@@ -52,10 +52,12 @@ export function StripePaymentForm({ onSuccess, onError, clientSecret, successUrl
 				// Check existing intent first
 				const { setupIntent } = await stripe.retrieveSetupIntent(clientSecret);
 				if (setupIntent?.status === 'succeeded') {
+					// Already processed - this is a valid case if user refreshed the page
 					setStatus('processed');
 					onSuccess(setupIntent.payment_method as string);
 					return;
 				}
+				// If status is not succeeded, proceed with normal confirmation flow
 
 				result = await stripe.confirmSetup({
 					elements,
@@ -69,6 +71,11 @@ export function StripePaymentForm({ onSuccess, onError, clientSecret, successUrl
 					setStatus('processed');
 					onSuccess(paymentIntent.id);
 					return;
+				}
+
+				// Check if intent is in a valid state for confirmation
+				if (paymentIntent?.status === 'canceled') {
+					throw new Error('This payment has been canceled. Please start a new payment.');
 				}
 
 				result = await stripe.confirmPayment({

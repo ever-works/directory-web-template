@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { CreditCard } from 'lucide-react';
 import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '../ui/modal';
@@ -67,8 +67,15 @@ export function StripePaymentModal({
 	const successUrl =
 		typeof window !== 'undefined' ? `${window.location.origin}/checkout/success` : '/checkout/success';
 
+	useEffect(() => {
+		if (!stripePublicKey) {
+			console.error('Stripe publishable key is not configured');
+			onError(new Error('Payment system is not configured. Please contact support.'));
+			onClose();
+		}
+	}, [stripePublicKey, onError, onClose]);
+
 	if (!stripePublicKey) {
-		console.error('Stripe publishable key is not configured');
 		return null;
 	}
 

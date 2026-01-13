@@ -19,10 +19,12 @@ import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
 import { useSetupIntent } from './use-setup-intent';
 import { getStripePaymentMode } from '@/lib/stripe-helpers';
+import { useSubscription } from './use-subscription';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
 	initialSelectedPlan?: PaymentPlan | null;
+	isReview?: boolean;
 }
 
 export interface UsePricingSectionState {
@@ -89,6 +91,9 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 	tBilling: any;
 	router: any;
 	loginModal: LoginModalStore;
+	clientSecret?: string | null;
+	setClientSecret?: (clientSecret: string | null) => void;
+	isReady?: boolean;
 	// Currency-related
 	currency: string;
 	currencySymbol: string;
@@ -101,6 +106,9 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 		closePaymentForm: () => void;
 		onPaymentSuccess: (paymentMethodId: string) => void;
 		onPaymentError: (error: Error) => void;
+		clientSecret?: string;
+		isReady?: boolean;
+		isError?: boolean;
 	};
 }
 
@@ -108,7 +116,7 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
  * Custom hook that encapsulates all PricingSection logic
  */
 export function usePricingSection(params: UsePricingSectionParams = {}): UsePricingSectionReturn {
-	const { onSelectPlan, initialSelectedPlan } = params;
+	const { onSelectPlan, initialSelectedPlan, isReview } = params;
 	// Hooks
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -131,6 +139,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
 	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton(); // Lemonsqueezy checkout hook
 	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout(); // Polar checkout hook
+	const { createSubscription } = useSubscription(); // Subscription management hook
 
 	// Hook for payment flow
 	const { selectedFlow, selectFlow, triggerAnimation } = usePaymentFlow({
@@ -138,9 +147,6 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		autoSave: true
 	});
 
-	const { clientSecret, isReady, isError } = useSetupIntent({
-		suppressSuccessToast: true
-	});
 	// Local state for pricing section
 	const [showSelector, setShowSelector] = useState<boolean>(false);
 	const [billingInterval, setBillingInterval] = useState<PaymentInterval>(PaymentInterval.MONTHLY);
@@ -169,6 +175,15 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				: stripeHook;
 	const { isLoading, isSuccess, error } = paymentHook;
 	const resetPaymentHook = useMemo(() => ('reset' in paymentHook ? paymentHook.reset : () => {}), [paymentHook]);
+
+	// Prefetch Stripe SetupIntent only if using Stripe embedded mode
+	const shouldPrefetch =
+		!isReview && paymentProvider === PaymentProvider.STRIPE && getStripePaymentMode() === 'embedded';
+
+	const { clientSecret, isReady, isError } = useSetupIntent({
+		suppressSuccessToast: true,
+		enabled: shouldPrefetch
+	});
 
 	/**
 	 * Cancel current processing and reset state
@@ -468,6 +483,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		currency,
 		currencySymbol,
 		formatPrice,
+		clientSecret,
+		isReady,
 
 		// Payment form modal
 		paymentForm: {
@@ -485,16 +502,37 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				setShowPaymentForm(false);
 				setPlanForPayment(null);
 			},
-			onPaymentSuccess: (paymentMethodId: string) => {
-				toast.success('Payment method saved successfully!');
-				setShowPaymentForm(false);
-				setPlanForPayment(null);
-				// Trigger subscription creation with the payment method
-				console.log('Payment method saved:', paymentMethodId);
+			onPaymentSuccess: async (paymentMethodId: string) => {
+				if (!planForPayment?.stripePriceId) {
+					toast.error('Missing configuration: No price ID found for this plan.');
+					return;
+				}
+
+				toast.loading('Creating subscription...');
+
+				try {
+					await createSubscription.mutateAsync({
+						priceId: planForPayment.stripePriceId,
+						paymentMethodId
+					});
+					toast.dismiss();
+					toast.success('Subscription created successfully!');
+					setShowPaymentForm(false);
+					setPlanForPayment(null);
+					// Optionally redirect to success page or dashboard
+					router.push('/checkout/success');
+				} catch (error) {
+					toast.dismiss();
+					toast.error('Failed to create subscription. Please try again or contact support.');
+					console.error('Subscription creation failed:', error);
+				}
 			},
 			onPaymentError: (error: Error) => {
 				toast.error(`Payment failed: ${error.message}`);
-			}
+			},
+			clientSecret,
+			isReady,
+			isError
 		}
 	} satisfies UsePricingSectionReturn;
 }

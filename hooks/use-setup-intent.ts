@@ -37,6 +37,24 @@ interface SetupIntentData {
 	metadata?: Record<string, string>;
 }
 
+// Internal type for the actual API response structure
+// Internal type for the nested API response structure (GET)
+interface SetupIntentNestedResponse {
+	success: boolean;
+	data: SetupIntentData;
+	message?: string;
+}
+
+// Internal type for flat API response structure (POST)
+type SetupIntentFlatResponse = SetupIntentData;
+
+// Consumed type (flat structure for app usage)
+interface SetupIntentResponse extends SetupIntentData {
+	success?: boolean;
+	message?: string;
+}
+
+// Consumed type (flat structure for app usage)
 interface SetupIntentResponse extends SetupIntentData {
 	success?: boolean;
 	message?: string;
@@ -61,7 +79,8 @@ interface CreateSetupIntentParams {
  */
 const createSetupIntent = async (params?: CreateSetupIntentParams): Promise<SetupIntentResponse> => {
 	try {
-		const response = await serverClient.post<SetupIntentResponse>('/api/stripe/setup-intent', params);
+		// POST returns flat structure directly
+		const response = await serverClient.post<SetupIntentFlatResponse>('/api/stripe/setup-intent', params);
 
 		if (!apiUtils.isSuccess(response)) {
 			const errorMessage = apiUtils.getErrorMessage(response) || 'Failed to create setup intent';
@@ -140,7 +159,7 @@ const createSetupIntentWithCustomParams = async (params: {
  */
 const getSetupIntent = async (setupIntentId: string): Promise<SetupIntentResponse> => {
 	try {
-		const response = await serverClient.get<SetupIntentResponse>(`/api/stripe/setup-intent/${setupIntentId}`);
+		const response = await serverClient.get<SetupIntentNestedResponse>(`/api/stripe/setup-intent/${setupIntentId}`);
 
 		if (!apiUtils.isSuccess(response)) {
 			const errorMessage = apiUtils.getErrorMessage(response) || 'Failed to retrieve setup intent';
@@ -150,14 +169,19 @@ const getSetupIntent = async (setupIntentId: string): Promise<SetupIntentRespons
 			throw error;
 		}
 
-		if (!response.data) {
+		if (!response.data || !response.data.data) {
 			const error = new Error('Setup intent not found') as SetupIntentError;
 			error.status = 404;
 			error.code = 'NOT_FOUND';
 			throw error;
 		}
 
-		return response.data;
+		// Unwrap the nested data
+		return {
+			...response.data.data,
+			success: response.data.success,
+			message: response.data.message
+		};
 	} catch (error) {
 		if (error instanceof Error && 'status' in error) {
 			throw error;
@@ -282,6 +306,7 @@ export function useSetupIntent(options: UseSetupIntentOptions = {}) {
 
 	// Memoize derived values
 	const setupIntent = useMemo(() => data, [data]);
+
 	const clientSecret = useMemo(() => setupIntent?.client_secret, [setupIntent]);
 	const isReady = useMemo(
 		() => Boolean(isSuccess && setupIntent && clientSecret && setupIntent.status === 'requires_payment_method'),
