@@ -2179,7 +2179,7 @@
 			"NO_TAGS_AVAILABLE": "Нет доступных тегов",
 			"REMOVE_FILTER": "Удалить фильтр {name}",
 			"CLEAR_ALL_FILTERS": "Очистить все",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "Посмотреть историю"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Управление пользователями",

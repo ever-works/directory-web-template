@@ -1421,7 +1421,7 @@
 			"REPORT_MANAGEMENT": "Report Management",
 			"CREATE_NEW_TEMPLATE": "Create New Template",
 			"MANAGE_TEMPLATES": "Manage Templates",
-			"VIEW_HISTORY": "View History",
+			"VIEW_HISTORY": "इतिहास देखें",
 			"EXPORT_SETTINGS": "Export Settings",
 			"EXPORT": "Export",
 			"FORMAT": "Format:",
@@ -2090,7 +2090,7 @@
 			"NO_TAGS_AVAILABLE": "कोई टैग उपलब्ध नहीं",
 			"REMOVE_FILTER": "{name} फ़िल्टर हटाएं",
 			"CLEAR_ALL_FILTERS": "सभी साफ़ करें",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "इतिहास देखें"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",

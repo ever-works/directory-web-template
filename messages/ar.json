@@ -2110,7 +2110,7 @@
 			"NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
 			"REMOVE_FILTER": "إزالة فلتر {name}",
 			"CLEAR_ALL_FILTERS": "مسح الكل",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "عرض السجل"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "إدارة المستخدمين",

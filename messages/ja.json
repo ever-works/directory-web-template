@@ -1421,7 +1421,7 @@
 			"REPORT_MANAGEMENT": "Report Management",
 			"CREATE_NEW_TEMPLATE": "Create New Template",
 			"MANAGE_TEMPLATES": "Manage Templates",
-			"VIEW_HISTORY": "View History",
+			"VIEW_HISTORY": "履歴を表示",
 			"EXPORT_SETTINGS": "Export Settings",
 			"EXPORT": "Export",
 			"FORMAT": "Format:",
@@ -2090,7 +2090,7 @@
 			"NO_TAGS_AVAILABLE": "タグがありません",
 			"REMOVE_FILTER": "{name}フィルターを削除",
 			"CLEAR_ALL_FILTERS": "すべてクリア",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "履歴を表示"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",

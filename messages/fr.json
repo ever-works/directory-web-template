@@ -2181,7 +2181,7 @@
 			"NO_TAGS_AVAILABLE": "Aucune étiquette disponible",
 			"REMOVE_FILTER": "Supprimer le filtre {name}",
 			"CLEAR_ALL_FILTERS": "Tout effacer",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "Voir l'historique"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "Gestion des Utilisateurs",

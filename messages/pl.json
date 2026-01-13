@@ -1421,7 +1421,7 @@
 			"REPORT_MANAGEMENT": "Report Management",
 			"CREATE_NEW_TEMPLATE": "Create New Template",
 			"MANAGE_TEMPLATES": "Manage Templates",
-			"VIEW_HISTORY": "View History",
+			"VIEW_HISTORY": "Zobacz historię",
 			"EXPORT_SETTINGS": "Export Settings",
 			"EXPORT": "Export",
 			"FORMAT": "Format:",
@@ -2090,7 +2090,7 @@
 			"NO_TAGS_AVAILABLE": "Brak dostępnych tagów",
 			"REMOVE_FILTER": "Usuń filtr {name}",
 			"CLEAR_ALL_FILTERS": "Wyczyść wszystko",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "Zobacz historię"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "User Management",

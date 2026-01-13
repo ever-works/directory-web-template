@@ -2122,7 +2122,7 @@
 			"NO_TAGS_AVAILABLE": "没有可用的标签",
 			"REMOVE_FILTER": "移除{name}筛选",
 			"CLEAR_ALL_FILTERS": "清除全部",
-			"VIEW_HISTORY": "View History"
+			"VIEW_HISTORY": "查看历史"
 		},
 		"ADMIN_USERS_PAGE": {
 			"TITLE": "用户管理",
