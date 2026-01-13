@@ -145,9 +145,10 @@ export class ItemRepository {
     return updatedItem;
   }
 
-  async batchUpdate(updates: Array<{ id: string; data: UpdateItemRequest }>): Promise<ItemData[]> {
+  async batchUpdate(updates: Array<{ id: string; data: UpdateItemRequest }>, auditUser?: AuditUser): Promise<ItemData[]> {
     const gitService = await this.getGitService();
     const results: ItemData[] = [];
+    const auditEntries: Array<{ previous: ItemData; updated: ItemData }> = [];
 
     // Pre-validate all updates to avoid partial writes if a validation fails mid-loop
     for (const { id, data } of updates) {
@@ -155,12 +156,25 @@ export class ItemRepository {
     }
 
     for (const { id, data } of updates) {
+      // Get previous state for audit logging
+      const previousItem = await gitService.findItemById(id, true);
       const updated = await gitService.updateItemWithoutCommit(id, data);
       results.push(updated);
+
+      // Store for audit logging after successful commit
+      if (previousItem) {
+        auditEntries.push({ previous: previousItem, updated });
+      }
     }
 
     // Single commit for all updates
     await gitService.commitAndPushBatch(`Batch update ${updates.length} items for collection assignment`);
+
+    // Log all updates to audit trail after successful commit
+    for (const { previous, updated } of auditEntries) {
+      await itemAuditService.logUpdate(previous, updated, auditUser);
+    }
+
     return results;
   }
 
