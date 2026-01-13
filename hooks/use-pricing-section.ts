@@ -17,6 +17,8 @@ import { useCurrencyContext } from '@/components/context/currency-provider';
 import { getLemonSqueezyPriceConfig } from '@/lib/config/billing/lemonsqueezy.config';
 import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
+import { useSetupIntent } from './use-setup-intent';
+import { getStripePaymentMode } from '@/lib/stripe-helpers';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -91,6 +93,15 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 	currency: string;
 	currencySymbol: string;
 	formatPrice: (amount: number) => string;
+	// Payment form modal
+	paymentForm: {
+		isOpen: boolean;
+		planForPayment: PricingConfig | null;
+		openPaymentForm: (plan: PricingConfig) => void;
+		closePaymentForm: () => void;
+		onPaymentSuccess: (paymentMethodId: string) => void;
+		onPaymentError: (error: Error) => void;
+	};
 }
 
 /**
@@ -127,11 +138,16 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		autoSave: true
 	});
 
+	const { clientSecret, isReady, isError } = useSetupIntent({
+		suppressSuccessToast: true
+	});
 	// Local state for pricing section
 	const [showSelector, setShowSelector] = useState<boolean>(false);
 	const [billingInterval, setBillingInterval] = useState<PaymentInterval>(PaymentInterval.MONTHLY);
 	const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(initialSelectedPlan ?? PaymentPlan.STANDARD);
+	const [showPaymentForm, setShowPaymentForm] = useState(false);
+	const [planForPayment, setPlanForPayment] = useState<PricingConfig | null>(null);
 	const loginModal = useLoginModal();
 
 	// Ref for current processing plan
@@ -328,6 +344,17 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						billingInterval
 					);
 				} else if (paymentProvider === PaymentProvider.STRIPE) {
+					const stripePaymentMode = getStripePaymentMode();
+
+					if (stripePaymentMode === 'embedded') {
+						console.log('Using embedded payment mode');
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+						currentProcessingPlanRef.current = null;
+						setProcessingPlan(null);
+						return;
+					}
+
 					// Create checkout session for Stripe
 					if (!plan.stripeProductId) {
 						toast.error('No product ID found for plan', {
@@ -440,6 +467,34 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		// Currency-related
 		currency,
 		currencySymbol,
-		formatPrice
+		formatPrice,
+
+		// Payment form modal
+		paymentForm: {
+			isOpen: showPaymentForm,
+			planForPayment,
+			openPaymentForm: (plan: PricingConfig) => {
+				if (!user?.id) {
+					loginModal.onOpen('Please sign in to continue with your purchase.');
+					return;
+				}
+				setPlanForPayment(plan);
+				setShowPaymentForm(true);
+			},
+			closePaymentForm: () => {
+				setShowPaymentForm(false);
+				setPlanForPayment(null);
+			},
+			onPaymentSuccess: (paymentMethodId: string) => {
+				toast.success('Payment method saved successfully!');
+				setShowPaymentForm(false);
+				setPlanForPayment(null);
+				// Trigger subscription creation with the payment method
+				console.log('Payment method saved:', paymentMethodId);
+			},
+			onPaymentError: (error: Error) => {
+				toast.error(`Payment failed: ${error.message}`);
+			}
+		}
 	} satisfies UsePricingSectionReturn;
 }
