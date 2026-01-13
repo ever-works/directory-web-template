@@ -17,6 +17,7 @@ type CookieToSet = {
 import { getAuthConfig } from "@/lib/auth/config";
 import { updateSession as supabaseUpdate } from "@/lib/auth/supabase/middleware";
 import { getToken } from 'next-auth/jwt';
+import { createSafeCallbackUrl } from "@/lib/auth/validate-callback-url";
 
 const intl = createIntlMiddleware(routing);
 
@@ -58,7 +59,7 @@ async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Pro
   const url = req.nextUrl.clone();
   const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
   url.pathname = `${rootLocalePrefix}/auth/signin`;
-  url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+  url.searchParams.set('callbackUrl', createSafeCallbackUrl(req.nextUrl.pathname, req.nextUrl.search));
   const redirectRes = NextResponse.redirect(url);
   baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
   return redirectRes;
@@ -95,7 +96,7 @@ async function supabaseClientGuard(req: NextRequest, baseRes: NextResponse): Pro
   const url = req.nextUrl.clone();
   const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
   url.pathname = `${rootLocalePrefix}/auth/signin`;
-  url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+  url.searchParams.set('callbackUrl', createSafeCallbackUrl(req.nextUrl.pathname, req.nextUrl.search));
   const redirectRes = NextResponse.redirect(url);
   baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
   return redirectRes;
@@ -128,7 +129,7 @@ async function nextAuthGuard(req: NextRequest, baseRes: NextResponse): Promise<N
   const url = req.nextUrl.clone();
   const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
   url.pathname = `${rootLocalePrefix}${ADMIN_SIGNIN}`;
-  url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+  url.searchParams.set('callbackUrl', createSafeCallbackUrl(req.nextUrl.pathname, req.nextUrl.search));
   const redirectRes = NextResponse.redirect(url);
   baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
   return redirectRes;
@@ -165,7 +166,7 @@ async function supabaseGuard(req: NextRequest, baseRes: NextResponse): Promise<N
     const url = req.nextUrl.clone();
     const { prefix: rootLocalePrefix } = resolveLocalePrefix(req.nextUrl.pathname);
     url.pathname = `${rootLocalePrefix}${ADMIN_SIGNIN}`;
-    url.searchParams.set('callbackUrl', req.nextUrl.pathname + req.nextUrl.search);
+    url.searchParams.set('callbackUrl', createSafeCallbackUrl(req.nextUrl.pathname, req.nextUrl.search));
     const redirectRes = NextResponse.redirect(url);
     baseRes.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
     return redirectRes;
@@ -239,8 +240,31 @@ export default async function proxy(req: NextRequest) {
         if (supabaseRedirect) {
           return supabaseRedirect; // Neither authenticated, redirect to signin
         }
+        // User is authenticated via Supabase - check Supabase admin status
+        const { createServerClient } = await import('@supabase/ssr');
+        const { data: { user } } = await createServerClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          {
+            cookies: {
+              getAll() { return req.cookies.getAll(); },
+              setAll(cookiesToSet: CookieToSet[]) {
+                cookiesToSet.forEach((cookie) => intlResponse.cookies.set(cookie));
+              },
+            },
+          }
+        ).auth.getUser();
+        const isSupabaseAdmin = user?.user_metadata?.isAdmin === true || user?.user_metadata?.role === 'admin';
+        if (isSupabaseAdmin) {
+          const url = req.nextUrl.clone();
+          url.pathname = `${localePrefix}/admin`;
+          const redirectRes = NextResponse.redirect(url);
+          intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+          return redirectRes;
+        }
+        return intlResponse;
       }
-      // User is authenticated - check if admin
+      // User is authenticated via NextAuth - check NextAuth admin status
       const token = await getToken({ req, secret: process.env.AUTH_SECRET });
       if (token?.isAdmin === true) {
         const url = req.nextUrl.clone();
