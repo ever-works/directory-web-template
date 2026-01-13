@@ -14,6 +14,7 @@ import { RECAPTCHA_SITE_KEY } from "@/lib/constants";
 import { useAutoRecaptchaVerification } from '../hooks/useRecaptchaVerification';
 import { useUserCache } from '@/hooks/use-current-user';
 import { AuthErrorCode } from '@/lib/auth/auth-error-codes';
+import { isValidCallbackUrl } from '@/lib/auth/validate-callback-url';
 
 
 export function CredentialsForm({
@@ -28,7 +29,8 @@ export function CredentialsForm({
   const tCred = useTranslations("admin.CREDENTIALS_FORM");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
+  const rawRedirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
+  const redirect = isValidCallbackUrl(rawRedirect) ? rawRedirect : null;
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};
