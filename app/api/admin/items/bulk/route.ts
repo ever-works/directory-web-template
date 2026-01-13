@@ -149,6 +149,24 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 			);
 		}
 
+		// Validate individual IDs and check for duplicates
+		const uniqueIds = new Set<string>();
+		for (const id of ids) {
+			if (!id || typeof id !== 'string' || id.trim().length === 0) {
+				return NextResponse.json(
+					{ success: false, error: 'All item IDs must be non-empty strings' },
+					{ status: 400 }
+				);
+			}
+			if (uniqueIds.has(id)) {
+				return NextResponse.json(
+					{ success: false, error: 'Duplicate item IDs are not allowed' },
+					{ status: 400 }
+				);
+			}
+			uniqueIds.add(id);
+		}
+
 		// Validate reason for reject action
 		if (action === 'reject') {
 			if (!reason || reason.trim().length < 10) {
@@ -158,6 +176,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 				);
 			}
 		}
+
+		// Trim reason after validation to ensure clean data storage
+		const trimmedReason = reason?.trim();
 
 		const results: BulkActionResult[] = [];
 
@@ -169,18 +190,22 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 						status: 'approved',
 					});
 
-					// Send notification email (async, don't block)
-					sendReviewNotification(item, 'approved');
+					// Send notification email (fire-and-forget with error logging)
+					sendReviewNotification(item, 'approved').catch(err =>
+						console.error(`[Bulk] Failed to send approval notification for item ${id}:`, err)
+					);
 
 					results.push({ id, success: true });
 				} else if (action === 'reject') {
 					const item = await itemRepository.review(id, {
 						status: 'rejected',
-						review_notes: reason,
+						review_notes: trimmedReason,
 					});
 
-					// Send notification email (async, don't block)
-					sendReviewNotification(item, 'rejected', reason);
+					// Send notification email (fire-and-forget with error logging)
+					sendReviewNotification(item, 'rejected', trimmedReason).catch(err =>
+						console.error(`[Bulk] Failed to send rejection notification for item ${id}:`, err)
+					);
 
 					results.push({ id, success: true });
 				} else if (action === 'delete') {
