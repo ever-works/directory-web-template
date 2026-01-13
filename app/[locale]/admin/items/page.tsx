@@ -19,6 +19,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITE
 import { UniversalPagination } from "@/components/universal-pagination";
 import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag, Hash, Link2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { slugify } from "@/lib/utils/slug";
 import { useAdminItems } from "@/hooks/use-admin-items";
 import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
@@ -140,6 +141,10 @@ export default function AdminItemsPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+
+  // Duplicate state - derive isDuplicating from duplicatingItemId to prevent race conditions
+  const [duplicatingItemId, setDuplicatingItemId] = useState<string | null>(null);
+  const isDuplicating = duplicatingItemId !== null;
 
   // History modal state
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
@@ -292,6 +297,37 @@ export default function AdminItemsPage() {
     setFormMode('edit');
     setSelectedItem(item);
     setIsModalOpen(true);
+  };
+
+  const handleDuplicateItem = async (item: ItemData) => {
+    // Block all duplications while one is in progress to prevent race conditions
+    if (isDuplicating) return;
+
+    setDuplicatingItemId(item.id);
+
+    try {
+      const duplicatedName = `${item.name} (Copy)`;
+      const newId = crypto.randomUUID();
+      // Use last 8 chars of UUID to ensure slug uniqueness across multiple duplications
+      const uniqueSlug = `${slugify(duplicatedName)}-${newId.slice(-8)}`;
+
+      const duplicateData: CreateItemRequest = {
+        id: newId,
+        name: duplicatedName,
+        slug: uniqueSlug,
+        description: item.description,
+        source_url: item.source_url,
+        icon_url: item.icon_url,
+        category: item.category,
+        tags: item.tags,
+        status: 'draft',
+        featured: false,
+      };
+
+      await createItem(duplicateData);
+    } finally {
+      setDuplicatingItemId(null);
+    }
   };
 
   const closeModal = () => {
@@ -688,7 +724,8 @@ export default function AdminItemsPage() {
             {items.map((item) => {
               const statusColors = getStatusColor(item.status);
               const categories = Array.isArray(item.category) ? item.category : [item.category];
-              const isProcessingThisItem = pendingItemId === item.id && (isApproving || isRejecting || isDeleting);
+              const isDuplicatingThisItem = isDuplicating && duplicatingItemId === item.id;
+              const isProcessingThisItem = (pendingItemId === item.id && (isApproving || isRejecting || isDeleting)) || isDuplicatingThisItem;
               const isSelected = selectedIds.has(item.id);
 
               return (
@@ -707,7 +744,7 @@ export default function AdminItemsPage() {
                       <div className="flex flex-col items-center gap-2">
                         <Spinner size="lg" color="primary" />
                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : t('DELETING')}
+                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : isDuplicatingThisItem ? t('DUPLICATING') : t('DELETING')}
                         </span>
                       </div>
                     </div>
@@ -803,7 +840,8 @@ export default function AdminItemsPage() {
                         <ItemActionsMenu
                           item={item}
                           onViewSource={() => handleOpenExternal(item.source_url)}
-                          onEdit={() => openEditModal(item as any)}
+                          onEdit={() => openEditModal(item)}
+                          onDuplicate={() => handleDuplicateItem(item)}
                           onViewHistory={() => openHistoryModal(item)}
                           onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
                           onApprove={() => handleApproveItem(item.id)}
@@ -813,6 +851,7 @@ export default function AdminItemsPage() {
                           isApproving={isApproving && pendingItemId === item.id}
                           isRejecting={isRejecting && pendingItemId === item.id}
                           isDeleting={isDeleting && pendingItemId === item.id}
+                          isDuplicating={isDuplicatingThisItem}
                         />
                       </div>
                     </div>
