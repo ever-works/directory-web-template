@@ -1,155 +1,232 @@
-"use client";
+'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onOpenChange?: (open: boolean) => void;
-  title?: string;
-  subtitle?: React.ReactNode;
-  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
-  children: React.ReactNode;
-  backdrop?: 'blur-sm' | 'opaque' | 'transparent';
-  isDismissable?: boolean;
-  hideCloseButton?: boolean;
-  className?: string;
+	isOpen: boolean;
+	onClose: () => void;
+	onOpenChange?: (open: boolean) => void;
+	title?: string;
+	subtitle?: React.ReactNode;
+	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | 'full';
+	children: React.ReactNode;
+	backdrop?: 'blur' | 'opaque' | 'transparent';
+	isDismissable?: boolean;
+	hideCloseButton?: boolean;
+	className?: string;
+	/** Animation duration in ms */
+	animationDuration?: number;
+	/** Custom header component */
+	customHeader?: React.ReactNode;
+	/** Whether to show header border */
+	showHeaderBorder?: boolean;
 }
 
 export function Modal({
-  isOpen,
-  onClose,
-  onOpenChange,
-  title,
-  subtitle,
-  size = 'md',
-  children,
-  backdrop = 'blur-sm',
-  isDismissable = true,
-  hideCloseButton = false,
-  className = '',
+	isOpen,
+	onClose,
+	onOpenChange,
+	title,
+	subtitle,
+	size = 'md',
+	children,
+	backdrop = 'blur',
+	isDismissable = true,
+	hideCloseButton = false,
+	className = '',
+	animationDuration = 200,
+	customHeader,
+	showHeaderBorder = true
 }: ModalProps) {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
+	const [isRendered, setIsRendered] = useState(false);
+	const [isAnimating, setIsAnimating] = useState(false);
 
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isOpen]);
+	// Handle open/close animations
+	useEffect(() => {
+		if (isOpen) {
+			setIsRendered(true);
+			// Small delay to trigger animation after render
+			requestAnimationFrame(() => {
+				setIsAnimating(true);
+			});
+			document.body.style.overflow = 'hidden';
+		} else {
+			setIsAnimating(false);
+			const timer = setTimeout(() => {
+				setIsRendered(false);
+				document.body.style.overflow = 'unset';
+			}, animationDuration);
+			return () => clearTimeout(timer);
+		}
 
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isDismissable) {
-        onClose();
-        onOpenChange?.(false);
-      }
-    };
+		return () => {
+			document.body.style.overflow = 'unset';
+		};
+	}, [isOpen, animationDuration]);
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-    }
+	// Handle escape key
+	useEffect(() => {
+		const handleEscape = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && isDismissable && isOpen) {
+				onClose();
+				onOpenChange?.(false);
+			}
+		};
 
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isOpen, isDismissable, onClose, onOpenChange]);
+		document.addEventListener('keydown', handleEscape);
+		return () => document.removeEventListener('keydown', handleEscape);
+	}, [isOpen, isDismissable, onClose, onOpenChange]);
 
-  if (!isOpen) return null;
+	const handleClose = useCallback(() => {
+		onClose();
+		onOpenChange?.(false);
+	}, [onClose, onOpenChange]);
 
-  const sizeClasses = {
-    sm: 'max-w-sm',
-    md: 'max-w-md',
-    lg: 'max-w-lg',
-    xl: 'max-w-xl',
-    '2xl': 'max-w-2xl',
-    '3xl': 'max-w-3xl',
-    '4xl': 'max-w-4xl',
-    '5xl': 'max-w-5xl',
-  };
+	const handleBackdropClick = useCallback(
+		(e: React.MouseEvent) => {
+			if (e.target === e.currentTarget && isDismissable) {
+				handleClose();
+			}
+		},
+		[isDismissable, handleClose]
+	);
 
-  const backdropClasses = {
-    'blur-sm': 'backdrop-blur-xs bg-black/50',
-    opaque: 'bg-black/60',
-    transparent: 'bg-black/20',
-  };
+	if (!isRendered) return null;
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && isDismissable) {
-      onClose();
-      onOpenChange?.(false);
-    }
-  };
+	const sizeClasses = {
+		sm: 'max-w-sm',
+		md: 'max-w-md',
+		lg: 'max-w-lg',
+		xl: 'max-w-xl',
+		'2xl': 'max-w-2xl',
+		'3xl': 'max-w-3xl',
+		'4xl': 'max-w-4xl',
+		'5xl': 'max-w-5xl',
+		full: 'max-w-[95vw] w-full'
+	};
 
-  const modalContainerClasses = `
-    relative w-full ${sizeClasses[size]} max-h-[90vh] 
-    bg-white dark:bg-gray-900 
-    rounded-lg shadow-xl 
-    overflow-hidden
-    ${className}
-  `;
+	const backdropClasses = {
+		blur: 'bg-black/50 backdrop-blur-md',
+		opaque: 'bg-black/70',
+		transparent: 'bg-black/30'
+	};
 
-  const modalContent = (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${backdropClasses[backdrop]}`}
-      onClick={handleBackdropClick}
-    >
-      <div
-        className={modalContainerClasses}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {(title || !hideCloseButton) && (
-          <div className="flex flex-col gap-2 p-4 border-b border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between">
-              {title && (
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {title}
-                </h2>
-              )}
-              {!hideCloseButton && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenChange?.(false);
-                  }}
-                  className="p-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded-sm transition-colors ml-auto"
-                  aria-label="Close modal"
-                >
-                  <X size={20} className="text-gray-500 dark:text-gray-400" />
-                </button>
-              )}
-            </div>
-            {subtitle}
-          </div>
-        )}
-        <div className="overflow-y-auto max-h-[calc(90vh-4rem)]">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
+	const modalContent = (
+		<div
+			className={cn(
+				'fixed inset-0 z-50 flex items-center justify-center p-4',
+				backdropClasses[backdrop],
+				'transition-opacity',
+				isAnimating ? 'opacity-100' : 'opacity-0'
+			)}
+			style={{ transitionDuration: `${animationDuration}ms` }}
+			onClick={handleBackdropClick}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={!customHeader && title ? 'modal-title' : undefined}
+		>
+			<div
+				className={cn(
+					'relative w-full max-h-[90vh]',
+					sizeClasses[size],
+					'bg-white dark:bg-gray-900',
+					'rounded-2xl shadow-2xl',
+					'border border-gray-200/50 dark:border-gray-700/50',
+					'overflow-hidden',
+					'transform transition-all',
+					isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4',
+					className
+				)}
+				style={{ transitionDuration: `${animationDuration}ms` }}
+				onClick={(e) => e.stopPropagation()}
+			>
+				{/* Custom header or default header */}
+				{customHeader ||
+					((title || !hideCloseButton) && (
+						<div
+							className={cn(
+								'flex flex-col gap-2 px-6 py-4',
+								showHeaderBorder && 'border-b border-gray-200 dark:border-gray-700/50',
+								'bg-gray-50/50 dark:bg-gray-800/30'
+							)}
+						>
+							<div className="flex items-center justify-between gap-4">
+								{title && (
+									<h2
+										id="modal-title"
+										className="text-lg font-semibold text-gray-900 dark:text-white"
+									>
+										{title}
+									</h2>
+								)}
+								{!hideCloseButton && (
+									<button
+										type="button"
+										onClick={handleClose}
+										className={cn(
+											'p-2 rounded-lg ml-auto',
+											'text-gray-500 dark:text-gray-400',
+											'hover:text-gray-700 dark:hover:text-gray-200',
+											'hover:bg-gray-100 dark:hover:bg-gray-800',
+											'transition-all duration-150',
+											'focus:outline-none focus:ring-2 focus:ring-theme-primary/50'
+										)}
+										aria-label="Close modal"
+									>
+										<X size={20} />
+									</button>
+								)}
+							</div>
+							{subtitle && <div className="text-sm text-gray-600 dark:text-gray-400">{subtitle}</div>}
+						</div>
+					))}
 
-  return createPortal(modalContent, document.body);
+				{/* Content area */}
+				<div className="overflow-y-auto max-h-[calc(90vh-5rem)]">{children}</div>
+			</div>
+		</div>
+	);
+
+	return createPortal(modalContent, document.body);
 }
 
+// Sub-components for flexible composition
 export function ModalContent({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={className}>{children}</div>;
+	return <div className={cn('flex flex-col', className)}>{children}</div>;
 }
 
 export function ModalHeader({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`p-4 border-b border-gray-200 dark:border-gray-700 ${className}`}>{children}</div>;
+	return (
+		<div
+			className={cn(
+				'px-6 py-4 border-b border-gray-200 dark:border-gray-700/50',
+				'bg-gray-50/50 dark:bg-gray-800/30',
+				className
+			)}
+		>
+			{children}
+		</div>
+	);
 }
 
 export function ModalBody({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`p-4 ${className}`}>{children}</div>;
+	return <div className={cn('p-6', className)}>{children}</div>;
 }
 
 export function ModalFooter({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`p-4 border-t border-gray-200 dark:border-gray-700 ${className}`}>{children}</div>;
-} 
+	return (
+		<div
+			className={cn(
+				'px-6 py-4 border-t border-gray-200 dark:border-gray-700/50',
+				'bg-gray-50/50 dark:bg-gray-800/30',
+				'flex items-center justify-end gap-3',
+				className
+			)}
+		>
+			{children}
+		</div>
+	);
+}
