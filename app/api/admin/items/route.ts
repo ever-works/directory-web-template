@@ -517,7 +517,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create item
+    // Create item with audit logging
+    const auditUser = session.user.id
+      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+      : undefined;
+
     const item = await itemRepository.create({
       id,
       name,
@@ -530,7 +534,7 @@ export async function POST(request: NextRequest) {
       icon_url,
       status: status || 'draft',
       submitted_by: session.user.id,
-    });
+    }, auditUser);
 
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
     const crmEnabled = process.env.TWENTY_CRM_ENABLED === 'true';

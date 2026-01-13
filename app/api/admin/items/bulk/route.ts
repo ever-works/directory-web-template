@@ -180,6 +180,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 		// Trim reason after validation to ensure clean data storage
 		const trimmedReason = reason?.trim();
 
+		// Extract audit user from session for audit trail
+		const auditUser = session.user.id
+			? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+			: undefined;
+
 		const results: BulkActionResult[] = [];
 
 		// Process each item
@@ -188,7 +193,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 				if (action === 'approve') {
 					const item = await itemRepository.review(id, {
 						status: 'approved',
-					});
+					}, auditUser);
 
 					// Send notification email (fire-and-forget with error logging)
 					sendReviewNotification(item, 'approved').catch(err =>
@@ -200,7 +205,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 					const item = await itemRepository.review(id, {
 						status: 'rejected',
 						review_notes: trimmedReason,
-					});
+					}, auditUser);
 
 					// Send notification email (fire-and-forget with error logging)
 					sendReviewNotification(item, 'rejected', trimmedReason).catch(err =>
@@ -209,7 +214,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 
 					results.push({ id, success: true });
 				} else if (action === 'delete') {
-					await itemRepository.delete(id);
+					await itemRepository.delete(id, auditUser);
 					results.push({ id, success: true });
 				}
 			} catch (error) {

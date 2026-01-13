@@ -14,6 +14,7 @@ import { RECAPTCHA_SITE_KEY } from "@/lib/constants";
 import { useAutoRecaptchaVerification } from '../hooks/useRecaptchaVerification';
 import { useUserCache } from '@/hooks/use-current-user';
 import { AuthErrorCode } from '@/lib/auth/auth-error-codes';
+import { isValidCallbackUrl } from '@/lib/auth/validate-callback-url';
 import { useSession } from "next-auth/react";
 
 
@@ -29,7 +30,8 @@ export function CredentialsForm({
   const tCred = useTranslations("admin.CREDENTIALS_FORM");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect");
+  const rawRedirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
+  const redirect = isValidCallbackUrl(rawRedirect) ? rawRedirect : null;
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};
@@ -81,8 +83,7 @@ export function CredentialsForm({
   useEffect(() => {
     if (!state.success) return;
 
-    // Only refresh session and user cache if called from a modal (onSuccess is set)
-
+    // Modal success flow - refresh session and handle errors
     if (onSuccess) {
       const doModalSuccess = async () => {
         setAuthSyncError(null);
@@ -94,7 +95,6 @@ export function CredentialsForm({
           setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
           return;
         }
-        // Next.js router.refresh() is synchronous
         router.refresh();
         onSuccess();
       };
@@ -102,9 +102,11 @@ export function CredentialsForm({
       return;
     }
 
-    // Default redirect logic for /auth/signin and normal pages
-    const redirectPath = state.redirect || redirect || "/client/dashboard";
-    const finalRedirectPath = state.preserveLocale && locale !== 'en'
+    // Default redirect logic with callback URL priority and double-prefix prevention
+    const redirectPath = redirect || state.redirect || "/client/dashboard";
+    // Handle locale preservation for redirects (avoid double prefix if path already has locale)
+    const shouldPrefixLocale = state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+    const finalRedirectPath = shouldPrefixLocale
       ? `/${locale}${redirectPath}`
       : redirectPath;
     invalidateAllUserData();
@@ -183,10 +185,11 @@ export function CredentialsForm({
       if (res && !res.error) {
         setClientSuccess(true);
         setTimeout(() => {
-          const redirectPath = clientMode ? "/admin" : "/client/dashboard";
-          // Handle locale preservation for client-side redirects
-          const finalRedirectPath = locale !== 'en' 
-            ? `/${locale}${redirectPath}` 
+          const redirectPath = redirect || (clientMode ? "/admin" : "/client/dashboard");
+          // Handle locale preservation for client-side redirects (avoid double prefix if path already has locale)
+          const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+          const finalRedirectPath = shouldPrefixLocale
+            ? `/${locale}${redirectPath}`
             : redirectPath;
           router.push(finalRedirectPath);
           router.refresh();

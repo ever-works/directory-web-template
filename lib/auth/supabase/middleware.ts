@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { authConfig } from '@/lib/config/config-service';
+import { createSafeCallbackUrl } from '@/lib/auth/validate-callback-url';
 
 type CookieToSet = {
   name: string;
@@ -58,8 +59,15 @@ export async function updateSession(request: NextRequest) {
     '/auth/forgot-password',
     '/auth/reset-password',
     '/auth/verify-email',
+    '/admin/auth/signin',
+    '/admin/auth/register',
+    '/admin/auth/forgot-password',
+    '/admin/auth/reset-password',
   ];
-  const PRIVATE_PATHS: string[] = []; // Remove dashboard from private paths
+  const PRIVATE_PATHS: string[] = [
+    '/client',  // All client routes require authentication
+    '/admin',   // All admin routes require authentication
+  ];
 
   const isPrivatePath = PRIVATE_PATHS.some(path => 
     pathWithoutLocale.startsWith(path) || 
@@ -74,7 +82,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && isPrivatePath) {
     const url = request.nextUrl.clone();
     url.pathname = `/${locale}/auth/signin`;
-    url.searchParams.set('callbackUrl', request.nextUrl.pathname);
+    url.searchParams.set('callbackUrl', createSafeCallbackUrl(request.nextUrl.pathname, request.nextUrl.search));
     return NextResponse.redirect(url);
   }
 

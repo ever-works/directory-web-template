@@ -10,6 +10,7 @@ import { MultiStepItemForm } from "@/components/admin/items/multi-step-item-form
 import { ItemFilters } from "@/components/admin/items/item-filters";
 import { ActiveItemFilters } from "@/components/admin/items/active-item-filters";
 import { ItemRejectModal } from "@/components/admin/items/item-reject-modal";
+import { ItemHistoryModal } from "@/components/admin/items/item-history-modal";
 import { BulkActionBar } from "@/components/admin/items/bulk-action-bar";
 import { BulkConfirmDialog } from "@/components/admin/items/bulk-confirm-dialog";
 import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/item-list-sorting";
@@ -18,6 +19,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITE
 import { UniversalPagination } from "@/components/universal-pagination";
 import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag, Hash, Link2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { slugify } from "@/lib/utils/slug";
 import { useAdminItems } from "@/hooks/use-admin-items";
 import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
@@ -36,7 +38,6 @@ export default function AdminItemsPage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [searchTerm, setSearchTerm] = useState("");
   const hasLoadedOnce = useRef(false);
-  const modalRef = useRef<HTMLDivElement>(null);
 
   // Filter state
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -97,7 +98,7 @@ export default function AdminItemsPage() {
     sortOrder,
   });
 
-  // Check if search is active (>= 2 chars after trimming, matching query behavior)
+// Check if search is active (>= 2 chars after trimming, matching query behavior)
   const hasActiveSearch = searchTerm.trim().length >= 2;
   // Calculate active filter count (only count search when >= 2 chars, matching query behavior)
   const activeFilterCount = (hasActiveSearch ? 1 : 0) + (statusFilter ? 1 : 0) + categoriesFilter.length + tagsFilter.length;
@@ -140,6 +141,14 @@ export default function AdminItemsPage() {
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
   const [selectedItemForReject, setSelectedItemForReject] = useState<ItemData | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
+
+  // Duplicate state - derive isDuplicating from duplicatingItemId to prevent race conditions
+  const [duplicatingItemId, setDuplicatingItemId] = useState<string | null>(null);
+  const isDuplicating = duplicatingItemId !== null;
+
+  // History modal state
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [selectedItemForHistory, setSelectedItemForHistory] = useState<ItemData | null>(null);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -257,6 +266,16 @@ export default function AdminItemsPage() {
     setRejectionReason('');
   };
 
+  const openHistoryModal = (item: ItemData) => {
+    setSelectedItemForHistory(item);
+    setHistoryModalOpen(true);
+  };
+
+  const closeHistoryModal = () => {
+    setHistoryModalOpen(false);
+    setSelectedItemForHistory(null);
+  };
+
   const handleRejectConfirm = async () => {
     // Prevent multiple clicks while rejecting
     if (isRejecting) return;
@@ -280,6 +299,37 @@ export default function AdminItemsPage() {
     setIsModalOpen(true);
   };
 
+  const handleDuplicateItem = async (item: ItemData) => {
+    // Block all duplications while one is in progress to prevent race conditions
+    if (isDuplicating) return;
+
+    setDuplicatingItemId(item.id);
+
+    try {
+      const duplicatedName = `${item.name} (Copy)`;
+      const newId = crypto.randomUUID();
+      // Use last 8 chars of UUID to ensure slug uniqueness across multiple duplications
+      const uniqueSlug = `${slugify(duplicatedName)}-${newId.slice(-8)}`;
+
+      const duplicateData: CreateItemRequest = {
+        id: newId,
+        name: duplicatedName,
+        slug: uniqueSlug,
+        description: item.description,
+        source_url: item.source_url,
+        icon_url: item.icon_url,
+        category: item.category,
+        tags: item.tags,
+        status: 'draft',
+        featured: false,
+      };
+
+      await createItem(duplicateData);
+    } finally {
+      setDuplicatingItemId(null);
+    }
+  };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(undefined);
@@ -297,11 +347,6 @@ export default function AdminItemsPage() {
 
     // Add escape key listener
     document.addEventListener("keydown", handleKeyDown);
-
-    // Focus the modal when it opens
-    if (modalRef.current) {
-      modalRef.current.focus();
-    }
 
     // Prevent body scroll when modal is open
     document.body.style.overflow = "hidden";
@@ -324,17 +369,16 @@ export default function AdminItemsPage() {
     }
   };
 
-  // Secure external link handler (Feedback 3)
-  const handleOpenExternal = useCallback((rawUrl?: string) => {
+  // Secure external link handler
+  const handleOpenExternal = (rawUrl?: string) => {
     if (!rawUrl) return;
     try {
       const url = new URL(rawUrl);
-      const w = window.open(url.toString(), "_blank", "noopener,noreferrer");
-      if (w) w.opener = null;
+      window.open(url.toString(), "_blank", "noopener,noreferrer");
     } catch {
       // Invalid URL, silently ignore
     }
-  }, []);
+  };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -627,6 +671,7 @@ export default function AdminItemsPage() {
                   onStatusChange={setStatusFilter}
                   onCategoriesChange={setCategoriesFilter}
                   onTagsChange={setTagsFilter}
+                  onClearAll={handleClearAllFilters}
                   categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
                   tags={allTags.map(t => ({ id: t.id, name: t.name }))}
                   itemCounts={{
@@ -679,7 +724,8 @@ export default function AdminItemsPage() {
             {items.map((item) => {
               const statusColors = getStatusColor(item.status);
               const categories = Array.isArray(item.category) ? item.category : [item.category];
-              const isProcessingThisItem = pendingItemId === item.id && (isApproving || isRejecting || isDeleting);
+              const isDuplicatingThisItem = isDuplicating && duplicatingItemId === item.id;
+              const isProcessingThisItem = (pendingItemId === item.id && (isApproving || isRejecting || isDeleting)) || isDuplicatingThisItem;
               const isSelected = selectedIds.has(item.id);
 
               return (
@@ -698,7 +744,7 @@ export default function AdminItemsPage() {
                       <div className="flex flex-col items-center gap-2">
                         <Spinner size="lg" color="primary" />
                         <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : t('DELETING')}
+                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : isDuplicatingThisItem ? t('DUPLICATING') : t('DELETING')}
                         </span>
                       </div>
                     </div>
@@ -795,6 +841,8 @@ export default function AdminItemsPage() {
                           item={item}
                           onViewSource={() => handleOpenExternal(item.source_url)}
                           onEdit={() => openEditModal(item)}
+                          onDuplicate={() => handleDuplicateItem(item)}
+                          onViewHistory={() => openHistoryModal(item)}
                           onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
                           onApprove={() => handleApproveItem(item.id)}
                           onReject={() => openRejectModal(item)}
@@ -803,6 +851,7 @@ export default function AdminItemsPage() {
                           isApproving={isApproving && pendingItemId === item.id}
                           isRejecting={isRejecting && pendingItemId === item.id}
                           isDeleting={isDeleting && pendingItemId === item.id}
+                          isDuplicating={isDuplicatingThisItem}
                         />
                       </div>
                     </div>
@@ -868,7 +917,6 @@ export default function AdminItemsPage() {
       {/* Item Form Modal */}
       {isModalOpen && (
         <div
-          ref={modalRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby="item-form-modal-title"
@@ -905,6 +953,16 @@ export default function AdminItemsPage() {
         onConfirm={handleRejectConfirm}
         onClose={closeRejectModal}
       />
+
+      {/* Item History Modal */}
+      {selectedItemForHistory && (
+        <ItemHistoryModal
+          isOpen={historyModalOpen}
+          itemId={selectedItemForHistory.id}
+          itemName={selectedItemForHistory.name}
+          onClose={closeHistoryModal}
+        />
+      )}
 
       {/* Bulk Action Bar */}
       <BulkActionBar
