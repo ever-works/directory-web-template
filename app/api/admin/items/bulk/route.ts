@@ -192,7 +192,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 
 					// Send notification email (fire-and-forget with error logging)
 					sendReviewNotification(item, 'approved').catch(err =>
-						console.error(`[Bulk] Failed to send approval notification for item ${id}:`, err)
+						console.error('[Bulk] Failed to send approval notification for item %s:', id, err)
 					);
 
 					results.push({ id, success: true });
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 
 					// Send notification email (fire-and-forget with error logging)
 					sendReviewNotification(item, 'rejected', trimmedReason).catch(err =>
-						console.error(`[Bulk] Failed to send rejection notification for item ${id}:`, err)
+						console.error('[Bulk] Failed to send rejection notification for item %s:', id, err)
 					);
 
 					results.push({ id, success: true });
