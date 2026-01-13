@@ -174,8 +174,10 @@ export async function GET(
 
 		// Parse query parameters
 		const { searchParams } = new URL(request.url);
-		const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
-		const limit = Math.min(100, Math.max(1, parseInt(searchParams.get('limit') ?? '20', 10)));
+		const rawPage = parseInt(searchParams.get('page') ?? '1', 10);
+		const page = Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage);
+		const rawLimit = parseInt(searchParams.get('limit') ?? '20', 10);
+		const limit = Math.min(100, Math.max(1, Number.isNaN(rawLimit) ? 20 : rawLimit));
 		const actionParam = searchParams.get('action');
 
 		// Parse action filter
