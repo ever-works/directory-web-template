@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,6 +28,7 @@ import { ItemSearch } from "./components/item-filters";
 export default function AdminItemsPage() {
   const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
   const router = useRouter();
+  const params = useParams<{ locale: string }>();
   const PageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortField>("updated_at");
@@ -686,7 +687,7 @@ export default function AdminItemsPage() {
                               </span>
                               <span className="inline-flex items-center gap-1">
                                 <Calendar className="w-3 h-3" />
-{new Date(item.updated_at || Date.now()).toLocaleDateString()}
+                                {formatDate(item.updated_at)}
                               </span>
                             </div>
                           </div>
@@ -697,10 +698,10 @@ export default function AdminItemsPage() {
                       <div className="flex items-center ml-4">
                         <ItemActionsMenu
                           item={item}
-                          onViewSource={() => window.open(item.source_url || '#', '_blank')}
+                          onViewSource={() => handleOpenExternal(item.source_url)}
                           onEdit={() => openEditModal(item as any)}
                           onViewHistory={() => openHistoryModal(item)}
-                          onCreateSurvey={() => router.push(`/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
+                          onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
                           onApprove={() => handleApproveItem(item.id)}
                           onReject={() => openRejectModal(item)}
                           onDelete={() => handleDeleteItem(item.id)}
