@@ -10,6 +10,7 @@ import { usePricingSection } from '@/hooks/use-pricing-section';
 import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { StripePaymentModal } from '@/components/payment/stripe-payment-modal';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -45,14 +46,20 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		handleCheckout,
 		calculatePrice,
 		getSavingsText,
+		clientSecret,
+		isReady,
+
 		freePlanFeatures,
 		standardPlanFeatures,
 		premiumPlanFeatures,
 		loginModal,
-		formatPrice
+		formatPrice,
+		currency,
+		paymentForm
 	} = usePricingSection({
 		onSelectPlan: onSelectPlan,
-		initialSelectedPlan: initialSelectedPlan
+		initialSelectedPlan: initialSelectedPlan,
+		isReview
 	});
 
 	return (
@@ -455,6 +462,23 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				isOpen={isModalOpen}
 				onClose={onCloseSelectorModal}
 				onSelect={handleFlowSelect}
+			/>
+
+			{/* Stripe Payment Form Modal */}
+			<StripePaymentModal
+				isOpen={paymentForm.isOpen}
+				onClose={paymentForm.closePaymentForm}
+				onSuccess={paymentForm.onPaymentSuccess}
+				onError={paymentForm.onPaymentError}
+				planName={paymentForm.planForPayment?.name}
+				planPrice={
+					paymentForm.planForPayment ? formatPrice(calculatePrice(paymentForm.planForPayment)) : undefined
+				}
+				amount={paymentForm.planForPayment ? calculatePrice(paymentForm.planForPayment) : 0}
+				currency={currency}
+				clientSecret={clientSecret || ''}
+				isReady={isReady}
+				isError={paymentForm.isError}
 			/>
 		</div>
 	);
