@@ -122,8 +122,12 @@ export class ItemRepository {
     const gitService = await this.getGitService();
     const item = await gitService.createItem(data);
 
-    // Log creation to audit trail
-    await itemAuditService.logCreation(item, auditUser);
+    // Log creation to audit trail (best-effort)
+    try {
+      await itemAuditService.logCreation(item, auditUser);
+    } catch (err) {
+      console.warn('Audit logCreation failed:', err);
+    }
 
     return item;
   }
@@ -137,9 +141,13 @@ export class ItemRepository {
     const previousItem = await gitService.findItemById(id, true);
     const updatedItem = await gitService.updateItem(id, data);
 
-    // Log update to audit trail (only if previous state was found)
+    // Log update to audit trail (best-effort, only if previous state was found)
     if (previousItem) {
-      await itemAuditService.logUpdate(previousItem, updatedItem, auditUser);
+      try {
+        await itemAuditService.logUpdate(previousItem, updatedItem, auditUser);
+      } catch (err) {
+        console.warn('Audit logUpdate failed:', err);
+      }
     }
 
     return updatedItem;
@@ -170,9 +178,13 @@ export class ItemRepository {
     // Single commit for all updates
     await gitService.commitAndPushBatch(`Batch update ${updates.length} items for collection assignment`);
 
-    // Log all updates to audit trail after successful commit
+    // Log all updates to audit trail after successful commit (best-effort)
     for (const { previous, updated } of auditEntries) {
-      await itemAuditService.logUpdate(previous, updated, auditUser);
+      try {
+        await itemAuditService.logUpdate(previous, updated, auditUser);
+      } catch (err) {
+        console.warn('Audit logUpdate failed for batch item:', err);
+      }
     }
 
     return results;
@@ -189,8 +201,12 @@ export class ItemRepository {
 
     const item = await gitService.reviewItem(id, reviewData);
 
-    // Log review to audit trail
-    await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
+    // Log review to audit trail (best-effort)
+    try {
+      await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
+    } catch (err) {
+      console.warn('Audit logReview failed:', err);
+    }
 
     return item;
   }
@@ -203,9 +219,13 @@ export class ItemRepository {
 
     await gitService.deleteItem(id);
 
-    // Log hard deletion to audit trail
+    // Log hard deletion to audit trail (best-effort)
     if (item) {
-      await itemAuditService.logDeletion(item, auditUser, false);
+      try {
+        await itemAuditService.logDeletion(item, auditUser, false);
+      } catch (err) {
+        console.warn('Audit logDeletion failed:', err);
+      }
     }
   }
 
@@ -213,8 +233,12 @@ export class ItemRepository {
     const gitService = await this.getGitService();
     const item = await gitService.softDeleteItem(id);
 
-    // Log soft deletion to audit trail
-    await itemAuditService.logDeletion(item, auditUser, true);
+    // Log soft deletion to audit trail (best-effort)
+    try {
+      await itemAuditService.logDeletion(item, auditUser, true);
+    } catch (err) {
+      console.warn('Audit logDeletion (soft) failed:', err);
+    }
 
     return item;
   }
@@ -223,8 +247,12 @@ export class ItemRepository {
     const gitService = await this.getGitService();
     const item = await gitService.restoreItem(id);
 
-    // Log restoration to audit trail
-    await itemAuditService.logRestoration(item, auditUser);
+    // Log restoration to audit trail (best-effort)
+    try {
+      await itemAuditService.logRestoration(item, auditUser);
+    } catch (err) {
+      console.warn('Audit logRestoration failed:', err);
+    }
 
     return item;
   }
