@@ -150,7 +150,7 @@ export default function Item(props: ItemProps) {
 										}
 										variant="star"
 										size="sm"
-										className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+										className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 !top-0 !right-0"
 										hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
 									/>
 								)}
