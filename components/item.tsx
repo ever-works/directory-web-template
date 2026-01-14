@@ -93,8 +93,8 @@ export default function Item(props: ItemProps) {
 				<CardHeader className="flex gap-4  pb-4">
 					<div className="flex flex-col grow gap-4 min-w-0">
 						<div className="flex justify-between items-center gap-3">
-							{/* Left: Icon + Title */}
-							<div className="flex items-center gap-4 min-w-0">
+							{/* Left: Icon + Title + Arrow */}
+							<div className="flex items-center gap-3 min-w-0">
 								<div className="relative shrink-0">
 									{/* Pulse/wave effect on hover */}
 									<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
@@ -114,18 +114,28 @@ export default function Item(props: ItemProps) {
 									</div>
 								</div>
 
-								<div className="flex-1 min-w-0">
+								<div className="min-w-0">
 									<div className="text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
 										{props.name}
 									</div>
 									<div className="w-0 h-0.5 bg-gray-300 dark:bg-gray-600 group-hover:w-12 transition-all duration-500 ease-out" />
 								</div>
+
+								{/* Arrow indicator - right after title */}
+								{props.layout === 'classic' && (
+									<div
+										className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
+										aria-hidden="true"
+									>
+										<FiArrowUpRight className="w-3 h-3 text-theme-primary-600 dark:text-theme-primary-400" />
+									</div>
+								)}
 							</div>
 
-							{/* Right: FavoriteButton + FeaturedBadge + Arrow - all h-6 (24px) aligned */}
-							<div className="flex items-center gap-2 shrink-0">
+							{/* Right: FavoriteButton + FeaturedBadge - aligned */}
+							<div className="flex items-center gap-2 shrink-0 h-6">
 								{session?.user?.id && (
-									<div onClick={(e) => e.stopPropagation()} className="h-6 flex items-center">
+									<div onClick={(e) => e.stopPropagation()}>
 										<FavoriteButton
 											itemSlug={props.slug}
 											itemName={props.name}
@@ -148,7 +158,7 @@ export default function Item(props: ItemProps) {
 								)}
 
 								{props.featured && (
-									<div className="relative h-6 flex items-center">
+									<div className="relative flex items-center">
 										<FeaturedBadge
 											variant="hero"
 											size="sm"
@@ -156,16 +166,6 @@ export default function Item(props: ItemProps) {
 										/>
 										{/* Glow effect */}
 										<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-									</div>
-								)}
-
-								{/* Arrow indicator - next to title */}
-								{props.layout === 'classic' && (
-									<div
-										className="h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
-										aria-hidden="true"
-									>
-										<FiArrowUpRight className="w-3 h-3 text-theme-primary-600 dark:text-theme-primary-400" />
 									</div>
 								)}
 							</div>
