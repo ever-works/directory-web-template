@@ -7,6 +7,7 @@ import { PaymentInterval, PaymentPlan, SponsorAdPricing } from '@/lib/constants'
 import { PaymentFlowSelectorModal } from '../payment';
 import { PricingConfig } from '@/lib/content';
 import { usePricingSection } from '@/hooks/use-pricing-section';
+import { usePaymentAvailability } from '@/hooks/use-payment-availability';
 import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ interface PricingSectionProps {
 
 export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: PricingSectionProps) {
 	const { isOpen: isModalOpen, onOpen: onOpenSelectorModal, onClose: onCloseSelectorModal } = useDisclosure();
+	const { shouldShowPaidPlans } = usePaymentAvailability();
 
 	const {
 		FREE,
@@ -140,7 +142,12 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 mb-12 max-w-6xl mx-auto">
+			<div
+				className={cn(
+					'grid gap-6 lg:gap-8 mb-12 mx-auto',
+					shouldShowPaidPlans ? 'grid-cols-1 md:grid-cols-3 max-w-6xl' : 'grid-cols-1 max-w-md'
+				)}
+			>
 				<div className="relative transition duration-700 ease-in-out">
 					{/* Card Glow Effect */}
 					<div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-600/20 dark:to-purple-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
@@ -198,127 +205,132 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					</div>
 				</div>
 
-				<div className="relative group">
-					{/* Card Glow Effect */}
-					<div className="absolute inset-0 bg-linear-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-600/20 dark:to-pink-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+				{shouldShowPaidPlans && (
+					<>
+						<div className="relative group">
+							{/* Card Glow Effect */}
+							<div className="absolute inset-0 bg-linear-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-600/20 dark:to-pink-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
 
-					<div
-						className={cn(
-							'relative transition-all',
-							selectedPlan === PaymentPlan.STANDARD &&
-								'scale-105 ring-2 ring-purple-500/50 dark:ring-purple-400/50'
-						)}
-					>
-						<PlanCard
-							plan={PaymentPlan.STANDARD}
-							title={getPlanConfig(PaymentPlan.STANDARD).name.toUpperCase()}
-							price={formatPrice(STANDARD ? calculatePrice(STANDARD) : 0)}
-							priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
-							features={standardPlanFeatures}
-							isPopular={true}
-							isSelected={selectedPlan === PaymentPlan.STANDARD}
-							onSelect={handleSelectPlan}
-							actionText={
-								isReview
-									? t('SELECT_STANDARD')
-									: error
-										? tBilling('ERROR_TRY_AGAIN')
-										: !user
-											? getNotLoggedInActionText(PaymentPlan.STANDARD)
-											: processingPlan === STANDARD?.id && isLoading
-												? tBilling('PROCESSING')
-												: getActionText(PaymentPlan.STANDARD)
-							}
-							actionVariant="default"
-							actionHref={isReview ? undefined : '/submit'}
-							isLoading={processingPlan === STANDARD?.id && isLoading}
-							isButton={isReview ? false : isButton}
-							onClick={() => {
-								if (!user?.id) {
-									loginModal.onOpen('Please sign in to continue with your purchase.');
-									return;
-								}
-								// In review mode (submit form), just select the plan
-								if (isReview) {
-									handleSelectPlan(PaymentPlan.STANDARD);
-									return;
-								}
-								handleCheckout(STANDARD as PricingConfig);
-							}}
-							selectedFlow={selectedFlow}
-							onFlowChange={isReview ? undefined : handleFlowSelect}
-							onOpenModal={isReview ? undefined : onOpenSelectorModal}
-						>
-							{getSavingsText(STANDARD as PricingConfig) && (
-								<div className="text-center">
-									<span className="inline-block px-3 text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
-										{getSavingsText(STANDARD as PricingConfig)}
-									</span>
-								</div>
-							)}
-						</PlanCard>
-					</div>
-				</div>
+							<div
+								className={cn(
+									'relative transition-all',
+									selectedPlan === PaymentPlan.STANDARD &&
+										'scale-105 ring-2 ring-purple-500/50 dark:ring-purple-400/50'
+								)}
+							>
+								<PlanCard
+									plan={PaymentPlan.STANDARD}
+									title={getPlanConfig(PaymentPlan.STANDARD).name.toUpperCase()}
+									price={formatPrice(STANDARD ? calculatePrice(STANDARD) : 0)}
+									priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
+									features={standardPlanFeatures}
+									isPopular={true}
+									isSelected={selectedPlan === PaymentPlan.STANDARD}
+									onSelect={handleSelectPlan}
+									actionText={
+										isReview
+											? t('SELECT_STANDARD')
+											: error
+												? tBilling('ERROR_TRY_AGAIN')
+												: !user
+													? getNotLoggedInActionText(PaymentPlan.STANDARD)
+													: processingPlan === STANDARD?.id && isLoading
+														? tBilling('PROCESSING')
+														: getActionText(PaymentPlan.STANDARD)
+									}
+									actionVariant="default"
+									actionHref={isReview ? undefined : '/submit'}
+									isLoading={processingPlan === STANDARD?.id && isLoading}
+									isButton={isReview ? false : isButton}
+									onClick={() => {
+										if (!user?.id) {
+											loginModal.onOpen('Please sign in to continue with your purchase.');
+											return;
+										}
+										// In review mode (submit form), just select the plan
+										if (isReview) {
+											handleSelectPlan(PaymentPlan.STANDARD);
+											return;
+										}
+										handleCheckout(STANDARD as PricingConfig);
+									}}
+									selectedFlow={selectedFlow}
+									onFlowChange={isReview ? undefined : handleFlowSelect}
+									onOpenModal={isReview ? undefined : onOpenSelectorModal}
+								>
+									{getSavingsText(STANDARD as PricingConfig) && (
+										<div className="text-center">
+											<span className="inline-block px-3 text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
+												{getSavingsText(STANDARD as PricingConfig)}
+											</span>
+										</div>
+									)}
+								</PlanCard>
+							</div>
+						</div>
 
-				<div className="relative group">
-					{/* Card Glow Effect */}
-					{/* <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-600/20 dark:to-cyan-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
+						<div className="relative group">
+							{/* Card Glow Effect */}
+							{/* <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-600/20 dark:to-cyan-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
 
-					<div
-						className={cn(
-							'relative',
-							selectedPlan === PaymentPlan.PREMIUM && 'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50'
-						)}
-					>
-						<PlanCard
-							plan={PaymentPlan.PREMIUM}
-							title={getPlanConfig(PaymentPlan.PREMIUM).name.toUpperCase()}
-							price={formatPrice(PREMIUM ? calculatePrice(PREMIUM) : 0)}
-							priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
-							features={premiumPlanFeatures}
-							isSelected={selectedPlan === PaymentPlan.PREMIUM}
-							onSelect={handleSelectPlan}
-							actionText={
-								isReview
-									? t('SELECT_PREMIUM')
-									: error
-										? tBilling('ERROR_TRY_AGAIN')
-										: !user
-											? getNotLoggedInActionText(PaymentPlan.PREMIUM)
-											: processingPlan === PREMIUM?.id && isLoading
-												? tBilling('PROCESSING')
-												: getActionText(PaymentPlan.PREMIUM)
-							}
-							actionVariant="default"
-							actionHref={isReview ? undefined : '/submit'}
-							isButton={isReview ? false : isButton}
-							isLoading={processingPlan === PREMIUM?.id && isLoading}
-							onClick={() => {
-								if (!user?.id) {
-									loginModal.onOpen('Please sign in to continue with your purchase.');
-									return;
-								}
-								// In review mode (submit form), just select the plan
-								if (isReview) {
-									handleSelectPlan(PaymentPlan.PREMIUM);
-									return;
-								}
-								handleCheckout(PREMIUM as PricingConfig);
-							}}
-							selectedFlow={selectedFlow}
-							onFlowChange={isReview ? undefined : handleFlowSelect}
-							onOpenModal={isReview ? undefined : onOpenSelectorModal}
-						>
-							{getSavingsText(PREMIUM as PricingConfig) && (
-								<div className="text-center">
-									<span className="inline-block px-3 py-1 text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
-										{getSavingsText(PREMIUM as PricingConfig)}
-									</span>
-								</div>
-							)}
-						</PlanCard>
-					</div>
-				</div>
+							<div
+								className={cn(
+									'relative',
+									selectedPlan === PaymentPlan.PREMIUM &&
+										'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50'
+								)}
+							>
+								<PlanCard
+									plan={PaymentPlan.PREMIUM}
+									title={getPlanConfig(PaymentPlan.PREMIUM).name.toUpperCase()}
+									price={formatPrice(PREMIUM ? calculatePrice(PREMIUM) : 0)}
+									priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
+									features={premiumPlanFeatures}
+									isSelected={selectedPlan === PaymentPlan.PREMIUM}
+									onSelect={handleSelectPlan}
+									actionText={
+										isReview
+											? t('SELECT_PREMIUM')
+											: error
+												? tBilling('ERROR_TRY_AGAIN')
+												: !user
+													? getNotLoggedInActionText(PaymentPlan.PREMIUM)
+													: processingPlan === PREMIUM?.id && isLoading
+														? tBilling('PROCESSING')
+														: getActionText(PaymentPlan.PREMIUM)
+									}
+									actionVariant="default"
+									actionHref={isReview ? undefined : '/submit'}
+									isButton={isReview ? false : isButton}
+									isLoading={processingPlan === PREMIUM?.id && isLoading}
+									onClick={() => {
+										if (!user?.id) {
+											loginModal.onOpen('Please sign in to continue with your purchase.');
+											return;
+										}
+										// In review mode (submit form), just select the plan
+										if (isReview) {
+											handleSelectPlan(PaymentPlan.PREMIUM);
+											return;
+										}
+										handleCheckout(PREMIUM as PricingConfig);
+									}}
+									selectedFlow={selectedFlow}
+									onFlowChange={isReview ? undefined : handleFlowSelect}
+									onOpenModal={isReview ? undefined : onOpenSelectorModal}
+								>
+									{getSavingsText(PREMIUM as PricingConfig) && (
+										<div className="text-center">
+											<span className="inline-block px-3 py-1 text-sm font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full">
+												{getSavingsText(PREMIUM as PricingConfig)}
+											</span>
+										</div>
+									)}
+								</PlanCard>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 
 			{/* Sponsor Ads Block */}
