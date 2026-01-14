@@ -36,6 +36,7 @@ type Home2FiltersProps = {
   totalCount?: number;
   filteredCount?: number;
   searchEnabled?: boolean;
+  isSticky?: boolean;
 };
 
 export function HomeTwoFilters({
@@ -45,6 +46,7 @@ export function HomeTwoFilters({
   totalCount,
   filteredCount,
   searchEnabled = true,
+  isSticky = false,
 }: Home2FiltersProps) {
   const {
     searchTerm,
@@ -109,7 +111,7 @@ export function HomeTwoFilters({
               onTagToggle={handleTagToggle}
             />
           </div>
-          <LayoutSettings />
+          <LayoutSettings isParentSticky={isSticky} />
         </div>
       </div>
 
@@ -125,7 +127,7 @@ export function HomeTwoFilters({
                 onTagToggle={handleTagToggle}
               />
             </div>
-            <LayoutSettings />
+            <LayoutSettings isParentSticky={isSticky} />
           </div>
 
           {searchEnabled && (
@@ -162,7 +164,7 @@ export function HomeTwoFilters({
               />
             </div>
           )}
-          <LayoutSettings />
+          <LayoutSettings isParentSticky={isSticky} />
         </div>
       </div>
 
