@@ -44,26 +44,39 @@ export interface BulkActionResponse {
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               action:
- *                 type: string
- *                 enum: ["approve", "reject", "delete"]
- *                 description: "The action to perform on selected items"
- *                 example: "approve"
- *               ids:
- *                 type: array
- *                 items:
- *                   type: string
- *                 description: "Array of item IDs to process"
- *                 minItems: 1
- *                 maxItems: 100
- *                 example: ["item_123", "item_456", "item_789"]
- *               reason:
- *                 type: string
- *                 description: "Rejection reason (required when action is 'reject', minimum 10 characters)"
- *                 example: "Does not meet quality standards"
- *             required: ["action", "ids"]
+ *             oneOf:
+ *               - type: object
+ *                 properties:
+ *                   action:
+ *                     type: string
+ *                     enum: ["approve", "delete"]
+ *                     description: "Action to perform on selected items"
+ *                   ids:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: "Array of item IDs to process"
+ *                     minItems: 1
+ *                     maxItems: 100
+ *                 required: ["action", "ids"]
+ *               - type: object
+ *                 properties:
+ *                   action:
+ *                     type: string
+ *                     enum: ["reject"]
+ *                     description: "Action to perform on selected items"
+ *                   ids:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: "Array of item IDs to process"
+ *                     minItems: 1
+ *                     maxItems: 100
+ *                   reason:
+ *                     type: string
+ *                     description: "Rejection reason (required when action is 'reject', minimum 10 characters)"
+ *                     minLength: 10
+ *                 required: ["action", "ids", "reason"]
  *     responses:
  *       200:
  *         description: "Bulk action completed (may include partial failures)"
@@ -111,7 +124,9 @@ export interface BulkActionResponse {
  *       500:
  *         description: "Internal server error"
  */
-export async function POST(request: NextRequest): Promise<NextResponse<BulkActionResponse | { success: false; error: string }>> {
+export async function POST(
+	request: NextRequest
+): Promise<NextResponse<BulkActionResponse | { success: false; error: string }>> {
 	try {
 		// Check admin authentication
 		const session = await auth();
@@ -135,18 +150,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 
 		// Validate ids array
 		if (!Array.isArray(ids) || ids.length === 0) {
-			return NextResponse.json(
-				{ success: false, error: 'At least one item ID is required' },
-				{ status: 400 }
-			);
+			return NextResponse.json({ success: false, error: 'At least one item ID is required' }, { status: 400 });
 		}
 
 		// Limit to 100 items per request
 		if (ids.length > 100) {
-			return NextResponse.json(
-				{ success: false, error: 'Maximum 100 items per bulk action' },
-				{ status: 400 }
-			);
+			return NextResponse.json({ success: false, error: 'Maximum 100 items per bulk action' }, { status: 400 });
 		}
 
 		// Validate individual IDs and check for duplicates
@@ -191,24 +200,32 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 		for (const id of ids) {
 			try {
 				if (action === 'approve') {
-					const item = await itemRepository.review(id, {
-						status: 'approved',
-					}, auditUser);
+					const item = await itemRepository.review(
+						id,
+						{
+							status: 'approved'
+						},
+						auditUser
+					);
 
 					// Send notification email (fire-and-forget with error logging)
-					sendReviewNotification(item, 'approved').catch(err =>
+					sendReviewNotification(item, 'approved').catch((err) =>
 						console.error('[Bulk] Failed to send approval notification for item %s:', id, err)
 					);
 
 					results.push({ id, success: true });
 				} else if (action === 'reject') {
-					const item = await itemRepository.review(id, {
-						status: 'rejected',
-						review_notes: trimmedReason,
-					}, auditUser);
+					const item = await itemRepository.review(
+						id,
+						{
+							status: 'rejected',
+							review_notes: trimmedReason
+						},
+						auditUser
+					);
 
 					// Send notification email (fire-and-forget with error logging)
-					sendReviewNotification(item, 'rejected', trimmedReason).catch(err =>
+					sendReviewNotification(item, 'rejected', trimmedReason).catch((err) =>
 						console.error('[Bulk] Failed to send rejection notification for item %s:', id, err)
 					);
 
@@ -221,13 +238,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 				results.push({
 					id,
 					success: false,
-					error: error instanceof Error ? error.message : 'Unknown error',
+					error: error instanceof Error ? error.message : 'Unknown error'
 				});
 			}
 		}
 
-		const successful = results.filter(r => r.success).length;
-		const failed = results.filter(r => !r.success).length;
+		const successful = results.filter((r) => r.success).length;
+		const failed = results.filter((r) => !r.success).length;
 
 		const actionPastTense = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted';
 
@@ -238,15 +255,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<BulkActio
 			summary: {
 				total: ids.length,
 				successful,
-				failed,
-			},
+				failed
+			}
 		});
 	} catch (error) {
 		console.error('Error in bulk item action:', error);
-		return NextResponse.json(
-			{ success: false, error: 'Failed to process bulk action' },
-			{ status: 500 }
-		);
+		return NextResponse.json({ success: false, error: 'Failed to process bulk action' }, { status: 500 });
 	}
 }
 
@@ -260,12 +274,7 @@ async function sendReviewNotification(
 		if (item.submitted_by && item.submitted_by !== 'admin' && item.submitted_by !== 'anonymous') {
 			const user = await userRepository.findById(item.submitted_by);
 			if (user?.email) {
-				await EmailNotificationService.sendSubmissionDecisionEmail(
-					user.email,
-					item.name,
-					status,
-					reason
-				);
+				await EmailNotificationService.sendSubmissionDecisionEmail(user.email, item.name, status, reason);
 			}
 		}
 	} catch (error) {
