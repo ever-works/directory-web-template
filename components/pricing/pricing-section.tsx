@@ -244,7 +244,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									isButton={isReview ? false : isButton}
 									onClick={() => {
 										if (!user?.id) {
-											loginModal.onOpen('Please sign in to continue with your purchase.');
+											loginModal?.onOpen('Please sign in to continue with your purchase.');
 											return;
 										}
 										// In review mode (submit form), just select the plan
@@ -305,7 +305,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									isLoading={processingPlan === PREMIUM?.id && isLoading}
 									onClick={() => {
 										if (!user?.id) {
-											loginModal.onOpen('Please sign in to continue with your purchase.');
+											loginModal?.onOpen('Please sign in to continue with your purchase.');
 											return;
 										}
 										// In review mode (submit form), just select the plan

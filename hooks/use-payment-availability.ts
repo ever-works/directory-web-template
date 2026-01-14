@@ -21,10 +21,12 @@ export interface PaymentAvailability {
 }
 
 /**
- * Default state for SSR - shows all plans to prevent layout shift
+ * Default state for SSR - shows all plans to prevent layout shift.
+ * Note: isPaymentConfigured=false matches empty configuredProviders (invariant).
+ * shouldShowPaidPlans=true via isDemoMode=true ensures all plans render during SSR.
  */
 const DEFAULT_STATE: PaymentAvailability = {
-	isPaymentConfigured: true,
+	isPaymentConfigured: false,
 	isDemoMode: true,
 	shouldShowPaidPlans: true,
 	shouldShowPaymentWarning: false,
@@ -60,7 +62,7 @@ const DEFAULT_STATE: PaymentAvailability = {
  * ```
  */
 export function usePaymentAvailability(): PaymentAvailability {
-	const { configuredProviders, isInitialized } = useLayoutTheme();
+	const { configuredProviders } = useLayoutTheme();
 
 	// Use state to track hydration and avoid SSR mismatch
 	const [isHydrated, setIsHydrated] = useState(false);
@@ -71,15 +73,11 @@ export function usePaymentAvailability(): PaymentAvailability {
 	}, []);
 
 	return useMemo(() => {
-		// During SSR or before hydration, return default state (show all plans)
-		if (!isHydrated || !isInitialized) {
-			return DEFAULT_STATE;
-		}
-
+		// Compute actual state first
 		const isDemo = isDemoMode();
 		const isPaymentConfigured = configuredProviders.length > 0;
 
-		return {
+		const computedState: PaymentAvailability = {
 			isPaymentConfigured,
 			isDemoMode: isDemo,
 			// Show paid plans if: payment is configured OR we're in demo mode
@@ -89,5 +87,11 @@ export function usePaymentAvailability(): PaymentAvailability {
 			configuredProviders,
 			isHydrated: true
 		};
-	}, [configuredProviders, isHydrated, isInitialized]);
+
+		if (!isHydrated) {
+			return DEFAULT_STATE;
+		}
+
+		return computedState;
+	}, [configuredProviders, isHydrated]);
 }
