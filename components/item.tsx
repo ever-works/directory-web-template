@@ -132,41 +132,35 @@ export default function Item(props: ItemProps) {
 								)}
 							</div>
 
-							{/* Right: FavoriteButton + FeaturedBadge - aligned inline */}
-							<div className="inline-flex items-center gap-2 shrink-0">
+							{/* Right: FavoriteButton + FeaturedBadge */}
+							<div className="flex items-center gap-2">
 								{session?.user?.id && (
-									<div onClick={(e) => e.stopPropagation()} className="inline-flex items-center">
-										<FavoriteButton
-											itemSlug={props.slug}
-											itemName={props.name}
-											itemIconUrl={props.icon_url}
-											itemCategory={
-												Array.isArray(props.category)
-													? typeof props.category[0] === 'string'
-														? props.category[0]
-														: props.category[0]?.name
-													: typeof props.category === 'string'
-														? props.category
-														: props.category?.name
-											}
-											variant="star"
-											size="sm"
-											className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-											hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
-										/>
-									</div>
+									<FavoriteButton
+										itemSlug={props.slug}
+										itemName={props.name}
+										itemIconUrl={props.icon_url}
+										itemCategory={
+											Array.isArray(props.category)
+												? typeof props.category[0] === 'string'
+													? props.category[0]
+													: props.category[0]?.name
+												: typeof props.category === 'string'
+													? props.category
+													: props.category?.name
+										}
+										variant="star"
+										size="sm"
+										className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+										hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
+									/>
 								)}
 
 								{props.featured && (
-									<div className="relative inline-flex items-center">
-										<FeaturedBadge
-											variant="hero"
-											size="sm"
-											className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
-										/>
-										{/* Glow effect */}
-										<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-									</div>
+									<FeaturedBadge
+										variant="hero"
+										size="sm"
+										className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
+									/>
 								)}
 							</div>
 						</div>
