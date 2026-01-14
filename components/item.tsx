@@ -194,8 +194,30 @@ export default function Item(props: ItemProps) {
 				</CardBody>
 			</div>
 
-			{/* Top-right action row: [Star] [Featured Badge] [Arrow] */}
-			<div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+			{/* Top-right action row: [Star] [Arrow] [Featured Badge] - flex-row-reverse keeps Featured anchored to right */}
+			<div className="absolute top-4 right-4 z-20 flex flex-row-reverse items-center gap-2">
+				{/* Featured Badge - always visible, stays rightmost due to flex-row-reverse */}
+				{props.featured && (
+					<div className="relative">
+						<FeaturedBadge
+							variant="hero"
+							size="sm"
+							className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
+						/>
+						{/* Glow effect */}
+						<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+					</div>
+				)}
+				{/* Arrow - hover reveal, appears left of Featured */}
+				{props.layout === 'classic' && (
+					<div
+						className="w-8 h-8 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
+						aria-hidden="true"
+					>
+						<FiArrowUpRight className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
+					</div>
+				)}
+				{/* Favorite button - hover reveal, appears leftmost */}
 				{session?.user?.id && (
 					<div
 						onClick={(e) => e.stopPropagation()}
@@ -218,25 +240,6 @@ export default function Item(props: ItemProps) {
 							size="sm"
 							hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
 						/>
-					</div>
-				)}
-				{props.featured && (
-					<div className="relative">
-						<FeaturedBadge
-							variant="hero"
-							size="sm"
-							className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
-						/>
-						{/* Glow effect */}
-						<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-					</div>
-				)}
-				{props.layout === 'classic' && (
-					<div
-						className="w-8 h-8 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
-						aria-hidden="true"
-					>
-						<FiArrowUpRight className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
 					</div>
 				)}
 			</div>
