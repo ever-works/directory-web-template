@@ -132,10 +132,10 @@ export default function Item(props: ItemProps) {
 								)}
 							</div>
 
-							{/* Right: FavoriteButton + FeaturedBadge - aligned */}
-							<div className="flex items-center gap-2 shrink-0 h-6">
+							{/* Right: FavoriteButton + FeaturedBadge - aligned inline */}
+							<div className="inline-flex items-center gap-2 shrink-0">
 								{session?.user?.id && (
-									<div onClick={(e) => e.stopPropagation()}>
+									<div onClick={(e) => e.stopPropagation()} className="inline-flex items-center">
 										<FavoriteButton
 											itemSlug={props.slug}
 											itemName={props.name}
@@ -158,11 +158,11 @@ export default function Item(props: ItemProps) {
 								)}
 
 								{props.featured && (
-									<div className="relative flex items-center">
+									<div className="relative inline-flex items-center">
 										<FeaturedBadge
 											variant="hero"
 											size="sm"
-											className="h-6 px-3 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full flex items-center"
+											className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
 										/>
 										{/* Glow effect */}
 										<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
