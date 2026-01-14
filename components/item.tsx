@@ -92,7 +92,7 @@ export default function Item(props: ItemProps) {
 			<div className="relative z-10">
 				<CardHeader className="flex gap-4  pb-4">
 					<div className="flex flex-col grow gap-4 min-w-0">
-						<div className="flex justify-between items-center gap-3">
+						<div className="flex justify-between items-start gap-3">
 							{/* Left: Icon + Title + Arrow */}
 							<div className="flex items-center gap-3 min-w-0">
 								<div className="relative shrink-0">
