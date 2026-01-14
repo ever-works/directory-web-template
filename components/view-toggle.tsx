@@ -1,7 +1,7 @@
 "use client";
 
 import { IconClassic, IconGrid, IconMasonry } from "@/components/icons/Icons";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { LayoutKey } from "./layouts";
 
 type ViewToggleProps = {
@@ -17,12 +17,6 @@ export default function ViewToggle({
 	isParentSticky = false,
 }: ViewToggleProps) {
 	const [hovered, setHovered] = useState<LayoutKey | null>(null);
-
-	const tooltip =
-		hovered === "classic" ? "List view"
-		: hovered === "grid" ? "Grid view"
-		: hovered === "masonry" ? "Masonry view"
-		: null;
 
   const handleViewChange = (view: LayoutKey) => {
 	if (onViewChange) {
