@@ -15,7 +15,7 @@ export default function CollectionsGridClient({ collections }: CollectionsGridCl
 		<Hero
 			badgeText={t('COLLECTION')}
 			title={
-				<span className="bg-linear-to-r from-theme-primary via-purple-500 to-theme-primary bg-clip-text text-transparent">
+				<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 					{t('EXPLORE_BY_COLLECTIONS')}
 				</span>
 			}

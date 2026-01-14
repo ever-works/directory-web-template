@@ -3,6 +3,7 @@ import { useState, useMemo, useRef, Suspense, useEffect, useCallback } from 'rea
 import { Tag } from '@/lib/content';
 import { TagsCards } from '@/components/tags-cards';
 import UniversalPagination from '@/components/universal-pagination';
+import { clampAndScrollToTop } from '@/utils/pagination';
 import Hero from '@/components/hero';
 import { useTranslations } from 'next-intl';
 import { useLayoutTheme } from '@/components/context';
@@ -125,16 +126,16 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 		);
 	}
 
-	// Sync page state for standard pagination
+
 	const handlePageChange = (newPage: number) => {
-		setPage(newPage);
+		clampAndScrollToTop(newPage, totalPages, setPage);
 	};
 
 	return (
 		<Hero
 			badgeText={t('TAGS')}
 			title={
-				<span className="bg-linear-to-r from-theme-primary via-purple-500 to-theme-primary bg-clip-text text-transparent">
+				<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 					{t('TAGS', { defaultValue: 'Tags' })}
 				</span>
 			}

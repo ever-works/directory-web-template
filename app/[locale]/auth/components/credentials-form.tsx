@@ -14,6 +14,8 @@ import { RECAPTCHA_SITE_KEY } from "@/lib/constants";
 import { useAutoRecaptchaVerification } from '../hooks/useRecaptchaVerification';
 import { useUserCache } from '@/hooks/use-current-user';
 import { AuthErrorCode } from '@/lib/auth/auth-error-codes';
+import { isValidCallbackUrl } from '@/lib/auth/validate-callback-url';
+import { useSession } from "next-auth/react";
 
 
 export function CredentialsForm({
@@ -28,7 +30,8 @@ export function CredentialsForm({
   const tCred = useTranslations("admin.CREDENTIALS_FORM");
   const locale = useLocale();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect");
+  const rawRedirect = searchParams.get("redirect") || searchParams.get("callbackUrl");
+  const redirect = isValidCallbackUrl(rawRedirect) ? rawRedirect : null;
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};
@@ -38,6 +41,7 @@ export function CredentialsForm({
   const [captchaError, setCaptchaError] = useState<string | null>(null);
   const { verifyToken, isLoading: isVerifying, error: verificationError } = useAutoRecaptchaVerification();
   const { invalidateAllUserData } = useUserCache();
+  const { update: refreshSession } = useSession();
   const [isPending, startTransition] = useTransition();
 
   const [state, formAction, pending] = useActionState<ActionState, FormData>(
@@ -49,6 +53,7 @@ export function CredentialsForm({
   const [clientPending, setClientPending] = useState(false);
   const [clientError, setClientError] = useState<string | null>(null);
   const [clientSuccess, setClientSuccess] = useState(false);
+  const [authSyncError, setAuthSyncError] = useState<string | null>(null);
 
   // Helper to get translated error message based on error code
   const getTranslatedErrorMessage = (errorCode: string | undefined): string => {
@@ -65,6 +70,10 @@ export function CredentialsForm({
         return tCred("RATE_LIMITED");
       case AuthErrorCode.USE_OAUTH_PROVIDER:
         return tCred("USE_OAUTH_PROVIDER");
+      case AuthErrorCode.SESSION_REFRESH_FAILED:
+        return tCred("SESSION_REFRESH_FAILED");
+      case AuthErrorCode.PAGE_REFRESH_FAILED:
+        return tCred("PAGE_REFRESH_FAILED");
       case AuthErrorCode.GENERIC_ERROR:
       default:
         return tCred("GENERIC_ERROR_MESSAGE");
@@ -72,21 +81,37 @@ export function CredentialsForm({
   };
 
   useEffect(() => {
-    if (state.success) {
-      if (onSuccess) {
-        onSuccess();
-      } else {
-        const redirectPath = state.redirect || redirect || "/client/dashboard";
-        // Handle locale preservation for redirects
-        const finalRedirectPath = state.preserveLocale && locale !== 'en'
-          ? `/${locale}${redirectPath}`
-          : redirectPath;
-        // Invalidate user cache so dashboard fetches fresh user data for menu
+    if (!state.success) return;
+
+    // Modal success flow - refresh session and handle errors
+    if (onSuccess) {
+      const doModalSuccess = async () => {
+        setAuthSyncError(null);
         invalidateAllUserData();
-        router.push(finalRedirectPath);
-      }
+        try {
+          await refreshSession();
+        } catch (err) {
+          console.error('Failed to refresh session after auth', err);
+          setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+          return;
+        }
+        router.refresh();
+        onSuccess();
+      };
+      void doModalSuccess();
+      return;
     }
-  }, [state, redirect, router, onSuccess, locale, invalidateAllUserData]);
+
+    // Default redirect logic with callback URL priority and double-prefix prevention
+    const redirectPath = redirect || state.redirect || "/client/dashboard";
+    // Handle locale preservation for redirects (avoid double prefix if path already has locale)
+    const shouldPrefixLocale = state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+    const finalRedirectPath = shouldPrefixLocale
+      ? `/${locale}${redirectPath}`
+      : redirectPath;
+    invalidateAllUserData();
+    router.push(finalRedirectPath);
+  }, [state.success, state.redirect, state.preserveLocale, redirect, router, onSuccess, locale, invalidateAllUserData, refreshSession, tCred]);
 
   useEffect(() => {
     if (RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
@@ -160,10 +185,11 @@ export function CredentialsForm({
       if (res && !res.error) {
         setClientSuccess(true);
         setTimeout(() => {
-          const redirectPath = clientMode ? "/admin" : "/client/dashboard";
-          // Handle locale preservation for client-side redirects
-          const finalRedirectPath = locale !== 'en' 
-            ? `/${locale}${redirectPath}` 
+          const redirectPath = redirect || (clientMode ? "/admin" : "/client/dashboard");
+          // Handle locale preservation for client-side redirects (avoid double prefix if path already has locale)
+          const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+          const finalRedirectPath = shouldPrefixLocale
+            ? `/${locale}${redirectPath}`
             : redirectPath;
           router.push(finalRedirectPath);
           router.refresh();
@@ -229,6 +255,26 @@ export function CredentialsForm({
               autoComplete="name"
               aria-describedby="name-error"
             />
+          </div>
+        </div>
+      )}
+
+      {authSyncError && (
+        <div className="flex items-start space-x-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <div className="shrink-0">
+            <div className="w-6 h-6 bg-red-100 dark:bg-red-900/40 rounded-full flex items-center justify-center">
+              <svg className="w-3 h-3 text-red-600 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+            </div>
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
+              {tCred("LOGIN_FAILED")}
+            </h4>
+            <p className="text-sm text-red-700 dark:text-red-300">
+              {authSyncError}
+            </p>
           </div>
         </div>
       )}

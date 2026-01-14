@@ -5,6 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { FiFolder } from 'react-icons/fi';
 import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
+import { clampAndScrollToTop } from '@/utils/pagination';
 import { useLayoutTheme } from '@/components/context';
 import { Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
@@ -98,23 +99,23 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 		router.push(`/?categories=${categoryId}`);
 	};
 
-	// Handle page change for standard pagination
 	const handlePageChange = useCallback(
 		(newPage: number) => {
 			if (paginationType !== 'standard') return;
-
+			const totalPagesCount = totalPages(sortedCategories.length, PAGE_SIZE);
 			const params = new URLSearchParams(searchParams.toString());
-			if (newPage === 1) {
-				params.delete('page');
-			} else {
-				params.set('page', newPage.toString());
-			}
-
-			const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
-			router.push(newUrl, { scroll: false });
-			window.scrollTo({ top: 0, behavior: 'smooth' });
+			clampAndScrollToTop(newPage, totalPagesCount, (clampedPage) => {
+				if (clampedPage === 1) {
+					params.delete('page');
+				} else {
+					params.set('page', clampedPage.toString());
+				}
+				const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname;
+				router.push(newUrl, { scroll: false });
+				setPage(clampedPage);
+			});
 		},
-		[paginationType, pathname, router, searchParams]
+		[paginationType, pathname, router, searchParams, sortedCategories]
 	);
 
 	// Don't render if no categories

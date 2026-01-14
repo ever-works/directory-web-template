@@ -2,6 +2,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest, ItemList
 import { createItemGitService, ItemGitServiceConfig, ItemGitService } from '@/lib/services/item-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
+import { itemAuditService, type AuditUser } from '@/lib/services/item-audit.service';
 
 export class ItemRepository {
   private gitService: ItemGitService | null = null;
@@ -115,23 +116,49 @@ export class ItemRepository {
     return await gitService.readItemsBySlugs(slugs, includeDeleted);
   }
 
-  async create(data: CreateItemRequest): Promise<ItemData> {
+  async create(data: CreateItemRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateCreateData(data);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.createItem(data);
+    const item = await gitService.createItem(data);
+
+    // Log creation to audit trail (best-effort)
+    try {
+      await itemAuditService.logCreation(item, auditUser);
+    } catch (err) {
+      console.warn('Audit logCreation failed:', err);
+    }
+
+    return item;
   }
 
-  async update(id: string, data: UpdateItemRequest): Promise<ItemData> {
+  async update(id: string, data: UpdateItemRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateUpdateData(id, data);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.updateItem(id, data);
+
+    // Get previous state for change detection
+    const previousItem = await gitService.findItemById(id, true);
+    const updatedItem = await gitService.updateItem(id, data);
+
+    // Log update to audit trail (best-effort, only if previous state was found)
+    if (previousItem) {
+      try {
+        await itemAuditService.logUpdate(previousItem, updatedItem, auditUser);
+      } catch (err) {
+        console.warn('Audit logUpdate failed:', err);
+      }
+    } else {
+      console.warn(`Audit skipped for update: previous state not found for id=${id}`);
+    }
+
+    return updatedItem;
   }
 
-  async batchUpdate(updates: Array<{ id: string; data: UpdateItemRequest }>): Promise<ItemData[]> {
+  async batchUpdate(updates: Array<{ id: string; data: UpdateItemRequest }>, auditUser?: AuditUser): Promise<ItemData[]> {
     const gitService = await this.getGitService();
     const results: ItemData[] = [];
+    const auditEntries: Array<{ previous: ItemData; updated: ItemData }> = [];
 
     // Pre-validate all updates to avoid partial writes if a validation fails mid-loop
     for (const { id, data } of updates) {
@@ -139,35 +166,101 @@ export class ItemRepository {
     }
 
     for (const { id, data } of updates) {
+      // Get previous state for audit logging
+      const previousItem = await gitService.findItemById(id, true);
       const updated = await gitService.updateItemWithoutCommit(id, data);
       results.push(updated);
+
+      // Store for audit logging after successful commit
+      if (previousItem) {
+        auditEntries.push({ previous: previousItem, updated });
+      }
     }
 
     // Single commit for all updates
     await gitService.commitAndPushBatch(`Batch update ${updates.length} items for collection assignment`);
+
+    // Log all updates to audit trail after successful commit (best-effort)
+    for (const { previous, updated } of auditEntries) {
+      try {
+        await itemAuditService.logUpdate(previous, updated, auditUser);
+      } catch (err) {
+        console.warn('Audit logUpdate failed for batch item:', err);
+      }
+    }
+
     return results;
   }
 
-  async review(id: string, reviewData: ReviewRequest): Promise<ItemData> {
+  async review(id: string, reviewData: ReviewRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateReviewData(reviewData);
-    
+
     const gitService = await this.getGitService();
-    return await gitService.reviewItem(id, reviewData);
+
+    // Get previous status for audit log
+    const previousItem = await gitService.findItemById(id, true);
+    const previousStatus = previousItem?.status;
+
+    const item = await gitService.reviewItem(id, reviewData);
+
+    // Log review to audit trail (best-effort, only if previous status was found)
+    if (previousStatus) {
+      try {
+        await itemAuditService.logReview(item, previousStatus, reviewData.review_notes, auditUser);
+      } catch (err) {
+        console.warn('Audit logReview failed:', err);
+      }
+    } else {
+      console.warn(`Audit skipped for review: previous status not found for id=${id}`);
+    }
+
+    return item;
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string, auditUser?: AuditUser): Promise<void> {
     const gitService = await this.getGitService();
+
+    // Get item info before deletion for audit log
+    const item = await gitService.findItemById(id, true);
+
     await gitService.deleteItem(id);
+
+    // Log hard deletion to audit trail (best-effort)
+    if (item) {
+      try {
+        await itemAuditService.logDeletion(item, auditUser, false);
+      } catch (err) {
+        console.warn('Audit logDeletion failed:', err);
+      }
+    }
   }
 
-  async softDelete(id: string): Promise<ItemData> {
+  async softDelete(id: string, auditUser?: AuditUser): Promise<ItemData> {
     const gitService = await this.getGitService();
-    return await gitService.softDeleteItem(id);
+    const item = await gitService.softDeleteItem(id);
+
+    // Log soft deletion to audit trail (best-effort)
+    try {
+      await itemAuditService.logDeletion(item, auditUser, true);
+    } catch (err) {
+      console.warn('Audit logDeletion (soft) failed:', err);
+    }
+
+    return item;
   }
 
-  async restore(id: string): Promise<ItemData> {
+  async restore(id: string, auditUser?: AuditUser): Promise<ItemData> {
     const gitService = await this.getGitService();
-    return await gitService.restoreItem(id);
+    const item = await gitService.restoreItem(id);
+
+    // Log restoration to audit trail (best-effort)
+    try {
+      await itemAuditService.logRestoration(item, auditUser);
+    } catch (err) {
+      console.warn('Audit logRestoration failed:', err);
+    }
+
+    return item;
   }
 
   async checkDuplicateId(id: string): Promise<boolean> {

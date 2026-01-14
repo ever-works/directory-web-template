@@ -4,9 +4,9 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { ArrowUp, ArrowDown, Check, Loader2, ChevronDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
-import { SortField, SortOrder } from "@/lib/types/item";
 
-export type { SortField, SortOrder };
+export type SortField = "name" | "updated_at" | "status" | "submitted_at";
+export type SortOrder = "asc" | "desc";
 
 interface ItemListSortingProps {
     sortBy: SortField;

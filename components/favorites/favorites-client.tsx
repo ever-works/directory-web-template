@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
 import { Heart, Star } from 'lucide-react';
@@ -71,15 +72,13 @@ export function FavoritesClient(props: ListingProps) {
 	}));
 
 	// Handle page change for favorites
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+	const handlePageChange = (newPage: number) => {
+		clampAndScrollToTop(newPage, totalPages, setCurrentPage);
 	};
 
 	// Handle page change for popular items
 	const handlePopularPageChange = (page: number) => {
-		setPopularPage(page);
-		window.scrollTo({ top: 0, behavior: 'smooth' });
+		clampAndScrollToTop(page, popularTotalPages, setPopularPage);
 	};
 
 	if (!session?.user?.id) {

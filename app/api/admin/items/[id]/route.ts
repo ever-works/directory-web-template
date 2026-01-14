@@ -302,7 +302,12 @@ export async function PUT(
       ...body,
     };
 
-    const item = await itemRepository.update(resolvedParams.id, updateData);
+    // Pass audit user context for logging
+    const auditUser = session.user.id
+      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+      : undefined;
+
+    const item = await itemRepository.update(resolvedParams.id, updateData, auditUser);
 
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
     const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
@@ -455,7 +460,13 @@ export async function DELETE(
     }
 
     const resolvedParams = await params;
-    await itemRepository.delete(resolvedParams.id);
+
+    // Pass audit user context for logging
+    const auditUser = session.user.id
+      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+      : undefined;
+
+    await itemRepository.delete(resolvedParams.id, auditUser);
 
     return NextResponse.json({
       success: true,

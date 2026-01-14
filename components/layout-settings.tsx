@@ -6,9 +6,10 @@ import { LayoutKey } from "./layouts";
 
 interface LayoutSettingsProps {
   className?: string;
+  isParentSticky?: boolean;
 }
 
-export function LayoutSettings({ className }: LayoutSettingsProps) {
+export function LayoutSettings({ className, isParentSticky = false }: LayoutSettingsProps) {
   const { layoutKey, setLayoutKey } = useLayoutTheme();
 
   return (
@@ -16,6 +17,7 @@ export function LayoutSettings({ className }: LayoutSettingsProps) {
       <ViewToggle
         activeView={layoutKey}
         onViewChange={(newView: LayoutKey) => setLayoutKey(newView)}
+        isParentSticky={isParentSticky}
       />
     </div>
   );

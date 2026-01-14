@@ -70,19 +70,16 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	});
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 text-gray-800 dark:text-white relative overflow-hidden">
+		<div className="min-h-screen relative overflow-hidden">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
 			/>
-
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
-			<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div>
-
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
 				<div className="flex flex-col lg:flex-row gap-8">
-					<div className="flex-1">
+					{/* Left column */}
+					<div className="lg:w-2/3">
 						{/* Video Showcase */}
 						<div className="mb-8">
 							<div className="mb-8 transform transition-all duration-500 hover:scale-[1.01]">
@@ -207,7 +204,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 					</div>
 
 					{/* Right column */}
-					<div className="lg:w-96 space-y-6">
+					<div className="lg:w-1/3 space-y-6">
 						<div className="bg-white/95 dark:bg-gray-900/95 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1">
 							<div className="flex items-center gap-4 mb-6">
 								<div className="p-3 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
