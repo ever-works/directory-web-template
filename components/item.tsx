@@ -93,7 +93,8 @@ export default function Item(props: ItemProps) {
 				<CardHeader className="flex gap-4  pb-4">
 					<div className="flex flex-col grow gap-4 min-w-0">
 						<div className="flex justify-between items-start gap-3">
-							<div className="flex items-center gap-4">
+							{/* Left: Icon + Title + Arrow */}
+							<div className="flex items-center gap-3 min-w-0">
 								<div className="relative shrink-0">
 									{/* Pulse/wave effect on hover */}
 									<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
@@ -113,48 +114,53 @@ export default function Item(props: ItemProps) {
 									</div>
 								</div>
 
-								<div className="flex-1 min-w-0">
+								<div className="min-w-0">
 									<div className="text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
 										{props.name}
 									</div>
 									<div className="w-0 h-0.5 bg-gray-300 dark:bg-gray-600 group-hover:w-12 transition-all duration-500 ease-out" />
 								</div>
+
+								{/* Arrow indicator - right after title */}
+								{props.layout === 'classic' && (
+									<div
+										className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
+										aria-hidden="true"
+									>
+										<FiArrowUpRight className="w-3 h-3 text-theme-primary-600 dark:text-theme-primary-400" />
+									</div>
+								)}
 							</div>
 
+							{/* Right: FavoriteButton + FeaturedBadge */}
 							<div className="flex items-center gap-2">
 								{session?.user?.id && (
-									<div onClick={(e) => e.stopPropagation()}>
-										<FavoriteButton
-											itemSlug={props.slug}
-											itemName={props.name}
-											itemIconUrl={props.icon_url}
-											itemCategory={
-												Array.isArray(props.category)
-													? typeof props.category[0] === 'string'
-														? props.category[0]
-														: props.category[0]?.name
-													: typeof props.category === 'string'
-														? props.category
-														: props.category?.name
-											}
-											variant="star"
-											size="sm"
-											className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-											hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
-										/>
-									</div>
+									<FavoriteButton
+										itemSlug={props.slug}
+										itemName={props.name}
+										itemIconUrl={props.icon_url}
+										itemCategory={
+											Array.isArray(props.category)
+												? typeof props.category[0] === 'string'
+													? props.category[0]
+													: props.category[0]?.name
+												: typeof props.category === 'string'
+													? props.category
+													: props.category?.name
+										}
+										variant="star"
+										size="sm"
+										className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 !top-0 !right-0"
+										hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
+									/>
 								)}
 
 								{props.featured && (
-									<div className="relative">
-										<FeaturedBadge 
-											variant="hero" 
-											size="sm"
-											className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
-										/>
-										{/* Glow effect */}
-										<div className="absolute inset-0 bg-amber-400/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-									</div>
+									<FeaturedBadge
+										variant="hero"
+										size="sm"
+										className="px-3 py-1 text-xs font-normal bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
+									/>
 								)}
 							</div>
 						</div>
@@ -229,16 +235,6 @@ export default function Item(props: ItemProps) {
 					)}
 				</CardBody>
 			</div>
-
-			{/* Hover indicator - only show in list view where there's enough space */}
-			{props.layout === 'classic' && (
-				<div
-					className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-8 h-8 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary"
-					aria-hidden="true"
-				>
-					<FiArrowUpRight className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
-				</div>
-			)}
 
 			{/* Subtle glow effect */}
 			<div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />

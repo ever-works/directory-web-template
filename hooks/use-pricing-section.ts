@@ -17,10 +17,14 @@ import { useCurrencyContext } from '@/components/context/currency-provider';
 import { getLemonSqueezyPriceConfig } from '@/lib/config/billing/lemonsqueezy.config';
 import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
+import { useSetupIntent } from './use-setup-intent';
+import { getStripePaymentMode } from '@/lib/stripe-helpers';
+import { useSubscription } from './use-subscription';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
 	initialSelectedPlan?: PaymentPlan | null;
+	isReview?: boolean;
 }
 
 export interface UsePricingSectionState {
@@ -87,17 +91,32 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 	tBilling: any;
 	router: any;
 	loginModal: LoginModalStore;
+	clientSecret?: string | null;
+	setClientSecret?: (clientSecret: string | null) => void;
+	isReady?: boolean;
 	// Currency-related
 	currency: string;
 	currencySymbol: string;
 	formatPrice: (amount: number) => string;
+	// Payment form modal
+	paymentForm: {
+		isOpen: boolean;
+		planForPayment: PricingConfig | null;
+		openPaymentForm: (plan: PricingConfig) => void;
+		closePaymentForm: () => void;
+		onPaymentSuccess: (paymentMethodId: string) => void;
+		onPaymentError: (error: Error) => void;
+		clientSecret?: string;
+		isReady?: boolean;
+		isError?: boolean;
+	};
 }
 
 /**
  * Custom hook that encapsulates all PricingSection logic
  */
 export function usePricingSection(params: UsePricingSectionParams = {}): UsePricingSectionReturn {
-	const { onSelectPlan, initialSelectedPlan } = params;
+	const { onSelectPlan, initialSelectedPlan, isReview } = params;
 	// Hooks
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -120,6 +139,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
 	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton(); // Lemonsqueezy checkout hook
 	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout(); // Polar checkout hook
+	const { createSubscription } = useSubscription(); // Subscription management hook
 
 	// Hook for payment flow
 	const { selectedFlow, selectFlow, triggerAnimation } = usePaymentFlow({
@@ -132,6 +152,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const [billingInterval, setBillingInterval] = useState<PaymentInterval>(PaymentInterval.MONTHLY);
 	const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(initialSelectedPlan ?? PaymentPlan.STANDARD);
+	const [showPaymentForm, setShowPaymentForm] = useState(false);
+	const [planForPayment, setPlanForPayment] = useState<PricingConfig | null>(null);
 	const loginModal = useLoginModal();
 
 	// Ref for current processing plan
@@ -153,6 +175,15 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				: stripeHook;
 	const { isLoading, isSuccess, error } = paymentHook;
 	const resetPaymentHook = useMemo(() => ('reset' in paymentHook ? paymentHook.reset : () => {}), [paymentHook]);
+
+	// Prefetch Stripe SetupIntent only if using Stripe embedded mode
+	const shouldPrefetch =
+		!isReview && paymentProvider === PaymentProvider.STRIPE && getStripePaymentMode() === 'embedded';
+
+	const { clientSecret, isReady, isError } = useSetupIntent({
+		suppressSuccessToast: true,
+		enabled: shouldPrefetch
+	});
 
 	/**
 	 * Cancel current processing and reset state
@@ -328,6 +359,17 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						billingInterval
 					);
 				} else if (paymentProvider === PaymentProvider.STRIPE) {
+					const stripePaymentMode = getStripePaymentMode();
+
+					if (stripePaymentMode === 'embedded') {
+						console.log('Using embedded payment mode');
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+						currentProcessingPlanRef.current = null;
+						setProcessingPlan(null);
+						return;
+					}
+
 					// Create checkout session for Stripe
 					if (!plan.stripeProductId) {
 						toast.error('No product ID found for plan', {
@@ -440,6 +482,55 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		// Currency-related
 		currency,
 		currencySymbol,
-		formatPrice
+		formatPrice,
+		clientSecret,
+		isReady,
+
+		// Payment form modal
+		paymentForm: {
+			isOpen: showPaymentForm,
+			planForPayment,
+			openPaymentForm: (plan: PricingConfig) => {
+				if (!user?.id) {
+					loginModal.onOpen('Please sign in to continue with your purchase.');
+					return;
+				}
+				setPlanForPayment(plan);
+				setShowPaymentForm(true);
+			},
+			closePaymentForm: () => {
+				setShowPaymentForm(false);
+				setPlanForPayment(null);
+			},
+			onPaymentSuccess: async (paymentMethodId: string) => {
+				if (!planForPayment?.stripePriceId) {
+					toast.error('Missing configuration: No price ID found for this plan.');
+					return;
+				}
+
+				const toastId = toast.loading('Creating subscription...');
+
+				try {
+					await createSubscription.mutateAsync({
+						priceId: planForPayment.stripePriceId,
+						paymentMethodId
+					});
+					toast.success('Subscription created successfully!', { id: toastId });
+					setShowPaymentForm(false);
+					setPlanForPayment(null);
+					// Optionally redirect to success page or dashboard
+					router.push('/checkout/success');
+				} catch (error) {
+					toast.error('Failed to create subscription. Please try again or contact support.', { id: toastId });
+					console.error('Subscription creation failed:', error);
+				}
+			},
+			onPaymentError: (error: Error) => {
+				toast.error(`Payment failed: ${error.message}`);
+			},
+			clientSecret,
+			isReady,
+			isError
+		}
 	} satisfies UsePricingSectionReturn;
 }
