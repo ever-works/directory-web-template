@@ -123,8 +123,15 @@ async function fetchWithTimeout(url: string, options: FetchOptions = {}): Promis
 			// Use 'http://localhost:3100/api' for local development
 			const apiBase = isApiCall ? process.env.PLATFORM_API_URL || 'https://api.ever.works/api' : '';
 
-			const finalUrl =
+			let finalUrl =
 				apiBase && !url.startsWith('http') ? `${apiBase.replace(/\/+$/, '')}/${url.replace(/^\/+/, '')}` : url;
+
+			// Server-side internal API call fix: Requesting internal API routes (like /api/payment)
+			// from the server (SSR) requires an absolute URL.
+			if (!isApiCall && typeof window === 'undefined' && !finalUrl.startsWith('http')) {
+				const baseUrl = await getFrontendUrl();
+				finalUrl = `${baseUrl.replace(/\/+$/, '')}/${finalUrl.replace(/^\/+/, '')}`;
+			}
 
 			// Inject X-Frontend-URL ONLY on server-side to avoid CORS preflight issues in browsers
 			if (isApiCall && typeof window === 'undefined') {
