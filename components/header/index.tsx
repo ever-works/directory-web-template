@@ -93,7 +93,8 @@ const NAVIGATION_CONFIG: Array<{
 		key: 'favorites',
 		href: '/favorites',
 		translationKey: 'FAVORITES',
-		translationNamespace: 'common'
+		translationNamespace: 'common',
+		staticLabel: 'Popular', // UI-only label override
 	},
 	{
 		key: 'categories',
@@ -231,13 +232,16 @@ export default function Header() {
 		}).map((item) => ({
 			key: item.key,
 			href: item.href,
-			label: item.translationKey
-				? item.translationNamespace === 'listing'
-					? tListing(item.translationKey as any)
-					: item.translationNamespace === 'survey'
-						? tSurvey(item.translationKey as any)
-						: t(item.translationKey as any)
-				: item.staticLabel || item.key,
+			label:
+				item.key === 'favorites' && item.staticLabel
+					? item.staticLabel
+					: item.translationKey
+						? item.translationNamespace === 'listing'
+							? tListing(item.translationKey as any)
+							: item.translationNamespace === 'survey'
+								? tSurvey(item.translationKey as any)
+								: t(item.translationKey as any)
+						: item.staticLabel || item.key,
 			isExternal: false
 		}));
 
