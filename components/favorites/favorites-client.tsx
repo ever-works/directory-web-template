@@ -85,7 +85,7 @@ export function FavoritesClient(props: ListingProps) {
 
 	useEffect(() => {
 		setCurrentPage(1);
-	}, [popularSortBy]);
+	}, [favoritesSortBy]);
 
 	// If favorites shrink and current page exceeds total pages, clamp to last page to avoid empty results
 	useEffect(() => {
