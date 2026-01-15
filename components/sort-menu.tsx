@@ -39,7 +39,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
           aria-controls={dropdownId}
           className={cn(
             "group inline-flex items-center justify-between",
-            "min-w-36! sm:min-w-36!",
+            "!min-w-36 sm:!min-w-36",
             "rounded-lg border border-gray-300 dark:border-gray-600/50",
             "bg-gray-100 dark:bg-gray-900/50",
             "px-2.5 sm:px-3 py-1.5",
@@ -70,7 +70,6 @@ const SortMenu: React.FC<SortMenuProps> = ({
             "shadow-lg shadow-black/10 dark:shadow-black/30",
             "animate-in fade-in zoom-in-95"
           )}
-          onCloseAutoFocus={event => event.preventDefault()}
         >
           <DropdownMenu.RadioGroup
             value={value}

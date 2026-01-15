@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
@@ -78,6 +78,17 @@ export function FavoritesClient(props: ListingProps) {
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
 	const paginatedItems = sortedFavoriteItems.slice(startIndex, endIndex);
+
+	useEffect(() => {
+		setPopularPage(1);
+	}, [popularSortBy]);
+
+	// If favorites shrink and current page exceeds total pages, clamp to last page to avoid empty results
+	useEffect(() => {
+		if (totalPages > 0 && currentPage > totalPages) {
+			setCurrentPage(totalPages);
+		}
+	}, [currentPage, totalPages]);
 
 	// Sort and paginate all items for popular items section
 	const sortedPopularItems = useMemo(() => sortItems(props.items, popularSortBy), [props.items, popularSortBy]);
