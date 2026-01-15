@@ -24,7 +24,7 @@ type ItemProps = ItemData & {
 	hideIndicatorInSimilarProducts?: boolean;
 };
 
-const TAG_BUTTON_BASE_CLASS = 'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:scale-105 font-medium px-1 py-0.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
+const TAG_BUTTON_BASE_CLASS = 'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:scale-105 font-medium px-1 py-0.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 whitespace-nowrap';
 
 export default function Item(props: ItemProps) {
 	const params = useParams();
@@ -75,9 +75,7 @@ export default function Item(props: ItemProps) {
 
 	const tagsContainerClassName = cn(
 		'flex gap-0.5',
-		isMasonryLayout
-			? 'flex-wrap'
-			: 'flex-nowrap overflow-hidden relative after:content-["..."] after:absolute after:right-0 after:top-0 after:bottom-0 after:flex after:items-center after:text-xs after:text-gray-500 after:dark:text-gray-400 after:bg-gradient-to-l after:from-white after:dark:from-gray-900 after:via-white/80 after:dark:via-gray-900/80 after:to-transparent after:pl-6 after:pr-1'
+		isMasonryLayout ? 'flex-wrap' : 'flex-nowrap overflow-hidden'
 	);
 
 	return (
@@ -207,7 +205,7 @@ export default function Item(props: ItemProps) {
 						{/* Enhanced Hashtags - Only show if tags are enabled, tags exist, and have valid names */}
 						{tagsEnabled && props.tags && Array.isArray(props.tags) && props.tags.length > 0 && (
 						<div className={tagsContainerClassName}>
-							{props.tags.slice(0, 4).map((tag, index) => {
+							{props.tags.slice(0, isMasonryLayout ? 4 : 3).map((tag, index) => {
 								const tagName = getTagName(tag);
 								const tagId = typeof tag === 'string' ? tag : tag.id;
 								if (!tagName) return null;
@@ -220,6 +218,11 @@ export default function Item(props: ItemProps) {
 									/>
 								);
 							})}
+							{!isMasonryLayout && props.tags.length > 3 && (
+								<span className="text-xs text-gray-500 dark:text-gray-400 font-medium px-1.5 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800 whitespace-nowrap shrink-0">
+									+{props.tags.length - 3}
+								</span>
+							)}
 						</div>
 						)}
 					</div>
