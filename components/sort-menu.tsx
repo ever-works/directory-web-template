@@ -39,22 +39,22 @@ const SortMenu: React.FC<SortMenuProps> = ({
           aria-expanded={undefined}
           aria-controls={dropdownId}
           className={cn(
-            "group inline-flex flex items-center justify-between",
-             "w-36",
+            "group inline-flex items-center justify-between",
+            "min-w-36! sm:min-w-36!",
             "rounded-lg border border-gray-300 dark:border-gray-600/50",
             "bg-gray-100 dark:bg-gray-900/50",
-            "px-2.5 sm:px-3 py-1.5 pr-7 sm:pr-9",
+            "px-2.5 sm:px-3 py-1.5",
             "text-xs sm:text-sm font-medium",
             "text-theme-primary-600 dark:text-theme-primary-400",
             "transition-all duration-200",
             "hover:bg-gray-50 dark:hover:bg-gray-800/50",
-            "hover:border-gray-400 dark:hover:border-gray-500/50",
+            "hover:border-gray-300 dark:hover:border-gray-500/50",
             "hover:shadow-md",
             "focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500",
             className
           )}
         >
-          <span className="truncate">{currentOption?.label ?? "Sort"}</span>
+          <span className="truncate block">{currentOption?.label ?? "Sort"}</span>
           <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180" />
         </button>
       </DropdownMenu.Trigger>
