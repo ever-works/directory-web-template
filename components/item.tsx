@@ -65,7 +65,7 @@ export default function Item(props: ItemProps) {
 
 	const titleClassName = cn(
 		'text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
-		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em] flex items-center'
+		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em]'
 	);
 
 	const descriptionClassName = cn(
@@ -75,7 +75,9 @@ export default function Item(props: ItemProps) {
 
 	const tagsContainerClassName = cn(
 		'flex gap-0.5',
-		isMasonryLayout ? 'flex-wrap' : 'flex-nowrap overflow-hidden'
+		isMasonryLayout
+			? 'flex-wrap'
+			: 'flex-nowrap overflow-hidden relative after:content-["..."] after:absolute after:right-0 after:top-0 after:bottom-0 after:flex after:items-center after:text-xs after:text-gray-500 after:dark:text-gray-400 after:bg-gradient-to-l after:from-white after:dark:from-gray-900 after:via-white/80 after:dark:via-gray-900/80 after:to-transparent after:pl-6 after:pr-1'
 	);
 
 	return (
