@@ -82,9 +82,10 @@ export default function Item(props: ItemProps) {
 	);
 
 	// Tags container styling: single line for grid/classic with overflow hidden, wrap for masonry
+	// Added py-0.5 for grid/classic to prevent hover:scale-105 and ring-2 effects from being clipped
 	const tagsContainerClassName = cn(
 		'flex gap-0.5',
-		isMasonryLayout ? 'flex-wrap' : 'flex-nowrap overflow-hidden',
+		isMasonryLayout ? 'flex-wrap' : 'flex-nowrap overflow-hidden py-0.5',
 		isGridOrClassicLayout && 'min-h-[1.75em]' // Reserve space for 1 line of tags
 	);
 
