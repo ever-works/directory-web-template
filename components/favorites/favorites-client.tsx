@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
@@ -9,11 +9,13 @@ import Link from 'next/link';
 import { Category, ItemData, Tag } from '@/lib/content';
 import Item from '../item';
 import { useSession } from 'next-auth/react';
-import { LayoutClassic } from '../layouts';
+import { layoutComponents, LayoutKey } from '../layouts';
 import { UniversalPagination } from '../universal-pagination';
 import SortMenu from '../sort-menu';
 import { sortItems } from '../shared-card/utils/sort-utils';
 import type { SortOption } from '../filters/types';
+import ViewToggle from '../view-toggle';
+import { useLayoutTheme } from '@/components/context';
 
 type ListingProps = {
 	total: number;
@@ -37,9 +39,22 @@ export function FavoritesClient(props: ListingProps) {
 	const t = useTranslations('common');
 	const tListing = useTranslations('listing');
 
+	// Layout switching - reuse the same layout context as Home page
+	const { layoutKey, setLayoutKey } = useLayoutTheme();
+	const LayoutComponent = layoutComponents[layoutKey];
+
+	// Handle view change
+	const handleViewChange = useCallback(
+		(newView: LayoutKey) => setLayoutKey(newView),
+		[setLayoutKey]
+	);
+
 	// Pagination state for favorites
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 12;
+
+	// Sort state for favorites
+	const [favoritesSortBy, setFavoritesSortBy] = useState<SortOption>('popularity');
 
 	// Sort state for popular items (when no favorites)
 	const [popularSortBy, setPopularSortBy] = useState<SortOption>('popularity');
@@ -52,11 +67,17 @@ export function FavoritesClient(props: ListingProps) {
 		[props.items, favorites]
 	);
 
+	// Sort favorites
+	const sortedFavoriteItems = useMemo(
+		() => sortItems(favoriteItems, favoritesSortBy),
+		[favoriteItems, favoritesSortBy]
+	);
+
 	// Calculate pagination for favorites
-	const totalPages = Math.ceil(favoriteItems.length / itemsPerPage);
+	const totalPages = Math.ceil(sortedFavoriteItems.length / itemsPerPage);
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
-	const paginatedItems = favoriteItems.slice(startIndex, endIndex);
+	const paginatedItems = sortedFavoriteItems.slice(startIndex, endIndex);
 
 	// Sort and paginate all items for popular items section
 	const sortedPopularItems = useMemo(() => sortItems(props.items, popularSortBy), [props.items, popularSortBy]);
@@ -188,28 +209,34 @@ export function FavoritesClient(props: ListingProps) {
 				{/* Popular items section */}
 				{props.items.length > 0 && (
 					<div className="space-y-6">
-						{/* Section header with sort */}
+						{/* Section header with sort and view toggle */}
 						<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 							<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
 								{t('OUR_MOST_POPULAR_ITEMS', {
 									defaultValue: 'Our most popular items'
 								})}
 							</h2>
-							<SortMenu
-								options={translatedSortOptions}
-								value={popularSortBy}
-								onSortChange={(value) => setPopularSortBy(value as SortOption)}
-								ariaLabel={t('SORT_POPULAR_ITEMS', { defaultValue: 'Sort popular items' })}
-								className="w-full sm:w-auto sm:min-w-[180px]"
-							/>
+							<div className="flex items-center gap-3">
+								<SortMenu
+									options={translatedSortOptions}
+									value={popularSortBy}
+									onSortChange={(value) => setPopularSortBy(value as SortOption)}
+									ariaLabel={t('SORT_POPULAR_ITEMS', { defaultValue: 'Sort popular items' })}
+									className="w-full sm:w-auto sm:min-w-[180px]"
+								/>
+								<ViewToggle
+									activeView={layoutKey}
+									onViewChange={handleViewChange}
+								/>
+							</div>
 						</div>
 
 						{/* Items grid */}
-						<LayoutClassic>
+						<LayoutComponent>
 							{paginatedPopularItems.map((item) => (
-								<Item key={item.slug} {...item} />
+								<Item key={item.slug} {...item} layout={layoutKey} />
 							))}
-						</LayoutClassic>
+						</LayoutComponent>
 
 						{/* Pagination */}
 						{popularTotalPages > 1 && (
@@ -230,20 +257,33 @@ export function FavoritesClient(props: ListingProps) {
 	// Favorites grid
 	return (
 		<div className="space-y-6">
-			{/* Stats */}
-			<div className="flex items-center justify-between">
+			{/* Stats, Sort Menu and View Toggle */}
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="flex items-center gap-2">
 					<Heart className="w-5 h-5 text-red-500" />
 					<span className="text-sm text-gray-600 dark:text-gray-300">
 						{favoriteItems.length} {t('FAVORITE_ITEMS', { defaultValue: 'favorite items' })}
 					</span>
 				</div>
+				<div className="flex items-center gap-3">
+					<SortMenu
+						options={translatedSortOptions}
+						value={favoritesSortBy}
+						onSortChange={(value) => setFavoritesSortBy(value as SortOption)}
+						ariaLabel={t('SORT_FAVORITES', { defaultValue: 'Sort favorites' })}
+						className="w-full sm:w-auto sm:min-w-[180px]"
+					/>
+					<ViewToggle
+						activeView={layoutKey}
+						onViewChange={handleViewChange}
+					/>
+				</div>
 			</div>
-			<LayoutClassic>
+			<LayoutComponent>
 				{paginatedItems.map((favorite) => (
-					<Item key={favorite.slug} {...favorite} />
+					<Item key={favorite.slug} {...favorite} layout={layoutKey} />
 				))}
-			</LayoutClassic>
+			</LayoutComponent>
 			{totalPages > 1 && (
 				<div className="flex justify-center mt-8">
 					<UniversalPagination page={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
