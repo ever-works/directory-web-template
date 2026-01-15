@@ -1,4 +1,8 @@
-import React from "react";
+"use client";
+
+import * as React from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type SortOption = {
@@ -12,7 +16,7 @@ export interface SortMenuProps {
   onSortChange: (value: string) => void;
   ariaLabel?: string;
   className?: string;
-  label?: string; 
+  label?: string;
 }
 
 const SortMenu: React.FC<SortMenuProps> = ({
@@ -21,44 +25,88 @@ const SortMenu: React.FC<SortMenuProps> = ({
   onSortChange,
   ariaLabel = "Sort items",
   className,
-  label = "",
-}) => (
-  <div className={cn("relative inline-block", className)}>
-    {label && (
-      <label
-        className="block mb-1 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-200"
-        htmlFor="sort-menu"
-      >
-        {label}
-      </label>
-    )}
-    <div className="relative">
-      <select
-        id="sort-menu"
-        value={value}
-        onChange={e => onSortChange(e.target.value)}
-        aria-label={ariaLabel}
-        className="appearance-none bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg px-2 sm:px-3 py-1.5 pr-8 sm:pr-10 text-xs sm:text-sm text-theme-primary-600 dark:text-theme-primary-400 w-full cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-700"
-      >
-        {options.map(opt => (
-          <option className="text-gray-900 dark:text-white cursor-pointer" key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <span className="pointer-events-none absolute inset-y-0 right-2 sm:right-3 flex items-center text-gray-400 dark:text-gray-500">
-        <svg width="16" height="16" className="w-4 h-4 sm:w-5 sm:h-5" fill="none" viewBox="0 0 24 24">
-          <path
-            d="M6 9l6 6 6-6"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-    </div>
-  </div>
-);
+}) => {
+  const currentOption = options.find(opt => opt.value === value);
+  const dropdownId = React.useId().replace(/:/g, "");
+
+  return (
+    <DropdownMenu.Root modal={false}>
+      <DropdownMenu.Trigger asChild>
+        <button
+          type="button"
+          aria-label={ariaLabel}
+          aria-haspopup="menu"
+          aria-expanded={undefined}
+          aria-controls={dropdownId}
+          className={cn(
+            "group inline-flex flex items-center justify-between",
+             "w-36",
+            "rounded-lg border border-gray-300 dark:border-gray-600/50",
+            "bg-gray-100 dark:bg-gray-900/50",
+            "px-2.5 sm:px-3 py-1.5 pr-7 sm:pr-9",
+            "text-xs sm:text-sm font-medium",
+            "text-theme-primary-600 dark:text-theme-primary-400",
+            "transition-all duration-200",
+            "hover:bg-gray-50 dark:hover:bg-gray-800/50",
+            "hover:border-gray-400 dark:hover:border-gray-500/50",
+            "hover:shadow-md",
+            "focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500",
+            className
+          )}
+        >
+          <span className="truncate">{currentOption?.label ?? "Sort"}</span>
+          <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180" />
+        </button>
+      </DropdownMenu.Trigger>
+
+      <DropdownMenu.Portal>
+        <DropdownMenu.Content
+          id={dropdownId}
+          align="end"
+          sideOffset={6}
+          className={cn(
+            "z-50 w-36",
+            "rounded-lg border border-gray-200 dark:border-gray-700",
+            "bg-white dark:bg-gray-900",
+            "shadow-lg shadow-black/10 dark:shadow-black/30",
+            "animate-in fade-in zoom-in-95"
+          )}
+          onCloseAutoFocus={event => event.preventDefault()}
+        >
+          <DropdownMenu.RadioGroup
+            value={value}
+            onValueChange={onSortChange}
+            className="p-1.5"
+          >
+            {options.map(option => (
+              <DropdownMenu.RadioItem
+                key={option.value}
+                value={option.value}
+                className={cn(
+                  "relative flex items-center justify-between",
+                  "px-3 py-1.5 rounded-md",
+                  "text-xs sm:text-sm font-medium",
+                  "cursor-pointer outline-hidden",
+                  "text-gray-900 dark:text-gray-100",
+                  "transition-colors",
+                  "hover:bg-gray-100 dark:hover:bg-gray-800",
+                  "focus:bg-gray-100 dark:focus:bg-gray-800"
+                )}
+              >
+                <span>{option.label}</span>
+
+                <DropdownMenu.ItemIndicator>
+                  <Check className="h-4 w-4 text-theme-primary-500 dark:text-theme-primary-400" />
+                </DropdownMenu.ItemIndicator>
+              </DropdownMenu.RadioItem>
+            ))}
+          </DropdownMenu.RadioGroup>
+
+          <DropdownMenu.Arrow className="fill-white dark:fill-gray-900" />
+        </DropdownMenu.Content>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Root>
+  );
+};
 
 export default SortMenu;
