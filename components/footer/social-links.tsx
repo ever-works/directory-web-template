@@ -75,7 +75,7 @@ export function footerNavigation(t: (key: string) => string, options: FooterNavi
 	const productLinks = [
 		{ label: t('common.COLLECTION'), href: '/collections' },
 		// UI-only: Show 'Popular' instead of 'Favorites' in the footer
-		{ label: 'Popular', href: '/favorites' },
+		{ label: t('common.POPULAR'), href: '/favorites' },
 		{ label: t('common.CATEGORY'), href: '/categories' },
 		{ label: t('common.TAG'), href: '/tags' },
 		{ label: t('common.PRICING'), href: '/pricing' },

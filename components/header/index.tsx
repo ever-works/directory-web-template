@@ -92,9 +92,8 @@ const NAVIGATION_CONFIG: Array<{
 	{
 		key: 'favorites',
 		href: '/favorites',
-		translationKey: 'FAVORITES',
-		translationNamespace: 'common',
-		staticLabel: 'Popular', // UI-only label override
+		translationKey: 'POPULAR',
+		translationNamespace: 'common'
 	},
 	{
 		key: 'categories',

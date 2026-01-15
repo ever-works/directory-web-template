@@ -183,7 +183,8 @@
     "FAVORITE_ITEMS": "Favoriten-Elemente",
     "EXPLORE_ITEMS": "Elemente erkunden",
     "VIEW_DETAILS": "Details anzeigen",
-    "ADDED_ON": "Hinzugefügt am"
+    "ADDED_ON": "Hinzugefügt am",
+    "POPULAR": "Popular"
   },
   "survey": {
     "SURVEYS": "Umfragen",
