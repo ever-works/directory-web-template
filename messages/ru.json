@@ -209,7 +209,7 @@
     "EXPLORE_ITEMS": "Исследовать элементы",
     "VIEW_DETAILS": "Подробнее",
     "ADDED_ON": "Добавлено",
-    "POPULAR": "Популярный",
+    "POPULAR": "Популярное",
     "OUR_MOST_POPULAR_ITEMS": "Наши самые популярные элементы",
     "SORT_POPULAR_ITEMS": "Сортировать популярные элементы"
   },
@@ -1009,7 +1009,7 @@
     "TECH_TAILWIND_CATEGORY": "CSS фреймворк",
     "TECH_SUPABASE_DESC": "Открытый бэкенд для хранения данных каталога и аутентификации - идеально интегрированный с нашим GitHub-ориентированным подходом",
     "TECH_SUPABASE_CATEGORY": "Бэкенд сервис",
-    "TECH_CARD_POPULAR": "Популярный",
+    "TECH_CARD_POPULAR": "Популярное",
     "TECH_CARD_STABLE": "Стабильный",
     "TECH_CARD_NICHE": "Нишевый",
     "TECH_CARD_USAGE_IN_PROJECT": "Использование в проекте",

@@ -232,15 +232,13 @@ export default function Header() {
 			key: item.key,
 			href: item.href,
 			label:
-				item.key === 'favorites' && item.staticLabel
-					? item.staticLabel
-					: item.translationKey
-						? item.translationNamespace === 'listing'
-							? tListing(item.translationKey as any)
-							: item.translationNamespace === 'survey'
-								? tSurvey(item.translationKey as any)
-								: t(item.translationKey as any)
-						: item.staticLabel || item.key,
+				item.translationKey
+					? item.translationNamespace === 'listing'
+						? tListing(item.translationKey as any)
+						: item.translationNamespace === 'survey'
+							? tSurvey(item.translationKey as any)
+							: t(item.translationKey as any)
+					: item.staticLabel || item.key,
 			isExternal: false
 		}));
 

@@ -183,7 +183,7 @@
     "EXPLORE_ITEMS": "Explore Items",
     "VIEW_DETAILS": "View Details",
     "ADDED_ON": "Added",
-    "POPULAR": "Popular"
+    "POPULAR": "פופולרי"
   },
   "survey": {
     "SURVEYS": "Surveys",
@@ -920,7 +920,7 @@
     "TECH_TAILWIND_CATEGORY": "CSS Framework",
     "TECH_SUPABASE_DESC": "Open-source backend for directory data storage and authentication - perfectly integrated with our GitHub-native approach",
     "TECH_SUPABASE_CATEGORY": "Backend Service",
-    "TECH_CARD_POPULAR": "Popular",
+    "TECH_CARD_POPULAR": "פופולרי",
     "TECH_CARD_STABLE": "Stable",
     "TECH_CARD_NICHE": "Niche",
     "TECH_CARD_USAGE_IN_PROJECT": "Usage in Project",
