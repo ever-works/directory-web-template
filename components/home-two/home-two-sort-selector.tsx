@@ -65,7 +65,7 @@ export function HomeTwoSortSelector({
             {currentOption?.label ?? t("listing.SORT_BY")}
           </span>
 
-          <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180 text-theme-primary-500" />
+          <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180 text-theme-primary-500" />
         </button>
       </DropdownMenu.Trigger>
 

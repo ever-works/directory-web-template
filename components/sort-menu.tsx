@@ -36,7 +36,6 @@ const SortMenu: React.FC<SortMenuProps> = ({
           type="button"
           aria-label={ariaLabel}
           aria-haspopup="menu"
-          aria-expanded={undefined}
           aria-controls={dropdownId}
           className={cn(
             "group inline-flex items-center justify-between",
@@ -55,7 +54,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
           )}
         >
           <span className="truncate block">{currentOption?.label ?? "Sort"}</span>
-          <ChevronDown className="h-3.5 w-3.5 transition-transform data-[state=open]:rotate-180" />
+          <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180" />
         </button>
       </DropdownMenu.Trigger>
 
