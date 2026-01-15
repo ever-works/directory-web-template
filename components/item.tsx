@@ -65,7 +65,7 @@ export default function Item(props: ItemProps) {
 
 	const titleClassName = cn(
 		'text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
-		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em]'
+		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em] flex items-center'
 	);
 
 	const descriptionClassName = cn(
@@ -104,7 +104,7 @@ export default function Item(props: ItemProps) {
 					<div className="flex flex-col grow gap-4 min-w-0">
 						<div className="flex justify-between items-start gap-3">
 							{/* Left: Icon + Title + Arrow */}
-							<div className="flex items-start gap-3 min-w-0">
+							<div className="flex items-center gap-3 min-w-0">
 								<div className="relative shrink-0">
 									{/* Pulse/wave effect on hover */}
 									<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
