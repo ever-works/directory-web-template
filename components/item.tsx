@@ -63,6 +63,11 @@ export default function Item(props: ItemProps) {
 		? createExcerpt(props.description, FILTER_CONSTANTS.MASONRY_EXCERPT_MAX_CHARS)
 		: props.description;
 
+	const titleClassName = cn(
+		'text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
+		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em]'
+	);
+
 	const descriptionClassName = cn(
 		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 font-medium',
 		!isMasonryLayout && 'line-clamp-3'
@@ -115,7 +120,7 @@ export default function Item(props: ItemProps) {
 								</div>
 
 								<div className="min-w-0">
-									<div className="text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200">
+									<div className={titleClassName}>
 										{props.name}
 									</div>
 									<div className="w-0 h-0.5 bg-gray-300 dark:bg-gray-600 group-hover:w-12 transition-all duration-500 ease-out" />
