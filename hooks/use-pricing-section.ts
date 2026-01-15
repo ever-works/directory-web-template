@@ -20,6 +20,7 @@ import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-
 import { useSetupIntent } from './use-setup-intent';
 import { getStripePaymentMode } from '@/lib/stripe-helpers';
 import { useSubscription } from './use-subscription';
+import { usePaymentAvailability } from './use-payment-availability';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -147,11 +148,16 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		autoSave: true
 	});
 
+	// Get payment availability to determine default plan
+	const { shouldShowPaidPlans } = usePaymentAvailability();
+
 	// Local state for pricing section
 	const [showSelector, setShowSelector] = useState<boolean>(false);
 	const [billingInterval, setBillingInterval] = useState<PaymentInterval>(PaymentInterval.MONTHLY);
 	const [processingPlan, setProcessingPlan] = useState<string | null>(null);
-	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(initialSelectedPlan ?? PaymentPlan.STANDARD);
+	// Default to FREE when paid plans aren't available, otherwise use initialSelectedPlan or STANDARD
+	const defaultPlan = shouldShowPaidPlans ? (initialSelectedPlan ?? PaymentPlan.STANDARD) : PaymentPlan.FREE;
+	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(defaultPlan);
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [planForPayment, setPlanForPayment] = useState<PricingConfig | null>(null);
 	const loginModal = useLoginModal();
@@ -408,6 +414,13 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 
 	// Computed values
 	const isButton = selectedFlow === 'pay_at_end';
+
+	// Effect to reset plan if paid plans become unavailable
+	useEffect(() => {
+		if (!shouldShowPaidPlans && selectedPlan && selectedPlan !== PaymentPlan.FREE) {
+			setSelectedPlan(PaymentPlan.FREE);
+		}
+	}, [shouldShowPaidPlans, selectedPlan]);
 
 	// Effect to handle plan selection from URL
 	useEffect(() => {
