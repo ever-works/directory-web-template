@@ -65,12 +65,17 @@ export default function Item(props: ItemProps) {
 
 	const titleClassName = cn(
 		'text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
-		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em]'
+		!isMasonryLayout && 'line-clamp-3 min-h-[3.75em] flex items-center'
 	);
 
 	const descriptionClassName = cn(
 		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 font-medium',
 		!isMasonryLayout && 'line-clamp-3'
+	);
+
+	const tagsContainerClassName = cn(
+		'flex gap-0.5',
+		isMasonryLayout ? 'flex-wrap' : 'flex-nowrap overflow-hidden'
 	);
 
 	return (
@@ -199,7 +204,7 @@ export default function Item(props: ItemProps) {
 
 						{/* Enhanced Hashtags - Only show if tags are enabled, tags exist, and have valid names */}
 						{tagsEnabled && props.tags && Array.isArray(props.tags) && props.tags.length > 0 && (
-						<div className="flex flex-wrap gap-0.5">
+						<div className={tagsContainerClassName}>
 							{props.tags.slice(0, 4).map((tag, index) => {
 								const tagName = getTagName(tag);
 								const tagId = typeof tag === 'string' ? tag : tag.id;
