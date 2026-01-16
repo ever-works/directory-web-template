@@ -889,7 +889,10 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Complete Payment"
+		"COMPLETE_PAYMENT": "Complete Payment",
+		"CHECKOUT_CLOSED": "Checkout closed",
+		"CREATE_CHECKOUT_FAILED": "Failed to create embedded checkout: {message}",
+		"UNABLE_TO_OPEN_CHECKOUT": "Unable to open checkout. Please try again or contact support."
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",

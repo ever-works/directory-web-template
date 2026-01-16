@@ -7,6 +7,9 @@ export interface CheckoutButtonParams {
 	variantId?: number;
 	metadata?: Record<string, any>;
 	embedded?: boolean;
+	onPaymentSuccess?: (res?: any) => void;
+	onClose?: () => void;
+	dark?: boolean;
 }
 
 export interface CheckoutButtonState {
@@ -35,7 +38,16 @@ export interface UseCheckoutButtonReturn extends CheckoutButtonState, CheckoutBu
  * Custom hook that encapsulates all CheckoutButton logic
  */
 export function useCheckoutButton(params?: CheckoutButtonParams): UseCheckoutButtonReturn {
-	const { defaultEmail = '', defaultPrice, variantId, metadata = {}, embedded = false } = params || {};
+	const {
+		defaultEmail = '',
+		defaultPrice,
+		variantId,
+		metadata = {},
+		embedded = false,
+		onPaymentSuccess,
+		onClose,
+		dark
+	} = params || {};
 
 	// Local state
 	const [customPrice, setCustomPrice] = useState<number | undefined>(defaultPrice);
@@ -43,7 +55,10 @@ export function useCheckoutButton(params?: CheckoutButtonParams): UseCheckoutBut
 
 	// Hooks based on embedded mode
 	const redirectHook = useLemonSqueezyCheckoutWithRedirect();
-	const embeddedHook = useLemonSqueezyEmbeddedCheckout();
+	const embeddedHook = useLemonSqueezyEmbeddedCheckout({
+		onSuccess: onPaymentSuccess,
+		onClose: onClose
+	});
 
 	const currentHook = embedded ? embeddedHook : redirectHook;
 	const { isLoading, error, isError, isSuccess } = currentHook;
@@ -63,12 +78,13 @@ export function useCheckoutButton(params?: CheckoutButtonParams): UseCheckoutBut
 		() => ({
 			customPrice,
 			variantId,
+			dark,
 			metadata: {
 				...memoizedMetadata,
 				timestamp: new Date().toISOString()
 			}
 		}),
-		[customPrice, variantId, memoizedMetadata]
+		[customPrice, variantId, memoizedMetadata, dark]
 	);
 
 	/**

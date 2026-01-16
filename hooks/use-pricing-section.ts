@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { PaymentFlow, PaymentInterval, PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { usePaymentFlow } from '@/hooks/use-payment-flow';
 import { useCreateCheckoutSession } from '@/hooks/use-create-checkout';
@@ -108,6 +109,7 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 		onPaymentSuccess: (paymentMethodId: string) => void;
 		onPaymentError: (error: Error) => void;
 		clientSecret?: string;
+		checkoutUrl?: string | null;
 		isReady?: boolean;
 		isError?: boolean;
 	};
@@ -136,9 +138,31 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		getNotLoggedInActionText
 	} = usePricingFeatures();
 
+	// Theme
+	const { resolvedTheme } = useTheme();
+	const isDark = resolvedTheme === 'dark';
+
 	// Hooks for different payment providers
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
-	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton(); // Lemonsqueezy checkout hook
+
+	const isLemonSqueezyEmbedded = process.env.NEXT_PUBLIC_LEMONSQUEEZY_PAYMENT_FORM_ENABLED === 'true';
+
+	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
+		embedded: isLemonSqueezyEmbedded,
+		onPaymentSuccess: (event) => {
+			toast.success('Subscription created successfully!');
+			router.push('/checkout/success');
+		},
+		onClose: () => {
+			// Clear checkout URL to prevent stale state
+			lemonsqueezyHook.clearCheckout();
+			if (currentProcessingPlanRef.current) {
+				currentProcessingPlanRef.current = null;
+				setProcessingPlan(null);
+			}
+		},
+		dark: isDark
+	}); // Lemonsqueezy checkout hook
 	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout(); // Polar checkout hook
 	const { createSubscription } = useSubscription(); // Subscription management hook
 
@@ -331,6 +355,12 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						return;
 					}
 					// Create checkout session for Lemonsqueezy
+					// Set planForPayment to show in modal (only for embedded mode)
+					if (isLemonSqueezyEmbedded) {
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+					}
+
 					// Lemonsqueezy checkout hook
 					await lemonsqueezyHook.handleSubmitWithParams({
 						variantId: Number(variantId),
@@ -345,7 +375,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 							email: user.email,
 							currency: currency
 						},
-						embedded: false
+						embedded: isLemonSqueezyEmbedded,
+						dark: isDark
 					});
 				} else if (paymentProvider === PaymentProvider.POLAR) {
 					// Check if the product ID is valid
@@ -408,7 +439,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			stripeHook,
 			billingInterval,
 			polarHook,
-			currency
+			currency,
+			isDark
 		]
 	);
 
@@ -445,10 +477,14 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		}
 
 		if (isSuccess) {
-			toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
+			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && isLemonSqueezyEmbedded) {
+				// Don't show toast for embedded mode as it opens immediately
+			} else {
+				toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
+			}
 			setProcessingPlan(null);
 		}
-	}, [error, isSuccess, paymentProvider]);
+	}, [error, isSuccess, paymentProvider, isLemonSqueezyEmbedded]);
 
 	return {
 		// State
@@ -514,6 +550,10 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			closePaymentForm: () => {
 				setShowPaymentForm(false);
 				setPlanForPayment(null);
+				// Clear checkout URL if using LemonSqueezy to prevent stale state
+				if (paymentProvider === PaymentProvider.LEMONSQUEEZY) {
+					lemonsqueezyHook.clearCheckout();
+				}
 			},
 			onPaymentSuccess: async (paymentMethodId: string) => {
 				if (!planForPayment?.stripePriceId) {
@@ -542,6 +582,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				toast.error(`Payment failed: ${error.message}`);
 			},
 			clientSecret,
+			checkoutUrl: lemonsqueezyHook.checkoutUrl,
 			isReady,
 			isError
 		}

@@ -148,7 +148,7 @@ export default async function RootLayout({
 	// Determine if the current locale is RTL
 	return (
 		<>
-			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="beforeInteractive" />
+			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="afterInteractive" />
 			<PHProvider>
 				<Suspense fallback={null}>
 					<PostHogPageView />

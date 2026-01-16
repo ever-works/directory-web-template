@@ -11,7 +11,7 @@ import { usePaymentAvailability } from '@/hooks/use-payment-availability';
 import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { StripePaymentModal } from '@/components/payment/stripe-payment-modal';
+import { PaymentFormModal } from '@/components/payment/stripe-payment-modal';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -57,7 +57,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		loginModal,
 		formatPrice,
 		currency,
-		paymentForm
+		paymentForm,
+		provider
 	} = usePricingSection({
 		onSelectPlan: onSelectPlan,
 		initialSelectedPlan: initialSelectedPlan,
@@ -476,8 +477,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				onSelect={handleFlowSelect}
 			/>
 
-			{/* Stripe Payment Form Modal */}
-			<StripePaymentModal
+			{/* Generic Payment Form Modal (Stripe + LemonSqueezy) */}
+			<PaymentFormModal
 				isOpen={paymentForm.isOpen}
 				onClose={paymentForm.closePaymentForm}
 				onSuccess={paymentForm.onPaymentSuccess}
@@ -489,8 +490,10 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				amount={paymentForm.planForPayment ? calculatePrice(paymentForm.planForPayment) : 0}
 				currency={currency}
 				clientSecret={clientSecret || ''}
+				checkoutUrl={paymentForm.checkoutUrl}
 				isReady={isReady}
 				isError={paymentForm.isError}
+				provider={provider!}
 			/>
 		</div>
 	);
