@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Container } from '@/components/ui/container';
+import { PageContainer } from '@/components/ui/container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FiDollarSign, FiPlus, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
@@ -14,7 +14,7 @@ import {
 	CancelDialog,
 	RenewDialog,
 	type SponsorshipStatusFilter,
-	type SponsorshipIntervalFilter,
+	type SponsorshipIntervalFilter
 } from '@/components/sponsorships';
 import { useUserSponsorAds } from '@/hooks/use-user-sponsor-ads';
 import { Button } from '@/components/ui/button';
@@ -70,7 +70,7 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 		renewSponsorship,
 		isCancelling,
 		isPayingNow,
-		isRenewing,
+		isRenewing
 	} = useUserSponsorAds();
 
 	// Convert hook status filter to UI value
@@ -81,24 +81,33 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 	const isActionInProgress = isCancelling || isPayingNow || isRenewing;
 
 	// Handle status change
-	const handleStatusChange = useCallback((newStatus: SponsorshipStatusFilter) => {
-		const hookStatus: SponsorAdStatus | undefined = newStatus === 'all' ? undefined : newStatus;
-		setStatusFilter(hookStatus);
-		setCurrentPage(1);
-	}, [setStatusFilter, setCurrentPage]);
+	const handleStatusChange = useCallback(
+		(newStatus: SponsorshipStatusFilter) => {
+			const hookStatus: SponsorAdStatus | undefined = newStatus === 'all' ? undefined : newStatus;
+			setStatusFilter(hookStatus);
+			setCurrentPage(1);
+		},
+		[setStatusFilter, setCurrentPage]
+	);
 
 	// Handle interval change
-	const handleIntervalChange = useCallback((newInterval: SponsorshipIntervalFilter) => {
-		const hookInterval = newInterval === 'all' ? undefined : newInterval;
-		setIntervalFilter(hookInterval);
-		setCurrentPage(1);
-	}, [setIntervalFilter, setCurrentPage]);
+	const handleIntervalChange = useCallback(
+		(newInterval: SponsorshipIntervalFilter) => {
+			const hookInterval = newInterval === 'all' ? undefined : newInterval;
+			setIntervalFilter(hookInterval);
+			setCurrentPage(1);
+		},
+		[setIntervalFilter, setCurrentPage]
+	);
 
 	// Handle search change
-	const handleSearchChange = useCallback((newSearch: string) => {
-		setSearch(newSearch);
-		setCurrentPage(1);
-	}, [setSearch, setCurrentPage]);
+	const handleSearchChange = useCallback(
+		(newSearch: string) => {
+			setSearch(newSearch);
+			setCurrentPage(1);
+		},
+		[setSearch, setCurrentPage]
+	);
 
 	// Handle view details (from HEAD)
 	const handleViewDetails = useCallback((id: string) => {
@@ -124,12 +133,15 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 		setCancelDialogOpen(true);
 	}, []);
 
-	const handlePayNowClick = useCallback(async (sponsorAd: SponsorAd) => {
-		const result = await payNow(sponsorAd.id);
-		if (result?.checkoutUrl) {
-			window.location.href = result.checkoutUrl;
-		}
-	}, [payNow]);
+	const handlePayNowClick = useCallback(
+		async (sponsorAd: SponsorAd) => {
+			const result = await payNow(sponsorAd.id);
+			if (result?.checkoutUrl) {
+				window.location.href = result.checkoutUrl;
+			}
+		},
+		[payNow]
+	);
 
 	const handleRenewClick = useCallback((sponsorAd: SponsorAd) => {
 		setSelectedSponsorship(sponsorAd);
@@ -173,16 +185,14 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 
 	return (
 		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-			<Container maxWidth="7xl" padding="default">
+			<PageContainer maxWidth="7xl" padding="default">
 				<div className="space-y-6 py-8">
 					{/* Page Header */}
 					<div className="text-center space-y-3">
 						<div className="inline-flex items-center justify-center w-14 h-14 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-xl mb-2">
 							<FiDollarSign className="w-7 h-7 text-theme-primary-600 dark:text-theme-primary-400" />
 						</div>
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-							{t('PAGE_TITLE')}
-						</h1>
+						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('PAGE_TITLE')}</h1>
 						<p className="text-gray-600 dark:text-gray-300 text-base max-w-xl mx-auto">
 							{t('PAGE_DESCRIPTION')}
 						</p>
@@ -266,7 +276,7 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 						</CardContent>
 					</Card>
 				</div>
-			</Container>
+			</PageContainer>
 
 			{/* Sponsorship Detail Modal (from HEAD) */}
 			<SponsorshipDetailModal

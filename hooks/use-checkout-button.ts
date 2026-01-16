@@ -51,11 +51,13 @@ export function useCheckoutButton(params?: CheckoutButtonParams): UseCheckoutBut
 	// Extract embedded-specific state
 	const checkoutUrl = embedded ? embeddedHook.checkoutUrl : null;
 	const isEmbedReady = embedded ? embeddedHook.isEmbedReady : true;
-	const memoizedMetadata = useMemo(() => ({
-		...metadata,
-		source: 'checkout-button'
-	}), [metadata]);
-
+	const memoizedMetadata = useMemo(
+		() => ({
+			...metadata,
+			source: 'checkout-button'
+		}),
+		[metadata]
+	);
 
 	const createCheckoutParams = useCallback(
 		() => ({
