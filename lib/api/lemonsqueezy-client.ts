@@ -4,6 +4,7 @@ import { CreateCheckoutRequest, CreateCheckoutResponse } from '@/app/api/lemonsq
 export interface LemonSqueezyCheckoutParams extends CreateCheckoutRequest {
 	source?: string;
 	timestamp?: string;
+	dark?: boolean;
 }
 
 export interface LemonSqueezyCheckoutResult {
@@ -14,8 +15,7 @@ export interface LemonSqueezyCheckoutResult {
 	metadata?: Record<string, any>;
 }
 
-export class LemonSqueezyClient {	
-
+export class LemonSqueezyClient {
 	async createCheckout(params: LemonSqueezyCheckoutParams): Promise<LemonSqueezyCheckoutResult> {
 		const endpoint = '/api/lemonsqueezy/checkout';
 
@@ -59,7 +59,7 @@ export class LemonSqueezyClient {
 			} else {
 				return { status: 'error', message: response.error || 'Health check failed' };
 			}
-		} catch (error) { 
+		} catch (error) {
 			return {
 				status: 'error',
 				message: error instanceof Error ? error.message : 'Health check failed'
@@ -94,7 +94,6 @@ export class LemonSqueezyClient {
 			errors
 		};
 	}
-
 }
 
 export const lemonsqueezyClient = new LemonSqueezyClient();
