@@ -14,6 +14,7 @@ import {
   TrustBadge
 } from "@/components/ui/auth-illustrations";
 import { authFeatures } from "@/lib/config/auth-features";
+import { SiteLogo } from "@/components/shared/site-logo/site-logo";
 
 export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode = false }: { form: "login" | "signup", showSocialLogin?: boolean, onSuccess?: () => void, clientMode?: boolean }) {
   const config = useConfig();
@@ -48,14 +49,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                 <AnimatedContainer type="slideUp" delay={500}>
                   <div className="text-center lg:text-left">
                     <div className="flex items-center justify-center lg:justify-start mb-4">
-                      <div className="w-10 h-10 bg-theme-primary rounded-xl flex items-center justify-center mr-3">
-                        <span className="text-white font-bold text-lg">
-                          {config.company_name?.charAt(0) || 'E'}
-                        </span>
-                      </div>
-                      <span className="text-xl font-bold text-gray-900 dark:text-white">
-                        {config.company_name}
-                      </span>
+                      <SiteLogo size="sm" showText={true} linkToHome={false} />
                     </div>
 
                     {/* Admin-specific message */}
