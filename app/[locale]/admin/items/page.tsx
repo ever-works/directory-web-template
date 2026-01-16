@@ -530,12 +530,8 @@ export default function AdminItemsPage() {
                 <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
                   {t('TITLE')}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2">
-                  <span>{t('SUBTITLE')}</span>
-                  <span className="hidden sm:inline">•</span>
-                  <span className="text-sm px-2 py-1 bg-theme-primary/10 text-theme-primary rounded-full font-medium">
-                    {totalItems} {t('TOTAL_ITEMS')}
-                  </span>
+                <p className="text-gray-600 dark:text-gray-400 mt-1">
+                  {t('SUBTITLE')}
                 </p>
               </div>
             </div>
@@ -660,7 +656,7 @@ export default function AdminItemsPage() {
                   />
                 )}
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  {t('ITEMS_TABLE_TITLE', { count: totalItems })}
+                  Items
                 </h3>
               </div>
               <div className="flex items-center gap-3">
