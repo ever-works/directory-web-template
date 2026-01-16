@@ -154,6 +154,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			router.push('/checkout/success');
 		},
 		onClose: () => {
+			// Clear checkout URL to prevent stale state
+			lemonsqueezyHook.clearCheckout();
 			if (currentProcessingPlanRef.current) {
 				currentProcessingPlanRef.current = null;
 				setProcessingPlan(null);
@@ -353,9 +355,11 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						return;
 					}
 					// Create checkout session for Lemonsqueezy
-					// Set planForPayment to show in modal
-					setPlanForPayment(plan);
-					setShowPaymentForm(true);
+					// Set planForPayment to show in modal (only for embedded mode)
+					if (isLemonSqueezyEmbedded) {
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+					}
 
 					// Lemonsqueezy checkout hook
 					await lemonsqueezyHook.handleSubmitWithParams({
@@ -435,7 +439,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			stripeHook,
 			billingInterval,
 			polarHook,
-			currency
+			currency,
+			isDark
 		]
 	);
 
@@ -480,9 +485,6 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			setProcessingPlan(null);
 		}
 	}, [error, isSuccess, paymentProvider, isLemonSqueezyEmbedded]);
-
-	// Effect to open LemonSqueezy overlay or modal
-	// We now use the PaymentFormModal instead of direct overlay open, as per user request
 
 	return {
 		// State
@@ -548,6 +550,10 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			closePaymentForm: () => {
 				setShowPaymentForm(false);
 				setPlanForPayment(null);
+				// Clear checkout URL if using LemonSqueezy to prevent stale state
+				if (paymentProvider === PaymentProvider.LEMONSQUEEZY) {
+					lemonsqueezyHook.clearCheckout();
+				}
 			},
 			onPaymentSuccess: async (paymentMethodId: string) => {
 				if (!planForPayment?.stripePriceId) {

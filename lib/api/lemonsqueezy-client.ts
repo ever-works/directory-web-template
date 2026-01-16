@@ -30,7 +30,8 @@ export class LemonSqueezyClient {
 
 		const response = await serverClient.post<CreateCheckoutResponse>(endpoint, enrichedParams, {
 			timeout: 15000,
-			retries: 2
+			retries: 2,
+			credentials: 'include' // Ensure cookies are sent for authentication
 		});
 
 		if (!response.success || !response.data) {

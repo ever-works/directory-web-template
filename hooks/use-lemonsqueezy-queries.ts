@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { lemonsqueezyClient, LemonSqueezyCheckoutParams } from '@/lib/api/lemonsqueezy-client';
 import { openCheckoutInNewTab } from '@/lib/utils/checkout-utils';
 import { toast } from 'sonner';
@@ -62,6 +63,7 @@ export interface UseLemonSqueezyEmbeddedCheckoutParams {
 }
 
 export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemonSqueezyEmbeddedCheckoutParams = {}) {
+	const t = useTranslations('payment');
 	const createCheckoutMutation = useCreateLemonSqueezyCheckout();
 	const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 	const [isEmbedReady, setIsEmbedReady] = useState(false);
@@ -79,12 +81,12 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 	}, [onClose]);
 
 	useEffect(() => {
+		let retryCount = 0;
+		let timeoutId: ReturnType<typeof setTimeout> | null = null;
+		const MAX_RETRIES = 20; // 10 seconds total
+
 		const initializeLemonSqueezy = () => {
-			if (
-				typeof window !== 'undefined' &&
-				(window as any).LemonSqueezy?.Setup &&
-				(window as any).LemonSqueezy?.Checkout?.open
-			) {
+			if (typeof window !== 'undefined' && (window as any).LemonSqueezy?.Setup) {
 				console.log('🍋 Initializing LemonSqueezy...');
 				try {
 					(window as any).LemonSqueezy.Setup({
@@ -93,7 +95,8 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 								setCheckoutUrl(null);
 								onSuccessRef.current?.(event);
 							} else if (event.event === 'Checkout.Closed') {
-								toast.info('Checkout closed');
+								toast.info(t('CHECKOUT_CLOSED'));
+								setCheckoutUrl(null);
 								onCloseRef.current?.();
 							}
 						}
@@ -103,12 +106,24 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 					console.error('❌ Failed to initialize LemonSqueezy:', error);
 				}
 			} else {
-				console.log('⏳ Waiting for LemonSqueezy SDK...');
-				setTimeout(initializeLemonSqueezy, 500);
+				if (retryCount >= MAX_RETRIES) {
+					console.warn('⚠️ LemonSqueezy SDK failed to load within timeout');
+					return;
+				}
+				retryCount++;
+				console.log(`⏳ Waiting for LemonSqueezy SDK... (${retryCount}/${MAX_RETRIES})`);
+				timeoutId = setTimeout(initializeLemonSqueezy, 500);
 			}
 		};
 
 		initializeLemonSqueezy();
+
+		// Cleanup: clear any pending timeout on unmount
+		return () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+			}
+		};
 	}, []);
 
 	const createEmbeddedCheckout = useCallback(
@@ -118,7 +133,7 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 				setCheckoutUrl(result.checkoutUrl);
 				return result;
 			} catch (error: any) {
-				toast.error(`Failed to create embedded checkout: ${error.message}`);
+				toast.error(t('CREATE_CHECKOUT_FAILED', { message: error.message }));
 				throw error;
 			}
 		},
@@ -142,6 +157,7 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 }
 
 export function useLemonSqueezyCheckoutWithRedirect() {
+	const t = useTranslations('payment');
 	const createCheckoutMutation = useCreateLemonSqueezyCheckout();
 	const createCheckoutAndRedirect = useCallback(
 		async (params: LemonSqueezyCheckoutParams) => {
@@ -171,7 +187,7 @@ export function useLemonSqueezyCheckoutWithRedirect() {
 				console.error('Failed to create checkout and open:', error);
 
 				if (typeof window !== 'undefined') {
-					toast.error('Unable to open checkout. Please try again or contact support.');
+					toast.error(t('UNABLE_TO_OPEN_CHECKOUT'));
 				}
 			}
 		},

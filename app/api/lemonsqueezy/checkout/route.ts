@@ -161,10 +161,10 @@ export async function POST(request: NextRequest) {
 		if (!session?.user?.id) {
 			return NextResponse.json(
 				{
-					error: ERROR_TYPES.INTERNAL_ERROR,
-					message: 'Unauthorized'
+					error: 'Unauthorized',
+					message: 'Authentication required'
 				},
-				{ status: HTTP_STATUS.INTERNAL_SERVER_ERROR }
+				{ status: HTTP_STATUS.UNAUTHORIZED }
 			);
 		}
 		let body: any;
@@ -190,6 +190,14 @@ export async function POST(request: NextRequest) {
 				{ status: HTTP_STATUS.BAD_REQUEST }
 			);
 		}
+
+		// Debug: Log the request parameters
+		console.log('[LemonSqueezy Checkout] Creating checkout with:', {
+			email: session.user.email,
+			variantId: body.variantId,
+			customPrice: body.customPrice,
+			dark: body.dark
+		});
 
 		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout({
 			email: session.user.email!,
@@ -264,6 +272,9 @@ export async function POST(request: NextRequest) {
 				);
 			}
 		}
+
+		// Log the actual error for debugging
+		console.error('[LemonSqueezy Checkout] Unhandled error:', error);
 
 		return NextResponse.json(
 			{
