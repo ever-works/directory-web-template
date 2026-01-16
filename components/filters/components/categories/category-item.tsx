@@ -64,9 +64,9 @@ export function CategoryItem({ category, isActive, href, isAllCategories = false
           "hover:transform-none active:transform-none",
           "group relative",
           isActive
-            ? "bg-theme-primary-500 text-white hover:bg-theme-primary-600 dark:hover:bg-theme-primary-600 active:bg-theme-primary-700"
+            ? "bg-theme-primary-500 text-white hover:!bg-theme-primary-600 active:bg-theme-primary-700"
             : "bg-transparent text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 active:bg-gray-200 dark:active:bg-gray-700"
-        )}
+          )}
         radius="md"
         variant="light"
         as={mode === "filter" ? "button" : Link}
