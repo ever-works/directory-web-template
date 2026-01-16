@@ -483,25 +483,6 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 
 	// Effect to open LemonSqueezy overlay or modal
 	// We now use the PaymentFormModal instead of direct overlay open, as per user request
-	useEffect(() => {
-		if (
-			paymentProvider === PaymentProvider.LEMONSQUEEZY &&
-			isLemonSqueezyEmbedded &&
-			lemonsqueezyHook.isEmbedReady &&
-			lemonsqueezyHook.checkoutUrl &&
-			!showPaymentForm // Only if not already open
-		) {
-			// If for some reason the modal isn't open but we have a URL (maybe strict mode or re-render),
-			// avoid auto-opening the overlay as we want the modal workflow.
-			// But handleCheckout sets showPaymentForm(true) immediately.
-		}
-	}, [
-		paymentProvider,
-		isLemonSqueezyEmbedded,
-		lemonsqueezyHook.isEmbedReady,
-		lemonsqueezyHook.checkoutUrl,
-		showPaymentForm
-	]);
 
 	return {
 		// State
