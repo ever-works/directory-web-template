@@ -19,19 +19,16 @@ export function CategoryItem({ category, isActive, href, isAllCategories = false
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const btnRef = useRef<HTMLButtonElement>(null);
-  const timeout = useRef<NodeJS.Timeout | null>(null);
+  
   const showTooltip = () => {
     if (btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
       setPos({ top: r.top + r.height / 2, left: r.right + 8 });
     }
     setHovered(true);
-    if (timeout.current) clearTimeout(timeout.current);
-    timeout.current = setTimeout(() => setHovered(false), 3000);
   };
   const hideTooltip = () => {
     setHovered(false);
-    if (timeout.current) clearTimeout(timeout.current);
   };
   const handleClick = (e: React.MouseEvent) => {
     if (mode === "filter") {
