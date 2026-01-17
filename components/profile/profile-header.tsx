@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { FiEdit2, FiMapPin, FiBriefcase, FiGlobe, FiGithub, FiLinkedin, FiTwitter, FiUser } from 'react-icons/fi';
 import { Card } from '@/components/ui/card';
 import type { Profile } from '@/lib/types/profile';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ProfileHeaderProps {
 	profile: Profile;
@@ -12,6 +12,12 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile, isOwnProfile = false }: ProfileHeaderProps) {
 	const [imageError, setImageError] = useState(false);
+
+	// Reset imageError when avatar URL changes so new avatars can render
+	useEffect(() => {
+		setImageError(false);
+	}, [profile.avatar]);
+
 	const getSocialIcon = (platform: string) => {
 		switch (platform.toLowerCase()) {
 			case 'github':
