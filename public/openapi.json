@@ -14823,6 +14823,11 @@
                     "description": "LemonSqueezy product variant ID",
                     "example": "123456"
                   },
+                  "dark": {
+                    "type": "boolean",
+                    "description": "Enable dark mode for checkout",
+                    "example": true
+                  },
                   "customPrice": {
                     "type": "number",
                     "minimum": 0,
