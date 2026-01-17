@@ -1,47 +1,32 @@
 import { PlanConfig, PlanName, CurrencyCode } from '.';
 
 /**
- * Stripe Configuration with Localization Support
- *
- * This module provides Stripe configuration that works with the currency localization system.
- * It automatically maps detected ISO 4217 currency codes (USD, EUR, GBP, CAD, etc.) to the
- * appropriate Stripe price IDs configured in environment variables.
- *
- * @example
- * ```ts
- * import { getStripePriceConfig } from '@/lib/config/billing';
- * import { getUserCurrency } from '@/lib/services/currency.service';
- *
- * // Get user's currency (from profile or auto-detected)
- * const currency = await getUserCurrency(userId, request);
- *
- * // Get the appropriate Stripe price ID for the user's currency
- * const priceConfig = getStripePriceConfig('premium', currency, 'monthly');
- * if (priceConfig?.priceId) {
- *   // Use priceConfig.priceId for Stripe checkout
- *   // Use priceConfig.currency for display
- *   // Use priceConfig.symbol for formatting
- * }
- * ```
- *
- * @example
- * ```ts
- * // In a React component with currency context
- * import { useCurrencyContext } from '@/components/context/currency-provider';
- * import { getStripePriceConfig } from '@/lib/config/billing';
- *
- * function CheckoutButton({ plan }: { plan: PlanName }) {
- *   const { currency } = useCurrencyContext();
- *   const priceConfig = getStripePriceConfig(plan, currency, 'monthly');
- *
- *   return (
- *     <button onClick={() => createCheckout(priceConfig?.priceId)}>
- *       Subscribe for {priceConfig?.symbol}{price}
- *     </button>
- *   );
- * }
- * ```
+ * Check if Stripe dynamic pricing is enabled
+ * When enabled, products and prices are fetched from Stripe API
+ * instead of using hardcoded environment variables
  */
+export function isStripeDynamicPricingEnabled(): boolean {
+	return process.env.NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING === 'true';
+}
+
+/**
+ * Product metadata keys used for dynamic pricing
+ * Products in Stripe must have these metadata fields set
+ */
+export const STRIPE_PRODUCT_METADATA_KEYS = {
+	/** Plan type: 'free' | 'standard' | 'premium' | 'sponsor_weekly' | 'sponsor_monthly' */
+	PLAN: 'plan',
+	/** Product type: 'subscription' | 'sponsor_ad' */
+	TYPE: 'type',
+	/** JSON array of feature strings */
+	FEATURES: 'features',
+	/** Annual discount percentage (e.g., '20' for 20% off) */
+	ANNUAL_DISCOUNT: 'annualDiscount'
+} as const;
+
+// ============================================
+// CURRENCY CONFIGURATION
+// ============================================
 
 /**
  * Maps ISO 4217 currency codes to Stripe config keys
