@@ -68,9 +68,14 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 	const [checkoutUrl, setCheckoutUrl] = useState<string | null>(null);
 	const [isEmbedReady, setIsEmbedReady] = useState(false);
 
-	// Use refs to keep callbacks fresh in the event handler closure
+	// Use refs to keep callbacks and translator fresh in the event handler closure
+	const tRef = useRef(t);
 	const onSuccessRef = useRef(onSuccess);
 	const onCloseRef = useRef(onClose);
+
+	useEffect(() => {
+		tRef.current = t;
+	}, [t]);
 
 	useEffect(() => {
 		onSuccessRef.current = onSuccess;
@@ -95,7 +100,7 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 								setCheckoutUrl(null);
 								onSuccessRef.current?.(event);
 							} else if (event.event === 'Checkout.Closed') {
-								toast.info(t('CHECKOUT_CLOSED'));
+								toast.info(tRef.current('CHECKOUT_CLOSED'));
 								setCheckoutUrl(null);
 								onCloseRef.current?.();
 							}
@@ -137,7 +142,7 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 				throw error;
 			}
 		},
-		[createCheckoutMutation]
+		[createCheckoutMutation, t]
 	);
 
 	const clearCheckout = useCallback(() => {
@@ -191,7 +196,7 @@ export function useLemonSqueezyCheckoutWithRedirect() {
 				}
 			}
 		},
-		[createCheckoutMutation]
+		[createCheckoutMutation, t]
 	);
 
 	return {
