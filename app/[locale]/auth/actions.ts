@@ -54,10 +54,13 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
 		}
 
+		// Normalize email for consistent lookup
+		const normalizedEmail = email.toLowerCase().trim();
+
 		// Step 1: Validate credentials FIRST to get specific error messages
 		// (NextAuth returns generic "CredentialsSignin" which loses the specific error code)
-		const foundUser = await getUserByEmail(email);
-		const clientAccount = await getClientAccountByEmail(email);
+		const foundUser = await getUserByEmail(normalizedEmail);
+		const clientAccount = await getClientAccountByEmail(normalizedEmail);
 
 		// No account found with this email
 		if (!foundUser && !clientAccount) {
@@ -383,13 +386,15 @@ const updateAccountSchema = z.object({
 
 export const updateAccount = validatedActionWithUser(updateAccountSchema, async (data, _, user) => {
 	const { name, email } = data;
+	// Normalize email to lowercase to prevent case-variant duplicates
+	const normalizedEmail = email.toLowerCase().trim();
 
 	const dbUser = await getUserByEmail(user.email!).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
 	}
 	await Promise.all([
-		updateUser({ email }, dbUser.id),
+		updateUser({ email: normalizedEmail }, dbUser.id),
 		updateClientProfileName(dbUser.id, name),
 		logActivity(ActivityType.UPDATE_ACCOUNT, dbUser.id, 'user')
 	]);
@@ -409,12 +414,14 @@ const forgotPasswordSchema = z.object({
 });
 
 export const forgotPassword = validatedAction(forgotPasswordSchema, async ({ email }) => {
-	const dbUser = await getUserByEmail(email).catch(() => null);
+	// Normalize email for consistent lookup
+	const normalizedEmail = email.toLowerCase().trim();
+	const dbUser = await getUserByEmail(normalizedEmail).catch(() => null);
 	if (!dbUser) {
 		return { success: true, email };
 	}
 
-	const passwordResetToken = await generatePasswordResetToken(email);
+	const passwordResetToken = await generatePasswordResetToken(normalizedEmail);
 
 	if (passwordResetToken) {
 		// Email is optional - won't throw if not configured
