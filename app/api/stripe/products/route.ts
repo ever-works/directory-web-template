@@ -2,7 +2,7 @@
  * GET /api/stripe/products
  *
  * Fetches products and prices from Stripe for dynamic pricing.
- * Results are cached for 5 minutes to avoid rate limiting.
+ * Caching is handled internally by stripe-products.service.ts (5-min TTL).
  *
  * Response:
  * - products: Array of products with their prices
@@ -17,9 +17,6 @@ import {
 	isStripeDynamicPricingEnabled,
 	buildDynamicStripeConfig
 } from '@/lib/services/stripe-products.service';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export async function GET() {
 	try {
@@ -50,17 +47,10 @@ export async function GET() {
 		// Build STRIPE_CONFIG format with multi-currency price IDs
 		const stripeConfig = buildDynamicStripeConfig(productsData.products);
 
-		return NextResponse.json(
-			{
-				...productsData,
-				stripeConfig
-			},
-			{
-				headers: {
-					'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600'
-				}
-			}
-		);
+		return NextResponse.json({
+			...productsData,
+			stripeConfig
+		});
 	} catch (error: any) {
 		console.error('[API] /api/stripe/products error:', error);
 

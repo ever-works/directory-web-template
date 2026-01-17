@@ -56,16 +56,13 @@ export interface StripeProductsResponse {
 	cachedAt: string | null;
 }
 
-// ============================================
-// CACHE
-// ============================================
-
 interface CacheEntry {
 	data: StripeProductsResponse;
 	timestamp: number;
 }
 
 let productsCache: CacheEntry | null = null;
+let pendingFetch: Promise<StripeProductsResponse> | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
@@ -83,10 +80,6 @@ function isCacheValid(): boolean {
 	if (!productsCache) return false;
 	return Date.now() - productsCache.timestamp < CACHE_TTL_MS;
 }
-
-// ============================================
-// STRIPE CLIENT
-// ============================================
 
 function getStripeClient(): Stripe | null {
 	const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -107,6 +100,7 @@ function getStripeClient(): Stripe | null {
 /**
  * Fetch all products from Stripe with their prices
  * Results are cached for 5 minutes
+ * Uses promise deduplication to prevent concurrent requests
  */
 export async function fetchStripeProducts(): Promise<StripeProductsResponse> {
 	// Return cached data if valid
@@ -117,6 +111,25 @@ export async function fetchStripeProducts(): Promise<StripeProductsResponse> {
 		};
 	}
 
+	// Return pending promise if fetch is already in progress (prevents race condition)
+	if (pendingFetch) {
+		return pendingFetch;
+	}
+
+	// Start new fetch and store the promise
+	pendingFetch = fetchFromStripeAPI();
+
+	try {
+		return await pendingFetch;
+	} finally {
+		pendingFetch = null;
+	}
+}
+
+/**
+ * Internal function to fetch from Stripe API
+ */
+async function fetchFromStripeAPI(): Promise<StripeProductsResponse> {
 	const stripe = getStripeClient();
 	if (!stripe) {
 		return {
@@ -128,21 +141,27 @@ export async function fetchStripeProducts(): Promise<StripeProductsResponse> {
 	}
 
 	try {
-		// Fetch all active products with expand to get prices
-		const products = await stripe.products.list({
-			active: true,
-			expand: ['data.default_price']
-		});
+		// Fetch ALL active products using auto-pagination
+		// This handles cases where there are more products than the default page size
+		const allProducts = await stripe.products
+			.list({
+				active: true,
+				limit: 100 // Max per request
+			})
+			.autoPagingToArray({ limit: 500 }); // Fetch up to 500 products
 
-		// Fetch all active prices
-		const prices = await stripe.prices.list({
-			active: true,
-			expand: ['data.product']
-		});
+		// Fetch ALL active prices using auto-pagination
+		// Important for multi-currency setups where each product can have many prices
+		const allPrices = await stripe.prices
+			.list({
+				active: true,
+				limit: 100 // Max per request
+			})
+			.autoPagingToArray({ limit: 1000 }); // Fetch up to 1000 prices
 
 		// Group prices by product ID
 		const pricesByProduct = new Map<string, StripePrice[]>();
-		for (const price of prices.data) {
+		for (const price of allPrices) {
 			const productId = typeof price.product === 'string' ? price.product : price.product?.id;
 			if (!productId) continue;
 
@@ -167,7 +186,7 @@ export async function fetchStripeProducts(): Promise<StripeProductsResponse> {
 		let sponsorWeekly: StripePrice | null = null;
 		let sponsorMonthly: StripePrice | null = null;
 
-		for (const product of products.data) {
+		for (const product of allProducts) {
 			const planType = product.metadata?.plan as StripePlanType | undefined;
 			if (!planType) continue; // Skip products without plan metadata
 
@@ -267,6 +286,16 @@ export function mapStripeProductsToPricingPlans(
 
 		const monthlyPrice = prices.find((p) => p.recurring?.interval === 'month');
 		const yearlyPrice = prices.find((p) => p.recurring?.interval === 'year');
+
+		// Skip paid plans without a valid monthly price in this currency
+		// This allows the caller to fall back to static config instead of getting
+		// a broken plan with price 0 and no stripePriceId
+		if (planType !== 'free' && !monthlyPrice) {
+			console.warn(
+				`[StripeProducts] Skipping ${planType} plan: no ${normalizedCurrency.toUpperCase()} monthly price found`
+			);
+			continue;
+		}
 
 		// Parse features from metadata
 		let features: string[] = [];
