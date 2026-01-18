@@ -183,6 +183,13 @@
       "when": 1768722410154,
       "tag": "0025_sloppy_scarlet_spider",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1768748607036,
+      "tag": "0026_overconfident_moon_knight",
+      "breakpoints": true
     }
   ]
 }

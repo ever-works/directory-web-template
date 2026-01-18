@@ -11,7 +11,7 @@ import {
 	index,
 	jsonb,
 	check,
-	numeric
+	doublePrecision
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -1206,9 +1206,9 @@ export const itemLocationIndex = pgTable(
 	'item_location_index',
 	{
 		itemSlug: text('item_slug').primaryKey(),
-		// Use .$type<number>() to cast numeric strings to numbers at the ORM level
-		latitude: numeric('latitude', { precision: 10, scale: 7 }).notNull().$type<number>(),
-		longitude: numeric('longitude', { precision: 10, scale: 7 }).notNull().$type<number>(),
+		// Use doublePrecision for native JS number support (sufficient precision for coordinates)
+		latitude: doublePrecision('latitude').notNull(),
+		longitude: doublePrecision('longitude').notNull(),
 		address: text('address'),
 		city: text('city'),
 		state: text('state'),

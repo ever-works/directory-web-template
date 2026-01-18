@@ -1,7 +1,7 @@
 CREATE TABLE "item_location_index" (
 	"item_slug" text PRIMARY KEY NOT NULL,
-	"latitude" numeric(10, 7) NOT NULL,
-	"longitude" numeric(10, 7) NOT NULL,
+	"latitude" double precision NOT NULL,
+	"longitude" double precision NOT NULL,
 	"address" text,
 	"city" text,
 	"state" text,
