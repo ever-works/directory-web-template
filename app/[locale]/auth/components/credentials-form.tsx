@@ -84,7 +84,7 @@ export function CredentialsForm({
 	useEffect(() => {
 		if (!state.success) return;
 
-		// Auto-login flow for registration (client-side signIn to ensure cookies are set properly)
+		// Auto-login flow for login/registration (client-side signIn to ensure cookies are set properly on Vercel)
 		if (state.autoLogin && state.credentials) {
 			const doAutoLogin = async () => {
 				setAuthSyncError(null);
@@ -112,8 +112,10 @@ export function CredentialsForm({
 						state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
 					const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
 
-					router.push(finalRedirectPath);
+					// Use window.location.href for reliable navigation on Vercel
+					// router.push() can fail if middleware doesn't see session immediately
 					if (onSuccess) onSuccess();
+					window.location.href = finalRedirectPath;
 				} catch (err) {
 					console.error('Auto-login error:', err);
 					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
@@ -234,15 +236,24 @@ export function CredentialsForm({
 
 			if (res && !res.error) {
 				setClientSuccess(true);
-				setTimeout(() => {
-					const redirectPath = redirect || (clientMode ? '/admin' : '/client/dashboard');
-					// Handle locale preservation for client-side redirects (avoid double prefix if path already has locale)
-					const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
-					const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
-					router.push(finalRedirectPath);
-					router.refresh();
-					if (onSuccess) onSuccess();
-				}, 400);
+
+				// Minimal delay to ensure cookies are written before navigation
+				await new Promise((resolve) => setTimeout(resolve, 150));
+
+				invalidateAllUserData();
+
+				// If onSuccess is provided (e.g., admin login page), let it handle the redirect
+				if (onSuccess) {
+					onSuccess();
+					return;
+				}
+
+				// Default redirect using window.location.href for reliable navigation on Vercel
+				// router.push() can fail if middleware doesn't see the session immediately
+				const redirectPath = redirect || (clientMode ? '/admin' : '/client/dashboard');
+				const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+				const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
+				window.location.href = finalRedirectPath;
 			} else {
 				setClientError(res?.error || 'Authentication failed');
 			}

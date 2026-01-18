@@ -67,8 +67,11 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.ACCOUNT_NOT_FOUND, ...data };
 		}
 
-		// Check password for admin user (has passwordHash in users table)
-		if (foundUser && foundUser.passwordHash) {
+		// Determine if this is an admin user (has passwordHash in users table)
+		const isAdminUser = foundUser && foundUser.passwordHash;
+
+		// Check password for admin user
+		if (isAdminUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
@@ -86,22 +89,18 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.USE_OAUTH_PROVIDER, ...data };
 		}
 
-		// Step 2: Credentials validated - now call NextAuth signIn to create session
-		const authService = authServiceFactory(data.authProvider);
-		const { error } = await authService.signIn(email, password);
-		if (error) {
-			// If NextAuth fails for some other reason, return generic error
-			console.error('NextAuth signIn error:', error);
-			return { error: AuthErrorCode.GENERIC_ERROR, ...data };
-		}
+		// Step 2: Credentials validated - return credentials for client-side signIn
+		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
+		// Same pattern as signUp with autoLogin
+		const redirectPath = isAdminUser ? '/admin' : '/client/dashboard';
 
-		// Step 3: Determine redirect based on user type
-		if (foundUser && foundUser.passwordHash) {
-			// Admin user
-			return { success: true, redirect: '/admin', preserveLocale: true };
-		}
-		// Client user
-		return { success: true, redirect: '/client/dashboard', preserveLocale: true };
+		return {
+			success: true,
+			redirect: redirectPath,
+			preserveLocale: true,
+			autoLogin: true,
+			credentials: { email: normalizedEmail, password }
+		};
 	} catch (error) {
 		console.error('SignIn error:', error);
 		return { error: AuthErrorCode.GENERIC_ERROR, ...data };
