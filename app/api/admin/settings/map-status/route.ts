@@ -15,11 +15,17 @@ export async function GET(req: NextRequest) {
 
 		const mapStatus = {
 			mapbox: {
+				// Server-side key configured (for server-side operations)
 				isConfigured: Boolean(process.env.MAPBOX_ACCESS_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN),
+				// Public key configured (required for client-side map preview)
+				isPreviewAvailable: Boolean(process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN),
 				name: 'Mapbox'
 			},
 			google: {
+				// Server-side key configured (for server-side operations)
 				isConfigured: Boolean(process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY),
+				// Public key configured (required for client-side map preview)
+				isPreviewAvailable: Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY),
 				name: 'Google Maps'
 			}
 		};

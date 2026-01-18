@@ -142,8 +142,8 @@ interface LocationConfigSettings {
 }
 
 interface MapProviderStatus {
-	mapbox: { isConfigured: boolean; name: string };
-	google: { isConfigured: boolean; name: string };
+	mapbox: { isConfigured: boolean; isPreviewAvailable: boolean; name: string };
+	google: { isConfigured: boolean; isPreviewAvailable: boolean; name: string };
 }
 
 interface Settings {
@@ -173,8 +173,8 @@ export function SettingsPage() {
 	});
 	const [navigationLoading, setNavigationLoading] = useState<boolean>(true);
 	const [mapProviderStatus, setMapProviderStatus] = useState<MapProviderStatus>({
-		mapbox: { isConfigured: false, name: 'Mapbox' },
-		google: { isConfigured: false, name: 'Google Maps' }
+		mapbox: { isConfigured: false, isPreviewAvailable: false, name: 'Mapbox' },
+		google: { isConfigured: false, isPreviewAvailable: false, name: 'Google Maps' }
 	});
 
 	// Fetch settings on mount
@@ -794,9 +794,9 @@ export function SettingsPage() {
 											provider={settings.location?.provider ?? 'mapbox'}
 											mapStyle={settings.location?.map_style ?? 'streets'}
 											isConfigured={
-												(settings.location?.provider === 'mapbox' && mapProviderStatus.mapbox.isConfigured) ||
-												(settings.location?.provider === 'google' && mapProviderStatus.google.isConfigured) ||
-												(settings.location?.provider === undefined && mapProviderStatus.mapbox.isConfigured)
+												(settings.location?.provider === 'mapbox' && mapProviderStatus.mapbox.isPreviewAvailable) ||
+												(settings.location?.provider === 'google' && mapProviderStatus.google.isPreviewAvailable) ||
+												(settings.location?.provider === undefined && mapProviderStatus.mapbox.isPreviewAvailable)
 											}
 										/>
 									</div>
