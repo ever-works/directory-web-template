@@ -788,6 +788,15 @@ export function SettingsPage() {
 												(settings.location?.provider === 'google' && mapProviderStatus.google.isPreviewAvailable) ||
 												(settings.location?.provider === undefined && mapProviderStatus.mapbox.isPreviewAvailable)
 											}
+											translations={{
+												notConfigured: t('LOCATION_MAP_PREVIEW_NOT_CONFIGURED'),
+												loadingError: t('LOCATION_MAP_PREVIEW_LOADING_ERROR'),
+												mapError: t('LOCATION_MAP_PREVIEW_ERROR'),
+												mapboxNotConfigured: t('LOCATION_MAP_MAPBOX_NOT_CONFIGURED'),
+												googleNotConfigured: t('LOCATION_MAP_GOOGLE_NOT_CONFIGURED'),
+												mapboxNotInstalled: t('LOCATION_MAP_MAPBOX_NOT_INSTALLED'),
+												googleNotInstalled: t('LOCATION_MAP_GOOGLE_NOT_INSTALLED')
+											}}
 										/>
 									</div>
 								</>

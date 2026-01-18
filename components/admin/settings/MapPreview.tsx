@@ -7,6 +7,15 @@ interface MapPreviewProps {
 	provider: 'mapbox' | 'google';
 	mapStyle: 'streets' | 'satellite';
 	isConfigured: boolean;
+	translations: {
+		notConfigured: string;
+		loadingError: string;
+		mapError: string;
+		mapboxNotConfigured: string;
+		googleNotConfigured: string;
+		mapboxNotInstalled: string;
+		googleNotInstalled: string;
+	};
 }
 
 // Default preview location (San Francisco)
@@ -16,7 +25,7 @@ const DEFAULT_CENTER = {
 };
 const DEFAULT_ZOOM = 12;
 
-export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps) {
+export function MapPreview({ provider, mapStyle, isConfigured, translations }: MapPreviewProps) {
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -42,7 +51,7 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 			} catch (err) {
 				if (isMounted) {
 					console.error('Failed to load map:', err);
-					setError(err instanceof Error ? err.message : 'Failed to load map');
+					setError(err instanceof Error ? err.message : translations.loadingError);
 					setIsLoading(false);
 				}
 			}
@@ -54,7 +63,7 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 
 				const accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 				if (!accessToken) {
-					throw new Error('Mapbox access token not configured');
+					throw new Error(translations.mapboxNotConfigured);
 				}
 
 				mapboxgl.accessToken = accessToken;
@@ -85,14 +94,14 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 
 				map.on('error', (e) => {
 					if (isMounted) {
-						setError(e.error?.message || 'Map error occurred');
+						setError(e.error?.message || translations.mapError);
 						setIsLoading(false);
 					}
 				});
 			} catch (err) {
 				// If mapbox-gl is not installed, show a helpful message
 				if (err instanceof Error && err.message.includes('Cannot find module')) {
-					throw new Error('Mapbox GL library not installed. Run: pnpm add mapbox-gl');
+					throw new Error(translations.mapboxNotInstalled);
 				}
 				throw err;
 			}
@@ -102,7 +111,7 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 			try {
 				const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 				if (!apiKey) {
-					throw new Error('Google Maps API key not configured');
+					throw new Error(translations.googleNotConfigured);
 				}
 
 				// Use the new functional API for @googlemaps/js-api-loader v2.x
@@ -134,7 +143,7 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 			} catch (err) {
 				// If @googlemaps/js-api-loader is not installed, show a helpful message
 				if (err instanceof Error && err.message.includes('Cannot find module')) {
-					throw new Error('Google Maps library not installed. Run: pnpm add @googlemaps/js-api-loader');
+					throw new Error(translations.googleNotInstalled);
 				}
 				throw err;
 			}
@@ -150,14 +159,14 @@ export function MapPreview({ provider, mapStyle, isConfigured }: MapPreviewProps
 				mapInstanceRef.current = null;
 			}
 		};
-	}, [provider, mapStyle, isConfigured]);
+	}, [provider, mapStyle, isConfigured, translations]);
 
 	if (!isConfigured) {
 		return (
 			<div className="w-full h-48 bg-gray-100 dark:bg-gray-800 rounded-lg flex flex-col items-center justify-center">
 				<MapPin className="w-8 h-8 text-gray-400 mb-2" />
 				<p className="text-sm text-gray-500 dark:text-gray-400 text-center px-4">
-					Configure API keys in .env to preview map
+					{translations.notConfigured}
 				</p>
 			</div>
 		);
