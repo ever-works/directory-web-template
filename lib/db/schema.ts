@@ -1206,8 +1206,9 @@ export const itemLocationIndex = pgTable(
 	'item_location_index',
 	{
 		itemSlug: text('item_slug').primaryKey(),
-		latitude: numeric('latitude', { precision: 10, scale: 7 }).notNull(),
-		longitude: numeric('longitude', { precision: 10, scale: 7 }).notNull(),
+		// Use .$type<number>() to cast numeric strings to numbers at the ORM level
+		latitude: numeric('latitude', { precision: 10, scale: 7 }).notNull().$type<number>(),
+		longitude: numeric('longitude', { precision: 10, scale: 7 }).notNull().$type<number>(),
 		address: text('address'),
 		city: text('city'),
 		state: text('state'),
