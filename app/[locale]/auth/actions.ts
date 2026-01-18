@@ -23,7 +23,8 @@ import {
 	updateUserVerification,
 	getClientAccountByEmail,
 	updateClientProfileName,
-	verifyClientPassword
+	verifyClientPassword,
+	isUserAdmin
 } from '@/lib/db/queries';
 import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
@@ -67,8 +68,11 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.ACCOUNT_NOT_FOUND, ...data };
 		}
 
-		// Check password for admin user (has passwordHash in users table)
-		if (foundUser && foundUser.passwordHash) {
+		// Determine if this is an admin user via role-based check
+		const isAdmin = foundUser ? await isUserAdmin(foundUser.id) : false;
+
+		// Check password for admin user
+		if (isAdmin && foundUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
@@ -86,22 +90,18 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.USE_OAUTH_PROVIDER, ...data };
 		}
 
-		// Step 2: Credentials validated - now call NextAuth signIn to create session
-		const authService = authServiceFactory(data.authProvider);
-		const { error } = await authService.signIn(email, password);
-		if (error) {
-			// If NextAuth fails for some other reason, return generic error
-			console.error('NextAuth signIn error:', error);
-			return { error: AuthErrorCode.GENERIC_ERROR, ...data };
-		}
+		// Step 2: Credentials validated - signal client to perform signIn
+		// SECURITY: Only return email, not password. Client will use form state for password.
+		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
+		const redirectPath = isAdmin ? '/admin' : '/client/dashboard';
 
-		// Step 3: Determine redirect based on user type
-		if (foundUser && foundUser.passwordHash) {
-			// Admin user
-			return { success: true, redirect: '/admin', preserveLocale: true };
-		}
-		// Client user
-		return { success: true, redirect: '/client/dashboard', preserveLocale: true };
+		return {
+			success: true,
+			redirect: redirectPath,
+			preserveLocale: true,
+			autoLogin: true,
+			email: normalizedEmail // Only return email, password sourced from client form state
+		};
 	} catch (error) {
 		console.error('SignIn error:', error);
 		return { error: AuthErrorCode.GENERIC_ERROR, ...data };
@@ -290,14 +290,14 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 
-		// Return credentials for client-side sign-in
+		// Return email for client-side sign-in (SECURITY: password sourced from client form state)
 		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
 		return {
 			success: true,
 			redirect: '/client/dashboard',
 			preserveLocale: true,
 			autoLogin: true,
-			credentials: { email: normalizedEmail, password }
+			email: normalizedEmail // Only return email, password sourced from client form state
 		};
 	} catch (error) {
 		console.error('SignUp error:', error);

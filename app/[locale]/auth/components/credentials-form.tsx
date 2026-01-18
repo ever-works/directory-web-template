@@ -55,6 +55,8 @@ export function CredentialsForm({
 	const [clientError, setClientError] = useState<string | null>(null);
 	const [clientSuccess, setClientSuccess] = useState(false);
 	const [authSyncError, setAuthSyncError] = useState<string | null>(null);
+	// Store password locally for autoLogin - NEVER returned from server for security
+	const [pendingPassword, setPendingPassword] = useState<string | null>(null);
 
 	// Helper to get translated error message based on error code
 	const getTranslatedErrorMessage = (errorCode: string | undefined): string => {
@@ -84,15 +86,20 @@ export function CredentialsForm({
 	useEffect(() => {
 		if (!state.success) return;
 
-		// Auto-login flow for registration (client-side signIn to ensure cookies are set properly)
-		if (state.autoLogin && state.credentials) {
+		// Auto-login flow for login/registration (client-side signIn to ensure cookies are set properly on Vercel)
+		// For login: use state.email (from server) + pendingPassword (from form state)
+		// For signup: use state.credentials (still returned from signUp action)
+		const autoLoginEmail = state.email || state.credentials?.email;
+		const autoLoginPassword = pendingPassword || state.credentials?.password;
+
+		if (state.autoLogin && autoLoginEmail && autoLoginPassword) {
 			const doAutoLogin = async () => {
 				setAuthSyncError(null);
 				try {
 					const { signIn } = await import('next-auth/react');
 					const res = await signIn('credentials', {
-						email: state.credentials.email,
-						password: state.credentials.password,
+						email: autoLoginEmail,
+						password: autoLoginPassword,
 						redirect: false
 					});
 
@@ -102,8 +109,8 @@ export function CredentialsForm({
 						return;
 					}
 
-					// Minimal delay - signIn already sets cookies, just ensure they're written
-					await new Promise((resolve) => setTimeout(resolve, 100));
+					// Await session refresh to ensure cookies are properly set before navigation
+					await refreshSession();
 
 					invalidateAllUserData();
 
@@ -112,8 +119,10 @@ export function CredentialsForm({
 						state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
 					const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
 
-					router.push(finalRedirectPath);
+					// Use window.location.href for reliable navigation on Vercel
+					// router.push() can fail if middleware doesn't see session immediately
 					if (onSuccess) onSuccess();
+					window.location.href = finalRedirectPath;
 				} catch (err) {
 					console.error('Auto-login error:', err);
 					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
@@ -206,6 +215,12 @@ export function CredentialsForm({
 
 		formData.append('authProvider', config.authConfig?.provider || 'next-auth');
 
+		// Store password locally for autoLogin (never sent back from server for security)
+		const passwordValue = formData.get('password') as string;
+		if (passwordValue) {
+			setPendingPassword(passwordValue);
+		}
+
 		startTransition(() => {
 			formAction(formData);
 		});
@@ -234,15 +249,24 @@ export function CredentialsForm({
 
 			if (res && !res.error) {
 				setClientSuccess(true);
-				setTimeout(() => {
-					const redirectPath = redirect || (clientMode ? '/admin' : '/client/dashboard');
-					// Handle locale preservation for client-side redirects (avoid double prefix if path already has locale)
-					const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
-					const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
-					router.push(finalRedirectPath);
-					router.refresh();
-					if (onSuccess) onSuccess();
-				}, 400);
+
+				// Await session refresh to ensure cookies are properly set before navigation
+				await refreshSession();
+
+				invalidateAllUserData();
+
+				// If onSuccess is provided (e.g., admin login page), let it handle the redirect
+				if (onSuccess) {
+					onSuccess();
+					return;
+				}
+
+				// Default redirect using window.location.href for reliable navigation on Vercel
+				// router.push() can fail if middleware doesn't see the session immediately
+				const redirectPath = redirect || (clientMode ? '/admin' : '/client/dashboard');
+				const shouldPrefixLocale = locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+				const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
+				window.location.href = finalRedirectPath;
 			} else {
 				setClientError(res?.error || 'Authentication failed');
 			}
