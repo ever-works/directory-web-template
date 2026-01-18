@@ -13,7 +13,7 @@ import { CustomNavigationManager } from './CustomNavigationManager';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { CustomNavigationItem } from '@/lib/content';
-import type { LocationConfigSettings } from '@/lib/types/location';
+import type { LocationConfigSettings, MapStatusResponse } from '@/lib/types/location';
 
 const GRADIENT_HEADER_CLASSES = [
 	'bg-linear-to-r',
@@ -131,11 +131,6 @@ interface MonetizationConfigSettings {
 	sponsor_ads?: SponsorAdsSettings;
 }
 
-interface MapProviderStatus {
-	mapbox: { isConfigured: boolean; isPreviewAvailable: boolean; name: string };
-	google: { isConfigured: boolean; isPreviewAvailable: boolean; name: string };
-}
-
 interface Settings {
 	categories_enabled?: boolean;
 	companies_enabled?: boolean;
@@ -162,7 +157,7 @@ export function SettingsPage() {
 		custom_footer: []
 	});
 	const [navigationLoading, setNavigationLoading] = useState<boolean>(true);
-	const [mapProviderStatus, setMapProviderStatus] = useState<MapProviderStatus>({
+	const [mapProviderStatus, setMapProviderStatus] = useState<MapStatusResponse>({
 		mapbox: { isConfigured: false, isPreviewAvailable: false, name: 'Mapbox' },
 		google: { isConfigured: false, isPreviewAvailable: false, name: 'Google Maps' }
 	});

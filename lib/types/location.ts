@@ -115,10 +115,12 @@ export interface MapProviderStatus {
 export interface MapStatusResponse {
 	mapbox: {
 		isConfigured: boolean;
+		isPreviewAvailable: boolean;
 		name: string;
 	};
 	google: {
 		isConfigured: boolean;
+		isPreviewAvailable: boolean;
 		name: string;
 	};
 }
