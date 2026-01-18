@@ -23,7 +23,8 @@ import {
 	updateUserVerification,
 	getClientAccountByEmail,
 	updateClientProfileName,
-	verifyClientPassword
+	verifyClientPassword,
+	isUserAdmin
 } from '@/lib/db/queries';
 import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
@@ -67,11 +68,11 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.ACCOUNT_NOT_FOUND, ...data };
 		}
 
-		// Determine if this is an admin user (has passwordHash in users table)
-		const isAdminUser = foundUser && foundUser.passwordHash;
+		// Determine if this is an admin user via role-based check
+		const isAdmin = foundUser ? await isUserAdmin(foundUser.id) : false;
 
 		// Check password for admin user
-		if (isAdminUser) {
+		if (isAdmin && foundUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
@@ -92,7 +93,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		// Step 2: Credentials validated - signal client to perform signIn
 		// SECURITY: Only return email, not password. Client will use form state for password.
 		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
-		const redirectPath = isAdminUser ? '/admin' : '/client/dashboard';
+		const redirectPath = isAdmin ? '/admin' : '/client/dashboard';
 
 		return {
 			success: true,

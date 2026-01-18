@@ -109,8 +109,8 @@ export function CredentialsForm({
 						return;
 					}
 
-					// Minimal delay - signIn already sets cookies, just ensure they're written
-					await new Promise((resolve) => setTimeout(resolve, 100));
+					// Await session refresh to ensure cookies are properly set before navigation
+					await refreshSession();
 
 					invalidateAllUserData();
 
@@ -250,8 +250,8 @@ export function CredentialsForm({
 			if (res && !res.error) {
 				setClientSuccess(true);
 
-				// Minimal delay to ensure cookies are written before navigation
-				await new Promise((resolve) => setTimeout(resolve, 150));
+				// Await session refresh to ensure cookies are properly set before navigation
+				await refreshSession();
 
 				invalidateAllUserData();
 
