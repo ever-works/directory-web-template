@@ -55,6 +55,8 @@ export function CredentialsForm({
 	const [clientError, setClientError] = useState<string | null>(null);
 	const [clientSuccess, setClientSuccess] = useState(false);
 	const [authSyncError, setAuthSyncError] = useState<string | null>(null);
+	// Store password locally for autoLogin - NEVER returned from server for security
+	const [pendingPassword, setPendingPassword] = useState<string | null>(null);
 
 	// Helper to get translated error message based on error code
 	const getTranslatedErrorMessage = (errorCode: string | undefined): string => {
@@ -85,14 +87,19 @@ export function CredentialsForm({
 		if (!state.success) return;
 
 		// Auto-login flow for login/registration (client-side signIn to ensure cookies are set properly on Vercel)
-		if (state.autoLogin && state.credentials) {
+		// For login: use state.email (from server) + pendingPassword (from form state)
+		// For signup: use state.credentials (still returned from signUp action)
+		const autoLoginEmail = state.email || state.credentials?.email;
+		const autoLoginPassword = pendingPassword || state.credentials?.password;
+
+		if (state.autoLogin && autoLoginEmail && autoLoginPassword) {
 			const doAutoLogin = async () => {
 				setAuthSyncError(null);
 				try {
 					const { signIn } = await import('next-auth/react');
 					const res = await signIn('credentials', {
-						email: state.credentials.email,
-						password: state.credentials.password,
+						email: autoLoginEmail,
+						password: autoLoginPassword,
 						redirect: false
 					});
 
@@ -207,6 +214,12 @@ export function CredentialsForm({
 		}
 
 		formData.append('authProvider', config.authConfig?.provider || 'next-auth');
+
+		// Store password locally for autoLogin (never sent back from server for security)
+		const passwordValue = formData.get('password') as string;
+		if (passwordValue) {
+			setPendingPassword(passwordValue);
+		}
 
 		startTransition(() => {
 			formAction(formData);

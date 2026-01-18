@@ -89,9 +89,9 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			return { error: AuthErrorCode.USE_OAUTH_PROVIDER, ...data };
 		}
 
-		// Step 2: Credentials validated - return credentials for client-side signIn
+		// Step 2: Credentials validated - signal client to perform signIn
+		// SECURITY: Only return email, not password. Client will use form state for password.
 		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
-		// Same pattern as signUp with autoLogin
 		const redirectPath = isAdminUser ? '/admin' : '/client/dashboard';
 
 		return {
@@ -99,7 +99,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			redirect: redirectPath,
 			preserveLocale: true,
 			autoLogin: true,
-			credentials: { email: normalizedEmail, password }
+			email: normalizedEmail // Only return email, password sourced from client form state
 		};
 	} catch (error) {
 		console.error('SignIn error:', error);
@@ -289,14 +289,14 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 
-		// Return credentials for client-side sign-in
+		// Return email for client-side sign-in (SECURITY: password sourced from client form state)
 		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
 		return {
 			success: true,
 			redirect: '/client/dashboard',
 			preserveLocale: true,
 			autoLogin: true,
-			credentials: { email: normalizedEmail, password }
+			email: normalizedEmail // Only return email, password sourced from client form state
 		};
 	} catch (error) {
 		console.error('SignUp error:', error);
