@@ -13,6 +13,7 @@ import { CustomNavigationManager } from './CustomNavigationManager';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { CustomNavigationItem } from '@/lib/content';
+import type { LocationConfigSettings } from '@/lib/types/location';
 
 const GRADIENT_HEADER_CLASSES = [
 	'bg-linear-to-r',
@@ -128,17 +129,6 @@ interface SponsorAdsSettings {
 
 interface MonetizationConfigSettings {
 	sponsor_ads?: SponsorAdsSettings;
-}
-
-interface LocationConfigSettings {
-	enabled?: boolean;
-	provider?: 'mapbox' | 'google';
-	map_style?: 'streets' | 'satellite';
-	distance_filter_enabled?: boolean;
-	distance_sort_enabled?: boolean;
-	default_radius_km?: number;
-	show_exact_address?: boolean;
-	require_location_on_submit?: boolean;
 }
 
 interface MapProviderStatus {

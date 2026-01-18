@@ -296,16 +296,9 @@ export interface FooterConfigSettings {
 	theme_selector_enabled?: boolean;
 }
 
-export interface LocationConfigSettings {
-	enabled?: boolean;
-	provider?: 'mapbox' | 'google';
-	map_style?: 'streets' | 'satellite';
-	distance_filter_enabled?: boolean;
-	distance_sort_enabled?: boolean;
-	default_radius_km?: number;
-	show_exact_address?: boolean;
-	require_location_on_submit?: boolean;
-}
+// Import and re-export from canonical location types module
+import type { LocationConfigSettings as LocationConfigSettingsType } from '@/lib/types/location';
+export type LocationConfigSettings = LocationConfigSettingsType;
 
 export interface LogoSettings {
 	logo_image?: string; // Path to logo image (e.g., "/logo.png")

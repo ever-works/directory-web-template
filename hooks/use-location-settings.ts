@@ -1,13 +1,13 @@
 import { useSettings } from '@/components/providers/settings-provider';
-import type { LocationConfigSettings } from '@/lib/content';
+import type { LocationSettings } from '@/lib/types/location';
 
 /**
- * Client-side hook to access location settings
+ * Client-side hook to access location settings (camelCase runtime type)
  * Reads from SettingsProvider context for instant access (no loading delay)
- * @returns LocationConfigSettings with loading and error states
+ * @returns LocationSettings with loading and error states
  */
 export function useLocationSettings(): {
-	settings: LocationConfigSettings;
+	settings: LocationSettings;
 	loading: boolean;
 	error: Error | null;
 } {

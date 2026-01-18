@@ -1,7 +1,12 @@
 'use client';
 
-import { createContext, useContext, PropsWithChildren } from 'react';
+import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
 import type { HeaderSettings, LocationConfigSettings } from '@/lib/content';
+import {
+	type LocationSettings,
+	DEFAULT_LOCATION_SETTINGS,
+	mapLocationConfigToRuntime
+} from '@/lib/types/location';
 
 const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	submitEnabled: true,
@@ -14,17 +19,6 @@ const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	layoutDefault: 'home1',
 	paginationDefault: 'standard',
 	themeDefault: 'light'
-};
-
-const DEFAULT_LOCATION_SETTINGS: LocationConfigSettings = {
-	enabled: false,
-	provider: 'mapbox',
-	map_style: 'streets',
-	distance_filter_enabled: true,
-	distance_sort_enabled: true,
-	default_radius_km: 50,
-	show_exact_address: false,
-	require_location_on_submit: false
 };
 
 interface SettingsContextValue {
@@ -40,8 +34,8 @@ interface SettingsContextValue {
 	hasGlobalSurveys: boolean;
 	// Header settings
 	headerSettings: HeaderSettings;
-	// Location settings
-	locationSettings: LocationConfigSettings;
+	// Location settings (camelCase runtime type)
+	locationSettings: LocationSettings;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -70,8 +64,14 @@ export function SettingsProvider({
 	hasCollections,
 	hasGlobalSurveys,
 	headerSettings,
-	locationSettings = DEFAULT_LOCATION_SETTINGS
+	locationSettings: locationConfigSettings
 }: SettingsProviderProps) {
+	// Map snake_case config to camelCase runtime settings
+	const locationSettings = useMemo(
+		() => mapLocationConfigToRuntime(locationConfigSettings),
+		[locationConfigSettings]
+	);
+
 	return (
 		<SettingsContext.Provider
 			value={{
