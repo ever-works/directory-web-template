@@ -271,21 +271,21 @@ export function getRequireLocationOnSubmit(): boolean {
 export function getLocationSettings(): {
 	enabled: boolean;
 	provider: 'mapbox' | 'google';
-	mapStyle: 'streets' | 'satellite';
-	distanceFilterEnabled: boolean;
-	distanceSortEnabled: boolean;
-	defaultRadiusKm: number;
-	showExactAddress: boolean;
-	requireLocationOnSubmit: boolean;
+	map_style: 'streets' | 'satellite';
+	distance_filter_enabled: boolean;
+	distance_sort_enabled: boolean;
+	default_radius_km: number;
+	show_exact_address: boolean;
+	require_location_on_submit: boolean;
 } {
 	return {
 		enabled: getLocationEnabled(),
 		provider: getLocationProvider(),
-		mapStyle: getLocationMapStyle(),
-		distanceFilterEnabled: getDistanceFilterEnabled(),
-		distanceSortEnabled: getDistanceSortEnabled(),
-		defaultRadiusKm: getDefaultRadiusKm(),
-		showExactAddress: getShowExactAddress(),
-		requireLocationOnSubmit: getRequireLocationOnSubmit(),
+		map_style: getLocationMapStyle(),
+		distance_filter_enabled: getDistanceFilterEnabled(),
+		distance_sort_enabled: getDistanceSortEnabled(),
+		default_radius_km: getDefaultRadiusKm(),
+		show_exact_address: getShowExactAddress(),
+		require_location_on_submit: getRequireLocationOnSubmit(),
 	};
 }
