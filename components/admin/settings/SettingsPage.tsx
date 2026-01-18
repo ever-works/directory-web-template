@@ -673,13 +673,13 @@ export function SettingsPage() {
 											{
 												name: mapProviderStatus.mapbox.name,
 												isConfigured: mapProviderStatus.mapbox.isConfigured,
-												envVar: 'MAPBOX_ACCESS_TOKEN',
+												envVar: 'NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN',
 												docsUrl: 'https://docs.mapbox.com/'
 											},
 											{
 												name: mapProviderStatus.google.name,
 												isConfigured: mapProviderStatus.google.isConfigured,
-												envVar: 'GOOGLE_MAPS_API_KEY',
+												envVar: 'NEXT_PUBLIC_GOOGLE_MAPS_API_KEY',
 												docsUrl: 'https://developers.google.com/maps'
 											}
 										]}
