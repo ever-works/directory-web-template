@@ -10,7 +10,8 @@ import {
 	uniqueIndex,
 	index,
 	jsonb,
-	check
+	check,
+	numeric
 } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -1192,3 +1193,42 @@ export type NewItemAuditLog = typeof itemAuditLogs.$inferInsert;
 
 /** Type for field-level changes stored in the changes column */
 export type ItemAuditChanges = Record<string, { old: unknown; new: unknown }>;
+
+// ######################### Item Location Index Schema #########################
+/**
+ * Item Location Index Table
+ *
+ * Stores location data for items to enable geospatial queries.
+ * This is an INDEX-ONLY table - the source of truth remains in the Git-based CMS.
+ * Used for "Near Me" filtering and distance-based sorting.
+ */
+export const itemLocationIndex = pgTable(
+	'item_location_index',
+	{
+		itemSlug: text('item_slug').primaryKey(),
+		latitude: numeric('latitude', { precision: 10, scale: 7 }).notNull(),
+		longitude: numeric('longitude', { precision: 10, scale: 7 }).notNull(),
+		address: text('address'),
+		city: text('city'),
+		state: text('state'),
+		country: text('country'),
+		postalCode: text('postal_code'),
+		serviceArea: text('service_area'),
+		isRemote: boolean('is_remote').notNull().default(false),
+		indexedAt: timestamp('indexed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => ({
+		latitudeIndex: index('item_location_index_latitude_idx').on(table.latitude),
+		longitudeIndex: index('item_location_index_longitude_idx').on(table.longitude),
+		cityIndex: index('item_location_index_city_idx').on(table.city),
+		countryIndex: index('item_location_index_country_idx').on(table.country),
+		isRemoteIndex: index('item_location_index_is_remote_idx').on(table.isRemote),
+		indexedAtIndex: index('item_location_index_indexed_at_idx').on(table.indexedAt),
+		// Composite index for geospatial bounding box queries
+		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude)
+	})
+);
+
+// ######################### Item Location Index Types #########################
+export type ItemLocationIndex = typeof itemLocationIndex.$inferSelect;
+export type NewItemLocationIndex = typeof itemLocationIndex.$inferInsert;

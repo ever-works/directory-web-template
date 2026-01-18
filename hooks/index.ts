@@ -21,3 +21,6 @@ export * from './use-auto-renewal';
 export * from './use-client-items';
 export * from './use-client-item-details';
 export * from './use-client-item-filters';
+
+// Location settings hook
+export * from './use-location-settings';

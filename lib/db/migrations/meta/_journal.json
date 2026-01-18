@@ -176,6 +176,13 @@
       "when": 1767999360743,
       "tag": "0024_deep_wrecker",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1768722410154,
+      "tag": "0025_sloppy_scarlet_spider",
+      "breakpoints": true
     }
   ]
 }

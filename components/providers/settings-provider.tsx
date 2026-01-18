@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, PropsWithChildren } from 'react';
-import type { HeaderSettings } from '@/lib/content';
+import type { HeaderSettings, LocationConfigSettings } from '@/lib/content';
 
 const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	submitEnabled: true,
@@ -14,6 +14,17 @@ const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	layoutDefault: 'home1',
 	paginationDefault: 'standard',
 	themeDefault: 'light'
+};
+
+const DEFAULT_LOCATION_SETTINGS: LocationConfigSettings = {
+	enabled: false,
+	provider: 'mapbox',
+	map_style: 'streets',
+	distance_filter_enabled: true,
+	distance_sort_enabled: true,
+	default_radius_km: 50,
+	show_exact_address: false,
+	require_location_on_submit: false
 };
 
 interface SettingsContextValue {
@@ -29,6 +40,8 @@ interface SettingsContextValue {
 	hasGlobalSurveys: boolean;
 	// Header settings
 	headerSettings: HeaderSettings;
+	// Location settings
+	locationSettings: LocationConfigSettings;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -43,6 +56,7 @@ interface SettingsProviderProps extends PropsWithChildren {
 	hasCollections: boolean;
 	hasGlobalSurveys: boolean;
 	headerSettings: HeaderSettings;
+	locationSettings?: LocationConfigSettings;
 }
 
 export function SettingsProvider({
@@ -55,7 +69,8 @@ export function SettingsProvider({
 	hasTags,
 	hasCollections,
 	hasGlobalSurveys,
-	headerSettings
+	headerSettings,
+	locationSettings = DEFAULT_LOCATION_SETTINGS
 }: SettingsProviderProps) {
 	return (
 		<SettingsContext.Provider
@@ -68,7 +83,8 @@ export function SettingsProvider({
 				hasTags,
 				hasCollections,
 				hasGlobalSurveys,
-				headerSettings
+				headerSettings,
+				locationSettings
 			}}
 		>
 			{children}
@@ -89,7 +105,8 @@ export function useSettings(): SettingsContextValue {
 			hasTags: true,
 			hasCollections: true,
 			hasGlobalSurveys: false,
-			headerSettings: DEFAULT_HEADER_SETTINGS
+			headerSettings: DEFAULT_HEADER_SETTINGS,
+			locationSettings: DEFAULT_LOCATION_SETTINGS
 		};
 	}
 	return context;
