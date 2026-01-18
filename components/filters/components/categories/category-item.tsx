@@ -21,11 +21,11 @@ export function CategoryItem({ category, isActive, href, isAllCategories = false
   const btnRef = useRef<HTMLButtonElement>(null);
   
   const showTooltip = () => {
-    if (btnRef.current) {
+    if (textIsTruncated && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
       setPos({ top: r.top + r.height / 2, left: r.right + 8 });
+      setHovered(true);
     }
-    setHovered(true);
   };
   const hideTooltip = () => {
     setHovered(false);
