@@ -3,6 +3,8 @@ import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { CreateItemRequest, SortField, SortOrder } from '@/lib/types/item';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { getLocationEnabled } from '@/lib/utils/settings';
+import { getLocationIndexService } from '@/lib/services/location';
 
 const itemRepository = new ItemRepository();
 
@@ -601,6 +603,28 @@ export async function POST(request: NextRequest) {
           status: 'error',
           itemSlug: item.slug,
           brand: brand?.trim(),
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
+    // Location Index: Index item location data (non-blocking)
+    if (getLocationEnabled()) {
+      try {
+        const locationIndexService = getLocationIndexService();
+        if (item.location) {
+          await locationIndexService.indexItem(item);
+          console.info('[Location Index] Item indexed', {
+            action: 'index_item',
+            status: 'success',
+            slug: item.slug,
+          });
+        }
+      } catch (error) {
+        console.error('[Location Index] Failed to index item', {
+          action: 'index_item',
+          status: 'error',
+          slug: item.slug,
           error: error instanceof Error ? error.message : String(error),
         });
       }

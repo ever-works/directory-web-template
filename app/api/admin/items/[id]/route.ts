@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UpdateItemRequest } from '@/lib/types/item';
+import { getLocationEnabled } from '@/lib/utils/settings';
+import { getLocationIndexService } from '@/lib/services/location';
 
 const itemRepository = new ItemRepository();
 
@@ -351,6 +353,36 @@ export async function PUT(
       }
     }
 
+    // Location Index: Update item location data (non-blocking)
+    if (getLocationEnabled()) {
+      try {
+        const locationIndexService = getLocationIndexService();
+        if (item.location) {
+          await locationIndexService.indexItem(item);
+          console.info('[Location Index] Item re-indexed', {
+            action: 'reindex_item',
+            status: 'success',
+            slug: item.slug,
+          });
+        } else {
+          // Remove from index if location was removed
+          await locationIndexService.removeFromIndex(item.slug);
+          console.info('[Location Index] Item removed from index (no location)', {
+            action: 'remove_item',
+            status: 'success',
+            slug: item.slug,
+          });
+        }
+      } catch (error) {
+        console.error('[Location Index] Failed to update index', {
+          action: 'update_index',
+          status: 'error',
+          slug: item.slug,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: item,
@@ -467,6 +499,26 @@ export async function DELETE(
       : undefined;
 
     await itemRepository.delete(resolvedParams.id, auditUser);
+
+    // Location Index: Remove item from index (non-blocking)
+    if (getLocationEnabled()) {
+      try {
+        const locationIndexService = getLocationIndexService();
+        await locationIndexService.removeFromIndex(resolvedParams.id);
+        console.info('[Location Index] Item removed from index', {
+          action: 'delete_item',
+          status: 'success',
+          slug: resolvedParams.id,
+        });
+      } catch (error) {
+        console.error('[Location Index] Failed to remove from index', {
+          action: 'delete_item',
+          status: 'error',
+          slug: resolvedParams.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     return NextResponse.json({
       success: true,
