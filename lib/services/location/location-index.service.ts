@@ -243,7 +243,7 @@ export class LocationIndexService {
 
 		// Persist rebuild metadata to database (survives restarts/deployments)
 		try {
-			await updateLocationIndexMeta(new Date(), result.durationMs, result.indexed);
+			await updateLocationIndexMeta(new Date(), result.durationMs, result.totalProcessed);
 		} catch (metaError) {
 			console.error('[LocationIndexService] Failed to update rebuild metadata:', metaError);
 			// Don't fail the rebuild for metadata update failure
