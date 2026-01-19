@@ -372,6 +372,32 @@ export async function getAllLocationEntries(): Promise<ItemLocationIndex[]> {
 	return db.select().from(itemLocationIndex);
 }
 
+/**
+ * Result type for remote location entries query.
+ */
+export interface RemoteLocationEntry {
+	itemSlug: string;
+	city: string | null;
+	country: string | null;
+}
+
+/**
+ * Get remote-only location entries with minimal fields.
+ * Optimized for radius queries - only fetches slug, city, country.
+ *
+ * @returns Array of remote location entries
+ */
+export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]> {
+	return db
+		.select({
+			itemSlug: itemLocationIndex.itemSlug,
+			city: itemLocationIndex.city,
+			country: itemLocationIndex.country,
+		})
+		.from(itemLocationIndex)
+		.where(eq(itemLocationIndex.isRemote, true));
+}
+
 // ===================== Statistics =====================
 
 /**

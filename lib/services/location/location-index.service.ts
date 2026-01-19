@@ -27,6 +27,7 @@ import {
 	queryRemoteItems,
 	getAllIndexedSlugs,
 	getAllLocationEntries,
+	getRemoteLocationEntries,
 	getLocationIndexStats,
 	updateLocationIndexMeta,
 	getLocationIndexMeta,
@@ -394,19 +395,17 @@ export class LocationIndexService {
 		// Sort location-based results by distance
 		locationResults.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
 
-		// Handle remote items separately if requested
+		// Handle remote items separately if requested (efficient indexed query)
 		const remoteResults: LocationQueryResult[] = [];
 		if (options.includeRemote) {
-			const remoteEntries = await getAllLocationEntries();
+			const remoteEntries = await getRemoteLocationEntries();
 			for (const entry of remoteEntries) {
-				if (entry.isRemote) {
-					remoteResults.push({
-						itemSlug: entry.itemSlug,
-						distanceKm: undefined, // Remote items have no distance
-						city: entry.city,
-						country: entry.country,
-					});
-				}
+				remoteResults.push({
+					itemSlug: entry.itemSlug,
+					distanceKm: undefined, // Remote items have no distance
+					city: entry.city,
+					country: entry.country,
+				});
 			}
 		}
 
