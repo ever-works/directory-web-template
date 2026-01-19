@@ -490,7 +490,8 @@ export async function POST(request: NextRequest) {
       brand,
       featured,
       icon_url,
-      status
+      status,
+      location,
     }: CreateItemRequest = body;
 
     // Validate required fields
@@ -536,6 +537,7 @@ export async function POST(request: NextRequest) {
       icon_url,
       status: status || 'draft',
       submitted_by: session.user.id,
+      location,
     }, auditUser);
 
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
