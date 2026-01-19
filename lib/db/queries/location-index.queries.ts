@@ -52,7 +52,10 @@ export interface LocationQueryParams {
 
 export interface LocationIndexStats {
 	totalIndexed: number;
+	/** Timestamp of the most recently indexed individual item */
 	lastIndexedAt: Date | null;
+	/** Timestamp of the last full index rebuild (set by service, not DB) */
+	lastRebuildAt?: Date | null;
 	citiesCount: number;
 	countriesCount: number;
 	remoteCount: number;

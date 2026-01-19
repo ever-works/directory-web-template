@@ -69,6 +69,7 @@ export interface RadiusQueryOptions {
 export class LocationIndexService {
 	private geocodingService = getGeocodingService();
 	private locationService = getLocationService();
+	private lastRebuildAt: Date | null = null;
 
 	/**
 	 * Index a single item's location data.
@@ -231,6 +232,9 @@ export class LocationIndexService {
 
 			// Items without location are considered skipped
 			result.skipped += items.length - itemsWithLocation.length;
+
+			// Track last successful rebuild time
+			this.lastRebuildAt = new Date();
 		} catch (error) {
 			console.error('[LocationIndexService] Rebuild failed:', error);
 			throw error;
@@ -312,11 +316,16 @@ export class LocationIndexService {
 
 	/**
 	 * Get statistics about the location index.
+	 * Includes lastRebuildAt which tracks when rebuildIndex() was last called.
 	 *
-	 * @returns Index statistics
+	 * @returns Index statistics including last rebuild time
 	 */
 	async getIndexStats(): Promise<LocationIndexStats> {
-		return getLocationIndexStats();
+		const stats = await getLocationIndexStats();
+		return {
+			...stats,
+			lastRebuildAt: this.lastRebuildAt,
+		};
 	}
 
 	// ===================== Query Methods =====================
