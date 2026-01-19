@@ -5,7 +5,7 @@
  * This table serves as an index for fast geo queries - source of truth remains in YAML.
  */
 
-import { and, eq, gte, lte, inArray, count, sql, ilike } from 'drizzle-orm';
+import { and, eq, gte, lte, inArray, count, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	itemLocationIndex,
@@ -87,6 +87,8 @@ export async function upsertLocationIndex(params: UpsertLocationIndexParams): Pr
 			city: params.city ?? null,
 			state: params.state ?? null,
 			country: params.country ?? null,
+			cityNormalized: normalizeLocationString(params.city),
+			countryNormalized: normalizeLocationString(params.country),
 			postalCode: params.postalCode ?? null,
 			serviceArea: params.serviceArea ?? null,
 			isRemote: params.isRemote ?? false,
@@ -101,6 +103,8 @@ export async function upsertLocationIndex(params: UpsertLocationIndexParams): Pr
 				city: params.city ?? null,
 				state: params.state ?? null,
 				country: params.country ?? null,
+				cityNormalized: normalizeLocationString(params.city),
+				countryNormalized: normalizeLocationString(params.country),
 				postalCode: params.postalCode ?? null,
 				serviceArea: params.serviceArea ?? null,
 				isRemote: params.isRemote ?? false,
@@ -129,6 +133,8 @@ export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParam
 		city: entry.city ?? null,
 		state: entry.state ?? null,
 		country: entry.country ?? null,
+		cityNormalized: normalizeLocationString(entry.city),
+		countryNormalized: normalizeLocationString(entry.country),
 		postalCode: entry.postalCode ?? null,
 		serviceArea: entry.serviceArea ?? null,
 		isRemote: entry.isRemote ?? false,
@@ -154,6 +160,8 @@ export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParam
 					city: sql`excluded.city`,
 					state: sql`excluded.state`,
 					country: sql`excluded.country`,
+					cityNormalized: sql`excluded.city_normalized`,
+					countryNormalized: sql`excluded.country_normalized`,
 					postalCode: sql`excluded.postal_code`,
 					serviceArea: sql`excluded.service_area`,
 					isRemote: sql`excluded.is_remote`,
@@ -278,7 +286,7 @@ export async function queryByBoundingBox(params: LocationQueryParams): Promise<I
 
 /**
  * Query items by city.
- * Uses case-insensitive matching to handle variations in city names.
+ * Uses indexed normalized column for fast case-insensitive matching.
  *
  * @param city - City name to search for
  * @param includeRemote - Include remote items (default false)
@@ -288,8 +296,8 @@ export async function queryByCity(city: string, includeRemote = false): Promise<
 	const normalizedCity = normalizeLocationString(city);
 	if (!normalizedCity) return [];
 
-	// Use ilike for case-insensitive matching
-	const conditions = [ilike(itemLocationIndex.city, normalizedCity)];
+	// Use equality on normalized column (indexed for fast queries)
+	const conditions = [eq(itemLocationIndex.cityNormalized, normalizedCity)];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));
@@ -305,7 +313,7 @@ export async function queryByCity(city: string, includeRemote = false): Promise<
 
 /**
  * Query items by country.
- * Uses case-insensitive matching to handle variations in country names.
+ * Uses indexed normalized column for fast case-insensitive matching.
  *
  * @param country - Country name to search for
  * @param includeRemote - Include remote items (default false)
@@ -315,8 +323,8 @@ export async function queryByCountry(country: string, includeRemote = false): Pr
 	const normalizedCountry = normalizeLocationString(country);
 	if (!normalizedCountry) return [];
 
-	// Use ilike for case-insensitive matching
-	const conditions = [ilike(itemLocationIndex.country, normalizedCountry)];
+	// Use equality on normalized column (indexed for fast queries)
+	const conditions = [eq(itemLocationIndex.countryNormalized, normalizedCountry)];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));

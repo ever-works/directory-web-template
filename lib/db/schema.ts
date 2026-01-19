@@ -1213,20 +1213,26 @@ export const itemLocationIndex = pgTable(
 		city: text('city'),
 		state: text('state'),
 		country: text('country'),
+		// Normalized columns for fast case-insensitive queries (lowercase, trimmed)
+		cityNormalized: text('city_normalized'),
+		countryNormalized: text('country_normalized'),
 		postalCode: text('postal_code'),
 		serviceArea: text('service_area'),
 		isRemote: boolean('is_remote').notNull().default(false),
-		indexedAt: timestamp('indexed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+		indexedAt: timestamp('indexed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
 	},
 	(table) => ({
 		latitudeIndex: index('item_location_index_latitude_idx').on(table.latitude),
 		longitudeIndex: index('item_location_index_longitude_idx').on(table.longitude),
 		cityIndex: index('item_location_index_city_idx').on(table.city),
 		countryIndex: index('item_location_index_country_idx').on(table.country),
+		// Indexes on normalized columns for fast case-insensitive equality queries
+		cityNormalizedIndex: index('item_location_index_city_normalized_idx').on(table.cityNormalized),
+		countryNormalizedIndex: index('item_location_index_country_normalized_idx').on(table.countryNormalized),
 		isRemoteIndex: index('item_location_index_is_remote_idx').on(table.isRemote),
 		indexedAtIndex: index('item_location_index_indexed_at_idx').on(table.indexedAt),
 		// Composite index for geospatial bounding box queries
-		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude)
+		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude),
 	})
 );
 
