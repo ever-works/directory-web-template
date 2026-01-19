@@ -656,7 +656,7 @@ export default function AdminItemsPage() {
                   />
                 )}
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Items
+                  {t('ITEMS_TABLE_TITLE')}
                 </h3>
               </div>
               <div className="flex items-center gap-3">

@@ -2065,7 +2065,7 @@
       "PENDING_REVIEW": "Ausstehende Überprüfung",
       "APPROVED": "Genehmigt",
       "REJECTED": "Abgelehnt",
-      "ITEMS_TABLE_TITLE": "Elemente ({count})",
+      "ITEMS_TABLE_TITLE": "Artikel",
       "UNTITLED": "Unbenannt",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

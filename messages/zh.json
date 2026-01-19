@@ -2064,7 +2064,7 @@
       "PENDING_REVIEW": "待审核",
       "APPROVED": "已批准",
       "REJECTED": "已拒绝",
-      "ITEMS_TABLE_TITLE": "项目 ({count})",
+      "ITEMS_TABLE_TITLE": "项目",
       "UNTITLED": "无标题",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

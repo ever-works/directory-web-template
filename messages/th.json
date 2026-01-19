@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "รอการตรวจสอบ",
       "APPROVED": "อนุมัติแล้ว",
       "REJECTED": "ถูกปฏิเสธ",
-      "ITEMS_TABLE_TITLE": "รายการ ({count})",
+      "ITEMS_TABLE_TITLE": "รายการ",
       "UNTITLED": "ไม่มีชื่อ",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",
