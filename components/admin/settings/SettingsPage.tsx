@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Sliders } from 'lucide-react';
 import { SettingSwitch } from './SettingSwitch';
@@ -305,6 +305,20 @@ export function SettingsPage() {
 			throw error; // Re-throw to let CustomNavigationManager handle the error
 		}
 	};
+
+	// Memoize translations to prevent MapPreview from re-initializing on unrelated setting changes
+	const mapPreviewTranslations = useMemo(
+		() => ({
+			notConfigured: t('LOCATION_MAP_PREVIEW_NOT_CONFIGURED'),
+			loadingError: t('LOCATION_MAP_PREVIEW_LOADING_ERROR'),
+			mapError: t('LOCATION_MAP_PREVIEW_ERROR'),
+			mapboxNotConfigured: t('LOCATION_MAP_MAPBOX_NOT_CONFIGURED'),
+			googleNotConfigured: t('LOCATION_MAP_GOOGLE_NOT_CONFIGURED'),
+			mapboxNotInstalled: t('LOCATION_MAP_MAPBOX_NOT_INSTALLED'),
+			googleNotInstalled: t('LOCATION_MAP_GOOGLE_NOT_INSTALLED')
+		}),
+		[t]
+	);
 
 	return (
 		<div className="space-y-8">
@@ -783,15 +797,7 @@ export function SettingsPage() {
 												(settings.location?.provider === 'google' && mapProviderStatus.google.isPreviewAvailable) ||
 												(settings.location?.provider === undefined && mapProviderStatus.mapbox.isPreviewAvailable)
 											}
-											translations={{
-												notConfigured: t('LOCATION_MAP_PREVIEW_NOT_CONFIGURED'),
-												loadingError: t('LOCATION_MAP_PREVIEW_LOADING_ERROR'),
-												mapError: t('LOCATION_MAP_PREVIEW_ERROR'),
-												mapboxNotConfigured: t('LOCATION_MAP_MAPBOX_NOT_CONFIGURED'),
-												googleNotConfigured: t('LOCATION_MAP_GOOGLE_NOT_CONFIGURED'),
-												mapboxNotInstalled: t('LOCATION_MAP_MAPBOX_NOT_INSTALLED'),
-												googleNotInstalled: t('LOCATION_MAP_GOOGLE_NOT_INSTALLED')
-											}}
+											translations={mapPreviewTranslations}
 										/>
 									</div>
 								</>
