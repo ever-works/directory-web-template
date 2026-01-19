@@ -7,7 +7,13 @@
 
 import { and, eq, gte, lte, inArray, count, sql, ilike } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { itemLocationIndex, type NewItemLocationIndex, type ItemLocationIndex } from '../schema';
+import {
+	itemLocationIndex,
+	locationIndexMeta,
+	type NewItemLocationIndex,
+	type ItemLocationIndex,
+	type LocationIndexMeta,
+} from '../schema';
 
 // ===================== Helpers =====================
 
@@ -401,4 +407,54 @@ export async function getLocationIndexStats(): Promise<LocationIndexStats> {
 		countriesCount: Number(countriesResult?.count ?? 0),
 		remoteCount: Number(remoteResult?.count ?? 0),
 	};
+}
+
+// ===================== Metadata Operations =====================
+
+/**
+ * Update the location index metadata after a rebuild.
+ * Uses upsert to create or update the singleton row.
+ *
+ * @param rebuildAt - Timestamp of the rebuild
+ * @param durationMs - Duration of the rebuild in milliseconds
+ * @param itemCount - Number of items processed
+ */
+export async function updateLocationIndexMeta(
+	rebuildAt: Date,
+	durationMs: number,
+	itemCount: number
+): Promise<void> {
+	await db
+		.insert(locationIndexMeta)
+		.values({
+			id: 'singleton',
+			lastRebuildAt: rebuildAt,
+			lastRebuildDurationMs: durationMs,
+			lastRebuildItemCount: itemCount,
+			updatedAt: new Date(),
+		})
+		.onConflictDoUpdate({
+			target: locationIndexMeta.id,
+			set: {
+				lastRebuildAt: rebuildAt,
+				lastRebuildDurationMs: durationMs,
+				lastRebuildItemCount: itemCount,
+				updatedAt: new Date(),
+			},
+		});
+}
+
+/**
+ * Get the location index metadata.
+ *
+ * @returns Metadata or null if not yet set
+ */
+export async function getLocationIndexMeta(): Promise<LocationIndexMeta | null> {
+	const [result] = await db
+		.select()
+		.from(locationIndexMeta)
+		.where(eq(locationIndexMeta.id, 'singleton'))
+		.limit(1);
+
+	return result ?? null;
 }

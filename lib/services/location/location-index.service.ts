@@ -28,6 +28,8 @@ import {
 	getAllIndexedSlugs,
 	getAllLocationEntries,
 	getLocationIndexStats,
+	updateLocationIndexMeta,
+	getLocationIndexMeta,
 	type UpsertLocationIndexParams,
 	type LocationIndexStats,
 } from '@/lib/db/queries/location-index.queries';
@@ -69,7 +71,6 @@ export interface RadiusQueryOptions {
 export class LocationIndexService {
 	private geocodingService = getGeocodingService();
 	private locationService = getLocationService();
-	private lastRebuildAt: Date | null = null;
 
 	/**
 	 * Index a single item's location data.
@@ -232,15 +233,21 @@ export class LocationIndexService {
 
 			// Items without location are considered skipped
 			result.skipped += items.length - itemsWithLocation.length;
-
-			// Track last successful rebuild time
-			this.lastRebuildAt = new Date();
 		} catch (error) {
 			console.error('[LocationIndexService] Rebuild failed:', error);
 			throw error;
 		}
 
 		result.durationMs = Date.now() - startTime;
+
+		// Persist rebuild metadata to database (survives restarts/deployments)
+		try {
+			await updateLocationIndexMeta(new Date(), result.durationMs, result.indexed);
+		} catch (metaError) {
+			console.error('[LocationIndexService] Failed to update rebuild metadata:', metaError);
+			// Don't fail the rebuild for metadata update failure
+		}
+
 		return result;
 	}
 
@@ -316,15 +323,15 @@ export class LocationIndexService {
 
 	/**
 	 * Get statistics about the location index.
-	 * Includes lastRebuildAt which tracks when rebuildIndex() was last called.
+	 * Includes lastRebuildAt from persistent storage (survives restarts/deployments).
 	 *
 	 * @returns Index statistics including last rebuild time
 	 */
 	async getIndexStats(): Promise<LocationIndexStats> {
-		const stats = await getLocationIndexStats();
+		const [stats, meta] = await Promise.all([getLocationIndexStats(), getLocationIndexMeta()]);
 		return {
 			...stats,
-			lastRebuildAt: this.lastRebuildAt,
+			lastRebuildAt: meta?.lastRebuildAt ?? null,
 		};
 	}
 

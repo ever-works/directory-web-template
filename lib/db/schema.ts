@@ -1233,3 +1233,25 @@ export const itemLocationIndex = pgTable(
 // ######################### Item Location Index Types #########################
 export type ItemLocationIndex = typeof itemLocationIndex.$inferSelect;
 export type NewItemLocationIndex = typeof itemLocationIndex.$inferInsert;
+
+// ######################### Location Index Metadata #########################
+/**
+ * Singleton table to track location index metadata.
+ * Stores persistent information about the index state across deployments.
+ */
+export const locationIndexMeta = pgTable(
+	'location_index_meta',
+	{
+		id: text('id').primaryKey().default('singleton'), // Only one row allowed
+		lastRebuildAt: timestamp('last_rebuild_at', { mode: 'date', withTimezone: true }),
+		lastRebuildDurationMs: integer('last_rebuild_duration_ms'),
+		lastRebuildItemCount: integer('last_rebuild_item_count'),
+		updatedAt: timestamp('updated_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+	},
+	(table) => ({
+		singletonConstraint: uniqueIndex('location_index_meta_singleton_idx').on(table.id),
+	})
+);
+
+export type LocationIndexMeta = typeof locationIndexMeta.$inferSelect;
+export type NewLocationIndexMeta = typeof locationIndexMeta.$inferInsert;
