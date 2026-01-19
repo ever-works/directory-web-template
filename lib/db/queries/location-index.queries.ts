@@ -5,9 +5,23 @@
  * This table serves as an index for fast geo queries - source of truth remains in YAML.
  */
 
-import { and, eq, gte, lte, inArray, count, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, inArray, count, sql, ilike } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { itemLocationIndex, type NewItemLocationIndex, type ItemLocationIndex } from '../schema';
+
+// ===================== Helpers =====================
+
+/**
+ * Normalize a location string for consistent matching.
+ * Trims whitespace and converts to lowercase.
+ *
+ * @param value - The string to normalize
+ * @returns Normalized string or null
+ */
+function normalizeLocationString(value: string | null | undefined): string | null {
+	if (!value) return null;
+	return value.trim().toLowerCase();
+}
 
 // ===================== Types =====================
 
@@ -255,13 +269,18 @@ export async function queryByBoundingBox(params: LocationQueryParams): Promise<I
 
 /**
  * Query items by city.
+ * Uses case-insensitive matching to handle variations in city names.
  *
  * @param city - City name to search for
  * @param includeRemote - Include remote items (default false)
  * @returns Array of item slugs
  */
 export async function queryByCity(city: string, includeRemote = false): Promise<string[]> {
-	const conditions = [eq(itemLocationIndex.city, city)];
+	const normalizedCity = normalizeLocationString(city);
+	if (!normalizedCity) return [];
+
+	// Use ilike for case-insensitive matching
+	const conditions = [ilike(itemLocationIndex.city, normalizedCity)];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));
@@ -277,13 +296,18 @@ export async function queryByCity(city: string, includeRemote = false): Promise<
 
 /**
  * Query items by country.
+ * Uses case-insensitive matching to handle variations in country names.
  *
  * @param country - Country name to search for
  * @param includeRemote - Include remote items (default false)
  * @returns Array of item slugs
  */
 export async function queryByCountry(country: string, includeRemote = false): Promise<string[]> {
-	const conditions = [eq(itemLocationIndex.country, country)];
+	const normalizedCountry = normalizeLocationString(country);
+	if (!normalizedCountry) return [];
+
+	// Use ilike for case-insensitive matching
+	const conditions = [ilike(itemLocationIndex.country, normalizedCountry)];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));
