@@ -71,11 +71,11 @@ interface ReverseGeocodeResponse {
  * /api/geocode:
  *   post:
  *     tags: ["Geocoding"]
- *     summary: "Geocode an address or reverse geocode coordinates"
+ *     summary: "Geocode an address or reverse geocode coordinates (Admin only)"
  *     description: |
  *       Converts an address to coordinates (forward geocoding) or coordinates to an address (reverse geocoding).
  *       Results are cached for 15 minutes to reduce API calls.
- *       Requires authentication.
+ *       **Requires admin authentication** to prevent API cost abuse (Mapbox/Google).
  *
  *       **Forward Geocoding** (address → coordinates):
  *       - Provide an `address` string to get latitude/longitude and parsed address components.
@@ -84,6 +84,7 @@ interface ReverseGeocodeResponse {
  *       - Provide `latitude` and `longitude` to get the formatted address and components.
  *
  *       Note: Location features must be enabled in settings for this endpoint to work.
+ *       All requests are audit logged for cost tracking.
  *     security:
  *       - sessionAuth: []
  *     requestBody:
@@ -249,6 +250,19 @@ interface ReverseGeocodeResponse {
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - Admin access required"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Forbidden. Admin access required for geocoding operations."
  *       404:
  *         description: "Not found - No results for the geocoding request"
  *         content:
@@ -278,10 +292,17 @@ interface ReverseGeocodeResponse {
  */
 export async function POST(request: NextRequest): Promise<NextResponse<GeocodeResponse | ReverseGeocodeResponse>> {
 	try {
-		// Check authentication
+		// Check authentication - require admin to prevent API cost abuse
 		const session = await auth();
 		if (!session?.user?.id) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
+
+		if (!session.user.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Forbidden. Admin access required for geocoding operations.' },
+				{ status: 403 }
+			);
 		}
 
 		// Check if location features are enabled
@@ -320,6 +341,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeocodeRe
 			const { address, options } = validationResult.data;
 			const result = await geocodingService.geocodeAddress(address, options);
 
+			// Audit log for forward geocoding
+			console.info('[Geocode] Forward geocoding request', {
+				action: 'forward_geocode',
+				userId: session.user.id,
+				userEmail: session.user.email,
+				address: address.substring(0, 100), // Truncate for logs
+				hasResult: !!result,
+				timestamp: new Date().toISOString(),
+			});
+
 			if (!result) {
 				return NextResponse.json(
 					{ success: false, error: 'No results found for the given address' },
@@ -356,6 +387,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeocodeRe
 
 			const { latitude, longitude, options } = validationResult.data;
 			const result = await geocodingService.reverseGeocode(latitude, longitude, options);
+
+			// Audit log for reverse geocoding
+			console.info('[Geocode] Reverse geocoding request', {
+				action: 'reverse_geocode',
+				userId: session.user.id,
+				userEmail: session.user.email,
+				coordinates: `${latitude},${longitude}`,
+				hasResult: !!result,
+				timestamp: new Date().toISOString(),
+			});
 
 			if (!result) {
 				return NextResponse.json(
