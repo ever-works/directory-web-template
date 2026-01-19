@@ -46,6 +46,9 @@ export * from './user.queries';
 // Vote queries
 export * from './vote.queries';
 
+// Engagement queries (views, votes, favorites, comments aggregation)
+export * from './engagement.queries';
+
 // Shared types and utilities
 export * from './types';
 export * from './utils';
