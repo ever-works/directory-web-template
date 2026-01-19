@@ -194,6 +194,7 @@ export class GeocodingService {
 
 	/**
 	 * Build a cache key from the request parameters.
+	 * Includes all options that can affect results to ensure cache correctness.
 	 */
 	private buildCacheKey(
 		type: 'geo' | 'rev',
@@ -209,10 +210,20 @@ export class GeocodingService {
 
 		if (options) {
 			if (options.countryCodes?.length) {
-				parts.push(`cc:${options.countryCodes.sort().join(',')}`);
+				// Copy array before sorting to avoid mutating caller's input
+				parts.push(`cc:${[...options.countryCodes].sort().join(',')}`);
 			}
 			if (options.language) {
 				parts.push(`l:${options.language}`);
+			}
+			if (options.proximity) {
+				// Round proximity to reduce cache fragmentation while maintaining accuracy
+				const roundedLat = Math.round(options.proximity.latitude * 1000) / 1000;
+				const roundedLng = Math.round(options.proximity.longitude * 1000) / 1000;
+				parts.push(`prox:${roundedLat},${roundedLng}`);
+			}
+			if (options.limit !== undefined) {
+				parts.push(`lim:${options.limit}`);
 			}
 		}
 
