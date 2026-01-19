@@ -126,17 +126,3 @@ export async function enrichItemsWithEngagement(
     engagement: metricsMap.get(item.slug),
   }));
 }
-
-/**
- * Sort items by popularity with real engagement data
- * This fetches engagement metrics and sorts accordingly
- * 
- * @param items - Array of items to sort
- * @returns Sorted items (most popular first)
- */
-export async function sortItemsByPopularity(
-  items: ItemData[]
-): Promise<ItemWithEngagement[]> {
-  const enrichedItems = await enrichItemsWithEngagement(items);
-  return enrichedItems.sort(sortByPopularity);
-}

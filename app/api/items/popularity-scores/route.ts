@@ -32,6 +32,12 @@ export async function GET(request: NextRequest) {
     const metricsMap = await getEngagementMetricsPerItem(slugs);
 
     // Calculate scores and create result
+    // Logarithmic scaling (matches production code in sort-utils.ts)
+    const logScale = (value: number, weight: number = 1000) => {
+      if (value <= 0) return 0;
+      return Math.log10(value + 1) * weight;
+    };
+
     const itemsWithScores = items.map(item => {
       const engagement = metricsMap.get(item.slug);
       let score = 0;
@@ -41,13 +47,13 @@ export async function GET(request: NextRequest) {
         score += 10000;
       }
 
-      // Engagement-based scoring
+      // Engagement-based scoring (logarithmic)
       if (engagement) {
-        score += Math.min(engagement.views, 5000);
-        score += Math.min(Math.max(engagement.votes * 20, 0), 2000);
-        score += Math.min(engagement.avgRating * 500, 2500);
-        score += Math.min(engagement.favorites * 30, 3000);
-        score += Math.min(engagement.comments * 50, 2500);
+        score += logScale(engagement.views, 1000);
+        score += logScale(Math.max(engagement.votes, 0), 1200);
+        score += engagement.avgRating * 500;
+        score += logScale(engagement.favorites, 1100);
+        score += logScale(engagement.comments, 1000);
       } else {
         // Fallback heuristic
         if (Array.isArray(item.tags)) {
@@ -82,11 +88,11 @@ export async function GET(request: NextRequest) {
         score: Math.round(score),
         scoreBreakdown: {
           featured: item.featured ? 10000 : 0,
-          views: engagement ? Math.min(engagement.views, 5000) : 0,
-          votes: engagement ? Math.min(Math.max(engagement.votes * 20, 0), 2000) : 0,
-          rating: engagement ? Math.round(Math.min(engagement.avgRating * 500, 2500)) : 0,
-          favorites: engagement ? Math.min(engagement.favorites * 30, 3000) : 0,
-          comments: engagement ? Math.min(engagement.comments * 50, 2500) : 0,
+          views: engagement ? Math.round(logScale(engagement.views, 1000)) : 0,
+          votes: engagement ? Math.round(logScale(Math.max(engagement.votes, 0), 1200)) : 0,
+          rating: engagement ? Math.round(engagement.avgRating * 500) : 0,
+          favorites: engagement ? Math.round(logScale(engagement.favorites, 1100)) : 0,
+          comments: engagement ? Math.round(logScale(engagement.comments, 1000)) : 0,
           recency: Math.round(
             ageInDays < 30 ? 1000 * (1 - ageInDays / 30) :
             ageInDays < 90 ? 500 * (1 - (ageInDays - 30) / 60) :
