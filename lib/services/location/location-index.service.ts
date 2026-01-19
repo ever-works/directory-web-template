@@ -325,6 +325,9 @@ export class LocationIndexService {
 	 * Query items within a radius of a point.
 	 * Uses bounding box pre-filtering and then precise Haversine distance calculation.
 	 *
+	 * Remote items (when includeRemote=true) are returned independently of distance
+	 * with distanceKm: undefined, appended after distance-sorted results.
+	 *
 	 * @param options - Query options
 	 * @returns Array of location query results with distances
 	 */
@@ -337,7 +340,7 @@ export class LocationIndexService {
 		// Calculate bounding box for initial filtering
 		const boundingBox = this.locationService.calculateBoundingBox(center, options.radiusKm);
 
-		// Query database with bounding box
+		// Query database with bounding box (excludes remote items at 0,0)
 		const candidates = await queryByBoundingBox({
 			minLat: boundingBox.minLat,
 			maxLat: boundingBox.maxLat,
@@ -345,12 +348,12 @@ export class LocationIndexService {
 			maxLng: boundingBox.maxLng,
 		});
 
-		// Filter candidates by precise distance
-		const results: LocationQueryResult[] = [];
+		// Filter candidates by precise distance (non-remote items only)
+		const locationResults: LocationQueryResult[] = [];
 
 		for (const candidate of candidates) {
-			// Skip remote items if not requested
-			if (candidate.isRemote && !options.includeRemote) {
+			// Skip remote items - they'll be handled separately
+			if (candidate.isRemote) {
 				continue;
 			}
 
@@ -363,7 +366,7 @@ export class LocationIndexService {
 			);
 
 			if (distanceKm <= options.radiusKm) {
-				results.push({
+				locationResults.push({
 					itemSlug: candidate.itemSlug,
 					distanceKm,
 					city: candidate.city,
@@ -372,8 +375,27 @@ export class LocationIndexService {
 			}
 		}
 
-		// Sort by distance
-		results.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+		// Sort location-based results by distance
+		locationResults.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+
+		// Handle remote items separately if requested
+		const remoteResults: LocationQueryResult[] = [];
+		if (options.includeRemote) {
+			const remoteEntries = await getAllLocationEntries();
+			for (const entry of remoteEntries) {
+				if (entry.isRemote) {
+					remoteResults.push({
+						itemSlug: entry.itemSlug,
+						distanceKm: undefined, // Remote items have no distance
+						city: entry.city,
+						country: entry.country,
+					});
+				}
+			}
+		}
+
+		// Combine results: location-based first (sorted by distance), then remote items
+		const results = [...locationResults, ...remoteResults];
 
 		// Apply limit if specified
 		if (options.limit && results.length > options.limit) {
