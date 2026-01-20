@@ -19,11 +19,11 @@ import { getLemonSqueezyPriceConfig } from '@/lib/config/billing/lemonsqueezy.co
 import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
 import { useSetupIntent } from './use-setup-intent';
-import { getStripePaymentMode } from '@/lib/stripe-helpers';
 import { useSubscription } from './use-subscription';
 import { usePaymentAvailability } from './use-payment-availability';
 import { useStripeProducts, isStripeDynamicPricingEnabled } from './use-stripe-products';
 import { mapStripeProductsToPricingPlans } from '@/lib/services/stripe-products.service';
+import { collectPaymentModeConfig } from '@/lib/config/schemas/payment.schema';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -147,10 +147,8 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	// Hooks for different payment providers
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
 
-	const isLemonSqueezyEmbedded = process.env.NEXT_PUBLIC_LEMONSQUEEZY_PAYMENT_FORM_ENABLED === 'true';
-
 	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
-		embedded: isLemonSqueezyEmbedded,
+		embedded: collectPaymentModeConfig().lemonSqueezy,
 		onPaymentSuccess: (event) => {
 			toast.success('Subscription created successfully!');
 			router.push('/checkout/success');
@@ -165,7 +163,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		},
 		dark: isDark
 	}); // Lemonsqueezy checkout hook
-	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout(); // Polar checkout hook
+	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout({
+		embedded: collectPaymentModeConfig().polar
+	}); // Polar checkout hook
 	const { createSubscription } = useSubscription(); // Subscription management hook
 
 	// Hook for payment flow
@@ -238,7 +238,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 
 	// Prefetch Stripe SetupIntent only if using Stripe embedded mode and user is logged in
 	const shouldPrefetch =
-		!isReview && !!user?.id && paymentProvider === PaymentProvider.STRIPE && getStripePaymentMode() === 'embedded';
+		!isReview && !!user?.id && paymentProvider === PaymentProvider.STRIPE && collectPaymentModeConfig().stripe;
 
 	const { clientSecret, isReady, isError } = useSetupIntent({
 		suppressSuccessToast: true,
@@ -386,7 +386,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 					}
 					// Create checkout session for Lemonsqueezy
 					// Set planForPayment to show in modal (only for embedded mode)
-					if (isLemonSqueezyEmbedded) {
+					if (collectPaymentModeConfig().lemonSqueezy) {
 						setPlanForPayment(plan);
 						setShowPaymentForm(true);
 					}
@@ -405,11 +405,18 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 							email: user.email,
 							currency: currency
 						},
-						embedded: isLemonSqueezyEmbedded,
+						embedded: collectPaymentModeConfig().lemonSqueezy,
 						dark: isDark
 					});
 				} else if (paymentProvider === PaymentProvider.POLAR) {
 					// Check if the product ID is valid
+					const polarPaymentMode = collectPaymentModeConfig().polar;
+					if (polarPaymentMode) {
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+						return;
+					}
+
 					if (!plan.polarProductId) {
 						toast.error('No product ID found for plan', {
 							description: `Plan: ${plan.name}, ID: ${plan.id}`
@@ -418,7 +425,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						setProcessingPlan(null);
 						return;
 					}
-					// Create checkout session for Polar
+
 					await polarHook.createCheckoutSession(
 						plan?.polarProductId || '',
 						user as any,
@@ -426,9 +433,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						billingInterval
 					);
 				} else if (paymentProvider === PaymentProvider.STRIPE) {
-					const stripePaymentMode = getStripePaymentMode();
+					const stripePaymentMode = collectPaymentModeConfig().stripe;
 
-					if (stripePaymentMode === 'embedded') {
+					if (stripePaymentMode) {
 						console.log('Using embedded payment mode');
 						setPlanForPayment(plan);
 						setShowPaymentForm(true);
@@ -507,14 +514,14 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		}
 
 		if (isSuccess) {
-			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && isLemonSqueezyEmbedded) {
+			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && collectPaymentModeConfig().lemonSqueezy) {
 				// Don't show toast for embedded mode as it opens immediately
 			} else {
 				toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
 			}
 			setProcessingPlan(null);
 		}
-	}, [error, isSuccess, paymentProvider, isLemonSqueezyEmbedded]);
+	}, [error, isSuccess, paymentProvider, collectPaymentModeConfig().lemonSqueezy]);
 
 	return {
 		// State
@@ -584,6 +591,10 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				if (paymentProvider === PaymentProvider.LEMONSQUEEZY) {
 					lemonsqueezyHook.clearCheckout();
 				}
+				// Clear checkout URL if using Polar
+				if (paymentProvider === PaymentProvider.POLAR) {
+					polarHook.reset();
+				}
 			},
 			onPaymentSuccess: async (paymentMethodId: string) => {
 				if (!planForPayment?.stripePriceId) {
@@ -612,7 +623,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				toast.error(`Payment failed: ${error.message}`);
 			},
 			clientSecret,
-			checkoutUrl: lemonsqueezyHook.checkoutUrl,
+			checkoutUrl: lemonsqueezyHook.checkoutUrl || polarHook.checkoutUrl,
 			isReady,
 			isError
 		}
