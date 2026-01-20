@@ -157,6 +157,18 @@ export class ItemGitService {
               reviewed_at: item.reviewed_at || item.updated_at || formatDateForYaml(),
               review_notes: item.review_notes,
               deleted_at: item.deleted_at, // Include soft delete timestamp
+              // Parse location data if present
+              location: item.location ? {
+                address: item.location.address,
+                city: item.location.city,
+                state: item.location.state,
+                country: item.location.country,
+                postal_code: item.location.postal_code,
+                latitude: item.location.latitude,
+                longitude: item.location.longitude,
+                service_area: item.location.service_area,
+                is_remote: item.location.is_remote ?? false,
+              } : undefined,
             };
 
             // Filter out deleted items unless includeDeleted is true
@@ -226,6 +238,18 @@ export class ItemGitService {
           review_notes: item.review_notes,
           deleted_at: item.deleted_at,
           collections: Array.isArray(item.collections) ? item.collections : (item.collections ? [item.collections] : []),
+          // Parse location data if present
+          location: item.location ? {
+            address: item.location.address,
+            city: item.location.city,
+            state: item.location.state,
+            country: item.location.country,
+            postal_code: item.location.postal_code,
+            latitude: item.location.latitude,
+            longitude: item.location.longitude,
+            service_area: item.location.service_area,
+            is_remote: item.location.is_remote ?? false,
+          } : undefined,
         };
 
         if (includeDeleted || !normalized.deleted_at) {
@@ -274,6 +298,11 @@ export class ItemGitService {
       // Include deleted_at for soft delete (only if set)
       if (item.deleted_at) {
         itemData.deleted_at = item.deleted_at;
+      }
+
+      // Include location data if present
+      if (item.location) {
+        itemData.location = item.location;
       }
 
       // Write item data
@@ -360,6 +389,7 @@ export class ItemGitService {
       status: data.status || 'draft',
       submitted_by: data.submitted_by || 'anonymous',
       submitted_at: formatDateForYaml(),
+      location: data.location,
     };
 
     await this.writeItem(newItem);

@@ -296,6 +296,10 @@ export interface FooterConfigSettings {
 	theme_selector_enabled?: boolean;
 }
 
+// Import and re-export from canonical location types module
+import type { LocationConfigSettings as LocationConfigSettingsType } from '@/lib/types/location';
+export type LocationConfigSettings = LocationConfigSettingsType;
+
 export interface LogoSettings {
 	logo_image?: string; // Path to logo image (e.g., "/logo.png")
 	logo_image_dark?: string; // Optional dark mode variant
@@ -310,6 +314,7 @@ export interface Settings {
 	header?: HeaderConfigSettings;
 	homepage?: HomepageSettings;
 	footer?: FooterConfigSettings;
+	location?: LocationConfigSettings;
 }
 
 export interface CustomHeroConfig {

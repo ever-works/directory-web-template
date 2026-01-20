@@ -103,6 +103,31 @@ class SyncManager {
       await invalidateContentCaches();
       console.log('[SYNC_MANAGER] Content caches invalidated');
 
+      // Location Index: Rebuild index after content sync (non-blocking)
+      try {
+        const { getLocationEnabled } = await import('@/lib/utils/settings');
+        if (getLocationEnabled()) {
+          const { getLocationIndexService } = await import('@/lib/services/location');
+          const { ItemRepository } = await import('@/lib/repositories/item.repository');
+
+          const locationIndexService = getLocationIndexService();
+          const itemRepository = new ItemRepository();
+          const allItems = await itemRepository.findAll();
+
+          const rebuildResult = await locationIndexService.rebuildIndex(allItems);
+          console.log('[SYNC_MANAGER] Location index rebuilt', {
+            indexed: rebuildResult.indexed,
+            skipped: rebuildResult.skipped,
+            failed: rebuildResult.failed,
+            durationMs: rebuildResult.durationMs,
+          });
+        }
+      } catch (locationError) {
+        console.error('[SYNC_MANAGER] Failed to rebuild location index', {
+          error: locationError instanceof Error ? locationError.message : String(locationError),
+        });
+      }
+
       return result;
 
     } catch (error) {
