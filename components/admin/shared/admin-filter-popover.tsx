@@ -42,9 +42,9 @@ export interface FilterSection<T = string> {
 	noResultsMessage?: string;
 }
 
-export interface AdminFilterPopoverProps {
+export interface AdminFilterPopoverProps<T extends string = string> {
 	/** Filter sections to display */
-	sections: FilterSection<string>[];
+	sections: FilterSection<T>[];
 	/** Number of active filters (shown in badge) */
 	activeCount?: number;
 	/** Callback to clear all filters */
@@ -222,14 +222,14 @@ function FilterSectionContent<T extends string>({
  * />
  * ```
  */
-export function AdminFilterPopover({
+export function AdminFilterPopover<T extends string = string>({
 	sections,
 	activeCount = 0,
 	onClearAll,
 	triggerLabel,
 	align = 'end',
 	triggerClassName,
-}: AdminFilterPopoverProps) {
+}: AdminFilterPopoverProps<T>) {
 	const t = useTranslations('admin.SHARED');
 	const [sectionSearches, setSectionSearches] = useState<Record<string, string>>({});
 

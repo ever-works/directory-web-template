@@ -6,7 +6,10 @@ import { AdminStatusTabs, type StatusTabOption } from './admin-status-tabs';
 import { AdminFilterPopover, type FilterSection } from './admin-filter-popover';
 import { AdminActiveFilters, type ActiveFilter } from './admin-active-filters';
 
-export interface AdminFilterToolbarProps<TStatus extends string = string> {
+export interface AdminFilterToolbarProps<
+	TStatus extends string = string,
+	TFilter extends string = string,
+> {
 	// Search props (required)
 	/** Current search value */
 	searchValue: string;
@@ -31,7 +34,7 @@ export interface AdminFilterToolbarProps<TStatus extends string = string> {
 
 	// Filter popover props (optional)
 	/** Filter sections for the popover */
-	filterSections?: FilterSection<string>[];
+	filterSections?: FilterSection<TFilter>[];
 	/** Number of active filters (shown in badge) */
 	activeFilterCount?: number;
 	/** Filter popover trigger label */
@@ -87,7 +90,10 @@ export interface AdminFilterToolbarProps<TStatus extends string = string> {
  * />
  * ```
  */
-export function AdminFilterToolbar<TStatus extends string = string>({
+export function AdminFilterToolbar<
+	TStatus extends string = string,
+	TFilter extends string = string,
+>({
 	// Search props
 	searchValue,
 	onSearchChange,
@@ -116,7 +122,7 @@ export function AdminFilterToolbar<TStatus extends string = string>({
 	// Layout
 	layout = 'inline',
 	className,
-}: AdminFilterToolbarProps<TStatus>) {
+}: AdminFilterToolbarProps<TStatus, TFilter>) {
 	const hasStatusTabs = statusOptions && statusOptions.length > 0 && onStatusChange;
 	const hasFilterPopover = filterSections && filterSections.length > 0;
 	const hasActiveFilters = activeFilters && activeFilters.length > 0 && onRemoveFilter;
