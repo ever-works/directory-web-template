@@ -155,11 +155,17 @@ export function useAdminFilters<TStatus extends string = string>(
 		setMultiFilters((prev) => ({ ...prev, [filterName]: [] }));
 	}, []);
 
-	// Clear all filters
+	// Clear all filters (preserves keys with empty arrays)
 	const clearAllFilters = useCallback(() => {
 		setSearchTerm('');
 		setStatusFilter('' as TStatus | '');
-		setMultiFilters({});
+		setMultiFilters((prev) => {
+			const cleared: Record<string, string[]> = {};
+			Object.keys(prev).forEach((key) => {
+				cleared[key] = [];
+			});
+			return cleared;
+		});
 	}, []);
 
 	const clearSearch = useCallback(() => {

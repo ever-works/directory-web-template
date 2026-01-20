@@ -93,6 +93,9 @@ export function AdminSearchBar({
 	const iconPosition = ICON_POSITIONS[size];
 	const iconSize = ICON_SIZES[size];
 
+	// Ensure accessible label is always present
+	const effectivePlaceholder = placeholder || t('SEARCH_PLACEHOLDER');
+
 	return (
 		<div className={cn('relative', className)}>
 			{/* Search Icon */}
@@ -110,8 +113,8 @@ export function AdminSearchBar({
 				type="text"
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
-				placeholder={placeholder}
-				aria-label={ariaLabel || placeholder}
+				placeholder={effectivePlaceholder}
+				aria-label={ariaLabel || effectivePlaceholder}
 				className={cn(INPUT_BASE_CLASSES, sizeClasses)}
 			/>
 
