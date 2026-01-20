@@ -24,3 +24,7 @@ export * from './use-client-item-filters';
 
 // Location settings hook
 export * from './use-location-settings';
+
+// Map provider and geolocation hooks
+export * from './use-map-provider';
+export * from './use-geolocation';
