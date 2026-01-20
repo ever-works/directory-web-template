@@ -22,7 +22,7 @@ export interface AdminFilterToolbarProps<TStatus extends string = string> {
 	// Status tabs props (optional)
 	/** Status tab options */
 	statusOptions?: StatusTabOption<TStatus>[];
-	/** Currently selected status */
+	/** Currently selected status (defaults to '' if not provided) */
 	statusValue?: TStatus | '';
 	/** Callback when status changes */
 	onStatusChange?: (status: TStatus | '') => void;
@@ -146,7 +146,7 @@ export function AdminFilterToolbar<TStatus extends string = string>({
 						{hasStatusTabs && (
 							<AdminStatusTabs
 								options={statusOptions}
-								value={statusValue!}
+								value={statusValue ?? ''}
 								onChange={onStatusChange}
 								showCounts={showStatusCounts}
 							/>
