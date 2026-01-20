@@ -2123,7 +2123,7 @@
       "PENDING_REVIEW": "En Attente de Révision",
       "APPROVED": "Approuvé",
       "REJECTED": "Rejeté",
-      "ITEMS_TABLE_TITLE": "Éléments ({count})",
+      "ITEMS_TABLE_TITLE": "Éléments",
       "UNTITLED": "Sans Titre",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

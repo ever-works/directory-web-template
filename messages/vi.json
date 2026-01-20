@@ -2122,7 +2122,7 @@
       "PENDING_REVIEW": "Đang chờ xem xét",
       "APPROVED": "Đã duyệt",
       "REJECTED": "Đã từ chối",
-      "ITEMS_TABLE_TITLE": "Mục ({count})",
+      "ITEMS_TABLE_TITLE": "Mục",
       "UNTITLED": "Chưa có tiêu đề",
       "ID_LABEL": "NHẬN DẠNG:",
       "SLUG_LABEL": "Sên:",

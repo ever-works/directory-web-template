@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "In afwachting van beoordeling",
       "APPROVED": "Goedgekeurd",
       "REJECTED": "Afgewezen",
-      "ITEMS_TABLE_TITLE": "Items ({count})",
+      "ITEMS_TABLE_TITLE": "Artikelen",
       "UNTITLED": "Zonder titel",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

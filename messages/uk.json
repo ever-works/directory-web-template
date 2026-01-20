@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "Очікує перевірки",
       "APPROVED": "Схвалено",
       "REJECTED": "Відхилено",
-      "ITEMS_TABLE_TITLE": "Елементи ({count})",
+      "ITEMS_TABLE_TITLE": "Елементи",
       "UNTITLED": "Без назви",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

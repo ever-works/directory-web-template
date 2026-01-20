@@ -2026,7 +2026,7 @@
       "PENDING_REVIEW": "ממתין לבדיקה",
       "APPROVED": "מאושר",
       "REJECTED": "נדחה",
-      "ITEMS_TABLE_TITLE": "פריטים ({count})",
+      "ITEMS_TABLE_TITLE": "פריטים",
       "UNTITLED": "ללא כותרת",
       "ID_LABEL": "מזהה:",
       "SLUG_LABEL": "Slug:",

@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "Aguardando Revisão",
       "APPROVED": "Aprovado",
       "REJECTED": "Rejeitado",
-      "ITEMS_TABLE_TITLE": "Itens ({count})",
+      "ITEMS_TABLE_TITLE": "Itens",
       "UNTITLED": "Sem Título",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",
