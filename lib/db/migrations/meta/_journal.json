@@ -183,6 +183,20 @@
       "when": 1768748607036,
       "tag": "0025_overconfident_moon_knight",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1768852919182,
+      "tag": "0026_exotic_clea",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1768853335040,
+      "tag": "0027_minor_mesmero",
+      "breakpoints": true
     }
   ]
 }
