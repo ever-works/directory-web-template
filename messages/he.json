@@ -1329,6 +1329,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "חיפוש...",
+      "CLEAR_SEARCH": "נקה חיפוש",
+      "FILTERS": "מסננים",
+      "CLEAR_ALL": "נקה הכל",
+      "CLEAR_ALL_FILTERS": "נקה את כל המסננים",
+      "ACTIVE_FILTERS": "מסננים פעילים",
+      "REMOVE_FILTER": "הסר מסנן {name}",
+      "NO_RESULTS": "לא נמצאו תוצאות",
+      "SEARCH_IN": "חפש ב-{name}...",
+      "STATUS_ALL": "הכל"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {

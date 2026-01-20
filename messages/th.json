@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "ค้นหา...",
+      "CLEAR_SEARCH": "ล้างการค้นหา",
+      "FILTERS": "ตัวกรอง",
+      "CLEAR_ALL": "ล้างทั้งหมด",
+      "CLEAR_ALL_FILTERS": "ล้างตัวกรองทั้งหมด",
+      "ACTIVE_FILTERS": "ตัวกรองที่ใช้งาน",
+      "REMOVE_FILTER": "ลบตัวกรอง {name}",
+      "NO_RESULTS": "ไม่พบผลลัพธ์",
+      "SEARCH_IN": "ค้นหาใน {name}...",
+      "STATUS_ALL": "ทั้งหมด"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {

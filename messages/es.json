@@ -1357,6 +1357,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Buscar...",
+      "CLEAR_SEARCH": "Limpiar búsqueda",
+      "FILTERS": "Filtros",
+      "CLEAR_ALL": "Limpiar todo",
+      "CLEAR_ALL_FILTERS": "Limpiar todos los filtros",
+      "ACTIVE_FILTERS": "Filtros activos",
+      "REMOVE_FILTER": "Eliminar filtro {name}",
+      "NO_RESULTS": "No se encontraron resultados",
+      "SEARCH_IN": "Buscar en {name}...",
+      "STATUS_ALL": "Todos"
+    },
     "DASHBOARD_TITLE": "Panel de Administración",
     "WELCOME_MESSAGE": "¡Bienvenido, {adminName}! Usa las herramientas a continuación para gestionar la plataforma.",
     "TOP_ITEMS": {

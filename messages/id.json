@@ -1425,6 +1425,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Cari...",
+      "CLEAR_SEARCH": "Hapus pencarian",
+      "FILTERS": "Filter",
+      "CLEAR_ALL": "Hapus semua",
+      "CLEAR_ALL_FILTERS": "Hapus semua filter",
+      "ACTIVE_FILTERS": "Filter aktif",
+      "REMOVE_FILTER": "Hapus filter {name}",
+      "NO_RESULTS": "Tidak ada hasil ditemukan",
+      "SEARCH_IN": "Cari di {name}...",
+      "STATUS_ALL": "Semua"
+    },
     "DASHBOARD_TITLE": "Dasbor Admin",
     "WELCOME_MESSAGE": "Selamat datang, {adminName}! Gunakan alat di bawah untuk mengelola platform.",
     "TOP_ITEMS": {

@@ -1426,6 +1426,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Rechercher...",
+      "CLEAR_SEARCH": "Effacer la recherche",
+      "FILTERS": "Filtres",
+      "CLEAR_ALL": "Tout effacer",
+      "CLEAR_ALL_FILTERS": "Effacer tous les filtres",
+      "ACTIVE_FILTERS": "Filtres actifs",
+      "REMOVE_FILTER": "Supprimer le filtre {name}",
+      "NO_RESULTS": "Aucun résultat trouvé",
+      "SEARCH_IN": "Rechercher dans {name}...",
+      "STATUS_ALL": "Tous"
+    },
     "DASHBOARD_TITLE": "Tableau de Bord Administrateur",
     "WELCOME_MESSAGE": "Bienvenue, {adminName} ! Utilisez les outils ci-dessous pour gérer la plateforme.",
     "TOP_ITEMS": {

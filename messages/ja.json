@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "検索...",
+      "CLEAR_SEARCH": "検索をクリア",
+      "FILTERS": "フィルター",
+      "CLEAR_ALL": "すべてクリア",
+      "CLEAR_ALL_FILTERS": "すべてのフィルターをクリア",
+      "ACTIVE_FILTERS": "アクティブなフィルター",
+      "REMOVE_FILTER": "{name}フィルターを削除",
+      "NO_RESULTS": "結果が見つかりません",
+      "SEARCH_IN": "{name}で検索...",
+      "STATUS_ALL": "すべて"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {

@@ -21,3 +21,6 @@ export * from './use-auto-renewal';
 export * from './use-client-items';
 export * from './use-client-item-details';
 export * from './use-client-item-filters';
+
+// Admin filter utilities
+export * from './use-admin-filters';

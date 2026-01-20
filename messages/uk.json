@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Пошук...",
+      "CLEAR_SEARCH": "Очистити пошук",
+      "FILTERS": "Фільтри",
+      "CLEAR_ALL": "Очистити все",
+      "CLEAR_ALL_FILTERS": "Очистити всі фільтри",
+      "ACTIVE_FILTERS": "Активні фільтри",
+      "REMOVE_FILTER": "Видалити фільтр {name}",
+      "NO_RESULTS": "Результатів не знайдено",
+      "SEARCH_IN": "Шукати в {name}...",
+      "STATUS_ALL": "Всі"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {
