@@ -1,3 +1,19 @@
+/**
+ * Location data for items that can be geocoded.
+ * This data is stored in YAML and indexed in item_location_index for fast geo queries.
+ */
+export interface ItemLocationData {
+  address?: string; // Full address string for geocoding
+  city?: string;
+  state?: string;
+  country?: string;
+  postal_code?: string;
+  latitude?: number; // Pre-geocoded latitude (optional)
+  longitude?: number; // Pre-geocoded longitude (optional)
+  service_area?: string; // Service area description (e.g., "Nationwide", "New York Metro")
+  is_remote?: boolean; // Whether this item operates remotely/virtually
+}
+
 export interface ItemData {
   id: string;
   name: string;
@@ -20,6 +36,8 @@ export interface ItemData {
   action?: 'visit-website' | 'start-survey' | 'buy'; // CTA action type
   showSurveys?: boolean; // Whether to show surveys section (default: true)
   publisher?: string; // Publisher name for display
+  // Location fields
+  location?: ItemLocationData;
 }
 
 export interface CreateItemRequest {
@@ -36,6 +54,7 @@ export interface CreateItemRequest {
   icon_url?: string;
   status?: 'draft' | 'pending' | 'approved' | 'rejected';
   submitted_by?: string;
+  location?: ItemLocationData;
 }
 
 export interface UpdateItemRequest extends Partial<CreateItemRequest> {
@@ -60,6 +79,10 @@ export interface ItemListOptions {
   includeDeleted?: boolean; // Include soft-deleted items (default: false)
   submittedBy?: string; // Filter by user who submitted
   search?: string; // Search by name or description
+  // Location-based filtering
+  city?: string; // Filter by city
+  country?: string; // Filter by country
+  includeRemote?: boolean; // Include remote items in location queries
 }
 
 export interface ItemListResponse {
