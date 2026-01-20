@@ -12,7 +12,7 @@
  * - Index statistics
  */
 
-import type { ItemData, ItemLocationData } from '@/lib/types/item';
+import type { ItemData } from '@/lib/types/item';
 import type { LocationQueryResult } from '@/lib/types/location';
 import {
 	upsertLocationIndex,
@@ -26,7 +26,6 @@ import {
 	queryByCountry,
 	queryRemoteItems,
 	getAllIndexedSlugs,
-	getAllLocationEntries,
 	getRemoteLocationEntries,
 	getLocationIndexStats,
 	updateLocationIndexMeta,
