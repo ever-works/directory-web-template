@@ -3,6 +3,7 @@
 import { Search, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useTranslations } from 'next-intl';
 
 export interface AdminSearchBarProps {
 	/** Current search value */
@@ -79,6 +80,7 @@ export function AdminSearchBar({
 	showClearButton = true,
 	size = 'md',
 }: AdminSearchBarProps) {
+	const t = useTranslations('admin.SHARED');
 	const handleClear = () => onChange('');
 
 	const sizeClasses = SIZE_CLASSES[size];
@@ -119,7 +121,7 @@ export function AdminSearchBar({
 						type="button"
 						onClick={handleClear}
 						className={cn(CLEAR_BUTTON_CLASSES, iconPosition.right)}
-						aria-label="Clear search"
+						aria-label={t('CLEAR_SEARCH')}
 					>
 						<X
 							className={cn(
