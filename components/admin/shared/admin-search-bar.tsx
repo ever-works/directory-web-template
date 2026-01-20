@@ -57,11 +57,17 @@ const CLEAR_BUTTON_CLASSES = cn(
 );
 
 /**
- * Debounced search input component for admin pages.
+ * Search input component for admin pages.
  * Shows loading spinner while searching, clear button when text is present.
+ *
+ * Note: This is a presentational component. It does NOT implement debouncing.
+ * Use with `useAdminFilters` hook to get debounced search (300ms, 2 char min).
  *
  * @example
  * ```tsx
+ * // Recommended: Use with useAdminFilters for debouncing
+ * const { searchTerm, setSearchTerm, isSearching } = useAdminFilters();
+ *
  * <AdminSearchBar
  *   value={searchTerm}
  *   onChange={setSearchTerm}
