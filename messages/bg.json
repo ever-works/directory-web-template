@@ -2121,7 +2121,7 @@
       "PENDING_REVIEW": "Чакащи преглед",
       "APPROVED": "Одобрени",
       "REJECTED": "Отхвърлени",
-      "ITEMS_TABLE_TITLE": "Елементи ({count})",
+      "ITEMS_TABLE_TITLE": "Елементи",
       "UNTITLED": "Без заглавие",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

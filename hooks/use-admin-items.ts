@@ -62,11 +62,18 @@ export interface BulkActionResponse {
   };
 }
 
+// Stats filter params type
+interface StatsFilterParams {
+  search?: string;
+  categories?: string[];
+  tags?: string[];
+}
+
 // Query keys
 const QUERY_KEYS = {
   items: ['admin', 'items'] as const,
   itemsList: (params: ItemsListParams) => [...QUERY_KEYS.items, 'list', params] as const,
-  itemStats: () => [...QUERY_KEYS.items, 'stats'] as const,
+  itemStats: (params?: StatsFilterParams) => [...QUERY_KEYS.items, 'stats', params] as const,
 } as const;
 
 // API functions
@@ -91,13 +98,21 @@ const fetchItems = async (params: ItemsListParams = {}): Promise<ItemsListRespon
   return response.data;
 };
 
-const fetchItemStats = async (): Promise<ItemStatsResponse> => {
-  const response = await serverClient.get<{ success: boolean; data: ItemStatsResponse }>('/api/admin/items/stats');
-  
+const fetchItemStats = async (params?: StatsFilterParams): Promise<ItemStatsResponse> => {
+  const searchParams = new URLSearchParams();
+  if (params?.search) searchParams.set('search', params.search);
+  if (params?.categories && params.categories.length > 0) searchParams.set('categories', params.categories.join(','));
+  if (params?.tags && params.tags.length > 0) searchParams.set('tags', params.tags.join(','));
+
+  const queryString = searchParams.toString();
+  const url = queryString ? `/api/admin/items/stats?${queryString}` : '/api/admin/items/stats';
+
+  const response = await serverClient.get<{ success: boolean; data: ItemStatsResponse }>(url);
+
   if (!apiUtils.isSuccess(response)) {
     throw new Error(apiUtils.getErrorMessage(response));
   }
-  
+
   return response.data.data;
 };
 
@@ -151,6 +166,13 @@ const bulkAction = async (data: BulkActionRequest): Promise<BulkActionResponse> 
 
 // Hook
 export function useAdminItems(params: ItemsListParams = {}) {
+  // Extract filter params for stats query
+  const statsParams: StatsFilterParams = {
+    search: params.search,
+    categories: params.categories,
+    tags: params.tags,
+  };
+
   // Fetch items
   const {
     data: itemsData,
@@ -168,14 +190,14 @@ export function useAdminItems(params: ItemsListParams = {}) {
     placeholderData: keepPreviousData, // Keep previous data while fetching new data
   });
 
-  // Fetch stats
+  // Fetch stats with filter params so counters update with search/filter
   const {
     data: stats,
     isLoading: isStatsLoading,
     refetch: refetchStats,
   } = useQuery({
-    queryKey: QUERY_KEYS.itemStats(),
-    queryFn: fetchItemStats,
+    queryKey: QUERY_KEYS.itemStats(statsParams),
+    queryFn: () => fetchItemStats(statsParams),
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

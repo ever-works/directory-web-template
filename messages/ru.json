@@ -2121,7 +2121,7 @@
       "PENDING_REVIEW": "Ожидают проверки",
       "APPROVED": "Одобрены",
       "REJECTED": "Отклонены",
-      "ITEMS_TABLE_TITLE": "Элементы ({count})",
+      "ITEMS_TABLE_TITLE": "Элементы",
       "UNTITLED": "Без названия",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

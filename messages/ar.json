@@ -2052,7 +2052,7 @@
       "PENDING_REVIEW": "في انتظار المراجعة",
       "APPROVED": "معتمد",
       "REJECTED": "مرفوض",
-      "ITEMS_TABLE_TITLE": "العناصر ({count})",
+      "ITEMS_TABLE_TITLE": "العناصر",
       "UNTITLED": "بدون عنوان",
       "ID_LABEL": "المعرف:",
       "SLUG_LABEL": "الرابط:",

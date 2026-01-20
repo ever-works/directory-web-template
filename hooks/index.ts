@@ -24,3 +24,5 @@ export * from './use-client-item-filters';
 
 // Location settings hook
 export * from './use-location-settings';
+// Item engagement hooks (for popularity sorting)
+export * from './use-item-engagement';

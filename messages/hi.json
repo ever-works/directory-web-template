@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "समीक्षा लंबित",
       "APPROVED": "स्वीकृत",
       "REJECTED": "अस्वीकृत",
-      "ITEMS_TABLE_TITLE": "आइटम ({count})",
+      "ITEMS_TABLE_TITLE": "आइटम",
       "UNTITLED": "बिना शीर्षक",
       "ID_LABEL": "आईडी:",
       "SLUG_LABEL": "स्लग:",

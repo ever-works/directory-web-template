@@ -191,13 +191,15 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Debug: Log the request parameters
-		console.log('[LemonSqueezy Checkout] Creating checkout with:', {
-			email: session.user.email,
-			variantId: body.variantId,
-			customPrice: body.customPrice,
-			dark: body.dark
-		});
+		// Debug: Log the request parameters (development only, with sanitized PII)
+		if (process.env.NODE_ENV === 'development') {
+			console.log('[LemonSqueezy Checkout] Creating checkout with:', {
+				email: session.user.email ? `${session.user.email.substring(0, 3)}***` : undefined,
+				variantId: body.variantId,
+				customPrice: body.customPrice ? '[REDACTED]' : undefined,
+				dark: body.dark
+			});
+		}
 
 		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout({
 			email: session.user.email!,

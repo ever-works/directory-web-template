@@ -2032,7 +2032,7 @@
       "PENDING_REVIEW": "レビュー待ち",
       "APPROVED": "承認済み",
       "REJECTED": "却下済み",
-      "ITEMS_TABLE_TITLE": "アイテム ({count})",
+      "ITEMS_TABLE_TITLE": "アイテム",
       "UNTITLED": "無題",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "スラッグ:",
