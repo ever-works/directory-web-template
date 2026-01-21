@@ -2,6 +2,9 @@
  * Google Maps Provider
  *
  * Implementation of IMapProvider using Google Maps JavaScript API.
+ *
+ * @security Uses NEXT_PUBLIC_GOOGLE_MAPS_API_KEY (browser-exposed).
+ * Only use HTTP referrer-restricted keys, never unrestricted or server keys.
  */
 
 /// <reference types="@types/google.maps" />

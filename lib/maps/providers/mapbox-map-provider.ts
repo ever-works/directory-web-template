@@ -2,6 +2,9 @@
  * Mapbox Map Provider
  *
  * Implementation of IMapProvider using Mapbox GL JS.
+ *
+ * @security Uses NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN (browser-exposed).
+ * Only use public tokens (pk.*) with URL restrictions, never secret tokens (sk.*).
  */
 
 import type {
