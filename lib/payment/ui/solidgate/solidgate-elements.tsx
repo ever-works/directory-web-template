@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { PaymentFormProps } from '../../types/payment-types';
-import Payment, { SdkMessage } from '@solidgate/react-sdk';
+import Payment from '@solidgate/react-sdk';
 
 // Wrapper with Solidgate Payment SDK
 interface SolidgateElementsWrapperProps extends PaymentFormProps {
@@ -81,14 +81,6 @@ export function SolidgatePaymentForm({
 	);
 
 	// Handle SDK messages if the SDK provides message callbacks
-	const handleMessage = useCallback((message: SdkMessage) => {
-		// Handle different message types from SDK
-		// The exact structure depends on the SDK implementation
-		if (message) {
-			// Process SDK message
-			// This is a placeholder - adjust based on actual SDK message structure
-		}
-	}, []);
 
 	return (
 		<div className="solidgate-payment-form space-y-4">
