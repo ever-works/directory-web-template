@@ -5,14 +5,9 @@ import { MapPin, Loader2, AlertCircle, Maximize2, Minimize2 } from 'lucide-react
 import { cn } from '@/lib/utils';
 import { useMapProviderInstance } from '@/hooks/use-map-provider';
 import { useLocationSettings } from '@/hooks/use-location-settings';
-import type { MapComponentProps, MapMarkerData, Coordinates } from '@/lib/maps/types';
+import type { MapComponentProps, MapMarkerData } from '@/lib/maps/types';
 import type { IMapInstance, IClustererInstance } from '@/lib/maps/providers/map-provider.interface';
 
-// Default map center (San Francisco)
-const DEFAULT_CENTER: Coordinates = {
-	latitude: 37.7749,
-	longitude: -122.4194
-};
 const DEFAULT_ZOOM = 12;
 
 // CSS class names extracted for reusability
@@ -46,7 +41,7 @@ const mapErrorStyles =
  */
 export function Map({
 	markers = [],
-	center = DEFAULT_CENTER,
+	center,
 	zoom = DEFAULT_ZOOM,
 	style,
 	className,
@@ -69,6 +64,9 @@ export function Map({
 	ariaLabel
 }: MapComponentProps): React.ReactElement {
 	const { settings } = useLocationSettings();
+
+	// Use provided center or fall back to configured default
+	const mapCenter = center ?? settings.defaultCenter;
 	const { provider, isLoading: providerLoading, error: providerError } = useMapProviderInstance();
 
 	const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -100,7 +98,7 @@ export function Map({
 	// Memoize initial config to prevent re-initialization on prop changes
 	const initialConfig = useMemo(
 		() => ({
-			center,
+			center: mapCenter,
 			zoom,
 			mapStyle,
 			controls,
@@ -231,8 +229,8 @@ export function Map({
 	// Update map center when it changes
 	useEffect(() => {
 		if (!mapInstanceRef.current) return;
-		mapInstanceRef.current.setCenter(center);
-	}, [center]);
+		mapInstanceRef.current.setCenter(mapCenter);
+	}, [mapCenter]);
 
 	// Update map zoom when it changes
 	useEffect(() => {

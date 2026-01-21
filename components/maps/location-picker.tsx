@@ -23,11 +23,6 @@ const SERVICE_AREA_OPTIONS: Array<{ value: ServiceArea; label: string; icon: Rea
 	{ value: 'global', label: 'Global', icon: Globe }
 ];
 
-// Default map center (San Francisco)
-const DEFAULT_CENTER: Coordinates = {
-	latitude: 37.7749,
-	longitude: -122.4194
-};
 const DEFAULT_ZOOM = 14;
 
 /**
@@ -195,7 +190,7 @@ export function LocationPicker({
 			try {
 				// Initialize map if container is available
 				if (mapContainerRef.current) {
-					const centerPoint = initialCoordinates || DEFAULT_CENTER;
+					const centerPoint = initialCoordinates || settings.defaultCenter;
 
 					const mapInstance = await provider.createMap(mapContainerRef.current, {
 						center: centerPoint,
@@ -272,7 +267,7 @@ export function LocationPicker({
 				mapInstanceRef.current = null;
 			}
 		};
-	}, [provider, showMap, isDisabled, settings.mapStyle, initialCoordinates]);
+	}, [provider, showMap, isDisabled, settings.mapStyle, settings.defaultCenter, initialCoordinates]);
 
 	// Update marker position when value changes externally
 	useEffect(() => {
