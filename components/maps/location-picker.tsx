@@ -77,7 +77,6 @@ export function LocationPicker({
 	const [isMapLoading, setIsMapLoading] = useState(true);
 	const [isServiceAreaOpen, setIsServiceAreaOpen] = useState(false);
 
-	const isLoading = externalLoading || providerLoading || geoLoading;
 	const currentAddress = value?.address || '';
 	const currentCoordinates = useMemo<Coordinates | null>(() => {
 		if (value?.latitude && value?.longitude) {
