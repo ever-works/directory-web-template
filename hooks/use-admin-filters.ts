@@ -13,7 +13,10 @@ export interface AdminFiltersConfig<TStatus extends string = string> {
 	initialStatus?: TStatus | '';
 	/** Initial multi-select filter values keyed by filter name */
 	initialMultiFilters?: Record<string, string[]>;
-	/** Callback when filters change (useful for page reset) */
+	/**
+	 * Callback when filters change (useful for page reset).
+	 * Note: Does not need to be memoized - stored in ref internally.
+	 */
 	onFiltersChange?: () => void;
 }
 
@@ -95,19 +98,28 @@ export function useAdminFilters<TStatus extends string = string>(
 	// Track if this is the initial mount to prevent triggering onFiltersChange on mount
 	const isInitialMount = useRef(true);
 
+	// Store onFiltersChange in ref to avoid dependency issues
+	// This prevents re-running effects when consumer passes non-memoized callbacks
+	const onFiltersChangeRef = useRef(onFiltersChange);
+	useEffect(() => {
+		onFiltersChangeRef.current = onFiltersChange;
+	}, [onFiltersChange]);
+
 	// Debounced search with minimum length requirement
 	const trimmedSearch = searchTerm.trim();
 	const searchToDebounce = trimmedSearch.length >= minSearchLength ? trimmedSearch : '';
 
+	// Memoized onSearch callback to prevent unnecessary recreation
+	const handleSearchChange = useCallback(() => {
+		if (!isInitialMount.current) {
+			onFiltersChangeRef.current?.();
+		}
+	}, []);
+
 	const { debouncedValue: debouncedSearchTerm, isSearching } = useDebounceSearch({
 		searchValue: searchToDebounce,
 		delay: debounceDelay,
-		onSearch: () => {
-			// Only trigger on actual searches, not initial empty state
-			if (!isInitialMount.current) {
-				onFiltersChange?.();
-			}
-		},
+		onSearch: handleSearchChange,
 	});
 
 	// Track filter changes for page reset (status and multi-filters)
@@ -116,8 +128,8 @@ export function useAdminFilters<TStatus extends string = string>(
 			isInitialMount.current = false;
 			return;
 		}
-		onFiltersChange?.();
-	}, [statusFilter, multiFilters, onFiltersChange]);
+		onFiltersChangeRef.current?.();
+	}, [statusFilter, multiFilters]);
 
 	// Derived state
 	const hasActiveSearch = trimmedSearch.length >= minSearchLength;
