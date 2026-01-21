@@ -61,7 +61,7 @@ export function LocationPicker({
 	ariaDescribedBy
 }: LocationPickerProps): React.ReactElement {
 	const { settings } = useLocationSettings();
-	const { provider, isLoading: providerLoading } = useMapProviderInstance();
+	const { provider } = useMapProviderInstance();
 	const { isLoading: geoLoading, requestLocation, permission } = useGeolocation();
 
 	const mapContainerRef = useRef<HTMLDivElement>(null);
