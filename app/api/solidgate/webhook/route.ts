@@ -7,6 +7,11 @@ import { PaymentProvider } from '@/lib/constants';
 
 const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvider.SOLIDGATE);
 
+// In-memory cache for webhook idempotency
+// Note: In a production serverless environment, this should be replaced with Redis or a database table
+const processedWebhooks = new Set<string>();
+const WEBHOOK_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 /**
  * @swagger
  * /api/solidgate/webhook:
@@ -94,7 +99,22 @@ export async function POST(request: NextRequest) {
 
 		// Get or create Solidgate provider (singleton)
 		const solidgateProvider = getOrCreateSolidgateProvider();
-		const webhookResult = await solidgateProvider.handleWebhook(body, signature, body);
+		const parsedBody = JSON.parse(body);
+
+		// Idempotency check
+		const webhookId = parsedBody.id || headersList.get('x-request-id');
+		if (webhookId && processedWebhooks.has(webhookId)) {
+			console.log(`Duplicate webhook ignored: ${webhookId}`);
+			return NextResponse.json({ received: true }); // Return 200 to acknowledge receipt
+		}
+
+		if (webhookId) {
+			processedWebhooks.add(webhookId);
+			// Clean up old IDs periodically (simplified)
+			setTimeout(() => processedWebhooks.delete(webhookId), WEBHOOK_EXPIRY_MS);
+		}
+
+		const webhookResult = await solidgateProvider.handleWebhook(parsedBody, signature, body);
 
 		if (!webhookResult.received) {
 			return NextResponse.json({ error: 'Webhook not processed' }, { status: 400 });
@@ -169,12 +189,20 @@ export async function GET() {
 
 async function handlePaymentSucceeded(data: any) {
 	console.log('Payment succeeded:', data.id);
-	// Implement generic payment success logic (emails, etc.)
+	try {
+		await webhookSubscriptionService.handlePaymentSucceeded(data);
+	} catch (error) {
+		console.error('Error handling payment succeeded:', error);
+	}
 }
 
 async function handlePaymentFailed(data: any) {
 	console.log('Payment failed:', data.id);
-	// Implement generic payment failure logic
+	try {
+		await webhookSubscriptionService.handlePaymentFailed(data);
+	} catch (error) {
+		console.error('Error handling payment failed:', error);
+	}
 }
 
 async function handleSubscriptionCreated(data: any) {

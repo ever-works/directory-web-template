@@ -195,7 +195,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 	}
 
 	private generateSignature(data: string, secret: string): string {
-		return crypto.createHmac('sha256', secret).update(data).digest('hex');
+		return crypto.createHmac('sha512', secret).update(data).digest('hex');
 	}
 
 	/**
@@ -204,7 +204,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 	 */
 	private generatePaymentIntentSignature(paymentIntent: string, merchantId: string): string {
 		const data = `${merchantId}${paymentIntent}`;
-		return crypto.createHmac('sha256', this.secretKey).update(data).digest('hex');
+		return crypto.createHmac('sha512', this.secretKey).update(data).digest('hex');
 	}
 
 	/**
@@ -657,8 +657,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 			const expectedSignature = this.generateSignature(rawBody, this.webhookSecret);
 			if (signature !== expectedSignature) {
 				this.logger.error('Invalid webhook signature', {
-					received: signature,
-					expected: expectedSignature
+					signatureMismatch: true
 				});
 				throw new Error('Invalid webhook signature');
 			}

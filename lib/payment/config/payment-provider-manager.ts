@@ -237,9 +237,9 @@ class ConfigManager {
 		const solidgateMerchantId = this.solidgateMerchantId;
 		const solidgateApiBaseUrl = this.solidgateApiBaseUrl;
 
-		if (!solidgateApiKey || !solidgateMerchantId) {
+		if (!solidgateApiKey || !solidgateMerchantId || !solidgateWebhookSecret) {
 			throw new Error(
-				'Solidgate configuration is incomplete. Required: SOLIDGATE_API_KEY, SOLIDGATE_MERCHANT_ID'
+				'Solidgate configuration is incomplete. Required: SOLIDGATE_API_KEY, SOLIDGATE_MERCHANT_ID, SOLIDGATE_WEBHOOK_SECRET'
 			);
 		}
 

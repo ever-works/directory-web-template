@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 import { auth, getOrCreateSolidgateProvider } from '@/lib/auth';
 
 /**
@@ -149,34 +150,45 @@ export async function POST(request: NextRequest) {
 		// Get or create Solidgate provider (singleton)
 		const solidgateProvider = getOrCreateSolidgateProvider();
 
-		const {
-			amount,
-			currency = 'USD',
-			mode = 'one_time',
-			successUrl,
-			cancelUrl,
-			metadata = {}
-		} = await request.json();
+		// Define verification schema
+		const checkoutSchema = z.object({
+			amount: z.number().positive(),
+			currency: z.string().default('USD'),
+			mode: z.enum(['one_time', 'subscription']).default('one_time'),
+			successUrl: z.string().url(),
+			cancelUrl: z.string().url(),
+			metadata: z.record(z.string(), z.any()).optional()
+		});
 
-		if (typeof amount !== 'number' || amount <= 0) {
+		let payload;
+		try {
+			const json = await request.json();
+			const result = checkoutSchema.safeParse(json);
+
+			if (!result.success) {
+				const errorMessage = result.error.issues
+					.map((issue) => `${issue.path.join('.')}: ${issue.message}`)
+					.join(', ');
+				return NextResponse.json(
+					{
+						error: 'Invalid request body',
+						message: errorMessage
+					},
+					{ status: 400 }
+				);
+			}
+			payload = result.data;
+		} catch (e) {
 			return NextResponse.json(
 				{
-					error: 'Invalid amount',
-					message: 'Amount must be greater than 0'
+					error: 'Invalid JSON',
+					message: 'Request body must be valid JSON'
 				},
 				{ status: 400 }
 			);
 		}
 
-		if (!successUrl || !cancelUrl) {
-			return NextResponse.json(
-				{
-					error: 'Missing URLs',
-					message: 'successUrl and cancelUrl are required'
-				},
-				{ status: 400 }
-			);
-		}
+		const { amount, currency, mode, successUrl, cancelUrl, metadata } = payload;
 
 		const solidgateCustomerId = await solidgateProvider.getCustomerId(session.user as any);
 		if (!solidgateCustomerId) {

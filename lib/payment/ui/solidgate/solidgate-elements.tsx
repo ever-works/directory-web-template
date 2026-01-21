@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { PaymentFormProps } from '../../types/payment-types';
-import Payment, { SdkMessage, ClientSdkInstance } from '@solidgate/react-sdk';
+import Payment, { SdkMessage } from '@solidgate/react-sdk';
 
 // Wrapper with Solidgate Payment SDK
 interface SolidgateElementsWrapperProps extends PaymentFormProps {
@@ -28,7 +28,6 @@ export function SolidgatePaymentForm({
 }: SolidgateElementsWrapperProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');
-	const sdkInstanceRef = useRef<ClientSdkInstance | null>(null);
 
 	const handlePaymentSuccess = useCallback(
 		(paymentId: string) => {
@@ -74,9 +73,7 @@ export function SolidgatePaymentForm({
 				error?.error ||
 				error?.data?.message ||
 				error?.data?.error ||
-				typeof error === 'string'
-					? error
-					: 'Payment processing failed';
+				(typeof error === 'string' ? error : 'Payment processing failed');
 			setErrorMessage(errorMsg);
 			handlePaymentError(new Error(errorMsg));
 		},
