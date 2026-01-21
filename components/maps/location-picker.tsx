@@ -62,7 +62,7 @@ export function LocationPicker({
 }: LocationPickerProps): React.ReactElement {
 	const { settings } = useLocationSettings();
 	const { provider, isLoading: providerLoading } = useMapProviderInstance();
-	const { coordinates: geoCoords, isLoading: geoLoading, requestLocation, permission } = useGeolocation();
+	const { isLoading: geoLoading, requestLocation, permission } = useGeolocation();
 
 	const mapContainerRef = useRef<HTMLDivElement>(null);
 	const addressInputRef = useRef<HTMLInputElement>(null);
