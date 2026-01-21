@@ -54,7 +54,10 @@ export function CategoriesList({
         />
 
         {/* Individual Categories */}
-        <div className="overflow-y-auto scrollbar-none max-h-[650px]">
+        <div
+          className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
+          style={{ scrollbarWidth: "thin" }}
+        >
           {categories.map((category) => {
             if (!category.count) return null;
             
@@ -89,7 +92,10 @@ export function CategoriesList({
       />
 
       {/* Individual Categories */}
-      <div className="overflow-y-auto scrollbar-none max-h-[650px]">
+      <div
+        className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
+        style={{ scrollbarWidth: "thin" }}
+      >
         {categories.map((category) => {
           if (!category.count) return null;
 

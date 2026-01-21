@@ -207,12 +207,3 @@ export function createErrorResponse(
 		status: 500
 	};
 }
-
-/**
- * Helper function to retrieve the Stripe Payment Mode configuration
- * @returns 'embedded' | 'checkout'
- */
-export function getStripePaymentMode(): 'embedded' | 'checkout' {
-	const mode = process.env.NEXT_PUBLIC_STRIPE_PAYMENT_MODE;
-	return mode === 'embedded' ? 'embedded' : 'checkout';
-}

@@ -53,7 +53,7 @@ export async function PATCH(req: NextRequest) {
 
 		// Update the nested key under settings
 		const settingsKey = `settings.${key}`;
-		const success = configManager.updateNestedKey(settingsKey, value);
+		const success = await configManager.updateNestedKey(settingsKey, value);
 
 		if (!success) {
 			return NextResponse.json(

@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, sql, inArray } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { votes, type InsertVote } from '../schema';
 import { getItemIdFromSlug } from './item.queries';
@@ -83,4 +83,30 @@ export async function getVoteCountForItem(itemSlug: string): Promise<number> {
     .where(eq(votes.itemId, itemId));
 
   return Number(result?.netScore ?? 0);
+}
+
+/**
+ * Get net vote scores for multiple items (upvotes - downvotes)
+ * @param itemSlugs - Array of item slugs
+ * @returns Map of itemSlug to net vote score
+ */
+export async function getVotesPerItem(itemSlugs: string[]): Promise<Map<string, number>> {
+  if (itemSlugs.length === 0) return new Map();
+
+  const voteCounts = await db
+    .select({
+      itemId: votes.itemId,
+      netScore: sql<number>`
+        SUM(CASE
+          WHEN vote_type = 'upvote' THEN 1
+          WHEN vote_type = 'downvote' THEN -1
+          ELSE 0
+        END)
+      `.as('netScore')
+    })
+    .from(votes)
+    .where(inArray(votes.itemId, itemSlugs))
+    .groupBy(votes.itemId);
+
+  return new Map(voteCounts.map(v => [v.itemId, Number(v.netScore ?? 0)]));
 }

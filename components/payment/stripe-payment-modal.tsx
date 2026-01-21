@@ -4,6 +4,8 @@ import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
+import { PolarElementsWrapper } from '@/lib/payment/ui/polar/polar-elements';
+import { LemonSqueezyElementsWrapper } from '@/lib/payment/ui/lemonsqueezy/lemonsqueezy-elements';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '../ui/modal';
 
 import { PaymentProvider } from '@/lib/constants';
@@ -78,19 +80,55 @@ export function PaymentFormModal({
 		typeof window !== 'undefined' ? `${window.location.origin}/checkout/success` : '/checkout/success';
 
 	useEffect(() => {
-		if (provider === 'stripe' && !stripePublicKey) {
+		if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 			console.error('Stripe publishable key is not configured');
 			onError(new Error('Payment system is not configured. Please contact support.'));
 			onClose();
 		}
 	}, [stripePublicKey, onError, onClose, provider]);
 
-	if (provider === 'stripe' && !stripePublicKey) {
+	if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 		return null;
 	}
 
+	const renderPaymentContent = () => {
+		const commonProps = {
+			onSuccess: handleSuccess,
+			onError: handleError,
+			successUrl,
+			isSubscription,
+			amount,
+			currency,
+			isReady: true
+		};
+
+		switch (provider) {
+			case PaymentProvider.POLAR:
+				return <PolarElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} />;
+			case PaymentProvider.LEMONSQUEEZY:
+				return <LemonSqueezyElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} />;
+			case PaymentProvider.STRIPE:
+				return (
+					<StripeElementsWrapper
+						{...commonProps}
+						stripePublicKey={stripePublicKey}
+						clientSecret={clientSecret}
+						isReady={clientSecret ? isReady : true}
+						isError={isError}
+					/>
+				);
+			default:
+				console.warn(`Unknown payment provider: ${provider}`);
+				return null;
+		}
+	};
+
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size={provider === 'lemonsqueezy' ? '2xl' : 'md'}>
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			size={provider === PaymentProvider.LEMONSQUEEZY || provider === PaymentProvider.POLAR ? '2xl' : 'md'}
+		>
 			<ModalContent>
 				<ModalHeader className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3">
 					<div className="flex items-center gap-3">
@@ -109,38 +147,7 @@ export function PaymentFormModal({
 						</div>
 					</div>
 				</ModalHeader>
-				<ModalBody className="">
-					{provider === 'lemonsqueezy' ? (
-						<div className="w-full h-[600px] flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden">
-							{checkoutUrl ? (
-								<iframe
-									src={checkoutUrl}
-									className="w-full h-full border-0 dark:bg-gray-900"
-									title="LemonSqueezy Checkout"
-									allow="payment"
-								/>
-							) : (
-								<div className="flex flex-col items-center gap-3 text-gray-500">
-									<div className="w-8 h-8 border-2 border-theme-primary-500 border-t-transparent rounded-full animate-spin" />
-									<p>Loading checkout...</p>
-								</div>
-							)}
-						</div>
-					) : (
-						<StripeElementsWrapper
-							stripePublicKey={stripePublicKey}
-							isSubscription={isSubscription}
-							onSuccess={handleSuccess}
-							onError={handleError}
-							successUrl={successUrl}
-							amount={amount}
-							currency={currency}
-							clientSecret={clientSecret}
-							isReady={clientSecret ? isReady : true} // Only check ready if we have a secret (embedded), otherwise hosted
-							isError={isError}
-						/>
-					)}
-				</ModalBody>
+				<ModalBody className="">{renderPaymentContent()}</ModalBody>
 			</ModalContent>
 		</Modal>
 	);

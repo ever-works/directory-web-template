@@ -1,7 +1,12 @@
 'use client';
 
-import { createContext, useContext, PropsWithChildren } from 'react';
-import type { HeaderSettings } from '@/lib/content';
+import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
+import type { HeaderSettings, LocationConfigSettings } from '@/lib/content';
+import {
+	type LocationSettings,
+	DEFAULT_LOCATION_SETTINGS,
+	mapLocationConfigToRuntime
+} from '@/lib/types/location';
 
 const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	submitEnabled: true,
@@ -29,6 +34,8 @@ interface SettingsContextValue {
 	hasGlobalSurveys: boolean;
 	// Header settings
 	headerSettings: HeaderSettings;
+	// Location settings (camelCase runtime type)
+	locationSettings: LocationSettings;
 }
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
@@ -43,6 +50,7 @@ interface SettingsProviderProps extends PropsWithChildren {
 	hasCollections: boolean;
 	hasGlobalSurveys: boolean;
 	headerSettings: HeaderSettings;
+	locationSettings?: LocationConfigSettings;
 }
 
 export function SettingsProvider({
@@ -55,8 +63,15 @@ export function SettingsProvider({
 	hasTags,
 	hasCollections,
 	hasGlobalSurveys,
-	headerSettings
+	headerSettings,
+	locationSettings: locationConfigSettings
 }: SettingsProviderProps) {
+	// Map snake_case config to camelCase runtime settings
+	const locationSettings = useMemo(
+		() => mapLocationConfigToRuntime(locationConfigSettings),
+		[locationConfigSettings]
+	);
+
 	return (
 		<SettingsContext.Provider
 			value={{
@@ -68,7 +83,8 @@ export function SettingsProvider({
 				hasTags,
 				hasCollections,
 				hasGlobalSurveys,
-				headerSettings
+				headerSettings,
+				locationSettings
 			}}
 		>
 			{children}
@@ -89,7 +105,8 @@ export function useSettings(): SettingsContextValue {
 			hasTags: true,
 			hasCollections: true,
 			hasGlobalSurveys: false,
-			headerSettings: DEFAULT_HEADER_SETTINGS
+			headerSettings: DEFAULT_HEADER_SETTINGS,
+			locationSettings: DEFAULT_LOCATION_SETTINGS
 		};
 	}
 	return context;

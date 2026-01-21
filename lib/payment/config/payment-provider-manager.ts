@@ -63,6 +63,7 @@ class ConfigManager {
 	private static polarWebhookSecret: string = paymentConfig.polar.webhookSecret || '';
 	private static polarOrganizationId: string = paymentConfig.polar.organizationId || '';
 	private static polarAppUrl: string = appUrl;
+	private static polarSandbox: boolean = paymentConfig.polar.sandbox;
 
 	private static ensureConfig(): ProviderConfig {
 		if (!this.config) {
@@ -89,7 +90,8 @@ class ConfigManager {
 					webhookSecret: this.polarWebhookSecret || '',
 					options: {
 						organizationId: this.polarOrganizationId || '',
-						appUrl: this.polarAppUrl || ''
+						appUrl: this.polarAppUrl || '',
+						sandbox: this.polarSandbox
 					}
 				}
 			};
@@ -192,7 +194,8 @@ class ConfigManager {
 			webhookSecret: polarWebhookSecret || '',
 			options: {
 				organizationId: polarOrganizationId,
-				appUrl: polarAppUrl
+				appUrl: polarAppUrl,
+				sandbox: this.polarSandbox
 			}
 		};
 
