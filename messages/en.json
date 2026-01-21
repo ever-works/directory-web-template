@@ -2127,7 +2127,7 @@
 			"PENDING_REVIEW": "Pending Review",
 			"APPROVED": "Approved",
 			"REJECTED": "Rejected",
-			"ITEMS_TABLE_TITLE": "Items ({count})",
+			"ITEMS_TABLE_TITLE": "Items",
 			"UNTITLED": "Untitled",
 			"ID_LABEL": "ID:",
 			"SLUG_LABEL": "Slug:",

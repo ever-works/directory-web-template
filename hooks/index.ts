@@ -28,3 +28,6 @@ export * from './use-location-settings';
 // Map provider and geolocation hooks
 export * from './use-map-provider';
 export * from './use-geolocation';
+
+// Item engagement hooks (for popularity sorting)
+export * from './use-item-engagement';

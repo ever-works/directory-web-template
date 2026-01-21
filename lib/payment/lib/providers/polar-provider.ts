@@ -142,15 +142,21 @@ export class PolarProvider implements PaymentProviderInterface {
 		}
 
 		this.apiKey = config.apiKey;
-		const isSandbox = config.options?.sandbox ?? false;
-		this.isSandbox = isSandbox;
+		this.isSandbox = config.options?.sandbox || false;
+
+		console.log('[PolarProvider] Initializing with config:', {
+			isSandbox: this.isSandbox,
+			apiKeyPrefix: this.apiKey.substring(0, 10) + '...',
+			apiKeyLength: this.apiKey.length,
+			organizationId: config.options?.organizationId
+		});
+
 		this.polar = new Polar({
 			accessToken: config.apiKey,
-			server: isSandbox ? 'sandbox' : 'production'
+			server: this.isSandbox ? 'sandbox' : 'production'
 		});
 		this.webhookSecret = config.webhookSecret || '';
 		this.organizationId = config.options?.organizationId;
-		// Clean appUrl: remove quotes, trailing slashes, and whitespace
 		const rawAppUrl = config.options?.appUrl || defaultAppUrl;
 		this.appUrl = rawAppUrl
 			.trim()
@@ -158,7 +164,6 @@ export class PolarProvider implements PaymentProviderInterface {
 			.replace(/\/+$/, '');
 
 		this.configuredApiUrl = config.options?.apiUrl;
-
 		if (!this.organizationId) {
 			throw new Error('Polar organization ID is required');
 		}

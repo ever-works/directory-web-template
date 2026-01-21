@@ -2121,7 +2121,7 @@
       "PENDING_REVIEW": "검토 대기 중",
       "APPROVED": "승인됨",
       "REJECTED": "거부됨",
-      "ITEMS_TABLE_TITLE": "항목 ({count})",
+      "ITEMS_TABLE_TITLE": "항목",
       "UNTITLED": "제목 없음",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "슬러그:",

@@ -2121,7 +2121,7 @@
       "PENDING_REVIEW": "İnceleme Bekliyor",
       "APPROVED": "Onaylandı",
       "REJECTED": "Reddedildi",
-      "ITEMS_TABLE_TITLE": "Öğeler ({count})",
+      "ITEMS_TABLE_TITLE": "Öğeler",
       "UNTITLED": "Başlıksız",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

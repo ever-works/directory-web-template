@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { MapPin, Navigation, Loader2, ChevronDown, Check, Globe, Building, Building2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGeolocation } from '@/hooks/use-geolocation';
@@ -75,15 +75,21 @@ export function LocationPicker({
 	const markerRef = useRef<IMarkerInstance | null>(null);
 	const autocompleteRef = useRef<IAutocompleteInstance | null>(null);
 
+	// Refs for callbacks to avoid stale closures in effects
+	const handleAddressSelectRef = useRef<((suggestion: AddressSuggestion) => void) | undefined>(undefined);
+	const handleMarkerDragEndRef = useRef<((coords: Coordinates) => void) | undefined>(undefined);
+
 	const [isMapLoading, setIsMapLoading] = useState(true);
 	const [isServiceAreaOpen, setIsServiceAreaOpen] = useState(false);
 
 	const isLoading = externalLoading || providerLoading || geoLoading;
 	const currentAddress = value?.address || '';
-	const currentCoordinates: Coordinates | null =
-		value?.latitude && value?.longitude
-			? { latitude: value.latitude, longitude: value.longitude }
-			: null;
+	const currentCoordinates = useMemo<Coordinates | null>(() => {
+		if (value?.latitude && value?.longitude) {
+			return { latitude: value.latitude, longitude: value.longitude };
+		}
+		return null;
+	}, [value?.latitude, value?.longitude]);
 
 	// Update internal state and notify parent
 	const updateValue = useCallback(
@@ -144,6 +150,20 @@ export function LocationPicker({
 		[updateValue]
 	);
 
+	// Keep refs in sync with latest callbacks (for use in effects without causing re-init)
+	handleAddressSelectRef.current = handleAddressSelect;
+	handleMarkerDragEndRef.current = handleMarkerDragEnd;
+
+	// Memoize initial coordinates to avoid unnecessary re-renders
+	const initialCoordinates = useMemo<Coordinates | null>(() => {
+		if (value?.latitude && value?.longitude) {
+			return { latitude: value.latitude, longitude: value.longitude };
+		}
+		return null;
+		// Only compute on mount - subsequent changes handled by separate effect
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	// Handle service area change
 	const handleServiceAreaChange = useCallback(
 		(area: ServiceArea) => {
@@ -175,10 +195,10 @@ export function LocationPicker({
 			try {
 				// Initialize map if container is available
 				if (mapContainerRef.current) {
-					const initialCenter = currentCoordinates || DEFAULT_CENTER;
+					const centerPoint = initialCoordinates || DEFAULT_CENTER;
 
 					const mapInstance = await provider.createMap(mapContainerRef.current, {
-						center: initialCenter,
+						center: centerPoint,
 						zoom: DEFAULT_ZOOM,
 						style: settings.mapStyle,
 						controls: {
@@ -199,7 +219,7 @@ export function LocationPicker({
 					const marker = provider.createMarker(mapInstance, {
 						data: {
 							id: 'location-picker-marker',
-							coordinates: initialCenter,
+							coordinates: centerPoint,
 							title: 'Selected location',
 							slug: ''
 						},
@@ -207,14 +227,20 @@ export function LocationPicker({
 					});
 
 					markerRef.current = marker;
-					marker.onDragEnd(handleMarkerDragEnd);
+					// Use ref to avoid stale closure
+					marker.onDragEnd((coords: Coordinates) => {
+						handleMarkerDragEndRef.current?.(coords);
+					});
 				}
 
 				// Initialize autocomplete if input is available
 				if (addressInputRef.current) {
 					autocompleteRef.current = provider.createAutocomplete(
 						addressInputRef.current,
-						handleAddressSelect
+						// Use ref to avoid stale closure
+						(suggestion: AddressSuggestion) => {
+							handleAddressSelectRef.current?.(suggestion);
+						}
 					);
 				}
 
@@ -246,7 +272,7 @@ export function LocationPicker({
 				mapInstanceRef.current = null;
 			}
 		};
-	}, [provider, showMap, isDisabled, settings.mapStyle]);
+	}, [provider, showMap, isDisabled, settings.mapStyle, initialCoordinates]);
 
 	// Update marker position when value changes externally
 	useEffect(() => {
@@ -254,7 +280,7 @@ export function LocationPicker({
 
 		markerRef.current.setPosition(currentCoordinates);
 		mapInstanceRef.current.setCenter(currentCoordinates);
-	}, [currentCoordinates?.latitude, currentCoordinates?.longitude]);
+	}, [currentCoordinates]);
 
 	// Height style for map
 	const mapHeightStyle = typeof mapHeight === 'number' ? `${mapHeight}px` : mapHeight;

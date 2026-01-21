@@ -275,7 +275,12 @@ export class ItemRepository {
     return items.some((item: ItemData) => item.slug === slug);
   }
 
-  async getStats(options: { submittedBy?: string } = {}): Promise<{
+  async getStats(options: {
+    submittedBy?: string;
+    search?: string;
+    categories?: string[];
+    tags?: string[];
+  } = {}): Promise<{
     total: number;
     draft: number;
     pending: number;
@@ -291,6 +296,30 @@ export class ItemRepository {
     let items = options.submittedBy
       ? allItems.filter((item: ItemData) => item.submitted_by === options.submittedBy)
       : allItems;
+
+    // Apply category filter (OR logic)
+    if (options.categories && options.categories.length > 0) {
+      items = items.filter((item: ItemData) => {
+        const itemCategories = Array.isArray(item.category) ? item.category : [item.category];
+        return options.categories!.some(cat => itemCategories.includes(cat));
+      });
+    }
+
+    // Apply tag filter (OR logic)
+    if (options.tags && options.tags.length > 0) {
+      items = items.filter((item: ItemData) => {
+        return options.tags!.some(tag => item.tags.includes(tag));
+      });
+    }
+
+    // Apply search filter
+    if (options.search) {
+      const searchLower = options.search.toLowerCase();
+      items = items.filter((item: ItemData) =>
+        item.name.toLowerCase().includes(searchLower) ||
+        item.description.toLowerCase().includes(searchLower)
+      );
+    }
 
     // Separate deleted and non-deleted items
     const deletedItems = items.filter((item: ItemData) => item.deleted_at);

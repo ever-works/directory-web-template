@@ -2121,7 +2121,7 @@
       "PENDING_REVIEW": "Menunggu Tinjauan",
       "APPROVED": "Disetujui",
       "REJECTED": "Ditolak",
-      "ITEMS_TABLE_TITLE": "Item ({count})",
+      "ITEMS_TABLE_TITLE": "Item",
       "UNTITLED": "Tanpa Judul",
       "ID_LABEL": "ID:",
       "SLUG_LABEL": "Slug:",

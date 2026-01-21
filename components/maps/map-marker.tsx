@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { MapMarkerProps, Coordinates } from '@/lib/maps/types';
 import type { IMapInstance, IMarkerInstance, IMapProvider } from '@/lib/maps/providers/map-provider.interface';
@@ -38,46 +38,68 @@ export function MapMarkerInternal({
 }: MapMarkerInternalProps): null {
 	const markerRef = useRef<IMarkerInstance | null>(null);
 
+	// Refs for callbacks to avoid stale closures
+	const onClickRef = useRef(onClick);
+	const onDragEndRef = useRef(onDragEnd);
+	onClickRef.current = onClick;
+	onDragEndRef.current = onDragEnd;
+
+	// Memoize initial marker config to prevent re-creation
+	const initialConfig = useMemo(
+		() => ({
+			data,
+			showIcon,
+			iconSize,
+			isSelected,
+			isDraggable
+		}),
+		// Only use data.id for identity - other changes handled separately
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[data.id]
+	);
+
 	// Create and manage marker lifecycle
 	useEffect(() => {
 		// Create custom marker element
 		let iconElement: HTMLElement | undefined;
 
-		if (showIcon && data.icon) {
+		if (initialConfig.showIcon && initialConfig.data.icon) {
 			iconElement = document.createElement('div');
 			iconElement.className = cn(
 				'map-marker cursor-pointer transition-transform',
-				isSelected && 'scale-110'
+				initialConfig.isSelected && 'scale-110'
 			);
 
 			const img = document.createElement('img');
-			img.src = data.icon;
-			img.alt = data.title;
+			img.src = initialConfig.data.icon;
+			img.alt = initialConfig.data.title;
 			img.className = cn(
-				ICON_SIZES[iconSize],
+				ICON_SIZES[initialConfig.iconSize],
 				'rounded-full border-2 shadow-md object-cover',
-				isSelected ? 'border-blue-500' : 'border-white'
+				initialConfig.isSelected ? 'border-blue-500' : 'border-white'
 			);
 			iconElement.appendChild(img);
 		}
 
 		// Create marker
 		const marker = provider.createMarker(mapInstance, {
-			data,
-			draggable: isDraggable,
+			data: initialConfig.data,
+			draggable: initialConfig.isDraggable,
 			icon: iconElement
 		});
 
 		markerRef.current = marker;
 
-		// Set up click handler
-		if (onClick) {
-			marker.onClick(() => onClick(data));
-		}
+		// Set up click handler using ref to avoid stale closure
+		marker.onClick(() => {
+			onClickRef.current?.(initialConfig.data);
+		});
 
-		// Set up drag end handler
-		if (onDragEnd && isDraggable) {
-			marker.onDragEnd(onDragEnd);
+		// Set up drag end handler using ref to avoid stale closure
+		if (initialConfig.isDraggable) {
+			marker.onDragEnd((coords: Coordinates) => {
+				onDragEndRef.current?.(coords);
+			});
 		}
 
 		// Cleanup
@@ -85,7 +107,7 @@ export function MapMarkerInternal({
 			marker.remove();
 			markerRef.current = null;
 		};
-	}, [data.id, provider, mapInstance]);
+	}, [initialConfig, provider, mapInstance]);
 
 	// Update draggable state
 	useEffect(() => {
@@ -99,7 +121,7 @@ export function MapMarkerInternal({
 		if (markerRef.current) {
 			markerRef.current.setPosition(data.coordinates);
 		}
-	}, [data.coordinates.latitude, data.coordinates.longitude]);
+	}, [data.coordinates]);
 
 	// This component doesn't render anything - the marker is rendered by the map library
 	return null;

@@ -10,6 +10,7 @@ import { useFilters } from '@/hooks/use-filters';
 import { useMemo } from 'react';
 import { sortItemsWithFeatured } from '@/lib/utils/featured-items';
 import { useFeaturedItemsSection } from '@/hooks/use-feature-items-section';
+import { useItemEngagement } from '@/hooks/use-item-engagement';
 import { TopLoadingBar } from '@/components/ui/top-loading-bar';
 import { Container, useContainerWidth } from '@/components/ui/container';
 import { SponsorAdsProvider } from '@/components/sponsor-ads';
@@ -58,17 +59,22 @@ export default function GlobalsClient(props: ListingProps) {
 		enabled: true
 	});
 
+	// Fetch engagement metrics for popularity sorting
+	// This enriches items with views, votes, favorites, comments data
+	const { items: itemsWithEngagement, isLoading: isEngagementLoading } = useItemEngagement(props.items);
+
 	// Filtering logic using shared utility
+	// Uses items with engagement data for true popularity sorting
 	const filteredItems = useMemo(() => {
-		const filtered = filterItems(props.items, {
+		const filtered = filterItems(itemsWithEngagement, {
 			searchTerm,
 			selectedTags,
 			selectedCategories
 		});
 
-		// Sort items with featured items first
+		// Sort items with featured items first (popularity sorting uses engagement data)
 		return sortItemsWithFeatured(filtered, featuredItems);
-	}, [props.items, searchTerm, selectedTags, selectedCategories, featuredItems]);
+	}, [itemsWithEngagement, searchTerm, selectedTags, selectedCategories, featuredItems]);
 
 	// Note: URL parsing is handled by FilterURLParser in the Listing component
 	// No need to duplicate that logic here
@@ -78,10 +84,13 @@ export default function GlobalsClient(props: ListingProps) {
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 
+	// Combined loading state
+	const isLoading = isFiltersLoading || isEngagementLoading;
+
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
 			<SponsorAdsProvider limit={10}>
-				<TopLoadingBar isLoading={isFiltersLoading} />
+				<TopLoadingBar isLoading={isLoading} />
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
 				{/* Featured Items Section - Only show on first page and desktop */}
 				{/* {page === 1 && featuredItems.length > 0 && (
@@ -146,7 +155,7 @@ export default function GlobalsClient(props: ListingProps) {
 
 	return (
 		<SponsorAdsProvider limit={10}>
-			<TopLoadingBar isLoading={isFiltersLoading} />
+			<TopLoadingBar isLoading={isLoading} />
 			<div className={LAYOUT_STYLES.mainContainer}>
 				<HomeTwoLayout
 					{...props}

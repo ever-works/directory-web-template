@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { MapPin, Loader2, AlertCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useMapProviderInstance } from '@/hooks/use-map-provider';
@@ -75,6 +75,20 @@ export function Map({
 	const mapInstanceRef = useRef<IMapInstance | null>(null);
 	const clustererRef = useRef<IClustererInstance | null>(null);
 
+	// Refs for callbacks to avoid stale closures
+	const onViewportChangeRef = useRef(onViewportChange);
+	const onMarkerClickRef = useRef(onMarkerClick);
+	const onClusterClickRef = useRef(onClusterClick);
+	const onReadyRef = useRef(onReady);
+	const onErrorRef = useRef(onError);
+
+	// Keep refs in sync
+	onViewportChangeRef.current = onViewportChange;
+	onMarkerClickRef.current = onMarkerClick;
+	onClusterClickRef.current = onClusterClick;
+	onReadyRef.current = onReady;
+	onErrorRef.current = onError;
+
 	const [isMapLoading, setIsMapLoading] = useState(true);
 	const [mapError, setMapError] = useState<string | null>(null);
 	const [isFullscreen, setIsFullscreen] = useState(false);
@@ -82,6 +96,22 @@ export function Map({
 	const mapStyle = style ?? settings.mapStyle;
 	const showLoading = externalLoading || providerLoading || isMapLoading;
 	const displayError = externalError || providerError?.message || mapError;
+
+	// Memoize initial config to prevent re-initialization on prop changes
+	const initialConfig = useMemo(
+		() => ({
+			center,
+			zoom,
+			mapStyle,
+			controls,
+			enableClustering,
+			clusterOptions,
+			markers
+		}),
+		// Only compute on mount - subsequent changes handled by separate effects
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[]
+	);
 
 	// Initialize map when provider is ready
 	useEffect(() => {
@@ -96,15 +126,15 @@ export function Map({
 
 		const initMap = async () => {
 			try {
-				// Create map instance
+				// Create map instance using initial config
 				const mapInstance = await provider.createMap(mapContainerRef.current!, {
-					center,
-					zoom,
-					style: mapStyle,
+					center: initialConfig.center,
+					zoom: initialConfig.zoom,
+					style: initialConfig.mapStyle,
 					controls: {
-						showZoomControls: controls.showZoomControls,
+						showZoomControls: initialConfig.controls.showZoomControls,
 						showFullscreenControl: false, // We handle fullscreen manually
-						showScaleControl: controls.showScaleControl
+						showScaleControl: initialConfig.controls.showScaleControl
 					},
 					interactive: true
 				});
@@ -116,63 +146,61 @@ export function Map({
 
 				mapInstanceRef.current = mapInstance;
 
-				// Set up viewport change listener
-				if (onViewportChange) {
-					mapInstance.on('moveend', () => {
-						const currentCenter = mapInstance.getCenter();
-						const currentZoom = mapInstance.getZoom();
-						const bounds = mapInstance.getBounds();
-						onViewportChange({
-							center: currentCenter,
-							zoom: currentZoom,
-							bounds: bounds || undefined
-						});
+				// Set up viewport change listener using ref to avoid stale closure
+				mapInstance.on('moveend', () => {
+					if (!onViewportChangeRef.current) return;
+					const currentCenter = mapInstance.getCenter();
+					const currentZoom = mapInstance.getZoom();
+					const bounds = mapInstance.getBounds();
+					onViewportChangeRef.current({
+						center: currentCenter,
+						zoom: currentZoom,
+						bounds: bounds || undefined
 					});
-				}
+				});
 
 				// Initialize clustering if enabled and we have markers
-				if (enableClustering && markers.length > 0) {
+				if (initialConfig.enableClustering && initialConfig.markers.length > 0) {
 					clustererRef.current = provider.createClusterer(
 						mapInstance,
 						{
-							radius: clusterOptions?.radius ?? 60,
-							maxZoom: clusterOptions?.maxZoom ?? 16,
-							minPoints: clusterOptions?.minPoints ?? 2
+							radius: initialConfig.clusterOptions?.radius ?? 60,
+							maxZoom: initialConfig.clusterOptions?.maxZoom ?? 16,
+							minPoints: initialConfig.clusterOptions?.minPoints ?? 2
 						},
-						onClusterClick
-							? (cluster) =>
-									onClusterClick({
-										id: `cluster-${cluster.coordinates.latitude}-${cluster.coordinates.longitude}`,
-										coordinates: cluster.coordinates,
-										count: cluster.markerIds.length,
-										markerIds: cluster.markerIds,
-										expansionZoom: cluster.expansionZoom
-									})
-							: undefined
+						// Use ref to avoid stale closure
+						(cluster) => {
+							onClusterClickRef.current?.({
+								id: `cluster-${cluster.coordinates.latitude}-${cluster.coordinates.longitude}`,
+								coordinates: cluster.coordinates,
+								count: cluster.markerIds.length,
+								markerIds: cluster.markerIds,
+								expansionZoom: cluster.expansionZoom
+							});
+						}
 					);
-					clustererRef.current.addMarkers(markers);
-				} else if (!enableClustering && markers.length > 0) {
+					clustererRef.current.addMarkers(initialConfig.markers);
+				} else if (!initialConfig.enableClustering && initialConfig.markers.length > 0) {
 					// Add markers without clustering
-					markers.forEach((markerData) => {
+					initialConfig.markers.forEach((markerData) => {
 						const marker = provider.createMarker(mapInstance, {
 							data: markerData,
 							icon: markerData.icon
 						});
 
-						if (onMarkerClick) {
-							marker.onClick(() => onMarkerClick(markerData));
-						}
+						// Use ref to avoid stale closure
+						marker.onClick(() => onMarkerClickRef.current?.(markerData));
 					});
 				}
 
 				setIsMapLoading(false);
-				onReady?.();
+				onReadyRef.current?.();
 			} catch (err) {
 				if (isMounted) {
 					const errorMessage = err instanceof Error ? err.message : 'Failed to load map';
 					setMapError(errorMessage);
 					setIsMapLoading(false);
-					onError?.(err instanceof Error ? err : new Error(errorMessage));
+					onErrorRef.current?.(err instanceof Error ? err : new Error(errorMessage));
 				}
 			}
 		};
@@ -190,7 +218,7 @@ export function Map({
 				mapInstanceRef.current = null;
 			}
 		};
-	}, [provider, isDisabled]);
+	}, [provider, isDisabled, initialConfig]);
 
 	// Update markers when they change
 	useEffect(() => {
@@ -204,7 +232,7 @@ export function Map({
 	useEffect(() => {
 		if (!mapInstanceRef.current) return;
 		mapInstanceRef.current.setCenter(center);
-	}, [center.latitude, center.longitude]);
+	}, [center]);
 
 	// Update map zoom when it changes
 	useEffect(() => {
