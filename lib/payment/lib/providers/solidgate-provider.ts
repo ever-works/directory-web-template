@@ -440,7 +440,8 @@ export class SolidgateProvider implements PaymentProviderInterface {
 				currency: (PRICES.us?.currency || currency).toUpperCase(),
 				order_id: orderId,
 				order_description: metadata?.planName || 'Payment',
-				customer_email: metadata?.email || customerId,
+				customer_email: metadata?.email, // Only use valid email
+				customer_id: customerId, // Explicitly set customer_id
 				redirect_url: successUrl || `${appUrl}/payment/success`,
 				callback_url: `${appUrl}/api/solidgate/webhook`,
 				metadata: {
