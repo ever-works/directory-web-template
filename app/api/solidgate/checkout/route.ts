@@ -1,10 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateSolidgateProvider } from '@/lib/auth';
 
-const appUrl =
-	process.env.NEXT_PUBLIC_APP_URL ??
-	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
-
 /**
  * @swagger
  * /api/solidgate/checkout:
@@ -162,7 +158,7 @@ export async function POST(request: NextRequest) {
 			metadata = {}
 		} = await request.json();
 
-		if (!amount || amount <= 0) {
+		if (typeof amount !== 'number' || amount <= 0) {
 			return NextResponse.json(
 				{
 					error: 'Invalid amount',
@@ -211,7 +207,7 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({
 			data: {
 				id: paymentIntent.id,
-				url: paymentIntent.clientSecret // In Solidgate, clientSecret contains the payment URL
+				url: paymentIntent.clientSecret // Solidgate uses the clientSecret (ID) to initialize the SDK
 			},
 			status: 200,
 			message: 'Checkout session created successfully'

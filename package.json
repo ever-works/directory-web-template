@@ -56,6 +56,7 @@
 		"@next/env": "^16.0.4",
 		"@novu/api": "^3.11.0",
 		"@opentelemetry/api": "^1.9.0",
+		"@polar-sh/checkout": "^0.1.15",
 		"@polar-sh/nextjs": "^0.9.0",
 		"@polar-sh/sdk": "^0.42.1",
 		"@radix-ui/react-accordion": "^1.2.12",

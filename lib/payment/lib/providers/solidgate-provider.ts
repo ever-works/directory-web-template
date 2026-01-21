@@ -131,14 +131,18 @@ export class SolidgateProvider implements PaymentProviderInterface {
 
 	constructor(config: PaymentProviderConfig) {
 		this.apiKey = config.apiKey;
-		this.secretKey = config.secretKey || config.apiKey; // Use apiKey as secretKey if not provided
+		this.secretKey = config.secretKey || '';
 		this.webhookSecret = config.webhookSecret || '';
-		this.publishableKey = config.options?.publishableKey || config.apiKey;
+		this.publishableKey = config.options?.publishableKey || '';
 		this.apiBaseUrl = config.options?.apiBaseUrl || SOLIDGATE_API_BASE_URL;
 		this.merchantId = config.options?.merchantId || '';
 
 		if (!this.apiKey) {
 			throw new Error('Solidgate API key is required');
+		}
+
+		if (!this.secretKey) {
+			throw new Error('Solidgate Secret Key is required');
 		}
 	}
 
@@ -207,12 +211,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 	 * Get merchant ID from configuration or extract from API key
 	 */
 	private getMerchantId(): string {
-		// Use merchant ID from configuration if provided
-		if (this.merchantId) {
-			return this.merchantId;
-		}
-		// Try to extract from API key format or use first part
-		return this.apiKey.split('_')[0] || this.apiKey.substring(0, 20) || 'default_merchant';
+		return this.merchantId;
 	}
 
 	hasCustomerId(user: User | null): boolean {
@@ -646,12 +645,22 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		webhookId?: string
 	): Promise<WebhookResult> {
 		try {
+			if (!this.webhookSecret) {
+				throw new Error('Solidgate webhook secret is not configured');
+			}
+
+			if (!rawBody) {
+				throw new Error('Raw body is required for webhook signature verification');
+			}
+
 			// Verify webhook signature
-			if (this.webhookSecret && rawBody) {
-				const expectedSignature = this.generateSignature(rawBody, this.webhookSecret);
-				if (signature !== expectedSignature) {
-					throw new Error('Invalid webhook signature');
-				}
+			const expectedSignature = this.generateSignature(rawBody, this.webhookSecret);
+			if (signature !== expectedSignature) {
+				this.logger.error('Invalid webhook signature', {
+					received: signature,
+					expected: expectedSignature
+				});
+				throw new Error('Invalid webhook signature');
 			}
 
 			const event = typeof payload === 'string' ? JSON.parse(payload) : payload;
@@ -751,8 +760,13 @@ export class SolidgateProvider implements PaymentProviderInterface {
 	getUIComponents(): UIComponents {
 		// Create a function that will inject the required props into the SolidgateElements component
 		const SolidgatePaymentFormWithConfig = (props: PaymentFormProps) => {
-			// Generate payment intent and signature for the SDK
-			const paymentIntent = props.clientSecret || `payment_${crypto.randomUUID()}`;
+			// Note: For Solidgate, we use the clientSecret prop to pass the Payment Intent ID
+			// to maintain compatibility with the generic PaymentFormProps interface
+			if (!props.clientSecret) {
+				console.error('Solidgate element requires clientSecret (Payment Intent ID)');
+				return null;
+			}
+			const paymentIntent = props.clientSecret;
 			const merchantId = this.getMerchantId();
 			const signature = this.generatePaymentIntentSignature(paymentIntent, merchantId);
 

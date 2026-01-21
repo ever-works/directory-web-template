@@ -2,16 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getOrCreateSolidgateProvider } from '@/lib/auth';
 import { WebhookEventType } from '@/lib/payment/types/payment-types';
-import {
-	handlePaymentSucceeded,
-	handlePaymentFailed,
-	handleSubscriptionCreated,
-	handleSubscriptionUpdated,
-	handleSubscriptionCancelled,
-	handleSubscriptionPaymentSucceeded,
-	handleSubscriptionPaymentFailed,
-	handleSubscriptionTrialEnding
-} from '@/lib/services/webhook-subscription.service';
+import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
+import { PaymentProvider } from '@/lib/constants';
+
+const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvider.SOLIDGATE);
 
 /**
  * @swagger
@@ -173,3 +167,66 @@ export async function GET() {
 	);
 }
 
+async function handlePaymentSucceeded(data: any) {
+	console.log('Payment succeeded:', data.id);
+	// Implement generic payment success logic (emails, etc.)
+}
+
+async function handlePaymentFailed(data: any) {
+	console.log('Payment failed:', data.id);
+	// Implement generic payment failure logic
+}
+
+async function handleSubscriptionCreated(data: any) {
+	console.log('Subscription created:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionCreated(data);
+	} catch (error) {
+		console.error('Error handling subscription created:', error);
+	}
+}
+
+async function handleSubscriptionUpdated(data: any) {
+	console.log('Subscription updated:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionUpdated(data);
+	} catch (error) {
+		console.error('Error handling subscription updated:', error);
+	}
+}
+
+async function handleSubscriptionCancelled(data: any) {
+	console.log('Subscription cancelled:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionCancelled(data);
+	} catch (error) {
+		console.error('Error handling subscription cancelled:', error);
+	}
+}
+
+async function handleSubscriptionPaymentSucceeded(data: any) {
+	console.log('Subscription payment succeeded:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionPaymentSucceeded(data);
+	} catch (error) {
+		console.error('Error handling subscription payment succeeded:', error);
+	}
+}
+
+async function handleSubscriptionPaymentFailed(data: any) {
+	console.log('Subscription payment failed:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionPaymentFailed(data);
+	} catch (error) {
+		console.error('Error handling subscription payment failed:', error);
+	}
+}
+
+async function handleSubscriptionTrialEnding(data: any) {
+	console.log('Subscription trial ending:', data.id);
+	try {
+		await webhookSubscriptionService.handleSubscriptionTrialEnding(data);
+	} catch (error) {
+		console.error('Error handling subscription trial ending:', error);
+	}
+}

@@ -20,6 +20,7 @@ interface ProviderConfig {
 	solidgate: {
 		apiKey: string;
 		webhookSecret: string;
+		secretKey: string;
 		options: {
 			[key: string]: any;
 		};
@@ -67,6 +68,7 @@ class ConfigManager {
 
 	// Solidgate configuration
 	private static solidgateApiKey: string = process.env.SOLIDGATE_API_KEY || '';
+	private static solidgateSecretKey: string = process.env.SOLIDGATE_SECRET_KEY || '';
 	private static solidgateWebhookSecret: string = process.env.SOLIDGATE_WEBHOOK_SECRET || '';
 	private static solidgatePublishableKey: string = process.env.NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY || '';
 	private static solidgateMerchantId: string = process.env.SOLIDGATE_MERCHANT_ID || '';
@@ -104,6 +106,7 @@ class ConfigManager {
 				solidgate: {
 					apiKey: this.solidgateApiKey || '',
 					webhookSecret: this.solidgateWebhookSecret || '',
+					secretKey: this.solidgateSecretKey || '',
 					options: {
 						publishableKey: this.solidgatePublishableKey || '',
 						merchantId: this.solidgateMerchantId || '',
@@ -228,20 +231,24 @@ class ConfigManager {
 
 	private static validateSolidgateConfig(): void {
 		const solidgateApiKey = this.solidgateApiKey;
+		const solidgateSecretKey = this.solidgateSecretKey;
 		const solidgateWebhookSecret = this.solidgateWebhookSecret;
 		const solidgatePublishableKey = this.solidgatePublishableKey;
 		const solidgateMerchantId = this.solidgateMerchantId;
 		const solidgateApiBaseUrl = this.solidgateApiBaseUrl;
 
-		if (!solidgateApiKey) {
-			throw new Error('Solidgate configuration is incomplete. Required: SOLIDGATE_API_KEY');
+		if (!solidgateApiKey || !solidgateMerchantId) {
+			throw new Error(
+				'Solidgate configuration is incomplete. Required: SOLIDGATE_API_KEY, SOLIDGATE_MERCHANT_ID'
+			);
 		}
 
 		this.ensureConfig().solidgate = {
 			apiKey: solidgateApiKey,
 			webhookSecret: solidgateWebhookSecret || '',
+			secretKey: solidgateSecretKey,
 			options: {
-				publishableKey: solidgatePublishableKey || solidgateApiKey,
+				publishableKey: solidgatePublishableKey || '',
 				merchantId: solidgateMerchantId || '',
 				apiBaseUrl: solidgateApiBaseUrl
 			}
