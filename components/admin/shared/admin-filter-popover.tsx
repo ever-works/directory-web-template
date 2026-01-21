@@ -119,7 +119,7 @@ function FilterSectionContent<T extends string>({
 			const newValues = isSelected
 				? section.selectedValues.filter((v) => v !== optionId)
 				: [...section.selectedValues, optionId];
-			section.onChange(newValues as T[]);
+			section.onChange(newValues);
 		}
 	};
 
@@ -155,7 +155,7 @@ function FilterSectionContent<T extends string>({
 					</p>
 				) : (
 					filteredOptions.map((option) => {
-						const isSelected = section.selectedValues.includes(option.id as T);
+						const isSelected = section.selectedValues.includes(option.id);
 						return (
 							<label
 								key={String(option.id)}
@@ -169,7 +169,7 @@ function FilterSectionContent<T extends string>({
 									type={section.type}
 									name={section.type === 'radio' ? section.id : undefined}
 									checked={isSelected}
-									onChange={() => toggleOption(option.id as T)}
+									onChange={() => toggleOption(option.id)}
 									disabled={option.disabled}
 									className="w-3.5 h-3.5 rounded text-theme-primary border-gray-300 focus:ring-theme-primary"
 								/>
