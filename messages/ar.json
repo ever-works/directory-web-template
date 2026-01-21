@@ -1355,6 +1355,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "بحث...",
+      "CLEAR_SEARCH": "مسح البحث",
+      "FILTERS": "الفلاتر",
+      "CLEAR_ALL": "مسح الكل",
+      "CLEAR_ALL_FILTERS": "مسح جميع الفلاتر",
+      "ACTIVE_FILTERS": "الفلاتر النشطة",
+      "REMOVE_FILTER": "إزالة فلتر {name}",
+      "NO_RESULTS": "لم يتم العثور على نتائج",
+      "SEARCH_IN": "البحث في {name}...",
+      "STATUS_ALL": "الكل"
+    },
     "DASHBOARD_TITLE": "لوحة تحكم الإدارة",
     "WELCOME_MESSAGE": "مرحباً، {adminName}! استخدم الأدوات أدناه لإدارة المنصة.",
     "TOP_ITEMS": {

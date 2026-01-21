@@ -1425,6 +1425,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Tìm kiếm...",
+      "CLEAR_SEARCH": "Xóa tìm kiếm",
+      "FILTERS": "Bộ lọc",
+      "CLEAR_ALL": "Xóa tất cả",
+      "CLEAR_ALL_FILTERS": "Xóa tất cả bộ lọc",
+      "ACTIVE_FILTERS": "Bộ lọc đang hoạt động",
+      "REMOVE_FILTER": "Xóa bộ lọc {name}",
+      "NO_RESULTS": "Không tìm thấy kết quả",
+      "SEARCH_IN": "Tìm kiếm trong {name}...",
+      "STATUS_ALL": "Tất cả"
+    },
     "DASHBOARD_TITLE": "Trang tổng quan dành cho quản trị viên",
     "WELCOME_MESSAGE": "Xin chào {adminName}! ",
     "TOP_ITEMS": {

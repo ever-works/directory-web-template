@@ -22,6 +22,9 @@ export * from './use-client-items';
 export * from './use-client-item-details';
 export * from './use-client-item-filters';
 
+// Admin filter utilities
+export * from './use-admin-filters';
+
 // Location settings hook
 export * from './use-location-settings';
 // Item engagement hooks (for popularity sorting)

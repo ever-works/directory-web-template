@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Zoeken...",
+      "CLEAR_SEARCH": "Zoekopdracht wissen",
+      "FILTERS": "Filters",
+      "CLEAR_ALL": "Alles wissen",
+      "CLEAR_ALL_FILTERS": "Alle filters wissen",
+      "ACTIVE_FILTERS": "Actieve filters",
+      "REMOVE_FILTER": "Filter {name} verwijderen",
+      "NO_RESULTS": "Geen resultaten gevonden",
+      "SEARCH_IN": "Zoeken in {name}...",
+      "STATUS_ALL": "Alle"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {
