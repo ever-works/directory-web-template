@@ -165,14 +165,6 @@ export function useClientFilters(config: ClientFiltersConfig = {}): UseClientFil
 		setDateFilterType('created');
 	}, [adminFilters]);
 
-	// Clear date filter specifically
-	const clearDateFilter = useCallback(() => {
-		setDatePreset('all');
-		setCustomDateFrom('');
-		setCustomDateTo('');
-		setDateFilterType('created');
-	}, []);
-
 	// Total count including date filter
 	const totalActiveFilterCount = useMemo(() => {
 		let count = adminFilters.activeFilterCount;
