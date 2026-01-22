@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAdminFilters, type UseAdminFiltersReturn } from '@/hooks/use-admin-filters';
 import { computeDateRange } from '../utils/client-helpers';
 
@@ -85,6 +85,15 @@ export function useClientFilters(config: ClientFiltersConfig = {}): UseClientFil
 	const [customDateTo, setCustomDateTo] = useState<string>('');
 	const [dateFilterType, setDateFilterType] = useState<DateFilterType>('created');
 
+	// Track initial mount for date filters to prevent triggering onFiltersChange on mount
+	const isInitialDateMount = useRef(true);
+
+	// Store onFiltersChange in ref to avoid dependency issues
+	const onFiltersChangeRef = useRef(onFiltersChange);
+	useEffect(() => {
+		onFiltersChangeRef.current = onFiltersChange;
+	}, [onFiltersChange]);
+
 	// Computed date values
 	const [createdAfter, setCreatedAfter] = useState<string>('');
 	const [createdBefore, setCreatedBefore] = useState<string>('');
@@ -108,12 +117,13 @@ export function useClientFilters(config: ClientFiltersConfig = {}): UseClientFil
 		}
 	}, [datePreset, dateFilterType, customDateFrom, customDateTo]);
 
-	// Trigger onFiltersChange when date filters change
+	// Trigger onFiltersChange when date filters change (after initial mount)
 	useEffect(() => {
-		if (datePreset !== 'all') {
-			onFiltersChange?.();
+		if (isInitialDateMount.current) {
+			isInitialDateMount.current = false;
+			return;
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
+		onFiltersChangeRef.current?.();
 	}, [datePreset, dateFilterType, customDateFrom, customDateTo]);
 
 	// Convenience getters for single-value filters (first value or empty string)
