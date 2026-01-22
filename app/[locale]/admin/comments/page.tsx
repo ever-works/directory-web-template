@@ -8,7 +8,7 @@ import { UniversalPagination } from "@/components/universal-pagination";
 import DeleteCommentDialog from "@/components/admin/comments/delete-comment-dialog";
 import { useAdminComments, AdminCommentItem } from "@/hooks/use-admin-comments";
 import { useAdminFilters } from "@/hooks/use-admin-filters";
-import { AdminSearchBar, AdminActiveFilters, type ActiveFilter } from "@/components/admin/shared";
+import { AdminSearchBar, AdminActiveFilters } from "@/components/admin/shared";
 import { useTranslations } from "next-intl";
 import { useNavigation } from "@/components/providers";
 
