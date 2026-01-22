@@ -2595,6 +2595,8 @@
       "TITLE": "Manajemen Perusahaan",
       "SUBTITLE": "Kelola perusahaan dan informasi mereka",
       "ADD_COMPANY": "Tambah Perusahaan",
+      "SEARCH_LABEL": "Cari",
+      "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Perusahaan",
       "ACTIVE_COMPANIES": "Perusahaan Aktif",
       "INACTIVE_COMPANIES": "Perusahaan Tidak Aktif",

@@ -2503,6 +2503,8 @@
       "TITLE": "Gestión de Empresas",
       "SUBTITLE": "Gestionar empresas y su información",
       "ADD_COMPANY": "Agregar Empresa",
+      "SEARCH_LABEL": "Buscar",
+      "STATUS_LABEL": "Estado",
       "TOTAL_COMPANIES": "Empresas Totales",
       "ACTIVE_COMPANIES": "Empresas Activas",
       "INACTIVE_COMPANIES": "Empresas Inactivas",

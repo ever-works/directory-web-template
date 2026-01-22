@@ -2513,6 +2513,8 @@
       "TITLE": "公司管理",
       "SUBTITLE": "管理公司及其信息",
       "ADD_COMPANY": "添加公司",
+      "SEARCH_LABEL": "搜索",
+      "STATUS_LABEL": "状态",
       "TOTAL_COMPANIES": "公司总数",
       "ACTIVE_COMPANIES": "活跃公司",
       "INACTIVE_COMPANIES": "非活跃公司",

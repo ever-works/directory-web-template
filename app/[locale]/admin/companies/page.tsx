@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
-import { useDebounceSearch } from '@/hooks/use-debounced-search';
+import { useState, useCallback, useMemo } from 'react';
+import { useAdminFilters } from '@/hooks/use-admin-filters';
 import { useSkeletonVisibility } from '@/hooks/use-skeleton-visibility';
 import { useAdminCompanies } from '@/hooks/use-admin-companies';
 import { useCompaniesEnabled } from '@/hooks/use-companies-enabled';
@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { Company } from '@/types/company';
 import type { CreateCompanyInput, UpdateCompanyInput } from '@/lib/validations/company';
+import type { ActiveFilter } from '@/components/admin/shared';
 
 // Components
 import { PageHeader } from '@/components/admin/companies/page-header';
@@ -30,23 +31,31 @@ export default function CompaniesPage() {
 	// UI state
 	const [currentPage, setCurrentPage] = useState(1);
 	const [limit] = useState(10);
-	const [searchTerm, setSearchTerm] = useState('');
-	const [statusFilter, setStatusFilter] = useState<'' | 'active' | 'inactive'>('');
 	const [companyToDelete, setCompanyToDelete] = useState<Company | null>(null);
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 	const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 	const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
-	// Debounced search
-	const { debouncedValue: debouncedSearchTerm, isSearching } = useDebounceSearch({
-		searchValue: searchTerm,
-		delay: 300,
-		onSearch: () => {
-			if (currentPage !== 1) {
-				setCurrentPage(1);
-			}
-		}
+	// Unified filter state management
+	type CompanyStatus = 'active' | 'inactive';
+
+	const {
+		searchTerm,
+		setSearchTerm,
+		debouncedSearchTerm,
+		isSearching,
+		hasActiveSearch,
+		statusFilter,
+		setStatusFilter,
+		activeFilterCount,
+		hasActiveFilters,
+		clearAllFilters,
+		clearSearch,
+	} = useAdminFilters<CompanyStatus>({
+		minSearchLength: 2,
+		debounceDelay: 300,
+		onFiltersChange: () => setCurrentPage(1),
 	});
 
 	// Data fetching hook
@@ -72,9 +81,39 @@ export default function CompaniesPage() {
 		}
 	});
 
-	// Calculate active filters
-	const activeFilterCount = [searchTerm, statusFilter].filter(Boolean).length;
-	const hasActiveFilters = activeFilterCount > 0;
+	// Build active filters for chip display
+	const activeFilters = useMemo((): ActiveFilter[] => {
+		const filters: ActiveFilter[] = [];
+		if (hasActiveSearch) {
+			filters.push({
+				id: 'search',
+				type: 'search',
+				label: t('SEARCH_LABEL'),
+				value: searchTerm.trim(),
+			});
+		}
+		if (statusFilter) {
+			filters.push({
+				id: `status:${statusFilter}`,
+				type: 'status',
+				label: t('STATUS_LABEL'),
+				value: statusFilter === 'active' ? t('STATUS_ACTIVE') : t('STATUS_INACTIVE'),
+			});
+		}
+		return filters;
+	}, [hasActiveSearch, searchTerm, statusFilter, t]);
+
+	// Handler for removing individual filters
+	const handleRemoveFilter = useCallback(
+		(filter: ActiveFilter) => {
+			if (filter.type === 'search') {
+				clearSearch();
+			} else if (filter.type === 'status') {
+				setStatusFilter('');
+			}
+		},
+		[clearSearch, setStatusFilter]
+	);
 
 	// Check if skeleton should be shown (only on initial page load)
 	const shouldShowSkeleton = useSkeletonVisibility(isLoading, companies.length > 0);
@@ -145,12 +184,6 @@ export default function CompaniesPage() {
 	const handleCancelDelete = useCallback(() => {
 		setIsDeleteModalOpen(false);
 		setCompanyToDelete(null);
-	}, []);
-
-	const handleClearFilters = useCallback(() => {
-		setSearchTerm('');
-		setStatusFilter('');
-		setCurrentPage(1);
 	}, []);
 
 	const handlePageChange = useCallback((page: number) => {
@@ -228,12 +261,16 @@ export default function CompaniesPage() {
 			{/* Filters */}
 			<CompanyFilters
 				searchTerm={searchTerm}
-				statusFilter={statusFilter}
 				onSearchChange={setSearchTerm}
-				onStatusChange={setStatusFilter}
-				onClearFilters={handleClearFilters}
-				activeFilterCount={activeFilterCount}
 				isSearching={isSearching}
+				hasActiveSearch={hasActiveSearch}
+				statusFilter={statusFilter}
+				onStatusChange={setStatusFilter}
+				statusCounts={stats}
+				activeFilters={activeFilters}
+				onRemoveFilter={handleRemoveFilter}
+				onClearAllFilters={clearAllFilters}
+				activeFilterCount={activeFilterCount}
 			/>
 
 			{/* Companies Table */}

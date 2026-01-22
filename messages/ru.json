@@ -2595,6 +2595,8 @@
       "TITLE": "Управление компаниями",
       "SUBTITLE": "Управление компаниями и их информацией",
       "ADD_COMPANY": "Добавить компанию",
+      "SEARCH_LABEL": "Поиск",
+      "STATUS_LABEL": "Статус",
       "TOTAL_COMPANIES": "Всего компаний",
       "ACTIVE_COMPANIES": "Активных компаний",
       "INACTIVE_COMPANIES": "Неактивных компаний",

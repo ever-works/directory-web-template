@@ -2501,6 +2501,8 @@
       "TITLE": "إدارة الشركات",
       "SUBTITLE": "إدارة الشركات ومعلوماتها",
       "ADD_COMPANY": "إضافة شركة",
+      "SEARCH_LABEL": "بحث",
+      "STATUS_LABEL": "الحالة",
       "TOTAL_COMPANIES": "إجمالي الشركات",
       "ACTIVE_COMPANIES": "الشركات النشطة",
       "INACTIVE_COMPANIES": "الشركات غير النشطة",
