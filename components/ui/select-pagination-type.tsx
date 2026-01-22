@@ -23,60 +23,61 @@ const SelectPaginationType: React.FC<SelectPaginationTypeProps> = ({ className, 
 		setPaginationType(newType);
 
 		// Toast notification
-		toast.success(
-			t(isInfinite ? 'PAGINATION_CHANGED_TO_INFINITE' : 'PAGINATION_CHANGED_TO_STANDARD'),
-			{
-				duration: 2000,
-				description: t('SETTINGS_SAVED_AUTOMATICALLY')
-			}
-		);
+		toast.success(t(isInfinite ? 'PAGINATION_CHANGED_TO_INFINITE' : 'PAGINATION_CHANGED_TO_STANDARD'), {
+			duration: 2000,
+			description: t('SETTINGS_SAVED_AUTOMATICALLY')
+		});
 	};
 
 	return (
-		<div className={cn(
-			// Structure
-			'group p-5 rounded-xl',
+		<div
+			className={cn(
+				// Structure
+				'group p-5 rounded-xl',
 
-			// Blue/Indigo/Purple gradient - navigation feel
-			'bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/40',
-			'dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-purple-950/20',
+				// Blue/Indigo/Purple gradient - navigation feel
+				'bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/40',
+				'dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-purple-950/20',
 
-			// Glassmorphism
-			'backdrop-blur-xl backdrop-saturate-150',
+				// Glassmorphism
+				'backdrop-blur-xl backdrop-saturate-150',
 
-			// Border with blue tones
-			'border border-blue-200/40 dark:border-blue-800/30',
+				// Border with blue tones
+				'border border-blue-200/40 dark:border-blue-800/30',
 
-			// Enhanced shadow
-			'shadow-lg shadow-black/5 dark:shadow-black/20',
+				// Enhanced shadow
+				'shadow-lg shadow-black/5 dark:shadow-black/20',
 
-			// Spring animation on hover
-			'transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
+				// Spring animation on hover
+				'transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
 
-			// Hover effects - lift and enhanced border
-			'hover:shadow-2xl hover:shadow-blue-500/10',
-			'hover:border-blue-300/60 dark:hover:border-blue-700/50',
+				// Hover effects - lift and enhanced border
+				'hover:shadow-2xl hover:shadow-blue-500/10',
+				'hover:border-blue-300/60 dark:hover:border-blue-700/50',
 
-			// Animation entrance
-			'animate-fade-in-up',
+				// Animation entrance
+				'animate-fade-in-up',
 
-			className
-		)}>
-			<div className="flex items-start justify-between gap-4">
+				className
+			)}
+		>
+			<div className="flex flex-col md:flex-row items-start justify-between gap-4">
 				{/* Icon + Title/Description */}
-				<div className="flex items-start gap-3 flex-1 min-w-0">
+				<div className="flex items-start gap-3 flex-1 min-w-0 w-full">
 					{/* Icon container with blue gradient and glassmorphism */}
-					<div className={cn(
-						'p-2 rounded-lg flex-shrink-0',
-						'bg-gradient-to-br from-blue-100 to-indigo-200',
-						'dark:from-blue-900/40 dark:to-indigo-900/40',
-						'backdrop-blur-md',
-						'border border-blue-300/50 dark:border-blue-700/50',
-						'shadow-inner',
-						// Icon animation
-						'transition-transform duration-700 ease-in-out',
-						'group-hover:scale-110 group-hover:rotate-3'
-					)}>
+					<div
+						className={cn(
+							'p-2 rounded-lg flex-shrink-0',
+							'bg-gradient-to-br from-blue-100 to-indigo-200',
+							'dark:from-blue-900/40 dark:to-indigo-900/40',
+							'backdrop-blur-md',
+							'border border-blue-300/50 dark:border-blue-700/50',
+							'shadow-inner',
+							// Icon animation
+							'transition-transform duration-700 ease-in-out',
+							'group-hover:scale-110 group-hover:rotate-3'
+						)}
+					>
 						<Layers className="h-5 w-5 text-blue-700 dark:text-blue-300" />
 					</div>
 
@@ -92,7 +93,7 @@ const SelectPaginationType: React.FC<SelectPaginationTypeProps> = ({ className, 
 				</div>
 
 				{/* Toggle with icons */}
-				<div className="flex-shrink-0">
+				<div className="flex-shrink-0 w-full md:w-auto">
 					<SegmentedToggle
 						value={paginationType === 'infinite'}
 						onChange={handleToggle}
