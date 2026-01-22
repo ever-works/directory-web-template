@@ -87,7 +87,6 @@ export default function ClientsPage() {
 		updatedAfter,
 		updatedBefore,
 		clearFilters,
-		totalActiveFilterCount,
 		hasActiveFilters,
 		hasActiveFiltersIncludingDate,
 	} = useClientFilters({
@@ -299,7 +298,6 @@ export default function ClientsPage() {
 				onCustomDateToChange={setCustomDateTo}
 				onDateFilterTypeChange={setDateFilterType}
 				onClearFilters={clearFilters}
-				activeFilterCount={totalActiveFilterCount}
 				stats={stats}
 			/>
 

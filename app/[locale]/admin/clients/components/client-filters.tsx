@@ -43,7 +43,6 @@ interface ClientFiltersProps {
 
 	// Actions
 	onClearFilters: () => void;
-	activeFilterCount: number;
 
 	// Stats for counts
 	stats?: {
@@ -310,6 +309,7 @@ export function ClientFilters(props: ClientFiltersProps) {
 					onDatePresetChange('all');
 					onCustomDateFromChange('');
 					onCustomDateToChange('');
+					onDateFilterTypeChange('created');
 					break;
 			}
 		},
@@ -321,6 +321,7 @@ export function ClientFilters(props: ClientFiltersProps) {
 			onDatePresetChange,
 			onCustomDateFromChange,
 			onCustomDateToChange,
+			onDateFilterTypeChange,
 		]
 	);
 
