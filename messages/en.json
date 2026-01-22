@@ -332,6 +332,8 @@
 		"ALL": "All",
 		"ALL_CATEGORIES": "All Categories",
 		"ALL_TAGS": "All Tags",
+		"items": "Items",
+		"ALL_CATEGORIES_DESCRIPTION": "Browse through all available categories to find the best tools and resources.",
 		"CATEGORIES": "Categories",
 		"BROWSE_CATEGORIES": "Browse Categories",
 		"TAGS": "Tags",
@@ -1431,6 +1433,18 @@
 		}
 	},
 	"admin": {
+		"SHARED": {
+			"SEARCH_PLACEHOLDER": "Search...",
+			"CLEAR_SEARCH": "Clear search",
+			"FILTERS": "Filters",
+			"CLEAR_ALL": "Clear All",
+			"CLEAR_ALL_FILTERS": "Clear all filters",
+			"ACTIVE_FILTERS": "Active Filters",
+			"REMOVE_FILTER": "Remove {name} filter",
+			"NO_RESULTS": "No results found",
+			"SEARCH_IN": "Search in {name}...",
+			"STATUS_ALL": "All"
+		},
 		"DASHBOARD_TITLE": "Admin Dashboard",
 		"WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
 		"TOP_ITEMS": {

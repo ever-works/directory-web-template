@@ -1425,6 +1425,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Ara...",
+      "CLEAR_SEARCH": "Aramayı temizle",
+      "FILTERS": "Filtreler",
+      "CLEAR_ALL": "Tümünü temizle",
+      "CLEAR_ALL_FILTERS": "Tüm filtreleri temizle",
+      "ACTIVE_FILTERS": "Aktif filtreler",
+      "REMOVE_FILTER": "{name} filtresini kaldır",
+      "NO_RESULTS": "Sonuç bulunamadı",
+      "SEARCH_IN": "{name} içinde ara...",
+      "STATUS_ALL": "Tümü"
+    },
     "DASHBOARD_TITLE": "Yönetici Kontrol Paneli",
     "WELCOME_MESSAGE": "Hoş geldiniz, {adminName}! Platformu yönetmek için aşağıdaki araçları kullanın.",
     "TOP_ITEMS": {

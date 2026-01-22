@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "खोजें...",
+      "CLEAR_SEARCH": "खोज साफ़ करें",
+      "FILTERS": "फ़िल्टर",
+      "CLEAR_ALL": "सभी साफ़ करें",
+      "CLEAR_ALL_FILTERS": "सभी फ़िल्टर साफ़ करें",
+      "ACTIVE_FILTERS": "सक्रिय फ़िल्टर",
+      "REMOVE_FILTER": "{name} फ़िल्टर हटाएं",
+      "NO_RESULTS": "कोई परिणाम नहीं मिला",
+      "SEARCH_IN": "{name} में खोजें...",
+      "STATUS_ALL": "सभी"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {

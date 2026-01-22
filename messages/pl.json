@@ -1335,6 +1335,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Szukaj...",
+      "CLEAR_SEARCH": "Wyczyść wyszukiwanie",
+      "FILTERS": "Filtry",
+      "CLEAR_ALL": "Wyczyść wszystko",
+      "CLEAR_ALL_FILTERS": "Wyczyść wszystkie filtry",
+      "ACTIVE_FILTERS": "Aktywne filtry",
+      "REMOVE_FILTER": "Usuń filtr {name}",
+      "NO_RESULTS": "Nie znaleziono wyników",
+      "SEARCH_IN": "Szukaj w {name}...",
+      "STATUS_ALL": "Wszystkie"
+    },
     "DASHBOARD_TITLE": "Admin Dashboard",
     "WELCOME_MESSAGE": "Welcome, {adminName}! Use the tools below to manage the platform.",
     "TOP_ITEMS": {

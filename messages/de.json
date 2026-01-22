@@ -1368,6 +1368,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Suchen...",
+      "CLEAR_SEARCH": "Suche löschen",
+      "FILTERS": "Filter",
+      "CLEAR_ALL": "Alle löschen",
+      "CLEAR_ALL_FILTERS": "Alle Filter löschen",
+      "ACTIVE_FILTERS": "Aktive Filter",
+      "REMOVE_FILTER": "Filter {name} entfernen",
+      "NO_RESULTS": "Keine Ergebnisse gefunden",
+      "SEARCH_IN": "Suchen in {name}...",
+      "STATUS_ALL": "Alle"
+    },
     "DASHBOARD_TITLE": "Admin-Dashboard",
     "WELCOME_MESSAGE": "Willkommen, {adminName}! Verwenden Sie die unten stehenden Tools zur Verwaltung der Plattform.",
     "TOP_ITEMS": {

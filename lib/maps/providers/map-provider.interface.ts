@@ -38,8 +38,8 @@ export interface IMapInstance {
 	resize(): void;
 	/** Add event listener */
 	on(event: string, handler: (...args: unknown[]) => void): void;
-	/** Remove event listener */
-	off(event: string, handler: (...args: unknown[]) => void): void;
+	/** Remove event listener. If handler is provided and supported, removes only that handler. Otherwise removes all listeners for the event. */
+	off(event: string, handler?: (...args: unknown[]) => void): void;
 	/** Destroy the map instance */
 	destroy(): void;
 }

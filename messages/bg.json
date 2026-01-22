@@ -1425,6 +1425,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Търсене...",
+      "CLEAR_SEARCH": "Изчисти търсенето",
+      "FILTERS": "Филтри",
+      "CLEAR_ALL": "Изчисти всички",
+      "CLEAR_ALL_FILTERS": "Изчисти всички филтри",
+      "ACTIVE_FILTERS": "Активни филтри",
+      "REMOVE_FILTER": "Премахни филтър {name}",
+      "NO_RESULTS": "Няма намерени резултати",
+      "SEARCH_IN": "Търси в {name}...",
+      "STATUS_ALL": "Всички"
+    },
     "DASHBOARD_TITLE": "Администраторско табло",
     "WELCOME_MESSAGE": "Добре дошли, {adminName}! Използвайте инструментите по-долу, за да управлявате платформата.",
     "TOP_ITEMS": {

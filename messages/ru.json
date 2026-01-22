@@ -1425,6 +1425,18 @@
     }
   },
   "admin": {
+    "SHARED": {
+      "SEARCH_PLACEHOLDER": "Поиск...",
+      "CLEAR_SEARCH": "Очистить поиск",
+      "FILTERS": "Фильтры",
+      "CLEAR_ALL": "Очистить все",
+      "CLEAR_ALL_FILTERS": "Очистить все фильтры",
+      "ACTIVE_FILTERS": "Активные фильтры",
+      "REMOVE_FILTER": "Удалить фильтр {name}",
+      "NO_RESULTS": "Результаты не найдены",
+      "SEARCH_IN": "Искать в {name}...",
+      "STATUS_ALL": "Все"
+    },
     "DASHBOARD_TITLE": "Панель администратора",
     "WELCOME_MESSAGE": "Добро пожаловать, {adminName}! Используйте инструменты ниже для управления платформой.",
     "TOP_ITEMS": {
