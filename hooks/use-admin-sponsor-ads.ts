@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { serverClient, apiUtils } from "@/lib/api/server-api-client";
@@ -195,6 +195,12 @@ export function useAdminSponsorAds(
 	const [currentPage, setCurrentPage] = useState(initialPage);
 	const [sortBy, setSortBy] = useState<SponsorAdSortBy>(initialSortBy);
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">(initialSortOrder);
+
+	// Sync internal page state when external page prop changes
+	// This ensures filter changes that reset page externally are reflected
+	useEffect(() => {
+		setCurrentPage(initialPage);
+	}, [initialPage]);
 
 	// Wrapped sort setters that reset pagination
 	const handleSetSortBy = useCallback((newSortBy: SponsorAdSortBy) => {

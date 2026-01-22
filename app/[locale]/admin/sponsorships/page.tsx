@@ -65,7 +65,6 @@ export default function AdminSponsorshipsPage() {
 		rejectSponsorAd,
 		cancelSponsorAd,
 		deleteSponsorAd,
-		setCurrentPage: setHookCurrentPage
 	} = useAdminSponsorAds({
 		page: currentPage,
 		status: statusFilter || undefined, // Convert '' to undefined for API
@@ -142,14 +141,10 @@ export default function AdminSponsorshipsPage() {
 		[confirmDeleteId, deleteSponsorAd]
 	);
 
-	const handlePageChange = useCallback(
-		(page: number) => {
-			setCurrentPage(page);
-			setHookCurrentPage(page);
-			window.scrollTo({ top: 0, behavior: 'smooth' });
-		},
-		[setHookCurrentPage]
-	);
+	const handlePageChange = useCallback((page: number) => {
+		setCurrentPage(page);
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, []);
 
 	// Loading state - only show skeleton on initial page load
 	if (shouldShowSkeleton) {
