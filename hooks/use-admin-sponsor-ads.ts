@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { serverClient, apiUtils } from "@/lib/api/server-api-client";
@@ -57,10 +57,7 @@ interface UseAdminSponsorAdsReturn {
 	totalPages: number;
 	totalItems: number;
 
-	// Filters
-	statusFilter: SponsorAdStatus | undefined;
-	intervalFilter: SponsorAdIntervalType | undefined;
-	searchTerm: string;
+	// Sorting
 	sortBy: SponsorAdSortBy;
 	sortOrder: "asc" | "desc";
 
@@ -70,10 +67,7 @@ interface UseAdminSponsorAdsReturn {
 	cancelSponsorAd: (id: string, reason?: string) => Promise<boolean>;
 	deleteSponsorAd: (id: string) => Promise<boolean>;
 
-	// Filter actions
-	setStatusFilter: (status: SponsorAdStatus | undefined) => void;
-	setIntervalFilter: (interval: SponsorAdIntervalType | undefined) => void;
-	setSearchTerm: (term: string) => void;
+	// Setters
 	setSortBy: (sortBy: SponsorAdSortBy) => void;
 	setSortOrder: (order: "asc" | "desc") => void;
 	setCurrentPage: (page: number) => void;
@@ -190,41 +184,19 @@ export function useAdminSponsorAds(
 	const {
 		page: initialPage = 1,
 		limit = 10,
-		status: initialStatus,
-		interval: initialInterval,
-		search: initialSearch = "",
+		status,
+		interval,
+		search,
 		sortBy: initialSortBy = "createdAt",
 		sortOrder: initialSortOrder = "desc",
 	} = options;
 
-	// State for filters
+	// State for pagination and sorting only (filters are now passed in)
 	const [currentPage, setCurrentPage] = useState(initialPage);
-	const [statusFilter, setStatusFilter] = useState<SponsorAdStatus | undefined>(
-		initialStatus
-	);
-	const [intervalFilter, setIntervalFilter] = useState<
-		SponsorAdIntervalType | undefined
-	>(initialInterval);
-	const [searchTerm, setSearchTerm] = useState(initialSearch);
 	const [sortBy, setSortBy] = useState<SponsorAdSortBy>(initialSortBy);
 	const [sortOrder, setSortOrder] = useState<"asc" | "desc">(initialSortOrder);
 
-	// Wrapped filter setters that reset pagination
-	const handleSetStatusFilter = useCallback((status: SponsorAdStatus | undefined) => {
-		setStatusFilter(status);
-		setCurrentPage(1);
-	}, []);
-
-	const handleSetIntervalFilter = useCallback((interval: SponsorAdIntervalType | undefined) => {
-		setIntervalFilter(interval);
-		setCurrentPage(1);
-	}, []);
-
-	const handleSetSearchTerm = useCallback((term: string) => {
-		setSearchTerm(term);
-		setCurrentPage(1);
-	}, []);
-
+	// Wrapped sort setters that reset pagination
 	const handleSetSortBy = useCallback((newSortBy: SponsorAdSortBy) => {
 		setSortBy(newSortBy);
 		setCurrentPage(1);
@@ -238,16 +210,16 @@ export function useAdminSponsorAds(
 	// Query client for cache management
 	const queryClient = useQueryClient();
 
-	// Query parameters
-	const queryParams = {
+	// Query parameters - memoized to prevent unnecessary re-renders
+	const queryParams = useMemo(() => ({
 		page: currentPage,
 		limit,
-		status: statusFilter,
-		interval: intervalFilter,
-		search: searchTerm || undefined,
+		status,
+		interval,
+		search: search || undefined,
 		sortBy,
 		sortOrder,
-	};
+	}), [currentPage, limit, status, interval, search, sortBy, sortOrder]);
 
 	// Fetch sponsor ads
 	const {
@@ -394,10 +366,7 @@ export function useAdminSponsorAds(
 		totalPages,
 		totalItems,
 
-		// Filters
-		statusFilter,
-		intervalFilter,
-		searchTerm,
+		// Sorting
 		sortBy,
 		sortOrder,
 
@@ -407,10 +376,7 @@ export function useAdminSponsorAds(
 		cancelSponsorAd: handleCancel,
 		deleteSponsorAd: handleDelete,
 
-		// Filter actions
-		setStatusFilter: handleSetStatusFilter,
-		setIntervalFilter: handleSetIntervalFilter,
-		setSearchTerm: handleSetSearchTerm,
+		// Setters
 		setSortBy: handleSetSortBy,
 		setSortOrder: handleSetSortOrder,
 		setCurrentPage,

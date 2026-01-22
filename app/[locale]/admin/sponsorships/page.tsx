@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import { useDebounceValue } from '@/hooks/use-debounced-value';
+import { useState, useCallback } from 'react';
+import { useAdminFilters } from '@/hooks/use-admin-filters';
 import { useSkeletonVisibility } from '@/hooks/use-skeleton-visibility';
 import { useAdminSponsorAds } from '@/hooks/use-admin-sponsor-ads';
 import { UniversalPagination } from '@/components/universal-pagination';
@@ -26,9 +26,26 @@ import { LoadingSkeleton } from '@/components/admin/sponsorships/loading-skeleto
 export default function AdminSponsorshipsPage() {
 	const t = useTranslations('admin.SPONSORSHIPS');
 
-	// UI state
-	const [searchTerm, setSearchTerm] = useState('');
-	const [localStatusFilter, setLocalStatusFilter] = useState<SponsorAdStatus | undefined>(undefined);
+	// Pagination state (managed separately for passing to hook)
+	const [currentPage, setCurrentPage] = useState(1);
+
+	// Unified filter state with debounced search
+	const {
+		searchTerm,
+		setSearchTerm,
+		debouncedSearchTerm,
+		isSearching,
+		statusFilter,
+		setStatusFilter,
+		activeFilterCount,
+		clearAllFilters,
+	} = useAdminFilters<SponsorAdStatus>({
+		minSearchLength: 2,
+		debounceDelay: 300,
+		onFiltersChange: () => setCurrentPage(1),
+	});
+
+	// UI state for modals
 	const [rejectModalOpen, setRejectModalOpen] = useState(false);
 	const [forceApproveModalOpen, setForceApproveModalOpen] = useState(false);
 	const [selectedSponsorAd, setSelectedSponsorAd] = useState<SponsorAd | null>(null);
@@ -36,61 +53,29 @@ export default function AdminSponsorshipsPage() {
 	const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 	const [pendingApproveId, setPendingApproveId] = useState<string | null>(null);
 
-	// Debounced search - only triggers API call after user stops typing
-	const debouncedSearchTerm = useDebounceValue(searchTerm, 400);
-	const isSearching = searchTerm !== debouncedSearchTerm && searchTerm.trim() !== '';
-
-	// Data fetching hook
+	// Data fetching hook - pass filter values as parameters
 	const {
 		sponsorAds,
 		stats,
 		isLoading,
 		isSubmitting,
-		currentPage,
 		totalPages,
 		totalItems,
 		approveSponsorAd,
 		rejectSponsorAd,
 		cancelSponsorAd,
 		deleteSponsorAd,
-		setStatusFilter,
-		setSearchTerm: setHookSearchTerm,
-		setCurrentPage
-	} = useAdminSponsorAds();
-
-	// Calculate active filters
-	const activeFilterCount = [searchTerm, localStatusFilter].filter(Boolean).length;
+		setCurrentPage: setHookCurrentPage
+	} = useAdminSponsorAds({
+		page: currentPage,
+		status: statusFilter || undefined, // Convert '' to undefined for API
+		search: debouncedSearchTerm || undefined, // Convert '' to undefined for API
+	});
 
 	// Check if skeleton should be shown (only on initial page load)
 	const shouldShowSkeleton = useSkeletonVisibility(isLoading, sponsorAds.length > 0);
 
-	// Sync debounced search term to hook (only when debounced value changes)
-	useEffect(() => {
-		setHookSearchTerm(debouncedSearchTerm);
-		setCurrentPage(1); // Reset to page 1 when search changes (including when cleared)
-	}, [debouncedSearchTerm, setHookSearchTerm, setCurrentPage]);
-
 	// Handlers
-	const handleSearchChange = useCallback((value: string) => {
-		setSearchTerm(value);
-	}, []);
-
-	const handleStatusChange = useCallback(
-		(value: SponsorAdStatus | undefined) => {
-			setLocalStatusFilter(value);
-			setStatusFilter(value);
-		},
-		[setStatusFilter]
-	);
-
-	const handleClearFilters = useCallback(() => {
-		setSearchTerm('');
-		setLocalStatusFilter(undefined);
-		setHookSearchTerm('');
-		setStatusFilter(undefined);
-		setCurrentPage(1);
-	}, [setHookSearchTerm, setStatusFilter, setCurrentPage]);
-
 	const handleApprove = useCallback(
 		async (id: string) => {
 			const result = await approveSponsorAd(id);
@@ -160,9 +145,10 @@ export default function AdminSponsorshipsPage() {
 	const handlePageChange = useCallback(
 		(page: number) => {
 			setCurrentPage(page);
+			setHookCurrentPage(page);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		},
-		[setCurrentPage]
+		[setHookCurrentPage]
 	);
 
 	// Loading state - only show skeleton on initial page load
@@ -181,12 +167,13 @@ export default function AdminSponsorshipsPage() {
 			{/* Filters */}
 			<SponsorFilters
 				searchTerm={searchTerm}
-				statusFilter={localStatusFilter}
-				onSearchChange={handleSearchChange}
-				onStatusChange={handleStatusChange}
-				onClearFilters={handleClearFilters}
+				statusFilter={statusFilter}
+				onSearchChange={setSearchTerm}
+				onStatusChange={setStatusFilter}
+				onClearFilters={clearAllFilters}
 				activeFilterCount={activeFilterCount}
 				isSearching={isSearching}
+				stats={stats}
 			/>
 
 			{/* Sponsor Ads Table */}
