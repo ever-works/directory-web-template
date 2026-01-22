@@ -85,6 +85,7 @@ interface UseAdminCommentsReturn {
 
   // Loading states
   isLoading: boolean;
+  isFetching: boolean;
   isDeleting: string | null;
 
   // Pagination
@@ -116,6 +117,7 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
   const {
     data: commentsData,
     isLoading,
+    isFetching,
     refetch,
   } = useQuery({
     queryKey: commentsQueryKeys.list({
@@ -178,6 +180,7 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
 
     // Loading states
     isLoading,
+    isFetching,
     isDeleting,
 
     // Pagination

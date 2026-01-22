@@ -35,6 +35,7 @@ export default function AdminCommentsPage() {
   const {
     comments,
     isLoading,
+    isFetching,
     isDeleting,
     totalPages,
     totalComments,
@@ -184,7 +185,7 @@ export default function AdminCommentsPage() {
         <AdminSearchBar
           value={searchTerm}
           onChange={setSearchTerm}
-          isSearching={isSearching}
+          isSearching={isSearching || isFetching}
           placeholder={t('SEARCH_PLACEHOLDER')}
           className="mb-4"
         />
