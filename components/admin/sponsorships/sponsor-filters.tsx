@@ -118,6 +118,7 @@ export function SponsorFilters({
 						filters={activeFilters}
 						onRemove={handleRemoveFilter}
 						onClearAll={onClearFilters}
+						clearAllThreshold={1}
 					/>
 				</div>
 			</CardBody>
