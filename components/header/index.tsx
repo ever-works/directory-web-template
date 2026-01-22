@@ -409,11 +409,15 @@ export default function Header() {
 						</NavbarContent>
 					</>
 				) : (
-					/* Fixed Width: Brand + Nav (Left) */
-					<NavbarContent className={STYLES.navContent} justify="start">
-						{renderBrand()}
-						{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
-					</NavbarContent>
+					/* Fixed Width: Brand (Separate) + Nav (Left) */
+					<>
+						<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
+							{renderBrand()}
+						</NavbarContent>
+						<NavbarContent className={STYLES.navContent} justify="start">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
 				)}
 				{/* Right Section (Profile, Settings, etc.) */}
 				{renderRightSection()}
