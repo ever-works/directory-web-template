@@ -8,6 +8,7 @@ import { PaymentFlowSelectorModal } from '../payment';
 import { PricingConfig } from '@/lib/content';
 import { usePricingSection } from '@/hooks/use-pricing-section';
 import { usePaymentAvailability } from '@/hooks/use-payment-availability';
+import { useTheme } from 'next-themes';
 import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,8 @@ interface PricingSectionProps {
 }
 
 export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: PricingSectionProps) {
+	const { resolvedTheme } = useTheme();
+	const theme = resolvedTheme as 'light' | 'dark';
 	const { isOpen: isModalOpen, onOpen: onOpenSelectorModal, onClose: onCloseSelectorModal } = useDisclosure();
 	const { shouldShowPaidPlans } = usePaymentAvailability();
 
@@ -477,7 +480,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				onSelect={handleFlowSelect}
 			/>
 
-			{/* Generic Payment Form Modal (Stripe + LemonSqueezy) */}
+			{/* Generic Payment Form Modal (Stripe + LemonSqueezy + Polar) */}
 			<PaymentFormModal
 				isOpen={paymentForm.isOpen}
 				onClose={paymentForm.closePaymentForm}
@@ -494,6 +497,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				isReady={isReady}
 				isError={paymentForm.isError}
 				provider={provider!}
+				theme={theme}
+				isDismissable={true}
 			/>
 		</div>
 	);
