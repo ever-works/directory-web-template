@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { PolarEmbedCheckout } from '@polar-sh/checkout/embed';
 
@@ -26,6 +28,18 @@ export function usePolarEmbed({ checkoutUrl, theme = 'light', onSuccess, onError
 
 	const checkoutRef = useRef<any>(null); // Ideally use PolarEmbedCheckout type if available globally
 	const initializingRef = useRef(false);
+
+	// Static refs for callbacks to prevent unnecessary re-initializations of the checkout
+	const onSuccessRef = useRef(onSuccess);
+	const onErrorRef = useRef(onError);
+	const onCloseRef = useRef(onClose);
+
+	// Sync refs with latest props
+	useEffect(() => {
+		onSuccessRef.current = onSuccess;
+		onErrorRef.current = onError;
+		onCloseRef.current = onClose;
+	}, [onSuccess, onError, onClose]);
 
 	/**
 	 * Destroys the current checkout instance and resets internal flags.
@@ -67,21 +81,21 @@ export function usePolarEmbed({ checkoutUrl, theme = 'light', onSuccess, onError
 				});
 
 				instance.addEventListener('close', () => {
-					if (onClose) {
-						onClose();
-					} else if (onError) {
-						onError(new Error('Checkout closed prematurely'));
+					if (onCloseRef.current) {
+						onCloseRef.current();
+					} else if (onErrorRef.current) {
+						onErrorRef.current(new Error('Checkout closed prematurely'));
 					}
 				});
 
 				instance.addEventListener('success', (event: any) => {
-					onSuccess?.(event.detail);
+					onSuccessRef.current?.(event.detail);
 				});
 			} catch (err) {
 				console.error('[PolarEmbed] Critical error during initialization:', err);
 				if (isMounted) {
 					setError('Failed to initialize secure checkout');
-					onError?.(err as Error);
+					onErrorRef.current?.(err as Error);
 					setIsLoading(false);
 				}
 			} finally {
@@ -98,7 +112,7 @@ export function usePolarEmbed({ checkoutUrl, theme = 'light', onSuccess, onError
 			clearTimeout(initTimer);
 			destroyInstance();
 		};
-	}, [checkoutUrl, theme, onSuccess, onError, onClose, destroyInstance]);
+	}, [checkoutUrl, theme, destroyInstance]);
 
 	return { isLoading, error };
 }

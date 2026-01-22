@@ -127,9 +127,9 @@ export const POLAR_CONFIG: Record<PlanName, PlanConfig> = {
 		productId: process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID,
 		usd: {
 			amount: {
-				monthly: process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID,
-				yearly: process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID,
-				setupFee: process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID
+				monthly: process.env.NEXT_PUBLIC_POLAR_STANDARD_VARIANT_ID,
+				yearly: process.env.NEXT_PUBLIC_POLAR_STANDARD_VARIANT_ID,
+				setupFee: process.env.NEXT_PUBLIC_POLAR_STANDARD_VARIANT_ID
 			},
 			currency: 'USD',
 			symbol: '$'
