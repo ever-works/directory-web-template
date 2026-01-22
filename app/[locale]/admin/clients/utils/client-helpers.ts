@@ -120,27 +120,6 @@ export function computeDateRange(
 	return { from, to };
 }
 
-/**
- * Calculate active filter count
- */
-export function calculateActiveFilterCount(filters: {
-	searchTerm: string;
-	statusFilter: string;
-	planFilter: string;
-	accountTypeFilter: string;
-	providerFilter: string;
-	datePreset: string;
-}): number {
-	return [
-		filters.searchTerm,
-		filters.statusFilter,
-		filters.planFilter,
-		filters.accountTypeFilter,
-		filters.providerFilter,
-		filters.datePreset !== 'all' ? 'dateFilter' : null,
-	].filter(Boolean).length;
-}
-
 export function toDateTime(date: unknown, locale: string = "en"): string {
 	try {
 	  if (!date) return "—";
