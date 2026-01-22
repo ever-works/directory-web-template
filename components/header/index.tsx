@@ -380,6 +380,8 @@ export default function Header() {
 		[headerSettings.settingsEnabled]
 	);
 
+	const containerWidth = useContainerWidth();
+
 	return (
 		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className={STYLES.container}>
@@ -393,16 +395,26 @@ export default function Header() {
 					{renderBrand()}
 				</NavbarContent>
 
-				{/* Desktop: Brand (Separate) */}
-				<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
-					{renderBrand()}
-				</NavbarContent>
+				{/* Desktop Layout */}
+				{containerWidth === 'fluid' ? (
+					<>
+						{/* Full Width: Brand (Left) */}
+						<NavbarContent className="hidden lg:flex" justify="start">
+							{renderBrand()}
+						</NavbarContent>
 
-				{/* Desktop: Nav (Center/Left-ish) */}
-				<NavbarContent className={STYLES.navContent} justify="start">
-					{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
-				</NavbarContent>
-
+						{/* Full Width: Nav (Center) */}
+						<NavbarContent className="hidden lg:flex gap-5 xl:gap-6 2xl:gap-6" justify="center">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
+				) : (
+					/* Fixed Width: Brand + Nav (Left) */
+					<NavbarContent className={STYLES.navContent} justify="start">
+						{renderBrand()}
+						{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+					</NavbarContent>
+				)}
 				{/* Right Section (Profile, Settings, etc.) */}
 				{renderRightSection()}
 			</Container>
