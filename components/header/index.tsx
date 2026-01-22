@@ -377,7 +377,7 @@ export default function Header() {
 				</NavbarItem>
 			</NavbarContent>
 		),
-		[isMenuOpen, headerSettings.settingsEnabled]
+		[headerSettings.settingsEnabled]
 	);
 
 	return (
