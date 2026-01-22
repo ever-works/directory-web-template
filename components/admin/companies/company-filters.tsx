@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import { Card, CardBody } from '@heroui/react';
 import { Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
 import {
 	AdminSearchBar,
 	AdminStatusTabs,
@@ -19,7 +18,6 @@ interface CompanyFiltersProps {
 	searchTerm: string;
 	onSearchChange: (value: string) => void;
 	isSearching: boolean;
-	hasActiveSearch: boolean;
 	statusFilter: CompanyStatus | '';
 	onStatusChange: (value: CompanyStatus | '') => void;
 	statusCounts: {
@@ -37,7 +35,6 @@ export function CompanyFilters({
 	searchTerm,
 	onSearchChange,
 	isSearching,
-	hasActiveSearch,
 	statusFilter,
 	onStatusChange,
 	statusCounts,

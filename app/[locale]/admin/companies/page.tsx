@@ -263,7 +263,6 @@ export default function CompaniesPage() {
 				searchTerm={searchTerm}
 				onSearchChange={setSearchTerm}
 				isSearching={isSearching}
-				hasActiveSearch={hasActiveSearch}
 				statusFilter={statusFilter}
 				onStatusChange={setStatusFilter}
 				statusCounts={stats}
