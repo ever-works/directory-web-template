@@ -2386,6 +2386,7 @@
       "COMMENTS_TITLE": "Комментарии",
       "COMMENTS_TOTAL_COUNT": "всего",
       "SEARCH_PLACEHOLDER": "Поиск комментариев по содержанию, имени автора или email...",
+      "SEARCH": "Поиск",
       "FILTER_APPLIED": "1 фильтр применен",
       "CLEAR_ALL": "Очистить все",
       "SHOWING_COMMENTS": "Показано {count} из {total} комментариев",

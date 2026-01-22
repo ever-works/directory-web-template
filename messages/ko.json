@@ -2386,6 +2386,7 @@
       "COMMENTS_TITLE": "댓글",
       "COMMENTS_TOTAL_COUNT": "전체",
       "SEARCH_PLACEHOLDER": "내용, 작성자 이름 또는 이메일로 댓글 검색...",
+      "SEARCH": "검색",
       "FILTER_APPLIED": "필터 1개 적용됨",
       "CLEAR_ALL": "모두 지우기",
       "SHOWING_COMMENTS": "총 {total}개 중 {count}개 표시 중",

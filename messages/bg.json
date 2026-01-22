@@ -2386,6 +2386,7 @@
       "COMMENTS_TITLE": "Коментари",
       "COMMENTS_TOTAL_COUNT": "общо",
       "SEARCH_PLACEHOLDER": "Търсене на коментари по съдържание, име или имейл на автор...",
+      "SEARCH": "Търсене",
       "FILTER_APPLIED": "1 приложен филтър",
       "CLEAR_ALL": "Изчисти всички",
       "SHOWING_COMMENTS": "Показване на {count} от {total} коментари",

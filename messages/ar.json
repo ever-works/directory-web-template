@@ -2311,6 +2311,7 @@
       "COMMENTS_TITLE": "التعليقات",
       "COMMENTS_TOTAL_COUNT": "إجمالي",
       "SEARCH_PLACEHOLDER": "البحث في التعليقات حسب المحتوى أو اسم المؤلف أو البريد الإلكتروني...",
+      "SEARCH": "بحث",
       "FILTER_APPLIED": "مرشح واحد مطبق",
       "CLEAR_ALL": "مسح الكل",
       "SHOWING_COMMENTS": "عرض {count} من {total} تعليق",

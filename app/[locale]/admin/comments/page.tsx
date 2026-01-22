@@ -1,35 +1,54 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, CardBody, Chip } from "@heroui/react";
-import { Trash2, MessageSquare, Search } from "lucide-react";
+import { Card, CardBody, Chip } from "@heroui/react";
+import { Trash2, MessageSquare } from "lucide-react";
+import { Button } from "@heroui/react";
 import { UniversalPagination } from "@/components/universal-pagination";
 import DeleteCommentDialog from "@/components/admin/comments/delete-comment-dialog";
 import { useAdminComments, AdminCommentItem } from "@/hooks/use-admin-comments";
+import { useAdminFilters } from "@/hooks/use-admin-filters";
+import { AdminSearchBar, AdminActiveFilters, type ActiveFilter } from "@/components/admin/shared";
 import { useTranslations } from "next-intl";
 import { useNavigation } from "@/components/providers";
 
 export default function AdminCommentsPage() {
   const t = useTranslations('admin.ADMIN_COMMENTS_PAGE');
-  
-  // Use custom hook
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Unified filter state
+  const {
+    searchTerm,
+    setSearchTerm,
+    debouncedSearchTerm,
+    isSearching,
+    hasActiveSearch,
+    hasActiveFilters,
+    clearAllFilters,
+  } = useAdminFilters({
+    onFiltersChange: () => setCurrentPage(1),
+  });
+
+  // Use custom hook with external search
   const {
     comments,
     isLoading,
-    isFiltering,
     isDeleting,
-    currentPage,
     totalPages,
     totalComments,
-    searchTerm,
     deleteComment,
-    handlePageChange,
-    handleSearch,
   } = useAdminComments({
-    page: 1,
+    page: currentPage,
     limit: 10,
-    search: '',
+    search: debouncedSearchTerm || undefined,
   });
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
   // Local state for delete dialog
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
@@ -162,42 +181,29 @@ export default function AdminCommentsPage() {
       {/* Modern SaaS-Style Filters */}
       <div className="mb-6">
         {/* Search Bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t('SEARCH_PLACEHOLDER')}
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            aria-label={t('SEARCH_PLACEHOLDER')}
-            role="searchbox"
-            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          {isFiltering && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-        </div>
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          isSearching={isSearching}
+          placeholder={t('SEARCH_PLACEHOLDER')}
+          className="mb-4"
+        />
 
-        {/* Active Filters Count */}
-        {searchTerm && (
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {t('FILTER_APPLIED')}
-            </span>
-            <Button
-              variant="light"
-              size="sm"
-              color="danger"
-              onPress={() => {
-                handleSearch('');
-              }}
-              className="h-6 px-2 text-xs"
-            >
-              {t('CLEAR_ALL')}
-            </Button>
-          </div>
+        {/* Active Filters */}
+        {hasActiveSearch && (
+          <AdminActiveFilters
+            filters={[
+              {
+                id: 'search',
+                type: 'search',
+                label: t('SEARCH'),
+                value: searchTerm,
+              },
+            ]}
+            onRemove={() => setSearchTerm('')}
+            onClearAll={clearAllFilters}
+            clearAllThreshold={1}
+          />
         )}
 
         {/* Results Summary */}
@@ -205,7 +211,7 @@ export default function AdminCommentsPage() {
           <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <span>
               {t('SHOWING_COMMENTS', { count: comments.length, total: totalComments })}
-              {searchTerm && (
+              {hasActiveFilters && (
                 <span className="ml-1">
                   {t('FILTERED')}
                 </span>
@@ -233,7 +239,7 @@ export default function AdminCommentsPage() {
                 <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_COMMENTS_FOUND')}</h3>
                 <p className="text-gray-500 dark:text-gray-400">
-                  {searchTerm ? t('NO_COMMENTS_SEARCH_DESCRIPTION') : t('NO_COMMENTS_DESCRIPTION')}
+                  {hasActiveFilters ? t('NO_COMMENTS_SEARCH_DESCRIPTION') : t('NO_COMMENTS_DESCRIPTION')}
                 </p>
               </div>
             ) : (

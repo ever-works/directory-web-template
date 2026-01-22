@@ -2323,6 +2323,7 @@
       "COMMENTS_TITLE": "评论",
       "COMMENTS_TOTAL_COUNT": "总计",
       "SEARCH_PLACEHOLDER": "按内容、作者姓名或邮箱搜索评论...",
+      "SEARCH": "搜索",
       "FILTER_APPLIED": "已应用1个筛选器",
       "CLEAR_ALL": "清除全部",
       "SHOWING_COMMENTS": "显示 {count} 个，共 {total} 个评论",

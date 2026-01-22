@@ -82,31 +82,18 @@ interface UseAdminCommentsOptions {
 interface UseAdminCommentsReturn {
   // Data
   comments: AdminCommentItem[];
-  
+
   // Loading states
   isLoading: boolean;
-  isFiltering: boolean;
   isDeleting: string | null;
-  
+
   // Pagination
-  currentPage: number;
   totalPages: number;
   totalComments: number;
-  
-  // Search
-  searchTerm: string;
-  
+
   // Actions
   deleteComment: (id: string) => Promise<boolean>;
-  
-  // Pagination actions
-  setCurrentPage: (page: number) => void;
-  handlePageChange: (page: number) => void;
-  
-  // Search actions
-  setSearchTerm: (term: string) => void;
-  handleSearch: (term: string) => void;
-  
+
   // Utility
   refetch: () => void;
   refreshData: () => void;
@@ -114,16 +101,14 @@ interface UseAdminCommentsReturn {
 
 export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdminCommentsReturn {
   const {
-    page: initialPage = 1,
+    page = 1,
     limit = 10,
-    search: initialSearch = '',
+    search,
   } = options;
 
-  // State for pagination and search
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
+  // State for delete operation
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  
+
   // Query client for cache management
   const queryClient = useQueryClient();
 
@@ -133,15 +118,15 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: commentsQueryKeys.list({ 
-      page: currentPage, 
-      limit, 
-      search: searchTerm || undefined 
+    queryKey: commentsQueryKeys.list({
+      page,
+      limit,
+      search: search || undefined,
     }),
-    queryFn: () => fetchComments({ 
-      page: currentPage, 
-      limit, 
-      search: searchTerm || undefined 
+    queryFn: () => fetchComments({
+      page,
+      limit,
+      search: search || undefined,
     }),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -163,7 +148,6 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
 
   // Derived data
   const comments = commentsData?.comments || [];
-  const isFiltering = isLoading && currentPage === 1;
   const totalPages = commentsData?.pagination?.totalPages || 1;
   const totalComments = commentsData?.pagination?.total || 0;
 
@@ -183,17 +167,6 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
     }
   }, [deleteMutation]);
 
-  // Handle page change
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
-
-  // Handle search
-  const handleSearch = useCallback((term: string) => {
-    setSearchTerm(term);
-    setCurrentPage(1);
-  }, []);
-
   // Refresh all data
   const refreshData = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: commentsQueryKeys.all });
@@ -202,31 +175,18 @@ export function useAdminComments(options: UseAdminCommentsOptions = {}): UseAdmi
   return {
     // Data
     comments,
-    
+
     // Loading states
     isLoading,
-    isFiltering,
     isDeleting,
-    
+
     // Pagination
-    currentPage,
     totalPages,
     totalComments,
-    
-    // Search
-    searchTerm,
-    
+
     // Actions
     deleteComment: handleDeleteComment,
-    
-    // Pagination actions
-    setCurrentPage,
-    handlePageChange,
-    
-    // Search actions
-    setSearchTerm,
-    handleSearch,
-    
+
     // Utility
     refetch,
     refreshData,

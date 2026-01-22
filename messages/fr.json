@@ -2382,6 +2382,7 @@
       "COMMENTS_TITLE": "Commentaires",
       "COMMENTS_TOTAL_COUNT": "total",
       "SEARCH_PLACEHOLDER": "Rechercher des commentaires par contenu, nom d'auteur ou email...",
+      "SEARCH": "Recherche",
       "FILTER_APPLIED": "1 filtre appliqué",
       "CLEAR_ALL": "Tout effacer",
       "SHOWING_COMMENTS": "Affichage de {count} sur {total} commentaires",
