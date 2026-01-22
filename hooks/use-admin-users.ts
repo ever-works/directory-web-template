@@ -1,7 +1,8 @@
-import { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
+import { useAdminFilters } from './use-admin-filters';
 
 // Types
 export interface UserData {
@@ -153,31 +154,36 @@ interface UseAdminUsersReturn {
   // Data
   users: UserWithCount[];
   stats: { total: number; active: number; inactive: number };
-  
+
   // Loading states
   isLoading: boolean;
   isFiltering: boolean;
   isSubmitting: boolean;
-  
+  isSearching: boolean;
+
   // Pagination
   currentPage: number;
   totalPages: number;
   totalUsers: number;
-  
+
   // Filters
   searchTerm: string;
+  debouncedSearchTerm: string;
   roleFilter: string;
   statusFilter: string;
-  
+  hasActiveSearch: boolean;
+  activeFilterCount: number;
+  hasActiveFilters: boolean;
+
   // Actions
   createUser: (data: CreateUserRequest) => Promise<boolean>;
   updateUser: (id: string, data: UpdateUserRequest) => Promise<boolean>;
   deleteUser: (id: string) => Promise<boolean>;
-  
+
   // Pagination actions
   setCurrentPage: (page: number) => void;
   handlePageChange: (page: number) => void;
-  
+
   // Filter actions
   setSearchTerm: (term: string) => void;
   handleSearch: (term: string) => void;
@@ -185,7 +191,8 @@ interface UseAdminUsersReturn {
   handleRoleFilter: (role: string) => void;
   setStatusFilter: (status: string) => void;
   handleStatusFilter: (status: string) => void;
-  
+  clearAllFilters: () => void;
+
   // Utility
   refetch: () => void;
   refreshData: () => void;
@@ -195,44 +202,72 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
   const {
     page: initialPage = 1,
     limit = 10,
-    search: initialSearch = '',
     role: initialRole = '',
     status: initialStatus = '',
   } = options;
 
-  // State for pagination and filters
-  const [currentPage, setCurrentPage] = useState(initialPage);
-  const [searchTerm, setSearchTerm] = useState(initialSearch);
-  const [roleFilter, setRoleFilter] = useState(initialRole);
-  const [statusFilter, setStatusFilter] = useState(initialStatus);
-  
   // Query client for cache management
   const queryClient = useQueryClient();
 
-  // React Query hooks
+  // Use unified filter state with debounce
+  const {
+    searchTerm,
+    setSearchTerm,
+    debouncedSearchTerm,
+    isSearching,
+    hasActiveSearch,
+    statusFilter,
+    setStatusFilter,
+    multiFilters,
+    setMultiFilter,
+    activeFilterCount,
+    hasActiveFilters,
+    clearAllFilters: clearFilters,
+  } = useAdminFilters<'active' | 'inactive'>({
+    minSearchLength: 2,
+    debounceDelay: 300,
+    initialStatus: initialStatus as 'active' | 'inactive' | '',
+    initialMultiFilters: { role: initialRole ? [initialRole] : [] },
+  });
+
+  // Derive role filter from multi-filters (single select for role)
+  const roleFilter = multiFilters.role?.[0] || '';
+  const setRoleFilter = useCallback((role: string) => {
+    setMultiFilter('role', role ? [role] : []);
+  }, [setMultiFilter]);
+
+  // State for pagination (separate from filters)
+  const [currentPage, setCurrentPageState] = React.useState(initialPage);
+
+  // Reset page when filters change
+  const setCurrentPage = useCallback((page: number) => {
+    setCurrentPageState(page);
+  }, []);
+
+  // React Query hooks - use debouncedSearchTerm for actual API calls
   const {
     data: usersData,
     isLoading,
     error,
     refetch,
   } = useQuery({
-    queryKey: usersQueryKeys.list({ 
-      page: currentPage, 
-      limit, 
-      search: searchTerm || undefined,
+    queryKey: usersQueryKeys.list({
+      page: currentPage,
+      limit,
+      search: debouncedSearchTerm || undefined,
       role: roleFilter || undefined,
       status: statusFilter || undefined,
     }),
-    queryFn: () => fetchUsers({ 
-      page: currentPage, 
-      limit, 
-      search: searchTerm || undefined,
+    queryFn: () => fetchUsers({
+      page: currentPage,
+      limit,
+      search: debouncedSearchTerm || undefined,
       role: roleFilter || undefined,
       status: statusFilter || undefined,
     }),
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 5 * 60 * 1000, // 5 minutes - reduced from 30 seconds
+    refetchInterval: 5 * 60 * 1000, // 5 minutes
     retry: 3,
   });
 
@@ -285,11 +320,21 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
   // Derived data
   const users = usersData?.data || [];
 
-  const isFiltering = isLoading && currentPage === 1;
+  const isFiltering = (isLoading || isSearching) && currentPage === 1;
   const isSubmitting = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending;
   const totalPages = usersData?.totalPages || 1;
   const totalUsers = usersData?.total || 0;
   const stats = statsData?.data || { total: 0, active: 0, inactive: 0 };
+
+  // Reset page to 1 when debounced search or filters change
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    setCurrentPageState(1);
+  }, [debouncedSearchTerm, statusFilter, roleFilter]);
 
   // Wrapper functions for mutations
   const handleCreateUser = useCallback(async (data: CreateUserRequest): Promise<boolean> => {
@@ -325,25 +370,32 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
   // Handle page change
   const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
-  }, []);
+  }, [setCurrentPage]);
 
-  // Handle search
+  // Handle search (page reset handled by useEffect)
   const handleSearch = useCallback((term: string) => {
     setSearchTerm(term);
-    setCurrentPage(1);
-  }, []);
+  }, [setSearchTerm]);
 
-  // Handle role filter
+  // Handle role filter (page reset handled by useEffect)
   const handleRoleFilter = useCallback((role: string) => {
     setRoleFilter(role);
-    setCurrentPage(1);
-  }, []);
+  }, [setRoleFilter]);
 
-  // Handle status filter
+  // Handle status filter (page reset handled by useEffect)
   const handleStatusFilter = useCallback((status: string) => {
-    setStatusFilter(status);
-    setCurrentPage(1);
-  }, []);
+    setStatusFilter(status as 'active' | 'inactive' | '');
+  }, [setStatusFilter]);
+
+  // Wrapper for setStatusFilter to match string interface
+  const setStatusFilterString = useCallback((status: string) => {
+    setStatusFilter(status as 'active' | 'inactive' | '');
+  }, [setStatusFilter]);
+
+  // Clear all filters
+  const clearAllFilters = useCallback(() => {
+    clearFilters();
+  }, [clearFilters]);
 
   // Refresh all data
   const refreshData = useCallback(() => {
@@ -354,39 +406,45 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
     // Data
     users,
     stats,
-    
+
     // Loading states
     isLoading,
     isFiltering,
     isSubmitting,
-    
+    isSearching,
+
     // Pagination
     currentPage,
     totalPages,
     totalUsers,
-    
+
     // Filters
     searchTerm,
+    debouncedSearchTerm,
     roleFilter,
     statusFilter,
-    
+    hasActiveSearch,
+    activeFilterCount,
+    hasActiveFilters,
+
     // Actions
     createUser: handleCreateUser,
     updateUser: handleUpdateUser,
     deleteUser: handleDeleteUser,
-    
+
     // Pagination actions
     setCurrentPage,
     handlePageChange,
-    
+
     // Filter actions
     setSearchTerm,
     handleSearch,
     setRoleFilter,
     handleRoleFilter,
-    setStatusFilter,
+    setStatusFilter: setStatusFilterString,
     handleStatusFilter,
-    
+    clearAllFilters,
+
     // Utility
     refetch,
     refreshData,

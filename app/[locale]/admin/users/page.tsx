@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button, Card, CardBody, Chip, useDisclosure } from "@heroui/react";
-import { Plus, Edit, Trash2, Users, UserCheck, UserX, Search, ChevronDown } from "lucide-react";
+import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
 import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { useNavigation } from "@/components/providers";
+import {
+  AdminFilterToolbar,
+  type StatusTabOption,
+  type FilterSection,
+  type ActiveFilter,
+} from "@/components/admin/shared";
 
 // Helper function to generate consistent avatar colors based on user identifier
 function getAvatarColor(identifier: string): string {
@@ -50,24 +56,107 @@ export default function AdminUsersPage() {
     isLoading,
     isFiltering,
     isSubmitting,
+    isSearching,
     currentPage,
     totalPages,
     totalUsers,
     searchTerm,
     roleFilter,
     statusFilter,
+    hasActiveFilters,
+    activeFilterCount,
     deleteUser,
     handlePageChange,
-    handleSearch,
-    handleRoleFilter,
-    handleStatusFilter,
+    setSearchTerm,
+    setRoleFilter,
+    setStatusFilter,
+    clearAllFilters,
   } = useAdminUsers({
     page: 1,
     limit: PAGE_SIZE,
-    search: '',
     role: '',
     status: '',
   });
+
+  // Status tab options
+  const statusOptions = useMemo<StatusTabOption<'active' | 'inactive'>[]>(() => [
+    { value: '', label: t('ALL_STATUSES'), count: stats.total },
+    { value: 'active', label: t('ACTIVE'), count: stats.active, icon: <UserCheck className="w-3 h-3" /> },
+    { value: 'inactive', label: t('INACTIVE'), count: stats.inactive, icon: <UserX className="w-3 h-3" /> },
+  ], [t, stats]);
+
+  // Role filter sections for popover
+  const roleFilterSections = useMemo<FilterSection<string>[]>(() => [
+    {
+      id: 'role',
+      label: t('ROLE_SECTION_LABEL'),
+      type: 'radio',
+      options: [
+        { id: 'super-admin', label: t('SUPER_ADMIN'), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+        { id: 'admin', label: t('ADMIN'), icon: <Shield className="w-3.5 h-3.5" /> },
+        { id: 'moderator', label: t('MODERATOR') },
+        { id: 'user', label: t('USER') },
+      ],
+      selectedValues: roleFilter ? [roleFilter] : [],
+      onChange: (values) => setRoleFilter(values[0] || ''),
+    },
+  ], [t, roleFilter, setRoleFilter]);
+
+  // Build active filters for chip display
+  const activeFiltersDisplay = useMemo<ActiveFilter[]>(() => {
+    const filters: ActiveFilter[] = [];
+
+    if (searchTerm.trim().length >= 2) {
+      filters.push({
+        id: 'search',
+        type: 'search',
+        label: t('SEARCH_LABEL'),
+        value: searchTerm.trim(),
+      });
+    }
+
+    if (statusFilter) {
+      filters.push({
+        id: `status:${statusFilter}`,
+        type: 'status',
+        label: t('STATUS_LABEL'),
+        value: statusFilter === 'active' ? t('ACTIVE') : t('INACTIVE'),
+        icon: statusFilter === 'active' ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />,
+      });
+    }
+
+    if (roleFilter) {
+      const roleLabels: Record<string, string> = {
+        'super-admin': t('SUPER_ADMIN'),
+        'admin': t('ADMIN'),
+        'moderator': t('MODERATOR'),
+        'user': t('USER'),
+      };
+      filters.push({
+        id: `role:${roleFilter}`,
+        type: 'role',
+        label: t('ROLE_LABEL'),
+        value: roleLabels[roleFilter] || roleFilter,
+      });
+    }
+
+    return filters;
+  }, [searchTerm, statusFilter, roleFilter, t]);
+
+  // Handle removing individual filters from chips
+  const handleRemoveFilter = (filter: ActiveFilter) => {
+    switch (filter.type) {
+      case 'search':
+        setSearchTerm('');
+        break;
+      case 'status':
+        setStatusFilter('');
+        break;
+      case 'role':
+        setRoleFilter('');
+        break;
+    }
+  };
 
   // Local state for form
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -269,92 +358,37 @@ export default function AdminUsersPage() {
         </Card>
       </div>
 
-            {/* Modern SaaS-Style Filters */}
-      <div className="mb-6">
-        {/* Search Bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t('SEARCH_PLACEHOLDER')}
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          {isFiltering && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Role Filter */}
-          <div className="relative">
-            <select 
-              value={roleFilter} 
-              onChange={(e) => handleRoleFilter(e.target.value)}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 cursor-pointer"
-            >
-              <option value="">{t('ALL_ROLES')}</option>
-              <option value="super-admin">{t('SUPER_ADMIN')}</option>
-              <option value="admin">{t('ADMIN')}</option>
-              <option value="moderator">{t('MODERATOR')}</option>
-              <option value="user">{t('USER')}</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Status Filter */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 cursor-pointer"
-            >
-              <option value="">{t('ALL_STATUSES')}</option>
-              <option value="active">{t('ACTIVE')}</option>
-              <option value="inactive">{t('INACTIVE')}</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Active Filters Count */}
-          {(searchTerm || roleFilter || statusFilter) && (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {t('FILTERS_APPLIED', {
-                  plural: [
-                    searchTerm && 'search',
-                    roleFilter && 'role',
-                    statusFilter && 'status'
-                  ].filter(Boolean).length !== 1 ? 's' : ''
-                })}
-              </span>
-              <Button
-                variant="light"
-                size="sm"
-                color="danger"
-                onPress={() => {
-                  handleSearch('');
-                  handleRoleFilter('');
-                  handleStatusFilter('');
-                }}
-                className="h-6 px-2 text-xs"
-              >
-                {t('CLEAR_ALL')}
-              </Button>
-            </div>
-          )}
-        </div>
+      {/* Unified Filters */}
+      <div className="mb-6 space-y-4">
+        <AdminFilterToolbar<'active' | 'inactive', string>
+          // Search
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          isSearching={isSearching}
+          searchPlaceholder={t('SEARCH_PLACEHOLDER')}
+          // Status tabs
+          statusOptions={statusOptions}
+          statusValue={statusFilter as 'active' | 'inactive' | ''}
+          onStatusChange={setStatusFilter}
+          showStatusCounts={true}
+          // Filter popover (role)
+          filterSections={roleFilterSections}
+          activeFilterCount={roleFilter ? 1 : 0}
+          filterLabel={t('ROLE_FILTER_LABEL')}
+          // Active filters
+          activeFilters={activeFiltersDisplay}
+          onRemoveFilter={handleRemoveFilter}
+          onClearAllFilters={clearAllFilters}
+          // Layout
+          layout="stacked"
+        />
 
         {/* Results Summary */}
         {!isLoading && (
-          <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
             <span>
               {t('SHOWING_USERS', { count: users.length, total: totalUsers })}
-              {(searchTerm || roleFilter || statusFilter) && (
+              {hasActiveFilters && (
                 <span className="ml-1">
                   {t('FILTERED')}
                 </span>
