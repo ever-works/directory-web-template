@@ -172,7 +172,6 @@ export default function AdminReportsPage() {
 		totalPages,
 		totalReports,
 		updateReport,
-		handlePageChange,
 	} = useAdminReports({
 		page: currentPage,
 		limit: 10,
@@ -310,10 +309,9 @@ export default function AdminReportsPage() {
 		setMultiFilter('reason', []);
 	};
 
-	// Wrap page change to update local state
+	// Handle page change
 	const onPageChange = (page: number) => {
 		setCurrentPage(page);
-		handlePageChange(page);
 	};
 
 	const formatDate = (dateString: string) => {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
@@ -160,31 +160,12 @@ interface UseAdminReportsReturn {
 	isUpdating: string | null;
 
 	// Pagination
-	currentPage: number;
 	totalPages: number;
 	totalReports: number;
-
-	// Filters
-	searchTerm: string;
-	statusFilter: ReportStatusValues | undefined;
-	contentTypeFilter: ReportContentTypeValues | undefined;
-	reasonFilter: ReportReasonValues | undefined;
 
 	// Actions
 	updateReport: (id: string, data: UpdateReportParams) => Promise<boolean>;
 	getReportById: (id: string) => Promise<AdminReportItem | null>;
-
-	// Pagination actions
-	setCurrentPage: (page: number) => void;
-	handlePageChange: (page: number) => void;
-
-	// Filter actions
-	setSearchTerm: (term: string) => void;
-	handleSearch: (term: string) => void;
-	setStatusFilter: (status: ReportStatusValues | undefined) => void;
-	setContentTypeFilter: (contentType: ReportContentTypeValues | undefined) => void;
-	setReasonFilter: (reason: ReportReasonValues | undefined) => void;
-	clearFilters: () => void;
 
 	// Utility
 	refetch: () => void;
@@ -192,25 +173,26 @@ interface UseAdminReportsReturn {
 }
 
 export function useAdminReports(options: UseAdminReportsOptions = {}): UseAdminReportsReturn {
-	const {
-		page: initialPage = 1,
-		limit = 10,
-		search: initialSearch = '',
-		status: initialStatus,
-		contentType: initialContentType,
-		reason: initialReason
-	} = options;
+	const { page = 1, limit = 10, search, status, contentType, reason } = options;
 
-	// State for pagination and filters
-	const [currentPage, setCurrentPage] = useState(initialPage);
-	const [searchTerm, setSearchTerm] = useState(initialSearch);
-	const [statusFilter, setStatusFilter] = useState<ReportStatusValues | undefined>(initialStatus);
-	const [contentTypeFilter, setContentTypeFilter] = useState<ReportContentTypeValues | undefined>(initialContentType);
-	const [reasonFilter, setReasonFilter] = useState<ReportReasonValues | undefined>(initialReason);
+	// Mutation tracking state
 	const [isUpdating, setIsUpdating] = useState<string | null>(null);
 
 	// Query client for cache management
 	const queryClient = useQueryClient();
+
+	// Memoize query params to ensure stable references
+	const queryParams = useMemo(
+		() => ({
+			page,
+			limit,
+			search: search || undefined,
+			status,
+			contentType,
+			reason
+		}),
+		[page, limit, search, status, contentType, reason]
+	);
 
 	// React Query hooks for reports list
 	const {
@@ -218,23 +200,8 @@ export function useAdminReports(options: UseAdminReportsOptions = {}): UseAdminR
 		isLoading,
 		refetch
 	} = useQuery({
-		queryKey: reportsQueryKeys.list({
-			page: currentPage,
-			limit,
-			search: searchTerm || undefined,
-			status: statusFilter,
-			contentType: contentTypeFilter,
-			reason: reasonFilter
-		}),
-		queryFn: () =>
-			fetchReports({
-				page: currentPage,
-				limit,
-				search: searchTerm || undefined,
-				status: statusFilter,
-				contentType: contentTypeFilter,
-				reason: reasonFilter
-			}),
+		queryKey: reportsQueryKeys.list(queryParams),
+		queryFn: () => fetchReports(queryParams),
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		refetchInterval: 5 * 60 * 1000, // 5 minutes
@@ -265,7 +232,7 @@ export function useAdminReports(options: UseAdminReportsOptions = {}): UseAdminR
 
 	// Derived data
 	const reports = reportsData?.reports || [];
-	const isFiltering = isLoading && currentPage === 1;
+	const isFiltering = isLoading && page === 1;
 	const totalPages = reportsData?.pagination?.totalPages || 1;
 	const totalReports = reportsData?.pagination?.total || 0;
 	const stats = statsData || null;
@@ -299,26 +266,6 @@ export function useAdminReports(options: UseAdminReportsOptions = {}): UseAdminR
 		}
 	}, []);
 
-	// Handle page change
-	const handlePageChange = useCallback((page: number) => {
-		setCurrentPage(page);
-	}, []);
-
-	// Handle search
-	const handleSearch = useCallback((term: string) => {
-		setSearchTerm(term);
-		setCurrentPage(1);
-	}, []);
-
-	// Clear all filters
-	const clearFilters = useCallback(() => {
-		setSearchTerm('');
-		setStatusFilter(undefined);
-		setContentTypeFilter(undefined);
-		setReasonFilter(undefined);
-		setCurrentPage(1);
-	}, []);
-
 	// Refresh all data
 	const refreshData = useCallback(() => {
 		queryClient.invalidateQueries({ queryKey: reportsQueryKeys.all });
@@ -336,31 +283,12 @@ export function useAdminReports(options: UseAdminReportsOptions = {}): UseAdminR
 		isUpdating,
 
 		// Pagination
-		currentPage,
 		totalPages,
 		totalReports,
-
-		// Filters
-		searchTerm,
-		statusFilter,
-		contentTypeFilter,
-		reasonFilter,
 
 		// Actions
 		updateReport: handleUpdateReport,
 		getReportById: handleGetReportById,
-
-		// Pagination actions
-		setCurrentPage,
-		handlePageChange,
-
-		// Filter actions
-		setSearchTerm,
-		handleSearch,
-		setStatusFilter,
-		setContentTypeFilter,
-		setReasonFilter,
-		clearFilters,
 
 		// Utility
 		refetch,
