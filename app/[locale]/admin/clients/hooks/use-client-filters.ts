@@ -64,6 +64,9 @@ export interface UseClientFiltersReturn extends Omit<UseAdminFiltersReturn<Clien
 
 	// Count filters including date
 	totalActiveFilterCount: number;
+
+	// Has any active filters including date
+	hasActiveFiltersIncludingDate: boolean;
 }
 
 /**
@@ -177,6 +180,9 @@ export function useClientFilters(config: ClientFiltersConfig = {}): UseClientFil
 		return count;
 	}, [adminFilters.activeFilterCount, datePreset]);
 
+	// Whether any filters (including date) are active
+	const hasActiveFiltersIncludingDate = totalActiveFilterCount > 0;
+
 	// Build legacy filters object for backward compatibility
 	const filters: ClientFilters = useMemo(
 		() => ({
@@ -265,5 +271,8 @@ export function useClientFilters(config: ClientFiltersConfig = {}): UseClientFil
 
 		// Total count including date
 		totalActiveFilterCount,
+
+		// Has active filters including date
+		hasActiveFiltersIncludingDate,
 	};
 }

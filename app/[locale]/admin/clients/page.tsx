@@ -89,6 +89,7 @@ export default function ClientsPage() {
 		clearFilters,
 		totalActiveFilterCount,
 		hasActiveFilters,
+		hasActiveFiltersIncludingDate,
 	} = useClientFilters({
 		onFiltersChange: () => setCurrentPage(1),
 	});
@@ -313,7 +314,7 @@ export default function ClientsPage() {
 				onEdit={openEditForm}
 				onDelete={handleDelete}
 				onCreateFirst={openCreateForm}
-				hasActiveFilters={hasActiveFilters}
+				hasActiveFilters={hasActiveFiltersIncludingDate}
 			/>
 
 			{/* Pagination */}
