@@ -20,7 +20,7 @@ import { NavigationControls } from '../navigation-controls';
 import { ProfileButton } from './profile-button';
 import { MoreMenu } from './more-menu';
 import { SettingsButton } from '../settings-button';
-import { Container } from '../ui/container';
+import { Container, useContainerWidth } from '../ui/container';
 import { SiteLogo } from '../shared/site-logo';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useHasGlobalSurveys } from '@/hooks/use-has-global-surveys';
