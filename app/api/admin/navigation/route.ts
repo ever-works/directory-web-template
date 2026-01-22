@@ -338,7 +338,7 @@ export async function PATCH(req: NextRequest) {
 
 		// Update the navigation config
 		const key = type === 'header' ? 'custom_header' : 'custom_footer';
-		const success = configManager.updateNestedKey(key, items);
+		const success = await configManager.updateNestedKey(key, items);
 
 		if (!success) {
 			return NextResponse.json({ error: 'Failed to update navigation' }, { status: 500 });

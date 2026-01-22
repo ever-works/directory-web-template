@@ -32,7 +32,7 @@ export function SortControl({ sortBy, setSortBy, className = "" }: SortControlPr
   const currentOption = options.find(opt => opt.value === sortBy);
 
   return (
-    <DropdownMenu.Root open={open} onOpenChange={setOpen}>
+    <DropdownMenu.Root modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
         <button className={`group relative w-full px-4 py-2 bg-gray-50 dark:bg-gray-900/50 border border-gray-300 dark:border-gray-600/50 rounded-lg text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:focus:ring-theme-primary-400 transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500/50 hover:shadow-md ${className}`}>
           <div className="flex items-center justify-between">

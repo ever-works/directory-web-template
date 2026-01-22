@@ -8,6 +8,7 @@ import { Select, SelectItem } from './select';
 import { CreditCard, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import type { CheckoutProvider } from '@/components/context/LayoutThemeContext';
+import { usePaymentAvailability } from '@/hooks/use-payment-availability';
 
 interface SelectCheckoutProviderProps {
 	className?: string;
@@ -43,6 +44,7 @@ const PROVIDER_INFO = {
 
 const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ className, disabled = false }) => {
 	const { checkoutProvider, setCheckoutProvider, configuredProviders } = useLayoutTheme();
+	const { shouldShowPaymentWarning } = usePaymentAvailability();
 	const t = useTranslations('settings');
 
 	const allProviders = useMemo(() => {
@@ -73,8 +75,6 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 			description: t('SETTINGS_SAVED_AUTOMATICALLY')
 		});
 	};
-
-	const noProvidersConfigured = configuredProviders.length === 0;
 
 	return (
 		<div
@@ -108,9 +108,9 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 				className
 			)}
 		>
-			<div className="flex items-start justify-between gap-4">
+			<div className="flex flex-col md:flex-row items-start justify-between gap-4">
 				{/* Icon + Title/Description */}
-				<div className="flex items-start gap-3 flex-1 min-w-0">
+				<div className="flex items-start gap-3 flex-1 min-w-0 w-full">
 					{/* Icon container with purple gradient and glassmorphism */}
 					<div
 						className={cn(
@@ -137,7 +137,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 							{t('CHECKOUT_PROVIDER_DESC')}
 						</p>
 
-						{noProvidersConfigured && (
+						{shouldShowPaymentWarning && (
 							<div className="flex items-start gap-2 mt-2 p-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
 								<AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
 								<p className="text-xs text-amber-700 dark:text-amber-300">
@@ -149,7 +149,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 				</div>
 
 				{/* Select dropdown */}
-				<div className="flex-shrink-0 min-w-[200px]">
+				<div className="flex-shrink-0 min-w-[200px] w-full md:w-auto">
 					<Select
 						selectedKeys={[checkoutProvider]}
 						onChange={handleChange}

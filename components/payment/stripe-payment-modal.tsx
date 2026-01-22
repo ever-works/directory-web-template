@@ -4,9 +4,17 @@ import { useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
+import { PolarElementsWrapper } from '@/lib/payment/ui/polar/polar-elements';
+import { LemonSqueezyElementsWrapper } from '@/lib/payment/ui/lemonsqueezy/lemonsqueezy-elements';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '../ui/modal';
 
-interface StripePaymentModalProps {
+import { PaymentProvider } from '@/lib/constants';
+
+interface PaymentFormModalProps {
+	/** Payment provider */
+	provider: PaymentProvider;
+	/** Checkout URL for LemonSqueezy */
+	checkoutUrl?: string | null;
 	/** Whether the modal is open */
 	isOpen: boolean;
 	/** Callback when modal is closed */
@@ -29,13 +37,17 @@ interface StripePaymentModalProps {
 	clientSecret?: string;
 	isReady?: boolean;
 	isError?: boolean;
+	theme?: 'light' | 'dark';
+	isDismissable?: boolean;
 }
 
 /**
  * Modal wrapper for Stripe payment form
- * Uses the existing StripeElementsWrapper component for PCI compliance
+ * Uses StripeElementsWrapper for Stripe or Iframe for LemonSqueezy
  */
-export function StripePaymentModal({
+export function PaymentFormModal({
+	provider,
+	checkoutUrl,
 	isOpen,
 	onClose,
 	onSuccess,
@@ -47,8 +59,10 @@ export function StripePaymentModal({
 	currency = 'USD',
 	isError,
 	clientSecret,
-	isReady
-}: StripePaymentModalProps) {
+	isReady,
+	theme,
+	isDismissable = true
+}: PaymentFormModalProps) {
 	const t = useTranslations('payment');
 	const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
@@ -70,19 +84,57 @@ export function StripePaymentModal({
 		typeof window !== 'undefined' ? `${window.location.origin}/checkout/success` : '/checkout/success';
 
 	useEffect(() => {
-		if (!stripePublicKey) {
+		if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 			console.error('Stripe publishable key is not configured');
 			onError(new Error('Payment system is not configured. Please contact support.'));
 			onClose();
 		}
-	}, [stripePublicKey, onError, onClose]);
+	}, [stripePublicKey, onError, onClose, provider]);
 
-	if (!stripePublicKey) {
+	if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 		return null;
 	}
 
+	const renderPaymentContent = () => {
+		const commonProps = {
+			onSuccess: handleSuccess,
+			onError: handleError,
+			successUrl,
+			isSubscription,
+			amount,
+			currency,
+			isReady: true,
+			theme
+		};
+
+		switch (provider) {
+			case PaymentProvider.POLAR:
+				return <PolarElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} onClose={onClose} />;
+			case PaymentProvider.LEMONSQUEEZY:
+				return <LemonSqueezyElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} />;
+			case PaymentProvider.STRIPE:
+				return (
+					<StripeElementsWrapper
+						{...commonProps}
+						stripePublicKey={stripePublicKey}
+						clientSecret={clientSecret}
+						isReady={clientSecret ? isReady : true}
+						isError={isError}
+					/>
+				);
+			default:
+				console.warn(`Unknown payment provider: ${provider}`);
+				return null;
+		}
+	};
+
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} size="md">
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			isDismissable={isDismissable}
+			size={provider === PaymentProvider.LEMONSQUEEZY || provider === PaymentProvider.POLAR ? '2xl' : 'md'}
+		>
 			<ModalContent>
 				<ModalHeader className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3">
 					<div className="flex items-center gap-3">
@@ -101,24 +153,10 @@ export function StripePaymentModal({
 						</div>
 					</div>
 				</ModalHeader>
-				<ModalBody className="">
-					{/* Stripe Elements Form */}
-					<StripeElementsWrapper
-						stripePublicKey={stripePublicKey}
-						isSubscription={isSubscription}
-						onSuccess={handleSuccess}
-						onError={handleError}
-						successUrl={successUrl}
-						amount={amount}
-						currency={currency}
-						clientSecret={clientSecret}
-						isReady={isReady}
-						isError={isError}
-					/>
-				</ModalBody>
+				<ModalBody className="">{renderPaymentContent()}</ModalBody>
 			</ModalContent>
 		</Modal>
 	);
 }
 
-export default StripePaymentModal;
+export default PaymentFormModal;

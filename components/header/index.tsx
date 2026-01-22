@@ -367,39 +367,40 @@ export default function Header() {
 						<SettingsButton />
 					</NavbarItem>
 				)}
-
 				<NavbarItem className={STYLES.largeUp}>
 					<NavigationControls />
 				</NavbarItem>
-
 				<NavbarItem>
 					<div className="scale-90 sm:scale-95 md:scale-100 lg:scale-105 xl:scale-110 transition-transform duration-200">
 						<ProfileButton />
 					</div>
 				</NavbarItem>
-
-				<NavbarMenuToggle
-					aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-					className={STYLES.navbarMenuToggle}
-				/>
 			</NavbarContent>
 		),
-		[isMenuOpen, headerSettings.settingsEnabled]
+		[headerSettings.settingsEnabled]
 	);
 
 	return (
-		<Navbar maxWidth="full" className={STYLES.navbar} onMenuOpenChange={setIsMenuOpen} isMenuOpen={isMenuOpen}>
+		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className={STYLES.container}>
-				{renderBrand()}
+				{/* Mobile: Toggle (Left) */}
+				<NavbarContent className="lg:hidden" justify="start">
+					<NavbarMenuToggle />
+				</NavbarContent>
 
-				{isNavigationLoading ? (
-					<HeaderNavSkeleton />
-				) : (
-					<NavbarContent className={STYLES.navContent} justify="center">
-						{renderNavigationItems()}
-					</NavbarContent>
-				)}
+				{/* Mobile: Brand (Center) */}
+				<NavbarContent className="lg:hidden pr-3" justify="center">
+					{renderBrand()}
+				</NavbarContent>
 
+				{/* Desktop: Brand + Nav (Center/Left-ish) */}
+				<NavbarContent className={STYLES.navContent} justify="start">
+					{renderBrand()}
+
+					{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+				</NavbarContent>
+
+				{/* Right Section (Profile, Settings, etc.) */}
 				{renderRightSection()}
 			</Container>
 

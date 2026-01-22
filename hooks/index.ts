@@ -21,3 +21,16 @@ export * from './use-auto-renewal';
 export * from './use-client-items';
 export * from './use-client-item-details';
 export * from './use-client-item-filters';
+
+// Admin filter utilities
+export * from './use-admin-filters';
+
+// Location settings hook
+export * from './use-location-settings';
+
+// Map provider and geolocation hooks
+export * from './use-map-provider';
+export * from './use-geolocation';
+
+// Item engagement hooks (for popularity sorting)
+export * from './use-item-engagement';

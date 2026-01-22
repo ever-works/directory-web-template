@@ -84,7 +84,7 @@ export function SettingsModal() {
 				{/* Modal Header */}
 				<div
 					className={cn(
-						'flex items-center justify-between px-6 py-4',
+						'flex items-center justify-between px-4 md:px-6 py-4',
 						'border-b border-gray-200 dark:border-gray-700',
 						'bg-gradient-to-r from-gray-50/50 to-white',
 						'dark:from-gray-800/50 dark:to-gray-900/50',
@@ -128,13 +128,13 @@ export function SettingsModal() {
 				{/* Modal Content */}
 				<div
 					className={cn(
-						'px-6 py-4 space-y-5',
+						'px-4 md:px-6 py-4 space-y-5',
 						'overflow-y-auto overscroll-contain',
 						'max-h-[calc(90vh-96px)]',
 						'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5',
 						'dark:scrollbar-thumb-gray-700'
 					)}
-					style={{ scrollbarWidth: "thin" }}
+					style={{ scrollbarWidth: 'thin' }}
 				>
 					{/* Layout Section - Always show */}
 					<SelectLayout />

@@ -126,7 +126,7 @@ const SelectLayout: React.FC<SelectLayoutProps> = ({ className, disabled = false
 				</div>
 
 				{/* Layout options - side by side */}
-				<div className="grid grid-cols-2 gap-3">
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 					{layouts.map((layout) => {
 						const isActive = layoutHome === layout.key;
 						return (

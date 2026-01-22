@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
-import { getContentPath } from '@/lib/lib';
+import { getContentPath, ensureContentAvailable } from '@/lib/lib';
 
 /**
  * Git module dependencies with lazy loading
@@ -153,8 +153,11 @@ export class ConfigManager {
 	/**
 	 * Write the config back to file
 	 */
-	private writeConfig(config: AppConfig, commitMessage?: string): boolean {
+	private async writeConfig(config: AppConfig, commitMessage?: string): Promise<boolean> {
 		try {
+			// Ensure content repository is available (handles cold start on Vercel)
+			await ensureContentAvailable();
+
 			// Always recalculate path to avoid stale singleton issues
 			const currentPath = path.join(getContentPath(), 'config.yml');
 			this.configPath = currentPath;
@@ -166,7 +169,7 @@ export class ConfigManager {
 				sortKeys: false
 			});
 
-			fs.writeFileSync(currentPath, yamlString, 'utf8');
+			await fs.promises.writeFile(currentPath, yamlString, 'utf8');
 
 			// Queue Git operation to prevent concurrent writes
 			// Operations are serialized to avoid conflicts
@@ -353,17 +356,17 @@ export class ConfigManager {
 	/**
 	 * Update a specific key in the config
 	 */
-	updateKey<K extends keyof AppConfig>(key: K, value: AppConfig[K]): boolean {
+	async updateKey<K extends keyof AppConfig>(key: K, value: AppConfig[K]): Promise<boolean> {
 		const config = this.readConfig();
 		config[key] = value;
 		const commitMessage = this.generateCommitMessage(key as string, value);
-		return this.writeConfig(config, commitMessage);
+		return await this.writeConfig(config, commitMessage);
 	}
 
 	/**
 	 * Update nested key (e.g., 'pagination.type')
 	 */
-	updateNestedKey(keyPath: string, value: any): boolean {
+	async updateNestedKey(keyPath: string, value: any): Promise<boolean> {
 		const config = this.readConfig();
 		const keys = keyPath.split('.');
 
@@ -397,7 +400,7 @@ export class ConfigManager {
 
 		// Generate descriptive commit message based on the key being updated
 		const commitMessage = this.generateCommitMessage(keyPath, value);
-		return this.writeConfig(config, commitMessage);
+		return await this.writeConfig(config, commitMessage);
 	}
 
 	/**
@@ -436,7 +439,7 @@ export class ConfigManager {
 	/**
 	 * Update pagination configuration
 	 */
-	updatePagination(type: 'standard' | 'infinite', itemsPerPage?: number): boolean {
+	async updatePagination(type: 'standard' | 'infinite', itemsPerPage?: number): Promise<boolean> {
 		const config = this.readConfig();
 
 		config.pagination.type = type;
@@ -445,7 +448,7 @@ export class ConfigManager {
 		}
 
 		const commitMessage = `Update pagination configuration (type: ${type}${itemsPerPage ? `, itemsPerPage: ${itemsPerPage}` : ''}) - ${new Date().toISOString()}`;
-		return this.writeConfig(config, commitMessage);
+		return await this.writeConfig(config, commitMessage);
 	}
 
 	/**
