@@ -198,7 +198,7 @@ export default function AdminCommentsPage() {
                 id: 'search',
                 type: 'search',
                 label: t('SEARCH'),
-                value: searchTerm,
+                value: searchTerm.trim(),
               },
             ]}
             onRemove={() => setSearchTerm('')}
