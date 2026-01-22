@@ -36,7 +36,8 @@ import {
 	getHeaderSettingsEnabled,
 	getHeaderLayoutDefault,
 	getHeaderPaginationDefault,
-	getHeaderThemeDefault
+	getHeaderThemeDefault,
+	getLocationSettings
 } from '@/lib/utils/settings';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
 
@@ -145,10 +146,13 @@ export default async function RootLayout({
 		themeDefault: getHeaderThemeDefault()
 	};
 
+	// Read location settings server-side
+	const locationSettings = getLocationSettings();
+
 	// Determine if the current locale is RTL
 	return (
 		<>
-			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="beforeInteractive" />
+			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="afterInteractive" />
 			<PHProvider>
 				<Suspense fallback={null}>
 					<PostHogPageView />
@@ -165,6 +169,7 @@ export default async function RootLayout({
 						hasCollections={hasCollections}
 						hasGlobalSurveys={hasGlobalSurveys}
 						headerSettings={headerSettings}
+						locationSettings={locationSettings}
 					>
 						<SettingsModalProvider>
 							<Providers config={config}>

@@ -16,7 +16,7 @@ import {
 	CheckoutParams,
 	SubscriptionStatus,
 	CheckoutListResult,
-	CheckoutData,
+	CheckoutData
 } from '../../types/payment-types';
 import {
 	createCheckout,
@@ -396,7 +396,8 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				checkoutOptions: {
 					embed: true,
 					media: false,
-					logo: false
+					logo: false,
+					dark: params.dark
 				},
 				checkoutData: {
 					email: params.email,
@@ -451,7 +452,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 					media: false,
 					logo: true,
 					dark: true,
-					subscriptionPreview: true,
+					subscriptionPreview: true
 				},
 				checkoutData: {
 					email: email || '',
@@ -564,7 +565,6 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				currentSubscription.status !== 'active' &&
 				currentSubscription.status !== 'on_trial' &&
 				currentSubscription.status !== 'past_due'
-
 			) {
 				throw new Error(
 					`Cannot update plan for subscription in ${currentSubscription.status} status. Only active, trial, or past due subscriptions can be updated.`
@@ -591,7 +591,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				}
 				updatePayload.variantId = variantId; // Use variantId as per LemonSqueezy types
 			}
- 
+
 			if (params.cancelAtPeriodEnd !== undefined) {
 				updatePayload.cancelled = params.cancelAtPeriodEnd;
 			}
@@ -647,7 +647,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				payload: updatePayload,
 				metadata: params.metadata,
 				currentStatus: currentSubscription?.status,
-				variantId:Number(params.priceId)
+				variantId: Number(params.priceId)
 			});
 			const { data, error } = await updateSubscription(Number(params.subscriptionId), {
 				...updatePayload,
@@ -683,7 +683,13 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		}
 	}
 
-	async handleWebhook(payload: unknown, signature: string, rawBody?: string, timestamp?: string, webhookId?: string): Promise<WebhookResult> {
+	async handleWebhook(
+		payload: unknown,
+		signature: string,
+		rawBody?: string,
+		timestamp?: string,
+		webhookId?: string
+	): Promise<WebhookResult> {
 		try {
 			// Convert webhook secret to key for Web Crypto API
 			const encoder = new TextEncoder();
@@ -693,18 +699,14 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 			const messageData = encoder.encode(rawBody ?? JSON.stringify(payload));
 
 			// Import key for HMAC
-			const cryptoKey = await crypto.subtle.importKey(
-				'raw',
-				keyData,
-				{ name: 'HMAC', hash: 'SHA-256' },
-				false,
-				['sign']
-			);
+			const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, [
+				'sign'
+			]);
 
 			// Sign the message
 			const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
 			const hashArray = Array.from(new Uint8Array(signatureBuffer));
-			const calculatedSignature = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+			const calculatedSignature = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 
 			if (calculatedSignature !== signature) {
 				return {

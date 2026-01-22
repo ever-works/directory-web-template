@@ -84,7 +84,7 @@ const itemRepository = new ItemRepository();
  *                   type: string
  *                   example: "Failed to fetch item stats"
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     // Check admin authentication
     const session = await auth();
@@ -95,8 +95,17 @@ export async function GET() {
       );
     }
 
-    // Get stats from repository
-    const stats = await itemRepository.getStats();
+    // Parse filter query parameters
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search') || undefined;
+    const categoriesParam = searchParams.get('categories');
+    const tagsParam = searchParams.get('tags');
+
+    const categories = categoriesParam ? categoriesParam.split(',').filter(Boolean) : undefined;
+    const tags = tagsParam ? tagsParam.split(',').filter(Boolean) : undefined;
+
+    // Get stats from repository with filters
+    const stats = await itemRepository.getStats({ search, categories, tags });
 
     return NextResponse.json({
       success: true,
@@ -106,9 +115,9 @@ export async function GET() {
   } catch (error) {
     console.error('Failed to fetch item stats:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch item stats' 
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch item stats'
       },
       { status: 500 }
     );

@@ -70,9 +70,11 @@ const MENU_ITEMS_CONFIG: Array<{
 const STYLES = {
   button: cn(
     "flex items-center gap-1.5",
-    "transition-all duration-200 font-medium whitespace-nowrap text-sm lg:text-base xl:text-lg",
+    "transition-all duration-200 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
     "text-gray-700 dark:text-gray-300",
-    "cursor-pointer hover:text-theme-primary"
+    "cursor-pointer hover:text-theme-primary",
+    "outline-none focus:outline-none focus-visible:outline-none",
+    "border-none focus:ring-0"
   ),
   dropdownContent: cn(
     "min-w-[15rem]",

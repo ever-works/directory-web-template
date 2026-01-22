@@ -158,3 +158,19 @@ export function collectPaymentConfig(): z.input<typeof paymentConfigSchema> {
 		}
 	};
 }
+
+// payment page|| payment form
+
+export const paymentModeSchema = z.object({
+	stripe: z.boolean().optional().default(false),
+	lemonSqueezy: z.boolean().optional().default(false),
+	polar: z.boolean().optional().default(false)
+});
+
+export function collectPaymentModeConfig(): z.input<typeof paymentModeSchema> {
+	return {
+		stripe: process.env.NEXT_PUBLIC_STRIPE_PAYMENT_FORM_ENABLED === 'true',
+		lemonSqueezy: process.env.NEXT_PUBLIC_LEMONSQUEEZY_PAYMENT_FORM_ENABLED === 'true',
+		polar: process.env.NEXT_PUBLIC_POLAR_PAYMENT_FORM_ENABLED === 'true'
+	};
+}

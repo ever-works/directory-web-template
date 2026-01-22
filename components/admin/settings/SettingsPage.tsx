@@ -1,15 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion';
 import { Sliders } from 'lucide-react';
 import { SettingSwitch } from './SettingSwitch';
 import { SettingSelect } from './SettingSelect';
 import { SettingCurrencyInput } from './SettingCurrencyInput';
+import { SettingSlider } from './SettingSlider';
+import { SettingApiStatus } from './SettingApiStatus';
+import { MapPreview } from './MapPreview';
 import { CustomNavigationManager } from './CustomNavigationManager';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { CustomNavigationItem } from '@/lib/content';
+import type { LocationConfigSettings, MapStatusResponse } from '@/lib/types/location';
 
 const GRADIENT_HEADER_CLASSES = [
 	'bg-linear-to-r',
@@ -136,6 +140,7 @@ interface Settings {
 	homepage?: HomepageSettings;
 	footer?: FooterConfigSettings;
 	monetization?: MonetizationConfigSettings;
+	location?: LocationConfigSettings;
 	[key: string]: unknown;
 }
 
@@ -152,6 +157,10 @@ export function SettingsPage() {
 		custom_footer: []
 	});
 	const [navigationLoading, setNavigationLoading] = useState<boolean>(true);
+	const [mapProviderStatus, setMapProviderStatus] = useState<MapStatusResponse>({
+		mapbox: { isConfigured: false, isPreviewAvailable: false, name: 'Mapbox' },
+		google: { isConfigured: false, isPreviewAvailable: false, name: 'Google Maps' }
+	});
 
 	// Fetch settings on mount
 	useEffect(() => {
@@ -202,6 +211,25 @@ export function SettingsPage() {
 		};
 
 		fetchNavigation();
+	}, []);
+
+	// Fetch map provider status on mount
+	useEffect(() => {
+		const fetchMapStatus = async () => {
+			try {
+				const response = await fetch('/api/admin/settings/map-status');
+
+				if (response.ok) {
+					const data = await response.json();
+					setMapProviderStatus(data.status);
+				}
+			} catch (error) {
+				console.error('Error fetching map status:', error);
+				// Silently fail - map status is optional
+			}
+		};
+
+		fetchMapStatus();
 	}, []);
 
 	// Helper to update nested state paths
@@ -277,6 +305,20 @@ export function SettingsPage() {
 			throw error; // Re-throw to let CustomNavigationManager handle the error
 		}
 	};
+
+	// Memoize translations to prevent MapPreview from re-initializing on unrelated setting changes
+	const mapPreviewTranslations = useMemo(
+		() => ({
+			notConfigured: t('LOCATION_MAP_PREVIEW_NOT_CONFIGURED'),
+			loadingError: t('LOCATION_MAP_PREVIEW_LOADING_ERROR'),
+			mapError: t('LOCATION_MAP_PREVIEW_ERROR'),
+			mapboxNotConfigured: t('LOCATION_MAP_MAPBOX_NOT_CONFIGURED'),
+			googleNotConfigured: t('LOCATION_MAP_GOOGLE_NOT_CONFIGURED'),
+			mapboxNotInstalled: t('LOCATION_MAP_MAPBOX_NOT_INSTALLED'),
+			googleNotInstalled: t('LOCATION_MAP_GOOGLE_NOT_INSTALLED')
+		}),
+		[t]
+	);
 
 	return (
 		<div className="space-y-8">
@@ -610,6 +652,154 @@ export function SettingsPage() {
 										disabled={saving}
 										usePortal={true}
 									/>
+								</>
+							)}
+						</AccordionContent>
+					</AccordionItem>
+
+					{/* Location & Maps Settings Section */}
+					<AccordionItem value="location" className={ACCORDION_ITEM_CLASSES}>
+						<AccordionTrigger>
+							<div className="text-left w-full">
+								<h3 className={ACCORDION_TITLE_CLASSES}>{t('LOCATION_TITLE')}</h3>
+								<p className={ACCORDION_DESC_CLASSES}>{t('LOCATION_DESC')}</p>
+							</div>
+						</AccordionTrigger>
+						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
+							{loading ? (
+								<p className={PLACEHOLDER_TEXT_CLASSES}>Loading settings...</p>
+							) : (
+								<>
+									{/* Master Toggle */}
+									<SettingSwitch
+										label={t('LOCATION_ENABLED_LABEL')}
+										description={t('LOCATION_ENABLED_DESC')}
+										value={settings.location?.enabled ?? false}
+										onChange={(value) => updateSetting('location.enabled', value)}
+										disabled={saving}
+									/>
+
+									{/* API Key Status Indicator */}
+									<SettingApiStatus
+										label={t('LOCATION_API_STATUS_LABEL')}
+										description={t('LOCATION_API_STATUS_DESC')}
+										apis={[
+											{
+												name: mapProviderStatus.mapbox.name,
+												isConfigured: mapProviderStatus.mapbox.isConfigured,
+												envVar: 'NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN',
+												docsUrl: 'https://docs.mapbox.com/'
+											},
+											{
+												name: mapProviderStatus.google.name,
+												isConfigured: mapProviderStatus.google.isConfigured,
+												envVar: 'NEXT_PUBLIC_GOOGLE_MAPS_API_KEY',
+												docsUrl: 'https://developers.google.com/maps'
+											}
+										]}
+									/>
+
+									{/* Provider Selection */}
+									<SettingSelect
+										label={t('LOCATION_PROVIDER_LABEL')}
+										description={t('LOCATION_PROVIDER_DESC')}
+										value={settings.location?.provider ?? 'mapbox'}
+										onChange={(value) => updateSetting('location.provider', value)}
+										options={[
+											{ value: 'mapbox', label: 'Mapbox' },
+											{ value: 'google', label: 'Google Maps' }
+										]}
+										disabled={saving || !settings.location?.enabled}
+									/>
+
+									{/* Map Style */}
+									<SettingSelect
+										label={t('LOCATION_MAP_STYLE_LABEL')}
+										description={t('LOCATION_MAP_STYLE_DESC')}
+										value={settings.location?.map_style ?? 'streets'}
+										onChange={(value) => updateSetting('location.map_style', value)}
+										options={[
+											{ value: 'streets', label: 'Streets' },
+											{ value: 'satellite', label: 'Satellite' }
+										]}
+										disabled={saving || !settings.location?.enabled}
+									/>
+
+									{/* Feature Toggles */}
+									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
+											{t('LOCATION_FEATURES_TITLE')}
+										</h4>
+
+										<SettingSwitch
+											label={t('LOCATION_DISTANCE_FILTER_LABEL')}
+											description={t('LOCATION_DISTANCE_FILTER_DESC')}
+											value={settings.location?.distance_filter_enabled ?? true}
+											onChange={(value) => updateSetting('location.distance_filter_enabled', value)}
+											disabled={saving || !settings.location?.enabled}
+										/>
+
+										<SettingSwitch
+											label={t('LOCATION_DISTANCE_SORT_LABEL')}
+											description={t('LOCATION_DISTANCE_SORT_DESC')}
+											value={settings.location?.distance_sort_enabled ?? true}
+											onChange={(value) => updateSetting('location.distance_sort_enabled', value)}
+											disabled={saving || !settings.location?.enabled}
+										/>
+									</div>
+
+									{/* Default Radius Slider */}
+									<SettingSlider
+										label={t('LOCATION_DEFAULT_RADIUS_LABEL')}
+										description={t('LOCATION_DEFAULT_RADIUS_DESC')}
+										value={settings.location?.default_radius_km ?? 50}
+										onChange={(value) => updateSetting('location.default_radius_km', value)}
+										min={10}
+										max={500}
+										step={10}
+										unit=" km"
+										disabled={saving || !settings.location?.enabled}
+									/>
+
+									{/* Privacy Settings */}
+									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
+											{t('LOCATION_PRIVACY_TITLE')}
+										</h4>
+
+										<SettingSwitch
+											label={t('LOCATION_SHOW_EXACT_ADDRESS_LABEL')}
+											description={t('LOCATION_SHOW_EXACT_ADDRESS_DESC')}
+											value={settings.location?.show_exact_address ?? false}
+											onChange={(value) => updateSetting('location.show_exact_address', value)}
+											disabled={saving || !settings.location?.enabled}
+										/>
+
+										<SettingSwitch
+											label={t('LOCATION_REQUIRE_ON_SUBMIT_LABEL')}
+											description={t('LOCATION_REQUIRE_ON_SUBMIT_DESC')}
+											value={settings.location?.require_location_on_submit ?? false}
+											onChange={(value) => updateSetting('location.require_location_on_submit', value)}
+											disabled={saving || !settings.location?.enabled}
+										/>
+									</div>
+
+									{/* Map Preview */}
+									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
+											{t('LOCATION_MAP_PREVIEW_TITLE')}
+										</h4>
+										<MapPreview
+											provider={settings.location?.provider ?? 'mapbox'}
+											mapStyle={settings.location?.map_style ?? 'streets'}
+											isConfigured={
+												(settings.location?.provider === 'mapbox' && mapProviderStatus.mapbox.isPreviewAvailable) ||
+												(settings.location?.provider === 'google' && mapProviderStatus.google.isPreviewAvailable) ||
+												(settings.location?.provider === undefined && mapProviderStatus.mapbox.isPreviewAvailable)
+											}
+											translations={mapPreviewTranslations}
+										/>
+									</div>
 								</>
 							)}
 						</AccordionContent>

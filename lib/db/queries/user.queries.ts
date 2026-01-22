@@ -1,6 +1,6 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { users, clientProfiles, type NewUser, type User } from '../schema';
+import { users, clientProfiles, roles, userRoles, type NewUser, type User } from '../schema';
 
 /**
  * Get user by email address
@@ -8,26 +8,26 @@ import { users, clientProfiles, type NewUser, type User } from '../schema';
  * @returns User object or null if not found
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
-  // Check if DATABASE_URL is set
-  if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL is not set. User validation is disabled.');
-    return null;
-  }
+	// Check if DATABASE_URL is set
+	if (!process.env.DATABASE_URL) {
+		console.warn('DATABASE_URL is not set. User validation is disabled.');
+		return null;
+	}
 
-  try {
-    const usersList = await db.select().from(users).where(eq(users.email, email)).limit(1);
+	try {
+		const usersList = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
-    if (usersList.length === 0) {
-      console.warn(`User validation failed: No user found with email ${email}`);
-      return null;
-    }
+		if (usersList.length === 0) {
+			console.warn(`User validation failed: No user found with email ${email}`);
+			return null;
+		}
 
-    return usersList[0];
-  } catch (error) {
-    // Only catch actual database errors
-    console.error('Database error in getUserByEmail:', error);
-    return null;
-  }
+		return usersList[0];
+	} catch (error) {
+		// Only catch actual database errors
+		console.error('Database error in getUserByEmail:', error);
+		return null;
+	}
 }
 
 /**
@@ -36,25 +36,25 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * @returns User object or null if not found
  */
 export async function getUserById(id: string): Promise<User | null> {
-  if (!process.env.DATABASE_URL) {
-    console.warn('DATABASE_URL is not set. User validation is disabled.');
-    return null;
-  }
+	if (!process.env.DATABASE_URL) {
+		console.warn('DATABASE_URL is not set. User validation is disabled.');
+		return null;
+	}
 
-  try {
-    const usersList = await db.select().from(users).where(eq(users.id, id)).limit(1);
+	try {
+		const usersList = await db.select().from(users).where(eq(users.id, id)).limit(1);
 
-    if (usersList.length === 0) {
-      console.warn(`User validation failed: No user found with id ${id}`);
-      return null;
-    }
+		if (usersList.length === 0) {
+			console.warn(`User validation failed: No user found with id ${id}`);
+			return null;
+		}
 
-    return usersList[0];
-  } catch (error) {
-    // Only catch actual database errors
-    console.error('Database error in getUserById:', error);
-    return null;
-  }
+		return usersList[0];
+	} catch (error) {
+		// Only catch actual database errors
+		console.error('Database error in getUserById:', error);
+		return null;
+	}
 }
 
 /**
@@ -63,7 +63,7 @@ export async function getUserById(id: string): Promise<User | null> {
  * @returns Created user
  */
 export async function insertNewUser(user: NewUser): Promise<User[]> {
-  return db.insert(users).values(user).returning();
+	return db.insert(users).values(user).returning();
 }
 
 /**
@@ -72,7 +72,7 @@ export async function insertNewUser(user: NewUser): Promise<User[]> {
  * @param userId - User ID
  */
 export async function updateUserPassword(newPasswordHash: string, userId: string) {
-  return db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
+	return db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
 }
 
 /**
@@ -81,7 +81,7 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * @param userId - User ID
  */
 export async function updateUser(values: Pick<NewUser, 'email'>, userId: string) {
-  return db.update(users).set(values).where(eq(users.id, userId));
+	return db.update(users).set(values).where(eq(users.id, userId));
 }
 
 /**
@@ -90,10 +90,10 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
  * @param verified - Verification status
  */
 export async function updateUserVerification(email: string, verified: boolean) {
-  return db
-    .update(users)
-    .set({ emailVerified: verified ? new Date() : null })
-    .where(eq(users.email, email));
+	return db
+		.update(users)
+		.set({ emailVerified: verified ? new Date() : null })
+		.where(eq(users.email, email));
 }
 
 /**
@@ -101,13 +101,13 @@ export async function updateUserVerification(email: string, verified: boolean) {
  * @param userId - User ID to delete
  */
 export async function softDeleteUser(userId: string) {
-  return db
-    .update(users)
-    .set({
-      deletedAt: sql`CURRENT_TIMESTAMP`,
-      email: sql`CONCAT(email, '-', id, '-deleted')`
-    })
-    .where(eq(users.id, userId));
+	return db
+		.update(users)
+		.set({
+			deletedAt: sql`CURRENT_TIMESTAMP`,
+			email: sql`CONCAT(email, '-', id, '-deleted')`
+		})
+		.where(eq(users.id, userId));
 }
 
 /**
@@ -116,8 +116,31 @@ export async function softDeleteUser(userId: string) {
  * @param name - New name
  */
 export async function updateClientProfileName(userId: string, name: string) {
-  return db
-    .update(clientProfiles)
-    .set({ name, updatedAt: new Date() })
-    .where(eq(clientProfiles.userId, userId));
+	return db.update(clientProfiles).set({ name, updatedAt: new Date() }).where(eq(clientProfiles.userId, userId));
+}
+
+/**
+ * Check if a user has an admin role
+ * @param userId - User ID
+ * @returns true if user has an admin role, false otherwise
+ */
+export async function isUserAdmin(userId: string): Promise<boolean> {
+	if (!process.env.DATABASE_URL) {
+		console.warn('DATABASE_URL is not set. Admin check is disabled.');
+		return false;
+	}
+
+	try {
+		const result = await db
+			.select({ isAdmin: roles.isAdmin })
+			.from(userRoles)
+			.innerJoin(roles, eq(userRoles.roleId, roles.id))
+			.where(and(eq(userRoles.userId, userId), eq(roles.isAdmin, true), eq(roles.status, 'active')))
+			.limit(1);
+
+		return result.length > 0;
+	} catch (error) {
+		console.error('Database error in isUserAdmin:', error);
+		return false;
+	}
 }

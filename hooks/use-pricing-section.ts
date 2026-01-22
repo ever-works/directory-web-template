@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { PaymentFlow, PaymentInterval, PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { usePaymentFlow } from '@/hooks/use-payment-flow';
 import { useCreateCheckoutSession } from '@/hooks/use-create-checkout';
@@ -15,11 +16,15 @@ import { usePolarCheckout } from './use-polar-checkout';
 import { useSelectedCheckoutProvider } from './use-selected-checkout-provider';
 import { useCurrencyContext } from '@/components/context/currency-provider';
 import { getLemonSqueezyPriceConfig } from '@/lib/config/billing/lemonsqueezy.config';
+import { getPolarPriceConfig } from '@/lib/config/billing/polar.config';
 import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
 import { useSetupIntent } from './use-setup-intent';
-import { getStripePaymentMode } from '@/lib/stripe-helpers';
 import { useSubscription } from './use-subscription';
+import { usePaymentAvailability } from './use-payment-availability';
+import { useStripeProducts, isStripeDynamicPricingEnabled } from './use-stripe-products';
+import { mapStripeProductsToPricingPlans } from '@/lib/services/stripe-products.service';
+import { collectPaymentModeConfig } from '@/lib/config/schemas/payment.schema';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -107,6 +112,7 @@ export interface UsePricingSectionReturn extends UsePricingSectionState, UsePric
 		onPaymentSuccess: (paymentMethodId: string) => void;
 		onPaymentError: (error: Error) => void;
 		clientSecret?: string;
+		checkoutUrl?: string | null;
 		isReady?: boolean;
 		isError?: boolean;
 	};
@@ -135,10 +141,32 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		getNotLoggedInActionText
 	} = usePricingFeatures();
 
+	// Theme
+	const { resolvedTheme } = useTheme();
+	const isDark = resolvedTheme === 'dark';
+
 	// Hooks for different payment providers
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
-	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton(); // Lemonsqueezy checkout hook
-	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout(); // Polar checkout hook
+
+	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
+		embedded: collectPaymentModeConfig().lemonSqueezy,
+		onPaymentSuccess: (event) => {
+			toast.success('Subscription created successfully!');
+			router.push('/checkout/success');
+		},
+		onClose: () => {
+			// Clear checkout URL to prevent stale state
+			lemonsqueezyHook.clearCheckout();
+			if (currentProcessingPlanRef.current) {
+				currentProcessingPlanRef.current = null;
+				setProcessingPlan(null);
+			}
+		},
+		dark: isDark
+	}); // Lemonsqueezy checkout hook
+	const polarHook: ReturnType<typeof usePolarCheckout> = usePolarCheckout({
+		embedded: collectPaymentModeConfig().polar
+	}); // Polar checkout hook
 	const { createSubscription } = useSubscription(); // Subscription management hook
 
 	// Hook for payment flow
@@ -147,11 +175,16 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		autoSave: true
 	});
 
+	// Get payment availability to determine default plan
+	const { shouldShowPaidPlans } = usePaymentAvailability();
+
 	// Local state for pricing section
 	const [showSelector, setShowSelector] = useState<boolean>(false);
 	const [billingInterval, setBillingInterval] = useState<PaymentInterval>(PaymentInterval.MONTHLY);
 	const [processingPlan, setProcessingPlan] = useState<string | null>(null);
-	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(initialSelectedPlan ?? PaymentPlan.STANDARD);
+	// Default to FREE when paid plans aren't available, otherwise use initialSelectedPlan or STANDARD
+	const defaultPlan = shouldShowPaidPlans ? (initialSelectedPlan ?? PaymentPlan.STANDARD) : PaymentPlan.FREE;
+	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(defaultPlan);
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [planForPayment, setPlanForPayment] = useState<PricingConfig | null>(null);
 	const loginModal = useLoginModal();
@@ -159,13 +192,41 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	// Ref for current processing plan
 	const currentProcessingPlanRef = useRef<string | null>(null);
 
-	const { FREE, STANDARD, PREMIUM } = config.pricing?.plans ?? {};
+	// Static plans from config (with proper typing)
+	const staticPlans =
+		config.pricing?.plans ??
+		({} as {
+			FREE?: PricingConfig;
+			STANDARD?: PricingConfig;
+			PREMIUM?: PricingConfig;
+		});
 
 	// Get user's selected checkout provider from Settings
 	const { getActiveProvider } = useSelectedCheckoutProvider();
 
 	// Determine payment provider: User selection takes precedence over config
 	const paymentProvider = usePaymentProvider(getActiveProvider, config.pricing);
+
+	// Fetch dynamic products from Stripe if enabled
+	const isDynamicPricingEnabled = paymentProvider === PaymentProvider.STRIPE && isStripeDynamicPricingEnabled();
+	const { data: stripeProductsData } = useStripeProducts({
+		enabled: isDynamicPricingEnabled && !isReview
+	});
+
+	// Merge dynamic products with static config
+	// Dynamic products take precedence when available
+	const { FREE, STANDARD, PREMIUM } = useMemo(() => {
+		if (isDynamicPricingEnabled && stripeProductsData?.products?.length) {
+			const dynamicPlans = mapStripeProductsToPricingPlans(stripeProductsData.products, currency);
+			// Merge: dynamic values override static, but keep static as fallback
+			return {
+				FREE: dynamicPlans.FREE ?? staticPlans.FREE,
+				STANDARD: dynamicPlans.STANDARD ?? staticPlans.STANDARD,
+				PREMIUM: dynamicPlans.PREMIUM ?? staticPlans.PREMIUM
+			};
+		}
+		return staticPlans;
+	}, [isDynamicPricingEnabled, stripeProductsData, staticPlans, currency]);
 
 	const paymentHook =
 		paymentProvider === PaymentProvider.LEMONSQUEEZY
@@ -176,9 +237,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const { isLoading, isSuccess, error } = paymentHook;
 	const resetPaymentHook = useMemo(() => ('reset' in paymentHook ? paymentHook.reset : () => {}), [paymentHook]);
 
-	// Prefetch Stripe SetupIntent only if using Stripe embedded mode
+	// Prefetch Stripe SetupIntent only if using Stripe embedded mode and user is logged in
 	const shouldPrefetch =
-		!isReview && paymentProvider === PaymentProvider.STRIPE && getStripePaymentMode() === 'embedded';
+		!isReview && !!user?.id && paymentProvider === PaymentProvider.STRIPE && collectPaymentModeConfig().stripe;
 
 	const { clientSecret, isReady, isError } = useSetupIntent({
 		suppressSuccessToast: true,
@@ -325,6 +386,12 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						return;
 					}
 					// Create checkout session for Lemonsqueezy
+					// Set planForPayment to show in modal (only for embedded mode)
+					if (collectPaymentModeConfig().lemonSqueezy) {
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+					}
+
 					// Lemonsqueezy checkout hook
 					await lemonsqueezyHook.handleSubmitWithParams({
 						variantId: Number(variantId),
@@ -339,11 +406,26 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 							email: user.email,
 							currency: currency
 						},
-						embedded: false
+						embedded: collectPaymentModeConfig().lemonSqueezy,
+						dark: isDark
 					});
 				} else if (paymentProvider === PaymentProvider.POLAR) {
 					// Check if the product ID is valid
-					if (!plan.polarProductId) {
+					const polarPaymentMode = collectPaymentModeConfig().polar;
+					if (polarPaymentMode) {
+						setPlanForPayment(plan);
+						setShowPaymentForm(true);
+						// Don't return here, we need to create the session to get the URL
+					}
+
+					// Get currency-aware price ID
+					const planName = validateAndMapPlanName(plan.id);
+					const interval = billingInterval === PaymentInterval.YEARLY ? 'yearly' : 'monthly';
+					const polarPriceConfig = getPolarPriceConfig(planName, currency, interval);
+
+					const priceId = polarPriceConfig?.priceId || plan.polarProductId;
+
+					if (!priceId) {
 						toast.error('No product ID found for plan', {
 							description: `Plan: ${plan.name}, ID: ${plan.id}`
 						});
@@ -351,17 +433,12 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						setProcessingPlan(null);
 						return;
 					}
-					// Create checkout session for Polar
-					await polarHook.createCheckoutSession(
-						plan?.polarProductId || '',
-						user as any,
-						plan,
-						billingInterval
-					);
-				} else if (paymentProvider === PaymentProvider.STRIPE) {
-					const stripePaymentMode = getStripePaymentMode();
 
-					if (stripePaymentMode === 'embedded') {
+					await polarHook.createCheckoutSession(priceId, user as any, plan, billingInterval);
+				} else if (paymentProvider === PaymentProvider.STRIPE) {
+					const stripePaymentMode = collectPaymentModeConfig().stripe;
+
+					if (stripePaymentMode) {
 						console.log('Using embedded payment mode');
 						setPlanForPayment(plan);
 						setShowPaymentForm(true);
@@ -402,12 +479,20 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			stripeHook,
 			billingInterval,
 			polarHook,
-			currency
+			currency,
+			isDark
 		]
 	);
 
 	// Computed values
 	const isButton = selectedFlow === 'pay_at_end';
+
+	// Effect to reset plan if paid plans become unavailable
+	useEffect(() => {
+		if (!shouldShowPaidPlans && selectedPlan && selectedPlan !== PaymentPlan.FREE) {
+			setSelectedPlan(PaymentPlan.FREE);
+		}
+	}, [shouldShowPaidPlans, selectedPlan]);
 
 	// Effect to handle plan selection from URL
 	useEffect(() => {
@@ -432,10 +517,14 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		}
 
 		if (isSuccess) {
-			toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
+			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && collectPaymentModeConfig().lemonSqueezy) {
+				// Don't show toast for embedded mode as it opens immediately
+			} else {
+				toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
+			}
 			setProcessingPlan(null);
 		}
-	}, [error, isSuccess, paymentProvider]);
+	}, [error, isSuccess, paymentProvider, collectPaymentModeConfig().lemonSqueezy]);
 
 	return {
 		// State
@@ -501,6 +590,14 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			closePaymentForm: () => {
 				setShowPaymentForm(false);
 				setPlanForPayment(null);
+				// Clear checkout URL if using LemonSqueezy to prevent stale state
+				if (paymentProvider === PaymentProvider.LEMONSQUEEZY) {
+					lemonsqueezyHook.clearCheckout();
+				}
+				// Clear checkout URL if using Polar
+				if (paymentProvider === PaymentProvider.POLAR) {
+					polarHook.reset();
+				}
 			},
 			onPaymentSuccess: async (paymentMethodId: string) => {
 				if (!planForPayment?.stripePriceId) {
@@ -529,6 +626,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 				toast.error(`Payment failed: ${error.message}`);
 			},
 			clientSecret,
+			checkoutUrl: lemonsqueezyHook.checkoutUrl || polarHook.checkoutUrl,
 			isReady,
 			isError
 		}
