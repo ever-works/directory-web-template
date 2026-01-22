@@ -1,13 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectItem } from '@/components/ui/select';
 import {
 	Flag,
-	Search,
 	Eye,
-	Filter,
 	X,
 	User,
 	Calendar,
@@ -18,9 +15,19 @@ import {
 } from 'lucide-react';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminReports, type AdminReportItem } from '@/hooks/use-admin-reports';
+import { useAdminFilters } from '@/hooks/use-admin-filters';
 import { ReportStatus, ReportContentType, ReportReason } from '@/lib/db/schema';
 import type { ReportStatusValues, ReportContentTypeValues, ReportReasonValues } from '@/lib/db/schema';
 import ReportReviewDialog from '@/components/admin/reports/report-review-dialog';
+import {
+	AdminSearchBar,
+	AdminStatusTabs,
+	AdminFilterPopover,
+	AdminActiveFilters,
+	type StatusTabOption,
+	type FilterSection,
+	type ActiveFilter,
+} from '@/components/admin/shared';
 import { useTranslations } from 'next-intl';
 import { useNavigation } from '@/components/providers';
 
@@ -123,33 +130,56 @@ const REASON_STYLES: Record<ReportReasonValues, { bg: string; text: string }> = 
 	other: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300' }
 };
 
+// Define status type for filtering
+type ReportStatusFilter = ReportStatusValues | '';
+
 export default function AdminReportsPage() {
 	const t = useTranslations('admin.ADMIN_REPORTS_PAGE');
 
+	// Pagination state (managed externally since useAdminFilters handles filter resets)
+	const [currentPage, setCurrentPage] = useState(1);
+
+	// Use the unified filters hook
+	const {
+		searchTerm,
+		setSearchTerm,
+		debouncedSearchTerm,
+		isSearching,
+		hasActiveSearch,
+		statusFilter,
+		setStatusFilter,
+		multiFilters,
+		setMultiFilter,
+		hasActiveFilters,
+		clearAllFilters,
+	} = useAdminFilters<ReportStatusFilter>({
+		minSearchLength: 2,
+		debounceDelay: 300,
+		initialMultiFilters: {
+			contentType: [],
+			reason: [],
+		},
+		onFiltersChange: () => setCurrentPage(1),
+	});
+
+	// Use admin reports hook with filter values from useAdminFilters
 	const {
 		reports,
 		stats,
 		isLoading,
 		isLoadingStats,
-		isFiltering,
 		isUpdating,
-		currentPage,
 		totalPages,
 		totalReports,
-		searchTerm,
-		statusFilter,
-		contentTypeFilter,
-		reasonFilter,
 		updateReport,
 		handlePageChange,
-		handleSearch,
-		setStatusFilter,
-		setContentTypeFilter,
-		setReasonFilter,
-		clearFilters
 	} = useAdminReports({
-		page: 1,
-		limit: 10
+		page: currentPage,
+		limit: 10,
+		search: debouncedSearchTerm || undefined,
+		status: (statusFilter || undefined) as ReportStatusValues | undefined,
+		contentType: (multiFilters.contentType?.[0] as ReportContentTypeValues) || undefined,
+		reason: (multiFilters.reason?.[0] as ReportReasonValues) || undefined,
 	});
 
 	const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
@@ -175,7 +205,116 @@ export default function AdminReportsPage() {
 		}
 	}, [reports, reportToReview]);
 
-	const hasActiveFilters = searchTerm || statusFilter || contentTypeFilter || reasonFilter;
+	// Build status tab options with counts from stats
+	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(() => [
+		{ value: '', label: t('STATUS_ALL'), count: stats?.total || 0 },
+		{ value: 'pending', label: t('STATUS_LABELS.pending'), count: stats?.byStatus?.pending || 0 },
+		{ value: 'reviewed', label: t('STATUS_LABELS.reviewed'), count: stats?.byStatus?.reviewed || 0 },
+		{ value: 'resolved', label: t('STATUS_LABELS.resolved'), count: stats?.byStatus?.resolved || 0 },
+		{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'), count: stats?.byStatus?.dismissed || 0 },
+	], [stats, t]);
+
+	// Build filter popover sections for Content Type and Reason (using radio since API supports single values)
+	const filterSections: FilterSection<string>[] = useMemo(() => [
+		{
+			id: 'contentType',
+			label: t('CONTENT_TYPE'),
+			type: 'radio' as const,
+			options: Object.values(ReportContentType).map(type => ({
+				id: type,
+				label: t(`CONTENT_TYPES.${type}`),
+				count: stats?.byContentType?.[type] || 0,
+			})),
+			selectedValues: multiFilters.contentType || [],
+			onChange: (values: string[]) => setMultiFilter('contentType', values),
+		},
+		{
+			id: 'reason',
+			label: t('REASON'),
+			type: 'radio' as const,
+			options: Object.values(ReportReason).map(reason => ({
+				id: reason,
+				label: t(`REASONS.${reason}`),
+				count: stats?.byReason?.[reason] || 0,
+			})),
+			selectedValues: multiFilters.reason || [],
+			onChange: (values: string[]) => setMultiFilter('reason', values),
+		},
+	], [stats, multiFilters, setMultiFilter, t]);
+
+	const advancedFilterCount = (multiFilters.contentType?.length || 0) + (multiFilters.reason?.length || 0);
+
+	// Build active filters array for chip display
+	const activeFilters: ActiveFilter[] = useMemo(() => {
+		const filters: ActiveFilter[] = [];
+
+		if (hasActiveSearch) {
+			filters.push({
+				id: 'search',
+				type: 'search',
+				label: t('SEARCH_PLACEHOLDER').replace('...', ''),
+				value: searchTerm.trim(),
+			});
+		}
+
+		if (statusFilter) {
+			filters.push({
+				id: `status:${statusFilter}`,
+				type: 'status',
+				label: t('STATUS'),
+				value: t(`STATUS_LABELS.${statusFilter}`),
+			});
+		}
+
+		(multiFilters.contentType || []).forEach(type => {
+			filters.push({
+				id: `contentType:${type}`,
+				type: 'contentType',
+				label: t('CONTENT_TYPE'),
+				value: t(`CONTENT_TYPES.${type}`),
+			});
+		});
+
+		(multiFilters.reason || []).forEach(reason => {
+			filters.push({
+				id: `reason:${reason}`,
+				type: 'reason',
+				label: t('REASON'),
+				value: t(`REASONS.${reason}`),
+			});
+		});
+
+		return filters;
+	}, [hasActiveSearch, searchTerm, statusFilter, multiFilters, t]);
+
+	// Filter removal handlers
+	const handleRemoveFilter = (filter: ActiveFilter) => {
+		switch (filter.type) {
+			case 'search':
+				setSearchTerm('');
+				break;
+			case 'status':
+				setStatusFilter('');
+				break;
+			case 'contentType':
+				setMultiFilter('contentType', []);
+				break;
+			case 'reason':
+				setMultiFilter('reason', []);
+				break;
+		}
+	};
+
+	const handleClearAdvancedFilters = () => {
+		setMultiFilter('contentType', []);
+		setMultiFilter('reason', []);
+	};
+
+	// Wrap page change to update local state
+	const onPageChange = (page: number) => {
+		setCurrentPage(page);
+		handlePageChange(page);
+	};
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString(undefined, {
@@ -338,91 +477,37 @@ export default function AdminReportsPage() {
 			{/* Filters */}
 			<div className={CLASSES.filtersContainer}>
 				{/* Search Bar */}
-				<div className={CLASSES.searchContainer}>
-					<Search className={CLASSES.searchIcon} />
-					<input
-						type="text"
-						placeholder={t('SEARCH_PLACEHOLDER')}
-						value={searchTerm}
-						onChange={(e) => handleSearch(e.target.value)}
-						aria-label={t('SEARCH_PLACEHOLDER')}
-						role="searchbox"
-						className={CLASSES.searchInput}
-					/>
-					{isFiltering && (
-						<div className={CLASSES.searchSpinner}>
-							<div className={CLASSES.spinnerIcon}></div>
-						</div>
-					)}
-				</div>
+				<AdminSearchBar
+					value={searchTerm}
+					onChange={setSearchTerm}
+					isSearching={isSearching}
+					placeholder={t('SEARCH_PLACEHOLDER')}
+					ariaLabel={t('SEARCH_PLACEHOLDER')}
+				/>
 
-				{/* Filter Dropdowns */}
+				{/* Filter Row: Status Tabs + Filter Popover */}
 				<div className={CLASSES.filterRow}>
-					<div className={CLASSES.filterLabel}>
-						<Filter className="w-4 h-4" />
-						<span>{t('FILTERS')}</span>
-					</div>
+					<AdminStatusTabs<ReportStatusFilter>
+						options={statusOptions}
+						value={statusFilter}
+						onChange={setStatusFilter}
+					/>
 
-					<Select
-						placeholder={t('STATUS')}
-						selectedKeys={statusFilter ? [statusFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportStatusValues | undefined;
-							setStatusFilter(value);
-						}}
-						className="w-36"
-					>
-						{Object.values(ReportStatus).map((status) => (
-							<SelectItem key={status} value={status}>
-								{t(`STATUS_LABELS.${status}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					<Select
-						placeholder={t('CONTENT_TYPE')}
-						selectedKeys={contentTypeFilter ? [contentTypeFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportContentTypeValues | undefined;
-							setContentTypeFilter(value);
-						}}
-						className="w-36"
-					>
-						{Object.values(ReportContentType).map((type) => (
-							<SelectItem key={type} value={type}>
-								{t(`CONTENT_TYPES.${type}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					<Select
-						placeholder={t('REASON')}
-						selectedKeys={reasonFilter ? [reasonFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportReasonValues | undefined;
-							setReasonFilter(value);
-						}}
-						className="w-40"
-					>
-						{Object.values(ReportReason).map((reason) => (
-							<SelectItem key={reason} value={reason}>
-								{t(`REASONS.${reason}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					{hasActiveFilters && (
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={clearFilters}
-							className="text-red-600 hover:text-red-700 hover:bg-red-50"
-						>
-							<X className="w-4 h-4 mr-1" />
-							{t('CLEAR_ALL')}
-						</Button>
-					)}
+					<AdminFilterPopover
+						sections={filterSections}
+						activeCount={advancedFilterCount}
+						onClearAll={handleClearAdvancedFilters}
+					/>
 				</div>
+
+				{/* Active Filter Chips */}
+				{activeFilters.length > 0 && (
+					<AdminActiveFilters
+						filters={activeFilters}
+						onRemove={handleRemoveFilter}
+						onClearAll={clearAllFilters}
+					/>
+				)}
 
 				{/* Results Summary */}
 				<div className={CLASSES.resultsSummary}>
@@ -537,7 +622,7 @@ export default function AdminReportsPage() {
 						<UniversalPagination
 							page={currentPage}
 							totalPages={totalPages}
-							onPageChange={handlePageChange}
+							onPageChange={onPageChange}
 							className="shadow-lg"
 						/>
 					</div>

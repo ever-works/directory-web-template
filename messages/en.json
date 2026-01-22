@@ -2445,6 +2445,7 @@
 		"ADMIN_REPORTS_PAGE": {
 			"TITLE": "Report Management",
 			"SUBTITLE": "Review and resolve reported content",
+			"STATUS_ALL": "All",
 			"PENDING": "pending",
 			"TOTAL_REPORTS": "Total Reports",
 			"RESOLVED": "Resolved",
