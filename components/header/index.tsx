@@ -393,10 +393,13 @@ export default function Header() {
 					{renderBrand()}
 				</NavbarContent>
 
-				{/* Desktop: Brand + Nav (Center/Left-ish) */}
-				<NavbarContent className={STYLES.navContent} justify="start">
+				{/* Desktop: Brand (Separate) */}
+				<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
 					{renderBrand()}
+				</NavbarContent>
 
+				{/* Desktop: Nav (Center/Left-ish) */}
+				<NavbarContent className={STYLES.navContent} justify="start">
 					{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
 				</NavbarContent>
 
