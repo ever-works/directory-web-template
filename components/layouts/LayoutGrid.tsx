@@ -38,7 +38,7 @@ export default function LayoutGrid({ children }: { children: ReactNode }) {
 		<div
 			className={`grid justify-items-stretch gap-3 sm:gap-3 md:gap-4 lg:gap-4 ${
 				isFluid
-					? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+					? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6 4xl:grid-cols-7'
 					: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3'
 			}`}
 		>
