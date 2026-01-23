@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button, Card, CardBody, Chip, useDisclosure } from "@heroui/react";
+import { Button, Chip, useDisclosure } from "@heroui/react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
@@ -9,7 +10,10 @@ import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { useNavigation } from "@/components/providers";
 import {
-  AdminFilterToolbar,
+  AdminSearchBar,
+  AdminStatusTabs,
+  AdminFilterPopover,
+  AdminActiveFilters,
   type StatusTabOption,
   type FilterSection,
   type ActiveFilter,
@@ -79,10 +83,11 @@ export default function AdminUsersPage() {
   });
 
   // Status tab options
+  // Status tab options (no icons to prevent 2-line wrapping)
   const statusOptions = useMemo<StatusTabOption<'active' | 'inactive'>[]>(() => [
     { value: '', label: t('ALL_STATUSES'), count: stats.total },
-    { value: 'active', label: t('ACTIVE'), count: stats.active, icon: <UserCheck className="w-3 h-3" /> },
-    { value: 'inactive', label: t('INACTIVE'), count: stats.inactive, icon: <UserX className="w-3 h-3" /> },
+    { value: 'active', label: t('ACTIVE'), count: stats.active },
+    { value: 'inactive', label: t('INACTIVE'), count: stats.inactive },
   ], [t, stats]);
 
   // Role filter sections for popover
@@ -212,7 +217,7 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {Array.from({ length: 3 }, (_, i) => (
             <Card key={i} className="border-0 shadow-lg">
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-2"></div>
@@ -220,14 +225,14 @@ export default function AdminUsersPage() {
                   </div>
                   <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
                 </div>
-              </CardBody>
+              </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Loading Table */}
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-0">
+          <CardContent className="p-0">
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
               <div className="flex items-center justify-between">
                 <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
@@ -263,7 +268,7 @@ export default function AdminUsersPage() {
                 </div>
               ))}
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         {/* Loading indicator with text */}
@@ -316,7 +321,7 @@ export default function AdminUsersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('TOTAL_USERS_STAT')}</p>
@@ -326,11 +331,11 @@ export default function AdminUsersPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('ACTIVE_USERS_STAT')}</p>
@@ -340,11 +345,11 @@ export default function AdminUsersPage() {
                 <UserCheck className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('INACTIVE_USERS_STAT')}</p>
@@ -354,53 +359,56 @@ export default function AdminUsersPage() {
                 <UserX className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
 
-      {/* Unified Filters */}
+      {/* Search Bar */}
       <div className="mb-6">
-        <AdminFilterToolbar<'active' | 'inactive', string>
-          // Search
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
           isSearching={isSearching}
-          searchPlaceholder={t('SEARCH_PLACEHOLDER')}
-          // Status tabs
-          statusOptions={statusOptions}
-          statusValue={statusFilter as 'active' | 'inactive' | ''}
-          onStatusChange={setStatusFilter}
-          showStatusCounts={true}
-          // Filter popover (role)
-          filterSections={roleFilterSections}
-          activeFilterCount={roleFilter ? 1 : 0}
-          filterLabel={t('FILTERS')}
-          // Active filters
-          activeFilters={activeFiltersDisplay}
-          onRemoveFilter={handleRemoveFilter}
-          onClearAllFilters={clearAllFilters}
-          // Layout
-          layout="stacked"
+          placeholder={t('SEARCH_PLACEHOLDER')}
         />
       </div>
 
       {/* Users Table */}
       <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
-        <CardBody className="p-0">
-          {/* Table Header */}
+        <CardContent className="p-0">
+          {/* Table Header with Filters */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('USERS_TABLE_TITLE')}</h3>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {t('SHOWING_USERS', { count: users.length, total: totalUsers })}
-                {hasActiveFilters && (
-                  <span className="ml-1 text-theme-primary">
-                    {t('FILTERED')}
-                  </span>
-                )}
-              </span>
+              <div className="flex items-center gap-3">
+                {/* Status Tabs */}
+                <AdminStatusTabs
+                  options={statusOptions}
+                  value={statusFilter as 'active' | 'inactive' | ''}
+                  onChange={setStatusFilter}
+                  showCounts={true}
+                />
+                {/* Filter Popover */}
+                <AdminFilterPopover
+                  sections={roleFilterSections}
+                  activeCount={roleFilter ? 1 : 0}
+                  onClearAll={clearAllFilters}
+                  triggerLabel={t('FILTERS')}
+                />
+              </div>
             </div>
           </div>
+
+          {/* Active Filters */}
+          {activeFiltersDisplay.length > 0 && (
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+              <AdminActiveFilters
+                filters={activeFiltersDisplay}
+                onRemove={handleRemoveFilter}
+                onClearAll={clearAllFilters}
+              />
+            </div>
+          )}
 
           {users.length === 0 ? (
             <div className="px-6 py-12 text-center">
@@ -466,7 +474,7 @@ export default function AdminUsersPage() {
               ))}
             </div>
           )}
-        </CardBody>
+        </CardContent>
       </Card>
 
              {/* Pagination */}
