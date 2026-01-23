@@ -313,6 +313,7 @@ export default function ClientsPage() {
 						onCustomDateToChange={setCustomDateTo}
 						onDateFilterTypeChange={setDateFilterType}
 						onClearFilters={clearFilters}
+						totalCount={totalCount}
 						stats={stats}
 					/>
 				}

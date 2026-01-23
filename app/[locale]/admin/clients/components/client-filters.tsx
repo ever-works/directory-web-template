@@ -97,7 +97,10 @@ interface ClientFilterBarProps {
 	// Actions
 	onClearFilters: () => void;
 
-	// Stats for counts
+	// Filtered total count (reflects current filters)
+	totalCount?: number;
+
+	// Stats for counts (unfiltered totals by status)
 	stats?: {
 		overview?: {
 			total?: number;
@@ -118,6 +121,7 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 
 	const {
 		stats,
+		totalCount,
 		planFilter,
 		accountTypeFilter,
 		providerFilter,
@@ -131,15 +135,16 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 	} = props;
 
 	// Status tabs options with counts
+	// "All Statuses" uses totalCount (filtered), individual statuses use stats (unfiltered totals)
 	const statusOptions: StatusTabOption<ClientStatus>[] = useMemo(
 		() => [
-			{ value: '', label: t('ALL_STATUSES'), count: stats?.overview?.total },
+			{ value: '', label: t('ALL_STATUSES'), count: totalCount },
 			{ value: 'active', label: t('ACTIVE'), count: stats?.overview?.active },
 			{ value: 'inactive', label: t('INACTIVE'), count: stats?.overview?.inactive },
 			{ value: 'suspended', label: t('SUSPENDED'), count: stats?.overview?.suspended },
 			{ value: 'trial', label: t('TRIAL'), count: stats?.overview?.trial },
 		],
-		[t, stats?.overview]
+		[t, totalCount, stats?.overview]
 	);
 
 	// Filter sections for popover
