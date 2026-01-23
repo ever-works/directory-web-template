@@ -25,7 +25,10 @@ import { useTranslations } from 'next-intl';
 import { AdminSurveyCreationButton } from "@/components/surveys/admin-survey-creation-button";
 import { useDebounceSearch } from "@/hooks/use-debounced-search";
 import {
-  AdminFilterToolbar,
+  AdminSearchBar,
+  AdminStatusTabs,
+  AdminFilterPopover,
+  AdminActiveFilters,
   type StatusTabOption,
   type FilterSection,
   type ActiveFilter,
@@ -109,16 +112,16 @@ export default function AdminItemsPage() {
   // Count for advanced filters only (categories + tags)
   const advancedFilterCount = categoriesFilter.length + tagsFilter.length;
 
-  // Status tab options for AdminStatusTabs
+  // Status tab options for AdminStatusTabs (no icons to prevent 2-line wrapping)
   type ItemStatus = 'draft' | 'pending' | 'approved' | 'rejected';
   const statusOptions = useMemo<StatusTabOption<ItemStatus>[]>(() => {
     const totalCount = stats.draft + stats.pending + stats.approved + stats.rejected;
     return [
       { value: '', label: t('STATUS_ALL'), count: totalCount },
-      { value: 'approved', label: t('STATUS_APPROVED'), count: stats.approved, icon: <CheckCircle className="w-3 h-3" /> },
-      { value: 'pending', label: t('STATUS_PENDING'), count: stats.pending, icon: <Clock className="w-3 h-3" /> },
+      { value: 'approved', label: t('STATUS_APPROVED'), count: stats.approved },
+      { value: 'pending', label: t('STATUS_PENDING'), count: stats.pending },
       { value: 'draft', label: t('STATUS_DRAFT'), count: stats.draft },
-      { value: 'rejected', label: t('STATUS_REJECTED'), count: stats.rejected, icon: <XCircle className="w-3 h-3" /> },
+      { value: 'rejected', label: t('STATUS_REJECTED'), count: stats.rejected },
     ];
   }, [t, stats]);
 
@@ -725,36 +728,20 @@ export default function AdminItemsPage() {
         </Card>
       </div>
 
-      {/* Unified Filters */}
+      {/* Search Bar */}
       <div className="mb-6">
-        <AdminFilterToolbar<ItemStatus, string>
-          // Search
-          searchValue={searchTerm}
-          onSearchChange={setSearchTerm}
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
           isSearching={isSearching}
-          searchPlaceholder={t('SEARCH_PLACEHOLDER')}
-          // Status tabs
-          statusOptions={statusOptions}
-          statusValue={statusFilter as ItemStatus | ''}
-          onStatusChange={(status) => setStatusFilter(status)}
-          showStatusCounts={true}
-          // Filter popover (categories & tags)
-          filterSections={filterSections}
-          activeFilterCount={advancedFilterCount}
-          filterLabel={t('FILTERS')}
-          // Active filters
-          activeFilters={activeFiltersDisplay}
-          onRemoveFilter={handleRemoveFilter}
-          onClearAllFilters={handleClearAdvancedFilters}
-          // Layout
-          layout="stacked"
+          placeholder={t('SEARCH_PLACEHOLDER')}
         />
       </div>
 
       {/* Items Table */}
       <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
         <CardContent className="p-0">
-          {/* Table Header with Select All and Sorting */}
+          {/* Table Header with Filters and Sorting */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-4">
@@ -772,15 +759,43 @@ export default function AdminItemsPage() {
                   {t('ITEMS_TABLE_TITLE')}
                 </h3>
               </div>
-              <ItemListSorting
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onSortByChange={handleSortByChange}
-                onSortOrderChange={handleSortOrderChange}
-                isLoading={isFetching}
-              />
+              <div className="flex items-center gap-3">
+                {/* Status Tabs */}
+                <AdminStatusTabs
+                  options={statusOptions}
+                  value={statusFilter as ItemStatus | ''}
+                  onChange={(status) => setStatusFilter(status)}
+                  showCounts={true}
+                />
+                {/* Filter Popover */}
+                <AdminFilterPopover
+                  sections={filterSections}
+                  activeCount={advancedFilterCount}
+                  onClearAll={handleClearAdvancedFilters}
+                  triggerLabel={t('FILTERS')}
+                />
+                {/* Sorting */}
+                <ItemListSorting
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSortByChange={handleSortByChange}
+                  onSortOrderChange={handleSortOrderChange}
+                  isLoading={isFetching}
+                />
+              </div>
             </div>
           </div>
+
+          {/* Active Filters */}
+          {activeFiltersDisplay.length > 0 && (
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+              <AdminActiveFilters
+                filters={activeFiltersDisplay}
+                onRemove={handleRemoveFilter}
+                onClearAll={handleClearAdvancedFilters}
+              />
+            </div>
+          )}
 
           {/* Items List */}
           <div className={cn(
