@@ -27,7 +27,7 @@ export function CollectionsGrid({ collections }: CollectionsGridProps) {
 		<div
 			className={`grid gap-6 mt-12 pb-20 ${
 				isFluid
-					? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 3xl:grid-cols-6'
+					? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-6'
 					: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
 			}`}
 		>
