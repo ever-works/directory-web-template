@@ -16,6 +16,7 @@ import { usePolarCheckout } from './use-polar-checkout';
 import { useSelectedCheckoutProvider } from './use-selected-checkout-provider';
 import { useCurrencyContext } from '@/components/context/currency-provider';
 import { getLemonSqueezyPriceConfig } from '@/lib/config/billing/lemonsqueezy.config';
+import { getPolarPriceConfig } from '@/lib/config/billing/polar.config';
 import { usePaymentProvider } from '@/lib/utils/payment-provider';
 import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-format';
 import { useSetupIntent } from './use-setup-intent';
@@ -414,10 +415,17 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 					if (polarPaymentMode) {
 						setPlanForPayment(plan);
 						setShowPaymentForm(true);
-						return;
+						// Don't return here, we need to create the session to get the URL
 					}
 
-					if (!plan.polarProductId) {
+					// Get currency-aware price ID
+					const planName = validateAndMapPlanName(plan.id);
+					const interval = billingInterval === PaymentInterval.YEARLY ? 'yearly' : 'monthly';
+					const polarPriceConfig = getPolarPriceConfig(planName, currency, interval);
+
+					const priceId = polarPriceConfig?.priceId || plan.polarProductId;
+
+					if (!priceId) {
 						toast.error('No product ID found for plan', {
 							description: `Plan: ${plan.name}, ID: ${plan.id}`
 						});
@@ -426,12 +434,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						return;
 					}
 
-					await polarHook.createCheckoutSession(
-						plan?.polarProductId || '',
-						user as any,
-						plan,
-						billingInterval
-					);
+					await polarHook.createCheckoutSession(priceId, user as any, plan, billingInterval);
 				} else if (paymentProvider === PaymentProvider.STRIPE) {
 					const stripePaymentMode = collectPaymentModeConfig().stripe;
 

@@ -517,6 +517,56 @@ export class WebhookSubscriptionService {
 	}
 
 	/**
+	 * Process payment succeeded webhook
+	 */
+	async handlePaymentSucceeded(data: any): Promise<WebhookProcessingResult> {
+		const response = formatData(data, this.paymentProvider);
+		try {
+			console.log(`✅ Payment succeeded: ${data.id}`);
+			// Log payment success
+			// Note: For one-time payments, we might want to update an order or similar entity
+			// Since we don't have a generic "Payment" entity, we'll just log it for now
+			// but this structure allows adding that logic easily later
+
+			return {
+				success: true,
+				message: 'Payment succeeded processed',
+				data: response
+			};
+		} catch (error) {
+			console.error('❌ Error handling payment succeeded:', error);
+			return {
+				success: false,
+				message: 'Failed to process payment success',
+				error: error instanceof Error ? error.message : 'Unknown error'
+			};
+		}
+	}
+
+	/**
+	 * Process payment failed webhook
+	 */
+	async handlePaymentFailed(data: any): Promise<WebhookProcessingResult> {
+		const response = formatData(data, this.paymentProvider);
+		try {
+			console.log(`❌ Payment failed: ${data.id}`);
+
+			return {
+				success: true,
+				message: 'Payment failed processed',
+				data: response
+			};
+		} catch (error) {
+			console.error('❌ Error handling payment failed:', error);
+			return {
+				success: false,
+				message: 'Failed to process payment failure',
+				error: error instanceof Error ? error.message : 'Unknown error'
+			};
+		}
+	}
+
+	/**
 	 * Process subscription trial ending webhook
 	 * Notifies about trial ending and prepares for billing
 	 */
