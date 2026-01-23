@@ -2514,6 +2514,8 @@
       "TITLE": "Unternehmensverwaltung",
       "SUBTITLE": "Unternehmen und ihre Informationen verwalten",
       "ADD_COMPANY": "Unternehmen hinzufügen",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Suchen",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Unternehmen insgesamt",

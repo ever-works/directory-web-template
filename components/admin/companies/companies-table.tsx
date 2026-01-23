@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Card, CardBody, Chip, Button } from '@heroui/react';
 import { Building2, Edit, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -13,6 +14,8 @@ interface CompaniesTableProps {
 	onDelete: (companyId: string) => void;
 	onCreateFirst: () => void;
 	hasActiveFilters: boolean;
+	/** Optional filters component to render in the table header */
+	filters?: ReactNode;
 }
 
 const TABLE_CARD_WRAPPER = 'border-0 shadow-lg';
@@ -30,11 +33,14 @@ export function CompaniesTable(props: CompaniesTableProps) {
 			<CardBody className="p-0">
 				{/* Table Header */}
 				<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-					<div className="flex items-center justify-between">
+					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COMPANIES_TITLE')}</h3>
-						<span className="text-sm text-gray-500 dark:text-gray-400">
-							{props.totalCount} {t('COMPANIES_TOTAL_COUNT')}
-						</span>
+						<div className="flex items-center gap-3">
+							{props.filters}
+							<span className="text-sm text-gray-500 dark:text-gray-400">
+								{props.totalCount} {t('COMPANIES_TOTAL_COUNT')}
+							</span>
+						</div>
 					</div>
 				</div>
 

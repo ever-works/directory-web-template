@@ -2595,6 +2595,8 @@
       "TITLE": "Şirket Yönetimi",
       "SUBTITLE": "Şirketleri ve bilgilerini yönetin",
       "ADD_COMPANY": "Şirket Ekle",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Ara",
       "STATUS_LABEL": "Durum",
       "TOTAL_COMPANIES": "Toplam Şirket",

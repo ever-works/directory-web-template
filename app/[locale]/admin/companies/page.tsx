@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { useAdminFilters } from '@/hooks/use-admin-filters';
 import { useSkeletonVisibility } from '@/hooks/use-skeleton-visibility';
 import { useAdminCompanies } from '@/hooks/use-admin-companies';
@@ -10,11 +10,11 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { Company } from '@/types/company';
 import type { CreateCompanyInput, UpdateCompanyInput } from '@/lib/validations/company';
-import type { ActiveFilter } from '@/components/admin/shared';
 
 // Components
 import { PageHeader } from '@/components/admin/companies/page-header';
 import { CompanyStats } from '@/components/admin/companies/company-stats';
+import { CompanySearch } from '@/components/admin/companies/company-search';
 import { CompanyFilters } from '@/components/admin/companies/company-filters';
 import { CompaniesTable } from '@/components/admin/companies/companies-table';
 import { LoadingSkeleton } from '@/components/admin/companies/loading-skeleton';
@@ -45,13 +45,9 @@ export default function CompaniesPage() {
 		setSearchTerm,
 		debouncedSearchTerm,
 		isSearching,
-		hasActiveSearch,
 		statusFilter,
 		setStatusFilter,
-		activeFilterCount,
 		hasActiveFilters,
-		clearAllFilters,
-		clearSearch,
 	} = useAdminFilters<CompanyStatus>({
 		minSearchLength: 2,
 		debounceDelay: 300,
@@ -80,40 +76,6 @@ export default function CompaniesPage() {
 			sortOrder: 'desc'
 		}
 	});
-
-	// Build active filters for chip display
-	const activeFilters = useMemo((): ActiveFilter[] => {
-		const filters: ActiveFilter[] = [];
-		if (hasActiveSearch) {
-			filters.push({
-				id: 'search',
-				type: 'search',
-				label: t('SEARCH_LABEL'),
-				value: searchTerm.trim(),
-			});
-		}
-		if (statusFilter) {
-			filters.push({
-				id: `status:${statusFilter}`,
-				type: 'status',
-				label: t('STATUS_LABEL'),
-				value: statusFilter === 'active' ? t('STATUS_ACTIVE') : t('STATUS_INACTIVE'),
-			});
-		}
-		return filters;
-	}, [hasActiveSearch, searchTerm, statusFilter, t]);
-
-	// Handler for removing individual filters
-	const handleRemoveFilter = useCallback(
-		(filter: ActiveFilter) => {
-			if (filter.type === 'search') {
-				clearSearch();
-			} else if (filter.type === 'status') {
-				setStatusFilter('');
-			}
-		},
-		[clearSearch, setStatusFilter]
-	);
 
 	// Check if skeleton should be shown (only on initial page load)
 	const shouldShowSkeleton = useSkeletonVisibility(isLoading, companies.length > 0);
@@ -258,22 +220,22 @@ export default function CompaniesPage() {
 			{/* Stats Cards */}
 			<CompanyStats stats={stats} />
 
-			{/* Filters */}
-			<CompanyFilters
+			{/* Search */}
+			<CompanySearch
 				searchTerm={searchTerm}
 				onSearchChange={setSearchTerm}
 				isSearching={isSearching}
-				statusFilter={statusFilter}
-				onStatusChange={setStatusFilter}
-				statusCounts={stats}
-				activeFilters={activeFilters}
-				onRemoveFilter={handleRemoveFilter}
-				onClearAllFilters={clearAllFilters}
-				activeFilterCount={activeFilterCount}
 			/>
 
 			{/* Companies Table */}
 			<CompaniesTable
+				filters={
+					<CompanyFilters
+						statusFilter={statusFilter}
+						onStatusChange={setStatusFilter}
+						statusCounts={stats}
+					/>
+				}
 				companies={companies}
 				totalCount={total}
 				isLoading={isLoading}

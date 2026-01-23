@@ -2595,6 +2595,8 @@
       "TITLE": "회사 관리",
       "SUBTITLE": "회사 및 정보 관리",
       "ADD_COMPANY": "회사 추가",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "검색",
       "STATUS_LABEL": "상태",
       "TOTAL_COMPANIES": "총 회사",
