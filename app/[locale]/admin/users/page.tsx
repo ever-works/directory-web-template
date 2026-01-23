@@ -68,6 +68,7 @@ export default function AdminUsersPage() {
     roleFilter,
     statusFilter,
     hasActiveFilters,
+    hasActiveSearch,
     activeFilterCount,
     deleteUser,
     handlePageChange,
@@ -82,13 +83,16 @@ export default function AdminUsersPage() {
     status: '',
   });
 
-  // Status tab options
+  // Check if non-status filters are active (role or search)
+  const hasNonStatusFilters = !!roleFilter || hasActiveSearch;
+
   // Status tab options (no icons to prevent 2-line wrapping)
+  // When role/search filters are active, use totalUsers for "All" and hide individual counts
   const statusOptions = useMemo<StatusTabOption<'active' | 'inactive'>[]>(() => [
-    { value: '', label: t('ALL_STATUSES'), count: stats.total },
-    { value: 'active', label: t('ACTIVE'), count: stats.active },
-    { value: 'inactive', label: t('INACTIVE'), count: stats.inactive },
-  ], [t, stats]);
+    { value: '', label: t('ALL_STATUSES'), count: hasNonStatusFilters ? totalUsers : stats.total },
+    { value: 'active', label: t('ACTIVE'), count: hasNonStatusFilters ? undefined : stats.active },
+    { value: 'inactive', label: t('INACTIVE'), count: hasNonStatusFilters ? undefined : stats.inactive },
+  ], [t, stats, totalUsers, hasNonStatusFilters]);
 
   // Role filter sections for popover
   const roleFilterSections = useMemo<FilterSection<string>[]>(() => [

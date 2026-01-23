@@ -111,19 +111,22 @@ export default function AdminItemsPage() {
   const hasActiveFilters = activeFilterCount > 0;
   // Count for advanced filters only (categories + tags)
   const advancedFilterCount = categoriesFilter.length + tagsFilter.length;
+  // Check if non-status filters are active (categories, tags, or search)
+  const hasNonStatusFilters = advancedFilterCount > 0 || hasActiveSearch;
 
   // Status tab options for AdminStatusTabs (no icons to prevent 2-line wrapping)
+  // When category/tag/search filters are active, use totalItems for "All" and hide individual counts
   type ItemStatus = 'draft' | 'pending' | 'approved' | 'rejected';
   const statusOptions = useMemo<StatusTabOption<ItemStatus>[]>(() => {
     const totalCount = stats.draft + stats.pending + stats.approved + stats.rejected;
     return [
-      { value: '', label: t('STATUS_ALL'), count: totalCount },
-      { value: 'approved', label: t('STATUS_APPROVED'), count: stats.approved },
-      { value: 'pending', label: t('STATUS_PENDING'), count: stats.pending },
-      { value: 'draft', label: t('STATUS_DRAFT'), count: stats.draft },
-      { value: 'rejected', label: t('STATUS_REJECTED'), count: stats.rejected },
+      { value: '', label: t('STATUS_ALL'), count: hasNonStatusFilters ? totalItems : totalCount },
+      { value: 'approved', label: t('STATUS_APPROVED'), count: hasNonStatusFilters ? undefined : stats.approved },
+      { value: 'pending', label: t('STATUS_PENDING'), count: hasNonStatusFilters ? undefined : stats.pending },
+      { value: 'draft', label: t('STATUS_DRAFT'), count: hasNonStatusFilters ? undefined : stats.draft },
+      { value: 'rejected', label: t('STATUS_REJECTED'), count: hasNonStatusFilters ? undefined : stats.rejected },
     ];
-  }, [t, stats]);
+  }, [t, stats, totalItems, hasNonStatusFilters]);
 
   // Filter sections for AdminFilterPopover (categories and tags)
   const filterSections = useMemo<FilterSection<string>[]>(() => [
