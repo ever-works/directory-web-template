@@ -45,14 +45,11 @@ export function ClientsTable(props: ClientsTableProps) {
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('CLIENTS_TITLE')}</h3>
 						<div className="flex items-center gap-3 flex-wrap flex-1 justify-end">
 							{props.filterBar}
-							<span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-								{props.totalCount} {t('CLIENTS_TOTAL_COUNT')}
-							</span>
 						</div>
 					</div>
 					{/* Active Filters Section */}
 					{props.activeFilters && (
-						<div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+						<div className="mt-3">
 							{props.activeFilters}
 						</div>
 					)}
