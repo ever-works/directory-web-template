@@ -359,7 +359,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Unified Filters */}
-      <div className="mb-6 space-y-4">
+      <div className="mb-6">
         <AdminFilterToolbar<'active' | 'inactive', string>
           // Search
           searchValue={searchTerm}
@@ -374,7 +374,7 @@ export default function AdminUsersPage() {
           // Filter popover (role)
           filterSections={roleFilterSections}
           activeFilterCount={roleFilter ? 1 : 0}
-          filterLabel={t('ROLE_FILTER_LABEL')}
+          filterLabel={t('FILTERS')}
           // Active filters
           activeFilters={activeFiltersDisplay}
           onRemoveFilter={handleRemoveFilter}
@@ -382,39 +382,26 @@ export default function AdminUsersPage() {
           // Layout
           layout="stacked"
         />
-
-        {/* Results Summary */}
-        {!isLoading && (
-          <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <span>
-              {t('SHOWING_USERS', { count: users.length, total: totalUsers })}
-              {hasActiveFilters && (
-                <span className="ml-1">
-                  {t('FILTERED')}
-                </span>
-              )}
-            </span>
-            {totalPages > 1 && (
-              <span>
-                {t('PAGE_OF', { current: currentPage, total: totalPages })}
-              </span>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Users Table */}
-      <Card className="border-0 shadow-lg">
+      <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
         <CardBody className="p-0">
+          {/* Table Header */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('USERS_TABLE_TITLE')}</h3>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                {totalUsers} {t('USERS_TOTAL_COUNT')}
+                {t('SHOWING_USERS', { count: users.length, total: totalUsers })}
+                {hasActiveFilters && (
+                  <span className="ml-1 text-theme-primary">
+                    {t('FILTERED')}
+                  </span>
+                )}
               </span>
             </div>
           </div>
-          
+
           {users.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />

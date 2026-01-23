@@ -2269,6 +2269,7 @@
 			"ALL_STATUSES": "All",
 			"ACTIVE": "Active",
 			"INACTIVE": "Inactive",
+			"FILTERS": "Filters",
 			"ROLE_FILTER_LABEL": "Role",
 			"ROLE_SECTION_LABEL": "User Role",
 			"SEARCH_LABEL": "Search",
