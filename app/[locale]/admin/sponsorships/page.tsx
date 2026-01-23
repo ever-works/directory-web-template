@@ -14,7 +14,8 @@ import type { SponsorAdStatus } from '@/lib/types/sponsor-ad';
 // Components
 import { PageHeader } from '@/components/admin/sponsorships/page-header';
 import { SponsorStats } from '@/components/admin/sponsorships/sponsor-stats';
-import { SponsorFilters } from '@/components/admin/sponsorships/sponsor-filters';
+import { SponsorSearch } from '@/components/admin/sponsorships/sponsor-search';
+import { SponsorTableFilters } from '@/components/admin/sponsorships/sponsor-table-filters';
 import { SponsorTable } from '@/components/admin/sponsorships/sponsor-table';
 import { RejectModal } from '@/components/admin/sponsorships/reject-modal';
 import { LoadingSkeleton } from '@/components/admin/sponsorships/loading-skeleton';
@@ -37,8 +38,6 @@ export default function AdminSponsorshipsPage() {
 		isSearching,
 		statusFilter,
 		setStatusFilter,
-		activeFilterCount,
-		clearAllFilters,
 	} = useAdminFilters<SponsorAdStatus>({
 		minSearchLength: 2,
 		debounceDelay: 300,
@@ -159,19 +158,14 @@ export default function AdminSponsorshipsPage() {
 			{/* Stats Cards */}
 			<SponsorStats stats={stats} />
 
-			{/* Filters */}
-			<SponsorFilters
+			{/* Search (standalone, above table) */}
+			<SponsorSearch
 				searchTerm={searchTerm}
-				statusFilter={statusFilter}
 				onSearchChange={setSearchTerm}
-				onStatusChange={setStatusFilter}
-				onClearFilters={clearAllFilters}
-				activeFilterCount={activeFilterCount}
 				isSearching={isSearching}
-				stats={stats}
 			/>
 
-			{/* Sponsor Ads Table */}
+			{/* Sponsor Ads Table with status filters in header */}
 			<SponsorTable
 				sponsorAds={sponsorAds}
 				totalCount={totalItems}
@@ -182,6 +176,13 @@ export default function AdminSponsorshipsPage() {
 				onReject={handleOpenRejectModal}
 				onCancel={handleCancel}
 				onDelete={handleDelete}
+				headerControls={
+					<SponsorTableFilters
+						statusFilter={statusFilter}
+						onStatusChange={setStatusFilter}
+						stats={stats}
+					/>
+				}
 			/>
 
 			{/* Pagination */}

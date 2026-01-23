@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Card, CardBody, Chip, Button } from '@heroui/react';
 import { Megaphone, CheckCircle, XCircle, Ban, Trash2, Calendar } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -14,6 +15,8 @@ interface SponsorTableProps {
 	onReject: (sponsorAd: SponsorAd) => void;
 	onCancel: (id: string) => void;
 	onDelete: (id: string) => void;
+	/** Optional filter controls to render in the header */
+	headerControls?: ReactNode;
 }
 
 const TABLE_CARD = 'border-0 shadow-lg';
@@ -49,6 +52,7 @@ export function SponsorTable({
 	onReject,
 	onCancel,
 	onDelete,
+	headerControls,
 }: SponsorTableProps) {
 	const t = useTranslations('admin.SPONSORSHIPS');
 
@@ -57,11 +61,14 @@ export function SponsorTable({
 			<CardBody className="p-0">
 				{/* Table Header */}
 				<div className={TABLE_HEADER}>
-					<div className="flex items-center justify-between">
+					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('SPONSOR_ADS_TITLE')}</h3>
-						<span className="text-sm text-gray-500 dark:text-gray-400">
-							{totalCount} {t('TOTAL_COUNT')}
-						</span>
+						<div className="flex items-center gap-3">
+							{headerControls}
+							<span className="text-sm text-gray-500 dark:text-gray-400">
+								{totalCount} {t('TOTAL_COUNT')}
+							</span>
+						</div>
 					</div>
 				</div>
 
