@@ -108,9 +108,9 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 				className
 			)}
 		>
-			<div className="flex items-start justify-between gap-4">
+			<div className="flex flex-col md:flex-row items-start justify-between gap-4">
 				{/* Icon + Title/Description */}
-				<div className="flex items-start gap-3 flex-1 min-w-0">
+				<div className="flex items-start gap-3 flex-1 min-w-0 w-full">
 					{/* Icon container with purple gradient and glassmorphism */}
 					<div
 						className={cn(
@@ -149,7 +149,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 				</div>
 
 				{/* Select dropdown */}
-				<div className="flex-shrink-0 min-w-[200px]">
+				<div className="flex-shrink-0 min-w-[200px] w-full md:w-auto">
 					<Select
 						selectedKeys={[checkoutProvider]}
 						onChange={handleChange}
