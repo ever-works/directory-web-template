@@ -2407,6 +2407,7 @@
       "TITLE": "Manajemen Laporan",
       "SUBTITLE": "Tinjau dan selesaikan konten yang dilaporkan",
       "STATUS_ALL": "Semua",
+      "REPORTS_TABLE_TITLE": "Laporan",
       "PENDING": "tertunda",
       "TOTAL_REPORTS": "Total Laporan",
       "RESOLVED": "Diselesaikan",

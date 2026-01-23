@@ -2407,6 +2407,7 @@
       "TITLE": "Управление жалобами",
       "SUBTITLE": "Проверка и разрешение жалоб на контент",
       "STATUS_ALL": "Все",
+      "REPORTS_TABLE_TITLE": "Жалобы",
       "PENDING": "ожидают",
       "TOTAL_REPORTS": "Всего жалоб",
       "RESOLVED": "Решены",

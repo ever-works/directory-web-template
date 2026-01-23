@@ -2312,6 +2312,7 @@
       "TITLE": "通報管理",
       "SUBTITLE": "通報されたコンテンツの確認と対応",
       "STATUS_ALL": "すべて",
+      "REPORTS_TABLE_TITLE": "レポート",
       "PENDING": "保留中",
       "TOTAL_REPORTS": "通報総数",
       "RESOLVED": "解決済み",

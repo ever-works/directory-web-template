@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
 	Flag,
 	Eye,
@@ -472,52 +473,62 @@ export default function AdminReportsPage() {
 				</div>
 			)}
 
-			{/* Filters */}
-			<div className={CLASSES.filtersContainer}>
-				{/* Search Bar */}
-				<AdminSearchBar
-					value={searchTerm}
-					onChange={setSearchTerm}
-					isSearching={isSearching}
-					placeholder={t('SEARCH_PLACEHOLDER')}
-					ariaLabel={t('SEARCH_PLACEHOLDER')}
-				/>
+			{/* Reports Table Card */}
+			<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+				<CardContent className="p-0">
+					{/* Card Header with Title and Filters */}
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+						<div className="flex items-center justify-between gap-4 flex-wrap">
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+								{t('REPORTS_TABLE_TITLE')}
+							</h3>
+							<div className="flex items-center gap-3">
+								<AdminStatusTabs<ReportStatusFilter>
+									options={statusOptions}
+									value={statusFilter}
+									onChange={setStatusFilter}
+								/>
+								<AdminFilterPopover
+									sections={filterSections}
+									activeCount={advancedFilterCount}
+									onClearAll={handleClearAdvancedFilters}
+								/>
+							</div>
+						</div>
+					</div>
 
-				{/* Filter Row: Status Tabs + Filter Popover */}
-				<div className={CLASSES.filterRow}>
-					<AdminStatusTabs<ReportStatusFilter>
-						options={statusOptions}
-						value={statusFilter}
-						onChange={setStatusFilter}
-					/>
+					{/* Search and Filters Section */}
+					<div className="px-6 py-4 space-y-4">
+						{/* Search Bar */}
+						<AdminSearchBar
+							value={searchTerm}
+							onChange={setSearchTerm}
+							isSearching={isSearching}
+							placeholder={t('SEARCH_PLACEHOLDER')}
+							ariaLabel={t('SEARCH_PLACEHOLDER')}
+						/>
 
-					<AdminFilterPopover
-						sections={filterSections}
-						activeCount={advancedFilterCount}
-						onClearAll={handleClearAdvancedFilters}
-					/>
-				</div>
+						{/* Active Filter Chips */}
+						{activeFilters.length > 0 && (
+							<AdminActiveFilters
+								filters={activeFilters}
+								onRemove={handleRemoveFilter}
+								onClearAll={clearAllFilters}
+							/>
+						)}
 
-				{/* Active Filter Chips */}
-				{activeFilters.length > 0 && (
-					<AdminActiveFilters
-						filters={activeFilters}
-						onRemove={handleRemoveFilter}
-						onClearAll={clearAllFilters}
-					/>
-				)}
+						{/* Results Summary */}
+						<div className={CLASSES.resultsSummary}>
+							<span>
+								{t('SHOWING_REPORTS', { count: reports.length, total: totalReports })}
+								{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
+							</span>
+						</div>
+					</div>
 
-				{/* Results Summary */}
-				<div className={CLASSES.resultsSummary}>
-					<span>
-						{t('SHOWING_REPORTS', { count: reports.length, total: totalReports })}
-						{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
-					</span>
-				</div>
-			</div>
-
-			{/* Reports List - Card Based */}
-			{reports.length === 0 ? (
+					{/* Reports List */}
+					<div className="px-6 pb-6">
+						{reports.length === 0 ? (
 				<div className={CLASSES.emptyContainer}>
 					<div className={CLASSES.emptyIconWrapper}>
 						<Flag className={CLASSES.emptyIcon} />
@@ -590,8 +601,11 @@ export default function AdminReportsPage() {
 							</div>
 						);
 					})}
-				</div>
-			)}
+						</div>
+					)}
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
 			{totalReports > 0 && (

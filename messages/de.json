@@ -2345,6 +2345,7 @@
       "TITLE": "Meldungsverwaltung",
       "SUBTITLE": "Gemeldete Inhalte überprüfen und bearbeiten",
       "STATUS_ALL": "Alle",
+      "REPORTS_TABLE_TITLE": "Berichte",
       "PENDING": "ausstehend",
       "TOTAL_REPORTS": "Gesamte Meldungen",
       "RESOLVED": "Gelöst",

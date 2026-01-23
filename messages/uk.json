@@ -2312,6 +2312,7 @@
       "TITLE": "Управління скаргами",
       "SUBTITLE": "Перегляд та вирішення скарг на контент",
       "STATUS_ALL": "Усі",
+      "REPORTS_TABLE_TITLE": "Звіти",
       "PENDING": "очікує",
       "TOTAL_REPORTS": "Всього скарг",
       "RESOLVED": "Вирішено",

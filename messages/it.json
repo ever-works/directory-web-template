@@ -2312,6 +2312,7 @@
       "TITLE": "Gestione Segnalazioni",
       "SUBTITLE": "Revisiona e risolvi i contenuti segnalati",
       "STATUS_ALL": "Tutti",
+      "REPORTS_TABLE_TITLE": "Segnalazioni",
       "PENDING": "in attesa",
       "TOTAL_REPORTS": "Segnalazioni Totali",
       "RESOLVED": "Risolte",

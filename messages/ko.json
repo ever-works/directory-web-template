@@ -2407,6 +2407,7 @@
       "TITLE": "신고 관리",
       "SUBTITLE": "신고된 콘텐츠 검토 및 해결",
       "STATUS_ALL": "전체",
+      "REPORTS_TABLE_TITLE": "신고",
       "PENDING": "대기 중",
       "TOTAL_REPORTS": "총 신고",
       "RESOLVED": "해결됨",

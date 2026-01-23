@@ -2446,6 +2446,7 @@
 			"TITLE": "Report Management",
 			"SUBTITLE": "Review and resolve reported content",
 			"STATUS_ALL": "All",
+			"REPORTS_TABLE_TITLE": "Reports",
 			"PENDING": "pending",
 			"TOTAL_REPORTS": "Total Reports",
 			"RESOLVED": "Resolved",
