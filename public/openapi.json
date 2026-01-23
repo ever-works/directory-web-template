@@ -32055,6 +32055,715 @@
           }
         }
       }
+    },
+    "/api/geocode": {
+      "post": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Geocode an address or reverse geocode coordinates (Admin only)",
+        "description": "Converts an address to coordinates (forward geocoding) or coordinates to an address (reverse geocoding).\nResults are cached for 15 minutes to reduce API calls.\n**Requires admin authentication** to prevent API cost abuse (Mapbox/Google).\n\n**Forward Geocoding** (address → coordinates):\n- Provide an `address` string to get latitude/longitude and parsed address components.\n\n**Reverse Geocoding** (coordinates → address):\n- Provide `latitude` and `longitude` to get the formatted address and components.\n\nNote: Location features must be enabled in settings for this endpoint to work.\nAll requests are audit logged for cost tracking.\n",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "title": "Forward Geocoding Request",
+                    "properties": {
+                      "address": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 500,
+                        "description": "Address to geocode",
+                        "example": "1600 Amphitheatre Parkway, Mountain View, CA"
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "countryCodes": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "description": "Limit results to specific countries (ISO 3166-1 alpha-2)",
+                            "example": [
+                              "US",
+                              "CA"
+                            ]
+                          },
+                          "language": {
+                            "type": "string",
+                            "description": "Language code for results (ISO 639-1)",
+                            "example": "en"
+                          },
+                          "proximity": {
+                            "type": "object",
+                            "properties": {
+                              "latitude": {
+                                "type": "number",
+                                "minimum": -90,
+                                "maximum": 90
+                              },
+                              "longitude": {
+                                "type": "number",
+                                "minimum": -180,
+                                "maximum": 180
+                              }
+                            },
+                            "description": "Bias results toward this location"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "address"
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "title": "Reverse Geocoding Request",
+                    "properties": {
+                      "latitude": {
+                        "type": "number",
+                        "minimum": -90,
+                        "maximum": 90,
+                        "description": "Latitude coordinate",
+                        "example": 37.4224764
+                      },
+                      "longitude": {
+                        "type": "number",
+                        "minimum": -180,
+                        "maximum": 180,
+                        "description": "Longitude coordinate",
+                        "example": -122.0842499
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "language": {
+                            "type": "string",
+                            "description": "Language code for results (ISO 639-1)",
+                            "example": "en"
+                          }
+                        }
+                      }
+                    },
+                    "required": [
+                      "latitude",
+                      "longitude"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Geocoding successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "Forward Geocoding Response",
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "latitude": {
+                              "type": "number",
+                              "example": 37.4224764
+                            },
+                            "longitude": {
+                              "type": "number",
+                              "example": -122.0842499
+                            },
+                            "formattedAddress": {
+                              "type": "string",
+                              "example": "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA"
+                            },
+                            "city": {
+                              "type": "string",
+                              "example": "Mountain View"
+                            },
+                            "state": {
+                              "type": "string",
+                              "example": "California"
+                            },
+                            "country": {
+                              "type": "string",
+                              "example": "United States"
+                            },
+                            "countryCode": {
+                              "type": "string",
+                              "example": "US"
+                            },
+                            "postalCode": {
+                              "type": "string",
+                              "example": "94043"
+                            },
+                            "confidence": {
+                              "type": "number",
+                              "example": 0.95
+                            }
+                          }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Reverse Geocoding Response",
+                      "properties": {
+                        "success": {
+                          "type": "boolean",
+                          "example": true
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "formattedAddress": {
+                              "type": "string",
+                              "example": "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA"
+                            },
+                            "streetAddress": {
+                              "type": "string",
+                              "example": "1600 Amphitheatre Parkway"
+                            },
+                            "city": {
+                              "type": "string",
+                              "example": "Mountain View"
+                            },
+                            "state": {
+                              "type": "string",
+                              "example": "California"
+                            },
+                            "country": {
+                              "type": "string",
+                              "example": "United States"
+                            },
+                            "countryCode": {
+                              "type": "string",
+                              "example": "US"
+                            },
+                            "postalCode": {
+                              "type": "string",
+                              "example": "94043"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid request data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Invalid request data"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Admin access required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Forbidden. Admin access required for geocoding operations."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found - No results for the geocoding request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "No results found for the given address"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable - Location features disabled or geocoding not configured",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Location features are disabled"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Geocoding"
+        ],
+        "summary": "Get geocoding service status",
+        "description": "Returns the status of the geocoding service including which providers are configured.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geocoding service status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "enabled": {
+                          "type": "boolean",
+                          "description": "Whether location features are enabled",
+                          "example": true
+                        },
+                        "configured": {
+                          "type": "boolean",
+                          "description": "Whether any geocoding provider is configured",
+                          "example": true
+                        },
+                        "providers": {
+                          "type": "object",
+                          "properties": {
+                            "mapbox": {
+                              "type": "boolean",
+                              "description": "Mapbox provider configured",
+                              "example": true
+                            },
+                            "google": {
+                              "type": "boolean",
+                              "description": "Google provider configured",
+                              "example": false
+                            }
+                          }
+                        },
+                        "cache": {
+                          "type": "object",
+                          "properties": {
+                            "size": {
+                              "type": "number",
+                              "description": "Current cache size",
+                              "example": 42
+                            },
+                            "maxSize": {
+                              "type": "number",
+                              "description": "Maximum cache size",
+                              "example": 1000
+                            },
+                            "ttlMs": {
+                              "type": "number",
+                              "description": "Cache TTL in milliseconds",
+                              "example": 900000
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          }
+        }
+      }
+    },
+    "/api/solidgate/checkout": {
+      "post": {
+        "tags": [
+          "Solidgate - Core"
+        ],
+        "summary": "Create Solidgate checkout session",
+        "description": "Creates a new Solidgate checkout session for the authenticated user. Supports both one-time payments and subscription modes. Automatically creates or retrieves Solidgate customer.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "example": 29.99
+                  },
+                  "currency": {
+                    "type": "string",
+                    "description": "Currency code (e.g., USD, EUR)",
+                    "default": "USD",
+                    "example": "USD"
+                  },
+                  "mode": {
+                    "type": "string",
+                    "enum": [
+                      "one_time",
+                      "subscription"
+                    ],
+                    "default": "one_time",
+                    "description": "Checkout mode",
+                    "example": "one_time"
+                  },
+                  "successUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to redirect after successful payment",
+                    "example": "https://example.com/success"
+                  },
+                  "cancelUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to redirect after cancelled payment",
+                    "example": "https://example.com/cancel"
+                  },
+                  "metadata": {
+                    "type": "object",
+                    "description": "Additional metadata for the checkout session",
+                    "properties": {
+                      "planId": {
+                        "type": "string",
+                        "example": "pro_plan"
+                      },
+                      "planName": {
+                        "type": "string",
+                        "example": "Pro Plan"
+                      }
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "amount",
+                  "successUrl",
+                  "cancelUrl"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Checkout session created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Solidgate payment ID",
+                          "example": "payment_1234567890abcdef"
+                        },
+                        "url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "Solidgate checkout URL",
+                          "example": "https://checkout.solidgate.com/pay/payment_1234567890abcdef"
+                        }
+                      }
+                    },
+                    "status": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Checkout session created successfully"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "status",
+                    "message"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": "payment_1234567890abcdef",
+                    "url": "https://checkout.solidgate.com/pay/payment_1234567890abcdef"
+                  },
+                  "status": 200,
+                  "message": "Checkout session created successfully"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Failed to create customer or invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to create customer"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Unable to create Solidgate customer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Authentication required"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to create checkout session"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Failed to create checkout session"
+                    },
+                    "details": {
+                      "type": "string",
+                      "description": "Error stack trace (development only)",
+                      "example": "Error: Invalid amount..."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/solidgate/webhook": {
+      "post": {
+        "tags": [
+          "Solidgate - Webhooks"
+        ],
+        "summary": "Handle Solidgate webhooks",
+        "description": "Processes incoming Solidgate webhook events including payment events and subscription lifecycle. Automatically handles email notifications, subscription management, and database updates. Requires valid Solidgate signature for security.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Solidgate webhook event payload",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "Solidgate event ID",
+                    "example": "evt_1234567890abcdef"
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Webhook event type",
+                    "enum": [
+                      "payment.succeeded",
+                      "payment.failed",
+                      "subscription.created",
+                      "subscription.updated",
+                      "subscription.cancelled",
+                      "refund.processed"
+                    ],
+                    "example": "payment.succeeded"
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "Event data object"
+                  },
+                  "created": {
+                    "type": "integer",
+                    "description": "Unix timestamp of event creation",
+                    "example": 1640995200
+                  }
+                },
+                "required": [
+                  "id",
+                  "type",
+                  "data"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "x-signature",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Solidgate webhook signature for verification",
+            "example": "sha256=abc123def456..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "received": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  },
+                  "required": [
+                    "received"
+                  ]
+                },
+                "example": {
+                  "received": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid signature or webhook processing failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "examples": {
+                        "no_signature": "No signature provided",
+                        "not_processed": "Webhook not processed",
+                        "processing_failed": "Webhook processing failed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "tags": []

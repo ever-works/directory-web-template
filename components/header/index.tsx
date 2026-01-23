@@ -20,7 +20,7 @@ import { NavigationControls } from '../navigation-controls';
 import { ProfileButton } from './profile-button';
 import { MoreMenu } from './more-menu';
 import { SettingsButton } from '../settings-button';
-import { Container } from '../ui/container';
+import { Container, useContainerWidth } from '../ui/container';
 import { SiteLogo } from '../shared/site-logo';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useHasGlobalSurveys } from '@/hooks/use-has-global-surveys';
@@ -367,39 +367,59 @@ export default function Header() {
 						<SettingsButton />
 					</NavbarItem>
 				)}
-
 				<NavbarItem className={STYLES.largeUp}>
 					<NavigationControls />
 				</NavbarItem>
-
 				<NavbarItem>
 					<div className="scale-90 sm:scale-95 md:scale-100 lg:scale-105 xl:scale-110 transition-transform duration-200">
 						<ProfileButton />
 					</div>
 				</NavbarItem>
-
-				<NavbarMenuToggle
-					aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-					className={STYLES.navbarMenuToggle}
-				/>
 			</NavbarContent>
 		),
-		[isMenuOpen, headerSettings.settingsEnabled]
+		[headerSettings.settingsEnabled]
 	);
 
+	const containerWidth = useContainerWidth();
+
 	return (
-		<Navbar maxWidth="full" className={STYLES.navbar} onMenuOpenChange={setIsMenuOpen} isMenuOpen={isMenuOpen}>
+		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className={STYLES.container}>
-				{renderBrand()}
+				{/* Mobile: Toggle (Left) */}
+				<NavbarContent className="lg:hidden" justify="start">
+					<NavbarMenuToggle />
+				</NavbarContent>
 
-				{isNavigationLoading ? (
-					<HeaderNavSkeleton />
+				{/* Mobile: Brand (Center) */}
+				<NavbarContent className="lg:hidden pr-3" justify="center">
+					{renderBrand()}
+				</NavbarContent>
+
+				{/* Desktop Layout */}
+				{containerWidth === 'fluid' ? (
+					<>
+						{/* Full Width: Brand (Left) */}
+						<NavbarContent className="hidden lg:flex" justify="start">
+							{renderBrand()}
+						</NavbarContent>
+
+						{/* Full Width: Nav (Center) */}
+						<NavbarContent className="hidden lg:flex gap-5 xl:gap-6 2xl:gap-6" justify="center">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
 				) : (
-					<NavbarContent className={STYLES.navContent} justify="center">
-						{renderNavigationItems()}
-					</NavbarContent>
+					/* Fixed Width: Brand (Separate) + Nav (Left) */
+					<>
+						<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
+							{renderBrand()}
+						</NavbarContent>
+						<NavbarContent className={STYLES.navContent} justify="start">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
 				)}
-
+				{/* Right Section (Profile, Settings, etc.) */}
 				{renderRightSection()}
 			</Container>
 

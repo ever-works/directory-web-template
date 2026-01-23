@@ -37,6 +37,8 @@ interface PaymentFormModalProps {
 	clientSecret?: string;
 	isReady?: boolean;
 	isError?: boolean;
+	theme?: 'light' | 'dark';
+	isDismissable?: boolean;
 }
 
 /**
@@ -57,7 +59,9 @@ export function PaymentFormModal({
 	currency = 'USD',
 	isError,
 	clientSecret,
-	isReady
+	isReady,
+	theme,
+	isDismissable = true
 }: PaymentFormModalProps) {
 	const t = useTranslations('payment');
 	const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
@@ -99,12 +103,13 @@ export function PaymentFormModal({
 			isSubscription,
 			amount,
 			currency,
-			isReady: true
+			isReady: true,
+			theme
 		};
 
 		switch (provider) {
 			case PaymentProvider.POLAR:
-				return <PolarElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} />;
+				return <PolarElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} onClose={onClose} />;
 			case PaymentProvider.LEMONSQUEEZY:
 				return <LemonSqueezyElementsWrapper {...commonProps} checkoutUrl={checkoutUrl} />;
 			case PaymentProvider.STRIPE:
@@ -127,6 +132,7 @@ export function PaymentFormModal({
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
+			isDismissable={isDismissable}
 			size={provider === PaymentProvider.LEMONSQUEEZY || provider === PaymentProvider.POLAR ? '2xl' : 'md'}
 		>
 			<ModalContent>

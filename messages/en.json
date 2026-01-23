@@ -332,6 +332,8 @@
 		"ALL": "All",
 		"ALL_CATEGORIES": "All Categories",
 		"ALL_TAGS": "All Tags",
+		"items": "Items",
+		"ALL_CATEGORIES_DESCRIPTION": "Browse through all available categories to find the best tools and resources.",
 		"CATEGORIES": "Categories",
 		"BROWSE_CATEGORIES": "Browse Categories",
 		"TAGS": "Tags",

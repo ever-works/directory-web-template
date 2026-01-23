@@ -27,6 +27,8 @@ export interface LocationConfigSettings {
 	default_radius_km?: number;
 	show_exact_address?: boolean;
 	require_location_on_submit?: boolean;
+	/** Default map center when no location is provided [latitude, longitude] */
+	default_center?: [number, number];
 }
 
 /**
@@ -42,11 +44,14 @@ export interface LocationSettings {
 	defaultRadiusKm: number;
 	showExactAddress: boolean;
 	requireLocationOnSubmit: boolean;
+	/** Default map center { latitude, longitude } */
+	defaultCenter: { latitude: number; longitude: number };
 }
 
 /**
  * Default location settings values.
  * Used when settings are not configured.
+ * Default center is set to a neutral location (0, 0) - configure in settings for your region.
  */
 export const DEFAULT_LOCATION_SETTINGS: LocationSettings = {
 	enabled: false,
@@ -57,6 +62,7 @@ export const DEFAULT_LOCATION_SETTINGS: LocationSettings = {
 	defaultRadiusKm: 50,
 	showExactAddress: false,
 	requireLocationOnSubmit: false,
+	defaultCenter: { latitude: 0, longitude: 0 },
 };
 
 /**
@@ -65,6 +71,10 @@ export const DEFAULT_LOCATION_SETTINGS: LocationSettings = {
  * @returns Runtime location settings (camelCase)
  */
 export function mapLocationConfigToRuntime(config?: LocationConfigSettings): LocationSettings {
+	const defaultCenter = config?.default_center
+		? { latitude: config.default_center[0], longitude: config.default_center[1] }
+		: DEFAULT_LOCATION_SETTINGS.defaultCenter;
+
 	return {
 		enabled: config?.enabled ?? DEFAULT_LOCATION_SETTINGS.enabled,
 		provider: config?.provider ?? DEFAULT_LOCATION_SETTINGS.provider,
@@ -74,6 +84,7 @@ export function mapLocationConfigToRuntime(config?: LocationConfigSettings): Loc
 		defaultRadiusKm: config?.default_radius_km ?? DEFAULT_LOCATION_SETTINGS.defaultRadiusKm,
 		showExactAddress: config?.show_exact_address ?? DEFAULT_LOCATION_SETTINGS.showExactAddress,
 		requireLocationOnSubmit: config?.require_location_on_submit ?? DEFAULT_LOCATION_SETTINGS.requireLocationOnSubmit,
+		defaultCenter,
 	};
 }
 
