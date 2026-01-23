@@ -1,7 +1,7 @@
 import { Card, CardBody, Chip, Button } from '@heroui/react';
 import { Building2, Eye, Edit, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import type { ClientProfileWithAuth } from '@/lib/db/queries';
 import { getStatusColor, getPlanColor, getAccountTypeColor } from '../utils/client-helpers';
 
@@ -16,6 +16,10 @@ interface ClientsTableProps {
 	onDelete: (clientId: string) => void;
 	onCreateFirst: () => void;
 	hasActiveFilters: boolean;
+	/** Filter bar to render in the header */
+	filterBar?: ReactNode;
+	/** Active filters section to render below header */
+	activeFilters?: ReactNode;
 }
 
 const TABLE_CARD_WRAPPER = 'border-0 shadow-lg';
@@ -37,12 +41,21 @@ export function ClientsTable(props: ClientsTableProps) {
 			<CardBody className="p-0">
 				{/* Table Header */}
 				<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-					<div className="flex items-center justify-between">
+					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('CLIENTS_TITLE')}</h3>
-						<span className="text-sm text-gray-500 dark:text-gray-400">
-							{props.totalCount} {t('CLIENTS_TOTAL_COUNT')}
-						</span>
+						<div className="flex items-center gap-3 flex-wrap flex-1 justify-end">
+							{props.filterBar}
+							<span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+								{props.totalCount} {t('CLIENTS_TOTAL_COUNT')}
+							</span>
+						</div>
 					</div>
+					{/* Active Filters Section */}
+					{props.activeFilters && (
+						<div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+							{props.activeFilters}
+						</div>
+					)}
 				</div>
 
 				{/* Table Body */}

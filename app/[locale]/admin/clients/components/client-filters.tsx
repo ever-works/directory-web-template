@@ -1,8 +1,7 @@
 import { useMemo, useCallback } from 'react';
-import { Calendar } from 'lucide-react';
+import { Calendar, Search, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
-	AdminSearchBar,
 	AdminStatusTabs,
 	AdminFilterPopover,
 	AdminActiveFilters,
@@ -10,15 +9,69 @@ import {
 	type FilterSection,
 	type ActiveFilter,
 } from '@/components/admin/shared';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import type { DatePreset, DateFilterType, ClientStatus } from '../hooks/use-client-filters';
 
-interface ClientFiltersProps {
-	// Search
+// ============================================================================
+// Client Search Component
+// ============================================================================
+
+interface ClientSearchProps {
 	searchTerm: string;
 	onSearchChange: (value: string) => void;
 	isSearching?: boolean;
-	hasActiveSearch: boolean;
+}
 
+const SEARCH_INPUT_CLASSES =
+	'w-full pl-12 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400';
+
+/**
+ * Client Search Component
+ * Standalone search bar for admin clients page
+ */
+export function ClientSearch({ searchTerm, onSearchChange, isSearching }: ClientSearchProps) {
+	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
+
+	const handleClearSearch = () => {
+		onSearchChange('');
+	};
+
+	return (
+		<div className="mb-6">
+			<div className="relative">
+				<Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+				<input
+					type="text"
+					placeholder={t('SEARCH_PLACEHOLDER')}
+					value={searchTerm}
+					onChange={(e) => onSearchChange(e.target.value)}
+					aria-label={t('SEARCH_PLACEHOLDER')}
+					className={SEARCH_INPUT_CLASSES}
+				/>
+				{isSearching ? (
+					<div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+						<LoadingSpinner size="sm" />
+					</div>
+				) : searchTerm ? (
+					<button
+						type="button"
+						onClick={handleClearSearch}
+						className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+						aria-label={t('CLEAR_SEARCH')}
+					>
+						<X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+					</button>
+				) : null}
+			</div>
+		</div>
+	);
+}
+
+// ============================================================================
+// Client Filter Bar Component (for table header)
+// ============================================================================
+
+interface ClientFilterBarProps {
 	// Status
 	statusFilter: ClientStatus | '';
 	onStatusChange: (value: ClientStatus | '') => void;
@@ -57,16 +110,12 @@ interface ClientFiltersProps {
 }
 
 /**
- * Client Filters Component
- * Uses unified admin filter components with inline layout.
- * Row 1: Search + Status Tabs + Filter Popover
- * Row 2: Custom Date Range inputs (when datePreset === 'custom')
- * Row 3: Active Filter chips
+ * Client Filter Bar Component
+ * Status tabs and filter popover for the table header
  */
-export function ClientFilters(props: ClientFiltersProps) {
+export function ClientFilterBar(props: ClientFilterBarProps) {
 	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
 
-	// Destructure props for eslint exhaustive-deps
 	const {
 		stats,
 		planFilter,
@@ -79,13 +128,6 @@ export function ClientFilters(props: ClientFiltersProps) {
 		onProviderChange,
 		onDatePresetChange,
 		onDateFilterTypeChange,
-		onSearchChange,
-		onCustomDateFromChange,
-		onCustomDateToChange,
-		hasActiveSearch,
-		searchTerm,
-		customDateFrom,
-		customDateTo,
 	} = props;
 
 	// Status tabs options with counts
@@ -186,6 +228,95 @@ export function ClientFilters(props: ClientFiltersProps) {
 			onDateFilterTypeChange,
 		]
 	);
+
+	// Calculate popover filter count (excluding search and status)
+	const popoverFilterCount = useMemo(() => {
+		let count = 0;
+		if (planFilter) count += 1;
+		if (accountTypeFilter) count += 1;
+		if (providerFilter) count += 1;
+		if (datePreset !== 'all') count += 1;
+		return count;
+	}, [planFilter, accountTypeFilter, providerFilter, datePreset]);
+
+	return (
+		<div className="flex items-center gap-3">
+			{/* Status Tabs */}
+			<AdminStatusTabs<ClientStatus>
+				options={statusOptions}
+				value={props.statusFilter}
+				onChange={props.onStatusChange}
+			/>
+
+			{/* Filter Popover */}
+			<AdminFilterPopover
+				sections={filterSections}
+				activeCount={popoverFilterCount}
+				onClearAll={props.onClearFilters}
+				triggerLabel={t('FILTERS')}
+			/>
+		</div>
+	);
+}
+
+// ============================================================================
+// Client Active Filters Component (for below table header)
+// ============================================================================
+
+interface ClientActiveFiltersProps {
+	// Search
+	searchTerm: string;
+	onSearchChange: (value: string) => void;
+	hasActiveSearch: boolean;
+
+	// Multi filters
+	planFilter: string;
+	accountTypeFilter: string;
+	providerFilter: string;
+	onPlanChange: (value: string) => void;
+	onAccountTypeChange: (value: string) => void;
+	onProviderChange: (value: string) => void;
+
+	// Date filters
+	datePreset: DatePreset;
+	customDateFrom: string;
+	customDateTo: string;
+	dateFilterType: DateFilterType;
+	onDatePresetChange: (value: DatePreset) => void;
+	onCustomDateFromChange: (value: string) => void;
+	onCustomDateToChange: (value: string) => void;
+	onDateFilterTypeChange: (value: DateFilterType) => void;
+
+	// Actions
+	onClearFilters: () => void;
+}
+
+/**
+ * Client Active Filters Component
+ * Shows active filter chips and custom date range inputs
+ */
+export function ClientActiveFilters(props: ClientActiveFiltersProps) {
+	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
+
+	const {
+		planFilter,
+		accountTypeFilter,
+		providerFilter,
+		datePreset,
+		dateFilterType,
+		onPlanChange,
+		onAccountTypeChange,
+		onProviderChange,
+		onDatePresetChange,
+		onDateFilterTypeChange,
+		onSearchChange,
+		onCustomDateFromChange,
+		onCustomDateToChange,
+		hasActiveSearch,
+		searchTerm,
+		customDateFrom,
+		customDateTo,
+	} = props;
 
 	// Get label for a filter value
 	const getFilterLabel = useCallback(
@@ -325,47 +456,15 @@ export function ClientFilters(props: ClientFiltersProps) {
 		]
 	);
 
-	// Calculate popover filter count (excluding search and status)
-	const popoverFilterCount = useMemo(() => {
-		let count = 0;
-		if (planFilter) count += 1;
-		if (accountTypeFilter) count += 1;
-		if (providerFilter) count += 1;
-		if (datePreset !== 'all') count += 1;
-		return count;
-	}, [planFilter, accountTypeFilter, providerFilter, datePreset]);
+	const hasActiveFilters = activeFilters.length > 0 || datePreset === 'custom';
+
+	if (!hasActiveFilters) {
+		return null;
+	}
 
 	return (
-		<div className="mb-6 space-y-4">
-			{/* Row 1: Search + Status Tabs + Filter Popover */}
-			<div className="flex items-center gap-3 flex-wrap">
-				{/* Search Bar */}
-				<div className="flex-1 min-w-[200px]">
-					<AdminSearchBar
-						value={searchTerm}
-						onChange={onSearchChange}
-						isSearching={props.isSearching}
-						placeholder={t('SEARCH_PLACEHOLDER')}
-					/>
-				</div>
-
-				{/* Status Tabs */}
-				<AdminStatusTabs<ClientStatus>
-					options={statusOptions}
-					value={props.statusFilter}
-					onChange={props.onStatusChange}
-				/>
-
-				{/* Filter Popover */}
-				<AdminFilterPopover
-					sections={filterSections}
-					activeCount={popoverFilterCount}
-					onClearAll={props.onClearFilters}
-					triggerLabel={t('FILTERS')}
-				/>
-			</div>
-
-			{/* Row 2: Custom Date Range (when datePreset === 'custom') */}
+		<div className="space-y-3">
+			{/* Custom Date Range (when datePreset === 'custom') */}
 			{datePreset === 'custom' && (
 				<div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
 					<Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -390,12 +489,15 @@ export function ClientFilters(props: ClientFiltersProps) {
 				</div>
 			)}
 
-			{/* Row 3: Active Filter Chips */}
-			<AdminActiveFilters
-				filters={activeFilters}
-				onRemove={handleRemoveFilter}
-				onClearAll={props.onClearFilters}
-			/>
+			{/* Active Filter Chips */}
+			{activeFilters.length > 0 && (
+				<AdminActiveFilters
+					filters={activeFilters}
+					onRemove={handleRemoveFilter}
+					onClearAll={props.onClearFilters}
+				/>
+			)}
 		</div>
 	);
 }
+

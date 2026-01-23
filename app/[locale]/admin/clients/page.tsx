@@ -15,7 +15,7 @@ import { UniversalPagination } from '@/components/universal-pagination';
 // Components
 import { PageHeader } from './components/page-header';
 import { ClientStats } from './components/client-stats';
-import { ClientFilters } from './components/client-filters';
+import { ClientSearch, ClientFilterBar, ClientActiveFilters } from './components/client-filters';
 import { ClientsTable } from './components/clients-table';
 import { ClientFormModal, DeleteConfirmationModal } from './components/client-modal';
 import { LoadingSkeleton } from './components/loading-skeleton';
@@ -275,33 +275,14 @@ export default function ClientsPage() {
 			{/* Stats Cards */}
 			<ClientStats stats={stats} />
 
-			{/* Filters */}
-			<ClientFilters
+			{/* Search */}
+			<ClientSearch
 				searchTerm={searchTerm}
 				onSearchChange={setSearchTerm}
 				isSearching={isSearching}
-				hasActiveSearch={hasActiveSearch}
-				statusFilter={statusFilter}
-				onStatusChange={setStatusFilter}
-				planFilter={planFilter}
-				accountTypeFilter={accountTypeFilter}
-				providerFilter={providerFilter}
-				onPlanChange={setPlanFilter}
-				onAccountTypeChange={setAccountTypeFilter}
-				onProviderChange={setProviderFilter}
-				datePreset={datePreset}
-				customDateFrom={customDateFrom}
-				customDateTo={customDateTo}
-				dateFilterType={dateFilterType}
-				onDatePresetChange={setDatePreset}
-				onCustomDateFromChange={setCustomDateFrom}
-				onCustomDateToChange={setCustomDateTo}
-				onDateFilterTypeChange={setDateFilterType}
-				onClearFilters={clearFilters}
-				stats={stats}
 			/>
 
-			{/* Clients Table */}
+			{/* Clients Table with Filters in Header */}
 			<ClientsTable
 				clients={clients}
 				totalCount={totalCount}
@@ -313,6 +294,50 @@ export default function ClientsPage() {
 				onDelete={handleDelete}
 				onCreateFirst={openCreateForm}
 				hasActiveFilters={hasActiveFiltersIncludingDate}
+				filterBar={
+					<ClientFilterBar
+						statusFilter={statusFilter}
+						onStatusChange={setStatusFilter}
+						planFilter={planFilter}
+						accountTypeFilter={accountTypeFilter}
+						providerFilter={providerFilter}
+						onPlanChange={setPlanFilter}
+						onAccountTypeChange={setAccountTypeFilter}
+						onProviderChange={setProviderFilter}
+						datePreset={datePreset}
+						customDateFrom={customDateFrom}
+						customDateTo={customDateTo}
+						dateFilterType={dateFilterType}
+						onDatePresetChange={setDatePreset}
+						onCustomDateFromChange={setCustomDateFrom}
+						onCustomDateToChange={setCustomDateTo}
+						onDateFilterTypeChange={setDateFilterType}
+						onClearFilters={clearFilters}
+						stats={stats}
+					/>
+				}
+				activeFilters={
+					<ClientActiveFilters
+						searchTerm={searchTerm}
+						onSearchChange={setSearchTerm}
+						hasActiveSearch={hasActiveSearch}
+						planFilter={planFilter}
+						accountTypeFilter={accountTypeFilter}
+						providerFilter={providerFilter}
+						onPlanChange={setPlanFilter}
+						onAccountTypeChange={setAccountTypeFilter}
+						onProviderChange={setProviderFilter}
+						datePreset={datePreset}
+						customDateFrom={customDateFrom}
+						customDateTo={customDateTo}
+						dateFilterType={dateFilterType}
+						onDatePresetChange={setDatePreset}
+						onCustomDateFromChange={setCustomDateFrom}
+						onCustomDateToChange={setCustomDateTo}
+						onDateFilterTypeChange={setDateFilterType}
+						onClearFilters={clearFilters}
+					/>
+				}
 			/>
 
 			{/* Pagination */}
