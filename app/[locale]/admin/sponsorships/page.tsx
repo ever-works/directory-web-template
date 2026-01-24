@@ -59,7 +59,6 @@ export default function AdminSponsorshipsPage() {
 		isLoading,
 		isSubmitting,
 		totalPages,
-		totalItems,
 		approveSponsorAd,
 		rejectSponsorAd,
 		cancelSponsorAd,
@@ -168,7 +167,6 @@ export default function AdminSponsorshipsPage() {
 			{/* Sponsor Ads Table with status filters in header */}
 			<SponsorTable
 				sponsorAds={sponsorAds}
-				totalCount={totalItems}
 				isLoading={isLoading}
 				isSubmitting={isSubmitting}
 				confirmDeleteId={confirmDeleteId}

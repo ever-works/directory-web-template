@@ -7,7 +7,6 @@ import type { SponsorAdStatus } from '@/lib/types/sponsor-ad';
 
 interface SponsorTableProps {
 	sponsorAds: SponsorAd[];
-	totalCount: number;
 	isLoading: boolean;
 	isSubmitting: boolean;
 	confirmDeleteId: string | null;
@@ -44,7 +43,6 @@ const STATUS_CHIP_CONFIG: Record<string, { color: ChipColor; variant: ChipVarian
  */
 export function SponsorTable({
 	sponsorAds,
-	totalCount,
 	isLoading,
 	isSubmitting,
 	confirmDeleteId,
@@ -63,12 +61,7 @@ export function SponsorTable({
 				<div className={TABLE_HEADER}>
 					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('SPONSOR_ADS_TITLE')}</h3>
-						<div className="flex items-center gap-3">
-							{headerControls}
-							<span className="text-sm text-gray-500 dark:text-gray-400">
-								{totalCount} {t('TOTAL_COUNT')}
-							</span>
-						</div>
+						{headerControls}
 					</div>
 				</div>
 
