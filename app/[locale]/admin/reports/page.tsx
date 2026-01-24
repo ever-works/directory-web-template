@@ -210,7 +210,7 @@ export default function AdminReportsPage() {
 					label: t(`CONTENT_TYPES.${type}`),
 					count: stats?.byContentType?.[type] || 0
 				})),
-				selectedValues: multiFilters.contentType || [],
+				selectedValues: multiFilters.contentType?.slice(0, 1) || [],
 				onChange: (values: string[]) => setMultiFilter('contentType', values)
 			},
 			{
@@ -222,7 +222,7 @@ export default function AdminReportsPage() {
 					label: t(`REASONS.${reason}`),
 					count: stats?.byReason?.[reason] || 0
 				})),
-				selectedValues: multiFilters.reason || [],
+				selectedValues: multiFilters.reason?.slice(0, 1) || [],
 				onChange: (values: string[]) => setMultiFilter('reason', values)
 			}
 		],
