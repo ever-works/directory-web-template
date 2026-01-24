@@ -87,7 +87,6 @@ export default function ClientsPage() {
 		updatedAfter,
 		updatedBefore,
 		clearFilters,
-		hasActiveFilters,
 		hasActiveFiltersIncludingDate,
 	} = useClientFilters({
 		onFiltersChange: () => setCurrentPage(1),
