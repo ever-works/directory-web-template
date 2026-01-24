@@ -168,6 +168,8 @@ export function useAdminFilters<TStatus extends string = string>(
 	}, []);
 
 	// Clear all filters (preserves keys with empty arrays)
+	// Explicitly calls onFiltersChange for immediate page reset,
+	// since search-only clearing would otherwise wait for debounce
 	const clearAllFilters = useCallback(() => {
 		setSearchTerm('');
 		setStatusFilter('' as TStatus | '');
@@ -178,6 +180,8 @@ export function useAdminFilters<TStatus extends string = string>(
 			});
 			return cleared;
 		});
+		// Immediate callback for consistent page reset behavior
+		onFiltersChangeRef.current?.();
 	}, []);
 
 	const clearSearch = useCallback(() => {
