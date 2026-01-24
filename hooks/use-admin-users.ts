@@ -248,7 +248,6 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
 		data: usersData,
 		isLoading,
 		isFetching,
-		error,
 		refetch
 	} = useQuery({
 		queryKey: usersQueryKeys.list({
