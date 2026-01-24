@@ -23,7 +23,7 @@ import {
 	sessions,
 	authenticators,
 	verificationTokens,
-	passwordResetTokens,
+	passwordResetTokens
 } from './schema';
 import type { NewAccount, NewPaymentProvider, NewPaymentAccount } from './schema';
 import { getAllPermissions } from '../permissions/definitions';
@@ -115,7 +115,11 @@ export async function runSeed(): Promise<void> {
 			console.log('[Seed] Table status:');
 
 			const permissionsData = await db.select().from(permissions);
-			console.log(`  permissions: ${permissionsData.length} rows`, permissionsData.length <= 5 ? permissionsData : `[showing first 5]`, permissionsData.slice(0, 5));
+			console.log(
+				`  permissions: ${permissionsData.length} rows`,
+				permissionsData.length <= 5 ? permissionsData : `[showing first 5]`,
+				permissionsData.slice(0, 5)
+			);
 
 			const rolesData = await db.select().from(roles);
 			console.log(`  roles: ${rolesData.length} rows`, rolesData);
@@ -124,7 +128,11 @@ export async function runSeed(): Promise<void> {
 			console.log(`  users: ${usersData.length} rows`, usersData);
 
 			const accountsData = await db.select().from(accounts);
-			console.log(`  accounts: ${accountsData.length} rows`, accountsData.length <= 5 ? accountsData : `[showing first 5]`, accountsData.slice(0, 5));
+			console.log(
+				`  accounts: ${accountsData.length} rows`,
+				accountsData.length <= 5 ? accountsData : `[showing first 5]`,
+				accountsData.slice(0, 5)
+			);
 
 			const profilesData = await db.select().from(clientProfiles);
 			console.log(`  clientProfiles: ${profilesData.length} rows`, profilesData);
@@ -243,6 +251,9 @@ export async function runSeed(): Promise<void> {
 							}),
 							isAdmin: funcs.valuesFromArray({
 								values: [true, false]
+							}),
+							status: funcs.valuesFromArray({
+								values: ['active', 'active']
 							})
 						}
 					}
@@ -266,8 +277,7 @@ export async function runSeed(): Promise<void> {
 							})
 						}
 					}
-				}),
-
+				})
 			}));
 
 			console.log('[Seed] Completed seeding permissions, roles, users, and accounts with predefined data');
@@ -396,7 +406,11 @@ export async function runSeed(): Promise<void> {
 		// MIGRATION: Fix auto-generated admin emails
 		// One-time migration for existing deployments that have admin-*@auto.generated
 		// ============================================
-		const existingDemoAdmin = await db.select().from(users).where(eq(users.email, 'admin@demo.ever.works')).limit(1);
+		const existingDemoAdmin = await db
+			.select()
+			.from(users)
+			.where(eq(users.email, 'admin@demo.ever.works'))
+			.limit(1);
 
 		if (existingDemoAdmin.length === 0) {
 			// No demo admin exists - check for auto-generated admin to migrate
@@ -551,21 +565,24 @@ export async function runSeed(): Promise<void> {
 						startDate,
 						endDate: isActive ? undefined : faker.date.between({ from: startDate, to: new Date() }),
 						paymentProvider: provider,
-						subscriptionId: plan !== PaymentPlan.FREE
-							? provider === PaymentProvider.STRIPE
-								? `sub_${faker.string.alphanumeric(14).toUpperCase()}`
-								: `sub_${faker.string.alphanumeric(32)}`
-							: undefined,
-						customerId: plan !== PaymentPlan.FREE
-							? provider === PaymentProvider.STRIPE
-								? `cus_${faker.string.alphanumeric(14).toUpperCase()}`
-								: `cus_${faker.string.alphanumeric(32)}`
-							: undefined,
-						priceId: plan !== PaymentPlan.FREE
-							? provider === PaymentProvider.STRIPE
-								? `price_${faker.string.alphanumeric(14).toUpperCase()}`
-								: `price_${faker.string.alphanumeric(32)}`
-							: undefined,
+						subscriptionId:
+							plan !== PaymentPlan.FREE
+								? provider === PaymentProvider.STRIPE
+									? `sub_${faker.string.alphanumeric(14).toUpperCase()}`
+									: `sub_${faker.string.alphanumeric(32)}`
+								: undefined,
+						customerId:
+							plan !== PaymentPlan.FREE
+								? provider === PaymentProvider.STRIPE
+									? `cus_${faker.string.alphanumeric(14).toUpperCase()}`
+									: `cus_${faker.string.alphanumeric(32)}`
+								: undefined,
+						priceId:
+							plan !== PaymentPlan.FREE
+								? provider === PaymentProvider.STRIPE
+									? `price_${faker.string.alphanumeric(14).toUpperCase()}`
+									: `price_${faker.string.alphanumeric(32)}`
+								: undefined,
 						amountPaid: plan === PaymentPlan.FREE ? 0 : plan === PaymentPlan.STANDARD ? 1000 : 2000, // in cents
 						currency: 'usd'
 					};
@@ -584,13 +601,46 @@ export async function runSeed(): Promise<void> {
 						const numEntries = faker.number.int({ min: 1, max: 3 });
 						return Array.from({ length: numEntries }, (_, index) => ({
 							subscriptionId: sub.id,
-							action: index === 0 ? 'created' : faker.helpers.arrayElement(['upgraded', 'downgraded', 'renewed', 'cancelled', 'paused', 'resumed']),
-							previousStatus: index === 0 ? undefined : faker.helpers.arrayElement([SubscriptionStatus.ACTIVE, SubscriptionStatus.PENDING]),
-							newStatus: index === numEntries - 1 ? sub.status : faker.helpers.arrayElement([SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED]),
-							previousPlan: index === 0 ? undefined : faker.helpers.arrayElement([PaymentPlan.FREE, PaymentPlan.STANDARD]),
+							action:
+								index === 0
+									? 'created'
+									: faker.helpers.arrayElement([
+											'upgraded',
+											'downgraded',
+											'renewed',
+											'cancelled',
+											'paused',
+											'resumed'
+										]),
+							previousStatus:
+								index === 0
+									? undefined
+									: faker.helpers.arrayElement([
+											SubscriptionStatus.ACTIVE,
+											SubscriptionStatus.PENDING
+										]),
+							newStatus:
+								index === numEntries - 1
+									? sub.status
+									: faker.helpers.arrayElement([
+											SubscriptionStatus.ACTIVE,
+											SubscriptionStatus.CANCELLED
+										]),
+							previousPlan:
+								index === 0
+									? undefined
+									: faker.helpers.arrayElement([PaymentPlan.FREE, PaymentPlan.STANDARD]),
 							newPlan: sub.planId,
-							reason: faker.helpers.arrayElement([undefined, 'User requested', 'Payment failed', 'Trial ended', 'Upgrade']),
-							metadata: faker.datatype.boolean(0.3) ? JSON.stringify({ source: faker.helpers.arrayElement(['web', 'mobile', 'api']) }) : undefined,
+							reason: faker.helpers.arrayElement([
+								undefined,
+								'User requested',
+								'Payment failed',
+								'Trial ended',
+								'Upgrade'
+							]),
+							metadata: faker.datatype.boolean(0.3)
+								? JSON.stringify({ source: faker.helpers.arrayElement(['web', 'mobile', 'api']) })
+								: undefined,
 							createdAt: faker.date.between({ from: sub.startDate, to: new Date() })
 						}));
 					});
@@ -606,9 +656,21 @@ export async function runSeed(): Promise<void> {
 
 			// Sample item slugs for comments, votes, and favorites
 			const sampleItemSlugs = [
-				'toggl-track', 'clockify', 'harvest', 'timely', 'rescuetime',
-				'everhour', 'hubstaff', 'timeneye', 'timesheets', 'trackingtime',
-				'toggl-plan', 'monday', 'asana', 'clickup', 'notion'
+				'toggl-track',
+				'clockify',
+				'harvest',
+				'timely',
+				'rescuetime',
+				'everhour',
+				'hubstaff',
+				'timeneye',
+				'timesheets',
+				'trackingtime',
+				'toggl-plan',
+				'monday',
+				'asana',
+				'clickup',
+				'notion'
 			];
 
 			// Seed Activity Logs
@@ -621,9 +683,19 @@ export async function runSeed(): Promise<void> {
 				const allProfilesForActivity = await db.select().from(clientProfiles);
 
 				const activityActions = [
-					'SIGN_UP', 'SIGN_IN', 'SIGN_OUT', 'UPDATE_PROFILE', 'UPDATE_PASSWORD',
-					'VERIFY_EMAIL', 'RESET_PASSWORD', 'ADD_COMMENT', 'VOTE_ITEM',
-					'ADD_FAVORITE', 'REMOVE_FAVORITE', 'UPDATE_SUBSCRIPTION', 'SUBMIT_ITEM'
+					'SIGN_UP',
+					'SIGN_IN',
+					'SIGN_OUT',
+					'UPDATE_PROFILE',
+					'UPDATE_PASSWORD',
+					'VERIFY_EMAIL',
+					'RESET_PASSWORD',
+					'ADD_COMMENT',
+					'VOTE_ITEM',
+					'ADD_FAVORITE',
+					'REMOVE_FAVORITE',
+					'UPDATE_SUBSCRIPTION',
+					'SUBMIT_ITEM'
 				];
 
 				// Create 3-10 activity logs per user
@@ -633,7 +705,14 @@ export async function runSeed(): Promise<void> {
 
 					return Array.from({ length: numLogs }, () => {
 						const action = faker.helpers.arrayElement(activityActions);
-						const useUserId = ['SIGN_UP', 'SIGN_IN', 'SIGN_OUT', 'UPDATE_PASSWORD', 'VERIFY_EMAIL', 'RESET_PASSWORD'].includes(action);
+						const useUserId = [
+							'SIGN_UP',
+							'SIGN_IN',
+							'SIGN_OUT',
+							'UPDATE_PASSWORD',
+							'VERIFY_EMAIL',
+							'RESET_PASSWORD'
+						].includes(action);
 
 						return {
 							userId: useUserId ? user.id : undefined,
@@ -744,7 +823,12 @@ export async function runSeed(): Promise<void> {
 								.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 								.join(' '),
 							itemIconUrl: `https://demo.ever.works/icons/${itemSlug}.png`,
-							itemCategory: faker.helpers.arrayElement(['Time Tracking', 'Project Management', 'Productivity', 'Analytics']),
+							itemCategory: faker.helpers.arrayElement([
+								'Time Tracking',
+								'Project Management',
+								'Productivity',
+								'Analytics'
+							]),
 							createdAt: faker.date.recent({ days: 180 })
 						};
 					}).filter((fav) => fav.itemSlug); // Filter out any undefined slugs
@@ -765,7 +849,13 @@ export async function runSeed(): Promise<void> {
 				const allUsersForNotifications = await db.select().from(users);
 
 				// Create 1-10 notifications per user
-				const notificationTypes = ['item_submission', 'comment_reported', 'user_registered', 'payment_failed', 'system_alert'] as const;
+				const notificationTypes = [
+					'item_submission',
+					'comment_reported',
+					'user_registered',
+					'payment_failed',
+					'system_alert'
+				] as const;
 
 				const notificationValues = allUsersForNotifications.flatMap((user) => {
 					const numNotifications = faker.number.int({ min: 1, max: 10 });
@@ -797,7 +887,9 @@ export async function runSeed(): Promise<void> {
 								break;
 							case 'system_alert':
 								title = 'System Maintenance';
-								message = 'Scheduled maintenance will occur on ' + faker.date.future({ years: 0.1 }).toLocaleDateString();
+								message =
+									'Scheduled maintenance will occur on ' +
+									faker.date.future({ years: 0.1 }).toLocaleDateString();
 								break;
 						}
 
@@ -806,7 +898,9 @@ export async function runSeed(): Promise<void> {
 							type,
 							title,
 							message,
-							data: faker.datatype.boolean(0.3) ? JSON.stringify({ itemSlug: faker.helpers.arrayElement(sampleItemSlugs) }) : undefined,
+							data: faker.datatype.boolean(0.3)
+								? JSON.stringify({ itemSlug: faker.helpers.arrayElement(sampleItemSlugs) })
+								: undefined,
 							isRead,
 							readAt: isRead ? faker.date.between({ from: createdAt, to: new Date() }) : undefined,
 							createdAt
@@ -952,67 +1046,73 @@ export async function runSeed(): Promise<void> {
 		const hasUserRoles = await tableExists('user_roles');
 
 		if (hasRolePermissions) {
-		console.log('[Seed] Seeding role-permissions...');
+			console.log('[Seed] Seeding role-permissions...');
 
-		// Get admin role and all permissions
-		const adminRoles = await db.select().from(roles).where(eq(roles.name, 'admin')).limit(1);
-		const allPerms = await db.select().from(permissions);
+			// Get admin role and all permissions
+			const adminRoles = await db.select().from(roles).where(eq(roles.name, 'admin')).limit(1);
+			const allPerms = await db.select().from(permissions);
 
-		if (adminRoles.length > 0) {
-		const adminRolePermissions = allPerms.map((perm) => ({
-			roleId: adminRoles[0].id,
-			permissionId: perm.id
-		}));
+			if (adminRoles.length > 0) {
+				const adminRolePermissions = allPerms.map((perm) => ({
+					roleId: adminRoles[0].id,
+					permissionId: perm.id
+				}));
 
-		try {
-			await db.insert(rolePermissions).values(adminRolePermissions).onConflictDoNothing();
-			console.log(`[Seed] Assigned ${allPerms.length} permissions to admin role`);
-		} catch (rpError) {
-			// Ignore duplicate errors
-			if (rpError && typeof rpError === 'object' && 'code' in rpError && rpError.code === '23505') {
-				console.log('[Seed] Role-permissions already exist - skipping');
-			} else {
-				console.warn('[Seed] Error seeding role-permissions:', rpError);
+				try {
+					await db.insert(rolePermissions).values(adminRolePermissions).onConflictDoNothing();
+					console.log(`[Seed] Assigned ${allPerms.length} permissions to admin role`);
+				} catch (rpError) {
+					// Ignore duplicate errors
+					if (rpError && typeof rpError === 'object' && 'code' in rpError && rpError.code === '23505') {
+						console.log('[Seed] Role-permissions already exist - skipping');
+					} else {
+						console.warn('[Seed] Error seeding role-permissions:', rpError);
+					}
+				}
 			}
-		}
-		}
 		}
 
 		if (hasUserRoles) {
-		console.log('[Seed] Seeding user-roles...');
+			console.log('[Seed] Seeding user-roles...');
 
-		// Get specific seeded users and roles to avoid relying on implicit ordering
-		const allUsersForRoles = await db.select().from(users);
-		const adminUserForRoles = allUsersForRoles.find((u) => u.email === adminEmail);
-		const client1UserForRoles = allUsersForRoles.find((u) => u.email === 'client1@example.com');
-		const client2UserForRoles = allUsersForRoles.find((u) => u.email === 'client2@example.com');
+			// Get specific seeded users and roles to avoid relying on implicit ordering
+			const allUsersForRoles = await db.select().from(users);
+			const adminUserForRoles = allUsersForRoles.find((u) => u.email === adminEmail);
+			const client1UserForRoles = allUsersForRoles.find((u) => u.email === 'client1@example.com');
+			const client2UserForRoles = allUsersForRoles.find((u) => u.email === 'client2@example.com');
 
-		const adminRoles = await db.select().from(roles).where(eq(roles.name, 'admin')).limit(1);
-		const clientRoles = await db.select().from(roles).where(eq(roles.name, 'client')).limit(1);
+			const adminRoles = await db.select().from(roles).where(eq(roles.name, 'admin')).limit(1);
+			const clientRoles = await db.select().from(roles).where(eq(roles.name, 'client')).limit(1);
 
-		if (adminUserForRoles && client1UserForRoles && client2UserForRoles && adminRoles.length > 0 && clientRoles.length > 0) {
-		try {
-			await db
-				.insert(userRoles)
-				.values([
-					{ userId: adminUserForRoles.id, roleId: adminRoles[0].id }, // Admin user → admin role
-					{ userId: client1UserForRoles.id, roleId: clientRoles[0].id }, // Client1 → client role
-					{ userId: client2UserForRoles.id, roleId: clientRoles[0].id } // Client2 → client role
-				])
-				.onConflictDoNothing();
+			if (
+				adminUserForRoles &&
+				client1UserForRoles &&
+				client2UserForRoles &&
+				adminRoles.length > 0 &&
+				clientRoles.length > 0
+			) {
+				try {
+					await db
+						.insert(userRoles)
+						.values([
+							{ userId: adminUserForRoles.id, roleId: adminRoles[0].id }, // Admin user → admin role
+							{ userId: client1UserForRoles.id, roleId: clientRoles[0].id }, // Client1 → client role
+							{ userId: client2UserForRoles.id, roleId: clientRoles[0].id } // Client2 → client role
+						])
+						.onConflictDoNothing();
 
-			console.log('[Seed] Assigned roles to seeded users');
-		} catch (urError) {
-			// Ignore duplicate errors
-			if (urError && typeof urError === 'object' && 'code' in urError && urError.code === '23505') {
-				console.log('[Seed] User-roles already exist - skipping');
+					console.log('[Seed] Assigned roles to seeded users');
+				} catch (urError) {
+					// Ignore duplicate errors
+					if (urError && typeof urError === 'object' && 'code' in urError && urError.code === '23505') {
+						console.log('[Seed] User-roles already exist - skipping');
+					} else {
+						console.warn('[Seed] Error seeding user-roles:', urError);
+					}
+				}
 			} else {
-				console.warn('[Seed] Error seeding user-roles:', urError);
+				console.warn('[Seed] Skipping user-roles seeding - expected seed users or roles not found');
 			}
-		}
-		} else {
-			console.warn('[Seed] Skipping user-roles seeding - expected seed users or roles not found');
-		}
 		}
 
 		// Basic verification counts (skip if tables don't exist yet)

@@ -3,21 +3,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-	Flag,
-	Eye,
-	X,
-	User,
-	Calendar,
-	FileText,
-	AlertTriangle,
-	CheckCircle,
-	Clock
-} from 'lucide-react';
+import { Flag, Eye, X, User, Calendar, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminReports, type AdminReportItem } from '@/hooks/use-admin-reports';
 import { useAdminFilters } from '@/hooks/use-admin-filters';
-import { ReportStatus, ReportContentType, ReportReason } from '@/lib/db/schema';
+import { ReportContentType, ReportReason } from '@/lib/db/schema';
 import type { ReportStatusValues, ReportContentTypeValues, ReportReasonValues } from '@/lib/db/schema';
 import ReportReviewDialog from '@/components/admin/reports/report-review-dialog';
 import {
@@ -27,10 +17,9 @@ import {
 	AdminActiveFilters,
 	type StatusTabOption,
 	type FilterSection,
-	type ActiveFilter,
+	type ActiveFilter
 } from '@/components/admin/shared';
 import { useTranslations } from 'next-intl';
-import { useNavigation } from '@/components/providers';
 
 // Extracted className constants for better maintainability
 const CLASSES = {
@@ -152,35 +141,27 @@ export default function AdminReportsPage() {
 		multiFilters,
 		setMultiFilter,
 		hasActiveFilters,
-		clearAllFilters,
+		clearAllFilters
 	} = useAdminFilters<ReportStatusFilter>({
 		minSearchLength: 2,
 		debounceDelay: 300,
 		initialMultiFilters: {
 			contentType: [],
-			reason: [],
+			reason: []
 		},
-		onFiltersChange: () => setCurrentPage(1),
+		onFiltersChange: () => setCurrentPage(1)
 	});
 
 	// Use admin reports hook with filter values from useAdminFilters
-	const {
-		reports,
-		stats,
-		isLoading,
-		isLoadingStats,
-		isUpdating,
-		totalPages,
-		totalReports,
-		updateReport,
-	} = useAdminReports({
-		page: currentPage,
-		limit: 10,
-		search: debouncedSearchTerm || undefined,
-		status: (statusFilter || undefined) as ReportStatusValues | undefined,
-		contentType: (multiFilters.contentType?.[0] as ReportContentTypeValues) || undefined,
-		reason: (multiFilters.reason?.[0] as ReportReasonValues) || undefined,
-	});
+	const { reports, stats, isLoading, isLoadingStats, isUpdating, totalPages, totalReports, updateReport } =
+		useAdminReports({
+			page: currentPage,
+			limit: 10,
+			search: debouncedSearchTerm || undefined,
+			status: (statusFilter || undefined) as ReportStatusValues | undefined,
+			contentType: (multiFilters.contentType?.[0] as ReportContentTypeValues) || undefined,
+			reason: (multiFilters.reason?.[0] as ReportReasonValues) || undefined
+		});
 
 	const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 	const [reportToReview, setReportToReview] = useState<AdminReportItem | null>(null);
@@ -206,41 +187,47 @@ export default function AdminReportsPage() {
 	}, [reports, reportToReview]);
 
 	// Build status tab options with counts from stats
-	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(() => [
-		{ value: '', label: t('STATUS_ALL'), count: stats?.total || 0 },
-		{ value: 'pending', label: t('STATUS_LABELS.pending'), count: stats?.byStatus?.pending || 0 },
-		{ value: 'reviewed', label: t('STATUS_LABELS.reviewed'), count: stats?.byStatus?.reviewed || 0 },
-		{ value: 'resolved', label: t('STATUS_LABELS.resolved'), count: stats?.byStatus?.resolved || 0 },
-		{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'), count: stats?.byStatus?.dismissed || 0 },
-	], [stats, t]);
+	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(
+		() => [
+			{ value: '', label: t('STATUS_ALL'), count: stats?.total || 0 },
+			{ value: 'pending', label: t('STATUS_LABELS.pending'), count: stats?.byStatus?.pending || 0 },
+			{ value: 'reviewed', label: t('STATUS_LABELS.reviewed'), count: stats?.byStatus?.reviewed || 0 },
+			{ value: 'resolved', label: t('STATUS_LABELS.resolved'), count: stats?.byStatus?.resolved || 0 },
+			{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'), count: stats?.byStatus?.dismissed || 0 }
+		],
+		[stats, t]
+	);
 
 	// Build filter popover sections for Content Type and Reason (using radio since API supports single values)
-	const filterSections: FilterSection<string>[] = useMemo(() => [
-		{
-			id: 'contentType',
-			label: t('CONTENT_TYPE'),
-			type: 'radio' as const,
-			options: Object.values(ReportContentType).map(type => ({
-				id: type,
-				label: t(`CONTENT_TYPES.${type}`),
-				count: stats?.byContentType?.[type] || 0,
-			})),
-			selectedValues: multiFilters.contentType || [],
-			onChange: (values: string[]) => setMultiFilter('contentType', values),
-		},
-		{
-			id: 'reason',
-			label: t('REASON'),
-			type: 'radio' as const,
-			options: Object.values(ReportReason).map(reason => ({
-				id: reason,
-				label: t(`REASONS.${reason}`),
-				count: stats?.byReason?.[reason] || 0,
-			})),
-			selectedValues: multiFilters.reason || [],
-			onChange: (values: string[]) => setMultiFilter('reason', values),
-		},
-	], [stats, multiFilters, setMultiFilter, t]);
+	const filterSections: FilterSection<string>[] = useMemo(
+		() => [
+			{
+				id: 'contentType',
+				label: t('CONTENT_TYPE'),
+				type: 'radio' as const,
+				options: Object.values(ReportContentType).map((type) => ({
+					id: type,
+					label: t(`CONTENT_TYPES.${type}`),
+					count: stats?.byContentType?.[type] || 0
+				})),
+				selectedValues: multiFilters.contentType || [],
+				onChange: (values: string[]) => setMultiFilter('contentType', values)
+			},
+			{
+				id: 'reason',
+				label: t('REASON'),
+				type: 'radio' as const,
+				options: Object.values(ReportReason).map((reason) => ({
+					id: reason,
+					label: t(`REASONS.${reason}`),
+					count: stats?.byReason?.[reason] || 0
+				})),
+				selectedValues: multiFilters.reason || [],
+				onChange: (values: string[]) => setMultiFilter('reason', values)
+			}
+		],
+		[stats, multiFilters, setMultiFilter, t]
+	);
 
 	const advancedFilterCount = (multiFilters.contentType?.length || 0) + (multiFilters.reason?.length || 0);
 
@@ -253,7 +240,7 @@ export default function AdminReportsPage() {
 				id: 'search',
 				type: 'search',
 				label: t('SEARCH_PLACEHOLDER').replace('...', ''),
-				value: searchTerm.trim(),
+				value: searchTerm.trim()
 			});
 		}
 
@@ -262,25 +249,25 @@ export default function AdminReportsPage() {
 				id: `status:${statusFilter}`,
 				type: 'status',
 				label: t('STATUS'),
-				value: t(`STATUS_LABELS.${statusFilter}`),
+				value: t(`STATUS_LABELS.${statusFilter}`)
 			});
 		}
 
-		(multiFilters.contentType || []).forEach(type => {
+		(multiFilters.contentType || []).forEach((type) => {
 			filters.push({
 				id: `contentType:${type}`,
 				type: 'contentType',
 				label: t('CONTENT_TYPE'),
-				value: t(`CONTENT_TYPES.${type}`),
+				value: t(`CONTENT_TYPES.${type}`)
 			});
 		});
 
-		(multiFilters.reason || []).forEach(reason => {
+		(multiFilters.reason || []).forEach((reason) => {
 			filters.push({
 				id: `reason:${reason}`,
 				type: 'reason',
 				label: t('REASON'),
-				value: t(`REASONS.${reason}`),
+				value: t(`REASONS.${reason}`)
 			});
 		});
 
@@ -324,8 +311,17 @@ export default function AdminReportsPage() {
 	};
 
 	// Check if skeleton should be shown (only on initial page load)
-	const { isInitialLoad } = useNavigation();
-	const shouldShowSkeleton = isInitialLoad && isLoading;
+	// We use a local state to ensure we only show the skeleton once,
+	// ignoring the global isInitialLoad which might be buggy or persistent.
+	const [hasLoaded, setHasLoaded] = useState(false);
+
+	useEffect(() => {
+		if (!isLoading) {
+			setHasLoaded(true);
+		}
+	}, [isLoading]);
+
+	const shouldShowSkeleton = !hasLoaded && isLoading;
 
 	// Loading state
 	if (shouldShowSkeleton) {
@@ -529,80 +525,86 @@ export default function AdminReportsPage() {
 					{/* Reports List */}
 					<div className="px-6 pb-6">
 						{reports.length === 0 ? (
-				<div className={CLASSES.emptyContainer}>
-					<div className={CLASSES.emptyIconWrapper}>
-						<Flag className={CLASSES.emptyIcon} />
-					</div>
-					<h3 className={CLASSES.emptyTitle}>{t('NO_REPORTS_FOUND')}</h3>
-					<p className={CLASSES.emptyDescription}>
-						{hasActiveFilters ? t('NO_REPORTS_SEARCH_DESCRIPTION') : t('NO_REPORTS_DESCRIPTION')}
-					</p>
-				</div>
-			) : (
-				<div className={CLASSES.reportsContainer}>
-					{reports.map((report) => {
-						const statusStyle = STATUS_STYLES[report.status];
-						const reasonStyle = REASON_STYLES[report.reason];
-						const StatusIcon = statusStyle.icon;
-
-						return (
-							<div key={report.id} className={CLASSES.reportCard}>
-								{/* Header: Badges + Date */}
-								<div className={CLASSES.reportHeader}>
-									<div className={CLASSES.reportBadges}>
-										{/* Status Badge */}
-										<span
-											className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
-										>
-											<StatusIcon className="w-3 h-3" />
-											{t(`STATUS_LABELS.${report.status}`)}
-										</span>
-										{/* Content Type Badge */}
-										<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-											{t(`CONTENT_TYPES.${report.contentType}`)}
-										</span>
-										{/* Reason Badge */}
-										<span
-											className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
-										>
-											{t(`REASONS.${report.reason}`)}
-										</span>
-									</div>
-									<div className={CLASSES.reportDate}>
-										<Calendar className="w-3.5 h-3.5 inline mr-1" />
-										{formatDate(report.createdAt)}
-									</div>
+							<div className={CLASSES.emptyContainer}>
+								<div className={CLASSES.emptyIconWrapper}>
+									<Flag className={CLASSES.emptyIcon} />
 								</div>
-
-								{/* Content ID */}
-								<p className={CLASSES.reportContentId}>{report.contentId}</p>
-
-								{/* Details Preview */}
-								{report.details && <p className={CLASSES.reportDetails}>{report.details}</p>}
-
-								{/* Footer: Reporter + Action */}
-								<div className={CLASSES.reportFooter}>
-									<div className={CLASSES.reportReporter}>
-										<User className={CLASSES.reportReporterIcon} />
-										<span className={CLASSES.reportReporterText}>
-											{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}
-										</span>
-									</div>
-									<Button
-										size="sm"
-										disabled={isUpdating === report.id}
-										onClick={() => openReviewDialog(report)}
-										className="bg-theme-primary hover:bg-theme-primary/90 text-white"
-									>
-										<Eye className="w-4 h-4 mr-1" />
-										{t('REVIEW')}
-									</Button>
-								</div>
+								<h3 className={CLASSES.emptyTitle}>{t('NO_REPORTS_FOUND')}</h3>
+								<p className={CLASSES.emptyDescription}>
+									{hasActiveFilters
+										? t('NO_REPORTS_SEARCH_DESCRIPTION')
+										: t('NO_REPORTS_DESCRIPTION')}
+								</p>
 							</div>
-						);
-					})}
-						</div>
-					)}
+						) : (
+							<div className={CLASSES.reportsContainer}>
+								{reports.map((report) => {
+									const statusStyle = STATUS_STYLES[report.status];
+									const reasonStyle = REASON_STYLES[report.reason];
+									const StatusIcon = statusStyle.icon;
+
+									return (
+										<div key={report.id} className={CLASSES.reportCard}>
+											{/* Header: Badges + Date */}
+											<div className={CLASSES.reportHeader}>
+												<div className={CLASSES.reportBadges}>
+													{/* Status Badge */}
+													<span
+														className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
+													>
+														<StatusIcon className="w-3 h-3" />
+														{t(`STATUS_LABELS.${report.status}`)}
+													</span>
+													{/* Content Type Badge */}
+													<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+														{t(`CONTENT_TYPES.${report.contentType}`)}
+													</span>
+													{/* Reason Badge */}
+													<span
+														className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
+													>
+														{t(`REASONS.${report.reason}`)}
+													</span>
+												</div>
+												<div className={CLASSES.reportDate}>
+													<Calendar className="w-3.5 h-3.5 inline mr-1" />
+													{formatDate(report.createdAt)}
+												</div>
+											</div>
+
+											{/* Content ID */}
+											<p className={CLASSES.reportContentId}>{report.contentId}</p>
+
+											{/* Details Preview */}
+											{report.details && (
+												<p className={CLASSES.reportDetails}>{report.details}</p>
+											)}
+
+											{/* Footer: Reporter + Action */}
+											<div className={CLASSES.reportFooter}>
+												<div className={CLASSES.reportReporter}>
+													<User className={CLASSES.reportReporterIcon} />
+													<span className={CLASSES.reportReporterText}>
+														{report.reporter?.name ||
+															report.reporter?.email ||
+															t('UNKNOWN')}
+													</span>
+												</div>
+												<Button
+													size="sm"
+													disabled={isUpdating === report.id}
+													onClick={() => openReviewDialog(report)}
+													className="bg-theme-primary hover:bg-theme-primary/90 text-white"
+												>
+													<Eye className="w-4 h-4 mr-1" />
+													{t('REVIEW')}
+												</Button>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						)}
 					</div>
 				</CardContent>
 			</Card>
