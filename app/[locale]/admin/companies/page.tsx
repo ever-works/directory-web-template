@@ -58,7 +58,6 @@ export default function CompaniesPage() {
 	const {
 		companies,
 		stats,
-		total,
 		page,
 		totalPages,
 		isLoading,
@@ -237,7 +236,6 @@ export default function CompaniesPage() {
 					/>
 				}
 				companies={companies}
-				totalCount={total}
 				isLoading={isLoading}
 				deletingCompanyId={companyToDelete?.id || null}
 				onEdit={handleEditCompany}

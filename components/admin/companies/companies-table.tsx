@@ -7,7 +7,6 @@ import type { Company } from '@/types/company';
 
 interface CompaniesTableProps {
 	companies: Company[];
-	totalCount: number;
 	isLoading?: boolean;
 	deletingCompanyId: string | null;
 	onEdit: (company: Company) => void;
@@ -35,12 +34,7 @@ export function CompaniesTable(props: CompaniesTableProps) {
 				<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
 					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COMPANIES_TITLE')}</h3>
-						<div className="flex items-center gap-3">
-							{props.filters}
-							<span className="text-sm text-gray-500 dark:text-gray-400">
-								{props.totalCount} {t('COMPANIES_TOTAL_COUNT')}
-							</span>
-						</div>
+						{props.filters}
 					</div>
 				</div>
 
