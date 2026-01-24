@@ -137,10 +137,8 @@ export default function AdminUsersPage() {
 
     if (roleFilter) {
       const roleLabels: Record<string, string> = {
-        'super-admin': t('SUPER_ADMIN'),
         'admin': t('ADMIN'),
-        'moderator': t('MODERATOR'),
-        'user': t('USER'),
+        'client': t('CLIENT'),
       };
       filters.push({
         id: `role:${roleFilter}`,
