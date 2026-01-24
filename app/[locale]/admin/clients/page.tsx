@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
-import { useDebounceSearch } from '@/hooks/use-debounced-search';
+import { useState, useEffect, useCallback } from 'react';
 import { useSkeletonVisibility } from '@/hooks/use-skeleton-visibility';
 import { useDisclosure } from '@heroui/react';
 import { toast } from 'sonner';
@@ -16,14 +15,13 @@ import { UniversalPagination } from '@/components/universal-pagination';
 // Components
 import { PageHeader } from './components/page-header';
 import { ClientStats } from './components/client-stats';
-import { ClientFilters } from './components/client-filters';
+import { ClientSearch, ClientFilterBar, ClientActiveFilters } from './components/client-filters';
 import { ClientsTable } from './components/clients-table';
 import { ClientFormModal, DeleteConfirmationModal } from './components/client-modal';
 import { LoadingSkeleton } from './components/loading-skeleton';
 
-// Hooks & Utils
+// Hooks
 import { useClientFilters } from './hooks/use-client-filters';
-import { calculateActiveFilterCount } from './utils/client-helpers';
 
 /**
  * Clients Page Component
@@ -46,7 +44,6 @@ export default function ClientsPage() {
 	const [clientToDelete, setClientToDelete] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [limit] = useState(10);
-	const isInitialLoad = useRef(true);
 
 	// Loading states
 	const [loadingStates, setLoadingStates] = useState<ClientsLoadingState>({
@@ -55,50 +52,44 @@ export default function ClientsPage() {
 		filtering: false,
 		paginating: false,
 		submitting: false,
-		deleting: null as string | null
+		deleting: null as string | null,
 	});
 
 	// Modals
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const { isOpen: isDeleteOpen, onOpen: onDeleteOpen, onClose: onDeleteClose } = useDisclosure();
 
-	// Filters hook
+	// Filters hook with page reset callback
 	const {
-		filters,
 		searchTerm,
+		setSearchTerm,
+		debouncedSearchTerm,
+		isSearching,
+		hasActiveSearch,
 		statusFilter,
+		setStatusFilter,
 		planFilter,
 		accountTypeFilter,
 		providerFilter,
+		setPlanFilter,
+		setAccountTypeFilter,
+		setProviderFilter,
 		datePreset,
 		customDateFrom,
 		customDateTo,
 		dateFilterType,
-		createdAfter,
-		createdBefore,
-		updatedAfter,
-		updatedBefore,
-		setSearchTerm,
-		setStatusFilter,
-		setPlanFilter,
-		setAccountTypeFilter,
-		setProviderFilter,
 		setDatePreset,
 		setCustomDateFrom,
 		setCustomDateTo,
 		setDateFilterType,
-		clearFilters
-	} = useClientFilters();
-
-	// Debounced search
-	const { debouncedValue: debouncedSearchTerm, isSearching } = useDebounceSearch({
-		searchValue: searchTerm,
-		delay: 300,
-		onSearch: () => {
-			if (!isInitialLoad.current && currentPage !== 1) {
-				setCurrentPage(1);
-			}
-		}
+		createdAfter,
+		createdBefore,
+		updatedAfter,
+		updatedBefore,
+		clearFilters,
+		hasActiveFiltersIncludingDate,
+	} = useClientFilters({
+		onFiltersChange: () => setCurrentPage(1),
 	});
 
 	// Data fetching hook
@@ -112,7 +103,7 @@ export default function ClientsPage() {
 		isSubmitting,
 		createClient,
 		updateClient,
-		deleteClient
+		deleteClient,
 	} = useAdminClients({
 		params: {
 			page: currentPage,
@@ -127,13 +118,9 @@ export default function ClientsPage() {
 			updatedAfter,
 			updatedBefore,
 			sortBy: 'createdAt',
-			sortOrder: 'desc'
-		}
+			sortOrder: 'desc',
+		},
 	});
-
-	// Calculate active filters
-	const activeFilterCount = calculateActiveFilterCount(filters);
-	const hasActiveFilters = activeFilterCount > 0;
 
 	// Check if skeleton should be shown (only on initial page load)
 	const shouldShowSkeleton = useSkeletonVisibility(isLoading, clients.length > 0);
@@ -144,11 +131,6 @@ export default function ClientsPage() {
 			setLoadingStates((prev) => ({ ...prev, initial: false }));
 		}
 	}, [isLoading, loadingStates.initial]);
-
-	// Reset initial load flag
-	useEffect(() => {
-		isInitialLoad.current = false;
-	}, []);
 
 	// URL param handlers
 	const clearEditParam = useCallback(() => {
@@ -292,32 +274,14 @@ export default function ClientsPage() {
 			{/* Stats Cards */}
 			<ClientStats stats={stats} />
 
-			{/* Filters */}
-			<ClientFilters
+			{/* Search */}
+			<ClientSearch
 				searchTerm={searchTerm}
-				statusFilter={statusFilter}
-				planFilter={planFilter}
-				accountTypeFilter={accountTypeFilter}
-				providerFilter={providerFilter}
-				datePreset={datePreset}
-				customDateFrom={customDateFrom}
-				customDateTo={customDateTo}
-				dateFilterType={dateFilterType}
 				onSearchChange={setSearchTerm}
-				onStatusChange={setStatusFilter}
-				onPlanChange={setPlanFilter}
-				onAccountTypeChange={setAccountTypeFilter}
-				onProviderChange={setProviderFilter}
-				onDatePresetChange={setDatePreset}
-				onCustomDateFromChange={setCustomDateFrom}
-				onCustomDateToChange={setCustomDateTo}
-				onDateFilterTypeChange={setDateFilterType}
-				onClearFilters={clearFilters}
-				activeFilterCount={activeFilterCount}
 				isSearching={isSearching}
 			/>
 
-			{/* Clients Table */}
+			{/* Clients Table with Filters in Header */}
 			<ClientsTable
 				clients={clients}
 				totalCount={totalCount}
@@ -328,7 +292,52 @@ export default function ClientsPage() {
 				onEdit={openEditForm}
 				onDelete={handleDelete}
 				onCreateFirst={openCreateForm}
-				hasActiveFilters={hasActiveFilters}
+				hasActiveFilters={hasActiveFiltersIncludingDate}
+				filterBar={
+					<ClientFilterBar
+						statusFilter={statusFilter}
+						onStatusChange={setStatusFilter}
+						planFilter={planFilter}
+						accountTypeFilter={accountTypeFilter}
+						providerFilter={providerFilter}
+						onPlanChange={setPlanFilter}
+						onAccountTypeChange={setAccountTypeFilter}
+						onProviderChange={setProviderFilter}
+						datePreset={datePreset}
+						customDateFrom={customDateFrom}
+						customDateTo={customDateTo}
+						dateFilterType={dateFilterType}
+						onDatePresetChange={setDatePreset}
+						onCustomDateFromChange={setCustomDateFrom}
+						onCustomDateToChange={setCustomDateTo}
+						onDateFilterTypeChange={setDateFilterType}
+						onClearFilters={clearFilters}
+						totalCount={totalCount}
+						stats={stats}
+					/>
+				}
+				activeFilters={
+					<ClientActiveFilters
+						searchTerm={searchTerm}
+						onSearchChange={setSearchTerm}
+						hasActiveSearch={hasActiveSearch}
+						planFilter={planFilter}
+						accountTypeFilter={accountTypeFilter}
+						providerFilter={providerFilter}
+						onPlanChange={setPlanFilter}
+						onAccountTypeChange={setAccountTypeFilter}
+						onProviderChange={setProviderFilter}
+						datePreset={datePreset}
+						customDateFrom={customDateFrom}
+						customDateTo={customDateTo}
+						dateFilterType={dateFilterType}
+						onDatePresetChange={setDatePreset}
+						onCustomDateFromChange={setCustomDateFrom}
+						onCustomDateToChange={setCustomDateTo}
+						onDateFilterTypeChange={setDateFilterType}
+						onClearFilters={clearFilters}
+					/>
+				}
 			/>
 
 			{/* Pagination */}
