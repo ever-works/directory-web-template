@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import { Button, Chip, useDisclosure } from "@heroui/react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck } from "lucide-react";
+import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
 import { UserData } from "@/lib/types/user";
@@ -58,6 +59,7 @@ export default function AdminUsersPage() {
     users,
     stats,
     isLoading,
+    isFetching,
     isFiltering,
     isSubmitting,
     isSearching,
@@ -413,15 +415,30 @@ export default function AdminUsersPage() {
             </div>
           )}
 
-          {users.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_USERS_FOUND')}</h3>
-              <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {users.map((user) => (
+          {/* Users List */}
+          <div className={cn(
+            "relative transition-opacity duration-200",
+            isFetching && !isLoading && "opacity-60"
+          )}>
+            {/* Loading overlay for filter/page changes */}
+            {isFetching && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className="bg-white/90 dark:bg-gray-900/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING_USERS')}</span>
+                </div>
+              </div>
+            )}
+
+            {users.length === 0 && !isFetching ? (
+              <div className="px-6 py-12 text-center">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_USERS_FOUND')}</h3>
+                <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
+              </div>
+            ) : users.length > 0 ? (
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {users.map((user) => (
                 <div key={user.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
@@ -475,8 +492,9 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
+              </div>
+            ) : null}
+          </div>
         </CardContent>
       </Card>
 

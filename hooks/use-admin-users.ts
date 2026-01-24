@@ -157,6 +157,7 @@ interface UseAdminUsersReturn {
 
   // Loading states
   isLoading: boolean;
+  isFetching: boolean;
   isFiltering: boolean;
   isSubmitting: boolean;
   isSearching: boolean;
@@ -248,6 +249,7 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
   const {
     data: usersData,
     isLoading,
+    isFetching,
     error,
     refetch,
   } = useQuery({
@@ -409,6 +411,7 @@ export function useAdminUsers(options: UseAdminUsersOptions = {}): UseAdminUsers
 
     // Loading states
     isLoading,
+    isFetching,
     isFiltering,
     isSubmitting,
     isSearching,
