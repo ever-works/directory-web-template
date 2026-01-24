@@ -95,16 +95,15 @@ export default function AdminUsersPage() {
   ], [t, stats, totalUsers, hasNonStatusFilters]);
 
   // Role filter sections for popover
+  // Note: Role IDs must match actual role names in database ('admin', 'client')
   const roleFilterSections = useMemo<FilterSection<string>[]>(() => [
     {
       id: 'role',
       label: t('ROLE_SECTION_LABEL'),
       type: 'radio',
       options: [
-        { id: 'super-admin', label: t('SUPER_ADMIN'), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
-        { id: 'admin', label: t('ADMIN'), icon: <Shield className="w-3.5 h-3.5" /> },
-        { id: 'moderator', label: t('MODERATOR') },
-        { id: 'user', label: t('USER') },
+        { id: 'admin', label: t('ADMIN'), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+        { id: 'client', label: t('CLIENT'), icon: <Shield className="w-3.5 h-3.5" /> },
       ],
       selectedValues: roleFilter ? [roleFilter] : [],
       onChange: (values) => setRoleFilter(values[0] || ''),
