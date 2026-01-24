@@ -1,7 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
+import { AdminStatusTabs, type StatusTabOption } from '@/components/admin/shared';
 
 type CompanyStatus = 'active' | 'inactive';
 
@@ -15,20 +16,9 @@ interface CompanyFiltersProps {
 	};
 }
 
-// Status tab style
-const STATUS_TAB = cn(
-	'px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer',
-	'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-);
-
-const STATUS_TAB_ACTIVE = cn(
-	'px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer',
-	'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-);
-
 /**
  * Company Filters Component
- * Status tabs for filtering companies - used in table header
+ * Wrapper around AdminStatusTabs for filtering companies - used in table header
  */
 export function CompanyFilters({
 	statusFilter,
@@ -38,29 +28,21 @@ export function CompanyFilters({
 	const t = useTranslations('admin.ADMIN_COMPANIES_PAGE');
 	const tShared = useTranslations('admin.SHARED');
 
+	const statusOptions: StatusTabOption<CompanyStatus>[] = useMemo(
+		() => [
+			{ value: '', label: tShared('STATUS_ALL'), count: statusCounts.total },
+			{ value: 'active', label: t('STATUS_ACTIVE'), count: statusCounts.active },
+			{ value: 'inactive', label: t('STATUS_INACTIVE'), count: statusCounts.inactive },
+		],
+		[t, tShared, statusCounts]
+	);
+
 	return (
-		<div className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-lg p-0.5">
-			<button
-				onClick={() => onStatusChange('')}
-				className={!statusFilter ? STATUS_TAB_ACTIVE : STATUS_TAB}
-			>
-				{tShared('STATUS_ALL')}
-				<span className="ml-1.5 text-xs text-gray-400">{statusCounts.total}</span>
-			</button>
-			<button
-				onClick={() => onStatusChange('active')}
-				className={statusFilter === 'active' ? STATUS_TAB_ACTIVE : STATUS_TAB}
-			>
-				{t('STATUS_ACTIVE')}
-				<span className="ml-1.5 text-xs text-gray-400">{statusCounts.active}</span>
-			</button>
-			<button
-				onClick={() => onStatusChange('inactive')}
-				className={statusFilter === 'inactive' ? STATUS_TAB_ACTIVE : STATUS_TAB}
-			>
-				{t('STATUS_INACTIVE')}
-				<span className="ml-1.5 text-xs text-gray-400">{statusCounts.inactive}</span>
-			</button>
-		</div>
+		<AdminStatusTabs<CompanyStatus>
+			options={statusOptions}
+			value={statusFilter}
+			onChange={onStatusChange}
+			showCounts={true}
+		/>
 	);
 }
