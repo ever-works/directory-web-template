@@ -323,7 +323,7 @@ export function ReviewStep({
                           {t('STEPS.LOCATION.SUMMARY_REMOTE')}
                         </span>
                       </div>
-                    ) : (location.address || location.city || location.latitude) ? (
+                    ) : (location.address || location.city || location.state || location.country || location.latitude !== undefined || location.longitude !== undefined) ? (
                       <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
                         {location.address && (
                           <p>
