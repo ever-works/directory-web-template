@@ -285,6 +285,7 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     updateLocationFilter({
       ...locationFilterRef.current,
       city: city || undefined,
+      country: undefined,
       nearMe: undefined,
       sortByDistance: false,
     });
@@ -297,6 +298,7 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     updateLocationFilter({
       ...locationFilterRef.current,
       country: country || undefined,
+      city: undefined,
       nearMe: undefined,
       sortByDistance: false,
     });
