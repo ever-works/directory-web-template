@@ -132,6 +132,17 @@ export function MultiStepItemForm({
     return initial;
   });
 
+  // Keep stepValidation in sync when FORM_STEPS changes (e.g. locationEnabled loads async)
+  useEffect(() => {
+    setStepValidation((prev) => {
+      const next: Record<number, boolean> = {};
+      for (let i = 1; i <= FORM_STEPS.length; i++) {
+        next[i] = prev[i] ?? false;
+      }
+      return next;
+    });
+  }, [FORM_STEPS.length]);
+
   // Multi-step form hook
   const {
     currentStep,
