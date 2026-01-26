@@ -3,7 +3,7 @@
 import { MapPin, Globe, Building2, Wifi, CheckCircle, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
-import type { GeoAnalyticsStats, CountryDistribution, ServiceAreaDistribution } from '@/hooks/use-geo-analytics';
+import type { GeoAnalyticsStats, CountryDistribution, CityDistribution, ServiceAreaDistribution } from '@/hooks/use-geo-analytics';
 
 // ===================== Style Constants =====================
 
@@ -29,6 +29,7 @@ interface LocationStatsCardProps {
 	stats: GeoAnalyticsStats;
 	distributions: {
 		byCountry: CountryDistribution[];
+		byCity: CityDistribution[];
 		byServiceArea: ServiceAreaDistribution[];
 	};
 }
@@ -47,7 +48,7 @@ const SERVICE_AREA_KEYS: Record<string, 'LOCAL' | 'REGIONAL' | 'NATIONAL' | 'GLO
 export function LocationStatsCard({ stats, distributions }: LocationStatsCardProps) {
 	const t = useTranslations('admin.DASHBOARD.GEO');
 
-	const isSynced = stats.totalIndexed === stats.totalItems || stats.totalIndexed >= stats.totalItems;
+	const isSynced = stats.indexHealth.synced;
 
 	return (
 		<div className={CARD_STYLES}>
@@ -74,7 +75,7 @@ export function LocationStatsCard({ stats, distributions }: LocationStatsCardPro
 				<div>
 					<div className="flex justify-between text-sm mb-1.5">
 						<span className={STAT_LABEL_STYLES}>
-							{t('ITEMS_OF_TOTAL', { indexed: stats.totalIndexed, total: stats.totalItems })}
+							{t('ITEMS_OF_TOTAL', { indexed: stats.itemsWithLocation, total: stats.totalItems })}
 						</span>
 						<span className="font-medium text-gray-900 dark:text-gray-100">
 							{t('COVERAGE_PERCENT', { percent: stats.coveragePercent })}
@@ -148,8 +149,8 @@ export function LocationStatsCard({ stats, distributions }: LocationStatsCardPro
 				{!isSynced && (
 					<div className={WARNING_STYLES}>
 						{t('INDEX_SYNC_WARNING', {
-							actual: stats.totalIndexed,
-							expected: stats.totalItems,
+							actual: stats.indexHealth.indexCount,
+							expected: stats.indexHealth.expectedCount,
 						})}
 					</div>
 				)}

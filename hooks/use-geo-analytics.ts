@@ -12,10 +12,19 @@ class HttpError extends Error {
 
 // ===================== Types =====================
 
+export interface IndexHealth {
+	synced: boolean;
+	indexCount: number;
+	expectedCount: number;
+}
+
 export interface GeoAnalyticsStats {
 	totalIndexed: number;
 	totalItems: number;
+	itemsWithLocation: number;
+	itemsRemote: number;
 	coveragePercent: number;
+	indexHealth: IndexHealth;
 	citiesCount: number;
 	countriesCount: number;
 	remoteCount: number;
@@ -24,6 +33,11 @@ export interface GeoAnalyticsStats {
 }
 
 export interface CountryDistribution {
+	name: string;
+	count: number;
+}
+
+export interface CityDistribution {
 	name: string;
 	count: number;
 }
@@ -42,13 +56,20 @@ export interface GeoLocation {
 	isRemote: boolean;
 }
 
+export interface HeatmapPoint {
+	lat: number;
+	lng: number;
+}
+
 export interface GeoAnalyticsData {
 	stats: GeoAnalyticsStats;
 	distributions: {
 		byCountry: CountryDistribution[];
+		byCity: CityDistribution[];
 		byServiceArea: ServiceAreaDistribution[];
 	};
 	locations: GeoLocation[];
+	heatmapData: HeatmapPoint[];
 }
 
 interface GeoAnalyticsApiResponse {
