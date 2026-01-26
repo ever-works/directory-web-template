@@ -15,7 +15,10 @@ import { ApprovalTrend } from './approval-trend';
 import { SubmissionCalendar } from './submission-calendar';
 import { EngagementDistribution } from './engagement-distribution';
 import { EngagementRateChart } from './engagement-rate-chart';
+import { ItemsMapCard } from './ItemsMapCard';
+import { GeoStatsCard } from './GeoStatsCard';
 import { useDashboardStats } from '@/hooks/use-dashboard-stats';
+import { useLocationSettings } from '@/hooks/use-location-settings';
 import { Button } from '@/components/ui/button';
 import { PageContainer } from '../ui/container';
 
@@ -25,6 +28,7 @@ interface DashboardContentProps {
 
 export function DashboardContent({ session }: DashboardContentProps) {
 	const { data: stats, refetch: refetchStats, error: statsError } = useDashboardStats();
+	const { settings: locationSettings } = useLocationSettings();
 
 	const handleRefresh = async () => {
 		try {
@@ -113,6 +117,14 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				<div className="mb-8">
 					<EngagementOverview data={stats?.engagementOverview || []} isLoading={!stats} />
 				</div>
+
+				{/* Location Cards */}
+				{locationSettings.enabled && (
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+						<ItemsMapCard />
+						<GeoStatsCard />
+					</div>
+				)}
 
 				{/* Category Performance & Approval Trend */}
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">

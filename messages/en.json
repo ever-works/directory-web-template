@@ -3283,6 +3283,26 @@
 				"LOADING": "Loading chart data...",
 				"ERROR": "Failed to load chart",
 				"RETRY": "Retry"
+			},
+			"ITEMS_MAP": {
+				"TITLE": "Your Items Map",
+				"WITH_LOCATION": "with location",
+				"NO_DATA": "No items with location data",
+				"NO_DATA_DESC": "Add location data to your items to see them on the map."
+			},
+			"GEO_STATS": {
+				"TITLE": "Geographic Coverage",
+				"ITEMS_WITH_LOCATION": "Items with Location",
+				"REMOTE_SERVICES": "Remote Services",
+				"SERVICE_AREAS": "Service Areas",
+				"TOP_CITIES": "Top Cities",
+				"TOP_COUNTRIES": "Top Countries",
+				"LOCAL": "Local",
+				"REGIONAL": "Regional",
+				"NATIONAL": "National",
+				"GLOBAL": "Global",
+				"NO_DATA": "No location data",
+				"NO_DATA_DESC": "Add location data to your items to see geographic coverage."
 			}
 		}
 	}
