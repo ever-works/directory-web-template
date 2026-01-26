@@ -31,47 +31,44 @@ type ServiceAreaKey = keyof ServiceAreaBreakdown;
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 data:
+ *                 total_items:
+ *                   type: integer
+ *                   example: 10
+ *                 items_with_location:
+ *                   type: integer
+ *                   example: 7
+ *                 items_remote:
+ *                   type: integer
+ *                   example: 2
+ *                 service_area_breakdown:
  *                   type: object
  *                   properties:
- *                     total_items:
+ *                     local:
  *                       type: integer
- *                       example: 10
- *                     items_with_location:
+ *                     regional:
  *                       type: integer
- *                       example: 7
- *                     items_remote:
+ *                     national:
  *                       type: integer
- *                       example: 2
- *                     service_area_breakdown:
- *                       type: object
- *                       properties:
- *                         local:
- *                           type: integer
- *                         regional:
- *                           type: integer
- *                         national:
- *                           type: integer
- *                         global:
- *                           type: integer
- *                     top_cities:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           city:
- *                             type: string
- *                           count:
- *                             type: integer
- *                     top_countries:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           country:
- *                             type: string
- *                           count:
- *                             type: integer
+ *                     global:
+ *                       type: integer
+ *                 top_cities:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       city:
+ *                         type: string
+ *                       count:
+ *                         type: integer
+ *                 top_countries:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       country:
+ *                         type: string
+ *                       count:
+ *                         type: integer
  *       401:
  *         description: "Unauthorized - Authentication required"
  *       500:
@@ -139,14 +136,12 @@ export async function GET() {
 
 		return NextResponse.json({
 			success: true,
-			data: {
-				total_items: totalItems,
-				items_with_location: itemsWithLocation,
-				items_remote: itemsRemote,
-				service_area_breakdown: serviceAreaBreakdown,
-				top_cities: topCities,
-				top_countries: topCountries,
-			},
+			total_items: totalItems,
+			items_with_location: itemsWithLocation,
+			items_remote: itemsRemote,
+			service_area_breakdown: serviceAreaBreakdown,
+			top_cities: topCities,
+			top_countries: topCountries,
 		});
 	} catch (error) {
 		return serverErrorResponse(error, 'Failed to fetch geographic statistics');

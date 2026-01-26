@@ -22,16 +22,15 @@ interface GeoStats {
 	top_countries: { country: string; count: number }[];
 }
 
-interface GeoStatsResponse {
+interface GeoStatsResponse extends GeoStats {
 	success: boolean;
-	data: GeoStats;
 }
 
 async function fetchGeoStats(): Promise<GeoStats> {
 	const response = await fetch('/api/client/geo-stats');
 	if (!response.ok) throw new Error('Failed to fetch stats');
-	const json: GeoStatsResponse = await response.json();
-	return json.data;
+	const { success, ...stats }: GeoStatsResponse = await response.json();
+	return stats;
 }
 
 type ServiceAreaKey = keyof ServiceAreaBreakdown;

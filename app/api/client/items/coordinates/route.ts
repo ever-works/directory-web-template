@@ -22,7 +22,7 @@ import { ItemRepository } from '@/lib/repositories/item.repository';
  *                 success:
  *                   type: boolean
  *                   example: true
- *                 data:
+ *                 coordinates:
  *                   type: array
  *                   items:
  *                     type: object
@@ -86,7 +86,7 @@ export async function GET() {
 				longitude: item.location!.longitude!,
 			}));
 
-		return NextResponse.json({ success: true, data });
+		return NextResponse.json({ success: true, coordinates: data });
 	} catch (error) {
 		return serverErrorResponse(error, 'Failed to fetch item coordinates');
 	}

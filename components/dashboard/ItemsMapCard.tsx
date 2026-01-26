@@ -17,14 +17,14 @@ interface ClientItemCoords {
 
 interface CoordinatesResponse {
 	success: boolean;
-	data: ClientItemCoords[];
+	coordinates: ClientItemCoords[];
 }
 
 async function fetchClientItemCoordinates(): Promise<ClientItemCoords[]> {
 	const response = await fetch('/api/client/items/coordinates');
 	if (!response.ok) throw new Error('Failed to fetch coordinates');
 	const json: CoordinatesResponse = await response.json();
-	return json.data;
+	return json.coordinates;
 }
 
 const MAP_HEIGHT = 280;
