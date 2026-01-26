@@ -35,6 +35,7 @@ const directionsButtonStyles =
 interface LocationSectionProps {
 	location?: ItemLocationData;
 	itemName: string;
+	itemSlug: string;
 }
 
 // ######################### Service Area Config #########################
@@ -55,7 +56,7 @@ const SERVICE_AREA_TRANSLATION_KEYS: Record<ServiceArea, string> = {
 
 // ######################### Component #########################
 
-export function LocationSection({ location, itemName }: LocationSectionProps) {
+export function LocationSection({ location, itemName, itemSlug }: LocationSectionProps) {
 	const { settings } = useLocationSettings();
 	const t = useTranslations();
 
@@ -112,7 +113,7 @@ export function LocationSection({ location, itemName }: LocationSectionProps) {
 					longitude: location.longitude!,
 				},
 				title: itemName,
-				slug: '',
+				slug: itemSlug,
 			}
 		: null;
 

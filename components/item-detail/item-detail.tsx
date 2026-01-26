@@ -193,7 +193,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 						</div>
 
 						{/* Location Section */}
-						<LocationSection location={meta.location} itemName={meta.name} />
+						<LocationSection location={meta.location} itemName={meta.name} itemSlug={meta.slug || ''} />
 
 						{/* Surveys Section - Only show if showSurveys is not false and surveys are enabled */}
 						{meta.showSurveys !== false && surveysEnabled && (
