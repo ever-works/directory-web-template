@@ -54,6 +54,12 @@ const SERVICE_AREA_TRANSLATION_KEYS: Record<ServiceArea, string> = {
 	global: 'itemDetail.GLOBAL_SERVICE',
 };
 
+const VALID_SERVICE_AREAS = new Set<string>(Object.keys(SERVICE_AREA_ICONS));
+
+function isValidServiceArea(value: string | undefined): value is ServiceArea {
+	return typeof value === 'string' && VALID_SERVICE_AREAS.has(value);
+}
+
 // ######################### Component #########################
 
 export function LocationSection({ location, itemName, itemSlug }: LocationSectionProps) {
@@ -102,7 +108,7 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 
 	const displayAddress = settings.showExactAddress && location.address ? location.address : null;
 
-	const serviceArea = location.service_area as ServiceArea | undefined;
+	const serviceArea = isValidServiceArea(location.service_area) ? location.service_area : undefined;
 
 	// Build map marker
 	const marker: MapMarkerData | null = hasCoordinates
