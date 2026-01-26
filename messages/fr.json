@@ -144,6 +144,7 @@
     "PUBLISHED_AT": "Publié le",
     "EXPORT_CSV": "Exporter en CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Chargement des éléments...",
     "LOADING_RESPONSES": "Chargement des réponses...",
     "NO_RESPONSES_FOUND": "Aucune réponse trouvée",

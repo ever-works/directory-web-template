@@ -169,6 +169,7 @@
     "PUBLISHED_AT": "Dipublikasikan pada",
     "EXPORT_CSV": "Ekspor CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Memuat item...",
     "LOADING_RESPONSES": "Memuat respons...",
     "NO_RESPONSES_FOUND": "Tidak ada respons ditemukan",
@@ -1628,7 +1629,8 @@
         "LOCAL": "Lokal",
         "REGIONAL": "Regional",
         "NATIONAL": "Nasional",
-        "GLOBAL": "Global"
+        "GLOBAL": "Global",
+				"RETRY": "Retry"
       }
     },
     "CHARTS": {

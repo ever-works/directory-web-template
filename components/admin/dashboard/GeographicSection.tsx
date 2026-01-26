@@ -58,7 +58,7 @@ export function GeographicSection() {
 					{error instanceof Error ? error.message : t('ACTION_FAILED')}
 				</p>
 				<Button variant="outline" size="sm" onClick={() => refetch()}>
-					{t('REBUILD_INDEX')}
+					{t('RETRY')}
 				</Button>
 			</div>
 		);

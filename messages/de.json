@@ -145,6 +145,7 @@
     "PUBLISHED_AT": "Veröffentlicht am",
     "EXPORT_CSV": "Als CSV exportieren",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Artikel werden geladen...",
     "LOADING_RESPONSES": "Antworten werden geladen...",
     "NO_RESPONSES_FOUND": "Keine Antworten gefunden",
@@ -1571,7 +1572,8 @@
         "LOCAL": "Lokal",
         "REGIONAL": "Regional",
         "NATIONAL": "National",
-        "GLOBAL": "Global"
+        "GLOBAL": "Global",
+				"RETRY": "Retry"
       }
     },
     "CHARTS": {
