@@ -756,7 +756,9 @@
 			"SUBMIT_LISTING": "Submit Listing",
 			"NOT_PROVIDED": "Not provided",
 			"NOT_SELECTED": "Not selected",
-			"NONE_SELECTED": "None selected"
+			"NONE_SELECTED": "None selected",
+			"LOCATION": "Location",
+			"REMOTE_SERVICE": "Remote / Online Service"
 		},
 		"PLANS": {
 			"FREE_PLAN": "Free Plan",

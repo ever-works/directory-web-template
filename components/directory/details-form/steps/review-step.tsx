@@ -95,9 +95,13 @@ export function ReviewStep({ formData, t }: ReviewStepProps) {
 
 						{formData.location && (formData.location.is_remote || formData.location.address || formData.location.city) && (
 							<div className={STEP_CARD_CLASSES.reviewCard.field}>
-								<h4 className={STEP_CARD_CLASSES.reviewCard.fieldTitle}>Location</h4>
+								<h4 className={STEP_CARD_CLASSES.reviewCard.fieldTitle}>
+									{t('directory.REVIEW.LOCATION')}
+								</h4>
 								{formData.location.is_remote ? (
-									<p className={STEP_CARD_CLASSES.reviewCard.fieldValue}>Remote / Online Service</p>
+									<p className={STEP_CARD_CLASSES.reviewCard.fieldValue}>
+										{t('directory.REVIEW.REMOTE_SERVICE')}
+									</p>
 								) : (
 									<div className={STEP_CARD_CLASSES.reviewCard.fieldValue}>
 										{formData.location.address && <p>{formData.location.address}</p>}
