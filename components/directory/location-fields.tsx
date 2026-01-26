@@ -32,8 +32,9 @@ function toPickerValue(data?: ItemLocationData): LocationPickerValue | undefined
 /**
  * Convert LocationPickerValue (camelCase) to ItemLocationData (snake_case)
  */
-function fromPickerValue(value: LocationPickerValue): ItemLocationData {
+function fromPickerValue(value: LocationPickerValue, existing?: ItemLocationData): ItemLocationData {
 	return {
+		...existing,
 		address: value.address,
 		city: value.city,
 		state: value.state,
@@ -55,9 +56,9 @@ export function LocationFields({ location, onLocationChange }: LocationFieldsPro
 
 	const handlePickerChange = useCallback(
 		(pickerValue: LocationPickerValue) => {
-			onLocationChange(fromPickerValue(pickerValue));
+			onLocationChange(fromPickerValue(pickerValue, location));
 		},
-		[onLocationChange]
+		[onLocationChange, location]
 	);
 
 	if (!settings.enabled) {
