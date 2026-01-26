@@ -12,6 +12,7 @@ export interface ItemLocationData {
   longitude?: number; // Pre-geocoded longitude (optional)
   service_area?: string; // Service area description (e.g., "Nationwide", "New York Metro")
   is_remote?: boolean; // Whether this item operates remotely/virtually
+  geocoded_by?: string; // Track which geocoding provider was used (e.g., "mapbox", "google")
 }
 
 export interface ItemData {

@@ -168,6 +168,7 @@ export class ItemGitService {
                 longitude: item.location.longitude,
                 service_area: item.location.service_area,
                 is_remote: item.location.is_remote ?? false,
+                geocoded_by: item.location.geocoded_by,
               } : undefined,
             };
 
@@ -249,6 +250,7 @@ export class ItemGitService {
             longitude: item.location.longitude,
             service_area: item.location.service_area,
             is_remote: item.location.is_remote ?? false,
+            geocoded_by: item.location.geocoded_by,
           } : undefined,
         };
 
