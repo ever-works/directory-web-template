@@ -2,22 +2,15 @@
 
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, Globe, MapPin, Building, Navigation } from 'lucide-react';
+import { BarChart3, Globe, MapPin, Building, Navigation, Layers } from 'lucide-react';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES } from './styles';
-
-interface ServiceAreaBreakdown {
-	local: number;
-	regional: number;
-	national: number;
-	global: number;
-}
 
 interface GeoStats {
 	total_items: number;
 	items_with_location: number;
 	items_remote: number;
-	service_area_breakdown: ServiceAreaBreakdown;
+	service_area_breakdown: { area: string; count: number }[];
 	top_cities: { city: string; count: number }[];
 	top_countries: { country: string; count: number }[];
 }
@@ -33,14 +26,18 @@ async function fetchGeoStats(): Promise<GeoStats> {
 	return stats;
 }
 
-type ServiceAreaKey = keyof ServiceAreaBreakdown;
-
-const SERVICE_AREA_ICONS: Record<ServiceAreaKey, React.ReactNode> = {
+// Known service area values get specific icons; unknown values get a fallback
+const KNOWN_AREA_ICONS: Record<string, React.ReactNode> = {
 	local: <Building className="h-4 w-4" />,
 	regional: <MapPin className="h-4 w-4" />,
 	national: <Navigation className="h-4 w-4" />,
 	global: <Globe className="h-4 w-4" />,
 };
+
+const FALLBACK_AREA_ICON = <Layers className="h-4 w-4" />;
+
+// Known area keys that have translation entries
+const TRANSLATED_AREAS = new Set(['local', 'regional', 'national', 'global']);
 
 const SKELETON_CONTAINER_STYLES = 'animate-pulse';
 const SKELETON_TITLE_STYLES = 'h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-4 w-1/3';
@@ -86,8 +83,6 @@ export function GeoStatsCard() {
 	const locationPercent =
 		stats.total_items > 0 ? Math.round((stats.items_with_location / stats.total_items) * 100) : 0;
 
-	const serviceAreaKeys: ServiceAreaKey[] = ['local', 'regional', 'national', 'global'];
-
 	return (
 		<section className={CARD_BASE_STYLES} aria-labelledby="geo-stats-title">
 			<div className="flex items-center gap-2 mb-6">
@@ -123,22 +118,23 @@ export function GeoStatsCard() {
 				)}
 
 				{/* Service Area Breakdown */}
-				{stats.items_with_location > 0 && (
+				{stats.service_area_breakdown.length > 0 && (
 					<div>
 						<h4 className={SECTION_HEADER_STYLES}>{t('SERVICE_AREAS')}</h4>
 						<div className="grid grid-cols-2 gap-3">
-							{serviceAreaKeys.map(
-								(area) =>
-									stats.service_area_breakdown[area] > 0 && (
-										<div key={area} className={STAT_LABEL_STYLES}>
-											{SERVICE_AREA_ICONS[area]}
-											<span className="capitalize">{t(area.toUpperCase() as Uppercase<ServiceAreaKey>)}</span>
-											<span className="ml-auto font-medium text-gray-900 dark:text-gray-100">
-												{stats.service_area_breakdown[area]}
-											</span>
-										</div>
-									)
-							)}
+							{stats.service_area_breakdown.map(({ area, count }) => (
+								<div key={area} className={STAT_LABEL_STYLES}>
+									{KNOWN_AREA_ICONS[area] ?? FALLBACK_AREA_ICON}
+									<span className="capitalize">
+										{TRANSLATED_AREAS.has(area)
+											? t(area.toUpperCase() as 'LOCAL' | 'REGIONAL' | 'NATIONAL' | 'GLOBAL')
+											: area}
+									</span>
+									<span className="ml-auto font-medium text-gray-900 dark:text-gray-100">
+										{count}
+									</span>
+								</div>
+							))}
 						</div>
 					</div>
 				)}

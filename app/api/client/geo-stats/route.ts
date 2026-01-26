@@ -32,16 +32,17 @@ import { getClientItemRepository } from '@/lib/repositories/client-item.reposito
  *                   type: integer
  *                   example: 2
  *                 service_area_breakdown:
- *                   type: object
- *                   properties:
- *                     local:
- *                       type: integer
- *                     regional:
- *                       type: integer
- *                     national:
- *                       type: integer
- *                     global:
- *                       type: integer
+ *                   type: array
+ *                   description: "Top service areas by count (sorted descending)"
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       area:
+ *                         type: string
+ *                         example: "local"
+ *                       count:
+ *                         type: integer
+ *                         example: 3
  *                 top_cities:
  *                   type: array
  *                   items:

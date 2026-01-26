@@ -20,20 +20,11 @@ export interface ClientItemCoordinates {
   longitude: number;
 }
 
-interface ServiceAreaBreakdown {
-  local: number;
-  regional: number;
-  national: number;
-  global: number;
-}
-
-type ServiceAreaKey = keyof ServiceAreaBreakdown;
-
 export interface ClientGeoStats {
   total_items: number;
   items_with_location: number;
   items_remote: number;
-  service_area_breakdown: ServiceAreaBreakdown;
+  service_area_breakdown: { area: string; count: number }[];
   top_cities: { city: string; count: number }[];
   top_countries: { country: string; count: number }[];
 }
@@ -381,20 +372,18 @@ export class ClientItemRepository {
     ).length;
     const itemsWithLocation = itemsWithCoords + itemsRemote;
 
-    // Service area breakdown
-    const serviceAreaBreakdown: ServiceAreaBreakdown = {
-      local: 0,
-      regional: 0,
-      national: 0,
-      global: 0,
-    };
-
+    // Service area breakdown (dynamic — works with any service_area string)
+    const serviceAreaCounts: Record<string, number> = {};
     for (const item of items) {
       const area = item.location?.service_area;
-      if (area && area in serviceAreaBreakdown) {
-        serviceAreaBreakdown[area as ServiceAreaKey]++;
+      if (area) {
+        serviceAreaCounts[area] = (serviceAreaCounts[area] || 0) + 1;
       }
     }
+    const serviceAreaBreakdown = Object.entries(serviceAreaCounts)
+      .map(([area, count]) => ({ area, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
     // Top cities
     const cityCounts: Record<string, number> = {};
