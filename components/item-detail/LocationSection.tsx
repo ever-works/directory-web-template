@@ -1,12 +1,11 @@
 'use client';
 
 import { MapPin, Navigation, Globe, Building } from 'lucide-react';
-import { Map } from '@/components/maps/Map';
+import { Map } from '@/components/maps';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
 import type { ItemLocationData } from '@/lib/types/item';
-import type { ServiceArea } from '@/lib/maps/types';
-import type { MapMarkerData } from '@/lib/maps/types';
+import type { ServiceArea, MapMarkerData } from '@/lib/maps/types';
 
 // ######################### Style Constants #########################
 
