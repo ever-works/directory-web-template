@@ -5,7 +5,7 @@ import { StepContainer } from '@/components/ui/multi-step-form';
 import { LocationPicker } from '@/components/maps/location-picker';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
-import { MapPin, Globe, Wifi } from 'lucide-react';
+import { MapPin, Wifi } from 'lucide-react';
 import type { LocationPickerValue } from '@/lib/maps/types';
 import type { ItemLocationData } from '@/lib/types/item';
 import type { MapProvider } from '@/lib/types/location';
