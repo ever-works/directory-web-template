@@ -63,7 +63,7 @@ function isLocationFilterActive(locationFilter: LocationFilterState): boolean {
 export function useLocationItems(locationFilter: LocationFilterState): UseLocationItemsReturn {
 	const isActive = isLocationFilterActive(locationFilter);
 
-	const { data, isLoading } = useQuery<LocationSearchResponse>({
+	const { data, isLoading, isError } = useQuery<LocationSearchResponse>({
 		queryKey: [
 			'location-search',
 			locationFilter.nearMe?.latitude,
@@ -88,7 +88,7 @@ export function useLocationItems(locationFilter: LocationFilterState): UseLocati
 		gcTime: 5 * 60 * 1000, // 5 minutes
 	});
 
-	if (!isActive) {
+	if (!isActive || isError) {
 		return {
 			matchingSlugs: null,
 			distances: new Map(),
@@ -96,7 +96,9 @@ export function useLocationItems(locationFilter: LocationFilterState): UseLocati
 		};
 	}
 
-	const matchingSlugs = data?.data?.slugs ? new Set(data.data.slugs) : new Set<string>();
+	// null = data not yet loaded → don't apply location filtering (show all items while loading)
+	// Set = API responded → filter to matching slugs (empty Set = no matches)
+	const matchingSlugs = data?.data?.slugs ? new Set(data.data.slugs) : null;
 	const distances = new Map<string, number>(
 		data?.data?.distances ? Object.entries(data.data.distances) : []
 	);
