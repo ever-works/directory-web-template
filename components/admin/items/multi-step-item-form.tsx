@@ -364,8 +364,8 @@ export function MultiStepItemForm({
 function hasLocationData(location: LocationStepData): boolean {
   return Boolean(
     location.address ||
-    location.latitude ||
-    location.longitude ||
+    location.latitude !== undefined ||
+    location.longitude !== undefined ||
     location.is_remote ||
     location.city ||
     location.country

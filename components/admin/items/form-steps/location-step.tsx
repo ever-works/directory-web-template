@@ -78,7 +78,7 @@ export function LocationStep({
 
 		// If location is required and item is not remote, latitude/longitude must be set
 		if (settings.requireLocationOnSubmit && !data.is_remote) {
-			if (!data.latitude || !data.longitude) {
+			if (data.latitude === undefined || data.longitude === undefined) {
 				newErrors.location = t('STEPS.LOCATION.REQUIRED_ERROR');
 			}
 		}
