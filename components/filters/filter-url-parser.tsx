@@ -14,7 +14,7 @@ function FilterURLParserContent() {
   const pathname = usePathname(); // This strips the locale prefix automatically
   const {
     setSelectedTags, setSelectedCategories, selectedTags, selectedCategories,
-    setNearMe, setLocationCity, setLocationCountry, locationFilter,
+    setNearMe, setLocationCity, setLocationCountry, clearLocationFilter, locationFilter,
   } = useFilters();
   const lastUrlRef = useRef('');
   const isUpdatingRef = useRef(false);
@@ -60,7 +60,10 @@ function FilterURLParserContent() {
       const wasOnFilteredPage = prevUrl.includes('categories=') ||
                                  prevUrl.includes('tags=') ||
                                  prevUrl.includes('/categories/') ||
-                                 prevUrl.includes('/tags/');
+                                 prevUrl.includes('/tags/') ||
+                                 prevUrl.includes('near_lat=') ||
+                                 prevUrl.includes('city=') ||
+                                 prevUrl.includes('country=');
 
       if (wasOnFilteredPage && isUpdatingRef.current) {
         // Don't update lastUrlRef - we want to process the real URL when it arrives
@@ -147,6 +150,12 @@ function FilterURLParserContent() {
     } else if (countryParam) {
       if (locationFilter.country !== countryParam) {
         setLocationCountry(countryParam);
+      }
+    } else {
+      // No location params in URL → clear location state if any is active
+      const hasActiveLocation = !!(locationFilter.nearMe || locationFilter.city || locationFilter.country);
+      if (hasActiveLocation) {
+        clearLocationFilter();
       }
     }
 
