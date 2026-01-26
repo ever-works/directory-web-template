@@ -384,7 +384,15 @@
     "PUBLISHED": "已发布",
     "NO_TAGS_AVAILABLE": "没有可用标签",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "位置",
+    "REMOTE_SERVICE": "远程 / 在线服务",
+    "REMOTE_SERVICE_DESC": "此服务可远程使用，没有实体位置。",
+    "GET_DIRECTIONS": "获取路线",
+    "LOCAL_SERVICE": "本地服务",
+    "REGIONAL_SERVICE": "区域服务",
+    "NATIONAL_SERVICE": "全国服务",
+    "GLOBAL_SERVICE": "全球服务"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "版权所有",

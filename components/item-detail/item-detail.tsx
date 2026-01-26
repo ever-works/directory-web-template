@@ -13,7 +13,9 @@ import { PromoCode } from '@/lib/content';
 import { PromoCodeComponent } from '../promo-code/promo-code';
 import { FavoriteButton } from '../favorite-button';
 import type { ItemData } from '@/lib/content';
+import type { ItemLocationData } from '@/lib/types/item';
 import { SimilarItemsSection } from './similar-items-section';
+import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
 import { generateProductSchema } from '@/lib/seo/schema';
@@ -43,6 +45,7 @@ export interface ItemDetailProps {
 		action?: 'visit-website' | 'start-survey' | 'buy';
 		showSurveys?: boolean;
 		publisher?: string;
+		location?: ItemLocationData;
 	};
 	renderedContent: React.ReactNode;
 	categoryName: string;
@@ -188,6 +191,9 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								</div>
 							</div>
 						</div>
+
+						{/* Location Section */}
+						<LocationSection location={meta.location} itemName={meta.name} />
 
 						{/* Surveys Section - Only show if showSurveys is not false and surveys are enabled */}
 						{meta.showSurveys !== false && surveysEnabled && (

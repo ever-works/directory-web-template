@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "Locatie",
+    "REMOTE_SERVICE": "Externe / Online dienst",
+    "REMOTE_SERVICE_DESC": "Deze dienst is op afstand beschikbaar en heeft geen fysieke locatie.",
+    "GET_DIRECTIONS": "Routebeschrijving",
+    "LOCAL_SERVICE": "Lokale dienst",
+    "REGIONAL_SERVICE": "Regionale dienst",
+    "NATIONAL_SERVICE": "Nationale dienst",
+    "GLOBAL_SERVICE": "Wereldwijde dienst"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Alle rechten voorbehouden",

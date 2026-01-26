@@ -412,7 +412,15 @@
     "PUBLISHED": "Опубликовано",
     "NO_TAGS_AVAILABLE": "Теги недоступны",
     "RATING": "Рейтинг",
-    "PROMO_CODE": "Промокод"
+    "PROMO_CODE": "Промокод",
+    "LOCATION": "Местоположение",
+    "REMOTE_SERVICE": "Удалённый / Онлайн-сервис",
+    "REMOTE_SERVICE_DESC": "Этот сервис доступен удалённо и не имеет физического расположения.",
+    "GET_DIRECTIONS": "Проложить маршрут",
+    "LOCAL_SERVICE": "Местный сервис",
+    "REGIONAL_SERVICE": "Региональный сервис",
+    "NATIONAL_SERVICE": "Национальный сервис",
+    "GLOBAL_SERVICE": "Глобальный сервис"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Все права защищены",

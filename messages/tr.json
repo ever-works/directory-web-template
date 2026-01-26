@@ -412,7 +412,15 @@
     "PUBLISHED": "Yayınlanma",
     "NO_TAGS_AVAILABLE": "Etiket mevcut değil",
     "RATING": "Derecelendirme",
-    "PROMO_CODE": "Promosyon Kodu"
+    "PROMO_CODE": "Promosyon Kodu",
+    "LOCATION": "Konum",
+    "REMOTE_SERVICE": "Uzaktan / Çevrimiçi Hizmet",
+    "REMOTE_SERVICE_DESC": "Bu hizmet uzaktan kullanılabilir ve fiziksel bir konumu yoktur.",
+    "GET_DIRECTIONS": "Yol tarifi al",
+    "LOCAL_SERVICE": "Yerel Hizmet",
+    "REGIONAL_SERVICE": "Bölgesel Hizmet",
+    "NATIONAL_SERVICE": "Ulusal Hizmet",
+    "GLOBAL_SERVICE": "Küresel Hizmet"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Tüm hakları saklıdır",

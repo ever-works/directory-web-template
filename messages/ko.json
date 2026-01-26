@@ -412,7 +412,15 @@
     "PUBLISHED": "게시일",
     "NO_TAGS_AVAILABLE": "사용 가능한 태그 없음",
     "RATING": "평점",
-    "PROMO_CODE": "프로모션 코드"
+    "PROMO_CODE": "프로모션 코드",
+    "LOCATION": "위치",
+    "REMOTE_SERVICE": "원격 / 온라인 서비스",
+    "REMOTE_SERVICE_DESC": "이 서비스는 원격으로 이용 가능하며 물리적 위치가 없습니다.",
+    "GET_DIRECTIONS": "경로 안내",
+    "LOCAL_SERVICE": "로컬 서비스",
+    "REGIONAL_SERVICE": "지역 서비스",
+    "NATIONAL_SERVICE": "전국 서비스",
+    "GLOBAL_SERVICE": "글로벌 서비스"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "모든 권리 보유",

@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "स्थान",
+    "REMOTE_SERVICE": "दूरस्थ / ऑनलाइन सेवा",
+    "REMOTE_SERVICE_DESC": "यह सेवा दूरस्थ रूप से उपलब्ध है और इसका कोई भौतिक स्थान नहीं है।",
+    "GET_DIRECTIONS": "दिशा-निर्देश प्राप्त करें",
+    "LOCAL_SERVICE": "स्थानीय सेवा",
+    "REGIONAL_SERVICE": "क्षेत्रीय सेवा",
+    "NATIONAL_SERVICE": "राष्ट्रीय सेवा",
+    "GLOBAL_SERVICE": "वैश्विक सेवा"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "सर्वाधिकार सुरक्षित",

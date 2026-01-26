@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "Lokalizacja",
+    "REMOTE_SERVICE": "Usługa zdalna / Online",
+    "REMOTE_SERVICE_DESC": "Ta usługa jest dostępna zdalnie i nie ma fizycznej lokalizacji.",
+    "GET_DIRECTIONS": "Pokaż trasę",
+    "LOCAL_SERVICE": "Usługa lokalna",
+    "REGIONAL_SERVICE": "Usługa regionalna",
+    "NATIONAL_SERVICE": "Usługa krajowa",
+    "GLOBAL_SERVICE": "Usługa globalna"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Wszelkie prawa zastrzeżone",

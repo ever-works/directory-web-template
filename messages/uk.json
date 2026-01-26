@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "Розташування",
+    "REMOTE_SERVICE": "Віддалений / Онлайн-сервіс",
+    "REMOTE_SERVICE_DESC": "Цей сервіс доступний віддалено і не має фізичного розташування.",
+    "GET_DIRECTIONS": "Прокласти маршрут",
+    "LOCAL_SERVICE": "Місцевий сервіс",
+    "REGIONAL_SERVICE": "Регіональний сервіс",
+    "NATIONAL_SERVICE": "Національний сервіс",
+    "GLOBAL_SERVICE": "Глобальний сервіс"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Усі права захищені",

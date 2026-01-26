@@ -412,7 +412,15 @@
     "PUBLISHED": "Diterbitkan",
     "NO_TAGS_AVAILABLE": "Tidak ada tag tersedia",
     "RATING": "Peringkat",
-    "PROMO_CODE": "Kode Promo"
+    "PROMO_CODE": "Kode Promo",
+    "LOCATION": "Lokasi",
+    "REMOTE_SERVICE": "Layanan Jarak Jauh / Online",
+    "REMOTE_SERVICE_DESC": "Layanan ini tersedia secara jarak jauh dan tidak memiliki lokasi fisik.",
+    "GET_DIRECTIONS": "Dapatkan Petunjuk Arah",
+    "LOCAL_SERVICE": "Layanan Lokal",
+    "REGIONAL_SERVICE": "Layanan Regional",
+    "NATIONAL_SERVICE": "Layanan Nasional",
+    "GLOBAL_SERVICE": "Layanan Global"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Hak cipta dilindungi",

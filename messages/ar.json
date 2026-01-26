@@ -384,7 +384,15 @@
     "PUBLISHED": "تم النشر",
     "NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "الموقع",
+    "REMOTE_SERVICE": "خدمة عن بُعد / عبر الإنترنت",
+    "REMOTE_SERVICE_DESC": "هذه الخدمة متاحة عن بُعد وليس لها موقع فعلي.",
+    "GET_DIRECTIONS": "الحصول على الاتجاهات",
+    "LOCAL_SERVICE": "خدمة محلية",
+    "REGIONAL_SERVICE": "خدمة إقليمية",
+    "NATIONAL_SERVICE": "خدمة وطنية",
+    "GLOBAL_SERVICE": "خدمة عالمية"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "جميع الحقوق محفوظة",

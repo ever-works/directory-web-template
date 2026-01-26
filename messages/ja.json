@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "所在地",
+    "REMOTE_SERVICE": "リモート / オンラインサービス",
+    "REMOTE_SERVICE_DESC": "このサービスはリモートで利用可能で、物理的な拠点はありません。",
+    "GET_DIRECTIONS": "経路を取得",
+    "LOCAL_SERVICE": "ローカルサービス",
+    "REGIONAL_SERVICE": "地域サービス",
+    "NATIONAL_SERVICE": "全国サービス",
+    "GLOBAL_SERVICE": "グローバルサービス"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "全著作権所有",

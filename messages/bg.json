@@ -412,7 +412,15 @@
     "PUBLISHED": "Публикувано",
     "NO_TAGS_AVAILABLE": "Няма налични етикети",
     "RATING": "Рейтинг",
-    "PROMO_CODE": "Промо код"
+    "PROMO_CODE": "Промо код",
+    "LOCATION": "Местоположение",
+    "REMOTE_SERVICE": "Дистанционна / Онлайн услуга",
+    "REMOTE_SERVICE_DESC": "Тази услуга е достъпна дистанционно и няма физическо местоположение.",
+    "GET_DIRECTIONS": "Упътване",
+    "LOCAL_SERVICE": "Местна услуга",
+    "REGIONAL_SERVICE": "Регионална услуга",
+    "NATIONAL_SERVICE": "Национална услуга",
+    "GLOBAL_SERVICE": "Глобална услуга"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Всички права запазени",

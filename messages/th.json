@@ -385,7 +385,15 @@
     "PUBLISHED": "Published",
     "NO_TAGS_AVAILABLE": "No tags available",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "สถานที่",
+    "REMOTE_SERVICE": "บริการทางไกล / ออนไลน์",
+    "REMOTE_SERVICE_DESC": "บริการนี้ให้บริการทางไกลและไม่มีสถานที่ตั้งจริง",
+    "GET_DIRECTIONS": "ดูเส้นทาง",
+    "LOCAL_SERVICE": "บริการท้องถิ่น",
+    "REGIONAL_SERVICE": "บริการภูมิภาค",
+    "NATIONAL_SERVICE": "บริการระดับชาติ",
+    "GLOBAL_SERVICE": "บริการระดับโลก"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "สงวนลิขสิทธิ์",

@@ -384,7 +384,15 @@
     "PUBLISHED": "פורסם",
     "NO_TAGS_AVAILABLE": "אין תגיות זמינות",
     "RATING": "Rating",
-    "PROMO_CODE": "Promo Code"
+    "PROMO_CODE": "Promo Code",
+    "LOCATION": "מיקום",
+    "REMOTE_SERVICE": "שירות מרחוק / מקוון",
+    "REMOTE_SERVICE_DESC": "שירות זה זמין מרחוק ואין לו מיקום פיזי.",
+    "GET_DIRECTIONS": "קבל הוראות הגעה",
+    "LOCAL_SERVICE": "שירות מקומי",
+    "REGIONAL_SERVICE": "שירות אזורי",
+    "NATIONAL_SERVICE": "שירות ארצי",
+    "GLOBAL_SERVICE": "שירות עולמי"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "כל הזכויות שמורות",

@@ -412,7 +412,15 @@
     "PUBLISHED": "Đã xuất bản",
     "NO_TAGS_AVAILABLE": "Không có thẻ nào",
     "RATING": "Đánh giá",
-    "PROMO_CODE": "Mã khuyến mại"
+    "PROMO_CODE": "Mã khuyến mại",
+    "LOCATION": "Vị trí",
+    "REMOTE_SERVICE": "Dịch vụ từ xa / Trực tuyến",
+    "REMOTE_SERVICE_DESC": "Dịch vụ này có sẵn từ xa và không có địa điểm thực tế.",
+    "GET_DIRECTIONS": "Chỉ đường",
+    "LOCAL_SERVICE": "Dịch vụ địa phương",
+    "REGIONAL_SERVICE": "Dịch vụ khu vực",
+    "NATIONAL_SERVICE": "Dịch vụ quốc gia",
+    "GLOBAL_SERVICE": "Dịch vụ toàn cầu"
   },
   "footer": {
     "ALL_RIGHTS_RESERVED": "Đã đăng ký bản quyền",
