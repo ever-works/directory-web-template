@@ -223,7 +223,14 @@ export function areFiltersEqual(a: FilterState, b: FilterState): boolean {
     a.categories.length === b.categories.length &&
     a.categories.every((cat, index) => cat === b.categories[index]);
 
-  return tagsEqual && categoriesEqual;
+  const locationEqual =
+    a.nearLat === b.nearLat &&
+    a.nearLng === b.nearLng &&
+    a.radius === b.radius &&
+    a.city === b.city &&
+    a.country === b.country;
+
+  return tagsEqual && categoriesEqual && locationEqual;
 }
 
 /**
