@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest } from '@/lib/types/item';
+import { getLocationIndexService } from './location/location-index.service';
 
 // Helper function to format date in the expected format for YAML files
 function formatDateForYaml(date: Date = new Date()): string {
@@ -363,6 +364,23 @@ export class ItemGitService {
     }
   }
 
+  private indexLocationAsync(item: ItemData): void {
+    const indexService = getLocationIndexService();
+    if (!indexService.isEnabled()) return;
+    if (!item.location) return;
+    indexService.indexItem(item).catch((err) => {
+      console.error(`⚠️ Failed to index location for ${item.slug}:`, err);
+    });
+  }
+
+  private removeLocationIndexAsync(slug: string): void {
+    const indexService = getLocationIndexService();
+    if (!indexService.isEnabled()) return;
+    indexService.removeFromIndex(slug).catch((err) => {
+      console.error(`⚠️ Failed to remove location index for ${slug}:`, err);
+    });
+  }
+
   async createItem(data: CreateItemRequest): Promise<ItemData> {
     const items = await this.readItems(true);
 
@@ -395,6 +413,7 @@ export class ItemGitService {
     };
 
     await this.writeItem(newItem);
+    this.indexLocationAsync(newItem);
     return newItem;
   }
 
@@ -414,6 +433,11 @@ export class ItemGitService {
     };
 
     await this.writeItem(updatedItem);
+    if (updatedItem.location) {
+      this.indexLocationAsync(updatedItem);
+    } else {
+      this.removeLocationIndexAsync(updatedItem.slug);
+    }
     return updatedItem;
   }
 
@@ -483,6 +507,7 @@ export class ItemGitService {
       }
 
       await this.commitAndPush(`Delete item: ${item.name}`);
+      this.removeLocationIndexAsync(item.slug);
     } catch (error) {
       console.error('❌ Error deleting item:', error);
       throw error;
@@ -508,6 +533,7 @@ export class ItemGitService {
     };
 
     await this.writeItem(updatedItem);
+    this.removeLocationIndexAsync(updatedItem.slug);
     return updatedItem;
   }
 
@@ -530,6 +556,7 @@ export class ItemGitService {
     };
 
     await this.writeItem(updatedItem);
+    this.indexLocationAsync(updatedItem);
     return updatedItem;
   }
 
