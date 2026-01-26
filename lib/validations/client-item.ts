@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ITEM_VALIDATION } from '@/lib/types/item';
+import { locationSchema } from './item';
 
 // Item status options
 export const itemStatus = ['pending', 'approved', 'rejected'] as const;
@@ -38,6 +39,7 @@ export const clientUpdateItemSchema = z.object({
     .url('Invalid icon URL format')
     .optional()
     .or(z.literal('')),
+  location: locationSchema,
 });
 
 /**
@@ -117,6 +119,7 @@ export const clientCreateItemSchema = z.object({
     .url('Invalid icon URL format')
     .optional()
     .or(z.literal('')),
+  location: locationSchema,
 });
 
 // Inferred types
