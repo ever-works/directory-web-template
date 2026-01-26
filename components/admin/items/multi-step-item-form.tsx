@@ -83,9 +83,11 @@ export function MultiStepItemForm({
     return steps;
   }, [t, locationEnabled]);
 
-  // Compute which step number corresponds to each section
-  const reviewStepNumber = FORM_STEPS.length;
-  const locationStepNumber = locationEnabled ? 4 : -1;
+  // Compute which step number corresponds to each section (1-based)
+  const locationStepNumber = locationEnabled
+    ? FORM_STEPS.findIndex((s) => s.id === 'location') + 1
+    : -1;
+  const reviewStepNumber = FORM_STEPS.findIndex((s) => s.id === 'review') + 1;
 
   // Initialize form data
   const [formData, setFormData] = useState<FormData>({
