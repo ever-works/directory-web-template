@@ -407,11 +407,14 @@ export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]>
  * @returns Array of distinct city names
  */
 export async function getDistinctCities(): Promise<string[]> {
+	// Group by normalized column to deduplicate case/whitespace variants
+	// MIN() picks the lexicographically first variant (favors capitalized form)
 	const results = await db
-		.selectDistinct({ city: itemLocationIndex.city })
+		.select({ city: sql<string>`MIN(${itemLocationIndex.city})` })
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.city} IS NOT NULL`)
-		.orderBy(itemLocationIndex.city);
+		.where(sql`${itemLocationIndex.cityNormalized} IS NOT NULL`)
+		.groupBy(itemLocationIndex.cityNormalized)
+		.orderBy(sql`MIN(${itemLocationIndex.city})`);
 
 	return results.map((r) => r.city).filter((city): city is string => city !== null);
 }
@@ -423,11 +426,14 @@ export async function getDistinctCities(): Promise<string[]> {
  * @returns Array of distinct country names
  */
 export async function getDistinctCountries(): Promise<string[]> {
+	// Group by normalized column to deduplicate case/whitespace variants
+	// MIN() picks the lexicographically first variant (favors capitalized form)
 	const results = await db
-		.selectDistinct({ country: itemLocationIndex.country })
+		.select({ country: sql<string>`MIN(${itemLocationIndex.country})` })
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.country} IS NOT NULL`)
-		.orderBy(itemLocationIndex.country);
+		.where(sql`${itemLocationIndex.countryNormalized} IS NOT NULL`)
+		.groupBy(itemLocationIndex.countryNormalized)
+		.orderBy(sql`MIN(${itemLocationIndex.country})`);
 
 	return results.map((r) => r.country).filter((country): country is string => country !== null);
 }
