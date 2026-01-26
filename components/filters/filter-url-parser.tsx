@@ -12,7 +12,10 @@ import { useFilters } from '@/hooks/use-filters';
 function FilterURLParserContent() {
   const searchParams = useSearchParams();
   const pathname = usePathname(); // This strips the locale prefix automatically
-  const { setSelectedTags, setSelectedCategories, selectedTags, selectedCategories } = useFilters();
+  const {
+    setSelectedTags, setSelectedCategories, selectedTags, selectedCategories,
+    setNearMe, setLocationCity, setLocationCountry, locationFilter,
+  } = useFilters();
   const lastUrlRef = useRef('');
   const isUpdatingRef = useRef(false);
 
@@ -44,7 +47,15 @@ function FilterURLParserContent() {
 
     // CRITICAL FIX: When on root path (/) with no query params during navigation,
     // it's likely a timing issue. Don't clear filters unless we're intentionally going to root.
-    if (pathname === '/' && !tagsParam && !categoriesParam && !tagMatch && !categoryMatch) {
+    // Location params
+    const nearLatParam = searchParams.get('near_lat');
+    const nearLngParam = searchParams.get('near_lng');
+    const radiusParam = searchParams.get('radius');
+    const cityParam = searchParams.get('city');
+    const countryParam = searchParams.get('country');
+    const hasLocationParams = !!(nearLatParam || cityParam || countryParam);
+
+    if (pathname === '/' && !tagsParam && !categoriesParam && !tagMatch && !categoryMatch && !hasLocationParams) {
       // Check if the previous URL had filters (indicates we're transitioning)
       const wasOnFilteredPage = prevUrl.includes('categories=') ||
                                  prevUrl.includes('tags=') ||
@@ -116,6 +127,27 @@ function FilterURLParserContent() {
       setTimeout(() => {
         isUpdatingRef.current = false;
       }, 500);
+    }
+
+    // Parse location filters from URL
+    if (nearLatParam && nearLngParam) {
+      const lat = parseFloat(nearLatParam);
+      const lng = parseFloat(nearLngParam);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const radius = radiusParam ? parseInt(radiusParam, 10) : 50;
+        const currentNearMe = locationFilter.nearMe;
+        if (!currentNearMe || currentNearMe.latitude !== lat || currentNearMe.longitude !== lng || currentNearMe.radius !== radius) {
+          setNearMe({ latitude: lat, longitude: lng, radius });
+        }
+      }
+    } else if (cityParam) {
+      if (locationFilter.city !== cityParam) {
+        setLocationCity(cityParam);
+      }
+    } else if (countryParam) {
+      if (locationFilter.country !== countryParam) {
+        setLocationCountry(countryParam);
+      }
     }
 
     // Update lastUrlRef at the very end, after all logic has completed

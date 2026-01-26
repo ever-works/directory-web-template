@@ -398,6 +398,40 @@ export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]>
 		.where(eq(itemLocationIndex.isRemote, true));
 }
 
+// ===================== Distinct Value Queries =====================
+
+/**
+ * Get all distinct city names from the location index.
+ * Returns original (non-normalized) city names, sorted alphabetically.
+ *
+ * @returns Array of distinct city names
+ */
+export async function getDistinctCities(): Promise<string[]> {
+	const results = await db
+		.selectDistinct({ city: itemLocationIndex.city })
+		.from(itemLocationIndex)
+		.where(sql`${itemLocationIndex.city} IS NOT NULL`)
+		.orderBy(itemLocationIndex.city);
+
+	return results.map((r) => r.city).filter((city): city is string => city !== null);
+}
+
+/**
+ * Get all distinct country names from the location index.
+ * Returns original (non-normalized) country names, sorted alphabetically.
+ *
+ * @returns Array of distinct country names
+ */
+export async function getDistinctCountries(): Promise<string[]> {
+	const results = await db
+		.selectDistinct({ country: itemLocationIndex.country })
+		.from(itemLocationIndex)
+		.where(sql`${itemLocationIndex.country} IS NOT NULL`)
+		.orderBy(itemLocationIndex.country);
+
+	return results.map((r) => r.country).filter((country): country is string => country !== null);
+}
+
 // ===================== Statistics =====================
 
 /**

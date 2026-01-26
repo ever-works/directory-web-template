@@ -17,6 +17,8 @@ import { createExcerpt } from '@/components/filters/utils/text-utils';
 import { FILTER_CONSTANTS } from '@/components/filters/constants';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
+import { useItemDistance } from '@/components/filters/context/location-distance-context';
+import { DistanceBadge } from '@/components/ui/distance-badge';
 
 type ItemProps = ItemData & {
 	onNavigate?: () => void;
@@ -34,6 +36,7 @@ export default function Item(props: ItemProps) {
 	const [isNavigating, setIsNavigating] = useState(false);
 	const { categoriesEnabled } = useCategoriesEnabled();
 	const { tagsEnabled } = useTagsEnabled();
+	const distance = useItemDistance(props.slug);
 
 	const shouldShowFallbackIcon = shouldShowFallback(props.icon_url || '');
 
@@ -170,6 +173,10 @@ export default function Item(props: ItemProps) {
 											className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 !top-0 !right-0"
 											hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
 										/>
+									)}
+
+									{distance !== undefined && (
+										<DistanceBadge distance={distance} size="sm" />
 									)}
 
 									{props.featured && (

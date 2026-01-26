@@ -14,6 +14,9 @@ import { useItemEngagement } from '@/hooks/use-item-engagement';
 import { TopLoadingBar } from '@/components/ui/top-loading-bar';
 import { Container, useContainerWidth } from '@/components/ui/container';
 import { SponsorAdsProvider } from '@/components/sponsor-ads';
+import { LocationFilter } from '@/components/filters/components/location';
+import { useLocationItems } from '@/hooks/use-location-items';
+import { LocationDistanceProvider } from '@/components/filters/context/location-distance-context';
 
 type ListingProps = {
 	total: number;
@@ -48,7 +51,7 @@ const LAYOUT_STYLES = {
 export default function GlobalsClient(props: ListingProps) {
 	// Destructure paginationType to subscribe to context changes - forces re-render when pagination type changes
 	const { layoutHome = LayoutHome.HOME_ONE, paginationType } = useLayoutTheme();
-	const { selectedCategories, searchTerm, selectedTags, isFiltersLoading } =
+	const { selectedCategories, searchTerm, selectedTags, isFiltersLoading, locationFilter } =
 		useFilters();
 	const sortedTags = sortByNumericProperty(props.tags);
 	const sortedCategories = sortByNumericProperty(props.categories);
@@ -63,18 +66,35 @@ export default function GlobalsClient(props: ListingProps) {
 	// This enriches items with views, votes, favorites, comments data
 	const { items: itemsWithEngagement, isLoading: isEngagementLoading } = useItemEngagement(props.items);
 
+	// Location-based filtering via API
+	const { matchingSlugs, distances, isLoading: isLocationLoading } = useLocationItems(locationFilter);
+
 	// Filtering logic using shared utility
 	// Uses items with engagement data for true popularity sorting
 	const filteredItems = useMemo(() => {
-		const filtered = filterItems(itemsWithEngagement, {
+		let filtered = filterItems(itemsWithEngagement, {
 			searchTerm,
 			selectedTags,
 			selectedCategories
 		});
 
+		// Apply location filter: intersect with matching slugs from API
+		if (matchingSlugs !== null) {
+			filtered = filtered.filter(item => matchingSlugs.has(item.slug));
+		}
+
+		// When sorting by distance, sort by distance instead of featured/popularity
+		if (locationFilter.sortByDistance && distances.size > 0) {
+			return filtered.sort((a, b) => {
+				const distA = distances.get(a.slug) ?? Infinity;
+				const distB = distances.get(b.slug) ?? Infinity;
+				return distA - distB;
+			});
+		}
+
 		// Sort items with featured items first (popularity sorting uses engagement data)
 		return sortItemsWithFeatured(filtered, featuredItems);
-	}, [itemsWithEngagement, searchTerm, selectedTags, selectedCategories, featuredItems]);
+	}, [itemsWithEngagement, searchTerm, selectedTags, selectedCategories, featuredItems, matchingSlugs, distances, locationFilter.sortByDistance]);
 
 	// Note: URL parsing is handled by FilterURLParser in the Listing component
 	// No need to duplicate that logic here
@@ -85,7 +105,7 @@ export default function GlobalsClient(props: ListingProps) {
 	const isFluid = containerWidth === 'fluid';
 
 	// Combined loading state
-	const isLoading = isFiltersLoading || isEngagementLoading;
+	const isLoading = isFiltersLoading || isEngagementLoading || isLocationLoading;
 
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
@@ -128,24 +148,31 @@ export default function GlobalsClient(props: ListingProps) {
 							</div>
 						)}
 
-						{/* Listing Content */}
-						<div className="mb-6 sm:mb-8 md:mb-10">
-							<ListingClient
-								{...props}
-								items={filteredItems}
-								totalCount={props.items.length}
-								config={{
-									showStats: false,
-									showViewToggle: true,
-									showFilters: false,
-									showPagination: true,
-									showEmptyState: true,
-									enableSearch: false,
-									enableTagFilter: false,
-									enableSorting: true,
-								}}
-							/>
+						{/* Location Filters */}
+						<div className="mb-4 sm:mb-6">
+							<LocationFilter />
 						</div>
+
+						{/* Listing Content */}
+						<LocationDistanceProvider distances={distances}>
+							<div className="mb-6 sm:mb-8 md:mb-10">
+								<ListingClient
+									{...props}
+									items={filteredItems}
+									totalCount={props.items.length}
+									config={{
+										showStats: false,
+										showViewToggle: true,
+										showFilters: false,
+										showPagination: true,
+										showEmptyState: true,
+										enableSearch: false,
+										enableTagFilter: false,
+										enableSorting: true,
+									}}
+								/>
+							</div>
+						</LocationDistanceProvider>
 					</div>
 				</div>
 			</Container>
