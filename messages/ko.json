@@ -1585,7 +1585,8 @@
         "RECENT_ACTIVITY": "최근 활동",
         "PERFORMANCE": "성능",
         "DATA_EXPORT_REPORTS": "데이터 내보내기 및 보고서",
-        "ADMIN_TOOLS": "관리 도구"
+        "ADMIN_TOOLS": "관리 도구",
+        "GEOGRAPHIC_DISTRIBUTION": "지리적 분포"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "대시보드 섹션",
@@ -1594,7 +1595,39 @@
         "ANALYTICS": "분석",
         "PERFORMANCE": "성능",
         "REPORTS": "보고서",
-        "TOOLS": "도구"
+        "TOOLS": "도구",
+        "GEOGRAPHIC_DISTRIBUTION": "지리적 분포 분석"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "위치 커버리지",
+        "TOTAL_INDEXED": "총 인덱싱됨",
+        "CITIES": "도시",
+        "COUNTRIES": "국가",
+        "REMOTE_ITEMS": "원격 항목",
+        "ITEMS_OF_TOTAL": "{total}개 중 {indexed}개",
+        "COVERAGE_PERCENT": "{percent}% 커버리지",
+        "SERVICE_AREA_BREAKDOWN": "서비스 영역 분류",
+        "TOP_COUNTRIES": "상위 국가",
+        "INDEX_SYNCED": "인덱스 동기화됨",
+        "INDEX_OUT_OF_SYNC": "인덱스 비동기",
+        "INDEX_SYNC_WARNING": "인덱스에 {actual}개 항목, {expected}개 예상. 재구축을 고려하세요.",
+        "DISTRIBUTION_MAP": "분포 지도",
+        "NO_LOCATIONS": "아직 위치 데이터가 없습니다.",
+        "LOCATION_DISABLED": "위치 기능이 비활성화되어 있습니다. 지리 분석을 사용하려면 설정에서 활성화하세요.",
+        "INDEX_MANAGEMENT": "인덱스 관리",
+        "INDEX_DESCRIPTION": "위치 인덱스는 빠른 지리 쿼리를 가능하게 합니다. 항목이 누락되거나 데이터가 동기화되지 않으면 재구축하세요.",
+        "LAST_REBUILD": "마지막 재구축",
+        "NEVER_REBUILT": "없음",
+        "REBUILD_INDEX": "인덱스 재구축",
+        "CLEAR_INDEX": "인덱스 지우기",
+        "REBUILD_SUCCESS": "인덱스 재구축 완료: {indexed}개 인덱싱, {skipped}개 건너뜀 ({duration}ms)",
+        "CLEAR_SUCCESS": "인덱스 삭제: {cleared}개 항목 제거.",
+        "CLEAR_CONFIRM": "전체 위치 인덱스를 지우시겠습니까? 나중에 재구축할 수 있습니다.",
+        "ACTION_FAILED": "작업 실패. 다시 시도해주세요.",
+        "LOCAL": "로컬",
+        "REGIONAL": "지역",
+        "NATIONAL": "국가",
+        "GLOBAL": "글로벌"
       }
     },
     "CHARTS": {

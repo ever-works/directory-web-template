@@ -1495,7 +1495,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "भौगोलिक वितरण"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1505,39 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "भौगोलिक वितरण विश्लेषण"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "स्थान कवरेज",
+        "TOTAL_INDEXED": "कुल अनुक्रमित",
+        "CITIES": "शहर",
+        "COUNTRIES": "देश",
+        "REMOTE_ITEMS": "रिमोट आइटम",
+        "ITEMS_OF_TOTAL": "{total} में से {indexed} आइटम",
+        "COVERAGE_PERCENT": "{percent}% कवरेज",
+        "SERVICE_AREA_BREAKDOWN": "सेवा क्षेत्र विवरण",
+        "TOP_COUNTRIES": "शीर्ष देश",
+        "INDEX_SYNCED": "इंडेक्स सिंक्रनाइज़",
+        "INDEX_OUT_OF_SYNC": "इंडेक्स सिंक से बाहर",
+        "INDEX_SYNC_WARNING": "इंडेक्स में {actual} आइटम हैं, {expected} अपेक्षित। पुनर्निर्माण पर विचार करें।",
+        "DISTRIBUTION_MAP": "वितरण मानचित्र",
+        "NO_LOCATIONS": "अभी तक कोई स्थान डेटा उपलब्ध नहीं है।",
+        "LOCATION_DISABLED": "स्थान सुविधाएँ अक्षम हैं। भौगोलिक विश्लेषण के लिए सेटिंग्स में सक्षम करें।",
+        "INDEX_MANAGEMENT": "इंडेक्स प्रबंधन",
+        "INDEX_DESCRIPTION": "स्थान इंडेक्स तेज़ भौगोलिक क्वेरी सक्षम करता है। आइटम गायब होने या डेटा सिंक न होने पर पुनर्निर्माण करें।",
+        "LAST_REBUILD": "अंतिम पुनर्निर्माण",
+        "NEVER_REBUILT": "कभी नहीं",
+        "REBUILD_INDEX": "इंडेक्स पुनर्निर्माण",
+        "CLEAR_INDEX": "इंडेक्स साफ़ करें",
+        "REBUILD_SUCCESS": "इंडेक्स पुनर्निर्मित: {indexed} अनुक्रमित, {skipped} छोड़े गए {duration}मिसे में।",
+        "CLEAR_SUCCESS": "इंडेक्स साफ़: {cleared} प्रविष्टियाँ हटाई गईं।",
+        "CLEAR_CONFIRM": "क्या आप पूरे स्थान इंडेक्स को साफ़ करना चाहते हैं? आप इसे बाद में पुनर्निर्माण कर सकते हैं।",
+        "ACTION_FAILED": "ऑपरेशन विफल। कृपया पुनः प्रयास करें।",
+        "LOCAL": "स्थानीय",
+        "REGIONAL": "क्षेत्रीय",
+        "NATIONAL": "राष्ट्रीय",
+        "GLOBAL": "वैश्विक"
       }
     },
     "CHARTS": {

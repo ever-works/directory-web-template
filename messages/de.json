@@ -1528,7 +1528,8 @@
         "RECENT_ACTIVITY": "Aktuelle Aktivität",
         "PERFORMANCE": "Leistung",
         "DATA_EXPORT_REPORTS": "Datenexport & Berichte",
-        "ADMIN_TOOLS": "Admin-Tools"
+        "ADMIN_TOOLS": "Admin-Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Geografische Verteilung"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard-Bereiche",
@@ -1537,7 +1538,39 @@
         "ANALYTICS": "Analysen",
         "PERFORMANCE": "Leistung",
         "REPORTS": "Berichte",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Geografische Verteilungsanalyse"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Standortabdeckung",
+        "TOTAL_INDEXED": "Gesamt indexiert",
+        "CITIES": "Städte",
+        "COUNTRIES": "Länder",
+        "REMOTE_ITEMS": "Remote-Einträge",
+        "ITEMS_OF_TOTAL": "{indexed} von {total} Einträgen",
+        "COVERAGE_PERCENT": "{percent}% Abdeckung",
+        "SERVICE_AREA_BREAKDOWN": "Aufschlüsselung nach Servicegebiet",
+        "TOP_COUNTRIES": "Top-Länder",
+        "INDEX_SYNCED": "Index synchronisiert",
+        "INDEX_OUT_OF_SYNC": "Index nicht synchron",
+        "INDEX_SYNC_WARNING": "Index hat {actual} Einträge, erwartet {expected}. Neuaufbau empfohlen.",
+        "DISTRIBUTION_MAP": "Verteilungskarte",
+        "NO_LOCATIONS": "Noch keine Standortdaten verfügbar.",
+        "LOCATION_DISABLED": "Standortfunktionen sind deaktiviert. Aktivieren Sie sie in den Einstellungen für geografische Analysen.",
+        "INDEX_MANAGEMENT": "Indexverwaltung",
+        "INDEX_DESCRIPTION": "Der Standortindex ermöglicht schnelle geografische Abfragen. Neuaufbau bei fehlenden Einträgen oder Dateninkonsistenz.",
+        "LAST_REBUILD": "Letzter Neuaufbau",
+        "NEVER_REBUILT": "Nie",
+        "REBUILD_INDEX": "Index neu aufbauen",
+        "CLEAR_INDEX": "Index leeren",
+        "REBUILD_SUCCESS": "Index neu aufgebaut: {indexed} indexiert, {skipped} übersprungen in {duration}ms.",
+        "CLEAR_SUCCESS": "Index geleert: {cleared} Einträge entfernt.",
+        "CLEAR_CONFIRM": "Sind Sie sicher, dass Sie den gesamten Standortindex leeren möchten? Sie können ihn danach neu aufbauen.",
+        "ACTION_FAILED": "Vorgang fehlgeschlagen. Bitte versuchen Sie es erneut.",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "National",
+        "GLOBAL": "Global"
       }
     },
     "CHARTS": {

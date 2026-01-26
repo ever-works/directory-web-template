@@ -1489,7 +1489,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "התפלגות גיאוגרפית"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1498,7 +1499,39 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "ניתוח התפלגות גיאוגרפית"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "כיסוי מיקום",
+        "TOTAL_INDEXED": "סה\"כ מאונדקס",
+        "CITIES": "ערים",
+        "COUNTRIES": "מדינות",
+        "REMOTE_ITEMS": "פריטים מרוחקים",
+        "ITEMS_OF_TOTAL": "{indexed} מתוך {total} פריטים",
+        "COVERAGE_PERCENT": "{percent}% כיסוי",
+        "SERVICE_AREA_BREAKDOWN": "פירוט לפי אזור שירות",
+        "TOP_COUNTRIES": "מדינות מובילות",
+        "INDEX_SYNCED": "האינדקס מסונכרן",
+        "INDEX_OUT_OF_SYNC": "האינדקס לא מסונכרן",
+        "INDEX_SYNC_WARNING": "האינדקס מכיל {actual} פריטים, צפויים {expected}. מומלץ לבנות מחדש.",
+        "DISTRIBUTION_MAP": "מפת התפלגות",
+        "NO_LOCATIONS": "אין נתוני מיקום זמינים עדיין.",
+        "LOCATION_DISABLED": "תכונות המיקום מושבתות. הפעל אותן בהגדרות לשימוש בניתוח גיאוגרפי.",
+        "INDEX_MANAGEMENT": "ניהול אינדקס",
+        "INDEX_DESCRIPTION": "אינדקס המיקום מאפשר שאילתות גיאוגרפיות מהירות. בנה מחדש אם חסרים פריטים או שהנתונים לא מסונכרנים.",
+        "LAST_REBUILD": "בנייה אחרונה",
+        "NEVER_REBUILT": "מעולם לא",
+        "REBUILD_INDEX": "בנה אינדקס מחדש",
+        "CLEAR_INDEX": "נקה אינדקס",
+        "REBUILD_SUCCESS": "האינדקס נבנה מחדש: {indexed} אונדקסו, {skipped} דולגו ב-{duration}מ\"ש.",
+        "CLEAR_SUCCESS": "האינדקס נוקה: {cleared} רשומות הוסרו.",
+        "CLEAR_CONFIRM": "האם אתה בטוח שברצונך לנקות את כל אינדקס המיקום? תוכל לבנות אותו מחדש לאחר מכן.",
+        "ACTION_FAILED": "הפעולה נכשלה. נסה שוב.",
+        "LOCAL": "מקומי",
+        "REGIONAL": "אזורי",
+        "NATIONAL": "ארצי",
+        "GLOBAL": "עולמי"
       }
     },
     "CHARTS": {

@@ -1585,7 +1585,8 @@
         "RECENT_ACTIVITY": "Aktivitas Terbaru",
         "PERFORMANCE": "Kinerja",
         "DATA_EXPORT_REPORTS": "Ekspor Data & Laporan",
-        "ADMIN_TOOLS": "Alat Admin"
+        "ADMIN_TOOLS": "Alat Admin",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribusi Geografis"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Bagian dasbor",
@@ -1594,7 +1595,39 @@
         "ANALYTICS": "Analitik",
         "PERFORMANCE": "Kinerja",
         "REPORTS": "Laporan",
-        "TOOLS": "Alat"
+        "TOOLS": "Alat",
+        "GEOGRAPHIC_DISTRIBUTION": "Analisis distribusi geografis"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Cakupan Lokasi",
+        "TOTAL_INDEXED": "Total Terindeks",
+        "CITIES": "Kota",
+        "COUNTRIES": "Negara",
+        "REMOTE_ITEMS": "Item Jarak Jauh",
+        "ITEMS_OF_TOTAL": "{indexed} dari {total} item",
+        "COVERAGE_PERCENT": "{percent}% cakupan",
+        "SERVICE_AREA_BREAKDOWN": "Rincian Area Layanan",
+        "TOP_COUNTRIES": "Negara Teratas",
+        "INDEX_SYNCED": "Indeks Tersinkron",
+        "INDEX_OUT_OF_SYNC": "Indeks Tidak Sinkron",
+        "INDEX_SYNC_WARNING": "Indeks memiliki {actual} item, diharapkan {expected}. Pertimbangkan untuk membangun ulang.",
+        "DISTRIBUTION_MAP": "Peta Distribusi",
+        "NO_LOCATIONS": "Belum ada data lokasi yang tersedia.",
+        "LOCATION_DISABLED": "Fitur lokasi dinonaktifkan. Aktifkan di Pengaturan untuk menggunakan analitik geografis.",
+        "INDEX_MANAGEMENT": "Manajemen Indeks",
+        "INDEX_DESCRIPTION": "Indeks lokasi memungkinkan kueri geografis cepat. Bangun ulang jika item hilang atau data tidak sinkron.",
+        "LAST_REBUILD": "Pembangunan Ulang Terakhir",
+        "NEVER_REBUILT": "Belum Pernah",
+        "REBUILD_INDEX": "Bangun Ulang Indeks",
+        "CLEAR_INDEX": "Hapus Indeks",
+        "REBUILD_SUCCESS": "Indeks dibangun ulang: {indexed} terindeks, {skipped} dilewati dalam {duration}ms.",
+        "CLEAR_SUCCESS": "Indeks dihapus: {cleared} entri dihapus.",
+        "CLEAR_CONFIRM": "Apakah Anda yakin ingin menghapus seluruh indeks lokasi? Anda dapat membangunnya kembali setelahnya.",
+        "ACTION_FAILED": "Operasi gagal. Silakan coba lagi.",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nasional",
+        "GLOBAL": "Global"
       }
     },
     "CHARTS": {

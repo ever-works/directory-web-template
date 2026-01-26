@@ -1495,7 +1495,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Rozkład Geograficzny"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1505,39 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Analiza rozkładu geograficznego"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Pokrycie lokalizacji",
+        "TOTAL_INDEXED": "Łącznie zindeksowanych",
+        "CITIES": "Miasta",
+        "COUNTRIES": "Kraje",
+        "REMOTE_ITEMS": "Elementy zdalne",
+        "ITEMS_OF_TOTAL": "{indexed} z {total} elementów",
+        "COVERAGE_PERCENT": "{percent}% pokrycia",
+        "SERVICE_AREA_BREAKDOWN": "Podział według obszaru usług",
+        "TOP_COUNTRIES": "Czołowe kraje",
+        "INDEX_SYNCED": "Indeks zsynchronizowany",
+        "INDEX_OUT_OF_SYNC": "Indeks niezsynchronizowany",
+        "INDEX_SYNC_WARNING": "Indeks ma {actual} elementów, oczekiwano {expected}. Rozważ przebudowę.",
+        "DISTRIBUTION_MAP": "Mapa rozkładu",
+        "NO_LOCATIONS": "Brak dostępnych danych lokalizacji.",
+        "LOCATION_DISABLED": "Funkcje lokalizacji są wyłączone. Włącz je w Ustawieniach, aby korzystać z analiz geograficznych.",
+        "INDEX_MANAGEMENT": "Zarządzanie indeksem",
+        "INDEX_DESCRIPTION": "Indeks lokalizacji umożliwia szybkie zapytania geograficzne. Przebuduj, jeśli brakuje elementów lub dane są niezsynchronizowane.",
+        "LAST_REBUILD": "Ostatnia przebudowa",
+        "NEVER_REBUILT": "Nigdy",
+        "REBUILD_INDEX": "Przebuduj indeks",
+        "CLEAR_INDEX": "Wyczyść indeks",
+        "REBUILD_SUCCESS": "Indeks przebudowany: {indexed} zindeksowanych, {skipped} pominiętych w {duration}ms.",
+        "CLEAR_SUCCESS": "Indeks wyczyszczony: {cleared} wpisów usunięto.",
+        "CLEAR_CONFIRM": "Czy na pewno chcesz wyczyścić cały indeks lokalizacji? Możesz go potem przebudować.",
+        "ACTION_FAILED": "Operacja nie powiodła się. Spróbuj ponownie.",
+        "LOCAL": "Lokalny",
+        "REGIONAL": "Regionalny",
+        "NATIONAL": "Krajowy",
+        "GLOBAL": "Globalny"
       }
     },
     "CHARTS": {

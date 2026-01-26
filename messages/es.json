@@ -1517,7 +1517,8 @@
         "RECENT_ACTIVITY": "Actividad Reciente",
         "PERFORMANCE": "Rendimiento",
         "DATA_EXPORT_REPORTS": "Exportación de Datos e Informes",
-        "ADMIN_TOOLS": "Herramientas de Administración"
+        "ADMIN_TOOLS": "Herramientas de Administración",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribución Geográfica"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Secciones del panel",
@@ -1526,7 +1527,39 @@
         "ANALYTICS": "Análisis",
         "PERFORMANCE": "Rendimiento",
         "REPORTS": "Informes",
-        "TOOLS": "Herramientas"
+        "TOOLS": "Herramientas",
+        "GEOGRAPHIC_DISTRIBUTION": "Análisis de distribución geográfica"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Cobertura de ubicación",
+        "TOTAL_INDEXED": "Total indexado",
+        "CITIES": "Ciudades",
+        "COUNTRIES": "Países",
+        "REMOTE_ITEMS": "Elementos remotos",
+        "ITEMS_OF_TOTAL": "{indexed} de {total} elementos",
+        "COVERAGE_PERCENT": "{percent}% cobertura",
+        "SERVICE_AREA_BREAKDOWN": "Desglose por área de servicio",
+        "TOP_COUNTRIES": "Principales países",
+        "INDEX_SYNCED": "Índice sincronizado",
+        "INDEX_OUT_OF_SYNC": "Índice desincronizado",
+        "INDEX_SYNC_WARNING": "El índice tiene {actual} elementos, se esperaban {expected}. Considere reconstruir.",
+        "DISTRIBUTION_MAP": "Mapa de distribución",
+        "NO_LOCATIONS": "Aún no hay datos de ubicación disponibles.",
+        "LOCATION_DISABLED": "Las funciones de ubicación están desactivadas. Actívelas en Configuración para usar análisis geográficos.",
+        "INDEX_MANAGEMENT": "Gestión del índice",
+        "INDEX_DESCRIPTION": "El índice de ubicación permite consultas geográficas rápidas. Reconstruya si faltan elementos o los datos están desincronizados.",
+        "LAST_REBUILD": "Última reconstrucción",
+        "NEVER_REBUILT": "Nunca",
+        "REBUILD_INDEX": "Reconstruir índice",
+        "CLEAR_INDEX": "Limpiar índice",
+        "REBUILD_SUCCESS": "Índice reconstruido: {indexed} indexados, {skipped} omitidos en {duration}ms.",
+        "CLEAR_SUCCESS": "Índice limpiado: {cleared} entradas eliminadas.",
+        "CLEAR_CONFIRM": "¿Está seguro de que desea limpiar todo el índice de ubicación? Puede reconstruirlo después.",
+        "ACTION_FAILED": "La operación falló. Por favor, intente de nuevo.",
+        "LOCAL": "Local",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nacional",
+        "GLOBAL": "Global"
       }
     },
     "CHARTS": {

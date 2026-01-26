@@ -1495,7 +1495,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribuição Geográfica"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1505,39 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Análise de distribuição geográfica"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Cobertura de localização",
+        "TOTAL_INDEXED": "Total indexado",
+        "CITIES": "Cidades",
+        "COUNTRIES": "Países",
+        "REMOTE_ITEMS": "Itens remotos",
+        "ITEMS_OF_TOTAL": "{indexed} de {total} itens",
+        "COVERAGE_PERCENT": "{percent}% de cobertura",
+        "SERVICE_AREA_BREAKDOWN": "Detalhamento por área de serviço",
+        "TOP_COUNTRIES": "Principais países",
+        "INDEX_SYNCED": "Índice sincronizado",
+        "INDEX_OUT_OF_SYNC": "Índice dessincronizado",
+        "INDEX_SYNC_WARNING": "O índice tem {actual} itens, esperados {expected}. Considere reconstruir.",
+        "DISTRIBUTION_MAP": "Mapa de distribuição",
+        "NO_LOCATIONS": "Nenhum dado de localização disponível ainda.",
+        "LOCATION_DISABLED": "Os recursos de localização estão desativados. Ative-os nas Configurações para usar análises geográficas.",
+        "INDEX_MANAGEMENT": "Gerenciamento de índice",
+        "INDEX_DESCRIPTION": "O índice de localização permite consultas geográficas rápidas. Reconstrua se itens estiverem faltando ou dados estiverem dessincronizados.",
+        "LAST_REBUILD": "Última reconstrução",
+        "NEVER_REBUILT": "Nunca",
+        "REBUILD_INDEX": "Reconstruir índice",
+        "CLEAR_INDEX": "Limpar índice",
+        "REBUILD_SUCCESS": "Índice reconstruído: {indexed} indexados, {skipped} ignorados em {duration}ms.",
+        "CLEAR_SUCCESS": "Índice limpo: {cleared} entradas removidas.",
+        "CLEAR_CONFIRM": "Tem certeza de que deseja limpar todo o índice de localização? Você pode reconstruí-lo depois.",
+        "ACTION_FAILED": "A operação falhou. Por favor, tente novamente.",
+        "LOCAL": "Local",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nacional",
+        "GLOBAL": "Global"
       }
     },
     "CHARTS": {

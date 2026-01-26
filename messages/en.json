@@ -1593,7 +1593,8 @@
 				"RECENT_ACTIVITY": "Recent Activity",
 				"PERFORMANCE": "Performance",
 				"DATA_EXPORT_REPORTS": "Data Export & Reports",
-				"ADMIN_TOOLS": "Admin Tools"
+				"ADMIN_TOOLS": "Admin Tools",
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution"
 			},
 			"ARIA_LABELS": {
 				"DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1602,7 +1603,39 @@
 				"ANALYTICS": "Analytics",
 				"PERFORMANCE": "Performance",
 				"REPORTS": "Reports",
-				"TOOLS": "Tools"
+				"TOOLS": "Tools",
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic distribution analytics"
+			},
+			"GEO": {
+				"LOCATION_COVERAGE": "Location Coverage",
+				"TOTAL_INDEXED": "Total Indexed",
+				"CITIES": "Cities",
+				"COUNTRIES": "Countries",
+				"REMOTE_ITEMS": "Remote Items",
+				"ITEMS_OF_TOTAL": "{indexed} of {total} items",
+				"COVERAGE_PERCENT": "{percent}% coverage",
+				"SERVICE_AREA_BREAKDOWN": "Service Area Breakdown",
+				"TOP_COUNTRIES": "Top Countries",
+				"INDEX_SYNCED": "Index Synced",
+				"INDEX_OUT_OF_SYNC": "Index Out of Sync",
+				"INDEX_SYNC_WARNING": "Index has {actual} items, expected {expected}. Consider rebuilding.",
+				"DISTRIBUTION_MAP": "Distribution Map",
+				"NO_LOCATIONS": "No location data available yet.",
+				"LOCATION_DISABLED": "Location features are disabled. Enable them in Settings to use geographic analytics.",
+				"INDEX_MANAGEMENT": "Index Management",
+				"INDEX_DESCRIPTION": "The location index enables fast geographic queries. Rebuild if items are missing or data is out of sync.",
+				"LAST_REBUILD": "Last Rebuild",
+				"NEVER_REBUILT": "Never",
+				"REBUILD_INDEX": "Rebuild Index",
+				"CLEAR_INDEX": "Clear Index",
+				"REBUILD_SUCCESS": "Index rebuilt: {indexed} indexed, {skipped} skipped in {duration}ms.",
+				"CLEAR_SUCCESS": "Index cleared: {cleared} entries removed.",
+				"CLEAR_CONFIRM": "Are you sure you want to clear the entire location index? You can rebuild it afterwards.",
+				"ACTION_FAILED": "Operation failed. Please try again.",
+				"LOCAL": "Local",
+				"REGIONAL": "Regional",
+				"NATIONAL": "National",
+				"GLOBAL": "Global"
 			}
 		},
 		"CHARTS": {

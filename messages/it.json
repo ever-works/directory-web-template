@@ -1495,7 +1495,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribuzione Geografica"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1505,39 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Analisi della distribuzione geografica"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Copertura posizioni",
+        "TOTAL_INDEXED": "Totale indicizzato",
+        "CITIES": "Città",
+        "COUNTRIES": "Paesi",
+        "REMOTE_ITEMS": "Elementi remoti",
+        "ITEMS_OF_TOTAL": "{indexed} di {total} elementi",
+        "COVERAGE_PERCENT": "{percent}% copertura",
+        "SERVICE_AREA_BREAKDOWN": "Ripartizione per area di servizio",
+        "TOP_COUNTRIES": "Principali paesi",
+        "INDEX_SYNCED": "Indice sincronizzato",
+        "INDEX_OUT_OF_SYNC": "Indice non sincronizzato",
+        "INDEX_SYNC_WARNING": "L'indice contiene {actual} elementi, previsti {expected}. Considera la ricostruzione.",
+        "DISTRIBUTION_MAP": "Mappa di distribuzione",
+        "NO_LOCATIONS": "Nessun dato sulla posizione ancora disponibile.",
+        "LOCATION_DISABLED": "Le funzionalità di localizzazione sono disabilitate. Abilitale nelle Impostazioni per utilizzare le analisi geografiche.",
+        "INDEX_MANAGEMENT": "Gestione indice",
+        "INDEX_DESCRIPTION": "L'indice delle posizioni consente query geografiche rapide. Ricostruisci se mancano elementi o i dati non sono sincronizzati.",
+        "LAST_REBUILD": "Ultima ricostruzione",
+        "NEVER_REBUILT": "Mai",
+        "REBUILD_INDEX": "Ricostruisci indice",
+        "CLEAR_INDEX": "Svuota indice",
+        "REBUILD_SUCCESS": "Indice ricostruito: {indexed} indicizzati, {skipped} saltati in {duration}ms.",
+        "CLEAR_SUCCESS": "Indice svuotato: {cleared} voci rimosse.",
+        "CLEAR_CONFIRM": "Sei sicuro di voler svuotare l'intero indice delle posizioni? Potrai ricostruirlo in seguito.",
+        "ACTION_FAILED": "Operazione fallita. Riprova.",
+        "LOCAL": "Locale",
+        "REGIONAL": "Regionale",
+        "NATIONAL": "Nazionale",
+        "GLOBAL": "Globale"
       }
     },
     "CHARTS": {

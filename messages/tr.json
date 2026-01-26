@@ -1585,7 +1585,8 @@
         "RECENT_ACTIVITY": "Son Aktivite",
         "PERFORMANCE": "Performans",
         "DATA_EXPORT_REPORTS": "Veri Dışa Aktarma ve Raporlar",
-        "ADMIN_TOOLS": "Yönetici Araçları"
+        "ADMIN_TOOLS": "Yönetici Araçları",
+        "GEOGRAPHIC_DISTRIBUTION": "Coğrafi Dağılım"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Kontrol paneli bölümleri",
@@ -1594,7 +1595,39 @@
         "ANALYTICS": "Analizler",
         "PERFORMANCE": "Performans",
         "REPORTS": "Raporlar",
-        "TOOLS": "Araçlar"
+        "TOOLS": "Araçlar",
+        "GEOGRAPHIC_DISTRIBUTION": "Coğrafi dağılım analizi"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Konum kapsamı",
+        "TOTAL_INDEXED": "Toplam indekslenen",
+        "CITIES": "Şehirler",
+        "COUNTRIES": "Ülkeler",
+        "REMOTE_ITEMS": "Uzak öğeler",
+        "ITEMS_OF_TOTAL": "{total} öğeden {indexed}",
+        "COVERAGE_PERCENT": "%{percent} kapsam",
+        "SERVICE_AREA_BREAKDOWN": "Hizmet alanı dökümü",
+        "TOP_COUNTRIES": "En çok ülke",
+        "INDEX_SYNCED": "İndeks senkronize",
+        "INDEX_OUT_OF_SYNC": "İndeks senkron değil",
+        "INDEX_SYNC_WARNING": "İndeks {actual} öğe içeriyor, {expected} bekleniyor. Yeniden oluşturmayı düşünün.",
+        "DISTRIBUTION_MAP": "Dağılım haritası",
+        "NO_LOCATIONS": "Henüz konum verisi yok.",
+        "LOCATION_DISABLED": "Konum özellikleri devre dışı. Coğrafi analiz için Ayarlar'dan etkinleştirin.",
+        "INDEX_MANAGEMENT": "İndeks Yönetimi",
+        "INDEX_DESCRIPTION": "Konum indeksi hızlı coğrafi sorguları mümkün kılar. Öğeler eksikse veya veriler senkron değilse yeniden oluşturun.",
+        "LAST_REBUILD": "Son yeniden oluşturma",
+        "NEVER_REBUILT": "Hiçbir zaman",
+        "REBUILD_INDEX": "İndeksi yeniden oluştur",
+        "CLEAR_INDEX": "İndeksi temizle",
+        "REBUILD_SUCCESS": "İndeks yeniden oluşturuldu: {indexed} indekslendi, {skipped} atlandı ({duration}ms).",
+        "CLEAR_SUCCESS": "İndeks temizlendi: {cleared} kayıt silindi.",
+        "CLEAR_CONFIRM": "Tüm konum indeksini temizlemek istediğinizden emin misiniz? Daha sonra yeniden oluşturabilirsiniz.",
+        "ACTION_FAILED": "İşlem başarısız. Lütfen tekrar deneyin.",
+        "LOCAL": "Yerel",
+        "REGIONAL": "Bölgesel",
+        "NATIONAL": "Ulusal",
+        "GLOBAL": "Küresel"
       }
     },
     "CHARTS": {

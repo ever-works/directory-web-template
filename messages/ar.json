@@ -1515,7 +1515,8 @@
         "RECENT_ACTIVITY": "النشاط الأخير",
         "PERFORMANCE": "الأداء",
         "DATA_EXPORT_REPORTS": "تصدير البيانات والتقارير",
-        "ADMIN_TOOLS": "أدوات الإدارة"
+        "ADMIN_TOOLS": "أدوات الإدارة",
+        "GEOGRAPHIC_DISTRIBUTION": "التوزيع الجغرافي"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "أقسام لوحة التحكم",
@@ -1524,7 +1525,39 @@
         "ANALYTICS": "التحليلات",
         "PERFORMANCE": "الأداء",
         "REPORTS": "التقارير",
-        "TOOLS": "الأدوات"
+        "TOOLS": "الأدوات",
+        "GEOGRAPHIC_DISTRIBUTION": "تحليلات التوزيع الجغرافي"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "تغطية الموقع",
+        "TOTAL_INDEXED": "إجمالي المفهرس",
+        "CITIES": "المدن",
+        "COUNTRIES": "الدول",
+        "REMOTE_ITEMS": "العناصر عن بعد",
+        "ITEMS_OF_TOTAL": "{indexed} من {total} عنصر",
+        "COVERAGE_PERCENT": "{percent}% تغطية",
+        "SERVICE_AREA_BREAKDOWN": "تفصيل مناطق الخدمة",
+        "TOP_COUNTRIES": "أبرز الدول",
+        "INDEX_SYNCED": "الفهرس متزامن",
+        "INDEX_OUT_OF_SYNC": "الفهرس غير متزامن",
+        "INDEX_SYNC_WARNING": "الفهرس يحتوي على {actual} عنصر، المتوقع {expected}. يُنصح بإعادة البناء.",
+        "DISTRIBUTION_MAP": "خريطة التوزيع",
+        "NO_LOCATIONS": "لا توجد بيانات موقع متاحة بعد.",
+        "LOCATION_DISABLED": "ميزات الموقع معطلة. قم بتمكينها في الإعدادات لاستخدام التحليلات الجغرافية.",
+        "INDEX_MANAGEMENT": "إدارة الفهرس",
+        "INDEX_DESCRIPTION": "يتيح فهرس الموقع استعلامات جغرافية سريعة. أعد البناء إذا كانت العناصر مفقودة أو البيانات غير متزامنة.",
+        "LAST_REBUILD": "آخر إعادة بناء",
+        "NEVER_REBUILT": "أبداً",
+        "REBUILD_INDEX": "إعادة بناء الفهرس",
+        "CLEAR_INDEX": "مسح الفهرس",
+        "REBUILD_SUCCESS": "تم إعادة بناء الفهرس: {indexed} مفهرس، {skipped} تم تخطيه في {duration}مللي ثانية.",
+        "CLEAR_SUCCESS": "تم مسح الفهرس: {cleared} إدخال تمت إزالته.",
+        "CLEAR_CONFIRM": "هل أنت متأكد أنك تريد مسح فهرس الموقع بالكامل؟ يمكنك إعادة بنائه بعد ذلك.",
+        "ACTION_FAILED": "فشلت العملية. يرجى المحاولة مرة أخرى.",
+        "LOCAL": "محلي",
+        "REGIONAL": "إقليمي",
+        "NATIONAL": "وطني",
+        "GLOBAL": "عالمي"
       }
     },
     "CHARTS": {
