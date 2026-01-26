@@ -80,11 +80,12 @@ export async function GET() {
 		const coveragePercent =
 			totalItems > 0 ? Math.round((itemsWithLocation / totalItems) * 100 * 10) / 10 : 0;
 
-		// Index health: compare actual index count to expected (all items with location data)
-		const expectedCount = itemsWithLocation;
+		// Index health: compare non-remote items with coordinates against non-remote index entries
+		const expectedCount = itemsWithLocation - itemsRemote;
+		const indexCount = indexStats.totalIndexed - indexStats.remoteCount;
 		const indexHealth = {
-			synced: indexStats.totalIndexed === expectedCount,
-			indexCount: indexStats.totalIndexed,
+			synced: indexCount === expectedCount,
+			indexCount,
 			expectedCount,
 		};
 
