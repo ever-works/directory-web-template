@@ -168,7 +168,7 @@ export default function GlobalsClient(props: ListingProps) {
 										showEmptyState: true,
 										enableSearch: false,
 										enableTagFilter: false,
-										enableSorting: true,
+										enableSorting: !(locationFilter.sortByDistance && distances.size > 0),
 									}}
 								/>
 							</div>
