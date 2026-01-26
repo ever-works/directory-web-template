@@ -137,7 +137,8 @@ function FilterURLParserContent() {
       const lat = parseFloat(nearLatParam);
       const lng = parseFloat(nearLngParam);
       if (!isNaN(lat) && !isNaN(lng)) {
-        const radius = radiusParam ? parseInt(radiusParam, 10) : 50;
+        const parsedRadius = radiusParam ? parseInt(radiusParam, 10) : 50;
+        const radius = Number.isFinite(parsedRadius) ? parsedRadius : 50;
         const currentNearMe = locationFilter.nearMe;
         if (!currentNearMe || currentNearMe.latitude !== lat || currentNearMe.longitude !== lng || currentNearMe.radius !== radius) {
           setNearMe({ latitude: lat, longitude: lng, radius });
