@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireClientAuth, serverErrorResponse } from '@/lib/utils/client-auth';
-import { ItemRepository } from '@/lib/repositories/item.repository';
+import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
 
 /**
  * @swagger
@@ -74,19 +74,10 @@ export async function GET() {
 		}
 		const { userId } = authResult;
 
-		const itemRepository = new ItemRepository();
-		const items = await itemRepository.findAll({ submittedBy: userId });
+		const repository = getClientItemRepository();
+		const coordinates = await repository.getCoordinatesByUser(userId);
 
-		const data = items
-			.filter((item) => item.location?.latitude != null && item.location?.longitude != null)
-			.map((item) => ({
-				slug: item.slug,
-				name: item.name,
-				latitude: item.location!.latitude!,
-				longitude: item.location!.longitude!,
-			}));
-
-		return NextResponse.json({ success: true, coordinates: data });
+		return NextResponse.json({ success: true, coordinates });
 	} catch (error) {
 		return serverErrorResponse(error, 'Failed to fetch item coordinates');
 	}

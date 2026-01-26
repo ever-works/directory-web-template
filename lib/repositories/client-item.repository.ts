@@ -11,6 +11,33 @@ import { ItemRepository } from './item.repository';
 import { slugify } from '@/lib/utils/slug';
 import { getViewsPerItem } from '@/lib/db/queries/item-view.queries';
 
+// ===================== Geo Types =====================
+
+export interface ClientItemCoordinates {
+  slug: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+interface ServiceAreaBreakdown {
+  local: number;
+  regional: number;
+  national: number;
+  global: number;
+}
+
+type ServiceAreaKey = keyof ServiceAreaBreakdown;
+
+export interface ClientGeoStats {
+  total_items: number;
+  items_with_location: number;
+  items_remote: number;
+  service_area_breakdown: ServiceAreaBreakdown;
+  top_cities: { city: string; count: number }[];
+  top_countries: { country: string; count: number }[];
+}
+
 /**
  * Repository for client-side item management operations.
  * Wraps ItemRepository with ownership validation and client-specific logic.
@@ -323,6 +350,86 @@ export class ClientItemRepository {
   async isOwner(id: string, userId: string): Promise<boolean> {
     const item = await this.itemRepository.findById(id, true);
     return item?.submitted_by === userId;
+  }
+
+  /**
+   * Get coordinates for all items belonging to a user that have location data
+   */
+  async getCoordinatesByUser(userId: string): Promise<ClientItemCoordinates[]> {
+    const items = await this.itemRepository.findAll({ submittedBy: userId });
+
+    return items
+      .filter((item) => item.location?.latitude != null && item.location?.longitude != null)
+      .map((item) => ({
+        slug: item.slug,
+        name: item.name,
+        latitude: item.location!.latitude!,
+        longitude: item.location!.longitude!,
+      }));
+  }
+
+  /**
+   * Get geographic statistics for all items belonging to a user
+   */
+  async getGeoStatsByUser(userId: string): Promise<ClientGeoStats> {
+    const items = await this.itemRepository.findAll({ submittedBy: userId });
+
+    const totalItems = items.length;
+    const itemsRemote = items.filter((item) => item.location?.is_remote).length;
+    const itemsWithCoords = items.filter(
+      (item) => item.location?.latitude != null && item.location?.longitude != null && !item.location?.is_remote
+    ).length;
+    const itemsWithLocation = itemsWithCoords + itemsRemote;
+
+    // Service area breakdown
+    const serviceAreaBreakdown: ServiceAreaBreakdown = {
+      local: 0,
+      regional: 0,
+      national: 0,
+      global: 0,
+    };
+
+    for (const item of items) {
+      const area = item.location?.service_area;
+      if (area && area in serviceAreaBreakdown) {
+        serviceAreaBreakdown[area as ServiceAreaKey]++;
+      }
+    }
+
+    // Top cities
+    const cityCounts: Record<string, number> = {};
+    for (const item of items) {
+      const city = item.location?.city;
+      if (city) {
+        cityCounts[city] = (cityCounts[city] || 0) + 1;
+      }
+    }
+    const topCities = Object.entries(cityCounts)
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Top countries
+    const countryCounts: Record<string, number> = {};
+    for (const item of items) {
+      const country = item.location?.country;
+      if (country) {
+        countryCounts[country] = (countryCounts[country] || 0) + 1;
+      }
+    }
+    const topCountries = Object.entries(countryCounts)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      total_items: totalItems,
+      items_with_location: itemsWithLocation,
+      items_remote: itemsRemote,
+      service_area_breakdown: serviceAreaBreakdown,
+      top_cities: topCities,
+      top_countries: topCountries,
+    };
   }
 }
 
