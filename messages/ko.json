@@ -1614,6 +1614,7 @@
         "DISTRIBUTION_MAP": "분포 지도",
         "NO_LOCATIONS": "아직 위치 데이터가 없습니다.",
         "LOCATION_DISABLED": "위치 기능이 비활성화되어 있습니다. 지리 분석을 사용하려면 설정에서 활성화하세요.",
+        "MAP_NOT_CONFIGURED": "지도 제공자가 구성되지 않았습니다. 지도를 활성화하려면 환경에 Mapbox 또는 Google Maps API 키를 추가하세요.",
         "INDEX_MANAGEMENT": "인덱스 관리",
         "INDEX_DESCRIPTION": "위치 인덱스는 빠른 지리 쿼리를 가능하게 합니다. 항목이 누락되거나 데이터가 동기화되지 않으면 재구축하세요.",
         "LAST_REBUILD": "마지막 재구축",

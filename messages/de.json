@@ -1557,6 +1557,7 @@
         "DISTRIBUTION_MAP": "Verteilungskarte",
         "NO_LOCATIONS": "Noch keine Standortdaten verfügbar.",
         "LOCATION_DISABLED": "Standortfunktionen sind deaktiviert. Aktivieren Sie sie in den Einstellungen für geografische Analysen.",
+        "MAP_NOT_CONFIGURED": "Der Kartenanbieter ist nicht konfiguriert. Fügen Sie Mapbox- oder Google Maps-API-Schlüssel in Ihrer Umgebung hinzu, um die Karte zu aktivieren.",
         "INDEX_MANAGEMENT": "Indexverwaltung",
         "INDEX_DESCRIPTION": "Der Standortindex ermöglicht schnelle geografische Abfragen. Neuaufbau bei fehlenden Einträgen oder Dateninkonsistenz.",
         "LAST_REBUILD": "Letzter Neuaufbau",

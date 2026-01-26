@@ -1524,6 +1524,7 @@
         "DISTRIBUTION_MAP": "Mapa rozkładu",
         "NO_LOCATIONS": "Brak dostępnych danych lokalizacji.",
         "LOCATION_DISABLED": "Funkcje lokalizacji są wyłączone. Włącz je w Ustawieniach, aby korzystać z analiz geograficznych.",
+        "MAP_NOT_CONFIGURED": "Dostawca map nie jest skonfigurowany. Dodaj klucze API Mapbox lub Google Maps w swoim środowisku, aby włączyć mapę.",
         "INDEX_MANAGEMENT": "Zarządzanie indeksem",
         "INDEX_DESCRIPTION": "Indeks lokalizacji umożliwia szybkie zapytania geograficzne. Przebuduj, jeśli brakuje elementów lub dane są niezsynchronizowane.",
         "LAST_REBUILD": "Ostatnia przebudowa",

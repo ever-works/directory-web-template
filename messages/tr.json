@@ -1614,6 +1614,7 @@
         "DISTRIBUTION_MAP": "Dağılım haritası",
         "NO_LOCATIONS": "Henüz konum verisi yok.",
         "LOCATION_DISABLED": "Konum özellikleri devre dışı. Coğrafi analiz için Ayarlar'dan etkinleştirin.",
+        "MAP_NOT_CONFIGURED": "Harita sağlayıcısı yapılandırılmamış. Haritayı etkinleştirmek için ortamınıza Mapbox veya Google Maps API anahtarlarını ekleyin.",
         "INDEX_MANAGEMENT": "İndeks Yönetimi",
         "INDEX_DESCRIPTION": "Konum indeksi hızlı coğrafi sorguları mümkün kılar. Öğeler eksikse veya veriler senkron değilse yeniden oluşturun.",
         "LAST_REBUILD": "Son yeniden oluşturma",

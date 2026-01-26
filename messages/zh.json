@@ -1556,6 +1556,7 @@
         "DISTRIBUTION_MAP": "分布地图",
         "NO_LOCATIONS": "暂无位置数据。",
         "LOCATION_DISABLED": "位置功能已禁用。在设置中启用以使用地理分析。",
+        "MAP_NOT_CONFIGURED": "地图提供商未配置。请在您的环境中添加 Mapbox 或 Google Maps API 密钥以启用地图。",
         "INDEX_MANAGEMENT": "索引管理",
         "INDEX_DESCRIPTION": "位置索引支持快速地理查询。如果项目缺失或数据不同步，请重建索引。",
         "LAST_REBUILD": "上次重建",

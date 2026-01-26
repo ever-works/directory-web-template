@@ -1614,6 +1614,7 @@
         "DISTRIBUTION_MAP": "Peta Distribusi",
         "NO_LOCATIONS": "Belum ada data lokasi yang tersedia.",
         "LOCATION_DISABLED": "Fitur lokasi dinonaktifkan. Aktifkan di Pengaturan untuk menggunakan analitik geografis.",
+        "MAP_NOT_CONFIGURED": "Penyedia peta belum dikonfigurasi. Tambahkan kunci API Mapbox atau Google Maps di lingkungan Anda untuk mengaktifkan peta.",
         "INDEX_MANAGEMENT": "Manajemen Indeks",
         "INDEX_DESCRIPTION": "Indeks lokasi memungkinkan kueri geografis cepat. Bangun ulang jika item hilang atau data tidak sinkron.",
         "LAST_REBUILD": "Pembangunan Ulang Terakhir",

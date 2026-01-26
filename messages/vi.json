@@ -1614,6 +1614,7 @@
         "DISTRIBUTION_MAP": "Bản đồ phân bố",
         "NO_LOCATIONS": "Chưa có dữ liệu vị trí.",
         "LOCATION_DISABLED": "Tính năng vị trí đã tắt. Bật trong Cài đặt để sử dụng phân tích địa lý.",
+        "MAP_NOT_CONFIGURED": "Nhà cung cấp bản đồ chưa được cấu hình. Thêm khóa API Mapbox hoặc Google Maps vào môi trường của bạn để bật bản đồ.",
         "INDEX_MANAGEMENT": "Quản lý chỉ mục",
         "INDEX_DESCRIPTION": "Chỉ mục vị trí cho phép truy vấn địa lý nhanh chóng. Xây dựng lại nếu thiếu mục hoặc dữ liệu không đồng bộ.",
         "LAST_REBUILD": "Xây dựng lại lần cuối",

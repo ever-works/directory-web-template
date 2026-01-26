@@ -1615,6 +1615,7 @@
         "DISTRIBUTION_MAP": "Carte de distribution",
         "NO_LOCATIONS": "Aucune donnée de localisation disponible pour le moment.",
         "LOCATION_DISABLED": "Les fonctionnalités de localisation sont désactivées. Activez-les dans les Paramètres pour utiliser les analyses géographiques.",
+        "MAP_NOT_CONFIGURED": "Le fournisseur de carte n'est pas configuré. Ajoutez les clés API Mapbox ou Google Maps dans votre environnement pour activer la carte.",
         "INDEX_MANAGEMENT": "Gestion de l'index",
         "INDEX_DESCRIPTION": "L'index de localisation permet des requêtes géographiques rapides. Reconstruisez si des éléments manquent ou si les données sont désynchronisées.",
         "LAST_REBUILD": "Dernière reconstruction",

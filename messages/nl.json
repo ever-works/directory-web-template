@@ -1524,6 +1524,7 @@
         "DISTRIBUTION_MAP": "Verdelingskaart",
         "NO_LOCATIONS": "Nog geen locatiegegevens beschikbaar.",
         "LOCATION_DISABLED": "Locatiefuncties zijn uitgeschakeld. Schakel ze in via Instellingen voor geografische analyses.",
+        "MAP_NOT_CONFIGURED": "De kaartprovider is niet geconfigureerd. Voeg Mapbox- of Google Maps API-sleutels toe aan uw omgeving om de kaart in te schakelen.",
         "INDEX_MANAGEMENT": "Indexbeheer",
         "INDEX_DESCRIPTION": "De locatie-index maakt snelle geografische zoekopdrachten mogelijk. Herbouw als items ontbreken of gegevens niet synchroon zijn.",
         "LAST_REBUILD": "Laatst herbouwd",

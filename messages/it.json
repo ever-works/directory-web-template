@@ -1524,6 +1524,7 @@
         "DISTRIBUTION_MAP": "Mappa di distribuzione",
         "NO_LOCATIONS": "Nessun dato sulla posizione ancora disponibile.",
         "LOCATION_DISABLED": "Le funzionalità di localizzazione sono disabilitate. Abilitale nelle Impostazioni per utilizzare le analisi geografiche.",
+        "MAP_NOT_CONFIGURED": "Il provider della mappa non è configurato. Aggiungi le chiavi API di Mapbox o Google Maps nel tuo ambiente per abilitare la mappa.",
         "INDEX_MANAGEMENT": "Gestione indice",
         "INDEX_DESCRIPTION": "L'indice delle posizioni consente query geografiche rapide. Ricostruisci se mancano elementi o i dati non sono sincronizzati.",
         "LAST_REBUILD": "Ultima ricostruzione",

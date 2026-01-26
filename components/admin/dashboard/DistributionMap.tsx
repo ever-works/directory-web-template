@@ -5,6 +5,7 @@ import { MapPin } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Map } from '@/components/maps/map';
 import { useLocationSettings } from '@/hooks/use-location-settings';
+import { useMapProvider } from '@/hooks/use-map-provider';
 import type { MapMarkerData } from '@/lib/maps/types';
 import type { GeoLocation } from '@/hooks/use-geo-analytics';
 
@@ -28,6 +29,7 @@ interface DistributionMapProps {
 export function DistributionMap({ locations }: DistributionMapProps) {
 	const t = useTranslations('admin.DASHBOARD.GEO');
 	const { settings } = useLocationSettings();
+	const { isConfigured } = useMapProvider();
 
 	// Transform GeoLocation[] to MapMarkerData[]
 	const markers: MapMarkerData[] = useMemo(() => {
@@ -52,6 +54,22 @@ export function DistributionMap({ locations }: DistributionMapProps) {
 				<div className={EMPTY_STATE_STYLES}>
 					<MapPin className="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600" />
 					<p className="text-sm">{t('LOCATION_DISABLED')}</p>
+				</div>
+			</div>
+		);
+	}
+
+	// If map provider is not configured (no API keys)
+	if (!isConfigured) {
+		return (
+			<div className={CARD_STYLES}>
+				<div className={HEADER_STYLES}>
+					<MapPin className="w-4 h-4 text-gray-400" />
+					<h3 className={TITLE_STYLES}>{t('DISTRIBUTION_MAP')}</h3>
+				</div>
+				<div className={EMPTY_STATE_STYLES}>
+					<MapPin className="w-8 h-8 mb-2 text-gray-300 dark:text-gray-600" />
+					<p className="text-sm">{t('MAP_NOT_CONFIGURED')}</p>
 				</div>
 			</div>
 		);

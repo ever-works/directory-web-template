@@ -1622,6 +1622,7 @@
 				"DISTRIBUTION_MAP": "Distribution Map",
 				"NO_LOCATIONS": "No location data available yet.",
 				"LOCATION_DISABLED": "Location features are disabled. Enable them in Settings to use geographic analytics.",
+				"MAP_NOT_CONFIGURED": "Map provider is not configured. Add Mapbox or Google Maps API keys in your environment to enable the map.",
 				"INDEX_MANAGEMENT": "Index Management",
 				"INDEX_DESCRIPTION": "The location index enables fast geographic queries. Rebuild if items are missing or data is out of sync.",
 				"LAST_REBUILD": "Last Rebuild",

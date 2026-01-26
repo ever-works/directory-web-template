@@ -1524,6 +1524,7 @@
         "DISTRIBUTION_MAP": "分布マップ",
         "NO_LOCATIONS": "ロケーションデータはまだありません。",
         "LOCATION_DISABLED": "ロケーション機能が無効です。地理分析を使用するには設定で有効にしてください。",
+        "MAP_NOT_CONFIGURED": "マッププロバイダーが設定されていません。マップを有効にするには、環境にMapboxまたはGoogle MapsのAPIキーを追加してください。",
         "INDEX_MANAGEMENT": "インデックス管理",
         "INDEX_DESCRIPTION": "ロケーションインデックスは高速な地理クエリを可能にします。アイテムが欠落している場合やデータが同期していない場合は再構築してください。",
         "LAST_REBUILD": "最終再構築",
