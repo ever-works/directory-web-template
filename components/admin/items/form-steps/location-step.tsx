@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Globe, Wifi } from 'lucide-react';
 import type { LocationPickerValue } from '@/lib/maps/types';
 import type { ItemLocationData } from '@/lib/types/item';
+import type { MapProvider } from '@/lib/types/location';
 
 export interface LocationStepData {
 	address?: string;
@@ -19,7 +20,7 @@ export interface LocationStepData {
 	longitude?: number;
 	service_area?: string;
 	is_remote?: boolean;
-	geocoded_by?: string;
+	geocoded_by?: MapProvider;
 }
 
 interface LocationStepProps {
