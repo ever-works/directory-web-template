@@ -3093,6 +3093,26 @@
         "LOADING": "Ładowanie danych wykresu...",
         "ERROR": "Nie udało się załadować wykresu",
         "RETRY": "Ponów"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Mapa Twoich elementów",
+        "WITH_LOCATION": "z lokalizacją",
+        "NO_DATA": "Brak elementów z danymi lokalizacji",
+        "NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć je na mapie."
+      },
+      "GEO_STATS": {
+        "TITLE": "Zasięg geograficzny",
+        "ITEMS_WITH_LOCATION": "Elementy z lokalizacją",
+        "REMOTE_SERVICES": "Usługi zdalne",
+        "SERVICE_AREAS": "Obszary usług",
+        "TOP_CITIES": "Najważniejsze miasta",
+        "TOP_COUNTRIES": "Najważniejsze kraje",
+        "LOCAL": "Lokalny",
+        "REGIONAL": "Regionalny",
+        "NATIONAL": "Krajowy",
+        "GLOBAL": "Globalny",
+        "NO_DATA": "Brak danych lokalizacji",
+        "NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć zasięg geograficzny."
       }
     }
   }

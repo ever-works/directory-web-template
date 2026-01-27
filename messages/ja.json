@@ -3098,6 +3098,26 @@
         "LOADING": "チャートデータを読み込み中...",
         "ERROR": "チャートの読み込みに失敗しました",
         "RETRY": "再試行"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "アイテムマップ",
+        "WITH_LOCATION": "位置情報あり",
+        "NO_DATA": "位置情報のあるアイテムがありません",
+        "NO_DATA_DESC": "アイテムに位置情報を追加して、マップ上に表示しましょう。"
+      },
+      "GEO_STATS": {
+        "TITLE": "地理的カバレッジ",
+        "ITEMS_WITH_LOCATION": "位置情報付きアイテム",
+        "REMOTE_SERVICES": "リモートサービス",
+        "SERVICE_AREAS": "サービスエリア",
+        "TOP_CITIES": "上位都市",
+        "TOP_COUNTRIES": "上位国",
+        "LOCAL": "ローカル",
+        "REGIONAL": "地域",
+        "NATIONAL": "全国",
+        "GLOBAL": "グローバル",
+        "NO_DATA": "位置情報データなし",
+        "NO_DATA_DESC": "地理的カバレッジを確認するには、アイテムに位置情報を追加してください。"
       }
     }
   }

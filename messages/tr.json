@@ -3295,6 +3295,26 @@
         "LOADING": "Grafik verileri yükleniyor...",
         "ERROR": "Grafik yüklenemedi",
         "RETRY": "Yeniden Dene"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Öğe Haritanız",
+        "WITH_LOCATION": "konumlu",
+        "NO_DATA": "Konum verisi olan öğe yok",
+        "NO_DATA_DESC": "Haritada görmek için öğelerinize konum verisi ekleyin."
+      },
+      "GEO_STATS": {
+        "TITLE": "Coğrafi Kapsam",
+        "ITEMS_WITH_LOCATION": "Konumlu Öğeler",
+        "REMOTE_SERVICES": "Uzak Hizmetler",
+        "SERVICE_AREAS": "Hizmet Alanları",
+        "TOP_CITIES": "En İyi Şehirler",
+        "TOP_COUNTRIES": "En İyi Ülkeler",
+        "LOCAL": "Yerel",
+        "REGIONAL": "Bölgesel",
+        "NATIONAL": "Ulusal",
+        "GLOBAL": "Küresel",
+        "NO_DATA": "Konum verisi yok",
+        "NO_DATA_DESC": "Coğrafi kapsamı görmek için öğelerinize konum verisi ekleyin."
       }
     }
   }

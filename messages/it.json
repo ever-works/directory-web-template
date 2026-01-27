@@ -3097,6 +3097,26 @@
         "LOADING": "Caricamento dati grafico...",
         "ERROR": "Impossibile caricare il grafico",
         "RETRY": "Riprova"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Mappa dei tuoi elementi",
+        "WITH_LOCATION": "con posizione",
+        "NO_DATA": "Nessun elemento con dati di posizione",
+        "NO_DATA_DESC": "Aggiungi dati di posizione ai tuoi elementi per vederli sulla mappa."
+      },
+      "GEO_STATS": {
+        "TITLE": "Copertura geografica",
+        "ITEMS_WITH_LOCATION": "Elementi con posizione",
+        "REMOTE_SERVICES": "Servizi remoti",
+        "SERVICE_AREAS": "Aree di servizio",
+        "TOP_CITIES": "Principali città",
+        "TOP_COUNTRIES": "Principali paesi",
+        "LOCAL": "Locale",
+        "REGIONAL": "Regionale",
+        "NATIONAL": "Nazionale",
+        "GLOBAL": "Globale",
+        "NO_DATA": "Nessun dato di posizione",
+        "NO_DATA_DESC": "Aggiungi dati di posizione ai tuoi elementi per vedere la copertura geografica."
       }
     }
   }

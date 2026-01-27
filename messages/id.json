@@ -3297,6 +3297,26 @@
         "LOADING": "Memuat data bagan...",
         "ERROR": "Gagal memuat bagan",
         "RETRY": "Coba Lagi"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Peta Item Anda",
+        "WITH_LOCATION": "dengan lokasi",
+        "NO_DATA": "Tidak ada item dengan data lokasi",
+        "NO_DATA_DESC": "Tambahkan data lokasi ke item Anda untuk melihatnya di peta."
+      },
+      "GEO_STATS": {
+        "TITLE": "Cakupan Geografis",
+        "ITEMS_WITH_LOCATION": "Item dengan Lokasi",
+        "REMOTE_SERVICES": "Layanan Jarak Jauh",
+        "SERVICE_AREAS": "Area Layanan",
+        "TOP_CITIES": "Kota Teratas",
+        "TOP_COUNTRIES": "Negara Teratas",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nasional",
+        "GLOBAL": "Global",
+        "NO_DATA": "Tidak ada data lokasi",
+        "NO_DATA_DESC": "Tambahkan data lokasi ke item Anda untuk melihat cakupan geografis."
       }
     }
   }

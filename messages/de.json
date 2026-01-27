@@ -3131,6 +3131,26 @@
         "LOADING": "Diagrammdaten werden geladen...",
         "ERROR": "Fehler beim Laden des Diagramms",
         "RETRY": "Erneut versuchen"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Ihre Einträge-Karte",
+        "WITH_LOCATION": "mit Standort",
+        "NO_DATA": "Keine Einträge mit Standortdaten",
+        "NO_DATA_DESC": "Fügen Sie Standortdaten zu Ihren Einträgen hinzu, um sie auf der Karte zu sehen."
+      },
+      "GEO_STATS": {
+        "TITLE": "Geografische Abdeckung",
+        "ITEMS_WITH_LOCATION": "Einträge mit Standort",
+        "REMOTE_SERVICES": "Remote-Dienste",
+        "SERVICE_AREAS": "Servicegebiete",
+        "TOP_CITIES": "Top-Städte",
+        "TOP_COUNTRIES": "Top-Länder",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "National",
+        "GLOBAL": "Global",
+        "NO_DATA": "Keine Standortdaten",
+        "NO_DATA_DESC": "Fügen Sie Standortdaten zu Ihren Einträgen hinzu, um die geografische Abdeckung zu sehen."
       }
     }
   }

@@ -3312,6 +3312,26 @@
         "LOADING": "Đang tải dữ liệu biểu đồ...",
         "ERROR": "Không thể tải biểu đồ",
         "RETRY": "Thử lại"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Bản đồ mục của bạn",
+        "WITH_LOCATION": "có vị trí",
+        "NO_DATA": "Không có mục nào có dữ liệu vị trí",
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem chúng trên bản đồ."
+      },
+      "GEO_STATS": {
+        "TITLE": "Phạm vi địa lý",
+        "ITEMS_WITH_LOCATION": "Mục có vị trí",
+        "REMOTE_SERVICES": "Dịch vụ từ xa",
+        "SERVICE_AREAS": "Khu vực dịch vụ",
+        "TOP_CITIES": "Thành phố hàng đầu",
+        "TOP_COUNTRIES": "Quốc gia hàng đầu",
+        "LOCAL": "Địa phương",
+        "REGIONAL": "Khu vực",
+        "NATIONAL": "Quốc gia",
+        "GLOBAL": "Toàn cầu",
+        "NO_DATA": "Không có dữ liệu vị trí",
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem phạm vi địa lý."
       }
     }
   }

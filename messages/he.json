@@ -3012,5 +3012,28 @@
       "EDIT_SUBMISSION_TITLE": "ערוך הגשה",
       "EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך"
     }
+  ,
+    "dashboard": {
+      "ITEMS_MAP": {
+        "TITLE": "מפת הפריטים שלך",
+        "WITH_LOCATION": "עם מיקום",
+        "NO_DATA": "אין פריטים עם נתוני מיקום",
+        "NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות אותם על המפה."
+      },
+      "GEO_STATS": {
+        "TITLE": "כיסוי גיאוגרפי",
+        "ITEMS_WITH_LOCATION": "פריטים עם מיקום",
+        "REMOTE_SERVICES": "שירותים מרחוק",
+        "SERVICE_AREAS": "אזורי שירות",
+        "TOP_CITIES": "ערים מובילות",
+        "TOP_COUNTRIES": "מדינות מובילות",
+        "LOCAL": "מקומי",
+        "REGIONAL": "אזורי",
+        "NATIONAL": "ארצי",
+        "GLOBAL": "גלובלי",
+        "NO_DATA": "אין נתוני מיקום",
+        "NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות כיסוי גיאוגרפי."
+      }
+    }
   }
 }

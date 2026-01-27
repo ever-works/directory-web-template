@@ -3093,6 +3093,26 @@
         "LOADING": "Grafiekgegevens laden...",
         "ERROR": "Kan grafiek niet laden",
         "RETRY": "Opnieuw proberen"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Kaart van uw items",
+        "WITH_LOCATION": "met locatie",
+        "NO_DATA": "Geen items met locatiegegevens",
+        "NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om ze op de kaart te zien."
+      },
+      "GEO_STATS": {
+        "TITLE": "Geografische dekking",
+        "ITEMS_WITH_LOCATION": "Items met locatie",
+        "REMOTE_SERVICES": "Externe diensten",
+        "SERVICE_AREAS": "Servicegebieden",
+        "TOP_CITIES": "Topsteden",
+        "TOP_COUNTRIES": "Toplanden",
+        "LOCAL": "Lokaal",
+        "REGIONAL": "Regionaal",
+        "NATIONAL": "Nationaal",
+        "GLOBAL": "Globaal",
+        "NO_DATA": "Geen locatiegegevens",
+        "NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om de geografische dekking te zien."
       }
     }
   }

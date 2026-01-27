@@ -3124,6 +3124,26 @@
         "LOADING": "正在加载图表数据...",
         "ERROR": "加载图表失败",
         "RETRY": "重试"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "您的项目地图",
+        "WITH_LOCATION": "有位置信息",
+        "NO_DATA": "没有包含位置数据的项目",
+        "NO_DATA_DESC": "为您的项目添加位置数据以在地图上查看。"
+      },
+      "GEO_STATS": {
+        "TITLE": "地理覆盖范围",
+        "ITEMS_WITH_LOCATION": "有位置信息的项目",
+        "REMOTE_SERVICES": "远程服务",
+        "SERVICE_AREAS": "服务区域",
+        "TOP_CITIES": "热门城市",
+        "TOP_COUNTRIES": "热门国家",
+        "LOCAL": "本地",
+        "REGIONAL": "区域",
+        "NATIONAL": "全国",
+        "GLOBAL": "全球",
+        "NO_DATA": "无位置数据",
+        "NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
       }
     }
   }

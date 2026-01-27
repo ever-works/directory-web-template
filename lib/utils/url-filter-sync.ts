@@ -8,6 +8,12 @@
 export interface FilterState {
   tags: string[];
   categories: string[];
+  // Location filter fields (optional)
+  nearLat?: number;
+  nearLng?: number;
+  radius?: number;
+  city?: string;
+  country?: string;
 }
 
 export interface URLFilterOptions {
@@ -36,6 +42,32 @@ function decodeFilterValue(value: string): string {
 }
 
 /**
+ * Check if any location filters are set
+ */
+function hasLocationFilters(filters: FilterState): boolean {
+  return !!(filters.nearLat !== undefined && filters.nearLng !== undefined) || !!filters.city || !!filters.country;
+}
+
+/**
+ * Append location-related query params to a URLSearchParams object
+ */
+function appendLocationParams(params: URLSearchParams, filters: FilterState): void {
+  if (filters.nearLat !== undefined && filters.nearLng !== undefined) {
+    params.set('near_lat', filters.nearLat.toString());
+    params.set('near_lng', filters.nearLng.toString());
+    if (filters.radius !== undefined) {
+      params.set('radius', filters.radius.toString());
+    }
+  }
+  if (filters.city) {
+    params.set('city', filters.city);
+  }
+  if (filters.country) {
+    params.set('country', filters.country);
+  }
+}
+
+/**
  * Generate URL based on current filter state
  *
  * Rules:
@@ -55,21 +87,40 @@ export function generateFilterURL(
   const hasCategories = categories.length > 0;
   const localePrefix = locale ? `/${locale}` : '';
 
-  // No filters: return base path
+  const hasLocation = hasLocationFilters(filters);
+
+  // No filters: return base path (with optional location params)
   if (!hasTags && !hasCategories) {
+    if (hasLocation) {
+      const params = new URLSearchParams();
+      appendLocationParams(params, filters);
+      return `${localePrefix}${basePath}?${params.toString()}`;
+    }
     return `${localePrefix}${basePath}`;
   }
 
-  // Single tag, no categories: clean URL
+  // Single tag, no categories: clean URL (with optional location params)
   if (tags.length === 1 && !hasCategories) {
     const encodedTag = encodeFilterValue(tags[0]);
-    return `${localePrefix}/tags/${encodedTag}`;
+    const cleanUrl = `${localePrefix}/tags/${encodedTag}`;
+    if (hasLocation) {
+      const params = new URLSearchParams();
+      appendLocationParams(params, filters);
+      return `${cleanUrl}?${params.toString()}`;
+    }
+    return cleanUrl;
   }
 
-  // Single category, no tags: clean URL
+  // Single category, no tags: clean URL (with optional location params)
   if (categories.length === 1 && !hasTags) {
     const encodedCategory = encodeFilterValue(categories[0]);
-    return `${localePrefix}/categories/${encodedCategory}`;
+    const cleanUrl = `${localePrefix}/categories/${encodedCategory}`;
+    if (hasLocation) {
+      const params = new URLSearchParams();
+      appendLocationParams(params, filters);
+      return `${cleanUrl}?${params.toString()}`;
+    }
+    return cleanUrl;
   }
 
   // Multiple filters: use query parameters
@@ -85,6 +136,9 @@ export function generateFilterURL(
     params.set('categories', encodedCategories);
   }
 
+  // Append location params if present
+  appendLocationParams(params, filters);
+
   return `${localePrefix}${basePath}?${params.toString()}`;
 }
 
@@ -95,7 +149,7 @@ export function parseFilterFromSearchParams(searchParams: URLSearchParams): Filt
   const tagsParam = searchParams.get('tags');
   const categoriesParam = searchParams.get('categories');
 
-  return {
+  const state: FilterState = {
     tags: tagsParam
       ? tagsParam.split(',').map(decodeFilterValue).filter(Boolean)
       : [],
@@ -103,6 +157,31 @@ export function parseFilterFromSearchParams(searchParams: URLSearchParams): Filt
       ? categoriesParam.split(',').map(decodeFilterValue).filter(Boolean)
       : [],
   };
+
+  // Parse location params
+  const nearLat = searchParams.get('near_lat');
+  const nearLng = searchParams.get('near_lng');
+  const radius = searchParams.get('radius');
+  const city = searchParams.get('city');
+  const country = searchParams.get('country');
+
+  if (nearLat && nearLng) {
+    const lat = parseFloat(nearLat);
+    const lng = parseFloat(nearLng);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      state.nearLat = lat;
+      state.nearLng = lng;
+      state.radius = radius ? parseInt(radius, 10) : undefined;
+    }
+  }
+  if (city) {
+    state.city = city;
+  }
+  if (country) {
+    state.country = country;
+  }
+
+  return state;
 }
 
 /**
@@ -129,7 +208,7 @@ export function parseFilterFromCategoryRoute(categorySlug: string): FilterState 
  * Check if a filter state is empty (no filters selected)
  */
 export function isFilterEmpty(filters: FilterState): boolean {
-  return filters.tags.length === 0 && filters.categories.length === 0;
+  return filters.tags.length === 0 && filters.categories.length === 0 && !hasLocationFilters(filters);
 }
 
 /**
@@ -144,7 +223,14 @@ export function areFiltersEqual(a: FilterState, b: FilterState): boolean {
     a.categories.length === b.categories.length &&
     a.categories.every((cat, index) => cat === b.categories[index]);
 
-  return tagsEqual && categoriesEqual;
+  const locationEqual =
+    a.nearLat === b.nearLat &&
+    a.nearLng === b.nearLng &&
+    a.radius === b.radius &&
+    a.city === b.city &&
+    a.country === b.country;
+
+  return tagsEqual && categoriesEqual && locationEqual;
 }
 
 /**

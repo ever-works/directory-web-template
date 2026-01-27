@@ -12,6 +12,25 @@ export type SortOption = 'popularity' | 'name-asc' | 'name-desc' | 'date-desc' |
 export type CategoryId = string;
 export type TagId = string;
 
+/**
+ * Coordinates for Near Me filter
+ */
+export interface NearMeCoordinates {
+  latitude: number;
+  longitude: number;
+  radius: number; // km
+}
+
+/**
+ * Location filter state
+ */
+export interface LocationFilterState {
+  nearMe?: NearMeCoordinates;
+  city?: string;
+  country?: string;
+  sortByDistance?: boolean;
+}
+
 export interface FilterContextType {
   searchTerm: string;
   setSearchTerm: Dispatch<SetStateAction<string>>;
@@ -34,6 +53,13 @@ export interface FilterContextType {
   selectedTag: TagId | null;
   setSelectedTag: Dispatch<SetStateAction<TagId | null>>;
   isFiltersLoading: boolean;
+  // Location filter state
+  locationFilter: LocationFilterState;
+  setNearMe: (coords: NearMeCoordinates | null) => void;
+  setLocationRadius: (radius: number) => void;
+  setLocationCity: (city: string | null) => void;
+  setLocationCountry: (country: string | null) => void;
+  clearLocationFilter: () => void;
 }
 
 /**
