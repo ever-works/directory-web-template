@@ -114,7 +114,7 @@ export function SponsorshipFilters({
 										key={filter.value}
 										value={filter.value}
 										className={cn(
-											"relative flex items-center justify-between gap-2!",
+											"relative flex items-center justify-between gap-2",
 											"px-3 py-1.5 rounded-md",
 											"text-sm font-medium",
 											"cursor-pointer outline-hidden",
@@ -192,7 +192,7 @@ export function SponsorshipFilters({
 										key={filter.value}
 										value={filter.value}
 										className={cn(
-											"relative flex items-center justify-between gap-2!",
+											"relative flex items-center justify-between gap-2",
 											"px-3 py-1.5 rounded-md",
 											"text-sm font-medium",
 											"cursor-pointer outline-hidden",
