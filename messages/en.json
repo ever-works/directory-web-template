@@ -393,7 +393,14 @@
 		"RETRY": "Retry",
 		"FILTER_STATUS_MATCH_ALL": "Showing {filtered} of {total} items that match all selected tags",
 		"FILTER_STATUS": "Showing {filtered} of {total} items",
-		"SHOWING_TOTAL_ITEMS": "Showing {total} items"
+		"SHOWING_TOTAL_ITEMS": "Showing {total} items",
+		"NEAR_ME": "Near Me",
+		"LOCATION_ERROR": "Location access denied",
+		"RADIUS": "Radius",
+		"CITY": "City",
+		"ALL_CITIES": "All cities",
+		"COUNTRY": "Country",
+		"ALL_COUNTRIES": "All countries"
 	},
 	"tagsModal": {
 		"SELECTED_TAGS": "Selected Tags",
@@ -414,7 +421,15 @@
 		"PUBLISHED": "Published",
 		"NO_TAGS_AVAILABLE": "No tags available",
 		"RATING": "Rating",
-		"PROMO_CODE": "Promo Code"
+		"PROMO_CODE": "Promo Code",
+		"LOCATION": "Location",
+		"REMOTE_SERVICE": "Remote / Online Service",
+		"REMOTE_SERVICE_DESC": "This service is available remotely and doesn't have a physical location.",
+		"GET_DIRECTIONS": "Get Directions",
+		"LOCAL_SERVICE": "Local Service",
+		"REGIONAL_SERVICE": "Regional Service",
+		"NATIONAL_SERVICE": "National Service",
+		"GLOBAL_SERVICE": "Global Service"
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "All rights reserved",
@@ -756,7 +771,9 @@
 			"SUBMIT_LISTING": "Submit Listing",
 			"NOT_PROVIDED": "Not provided",
 			"NOT_SELECTED": "Not selected",
-			"NONE_SELECTED": "None selected"
+			"NONE_SELECTED": "None selected",
+			"LOCATION": "Location",
+			"REMOTE_SERVICE": "Remote / Online Service"
 		},
 		"PLANS": {
 			"FREE_PLAN": "Free Plan",
@@ -1867,6 +1884,28 @@
 					"TIP_1": "Ensure URLs are valid and accessible",
 					"TIP_2": "Use high-quality icons (min 256x256px recommended)",
 					"TIP_3": "Icons should be in PNG or SVG format for best quality"
+				},
+				"LOCATION": {
+					"TITLE": "Location",
+					"DESCRIPTION": "Add location information for this item",
+					"REMOTE_LABEL": "Remote / Online Service",
+					"REMOTE_HELP": "This service is available online without a physical location",
+					"ADDRESS_LABEL": "Address",
+					"SERVICE_AREA_LABEL": "Service Area",
+					"SERVICE_AREA_PLACEHOLDER": "Select service area",
+					"SUMMARY_TITLE": "Location Summary",
+					"SUMMARY_ADDRESS": "Address",
+					"SUMMARY_LOCATION": "Location",
+					"SUMMARY_COORDINATES": "Coordinates",
+					"SUMMARY_SERVICE_AREA": "Service Area",
+					"SUMMARY_REMOTE": "This is a remote/online service",
+					"REQUIRED_ERROR": "Location is required for non-remote items",
+					"SERVICE_AREA_OPTIONS": {
+						"LOCAL": "Local (city/neighborhood)",
+						"REGIONAL": "Regional (state/province)",
+						"NATIONAL": "National (country-wide)",
+						"GLOBAL": "Global (worldwide)"
+					}
 				},
 				"REVIEW": {
 					"TITLE": "Review & Submit",

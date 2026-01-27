@@ -2481,8 +2481,8 @@
       "TITLE": "Company Management",
       "SUBTITLE": "Manage companies and their information",
       "ADD_COMPANY": "Add Company",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Search",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Companies",
@@ -3075,9 +3075,9 @@
         "LOCAL": "Lokaal",
         "REGIONAL": "Regionaal",
         "NATIONAL": "Nationaal",
-        "GLOBAL": "Wereldwijd",
+        "GLOBAL": "Globaal",
         "NO_DATA": "Geen locatiegegevens",
-        "NO_DATA_DESC": "Voeg locatiegegevens toe om de geografische dekking te zien."
+        "NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om de geografische dekking te zien."
       }
     }
   }

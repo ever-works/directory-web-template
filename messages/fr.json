@@ -2572,8 +2572,8 @@
       "TITLE": "Gestion des Entreprises",
       "SUBTITLE": "Gérer les entreprises et leurs informations",
       "ADD_COMPANY": "Ajouter une Entreprise",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Rechercher",
       "STATUS_LABEL": "Statut",
       "TOTAL_COMPANIES": "Entreprises Totales",
@@ -3165,14 +3165,14 @@
         "ITEMS_WITH_LOCATION": "Éléments avec localisation",
         "REMOTE_SERVICES": "Services à distance",
         "SERVICE_AREAS": "Zones de service",
-        "TOP_CITIES": "Villes principales",
-        "TOP_COUNTRIES": "Pays principaux",
+        "TOP_CITIES": "Principales villes",
+        "TOP_COUNTRIES": "Principaux pays",
         "LOCAL": "Local",
         "REGIONAL": "Régional",
         "NATIONAL": "National",
         "GLOBAL": "Mondial",
         "NO_DATA": "Aucune donnée de localisation",
-        "NO_DATA_DESC": "Ajoutez des données de localisation pour voir la couverture géographique."
+        "NO_DATA_DESC": "Ajoutez des données de localisation à vos éléments pour voir la couverture géographique."
       }
     }
   }

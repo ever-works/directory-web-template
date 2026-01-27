@@ -2595,8 +2595,8 @@
       "TITLE": "Şirket Yönetimi",
       "SUBTITLE": "Şirketleri ve bilgilerini yönetin",
       "ADD_COMPANY": "Şirket Ekle",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Ara",
       "STATUS_LABEL": "Durum",
       "TOTAL_COMPANIES": "Toplam Şirket",
@@ -3263,10 +3263,10 @@
         "RETRY": "Yeniden Dene"
       },
       "ITEMS_MAP": {
-        "TITLE": "Öğelerinizin Haritası",
+        "TITLE": "Öğe Haritanız",
         "WITH_LOCATION": "konumlu",
         "NO_DATA": "Konum verisi olan öğe yok",
-        "NO_DATA_DESC": "Öğelerinize konum verisi ekleyerek haritada görebilirsiniz."
+        "NO_DATA_DESC": "Haritada görmek için öğelerinize konum verisi ekleyin."
       },
       "GEO_STATS": {
         "TITLE": "Coğrafi Kapsam",

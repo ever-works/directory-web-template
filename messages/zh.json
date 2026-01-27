@@ -2513,8 +2513,8 @@
       "TITLE": "公司管理",
       "SUBTITLE": "管理公司及其信息",
       "ADD_COMPANY": "添加公司",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "搜索",
       "STATUS_LABEL": "状态",
       "TOTAL_COMPANIES": "公司总数",
@@ -3093,13 +3093,13 @@
       },
       "ITEMS_MAP": {
         "TITLE": "您的项目地图",
-        "WITH_LOCATION": "有位置",
+        "WITH_LOCATION": "有位置信息",
         "NO_DATA": "没有包含位置数据的项目",
         "NO_DATA_DESC": "为您的项目添加位置数据以在地图上查看。"
       },
       "GEO_STATS": {
-        "TITLE": "地理覆盖",
-        "ITEMS_WITH_LOCATION": "有位置的项目",
+        "TITLE": "地理覆盖范围",
+        "ITEMS_WITH_LOCATION": "有位置信息的项目",
         "REMOTE_SERVICES": "远程服务",
         "SERVICE_AREAS": "服务区域",
         "TOP_CITIES": "热门城市",
@@ -3109,7 +3109,7 @@
         "NATIONAL": "全国",
         "GLOBAL": "全球",
         "NO_DATA": "无位置数据",
-        "NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖。"
+        "NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
       }
     }
   }

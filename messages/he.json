@@ -2475,8 +2475,8 @@
       "TITLE": "Company Management",
       "SUBTITLE": "Manage companies and their information",
       "ADD_COMPANY": "Add Company",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Search",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Companies",
@@ -2977,7 +2977,8 @@
       "DESCRIPTION": "תיאור",
       "EDIT_SUBMISSION_TITLE": "ערוך הגשה",
       "EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך"
-    },
+    }
+  ,
     "dashboard": {
       "ITEMS_MAP": {
         "TITLE": "מפת הפריטים שלך",

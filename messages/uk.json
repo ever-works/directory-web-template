@@ -2481,8 +2481,8 @@
       "TITLE": "Company Management",
       "SUBTITLE": "Manage companies and their information",
       "ADD_COMPANY": "Add Company",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Search",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Companies",
@@ -2959,13 +2959,14 @@
       "PER_PAGE": "На сторінці",
       "ITEMS": "елементів",
       "ITEMS_PER_PAGE": "Елементів на сторінці"
-    },
+    }
+  ,
     "dashboard": {
       "ITEMS_MAP": {
         "TITLE": "Карта ваших елементів",
         "WITH_LOCATION": "з місцезнаходженням",
         "NO_DATA": "Немає елементів з даними про місцезнаходження",
-        "NO_DATA_DESC": "Додайте дані про місцезнаходження, щоб побачити їх на карті."
+        "NO_DATA_DESC": "Додайте дані про місцезнаходження до ваших елементів, щоб побачити їх на карті."
       },
       "GEO_STATS": {
         "TITLE": "Географічне покриття",
@@ -2974,12 +2975,12 @@
         "SERVICE_AREAS": "Зони обслуговування",
         "TOP_CITIES": "Топ міст",
         "TOP_COUNTRIES": "Топ країн",
-        "LOCAL": "Локальний",
+        "LOCAL": "Місцевий",
         "REGIONAL": "Регіональний",
         "NATIONAL": "Національний",
         "GLOBAL": "Глобальний",
         "NO_DATA": "Немає даних про місцезнаходження",
-        "NO_DATA_DESC": "Додайте дані про місцезнаходження для перегляду географічного покриття."
+        "NO_DATA_DESC": "Додайте дані про місцезнаходження до ваших елементів, щоб побачити географічне покриття."
       }
     }
   }

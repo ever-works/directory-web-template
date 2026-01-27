@@ -2577,8 +2577,8 @@
       "TITLE": "Quản lý công ty",
       "SUBTITLE": "Quản lý công ty và thông tin của họ",
       "ADD_COMPANY": "Thêm công ty",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Tìm kiếm",
       "STATUS_LABEL": "Trạng thái",
       "TOTAL_COMPANIES": "Tổng số công ty",
@@ -3283,7 +3283,7 @@
         "TITLE": "Bản đồ mục của bạn",
         "WITH_LOCATION": "có vị trí",
         "NO_DATA": "Không có mục nào có dữ liệu vị trí",
-        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục để xem chúng trên bản đồ."
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem chúng trên bản đồ."
       },
       "GEO_STATS": {
         "TITLE": "Phạm vi địa lý",
@@ -3297,7 +3297,7 @@
         "NATIONAL": "Quốc gia",
         "GLOBAL": "Toàn cầu",
         "NO_DATA": "Không có dữ liệu vị trí",
-        "NO_DATA_DESC": "Thêm dữ liệu vị trí để xem phạm vi địa lý."
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem phạm vi địa lý."
       }
     }
   }

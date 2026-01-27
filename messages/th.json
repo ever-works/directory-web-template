@@ -2481,8 +2481,8 @@
       "TITLE": "Company Management",
       "SUBTITLE": "Manage companies and their information",
       "ADD_COMPANY": "Add Company",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Search",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Companies",
@@ -2979,16 +2979,17 @@
       "DESCRIPTION": "คำอธิบาย",
       "EDIT_SUBMISSION_TITLE": "แก้ไขการส่ง",
       "EDIT_SUBMISSION_DESC": "อัปเดตรายละเอียดการส่งของคุณ"
-    },
+    }
+  ,
     "dashboard": {
       "ITEMS_MAP": {
         "TITLE": "แผนที่รายการของคุณ",
         "WITH_LOCATION": "มีตำแหน่ง",
         "NO_DATA": "ไม่มีรายการที่มีข้อมูลตำแหน่ง",
-        "NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งให้รายการของคุณเพื่อดูบนแผนที่"
+        "NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งในรายการของคุณเพื่อดูบนแผนที่"
       },
       "GEO_STATS": {
-        "TITLE": "การครอบคลุมทางภูมิศาสตร์",
+        "TITLE": "ความครอบคลุมทางภูมิศาสตร์",
         "ITEMS_WITH_LOCATION": "รายการที่มีตำแหน่ง",
         "REMOTE_SERVICES": "บริการระยะไกล",
         "SERVICE_AREAS": "พื้นที่ให้บริการ",
@@ -2996,10 +2997,10 @@
         "TOP_COUNTRIES": "ประเทศยอดนิยม",
         "LOCAL": "ท้องถิ่น",
         "REGIONAL": "ภูมิภาค",
-        "NATIONAL": "ระดับชาติ",
-        "GLOBAL": "ทั่วโลก",
+        "NATIONAL": "ระดับประเทศ",
+        "GLOBAL": "ระดับโลก",
         "NO_DATA": "ไม่มีข้อมูลตำแหน่ง",
-        "NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งเพื่อดูการครอบคลุมทางภูมิศาสตร์"
+        "NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งในรายการของคุณเพื่อดูความครอบคลุมทางภูมิศาสตร์"
       }
     }
   }

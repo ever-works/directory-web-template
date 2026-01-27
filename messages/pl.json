@@ -2481,8 +2481,8 @@
       "TITLE": "Company Management",
       "SUBTITLE": "Manage companies and their information",
       "ADD_COMPANY": "Add Company",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Search",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Companies",
@@ -3070,14 +3070,14 @@
         "ITEMS_WITH_LOCATION": "Elementy z lokalizacją",
         "REMOTE_SERVICES": "Usługi zdalne",
         "SERVICE_AREAS": "Obszary usług",
-        "TOP_CITIES": "Najlepsze miasta",
-        "TOP_COUNTRIES": "Najlepsze kraje",
+        "TOP_CITIES": "Najważniejsze miasta",
+        "TOP_COUNTRIES": "Najważniejsze kraje",
         "LOCAL": "Lokalny",
         "REGIONAL": "Regionalny",
         "NATIONAL": "Krajowy",
         "GLOBAL": "Globalny",
         "NO_DATA": "Brak danych lokalizacji",
-        "NO_DATA_DESC": "Dodaj dane lokalizacji, aby zobaczyć zasięg geograficzny."
+        "NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć zasięg geograficzny."
       }
     }
   }

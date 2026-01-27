@@ -2514,8 +2514,8 @@
       "TITLE": "Unternehmensverwaltung",
       "SUBTITLE": "Unternehmen und ihre Informationen verwalten",
       "ADD_COMPANY": "Unternehmen hinzufügen",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Suchen",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Unternehmen insgesamt",
@@ -3097,7 +3097,7 @@
         "RETRY": "Erneut versuchen"
       },
       "ITEMS_MAP": {
-        "TITLE": "Ihre Einträge auf der Karte",
+        "TITLE": "Ihre Einträge-Karte",
         "WITH_LOCATION": "mit Standort",
         "NO_DATA": "Keine Einträge mit Standortdaten",
         "NO_DATA_DESC": "Fügen Sie Standortdaten zu Ihren Einträgen hinzu, um sie auf der Karte zu sehen."
@@ -3114,7 +3114,7 @@
         "NATIONAL": "National",
         "GLOBAL": "Global",
         "NO_DATA": "Keine Standortdaten",
-        "NO_DATA_DESC": "Fügen Sie Standortdaten hinzu, um die geografische Abdeckung zu sehen."
+        "NO_DATA_DESC": "Fügen Sie Standortdaten zu Ihren Einträgen hinzu, um die geografische Abdeckung zu sehen."
       }
     }
   }

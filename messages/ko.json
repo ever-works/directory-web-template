@@ -2595,8 +2595,8 @@
       "TITLE": "회사 관리",
       "SUBTITLE": "회사 및 정보 관리",
       "ADD_COMPANY": "회사 추가",
-      "SEARCH_PLACEHOLDER": "Search by name or domain...",
-      "CLEAR_SEARCH": "Clear search",
+			"SEARCH_PLACEHOLDER": "Search by name or domain...",
+			"CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "검색",
       "STATUS_LABEL": "상태",
       "TOTAL_COMPANIES": "총 회사",
@@ -3263,14 +3263,14 @@
         "RETRY": "재시도"
       },
       "ITEMS_MAP": {
-        "TITLE": "아이템 지도",
-        "WITH_LOCATION": "위치 있음",
-        "NO_DATA": "위치 데이터가 있는 아이템이 없습니다",
-        "NO_DATA_DESC": "아이템에 위치 데이터를 추가하면 지도에서 볼 수 있습니다."
+        "TITLE": "항목 지도",
+        "WITH_LOCATION": "위치 포함",
+        "NO_DATA": "위치 데이터가 있는 항목이 없습니다",
+        "NO_DATA_DESC": "항목에 위치 데이터를 추가하여 지도에서 확인하세요."
       },
       "GEO_STATS": {
-        "TITLE": "지리적 커버리지",
-        "ITEMS_WITH_LOCATION": "위치가 있는 아이템",
+        "TITLE": "지리적 범위",
+        "ITEMS_WITH_LOCATION": "위치가 있는 항목",
         "REMOTE_SERVICES": "원격 서비스",
         "SERVICE_AREAS": "서비스 지역",
         "TOP_CITIES": "상위 도시",
@@ -3280,7 +3280,7 @@
         "NATIONAL": "전국",
         "GLOBAL": "글로벌",
         "NO_DATA": "위치 데이터 없음",
-        "NO_DATA_DESC": "지리적 커버리지를 보려면 아이템에 위치 데이터를 추가하세요."
+        "NO_DATA_DESC": "지리적 범위를 확인하려면 항목에 위치 데이터를 추가하세요."
       }
     }
   }
