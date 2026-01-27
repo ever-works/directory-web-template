@@ -1,3 +1,5 @@
+import type { MapProvider } from './location';
+
 /**
  * Location data for items that can be geocoded.
  * This data is stored in YAML and indexed in item_location_index for fast geo queries.
@@ -12,6 +14,7 @@ export interface ItemLocationData {
   longitude?: number; // Pre-geocoded longitude (optional)
   service_area?: string; // Service area description (e.g., "Nationwide", "New York Metro")
   is_remote?: boolean; // Whether this item operates remotely/virtually
+  geocoded_by?: MapProvider; // Track which geocoding provider was used
 }
 
 export interface ItemData {

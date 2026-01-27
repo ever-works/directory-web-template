@@ -763,7 +763,9 @@
 			"SUBMIT_LISTING": "Submit Listing",
 			"NOT_PROVIDED": "Not provided",
 			"NOT_SELECTED": "Not selected",
-			"NONE_SELECTED": "None selected"
+			"NONE_SELECTED": "None selected",
+			"LOCATION": "Location",
+			"REMOTE_SERVICE": "Remote / Online Service"
 		},
 		"PLANS": {
 			"FREE_PLAN": "Free Plan",
@@ -1874,6 +1876,28 @@
 					"TIP_1": "Ensure URLs are valid and accessible",
 					"TIP_2": "Use high-quality icons (min 256x256px recommended)",
 					"TIP_3": "Icons should be in PNG or SVG format for best quality"
+				},
+				"LOCATION": {
+					"TITLE": "Location",
+					"DESCRIPTION": "Add location information for this item",
+					"REMOTE_LABEL": "Remote / Online Service",
+					"REMOTE_HELP": "This service is available online without a physical location",
+					"ADDRESS_LABEL": "Address",
+					"SERVICE_AREA_LABEL": "Service Area",
+					"SERVICE_AREA_PLACEHOLDER": "Select service area",
+					"SUMMARY_TITLE": "Location Summary",
+					"SUMMARY_ADDRESS": "Address",
+					"SUMMARY_LOCATION": "Location",
+					"SUMMARY_COORDINATES": "Coordinates",
+					"SUMMARY_SERVICE_AREA": "Service Area",
+					"SUMMARY_REMOTE": "This is a remote/online service",
+					"REQUIRED_ERROR": "Location is required for non-remote items",
+					"SERVICE_AREA_OPTIONS": {
+						"LOCAL": "Local (city/neighborhood)",
+						"REGIONAL": "Regional (state/province)",
+						"NATIONAL": "National (country-wide)",
+						"GLOBAL": "Global (worldwide)"
+					}
 				},
 				"REVIEW": {
 					"TITLE": "Review & Submit",
