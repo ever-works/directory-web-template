@@ -3,7 +3,7 @@
 import * as React from 'react';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useTranslations } from 'next-intl';
-import { FiSearch, FiX, FiLoader, FiChevronDown } from 'react-icons/fi';
+import { FiSearch, FiX, FiLoader } from 'react-icons/fi';
 import { ChevronDown, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SponsorAdStatus } from '@/lib/types/sponsor-ad';
@@ -86,7 +86,7 @@ export function SponsorshipFilters({
 								{currentStatusOption ? t(`STATUS_${currentStatusOption.labelKey}`) : t('STATUS_ALL')}
 							</span>
 
-							<FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+							<ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 						</button>
 					</DropdownMenu.Trigger>
 
@@ -164,7 +164,7 @@ export function SponsorshipFilters({
 								{currentIntervalOption ? t(`INTERVAL_${currentIntervalOption.labelKey}`) : t('INTERVAL_ALL')}
 							</span>
 
-							<FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+							<ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180 absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
 						</button>
 					</DropdownMenu.Trigger>
 
