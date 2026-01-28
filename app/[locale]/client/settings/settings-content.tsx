@@ -2,7 +2,7 @@
 
 import { Container } from '@/components/ui/container';
 import { Card, CardContent } from '@/components/ui/card';
-import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard } from 'react-icons/fi';
+import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard, FiMapPin } from 'react-icons/fi';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
@@ -50,6 +50,13 @@ export function SettingsContent() {
 			description: t('SETTINGS_CARDS.BASIC_INFO.DESCRIPTION'),
 			icon: <FiUser className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
 			href: `/client/settings/profile/basic-info`
+		},
+		{
+			id: 'location',
+			title: t('SETTINGS_CARDS.LOCATION.TITLE'),
+			description: t('SETTINGS_CARDS.LOCATION.DESCRIPTION'),
+			icon: <FiMapPin className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
+			href: `/client/settings/profile/location`
 		},
 		{
 			id: 'security',

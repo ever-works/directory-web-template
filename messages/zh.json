@@ -499,7 +499,32 @@
       "BILLING": {
         "TITLE": "账单",
         "DESCRIPTION": "管理您的账单信息和订阅详情"
+      },
+      "LOCATION": {
+        "TITLE": "位置设置",
+        "DESCRIPTION": "设置默认位置以进行附近搜索并管理位置隐私"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "位置设置",
+      "DESCRIPTION": "设置在浏览器地理定位不可用时使用的默认位置",
+      "BACK": "返回设置",
+      "DEFAULT_LOCATION": "默认位置",
+      "DEFAULT_LOCATION_HELP": "当浏览器地理定位不可用时，此位置将用于附近搜索功能",
+      "PRIVACY": "位置隐私",
+      "PRIVACY_HELP": "控制您的位置数据的使用方式",
+      "PRIVACY_PRIVATE": "私密",
+      "PRIVACY_PRIVATE_DESC": "仅用于您自己的搜索",
+      "PRIVACY_CITY": "仅城市",
+      "PRIVACY_CITY_DESC": "在您的个人资料中显示您的城市",
+      "PRIVACY_EXACT": "精确位置",
+      "PRIVACY_EXACT_DESC": "在个人资料中显示您的完整位置",
+      "SAVE": "保存位置",
+      "SAVING": "保存中...",
+      "CLEAR": "清除位置",
+      "SAVED": "位置保存成功",
+      "CLEARED": "位置已清除",
+      "SAVE_ERROR": "保存位置失败"
     },
     "SECURITY_PAGE": {
       "TITLE": "安全设置",
