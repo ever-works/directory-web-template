@@ -1,13 +1,9 @@
-import { useState, useCallback } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
-import { serverClient, apiUtils } from "@/lib/api/server-api-client";
-import type {
-	SponsorAdStatus,
-	SponsorAdIntervalType,
-	SponsorAdStats,
-} from "@/lib/types/sponsor-ad";
-import type { SponsorAd } from "@/lib/db/schema";
+import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { toast } from 'sonner';
+import { serverClient, apiUtils } from '@/lib/api/server-api-client';
+import type { SponsorAdStatus, SponsorAdIntervalType, SponsorAdStats } from '@/lib/types/sponsor-ad';
+import type { SponsorAd } from '@/lib/db/schema';
 
 // ######################### Types #########################
 
@@ -31,7 +27,7 @@ interface SponsorAdResponse {
 	message?: string;
 }
 
-type SponsorAdSortBy = "createdAt" | "updatedAt" | "startDate" | "endDate" | "status";
+type SponsorAdSortBy = 'createdAt' | 'updatedAt' | 'startDate' | 'endDate' | 'status';
 
 interface UseAdminSponsorAdsOptions {
 	page?: number;
@@ -40,7 +36,7 @@ interface UseAdminSponsorAdsOptions {
 	interval?: SponsorAdIntervalType;
 	search?: string;
 	sortBy?: SponsorAdSortBy;
-	sortOrder?: "asc" | "desc";
+	sortOrder?: 'asc' | 'desc';
 }
 
 interface UseAdminSponsorAdsReturn {
@@ -57,25 +53,22 @@ interface UseAdminSponsorAdsReturn {
 	totalPages: number;
 	totalItems: number;
 
-	// Filters
-	statusFilter: SponsorAdStatus | undefined;
-	intervalFilter: SponsorAdIntervalType | undefined;
-	searchTerm: string;
+	// Sorting
 	sortBy: SponsorAdSortBy;
-	sortOrder: "asc" | "desc";
+	sortOrder: 'asc' | 'desc';
 
 	// Actions
-	approveSponsorAd: (id: string, forceApprove?: boolean) => Promise<{ success: boolean; requiresForceApprove?: boolean }>;
+	approveSponsorAd: (
+		id: string,
+		forceApprove?: boolean
+	) => Promise<{ success: boolean; requiresForceApprove?: boolean }>;
 	rejectSponsorAd: (id: string, reason: string) => Promise<boolean>;
 	cancelSponsorAd: (id: string, reason?: string) => Promise<boolean>;
 	deleteSponsorAd: (id: string) => Promise<boolean>;
 
-	// Filter actions
-	setStatusFilter: (status: SponsorAdStatus | undefined) => void;
-	setIntervalFilter: (interval: SponsorAdIntervalType | undefined) => void;
-	setSearchTerm: (term: string) => void;
+	// Setters
 	setSortBy: (sortBy: SponsorAdSortBy) => void;
-	setSortOrder: (order: "asc" | "desc") => void;
+	setSortOrder: (order: 'asc' | 'desc') => void;
 	setCurrentPage: (page: number) => void;
 
 	// Utility
@@ -85,19 +78,16 @@ interface UseAdminSponsorAdsReturn {
 // ######################### Query Keys #########################
 
 const sponsorAdsQueryKeys = {
-	all: ["sponsor-ads"] as const,
-	lists: () => [...sponsorAdsQueryKeys.all, "list"] as const,
-	list: (filters: Record<string, unknown>) =>
-		[...sponsorAdsQueryKeys.lists(), filters] as const,
-	details: () => [...sponsorAdsQueryKeys.all, "detail"] as const,
-	detail: (id: string) => [...sponsorAdsQueryKeys.details(), id] as const,
+	all: ['sponsor-ads'] as const,
+	lists: () => [...sponsorAdsQueryKeys.all, 'list'] as const,
+	list: (filters: Record<string, unknown>) => [...sponsorAdsQueryKeys.lists(), filters] as const,
+	details: () => [...sponsorAdsQueryKeys.all, 'detail'] as const,
+	detail: (id: string) => [...sponsorAdsQueryKeys.details(), id] as const
 };
 
 // ######################### API Functions #########################
 
-const fetchSponsorAds = async (
-	params: UseAdminSponsorAdsOptions
-): Promise<SponsorAdsResponse> => {
+const fetchSponsorAds = async (params: UseAdminSponsorAdsOptions): Promise<SponsorAdsResponse> => {
 	const queryParams = apiUtils.createQueryString({
 		page: params.page,
 		limit: params.limit,
@@ -105,12 +95,10 @@ const fetchSponsorAds = async (
 		interval: params.interval,
 		search: params.search,
 		sortBy: params.sortBy,
-		sortOrder: params.sortOrder,
+		sortOrder: params.sortOrder
 	});
 
-	const response = await serverClient.get<SponsorAdsResponse>(
-		`/api/admin/sponsor-ads?${queryParams}`
-	);
+	const response = await serverClient.get<SponsorAdsResponse>(`/api/admin/sponsor-ads?${queryParams}`);
 
 	if (!apiUtils.isSuccess(response)) {
 		throw new Error(apiUtils.getErrorMessage(response));
@@ -119,14 +107,10 @@ const fetchSponsorAds = async (
 	return response.data;
 };
 
-const approveSponsorAdApi = async (
-	id: string,
-	forceApprove: boolean = false
-): Promise<SponsorAdResponse> => {
-	const response = await serverClient.post<SponsorAdResponse>(
-		`/api/admin/sponsor-ads/${id}/approve`,
-		{ forceApprove }
-	);
+const approveSponsorAdApi = async (id: string, forceApprove: boolean = false): Promise<SponsorAdResponse> => {
+	const response = await serverClient.post<SponsorAdResponse>(`/api/admin/sponsor-ads/${id}/approve`, {
+		forceApprove
+	});
 
 	if (!apiUtils.isSuccess(response)) {
 		throw new Error(apiUtils.getErrorMessage(response));
@@ -135,14 +119,10 @@ const approveSponsorAdApi = async (
 	return response.data;
 };
 
-const rejectSponsorAdApi = async (
-	id: string,
-	rejectionReason: string
-): Promise<SponsorAdResponse> => {
-	const response = await serverClient.post<SponsorAdResponse>(
-		`/api/admin/sponsor-ads/${id}/reject`,
-		{ rejectionReason }
-	);
+const rejectSponsorAdApi = async (id: string, rejectionReason: string): Promise<SponsorAdResponse> => {
+	const response = await serverClient.post<SponsorAdResponse>(`/api/admin/sponsor-ads/${id}/reject`, {
+		rejectionReason
+	});
 
 	if (!apiUtils.isSuccess(response)) {
 		throw new Error(apiUtils.getErrorMessage(response));
@@ -151,14 +131,10 @@ const rejectSponsorAdApi = async (
 	return response.data;
 };
 
-const cancelSponsorAdApi = async (
-	id: string,
-	cancelReason?: string
-): Promise<SponsorAdResponse> => {
-	const response = await serverClient.post<SponsorAdResponse>(
-		`/api/admin/sponsor-ads/${id}/cancel`,
-		{ cancelReason }
-	);
+const cancelSponsorAdApi = async (id: string, cancelReason?: string): Promise<SponsorAdResponse> => {
+	const response = await serverClient.post<SponsorAdResponse>(`/api/admin/sponsor-ads/${id}/cancel`, {
+		cancelReason
+	});
 
 	if (!apiUtils.isSuccess(response)) {
 		throw new Error(apiUtils.getErrorMessage(response));
@@ -167,9 +143,7 @@ const cancelSponsorAdApi = async (
 	return response.data;
 };
 
-const deleteSponsorAdApi = async (
-	id: string
-): Promise<{ success: boolean; message: string }> => {
+const deleteSponsorAdApi = async (id: string): Promise<{ success: boolean; message: string }> => {
 	const response = await serverClient.delete<{
 		success: boolean;
 		message: string;
@@ -184,53 +158,35 @@ const deleteSponsorAdApi = async (
 
 // ######################### Hook #########################
 
-export function useAdminSponsorAds(
-	options: UseAdminSponsorAdsOptions = {}
-): UseAdminSponsorAdsReturn {
+export function useAdminSponsorAds(options: UseAdminSponsorAdsOptions = {}): UseAdminSponsorAdsReturn {
 	const {
 		page: initialPage = 1,
 		limit = 10,
-		status: initialStatus,
-		interval: initialInterval,
-		search: initialSearch = "",
-		sortBy: initialSortBy = "createdAt",
-		sortOrder: initialSortOrder = "desc",
+		status,
+		interval,
+		search,
+		sortBy: initialSortBy = 'createdAt',
+		sortOrder: initialSortOrder = 'desc'
 	} = options;
 
-	// State for filters
+	// State for pagination and sorting only (filters are now passed in)
 	const [currentPage, setCurrentPage] = useState(initialPage);
-	const [statusFilter, setStatusFilter] = useState<SponsorAdStatus | undefined>(
-		initialStatus
-	);
-	const [intervalFilter, setIntervalFilter] = useState<
-		SponsorAdIntervalType | undefined
-	>(initialInterval);
-	const [searchTerm, setSearchTerm] = useState(initialSearch);
 	const [sortBy, setSortBy] = useState<SponsorAdSortBy>(initialSortBy);
-	const [sortOrder, setSortOrder] = useState<"asc" | "desc">(initialSortOrder);
+	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(initialSortOrder);
 
-	// Wrapped filter setters that reset pagination
-	const handleSetStatusFilter = useCallback((status: SponsorAdStatus | undefined) => {
-		setStatusFilter(status);
-		setCurrentPage(1);
-	}, []);
+	// Sync internal page state when external page prop changes
+	// This ensures filter changes that reset page externally are reflected
+	useEffect(() => {
+		setCurrentPage(initialPage);
+	}, [initialPage]);
 
-	const handleSetIntervalFilter = useCallback((interval: SponsorAdIntervalType | undefined) => {
-		setIntervalFilter(interval);
-		setCurrentPage(1);
-	}, []);
-
-	const handleSetSearchTerm = useCallback((term: string) => {
-		setSearchTerm(term);
-		setCurrentPage(1);
-	}, []);
-
+	// Wrapped sort setters that reset pagination
 	const handleSetSortBy = useCallback((newSortBy: SponsorAdSortBy) => {
 		setSortBy(newSortBy);
 		setCurrentPage(1);
 	}, []);
 
-	const handleSetSortOrder = useCallback((order: "asc" | "desc") => {
+	const handleSetSortOrder = useCallback((order: 'asc' | 'desc') => {
 		setSortOrder(order);
 		setCurrentPage(1);
 	}, []);
@@ -238,26 +194,27 @@ export function useAdminSponsorAds(
 	// Query client for cache management
 	const queryClient = useQueryClient();
 
-	// Query parameters
-	const queryParams = {
-		page: currentPage,
-		limit,
-		status: statusFilter,
-		interval: intervalFilter,
-		search: searchTerm || undefined,
-		sortBy,
-		sortOrder,
-	};
+	// Query parameters - memoized to prevent unnecessary re-renders
+	const queryParams = useMemo(
+		() => ({
+			page: currentPage,
+			limit,
+			status,
+			interval,
+			search: search || undefined,
+			sortBy,
+			sortOrder
+		}),
+		[currentPage, limit, status, interval, search, sortBy, sortOrder]
+	);
 
 	// Fetch sponsor ads
-	const {
-		data: sponsorAdsData,
-		isLoading,
-	} = useQuery({
+	const { data: sponsorAdsData, isLoading } = useQuery({
 		queryKey: sponsorAdsQueryKeys.list(queryParams),
 		queryFn: () => fetchSponsorAds(queryParams),
 		staleTime: 2 * 60 * 1000, // 2 minutes
 		gcTime: 5 * 60 * 1000, // 5 minutes
+		placeholderData: keepPreviousData
 	});
 
 	// Mutations - use refetchQueries for immediate UI update
@@ -266,59 +223,54 @@ export function useAdminSponsorAds(
 			approveSponsorAdApi(id, forceApprove),
 		onSuccess: async () => {
 			await queryClient.refetchQueries({ queryKey: sponsorAdsQueryKeys.all });
-			toast.success("Sponsor ad approved and activated");
+			toast.success('Sponsor ad approved and activated');
 		},
 		onError: (error: Error) => {
 			// Don't show toast for PAYMENT_NOT_RECEIVED - handled by UI
-			if (error.message !== "PAYMENT_NOT_RECEIVED") {
+			if (error.message !== 'PAYMENT_NOT_RECEIVED') {
 				toast.error(`Failed to approve: ${error.message}`);
 			}
-		},
+		}
 	});
 
 	const rejectMutation = useMutation({
-		mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-			rejectSponsorAdApi(id, reason),
+		mutationFn: ({ id, reason }: { id: string; reason: string }) => rejectSponsorAdApi(id, reason),
 		onSuccess: async () => {
 			await queryClient.refetchQueries({ queryKey: sponsorAdsQueryKeys.all });
-			toast.success("Sponsor ad rejected");
+			toast.success('Sponsor ad rejected');
 		},
 		onError: (error: Error) => {
 			toast.error(`Failed to reject: ${error.message}`);
-		},
+		}
 	});
 
 	const cancelMutation = useMutation({
-		mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
-			cancelSponsorAdApi(id, reason),
+		mutationFn: ({ id, reason }: { id: string; reason?: string }) => cancelSponsorAdApi(id, reason),
 		onSuccess: async () => {
 			await queryClient.refetchQueries({ queryKey: sponsorAdsQueryKeys.all });
-			toast.success("Sponsor ad cancelled");
+			toast.success('Sponsor ad cancelled');
 		},
 		onError: (error: Error) => {
 			toast.error(`Failed to cancel: ${error.message}`);
-		},
+		}
 	});
 
 	const deleteMutation = useMutation({
 		mutationFn: deleteSponsorAdApi,
 		onSuccess: async () => {
 			await queryClient.refetchQueries({ queryKey: sponsorAdsQueryKeys.all });
-			toast.success("Sponsor ad deleted");
+			toast.success('Sponsor ad deleted');
 		},
 		onError: (error: Error) => {
 			toast.error(`Failed to delete: ${error.message}`);
-		},
+		}
 	});
 
 	// Derived data
 	const sponsorAds = sponsorAdsData?.data || [];
 	const stats = sponsorAdsData?.stats || null;
 	const isSubmitting =
-		approveMutation.isPending ||
-		rejectMutation.isPending ||
-		cancelMutation.isPending ||
-		deleteMutation.isPending;
+		approveMutation.isPending || rejectMutation.isPending || cancelMutation.isPending || deleteMutation.isPending;
 	const totalPages = sponsorAdsData?.pagination.totalPages || 1;
 	const totalItems = sponsorAdsData?.pagination.total || 0;
 
@@ -329,13 +281,16 @@ export function useAdminSponsorAds(
 
 	// Action handlers
 	const handleApprove = useCallback(
-		async (id: string, forceApprove: boolean = false): Promise<{ success: boolean; requiresForceApprove?: boolean }> => {
+		async (
+			id: string,
+			forceApprove: boolean = false
+		): Promise<{ success: boolean; requiresForceApprove?: boolean }> => {
 			try {
 				await approveMutation.mutateAsync({ id, forceApprove });
 				return { success: true };
 			} catch (error) {
 				// Check if it's a payment not received error
-				if (error instanceof Error && error.message === "PAYMENT_NOT_RECEIVED") {
+				if (error instanceof Error && error.message === 'PAYMENT_NOT_RECEIVED') {
 					return { success: false, requiresForceApprove: true };
 				}
 				return { success: false };
@@ -394,10 +349,7 @@ export function useAdminSponsorAds(
 		totalPages,
 		totalItems,
 
-		// Filters
-		statusFilter,
-		intervalFilter,
-		searchTerm,
+		// Sorting
 		sortBy,
 		sortOrder,
 
@@ -407,15 +359,12 @@ export function useAdminSponsorAds(
 		cancelSponsorAd: handleCancel,
 		deleteSponsorAd: handleDelete,
 
-		// Filter actions
-		setStatusFilter: handleSetStatusFilter,
-		setIntervalFilter: handleSetIntervalFilter,
-		setSearchTerm: handleSetSearchTerm,
+		// Setters
 		setSortBy: handleSetSortBy,
 		setSortOrder: handleSetSortOrder,
 		setCurrentPage,
 
 		// Utility
-		refreshData,
+		refreshData
 	};
 }

@@ -183,7 +183,8 @@ export class UserDbService {
       }
 
       if (role) {
-        conditions.push(eq(userRoles.roleId, role));
+        // Filter by role name (e.g., 'admin', 'client') instead of roleId
+        conditions.push(eq(roles.name, role));
       }
 
       if (status) {

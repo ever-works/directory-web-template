@@ -1,13 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { Button, Card, CardBody, Chip, useDisclosure } from "@heroui/react";
-import { Plus, Edit, Trash2, Users, UserCheck, UserX, Search, ChevronDown } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Button, Chip, useDisclosure } from "@heroui/react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
 import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { useNavigation } from "@/components/providers";
+import {
+  AdminSearchBar,
+  AdminStatusTabs,
+  AdminFilterPopover,
+  AdminActiveFilters,
+  type StatusTabOption,
+  type FilterSection,
+  type ActiveFilter,
+} from "@/components/admin/shared";
 
 // Helper function to generate consistent avatar colors based on user identifier
 function getAvatarColor(identifier: string): string {
@@ -48,26 +59,112 @@ export default function AdminUsersPage() {
     users,
     stats,
     isLoading,
+    isFetching,
     isFiltering,
     isSubmitting,
+    isSearching,
     currentPage,
     totalPages,
     totalUsers,
     searchTerm,
     roleFilter,
     statusFilter,
+    hasActiveFilters,
+    hasActiveSearch,
+    activeFilterCount,
     deleteUser,
     handlePageChange,
-    handleSearch,
-    handleRoleFilter,
-    handleStatusFilter,
+    setSearchTerm,
+    setRoleFilter,
+    setStatusFilter,
+    clearAllFilters,
   } = useAdminUsers({
     page: 1,
     limit: PAGE_SIZE,
-    search: '',
     role: '',
     status: '',
   });
+
+  // Check if non-status filters are active (role or search)
+  const hasNonStatusFilters = !!roleFilter || hasActiveSearch;
+
+  // Status tab options (no icons to prevent 2-line wrapping)
+  // When role/search filters are active, use totalUsers for "All" and hide individual counts
+  const statusOptions = useMemo<StatusTabOption<'active' | 'inactive'>[]>(() => [
+    { value: '', label: t('ALL_STATUSES'), count: hasNonStatusFilters ? totalUsers : stats.total },
+    { value: 'active', label: t('ACTIVE'), count: hasNonStatusFilters ? undefined : stats.active },
+    { value: 'inactive', label: t('INACTIVE'), count: hasNonStatusFilters ? undefined : stats.inactive },
+  ], [t, stats, totalUsers, hasNonStatusFilters]);
+
+  // Role filter sections for popover
+  // Note: Role IDs must match actual role names in database ('admin', 'client')
+  const roleFilterSections = useMemo<FilterSection<string>[]>(() => [
+    {
+      id: 'role',
+      label: t('ROLE_SECTION_LABEL'),
+      type: 'radio',
+      options: [
+        { id: 'admin', label: t('ADMIN'), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+        { id: 'client', label: t('CLIENT'), icon: <Shield className="w-3.5 h-3.5" /> },
+      ],
+      selectedValues: roleFilter ? [roleFilter] : [],
+      onChange: (values) => setRoleFilter(values[0] || ''),
+    },
+  ], [t, roleFilter, setRoleFilter]);
+
+  // Build active filters for chip display
+  const activeFiltersDisplay = useMemo<ActiveFilter[]>(() => {
+    const filters: ActiveFilter[] = [];
+
+    if (searchTerm.trim().length >= 2) {
+      filters.push({
+        id: 'search',
+        type: 'search',
+        label: t('SEARCH_LABEL'),
+        value: searchTerm.trim(),
+      });
+    }
+
+    if (statusFilter) {
+      filters.push({
+        id: `status:${statusFilter}`,
+        type: 'status',
+        label: t('STATUS_LABEL'),
+        value: statusFilter === 'active' ? t('ACTIVE') : t('INACTIVE'),
+        icon: statusFilter === 'active' ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />,
+      });
+    }
+
+    if (roleFilter) {
+      const roleLabels: Record<string, string> = {
+        'admin': t('ADMIN'),
+        'client': t('CLIENT'),
+      };
+      filters.push({
+        id: `role:${roleFilter}`,
+        type: 'role',
+        label: t('ROLE_LABEL'),
+        value: roleLabels[roleFilter] || roleFilter,
+      });
+    }
+
+    return filters;
+  }, [searchTerm, statusFilter, roleFilter, t]);
+
+  // Handle removing individual filters from chips
+  const handleRemoveFilter = (filter: ActiveFilter) => {
+    switch (filter.type) {
+      case 'search':
+        setSearchTerm('');
+        break;
+      case 'status':
+        setStatusFilter('');
+        break;
+      case 'role':
+        setRoleFilter('');
+        break;
+    }
+  };
 
   // Local state for form
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
@@ -123,7 +220,7 @@ export default function AdminUsersPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {Array.from({ length: 3 }, (_, i) => (
             <Card key={i} className="border-0 shadow-lg">
-              <CardBody className="p-6">
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-2"></div>
@@ -131,14 +228,14 @@ export default function AdminUsersPage() {
                   </div>
                   <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
                 </div>
-              </CardBody>
+              </CardContent>
             </Card>
           ))}
         </div>
 
         {/* Loading Table */}
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-0">
+          <CardContent className="p-0">
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
               <div className="flex items-center justify-between">
                 <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
@@ -174,7 +271,7 @@ export default function AdminUsersPage() {
                 </div>
               ))}
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         {/* Loading indicator with text */}
@@ -227,7 +324,7 @@ export default function AdminUsersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('TOTAL_USERS_STAT')}</p>
@@ -237,11 +334,11 @@ export default function AdminUsersPage() {
                 <Users className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('ACTIVE_USERS_STAT')}</p>
@@ -251,11 +348,11 @@ export default function AdminUsersPage() {
                 <UserCheck className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg">
-          <CardBody className="p-6">
+          <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('INACTIVE_USERS_STAT')}</p>
@@ -265,131 +362,81 @@ export default function AdminUsersPage() {
                 <UserX className="w-6 h-6 text-white" />
               </div>
             </div>
-          </CardBody>
+          </CardContent>
         </Card>
       </div>
 
-            {/* Modern SaaS-Style Filters */}
+      {/* Search Bar */}
       <div className="mb-6">
-        {/* Search Bar */}
-        <div className="relative mb-4">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={t('SEARCH_PLACEHOLDER')}
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-          />
-          {isFiltering && (
-            <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin"></div>
-            </div>
-          )}
-        </div>
-
-        {/* Filter Pills */}
-        <div className="flex flex-wrap items-center gap-3">
-          {/* Role Filter */}
-          <div className="relative">
-            <select 
-              value={roleFilter} 
-              onChange={(e) => handleRoleFilter(e.target.value)}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 cursor-pointer"
-            >
-              <option value="">{t('ALL_ROLES')}</option>
-              <option value="super-admin">{t('SUPER_ADMIN')}</option>
-              <option value="admin">{t('ADMIN')}</option>
-              <option value="moderator">{t('MODERATOR')}</option>
-              <option value="user">{t('USER')}</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Status Filter */}
-          <div className="relative">
-            <select
-              value={statusFilter}
-              onChange={(e) => handleStatusFilter(e.target.value)}
-              className="appearance-none bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-4 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 cursor-pointer"
-            >
-              <option value="">{t('ALL_STATUSES')}</option>
-              <option value="active">{t('ACTIVE')}</option>
-              <option value="inactive">{t('INACTIVE')}</option>
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
-          </div>
-
-          {/* Active Filters Count */}
-          {(searchTerm || roleFilter || statusFilter) && (
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {t('FILTERS_APPLIED', {
-                  plural: [
-                    searchTerm && 'search',
-                    roleFilter && 'role',
-                    statusFilter && 'status'
-                  ].filter(Boolean).length !== 1 ? 's' : ''
-                })}
-              </span>
-              <Button
-                variant="light"
-                size="sm"
-                color="danger"
-                onPress={() => {
-                  handleSearch('');
-                  handleRoleFilter('');
-                  handleStatusFilter('');
-                }}
-                className="h-6 px-2 text-xs"
-              >
-                {t('CLEAR_ALL')}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Results Summary */}
-        {!isLoading && (
-          <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <span>
-              {t('SHOWING_USERS', { count: users.length, total: totalUsers })}
-              {(searchTerm || roleFilter || statusFilter) && (
-                <span className="ml-1">
-                  {t('FILTERED')}
-                </span>
-              )}
-            </span>
-            {totalPages > 1 && (
-              <span>
-                {t('PAGE_OF', { current: currentPage, total: totalPages })}
-              </span>
-            )}
-          </div>
-        )}
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          isSearching={isSearching}
+          placeholder={t('SEARCH_PLACEHOLDER')}
+        />
       </div>
 
       {/* Users Table */}
-      <Card className="border-0 shadow-lg">
-        <CardBody className="p-0">
+      <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
+        <CardContent className="p-0">
+          {/* Table Header with Filters */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4 flex-wrap">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('USERS_TABLE_TITLE')}</h3>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {totalUsers} {t('USERS_TOTAL_COUNT')}
-              </span>
+              <div className="flex items-center gap-3">
+                {/* Status Tabs */}
+                <AdminStatusTabs
+                  options={statusOptions}
+                  value={statusFilter as 'active' | 'inactive' | ''}
+                  onChange={setStatusFilter}
+                  showCounts={true}
+                />
+                {/* Filter Popover */}
+                <AdminFilterPopover
+                  sections={roleFilterSections}
+                  activeCount={roleFilter ? 1 : 0}
+                  onClearAll={clearAllFilters}
+                  triggerLabel={t('FILTERS')}
+                />
+              </div>
             </div>
           </div>
-          
-          {users.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_USERS_FOUND')}</h3>
-              <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
+
+          {/* Active Filters */}
+          {activeFiltersDisplay.length > 0 && (
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+              <AdminActiveFilters
+                filters={activeFiltersDisplay}
+                onRemove={handleRemoveFilter}
+                onClearAll={clearAllFilters}
+              />
             </div>
-          ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {users.map((user) => (
+          )}
+
+          {/* Users List */}
+          <div className={cn(
+            "relative transition-opacity duration-200",
+            isFetching && !isLoading && "opacity-60"
+          )}>
+            {/* Loading overlay for filter/page changes */}
+            {isFetching && !isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                <div className="bg-white/90 dark:bg-gray-900/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING_USERS')}</span>
+                </div>
+              </div>
+            )}
+
+            {users.length === 0 && !isFetching ? (
+              <div className="px-6 py-12 text-center">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_USERS_FOUND')}</h3>
+                <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
+              </div>
+            ) : users.length > 0 ? (
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {users.map((user) => (
                 <div key={user.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
@@ -443,9 +490,10 @@ export default function AdminUsersPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-        </CardBody>
+              </div>
+            ) : null}
+          </div>
+        </CardContent>
       </Card>
 
              {/* Pagination */}
