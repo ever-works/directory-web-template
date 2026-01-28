@@ -2528,6 +2528,7 @@
 			"USERS": "users",
 			"NEW_CLIENTS": "new clients",
 			"SEARCH_PLACEHOLDER": "Search clients...",
+			"CLEAR_SEARCH": "Clear search",
 			"FILTERS": "Filters",
 			"CLEAR_ALL": "Clear all",
 			"CLIENTS_TITLE": "Clients",
