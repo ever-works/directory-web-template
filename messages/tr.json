@@ -2386,6 +2386,7 @@
       "COMMENTS_TITLE": "Yorumlar",
       "COMMENTS_TOTAL_COUNT": "toplam",
       "SEARCH_PLACEHOLDER": "Yorum içeriğine, yazar adına veya e-postaya göre ara...",
+      "SEARCH": "Ara",
       "FILTER_APPLIED": "1 filtre uygulandı",
       "CLEAR_ALL": "Tümünü temizle",
       "SHOWING_COMMENTS": "{total} yorumdan {count} tanesi gösteriliyor",

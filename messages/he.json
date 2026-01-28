@@ -2285,6 +2285,7 @@
       "COMMENTS_TITLE": "Comments",
       "COMMENTS_TOTAL_COUNT": "total",
       "SEARCH_PLACEHOLDER": "Search comments by content, author name or email...",
+      "SEARCH": "חיפוש",
       "FILTER_APPLIED": "1 filter applied",
       "CLEAR_ALL": "Clear all",
       "SHOWING_COMMENTS": "Showing {count} of {total} comments",
