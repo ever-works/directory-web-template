@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { X, ExternalLink, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,7 @@ export function MapItemPopup({
 	onClose,
 	locale = 'en'
 }: MapItemPopupProps): React.ReactElement | null {
+	const t = useTranslations('listing');
 	const popupRef = useRef<HTMLDivElement>(null);
 	const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -109,7 +111,7 @@ export function MapItemPopup({
 				'animate-in fade-in-0 zoom-in-95 duration-200'
 			)}
 			role="dialog"
-			aria-label={`Details for ${item.name}`}
+			aria-label={t('MAP_DETAILS_FOR', { name: item.name })}
 			style={{
 				// Position will be set by parent based on marker position
 				bottom: '100%',
@@ -158,7 +160,7 @@ export function MapItemPopup({
 					type="button"
 					onClick={onClose}
 					className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-					aria-label="Close popup"
+					aria-label={t('MAP_CLOSE_POPUP')}
 				>
 					<X className="w-4 h-4 text-gray-500" />
 				</button>
@@ -181,7 +183,7 @@ export function MapItemPopup({
 						'transition-colors'
 					)}
 				>
-					View Details
+					{t('MAP_VIEW_DETAILS')}
 					<ExternalLink className="w-3.5 h-3.5" />
 				</Link>
 			</div>

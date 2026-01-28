@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { MapPin, Loader2 } from 'lucide-react';
 import { Map as MapComponent } from '@/components/maps/map';
 import { MapItemPopup } from '@/components/maps/map-item-popup';
@@ -36,6 +36,7 @@ function getCategoryName(category: ItemData['category']): string | undefined {
  */
 export default function LayoutMap({ items }: LayoutMapProps) {
 	const locale = useLocale();
+	const t = useTranslations('listing');
 	const { settings } = useLocationSettings();
 	const { coordinates, isLoading } = useMapCoordinates(true);
 	const [selectedMarker, setSelectedMarker] = useState<MapMarkerData | null>(null);
@@ -98,7 +99,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 			<div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-gray-900/50 rounded-xl">
 				<MapPin className="w-12 h-12 text-gray-400 mb-3" />
 				<p className="text-sm text-gray-500 dark:text-gray-400">
-					No items with location data found
+					{t('MAP_NO_LOCATION_DATA')}
 				</p>
 			</div>
 		);
@@ -118,7 +119,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 
 			{/* Item count overlay */}
 			<div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xs px-3 py-1.5 rounded-full shadow-md text-sm font-medium text-gray-700 dark:text-gray-200">
-				{markers.length} {markers.length === 1 ? 'item' : 'items'} with location
+				{t(markers.length === 1 ? 'MAP_ITEM_WITH_LOCATION' : 'MAP_ITEMS_WITH_LOCATION', { count: markers.length })}
 			</div>
 
 			{/* Selected item popup */}

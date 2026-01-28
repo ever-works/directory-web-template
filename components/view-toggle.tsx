@@ -2,6 +2,7 @@
 
 import { IconClassic, IconGrid, IconMasonry, IconMap } from "@/components/icons/Icons";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { LayoutKey } from "./layouts";
 
 type ViewToggleProps = {
@@ -25,6 +26,7 @@ export default function ViewToggle({
 	isMapActive = false,
 	onMapToggle,
 }: ViewToggleProps) {
+	const t = useTranslations('listing');
 	const [hovered, setHovered] = useState<string | null>(null);
 
   const handleViewChange = (view: LayoutKey) => {
@@ -51,7 +53,7 @@ export default function ViewToggle({
 		  onMouseLeave={() => setHovered(null)}
 		  onFocus={() => setHovered("classic")}
 		  onBlur={() => setHovered(null)}
-		  aria-label="Switch to list view"
+		  aria-label={t('VIEW_SWITCH_TO_LIST')}
 		>
 		  <div
 			className={`transition-all duration-300 w-4 h-4 flex items-center justify-center ${activeView === "classic" && !isMapActive ? "drop-shadow-xs" : ""}`}
@@ -64,7 +66,7 @@ export default function ViewToggle({
 			    isParentSticky ? 'top-full mt-2' : '-top-8'
 			  }`}
 		    >
-			  List view
+			  {t('VIEW_LIST')}
 		    </div>
 		  )}
 		</button>
@@ -84,7 +86,7 @@ export default function ViewToggle({
 		  onMouseLeave={() => setHovered(null)}
 		  onFocus={() => setHovered("grid")}
 		  onBlur={() => setHovered(null)}
-		  aria-label="Switch to grid view"
+		  aria-label={t('VIEW_SWITCH_TO_GRID')}
 		>
 		  <div
 			className={`transition-all duration-300 w-4 h-4 flex items-center justify-center ${activeView === "grid" && !isMapActive ? "drop-shadow-xs" : ""}`}
@@ -97,7 +99,7 @@ export default function ViewToggle({
 			    isParentSticky ? 'top-full mt-2' : '-top-8'
 			  }`}
 		    >
-			  Grid view
+			  {t('VIEW_GRID')}
 		    </div>
 		  )}
 		</button>
@@ -116,7 +118,7 @@ export default function ViewToggle({
 		  onMouseLeave={() => setHovered(null)}
 		  onFocus={() => setHovered("masonry")}
 		  onBlur={() => setHovered(null)}
-		  aria-label="Switch to masonry view"
+		  aria-label={t('VIEW_SWITCH_TO_MASONRY')}
 		>
 			<div
 				className={`transition-all duration-300 w-4 h-4 flex items-center justify-center ${activeView === "masonry" && !isMapActive ? "drop-shadow-xs" : ""}`}
@@ -129,7 +131,7 @@ export default function ViewToggle({
 			    isParentSticky ? 'top-full mt-2' : '-top-8'
 			  }`}
 		    >
-			  Masonry view
+			  {t('VIEW_MASONRY')}
 		    </div>
 		  )}
 		</button>
@@ -149,7 +151,7 @@ export default function ViewToggle({
 		  onMouseLeave={() => setHovered(null)}
 		  onFocus={() => setHovered("map")}
 		  onBlur={() => setHovered(null)}
-		  aria-label="Switch to map view"
+		  aria-label={t('VIEW_SWITCH_TO_MAP')}
 		>
 		  <div
 			className={`transition-all duration-300 w-4 h-4 flex items-center justify-center ${isMapActive ? "drop-shadow-xs" : ""}`}
@@ -162,7 +164,7 @@ export default function ViewToggle({
 			    isParentSticky ? 'top-full mt-2' : '-top-8'
 			  }`}
 		    >
-			  Map view
+			  {t('VIEW_MAP')}
 		    </div>
 		  )}
 		</button>

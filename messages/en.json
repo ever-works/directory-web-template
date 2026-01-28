@@ -401,7 +401,21 @@
 		"CITY": "City",
 		"ALL_CITIES": "All cities",
 		"COUNTRY": "Country",
-		"ALL_COUNTRIES": "All countries"
+		"ALL_COUNTRIES": "All countries",
+		"MAP_NO_LOCATION_DATA": "No items with location data found",
+		"MAP_ITEM_WITH_LOCATION": "{count} item with location",
+		"MAP_ITEMS_WITH_LOCATION": "{count} items with location",
+		"MAP_VIEW_DETAILS": "View Details",
+		"MAP_CLOSE_POPUP": "Close popup",
+		"MAP_DETAILS_FOR": "Details for {name}",
+		"VIEW_LIST": "List view",
+		"VIEW_GRID": "Grid view",
+		"VIEW_MASONRY": "Masonry view",
+		"VIEW_MAP": "Map view",
+		"VIEW_SWITCH_TO_LIST": "Switch to list view",
+		"VIEW_SWITCH_TO_GRID": "Switch to grid view",
+		"VIEW_SWITCH_TO_MASONRY": "Switch to masonry view",
+		"VIEW_SWITCH_TO_MAP": "Switch to map view"
 	},
 	"tagsModal": {
 		"SELECTED_TAGS": "Selected Tags",
