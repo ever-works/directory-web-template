@@ -2312,6 +2312,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Zarządzanie Zgłoszeniami",
       "SUBTITLE": "Przeglądaj i rozwiązuj zgłoszone treści",
+      "STATUS_ALL": "Wszystkie",
+      "REPORTS_TABLE_TITLE": "Zgłoszenia",
       "PENDING": "oczekujące",
       "TOTAL_REPORTS": "Łączna liczba zgłoszeń",
       "RESOLVED": "Rozwiązane",

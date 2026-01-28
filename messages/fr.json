@@ -2403,6 +2403,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Gestion des Signalements",
       "SUBTITLE": "Examiner et résoudre le contenu signalé",
+      "STATUS_ALL": "Tous",
+      "REPORTS_TABLE_TITLE": "Rapports",
       "PENDING": "en attente",
       "TOTAL_REPORTS": "Total des Signalements",
       "RESOLVED": "Résolus",

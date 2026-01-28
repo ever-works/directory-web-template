@@ -2334,6 +2334,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Gestión de Reportes",
       "SUBTITLE": "Revisar y resolver contenido reportado",
+      "STATUS_ALL": "Todos",
+      "REPORTS_TABLE_TITLE": "Informes",
       "PENDING": "pendiente",
       "TOTAL_REPORTS": "Reportes Totales",
       "RESOLVED": "Resueltos",

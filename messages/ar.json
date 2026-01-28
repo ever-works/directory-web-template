@@ -2332,6 +2332,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "إدارة التقارير",
       "SUBTITLE": "مراجعة المحتوى المبلغ عنه وحله",
+      "STATUS_ALL": "الكل",
+      "REPORTS_TABLE_TITLE": "التقارير",
       "PENDING": "قيد الانتظار",
       "TOTAL_REPORTS": "إجمالي التقارير",
       "RESOLVED": "تم الحل",

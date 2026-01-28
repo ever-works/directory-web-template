@@ -2344,6 +2344,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "举报管理",
       "SUBTITLE": "审查和处理被举报的内容",
+      "STATUS_ALL": "全部",
+      "REPORTS_TABLE_TITLE": "举报",
       "PENDING": "待处理",
       "TOTAL_REPORTS": "总举报数",
       "RESOLVED": "已解决",

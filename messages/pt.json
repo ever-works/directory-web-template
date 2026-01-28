@@ -2312,6 +2312,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Gerenciamento de Denúncias",
       "SUBTITLE": "Revisar e resolver conteúdo denunciado",
+      "STATUS_ALL": "Todos",
+      "REPORTS_TABLE_TITLE": "Relatórios",
       "PENDING": "pendente",
       "TOTAL_REPORTS": "Total de Denúncias",
       "RESOLVED": "Resolvidas",

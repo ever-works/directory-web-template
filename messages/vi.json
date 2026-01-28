@@ -2408,6 +2408,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Quản lý báo cáo",
       "SUBTITLE": "Xem xét và xử lý nội dung bị báo cáo",
+      "STATUS_ALL": "Tất cả",
+      "REPORTS_TABLE_TITLE": "Báo cáo",
       "PENDING": "đang chờ",
       "TOTAL_REPORTS": "Tổng báo cáo",
       "RESOLVED": "Đã giải quyết",

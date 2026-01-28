@@ -2407,6 +2407,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Rapor Yönetimi",
       "SUBTITLE": "Raporlanan içeriği inceleyin ve çözün",
+      "STATUS_ALL": "Tümü",
+      "REPORTS_TABLE_TITLE": "Raporlar",
       "PENDING": "beklemede",
       "TOTAL_REPORTS": "Toplam Rapor",
       "RESOLVED": "Çözüldü",

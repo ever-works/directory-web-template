@@ -2312,6 +2312,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "रिपोर्ट प्रबंधन",
       "SUBTITLE": "रिपोर्ट की गई सामग्री की समीक्षा और समाधान करें",
+      "STATUS_ALL": "सभी",
+      "REPORTS_TABLE_TITLE": "रिपोर्ट",
       "PENDING": "लंबित",
       "TOTAL_REPORTS": "कुल रिपोर्ट",
       "RESOLVED": "हल किया गया",

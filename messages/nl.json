@@ -2312,6 +2312,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "Rapportbeheer",
       "SUBTITLE": "Gerapporteerde inhoud bekijken en oplossen",
+      "STATUS_ALL": "Alle",
+      "REPORTS_TABLE_TITLE": "Rapporten",
       "PENDING": "in behandeling",
       "TOTAL_REPORTS": "Totaal Rapporten",
       "RESOLVED": "Opgelost",

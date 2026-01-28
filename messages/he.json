@@ -2306,6 +2306,8 @@
     "ADMIN_REPORTS_PAGE": {
       "TITLE": "ניהול דיווחים",
       "SUBTITLE": "בדיקה וטיפול בתוכן מדווח",
+      "STATUS_ALL": "הכל",
+      "REPORTS_TABLE_TITLE": "דוחות",
       "PENDING": "ממתין",
       "TOTAL_REPORTS": "סך הדיווחים",
       "RESOLVED": "נפתר",
