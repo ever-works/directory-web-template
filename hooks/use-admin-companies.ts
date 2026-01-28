@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
 import type { Company } from '@/types/company';
@@ -57,7 +57,7 @@ export interface UpdateCompanyRequest extends Partial<CreateCompanyRequest> {
 const QUERY_KEYS = {
 	companies: ['admin', 'companies'] as const,
 	companiesList: (params: CompaniesListOptions) => [...QUERY_KEYS.companies, 'list', params] as const,
-	company: (id: string) => [...QUERY_KEYS.companies, 'detail', id] as const,
+	company: (id: string) => [...QUERY_KEYS.companies, 'detail', id] as const
 } as const;
 
 // API functions
@@ -68,7 +68,7 @@ const fetchCompaniesList = async (params: CompaniesListOptions = {}): Promise<Co
 		q: params.search,
 		status: params.status,
 		sortBy: params.sortBy,
-		sortOrder: params.sortOrder,
+		sortOrder: params.sortOrder
 	});
 
 	const response = await serverClient.get<CompaniesListResponse>(url);
@@ -109,10 +109,7 @@ const createCompany = async (data: CreateCompanyRequest): Promise<Company> => {
 };
 
 const updateCompany = async (id: string, data: UpdateCompanyRequest): Promise<Company> => {
-	const response = await serverClient.put<CompanyResponse>(
-		`/api/admin/companies/${encodeURIComponent(id)}`,
-		data
-	);
+	const response = await serverClient.put<CompanyResponse>(`/api/admin/companies/${encodeURIComponent(id)}`, data);
 
 	if (!apiUtils.isSuccess(response)) {
 		throw new Error(apiUtils.getErrorMessage(response));
@@ -168,13 +165,18 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 	const queryClient = useQueryClient();
 
 	// Fetch companies list
-	const { data: listData, isLoading, refetch } = useQuery({
+	const {
+		data: listData,
+		isLoading,
+		refetch
+	} = useQuery({
 		queryKey: QUERY_KEYS.companiesList(params),
 		queryFn: () => fetchCompaniesList(params),
 		enabled,
 		staleTime: 5 * 60 * 1000, // 5 minutes
 		gcTime: 10 * 60 * 1000, // 10 minutes
 		retry: 3,
+		placeholderData: keepPreviousData
 	});
 
 	// Create company mutation
@@ -186,7 +188,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 		},
 		onError: (error) => {
 			toast.error(error.message || 'Failed to create company');
-		},
+		}
 	});
 
 	// Update company mutation
@@ -198,7 +200,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 		},
 		onError: (error) => {
 			toast.error(error.message || 'Failed to update company');
-		},
+		}
 	});
 
 	// Delete company mutation
@@ -210,7 +212,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 		},
 		onError: (error) => {
 			toast.error(error.message || 'Failed to delete company');
-		},
+		}
 	});
 
 	// Action handlers
@@ -259,7 +261,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 	const stats: CompanyStats = {
 		total: listData?.meta.total || 0,
 		active: listData?.meta.activeCount || 0,
-		inactive: listData?.meta.inactiveCount || 0,
+		inactive: listData?.meta.inactiveCount || 0
 	};
 
 	return {
@@ -274,9 +276,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 		// Loading states
 		isLoading,
 		isSubmitting:
-			createCompanyMutation.isPending ||
-			updateCompanyMutation.isPending ||
-			deleteCompanyMutation.isPending,
+			createCompanyMutation.isPending || updateCompanyMutation.isPending || deleteCompanyMutation.isPending,
 
 		// Actions
 		createCompany: handleCreateCompany,
@@ -285,7 +285,7 @@ export function useAdminCompanies(options: UseAdminCompaniesOptions = {}): UseAd
 
 		// Utility
 		refetch,
-		refreshData,
+		refreshData
 	};
 }
 
@@ -303,19 +303,24 @@ export interface UseCompanyReturn {
 }
 
 export function useCompany({ id, enabled = true }: UseCompanyOptions): UseCompanyReturn {
-	const { data: company, isLoading, error, refetch } = useQuery({
+	const {
+		data: company,
+		isLoading,
+		error,
+		refetch
+	} = useQuery({
 		queryKey: QUERY_KEYS.company(id),
 		queryFn: () => fetchCompany(id),
 		enabled: enabled && !!id,
 		staleTime: 5 * 60 * 1000,
 		gcTime: 10 * 60 * 1000,
-		retry: 3,
+		retry: 3
 	});
 
 	return {
 		company: company || null,
 		isLoading,
 		error: error as Error | null,
-		refetch,
+		refetch
 	};
 }
