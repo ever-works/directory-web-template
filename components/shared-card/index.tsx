@@ -4,8 +4,10 @@ import { useContext, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useInView } from "react-intersection-observer";
 import { layoutComponents, LayoutKey } from "@/components/layouts";
+import LayoutMap from "@/components/layouts/LayoutMap";
 import type { Category, ItemData, Tag } from "@/lib/content";
 import { useLayoutTheme } from "@/components/context";
+import { useLocationSettings } from "@/hooks/use-location-settings";
 import { FilterContext } from "@/components/filters/context/filter-context";
 import type { SortOption, TagId } from "@/components/filters/types";
 import { useInfiniteLoading } from "@/hooks/use-infinite-loading";
@@ -160,9 +162,18 @@ export function SharedCard(props: ExtendedCardProps) {
   const config = useMemo(() => ({ ...DEFAULT_CONFIG, ...rawConfig }), [rawConfig]);
 
   // Get theme and filter state
-  const { layoutKey, setLayoutKey, paginationType } = useLayoutTheme();
+  const { layoutKey, setLayoutKey, paginationType, isMapView, setIsMapView } = useLayoutTheme();
   const { searchTerm, selectedTags, sortBy, selectedTag } = useFilters();
   const t = useTranslations("listing");
+
+  // Map view availability
+  const { settings: locationSettings } = useLocationSettings();
+  const isMapAvailable = useMemo(() => {
+    if (!locationSettings.enabled) return false;
+    if (locationSettings.provider === 'mapbox') return Boolean(process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN);
+    if (locationSettings.provider === 'google') return Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+    return false;
+  }, [locationSettings.enabled, locationSettings.provider]);
 
   // Get layout component
   const LayoutComponent = layoutComponents[layoutKey];
@@ -243,11 +254,19 @@ export function SharedCard(props: ExtendedCardProps) {
   const filteredCount = sortedItems.length;
   const totalCount = props.totalCount ?? items.length;
 
-  // Handle view change
+  // Handle view change (also exits map mode)
   const handleViewChange = useCallback(
-    (newView: LayoutKey) => setLayoutKey(newView),
-    [setLayoutKey]
+    (newView: LayoutKey) => {
+      setLayoutKey(newView);
+      if (isMapView) setIsMapView(false);
+    },
+    [setLayoutKey, isMapView, setIsMapView]
   );
+
+  // Handle map toggle
+  const handleMapToggle = useCallback(() => {
+    setIsMapView(!isMapView);
+  }, [isMapView, setIsMapView]);
 
   // Determine items to display
   const itemsToDisplay = paginationType === "infinite" ? displayedItems : paginatedItems;
@@ -290,42 +309,51 @@ export function SharedCard(props: ExtendedCardProps) {
         headerActions={headerActions}
         layoutKey={layoutKey}
         onViewChange={handleViewChange}
+        isMapAvailable={isMapAvailable}
+        isMapActive={isMapView}
+        onMapToggle={handleMapToggle}
       />
 
       <div className="space-y-4">
-        <SharedCardGrid
-          items={itemsToDisplay}
-          LayoutComponent={LayoutComponent}
-          layout={layoutKey}
-          onItemClick={onItemClick}
-          renderCustomItem={renderCustomItem}
-          animationDelay={config.animationDelay}
-        />
+        {isMapView && isMapAvailable ? (
+          <LayoutMap items={sortedItems} />
+        ) : (
+          <>
+            <SharedCardGrid
+              items={itemsToDisplay}
+              LayoutComponent={LayoutComponent}
+              layout={layoutKey}
+              onItemClick={onItemClick}
+              renderCustomItem={renderCustomItem}
+              animationDelay={config.animationDelay}
+            />
 
-        {config.showPagination && (
-          <SharedCardPagination
-            paginationType={paginationType}
-            standardPaginationProps={
-              paginationType === "standard" && totalPages > 1
-                ? {
-                    currentPage,
-                    totalPages,
-                    onPageChange: handlePageChange,
-                  }
-                : undefined
-            }
-            infiniteScrollProps={
-              paginationType === "infinite"
-                ? {
-                    loadMoreRef,
-                    hasMore,
-                    isLoading,
-                    error,
-                    onRetry: loadMore,
-                  }
-                : undefined
-            }
-          />
+            {config.showPagination && (
+              <SharedCardPagination
+                paginationType={paginationType}
+                standardPaginationProps={
+                  paginationType === "standard" && totalPages > 1
+                    ? {
+                        currentPage,
+                        totalPages,
+                        onPageChange: handlePageChange,
+                      }
+                    : undefined
+                }
+                infiniteScrollProps={
+                  paginationType === "infinite"
+                    ? {
+                        loadMoreRef,
+                        hasMore,
+                        isLoading,
+                        error,
+                        onRetry: loadMore,
+                      }
+                    : undefined
+                }
+              />
+            )}
+          </>
         )}
       </div>
     </div>
