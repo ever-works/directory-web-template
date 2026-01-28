@@ -421,7 +421,15 @@
 		"PUBLISHED": "Published",
 		"NO_TAGS_AVAILABLE": "No tags available",
 		"RATING": "Rating",
-		"PROMO_CODE": "Promo Code"
+		"PROMO_CODE": "Promo Code",
+		"LOCATION": "Location",
+		"REMOTE_SERVICE": "Remote / Online Service",
+		"REMOTE_SERVICE_DESC": "This service is available remotely and doesn't have a physical location.",
+		"GET_DIRECTIONS": "Get Directions",
+		"LOCAL_SERVICE": "Local Service",
+		"REGIONAL_SERVICE": "Regional Service",
+		"NATIONAL_SERVICE": "National Service",
+		"GLOBAL_SERVICE": "Global Service"
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "All rights reserved",
