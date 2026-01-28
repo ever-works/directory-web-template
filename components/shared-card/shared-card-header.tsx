@@ -28,6 +28,9 @@ interface SharedCardHeaderProps {
   headerActions?: React.ReactNode;
   layoutKey?: LayoutKey;
   onViewChange?: (view: LayoutKey) => void;
+  isMapAvailable?: boolean;
+  isMapActive?: boolean;
+  onMapToggle?: () => void;
 }
 
 const filterStatsClasses = "flex items-center gap-4";
@@ -212,7 +215,7 @@ export function ResultsHeader({
  * SharedCardHeader - Main header component orchestrating all header elements
  */
 export function SharedCardHeader(props: SharedCardHeaderProps) {
-  const { config, headerActions, layoutKey, onViewChange } = props;
+  const { config, headerActions, layoutKey, onViewChange, isMapAvailable, isMapActive, onMapToggle } = props;
   const t = useTranslations("listing");
 
   const currentPage = Math.floor(props.start / (config.perPage || PER_PAGE));
@@ -254,6 +257,9 @@ export function SharedCardHeader(props: SharedCardHeaderProps) {
             <ViewToggle
               activeView={layoutKey}
               onViewChange={onViewChange}
+              isMapAvailable={isMapAvailable}
+              isMapActive={isMapActive}
+              onMapToggle={onMapToggle}
             />
           )}
         </div>
