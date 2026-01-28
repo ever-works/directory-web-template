@@ -1,14 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner, Checkbox } from "@heroui/react";
 import { MultiStepItemForm } from "@/components/admin/items/multi-step-item-form";
-import { ItemFilters } from "@/components/admin/items/item-filters";
-import { ActiveItemFilters } from "@/components/admin/items/active-item-filters";
 import { ItemRejectModal } from "@/components/admin/items/item-reject-modal";
 import { ItemHistoryModal } from "@/components/admin/items/item-history-modal";
 import { BulkActionBar } from "@/components/admin/items/bulk-action-bar";
@@ -17,7 +15,7 @@ import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/
 import { ItemActionsMenu } from "@/components/admin/items/item-actions-menu";
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_LABELS, ITEM_STATUS_COLORS } from "@/lib/types/item";
 import { UniversalPagination } from "@/components/universal-pagination";
-import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag, Hash, Link2, Calendar } from "lucide-react";
+import { Plus, Edit, Trash2, Package, Clock, CheckCircle, XCircle, Star, ExternalLink, Loader2, Folder, Tag as TagIcon, Hash, Link2, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/utils/slug";
 import { useAdminItems } from "@/hooks/use-admin-items";
@@ -26,7 +24,15 @@ import { useAllTags } from "@/hooks/use-admin-tags";
 import { useTranslations } from 'next-intl';
 import { AdminSurveyCreationButton } from "@/components/surveys/admin-survey-creation-button";
 import { useDebounceSearch } from "@/hooks/use-debounced-search";
-import { ItemSearch } from "./components/item-filters";
+import {
+  AdminSearchBar,
+  AdminStatusTabs,
+  AdminFilterPopover,
+  AdminActiveFilters,
+  type StatusTabOption,
+  type FilterSection,
+  type ActiveFilter,
+} from "@/components/admin/shared";
 
 export default function AdminItemsPage() {
   const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
@@ -103,6 +109,100 @@ export default function AdminItemsPage() {
   // Calculate active filter count (only count search when >= 2 chars, matching query behavior)
   const activeFilterCount = (hasActiveSearch ? 1 : 0) + (statusFilter ? 1 : 0) + categoriesFilter.length + tagsFilter.length;
   const hasActiveFilters = activeFilterCount > 0;
+  // Count for advanced filters only (categories + tags)
+  const advancedFilterCount = categoriesFilter.length + tagsFilter.length;
+  // Check if non-status filters are active (categories, tags, or search)
+  const hasNonStatusFilters = advancedFilterCount > 0 || hasActiveSearch;
+
+  // Status tab options for AdminStatusTabs (no icons to prevent 2-line wrapping)
+  // When category/tag/search filters are active, use totalItems for "All" and hide individual counts
+  type ItemStatus = 'draft' | 'pending' | 'approved' | 'rejected';
+  const statusOptions = useMemo<StatusTabOption<ItemStatus>[]>(() => {
+    const totalCount = stats.draft + stats.pending + stats.approved + stats.rejected;
+    return [
+      { value: '', label: t('STATUS_ALL'), count: hasNonStatusFilters ? totalItems : totalCount },
+      { value: 'approved', label: t('STATUS_APPROVED'), count: hasNonStatusFilters ? undefined : stats.approved },
+      { value: 'pending', label: t('STATUS_PENDING'), count: hasNonStatusFilters ? undefined : stats.pending },
+      { value: 'draft', label: t('STATUS_DRAFT'), count: hasNonStatusFilters ? undefined : stats.draft },
+      { value: 'rejected', label: t('STATUS_REJECTED'), count: hasNonStatusFilters ? undefined : stats.rejected },
+    ];
+  }, [t, stats, totalItems, hasNonStatusFilters]);
+
+  // Filter sections for AdminFilterPopover (categories and tags)
+  const filterSections = useMemo<FilterSection<string>[]>(() => [
+    {
+      id: 'categories',
+      label: t('CATEGORY_LABEL'),
+      type: 'checkbox',
+      options: allCategories.map(cat => ({ id: cat.id, label: cat.name })),
+      selectedValues: categoriesFilter,
+      onChange: setCategoriesFilter,
+      searchable: true,
+      searchPlaceholder: t('FILTER_SEARCH_PLACEHOLDER'),
+      emptyMessage: t('NO_CATEGORIES_AVAILABLE'),
+      noResultsMessage: t('NO_RESULTS'),
+    },
+    {
+      id: 'tags',
+      label: t('TAGS_LABEL'),
+      type: 'checkbox',
+      options: allTags.map(tag => ({ id: tag.id, label: tag.name })),
+      selectedValues: tagsFilter,
+      onChange: setTagsFilter,
+      searchable: true,
+      searchPlaceholder: t('FILTER_SEARCH_PLACEHOLDER'),
+      emptyMessage: t('NO_TAGS_AVAILABLE'),
+      noResultsMessage: t('NO_RESULTS'),
+    },
+  ], [t, allCategories, allTags, categoriesFilter, tagsFilter]);
+
+  // Build active filters for chip display
+  const activeFiltersDisplay = useMemo<ActiveFilter[]>(() => {
+    const filters: ActiveFilter[] = [];
+
+    // Add category chips
+    categoriesFilter.forEach(catId => {
+      const category = allCategories.find(c => c.id === catId);
+      filters.push({
+        id: `category:${catId}`,
+        type: 'category',
+        label: t('CATEGORY_LABEL'),
+        value: category?.name || catId,
+        icon: <Folder className="w-3 h-3" />,
+      });
+    });
+
+    // Add tag chips
+    tagsFilter.forEach(tagId => {
+      const tag = allTags.find(t => t.id === tagId);
+      filters.push({
+        id: `tag:${tagId}`,
+        type: 'tag',
+        label: t('TAGS_LABEL'),
+        value: tag?.name || tagId,
+        icon: <TagIcon className="w-3 h-3" />,
+      });
+    });
+
+    return filters;
+  }, [categoriesFilter, tagsFilter, allCategories, allTags, t]);
+
+  // Handle removing individual filters from chips
+  const handleRemoveFilter = useCallback((filter: ActiveFilter) => {
+    if (filter.type === 'category') {
+      const catId = filter.id.replace('category:', '');
+      setCategoriesFilter(prev => prev.filter(c => c !== catId));
+    } else if (filter.type === 'tag') {
+      const tagId = filter.id.replace('tag:', '');
+      setTagsFilter(prev => prev.filter(t => t !== tagId));
+    }
+  }, []);
+
+  // Clear advanced filters only (categories + tags)
+  const handleClearAdvancedFilters = useCallback(() => {
+    setCategoriesFilter([]);
+    setTagsFilter([]);
+  }, []);
 
   // Clear all filters (including search)
   const handleClearAllFilters = () => {
@@ -631,17 +731,20 @@ export default function AdminItemsPage() {
         </Card>
       </div>
 
-      {/* Search */}
-      <ItemSearch
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        isSearching={isSearching}
-      />
+      {/* Search Bar */}
+      <div className="mb-6">
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={setSearchTerm}
+          isSearching={isSearching}
+          placeholder={t('SEARCH_PLACEHOLDER')}
+        />
+      </div>
 
       {/* Items Table */}
       <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
         <CardContent className="p-0">
-          {/* Table Header with Integrated Filters and Sorting */}
+          {/* Table Header with Filters and Sorting */}
           <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-4">
@@ -660,24 +763,21 @@ export default function AdminItemsPage() {
                 </h3>
               </div>
               <div className="flex items-center gap-3">
-                <ItemFilters
-                  statusFilter={statusFilter}
-                  categoriesFilter={categoriesFilter}
-                  tagsFilter={tagsFilter}
-                  onStatusChange={setStatusFilter}
-                  onCategoriesChange={setCategoriesFilter}
-                  onTagsChange={setTagsFilter}
-                  onClearAll={handleClearAllFilters}
-                  categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
-                  tags={allTags.map(t => ({ id: t.id, name: t.name }))}
-                  itemCounts={{
-                    draft: stats.draft,
-                    pending: stats.pending,
-                    approved: stats.approved,
-                    rejected: stats.rejected,
-                  }}
-                  activeFilterCount={activeFilterCount}
+                {/* Status Tabs */}
+                <AdminStatusTabs
+                  options={statusOptions}
+                  value={statusFilter as ItemStatus | ''}
+                  onChange={(status) => setStatusFilter(status)}
+                  showCounts={true}
                 />
+                {/* Filter Popover */}
+                <AdminFilterPopover
+                  sections={filterSections}
+                  activeCount={advancedFilterCount}
+                  onClearAll={handleClearAdvancedFilters}
+                  triggerLabel={t('FILTERS')}
+                />
+                {/* Sorting */}
                 <ItemListSorting
                   sortBy={sortBy}
                   sortOrder={sortOrder}
@@ -687,21 +787,18 @@ export default function AdminItemsPage() {
                 />
               </div>
             </div>
-            {/* Active Filter Chips */}
-            {(categoriesFilter.length > 0 || tagsFilter.length > 0) && (
-              <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <ActiveItemFilters
-                  categoriesFilter={categoriesFilter}
-                  tagsFilter={tagsFilter}
-                  onRemoveCategory={(catId) => setCategoriesFilter(prev => prev.filter(c => c !== catId))}
-                  onRemoveTag={(tagId) => setTagsFilter(prev => prev.filter(t => t !== tagId))}
-                  onClearAll={handleClearAllFilters}
-                  categories={allCategories.map(c => ({ id: c.id, name: c.name }))}
-                  tags={allTags.map(t => ({ id: t.id, name: t.name }))}
-                />
-              </div>
-            )}
           </div>
+
+          {/* Active Filters */}
+          {activeFiltersDisplay.length > 0 && (
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+              <AdminActiveFilters
+                filters={activeFiltersDisplay}
+                onRemove={handleRemoveFilter}
+                onClearAll={handleClearAdvancedFilters}
+              />
+            </div>
+          )}
 
           {/* Items List */}
           <div className={cn(
@@ -800,13 +897,13 @@ export default function AdminItemsPage() {
                                   key={index}
                                   className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                                 >
-                                  <Tag className="w-3 h-3" />
+                                  <TagIcon className="w-3 h-3" />
                                   {tag}
                                 </span>
                               ))}
                               {item.tags.length > 3 && (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                                  <Tag className="w-3 h-3" />
+                                  <TagIcon className="w-3 h-3" />
                                   {t('MORE_TAGS', { count: item.tags.length - 3 })}
                                 </span>
                               )}

@@ -1,33 +1,28 @@
-import { Input, Button, Card, CardBody } from '@heroui/react';
-import * as Select from '@radix-ui/react-select';
-import { Search, Filter, X, ChevronDown, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useMemo } from 'react';
+import { Input, Card, CardBody } from '@heroui/react';
+import { Search, Filter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { SponsorAdStatus } from '@/lib/types/sponsor-ad';
+import { AdminStatusTabs, type StatusTabOption } from '@/components/admin/shared/admin-status-tabs';
+import { AdminActiveFilters, type ActiveFilter } from '@/components/admin/shared/admin-active-filters';
+import type { SponsorAdStatus, SponsorAdStats } from '@/lib/types/sponsor-ad';
 
 interface SponsorFiltersProps {
 	searchTerm: string;
-	statusFilter: SponsorAdStatus | undefined;
+	statusFilter: SponsorAdStatus | '';
 	onSearchChange: (value: string) => void;
-	onStatusChange: (value: SponsorAdStatus | undefined) => void;
+	onStatusChange: (value: SponsorAdStatus | '') => void;
 	onClearFilters: () => void;
 	activeFilterCount: number;
 	isSearching: boolean;
+	stats?: SponsorAdStats | null;
 }
 
 const FILTER_CARD = 'mb-6 border-0 shadow-lg';
 const FILTER_CARD_BODY = 'p-6';
-const SELECT_TRIGGER = cn(
-	'flex h-12 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm',
-	'focus:outline-none focus:ring-2 focus:ring-theme-primary-500',
-	'disabled:cursor-not-allowed disabled:opacity-50'
-);
-const SELECT_CONTENT = 'overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50';
-const SELECT_ITEM = 'relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700';
 
 /**
  * Sponsor Filters Component
- * Provides search and filter controls for sponsor ads
+ * Provides search and filter controls for sponsor ads using unified components
  */
 export function SponsorFilters({
 	searchTerm,
@@ -37,24 +32,48 @@ export function SponsorFilters({
 	onClearFilters,
 	activeFilterCount,
 	isSearching,
+	stats,
 }: SponsorFiltersProps) {
 	const t = useTranslations('admin.SPONSORSHIPS');
 
-	const statuses: Array<{ key: string; label: string }> = [
-		{ key: 'all', label: t('ALL_STATUSES') },
-		{ key: 'pending_payment', label: t('STATUS_PENDING_PAYMENT') },
-		{ key: 'pending', label: t('STATUS_PENDING') },
-		{ key: 'active', label: t('STATUS_ACTIVE') },
-		{ key: 'rejected', label: t('STATUS_REJECTED') },
-		{ key: 'expired', label: t('STATUS_EXPIRED') },
-		{ key: 'cancelled', label: t('STATUS_CANCELLED') },
-	];
+	// Status tab options with counts from stats
+	const statusOptions: StatusTabOption<SponsorAdStatus>[] = useMemo(() => [
+		{ value: '', label: t('ALL_STATUSES'), count: stats?.overview.total },
+		{ value: 'pending_payment', label: t('STATUS_PENDING_PAYMENT'), count: stats?.overview.pendingPayment },
+		{ value: 'pending', label: t('STATUS_PENDING'), count: stats?.overview.pending },
+		{ value: 'active', label: t('STATUS_ACTIVE'), count: stats?.overview.active },
+		{ value: 'rejected', label: t('STATUS_REJECTED'), count: stats?.overview.rejected },
+		{ value: 'expired', label: t('STATUS_EXPIRED'), count: stats?.overview.expired },
+		{ value: 'cancelled', label: t('STATUS_CANCELLED'), count: stats?.overview.cancelled },
+	], [t, stats]);
+
+	// Active filters for chip display (search only - status shown in tabs)
+	const activeFilters: ActiveFilter[] = useMemo(() => {
+		const filters: ActiveFilter[] = [];
+		if (searchTerm.trim().length >= 2) {
+			filters.push({
+				id: 'search',
+				type: 'search',
+				label: t('SEARCH'),
+				value: searchTerm,
+			});
+		}
+		return filters;
+	}, [searchTerm, t]);
+
+	// Handle removing a filter chip
+	const handleRemoveFilter = (filter: ActiveFilter) => {
+		if (filter.type === 'search') {
+			onSearchChange('');
+		}
+	};
 
 	return (
 		<Card className={FILTER_CARD}>
 			<CardBody className={FILTER_CARD_BODY}>
 				<div className="flex flex-col gap-4">
-					<div className="flex items-center justify-between">
+					{/* Header row with filter icon and status tabs */}
+					<div className="flex items-center justify-between flex-wrap gap-4">
 						<div className="flex items-center space-x-2">
 							<Filter className="w-5 h-5 text-gray-400" />
 							<span className="font-medium text-gray-900 dark:text-white">{t('FILTERS')}</span>
@@ -64,21 +83,17 @@ export function SponsorFilters({
 								</span>
 							)}
 						</div>
-						{activeFilterCount > 0 && (
-							<Button
-								size="sm"
-								variant="light"
-								color="danger"
-								onPress={onClearFilters}
-								startContent={<X className="w-4 h-4" />}
-							>
-								{t('CLEAR_ALL')}
-							</Button>
-						)}
+
+						{/* Status Tabs */}
+						<AdminStatusTabs<SponsorAdStatus>
+							options={statusOptions}
+							value={statusFilter}
+							onChange={onStatusChange}
+						/>
 					</div>
 
+					{/* Search input row */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						{/* Search */}
 						<Input
 							placeholder={t('SEARCH_PLACEHOLDER')}
 							value={searchTerm}
@@ -96,48 +111,15 @@ export function SponsorFilters({
 								inputWrapper: 'h-12',
 							}}
 						/>
-
-						{/* Status Filter */}
-						<Select.Root
-							value={statusFilter || 'all'}
-							onValueChange={(value) => {
-								if (value === 'all') {
-									onStatusChange(undefined);
-								} else {
-									onStatusChange(value as SponsorAdStatus);
-								}
-							}}
-						>
-							<Select.Trigger className={SELECT_TRIGGER}>
-								<Select.Value placeholder={t('FILTER_BY_STATUS')} />
-								<Select.Icon>
-									<ChevronDown className="h-4 w-4 opacity-50" />
-								</Select.Icon>
-							</Select.Trigger>
-							<Select.Portal>
-								<Select.Content
-									className={SELECT_CONTENT}
-									position="popper"
-									sideOffset={4}
-								>
-									<Select.Viewport className="p-1">
-										{statuses.map((status) => (
-											<Select.Item
-												key={status.key}
-												value={status.key}
-												className={SELECT_ITEM}
-											>
-												<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
-													<Check className="h-4 w-4" />
-												</Select.ItemIndicator>
-												<Select.ItemText>{status.label}</Select.ItemText>
-											</Select.Item>
-										))}
-									</Select.Viewport>
-								</Select.Content>
-							</Select.Portal>
-						</Select.Root>
 					</div>
+
+					{/* Active Filters */}
+					<AdminActiveFilters
+						filters={activeFilters}
+						onRemove={handleRemoveFilter}
+						onClearAll={onClearFilters}
+						clearAllThreshold={1}
+					/>
 				</div>
 			</CardBody>
 		</Card>

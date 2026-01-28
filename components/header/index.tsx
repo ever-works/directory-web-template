@@ -20,7 +20,7 @@ import { NavigationControls } from '../navigation-controls';
 import { ProfileButton } from './profile-button';
 import { MoreMenu } from './more-menu';
 import { SettingsButton } from '../settings-button';
-import { Container } from '../ui/container';
+import { Container, useContainerWidth } from '../ui/container';
 import { SiteLogo } from '../shared/site-logo';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useHasGlobalSurveys } from '@/hooks/use-has-global-surveys';
@@ -380,6 +380,8 @@ export default function Header() {
 		[headerSettings.settingsEnabled]
 	);
 
+	const containerWidth = useContainerWidth();
+
 	return (
 		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className={STYLES.container}>
@@ -393,13 +395,30 @@ export default function Header() {
 					{renderBrand()}
 				</NavbarContent>
 
-				{/* Desktop: Brand + Nav (Center/Left-ish) */}
-				<NavbarContent className={STYLES.navContent} justify="start">
-					{renderBrand()}
+				{/* Desktop Layout */}
+				{containerWidth === 'fluid' ? (
+					<>
+						{/* Full Width: Brand (Left) */}
+						<NavbarContent className="hidden lg:flex" justify="start">
+							{renderBrand()}
+						</NavbarContent>
 
-					{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
-				</NavbarContent>
-
+						{/* Full Width: Nav (Center) */}
+						<NavbarContent className="hidden lg:flex gap-5 xl:gap-6 2xl:gap-6" justify="center">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
+				) : (
+					/* Fixed Width: Brand (Separate) + Nav (Left) */
+					<>
+						<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
+							{renderBrand()}
+						</NavbarContent>
+						<NavbarContent className={STYLES.navContent} justify="start">
+							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+						</NavbarContent>
+					</>
+				)}
 				{/* Right Section (Profile, Settings, etc.) */}
 				{renderRightSection()}
 			</Container>

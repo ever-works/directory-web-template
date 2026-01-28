@@ -1,28 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectItem } from '@/components/ui/select';
-import {
-	Flag,
-	Search,
-	Eye,
-	Filter,
-	X,
-	User,
-	Calendar,
-	FileText,
-	AlertTriangle,
-	CheckCircle,
-	Clock
-} from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Flag, Eye, X, User, Calendar, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminReports, type AdminReportItem } from '@/hooks/use-admin-reports';
-import { ReportStatus, ReportContentType, ReportReason } from '@/lib/db/schema';
+import { useAdminFilters } from '@/hooks/use-admin-filters';
+import { ReportContentType, ReportReason } from '@/lib/db/schema';
 import type { ReportStatusValues, ReportContentTypeValues, ReportReasonValues } from '@/lib/db/schema';
 import ReportReviewDialog from '@/components/admin/reports/report-review-dialog';
+import {
+	AdminSearchBar,
+	AdminStatusTabs,
+	AdminFilterPopover,
+	AdminActiveFilters,
+	type StatusTabOption,
+	type FilterSection,
+	type ActiveFilter
+} from '@/components/admin/shared';
 import { useTranslations } from 'next-intl';
-import { useNavigation } from '@/components/providers';
 
 // Extracted className constants for better maintainability
 const CLASSES = {
@@ -123,34 +120,48 @@ const REASON_STYLES: Record<ReportReasonValues, { bg: string; text: string }> = 
 	other: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300' }
 };
 
+// Define status type for filtering
+type ReportStatusFilter = ReportStatusValues | '';
+
 export default function AdminReportsPage() {
 	const t = useTranslations('admin.ADMIN_REPORTS_PAGE');
 
+	// Pagination state (managed externally since useAdminFilters handles filter resets)
+	const [currentPage, setCurrentPage] = useState(1);
+
+	// Use the unified filters hook
 	const {
-		reports,
-		stats,
-		isLoading,
-		isLoadingStats,
-		isFiltering,
-		isUpdating,
-		currentPage,
-		totalPages,
-		totalReports,
 		searchTerm,
+		setSearchTerm,
+		debouncedSearchTerm,
+		isSearching,
+		hasActiveSearch,
 		statusFilter,
-		contentTypeFilter,
-		reasonFilter,
-		updateReport,
-		handlePageChange,
-		handleSearch,
 		setStatusFilter,
-		setContentTypeFilter,
-		setReasonFilter,
-		clearFilters
-	} = useAdminReports({
-		page: 1,
-		limit: 10
+		multiFilters,
+		setMultiFilter,
+		hasActiveFilters,
+		clearAllFilters
+	} = useAdminFilters<ReportStatusFilter>({
+		minSearchLength: 2,
+		debounceDelay: 300,
+		initialMultiFilters: {
+			contentType: [],
+			reason: []
+		},
+		onFiltersChange: () => setCurrentPage(1)
 	});
+
+	// Use admin reports hook with filter values from useAdminFilters
+	const { reports, stats, isLoading, isLoadingStats, isUpdating, totalPages, totalReports, updateReport } =
+		useAdminReports({
+			page: currentPage,
+			limit: 10,
+			search: debouncedSearchTerm || undefined,
+			status: (statusFilter || undefined) as ReportStatusValues | undefined,
+			contentType: (multiFilters.contentType?.[0] as ReportContentTypeValues) || undefined,
+			reason: (multiFilters.reason?.[0] as ReportReasonValues) || undefined
+		});
 
 	const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 	const [reportToReview, setReportToReview] = useState<AdminReportItem | null>(null);
@@ -175,7 +186,121 @@ export default function AdminReportsPage() {
 		}
 	}, [reports, reportToReview]);
 
-	const hasActiveFilters = searchTerm || statusFilter || contentTypeFilter || reasonFilter;
+	// Build status tab options with counts from stats
+	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(
+		() => [
+			{ value: '', label: t('STATUS_ALL'), count: stats?.total || 0 },
+			{ value: 'pending', label: t('STATUS_LABELS.pending'), count: stats?.byStatus?.pending || 0 },
+			{ value: 'reviewed', label: t('STATUS_LABELS.reviewed'), count: stats?.byStatus?.reviewed || 0 },
+			{ value: 'resolved', label: t('STATUS_LABELS.resolved'), count: stats?.byStatus?.resolved || 0 },
+			{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'), count: stats?.byStatus?.dismissed || 0 }
+		],
+		[stats, t]
+	);
+
+	// Build filter popover sections for Content Type and Reason (using radio since API supports single values)
+	const filterSections: FilterSection<string>[] = useMemo(
+		() => [
+			{
+				id: 'contentType',
+				label: t('CONTENT_TYPE'),
+				type: 'radio' as const,
+				options: Object.values(ReportContentType).map((type) => ({
+					id: type,
+					label: t(`CONTENT_TYPES.${type}`),
+					count: stats?.byContentType?.[type] || 0
+				})),
+				selectedValues: multiFilters.contentType?.slice(0, 1) || [],
+				onChange: (values: string[]) => setMultiFilter('contentType', values)
+			},
+			{
+				id: 'reason',
+				label: t('REASON'),
+				type: 'radio' as const,
+				options: Object.values(ReportReason).map((reason) => ({
+					id: reason,
+					label: t(`REASONS.${reason}`),
+					count: stats?.byReason?.[reason] || 0
+				})),
+				selectedValues: multiFilters.reason?.slice(0, 1) || [],
+				onChange: (values: string[]) => setMultiFilter('reason', values)
+			}
+		],
+		[stats, multiFilters, setMultiFilter, t]
+	);
+
+	const advancedFilterCount = (multiFilters.contentType?.length || 0) + (multiFilters.reason?.length || 0);
+
+	// Build active filters array for chip display
+	const activeFilters: ActiveFilter[] = useMemo(() => {
+		const filters: ActiveFilter[] = [];
+
+		if (hasActiveSearch) {
+			filters.push({
+				id: 'search',
+				type: 'search',
+				label: t('SEARCH_PLACEHOLDER').replace('...', ''),
+				value: searchTerm.trim()
+			});
+		}
+
+		if (statusFilter) {
+			filters.push({
+				id: `status:${statusFilter}`,
+				type: 'status',
+				label: t('STATUS'),
+				value: t(`STATUS_LABELS.${statusFilter}`)
+			});
+		}
+
+		(multiFilters.contentType || []).forEach((type) => {
+			filters.push({
+				id: `contentType:${type}`,
+				type: 'contentType',
+				label: t('CONTENT_TYPE'),
+				value: t(`CONTENT_TYPES.${type}`)
+			});
+		});
+
+		(multiFilters.reason || []).forEach((reason) => {
+			filters.push({
+				id: `reason:${reason}`,
+				type: 'reason',
+				label: t('REASON'),
+				value: t(`REASONS.${reason}`)
+			});
+		});
+
+		return filters;
+	}, [hasActiveSearch, searchTerm, statusFilter, multiFilters, t]);
+
+	// Filter removal handlers
+	const handleRemoveFilter = (filter: ActiveFilter) => {
+		switch (filter.type) {
+			case 'search':
+				setSearchTerm('');
+				break;
+			case 'status':
+				setStatusFilter('');
+				break;
+			case 'contentType':
+				setMultiFilter('contentType', []);
+				break;
+			case 'reason':
+				setMultiFilter('reason', []);
+				break;
+		}
+	};
+
+	const handleClearAdvancedFilters = () => {
+		setMultiFilter('contentType', []);
+		setMultiFilter('reason', []);
+	};
+
+	// Handle page change
+	const onPageChange = (page: number) => {
+		setCurrentPage(page);
+	};
 
 	const formatDate = (dateString: string) => {
 		return new Date(dateString).toLocaleDateString(undefined, {
@@ -186,8 +311,17 @@ export default function AdminReportsPage() {
 	};
 
 	// Check if skeleton should be shown (only on initial page load)
-	const { isInitialLoad } = useNavigation();
-	const shouldShowSkeleton = isInitialLoad && isLoading;
+	// We use a local state to ensure we only show the skeleton once,
+	// ignoring the global isInitialLoad which might be buggy or persistent.
+	const [hasLoaded, setHasLoaded] = useState(false);
+
+	useEffect(() => {
+		if (!isLoading) {
+			setHasLoaded(true);
+		}
+	}, [isLoading]);
+
+	const shouldShowSkeleton = !hasLoaded && isLoading;
 
 	// Loading state
 	if (shouldShowSkeleton) {
@@ -335,180 +469,145 @@ export default function AdminReportsPage() {
 				</div>
 			)}
 
-			{/* Filters */}
-			<div className={CLASSES.filtersContainer}>
-				{/* Search Bar */}
-				<div className={CLASSES.searchContainer}>
-					<Search className={CLASSES.searchIcon} />
-					<input
-						type="text"
-						placeholder={t('SEARCH_PLACEHOLDER')}
-						value={searchTerm}
-						onChange={(e) => handleSearch(e.target.value)}
-						aria-label={t('SEARCH_PLACEHOLDER')}
-						role="searchbox"
-						className={CLASSES.searchInput}
-					/>
-					{isFiltering && (
-						<div className={CLASSES.searchSpinner}>
-							<div className={CLASSES.spinnerIcon}></div>
-						</div>
-					)}
-				</div>
-
-				{/* Filter Dropdowns */}
-				<div className={CLASSES.filterRow}>
-					<div className={CLASSES.filterLabel}>
-						<Filter className="w-4 h-4" />
-						<span>{t('FILTERS')}</span>
-					</div>
-
-					<Select
-						placeholder={t('STATUS')}
-						selectedKeys={statusFilter ? [statusFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportStatusValues | undefined;
-							setStatusFilter(value);
-						}}
-						className="w-36"
-					>
-						{Object.values(ReportStatus).map((status) => (
-							<SelectItem key={status} value={status}>
-								{t(`STATUS_LABELS.${status}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					<Select
-						placeholder={t('CONTENT_TYPE')}
-						selectedKeys={contentTypeFilter ? [contentTypeFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportContentTypeValues | undefined;
-							setContentTypeFilter(value);
-						}}
-						className="w-36"
-					>
-						{Object.values(ReportContentType).map((type) => (
-							<SelectItem key={type} value={type}>
-								{t(`CONTENT_TYPES.${type}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					<Select
-						placeholder={t('REASON')}
-						selectedKeys={reasonFilter ? [reasonFilter] : []}
-						onSelectionChange={(keys) => {
-							const value = keys[0] as ReportReasonValues | undefined;
-							setReasonFilter(value);
-						}}
-						className="w-40"
-					>
-						{Object.values(ReportReason).map((reason) => (
-							<SelectItem key={reason} value={reason}>
-								{t(`REASONS.${reason}`)}
-							</SelectItem>
-						))}
-					</Select>
-
-					{hasActiveFilters && (
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={clearFilters}
-							className="text-red-600 hover:text-red-700 hover:bg-red-50"
-						>
-							<X className="w-4 h-4 mr-1" />
-							{t('CLEAR_ALL')}
-						</Button>
-					)}
-				</div>
-
-				{/* Results Summary */}
-				<div className={CLASSES.resultsSummary}>
-					<span>
-						{t('SHOWING_REPORTS', { count: reports.length, total: totalReports })}
-						{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
-					</span>
-				</div>
-			</div>
-
-			{/* Reports List - Card Based */}
-			{reports.length === 0 ? (
-				<div className={CLASSES.emptyContainer}>
-					<div className={CLASSES.emptyIconWrapper}>
-						<Flag className={CLASSES.emptyIcon} />
-					</div>
-					<h3 className={CLASSES.emptyTitle}>{t('NO_REPORTS_FOUND')}</h3>
-					<p className={CLASSES.emptyDescription}>
-						{hasActiveFilters ? t('NO_REPORTS_SEARCH_DESCRIPTION') : t('NO_REPORTS_DESCRIPTION')}
-					</p>
-				</div>
-			) : (
-				<div className={CLASSES.reportsContainer}>
-					{reports.map((report) => {
-						const statusStyle = STATUS_STYLES[report.status];
-						const reasonStyle = REASON_STYLES[report.reason];
-						const StatusIcon = statusStyle.icon;
-
-						return (
-							<div key={report.id} className={CLASSES.reportCard}>
-								{/* Header: Badges + Date */}
-								<div className={CLASSES.reportHeader}>
-									<div className={CLASSES.reportBadges}>
-										{/* Status Badge */}
-										<span
-											className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
-										>
-											<StatusIcon className="w-3 h-3" />
-											{t(`STATUS_LABELS.${report.status}`)}
-										</span>
-										{/* Content Type Badge */}
-										<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-											{t(`CONTENT_TYPES.${report.contentType}`)}
-										</span>
-										{/* Reason Badge */}
-										<span
-											className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
-										>
-											{t(`REASONS.${report.reason}`)}
-										</span>
-									</div>
-									<div className={CLASSES.reportDate}>
-										<Calendar className="w-3.5 h-3.5 inline mr-1" />
-										{formatDate(report.createdAt)}
-									</div>
-								</div>
-
-								{/* Content ID */}
-								<p className={CLASSES.reportContentId}>{report.contentId}</p>
-
-								{/* Details Preview */}
-								{report.details && <p className={CLASSES.reportDetails}>{report.details}</p>}
-
-								{/* Footer: Reporter + Action */}
-								<div className={CLASSES.reportFooter}>
-									<div className={CLASSES.reportReporter}>
-										<User className={CLASSES.reportReporterIcon} />
-										<span className={CLASSES.reportReporterText}>
-											{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}
-										</span>
-									</div>
-									<Button
-										size="sm"
-										disabled={isUpdating === report.id}
-										onClick={() => openReviewDialog(report)}
-										className="bg-theme-primary hover:bg-theme-primary/90 text-white"
-									>
-										<Eye className="w-4 h-4 mr-1" />
-										{t('REVIEW')}
-									</Button>
-								</div>
+			{/* Reports Table Card */}
+			<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+				<CardContent className="p-0">
+					{/* Card Header with Title and Filters */}
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+						<div className="flex items-center justify-between gap-4 flex-wrap">
+							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+								{t('REPORTS_TABLE_TITLE')}
+							</h3>
+							<div className="flex items-center gap-3">
+								<AdminStatusTabs<ReportStatusFilter>
+									options={statusOptions}
+									value={statusFilter}
+									onChange={setStatusFilter}
+								/>
+								<AdminFilterPopover
+									sections={filterSections}
+									activeCount={advancedFilterCount}
+									onClearAll={handleClearAdvancedFilters}
+								/>
 							</div>
-						);
-					})}
-				</div>
-			)}
+						</div>
+					</div>
+
+					{/* Search and Filters Section */}
+					<div className="px-6 py-4 space-y-4">
+						{/* Search Bar */}
+						<AdminSearchBar
+							value={searchTerm}
+							onChange={setSearchTerm}
+							isSearching={isSearching}
+							placeholder={t('SEARCH_PLACEHOLDER')}
+							ariaLabel={t('SEARCH_PLACEHOLDER')}
+						/>
+
+						{/* Active Filter Chips */}
+						{activeFilters.length > 0 && (
+							<AdminActiveFilters
+								filters={activeFilters}
+								onRemove={handleRemoveFilter}
+								onClearAll={clearAllFilters}
+							/>
+						)}
+
+						{/* Results Summary */}
+						<div className={CLASSES.resultsSummary}>
+							<span>
+								{t('SHOWING_REPORTS', { count: reports.length, total: totalReports })}
+								{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
+							</span>
+						</div>
+					</div>
+
+					{/* Reports List */}
+					<div className="px-6 pb-6">
+						{reports.length === 0 ? (
+							<div className={CLASSES.emptyContainer}>
+								<div className={CLASSES.emptyIconWrapper}>
+									<Flag className={CLASSES.emptyIcon} />
+								</div>
+								<h3 className={CLASSES.emptyTitle}>{t('NO_REPORTS_FOUND')}</h3>
+								<p className={CLASSES.emptyDescription}>
+									{hasActiveFilters
+										? t('NO_REPORTS_SEARCH_DESCRIPTION')
+										: t('NO_REPORTS_DESCRIPTION')}
+								</p>
+							</div>
+						) : (
+							<div className={CLASSES.reportsContainer}>
+								{reports.map((report) => {
+									const statusStyle = STATUS_STYLES[report.status];
+									const reasonStyle = REASON_STYLES[report.reason];
+									const StatusIcon = statusStyle.icon;
+
+									return (
+										<div key={report.id} className={CLASSES.reportCard}>
+											{/* Header: Badges + Date */}
+											<div className={CLASSES.reportHeader}>
+												<div className={CLASSES.reportBadges}>
+													{/* Status Badge */}
+													<span
+														className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
+													>
+														<StatusIcon className="w-3 h-3" />
+														{t(`STATUS_LABELS.${report.status}`)}
+													</span>
+													{/* Content Type Badge */}
+													<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+														{t(`CONTENT_TYPES.${report.contentType}`)}
+													</span>
+													{/* Reason Badge */}
+													<span
+														className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
+													>
+														{t(`REASONS.${report.reason}`)}
+													</span>
+												</div>
+												<div className={CLASSES.reportDate}>
+													<Calendar className="w-3.5 h-3.5 inline mr-1" />
+													{formatDate(report.createdAt)}
+												</div>
+											</div>
+
+											{/* Content ID */}
+											<p className={CLASSES.reportContentId}>{report.contentId}</p>
+
+											{/* Details Preview */}
+											{report.details && (
+												<p className={CLASSES.reportDetails}>{report.details}</p>
+											)}
+
+											{/* Footer: Reporter + Action */}
+											<div className={CLASSES.reportFooter}>
+												<div className={CLASSES.reportReporter}>
+													<User className={CLASSES.reportReporterIcon} />
+													<span className={CLASSES.reportReporterText}>
+														{report.reporter?.name ||
+															report.reporter?.email ||
+															t('UNKNOWN')}
+													</span>
+												</div>
+												<Button
+													size="sm"
+													disabled={isUpdating === report.id}
+													onClick={() => openReviewDialog(report)}
+													className="bg-theme-primary hover:bg-theme-primary/90 text-white"
+												>
+													<Eye className="w-4 h-4 mr-1" />
+													{t('REVIEW')}
+												</Button>
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						)}
+					</div>
+				</CardContent>
+			</Card>
 
 			{/* Pagination */}
 			{totalReports > 0 && (
@@ -537,7 +636,7 @@ export default function AdminReportsPage() {
 						<UniversalPagination
 							page={currentPage}
 							totalPages={totalPages}
-							onPageChange={handlePageChange}
+							onPageChange={onPageChange}
 							className="shadow-lg"
 						/>
 					</div>
