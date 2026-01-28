@@ -393,7 +393,14 @@
 		"RETRY": "Retry",
 		"FILTER_STATUS_MATCH_ALL": "Showing {filtered} of {total} items that match all selected tags",
 		"FILTER_STATUS": "Showing {filtered} of {total} items",
-		"SHOWING_TOTAL_ITEMS": "Showing {total} items"
+		"SHOWING_TOTAL_ITEMS": "Showing {total} items",
+		"NEAR_ME": "Near Me",
+		"LOCATION_ERROR": "Location access denied",
+		"RADIUS": "Radius",
+		"CITY": "City",
+		"ALL_CITIES": "All cities",
+		"COUNTRY": "Country",
+		"ALL_COUNTRIES": "All countries"
 	},
 	"tagsModal": {
 		"SELECTED_TAGS": "Selected Tags",
