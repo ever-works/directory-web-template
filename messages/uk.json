@@ -145,6 +145,7 @@
     "PUBLISHED_AT": "Published at",
     "EXPORT_CSV": "Export CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Loading items...",
     "LOADING_RESPONSES": "Loading responses...",
     "NO_RESPONSES_FOUND": "No responses found",
@@ -1495,7 +1496,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Географічний розподіл"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1506,40 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "Аналіз географічного розподілу"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Покриття місцезнаходжень",
+        "TOTAL_INDEXED": "Всього проіндексовано",
+        "CITIES": "Міста",
+        "COUNTRIES": "Країни",
+        "REMOTE_ITEMS": "Віддалені елементи",
+        "ITEMS_OF_TOTAL": "{indexed} з {total} елементів",
+        "COVERAGE_PERCENT": "{percent}% покриття",
+        "SERVICE_AREA_BREAKDOWN": "Розбивка за зонами обслуговування",
+        "TOP_COUNTRIES": "Провідні країни",
+        "INDEX_SYNCED": "Індекс синхронізовано",
+        "INDEX_OUT_OF_SYNC": "Індекс не синхронізовано",
+        "INDEX_SYNC_WARNING": "В індексі {actual} елементів, очікується {expected}. Рекомендується перебудова.",
+        "DISTRIBUTION_MAP": "Карта розподілу",
+        "NO_LOCATIONS": "Дані про місцезнаходження поки недоступні.",
+        "LOCATION_DISABLED": "Функції місцезнаходження вимкнені. Увімкніть їх у Налаштуваннях для географічної аналітики.",
+        "MAP_NOT_CONFIGURED": "Постачальник карт не налаштований. Додайте API-ключі Mapbox або Google Maps у ваше середовище, щоб увімкнути карту.",
+        "INDEX_MANAGEMENT": "Управління індексом",
+        "INDEX_DESCRIPTION": "Індекс місцезнаходжень забезпечує швидкі географічні запити. Перебудуйте при відсутності елементів або розсинхронізації даних.",
+        "LAST_REBUILD": "Остання перебудова",
+        "NEVER_REBUILT": "Ніколи",
+        "REBUILD_INDEX": "Перебудувати індекс",
+        "CLEAR_INDEX": "Очистити індекс",
+        "REBUILD_SUCCESS": "Індекс перебудовано: {indexed} проіндексовано, {skipped} пропущено за {duration}мс.",
+        "CLEAR_SUCCESS": "Індекс очищено: {cleared} записів видалено.",
+        "CLEAR_CONFIRM": "Ви впевнені, що хочете очистити весь індекс місцезнаходжень? Ви зможете перебудувати його пізніше.",
+        "ACTION_FAILED": "Операція не вдалася. Спробуйте ще раз.",
+        "LOCAL": "Локальний",
+        "REGIONAL": "Регіональний",
+        "NATIONAL": "Національний",
+        "GLOBAL": "Глобальний"
       }
     },
     "CHARTS": {
