@@ -531,7 +531,32 @@
       "BILLING": {
         "TITLE": "Faturalandırma",
         "DESCRIPTION": "Faturalandırma bilgilerinizi ve abonelik detaylarınızı yönetin"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Güvenlik Ayarları",

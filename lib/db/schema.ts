@@ -181,6 +181,12 @@ export const clientProfiles = pgTable(
 		language: text('language').default('en'),
 		country: text('country'),
 		currency: text('currency').default('USD'),
+		// Location preferences (for "Near Me" fallback)
+		defaultLatitude: doublePrecision('default_latitude'),
+		defaultLongitude: doublePrecision('default_longitude'),
+		defaultCity: text('default_city'),
+		defaultCountry: text('default_country'),
+		locationPrivacy: text('location_privacy').default('private'),
 		twoFactorEnabled: boolean('two_factor_enabled').default(false),
 		emailVerified: boolean('email_verified').default(false),
 		totalSubmissions: integer('total_submissions').default(0),

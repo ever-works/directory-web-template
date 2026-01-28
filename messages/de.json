@@ -501,7 +501,32 @@
       "BILLING": {
         "TITLE": "Abrechnung",
         "DESCRIPTION": "Verwalten Sie Ihre Abrechnungsinformationen und Abonnementdetails"
+      },
+      "LOCATION": {
+        "TITLE": "Standorteinstellungen",
+        "DESCRIPTION": "Legen Sie Ihren Standardstandort für die Umgebungssuche fest und verwalten Sie die Privatsphäre"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Standorteinstellungen",
+      "DESCRIPTION": "Legen Sie einen Standardstandort fest, der verwendet wird, wenn die Browser-Geolokalisierung nicht verfügbar ist",
+      "BACK": "Zurück zu Einstellungen",
+      "DEFAULT_LOCATION": "Standardstandort",
+      "DEFAULT_LOCATION_HELP": "Dieser Standort wird als Fallback für Umgebungssuchfunktionen verwendet",
+      "PRIVACY": "Standort-Privatsphäre",
+      "PRIVACY_HELP": "Steuern Sie, wie Ihre Standortdaten verwendet werden",
+      "PRIVACY_PRIVATE": "Privat",
+      "PRIVACY_PRIVATE_DESC": "Nur für Ihre eigenen Suchen verwendet",
+      "PRIVACY_CITY": "Nur Stadt",
+      "PRIVACY_CITY_DESC": "Zeigen Sie Ihre Stadt in Ihrem Profil an",
+      "PRIVACY_EXACT": "Genauer Standort",
+      "PRIVACY_EXACT_DESC": "Zeigen Sie Ihren vollständigen Standort im Profil an",
+      "SAVE": "Standort speichern",
+      "SAVING": "Speichern...",
+      "CLEAR": "Standort löschen",
+      "SAVED": "Standort erfolgreich gespeichert",
+      "CLEARED": "Standort gelöscht",
+      "SAVE_ERROR": "Fehler beim Speichern des Standorts"
     },
     "SECURITY_PAGE": {
       "TITLE": "Sicherheitseinstellungen",

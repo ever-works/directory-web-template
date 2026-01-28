@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { MapPin, X, Loader2 } from 'lucide-react';
 import { useGeolocation } from '@/hooks/use-geolocation';
+import { useUserLocation } from '@/hooks/use-user-location';
 import { useFilters } from '@/components/filters/context/filter-context';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
@@ -29,6 +30,7 @@ const INACTIVE_CLASS = cn(
 export function NearMeButton() {
 	const { locationFilter, setNearMe } = useFilters();
 	const { requestLocation, isLoading: isGeoLoading, error: geoError } = useGeolocation();
+	const { coordinates: profileCoords } = useUserLocation();
 	const { settings } = useLocationSettings();
 	const t = useTranslations('listing');
 	const [isPending, setIsPending] = useState(false);
@@ -55,6 +57,13 @@ export function NearMeButton() {
 			setNearMe({
 				latitude: coords.latitude,
 				longitude: coords.longitude,
+				radius: settings.defaultRadiusKm,
+			});
+		} else if (profileCoords) {
+			// Fallback to saved profile location
+			setNearMe({
+				latitude: profileCoords.latitude,
+				longitude: profileCoords.longitude,
 				radius: settings.defaultRadiusKm,
 			});
 		}

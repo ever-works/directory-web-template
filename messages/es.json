@@ -503,7 +503,32 @@
       "BILLING": {
         "TITLE": "Facturación",
         "DESCRIPTION": "Gestiona tu información de facturación y detalles de suscripción"
+      },
+      "LOCATION": {
+        "TITLE": "Configuración de ubicación",
+        "DESCRIPTION": "Establezca su ubicación predeterminada para búsqueda cercana y gestione la privacidad"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Configuración de ubicación",
+      "DESCRIPTION": "Establezca una ubicación predeterminada que se usará cuando la geolocalización del navegador no esté disponible",
+      "BACK": "Volver a configuración",
+      "DEFAULT_LOCATION": "Ubicación predeterminada",
+      "DEFAULT_LOCATION_HELP": "Esta ubicación se usa como respaldo para las funciones de búsqueda cercana",
+      "PRIVACY": "Privacidad de ubicación",
+      "PRIVACY_HELP": "Controle cómo se usan sus datos de ubicación",
+      "PRIVACY_PRIVATE": "Privado",
+      "PRIVACY_PRIVATE_DESC": "Solo se usa para sus propias búsquedas",
+      "PRIVACY_CITY": "Solo ciudad",
+      "PRIVACY_CITY_DESC": "Mostrar su ciudad en su perfil",
+      "PRIVACY_EXACT": "Ubicación exacta",
+      "PRIVACY_EXACT_DESC": "Mostrar su ubicación completa en el perfil",
+      "SAVE": "Guardar ubicación",
+      "SAVING": "Guardando...",
+      "CLEAR": "Borrar ubicación",
+      "SAVED": "Ubicación guardada exitosamente",
+      "CLEARED": "Ubicación borrada",
+      "SAVE_ERROR": "Error al guardar la ubicación"
     },
     "SECURITY_PAGE": {
       "TITLE": "Configuración de seguridad",

@@ -502,7 +502,32 @@
       "BILLING": {
         "TITLE": "Facturation",
         "DESCRIPTION": "Gérez vos informations de facturation et les détails de votre abonnement"
+      },
+      "LOCATION": {
+        "TITLE": "Paramètres de localisation",
+        "DESCRIPTION": "Définissez votre emplacement par défaut pour la recherche à proximité et gérez la confidentialité"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Paramètres de localisation",
+      "DESCRIPTION": "Définissez un emplacement par défaut utilisé lorsque la géolocalisation du navigateur n'est pas disponible",
+      "BACK": "Retour aux paramètres",
+      "DEFAULT_LOCATION": "Emplacement par défaut",
+      "DEFAULT_LOCATION_HELP": "Cet emplacement est utilisé comme solution de secours pour les fonctionnalités de recherche à proximité",
+      "PRIVACY": "Confidentialité de l'emplacement",
+      "PRIVACY_HELP": "Contrôlez comment vos données de localisation sont utilisées",
+      "PRIVACY_PRIVATE": "Privé",
+      "PRIVACY_PRIVATE_DESC": "Utilisé uniquement pour vos propres recherches",
+      "PRIVACY_CITY": "Ville uniquement",
+      "PRIVACY_CITY_DESC": "Afficher votre ville sur votre profil",
+      "PRIVACY_EXACT": "Emplacement exact",
+      "PRIVACY_EXACT_DESC": "Afficher votre emplacement complet sur le profil",
+      "SAVE": "Enregistrer l'emplacement",
+      "SAVING": "Enregistrement...",
+      "CLEAR": "Effacer l'emplacement",
+      "SAVED": "Emplacement enregistré avec succès",
+      "CLEARED": "Emplacement effacé",
+      "SAVE_ERROR": "Échec de l'enregistrement de l'emplacement"
     },
     "SECURITY_PAGE": {
       "TITLE": "Paramètres de sécurité",
