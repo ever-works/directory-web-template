@@ -96,7 +96,7 @@ export function MapItemPopup({
 		return null;
 	}
 
-	const itemUrl = `/${locale}/item/${item.slug}`;
+	const itemUrl = `/${locale}/items/${item.slug}`;
 	const truncatedDescription = item.description
 		? truncateText(item.description, DESCRIPTION_MAX_LENGTH)
 		: null;
@@ -276,7 +276,7 @@ export function MapItemCard({
 	}
 
 	return (
-		<Link href={`/${locale}/item/${slug}`} className={baseClasses}>
+		<Link href={`/${locale}/items/${slug}`} className={baseClasses}>
 			{content}
 		</Link>
 	);
