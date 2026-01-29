@@ -140,6 +140,19 @@ export const IconMasonry = () => {
   );
 };
 
+export const IconMap = () => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className="w-5 h-5"
+    >
+      <path fillRule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.096.446-.24.757-.433a19.695 19.695 0 002.683-2.282c1.944-1.99 3.945-4.995 3.945-8.567a8 8 0 10-16 0c0 3.572 2.001 6.577 3.945 8.567a19.695 19.695 0 002.683 2.282 12.36 12.36 0 00.757.433l.14.071.07.036.017.008.006.003zM10 11.25a3.25 3.25 0 100-6.5 3.25 3.25 0 000 6.5z" clipRule="evenodd" />
+    </svg>
+  );
+};
+
 
 interface IconEverworksSimpleProps extends SVGProps<SVGSVGElement> {
     width?: string;

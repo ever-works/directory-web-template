@@ -32,5 +32,8 @@ export * from './use-location-settings';
 export * from './use-map-provider';
 export * from './use-geolocation';
 
+// User profile location hook
+export * from './use-user-location';
+
 // Item engagement hooks (for popularity sorting)
 export * from './use-item-engagement';

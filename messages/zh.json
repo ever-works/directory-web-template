@@ -499,7 +499,32 @@
       "BILLING": {
         "TITLE": "账单",
         "DESCRIPTION": "管理您的账单信息和订阅详情"
+      },
+      "LOCATION": {
+        "TITLE": "位置设置",
+        "DESCRIPTION": "设置默认位置以进行附近搜索并管理位置隐私"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "位置设置",
+      "DESCRIPTION": "设置在浏览器地理定位不可用时使用的默认位置",
+      "BACK": "返回设置",
+      "DEFAULT_LOCATION": "默认位置",
+      "DEFAULT_LOCATION_HELP": "当浏览器地理定位不可用时，此位置将用于附近搜索功能",
+      "PRIVACY": "位置隐私",
+      "PRIVACY_HELP": "控制您的位置数据的使用方式",
+      "PRIVACY_PRIVATE": "私密",
+      "PRIVACY_PRIVATE_DESC": "仅用于您自己的搜索",
+      "PRIVACY_CITY": "仅城市",
+      "PRIVACY_CITY_DESC": "在您的个人资料中显示您的城市",
+      "PRIVACY_EXACT": "精确位置",
+      "PRIVACY_EXACT_DESC": "在个人资料中显示您的完整位置",
+      "SAVE": "保存位置",
+      "SAVING": "保存中...",
+      "CLEAR": "清除位置",
+      "SAVED": "位置保存成功",
+      "CLEARED": "位置已清除",
+      "SAVE_ERROR": "保存位置失败"
     },
     "SECURITY_PAGE": {
       "TITLE": "安全设置",
@@ -1527,7 +1552,8 @@
         "RECENT_ACTIVITY": "最近活动",
         "PERFORMANCE": "性能",
         "DATA_EXPORT_REPORTS": "数据导出和报告",
-        "ADMIN_TOOLS": "管理工具"
+        "ADMIN_TOOLS": "管理工具",
+        "GEOGRAPHIC_DISTRIBUTION": "地理分布"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "仪表板部分",
@@ -1536,7 +1562,40 @@
         "ANALYTICS": "分析",
         "PERFORMANCE": "性能",
         "REPORTS": "报告",
-        "TOOLS": "工具"
+        "TOOLS": "工具",
+        "GEOGRAPHIC_DISTRIBUTION": "地理分布分析"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "位置覆盖",
+        "TOTAL_INDEXED": "已索引总数",
+        "CITIES": "城市",
+        "COUNTRIES": "国家",
+        "REMOTE_ITEMS": "远程项目",
+        "ITEMS_OF_TOTAL": "{total}个中的{indexed}个",
+        "COVERAGE_PERCENT": "{percent}%覆盖率",
+        "SERVICE_AREA_BREAKDOWN": "服务区域细分",
+        "TOP_COUNTRIES": "热门国家",
+        "INDEX_SYNCED": "索引已同步",
+        "INDEX_OUT_OF_SYNC": "索引未同步",
+        "INDEX_SYNC_WARNING": "索引有{actual}个项目，预期{expected}个。建议重建。",
+        "DISTRIBUTION_MAP": "分布地图",
+        "NO_LOCATIONS": "暂无位置数据。",
+        "LOCATION_DISABLED": "位置功能已禁用。在设置中启用以使用地理分析。",
+        "MAP_NOT_CONFIGURED": "地图提供商未配置。请在您的环境中添加 Mapbox 或 Google Maps API 密钥以启用地图。",
+        "INDEX_MANAGEMENT": "索引管理",
+        "INDEX_DESCRIPTION": "位置索引支持快速地理查询。如果项目缺失或数据不同步，请重建索引。",
+        "LAST_REBUILD": "上次重建",
+        "NEVER_REBUILT": "从未",
+        "REBUILD_INDEX": "重建索引",
+        "CLEAR_INDEX": "清除索引",
+        "REBUILD_SUCCESS": "索引已重建：{indexed}个已索引，{skipped}个已跳过，耗时{duration}毫秒。",
+        "CLEAR_SUCCESS": "索引已清除：已移除{cleared}个条目。",
+        "CLEAR_CONFIRM": "确定要清除整个位置索引吗？之后可以重新构建。",
+        "ACTION_FAILED": "操作失败。请重试。",
+        "LOCAL": "本地",
+        "REGIONAL": "区域",
+        "NATIONAL": "全国",
+        "GLOBAL": "全球"
       }
     },
     "CHARTS": {
@@ -3093,6 +3152,26 @@
         "LOADING": "正在加载图表数据...",
         "ERROR": "加载图表失败",
         "RETRY": "重试"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "您的项目地图",
+        "WITH_LOCATION": "有位置信息",
+        "NO_DATA": "没有包含位置数据的项目",
+        "NO_DATA_DESC": "为您的项目添加位置数据以在地图上查看。"
+      },
+      "GEO_STATS": {
+        "TITLE": "地理覆盖范围",
+        "ITEMS_WITH_LOCATION": "有位置信息的项目",
+        "REMOTE_SERVICES": "远程服务",
+        "SERVICE_AREAS": "服务区域",
+        "TOP_CITIES": "热门城市",
+        "TOP_COUNTRIES": "热门国家",
+        "LOCAL": "本地",
+        "REGIONAL": "区域",
+        "NATIONAL": "全国",
+        "GLOBAL": "全球",
+        "NO_DATA": "无位置数据",
+        "NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
       }
     }
   }

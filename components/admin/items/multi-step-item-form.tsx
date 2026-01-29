@@ -7,13 +7,16 @@ import {
   BasicInfoStep,
   MediaLinksStep,
   ClassificationStep,
+  LocationStep,
   ReviewStep,
   type BasicInfoData,
   type MediaLinksData,
   type ClassificationData,
+  type LocationStepData,
   type ReviewData
 } from './form-steps';
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUSES } from '@/lib/types/item';
+import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
 
 interface MultiStepItemFormProps {
@@ -28,6 +31,7 @@ interface FormData {
   basicInfo: BasicInfoData;
   mediaLinks: MediaLinksData;
   classification: ClassificationData;
+  location: LocationStepData;
   review: ReviewData;
 }
 
@@ -39,30 +43,51 @@ export function MultiStepItemForm({
   isLoading = false
 }: MultiStepItemFormProps) {
   const t = useTranslations('admin.ITEM_FORM');
+  const { settings: locationSettings } = useLocationSettings();
+  const locationEnabled = locationSettings.enabled;
 
-  // Define steps with i18n support
-  const FORM_STEPS = useMemo(() => [
-    {
-      id: 'basic-info',
-      title: t('STEPS.BASIC_INFO.TITLE'),
-      description: t('STEPS.BASIC_INFO.DESCRIPTION')
-    },
-    {
-      id: 'media-links',
-      title: t('STEPS.MEDIA_LINKS.TITLE'),
-      description: t('STEPS.MEDIA_LINKS.DESCRIPTION')
-    },
-    {
-      id: 'classification',
-      title: t('STEPS.CLASSIFICATION.TITLE'),
-      description: t('STEPS.CLASSIFICATION.DESCRIPTION')
-    },
-    {
+  // Define steps with i18n support — conditionally include location
+  const FORM_STEPS = useMemo(() => {
+    const steps = [
+      {
+        id: 'basic-info',
+        title: t('STEPS.BASIC_INFO.TITLE'),
+        description: t('STEPS.BASIC_INFO.DESCRIPTION')
+      },
+      {
+        id: 'media-links',
+        title: t('STEPS.MEDIA_LINKS.TITLE'),
+        description: t('STEPS.MEDIA_LINKS.DESCRIPTION')
+      },
+      {
+        id: 'classification',
+        title: t('STEPS.CLASSIFICATION.TITLE'),
+        description: t('STEPS.CLASSIFICATION.DESCRIPTION')
+      },
+    ];
+
+    if (locationEnabled) {
+      steps.push({
+        id: 'location',
+        title: t('STEPS.LOCATION.TITLE'),
+        description: t('STEPS.LOCATION.DESCRIPTION')
+      });
+    }
+
+    steps.push({
       id: 'review',
       title: t('STEPS.REVIEW.TITLE'),
       description: t('STEPS.REVIEW.DESCRIPTION')
-    }
-  ], [t]);
+    });
+
+    return steps;
+  }, [t, locationEnabled]);
+
+  // Compute which step number corresponds to each section (1-based)
+  const locationStepNumber = locationEnabled
+    ? FORM_STEPS.findIndex((s) => s.id === 'location') + 1
+    : -1;
+  const reviewStepNumber = FORM_STEPS.findIndex((s) => s.id === 'review') + 1;
 
   // Initialize form data
   const [formData, setFormData] = useState<FormData>({
@@ -80,19 +105,43 @@ export function MultiStepItemForm({
       category: Array.isArray(item?.category) ? item.category : [],
       tags: Array.isArray(item?.tags) ? item.tags : []
     },
+    location: {
+      address: item?.location?.address,
+      city: item?.location?.city,
+      state: item?.location?.state,
+      country: item?.location?.country,
+      postal_code: item?.location?.postal_code,
+      latitude: item?.location?.latitude,
+      longitude: item?.location?.longitude,
+      service_area: item?.location?.service_area,
+      is_remote: item?.location?.is_remote,
+      geocoded_by: item?.location?.geocoded_by,
+    },
     review: {
       featured: item?.featured || false,
       status: item?.status || ITEM_STATUSES.DRAFT
     }
   });
 
-  // Step validation states
-  const [stepValidation, setStepValidation] = useState({
-    1: false, // Basic Info
-    2: false, // Media & Links
-    3: false, // Classification
-    4: false  // Review
+  // Step validation states — dynamic based on total steps
+  const [stepValidation, setStepValidation] = useState<Record<number, boolean>>(() => {
+    const initial: Record<number, boolean> = {};
+    for (let i = 1; i <= FORM_STEPS.length; i++) {
+      initial[i] = false;
+    }
+    return initial;
   });
+
+  // Keep stepValidation in sync when FORM_STEPS changes (e.g. locationEnabled loads async)
+  useEffect(() => {
+    setStepValidation((prev) => {
+      const next: Record<number, boolean> = {};
+      for (let i = 1; i <= FORM_STEPS.length; i++) {
+        next[i] = prev[i] ?? false;
+      }
+      return next;
+    });
+  }, [FORM_STEPS.length]);
 
   // Multi-step form hook
   const {
@@ -123,6 +172,10 @@ export function MultiStepItemForm({
     setFormData(prev => ({ ...prev, classification: data }));
   };
 
+  const updateLocation = (data: LocationStepData) => {
+    setFormData(prev => ({ ...prev, location: data }));
+  };
+
   const updateReview = (data: ReviewData) => {
     setFormData(prev => ({ ...prev, review: data }));
   };
@@ -140,7 +193,7 @@ export function MultiStepItemForm({
 
   // Navigation handlers
   const handleNext = () => {
-    const currentStepValid = stepValidation[currentStep as keyof typeof stepValidation];
+    const currentStepValid = stepValidation[currentStep];
 
     if (currentStepValid) {
       goToNext();
@@ -165,7 +218,9 @@ export function MultiStepItemForm({
       ...formData.basicInfo,
       ...formData.mediaLinks,
       ...formData.classification,
-      ...formData.review
+      ...formData.review,
+      // Include location data if location feature is enabled and data exists
+      ...(locationEnabled && hasLocationData(formData.location) ? { location: formData.location } : {}),
     } as CreateItemRequest | UpdateItemRequest;
 
     onSubmit(combinedData);
@@ -189,6 +244,18 @@ export function MultiStepItemForm({
           category: Array.isArray(item.category) ? item.category : [],
           tags: Array.isArray(item.tags) ? item.tags : []
         },
+        location: {
+          address: item.location?.address,
+          city: item.location?.city,
+          state: item.location?.state,
+          country: item.location?.country,
+          postal_code: item.location?.postal_code,
+          latitude: item.location?.latitude,
+          longitude: item.location?.longitude,
+          service_area: item.location?.service_area,
+          is_remote: item.location?.is_remote,
+          geocoded_by: item.location?.geocoded_by,
+        },
         review: {
           featured: item.featured || false,
           status: item.status
@@ -197,7 +264,7 @@ export function MultiStepItemForm({
     }
   }, [item, mode]);
 
-  const canGoNext = stepValidation[currentStep as keyof typeof stepValidation];
+  const canGoNext = stepValidation[currentStep];
   const canGoPrevious = !isFirstStep && !isLoading;
 
   return (
@@ -249,14 +316,23 @@ export function MultiStepItemForm({
             />
           )}
 
-          {currentStep === 4 && (
+          {locationEnabled && currentStep === locationStepNumber && (
+            <LocationStep
+              data={formData.location}
+              onChange={updateLocation}
+              onValidationChange={(isValid) => handleStepValidation(locationStepNumber, isValid)}
+            />
+          )}
+
+          {currentStep === reviewStepNumber && (
             <ReviewStep
               data={formData.review}
               onChange={updateReview}
-              onValidationChange={(isValid) => handleStepValidation(4, isValid)}
+              onValidationChange={(isValid) => handleStepValidation(reviewStepNumber, isValid)}
               basicInfo={formData.basicInfo}
               mediaLinks={formData.mediaLinks}
               classification={formData.classification}
+              location={locationEnabled ? formData.location : undefined}
             />
           )}
         </div>
@@ -282,4 +358,14 @@ export function MultiStepItemForm({
       </div>
     </div>
   );
+}
+
+/** Check if location data has any meaningful content */
+function hasLocationData(location: LocationStepData): boolean {
+  if (location.is_remote === true) return true;
+  if (location.latitude !== undefined && location.longitude !== undefined) return true;
+  if (location.address?.trim()) return true;
+  if (location.city?.trim()) return true;
+  if (location.country?.trim()) return true;
+  return false;
 }

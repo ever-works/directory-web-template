@@ -144,6 +144,7 @@
     "PUBLISHED_AT": "Publié le",
     "EXPORT_CSV": "Exporter en CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Chargement des éléments...",
     "LOADING_RESPONSES": "Chargement des réponses...",
     "NO_RESPONSES_FOUND": "Aucune réponse trouvée",
@@ -501,7 +502,32 @@
       "BILLING": {
         "TITLE": "Facturation",
         "DESCRIPTION": "Gérez vos informations de facturation et les détails de votre abonnement"
+      },
+      "LOCATION": {
+        "TITLE": "Paramètres de localisation",
+        "DESCRIPTION": "Définissez votre emplacement par défaut pour la recherche à proximité et gérez la confidentialité"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Paramètres de localisation",
+      "DESCRIPTION": "Définissez un emplacement par défaut utilisé lorsque la géolocalisation du navigateur n'est pas disponible",
+      "BACK": "Retour aux paramètres",
+      "DEFAULT_LOCATION": "Emplacement par défaut",
+      "DEFAULT_LOCATION_HELP": "Cet emplacement est utilisé comme solution de secours pour les fonctionnalités de recherche à proximité",
+      "PRIVACY": "Confidentialité de l'emplacement",
+      "PRIVACY_HELP": "Contrôlez comment vos données de localisation sont utilisées",
+      "PRIVACY_PRIVATE": "Privé",
+      "PRIVACY_PRIVATE_DESC": "Utilisé uniquement pour vos propres recherches",
+      "PRIVACY_CITY": "Ville uniquement",
+      "PRIVACY_CITY_DESC": "Afficher votre ville sur votre profil",
+      "PRIVACY_EXACT": "Emplacement exact",
+      "PRIVACY_EXACT_DESC": "Afficher votre emplacement complet sur le profil",
+      "SAVE": "Enregistrer l'emplacement",
+      "SAVING": "Enregistrement...",
+      "CLEAR": "Effacer l'emplacement",
+      "SAVED": "Emplacement enregistré avec succès",
+      "CLEARED": "Emplacement effacé",
+      "SAVE_ERROR": "Échec de l'enregistrement de l'emplacement"
     },
     "SECURITY_PAGE": {
       "TITLE": "Paramètres de sécurité",
@@ -1586,7 +1612,8 @@
         "RECENT_ACTIVITY": "Activité Récente",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Export de Données et Rapports",
-        "ADMIN_TOOLS": "Outils d'Administration"
+        "ADMIN_TOOLS": "Outils d'Administration",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribution Géographique"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Sections du tableau de bord",
@@ -1595,7 +1622,40 @@
         "ANALYTICS": "Analyses",
         "PERFORMANCE": "Performance",
         "REPORTS": "Rapports",
-        "TOOLS": "Outils"
+        "TOOLS": "Outils",
+        "GEOGRAPHIC_DISTRIBUTION": "Analyse de la distribution géographique"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Couverture géographique",
+        "TOTAL_INDEXED": "Total indexé",
+        "CITIES": "Villes",
+        "COUNTRIES": "Pays",
+        "REMOTE_ITEMS": "Éléments distants",
+        "ITEMS_OF_TOTAL": "{indexed} sur {total} éléments",
+        "COVERAGE_PERCENT": "{percent}% de couverture",
+        "SERVICE_AREA_BREAKDOWN": "Répartition par zone de service",
+        "TOP_COUNTRIES": "Principaux pays",
+        "INDEX_SYNCED": "Index synchronisé",
+        "INDEX_OUT_OF_SYNC": "Index désynchronisé",
+        "INDEX_SYNC_WARNING": "L'index contient {actual} éléments, {expected} attendus. Envisagez une reconstruction.",
+        "DISTRIBUTION_MAP": "Carte de distribution",
+        "NO_LOCATIONS": "Aucune donnée de localisation disponible pour le moment.",
+        "LOCATION_DISABLED": "Les fonctionnalités de localisation sont désactivées. Activez-les dans les Paramètres pour utiliser les analyses géographiques.",
+        "MAP_NOT_CONFIGURED": "Le fournisseur de carte n'est pas configuré. Ajoutez les clés API Mapbox ou Google Maps dans votre environnement pour activer la carte.",
+        "INDEX_MANAGEMENT": "Gestion de l'index",
+        "INDEX_DESCRIPTION": "L'index de localisation permet des requêtes géographiques rapides. Reconstruisez si des éléments manquent ou si les données sont désynchronisées.",
+        "LAST_REBUILD": "Dernière reconstruction",
+        "NEVER_REBUILT": "Jamais",
+        "REBUILD_INDEX": "Reconstruire l'index",
+        "CLEAR_INDEX": "Vider l'index",
+        "REBUILD_SUCCESS": "Index reconstruit : {indexed} indexés, {skipped} ignorés en {duration}ms.",
+        "CLEAR_SUCCESS": "Index vidé : {cleared} entrées supprimées.",
+        "CLEAR_CONFIRM": "Êtes-vous sûr de vouloir vider l'intégralité de l'index de localisation ? Vous pourrez le reconstruire ensuite.",
+        "ACTION_FAILED": "L'opération a échoué. Veuillez réessayer.",
+        "LOCAL": "Local",
+        "REGIONAL": "Régional",
+        "NATIONAL": "National",
+        "GLOBAL": "Mondial"
       }
     },
     "CHARTS": {
@@ -3156,6 +3216,26 @@
         "LOADING": "Chargement des données du graphique...",
         "ERROR": "Échec du chargement du graphique",
         "RETRY": "Réessayer"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Carte de vos éléments",
+        "WITH_LOCATION": "avec localisation",
+        "NO_DATA": "Aucun élément avec des données de localisation",
+        "NO_DATA_DESC": "Ajoutez des données de localisation à vos éléments pour les voir sur la carte."
+      },
+      "GEO_STATS": {
+        "TITLE": "Couverture géographique",
+        "ITEMS_WITH_LOCATION": "Éléments avec localisation",
+        "REMOTE_SERVICES": "Services à distance",
+        "SERVICE_AREAS": "Zones de service",
+        "TOP_CITIES": "Principales villes",
+        "TOP_COUNTRIES": "Principaux pays",
+        "LOCAL": "Local",
+        "REGIONAL": "Régional",
+        "NATIONAL": "National",
+        "GLOBAL": "Mondial",
+        "NO_DATA": "Aucune donnée de localisation",
+        "NO_DATA_DESC": "Ajoutez des données de localisation à vos éléments pour voir la couverture géographique."
       }
     }
   }

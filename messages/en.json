@@ -169,6 +169,7 @@
 		"PUBLISHED_AT": "Published at",
 		"EXPORT_CSV": "Export CSV",
 		"GLOBAL": "Global",
+				"RETRY": "Retry",
 		"LOADING_ITEMS": "Loading items...",
 		"LOADING_RESPONSES": "Loading responses...",
 		"NO_RESPONSES_FOUND": "No responses found",
@@ -393,7 +394,28 @@
 		"RETRY": "Retry",
 		"FILTER_STATUS_MATCH_ALL": "Showing {filtered} of {total} items that match all selected tags",
 		"FILTER_STATUS": "Showing {filtered} of {total} items",
-		"SHOWING_TOTAL_ITEMS": "Showing {total} items"
+		"SHOWING_TOTAL_ITEMS": "Showing {total} items",
+		"NEAR_ME": "Near Me",
+		"LOCATION_ERROR": "Location access denied",
+		"RADIUS": "Radius",
+		"CITY": "City",
+		"ALL_CITIES": "All cities",
+		"COUNTRY": "Country",
+		"ALL_COUNTRIES": "All countries",
+		"MAP_NO_LOCATION_DATA": "No items with location data found",
+		"MAP_ITEM_WITH_LOCATION": "{count} item with location",
+		"MAP_ITEMS_WITH_LOCATION": "{count} items with location",
+		"MAP_VIEW_DETAILS": "View Details",
+		"MAP_CLOSE_POPUP": "Close popup",
+		"MAP_DETAILS_FOR": "Details for {name}",
+		"VIEW_LIST": "List view",
+		"VIEW_GRID": "Grid view",
+		"VIEW_MASONRY": "Masonry view",
+		"VIEW_MAP": "Map view",
+		"VIEW_SWITCH_TO_LIST": "Switch to list view",
+		"VIEW_SWITCH_TO_GRID": "Switch to grid view",
+		"VIEW_SWITCH_TO_MASONRY": "Switch to masonry view",
+		"VIEW_SWITCH_TO_MAP": "Switch to map view"
 	},
 	"tagsModal": {
 		"SELECTED_TAGS": "Selected Tags",
@@ -414,7 +436,15 @@
 		"PUBLISHED": "Published",
 		"NO_TAGS_AVAILABLE": "No tags available",
 		"RATING": "Rating",
-		"PROMO_CODE": "Promo Code"
+		"PROMO_CODE": "Promo Code",
+		"LOCATION": "Location",
+		"REMOTE_SERVICE": "Remote / Online Service",
+		"REMOTE_SERVICE_DESC": "This service is available remotely and doesn't have a physical location.",
+		"GET_DIRECTIONS": "Get Directions",
+		"LOCAL_SERVICE": "Local Service",
+		"REGIONAL_SERVICE": "Regional Service",
+		"NATIONAL_SERVICE": "National Service",
+		"GLOBAL_SERVICE": "Global Service"
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "All rights reserved",
@@ -533,7 +563,32 @@
 			"BILLING": {
 				"TITLE": "Billing",
 				"DESCRIPTION": "Manage your billing information and subscription details"
+			},
+			"LOCATION": {
+				"TITLE": "Location Settings",
+				"DESCRIPTION": "Set your default location for nearby search and manage location privacy"
 			}
+		},
+		"LOCATION_SETTINGS": {
+			"TITLE": "Location Settings",
+			"DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+			"BACK": "Back to Settings",
+			"DEFAULT_LOCATION": "Default Location",
+			"DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+			"PRIVACY": "Location Privacy",
+			"PRIVACY_HELP": "Control how your location data is used",
+			"PRIVACY_PRIVATE": "Private",
+			"PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+			"PRIVACY_CITY": "City Only",
+			"PRIVACY_CITY_DESC": "Show your city on your profile",
+			"PRIVACY_EXACT": "Exact Location",
+			"PRIVACY_EXACT_DESC": "Show your full location on profile",
+			"SAVE": "Save Location",
+			"SAVING": "Saving...",
+			"CLEAR": "Clear Location",
+			"SAVED": "Location saved successfully",
+			"CLEARED": "Location cleared",
+			"SAVE_ERROR": "Failed to save location"
 		},
 		"SECURITY_PAGE": {
 			"TITLE": "Security Settings",
@@ -756,7 +811,9 @@
 			"SUBMIT_LISTING": "Submit Listing",
 			"NOT_PROVIDED": "Not provided",
 			"NOT_SELECTED": "Not selected",
-			"NONE_SELECTED": "None selected"
+			"NONE_SELECTED": "None selected",
+			"LOCATION": "Location",
+			"REMOTE_SERVICE": "Remote / Online Service"
 		},
 		"PLANS": {
 			"FREE_PLAN": "Free Plan",
@@ -1593,7 +1650,8 @@
 				"RECENT_ACTIVITY": "Recent Activity",
 				"PERFORMANCE": "Performance",
 				"DATA_EXPORT_REPORTS": "Data Export & Reports",
-				"ADMIN_TOOLS": "Admin Tools"
+				"ADMIN_TOOLS": "Admin Tools",
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution"
 			},
 			"ARIA_LABELS": {
 				"DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1602,7 +1660,41 @@
 				"ANALYTICS": "Analytics",
 				"PERFORMANCE": "Performance",
 				"REPORTS": "Reports",
-				"TOOLS": "Tools"
+				"TOOLS": "Tools",
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic distribution analytics"
+			},
+			"GEO": {
+				"LOCATION_COVERAGE": "Location Coverage",
+				"TOTAL_INDEXED": "Total Indexed",
+				"CITIES": "Cities",
+				"COUNTRIES": "Countries",
+				"REMOTE_ITEMS": "Remote Items",
+				"ITEMS_OF_TOTAL": "{indexed} of {total} items",
+				"COVERAGE_PERCENT": "{percent}% coverage",
+				"SERVICE_AREA_BREAKDOWN": "Service Area Breakdown",
+				"TOP_COUNTRIES": "Top Countries",
+				"INDEX_SYNCED": "Index Synced",
+				"INDEX_OUT_OF_SYNC": "Index Out of Sync",
+				"INDEX_SYNC_WARNING": "Index has {actual} items, expected {expected}. Consider rebuilding.",
+				"DISTRIBUTION_MAP": "Distribution Map",
+				"NO_LOCATIONS": "No location data available yet.",
+				"LOCATION_DISABLED": "Location features are disabled. Enable them in Settings to use geographic analytics.",
+				"MAP_NOT_CONFIGURED": "Map provider is not configured. Add Mapbox or Google Maps API keys in your environment to enable the map.",
+				"INDEX_MANAGEMENT": "Index Management",
+				"INDEX_DESCRIPTION": "The location index enables fast geographic queries. Rebuild if items are missing or data is out of sync.",
+				"LAST_REBUILD": "Last Rebuild",
+				"NEVER_REBUILT": "Never",
+				"REBUILD_INDEX": "Rebuild Index",
+				"CLEAR_INDEX": "Clear Index",
+				"REBUILD_SUCCESS": "Index rebuilt: {indexed} indexed, {skipped} skipped in {duration}ms.",
+				"CLEAR_SUCCESS": "Index cleared: {cleared} entries removed.",
+				"CLEAR_CONFIRM": "Are you sure you want to clear the entire location index? You can rebuild it afterwards.",
+				"ACTION_FAILED": "Operation failed. Please try again.",
+				"LOCAL": "Local",
+				"REGIONAL": "Regional",
+				"NATIONAL": "National",
+				"GLOBAL": "Global",
+				"RETRY": "Retry"
 			}
 		},
 		"CHARTS": {
@@ -1867,6 +1959,28 @@
 					"TIP_1": "Ensure URLs are valid and accessible",
 					"TIP_2": "Use high-quality icons (min 256x256px recommended)",
 					"TIP_3": "Icons should be in PNG or SVG format for best quality"
+				},
+				"LOCATION": {
+					"TITLE": "Location",
+					"DESCRIPTION": "Add location information for this item",
+					"REMOTE_LABEL": "Remote / Online Service",
+					"REMOTE_HELP": "This service is available online without a physical location",
+					"ADDRESS_LABEL": "Address",
+					"SERVICE_AREA_LABEL": "Service Area",
+					"SERVICE_AREA_PLACEHOLDER": "Select service area",
+					"SUMMARY_TITLE": "Location Summary",
+					"SUMMARY_ADDRESS": "Address",
+					"SUMMARY_LOCATION": "Location",
+					"SUMMARY_COORDINATES": "Coordinates",
+					"SUMMARY_SERVICE_AREA": "Service Area",
+					"SUMMARY_REMOTE": "This is a remote/online service",
+					"REQUIRED_ERROR": "Location is required for non-remote items",
+					"SERVICE_AREA_OPTIONS": {
+						"LOCAL": "Local (city/neighborhood)",
+						"REGIONAL": "Regional (state/province)",
+						"NATIONAL": "National (country-wide)",
+						"GLOBAL": "Global (worldwide)"
+					}
 				},
 				"REVIEW": {
 					"TITLE": "Review & Submit",
@@ -3288,6 +3402,26 @@
 				"LOADING": "Loading chart data...",
 				"ERROR": "Failed to load chart",
 				"RETRY": "Retry"
+			},
+			"ITEMS_MAP": {
+				"TITLE": "Your Items Map",
+				"WITH_LOCATION": "with location",
+				"NO_DATA": "No items with location data",
+				"NO_DATA_DESC": "Add location data to your items to see them on the map."
+			},
+			"GEO_STATS": {
+				"TITLE": "Geographic Coverage",
+				"ITEMS_WITH_LOCATION": "Items with Location",
+				"REMOTE_SERVICES": "Remote Services",
+				"SERVICE_AREAS": "Service Areas",
+				"TOP_CITIES": "Top Cities",
+				"TOP_COUNTRIES": "Top Countries",
+				"LOCAL": "Local",
+				"REGIONAL": "Regional",
+				"NATIONAL": "National",
+				"GLOBAL": "Global",
+				"NO_DATA": "No location data",
+				"NO_DATA_DESC": "Add location data to your items to see geographic coverage."
 			}
 		}
 	}

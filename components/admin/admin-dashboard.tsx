@@ -12,6 +12,7 @@ import { AdminTopItems } from './admin-top-items';
 import { AdminFeaturesGrid } from './admin-features-grid';
 import { AdminPerformanceMonitor } from './admin-performance-monitor';
 import { AdminDataExport } from './admin-data-export';
+import { GeographicSection } from './dashboard/GeographicSection';
 import {
 	AdminSkipLink,
 	AdminLandmark,
@@ -214,6 +215,15 @@ export function AdminDashboard() {
 									</AdminHeading>
 									<AdminErrorBoundary>
 										<AdminRecentActivity data={stats?.recentActivity || []} isLoading={false} />
+									</AdminErrorBoundary>
+								</AdminLandmark>
+
+								<AdminLandmark as="section" label={t('SECTIONS.GEOGRAPHIC_DISTRIBUTION')}>
+									<AdminHeading level={2} visualLevel={3} className="mb-4 md:mb-6">
+										{t('SECTIONS.GEOGRAPHIC_DISTRIBUTION')}
+									</AdminHeading>
+									<AdminErrorBoundary>
+										<GeographicSection />
 									</AdminErrorBoundary>
 								</AdminLandmark>
 							</section>

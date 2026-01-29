@@ -531,7 +531,32 @@
       "BILLING": {
         "TITLE": "Биллинг",
         "DESCRIPTION": "Управление информацией о биллинге и деталями подписки"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Настройки безопасности",
@@ -1585,7 +1610,8 @@
         "RECENT_ACTIVITY": "Недавняя активность",
         "PERFORMANCE": "Производительность",
         "DATA_EXPORT_REPORTS": "Экспорт данных и отчеты",
-        "ADMIN_TOOLS": "Инструменты администрирования"
+        "ADMIN_TOOLS": "Инструменты администрирования",
+        "GEOGRAPHIC_DISTRIBUTION": "Географическое распределение"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Разделы панели управления",
@@ -1594,7 +1620,40 @@
         "ANALYTICS": "Аналитика",
         "PERFORMANCE": "Производительность",
         "REPORTS": "Отчеты",
-        "TOOLS": "Инструменты"
+        "TOOLS": "Инструменты",
+        "GEOGRAPHIC_DISTRIBUTION": "Анализ географического распределения"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Покрытие местоположений",
+        "TOTAL_INDEXED": "Всего проиндексировано",
+        "CITIES": "Города",
+        "COUNTRIES": "Страны",
+        "REMOTE_ITEMS": "Удалённые элементы",
+        "ITEMS_OF_TOTAL": "{indexed} из {total} элементов",
+        "COVERAGE_PERCENT": "{percent}% покрытие",
+        "SERVICE_AREA_BREAKDOWN": "Разбивка по зонам обслуживания",
+        "TOP_COUNTRIES": "Ведущие страны",
+        "INDEX_SYNCED": "Индекс синхронизирован",
+        "INDEX_OUT_OF_SYNC": "Индекс не синхронизирован",
+        "INDEX_SYNC_WARNING": "В индексе {actual} элементов, ожидается {expected}. Рекомендуется перестройка.",
+        "DISTRIBUTION_MAP": "Карта распределения",
+        "NO_LOCATIONS": "Данные о местоположении пока недоступны.",
+        "LOCATION_DISABLED": "Функции местоположения отключены. Включите их в Настройках для использования географической аналитики.",
+        "MAP_NOT_CONFIGURED": "Провайдер карт не настроен. Добавьте API-ключи Mapbox или Google Maps в вашу среду, чтобы включить карту.",
+        "INDEX_MANAGEMENT": "Управление индексом",
+        "INDEX_DESCRIPTION": "Индекс местоположений обеспечивает быстрые географические запросы. Перестройте при отсутствии элементов или рассинхронизации данных.",
+        "LAST_REBUILD": "Последняя перестройка",
+        "NEVER_REBUILT": "Никогда",
+        "REBUILD_INDEX": "Перестроить индекс",
+        "CLEAR_INDEX": "Очистить индекс",
+        "REBUILD_SUCCESS": "Индекс перестроен: {indexed} проиндексировано, {skipped} пропущено за {duration}мс.",
+        "CLEAR_SUCCESS": "Индекс очищен: {cleared} записей удалено.",
+        "CLEAR_CONFIRM": "Вы уверены, что хотите очистить весь индекс местоположений? Вы можете перестроить его позже.",
+        "ACTION_FAILED": "Операция не удалась. Попробуйте ещё раз.",
+        "LOCAL": "Локальный",
+        "REGIONAL": "Региональный",
+        "NATIONAL": "Национальный",
+        "GLOBAL": "Глобальный"
       }
     },
     "CHARTS": {
@@ -3264,6 +3323,26 @@
         "LOADING": "Загрузка данных графика...",
         "ERROR": "Не удалось загрузить график",
         "RETRY": "Повторить"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Карта ваших элементов",
+        "WITH_LOCATION": "с местоположением",
+        "NO_DATA": "Нет элементов с данными о местоположении",
+        "NO_DATA_DESC": "Добавьте данные о местоположении к вашим элементам, чтобы увидеть их на карте."
+      },
+      "GEO_STATS": {
+        "TITLE": "Географический охват",
+        "ITEMS_WITH_LOCATION": "Элементы с местоположением",
+        "REMOTE_SERVICES": "Удалённые сервисы",
+        "SERVICE_AREAS": "Зоны обслуживания",
+        "TOP_CITIES": "Топ городов",
+        "TOP_COUNTRIES": "Топ стран",
+        "LOCAL": "Местный",
+        "REGIONAL": "Региональный",
+        "NATIONAL": "Национальный",
+        "GLOBAL": "Глобальный",
+        "NO_DATA": "Нет данных о местоположении",
+        "NO_DATA_DESC": "Добавьте данные о местоположении к вашим элементам, чтобы увидеть географический охват."
       }
     }
   }
