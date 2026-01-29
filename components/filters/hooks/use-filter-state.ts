@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { SORT_OPTIONS } from '../constants';
-import { SortOption, TagId, CategoryId } from '../types';
+import { SortOption, TagId, CategoryId, LocationFilterState, NearMeCoordinates } from '../types';
 import { useFilterURLSync } from './use-filter-url-sync';
 import type { FilterState } from '@/lib/utils/url-filter-sync';
 
@@ -47,6 +47,10 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   const [isFiltersLoading, setIsFiltersLoading] = useState(false);
   const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  /** Location filter state */
+  const [locationFilter, setLocationFilterInternal] = useState<LocationFilterState>({});
+  const locationFilterRef = useRef<LocationFilterState>({});
+
   // URL synchronization (only for updates, not parsing)
   const { updateURL } = useFilterURLSync({ basePath: '/', locale });
 
@@ -62,10 +66,39 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   }, []);
 
   /**
+   * Build location fields for FilterState from current location filter ref
+   */
+  const getLocationFilterStateFields = useCallback((): Partial<FilterState> => {
+    const loc = locationFilterRef.current;
+    const fields: Partial<FilterState> = {};
+    if (loc.nearMe) {
+      fields.nearLat = loc.nearMe.latitude;
+      fields.nearLng = loc.nearMe.longitude;
+      fields.radius = loc.nearMe.radius;
+    }
+    if (loc.city) fields.city = loc.city;
+    if (loc.country) fields.country = loc.country;
+    return fields;
+  }, []);
+
+  /**
+   * Trigger loading indicator and URL update
+   */
+  const syncFilterURL = useCallback((filterState: FilterState) => {
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+    }
+    setIsFiltersLoading(true);
+    updateURL(filterState);
+    loadingTimeoutRef.current = setTimeout(() => {
+      setIsFiltersLoading(false);
+    }, 400);
+  }, [updateURL]);
+
+  /**
    * Wrapped setter that updates both state and URL
    */
   const setSelectedTags = useCallback((tags: TagId[] | ((prev: TagId[]) => TagId[])) => {
-    // Store the computed new tags to use in both setters
     let computedTags: TagId[] = [];
 
     setSelectedTagsInternal(prev => {
@@ -73,38 +106,21 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
       return computedTags;
     });
 
-    // Show loading indicator AFTER state is set (non-blocking)
+    // Read current categories via setter trick, then sync URL
     setSelectedCategoriesInternal(currentCategories => {
-      const filterState: FilterState = {
+      syncFilterURL({
         tags: computedTags,
         categories: currentCategories,
-      };
-
-      // Clear any existing timeout
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current);
-      }
-
-      // Show loading indicator
-      setIsFiltersLoading(true);
-
-      // Update URL
-      updateURL(filterState);
-
-      // Hide loading after delay
-      loadingTimeoutRef.current = setTimeout(() => {
-        setIsFiltersLoading(false);
-      }, 400);
-
+        ...getLocationFilterStateFields(),
+      });
       return currentCategories;
     });
-  }, [updateURL]);
+  }, [syncFilterURL, getLocationFilterStateFields]);
 
   /**
    * Wrapped setter that updates both state and URL
    */
   const setSelectedCategories = useCallback((categories: CategoryId[] | ((prev: CategoryId[]) => CategoryId[])) => {
-    // Store the computed new categories to use in both setters
     let computedCategories: CategoryId[] = [];
 
     setSelectedCategoriesInternal(prev => {
@@ -112,32 +128,16 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
       return computedCategories;
     });
 
-    // Show loading indicator AFTER state is set (non-blocking)
+    // Read current tags via setter trick, then sync URL
     setSelectedTagsInternal(currentTags => {
-      const filterState: FilterState = {
+      syncFilterURL({
         tags: currentTags,
         categories: computedCategories,
-      };
-
-      // Clear any existing timeout
-      if (loadingTimeoutRef.current) {
-        clearTimeout(loadingTimeoutRef.current);
-      }
-
-      // Show loading indicator
-      setIsFiltersLoading(true);
-
-      // Update URL
-      updateURL(filterState);
-
-      // Hide loading after delay
-      loadingTimeoutRef.current = setTimeout(() => {
-        setIsFiltersLoading(false);
-      }, 400);
-
+        ...getLocationFilterStateFields(),
+      });
       return currentTags;
     });
-  }, [updateURL]);
+  }, [syncFilterURL, getLocationFilterStateFields]);
 
   /**
    * Clear all active filters
@@ -149,8 +149,10 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     setSortBy(SORT_OPTIONS.POPULARITY);
     setSelectedTag(null);
     setSelectedCategory(null);
+    setLocationFilterInternal({});
+    locationFilterRef.current = {};
 
-    // Update URL to clear filters
+    // Update URL to clear all filters including location
     updateURL({ tags: [], categories: [] }, true);
   }, [updateURL]);
 
@@ -211,6 +213,104 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     setSelectedCategories([]);
   }, [setSelectedCategories]);
 
+  // ===================== Location Filter Actions =====================
+
+  /**
+   * Helper to update location state, ref, and sync URL
+   */
+  const updateLocationFilter = useCallback((newFilter: LocationFilterState) => {
+    setLocationFilterInternal(newFilter);
+    locationFilterRef.current = newFilter;
+
+    // Build location fields for URL
+    const locationFields: Partial<FilterState> = {};
+    if (newFilter.nearMe) {
+      locationFields.nearLat = newFilter.nearMe.latitude;
+      locationFields.nearLng = newFilter.nearMe.longitude;
+      locationFields.radius = newFilter.nearMe.radius;
+    }
+    if (newFilter.city) locationFields.city = newFilter.city;
+    if (newFilter.country) locationFields.country = newFilter.country;
+
+    // Read current tags/categories via setter trick and sync URL
+    setSelectedTagsInternal(currentTags => {
+      setSelectedCategoriesInternal(currentCategories => {
+        syncFilterURL({
+          tags: currentTags,
+          categories: currentCategories,
+          ...locationFields,
+        });
+        return currentCategories;
+      });
+      return currentTags;
+    });
+  }, [syncFilterURL]);
+
+  /**
+   * Set or clear Near Me filter
+   */
+  const setNearMe = useCallback((coords: NearMeCoordinates | null) => {
+    if (coords) {
+      updateLocationFilter({
+        nearMe: coords,
+        sortByDistance: true,
+        city: undefined,
+        country: undefined,
+      });
+    } else {
+      updateLocationFilter({
+        ...locationFilterRef.current,
+        nearMe: undefined,
+        sortByDistance: false,
+      });
+    }
+  }, [updateLocationFilter]);
+
+  /**
+   * Update the radius for Near Me filter
+   */
+  const setLocationRadius = useCallback((radius: number) => {
+    const current = locationFilterRef.current;
+    if (!current.nearMe) return;
+    updateLocationFilter({
+      ...current,
+      nearMe: { ...current.nearMe, radius },
+    });
+  }, [updateLocationFilter]);
+
+  /**
+   * Set or clear city filter
+   */
+  const setLocationCity = useCallback((city: string | null) => {
+    updateLocationFilter({
+      ...locationFilterRef.current,
+      city: city || undefined,
+      country: undefined,
+      nearMe: undefined,
+      sortByDistance: false,
+    });
+  }, [updateLocationFilter]);
+
+  /**
+   * Set or clear country filter
+   */
+  const setLocationCountry = useCallback((country: string | null) => {
+    updateLocationFilter({
+      ...locationFilterRef.current,
+      country: country || undefined,
+      city: undefined,
+      nearMe: undefined,
+      sortByDistance: false,
+    });
+  }, [updateLocationFilter]);
+
+  /**
+   * Clear all location filters
+   */
+  const clearLocationFilter = useCallback(() => {
+    updateLocationFilter({});
+  }, [updateLocationFilter]);
+
   return {
     // State
     searchTerm,
@@ -238,5 +338,13 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     addSelectedCategory,
     toggleSelectedCategory,
     clearSelectedCategories,
+
+    // Location filter
+    locationFilter,
+    setNearMe,
+    setLocationRadius,
+    setLocationCity,
+    setLocationCountry,
+    clearLocationFilter,
   };
 } 

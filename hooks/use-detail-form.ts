@@ -3,6 +3,7 @@ import { Eye, FileText, Globe, Tag, Type } from 'lucide-react';
 import React, { useCallback, useMemo, useState } from 'react';
 import { useCategoriesEnabled } from './use-categories-enabled';
 import { useTagsEnabled } from './use-tags-enabled';
+import { useLocationSettings } from './use-location-settings';
 interface ProductLink {
     id: string;
     url: string;
@@ -105,6 +106,8 @@ interface ProductLink {
 export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: FormData) => void) {
     const { categoriesEnabled } = useCategoriesEnabled();
     const { tagsEnabled } = useTagsEnabled();
+    const { settings: locationSettings } = useLocationSettings();
+    const locationRequired = locationSettings.enabled && locationSettings.requireLocationOnSubmit;
     const [currentStep, setCurrentStep] = useState(1);
     const [formData, setFormData] = useState<FormData>(() => {
       const defaultData = {
@@ -276,14 +279,28 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     const validateStep = useCallback((step: number) => {
       const stepConfig = STEPS.find(s => s.id === step);
       if (!stepConfig) return false;
-  
-      return stepConfig.fields.every(field => {
+
+      const fieldsValid = stepConfig.fields.every(field => {
         if (field === "mainLink") {
           return formData.links.find((l) => l.type === "main")?.url?.trim();
         }
         return formData[field] && formData[field].toString().trim();
       });
-    }, [formData]);
+
+      if (!fieldsValid) return false;
+
+      // Enforce location on step 1 when requireLocationOnSubmit is enabled
+      if (step === 1 && locationRequired) {
+        const loc = formData.location;
+        if (!loc) return false;
+        // Valid if remote, or if coordinates are present
+        if (!loc.is_remote && (loc.latitude === undefined || loc.longitude === undefined)) {
+          return false;
+        }
+      }
+
+      return true;
+    }, [formData, locationRequired]);
   
     const nextStep = useCallback(() => {
       if (currentStep < STEPS.length && validateStep(currentStep)) {
@@ -305,10 +322,19 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           ? ["name", "mainLink", "category", "description"]
           : ["name", "mainLink", "description"];
 
+        if (locationRequired) {
+          requiredFields.push("location");
+        }
+
         const completed = requiredFields.filter(
           (field) => {
             if (field === "mainLink") {
               return formData.links.find((l) => l.type === "main")?.url?.trim();
+            }
+            if (field === "location") {
+              const loc = formData.location;
+              if (!loc) return false;
+              return loc.is_remote || (loc.latitude !== undefined && loc.longitude !== undefined);
             }
             return formData[field] && formData[field].toString().trim();
           }
@@ -319,7 +345,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           completedRequiredFields: completed,
           progressPercentage: (completed / requiredFields.length) * 100,
         };
-      }, [formData, categoriesEnabled]);
+      }, [formData, categoriesEnabled, locationRequired]);
   
     const getIconComponent = () => {
       return Globe;

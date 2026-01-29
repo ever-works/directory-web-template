@@ -11,6 +11,7 @@ import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
 import { Collection } from '@/types/collection';
+import type { ItemLocationData } from '@/lib/types/item';
 import { z } from 'zod';
 
 // Security utility functions
@@ -211,6 +212,7 @@ export interface ItemData {
 	action?: 'visit-website' | 'start-survey' | 'buy'; // CTA action type
 	showSurveys?: boolean; // Whether to show surveys section (default: true)
 	publisher?: string; // Publisher name for display
+	location?: ItemLocationData; // Location data from YAML
 }
 
 export interface AuthOptions {

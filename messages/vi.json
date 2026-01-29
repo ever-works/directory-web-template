@@ -531,7 +531,32 @@
       "SPONSORSHIPS": {
         "TITLE": "Tài trợ",
         "DESCRIPTION": "Theo dõi và quản lý tài trợ của bạn"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Cài đặt bảo mật",
@@ -1585,7 +1610,8 @@
         "RECENT_ACTIVITY": "Hoạt động gần đây",
         "PERFORMANCE": "Hiệu suất",
         "DATA_EXPORT_REPORTS": "Xuất dữ liệu và báo cáo",
-        "ADMIN_TOOLS": "Công cụ quản trị"
+        "ADMIN_TOOLS": "Công cụ quản trị",
+        "GEOGRAPHIC_DISTRIBUTION": "Phân Bố Địa Lý"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Phần bảng điều khiển",
@@ -1594,7 +1620,40 @@
         "ANALYTICS": "Phân tích",
         "PERFORMANCE": "Hiệu suất",
         "REPORTS": "Báo cáo",
-        "TOOLS": "Công cụ"
+        "TOOLS": "Công cụ",
+        "GEOGRAPHIC_DISTRIBUTION": "Phân tích phân bố địa lý"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Phạm vi vị trí",
+        "TOTAL_INDEXED": "Tổng đã lập chỉ mục",
+        "CITIES": "Thành phố",
+        "COUNTRIES": "Quốc gia",
+        "REMOTE_ITEMS": "Mục từ xa",
+        "ITEMS_OF_TOTAL": "{indexed} trong {total} mục",
+        "COVERAGE_PERCENT": "{percent}% phạm vi",
+        "SERVICE_AREA_BREAKDOWN": "Chi tiết theo khu vực dịch vụ",
+        "TOP_COUNTRIES": "Quốc gia hàng đầu",
+        "INDEX_SYNCED": "Chỉ mục đã đồng bộ",
+        "INDEX_OUT_OF_SYNC": "Chỉ mục chưa đồng bộ",
+        "INDEX_SYNC_WARNING": "Chỉ mục có {actual} mục, dự kiến {expected}. Cân nhắc xây dựng lại.",
+        "DISTRIBUTION_MAP": "Bản đồ phân bố",
+        "NO_LOCATIONS": "Chưa có dữ liệu vị trí.",
+        "LOCATION_DISABLED": "Tính năng vị trí đã tắt. Bật trong Cài đặt để sử dụng phân tích địa lý.",
+        "MAP_NOT_CONFIGURED": "Nhà cung cấp bản đồ chưa được cấu hình. Thêm khóa API Mapbox hoặc Google Maps vào môi trường của bạn để bật bản đồ.",
+        "INDEX_MANAGEMENT": "Quản lý chỉ mục",
+        "INDEX_DESCRIPTION": "Chỉ mục vị trí cho phép truy vấn địa lý nhanh chóng. Xây dựng lại nếu thiếu mục hoặc dữ liệu không đồng bộ.",
+        "LAST_REBUILD": "Xây dựng lại lần cuối",
+        "NEVER_REBUILT": "Chưa bao giờ",
+        "REBUILD_INDEX": "Xây dựng lại chỉ mục",
+        "CLEAR_INDEX": "Xóa chỉ mục",
+        "REBUILD_SUCCESS": "Đã xây dựng lại chỉ mục: {indexed} đã lập chỉ mục, {skipped} bỏ qua trong {duration}ms.",
+        "CLEAR_SUCCESS": "Đã xóa chỉ mục: {cleared} mục đã xóa.",
+        "CLEAR_CONFIRM": "Bạn có chắc muốn xóa toàn bộ chỉ mục vị trí? Bạn có thể xây dựng lại sau đó.",
+        "ACTION_FAILED": "Thao tác thất bại. Vui lòng thử lại.",
+        "LOCAL": "Địa phương",
+        "REGIONAL": "Khu vực",
+        "NATIONAL": "Quốc gia",
+        "GLOBAL": "Toàn cầu"
       }
     },
     "CHARTS": {
@@ -3281,6 +3340,26 @@
         "LOADING": "Đang tải dữ liệu biểu đồ...",
         "ERROR": "Không thể tải biểu đồ",
         "RETRY": "Thử lại"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Bản đồ mục của bạn",
+        "WITH_LOCATION": "có vị trí",
+        "NO_DATA": "Không có mục nào có dữ liệu vị trí",
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem chúng trên bản đồ."
+      },
+      "GEO_STATS": {
+        "TITLE": "Phạm vi địa lý",
+        "ITEMS_WITH_LOCATION": "Mục có vị trí",
+        "REMOTE_SERVICES": "Dịch vụ từ xa",
+        "SERVICE_AREAS": "Khu vực dịch vụ",
+        "TOP_CITIES": "Thành phố hàng đầu",
+        "TOP_COUNTRIES": "Quốc gia hàng đầu",
+        "LOCAL": "Địa phương",
+        "REGIONAL": "Khu vực",
+        "NATIONAL": "Quốc gia",
+        "GLOBAL": "Toàn cầu",
+        "NO_DATA": "Không có dữ liệu vị trí",
+        "NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem phạm vi địa lý."
       }
     }
   }

@@ -499,7 +499,32 @@
       "BILLING": {
         "TITLE": "الفواتير",
         "DESCRIPTION": "أدر معلومات الفواتير الخاصة بك وتفاصيل الاشتراك"
+      },
+      "LOCATION": {
+        "TITLE": "إعدادات الموقع",
+        "DESCRIPTION": "حدد موقعك الافتراضي للبحث القريب وإدارة الخصوصية"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "إعدادات الموقع",
+      "DESCRIPTION": "حدد موقعًا افتراضيًا يُستخدم عندما لا تتوفر خدمة تحديد المواقع في المتصفح",
+      "BACK": "العودة إلى الإعدادات",
+      "DEFAULT_LOCATION": "الموقع الافتراضي",
+      "DEFAULT_LOCATION_HELP": "يُستخدم هذا الموقع كبديل لميزات البحث القريب",
+      "PRIVACY": "خصوصية الموقع",
+      "PRIVACY_HELP": "تحكم في كيفية استخدام بيانات موقعك",
+      "PRIVACY_PRIVATE": "خاص",
+      "PRIVACY_PRIVATE_DESC": "يُستخدم فقط لعمليات البحث الخاصة بك",
+      "PRIVACY_CITY": "المدينة فقط",
+      "PRIVACY_CITY_DESC": "عرض مدينتك في ملفك الشخصي",
+      "PRIVACY_EXACT": "الموقع الدقيق",
+      "PRIVACY_EXACT_DESC": "عرض موقعك الكامل في الملف الشخصي",
+      "SAVE": "حفظ الموقع",
+      "SAVING": "جارٍ الحفظ...",
+      "CLEAR": "مسح الموقع",
+      "SAVED": "تم حفظ الموقع بنجاح",
+      "CLEARED": "تم مسح الموقع",
+      "SAVE_ERROR": "فشل في حفظ الموقع"
     },
     "SECURITY_PAGE": {
       "TITLE": "Security Settings",
@@ -1515,7 +1540,8 @@
         "RECENT_ACTIVITY": "النشاط الأخير",
         "PERFORMANCE": "الأداء",
         "DATA_EXPORT_REPORTS": "تصدير البيانات والتقارير",
-        "ADMIN_TOOLS": "أدوات الإدارة"
+        "ADMIN_TOOLS": "أدوات الإدارة",
+        "GEOGRAPHIC_DISTRIBUTION": "التوزيع الجغرافي"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "أقسام لوحة التحكم",
@@ -1524,7 +1550,40 @@
         "ANALYTICS": "التحليلات",
         "PERFORMANCE": "الأداء",
         "REPORTS": "التقارير",
-        "TOOLS": "الأدوات"
+        "TOOLS": "الأدوات",
+        "GEOGRAPHIC_DISTRIBUTION": "تحليلات التوزيع الجغرافي"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "تغطية الموقع",
+        "TOTAL_INDEXED": "إجمالي المفهرس",
+        "CITIES": "المدن",
+        "COUNTRIES": "الدول",
+        "REMOTE_ITEMS": "العناصر عن بعد",
+        "ITEMS_OF_TOTAL": "{indexed} من {total} عنصر",
+        "COVERAGE_PERCENT": "{percent}% تغطية",
+        "SERVICE_AREA_BREAKDOWN": "تفصيل مناطق الخدمة",
+        "TOP_COUNTRIES": "أبرز الدول",
+        "INDEX_SYNCED": "الفهرس متزامن",
+        "INDEX_OUT_OF_SYNC": "الفهرس غير متزامن",
+        "INDEX_SYNC_WARNING": "الفهرس يحتوي على {actual} عنصر، المتوقع {expected}. يُنصح بإعادة البناء.",
+        "DISTRIBUTION_MAP": "خريطة التوزيع",
+        "NO_LOCATIONS": "لا توجد بيانات موقع متاحة بعد.",
+        "LOCATION_DISABLED": "ميزات الموقع معطلة. قم بتمكينها في الإعدادات لاستخدام التحليلات الجغرافية.",
+        "MAP_NOT_CONFIGURED": "لم يتم تكوين مزود الخريطة. أضف مفاتيح API الخاصة بـ Mapbox أو Google Maps في بيئتك لتفعيل الخريطة.",
+        "INDEX_MANAGEMENT": "إدارة الفهرس",
+        "INDEX_DESCRIPTION": "يتيح فهرس الموقع استعلامات جغرافية سريعة. أعد البناء إذا كانت العناصر مفقودة أو البيانات غير متزامنة.",
+        "LAST_REBUILD": "آخر إعادة بناء",
+        "NEVER_REBUILT": "أبداً",
+        "REBUILD_INDEX": "إعادة بناء الفهرس",
+        "CLEAR_INDEX": "مسح الفهرس",
+        "REBUILD_SUCCESS": "تم إعادة بناء الفهرس: {indexed} مفهرس، {skipped} تم تخطيه في {duration}مللي ثانية.",
+        "CLEAR_SUCCESS": "تم مسح الفهرس: {cleared} إدخال تمت إزالته.",
+        "CLEAR_CONFIRM": "هل أنت متأكد أنك تريد مسح فهرس الموقع بالكامل؟ يمكنك إعادة بنائه بعد ذلك.",
+        "ACTION_FAILED": "فشلت العملية. يرجى المحاولة مرة أخرى.",
+        "LOCAL": "محلي",
+        "REGIONAL": "إقليمي",
+        "NATIONAL": "وطني",
+        "GLOBAL": "عالمي"
       }
     },
     "CHARTS": {
@@ -3083,6 +3142,26 @@
         "LOADING": "جاري تحميل بيانات الرسم البياني...",
         "ERROR": "فشل في تحميل الرسم البياني",
         "RETRY": "إعادة المحاولة"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "خريطة عناصرك",
+        "WITH_LOCATION": "مع الموقع",
+        "NO_DATA": "لا توجد عناصر ببيانات الموقع",
+        "NO_DATA_DESC": "أضف بيانات الموقع إلى عناصرك لرؤيتها على الخريطة."
+      },
+      "GEO_STATS": {
+        "TITLE": "التغطية الجغرافية",
+        "ITEMS_WITH_LOCATION": "العناصر ذات الموقع",
+        "REMOTE_SERVICES": "الخدمات عن بُعد",
+        "SERVICE_AREAS": "مناطق الخدمة",
+        "TOP_CITIES": "أفضل المدن",
+        "TOP_COUNTRIES": "أفضل الدول",
+        "LOCAL": "محلي",
+        "REGIONAL": "إقليمي",
+        "NATIONAL": "وطني",
+        "GLOBAL": "عالمي",
+        "NO_DATA": "لا توجد بيانات موقع",
+        "NO_DATA_DESC": "أضف بيانات الموقع إلى عناصرك لرؤية التغطية الجغرافية."
       }
     }
   }

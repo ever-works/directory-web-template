@@ -145,6 +145,7 @@
     "PUBLISHED_AT": "Published at",
     "EXPORT_CSV": "Export CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Loading items...",
     "LOADING_RESPONSES": "Loading responses...",
     "NO_RESPONSES_FOUND": "No responses found",
@@ -500,7 +501,32 @@
       "BILLING": {
         "TITLE": "Billing",
         "DESCRIPTION": "Manage your billing information and subscription details"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Security Settings",
@@ -1495,7 +1521,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "भौगोलिक वितरण"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1504,7 +1531,40 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "भौगोलिक वितरण विश्लेषण"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "स्थान कवरेज",
+        "TOTAL_INDEXED": "कुल अनुक्रमित",
+        "CITIES": "शहर",
+        "COUNTRIES": "देश",
+        "REMOTE_ITEMS": "रिमोट आइटम",
+        "ITEMS_OF_TOTAL": "{total} में से {indexed} आइटम",
+        "COVERAGE_PERCENT": "{percent}% कवरेज",
+        "SERVICE_AREA_BREAKDOWN": "सेवा क्षेत्र विवरण",
+        "TOP_COUNTRIES": "शीर्ष देश",
+        "INDEX_SYNCED": "इंडेक्स सिंक्रनाइज़",
+        "INDEX_OUT_OF_SYNC": "इंडेक्स सिंक से बाहर",
+        "INDEX_SYNC_WARNING": "इंडेक्स में {actual} आइटम हैं, {expected} अपेक्षित। पुनर्निर्माण पर विचार करें।",
+        "DISTRIBUTION_MAP": "वितरण मानचित्र",
+        "NO_LOCATIONS": "अभी तक कोई स्थान डेटा उपलब्ध नहीं है।",
+        "LOCATION_DISABLED": "स्थान सुविधाएँ अक्षम हैं। भौगोलिक विश्लेषण के लिए सेटिंग्स में सक्षम करें।",
+        "MAP_NOT_CONFIGURED": "मैप प्रदाता कॉन्फ़िगर नहीं है। मैप सक्षम करने के लिए अपने परिवेश में Mapbox या Google Maps API कुंजियाँ जोड़ें।",
+        "INDEX_MANAGEMENT": "इंडेक्स प्रबंधन",
+        "INDEX_DESCRIPTION": "स्थान इंडेक्स तेज़ भौगोलिक क्वेरी सक्षम करता है। आइटम गायब होने या डेटा सिंक न होने पर पुनर्निर्माण करें।",
+        "LAST_REBUILD": "अंतिम पुनर्निर्माण",
+        "NEVER_REBUILT": "कभी नहीं",
+        "REBUILD_INDEX": "इंडेक्स पुनर्निर्माण",
+        "CLEAR_INDEX": "इंडेक्स साफ़ करें",
+        "REBUILD_SUCCESS": "इंडेक्स पुनर्निर्मित: {indexed} अनुक्रमित, {skipped} छोड़े गए {duration}मिसे में।",
+        "CLEAR_SUCCESS": "इंडेक्स साफ़: {cleared} प्रविष्टियाँ हटाई गईं।",
+        "CLEAR_CONFIRM": "क्या आप पूरे स्थान इंडेक्स को साफ़ करना चाहते हैं? आप इसे बाद में पुनर्निर्माण कर सकते हैं।",
+        "ACTION_FAILED": "ऑपरेशन विफल। कृपया पुनः प्रयास करें।",
+        "LOCAL": "स्थानीय",
+        "REGIONAL": "क्षेत्रीय",
+        "NATIONAL": "राष्ट्रीय",
+        "GLOBAL": "वैश्विक"
       }
     },
     "CHARTS": {
@@ -2986,6 +3046,29 @@
       "DESCRIPTION": "विवरण",
       "EDIT_SUBMISSION_TITLE": "सबमिशन संपादित करें",
       "EDIT_SUBMISSION_DESC": "अपने सबमिशन का विवरण अपडेट करें"
+    }
+  ,
+    "dashboard": {
+      "ITEMS_MAP": {
+        "TITLE": "आपके आइटम का नक्शा",
+        "WITH_LOCATION": "स्थान के साथ",
+        "NO_DATA": "स्थान डेटा वाले कोई आइटम नहीं",
+        "NO_DATA_DESC": "अपने आइटम में स्थान डेटा जोड़ें ताकि उन्हें मानचित्र पर देख सकें।"
+      },
+      "GEO_STATS": {
+        "TITLE": "भौगोलिक कवरेज",
+        "ITEMS_WITH_LOCATION": "स्थान वाले आइटम",
+        "REMOTE_SERVICES": "दूरस्थ सेवाएं",
+        "SERVICE_AREAS": "सेवा क्षेत्र",
+        "TOP_CITIES": "शीर्ष शहर",
+        "TOP_COUNTRIES": "शीर्ष देश",
+        "LOCAL": "स्थानीय",
+        "REGIONAL": "क्षेत्रीय",
+        "NATIONAL": "राष्ट्रीय",
+        "GLOBAL": "वैश्विक",
+        "NO_DATA": "कोई स्थान डेटा नहीं",
+        "NO_DATA_DESC": "भौगोलिक कवरेज देखने के लिए अपने आइटम में स्थान डेटा जोड़ें।"
+      }
     }
   }
 }

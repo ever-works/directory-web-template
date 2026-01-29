@@ -8,11 +8,12 @@ import { Select, SelectItem } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Star, ExternalLink, Hash, Folder, Image as ImageIcon, FileText, Link as LinkIcon } from 'lucide-react';
+import { Star, ExternalLink, Hash, Folder, Image as ImageIcon, FileText, Link as LinkIcon, MapPin, Wifi } from 'lucide-react';
 import { ITEM_STATUSES, ItemStatus } from '@/lib/types/item';
 import { useTranslations } from 'next-intl';
 import { ItemCompanyManager } from '@/components/admin/items/item-company-manager';
 import { useCompaniesEnabled } from '@/hooks/use-companies-enabled';
+import type { LocationStepData } from './location-step';
 
 export interface ReviewData {
   featured: boolean;
@@ -38,6 +39,7 @@ interface ReviewStepProps {
     category: string[];
     tags: string[];
   };
+  location?: LocationStepData;
 }
 
 const STATUS_OPTIONS = [
@@ -53,7 +55,8 @@ export function ReviewStep({
   onValidationChange,
   basicInfo,
   mediaLinks,
-  classification
+  classification,
+  location
 }: ReviewStepProps) {
   const t = useTranslations('admin.ITEM_FORM');
   const tCompany = useTranslations('admin.ITEM_COMPANY');
@@ -302,6 +305,66 @@ export function ReviewStep({
                 </div>
               </div>
             </div>
+
+            {/* Location */}
+            {location && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h4 className="font-medium flex items-center text-gray-900 dark:text-gray-100">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    {t('STEPS.LOCATION.TITLE')}
+                  </h4>
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+                    {location.is_remote ? (
+                      <div className="flex items-center gap-2">
+                        <Wifi className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {t('STEPS.LOCATION.SUMMARY_REMOTE')}
+                        </span>
+                      </div>
+                    ) : (location.address || location.city || location.state || location.country || location.latitude !== undefined || location.longitude !== undefined) ? (
+                      <div className="text-sm text-gray-700 dark:text-gray-300 space-y-1">
+                        {location.address && (
+                          <p>
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              {t('STEPS.LOCATION.SUMMARY_ADDRESS')}:
+                            </span>{' '}
+                            {location.address}
+                          </p>
+                        )}
+                        {(location.city || location.state || location.country) && (
+                          <p>
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              {t('STEPS.LOCATION.SUMMARY_LOCATION')}:
+                            </span>{' '}
+                            {[location.city, location.state, location.country].filter(Boolean).join(', ')}
+                          </p>
+                        )}
+                        {location.latitude !== undefined && location.longitude !== undefined && (
+                          <p>
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              {t('STEPS.LOCATION.SUMMARY_COORDINATES')}:
+                            </span>{' '}
+                            {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                          </p>
+                        )}
+                        {location.service_area && (
+                          <p>
+                            <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                              {t('STEPS.LOCATION.SUMMARY_SERVICE_AREA')}:
+                            </span>{' '}
+                            {t(`STEPS.LOCATION.SERVICE_AREA_OPTIONS.${location.service_area.toUpperCase()}`)}
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">{t('STEPS.REVIEW.NOT_SET')}</span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 

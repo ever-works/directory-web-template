@@ -531,7 +531,32 @@
       "BILLING": {
         "TITLE": "Таксуване",
         "DESCRIPTION": "Управление на вашата информация за таксуване и детайли на абонамента"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Настройки за сигурност",
@@ -1585,7 +1610,8 @@
         "RECENT_ACTIVITY": "Скорошна активност",
         "PERFORMANCE": "Производителност",
         "DATA_EXPORT_REPORTS": "Експорт на данни и отчети",
-        "ADMIN_TOOLS": "Административни инструменти"
+        "ADMIN_TOOLS": "Административни инструменти",
+        "GEOGRAPHIC_DISTRIBUTION": "Географско разпределение"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Раздели на таблото",
@@ -1594,7 +1620,40 @@
         "ANALYTICS": "Анализи",
         "PERFORMANCE": "Производителност",
         "REPORTS": "Отчети",
-        "TOOLS": "Инструменти"
+        "TOOLS": "Инструменти",
+        "GEOGRAPHIC_DISTRIBUTION": "Анализ на географско разпределение"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Покритие на местоположение",
+        "TOTAL_INDEXED": "Общо индексирани",
+        "CITIES": "Градове",
+        "COUNTRIES": "Държави",
+        "REMOTE_ITEMS": "Дистанционни елементи",
+        "ITEMS_OF_TOTAL": "{indexed} от {total} елемента",
+        "COVERAGE_PERCENT": "{percent}% покритие",
+        "SERVICE_AREA_BREAKDOWN": "Разбивка по зони на обслужване",
+        "TOP_COUNTRIES": "Водещи държави",
+        "INDEX_SYNCED": "Индексът е синхронизиран",
+        "INDEX_OUT_OF_SYNC": "Индексът не е синхронизиран",
+        "INDEX_SYNC_WARNING": "Индексът има {actual} елемента, очаквани {expected}. Помислете за пребилдване.",
+        "DISTRIBUTION_MAP": "Карта на разпределението",
+        "NO_LOCATIONS": "Все още няма налични данни за местоположение.",
+        "LOCATION_DISABLED": "Функциите за местоположение са деактивирани. Активирайте ги в Настройки за географски анализ.",
+        "MAP_NOT_CONFIGURED": "Доставчикът на карти не е конфигуриран. Добавете API ключове за Mapbox или Google Maps във вашата среда, за да активирате картата.",
+        "INDEX_MANAGEMENT": "Управление на индекса",
+        "INDEX_DESCRIPTION": "Индексът на местоположение позволява бързи географски заявки. Пребилдвайте ако елементи липсват или данните са несинхронизирани.",
+        "LAST_REBUILD": "Последно пребилдване",
+        "NEVER_REBUILT": "Никога",
+        "REBUILD_INDEX": "Пребилдване на индекса",
+        "CLEAR_INDEX": "Изчистване на индекса",
+        "REBUILD_SUCCESS": "Индексът е пребилден: {indexed} индексирани, {skipped} пропуснати за {duration}мс.",
+        "CLEAR_SUCCESS": "Индексът е изчистен: {cleared} записа премахнати.",
+        "CLEAR_CONFIRM": "Сигурни ли сте, че искате да изчистите целия индекс? Можете да го пребилдите след това.",
+        "ACTION_FAILED": "Операцията неуспешна. Моля, опитайте отново.",
+        "LOCAL": "Местен",
+        "REGIONAL": "Регионален",
+        "NATIONAL": "Национален",
+        "GLOBAL": "Глобален"
       }
     },
     "CHARTS": {
@@ -3266,6 +3325,26 @@
         "LOADING": "Зареждане на данни за диаграмата...",
         "ERROR": "Неуспешно зареждане на диаграма",
         "RETRY": "Опитайте отново"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Карта на вашите елементи",
+        "WITH_LOCATION": "с местоположение",
+        "NO_DATA": "Няма елементи с данни за местоположение",
+        "NO_DATA_DESC": "Добавете данни за местоположение към вашите елементи, за да ги видите на картата."
+      },
+      "GEO_STATS": {
+        "TITLE": "Географско покритие",
+        "ITEMS_WITH_LOCATION": "Елементи с местоположение",
+        "REMOTE_SERVICES": "Дистанционни услуги",
+        "SERVICE_AREAS": "Обслужвани области",
+        "TOP_CITIES": "Топ градове",
+        "TOP_COUNTRIES": "Топ държави",
+        "LOCAL": "Местно",
+        "REGIONAL": "Регионално",
+        "NATIONAL": "Национално",
+        "GLOBAL": "Глобално",
+        "NO_DATA": "Няма данни за местоположение",
+        "NO_DATA_DESC": "Добавете данни за местоположение към вашите елементи, за да видите географското покритие."
       }
     }
   }
