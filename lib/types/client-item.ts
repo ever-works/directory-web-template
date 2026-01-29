@@ -1,4 +1,4 @@
-import { ItemData, ItemListResponse } from './item';
+import { ItemData, ItemListResponse, ItemLocationData } from './item';
 
 /**
  * Client submission data with engagement metrics
@@ -50,6 +50,7 @@ export interface ClientCreateItemRequest {
   category?: string | string[] | null;
   tags?: string[];
   icon_url?: string;
+  location?: ItemLocationData;
 }
 
 /**
@@ -63,6 +64,7 @@ export interface ClientUpdateItemRequest {
   category?: string | string[];
   tags?: string[];
   icon_url?: string;
+  location?: ItemLocationData;
 }
 
 /**

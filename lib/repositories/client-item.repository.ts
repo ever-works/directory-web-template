@@ -92,6 +92,7 @@ export class ClientItemRepository {
       icon_url: data.icon_url,
       status: 'pending', // Always pending for client submissions
       submitted_by: userId,
+      location: data.location,
     };
 
     const item = await this.itemRepository.create(createRequest);
@@ -207,6 +208,7 @@ export class ClientItemRepository {
       ...(data.category !== undefined && { category: data.category }),
       ...(data.tags !== undefined && { tags: data.tags }),
       ...(data.icon_url !== undefined && { icon_url: data.icon_url }),
+      ...(data.location !== undefined && { location: data.location }),
     };
 
     // If item was approved, change status to pending for re-review
