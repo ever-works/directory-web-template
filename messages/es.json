@@ -144,6 +144,7 @@
     "PUBLISHED_AT": "Publicado en",
     "EXPORT_CSV": "Exportar CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Cargando elementos...",
     "LOADING_RESPONSES": "Cargando respuestas...",
     "NO_RESPONSES_FOUND": "No se encontraron respuestas",
@@ -502,7 +503,32 @@
       "BILLING": {
         "TITLE": "Facturación",
         "DESCRIPTION": "Gestiona tu información de facturación y detalles de suscripción"
+      },
+      "LOCATION": {
+        "TITLE": "Configuración de ubicación",
+        "DESCRIPTION": "Establezca su ubicación predeterminada para búsqueda cercana y gestione la privacidad"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Configuración de ubicación",
+      "DESCRIPTION": "Establezca una ubicación predeterminada que se usará cuando la geolocalización del navegador no esté disponible",
+      "BACK": "Volver a configuración",
+      "DEFAULT_LOCATION": "Ubicación predeterminada",
+      "DEFAULT_LOCATION_HELP": "Esta ubicación se usa como respaldo para las funciones de búsqueda cercana",
+      "PRIVACY": "Privacidad de ubicación",
+      "PRIVACY_HELP": "Controle cómo se usan sus datos de ubicación",
+      "PRIVACY_PRIVATE": "Privado",
+      "PRIVACY_PRIVATE_DESC": "Solo se usa para sus propias búsquedas",
+      "PRIVACY_CITY": "Solo ciudad",
+      "PRIVACY_CITY_DESC": "Mostrar su ciudad en su perfil",
+      "PRIVACY_EXACT": "Ubicación exacta",
+      "PRIVACY_EXACT_DESC": "Mostrar su ubicación completa en el perfil",
+      "SAVE": "Guardar ubicación",
+      "SAVING": "Guardando...",
+      "CLEAR": "Borrar ubicación",
+      "SAVED": "Ubicación guardada exitosamente",
+      "CLEARED": "Ubicación borrada",
+      "SAVE_ERROR": "Error al guardar la ubicación"
     },
     "SECURITY_PAGE": {
       "TITLE": "Configuración de seguridad",
@@ -1517,7 +1543,8 @@
         "RECENT_ACTIVITY": "Actividad Reciente",
         "PERFORMANCE": "Rendimiento",
         "DATA_EXPORT_REPORTS": "Exportación de Datos e Informes",
-        "ADMIN_TOOLS": "Herramientas de Administración"
+        "ADMIN_TOOLS": "Herramientas de Administración",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribución Geográfica"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Secciones del panel",
@@ -1526,7 +1553,41 @@
         "ANALYTICS": "Análisis",
         "PERFORMANCE": "Rendimiento",
         "REPORTS": "Informes",
-        "TOOLS": "Herramientas"
+        "TOOLS": "Herramientas",
+        "GEOGRAPHIC_DISTRIBUTION": "Análisis de distribución geográfica"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Cobertura de ubicación",
+        "TOTAL_INDEXED": "Total indexado",
+        "CITIES": "Ciudades",
+        "COUNTRIES": "Países",
+        "REMOTE_ITEMS": "Elementos remotos",
+        "ITEMS_OF_TOTAL": "{indexed} de {total} elementos",
+        "COVERAGE_PERCENT": "{percent}% cobertura",
+        "SERVICE_AREA_BREAKDOWN": "Desglose por área de servicio",
+        "TOP_COUNTRIES": "Principales países",
+        "INDEX_SYNCED": "Índice sincronizado",
+        "INDEX_OUT_OF_SYNC": "Índice desincronizado",
+        "INDEX_SYNC_WARNING": "El índice tiene {actual} elementos, se esperaban {expected}. Considere reconstruir.",
+        "DISTRIBUTION_MAP": "Mapa de distribución",
+        "NO_LOCATIONS": "Aún no hay datos de ubicación disponibles.",
+        "LOCATION_DISABLED": "Las funciones de ubicación están desactivadas. Actívelas en Configuración para usar análisis geográficos.",
+        "MAP_NOT_CONFIGURED": "El proveedor de mapas no está configurado. Agrega las claves API de Mapbox o Google Maps en tu entorno para habilitar el mapa.",
+        "INDEX_MANAGEMENT": "Gestión del índice",
+        "INDEX_DESCRIPTION": "El índice de ubicación permite consultas geográficas rápidas. Reconstruya si faltan elementos o los datos están desincronizados.",
+        "LAST_REBUILD": "Última reconstrucción",
+        "NEVER_REBUILT": "Nunca",
+        "REBUILD_INDEX": "Reconstruir índice",
+        "CLEAR_INDEX": "Limpiar índice",
+        "REBUILD_SUCCESS": "Índice reconstruido: {indexed} indexados, {skipped} omitidos en {duration}ms.",
+        "CLEAR_SUCCESS": "Índice limpiado: {cleared} entradas eliminadas.",
+        "CLEAR_CONFIRM": "¿Está seguro de que desea limpiar todo el índice de ubicación? Puede reconstruirlo después.",
+        "ACTION_FAILED": "La operación falló. Por favor, intente de nuevo.",
+        "LOCAL": "Local",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nacional",
+        "GLOBAL": "Global",
+				"RETRY": "Retry"
       }
     },
     "CHARTS": {
@@ -3087,6 +3148,26 @@
         "LOADING": "Cargando datos del gráfico...",
         "ERROR": "Error al cargar el gráfico",
         "RETRY": "Reintentar"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Mapa de tus elementos",
+        "WITH_LOCATION": "con ubicación",
+        "NO_DATA": "No hay elementos con datos de ubicación",
+        "NO_DATA_DESC": "Agrega datos de ubicación a tus elementos para verlos en el mapa."
+      },
+      "GEO_STATS": {
+        "TITLE": "Cobertura geográfica",
+        "ITEMS_WITH_LOCATION": "Elementos con ubicación",
+        "REMOTE_SERVICES": "Servicios remotos",
+        "SERVICE_AREAS": "Áreas de servicio",
+        "TOP_CITIES": "Principales ciudades",
+        "TOP_COUNTRIES": "Principales países",
+        "LOCAL": "Local",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nacional",
+        "GLOBAL": "Global",
+        "NO_DATA": "Sin datos de ubicación",
+        "NO_DATA_DESC": "Agrega datos de ubicación a tus elementos para ver la cobertura geográfica."
       }
     }
   }

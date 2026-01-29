@@ -398,6 +398,46 @@ export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]>
 		.where(eq(itemLocationIndex.isRemote, true));
 }
 
+// ===================== Distinct Value Queries =====================
+
+/**
+ * Get all distinct city names from the location index.
+ * Returns original (non-normalized) city names, sorted alphabetically.
+ *
+ * @returns Array of distinct city names
+ */
+export async function getDistinctCities(): Promise<string[]> {
+	// Group by normalized column to deduplicate case/whitespace variants
+	// MIN() picks the lexicographically first variant (favors capitalized form)
+	const results = await db
+		.select({ city: sql<string>`MIN(${itemLocationIndex.city})` })
+		.from(itemLocationIndex)
+		.where(sql`${itemLocationIndex.cityNormalized} IS NOT NULL`)
+		.groupBy(itemLocationIndex.cityNormalized)
+		.orderBy(sql`MIN(${itemLocationIndex.city})`);
+
+	return results.map((r) => r.city).filter((city): city is string => city !== null);
+}
+
+/**
+ * Get all distinct country names from the location index.
+ * Returns original (non-normalized) country names, sorted alphabetically.
+ *
+ * @returns Array of distinct country names
+ */
+export async function getDistinctCountries(): Promise<string[]> {
+	// Group by normalized column to deduplicate case/whitespace variants
+	// MIN() picks the lexicographically first variant (favors capitalized form)
+	const results = await db
+		.select({ country: sql<string>`MIN(${itemLocationIndex.country})` })
+		.from(itemLocationIndex)
+		.where(sql`${itemLocationIndex.countryNormalized} IS NOT NULL`)
+		.groupBy(itemLocationIndex.countryNormalized)
+		.orderBy(sql`MIN(${itemLocationIndex.country})`);
+
+	return results.map((r) => r.country).filter((country): country is string => country !== null);
+}
+
 // ===================== Statistics =====================
 
 /**

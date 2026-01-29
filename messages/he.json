@@ -499,7 +499,32 @@
       "BILLING": {
         "TITLE": "Billing",
         "DESCRIPTION": "Manage your billing information and subscription details"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Security Settings",
@@ -1489,7 +1514,8 @@
         "RECENT_ACTIVITY": "Recent Activity",
         "PERFORMANCE": "Performance",
         "DATA_EXPORT_REPORTS": "Data Export & Reports",
-        "ADMIN_TOOLS": "Admin Tools"
+        "ADMIN_TOOLS": "Admin Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "התפלגות גיאוגרפית"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Dashboard sections",
@@ -1498,7 +1524,40 @@
         "ANALYTICS": "Analytics",
         "PERFORMANCE": "Performance",
         "REPORTS": "Reports",
-        "TOOLS": "Tools"
+        "TOOLS": "Tools",
+        "GEOGRAPHIC_DISTRIBUTION": "ניתוח התפלגות גיאוגרפית"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "כיסוי מיקום",
+        "TOTAL_INDEXED": "סה\"כ מאונדקס",
+        "CITIES": "ערים",
+        "COUNTRIES": "מדינות",
+        "REMOTE_ITEMS": "פריטים מרוחקים",
+        "ITEMS_OF_TOTAL": "{indexed} מתוך {total} פריטים",
+        "COVERAGE_PERCENT": "{percent}% כיסוי",
+        "SERVICE_AREA_BREAKDOWN": "פירוט לפי אזור שירות",
+        "TOP_COUNTRIES": "מדינות מובילות",
+        "INDEX_SYNCED": "האינדקס מסונכרן",
+        "INDEX_OUT_OF_SYNC": "האינדקס לא מסונכרן",
+        "INDEX_SYNC_WARNING": "האינדקס מכיל {actual} פריטים, צפויים {expected}. מומלץ לבנות מחדש.",
+        "DISTRIBUTION_MAP": "מפת התפלגות",
+        "NO_LOCATIONS": "אין נתוני מיקום זמינים עדיין.",
+        "LOCATION_DISABLED": "תכונות המיקום מושבתות. הפעל אותן בהגדרות לשימוש בניתוח גיאוגרפי.",
+        "MAP_NOT_CONFIGURED": "ספק המפה לא מוגדר. הוסף מפתחות API של Mapbox או Google Maps בסביבה שלך כדי להפעיל את המפה.",
+        "INDEX_MANAGEMENT": "ניהול אינדקס",
+        "INDEX_DESCRIPTION": "אינדקס המיקום מאפשר שאילתות גיאוגרפיות מהירות. בנה מחדש אם חסרים פריטים או שהנתונים לא מסונכרנים.",
+        "LAST_REBUILD": "בנייה אחרונה",
+        "NEVER_REBUILT": "מעולם לא",
+        "REBUILD_INDEX": "בנה אינדקס מחדש",
+        "CLEAR_INDEX": "נקה אינדקס",
+        "REBUILD_SUCCESS": "האינדקס נבנה מחדש: {indexed} אונדקסו, {skipped} דולגו ב-{duration}מ\"ש.",
+        "CLEAR_SUCCESS": "האינדקס נוקה: {cleared} רשומות הוסרו.",
+        "CLEAR_CONFIRM": "האם אתה בטוח שברצונך לנקות את כל אינדקס המיקום? תוכל לבנות אותו מחדש לאחר מכן.",
+        "ACTION_FAILED": "הפעולה נכשלה. נסה שוב.",
+        "LOCAL": "מקומי",
+        "REGIONAL": "אזורי",
+        "NATIONAL": "ארצי",
+        "GLOBAL": "עולמי"
       }
     },
     "CHARTS": {
@@ -2980,6 +3039,29 @@
       "DESCRIPTION": "תיאור",
       "EDIT_SUBMISSION_TITLE": "ערוך הגשה",
       "EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך"
+    }
+  ,
+    "dashboard": {
+      "ITEMS_MAP": {
+        "TITLE": "מפת הפריטים שלך",
+        "WITH_LOCATION": "עם מיקום",
+        "NO_DATA": "אין פריטים עם נתוני מיקום",
+        "NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות אותם על המפה."
+      },
+      "GEO_STATS": {
+        "TITLE": "כיסוי גיאוגרפי",
+        "ITEMS_WITH_LOCATION": "פריטים עם מיקום",
+        "REMOTE_SERVICES": "שירותים מרחוק",
+        "SERVICE_AREAS": "אזורי שירות",
+        "TOP_CITIES": "ערים מובילות",
+        "TOP_COUNTRIES": "מדינות מובילות",
+        "LOCAL": "מקומי",
+        "REGIONAL": "אזורי",
+        "NATIONAL": "ארצי",
+        "GLOBAL": "גלובלי",
+        "NO_DATA": "אין נתוני מיקום",
+        "NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות כיסוי גיאוגרפי."
+      }
     }
   }
 }

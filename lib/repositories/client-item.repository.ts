@@ -11,6 +11,24 @@ import { ItemRepository } from './item.repository';
 import { slugify } from '@/lib/utils/slug';
 import { getViewsPerItem } from '@/lib/db/queries/item-view.queries';
 
+// ===================== Geo Types =====================
+
+export interface ClientItemCoordinates {
+  slug: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface ClientGeoStats {
+  total_items: number;
+  items_with_location: number;
+  items_remote: number;
+  service_area_breakdown: { area: string; count: number }[];
+  top_cities: { city: string; count: number }[];
+  top_countries: { country: string; count: number }[];
+}
+
 /**
  * Repository for client-side item management operations.
  * Wraps ItemRepository with ownership validation and client-specific logic.
@@ -74,6 +92,7 @@ export class ClientItemRepository {
       icon_url: data.icon_url,
       status: 'pending', // Always pending for client submissions
       submitted_by: userId,
+      location: data.location,
     };
 
     const item = await this.itemRepository.create(createRequest);
@@ -189,6 +208,7 @@ export class ClientItemRepository {
       ...(data.category !== undefined && { category: data.category }),
       ...(data.tags !== undefined && { tags: data.tags }),
       ...(data.icon_url !== undefined && { icon_url: data.icon_url }),
+      ...(data.location !== undefined && { location: data.location }),
     };
 
     // If item was approved, change status to pending for re-review
@@ -323,6 +343,84 @@ export class ClientItemRepository {
   async isOwner(id: string, userId: string): Promise<boolean> {
     const item = await this.itemRepository.findById(id, true);
     return item?.submitted_by === userId;
+  }
+
+  /**
+   * Get coordinates for all items belonging to a user that have location data
+   */
+  async getCoordinatesByUser(userId: string): Promise<ClientItemCoordinates[]> {
+    const items = await this.itemRepository.findAll({ submittedBy: userId });
+
+    return items
+      .filter((item) => item.location?.latitude != null && item.location?.longitude != null)
+      .map((item) => ({
+        slug: item.slug,
+        name: item.name,
+        latitude: item.location!.latitude!,
+        longitude: item.location!.longitude!,
+      }));
+  }
+
+  /**
+   * Get geographic statistics for all items belonging to a user
+   */
+  async getGeoStatsByUser(userId: string): Promise<ClientGeoStats> {
+    const items = await this.itemRepository.findAll({ submittedBy: userId });
+
+    const totalItems = items.length;
+    const itemsRemote = items.filter((item) => item.location?.is_remote).length;
+    const itemsWithCoords = items.filter(
+      (item) => item.location?.latitude != null && item.location?.longitude != null && !item.location?.is_remote
+    ).length;
+    const itemsWithLocation = itemsWithCoords + itemsRemote;
+
+    // Service area breakdown (dynamic — works with any service_area string)
+    const serviceAreaCounts: Record<string, number> = {};
+    for (const item of items) {
+      const area = item.location?.service_area;
+      if (area) {
+        serviceAreaCounts[area] = (serviceAreaCounts[area] || 0) + 1;
+      }
+    }
+    const serviceAreaBreakdown = Object.entries(serviceAreaCounts)
+      .map(([area, count]) => ({ area, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Top cities
+    const cityCounts: Record<string, number> = {};
+    for (const item of items) {
+      const city = item.location?.city;
+      if (city) {
+        cityCounts[city] = (cityCounts[city] || 0) + 1;
+      }
+    }
+    const topCities = Object.entries(cityCounts)
+      .map(([city, count]) => ({ city, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    // Top countries
+    const countryCounts: Record<string, number> = {};
+    for (const item of items) {
+      const country = item.location?.country;
+      if (country) {
+        countryCounts[country] = (countryCounts[country] || 0) + 1;
+      }
+    }
+    const topCountries = Object.entries(countryCounts)
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    return {
+      total_items: totalItems,
+      items_with_location: itemsWithLocation,
+      items_remote: itemsRemote,
+      service_area_breakdown: serviceAreaBreakdown,
+      top_cities: topCities,
+      top_countries: topCountries,
+    };
   }
 }
 

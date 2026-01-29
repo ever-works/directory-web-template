@@ -169,6 +169,7 @@
     "PUBLISHED_AT": "Dipublikasikan pada",
     "EXPORT_CSV": "Ekspor CSV",
     "GLOBAL": "Global",
+				"RETRY": "Retry",
     "LOADING_ITEMS": "Memuat item...",
     "LOADING_RESPONSES": "Memuat respons...",
     "NO_RESPONSES_FOUND": "Tidak ada respons ditemukan",
@@ -531,7 +532,32 @@
       "BILLING": {
         "TITLE": "Penagihan",
         "DESCRIPTION": "Kelola informasi penagihan dan detail langganan Anda"
+      },
+      "LOCATION": {
+        "TITLE": "Location Settings",
+        "DESCRIPTION": "Set your default location for nearby search and manage location privacy"
       }
+    },
+    "LOCATION_SETTINGS": {
+      "TITLE": "Location Settings",
+      "DESCRIPTION": "Set a default location that will be used when browser geolocation is unavailable or denied",
+      "BACK": "Back to Settings",
+      "DEFAULT_LOCATION": "Default Location",
+      "DEFAULT_LOCATION_HELP": "This location is used as a fallback for nearby search features when browser geolocation is not available",
+      "PRIVACY": "Location Privacy",
+      "PRIVACY_HELP": "Control how your location data is used",
+      "PRIVACY_PRIVATE": "Private",
+      "PRIVACY_PRIVATE_DESC": "Only used for your own searches",
+      "PRIVACY_CITY": "City Only",
+      "PRIVACY_CITY_DESC": "Show your city on your profile",
+      "PRIVACY_EXACT": "Exact Location",
+      "PRIVACY_EXACT_DESC": "Show your full location on profile",
+      "SAVE": "Save Location",
+      "SAVING": "Saving...",
+      "CLEAR": "Clear Location",
+      "SAVED": "Location saved successfully",
+      "CLEARED": "Location cleared",
+      "SAVE_ERROR": "Failed to save location"
     },
     "SECURITY_PAGE": {
       "TITLE": "Pengaturan Keamanan",
@@ -1585,7 +1611,8 @@
         "RECENT_ACTIVITY": "Aktivitas Terbaru",
         "PERFORMANCE": "Kinerja",
         "DATA_EXPORT_REPORTS": "Ekspor Data & Laporan",
-        "ADMIN_TOOLS": "Alat Admin"
+        "ADMIN_TOOLS": "Alat Admin",
+        "GEOGRAPHIC_DISTRIBUTION": "Distribusi Geografis"
       },
       "ARIA_LABELS": {
         "DASHBOARD_SECTIONS": "Bagian dasbor",
@@ -1594,7 +1621,41 @@
         "ANALYTICS": "Analitik",
         "PERFORMANCE": "Kinerja",
         "REPORTS": "Laporan",
-        "TOOLS": "Alat"
+        "TOOLS": "Alat",
+        "GEOGRAPHIC_DISTRIBUTION": "Analisis distribusi geografis"
+      },
+      "GEO": {
+        "LOCATION_COVERAGE": "Cakupan Lokasi",
+        "TOTAL_INDEXED": "Total Terindeks",
+        "CITIES": "Kota",
+        "COUNTRIES": "Negara",
+        "REMOTE_ITEMS": "Item Jarak Jauh",
+        "ITEMS_OF_TOTAL": "{indexed} dari {total} item",
+        "COVERAGE_PERCENT": "{percent}% cakupan",
+        "SERVICE_AREA_BREAKDOWN": "Rincian Area Layanan",
+        "TOP_COUNTRIES": "Negara Teratas",
+        "INDEX_SYNCED": "Indeks Tersinkron",
+        "INDEX_OUT_OF_SYNC": "Indeks Tidak Sinkron",
+        "INDEX_SYNC_WARNING": "Indeks memiliki {actual} item, diharapkan {expected}. Pertimbangkan untuk membangun ulang.",
+        "DISTRIBUTION_MAP": "Peta Distribusi",
+        "NO_LOCATIONS": "Belum ada data lokasi yang tersedia.",
+        "LOCATION_DISABLED": "Fitur lokasi dinonaktifkan. Aktifkan di Pengaturan untuk menggunakan analitik geografis.",
+        "MAP_NOT_CONFIGURED": "Penyedia peta belum dikonfigurasi. Tambahkan kunci API Mapbox atau Google Maps di lingkungan Anda untuk mengaktifkan peta.",
+        "INDEX_MANAGEMENT": "Manajemen Indeks",
+        "INDEX_DESCRIPTION": "Indeks lokasi memungkinkan kueri geografis cepat. Bangun ulang jika item hilang atau data tidak sinkron.",
+        "LAST_REBUILD": "Pembangunan Ulang Terakhir",
+        "NEVER_REBUILT": "Belum Pernah",
+        "REBUILD_INDEX": "Bangun Ulang Indeks",
+        "CLEAR_INDEX": "Hapus Indeks",
+        "REBUILD_SUCCESS": "Indeks dibangun ulang: {indexed} terindeks, {skipped} dilewati dalam {duration}ms.",
+        "CLEAR_SUCCESS": "Indeks dihapus: {cleared} entri dihapus.",
+        "CLEAR_CONFIRM": "Apakah Anda yakin ingin menghapus seluruh indeks lokasi? Anda dapat membangunnya kembali setelahnya.",
+        "ACTION_FAILED": "Operasi gagal. Silakan coba lagi.",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nasional",
+        "GLOBAL": "Global",
+				"RETRY": "Retry"
       }
     },
     "CHARTS": {
@@ -3264,6 +3325,26 @@
         "LOADING": "Memuat data bagan...",
         "ERROR": "Gagal memuat bagan",
         "RETRY": "Coba Lagi"
+      },
+      "ITEMS_MAP": {
+        "TITLE": "Peta Item Anda",
+        "WITH_LOCATION": "dengan lokasi",
+        "NO_DATA": "Tidak ada item dengan data lokasi",
+        "NO_DATA_DESC": "Tambahkan data lokasi ke item Anda untuk melihatnya di peta."
+      },
+      "GEO_STATS": {
+        "TITLE": "Cakupan Geografis",
+        "ITEMS_WITH_LOCATION": "Item dengan Lokasi",
+        "REMOTE_SERVICES": "Layanan Jarak Jauh",
+        "SERVICE_AREAS": "Area Layanan",
+        "TOP_CITIES": "Kota Teratas",
+        "TOP_COUNTRIES": "Negara Teratas",
+        "LOCAL": "Lokal",
+        "REGIONAL": "Regional",
+        "NATIONAL": "Nasional",
+        "GLOBAL": "Global",
+        "NO_DATA": "Tidak ada data lokasi",
+        "NO_DATA_DESC": "Tambahkan data lokasi ke item Anda untuk melihat cakupan geografis."
       }
     }
   }

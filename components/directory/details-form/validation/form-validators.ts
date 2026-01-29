@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import type { ItemLocationData } from '@/lib/types/item';
 
 export interface ProductLink {
 	id: string;
@@ -18,6 +19,7 @@ export interface FormData {
 	introduction: string;
 	video_url?: string;
 	selectedPlan?: string;
+	location?: ItemLocationData;
 	[key: string]: unknown;
 }
 

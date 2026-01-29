@@ -43,6 +43,7 @@ const STORAGE_KEYS = {
   DATABASE_SIMULATION_MODE: "databaseSimulationMode",
   CONTAINER_WIDTH: "containerWidth",
   CHECKOUT_PROVIDER: "checkoutProvider",
+  MAP_VIEW: "mapView",
 } as const;
 
 // Types
@@ -77,6 +78,8 @@ interface LayoutThemeContextType {
   checkoutProvider: CheckoutProvider;
   setCheckoutProvider: (provider: CheckoutProvider) => void;
   configuredProviders: CheckoutProvider[];
+  isMapView: boolean;
+  setIsMapView: (isMap: boolean) => void;
   isInitialized: boolean;
 }
 
@@ -481,6 +484,28 @@ const useCheckoutProviderManager = () => {
   };
 };
 
+// Custom hook for map view management
+const useMapViewManager = () => {
+  const [isMapView, setIsMapViewState] = useState(false);
+
+  useEffect(() => {
+    const saved = safeLocalStorage.getItem(STORAGE_KEYS.MAP_VIEW);
+    if (saved === "true") {
+      setIsMapViewState(true);
+    }
+  }, []);
+
+  const setIsMapView = useCallback((value: boolean) => {
+    setIsMapViewState(value);
+    safeLocalStorage.setItem(STORAGE_KEYS.MAP_VIEW, value.toString());
+  }, []);
+
+  return {
+    isMapView,
+    setIsMapView,
+  };
+};
+
 // Custom hook for layout management
 const useLayoutManager = (configDefaults?: ConfigDefaults) => {
   // Determine the effective default from config or fallback
@@ -537,6 +562,7 @@ export const LayoutThemeProvider: React.FC<LayoutThemeProviderProps> = ({ childr
   const databaseSimulationModeManager = useDatabaseSimulationModeManager();
   const containerWidthManager = useContainerWidthManager();
   const checkoutProviderManager = useCheckoutProviderManager();
+  const mapViewManager = useMapViewManager();
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Mark as initialized after mount with delay to show skeleton and ensure stable hydration
@@ -568,6 +594,8 @@ export const LayoutThemeProvider: React.FC<LayoutThemeProviderProps> = ({ childr
         checkoutProvider: checkoutProviderManager.checkoutProvider,
         setCheckoutProvider: checkoutProviderManager.setCheckoutProvider,
         configuredProviders: checkoutProviderManager.configuredProviders,
+        isMapView: mapViewManager.isMapView,
+        setIsMapView: mapViewManager.setIsMapView,
         isInitialized,
       }),
       [
@@ -589,6 +617,8 @@ export const LayoutThemeProvider: React.FC<LayoutThemeProviderProps> = ({ childr
         checkoutProviderManager.checkoutProvider,
         checkoutProviderManager.setCheckoutProvider,
         checkoutProviderManager.configuredProviders,
+        mapViewManager.isMapView,
+        mapViewManager.setIsMapView,
         isInitialized,
       ]
     );
@@ -646,6 +676,7 @@ export const resetToDefaults = (): void => {
     safeLocalStorage.setItem(STORAGE_KEYS.ITEMS_PER_PAGE, DEFAULT_ITEMS_PER_PAGE.toString());
     safeLocalStorage.setItem(STORAGE_KEYS.DATABASE_SIMULATION_MODE, DEFAULT_DATABASE_SIMULATION_MODE);
     safeLocalStorage.setItem(STORAGE_KEYS.CONTAINER_WIDTH, DEFAULT_CONTAINER_WIDTH);
+    safeLocalStorage.setItem(STORAGE_KEYS.MAP_VIEW, "false");
     const defaultProvider = getConfiguredProviders()[0] || "stripe";
     safeLocalStorage.setItem(STORAGE_KEYS.CHECKOUT_PROVIDER, defaultProvider);
   } catch (error) {
