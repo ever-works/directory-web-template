@@ -162,13 +162,13 @@ jobs:
           fi
 
       - name: Update Cron Schedule
-        if: success()
+        if: success() && steps.trigger_deployment.outputs.deployment_id != ''
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE }}
           VERCEL_PROJECT_ID: ${{ github.event.repository.name }}
           VERCEL_DEPLOYMENT_ID: ${{ steps.trigger_deployment.outputs.deployment_id }}
-          VERCEL_PLAN: "pro" # Assumption based on intent; better to have this as a secret or input if variable status
+          VERCEL_PLAN: ${{ secrets.VERCEL_PLAN }}
         run: |
           echo "Running Cron Update Script..."
           npx tsx scripts/update-cron.ts

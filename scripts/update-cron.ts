@@ -60,28 +60,17 @@ async function main() {
 
 		console.log('Checking Vercel project plan...');
 
-		// 1. Get Project Info to check plan (or we can just assume via env var, but let's check)
-		// We can also check /v1/projects/:id
-		const projectResponse = await fetch(`${baseUrl}/v9/projects/${VERCEL_PROJECT_ID}${teamQuery}`, {
-			headers: {
-				Authorization: `Bearer ${VERCEL_TOKEN}`
-			}
-		});
-
-		if (!projectResponse.ok) {
-			throw new Error(`Failed to fetch project info: ${projectResponse.statusText}`);
-		}
-
-		// const projectData = await projectResponse.json() as any;
-
 		// Let's implement the logic: Retrieve all cron jobs, find ours, update it.
 
-		console.log(`Model: Fetching cron jobs for project ${VERCEL_PROJECT_ID}...`);
-		const cronsResponse = await fetch(`${baseUrl}/v1/cron-jobs${teamQuery}&projectId=${VERCEL_PROJECT_ID}`, {
-			headers: {
-				Authorization: `Bearer ${VERCEL_TOKEN}`
+		console.log(`Fetching cron jobs for project ${VERCEL_PROJECT_ID}...`);
+		const cronsResponse = await fetch(
+			`${baseUrl}/v1/cron-jobs${teamQuery ? `${teamQuery}&` : '?'}projectId=${VERCEL_PROJECT_ID}`,
+			{
+				headers: {
+					Authorization: `Bearer ${VERCEL_TOKEN}`
+				}
 			}
-		});
+		);
 
 		if (!cronsResponse.ok) {
 			throw new Error(`Failed to fetch cron jobs: ${cronsResponse.statusText}`);
