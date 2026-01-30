@@ -16,9 +16,10 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	const isAuthPage = pathname?.includes('/admin/auth/');
 
 	useEffect(() => {
-		if (status === 'loading' || hasRedirectedRef.current || isAuthPage) return;
+		if (status === 'loading' || hasRedirectedRef.current) return;
 
 		if (!session) {
+			if (isAuthPage) return;
 			console.log('No session, redirecting to signin');
 			hasRedirectedRef.current = true;
 			// Not authenticated, redirect to admin signin with callback URL
@@ -38,7 +39,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 		console.log('User authenticated and is admin');
 
 		// If on an auth page and user is admin, redirect to dashboard so they don't see signin page
-		if (isAuthPage && session.user?.isAdmin) {
+		if (isAuthPage) {
 			console.log('Authenticated admin on auth page, redirecting to dashboard');
 			hasRedirectedRef.current = true;
 			router.replace('/admin');
