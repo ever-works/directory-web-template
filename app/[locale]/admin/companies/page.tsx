@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { Company } from '@/types/company';
 import type { CreateCompanyInput, UpdateCompanyInput } from '@/lib/validations/company';
+import { Container } from '@/components/ui/container';
 
 // Components
 import { PageHeader } from '@/components/admin/companies/page-header';
@@ -47,34 +48,25 @@ export default function CompaniesPage() {
 		isSearching,
 		statusFilter,
 		setStatusFilter,
-		hasActiveFilters,
+		hasActiveFilters
 	} = useAdminFilters<CompanyStatus>({
 		minSearchLength: 2,
 		debounceDelay: 300,
-		onFiltersChange: () => setCurrentPage(1),
+		onFiltersChange: () => setCurrentPage(1)
 	});
 
 	// Data fetching hook
-	const {
-		companies,
-		stats,
-		page,
-		totalPages,
-		isLoading,
-		isSubmitting,
-		createCompany,
-		updateCompany,
-		deleteCompany
-	} = useAdminCompanies({
-		params: {
-			page: currentPage,
-			limit,
-			search: debouncedSearchTerm,
-			status: statusFilter || undefined,
-			sortBy: 'createdAt',
-			sortOrder: 'desc'
-		}
-	});
+	const { companies, stats, page, totalPages, isLoading, isSubmitting, createCompany, updateCompany, deleteCompany } =
+		useAdminCompanies({
+			params: {
+				page: currentPage,
+				limit,
+				search: debouncedSearchTerm,
+				status: statusFilter || undefined,
+				sortBy: 'createdAt',
+				sortOrder: 'desc'
+			}
+		});
 
 	// Check if skeleton should be shown (only on initial page load)
 	const shouldShowSkeleton = useSkeletonVisibility(isLoading, companies.length > 0);
@@ -158,7 +150,7 @@ export default function CompaniesPage() {
 	}
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
+		<Container useGlobalWidth>
 			{/* Warning Banner - Companies Disabled */}
 			{!companiesEnabled && (
 				<div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 dark:border-yellow-600 p-4 rounded-lg shadow-md">
@@ -220,20 +212,12 @@ export default function CompaniesPage() {
 			<CompanyStats stats={stats} />
 
 			{/* Search */}
-			<CompanySearch
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				isSearching={isSearching}
-			/>
+			<CompanySearch searchTerm={searchTerm} onSearchChange={setSearchTerm} isSearching={isSearching} />
 
 			{/* Companies Table */}
 			<CompaniesTable
 				filters={
-					<CompanyFilters
-						statusFilter={statusFilter}
-						onStatusChange={setStatusFilter}
-						statusCounts={stats}
-					/>
+					<CompanyFilters statusFilter={statusFilter} onStatusChange={setStatusFilter} statusCounts={stats} />
 				}
 				companies={companies}
 				isLoading={isLoading}
@@ -278,6 +262,6 @@ export default function CompaniesPage() {
 				onConfirm={handleConfirmDelete}
 				onCancel={handleCancelDelete}
 			/>
-		</div>
+		</Container>
 	);
 }
