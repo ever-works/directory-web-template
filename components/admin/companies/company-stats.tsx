@@ -35,7 +35,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 						<div className="mt-4 flex items-center justify-between">
 							<div className="flex items-center gap-2 text-sm text-blue-100">
 								<Building2 className="w-5 h-5 opacity-80" />
-								<span>Registered Entities</span>
+								<span>{t('REGISTERED_ENTITIES')}</span>
 							</div>
 						</div>
 					</div>
@@ -62,7 +62,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 									{stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%
 								</span>
 								<span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-									Participation
+									{t('PARTICIPATION')}
 								</span>
 							</div>
 						</div>
@@ -88,7 +88,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 									{stats.total > 0 ? Math.round((stats.inactive / stats.total) * 100) : 0}%
 								</span>
 								<span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
-									Dormant
+									{t('DORMANT')}
 								</span>
 							</div>
 						</div>
