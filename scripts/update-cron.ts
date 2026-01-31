@@ -10,6 +10,7 @@ const VERCEL_TEAM_SCOPE = process.env.VERCEL_TEAM_SCOPE;
 const VERCEL_DEPLOYMENT_ID = process.env.VERCEL_DEPLOYMENT_ID;
 
 const CRON_PATH = '/api/cron/sync';
+const DEFAULT_SCHEDULE = '0 3 * * *';
 const PRO_SCHEDULE = '*/5 * * * *';
 
 if (!VERCEL_TOKEN || !VERCEL_PROJECT_ID) {
@@ -92,10 +93,10 @@ async function main() {
 			process.env.VERCEL_PLAN === 'business' ||
 			process.env.VERCEL_PLAN === 'enterprise';
 
-		const targetSchedule = process.env.CRON_FREQUENCY === '5min' || isPro ? PRO_SCHEDULE : null;
+		const targetSchedule = process.env.CRON_FREQUENCY === '5min' || isPro ? PRO_SCHEDULE : DEFAULT_SCHEDULE;
 
-		if (targetSchedule && syncCron.schedule !== targetSchedule) {
-			console.log(`Upgrading cron schedule to ${targetSchedule}...`);
+		if (syncCron.schedule !== targetSchedule) {
+			console.log(`Updating cron schedule to ${targetSchedule}...`);
 
 			const updateResponse = await fetch(`${baseUrl}/v1/cron-jobs/${syncCron.id}${teamQuery}`, {
 				method: 'PATCH',
