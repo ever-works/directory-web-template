@@ -55,8 +55,11 @@ export function ClientStats({ stats }: ClientStatsProps) {
 						<p className="text-3xl font-bold text-white mb-2">{stats.overview.total.toLocaleString()}</p>
 						<div className="flex items-center gap-2 mt-1">
 							<div className="flex items-center gap-1 text-xs">
-								<TrendingUp className="w-3 h-3 text-emerald-300" />
-								<span className="text-emerald-300 font-medium">+{stats.activity.newThisWeek}</span>
+								{stats.activity.newThisWeek > 0 && <TrendingUp className="w-3 h-3 text-emerald-300" />}
+								<span className="text-emerald-300 font-medium">
+									{stats.activity.newThisWeek > 0 ? '+' : ''}
+									{stats.activity.newThisWeek}
+								</span>
 								<span className="text-blue-200/60">{t('THIS_WEEK')}</span>
 							</div>
 						</div>

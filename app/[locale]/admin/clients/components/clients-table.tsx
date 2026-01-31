@@ -55,7 +55,7 @@ export function ClientsTable(props: ClientsTableProps) {
 				{/* Column Headers */}
 				<div className="hidden md:flex items-center gap-4 px-6 py-3 bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
 					{TABLE_COLUMNS.map((col) => (
-						<div key={col.key} className={`${col.width} ${col.key === 'expand' ? '' : ''}`}>
+						<div key={col.key} className={col.width}>
 							<span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
 								{col.label}
 							</span>

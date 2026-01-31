@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PageHeaderProps {
@@ -19,24 +19,6 @@ export function PageHeader({ onAddClient }: PageHeaderProps) {
 				{/* Left: Title with navigation */}
 				<div className="flex items-center gap-3">
 					<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('TITLE')}</h1>
-					{/* Optional: Period navigation like in reference */}
-					<div className="hidden sm:flex items-center gap-1 ml-2">
-						<button
-							type="button"
-							className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-							aria-label="Previous"
-						>
-							<ChevronLeft className="w-4 h-4 text-gray-400" />
-						</button>
-						<span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-2">FY 2026</span>
-						<button
-							type="button"
-							className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-							aria-label="Next"
-						>
-							<ChevronRight className="w-4 h-4 text-gray-400" />
-						</button>
-					</div>
 				</div>
 
 				{/* Right: Add button */}
