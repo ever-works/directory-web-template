@@ -78,7 +78,8 @@ export class RoleDbService {
 			created_by: roles.created_by,
 			createdAt: roles.createdAt,
 			updatedAt: roles.updatedAt,
-			deletedAt: roles.deletedAt
+			deletedAt: roles.deletedAt,
+			tenantId: roles.tenantId
 		} as const;
 
 		// Get the column object for the specified key
