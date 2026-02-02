@@ -7,11 +7,7 @@ import {
 } from '@/lib/db/queries/moderation.queries';
 import { deleteComment, getCommentById } from '@/lib/db/queries/comment.queries';
 import { ItemRepository } from '@/lib/repositories/item.repository';
-import {
-	ModerationAction,
-	ReportContentType,
-	type ReportContentTypeValues
-} from '@/lib/db/schema';
+import { ModerationAction, ReportContentType, type ReportContentTypeValues } from '@/lib/db/schema';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 
 // ===================== Types =====================
@@ -38,11 +34,12 @@ export interface ContentOwnerResult {
  */
 export async function getContentOwner(
 	contentType: ReportContentTypeValues,
-	contentId: string
+	contentId: string,
+	tenantId: string
 ): Promise<ContentOwnerResult> {
 	try {
 		if (contentType === ReportContentType.COMMENT) {
-			const comment = await getCommentById(contentId);
+			const comment = await getCommentById(contentId, tenantId);
 			if (!comment) {
 				return { success: false, error: 'Comment not found' };
 			}
@@ -82,21 +79,22 @@ export async function removeContent(
 	contentType: ReportContentTypeValues,
 	contentId: string,
 	reportId: string,
-	adminId: string
+	adminId: string,
+	tenantId: string
 ): Promise<ModerationResult> {
 	try {
 		// First, get the content owner to log who was affected
-		const ownerResult = await getContentOwner(contentType, contentId);
+		const ownerResult = await getContentOwner(contentType, contentId, tenantId);
 		const reason = 'Content removed due to report violation';
 
 		if (contentType === ReportContentType.COMMENT) {
-			const comment = await getCommentById(contentId);
+			const comment = await getCommentById(contentId, tenantId);
 			if (!comment) {
 				return { success: false, message: 'Comment not found', error: 'NOT_FOUND' };
 			}
 
 			// Soft delete the comment
-			await deleteComment(contentId);
+			await deleteComment(contentId, tenantId);
 
 			// Log moderation action and send email
 			if (ownerResult.userId) {
@@ -107,17 +105,16 @@ export async function removeContent(
 					reportId,
 					performedBy: adminId,
 					contentType,
-					contentId
+					contentId,
+					tenantId
 				});
 
 				// Get user email and send notification
-				const user = await getClientProfileById(ownerResult.userId);
+				const user = await getClientProfileById(ownerResult.userId, tenantId);
 				if (user) {
-					EmailNotificationService.sendContentRemovedEmail(
-						user.email,
-						'comment',
-						reason
-					).catch((err) => console.error('Failed to send content removed email:', err));
+					EmailNotificationService.sendContentRemovedEmail(user.email, 'comment', reason).catch((err) =>
+						console.error('Failed to send content removed email:', err)
+					);
 				}
 			}
 
@@ -144,17 +141,16 @@ export async function removeContent(
 					performedBy: adminId,
 					contentType,
 					contentId,
-					details: { itemName: item.name, itemSlug: item.slug }
+					details: { itemName: item.name, itemSlug: item.slug },
+					tenantId
 				});
 
 				// Get user email and send notification
-				const user = await getClientProfileById(ownerResult.userId);
+				const user = await getClientProfileById(ownerResult.userId, tenantId);
 				if (user) {
-					EmailNotificationService.sendContentRemovedEmail(
-						user.email,
-						'item',
-						reason
-					).catch((err) => console.error('Failed to send content removed email:', err));
+					EmailNotificationService.sendContentRemovedEmail(user.email, 'item', reason).catch((err) =>
+						console.error('Failed to send content removed email:', err)
+					);
 				}
 			}
 
@@ -184,11 +180,12 @@ export async function warnUser(
 	userId: string,
 	reason: string,
 	reportId: string,
-	adminId: string
+	adminId: string,
+	tenantId: string
 ): Promise<ModerationResult> {
 	try {
 		// Check if user exists
-		const user = await getClientProfileById(userId);
+		const user = await getClientProfileById(userId, tenantId);
 		if (!user) {
 			return { success: false, message: 'User not found', error: 'NOT_FOUND' };
 		}
@@ -199,7 +196,7 @@ export async function warnUser(
 		}
 
 		// Increment warning count
-		const updatedUser = await incrementWarningCount(userId);
+		const updatedUser = await incrementWarningCount(userId, tenantId);
 
 		// Log moderation action
 		await createModerationHistory({
@@ -208,15 +205,14 @@ export async function warnUser(
 			reason,
 			reportId,
 			performedBy: adminId,
-			details: { warningCount: updatedUser.warningCount }
+			details: { warningCount: updatedUser.warningCount },
+			tenantId
 		});
 
 		// Send email notification (non-blocking)
-		EmailNotificationService.sendUserWarningEmail(
-			user.email,
-			reason,
-			updatedUser.warningCount ?? 1
-		).catch((err) => console.error('Failed to send warning email:', err));
+		EmailNotificationService.sendUserWarningEmail(user.email, reason, updatedUser.warningCount ?? 1).catch((err) =>
+			console.error('Failed to send warning email:', err)
+		);
 
 		return {
 			success: true,
@@ -244,11 +240,12 @@ export async function suspendUser(
 	userId: string,
 	reason: string,
 	reportId: string,
-	adminId: string
+	adminId: string,
+	tenantId: string
 ): Promise<ModerationResult> {
 	try {
 		// Check if user exists
-		const user = await getClientProfileById(userId);
+		const user = await getClientProfileById(userId, tenantId);
 		if (!user) {
 			return { success: false, message: 'User not found', error: 'NOT_FOUND' };
 		}
@@ -262,7 +259,7 @@ export async function suspendUser(
 		}
 
 		// Suspend the user
-		await suspendUserQuery(userId);
+		await suspendUserQuery(userId, tenantId);
 
 		// Log moderation action
 		await createModerationHistory({
@@ -270,14 +267,14 @@ export async function suspendUser(
 			action: ModerationAction.SUSPEND,
 			reason,
 			reportId,
-			performedBy: adminId
+			performedBy: adminId,
+			tenantId
 		});
 
 		// Send email notification (non-blocking)
-		EmailNotificationService.sendUserSuspensionEmail(
-			user.email,
-			reason
-		).catch((err) => console.error('Failed to send suspension email:', err));
+		EmailNotificationService.sendUserSuspensionEmail(user.email, reason).catch((err) =>
+			console.error('Failed to send suspension email:', err)
+		);
 
 		return { success: true, message: 'User suspended successfully' };
 	} catch (error) {
@@ -302,11 +299,12 @@ export async function banUser(
 	userId: string,
 	reason: string,
 	reportId: string,
-	adminId: string
+	adminId: string,
+	tenantId: string
 ): Promise<ModerationResult> {
 	try {
 		// Check if user exists
-		const user = await getClientProfileById(userId);
+		const user = await getClientProfileById(userId, tenantId);
 		if (!user) {
 			return { success: false, message: 'User not found', error: 'NOT_FOUND' };
 		}
@@ -317,7 +315,7 @@ export async function banUser(
 		}
 
 		// Ban the user
-		await banUserQuery(userId);
+		await banUserQuery(userId, tenantId);
 
 		// Log moderation action
 		await createModerationHistory({
@@ -325,14 +323,14 @@ export async function banUser(
 			action: ModerationAction.BAN,
 			reason,
 			reportId,
-			performedBy: adminId
+			performedBy: adminId,
+			tenantId
 		});
 
 		// Send email notification (non-blocking)
-		EmailNotificationService.sendUserBanEmail(
-			user.email,
-			reason
-		).catch((err) => console.error('Failed to send ban email:', err));
+		EmailNotificationService.sendUserBanEmail(user.email, reason).catch((err) =>
+			console.error('Failed to send ban email:', err)
+		);
 
 		return { success: true, message: 'User banned successfully' };
 	} catch (error) {

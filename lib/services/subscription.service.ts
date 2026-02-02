@@ -22,6 +22,7 @@ export interface CreateSubscriptionData {
 	endDate?: Date;
 	trialStart?: Date;
 	trialEnd?: Date;
+	tenantId: string;
 	metadata?: any;
 }
 
@@ -57,6 +58,7 @@ export class SubscriptionService {
 			intervalCount: data.intervalCount || 1,
 			trialStart: data.trialStart,
 			trialEnd: data.trialEnd,
+			tenantId: data.tenantId,
 			metadata: data.metadata ? JSON.stringify(data.metadata) : null
 		};
 
@@ -66,6 +68,7 @@ export class SubscriptionService {
 		await queries.logSubscriptionChange(
 			subscription.id,
 			'created',
+			data.tenantId,
 			undefined,
 			subscription.status,
 			undefined,
@@ -80,22 +83,22 @@ export class SubscriptionService {
 	/**
 	 * Get subscription by ID
 	 */
-	async getSubscriptionById(subscriptionId: string): Promise<Subscription | null> {
-		return await queries.getSubscriptionWithUser(subscriptionId);
+	async getSubscriptionById(subscriptionId: string, tenantId: string): Promise<Subscription | null> {
+		return await queries.getSubscriptionWithUser(subscriptionId, tenantId);
 	}
 
 	/**
 	 * Get user's active subscription
 	 */
-	async getUserActiveSubscription(userId: string): Promise<Subscription | null> {
-		return await queries.getUserActiveSubscription(userId);
+	async getUserActiveSubscription(userId: string, tenantId: string): Promise<Subscription | null> {
+		return await queries.getUserActiveSubscription(userId, tenantId);
 	}
 
 	/**
 	 * Get all user subscriptions
 	 */
-	async getUserSubscriptions(userId: string): Promise<Subscription[]> {
-		return await queries.getUserSubscriptions(userId);
+	async getUserSubscriptions(userId: string, tenantId: string): Promise<Subscription[]> {
+		return await queries.getUserSubscriptions(userId, tenantId);
 	}
 
 	/**
@@ -103,28 +106,36 @@ export class SubscriptionService {
 	 */
 	async getSubscriptionByProviderSubscriptionId(
 		paymentProvider: string,
-		subscriptionId: string
+		subscriptionId: string,
+		tenantId: string
 	): Promise<Subscription | null> {
-		return await queries.getSubscriptionByProviderSubscriptionId(paymentProvider, subscriptionId);
+		// Need tenantId here. Assuming passed or inferred.
+		// For now updating signature to require it.
+		// TODO: specific implementation might require finding tenant by provider ID?
+		// But let's enforce tenantId.
+		return await queries.getSubscriptionByProviderSubscriptionId(paymentProvider, subscriptionId, tenantId);
 	}
 
 	/**
 	 * Check if user has active subscription
 	 */
-	async hasActiveSubscription(userId: string): Promise<boolean> {
-		return await queries.hasActiveSubscription(userId);
+	async hasActiveSubscription(userId: string, tenantId: string): Promise<boolean> {
+		return await queries.hasActiveSubscription(userId, tenantId);
 	}
 
 	/**
 	 * Get user's current plan
 	 */
-	async getUserPlan(userId: string): Promise<string> {
-		return await queries.getUserPlan(userId);
+	async getUserPlan(userId: string, tenantId: string): Promise<string> {
+		return await queries.getUserPlan(userId, tenantId);
 	}
 	/**
 	 * Get user's current plan with full expiration details
 	 */
-	async getUserPlanWithExpiration(userId: string): Promise<{
+	async getUserPlanWithExpiration(
+		userId: string,
+		tenantId: string
+	): Promise<{
 		planId: string;
 		effectivePlan: string;
 		isExpired: boolean;
@@ -135,7 +146,7 @@ export class SubscriptionService {
 		warningMessage: string | null;
 		status: string | null;
 	}> {
-		const planData = await queries.getUserPlanWithExpiration(userId);
+		const planData = await queries.getUserPlanWithExpiration(userId, tenantId);
 		const daysUntil = getDaysUntilExpiration(planData.expiresAt);
 		const isInWarningPeriod = isInExpirationWarningPeriod(planData.expiresAt);
 		const planName = this.getPlanDisplayName(planData.planId);
@@ -159,7 +170,7 @@ export class SubscriptionService {
 	 * Uses the result from updateExpiredSubscriptionsStatus() to ensure consistency
 	 * and prevent race conditions between query and update operations
 	 */
-	async processExpiredSubscriptions(): Promise<{
+	async processExpiredSubscriptions(tenantId: string): Promise<{
 		processed: number;
 		subscriptions: Subscription[];
 		errors: string[];
@@ -170,7 +181,7 @@ export class SubscriptionService {
 			// Update expired subscriptions and get the actual updated records
 			// This is atomic - we get exactly the subscriptions that were updated,
 			// preventing race conditions where subscriptions expire between separate query and update
-			const updatedSubscriptions = await queries.updateExpiredSubscriptionsStatus();
+			const updatedSubscriptions = await queries.updateExpiredSubscriptionsStatus(tenantId);
 
 			if (updatedSubscriptions.length === 0) {
 				return { processed: 0, subscriptions: [], errors: [] };
@@ -182,6 +193,7 @@ export class SubscriptionService {
 					await queries.logSubscriptionChange(
 						subscription.id,
 						'subscription_expired',
+						tenantId,
 						SubscriptionStatus.ACTIVE,
 						SubscriptionStatus.EXPIRED,
 						subscription.planId,
@@ -207,34 +219,38 @@ export class SubscriptionService {
 	/**
 	 * Get subscription history
 	 */
-	async getSubscriptionHistory(subscriptionId: string) {
-		return await queries.getSubscriptionHistory(subscriptionId);
+	async getSubscriptionHistory(subscriptionId: string, tenantId: string) {
+		return await queries.getSubscriptionHistory(subscriptionId, tenantId);
 	}
 
 	/**
 	 * Get subscriptions expiring soon
 	 */
-	async getSubscriptionsExpiringSoon(days: number = 7): Promise<Subscription[]> {
-		return await queries.getSubscriptionsExpiringSoon(days);
+	async getSubscriptionsExpiringSoon(days: number = 7, tenantId: string): Promise<Subscription[]> {
+		return await queries.getSubscriptionsExpiringSoon(days, tenantId);
 	}
 
 	/**
 	 * Get subscription statistics
 	 */
-	async getSubscriptionStats() {
-		return await queries.getSubscriptionStats();
+	async getSubscriptionStats(tenantId: string) {
+		return await queries.getSubscriptionStats(tenantId);
 	}
 
 	/**
 	 * Update subscription
 	 */
-	async updateSubscription(subscriptionId: string, data: UpdateSubscriptionData): Promise<Subscription | null> {
+	async updateSubscription(
+		subscriptionId: string,
+		data: UpdateSubscriptionData,
+		tenantId: string
+	): Promise<Subscription | null> {
 		const updateData: any = {
 			...data,
 			metadata: data.metadata ? JSON.stringify(data.metadata) : undefined
 		};
 
-		return await queries.updateSubscription(subscriptionId, updateData);
+		return await queries.updateSubscription(subscriptionId, updateData, tenantId);
 	}
 
 	/**
@@ -243,16 +259,18 @@ export class SubscriptionService {
 	async cancelSubscription(
 		subscriptionId: string,
 		reason?: string,
-		cancelAtPeriodEnd: boolean = false
+		cancelAtPeriodEnd: boolean = false,
+		tenantId?: string // Optional for backward compatibility if possible, or force it?
 	): Promise<Subscription | null> {
-		return await queries.cancelSubscription(subscriptionId, reason, cancelAtPeriodEnd);
+		if (!tenantId) throw new Error('tenantId is required for cancelSubscription');
+		return await queries.cancelSubscription(subscriptionId, tenantId, reason, cancelAtPeriodEnd);
 	}
 
 	/**
 	 * Check if plan allows feature
 	 */
-	async canAccessFeature(userId: string, feature: string): Promise<boolean> {
-		const plan = await queries.getUserPlan(userId);
+	async canAccessFeature(userId: string, feature: string, tenantId: string): Promise<boolean> {
+		const plan = await queries.getUserPlan(userId, tenantId);
 
 		const planFeatures = this.getPlanFeatures(plan);
 		return planFeatures.includes(feature);
@@ -321,18 +339,19 @@ export class SubscriptionService {
 	 * @param enabled - Whether to enable auto-renewal
 	 * @returns Updated subscription or null
 	 */
-	async setAutoRenewal(subscriptionId: string, enabled: boolean): Promise<Subscription | null> {
-		const subscription = await this.getSubscriptionById(subscriptionId);
+	async setAutoRenewal(subscriptionId: string, enabled: boolean, tenantId: string): Promise<Subscription | null> {
+		const subscription = await this.getSubscriptionById(subscriptionId, tenantId);
 		if (!subscription) return null;
 
 		// Update local database
-		const updated = await queries.setAutoRenewal(subscriptionId, enabled);
+		const updated = await queries.setAutoRenewal(subscriptionId, enabled, tenantId);
 		if (!updated) return null;
 
 		// Log the change
 		await queries.logSubscriptionChange(
 			subscriptionId,
 			enabled ? 'auto_renewal_enabled' : 'auto_renewal_disabled',
+			tenantId,
 			undefined,
 			undefined,
 			undefined,
@@ -349,8 +368,8 @@ export class SubscriptionService {
 	 * @param days - Number of days look-ahead (default: 7)
 	 * @returns Array of subscriptions needing reminders
 	 */
-	async getSubscriptionsDueForRenewalReminder(days: number = 7): Promise<Subscription[]> {
-		return await queries.getSubscriptionsDueForRenewalReminder(days);
+	async getSubscriptionsDueForRenewalReminder(days: number = 7, tenantId: string): Promise<Subscription[]> {
+		return await queries.getSubscriptionsDueForRenewalReminder(days, tenantId);
 	}
 
 	/**
@@ -358,8 +377,8 @@ export class SubscriptionService {
 	 * @param subscriptionId - Subscription ID
 	 * @returns Updated subscription or null
 	 */
-	async markRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
-		return await queries.markRenewalReminderSent(subscriptionId);
+	async markRenewalReminderSent(subscriptionId: string, tenantId: string): Promise<Subscription | null> {
+		return await queries.markRenewalReminderSent(subscriptionId, tenantId);
 	}
 
 	/**
@@ -369,9 +388,9 @@ export class SubscriptionService {
 	 * @param subscriptionId - Subscription ID
 	 * @throws Error if subscription is not found
 	 */
-	async handleSuccessfulRenewal(subscriptionId: string): Promise<void> {
+	async handleSuccessfulRenewal(subscriptionId: string, tenantId: string): Promise<void> {
 		// Use atomic reset to ensure both fields are updated together
-		const updated = await queries.resetRenewalStateAtomic(subscriptionId);
+		const updated = await queries.resetRenewalStateAtomic(subscriptionId, tenantId);
 
 		if (!updated) {
 			throw new Error(`Subscription not found: ${subscriptionId}`);
@@ -380,6 +399,7 @@ export class SubscriptionService {
 		await queries.logSubscriptionChange(
 			subscriptionId,
 			'renewal_succeeded',
+			tenantId,
 			undefined,
 			undefined,
 			undefined,
@@ -396,8 +416,8 @@ export class SubscriptionService {
 	 * @returns Current failed payment count
 	 * @throws Error if subscription is not found
 	 */
-	async handleFailedPayment(subscriptionId: string): Promise<number> {
-		const updated = await queries.incrementFailedPaymentCount(subscriptionId);
+	async handleFailedPayment(subscriptionId: string, tenantId: string): Promise<number> {
+		const updated = await queries.incrementFailedPaymentCount(subscriptionId, tenantId);
 
 		if (!updated) {
 			throw new Error(`Subscription not found: ${subscriptionId}`);
@@ -408,6 +428,7 @@ export class SubscriptionService {
 		await queries.logSubscriptionChange(
 			subscriptionId,
 			'payment_failed',
+			tenantId,
 			undefined,
 			undefined,
 			undefined,

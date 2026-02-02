@@ -20,6 +20,7 @@ interface ExtendedUser {
 	isAdmin?: boolean;
 	isClient?: boolean;
 	clientProfileId?: string;
+	tenantId?: string;
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
@@ -109,13 +110,22 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				if (account?.provider) {
 					token.provider = account.provider;
 				}
+				if (extendedUser?.tenantId && typeof extendedUser.tenantId === 'string') {
+					token.tenantId = extendedUser.tenantId;
+				}
 
 				// For OAuth users: ensure client profile exists and populate clientProfileId
 				const isOAuthProvider = token.provider && token.provider !== 'credentials';
-				if (isOAuthProvider && !token.clientProfileId && token.userId && isDatabaseAvailable) {
+				if (
+					isOAuthProvider &&
+					!token.clientProfileId &&
+					token.userId &&
+					token.tenantId &&
+					isDatabaseAvailable
+				) {
 					try {
 						// Check if client profile already exists
-						let clientProfile = await getClientProfileByUserId(token.userId);
+						let clientProfile = await getClientProfileByUserId(token.userId, token.tenantId);
 
 						if (!clientProfile) {
 							// Create client profile for OAuth user
@@ -127,7 +137,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 									userId: token.userId,
 									email: userEmail,
 									name: userName,
-									displayName: userName
+									displayName: userName,
+									tenantId: token.tenantId
 								});
 								console.log(`[auth][jwt] Created client profile for OAuth user: ${userEmail}`);
 							}
@@ -166,7 +177,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 							isAdmin: token.isAdmin,
 							hasUser: !!user,
 							accountProvider: account?.provider,
-							hasClientProfileId: !!token.clientProfileId
+							hasClientProfileId: !!token.clientProfileId,
+							hasTenantId: !!token.tenantId
 						});
 					} catch {}
 				}
@@ -190,6 +202,9 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				session.user.provider = typeof token.provider === 'string' ? token.provider : 'credentials';
 				if (typeof token.isAdmin === 'boolean') {
 					session.user.isAdmin = token.isAdmin;
+				}
+				if (typeof token.tenantId === 'string') {
+					session.user.tenantId = token.tenantId;
 				}
 			}
 

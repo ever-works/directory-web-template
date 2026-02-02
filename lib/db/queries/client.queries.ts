@@ -25,6 +25,7 @@ export async function createClientProfile(data: {
 	status?: string;
 	plan?: string;
 	accountType?: string;
+	tenantId: string;
 }): Promise<ClientProfile> {
 	// Normalize email for consistency
 	const normalizedEmail = data.email.toLowerCase().trim();
@@ -56,7 +57,8 @@ export async function createClientProfile(data: {
 		company: data.company || 'Unknown',
 		status: (data.status as 'active' | 'inactive' | 'suspended' | 'trial') || 'active',
 		plan: (data.plan as 'free' | 'standard' | 'premium') || 'free',
-		accountType: (data.accountType as 'individual' | 'business' | 'enterprise') || 'individual'
+		accountType: (data.accountType as 'individual' | 'business' | 'enterprise') || 'individual',
+		tenantId: data.tenantId
 	};
 
 	const [profile] = await db.insert(clientProfiles).values(insertData).returning();
@@ -69,8 +71,11 @@ export async function createClientProfile(data: {
  * @param id - Client profile ID
  * @returns Client profile or null if not found
  */
-export async function getClientProfileById(id: string): Promise<ClientProfile | null> {
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.id, id));
+export async function getClientProfileById(id: string, tenantId: string): Promise<ClientProfile | null> {
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)));
 
 	return profile || null;
 }
@@ -80,8 +85,11 @@ export async function getClientProfileById(id: string): Promise<ClientProfile | 
  * @param userId - User ID
  * @returns Client profile or null if not found
  */
-export async function getClientProfileByUserId(userId: string): Promise<ClientProfile | null> {
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.userId, userId));
+export async function getClientProfileByUserId(userId: string, tenantId: string): Promise<ClientProfile | null> {
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)));
 
 	return profile || null;
 }
@@ -91,12 +99,16 @@ export async function getClientProfileByUserId(userId: string): Promise<ClientPr
  * @param email - Client email
  * @returns Client profile or null if not found
  */
-export async function getClientProfileByEmail(email: string): Promise<ClientProfile | null> {
+export async function getClientProfileByEmail(email: string, tenantId: string): Promise<ClientProfile | null> {
 	// Resolve deterministic profile via accounts (accounts.email will be unique after migration)
-	const account = await getClientAccountByEmail(email);
+	const account = await getClientAccountByEmail(email, tenantId);
 	if (!account) return null;
 
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.userId, account.userId)).limit(1);
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.userId, account.userId), eq(clientProfiles.tenantId, tenantId)))
+		.limit(1);
 
 	return profile || null;
 }
@@ -107,11 +119,15 @@ export async function getClientProfileByEmail(email: string): Promise<ClientProf
  * @param data - Partial client profile data to update
  * @returns Updated client profile or null if not found
  */
-export async function updateClientProfile(id: string, data: Partial<NewClientProfile>): Promise<ClientProfile | null> {
+export async function updateClientProfile(
+	id: string,
+	data: Partial<NewClientProfile>,
+	tenantId: string
+): Promise<ClientProfile | null> {
 	const [profile] = await db
 		.update(clientProfiles)
 		.set({ ...data, updatedAt: new Date() })
-		.where(eq(clientProfiles.id, id))
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return profile || null;
@@ -122,8 +138,11 @@ export async function updateClientProfile(id: string, data: Partial<NewClientPro
  * @param id - Client profile ID
  * @returns True if deleted, false otherwise
  */
-export async function deleteClientProfile(id: string): Promise<boolean> {
-	const [profile] = await db.delete(clientProfiles).where(eq(clientProfiles.id, id)).returning();
+export async function deleteClientProfile(id: string, tenantId: string): Promise<boolean> {
+	const [profile] = await db
+		.delete(clientProfiles)
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
+		.returning();
 
 	return !!profile;
 }
@@ -143,6 +162,7 @@ export async function getClientProfiles(params: {
 	plan?: string;
 	accountType?: string;
 	provider?: string;
+	tenantId: string;
 }): Promise<{
 	profiles: ClientProfileWithAuth[];
 	total: number;
@@ -150,10 +170,10 @@ export async function getClientProfiles(params: {
 	totalPages: number;
 	limit: number;
 }> {
-	const { page = 1, limit = 10, search, status, plan, accountType, provider } = params;
+	const { page = 1, limit = 10, search, status, plan, accountType, provider, tenantId } = params;
 	const offset = (page - 1) * limit;
 
-	const whereConditions: SQL[] = [];
+	const whereConditions: SQL[] = [eq(clientProfiles.tenantId, tenantId)];
 
 	if (search) {
 		const escapedSearch = search.replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&');
@@ -207,6 +227,7 @@ export async function getClientProfiles(params: {
 		.select({
 			// Client profile fields
 			id: clientProfiles.id,
+			tenantId: clientProfiles.tenantId,
 			userId: clientProfiles.userId,
 			email: clientProfiles.email,
 			name: clientProfiles.name,
@@ -281,27 +302,32 @@ export async function getClientProfiles(params: {
  * Get client profile statistics (basic)
  * @returns Basic client statistics
  */
-export async function getClientProfileStats() {
-	const totalResult = await db.select({ count: sql`count(*)` }).from(clientProfiles);
+export async function getClientProfileStats(tenantId: string) {
+	const totalResult = await db
+		.select({ count: sql`count(*)` })
+		.from(clientProfiles)
+		.where(eq(clientProfiles.tenantId, tenantId));
 
 	const activeResult = await db
 		.select({ count: sql`count(*)` })
 		.from(clientProfiles)
-		.where(eq(clientProfiles.status, 'active'));
+		.where(and(eq(clientProfiles.status, 'active'), eq(clientProfiles.tenantId, tenantId)));
 
 	const inactiveResult = await db
 		.select({ count: sql`count(*)` })
 		.from(clientProfiles)
-		.where(eq(clientProfiles.status, 'inactive'));
+		.where(and(eq(clientProfiles.status, 'inactive'), eq(clientProfiles.tenantId, tenantId)));
 
 	const planStats = await db
 		.select({ plan: clientProfiles.plan, count: sql`count(*)` })
 		.from(clientProfiles)
+		.where(eq(clientProfiles.tenantId, tenantId))
 		.groupBy(clientProfiles.plan);
 
 	const accountTypeStats = await db
 		.select({ accountType: clientProfiles.accountType, count: sql`count(*)` })
 		.from(clientProfiles)
+		.where(eq(clientProfiles.tenantId, tenantId))
 		.groupBy(clientProfiles.accountType);
 
 	const byPlan: Record<string, number> = {};
@@ -328,7 +354,7 @@ export async function getClientProfileStats() {
  * Returns detailed analytics including provider distribution, plan analysis, and activity metrics
  * @returns Enhanced client statistics
  */
-export async function getEnhancedClientStats(): Promise<{
+export async function getEnhancedClientStats(tenantId: string): Promise<{
 	overview: {
 		total: number;
 		active: number;
@@ -372,7 +398,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.leftJoin(accounts, eq(clientProfiles.userId, accounts.userId))
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(isNull(roles.id))
+		.where(and(isNull(roles.id), eq(clientProfiles.tenantId, tenantId)))
 		.groupBy(clientProfiles.status, clientProfiles.plan, clientProfiles.accountType, accounts.provider);
 
 	// Get total count
@@ -381,7 +407,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(isNull(roles.id));
+		.where(and(isNull(roles.id), eq(clientProfiles.tenantId, tenantId)));
 
 	const total = Number((totalResult[0] as unknown as { count: number })?.count || 0);
 
@@ -442,7 +468,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneWeekAgo)));
+		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneWeekAgo), eq(clientProfiles.tenantId, tenantId)));
 
 	const newThisWeek = Number(newThisWeekResult[0]?.count || 0);
 
@@ -452,7 +478,9 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneMonthAgo)));
+		.where(
+			and(isNull(roles.id), gte(clientProfiles.createdAt, oneMonthAgo), eq(clientProfiles.tenantId, tenantId))
+		);
 
 	const newThisMonth = Number(newThisMonthResult[0]?.count || 0);
 
@@ -466,7 +494,8 @@ export async function getEnhancedClientStats(): Promise<{
 			and(
 				isNull(roles.id),
 				eq(clientProfiles.status, 'active'),
-				or(gte(clientProfiles.updatedAt, oneWeekAgo), gte(clientProfiles.createdAt, oneWeekAgo))
+				or(gte(clientProfiles.updatedAt, oneWeekAgo), gte(clientProfiles.createdAt, oneWeekAgo)),
+				eq(clientProfiles.tenantId, tenantId)
 			)
 		);
 
@@ -482,7 +511,8 @@ export async function getEnhancedClientStats(): Promise<{
 			and(
 				isNull(roles.id),
 				eq(clientProfiles.status, 'active'),
-				or(gte(clientProfiles.updatedAt, oneMonthAgo), gte(clientProfiles.createdAt, oneMonthAgo))
+				or(gte(clientProfiles.updatedAt, oneMonthAgo), gte(clientProfiles.createdAt, oneMonthAgo)),
+				eq(clientProfiles.tenantId, tenantId)
 			)
 		);
 
@@ -529,7 +559,8 @@ export async function getEnhancedClientStats(): Promise<{
 export async function createClientAccount(
 	userId: string,
 	email: string,
-	passwordHash: string
+	passwordHash: string,
+	tenantId: string
 ): Promise<ClientAccount | null> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
@@ -542,7 +573,8 @@ export async function createClientAccount(
 				provider: 'credentials',
 				providerAccountId: normalizedEmail,
 				email: normalizedEmail,
-				passwordHash
+				passwordHash,
+				tenantId
 			})
 			.returning();
 
@@ -558,7 +590,7 @@ export async function createClientAccount(
  * @param email - Client email
  * @returns Account or null if not found
  */
-export async function getClientAccountByEmail(email: string): Promise<ClientAccount | null> {
+export async function getClientAccountByEmail(email: string, tenantId: string): Promise<ClientAccount | null> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
 
@@ -566,7 +598,13 @@ export async function getClientAccountByEmail(email: string): Promise<ClientAcco
 		const [account] = await db
 			.select()
 			.from(accounts)
-			.where(and(eq(accounts.provider, 'credentials'), eq(accounts.email, normalizedEmail)))
+			.where(
+				and(
+					eq(accounts.provider, 'credentials'),
+					eq(accounts.email, normalizedEmail),
+					eq(accounts.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		return account || null;
@@ -599,7 +637,7 @@ export async function hasClientAccess(userId: string): Promise<boolean> {
  * @param password - Plain text password to verify
  * @returns True if password is valid, false otherwise
  */
-export async function verifyClientPassword(email: string, password: string): Promise<boolean> {
+export async function verifyClientPassword(email: string, password: string, tenantId: string): Promise<boolean> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
 
@@ -607,7 +645,13 @@ export async function verifyClientPassword(email: string, password: string): Pro
 		const [account] = await db
 			.select()
 			.from(accounts)
-			.where(and(eq(accounts.provider, 'credentials'), eq(accounts.email, normalizedEmail)))
+			.where(
+				and(
+					eq(accounts.provider, 'credentials'),
+					eq(accounts.email, normalizedEmail),
+					eq(accounts.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		if (!account) {
@@ -649,6 +693,7 @@ export async function getAdminDashboardData(params: {
 	createdBefore?: Date;
 	updatedAfter?: Date;
 	updatedBefore?: Date;
+	tenantId: string;
 }): Promise<{
 	clients: ClientProfileWithAuth[];
 	stats: {
@@ -700,11 +745,12 @@ export async function getAdminDashboardData(params: {
 		createdAfter,
 		createdBefore,
 		updatedAfter,
-		updatedBefore
+		updatedBefore,
+		tenantId
 	} = params;
 	const offset = (page - 1) * limit;
 
-	const whereConditions: SQL[] = [];
+	const whereConditions: SQL[] = [eq(clientProfiles.tenantId, tenantId)];
 
 	// Optimized search with proper escaping and index-friendly patterns
 	if (search) {
@@ -777,6 +823,7 @@ export async function getAdminDashboardData(params: {
 		.select({
 			// Client profile fields - only select what's needed
 			id: clientProfiles.id,
+			tenantId: clientProfiles.tenantId,
 			userId: clientProfiles.userId,
 			email: clientProfiles.email,
 			name: clientProfiles.name,
@@ -837,7 +884,7 @@ export async function getAdminDashboardData(params: {
 	}));
 
 	// Get actual stats
-	const stats = await getEnhancedClientStats();
+	const stats = await getEnhancedClientStats(tenantId);
 
 	return {
 		clients: enhancedProfiles,

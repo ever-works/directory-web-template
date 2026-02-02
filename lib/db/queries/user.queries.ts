@@ -7,7 +7,7 @@ import { users, clientProfiles, roles, userRoles, type NewUser, type User } from
  * @param email - User email
  * @returns User object or null if not found
  */
-export async function getUserByEmail(email: string): Promise<User | null> {
+export async function getUserByEmail(email: string, tenantId: string): Promise<User | null> {
 	// Check if DATABASE_URL is set
 	if (!process.env.DATABASE_URL) {
 		console.warn('DATABASE_URL is not set. User validation is disabled.');
@@ -15,7 +15,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 	}
 
 	try {
-		const usersList = await db.select().from(users).where(eq(users.email, email)).limit(1);
+		const usersList = await db
+			.select()
+			.from(users)
+			.where(and(eq(users.email, email), eq(users.tenantId, tenantId)))
+			.limit(1);
 
 		if (usersList.length === 0) {
 			console.warn(`User validation failed: No user found with email ${email}`);
@@ -35,14 +39,18 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * @param id - User ID
  * @returns User object or null if not found
  */
-export async function getUserById(id: string): Promise<User | null> {
+export async function getUserById(id: string, tenantId: string): Promise<User | null> {
 	if (!process.env.DATABASE_URL) {
 		console.warn('DATABASE_URL is not set. User validation is disabled.');
 		return null;
 	}
 
 	try {
-		const usersList = await db.select().from(users).where(eq(users.id, id)).limit(1);
+		const usersList = await db
+			.select()
+			.from(users)
+			.where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+			.limit(1);
 
 		if (usersList.length === 0) {
 			console.warn(`User validation failed: No user found with id ${id}`);
@@ -71,8 +79,11 @@ export async function insertNewUser(user: NewUser): Promise<User[]> {
  * @param newPasswordHash - New password hash
  * @param userId - User ID
  */
-export async function updateUserPassword(newPasswordHash: string, userId: string) {
-	return db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
+export async function updateUserPassword(newPasswordHash: string, userId: string, tenantId: string) {
+	return db
+		.update(users)
+		.set({ passwordHash: newPasswordHash })
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -80,8 +91,11 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * @param values - User values to update
  * @param userId - User ID
  */
-export async function updateUser(values: Pick<NewUser, 'email'>, userId: string) {
-	return db.update(users).set(values).where(eq(users.id, userId));
+export async function updateUser(values: Pick<NewUser, 'email'>, userId: string, tenantId: string) {
+	return db
+		.update(users)
+		.set(values)
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -89,25 +103,25 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
  * @param email - User email
  * @param verified - Verification status
  */
-export async function updateUserVerification(email: string, verified: boolean) {
+export async function updateUserVerification(email: string, verified: boolean, tenantId: string) {
 	return db
 		.update(users)
 		.set({ emailVerified: verified ? new Date() : null })
-		.where(eq(users.email, email));
+		.where(and(eq(users.email, email), eq(users.tenantId, tenantId)));
 }
 
 /**
  * Soft delete a user by marking as deleted
  * @param userId - User ID to delete
  */
-export async function softDeleteUser(userId: string) {
+export async function softDeleteUser(userId: string, tenantId: string) {
 	return db
 		.update(users)
 		.set({
 			deletedAt: sql`CURRENT_TIMESTAMP`,
 			email: sql`CONCAT(email, '-', id, '-deleted')`
 		})
-		.where(eq(users.id, userId));
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -115,8 +129,11 @@ export async function softDeleteUser(userId: string) {
  * @param userId - User ID
  * @param name - New name
  */
-export async function updateClientProfileName(userId: string, name: string) {
-	return db.update(clientProfiles).set({ name, updatedAt: new Date() }).where(eq(clientProfiles.userId, userId));
+export async function updateClientProfileName(userId: string, name: string, tenantId: string) {
+	return db
+		.update(clientProfiles)
+		.set({ name, updatedAt: new Date() })
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)));
 }
 
 /**
@@ -124,7 +141,7 @@ export async function updateClientProfileName(userId: string, name: string) {
  * @param userId - User ID
  * @returns true if user has an admin role, false otherwise
  */
-export async function isUserAdmin(userId: string): Promise<boolean> {
+export async function isUserAdmin(userId: string, tenantId: string): Promise<boolean> {
 	if (!process.env.DATABASE_URL) {
 		console.warn('DATABASE_URL is not set. Admin check is disabled.');
 		return false;
@@ -135,7 +152,15 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 			.select({ isAdmin: roles.isAdmin })
 			.from(userRoles)
 			.innerJoin(roles, eq(userRoles.roleId, roles.id))
-			.where(and(eq(userRoles.userId, userId), eq(roles.isAdmin, true), eq(roles.status, 'active')))
+			.where(
+				and(
+					eq(userRoles.userId, userId),
+					eq(roles.isAdmin, true),
+					eq(roles.status, 'active'),
+					eq(userRoles.tenantId, tenantId),
+					eq(roles.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		return result.length > 0;

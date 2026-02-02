@@ -7,8 +7,8 @@ import { getCompanyByDomain, createCompany } from '@/lib/db/queries/company.quer
 import type { Company } from '@/lib/db/schema';
 
 interface CompanyInput {
-  name: string | null;
-  website: string | null;
+	name: string | null;
+	website: string | null;
 }
 
 /**
@@ -18,46 +18,45 @@ interface CompanyInput {
  * @param input - Company name and website from client profile
  * @returns Company record or null if insufficient data
  */
-export async function getOrCreateCompanyFromClient(
-  input: CompanyInput
-): Promise<Company | null> {
-  // Need at least name or website
-  if (!input.name && !input.website) {
-    return null;
-  }
+export async function getOrCreateCompanyFromClient(input: CompanyInput, tenantId: string): Promise<Company | null> {
+	// Need at least name or website
+	if (!input.name && !input.website) {
+		return null;
+	}
 
-  // Extract and normalize domain from website
-  const domain = input.website ? extractDomain(input.website) : null;
+	// Extract and normalize domain from website
+	const domain = input.website ? extractDomain(input.website) : null;
 
-  // Look up by domain first (most reliable for deduplication)
-  if (domain) {
-    const existing = await getCompanyByDomain(domain);
-    if (existing) {
-      return existing;
-    }
-  }
+	// Look up by domain first (most reliable for deduplication)
+	if (domain) {
+		const existing = await getCompanyByDomain(domain, tenantId);
+		if (existing) {
+			return existing;
+		}
+	}
 
-  // Fallback to name lookup (exact match)
-  if (input.name) {
-    const { getCompanyByName } = await import('@/lib/db/queries/company.queries');
-    const existing = await getCompanyByName(input.name);
-    if (existing) {
-      return existing;
-    }
-  }
+	// Fallback to name lookup (exact match)
+	if (input.name) {
+		const { getCompanyByName } = await import('@/lib/db/queries/company.queries');
+		const existing = await getCompanyByName(input.name, tenantId); // Pass tenantId
+		if (existing) {
+			return existing;
+		}
+	}
 
-  // Create new company (only if both lookups fail)
-  const slug = generateSlug(input.name || domain || 'company');
+	// Create new company (only if both lookups fail)
+	const slug = generateSlug(input.name || domain || 'company');
 
-  const newCompany = await createCompany({
-    name: input.name || domain || 'Unknown',
-    website: input.website || undefined,
-    domain: domain || undefined,
-    slug,
-    status: 'active',
-  });
+	const newCompany = await createCompany({
+		name: input.name || domain || 'Unknown',
+		website: input.website || undefined,
+		domain: domain || undefined,
+		slug,
+		status: 'active',
+		tenantId
+	});
 
-  return newCompany;
+	return newCompany;
 }
 
 /**
@@ -72,39 +71,41 @@ export async function getOrCreateCompanyFromClient(
  * const company = await getOrCreateCompanyFromBrand('Acme Corp', 'https://acme.com/product');
  */
 export async function getOrCreateCompanyFromBrand(
-  brand: string,
-  sourceUrl: string
+	brand: string,
+	sourceUrl: string,
+	tenantId: string
 ): Promise<Company> {
-  // Extract and normalize domain from source URL
-  const domain = extractDomain(sourceUrl);
+	// Extract and normalize domain from source URL
+	const domain = extractDomain(sourceUrl);
 
-  // Look up by domain first (most reliable for deduplication)
-  if (domain) {
-    const existing = await getCompanyByDomain(domain);
-    if (existing) {
-      return existing;
-    }
-  }
+	// Look up by domain first (most reliable for deduplication)
+	if (domain) {
+		const existing = await getCompanyByDomain(domain, tenantId);
+		if (existing) {
+			return existing;
+		}
+	}
 
-  // Fallback to name lookup (exact match)
-  const { getCompanyByName } = await import('@/lib/db/queries/company.queries');
-  const existing = await getCompanyByName(brand);
-  if (existing) {
-    return existing;
-  }
+	// Fallback to name lookup (exact match)
+	const { getCompanyByName } = await import('@/lib/db/queries/company.queries');
+	const existing = await getCompanyByName(brand, tenantId);
+	if (existing) {
+		return existing;
+	}
 
-  // Create new company (only if both lookups fail)
-  const slug = generateSlug(brand);
+	// Create new company (only if both lookups fail)
+	const slug = generateSlug(brand);
 
-  const newCompany = await createCompany({
-    name: brand,
-    website: sourceUrl,
-    domain: domain || undefined,
-    slug,
-    status: 'active',
-  });
+	const newCompany = await createCompany({
+		name: brand,
+		website: sourceUrl,
+		domain: domain || undefined,
+		slug,
+		status: 'active',
+		tenantId
+	});
 
-  return newCompany;
+	return newCompany;
 }
 
 /**
@@ -119,16 +120,16 @@ export async function getOrCreateCompanyFromBrand(
  * extractDomain('Example.com') // 'example.com'
  */
 function extractDomain(url: string): string | null {
-  try {
-    // Add protocol if missing
-    const urlWithProtocol = url.startsWith('http') ? url : `https://${url}`;
-    const parsed = new URL(urlWithProtocol);
+	try {
+		// Add protocol if missing
+		const urlWithProtocol = url.startsWith('http') ? url : `https://${url}`;
+		const parsed = new URL(urlWithProtocol);
 
-    // Get hostname, convert to lowercase, remove www prefix
-    return parsed.hostname.toLowerCase().replace(/^www\./, '');
-  } catch {
-    return null;
-  }
+		// Get hostname, convert to lowercase, remove www prefix
+		return parsed.hostname.toLowerCase().replace(/^www\./, '');
+	} catch {
+		return null;
+	}
 }
 
 /**
@@ -143,9 +144,9 @@ function extractDomain(url: string): string | null {
  * generateSlug('example.com') // 'example-com'
  */
 function generateSlug(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, 50);
+	return text
+		.toLowerCase()
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/^-|-$/g, '')
+		.slice(0, 50);
 }

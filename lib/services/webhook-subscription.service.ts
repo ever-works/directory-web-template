@@ -47,6 +47,7 @@ export interface WebhookSubscriptionData {
 	periodStart?: number;
 	hostedInvoiceUrl?: string;
 	invoicePdf?: string;
+	tenantId?: string;
 }
 
 /**
@@ -93,7 +94,8 @@ export const formatData = (
 		periodEnd: data.period_end,
 		periodStart: data.period_start,
 		hostedInvoiceUrl: data?.hosted_invoice_url,
-		invoicePdf: data?.invoice_pdf
+		invoicePdf: data?.invoice_pdf,
+		tenantId: data.metadata?.tenantId || data.tenantId
 	} as WebhookSubscriptionData;
 };
 
@@ -131,7 +133,8 @@ export class WebhookSubscriptionService {
 		try {
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscriptionId
+				response.subscriptionId,
+				response.tenantId!
 			);
 
 			if (existingSubscription) {
@@ -141,7 +144,7 @@ export class WebhookSubscriptionService {
 					subscriptionId: existingSubscription.id
 				};
 			}
-			const userId = await this.findUserByCustomerData(response);
+			const userId = await this.findUserByCustomerData(response, response.tenantId!);
 			if (!userId) {
 				throw new Error(`User not found for customer: ${data.customerId}`);
 			}
@@ -166,12 +169,14 @@ export class WebhookSubscriptionService {
 				cancelReason: null,
 				metadata: response.metadata ? JSON.stringify(response.metadata) : null,
 				createdAt: new Date(),
-				updatedAt: new Date()
+				updatedAt: new Date(),
+				tenantId: response.tenantId!
 			};
 			const subscription = await queries.createSubscription(newSubscription);
 			await queries.logSubscriptionChange(
 				subscription.id,
 				'subscription_created',
+				response.tenantId!,
 				undefined,
 				subscription.status,
 				undefined,
@@ -212,7 +217,8 @@ export class WebhookSubscriptionService {
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscriptionId
+				response.subscriptionId,
+				response.tenantId!
 			);
 
 			if (!existingSubscription) {
@@ -252,7 +258,11 @@ export class WebhookSubscriptionService {
 			};
 
 			// Update subscription
-			const updatedSubscription = await queries.updateSubscription(existingSubscription.id, updateData);
+			const updatedSubscription = await queries.updateSubscription(
+				existingSubscription.id,
+				updateData,
+				response.tenantId!
+			);
 
 			if (!updatedSubscription) {
 				throw new Error('Failed to update subscription');
@@ -262,6 +272,7 @@ export class WebhookSubscriptionService {
 			await queries.logSubscriptionChange(
 				existingSubscription.id,
 				'subscription_updated',
+				response.tenantId!,
 				previousStatus,
 				newStatus,
 				previousPlan,
@@ -305,7 +316,8 @@ export class WebhookSubscriptionService {
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscriptionId
+				response.subscriptionId,
+				response.tenantId!
 			);
 
 			if (!existingSubscription) {
@@ -324,7 +336,11 @@ export class WebhookSubscriptionService {
 				updatedAt: new Date()
 			};
 
-			const updatedSubscription = await queries.updateSubscription(existingSubscription.id, updateData);
+			const updatedSubscription = await queries.updateSubscription(
+				existingSubscription.id,
+				updateData,
+				response.tenantId!
+			);
 
 			if (!updatedSubscription) {
 				throw new Error('Failed to cancel subscription');
@@ -334,6 +350,7 @@ export class WebhookSubscriptionService {
 			await queries.logSubscriptionChange(
 				existingSubscription.id,
 				'subscription_cancelled',
+				response.tenantId!,
 				previousStatus,
 				SubscriptionStatus.CANCELLED,
 				existingSubscription.planId,
@@ -374,7 +391,8 @@ export class WebhookSubscriptionService {
 		try {
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscription!
+				response.subscription!,
+				response.tenantId!
 			);
 
 			if (!existingSubscription) {
@@ -395,7 +413,11 @@ export class WebhookSubscriptionService {
 				invoiceId: response.invoiceId,
 				updatedAt: new Date()
 			};
-			const updatedSubscription = await queries.updateSubscription(existingSubscription.id, updateData);
+			const updatedSubscription = await queries.updateSubscription(
+				existingSubscription.id,
+				updateData,
+				response.tenantId!
+			);
 			if (!updatedSubscription) {
 				throw new Error('Failed to update subscription after payment success');
 			}
@@ -403,6 +425,7 @@ export class WebhookSubscriptionService {
 			await queries.logSubscriptionChange(
 				existingSubscription.id,
 				'payment_succeeded',
+				response.tenantId!,
 				previousStatus,
 				SubscriptionStatus.ACTIVE,
 				existingSubscription.planId,
@@ -451,7 +474,8 @@ export class WebhookSubscriptionService {
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscriptionId
+				response.subscriptionId,
+				response.tenantId!
 			);
 
 			if (!existingSubscription) {
@@ -474,7 +498,11 @@ export class WebhookSubscriptionService {
 				updatedAt: new Date()
 			};
 
-			const updatedSubscription = await queries.updateSubscription(existingSubscription.id, updateData);
+			const updatedSubscription = await queries.updateSubscription(
+				existingSubscription.id,
+				updateData,
+				response.tenantId!
+			);
 
 			if (!updatedSubscription) {
 				throw new Error('Failed to update subscription after payment failure');
@@ -484,6 +512,7 @@ export class WebhookSubscriptionService {
 			await queries.logSubscriptionChange(
 				existingSubscription.id,
 				'payment_failed',
+				response.tenantId!,
 				previousStatus,
 				newStatus,
 				existingSubscription.planId,
@@ -578,7 +607,8 @@ export class WebhookSubscriptionService {
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
-				response.subscriptionId
+				response.subscriptionId,
+				response.tenantId!
 			);
 
 			if (!existingSubscription) {
@@ -589,6 +619,7 @@ export class WebhookSubscriptionService {
 			await queries.logSubscriptionChange(
 				existingSubscription.id,
 				'trial_ending',
+				response.tenantId!,
 				existingSubscription.status,
 				existingSubscription.status,
 				existingSubscription.planId,
@@ -623,24 +654,24 @@ export class WebhookSubscriptionService {
 	/**
 	 * Find user by customer data (customer ID or metadata)
 	 */
-	private async findUserByCustomerData(response: any): Promise<string | null> {
+	private async findUserByCustomerData(response: any, tenantId: string): Promise<string | null> {
 		const data = formatData(response, this.paymentProvider);
 		try {
 			// First try to find by userId in metadata
 			if (data.userId) {
-				const user = await queries.getUserById(data.userId);
+				const user = await queries.getUserById(data.userId, tenantId);
 				if (user) return user.id;
 			}
 
 			// Try to find by metadata userId
 			if (data.metadata?.userId) {
-				const user = await queries.getUserById(data.metadata.userId);
+				const user = await queries.getUserById(data.metadata.userId, tenantId);
 				if (user) return user.id;
 			}
 
 			// Try to find by customer email in metadata
 			if (data.customer_email) {
-				const user = await queries.getUserByEmail(data.customer_email);
+				const user = await queries.getUserByEmail(data.customer_email, tenantId);
 				if (user) return user.id;
 			}
 

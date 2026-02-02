@@ -3,26 +3,22 @@
  * Handles all sponsor ad-related business logic
  */
 
-import * as sponsorAdRepo from "@/lib/repositories/sponsor-ad.repository";
+import * as sponsorAdRepo from '@/lib/repositories/sponsor-ad.repository';
 import {
 	SponsorAdStatus,
 	SponsorAdInterval,
 	type SponsorAd,
 	type NewSponsorAd,
-	type SponsorAdStatusValues,
-} from "@/lib/db/schema";
-import {
-	getSponsorAdWeeklyPrice,
-	getSponsorAdMonthlyPrice,
-	getSponsorAdCurrency,
-} from "@/lib/utils/settings";
+	type SponsorAdStatusValues
+} from '@/lib/db/schema';
+import { getSponsorAdWeeklyPrice, getSponsorAdMonthlyPrice, getSponsorAdCurrency } from '@/lib/utils/settings';
 import type {
 	SponsorAdListOptions,
 	SponsorAdStats,
 	SponsorAdWithUser,
 	CreateSponsorAdRequest,
-	SponsorWithItem,
-} from "@/lib/types/sponsor-ad";
+	SponsorWithItem
+} from '@/lib/types/sponsor-ad';
 
 // ######################### Service Class #########################
 
@@ -32,71 +28,74 @@ export class SponsorAdService {
 	/**
 	 * Get sponsor ad by ID
 	 */
-	async getSponsorAdById(id: string): Promise<SponsorAd | null> {
-		return await sponsorAdRepo.getSponsorAdById(id);
+	async getSponsorAdById(id: string, tenantId: string): Promise<SponsorAd | null> {
+		return await sponsorAdRepo.getSponsorAdById(id, tenantId);
 	}
 
 	/**
 	 * Get sponsor ad with user details
 	 */
-	async getSponsorAdWithUser(id: string): Promise<SponsorAdWithUser | null> {
-		return await sponsorAdRepo.getSponsorAdWithUser(id);
+	async getSponsorAdWithUser(id: string, tenantId: string): Promise<SponsorAdWithUser | null> {
+		return await sponsorAdRepo.getSponsorAdWithUser(id, tenantId);
 	}
 
 	/**
 	 * Get all sponsor ads for a user
 	 */
-	async getSponsorAdsByUserId(userId: string): Promise<SponsorAd[]> {
-		return await sponsorAdRepo.getSponsorAdsByUserId(userId);
+	async getSponsorAdsByUserId(userId: string, tenantId: string): Promise<SponsorAd[]> {
+		return await sponsorAdRepo.getSponsorAdsByUserId(userId, tenantId);
 	}
 
 	/**
 	 * Get active sponsor ads for display
 	 */
-	async getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> {
-		return await sponsorAdRepo.getActiveSponsorAds(limit);
+	async getActiveSponsorAds(tenantId: string, limit?: number): Promise<SponsorAd[]> {
+		return await sponsorAdRepo.getActiveSponsorAds(tenantId, limit);
 	}
 
 	/**
 	 * Get active sponsor ads with their associated item data
 	 * Used for sidebar sponsor display where item info is needed
 	 */
-	async getActiveSponsorAdsWithItems(limit?: number): Promise<SponsorWithItem[]> {
-		return await sponsorAdRepo.getActiveSponsorAdsWithItems(limit);
+	async getActiveSponsorAdsWithItems(tenantId: string, limit?: number): Promise<SponsorWithItem[]> {
+		return await sponsorAdRepo.getActiveSponsorAdsWithItems(tenantId, limit);
 	}
 
 	/**
 	 * Get pending sponsor ads for admin review
 	 */
-	async getPendingSponsorAds(): Promise<SponsorAd[]> {
-		return await sponsorAdRepo.getPendingSponsorAds();
+	async getPendingSponsorAds(tenantId: string): Promise<SponsorAd[]> {
+		return await sponsorAdRepo.getPendingSponsorAds(tenantId);
 	}
 
 	/**
 	 * Get sponsor ads with pagination and filters
 	 */
-	async getSponsorAdsPaginated(options: SponsorAdListOptions = {}): Promise<{
+	async getSponsorAdsPaginated(
+		tenantId: string,
+		options: SponsorAdListOptions = {}
+	): Promise<{
 		sponsorAds: SponsorAd[];
 		total: number;
 		page: number;
 		limit: number;
 		totalPages: number;
 	}> {
-		return await sponsorAdRepo.getSponsorAdsPaginated(options);
+		return await sponsorAdRepo.getSponsorAdsPaginated(tenantId, options);
 	}
 
 	/**
 	 * Get sponsor ad statistics
 	 */
-	async getSponsorAdStats(): Promise<SponsorAdStats> {
-		return await sponsorAdRepo.getSponsorAdStats();
+	async getSponsorAdStats(tenantId: string): Promise<SponsorAdStats> {
+		return await sponsorAdRepo.getSponsorAdStats(tenantId);
 	}
 
 	/**
 	 * Get sponsor ad statistics for a specific user
 	 */
-	async getSponsorAdStatsByUser(userId: string): Promise<SponsorAdStats> {
-		return await sponsorAdRepo.getSponsorAdStatsByUser(userId);
+	async getSponsorAdStatsByUser(userId: string, tenantId: string): Promise<SponsorAdStats> {
+		return await sponsorAdRepo.getSponsorAdStatsByUser(userId, tenantId);
 	}
 
 	// ===================== Write Operations =====================
@@ -105,29 +104,16 @@ export class SponsorAdService {
 	 * Create a new sponsor ad submission
 	 * Status starts as PENDING_PAYMENT until user pays
 	 */
-	async createSponsorAd(
-		userId: string,
-		data: CreateSponsorAdRequest
-	): Promise<SponsorAd> {
+	async createSponsorAd(userId: string, data: CreateSponsorAdRequest, tenantId: string): Promise<SponsorAd> {
 		// Check if user already has pending or active sponsor ad for this item
-		const hasPending = await sponsorAdRepo.hasPendingSponsorAdForItem(
-			userId,
-			data.itemSlug
-		);
+		const hasPending = await sponsorAdRepo.hasPendingSponsorAdForItem(userId, data.itemSlug, tenantId);
 		if (hasPending) {
-			throw new Error(
-				"You already have a pending sponsorship for this item"
-			);
+			throw new Error('You already have a pending sponsorship for this item');
 		}
 
-		const hasActive = await sponsorAdRepo.hasActiveSponsorAdForItem(
-			userId,
-			data.itemSlug
-		);
+		const hasActive = await sponsorAdRepo.hasActiveSponsorAdForItem(userId, data.itemSlug, tenantId);
 		if (hasActive) {
-			throw new Error(
-				"You already have an active sponsorship for this item"
-			);
+			throw new Error('You already have an active sponsorship for this item');
 		}
 
 		// Calculate amount based on interval
@@ -138,12 +124,13 @@ export class SponsorAdService {
 			itemSlug: data.itemSlug,
 			interval: data.interval,
 			amount,
-			currency: "usd",
+			currency: 'usd',
 			paymentProvider: data.paymentProvider,
 			status: SponsorAdStatus.PENDING_PAYMENT, // Start as pending payment
+			tenantId
 		};
 
-		return await sponsorAdRepo.createSponsorAd(newSponsorAd);
+		return await sponsorAdRepo.createSponsorAd(newSponsorAd, tenantId);
 	}
 
 	/**
@@ -154,12 +141,13 @@ export class SponsorAdService {
 	async approveSponsorAd(
 		id: string,
 		adminUserId: string,
+		tenantId: string,
 		forceApprove: boolean = false
 	): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		// Normal approval from PENDING status (payment already received)
@@ -169,37 +157,43 @@ export class SponsorAdService {
 			const endDate = this.calculateEndDate(startDate, sponsorAd.interval);
 
 			// Update status to ACTIVE and set dates
-			return await sponsorAdRepo.updateSponsorAd(id, {
-				status: SponsorAdStatus.ACTIVE,
-				startDate,
-				endDate,
-				reviewedBy: adminUserId,
-				reviewedAt: new Date(),
-			});
+			return await sponsorAdRepo.updateSponsorAd(
+				id,
+				{
+					status: SponsorAdStatus.ACTIVE,
+					startDate,
+					endDate,
+					reviewedBy: adminUserId,
+					reviewedAt: new Date()
+				},
+				tenantId
+			);
 		}
 
 		// Force approval from PENDING_PAYMENT status (no payment yet)
 		if (sponsorAd.status === SponsorAdStatus.PENDING_PAYMENT) {
 			if (!forceApprove) {
-				throw new Error("PAYMENT_NOT_RECEIVED");
+				throw new Error('PAYMENT_NOT_RECEIVED');
 			}
 
 			// Force approve and activate without payment
 			const startDate = new Date();
 			const endDate = this.calculateEndDate(startDate, sponsorAd.interval);
 
-			return await sponsorAdRepo.updateSponsorAd(id, {
-				status: SponsorAdStatus.ACTIVE,
-				startDate,
-				endDate,
-				reviewedBy: adminUserId,
-				reviewedAt: new Date(),
-			});
+			return await sponsorAdRepo.updateSponsorAd(
+				id,
+				{
+					status: SponsorAdStatus.ACTIVE,
+					startDate,
+					endDate,
+					reviewedBy: adminUserId,
+					reviewedAt: new Date()
+				},
+				tenantId
+			);
 		}
 
-		throw new Error(
-			`Cannot approve sponsor ad with status: ${sponsorAd.status}`
-		);
+		throw new Error(`Cannot approve sponsor ad with status: ${sponsorAd.status}`);
 	}
 
 	/**
@@ -208,26 +202,29 @@ export class SponsorAdService {
 	 */
 	async confirmPayment(
 		id: string,
+		tenantId: string,
 		subscriptionId?: string,
 		customerId?: string
 	): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		if (sponsorAd.status !== SponsorAdStatus.PENDING_PAYMENT) {
-			throw new Error(
-				`Cannot confirm payment for sponsor ad with status: ${sponsorAd.status}`
-			);
+			throw new Error(`Cannot confirm payment for sponsor ad with status: ${sponsorAd.status}`);
 		}
 
-		return await sponsorAdRepo.updateSponsorAd(id, {
-			status: SponsorAdStatus.PENDING,
-			subscriptionId: subscriptionId || undefined,
-			customerId: customerId || undefined,
-		});
+		return await sponsorAdRepo.updateSponsorAd(
+			id,
+			{
+				status: SponsorAdStatus.PENDING,
+				subscriptionId: subscriptionId || undefined,
+				customerId: customerId || undefined
+			},
+			tenantId
+		);
 	}
 
 	/**
@@ -237,119 +234,107 @@ export class SponsorAdService {
 	async rejectSponsorAd(
 		id: string,
 		adminUserId: string,
-		rejectionReason: string
+		rejectionReason: string,
+		tenantId: string
 	): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		// Can reject from pending_payment or pending status
-		const rejectableStatuses: SponsorAdStatusValues[] = [
-			SponsorAdStatus.PENDING_PAYMENT,
-			SponsorAdStatus.PENDING,
-		];
+		const rejectableStatuses: SponsorAdStatusValues[] = [SponsorAdStatus.PENDING_PAYMENT, SponsorAdStatus.PENDING];
 
 		if (!rejectableStatuses.includes(sponsorAd.status as SponsorAdStatusValues)) {
-			throw new Error(
-				`Cannot reject sponsor ad with status: ${sponsorAd.status}`
-			);
+			throw new Error(`Cannot reject sponsor ad with status: ${sponsorAd.status}`);
 		}
 
-		return await sponsorAdRepo.rejectSponsorAd(id, adminUserId, rejectionReason);
+		return await sponsorAdRepo.rejectSponsorAd(id, adminUserId, rejectionReason, tenantId);
 	}
 
 	/**
 	 * Cancel sponsor ad
 	 */
-	async cancelSponsorAd(
-		id: string,
-		cancelReason?: string
-	): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+	async cancelSponsorAd(id: string, tenantId: string, cancelReason?: string): Promise<SponsorAd | null> {
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		// Can cancel pending_payment, pending, or active sponsor ads
 		const cancellableStatuses: SponsorAdStatusValues[] = [
 			SponsorAdStatus.PENDING_PAYMENT,
 			SponsorAdStatus.PENDING,
-			SponsorAdStatus.ACTIVE,
+			SponsorAdStatus.ACTIVE
 		];
 
 		if (!cancellableStatuses.includes(sponsorAd.status as SponsorAdStatusValues)) {
-			throw new Error(
-				`Cannot cancel sponsor ad with status: ${sponsorAd.status}`
-			);
+			throw new Error(`Cannot cancel sponsor ad with status: ${sponsorAd.status}`);
 		}
 
-		return await sponsorAdRepo.cancelSponsorAd(id, cancelReason);
+		return await sponsorAdRepo.cancelSponsorAd(id, tenantId, cancelReason);
 	}
 
 	/**
 	 * Expire sponsor ad (called by cron job or webhook)
 	 */
-	async expireSponsorAd(id: string): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+	async expireSponsorAd(id: string, tenantId: string): Promise<SponsorAd | null> {
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		if (sponsorAd.status !== SponsorAdStatus.ACTIVE) {
-			throw new Error(
-				`Cannot expire sponsor ad with status: ${sponsorAd.status}`
-			);
+			throw new Error(`Cannot expire sponsor ad with status: ${sponsorAd.status}`);
 		}
 
-		return await sponsorAdRepo.expireSponsorAd(id);
+		return await sponsorAdRepo.expireSponsorAd(id, tenantId);
 	}
 
 	/**
 	 * Renew sponsor ad subscription
 	 */
-	async renewSponsorAd(id: string): Promise<SponsorAd | null> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+	async renewSponsorAd(id: string, tenantId: string): Promise<SponsorAd | null> {
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
 		// Can only renew active or expired sponsor ads
-		if (
-			sponsorAd.status !== SponsorAdStatus.ACTIVE &&
-			sponsorAd.status !== SponsorAdStatus.EXPIRED
-		) {
-			throw new Error(
-				`Cannot renew sponsor ad with status: ${sponsorAd.status}`
-			);
+		if (sponsorAd.status !== SponsorAdStatus.ACTIVE && sponsorAd.status !== SponsorAdStatus.EXPIRED) {
+			throw new Error(`Cannot renew sponsor ad with status: ${sponsorAd.status}`);
 		}
 
 		// Calculate new end date from current end date or now
 		const startDate = sponsorAd.endDate || new Date();
 		const endDate = this.calculateEndDate(startDate, sponsorAd.interval);
 
-		return await sponsorAdRepo.updateSponsorAd(id, {
-			status: SponsorAdStatus.ACTIVE,
-			startDate,
-			endDate,
-		});
+		return await sponsorAdRepo.updateSponsorAd(
+			id,
+			{
+				status: SponsorAdStatus.ACTIVE,
+				startDate,
+				endDate
+			},
+			tenantId
+		);
 	}
 
 	/**
 	 * Delete sponsor ad (admin only, hard delete)
 	 */
-	async deleteSponsorAd(id: string): Promise<void> {
-		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
+	async deleteSponsorAd(id: string, tenantId: string): Promise<void> {
+		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
-			throw new Error("Sponsor ad not found");
+			throw new Error('Sponsor ad not found');
 		}
 
-		await sponsorAdRepo.deleteSponsorAd(id);
+		await sponsorAdRepo.deleteSponsorAd(id, tenantId);
 	}
 
 	// ===================== Helper Methods =====================
@@ -396,10 +381,10 @@ export class SponsorAdService {
 	/**
 	 * Format amount for display
 	 */
-	formatAmount(amount: number, currency: string = "usd"): string {
-		const formatter = new Intl.NumberFormat("en-US", {
-			style: "currency",
-			currency: currency.toUpperCase(),
+	formatAmount(amount: number, currency: string = 'usd'): string {
+		const formatter = new Intl.NumberFormat('en-US', {
+			style: 'currency',
+			currency: currency.toUpperCase()
 		});
 		return formatter.format(amount);
 	}
@@ -409,8 +394,8 @@ export class SponsorAdService {
 	 */
 	getIntervalDisplayName(interval: string): string {
 		const names: Record<string, string> = {
-			[SponsorAdInterval.WEEKLY]: "Weekly",
-			[SponsorAdInterval.MONTHLY]: "Monthly",
+			[SponsorAdInterval.WEEKLY]: 'Weekly',
+			[SponsorAdInterval.MONTHLY]: 'Monthly'
 		};
 		return names[interval] || interval;
 	}
@@ -420,12 +405,12 @@ export class SponsorAdService {
 	 */
 	getStatusDisplayName(status: string): string {
 		const names: Record<string, string> = {
-			[SponsorAdStatus.PENDING_PAYMENT]: "Waiting for Payment",
-			[SponsorAdStatus.PENDING]: "Pending Review",
-			[SponsorAdStatus.REJECTED]: "Rejected",
-			[SponsorAdStatus.ACTIVE]: "Active",
-			[SponsorAdStatus.EXPIRED]: "Expired",
-			[SponsorAdStatus.CANCELLED]: "Cancelled",
+			[SponsorAdStatus.PENDING_PAYMENT]: 'Waiting for Payment',
+			[SponsorAdStatus.PENDING]: 'Pending Review',
+			[SponsorAdStatus.REJECTED]: 'Rejected',
+			[SponsorAdStatus.ACTIVE]: 'Active',
+			[SponsorAdStatus.EXPIRED]: 'Expired',
+			[SponsorAdStatus.CANCELLED]: 'Cancelled'
 		};
 		return names[status] || status;
 	}
@@ -441,11 +426,13 @@ export class SponsorAdService {
 	 * Check if sponsor ad can be cancelled
 	 */
 	canCancel(sponsorAd: SponsorAd): boolean {
-		return ([
-			SponsorAdStatus.PENDING_PAYMENT,
-			SponsorAdStatus.PENDING,
-			SponsorAdStatus.ACTIVE,
-		] as SponsorAdStatusValues[]).includes(sponsorAd.status as SponsorAdStatusValues);
+		return (
+			[
+				SponsorAdStatus.PENDING_PAYMENT,
+				SponsorAdStatus.PENDING,
+				SponsorAdStatus.ACTIVE
+			] as SponsorAdStatusValues[]
+		).includes(sponsorAd.status as SponsorAdStatusValues);
 	}
 
 	/**

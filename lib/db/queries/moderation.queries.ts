@@ -1,4 +1,4 @@
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	moderationHistory,
@@ -7,7 +7,6 @@ import {
 	type NewModerationHistoryRecord,
 	type ModerationHistoryRecord,
 	type ModerationActionValues,
-	ModerationAction,
 	type ReportContentTypeValues
 } from '../schema';
 
@@ -41,6 +40,7 @@ export async function createModerationHistory(data: {
 	contentType?: ReportContentTypeValues;
 	contentId?: string;
 	details?: Record<string, unknown>;
+	tenantId: string;
 }): Promise<ModerationHistoryRecord> {
 	const insertData: NewModerationHistoryRecord = {
 		userId: data.userId,
@@ -50,7 +50,8 @@ export async function createModerationHistory(data: {
 		performedBy: data.performedBy || null,
 		contentType: data.contentType || null,
 		contentId: data.contentId || null,
-		details: data.details || null
+		details: data.details || null,
+		tenantId: data.tenantId
 	};
 
 	const [record] = await db.insert(moderationHistory).values(insertData).returning();
@@ -66,12 +67,14 @@ export async function createModerationHistory(data: {
  */
 export async function getModerationHistoryByUser(
 	userId: string,
+	tenantId: string,
 	limit = 50
 ): Promise<ModerationHistoryWithDetails[]> {
 	const results = await db
 		.select({
 			id: moderationHistory.id,
 			userId: moderationHistory.userId,
+			tenantId: moderationHistory.tenantId,
 			action: moderationHistory.action,
 			reason: moderationHistory.reason,
 			reportId: moderationHistory.reportId,
@@ -88,7 +91,7 @@ export async function getModerationHistoryByUser(
 		})
 		.from(moderationHistory)
 		.leftJoin(clientProfiles, eq(moderationHistory.userId, clientProfiles.id))
-		.where(eq(moderationHistory.userId, userId))
+		.where(and(eq(moderationHistory.userId, userId), eq(moderationHistory.tenantId, tenantId)))
 		.orderBy(desc(moderationHistory.createdAt))
 		.limit(limit);
 
@@ -117,12 +120,14 @@ export async function getModerationHistoryByUser(
  * @returns Moderation history entries related to the report
  */
 export async function getModerationHistoryByReport(
-	reportId: string
+	reportId: string,
+	tenantId: string
 ): Promise<ModerationHistoryWithDetails[]> {
 	const results = await db
 		.select({
 			id: moderationHistory.id,
 			userId: moderationHistory.userId,
+			tenantId: moderationHistory.tenantId,
 			action: moderationHistory.action,
 			reason: moderationHistory.reason,
 			reportId: moderationHistory.reportId,
@@ -139,7 +144,7 @@ export async function getModerationHistoryByReport(
 		})
 		.from(moderationHistory)
 		.leftJoin(clientProfiles, eq(moderationHistory.userId, clientProfiles.id))
-		.where(eq(moderationHistory.reportId, reportId))
+		.where(and(eq(moderationHistory.reportId, reportId), eq(moderationHistory.tenantId, tenantId)))
 		.orderBy(desc(moderationHistory.createdAt));
 
 	// Get performer info for each record
@@ -168,14 +173,14 @@ export async function getModerationHistoryByReport(
  * @param userId - Client profile ID
  * @returns Updated client profile
  */
-export async function incrementWarningCount(userId: string) {
+export async function incrementWarningCount(userId: string, tenantId: string) {
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
 			warningCount: sql`COALESCE(${clientProfiles.warningCount}, 0) + 1`,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -186,7 +191,7 @@ export async function incrementWarningCount(userId: string) {
  * @param userId - Client profile ID
  * @returns Updated client profile
  */
-export async function suspendUser(userId: string) {
+export async function suspendUser(userId: string, tenantId: string) {
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -194,7 +199,7 @@ export async function suspendUser(userId: string) {
 			suspendedAt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -205,7 +210,7 @@ export async function suspendUser(userId: string) {
  * @param userId - Client profile ID
  * @returns Updated client profile
  */
-export async function unsuspendUser(userId: string) {
+export async function unsuspendUser(userId: string, tenantId: string) {
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -213,7 +218,7 @@ export async function unsuspendUser(userId: string) {
 			suspendedAt: null,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -224,7 +229,7 @@ export async function unsuspendUser(userId: string) {
  * @param userId - Client profile ID
  * @returns Updated client profile
  */
-export async function banUser(userId: string) {
+export async function banUser(userId: string, tenantId: string) {
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -232,7 +237,7 @@ export async function banUser(userId: string) {
 			bannedAt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -243,7 +248,7 @@ export async function banUser(userId: string) {
  * @param userId - Client profile ID
  * @returns Updated client profile
  */
-export async function unbanUser(userId: string) {
+export async function unbanUser(userId: string, tenantId: string) {
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -251,7 +256,7 @@ export async function unbanUser(userId: string) {
 			bannedAt: null,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -262,11 +267,11 @@ export async function unbanUser(userId: string) {
  * @param id - Client profile ID
  * @returns Client profile or null
  */
-export async function getClientProfileById(id: string) {
+export async function getClientProfileById(id: string, tenantId: string) {
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.id, id))
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
 		.limit(1);
 
 	return profile || null;
@@ -277,11 +282,11 @@ export async function getClientProfileById(id: string) {
  * @param userId - User ID (from auth)
  * @returns Client profile or null
  */
-export async function getClientProfileByUserId(userId: string) {
+export async function getClientProfileByUserId(userId: string, tenantId: string) {
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.userId, userId))
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)))
 		.limit(1);
 
 	return profile || null;
