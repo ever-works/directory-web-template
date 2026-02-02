@@ -2,7 +2,6 @@
 import { useState, memo, useCallback } from 'react';
 import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Avatar } from '@/components/header/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle, Trash2, Pencil, Check, X, AlertTriangle } from 'lucide-react';
@@ -103,12 +102,13 @@ const CommentForm = memo(
 						</label>
 						<Rating value={rating} onChange={setRating} size="md" />
 					</div>
-					<Textarea
+					<textarea
 						id="comment"
 						placeholder="Share your thoughts..."
 						value={content}
 						onChange={(e) => setContent(e.target.value)}
-						className="min-h-[100px] bg-white dark:bg-gray-900 resize-none focus:ring-theme-primary-500"
+						autoFocus
+						className="min-h-[100px] bg-white dark:bg-gray-900 resize-none border border-transparent focus:outline-none focus:border-theme-primary-500 w-full p-3 rounded-md"
 						maxLength={1000}
 						required
 					/>
@@ -246,10 +246,11 @@ const Comment = memo(
 								</label>
 								<Rating value={editRating} onChange={setEditRating} size="sm" />
 							</div>
-							<Textarea
+							<textarea
 								value={editContent}
 								onChange={(e) => setEditContent(e.target.value)}
-								className="min-h-[80px] bg-white dark:bg-gray-900 resize-none focus:ring-theme-primary-500"
+								autoFocus
+								className="min-h-[80px] bg-white dark:bg-gray-900 resize-none border border-transparent focus:outline-none focus:border-theme-primary-500 w-full p-3 rounded-md"
 								maxLength={1000}
 								required
 							/>
