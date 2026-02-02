@@ -29,7 +29,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 								{t('TOTAL_COMPANIES')}
 							</p>
 							<p className="text-4xl font-bold text-white tracking-tight">
-								{stats.total.toLocaleString()}
+								{Number(stats.total ?? 0).toLocaleString()}
 							</p>
 						</div>
 						<div className="mt-4 flex items-center justify-between">
@@ -53,13 +53,16 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 								{t('ACTIVE_COMPANIES')}
 							</p>
 							<p className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
-								{stats.active.toLocaleString()}
+								{Number(stats.active ?? 0).toLocaleString()}
 							</p>
 						</div>
 						<div className="mt-4">
 							<div className="flex items-center gap-2">
 								<span className="text-emerald-500 font-medium bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded text-xs">
-									{stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%
+									{Number(stats.total ?? 0) > 0
+										? Math.round((Number(stats.active ?? 0) / Number(stats.total ?? 0)) * 100)
+										: 0}
+									%
 								</span>
 								<span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
 									{t('PARTICIPATION')}
@@ -79,13 +82,16 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 								{t('INACTIVE_COMPANIES')}
 							</p>
 							<p className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
-								{stats.inactive.toLocaleString()}
+								{Number(stats.inactive ?? 0).toLocaleString()}
 							</p>
 						</div>
 						<div className="mt-4">
 							<div className="flex items-center gap-2">
 								<span className="text-gray-500 font-medium bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs">
-									{stats.total > 0 ? Math.round((stats.inactive / stats.total) * 100) : 0}%
+									{Number(stats.total ?? 0) > 0
+										? Math.round((Number(stats.inactive ?? 0) / Number(stats.total ?? 0)) * 100)
+										: 0}
+									%
 								</span>
 								<span className="text-xs text-gray-400 dark:text-gray-500 uppercase tracking-wide">
 									{t('DORMANT')}
