@@ -30,6 +30,7 @@ import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -58,10 +59,13 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		// Normalize email for consistent lookup
 		const normalizedEmail = email.toLowerCase().trim();
 
+		// Get default tenant for pre-auth operations
+		const tenantId = await getDefaultTenantId();
+
 		// Step 1: Validate credentials FIRST to get specific error messages
 		// (NextAuth returns generic "CredentialsSignin" which loses the specific error code)
-		const foundUser = await getUserByEmail(normalizedEmail);
-		const clientAccount = await getClientAccountByEmail(normalizedEmail);
+		const foundUser = await getUserByEmail(normalizedEmail, tenantId);
+		const clientAccount = await getClientAccountByEmail(normalizedEmail, tenantId);
 
 		// No account found with this email
 		if (!foundUser && !clientAccount) {
@@ -69,7 +73,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		}
 
 		// Determine if this is an admin user via role-based check
-		const isAdmin = foundUser ? await isUserAdmin(foundUser.id) : false;
+		const isAdmin = foundUser ? await isUserAdmin(foundUser.id, tenantId) : false;
 
 		// Check password for admin user
 		if (isAdmin && foundUser) {
@@ -80,7 +84,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		}
 		// Check password for client user (has passwordHash in accounts table)
 		else if (clientAccount) {
-			const isValid = await verifyClientPassword(email, password);
+			const isValid = await verifyClientPassword(email, password, tenantId);
 			if (!isValid) {
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
 			}
@@ -169,7 +173,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		// hashPassword is CPU-bound (~100ms), checking for existing user is I/O-bound
 		const [passwordHash, existingUser] = await Promise.all([
 			hashPassword(password),
-			getUserByEmail(normalizedEmail).catch(() => null)
+			getUserByEmail(normalizedEmail, await getDefaultTenantId()).catch(() => null)
 		]);
 
 		// Fail fast if email already exists
@@ -179,6 +183,9 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				...data
 			};
 		}
+
+		// Get default tenant for new user registration
+		const tenantId = await getDefaultTenantId();
 
 		// Handle Supabase auth if needed (after duplicate check to avoid unnecessary calls)
 		const authService = authServiceFactory(data.authProvider);
@@ -201,7 +208,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.insert(users)
 				.values({
 					id: userId,
-					email: normalizedEmail
+					email: normalizedEmail,
+					tenantId
 				})
 				.returning();
 
@@ -226,7 +234,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 						company: 'Unknown',
 						status: 'active',
 						plan: 'free',
-						accountType: 'individual'
+						accountType: 'individual',
+						tenantId
 					})
 					.onConflictDoNothing({ target: clientProfiles.username })
 					.returning();
@@ -247,7 +256,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 					provider: 'credentials',
 					providerAccountId: normalizedEmail,
 					email: normalizedEmail,
-					passwordHash
+					passwordHash,
+					tenantId
 				})
 				.returning();
 
@@ -257,8 +267,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 
 			// 4) Generate verification token (was separate generateVerificationToken call)
 			// Delete any existing tokens for this email first
-			const existingToken = await getVerificationTokenByEmail(normalizedEmail);
-			if (existingToken) {
+			const existingVerifToken = await getVerificationTokenByEmail(normalizedEmail, tenantId);
+			if (existingVerifToken) {
 				await tx.delete(verificationTokens).where(eq(verificationTokens.email, normalizedEmail));
 			}
 
@@ -270,7 +280,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 					identifier: token,
 					email: normalizedEmail,
 					token,
-					expires
+					expires,
+					tenantId
 				})
 				.returning();
 
@@ -321,8 +332,9 @@ const updatePasswordSchema = z
 
 export const updatePassword = validatedActionWithUser(updatePasswordSchema, async (data, _, user) => {
 	const { currentPassword, newPassword } = data;
+	const tenantId = user.tenantId!;
 
-	const dbUser = await getUserByEmail(user.email!).catch(() => null);
+	const dbUser = await getUserByEmail(user.email!, tenantId).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
 	}
@@ -342,7 +354,7 @@ export const updatePassword = validatedActionWithUser(updatePasswordSchema, asyn
 	const newPasswordHash = await hashPassword(newPassword);
 
 	await Promise.all([
-		updateUserPassword(newPasswordHash, dbUser.id),
+		updateUserPassword(newPasswordHash, dbUser.id, tenantId),
 		logActivity(ActivityType.UPDATE_PASSWORD, dbUser.id, 'user')
 	]);
 
@@ -356,7 +368,9 @@ const deleteAccountSchema = z.object({
 
 export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async (data, _, user) => {
 	const { password, provider } = data;
-	const dbUser = await getUserByEmail(user.email!).catch(() => null);
+	const tenantId = user.tenantId!;
+
+	const dbUser = await getUserByEmail(user.email!, tenantId).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
 	}
@@ -368,7 +382,7 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 
 	await logActivity(ActivityType.DELETE_ACCOUNT, dbUser.id, 'user');
 
-	await softDeleteUser(dbUser.id);
+	await softDeleteUser(dbUser.id, tenantId);
 	const authService = authServiceFactory(provider);
 	const { error } = await authService.signOut();
 
@@ -388,14 +402,15 @@ export const updateAccount = validatedActionWithUser(updateAccountSchema, async 
 	const { name, email } = data;
 	// Normalize email to lowercase to prevent case-variant duplicates
 	const normalizedEmail = email.toLowerCase().trim();
+	const tenantId = user.tenantId!;
 
-	const dbUser = await getUserByEmail(user.email!).catch(() => null);
+	const dbUser = await getUserByEmail(user.email!, tenantId).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
 	}
 	await Promise.all([
-		updateUser({ email: normalizedEmail }, dbUser.id),
-		updateClientProfileName(dbUser.id, name),
+		updateUser({ email: normalizedEmail }, dbUser.id, tenantId),
+		updateClientProfileName(dbUser.id, name, tenantId),
 		logActivity(ActivityType.UPDATE_ACCOUNT, dbUser.id, 'user')
 	]);
 
@@ -416,12 +431,14 @@ const forgotPasswordSchema = z.object({
 export const forgotPassword = validatedAction(forgotPasswordSchema, async ({ email }) => {
 	// Normalize email for consistent lookup
 	const normalizedEmail = email.toLowerCase().trim();
-	const dbUser = await getUserByEmail(normalizedEmail).catch(() => null);
+	const tenantId = await getDefaultTenantId();
+
+	const dbUser = await getUserByEmail(normalizedEmail, tenantId).catch(() => null);
 	if (!dbUser) {
 		return { success: true, email };
 	}
 
-	const passwordResetToken = await generatePasswordResetToken(normalizedEmail);
+	const passwordResetToken = await generatePasswordResetToken(normalizedEmail, tenantId);
 
 	if (passwordResetToken) {
 		// Email is optional - won't throw if not configured
@@ -432,7 +449,8 @@ export const forgotPassword = validatedAction(forgotPasswordSchema, async ({ ema
 });
 
 export const verifyEmailAction = async (token: string) => {
-	const existingToken = await getVerificationTokenByToken(token);
+	const tenantId = await getDefaultTenantId();
+	const existingToken = await getVerificationTokenByToken(token, tenantId);
 	if (!existingToken) {
 		return { error: 'Invalid token!' };
 	}
@@ -442,14 +460,14 @@ export const verifyEmailAction = async (token: string) => {
 		return { error: 'The token has expired.' };
 	}
 
-	const existingUser = await getUserByEmail(existingToken.email);
+	const existingUser = await getUserByEmail(existingToken.email, tenantId);
 	if (!existingUser) {
 		return { error: 'No account is associated with this token!' };
 	}
 
 	await Promise.all([
-		updateUserVerification(existingToken.email, true),
-		deleteVerificationToken(existingToken.token)
+		updateUserVerification(existingToken.email, true, tenantId),
+		deleteVerificationToken(existingToken.token, tenantId)
 	]);
 
 	await logActivity(ActivityType.VERIFY_EMAIL, existingUser.id, 'user');
@@ -458,7 +476,8 @@ export const verifyEmailAction = async (token: string) => {
 };
 
 export const verifyPasswordTokenAction = async (token: string) => {
-	const existingToken = await getPasswordResetTokenByToken(token);
+	const tenantId = await getDefaultTenantId();
+	const existingToken = await getPasswordResetTokenByToken(token, tenantId);
 	if (!existingToken) {
 		return { error: 'Invalid token!' };
 	}
@@ -468,12 +487,12 @@ export const verifyPasswordTokenAction = async (token: string) => {
 		return { error: 'The token has expired.' };
 	}
 
-	const existingUser = await getUserByEmail(existingToken.email);
+	const existingUser = await getUserByEmail(existingToken.email, existingToken.tenantId);
 	if (!existingUser) {
 		return { error: 'No account is associated with this token!' };
 	}
 
-	return { success: true, userId: existingUser.id };
+	return { success: true, userId: existingUser.id, tenantId: existingToken.tenantId };
 };
 
 const newPasswordSchema = z
@@ -495,9 +514,12 @@ export const newPasswordAction = validatedAction(newPasswordSchema, async (data)
 
 	const hashedPassword = await hashPassword(data.newPassword);
 
-	await Promise.all([updateUserPassword(hashedPassword, result.userId), deletePasswordResetToken(data.token)]);
+	await Promise.all([
+		updateUserPassword(hashedPassword, result.userId!, result.tenantId!),
+		deletePasswordResetToken(data.token, result.tenantId!)
+	]);
 
-	await logActivity(ActivityType.UPDATE_PASSWORD, result.userId, 'user');
+	await logActivity(ActivityType.UPDATE_PASSWORD, result.userId!, 'user');
 
 	return { success: true };
 });

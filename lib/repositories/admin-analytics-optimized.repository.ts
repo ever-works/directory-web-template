@@ -417,6 +417,7 @@ export class AdminAnalyticsOptimizedRepository {
 		activityTrendDays?: number;
 		topItemsLimit?: number;
 		recentActivityLimit?: number;
+		tenantId?: string;
 	}): Promise<{
 		userGrowth: UserGrowthTrend[];
 		activityTrends: ActivityTrend[];
@@ -428,14 +429,15 @@ export class AdminAnalyticsOptimizedRepository {
 		const activityTrendDays = Math.max(1, Math.min(options.activityTrendDays || 7, 365));
 		const topItemsLimit = Math.max(1, Math.min(options.topItemsLimit || 10, 1000));
 		const recentActivityLimit = Math.max(1, Math.min(options.recentActivityLimit || 10, 500));
+		const tenantId = options.tenantId;
 
 		try {
 			// Execute all queries in parallel for better performance
 			const [userGrowth, activityTrends, topItems, recentActivity] = await Promise.all([
-				this.getUserGrowthTrends(userGrowthMonths),
-				this.getActivityTrends(activityTrendDays),
-				this.getTopItems(topItemsLimit),
-				this.getRecentActivity(recentActivityLimit)
+				this.getUserGrowthTrends(userGrowthMonths, tenantId),
+				this.getActivityTrends(activityTrendDays, tenantId),
+				this.getTopItems(topItemsLimit, tenantId),
+				this.getRecentActivity(recentActivityLimit, tenantId)
 			]);
 
 			return {
