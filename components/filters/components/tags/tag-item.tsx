@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Button, cn } from "@heroui/react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -11,20 +11,17 @@ import { formatDisplayName } from "../../utils/text-utils";
  * Individual tag item component
  */
 export function TagItem({ tag, isActive, href, showCount = true }: TagItemProps) {
-  const btnRef = useRef<HTMLElement | null>(null);
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
-  const showTooltip = () => {
-    if (btnRef.current) {
-      const textEl = btnRef.current.querySelector('[data-tag-label]') as HTMLElement | null;
-      const isTruncated = textEl ? textEl.scrollWidth > textEl.clientWidth + 1 : false;
-      if (isTruncated) {
-        const r = btnRef.current.getBoundingClientRect();
-        // Position tooltip above the button, centered horizontally
-        setPos({ top: r.top - 8, left: r.left + r.width / 2 });
-        setHovered(true);
-      }
+  const showTooltip = (btn: HTMLButtonElement) => {
+    const textEl = btn.querySelector('[data-tag-label]') as HTMLElement | null;
+    const isTruncated = textEl ? textEl.scrollWidth > textEl.clientWidth + 1 : false;
+    if (isTruncated) {
+      const r = btn.getBoundingClientRect();
+      // Position tooltip above the button, centered horizontally
+      setPos({ top: r.top - 8, left: r.left + r.width / 2 });
+      setHovered(true);
     }
   };
   const hideTooltip = () => setHovered(false);
@@ -34,16 +31,15 @@ export function TagItem({ tag, isActive, href, showCount = true }: TagItemProps)
   return (
     <>
       <Button
-        ref={btnRef as any}
         variant={isActive ? "solid" : "bordered"}
         radius="full"
         size="sm"
         as={Link}
         prefetch={false}
         href={href}
-        onMouseEnter={showTooltip}
+        onMouseEnter={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
         onMouseLeave={hideTooltip}
-        onFocus={showTooltip}
+        onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
         onBlur={hideTooltip}
         className={getButtonVariantStyles(
           isActive,
