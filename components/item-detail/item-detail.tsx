@@ -18,7 +18,7 @@ import { SimilarItemsSection } from './similar-items-section';
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
-import { generateProductSchema } from '@/lib/seo/schema';
+import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
 import { ItemCTAButton } from './item-cta-button';
@@ -72,12 +72,41 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 		brandName: siteConfig.brandName
 	});
 
+	// Generate Breadcrumb schema for SEO
+	const breadcrumbItems: BreadcrumbItem[] = [
+		{
+			name: t('common.HOME'),
+			url: `${siteConfig.url}/${locale}`
+		}
+	];
+
+	// Add category breadcrumb if categories are enabled and category exists
+	if (categoriesEnabled && categoryName) {
+		breadcrumbItems.push({
+			name: toTitleCase(categoryName),
+			url: `${siteConfig.url}/${locale}/categories/${slugify(categoryName)}`
+		});
+	}
+
+	// Add current item
+	breadcrumbItems.push({
+		name: meta.name,
+		url: `${siteConfig.url}/${locale}/items/${meta.slug}`
+	});
+
+	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
 	return (
 		<div className="min-h-screen relative overflow-hidden">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+			/>
+			{/* Breadcrumb Schema JSON-LD */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
 				<div className="flex flex-col lg:flex-row gap-8">
