@@ -29,6 +29,7 @@ export interface CreateItemAuditLogParams {
 	performedByName?: string | null;
 	notes?: string | null;
 	metadata?: Record<string, unknown> | null;
+	tenantId: string;
 }
 
 export interface GetItemHistoryParams {
@@ -36,6 +37,7 @@ export interface GetItemHistoryParams {
 	page?: number;
 	limit?: number;
 	actionFilter?: ItemAuditActionValues[];
+	tenantId: string;
 }
 
 export interface PaginatedItemHistory {
@@ -46,13 +48,6 @@ export interface PaginatedItemHistory {
 	totalPages: number;
 }
 
-// ===================== Create =====================
-
-/**
- * Create a new item audit log entry
- * @param data - Audit log data
- * @returns Created audit log entry
- */
 export async function createItemAuditLog(data: CreateItemAuditLogParams): Promise<ItemAuditLog> {
 	const insertData: NewItemAuditLog = {
 		itemId: data.itemId,
@@ -64,7 +59,8 @@ export async function createItemAuditLog(data: CreateItemAuditLogParams): Promis
 		performedBy: data.performedBy ?? null,
 		performedByName: data.performedByName ?? null,
 		notes: data.notes ?? null,
-		metadata: data.metadata ?? null
+		metadata: data.metadata ?? null,
+		tenantId: data.tenantId
 	};
 
 	const [record] = await db.insert(itemAuditLogs).values(insertData).returning();
@@ -80,20 +76,17 @@ export async function createItemAuditLog(data: CreateItemAuditLogParams): Promis
  * @returns Paginated audit logs with performer info
  */
 export async function getItemHistory(params: GetItemHistoryParams): Promise<PaginatedItemHistory> {
-	const { itemId, page = 1, limit = 20, actionFilter } = params;
+	const { itemId, page = 1, limit = 20, actionFilter, tenantId } = params;
 
 	// Build where conditions
-	const conditions = [eq(itemAuditLogs.itemId, itemId)];
+	const conditions = [eq(itemAuditLogs.itemId, itemId), eq(itemAuditLogs.tenantId, tenantId)];
 	if (actionFilter && actionFilter.length > 0) {
 		conditions.push(inArray(itemAuditLogs.action, actionFilter));
 	}
 	const whereClause = and(...conditions);
 
 	// Get total count
-	const [countResult] = await db
-		.select({ count: count() })
-		.from(itemAuditLogs)
-		.where(whereClause);
+	const [countResult] = await db.select({ count: count() }).from(itemAuditLogs).where(whereClause);
 
 	const total = countResult?.count ?? 0;
 	const totalPages = Math.ceil(total / limit);
@@ -103,6 +96,7 @@ export async function getItemHistory(params: GetItemHistoryParams): Promise<Pagi
 	const logs = await db
 		.select({
 			id: itemAuditLogs.id,
+			tenantId: itemAuditLogs.tenantId,
 			itemId: itemAuditLogs.itemId,
 			itemName: itemAuditLogs.itemName,
 			action: itemAuditLogs.action,
@@ -157,10 +151,7 @@ export async function getLatestItemAuditLog(itemId: string): Promise<ItemAuditLo
  * @param limit - Maximum number of records
  * @returns Audit logs matching the action
  */
-export async function getAuditLogsByAction(
-	action: ItemAuditActionValues,
-	limit = 50
-): Promise<ItemAuditLog[]> {
+export async function getAuditLogsByAction(action: ItemAuditActionValues, limit = 50): Promise<ItemAuditLog[]> {
 	return db
 		.select()
 		.from(itemAuditLogs)
@@ -175,10 +166,7 @@ export async function getAuditLogsByAction(
  * @param limit - Maximum number of records
  * @returns Audit logs by the performer
  */
-export async function getAuditLogsByPerformer(
-	performedBy: string,
-	limit = 50
-): Promise<ItemAuditLog[]> {
+export async function getAuditLogsByPerformer(performedBy: string, limit = 50): Promise<ItemAuditLog[]> {
 	return db
 		.select()
 		.from(itemAuditLogs)

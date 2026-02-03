@@ -72,5 +72,5 @@ export async function getOrCreateDefaultTenant(): Promise<string> {
  * This is used when we need a tenant context but the user is not yet authenticated.
  */
 export async function getDefaultTenantId(): Promise<string> {
-	return getOrCreateDefaultTenant();
+	return (await getTenantIdSafe()) || (await getOrCreateDefaultTenant());
 }

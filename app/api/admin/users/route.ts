@@ -456,6 +456,11 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 		}
 
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'No tenant ID found in session' }, { status: 401 });
+		}
+
 		// Parse request body
 		const body = await request.json();
 
@@ -540,7 +545,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		const roleRepository = new RoleRepository();
-		const roleExists = await roleRepository.findById(body.role);
+		const roleExists = await roleRepository.findById(body.role, tenantId);
 		if (!roleExists) {
 			return NextResponse.json({ success: false, error: 'Invalid role' }, { status: 400 });
 		}
@@ -555,12 +560,7 @@ export async function POST(request: NextRequest) {
 			password: body.password
 		};
 
-		// Create user - extract tenantId from session
-		const tenantId = session.user.tenantId;
-		if (!tenantId) {
-			return NextResponse.json({ success: false, error: 'No tenant ID found in session' }, { status: 401 });
-		}
-
+		// Create user
 		const userRepository = new UserRepository();
 		const newUser = await userRepository.create(userData, tenantId);
 

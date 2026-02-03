@@ -2,19 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getReportById, updateReport } from '@/lib/db/queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
-import {
-	ReportStatus,
-	ReportResolution,
-	type ReportStatusValues,
-	type ReportResolutionValues
-} from '@/lib/db/schema';
-import {
-	removeContent,
-	warnUser,
-	suspendUser,
-	banUser,
-	getContentOwner
-} from '@/lib/services/moderation.service';
+import { ReportStatus, ReportResolution, type ReportStatusValues, type ReportResolutionValues } from '@/lib/db/schema';
+import { removeContent, warnUser, suspendUser, banUser, getContentOwner } from '@/lib/services/moderation.service';
 
 export const runtime = 'nodejs';
 
@@ -48,17 +37,14 @@ const VALID_RESOLUTIONS = Object.values(ReportResolution);
  *       500:
  *         description: "Internal server error"
  */
-export async function GET(
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Check database availability
 		const dbCheck = checkDatabaseAvailability();
 		if (dbCheck) return dbCheck;
 
 		const session = await auth();
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -124,17 +110,14 @@ export async function GET(
  *       500:
  *         description: "Internal server error"
  */
-export async function PUT(
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Check database availability
 		const dbCheck = checkDatabaseAvailability();
 		if (dbCheck) return dbCheck;
 
 		const session = await auth();
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 		}
 
@@ -189,11 +172,16 @@ export async function PUT(
 					existingReport.contentType,
 					existingReport.contentId,
 					id,
-					adminId
+					adminId,
+					session.user.tenantId
 				);
 			} else {
 				// For user actions (warn, suspend, ban), first get the content owner
-				const ownerResult = await getContentOwner(existingReport.contentType, existingReport.contentId);
+				const ownerResult = await getContentOwner(
+					existingReport.contentType,
+					existingReport.contentId,
+					session.user.tenantId
+				);
 
 				if (!ownerResult.success || !ownerResult.userId) {
 					return NextResponse.json(
@@ -209,13 +197,31 @@ export async function PUT(
 
 				switch (resolution) {
 					case ReportResolution.USER_WARNED:
-						moderationResult = await warnUser(ownerResult.userId, reason, id, adminId);
+						moderationResult = await warnUser(
+							ownerResult.userId,
+							reason,
+							id,
+							adminId,
+							session.user.tenantId
+						);
 						break;
 					case ReportResolution.USER_SUSPENDED:
-						moderationResult = await suspendUser(ownerResult.userId, reason, id, adminId);
+						moderationResult = await suspendUser(
+							ownerResult.userId,
+							reason,
+							id,
+							adminId,
+							session.user.tenantId
+						);
 						break;
 					case ReportResolution.USER_BANNED:
-						moderationResult = await banUser(ownerResult.userId, reason, id, adminId);
+						moderationResult = await banUser(
+							ownerResult.userId,
+							reason,
+							id,
+							adminId,
+							session.user.tenantId
+						);
 						break;
 				}
 			}

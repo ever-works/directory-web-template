@@ -82,13 +82,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const { id } = await params;
 
-		const company = await getCompanyById(id);
+		const company = await getCompanyById(id, session.user.tenantId);
 
 		if (!company) {
 			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
@@ -261,14 +261,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const { id } = await params;
 
 		// Check if company exists
-		const existingCompany = await getCompanyById(id);
+		const existingCompany = await getCompanyById(id, session.user.tenantId);
 		if (!existingCompany) {
 			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
 		}
@@ -292,7 +292,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 		// Check for domain uniqueness if domain is being updated
 		if (validatedData.domain && validatedData.domain !== existingCompany.domain) {
-			const existingByDomain = await getCompanyByDomain(validatedData.domain);
+			const existingByDomain = await getCompanyByDomain(validatedData.domain, session.user.tenantId);
 			if (existingByDomain && existingByDomain.id !== id) {
 				return NextResponse.json(
 					{ error: `Company with domain '${validatedData.domain}' already exists` },
@@ -303,7 +303,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 		// Check for slug uniqueness if slug is being updated
 		if (validatedData.slug && validatedData.slug !== existingCompany.slug) {
-			const existingBySlug = await getCompanyBySlug(validatedData.slug);
+			const existingBySlug = await getCompanyBySlug(validatedData.slug, session.user.tenantId);
 			if (existingBySlug && existingBySlug.id !== id) {
 				return NextResponse.json(
 					{ error: `Company with slug '${validatedData.slug}' already exists` },
@@ -316,7 +316,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		const { id: _idToRemove, ...updateData } = validatedData;
 
 		// Update company
-		const company = await updateCompany(id, updateData);
+		const company = await updateCompany(id, updateData, session.user.tenantId);
 
 		if (!company) {
 			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
@@ -326,12 +326,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
 		if (crmEnabled) {
 			try {
-				const { createTwentyCrmSyncServiceFromEnv } = await import(
-					'@/lib/services/twenty-crm-sync-factory'
-				);
-				const { mapCompanyToTwentyCompany } = await import(
-					'@/lib/mappers/twenty-crm.mapper'
-				);
+				const { createTwentyCrmSyncServiceFromEnv } = await import('@/lib/services/twenty-crm-sync-factory');
+				const { mapCompanyToTwentyCompany } = await import('@/lib/mappers/twenty-crm.mapper');
 
 				const syncService = createTwentyCrmSyncServiceFromEnv();
 
@@ -341,7 +337,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 				console.log(`[CRM Sync] ✅ Company ${id} update synced to CRM`, {
 					crmId: syncResult.id,
-					updated: syncResult.updated,
+					updated: syncResult.updated
 				});
 			} catch (crmError) {
 				// Non-blocking: log error but don't fail company update
@@ -444,13 +440,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const { id } = await params;
 
-		const success = await deleteCompany(id);
+		const success = await deleteCompany(id, session.user.tenantId);
 
 		if (!success) {
 			return NextResponse.json({ error: 'Company not found' }, { status: 404 });

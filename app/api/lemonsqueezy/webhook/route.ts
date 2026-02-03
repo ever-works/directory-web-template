@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { WebhookEventType } from '@/lib/payment/types/payment-types';
 import {
-    paymentEmailService,
-    extractCustomerInfo,
-    formatAmount,
-    formatPaymentMethod
+	paymentEmailService,
+	extractCustomerInfo,
+	formatAmount,
+	formatPaymentMethod
 } from '@/lib/payment/services/payment-email.service';
 
 // Import server configuration utility
@@ -13,6 +13,7 @@ import { getEmailConfig } from '@/lib/config/server-config';
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { getOrCreateLemonsqueezyProvider } from '@/lib/auth';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
@@ -26,8 +27,6 @@ function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof g
 		websiteUrl: emailConfig.companyUrl // Use companyUrl instead of websiteUrl
 	};
 }
-
-
 
 export async function POST(request: NextRequest) {
 	try {
@@ -90,14 +89,14 @@ export async function POST(request: NextRequest) {
 // Map LemonSqueezy event types to our generic webhook event types
 function mapLemonSqueezyEventType(lemonsqueezyEventType: string): string {
 	const eventMapping: Record<string, string> = {
-		'subscription_created': WebhookEventType.SUBSCRIPTION_CREATED,
-		'subscription_updated': WebhookEventType.SUBSCRIPTION_UPDATED,
-		'subscription_cancelled': WebhookEventType.SUBSCRIPTION_CANCELLED,
-		'subscription_payment_success': WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED,
-		'subscription_payment_failed': WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED,
-		'subscription_trial_will_end': WebhookEventType.SUBSCRIPTION_TRIAL_ENDING,
-		'order_created': WebhookEventType.PAYMENT_SUCCEEDED,
-		'order_refunded': WebhookEventType.REFUND_SUCCEEDED,
+		subscription_created: WebhookEventType.SUBSCRIPTION_CREATED,
+		subscription_updated: WebhookEventType.SUBSCRIPTION_UPDATED,
+		subscription_cancelled: WebhookEventType.SUBSCRIPTION_CANCELLED,
+		subscription_payment_success: WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED,
+		subscription_payment_failed: WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED,
+		subscription_trial_will_end: WebhookEventType.SUBSCRIPTION_TRIAL_ENDING,
+		order_created: WebhookEventType.PAYMENT_SUCCEEDED,
+		order_refunded: WebhookEventType.REFUND_SUCCEEDED
 	};
 
 	return eventMapping[lemonsqueezyEventType] || lemonsqueezyEventType;
@@ -160,11 +159,11 @@ async function handleSubscriptionCancelled(data: any) {
 async function handlePaymentSucceeded(data: any) {
 	try {
 		const emailConfig = await getEmailConfig();
-		
+
 		// Extract customer info from LemonSqueezy data
 		const customerInfo = extractCustomerInfo(data);
 		const paymentMethod = formatPaymentMethod('card'); // LemonSqueezy typically uses card payments
-		
+
 		const baseEmailData = {
 			customerName: customerInfo.customerName,
 			customerEmail: customerInfo.customerEmail,
@@ -281,16 +280,16 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 	}
 
 	try {
-		const subscriptionId = (data.id as string) || (data.attributes as Record<string, unknown>)?.id as string;
-		const customerId = (data.customer_id as string) || (data.attributes as Record<string, unknown>)?.customer_id as string;
+		const subscriptionId = (data.id as string) || ((data.attributes as Record<string, unknown>)?.id as string);
+		const customerId =
+			(data.customer_id as string) || ((data.attributes as Record<string, unknown>)?.customer_id as string);
 
 		console.log(`🔄 Confirming payment for sponsor ad via LemonSqueezy: ${sponsorAdId}`);
 
-		const confirmedAd = await sponsorAdService.confirmPayment(
-			sponsorAdId,
-			subscriptionId,
-			customerId
-		);
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
+		const confirmedAd = await sponsorAdService.confirmPayment(sponsorAdId, tenantId, subscriptionId, customerId);
 
 		if (confirmedAd) {
 			console.log(`✅ Sponsor ad payment confirmed, now pending admin review: ${sponsorAdId}`);
@@ -316,8 +315,12 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 	try {
 		console.log(`🔄 Cancelling sponsor ad via LemonSqueezy: ${sponsorAdId}`);
 
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
 		const cancelledAd = await sponsorAdService.cancelSponsorAd(
 			sponsorAdId,
+			tenantId,
 			'LemonSqueezy subscription cancelled'
 		);
 
@@ -345,7 +348,10 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 	try {
 		console.log(`🔄 Renewing sponsor ad via LemonSqueezy: ${sponsorAdId}`);
 
-		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId);
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
+		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId, tenantId);
 
 		if (renewedAd) {
 			console.log(`✅ Sponsor ad renewed successfully: ${sponsorAdId}`);

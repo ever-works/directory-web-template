@@ -43,6 +43,7 @@ import {
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 import { DEFAULT_LOCALE } from '@/lib/constants';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 const appUrl = getBaseUrl();
 
@@ -111,6 +112,7 @@ export default async function RootLayout({
 	const tagsEnabled = getTagsEnabled();
 	const companiesEnabled = getCompaniesEnabled();
 	const surveysEnabled = getSurveysEnabled();
+	const defaultTenantId = await getDefaultTenantId();
 
 	// Data existence flags (whether data exists in the database/content)
 	const hasCategories = Array.isArray(categories) && categories.length > 0;
@@ -125,7 +127,8 @@ export default async function RootLayout({
 			const result = await surveyService.getMany({
 				type: SurveyTypeEnum.GLOBAL,
 				status: SurveyStatusEnum.PUBLISHED,
-				limit: 1
+				limit: 1,
+				tenantId: defaultTenantId
 			});
 			hasGlobalSurveys = (result.surveys?.length || 0) > 0;
 		} catch {

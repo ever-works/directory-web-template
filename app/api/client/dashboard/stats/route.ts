@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireClientAuth, serverErrorResponse } from '@/lib/utils/client-auth';
+import { requireClientAuth, serverErrorResponse, unauthorizedResponse } from '@/lib/utils/client-auth';
 import { getClientDashboardRepository } from '@/lib/repositories/client-dashboard.repository';
 
 /**
@@ -161,23 +161,27 @@ import { getClientDashboardRepository } from '@/lib/repositories/client-dashboar
  *                   example: "Failed to fetch dashboard statistics"
  */
 export async function GET() {
-    try {
-        // Check client authentication
-        const authResult = await requireClientAuth();
-        if (!authResult.success) {
-            return authResult.response;
-        }
-        const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId, session } = authResult;
 
-        // Get dashboard repository and fetch stats
-        const dashboardRepository = getClientDashboardRepository();
-        const stats = await dashboardRepository.getStats(userId);
+		if (!session.user?.tenantId) {
+			return unauthorizedResponse('Tenant context missing');
+		}
 
-        return NextResponse.json({
-            success: true,
-            ...stats,
-        });
-    } catch (error) {
-        return serverErrorResponse(error, 'Failed to fetch dashboard statistics');
-    }
+		// Get dashboard repository and fetch stats
+		const dashboardRepository = getClientDashboardRepository();
+		const stats = await dashboardRepository.getStats(userId, session.user.tenantId);
+
+		return NextResponse.json({
+			success: true,
+			...stats
+		});
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to fetch dashboard statistics');
+	}
 }

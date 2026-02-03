@@ -1,10 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import {
-  getClientProfileById,
-  updateClientProfile,
-  deleteClientProfile
-} from "@/lib/db/queries";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { getClientProfileById, updateClientProfile, deleteClientProfile } from '@/lib/db/queries';
 
 /**
  * @swagger
@@ -86,41 +82,36 @@ import {
  *                   type: string
  *                   example: "Failed to fetch client"
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> }
-) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function GET(request: NextRequest, { params }: { params: Promise<{ clientId: string }> }) {
+	try {
+		const session = await auth();
 
-    const { clientId } = await params;
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const client = await getClientProfileById(clientId);
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+		const { clientId } = await params;
 
-    if (!client) {
-      return NextResponse.json(
-        { error: 'Client not found' },
-        { status: 404 }
-      );
-    }
+		const client = await getClientProfileById(clientId, tenantId);
 
-    const response = {
-      success: true,
-      data: client
-    };
+		if (!client) {
+			return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+		}
 
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error('Error fetching client:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch client' },
-      { status: 500 }
-    );
-  }
+		const response = {
+			success: true,
+			data: client
+		};
+
+		return NextResponse.json(response);
+	} catch (error) {
+		console.error('Error fetching client:', error);
+		return NextResponse.json({ error: 'Failed to fetch client' }, { status: 500 });
+	}
 }
 
 /**
@@ -249,109 +240,99 @@ export async function GET(
  *                   type: string
  *                   example: "Failed to update client"
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> }
-) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ clientId: string }> }) {
+	try {
+		const session = await auth();
 
-    const { clientId } = await params;
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const data = await request.json();
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+		const { clientId } = await params;
 
-    const client = await updateClientProfile(clientId, data);
+		const data = await request.json();
 
-    if (!client) {
-      return NextResponse.json(
-        { error: 'Client not found' },
-        { status: 404 }
-      );
-    }
+		const client = await updateClientProfile(clientId, data, tenantId);
 
-    // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
-    const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
-    if (crmEnabled) {
-      try {
-        const { createTwentyCrmSyncServiceFromEnv } = await import(
-          '@/lib/services/twenty-crm-sync-factory'
-        );
-        const { mapClientProfileToPerson, mapCompanyToTwentyCompany } = await import(
-          '@/lib/mappers/twenty-crm.mapper'
-        );
+		if (!client) {
+			return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+		}
 
-        const syncService = createTwentyCrmSyncServiceFromEnv();
+		// Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
+		const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
+		if (crmEnabled) {
+			try {
+				const { createTwentyCrmSyncServiceFromEnv } = await import('@/lib/services/twenty-crm-sync-factory');
+				const { mapClientProfileToPerson, mapCompanyToTwentyCompany } =
+					await import('@/lib/mappers/twenty-crm.mapper');
 
-        // Step 1: Handle company if client has company info
-        let companyExternalId: string | undefined;
+				const syncService = createTwentyCrmSyncServiceFromEnv();
 
-        if (client.company || client.website) {
-          const { getOrCreateCompanyFromClient } = await import(
-            '@/lib/services/company.service'
-          );
+				// Step 1: Handle company if client has company info
+				let companyExternalId: string | undefined;
 
-          try {
-            const company = await getOrCreateCompanyFromClient({
-              name: client.company,
-              website: client.website,
-            });
+				if (client.company || client.website) {
+					const { getOrCreateCompanyFromClient } = await import('@/lib/services/company.service');
 
-            if (company) {
-              // Sync company to CRM first
-              const companyPayload = mapCompanyToTwentyCompany(company);
-              await syncService.upsertCompany(companyPayload);
+					try {
+						const company = await getOrCreateCompanyFromClient(
+							{
+								name: client.company,
+								website: client.website
+							},
+							tenantId
+						);
 
-              // Only set company ID if CRM sync succeeded
-              companyExternalId = company.id;
+						if (company) {
+							// Sync company to CRM first
+							const companyPayload = mapCompanyToTwentyCompany(company);
+							await syncService.upsertCompany(companyPayload);
 
-              console.log(`[CRM Sync] ✅ Company ${company.id} synced for client ${clientId}`);
-            }
-          } catch (companyError) {
-            console.error(
-              `[CRM Sync] Company sync failed for client ${clientId}:`,
-              companyError
-            );
-            // Continue - don't fail person sync if company fails
-            // companyExternalId remains undefined, so person syncs without company link
-          }
-        }
+							// Only set company ID if CRM sync succeeded
+							companyExternalId = company.id;
 
-        // Step 2: Sync person to CRM (with company link if available)
-        const personPayload = mapClientProfileToPerson(client);
+							console.log(`[CRM Sync] ✅ Company ${company.id} synced for client ${clientId}`);
+						}
+					} catch (companyError) {
+						console.error(`[CRM Sync] Company sync failed for client ${clientId}:`, companyError);
+						// Continue - don't fail person sync if company fails
+						// companyExternalId remains undefined, so person syncs without company link
+					}
+				}
 
-        const syncResult = await syncService.upsertPerson({
-          ...personPayload,
-          company_external_id: companyExternalId,
-        });
+				// Step 2: Sync person to CRM (with company link if available)
+				const personPayload = mapClientProfileToPerson(client);
 
-        console.log(`[CRM Sync] ✅ Client ${clientId} update synced to CRM`, {
-          crmId: syncResult.id,
-          updated: syncResult.updated,
-          companyLinked: !!companyExternalId,
-        });
-      } catch (crmError) {
-        // Non-blocking: log error but don't fail client update
-        console.error(`[CRM Sync] ❌ Failed to sync client update ${clientId}:`, crmError);
-      }
-    }
+				const syncResult = await syncService.upsertPerson({
+					...personPayload,
+					company_external_id: companyExternalId
+				});
 
-    const response = {
-      success: true,
-      data: client
-    };
+				console.log(`[CRM Sync] ✅ Client ${clientId} update synced to CRM`, {
+					crmId: syncResult.id,
+					updated: syncResult.updated,
+					companyLinked: !!companyExternalId
+				});
+			} catch (crmError) {
+				// Non-blocking: log error but don't fail client update
+				console.error(`[CRM Sync] ❌ Failed to sync client update ${clientId}:`, crmError);
+			}
+		}
 
-    return NextResponse.json(response);
-  } catch (error) {
-    console.error('Error updating client:', error);
-    return NextResponse.json(
-      { error: 'Failed to update client' },
-      { status: 500 }
-    );
-  }
+		const response = {
+			success: true,
+			data: client
+		};
+
+		return NextResponse.json(response);
+	} catch (error) {
+		console.error('Error updating client:', error);
+		return NextResponse.json({ error: 'Failed to update client' }, { status: 500 });
+	}
 }
 
 /**
@@ -420,37 +401,32 @@ export async function PUT(
  *                   type: string
  *                   example: "Failed to delete client"
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> }
-) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ clientId: string }> }) {
+	try {
+		const session = await auth();
 
-    const { clientId } = await params;
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const success = await deleteClientProfile(clientId);
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+		const { clientId } = await params;
 
-    if (!success) {
-      return NextResponse.json(
-        { error: 'Client not found' },
-        { status: 404 }
-      );
-    }
+		const success = await deleteClientProfile(clientId, tenantId);
 
-    return NextResponse.json({
-      success: true,
-      message: 'Client deleted successfully'
-    });
-  } catch (error) {
-    console.error('Error deleting client:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete client' },
-      { status: 500 }
-    );
-  }
-} 
+		if (!success) {
+			return NextResponse.json({ error: 'Client not found' }, { status: 404 });
+		}
+
+		return NextResponse.json({
+			success: true,
+			message: 'Client deleted successfully'
+		});
+	} catch (error) {
+		console.error('Error deleting client:', error);
+		return NextResponse.json({ error: 'Failed to delete client' }, { status: 500 });
+	}
+}

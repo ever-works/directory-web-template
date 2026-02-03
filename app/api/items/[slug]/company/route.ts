@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import {
-	linkItemToCompany,
-	unlinkItemFromCompany,
-	getCompanyForItem,
-} from '@/lib/db/queries/company.queries';
-import {
-	assignCompanyToItemSchema,
-	removeCompanyFromItemSchema,
-} from '@/lib/validations/company';
+import { linkItemToCompany, unlinkItemFromCompany, getCompanyForItem } from '@/lib/db/queries/company.queries';
+import { assignCompanyToItemSchema, removeCompanyFromItemSchema } from '@/lib/validations/company';
 import { ZodError } from 'zod';
 
 /**
@@ -19,14 +12,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const { slug } = await params;
 		const normalizedSlug = slug.toLowerCase().trim();
 
-		const company = await getCompanyForItem(normalizedSlug);
+		const company = await getCompanyForItem(normalizedSlug, session.user.tenantId);
 
 		if (!company) {
 			return NextResponse.json({ success: true, data: null });
@@ -34,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 		return NextResponse.json({
 			success: true,
-			data: company,
+			data: company
 		});
 	} catch (error) {
 		console.error('Error fetching item company:', error);
@@ -50,7 +43,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -62,13 +55,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		try {
 			validatedData = assignCompanyToItemSchema.parse({
 				itemSlug: slug,
-				companyId: body.companyId,
+				companyId: body.companyId
 			});
 		} catch (error) {
 			if (error instanceof ZodError) {
 				const details = error.issues.map((err) => ({
 					field: err.path.join('.'),
-					message: err.message,
+					message: err.message
 				}));
 				return NextResponse.json({ error: 'Validation error', details }, { status: 400 });
 			}
@@ -76,14 +69,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		}
 
 		// Link item to company (idempotent)
-		const result = await linkItemToCompany(validatedData.itemSlug, validatedData.companyId);
+		const result = await linkItemToCompany(validatedData.itemSlug, validatedData.companyId, session.user.tenantId);
 
 		return NextResponse.json(
 			{
 				success: true,
 				data: result.association,
 				created: result.created,
-				updated: result.updated,
+				updated: result.updated
 			},
 			{ status: result.created ? 201 : 200 }
 		);
@@ -95,10 +88,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 			if (error.message.includes('already linked to another company')) {
 				return NextResponse.json({ error: error.message }, { status: 409 });
 			}
-			if (
-				error.message.includes('not found') ||
-				error.message.includes('does not exist')
-			) {
+			if (error.message.includes('not found') || error.message.includes('does not exist')) {
 				return NextResponse.json({ error: error.message }, { status: 404 });
 			}
 		}
@@ -115,7 +105,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 	try {
 		const session = await auth();
 
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -125,13 +115,13 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 		let validatedData;
 		try {
 			validatedData = removeCompanyFromItemSchema.parse({
-				itemSlug: slug,
+				itemSlug: slug
 			});
 		} catch (error) {
 			if (error instanceof ZodError) {
 				const details = error.issues.map((err) => ({
 					field: err.path.join('.'),
-					message: err.message,
+					message: err.message
 				}));
 				return NextResponse.json({ error: 'Validation error', details }, { status: 400 });
 			}
@@ -139,11 +129,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 		}
 
 		// Unlink item from company (idempotent)
-		const result = await unlinkItemFromCompany(validatedData.itemSlug);
+		const result = await unlinkItemFromCompany(validatedData.itemSlug, session.user.tenantId);
 
 		return NextResponse.json({
 			success: true,
-			deleted: result.deleted,
+			deleted: result.deleted
 		});
 	} catch (error) {
 		console.error('Error removing company from item:', error);

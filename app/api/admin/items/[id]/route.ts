@@ -97,45 +97,38 @@ const itemRepository = new ItemRepository();
  *                   type: string
  *                   example: "Failed to fetch item"
  */
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    const resolvedParams = await params;
-    const item = await itemRepository.findById(resolvedParams.id);
-    
-    if (!item) {
-      return NextResponse.json(
-        { success: false, error: "Item not found" },
-        { status: 404 }
-      );
-    }
+		const resolvedParams = await params;
+		const item = await itemRepository.findById(resolvedParams.id);
 
-    return NextResponse.json({
-      success: true,
-      data: item,
-    });
+		if (!item) {
+			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
+		}
 
-  } catch (error) {
-    console.error('Failed to fetch item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch item' 
-      },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			data: item
+		});
+	} catch (error) {
+		console.error('Failed to fetch item:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to fetch item'
+			},
+			{ status: 500 }
+		);
+	}
 }
 
 /**
@@ -283,122 +276,124 @@ export async function GET(
  *                   type: string
  *                   example: "Failed to update item"
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    const body = await request.json();
-    const resolvedParams = await params;
-    const updateData: UpdateItemRequest = {
-      id: resolvedParams.id,
-      ...body,
-    };
+		const body = await request.json();
+		const resolvedParams = await params;
+		const updateData: UpdateItemRequest = {
+			id: resolvedParams.id,
+			...body
+		};
 
-    // Pass audit user context for logging
-    const auditUser = session.user.id
-      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
-      : undefined;
+		// Pass audit user context for logging
+		const auditUser = session.user.id
+			? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+			: undefined;
 
-    const item = await itemRepository.update(resolvedParams.id, updateData, auditUser);
+		const item = await itemRepository.update(
+			resolvedParams.id,
+			updateData,
+			session.user.tenantId || 'default-tenant',
+			auditUser
+		);
 
-    // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
-    const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
-    if (crmEnabled) {
-      try {
-        // 1. Check if brand field is provided in the update
-        const brandName = body.brand?.trim();
-        if (!brandName) {
-          console.log(`[CRM Sync] No brand field in update for item ${item.slug}, skipping company sync`);
-        } else {
-        // 2. Get or create company from brand using service layer
-        const { getOrCreateCompanyFromBrand } = await import('@/lib/services/company.service');
-        const { linkItemToCompany } = await import('@/lib/db/queries/company.queries');
+		// Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
+		const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
+		if (crmEnabled) {
+			try {
+				// 1. Check if brand field is provided in the update
+				const brandName = body.brand?.trim();
+				if (!brandName) {
+					console.log(`[CRM Sync] No brand field in update for item ${item.slug}, skipping company sync`);
+				} else {
+					// 2. Get or create company from brand using service layer
+					const { getOrCreateCompanyFromBrand } = await import('@/lib/services/company.service');
+					const { linkItemToCompany } = await import('@/lib/db/queries/company.queries');
 
-        const company = await getOrCreateCompanyFromBrand(brandName, item.source_url);
+					const company = await getOrCreateCompanyFromBrand(
+						brandName,
+						item.source_url,
+						session.user.tenantId || 'default-tenant'
+					);
 
-        // 3. Link item to company (idempotent)
-        await linkItemToCompany(item.slug, company.id);
+					// 3. Link item to company (idempotent)
+					await linkItemToCompany(item.slug, company.id, session.user.tenantId || 'default-tenant');
 
-        // 4. Sync company to CRM
-        const { createTwentyCrmSyncServiceFromEnv } = await import(
-          '@/lib/services/twenty-crm-sync-factory'
-        );
-        const { mapCompanyToTwentyCompany } = await import(
-          '@/lib/mappers/twenty-crm.mapper'
-        );
+					// 4. Sync company to CRM
+					const { createTwentyCrmSyncServiceFromEnv } =
+						await import('@/lib/services/twenty-crm-sync-factory');
+					const { mapCompanyToTwentyCompany } = await import('@/lib/mappers/twenty-crm.mapper');
 
-        const syncService = createTwentyCrmSyncServiceFromEnv();
-        const companyPayload = mapCompanyToTwentyCompany(company);
-        await syncService.upsertCompany(companyPayload);
+					const syncService = createTwentyCrmSyncServiceFromEnv();
+					const companyPayload = mapCompanyToTwentyCompany(company);
+					await syncService.upsertCompany(companyPayload);
 
-        console.log(`[CRM Sync] ✅ Company ${company.id} synced for item ${item.slug}`, {
-          companyId: company.id,
-          companyName: company.name,
-          brand: brandName,
-        });
-        }
-      } catch (error) {
-        // Non-blocking: log error but don't fail item update
-        console.error(`[CRM Sync] ❌ Failed to sync company for item ${item.slug}:`, error);
-      }
-    }
+					console.log(`[CRM Sync] ✅ Company ${company.id} synced for item ${item.slug}`, {
+						companyId: company.id,
+						companyName: company.name,
+						brand: brandName
+					});
+				}
+			} catch (error) {
+				// Non-blocking: log error but don't fail item update
+				console.error(`[CRM Sync] ❌ Failed to sync company for item ${item.slug}:`, error);
+			}
+		}
 
-    // Location Index: Update item location data (non-blocking)
-    if (getLocationEnabled()) {
-      try {
-        const locationIndexService = getLocationIndexService();
-        if (item.location) {
-          await locationIndexService.indexItem(item);
-          console.info('[Location Index] Item re-indexed', {
-            action: 'reindex_item',
-            status: 'success',
-            slug: item.slug,
-          });
-        } else {
-          // Remove from index if location was removed
-          await locationIndexService.removeFromIndex(item.slug);
-          console.info('[Location Index] Item removed from index (no location)', {
-            action: 'remove_item',
-            status: 'success',
-            slug: item.slug,
-          });
-        }
-      } catch (error) {
-        console.error('[Location Index] Failed to update index', {
-          action: 'update_index',
-          status: 'error',
-          slug: item.slug,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+		// Location Index: Update item location data (non-blocking)
+		if (getLocationEnabled()) {
+			try {
+				const locationIndexService = getLocationIndexService();
+				if (item.location) {
+					await locationIndexService.indexItem(item);
+					console.info('[Location Index] Item re-indexed', {
+						action: 'reindex_item',
+						status: 'success',
+						slug: item.slug
+					});
+				} else {
+					// Remove from index if location was removed
+					await locationIndexService.removeFromIndex(item.slug);
+					console.info('[Location Index] Item removed from index (no location)', {
+						action: 'remove_item',
+						status: 'success',
+						slug: item.slug
+					});
+				}
+			} catch (error) {
+				console.error('[Location Index] Failed to update index', {
+					action: 'update_index',
+					status: 'error',
+					slug: item.slug,
+					error: error instanceof Error ? error.message : String(error)
+				});
+			}
+		}
 
-    return NextResponse.json({
-      success: true,
-      data: item,
-      message: "Item updated successfully",
-    });
-
-  } catch (error) {
-    console.error('Failed to update item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to update item' 
-      },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			data: item,
+			message: 'Item updated successfully'
+		});
+	} catch (error) {
+		console.error('Failed to update item:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to update item'
+			},
+			{ status: 500 }
+		);
+	}
 }
 
 /**
@@ -477,62 +472,58 @@ export async function PUT(
  *                   type: string
  *                   example: "Failed to delete item"
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    const resolvedParams = await params;
+		const resolvedParams = await params;
 
-    // Pass audit user context for logging
-    const auditUser = session.user.id
-      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
-      : undefined;
+		// Pass audit user context for logging
+		const auditUser = session.user.id
+			? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+			: undefined;
 
-    await itemRepository.delete(resolvedParams.id, auditUser);
+		await itemRepository.delete(resolvedParams.id, session.user.tenantId || 'default-tenant', auditUser);
 
-    // Location Index: Remove item from index (non-blocking)
-    if (getLocationEnabled()) {
-      try {
-        const locationIndexService = getLocationIndexService();
-        await locationIndexService.removeFromIndex(resolvedParams.id);
-        console.info('[Location Index] Item removed from index', {
-          action: 'delete_item',
-          status: 'success',
-          slug: resolvedParams.id,
-        });
-      } catch (error) {
-        console.error('[Location Index] Failed to remove from index', {
-          action: 'delete_item',
-          status: 'error',
-          slug: resolvedParams.id,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+		// Location Index: Remove item from index (non-blocking)
+		if (getLocationEnabled()) {
+			try {
+				const locationIndexService = getLocationIndexService();
+				await locationIndexService.removeFromIndex(resolvedParams.id);
+				console.info('[Location Index] Item removed from index', {
+					action: 'delete_item',
+					status: 'success',
+					slug: resolvedParams.id
+				});
+			} catch (error) {
+				console.error('[Location Index] Failed to remove from index', {
+					action: 'delete_item',
+					status: 'error',
+					slug: resolvedParams.id,
+					error: error instanceof Error ? error.message : String(error)
+				});
+			}
+		}
 
-    return NextResponse.json({
-      success: true,
-      message: "Item deleted successfully",
-    });
-
-  } catch (error) {
-    console.error('Failed to delete item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to delete item' 
-      },
-      { status: 500 }
-    );
-  }
-} 
+		return NextResponse.json({
+			success: true,
+			message: 'Item deleted successfully'
+		});
+	} catch (error) {
+		console.error('Failed to delete item:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to delete item'
+			},
+			{ status: 500 }
+		);
+	}
+}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { rejectSponsorAdSchema } from '@/lib/validations/sponsor-ad';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -88,10 +89,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 			);
 		}
 
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+
 		const sponsorAd = await sponsorAdService.rejectSponsorAd(
 			id,
 			session.user.id,
-			validationResult.data.rejectionReason
+			validationResult.data.rejectionReason,
+			tenantId
 		);
 
 		if (!sponsorAd) {

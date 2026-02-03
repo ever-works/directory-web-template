@@ -15,7 +15,12 @@ export default async function ClientDetailPage({ params }: { params: Promise<Par
 		redirect(`/${locale}/auth/signin`);
 	}
 
-	const profile = await getClientProfileById(id);
+	const tenantId = session.user.tenantId;
+	if (!tenantId) {
+		const locale = paramLocale || 'en';
+		redirect(`/${locale}/auth/signin`);
+	}
+	const profile = await getClientProfileById(id, tenantId);
 	if (!profile) {
 		notFound();
 	}

@@ -615,6 +615,30 @@ export async function getClientAccountByEmail(email: string, tenantId: string): 
 }
 
 /**
+ * Get client account by email (global/cross-tenant)
+ * Used primarily for login/auth where tenant is not yet known
+ * @param email - Client email
+ * @returns Account or null if not found
+ */
+export async function getClientAccountByEmailGlobal(email: string): Promise<ClientAccount | null> {
+	try {
+		const normalizedEmail = email.toLowerCase().trim();
+
+		// Get credentials account specifically (not OAuth accounts)
+		const [account] = await db
+			.select()
+			.from(accounts)
+			.where(and(eq(accounts.provider, 'credentials'), eq(accounts.email, normalizedEmail)))
+			.limit(1);
+
+		return (account as ClientAccount) || null;
+	} catch (error) {
+		console.error('Error getting client account by email global:', error);
+		return null;
+	}
+}
+
+/**
  * Check if user has access to client routes (has account record)
  * @param userId - User ID
  * @returns True if user has client access, false otherwise
@@ -1180,6 +1204,7 @@ export async function advancedClientSearch(params: {
 	const profiles = await db
 		.select({
 			id: clientProfiles.id,
+			tenantId: clientProfiles.tenantId,
 			userId: clientProfiles.userId,
 			email: clientProfiles.email,
 			name: clientProfiles.name,

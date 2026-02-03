@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -39,16 +40,13 @@ import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
  *       500:
  *         description: "Internal server error"
  */
-export async function POST(
-	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		const session = await auth();
 
 		if (!session?.user?.isAdmin || !session.user.id) {
 			return NextResponse.json(
-				{ success: false, error: "Unauthorized. Admin access required." },
+				{ success: false, error: 'Unauthorized. Admin access required.' },
 				{ status: 401 }
 			);
 		}
@@ -64,55 +62,37 @@ export async function POST(
 			// No body or invalid JSON, proceed without force approve
 		}
 
-		const sponsorAd = await sponsorAdService.approveSponsorAd(
-			id,
-			session.user.id,
-			forceApprove
-		);
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+
+		const sponsorAd = await sponsorAdService.approveSponsorAd(id, session.user.id, tenantId, forceApprove);
 
 		if (!sponsorAd) {
-			return NextResponse.json(
-				{ success: false, error: "Failed to approve sponsor ad" },
-				{ status: 500 }
-			);
+			return NextResponse.json({ success: false, error: 'Failed to approve sponsor ad' }, { status: 500 });
 		}
 
 		return NextResponse.json({
 			success: true,
 			data: sponsorAd,
-			message: "Sponsor ad approved and activated successfully",
+			message: 'Sponsor ad approved and activated successfully'
 		});
 	} catch (error) {
-		console.error("Error approving sponsor ad:", error);
+		console.error('Error approving sponsor ad:', error);
 
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to approve sponsor ad";
+		const errorMessage = error instanceof Error ? error.message : 'Failed to approve sponsor ad';
 
-		if (errorMessage === "Sponsor ad not found") {
-			return NextResponse.json(
-				{ success: false, error: errorMessage },
-				{ status: 404 }
-			);
+		if (errorMessage === 'Sponsor ad not found') {
+			return NextResponse.json({ success: false, error: errorMessage }, { status: 404 });
 		}
 
 		// Special case for payment not received - return specific error code
-		if (errorMessage === "PAYMENT_NOT_RECEIVED") {
-			return NextResponse.json(
-				{ success: false, error: "PAYMENT_NOT_RECEIVED" },
-				{ status: 400 }
-			);
+		if (errorMessage === 'PAYMENT_NOT_RECEIVED') {
+			return NextResponse.json({ success: false, error: 'PAYMENT_NOT_RECEIVED' }, { status: 400 });
 		}
 
-		if (errorMessage.includes("Cannot approve")) {
-			return NextResponse.json(
-				{ success: false, error: errorMessage },
-				{ status: 400 }
-			);
+		if (errorMessage.includes('Cannot approve')) {
+			return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
 		}
 
-		return NextResponse.json(
-			{ success: false, error: errorMessage },
-			{ status: 500 }
-		);
+		return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
 	}
 }

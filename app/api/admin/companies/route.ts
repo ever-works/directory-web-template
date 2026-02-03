@@ -174,18 +174,12 @@ export async function GET(request: NextRequest) {
 
 		// Validate page parameter
 		if (isNaN(page) || page < 1) {
-			return NextResponse.json(
-				{ error: 'Invalid page parameter. Must be a positive integer.' },
-				{ status: 400 }
-			);
+			return NextResponse.json({ error: 'Invalid page parameter. Must be a positive integer.' }, { status: 400 });
 		}
 
 		// Validate limit parameter
 		if (isNaN(limit) || limit < 1 || limit > 100) {
-			return NextResponse.json(
-				{ error: 'Invalid limit parameter. Must be between 1 and 100.' },
-				{ status: 400 }
-			);
+			return NextResponse.json({ error: 'Invalid limit parameter. Must be between 1 and 100.' }, { status: 400 });
 		}
 
 		const q = searchParams.get('q') || undefined;
@@ -195,7 +189,8 @@ export async function GET(request: NextRequest) {
 			page,
 			limit,
 			search: q,
-			status
+			status,
+			tenantId: session.user.tenantId!
 		});
 
 		return NextResponse.json({
@@ -381,7 +376,7 @@ export async function POST(request: NextRequest) {
 
 		// Check for domain uniqueness if domain is provided
 		if (validatedData.domain) {
-			const existingByDomain = await getCompanyByDomain(validatedData.domain);
+			const existingByDomain = await getCompanyByDomain(validatedData.domain, session.user.tenantId!);
 			if (existingByDomain) {
 				return NextResponse.json(
 					{ error: `Company with domain '${validatedData.domain}' already exists` },
@@ -392,7 +387,7 @@ export async function POST(request: NextRequest) {
 
 		// Check for slug uniqueness if slug is provided
 		if (validatedData.slug) {
-			const existingBySlug = await getCompanyBySlug(validatedData.slug);
+			const existingBySlug = await getCompanyBySlug(validatedData.slug, session.user.tenantId!);
 			if (existingBySlug) {
 				return NextResponse.json(
 					{ error: `Company with slug '${validatedData.slug}' already exists` },
@@ -402,7 +397,10 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Create company
-		const company = await createCompany(validatedData);
+		const company = await createCompany({
+			...validatedData,
+			tenantId: session.user.tenantId!
+		});
 
 		return NextResponse.json(
 			{

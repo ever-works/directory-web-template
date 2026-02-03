@@ -189,122 +189,127 @@ const itemRepository = new ItemRepository();
  *                   example: "Failed to fetch items"
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    // Parse query parameters
-    const { searchParams } = new URL(request.url);
+		// Parse query parameters
+		const { searchParams } = new URL(request.url);
 
-    // Validate pagination parameters
-    const paginationResult = validatePaginationParams(searchParams);
-    if ('error' in paginationResult) {
-      return NextResponse.json(
-        { success: false, error: paginationResult.error },
-        { status: paginationResult.status }
-      );
-    }
-    const { page, limit } = paginationResult;
+		// Validate pagination parameters
+		const paginationResult = validatePaginationParams(searchParams);
+		if ('error' in paginationResult) {
+			return NextResponse.json(
+				{ success: false, error: paginationResult.error },
+				{ status: paginationResult.status }
+			);
+		}
+		const { page, limit } = paginationResult;
 
-    const statusParam = searchParams.get('status');
-    const sortByParam = searchParams.get('sortBy');
-    const sortOrderParam = searchParams.get('sortOrder');
+		const statusParam = searchParams.get('status');
+		const sortByParam = searchParams.get('sortBy');
+		const sortOrderParam = searchParams.get('sortOrder');
 
-    // Trim whitespace-only search strings to undefined
-    const searchRaw = searchParams.get('search');
-    const search = searchRaw?.trim() ? searchRaw.trim() : undefined;
+		// Trim whitespace-only search strings to undefined
+		const searchRaw = searchParams.get('search');
+		const search = searchRaw?.trim() ? searchRaw.trim() : undefined;
 
-    // Helper to parse CSV params and normalize empty arrays to undefined
-    const parseCsv = (value: string | null): string[] | undefined => {
-      if (!value) return undefined;
-      const arr = value.split(',').map(v => v.trim()).filter(Boolean);
-      return arr.length ? arr : undefined;
-    };
+		// Helper to parse CSV params and normalize empty arrays to undefined
+		const parseCsv = (value: string | null): string[] | undefined => {
+			if (!value) return undefined;
+			const arr = value
+				.split(',')
+				.map((v) => v.trim())
+				.filter(Boolean);
+			return arr.length ? arr : undefined;
+		};
 
-    const categories = parseCsv(searchParams.get('categories'));
-    const tags = parseCsv(searchParams.get('tags'));
+		const categories = parseCsv(searchParams.get('categories'));
+		const tags = parseCsv(searchParams.get('tags'));
 
-    // Validate status parameter with type-safe guard
-    const validStatuses = ['draft', 'pending', 'approved', 'rejected'] as const;
-    type ItemStatus = (typeof validStatuses)[number];
-    const isItemStatus = (s: string): s is ItemStatus =>
-      (validStatuses as readonly string[]).includes(s);
-    let status: ItemStatus | undefined = undefined;
-    if (statusParam) {
-      if (!isItemStatus(statusParam)) {
-        return NextResponse.json(
-          { success: false, error: `Invalid status parameter. Must be one of: ${validStatuses.join(', ')}` },
-          { status: 400 }
-        );
-      }
-      status = statusParam;
-    }
+		// Validate status parameter with type-safe guard
+		const validStatuses = ['draft', 'pending', 'approved', 'rejected'] as const;
+		type ItemStatus = (typeof validStatuses)[number];
+		const isItemStatus = (s: string): s is ItemStatus => (validStatuses as readonly string[]).includes(s);
+		let status: ItemStatus | undefined = undefined;
+		if (statusParam) {
+			if (!isItemStatus(statusParam)) {
+				return NextResponse.json(
+					{ success: false, error: `Invalid status parameter. Must be one of: ${validStatuses.join(', ')}` },
+					{ status: 400 }
+				);
+			}
+			status = statusParam;
+		}
 
-    // Validate sortBy parameter with type-safe guard
-    const validSortFields: readonly SortField[] = ['name', 'updated_at', 'status', 'submitted_at'];
-    const isSortField = (s: string): s is SortField =>
-      (validSortFields as readonly string[]).includes(s);
-    let sortBy: SortField | undefined = undefined;
-    if (sortByParam) {
-      if (!isSortField(sortByParam)) {
-        return NextResponse.json(
-          { success: false, error: `Invalid sortBy parameter. Must be one of: ${validSortFields.join(', ')}` },
-          { status: 400 }
-        );
-      }
-      sortBy = sortByParam;
-    }
+		// Validate sortBy parameter with type-safe guard
+		const validSortFields: readonly SortField[] = ['name', 'updated_at', 'status', 'submitted_at'];
+		const isSortField = (s: string): s is SortField => (validSortFields as readonly string[]).includes(s);
+		let sortBy: SortField | undefined = undefined;
+		if (sortByParam) {
+			if (!isSortField(sortByParam)) {
+				return NextResponse.json(
+					{
+						success: false,
+						error: `Invalid sortBy parameter. Must be one of: ${validSortFields.join(', ')}`
+					},
+					{ status: 400 }
+				);
+			}
+			sortBy = sortByParam;
+		}
 
-    // Validate sortOrder parameter with type-safe guard
-    const validSortOrders: readonly SortOrder[] = ['asc', 'desc'];
-    const isSortOrder = (s: string): s is SortOrder =>
-      (validSortOrders as readonly string[]).includes(s);
-    let sortOrder: SortOrder | undefined = undefined;
-    if (sortOrderParam) {
-      if (!isSortOrder(sortOrderParam)) {
-        return NextResponse.json(
-          { success: false, error: `Invalid sortOrder parameter. Must be one of: ${validSortOrders.join(', ')}` },
-          { status: 400 }
-        );
-      }
-      sortOrder = sortOrderParam;
-    }
+		// Validate sortOrder parameter with type-safe guard
+		const validSortOrders: readonly SortOrder[] = ['asc', 'desc'];
+		const isSortOrder = (s: string): s is SortOrder => (validSortOrders as readonly string[]).includes(s);
+		let sortOrder: SortOrder | undefined = undefined;
+		if (sortOrderParam) {
+			if (!isSortOrder(sortOrderParam)) {
+				return NextResponse.json(
+					{
+						success: false,
+						error: `Invalid sortOrder parameter. Must be one of: ${validSortOrders.join(', ')}`
+					},
+					{ status: 400 }
+				);
+			}
+			sortOrder = sortOrderParam;
+		}
 
-    // Get paginated items
-    const result = await itemRepository.findAllPaginated(page, limit, {
-      status,
-      search,
-      categories,
-      tags,
-      sortBy,
-      sortOrder,
-    });
+		// Get paginated items
+		const result = await itemRepository.findAllPaginated(page, limit, {
+			status,
+			search,
+			categories,
+			tags,
+			sortBy,
+			sortOrder
+		});
 
-    return NextResponse.json({
-      success: true,
-      items: result.items,
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: result.totalPages,
-    });
-
-  } catch (error) {
-    console.error('Failed to fetch items:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch items' 
-      },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			items: result.items,
+			total: result.total,
+			page: result.page,
+			limit: result.limit,
+			totalPages: result.totalPages
+		});
+	} catch (error) {
+		console.error('Failed to fetch items:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to fetch items'
+			},
+			{ status: 500 }
+		);
+	}
 }
 
 /**
@@ -467,185 +472,193 @@ export async function GET(request: NextRequest) {
  *                   example: "Failed to create item"
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    // Parse request body
-    const body = await request.json();
-    const {
-      id,
-      name,
-      slug,
-      description,
-      source_url,
-      category,
-      tags,
-      brand,
-      featured,
-      icon_url,
-      status,
-      location,
-    }: CreateItemRequest = body;
+		// Parse request body
+		const body = await request.json();
+		const {
+			id,
+			name,
+			slug,
+			description,
+			source_url,
+			category,
+			tags,
+			brand,
+			featured,
+			icon_url,
+			status,
+			location
+		}: CreateItemRequest = body;
 
-    // Validate required fields
-    if (!id || !name || !slug || !description || !source_url) {
-      return NextResponse.json(
-        { success: false, error: "Item ID, name, slug, description, and source URL are required" },
-        { status: 400 }
-      );
-    }
+		// Validate required fields
+		if (!id || !name || !slug || !description || !source_url) {
+			return NextResponse.json(
+				{ success: false, error: 'Item ID, name, slug, description, and source URL are required' },
+				{ status: 400 }
+			);
+		}
 
-    // Check for duplicate ID
-    const isDuplicateId = await itemRepository.checkDuplicateId(id);
-    if (isDuplicateId) {
-      return NextResponse.json(
-        { success: false, error: `Item with ID '${id}' already exists` },
-        { status: 409 }
-      );
-    }
+		// Check for duplicate ID
+		const isDuplicateId = await itemRepository.checkDuplicateId(id);
+		if (isDuplicateId) {
+			return NextResponse.json({ success: false, error: `Item with ID '${id}' already exists` }, { status: 409 });
+		}
 
-    // Check for duplicate slug
-    const isDuplicateSlug = await itemRepository.checkDuplicateSlug(slug);
-    if (isDuplicateSlug) {
-      return NextResponse.json(
-        { success: false, error: `Item with slug '${slug}' already exists` },
-        { status: 409 }
-      );
-    }
+		// Check for duplicate slug
+		const isDuplicateSlug = await itemRepository.checkDuplicateSlug(slug);
+		if (isDuplicateSlug) {
+			return NextResponse.json(
+				{ success: false, error: `Item with slug '${slug}' already exists` },
+				{ status: 409 }
+			);
+		}
 
-    // Create item with audit logging
-    const auditUser = session.user.id
-      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
-      : undefined;
+		// Create item with audit logging
+		const auditUser = session.user.id
+			? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+			: undefined;
 
-    const item = await itemRepository.create({
-      id,
-      name,
-      slug,
-      description,
-      source_url,
-      category: category || [],
-      tags: tags || [],
-      featured: featured || false,
-      icon_url,
-      status: status || 'draft',
-      submitted_by: session.user.id,
-      location,
-    }, auditUser);
+		const item = await itemRepository.create(
+			{
+				id,
+				name,
+				slug,
+				description,
+				source_url,
+				category: category || [],
+				tags: tags || [],
+				featured: featured || false,
+				icon_url,
+				status: status || 'draft',
+				submitted_by: session.user.id,
+				location
+			},
+			session.user.tenantId || 'default-tenant',
+			auditUser
+		);
 
-    // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
-    const crmEnabled = process.env.TWENTY_CRM_ENABLED === 'true';
-    if (crmEnabled) {
-      try {
-        // 1. Check if brand field is provided
-        const brandName = brand?.trim();
-        if (!brandName) {
-          console.info('[CRM Sync] Skipping company creation - no brand provided', {
-            action: 'company_sync',
-            status: 'skipped',
-            reason: 'no_brand',
-            itemSlug: item.slug,
-          });
-        } else {
-        // 2. Get or create company from brand using service layer
-        const { getOrCreateCompanyFromBrand } = await import('@/lib/services/company.service');
-        const { linkItemToCompany } = await import('@/lib/db/queries/company.queries');
+		// Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
+		const crmEnabled = process.env.TWENTY_CRM_ENABLED === 'true';
+		if (crmEnabled) {
+			try {
+				// 1. Check if brand field is provided
+				const brandName = brand?.trim();
+				if (!brandName) {
+					console.info('[CRM Sync] Skipping company creation - no brand provided', {
+						action: 'company_sync',
+						status: 'skipped',
+						reason: 'no_brand',
+						itemSlug: item.slug
+					});
+				} else {
+					// 2. Get or create company from brand using service layer
+					const { getOrCreateCompanyFromBrand } = await import('@/lib/services/company.service');
+					const { linkItemToCompany } = await import('@/lib/db/queries/company.queries');
 
-        const company = await getOrCreateCompanyFromBrand(brandName, item.source_url);
+					const company = await getOrCreateCompanyFromBrand(
+						brandName,
+						item.source_url,
+						session.user.tenantId || 'default-tenant'
+					);
 
-        // 3. Link item to company and check if sync needed
-        const linkResult = await linkItemToCompany(item.slug, company.id);
+					// 3. Link item to company and check if sync needed
+					const linkResult = await linkItemToCompany(
+						item.slug,
+						company.id,
+						session.user.tenantId || 'default-tenant'
+					);
 
-        // Only sync if item was newly linked or relinked to different company
-        if (linkResult.created || linkResult.updated) {
-          // 4. Sync company to CRM
-          const { createTwentyCrmSyncServiceFromEnv } = await import(
-            '@/lib/services/twenty-crm-sync-factory'
-          );
-          const { mapCompanyToTwentyCompany } = await import(
-            '@/lib/mappers/twenty-crm.mapper'
-          );
+					// Only sync if item was newly linked or relinked to different company
+					if (linkResult.created || linkResult.updated) {
+						// 4. Sync company to CRM
+						const { createTwentyCrmSyncServiceFromEnv } =
+							await import('@/lib/services/twenty-crm-sync-factory');
+						const { mapCompanyToTwentyCompany } = await import('@/lib/mappers/twenty-crm.mapper');
 
-          const cacheTtlMs = parseInt(process.env.TWENTY_CRM_CACHE_TTL_MS || '300000', 10);
-          const syncService = createTwentyCrmSyncServiceFromEnv(cacheTtlMs);
-          const companyPayload = mapCompanyToTwentyCompany(company);
-          await syncService.upsertCompany(companyPayload);
+						const cacheTtlMs = parseInt(process.env.TWENTY_CRM_CACHE_TTL_MS || '300000', 10);
+						const syncService = createTwentyCrmSyncServiceFromEnv(cacheTtlMs);
+						const companyPayload = mapCompanyToTwentyCompany(company);
+						await syncService.upsertCompany(companyPayload);
 
-          console.info('[CRM Sync] Company synced successfully', {
-            action: 'company_sync',
-            status: 'success',
-            companyId: company.id,
-            companyName: company.name,
-            itemSlug: item.slug,
-            brand: brandName,
-            linkCreated: linkResult.created,
-            linkUpdated: linkResult.updated,
-          });
-        } else {
-          console.info('[CRM Sync] Skipping company sync - link unchanged', {
-            action: 'company_sync',
-            status: 'skipped',
-            reason: 'link_unchanged',
-            companyId: company.id,
-            itemSlug: item.slug,
-          });
-        }
-        }
-      } catch (error) {
-        // Non-blocking: log error but don't fail item creation
-        console.error('[CRM Sync] Company sync failed', {
-          action: 'company_sync',
-          status: 'error',
-          itemSlug: item.slug,
-          brand: brand?.trim(),
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+						console.info('[CRM Sync] Company synced successfully', {
+							action: 'company_sync',
+							status: 'success',
+							companyId: company.id,
+							companyName: company.name,
+							itemSlug: item.slug,
+							brand: brandName,
+							linkCreated: linkResult.created,
+							linkUpdated: linkResult.updated
+						});
+					} else {
+						console.info('[CRM Sync] Skipping company sync - link unchanged', {
+							action: 'company_sync',
+							status: 'skipped',
+							reason: 'link_unchanged',
+							companyId: company.id,
+							itemSlug: item.slug
+						});
+					}
+				}
+			} catch (error) {
+				// Non-blocking: log error but don't fail item creation
+				console.error('[CRM Sync] Company sync failed', {
+					action: 'company_sync',
+					status: 'error',
+					itemSlug: item.slug,
+					brand: brand?.trim(),
+					error: error instanceof Error ? error.message : String(error)
+				});
+			}
+		}
 
-    // Location Index: Index item location data (non-blocking)
-    if (getLocationEnabled()) {
-      try {
-        const locationIndexService = getLocationIndexService();
-        if (item.location) {
-          await locationIndexService.indexItem(item);
-          console.info('[Location Index] Item indexed', {
-            action: 'index_item',
-            status: 'success',
-            slug: item.slug,
-          });
-        }
-      } catch (error) {
-        console.error('[Location Index] Failed to index item', {
-          action: 'index_item',
-          status: 'error',
-          slug: item.slug,
-          error: error instanceof Error ? error.message : String(error),
-        });
-      }
-    }
+		// Location Index: Index item location data (non-blocking)
+		if (getLocationEnabled()) {
+			try {
+				const locationIndexService = getLocationIndexService();
+				if (item.location) {
+					await locationIndexService.indexItem(item);
+					console.info('[Location Index] Item indexed', {
+						action: 'index_item',
+						status: 'success',
+						slug: item.slug
+					});
+				}
+			} catch (error) {
+				console.error('[Location Index] Failed to index item', {
+					action: 'index_item',
+					status: 'error',
+					slug: item.slug,
+					error: error instanceof Error ? error.message : String(error)
+				});
+			}
+		}
 
-    return NextResponse.json({
-      success: true,
-      item,
-      message: "Item created successfully",
-    }, { status: 201 });
-
-  } catch (error) {
-    console.error('Failed to create item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create item' 
-      },
-      { status: 500 }
-    );
-  }
-} 
+		return NextResponse.json(
+			{
+				success: true,
+				item,
+				message: 'Item created successfully'
+			},
+			{ status: 201 }
+		);
+	} catch (error) {
+		console.error('Failed to create item:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to create item'
+			},
+			{ status: 500 }
+		);
+	}
+}

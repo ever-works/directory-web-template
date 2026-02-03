@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  requireClientAuth,
-  serverErrorResponse,
-  notFoundResponse,
-  forbiddenResponse,
-  badRequestResponse,
+	requireClientAuth,
+	serverErrorResponse,
+	notFoundResponse,
+	forbiddenResponse,
+	badRequestResponse
 } from '@/lib/utils/client-auth';
 import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
 import { clientUpdateItemSchema, itemIdParamSchema } from '@/lib/validations/client-item';
 
 interface RouteParams {
-  params: Promise<{ id: string }>;
+	params: Promise<{ id: string }>;
 }
 
 /**
@@ -42,42 +42,41 @@ interface RouteParams {
  *         description: "Internal server error"
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  try {
-    // Check client authentication
-    const authResult = await requireClientAuth();
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId } = authResult;
 
-    const { id } = await params;
-    const paramResult = itemIdParamSchema.safeParse({ id });
-    if (!paramResult.success) {
-      return badRequestResponse('Item ID is required');
-    }
+		const { id } = await params;
+		const paramResult = itemIdParamSchema.safeParse({ id });
+		if (!paramResult.success) {
+			return badRequestResponse('Item ID is required');
+		}
 
-    // Get client item repository
-    const clientItemRepository = getClientItemRepository();
+		// Get client item repository
+		const clientItemRepository = getClientItemRepository();
 
-    // Fetch item for user (ownership check is done in repository)
-    const item = await clientItemRepository.findByIdForUser(paramResult.data.id, userId);
+		// Fetch item for user (ownership check is done in repository)
+		const item = await clientItemRepository.findByIdForUser(paramResult.data.id, userId);
 
-    if (!item) {
-      return notFoundResponse('Item not found or you do not have permission to view it');
-    }
+		if (!item) {
+			return notFoundResponse('Item not found or you do not have permission to view it');
+		}
 
-    return NextResponse.json({
-      success: true,
-      item,
-      engagement: {
-        views: item.views ?? 0,
-        likes: item.likes ?? 0,
-      },
-    });
-
-  } catch (error) {
-    return serverErrorResponse(error, 'Failed to fetch item');
-  }
+		return NextResponse.json({
+			success: true,
+			item,
+			engagement: {
+				views: item.views ?? 0,
+				likes: item.likes ?? 0
+			}
+		});
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to fetch item');
+	}
 }
 
 /**
@@ -152,76 +151,82 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  *         description: "Internal server error"
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    // Check client authentication
-    const authResult = await requireClientAuth();
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId, session } = authResult;
 
-    const { id } = await params;
-    const paramResult = itemIdParamSchema.safeParse({ id });
-    if (!paramResult.success) {
-      return badRequestResponse('Item ID is required');
-    }
+		if (!session.user?.tenantId) {
+			return badRequestResponse('Tenant context missing');
+		}
 
-    // Parse and validate request body
-    const body = await request.json();
-    const validationResult = clientUpdateItemSchema.safeParse(body);
+		const { id } = await params;
+		const paramResult = itemIdParamSchema.safeParse({ id });
+		if (!paramResult.success) {
+			return badRequestResponse('Item ID is required');
+		}
 
-    if (!validationResult.success) {
-      const errorMessage = validationResult.error.issues
-        .map((issue) => issue.message)
-        .join(', ');
-      return badRequestResponse(errorMessage);
-    }
+		// Parse and validate request body
+		const body = await request.json();
+		const validationResult = clientUpdateItemSchema.safeParse(body);
 
-    const updateData = validationResult.data;
+		if (!validationResult.success) {
+			const errorMessage = validationResult.error.issues.map((issue) => issue.message).join(', ');
+			return badRequestResponse(errorMessage);
+		}
 
-    // Check if there's anything to update
-    if (Object.keys(updateData).length === 0) {
-      return badRequestResponse('No fields to update');
-    }
+		const updateData = validationResult.data;
 
-    // Get client item repository
-    const clientItemRepository = getClientItemRepository();
+		// Check if there's anything to update
+		if (Object.keys(updateData).length === 0) {
+			return badRequestResponse('No fields to update');
+		}
 
-    try {
-      // Update item (ownership check is done in repository)
-      const result = await clientItemRepository.updateAsClient(paramResult.data.id, userId, updateData);
+		// Get client item repository
+		const clientItemRepository = getClientItemRepository();
 
-      let message = 'Item updated successfully';
-      if (result.statusChanged) {
-        message = 'Item updated successfully. Since it was previously approved, it has been moved to pending for re-review.';
-      }
+		try {
+			// Update item (ownership check is done in repository)
+			const result = await clientItemRepository.updateAsClient(
+				paramResult.data.id,
+				userId,
+				updateData,
+				session.user.tenantId
+			);
 
-      return NextResponse.json({
-        success: true,
-        item: result.item,
-        statusChanged: result.statusChanged,
-        previousStatus: result.previousStatus,
-        message,
-      });
+			let message = 'Item updated successfully';
+			if (result.statusChanged) {
+				message =
+					'Item updated successfully. Since it was previously approved, it has been moved to pending for re-review.';
+			}
 
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Item not found') {
-          return notFoundResponse('Item not found');
-        }
-        if (error.message.includes('permission')) {
-          return forbiddenResponse(error.message);
-        }
-        if (error.message.includes('deleted')) {
-          return badRequestResponse(error.message);
-        }
-      }
-      throw error;
-    }
-
-  } catch (error) {
-    return serverErrorResponse(error, 'Failed to update item');
-  }
+			return NextResponse.json({
+				success: true,
+				item: result.item,
+				statusChanged: result.statusChanged,
+				previousStatus: result.previousStatus,
+				message
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === 'Item not found') {
+					return notFoundResponse('Item not found');
+				}
+				if (error.message.includes('permission')) {
+					return forbiddenResponse(error.message);
+				}
+				if (error.message.includes('deleted')) {
+					return badRequestResponse(error.message);
+				}
+			}
+			throw error;
+		}
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to update item');
+	}
 }
 
 /**
@@ -264,48 +269,50 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  *         description: "Internal server error"
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    // Check client authentication
-    const authResult = await requireClientAuth();
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId, session } = authResult;
 
-    const { id } = await params;
-    const paramResult = itemIdParamSchema.safeParse({ id });
-    if (!paramResult.success) {
-      return badRequestResponse('Item ID is required');
-    }
+		if (!session.user?.tenantId) {
+			return badRequestResponse('Tenant context missing');
+		}
 
-    // Get client item repository
-    const clientItemRepository = getClientItemRepository();
+		const { id } = await params;
+		const paramResult = itemIdParamSchema.safeParse({ id });
+		if (!paramResult.success) {
+			return badRequestResponse('Item ID is required');
+		}
 
-    try {
-      // Soft delete item (ownership check is done in repository)
-      await clientItemRepository.softDeleteForUser(paramResult.data.id, userId);
+		// Get client item repository
+		const clientItemRepository = getClientItemRepository();
 
-      return NextResponse.json({
-        success: true,
-        message: 'Item deleted successfully',
-      });
+		try {
+			// Soft delete item (ownership check is done in repository)
+			await clientItemRepository.softDeleteForUser(paramResult.data.id, userId, session.user.tenantId);
 
-    } catch (error) {
-      if (error instanceof Error) {
-        if (error.message === 'Item not found') {
-          return notFoundResponse('Item not found');
-        }
-        if (error.message.includes('permission')) {
-          return forbiddenResponse(error.message);
-        }
-        if (error.message.includes('already deleted')) {
-          return badRequestResponse(error.message);
-        }
-      }
-      throw error;
-    }
-
-  } catch (error) {
-    return serverErrorResponse(error, 'Failed to delete item');
-  }
+			return NextResponse.json({
+				success: true,
+				message: 'Item deleted successfully'
+			});
+		} catch (error) {
+			if (error instanceof Error) {
+				if (error.message === 'Item not found') {
+					return notFoundResponse('Item not found');
+				}
+				if (error.message.includes('permission')) {
+					return forbiddenResponse(error.message);
+				}
+				if (error.message.includes('already deleted')) {
+					return badRequestResponse(error.message);
+				}
+			}
+			throw error;
+		}
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to delete item');
+	}
 }

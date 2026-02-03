@@ -9,6 +9,7 @@ import {
 	getOrCreatePolarProvider
 } from '@/lib/payment/config/payment-provider-manager';
 import type { CheckoutSessionParams } from '@/lib/payment/types/payment-types';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 // Environment variables for sponsor ad price IDs
 const STRIPE_SPONSOR_WEEKLY_PRICE_ID = process.env.STRIPE_SPONSOR_WEEKLY_PRICE_ID;
@@ -114,7 +115,8 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Get the sponsor ad
-		const sponsorAd = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+		const sponsorAd = await sponsorAdService.getSponsorAdById(sponsorAdId, tenantId);
 
 		if (!sponsorAd) {
 			return NextResponse.json({ success: false, error: 'Sponsor ad not found' }, { status: 404 });

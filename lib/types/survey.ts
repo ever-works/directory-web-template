@@ -20,7 +20,7 @@ export interface CreateSurveyData {
 	itemId?: string;
 	status?: SurveyStatusEnum;
 	surveyJson: any;
-	tenantId: string;
+	tenantId?: string; // Optional in client requests, API injects from session
 }
 
 /**
@@ -44,7 +44,7 @@ export interface SubmitResponseData {
 	data: any;
 	ipAddress?: string;
 	userAgent?: string;
-	tenantId: string;
+	tenantId?: string; // Optional in client requests, API injects from session/survey
 }
 
 /**
@@ -56,7 +56,7 @@ export interface SurveyFilters {
 	status?: SurveyStatusEnum;
 	page?: number;
 	limit?: number;
-	tenantId: string;
+	tenantId?: string; // Optional in client requests, API injects from session
 }
 
 /**
@@ -69,7 +69,7 @@ export interface ResponseFilters {
 	endDate?: string;
 	page?: number;
 	limit?: number;
-	tenantId: string;
+	tenantId?: string; // Optional in client requests, API injects from session
 }
 
 export enum SurveyTypeEnum {

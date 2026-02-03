@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { RoleRepository } from '@/lib/repositories/role.repository';
+import { auth } from '@/lib/auth';
 
 const roleRepository = new RoleRepository();
 
@@ -61,17 +62,18 @@ const roleRepository = new RoleRepository();
  *                   example: "Failed to fetch active roles"
  */
 export async function GET() {
-  try {
-    const activeRoles = await roleRepository.findActive();
+	try {
+		const session = await auth();
+		if (!session?.user?.id || !session.user.tenantId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+		const activeRoles = await roleRepository.findActive(session.user.tenantId);
 
-    return NextResponse.json({
-      roles: activeRoles,
-    });
-  } catch (error) {
-    console.error('Error fetching active roles:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch active roles' },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			roles: activeRoles
+		});
+	} catch (error) {
+		console.error('Error fetching active roles:', error);
+		return NextResponse.json({ error: 'Failed to fetch active roles' }, { status: 500 });
+	}
 }

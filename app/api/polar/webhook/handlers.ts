@@ -14,6 +14,7 @@ import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { PaymentProvider } from '@/lib/constants';
 import { Logger } from '@/lib/logger';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 import type { PolarWebhookData } from './types';
 import {
 	normalizeEmailConfig,
@@ -490,7 +491,9 @@ async function handleSponsorAdActivation(data: PolarWebhookData): Promise<void> 
 	logger.info('Confirming payment for sponsor ad via Polar', { sponsorAdId });
 
 	try {
-		const confirmedAd = await sponsorAdService.confirmPayment(sponsorAdId, subscriptionId, customerId);
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+		const confirmedAd = await sponsorAdService.confirmPayment(sponsorAdId, tenantId, subscriptionId, customerId);
 
 		if (confirmedAd) {
 			logger.info('Sponsor ad payment confirmed, now pending admin review', { sponsorAdId });
@@ -521,7 +524,13 @@ async function handleSponsorAdCancellation(data: PolarWebhookData): Promise<void
 	logger.info('Cancelling sponsor ad via Polar', { sponsorAdId });
 
 	try {
-		const cancelledAd = await sponsorAdService.cancelSponsorAd(sponsorAdId, 'Polar subscription cancelled');
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+		const cancelledAd = await sponsorAdService.cancelSponsorAd(
+			sponsorAdId,
+			tenantId,
+			'Polar subscription cancelled'
+		);
 
 		if (cancelledAd) {
 			logger.info('Sponsor ad cancelled successfully', { sponsorAdId });
@@ -552,7 +561,9 @@ async function handleSponsorAdRenewal(data: PolarWebhookData): Promise<void> {
 	logger.info('Renewing sponsor ad via Polar', { sponsorAdId });
 
 	try {
-		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId);
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId, tenantId);
 
 		if (renewedAd) {
 			logger.info('Sponsor ad renewed successfully', { sponsorAdId });

@@ -35,6 +35,32 @@ export async function getUserByEmail(email: string, tenantId: string): Promise<U
 }
 
 /**
+ * Get user by email address (global/cross-tenant)
+ * Used primarily for login/auth where tenant is not yet known
+ * @param email - User email
+ * @returns User object or null if not found
+ */
+export async function getUserByEmailGlobal(email: string): Promise<User | null> {
+	if (!process.env.DATABASE_URL) {
+		console.warn('DATABASE_URL is not set. User validation is disabled.');
+		return null;
+	}
+
+	try {
+		const usersList = await db.select().from(users).where(eq(users.email, email)).limit(1);
+
+		if (usersList.length === 0) {
+			return null;
+		}
+
+		return usersList[0];
+	} catch (error) {
+		console.error('Database error in getUserByEmailGlobal:', error);
+		return null;
+	}
+}
+
+/**
  * Get user by ID
  * @param id - User ID
  * @returns User object or null if not found

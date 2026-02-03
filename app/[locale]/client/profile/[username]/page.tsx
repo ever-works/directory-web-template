@@ -28,8 +28,13 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		redirect(`/${locale}/auth/signin`);
 	}
 
+	const tenantId = session.user.tenantId;
+	if (!tenantId) {
+		redirect(`/${locale}/auth/signin`);
+	}
+
 	// Get the client profile data directly
-	const clientProfile = await getClientProfileByEmail(session.user.email);
+	const clientProfile = await getClientProfileByEmail(session.user.email, tenantId);
 
 	if (!clientProfile) {
 		redirect(`/${locale}/client/dashboard`);

@@ -4,7 +4,7 @@ import {
 	serverErrorResponse,
 	notFoundResponse,
 	forbiddenResponse,
-	badRequestResponse,
+	badRequestResponse
 } from '@/lib/utils/client-auth';
 import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
 import { itemIdParamSchema } from '@/lib/validations/client-item';
@@ -63,7 +63,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 		if (!authResult.success) {
 			return authResult.response;
 		}
-		const { userId } = authResult;
+		const { userId, session } = authResult;
+
+		if (!session.user?.tenantId) {
+			return badRequestResponse('Tenant context missing');
+		}
 
 		const { id } = await params;
 		const paramResult = itemIdParamSchema.safeParse({ id });
@@ -76,14 +80,13 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
 		try {
 			// Restore item (ownership check is done in repository)
-			const item = await clientItemRepository.restoreForUser(paramResult.data.id, userId);
+			const item = await clientItemRepository.restoreForUser(paramResult.data.id, userId, session.user.tenantId);
 
 			return NextResponse.json({
 				success: true,
 				item,
-				message: 'Item restored successfully',
+				message: 'Item restored successfully'
 			});
-
 		} catch (error) {
 			if (error instanceof Error) {
 				if (error.message === 'Item not found') {
@@ -98,7 +101,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 			}
 			throw error;
 		}
-
 	} catch (error) {
 		return serverErrorResponse(error, 'Failed to restore item');
 	}

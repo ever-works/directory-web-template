@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import {
-    createVote,
-    getVoteByUserIdAndItemId,
-    getVoteCountForItem,
-    deleteVote,
-    getClientProfileByUserId
-} from "@/lib/db/queries";
-import { isUserBlocked, getBlockReasonMessage } from "@/lib/db/queries/moderation.queries";
-import { VoteType } from "@/lib/db/schema";
+	createVote,
+	getVoteByUserIdAndItemId,
+	getVoteCountForItem,
+	deleteVote,
+	getClientProfileByUserId
+} from '@/lib/db/queries';
+import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
+import { VoteType } from '@/lib/db/schema';
 
 type RouteParams = { params: Promise<{ slug: string }> };
 
@@ -88,41 +88,32 @@ type RouteParams = { params: Promise<{ slug: string }> };
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ slug: string }> }
-) {
-  try {
-    const [session, { slug }] = await Promise.all([
-      auth(),
-      Promise.resolve(context.params)
-    ]);
+export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
+	try {
+		const [session, { slug }] = await Promise.all([auth(), Promise.resolve(context.params)]);
 
-    const count = await getVoteCountForItem(slug);
+		const count = await getVoteCountForItem(slug);
 
-    let userVote = null;
-    if (session?.user?.id) {
-      const clientProfile = await getClientProfileByUserId(session.user.id);
-      if (clientProfile) {
-        const votes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
-        if (votes.length > 0) {
-          userVote = votes[0].voteType === VoteType.UPVOTE ? "up" : "down";
-        }
-      }
-    }
+		let userVote = null;
+		if (session?.user?.id && session.user.tenantId) {
+			const clientProfile = await getClientProfileByUserId(session.user.id, session.user.tenantId);
+			if (clientProfile) {
+				const votes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
+				if (votes.length > 0) {
+					userVote = votes[0].voteType === VoteType.UPVOTE ? 'up' : 'down';
+				}
+			}
+		}
 
-    return NextResponse.json({
-      success: true,
-      count,
-      userVote
-    });
-  } catch (error) {
-    console.error("Error in vote route:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			count,
+			userVote
+		});
+	} catch (error) {
+		console.error('Error in vote route:', error);
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+	}
 }
 
 /**
@@ -248,74 +239,60 @@ export async function GET(
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function POST(
-  request: Request,
-  params: RouteParams
-) {
-  try {
-    const [session, { slug }] = await Promise.all([
-      auth(),
-      Promise.resolve(params.params)
-    ]);
+export async function POST(request: Request, params: RouteParams) {
+	try {
+		const [session, { slug }] = await Promise.all([auth(), Promise.resolve(params.params)]);
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+		if (!session?.user?.id || !session.user.tenantId) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const { type } = await request.json();
+		const { type } = await request.json();
 
-    if (!type || (type !== "up" && type !== "down")) {
-      return NextResponse.json(
-        { success: false, error: "Invalid vote type. Must be 'up' or 'down'" },
-        { status: 400 }
-      );
-    }
+		if (!type || (type !== 'up' && type !== 'down')) {
+			return NextResponse.json(
+				{ success: false, error: "Invalid vote type. Must be 'up' or 'down'" },
+				{ status: 400 }
+			);
+		}
 
-    const clientProfile = await getClientProfileByUserId(session.user.id);
-    if (!clientProfile) {
-      return NextResponse.json(
-        { success: false, error: "Client profile not found" },
-        { status: 404 }
-      );
-    }
+		const clientProfile = await getClientProfileByUserId(session.user.id, session.user.tenantId);
+		if (!clientProfile) {
+			return NextResponse.json({ success: false, error: 'Client profile not found' }, { status: 404 });
+		}
 
-    // Check if user is blocked (suspended or banned)
-    if (isUserBlocked(clientProfile.status)) {
-      return NextResponse.json(
-        { success: false, error: getBlockReasonMessage(clientProfile.status) },
-        { status: 403 }
-      );
-    }
+		// Check if user is blocked (suspended or banned)
+		if (isUserBlocked(clientProfile.status)) {
+			return NextResponse.json(
+				{ success: false, error: getBlockReasonMessage(clientProfile.status) },
+				{ status: 403 }
+			);
+		}
 
-    const existingVotes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
-    if (existingVotes.length > 0) {
-      await deleteVote(existingVotes[0].id);
-    }
+		const existingVotes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
+		if (existingVotes.length > 0) {
+			await deleteVote(existingVotes[0].id);
+		}
 
-    const voteType = type === "up" ? VoteType.UPVOTE : VoteType.DOWNVOTE;
-    await createVote({
-      userId: clientProfile.id,
-      itemId: slug,
-      voteType
-    });
+		const voteType = type === 'up' ? VoteType.UPVOTE : VoteType.DOWNVOTE;
+		await createVote({
+			userId: clientProfile.id,
+			itemId: slug,
+			voteType,
+			tenantId: session.user.tenantId
+		});
 
-    const count = await getVoteCountForItem(slug);
+		const count = await getVoteCountForItem(slug);
 
-    return NextResponse.json({
-      success: true,
-      count,
-      userVote: type
-    });
-  } catch (error) {
-    console.error("Error in vote route:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			count,
+			userVote: type
+		});
+	} catch (error) {
+		console.error('Error in vote route:', error);
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+	}
 }
 
 /**
@@ -399,47 +376,35 @@ export async function POST(
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function DELETE(
-  request: Request,
-  params: RouteParams
-) {
-  try {
-    const [session, { slug }] = await Promise.all([
-      auth(),
-      Promise.resolve(params.params)
-    ]);
+export async function DELETE(request: Request, params: RouteParams) {
+	try {
+		const [session, { slug }] = await Promise.all([auth(), Promise.resolve(params.params)]);
 
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
+		if (!session?.user?.tenantId) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const clientProfile = await getClientProfileByUserId(session.user.id);
-    if (!clientProfile) {
-      return NextResponse.json(
-        { success: false, error: "Client profile not found" },
-        { status: 404 }
-      );
-    }
+		const clientProfile = await getClientProfileByUserId(session.user.id, session.user.tenantId);
+		if (!clientProfile) {
+			return NextResponse.json({ success: false, error: 'Client profile not found' }, { status: 404 });
+		}
 
-    const existingVotes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
-    if (existingVotes.length > 0) {
-      await deleteVote(existingVotes[0].id);
-    }
+		const existingVotes = await getVoteByUserIdAndItemId(clientProfile.id, slug);
+		if (existingVotes.length > 0) {
+			await deleteVote(existingVotes[0].id);
+		}
 
-    const count = await getVoteCountForItem(slug);
-    return NextResponse.json({
-      success: true,
-      count,
-      userVote: null
-    });
-  } catch (error) {
-    console.error("Error in vote route:", error);
-    return NextResponse.json(
-      { success: false, error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-} 
+		const count = await getVoteCountForItem(slug);
+		return NextResponse.json({
+			success: true,
+			count,
+			userVote: null
+		});
+	} catch (error) {
+		console.error('Error in vote route:', error);
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+	}
+}

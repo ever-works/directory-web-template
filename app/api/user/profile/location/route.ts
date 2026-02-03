@@ -27,11 +27,11 @@ export async function GET() {
 	try {
 		const session = await auth();
 
-		if (!session?.user?.clientProfileId) {
+		if (!session?.user?.clientProfileId || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const profile = await getClientProfileById(session.user.clientProfileId);
+		const profile = await getClientProfileById(session.user.clientProfileId, session.user.tenantId);
 
 		if (!profile) {
 			return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
@@ -42,7 +42,7 @@ export async function GET() {
 			defaultLongitude: profile.defaultLongitude,
 			defaultCity: profile.defaultCity,
 			defaultCountry: profile.defaultCountry,
-			locationPrivacy: profile.locationPrivacy ?? 'private',
+			locationPrivacy: profile.locationPrivacy ?? 'private'
 		});
 	} catch (error) {
 		logger.error('Error fetching user location:', error);
@@ -95,7 +95,7 @@ export async function PATCH(request: NextRequest) {
 	try {
 		const session = await auth();
 
-		if (!session?.user?.clientProfileId) {
+		if (!session?.user?.clientProfileId || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -113,7 +113,11 @@ export async function PATCH(request: NextRequest) {
 			return NextResponse.json({ error: errorMessage }, { status: 400 });
 		}
 
-		const updated = await updateClientProfile(session.user.clientProfileId, validationResult.data);
+		const updated = await updateClientProfile(
+			session.user.clientProfileId,
+			validationResult.data,
+			session.user.tenantId
+		);
 
 		if (!updated) {
 			return NextResponse.json({ error: 'Failed to update location' }, { status: 500 });
@@ -124,7 +128,7 @@ export async function PATCH(request: NextRequest) {
 			defaultLongitude: updated.defaultLongitude,
 			defaultCity: updated.defaultCity,
 			defaultCountry: updated.defaultCountry,
-			locationPrivacy: updated.locationPrivacy ?? 'private',
+			locationPrivacy: updated.locationPrivacy ?? 'private'
 		});
 	} catch (error) {
 		logger.error('Error updating user location:', error);

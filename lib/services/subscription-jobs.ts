@@ -59,6 +59,7 @@ export async function subscriptionRenewalReminderJob(): Promise<JobResult> {
 
 	try {
 		// Get subscriptions due for renewal reminder (7 days look-ahead)
+		// Get subscriptions due for renewal reminder (7 days look-ahead) - all tenants
 		const subscriptionsDueForReminder = await subscriptionService.getSubscriptionsDueForRenewalReminder(7);
 
 		console.log(
@@ -84,7 +85,10 @@ export async function subscriptionRenewalReminderJob(): Promise<JobResult> {
 
 			try {
 				// Get user details
-				const subscriptionWithUser = await queries.getSubscriptionWithUser(subscription.id);
+				const subscriptionWithUser = await queries.getSubscriptionWithUser(
+					subscription.id,
+					subscription.tenantId
+				);
 				if (!subscriptionWithUser?.user) {
 					console.warn(`[SubscriptionJob] No user found for subscription ${subscription.id}`);
 					results.failed++;
@@ -138,7 +142,7 @@ export async function subscriptionRenewalReminderJob(): Promise<JobResult> {
 
 				try {
 					// Mark reminder as sent
-					await subscriptionService.markRenewalReminderSent(subscription.id);
+					await subscriptionService.markRenewalReminderSent(subscription.id, subscription.tenantId);
 					console.log(
 						`[SubscriptionJob] Sent renewal reminder to ${userEmail} for subscription ${subscription.id}`
 					);
@@ -211,7 +215,8 @@ export async function subscriptionExpiredCleanupJob(): Promise<JobResult> {
 				await subscriptionService.cancelSubscription(
 					subscription.id,
 					'Subscription expired with auto-renewal disabled',
-					false // immediate cancellation
+					false, // immediate cancellation
+					subscription.tenantId
 				);
 
 				console.log(`[SubscriptionJob] Cancelled expired subscription ${subscription.id}`);

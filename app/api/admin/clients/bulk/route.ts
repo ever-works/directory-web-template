@@ -189,99 +189,104 @@ import { updateClientProfile, deleteClientProfile } from '@/lib/db/queries';
  *                   example: "Failed to process bulk update"
  */
 export async function PUT(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+	try {
+		const session = await auth();
 
-    const body = await request.json();
-    
-    // Validate that we have a valid array of client updates
-    if (!Array.isArray(body.clients) || body.clients.length === 0) {
-      return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
-      }, { status: 400 });
-    }
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const results = [];
-    const errors = [];
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Tenant ID not found' }, { status: 400 });
+		}
 
-    // Process each client update
-    for (const [index, clientData] of body.clients.entries()) {
-      try {
-        // Validate required fields for each client
-        if (!clientData.id) {
-          errors.push({
-            index,
-            error: 'Client ID is required',
-            clientData
-          });
-          continue;
-        }
+		const body = await request.json();
 
-        const updateData = {
-          displayName: clientData.displayName,
-          username: clientData.username,
-          bio: clientData.bio,
-          jobTitle: clientData.jobTitle,
-          company: clientData.company,
-          industry: clientData.industry,
-          phone: clientData.phone,
-          website: clientData.website,
-          location: clientData.location,
-          accountType: clientData.accountType,
-          status: clientData.status,
-          plan: clientData.plan,
-          timezone: clientData.timezone,
-          language: clientData.language,
-          twoFactorEnabled: clientData.twoFactorEnabled,
-          emailVerified: clientData.emailVerified,
-        };
+		// Validate that we have a valid array of client updates
+		if (!Array.isArray(body.clients) || body.clients.length === 0) {
+			return NextResponse.json(
+				{
+					error: 'Invalid request: clients array is required'
+				},
+				{ status: 400 }
+			);
+		}
 
-        const updatedClient = await updateClientProfile(clientData.id, updateData);
+		const results = [];
+		const errors = [];
 
-        if (updatedClient) {
-          results.push({
-            index,
-            success: true,
-            data: updatedClient
-          });
-        } else {
-          errors.push({
-            index,
-            error: 'Client not found',
-            clientData
-          });
-        }
-      } catch (error) {
-        errors.push({
-          index,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          clientData
-        });
-      }
-    }
+		// Process each client update
+		for (const [index, clientData] of body.clients.entries()) {
+			try {
+				// Validate required fields for each client
+				if (!clientData.id) {
+					errors.push({
+						index,
+						error: 'Client ID is required',
+						clientData
+					});
+					continue;
+				}
 
-    return NextResponse.json({
-      success: true,
-      message: `Bulk update completed: ${results.length} successful, ${errors.length} failed`,
-      results,
-      errors,
-      summary: {
-        total: body.clients.length,
-        successful: results.length,
-        failed: errors.length
-      }
-    });
-  } catch (error) {
-    console.error('Error in bulk client update:', error);
-    return NextResponse.json(
-      { error: 'Failed to process bulk update' },
-      { status: 500 }
-    );
-  }
+				const updateData = {
+					displayName: clientData.displayName,
+					username: clientData.username,
+					bio: clientData.bio,
+					jobTitle: clientData.jobTitle,
+					company: clientData.company,
+					industry: clientData.industry,
+					phone: clientData.phone,
+					website: clientData.website,
+					location: clientData.location,
+					accountType: clientData.accountType,
+					status: clientData.status,
+					plan: clientData.plan,
+					timezone: clientData.timezone,
+					language: clientData.language,
+					twoFactorEnabled: clientData.twoFactorEnabled,
+					emailVerified: clientData.emailVerified
+				};
+
+				const updatedClient = await updateClientProfile(clientData.id, updateData, tenantId);
+
+				if (updatedClient) {
+					results.push({
+						index,
+						success: true,
+						data: updatedClient
+					});
+				} else {
+					errors.push({
+						index,
+						error: 'Client not found',
+						clientData
+					});
+				}
+			} catch (error) {
+				errors.push({
+					index,
+					error: error instanceof Error ? error.message : 'Unknown error',
+					clientData
+				});
+			}
+		}
+
+		return NextResponse.json({
+			success: true,
+			message: `Bulk update completed: ${results.length} successful, ${errors.length} failed`,
+			results,
+			errors,
+			summary: {
+				total: body.clients.length,
+				successful: results.length,
+				failed: errors.length
+			}
+		});
+	} catch (error) {
+		console.error('Error in bulk client update:', error);
+		return NextResponse.json({ error: 'Failed to process bulk update' }, { status: 500 });
+	}
 }
 
 /**
@@ -423,78 +428,83 @@ export async function PUT(request: NextRequest) {
  *                   example: "Failed to process bulk deletion"
  */
 export async function DELETE(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+	try {
+		const session = await auth();
 
-    const body = await request.json();
-    
-    // Validate that we have a valid array of client identifiers
-    if (!Array.isArray(body.clients) || body.clients.length === 0) {
-      return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
-      }, { status: 400 });
-    }
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const results = [];
-    const errors = [];
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Tenant ID not found' }, { status: 400 });
+		}
 
-    // Process each client deletion
-    for (const [index, clientData] of body.clients.entries()) {
-      try {
-        // Validate required fields for each client
-        if (!clientData.id) {
-          errors.push({
-            index,
-            error: 'Client ID is required',
-            clientData
-          });
-          continue;
-        }
+		const body = await request.json();
 
-        const success = await deleteClientProfile(clientData.id);
+		// Validate that we have a valid array of client identifiers
+		if (!Array.isArray(body.clients) || body.clients.length === 0) {
+			return NextResponse.json(
+				{
+					error: 'Invalid request: clients array is required'
+				},
+				{ status: 400 }
+			);
+		}
 
-        if (success) {
-          results.push({
-            index,
-            success: true,
-            clientId: clientData.id
-          });
-        } else {
-          errors.push({
-            index,
-            error: 'Client not found',
-            clientData
-          });
-        }
-      } catch (error) {
-        errors.push({
-          index,
-          error: error instanceof Error ? error.message : 'Unknown error',
-          clientData
-        });
-      }
-    }
+		const results = [];
+		const errors = [];
 
-    return NextResponse.json({
-      success: true,
-      message: `Bulk deletion completed: ${results.length} successful, ${errors.length} failed`,
-      results,
-      errors,
-      summary: {
-        total: body.clients.length,
-        successful: results.length,
-        failed: errors.length
-      }
-    });
-  } catch (error) {
-    console.error('Error in bulk client deletion:', error);
-    return NextResponse.json(
-      { error: 'Failed to process bulk deletion' },
-      { status: 500 }
-    );
-  }
+		// Process each client deletion
+		for (const [index, clientData] of body.clients.entries()) {
+			try {
+				// Validate required fields for each client
+				if (!clientData.id) {
+					errors.push({
+						index,
+						error: 'Client ID is required',
+						clientData
+					});
+					continue;
+				}
+
+				const success = await deleteClientProfile(clientData.id, tenantId);
+
+				if (success) {
+					results.push({
+						index,
+						success: true,
+						clientId: clientData.id
+					});
+				} else {
+					errors.push({
+						index,
+						error: 'Client not found',
+						clientData
+					});
+				}
+			} catch (error) {
+				errors.push({
+					index,
+					error: error instanceof Error ? error.message : 'Unknown error',
+					clientData
+				});
+			}
+		}
+
+		return NextResponse.json({
+			success: true,
+			message: `Bulk deletion completed: ${results.length} successful, ${errors.length} failed`,
+			results,
+			errors,
+			summary: {
+				total: body.clients.length,
+				successful: results.length,
+				failed: errors.length
+			}
+		});
+	} catch (error) {
+		console.error('Error in bulk client deletion:', error);
+		return NextResponse.json({ error: 'Failed to process bulk deletion' }, { status: 500 });
+	}
 }

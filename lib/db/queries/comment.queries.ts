@@ -23,8 +23,14 @@ export async function createComment(data: NewComment) {
  * @param itemSlug - Item slug
  * @returns Array of comments with user details
  */
-export async function getCommentsByItemId(itemSlug: string, tenantId: string): Promise<CommentWithUser[]> {
+export async function getCommentsByItemId(itemSlug: string, tenantId?: string): Promise<CommentWithUser[]> {
 	const itemId = getItemIdFromSlug(itemSlug);
+	const conditions = [eq(comments.itemId, itemId), isNull(comments.deletedAt)];
+
+	if (tenantId) {
+		conditions.push(eq(comments.tenantId, tenantId));
+	}
+
 	return db
 		.select({
 			id: comments.id,
@@ -44,8 +50,11 @@ export async function getCommentsByItemId(itemSlug: string, tenantId: string): P
 			}
 		})
 		.from(comments)
-		.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-		.where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)))
+		.innerJoin(
+			clientProfiles,
+			and(eq(comments.userId, clientProfiles.id), eq(comments.tenantId, clientProfiles.tenantId))
+		)
+		.where(and(...conditions))
 		.orderBy(desc(comments.createdAt));
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -37,8 +38,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 		}
 
 		const { id } = await params;
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
 
-		const sponsorAd = await sponsorAdService.getSponsorAdById(id);
+		const sponsorAd = await sponsorAdService.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
 			return NextResponse.json({ success: false, error: 'Sponsor ad not found' }, { status: 404 });
@@ -55,9 +57,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 		});
 	} catch (error) {
 		console.error('Error fetching sponsor ad:', error);
-		return NextResponse.json(
-			{ success: false, error: 'Failed to fetch sponsor ad' },
-			{ status: 500 }
-		);
+		return NextResponse.json({ success: false, error: 'Failed to fetch sponsor ad' }, { status: 500 });
 	}
 }

@@ -325,7 +325,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 			return NextResponse.json({ success: false, error: 'Collection not found' }, { status: 404 });
 		}
 
-		await collectionRepository.delete(id);
+		if (!session.user.tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant ID missing' }, { status: 400 });
+		}
+		await collectionRepository.delete(id, session.user.tenantId);
 		await invalidateContentCaches();
 
 		// Invalidate collection detail/list pages for removed collection using slug

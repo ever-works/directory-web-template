@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { createSponsorAdSchema, querySponsorAdsSchema } from '@/lib/validations/sponsor-ad';
 import { PaymentProvider } from '@/lib/constants';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 // Determine which payment provider to use
 const ACTIVE_PAYMENT_PROVIDER = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || PaymentProvider.STRIPE;
@@ -72,8 +73,10 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+
 		// Get paginated sponsor ads for user
-		const result = await sponsorAdService.getSponsorAdsPaginated({
+		const result = await sponsorAdService.getSponsorAdsPaginated(tenantId, {
 			...validationResult.data,
 			userId: session.user.id
 		});
@@ -177,8 +180,10 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+
 		// Create sponsor ad
-		const sponsorAd = await sponsorAdService.createSponsorAd(session.user.id, validationResult.data);
+		const sponsorAd = await sponsorAdService.createSponsorAd(session.user.id, validationResult.data, tenantId);
 
 		return NextResponse.json(
 			{

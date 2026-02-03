@@ -83,59 +83,58 @@ import { ClientCreateItemResponse } from '@/lib/types/client-item';
  *         description: "Internal server error"
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Check client authentication
-    const authResult = await requireClientAuth();
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId } = authResult;
 
-    // Parse and validate query parameters
-    const { searchParams } = new URL(request.url);
-    const queryParams = Object.fromEntries(searchParams.entries());
-    const validationResult = clientItemsListQuerySchema.safeParse(queryParams);
+		// Parse and validate query parameters
+		const { searchParams } = new URL(request.url);
+		const queryParams = Object.fromEntries(searchParams.entries());
+		const validationResult = clientItemsListQuerySchema.safeParse(queryParams);
 
-    if (!validationResult.success) {
-      const errorMessage = validationResult.error.issues.map((issue) => issue.message).join(', ');
-      return badRequestResponse(errorMessage);
-    }
+		if (!validationResult.success) {
+			const errorMessage = validationResult.error.issues.map((issue) => issue.message).join(', ');
+			return badRequestResponse(errorMessage);
+		}
 
-    const { page, limit, status, search, sortBy, sortOrder, deleted } = validationResult.data;
+		const { page, limit, status, search, sortBy, sortOrder, deleted } = validationResult.data;
 
-    // Get client item repository
-    const clientItemRepository = getClientItemRepository();
+		// Get client item repository
+		const clientItemRepository = getClientItemRepository();
 
-    // Fetch items for user (deleted items or active items)
-    const result = deleted
-      ? await clientItemRepository.findDeletedByUser(userId, {
-          page,
-          limit,
-          sortBy,
-          sortOrder,
-        })
-      : await clientItemRepository.findByUserPaginated(userId, {
-          page,
-          limit,
-          status,
-          search,
-          sortBy,
-          sortOrder,
-        });
+		// Fetch items for user (deleted items or active items)
+		const result = deleted
+			? await clientItemRepository.findDeletedByUser(userId, {
+					page,
+					limit,
+					sortBy,
+					sortOrder
+				})
+			: await clientItemRepository.findByUserPaginated(userId, {
+					page,
+					limit,
+					status,
+					search,
+					sortBy,
+					sortOrder
+				});
 
-    return NextResponse.json({
-      success: true,
-      items: result.items,
-      total: result.total,
-      page: result.page,
-      limit: result.limit,
-      totalPages: result.totalPages,
-      stats: result.stats,
-    });
-
-  } catch (error) {
-    return serverErrorResponse(error, 'Failed to fetch items');
-  }
+		return NextResponse.json({
+			success: true,
+			items: result.items,
+			total: result.total,
+			page: result.page,
+			limit: result.limit,
+			totalPages: result.totalPages,
+			stats: result.stats
+		});
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to fetch items');
+	}
 }
 
 /**
@@ -192,42 +191,43 @@ export async function GET(request: NextRequest) {
  *         description: "Internal server error"
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Check client authentication
-    const authResult = await requireClientAuth();
-    if (!authResult.success) {
-      return authResult.response;
-    }
-    const { userId } = authResult;
+	try {
+		// Check client authentication
+		const authResult = await requireClientAuth();
+		if (!authResult.success) {
+			return authResult.response;
+		}
+		const { userId, session } = authResult;
 
-    // Parse and validate request body
-    const body = await request.json();
-    const validationResult = clientCreateItemSchema.safeParse(body);
+		if (!session.user?.tenantId) {
+			return badRequestResponse('Tenant context missing');
+		}
 
-    if (!validationResult.success) {
-      const errorMessage = validationResult.error.issues
-        .map((issue) => issue.message)
-        .join(', ');
-      return badRequestResponse(errorMessage);
-    }
+		// Parse and validate request body
+		const body = await request.json();
+		const validationResult = clientCreateItemSchema.safeParse(body);
 
-    const createData = validationResult.data;
+		if (!validationResult.success) {
+			const errorMessage = validationResult.error.issues.map((issue) => issue.message).join(', ');
+			return badRequestResponse(errorMessage);
+		}
 
-    // Get client item repository
-    const clientItemRepository = getClientItemRepository();
+		const createData = validationResult.data;
 
-    // Create item as client
-    const item = await clientItemRepository.createAsClient(userId, createData);
+		// Get client item repository
+		const clientItemRepository = getClientItemRepository();
 
-    const response: ClientCreateItemResponse = {
-      success: true,
-      item,
-      message: 'Item submitted successfully. It will be reviewed by our team before being published.',
-    };
+		// Create item as client
+		const item = await clientItemRepository.createAsClient(userId, createData, session.user.tenantId);
 
-    return NextResponse.json(response, { status: 201 });
+		const response: ClientCreateItemResponse = {
+			success: true,
+			item,
+			message: 'Item submitted successfully. It will be reviewed by our team before being published.'
+		};
 
-  } catch (error) {
-    return serverErrorResponse(error, 'Failed to create item');
-  }
+		return NextResponse.json(response, { status: 201 });
+	} catch (error) {
+		return serverErrorResponse(error, 'Failed to create item');
+	}
 }

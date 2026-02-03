@@ -6,6 +6,7 @@ import { cache } from 'react';
 import { getSurveysEnabled } from '@/lib/utils/settings';
 import { checkIsAdmin } from '@/lib/auth/guards';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 interface DashboardSurveyResponsesPageProps {
 	params: Promise<{
@@ -15,8 +16,9 @@ interface DashboardSurveyResponsesPageProps {
 	}>;
 }
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
+const rawUrl =
+	process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
 const appUrl = cleanUrl(rawUrl);
 
 const getSurvey = cache((slug: string) => surveyService.getBySlug(slug));
@@ -42,6 +44,7 @@ export async function generateMetadata({ params }: DashboardSurveyResponsesPageP
 export default async function DashboardSurveyResponsesPage({ params }: DashboardSurveyResponsesPageProps) {
 	const surveysEnabled = getSurveysEnabled();
 	const isAdmin = await checkIsAdmin();
+	const defaultTenantId = await getDefaultTenantId();
 
 	// Redirect to 404 if surveys are disabled and user is not admin
 	if (!surveysEnabled && !isAdmin) {
@@ -62,9 +65,8 @@ export default async function DashboardSurveyResponsesPage({ params }: Dashboard
 				href: `/dashboard/items/${itemId}/surveys`,
 				label: 'Back to Item Surveys'
 			}}
-			initialFilters={{ itemId }}
+			initialFilters={{ itemId, tenantId: defaultTenantId }}
 			surveysEnabled={surveysEnabled}
 		/>
-	)
+	);
 }
-

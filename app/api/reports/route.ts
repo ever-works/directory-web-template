@@ -84,7 +84,7 @@ export async function POST(request: Request) {
 		}
 
 		// Get client profile using clientProfileId
-		const clientProfile = await getClientProfileById(session.user.clientProfileId);
+		const clientProfile = await getClientProfileById(session.user.clientProfileId, session.user.tenantId!);
 		if (!clientProfile) {
 			return NextResponse.json({ success: false, error: 'Client profile not found' }, { status: 404 });
 		}
@@ -142,7 +142,8 @@ export async function POST(request: Request) {
 			contentId: contentId.trim(),
 			reason: reason as ReportReasonValues,
 			details: typeof details === 'string' ? details.trim() || undefined : undefined,
-			reportedBy: clientProfile.id
+			reportedBy: clientProfile.id,
+			tenantId: session.user.tenantId!
 		});
 
 		return NextResponse.json({

@@ -17,6 +17,7 @@ import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/confi
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { getOrCreateStripeProvider } from '@/lib/auth';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
 const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
@@ -670,9 +671,12 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 		const subscriptionId = data.id as string;
 		const customerId = data.customer as string;
 
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
 		console.log(`🔄 Confirming payment for sponsor ad: ${sponsorAdId}`);
 
-		const confirmedAd = await sponsorAdService.confirmPayment(sponsorAdId, subscriptionId, customerId);
+		const confirmedAd = await sponsorAdService.confirmPayment(sponsorAdId, tenantId, subscriptionId, customerId);
 
 		if (confirmedAd) {
 			console.log(`✅ Sponsor ad payment confirmed, now pending admin review: ${sponsorAdId}`);
@@ -697,9 +701,12 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 	}
 
 	try {
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
 		console.log(`🔄 Cancelling sponsor ad: ${sponsorAdId}`);
 
-		const cancelledAd = await sponsorAdService.cancelSponsorAd(sponsorAdId, 'Subscription cancelled');
+		const cancelledAd = await sponsorAdService.cancelSponsorAd(sponsorAdId, tenantId, 'Subscription cancelled');
 
 		if (cancelledAd) {
 			console.log(`✅ Sponsor ad cancelled successfully: ${sponsorAdId}`);
@@ -724,9 +731,12 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 	}
 
 	try {
+		// For webhooks, we use default tenant since we don't have session context
+		const tenantId = await getDefaultTenantId();
+
 		console.log(`🔄 Renewing sponsor ad: ${sponsorAdId}`);
 
-		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId);
+		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId, tenantId);
 
 		if (renewedAd) {
 			console.log(`✅ Sponsor ad renewed successfully: ${sponsorAdId}`);

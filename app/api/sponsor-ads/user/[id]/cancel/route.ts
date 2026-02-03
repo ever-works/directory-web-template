@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { cancelSponsorAdSchema } from '@/lib/validations/sponsor-ad';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -67,8 +68,10 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		const cancelReason =
 			parsed.success && parsed.data.cancelReason?.trim() ? parsed.data.cancelReason.trim() : 'Cancelled by user';
 
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+
 		// Get the sponsor ad to verify ownership
-		const sponsorAd = await sponsorAdService.getSponsorAdById(id);
+		const sponsorAd = await sponsorAdService.getSponsorAdById(id, tenantId);
 
 		if (!sponsorAd) {
 			return NextResponse.json({ success: false, error: 'Sponsor ad not found' }, { status: 404 });
@@ -83,7 +86,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		}
 
 		// Cancel the sponsor ad
-		const cancelledAd = await sponsorAdService.cancelSponsorAd(id, cancelReason);
+		const cancelledAd = await sponsorAdService.cancelSponsorAd(id, tenantId, cancelReason);
 
 		if (!cancelledAd) {
 			return NextResponse.json({ success: false, error: 'Failed to cancel sponsor ad' }, { status: 500 });

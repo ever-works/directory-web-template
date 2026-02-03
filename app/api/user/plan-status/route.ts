@@ -80,12 +80,12 @@ export async function GET(request: NextRequest) {
 		// Verify authentication
 		const session = await auth();
 
-		if (!session?.user?.id) {
+		if (!session?.user?.id || !session.user.tenantId) {
 			return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
 		}
 
 		// Get comprehensive plan status
-		const planStatus = await subscriptionService.getUserPlanWithExpiration(session.user.id);
+		const planStatus = await subscriptionService.getUserPlanWithExpiration(session.user.id, session.user.tenantId);
 
 		return NextResponse.json({
 			success: true,

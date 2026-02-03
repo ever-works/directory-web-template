@@ -1,2 +1,0 @@
--- Migration placeholder
--- This file is required for migration sequence

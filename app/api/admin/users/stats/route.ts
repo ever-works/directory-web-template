@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { auth } from '@/lib/auth';
 
 /**
  * @swagger
@@ -142,26 +143,28 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *                   example: "Internal server error"
  */
 export async function GET() {
-  try {
-    // Check admin authentication
-    const authError = await checkAdminAuth();
-    if (authError) {
-      return authError;
-    }
+	try {
+		// Check admin authentication
+		const authError = await checkAdminAuth();
+		if (authError) {
+			return authError;
+		}
 
-    // Get user statistics
-    const userRepository = new UserRepository();
-    const stats = await userRepository.getStats();
+		const session = await auth();
+		if (!session?.user?.id || !session.user.tenantId) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      data: stats,
-    });
-  } catch (error) {
-    console.error('Error in GET /api/admin/users/stats:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
-  }
-} 
+		// Get user statistics
+		const userRepository = new UserRepository();
+		const stats = await userRepository.getStats(session.user.tenantId);
+
+		return NextResponse.json({
+			success: true,
+			data: stats
+		});
+	} catch (error) {
+		console.error('Error in GET /api/admin/users/stats:', error);
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+	}
+}

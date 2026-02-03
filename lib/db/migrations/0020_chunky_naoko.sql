@@ -1,1 +1,0 @@
-ALTER TABLE "subscriptions" ALTER COLUMN "last_renewal_attempt" SET DATA TYPE timestamp with time zone;

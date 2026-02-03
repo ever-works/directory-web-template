@@ -243,6 +243,7 @@ export async function ensurePaymentAccount(
 			console.log(`Provider ${providerName} does not exist, creating...`);
 
 			const newProviderData: NewPaymentProvider = {
+				tenantId,
 				name: providerName,
 				isActive: true
 			};
@@ -325,6 +326,7 @@ export async function setupUserPaymentAccount(
 		let provider = await getPaymentProviderByName(providerName);
 		if (!provider) {
 			const newProviderData: NewPaymentProvider = {
+				tenantId,
 				name: providerName,
 				isActive: true
 			};

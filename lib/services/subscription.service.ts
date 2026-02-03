@@ -170,7 +170,7 @@ export class SubscriptionService {
 	 * Uses the result from updateExpiredSubscriptionsStatus() to ensure consistency
 	 * and prevent race conditions between query and update operations
 	 */
-	async processExpiredSubscriptions(tenantId: string): Promise<{
+	async processExpiredSubscriptions(tenantId?: string): Promise<{
 		processed: number;
 		subscriptions: Subscription[];
 		errors: string[];
@@ -193,7 +193,7 @@ export class SubscriptionService {
 					await queries.logSubscriptionChange(
 						subscription.id,
 						'subscription_expired',
-						tenantId,
+						subscription.tenantId,
 						SubscriptionStatus.ACTIVE,
 						SubscriptionStatus.EXPIRED,
 						subscription.planId,
@@ -368,7 +368,7 @@ export class SubscriptionService {
 	 * @param days - Number of days look-ahead (default: 7)
 	 * @returns Array of subscriptions needing reminders
 	 */
-	async getSubscriptionsDueForRenewalReminder(days: number = 7, tenantId: string): Promise<Subscription[]> {
+	async getSubscriptionsDueForRenewalReminder(days: number = 7, tenantId?: string): Promise<Subscription[]> {
 		return await queries.getSubscriptionsDueForRenewalReminder(days, tenantId);
 	}
 

@@ -205,11 +205,17 @@ export async function POST(
 						{
 							status: 'approved'
 						},
+						session.user.tenantId || 'default-tenant',
 						auditUser
 					);
 
 					// Send notification email (fire-and-forget with error logging)
-					sendReviewNotification(item, 'approved').catch((err) =>
+					sendReviewNotification(
+						item,
+						'approved',
+						undefined,
+						session.user.tenantId || 'default-tenant'
+					).catch((err) =>
 						console.error('[Bulk] Failed to send approval notification for item %s:', id, err)
 					);
 
@@ -221,17 +227,23 @@ export async function POST(
 							status: 'rejected',
 							review_notes: trimmedReason
 						},
+						session.user.tenantId || 'default-tenant',
 						auditUser
 					);
 
 					// Send notification email (fire-and-forget with error logging)
-					sendReviewNotification(item, 'rejected', trimmedReason).catch((err) =>
+					sendReviewNotification(
+						item,
+						'rejected',
+						trimmedReason,
+						session.user.tenantId || 'default-tenant'
+					).catch((err) =>
 						console.error('[Bulk] Failed to send rejection notification for item %s:', id, err)
 					);
 
 					results.push({ id, success: true });
 				} else if (action === 'delete') {
-					await itemRepository.delete(id, auditUser);
+					await itemRepository.delete(id, session.user.tenantId || 'default-tenant', auditUser);
 					results.push({ id, success: true });
 				}
 			} catch (error) {
@@ -268,11 +280,12 @@ export async function POST(
 async function sendReviewNotification(
 	item: { id: string; name: string; submitted_by?: string },
 	status: 'approved' | 'rejected',
-	reason?: string
+	reason?: string,
+	tenantId: string = 'default-tenant'
 ): Promise<void> {
 	try {
 		if (item.submitted_by && item.submitted_by !== 'admin' && item.submitted_by !== 'anonymous') {
-			const user = await userRepository.findById(item.submitted_by);
+			const user = await userRepository.findById(item.submitted_by, tenantId);
 			if (user?.email) {
 				await EmailNotificationService.sendSubmissionDecisionEmail(user.email, item.name, status, reason);
 			}

@@ -11,13 +11,23 @@ import { detectUserCurrency } from './currency-detection.service';
  * Get user's currency preference
  * Returns currency from profile or detects it automatically
  */
-export async function getUserCurrency(userId: string | null | undefined, request?: Request | Headers): Promise<string> {
+export async function getUserCurrency(
+	userId: string | null | undefined,
+	tenantId: string | undefined,
+	request?: Request | Headers
+): Promise<string> {
 	if (!userId) {
 		return 'USD'; // Default for anonymous users
 	}
 
 	try {
-		const profile = await getClientProfileByUserId(userId);
+		// If no tenantId is provided for a logged-in user, we can't reliably get their profile
+		if (!tenantId) {
+			console.warn('[CurrencyService] userId provided but no tenantId');
+			return 'USD';
+		}
+
+		const profile = await getClientProfileByUserId(userId, tenantId);
 
 		// If profile has currency set, use it
 		if (profile?.currency) {
@@ -48,7 +58,7 @@ export async function getUserCurrency(userId: string | null | undefined, request
 
 			// Only update if there are changes
 			if (Object.keys(updates).length > 0) {
-				await updateClientProfile(profile.id, updates);
+				await updateClientProfile(profile.id, updates, tenantId);
 			}
 		}
 
@@ -64,6 +74,7 @@ export async function getUserCurrency(userId: string | null | undefined, request
  */
 export async function updateUserCurrency(
 	userId: string | null | undefined,
+	tenantId: string,
 	currency?: string,
 	country?: string
 ): Promise<boolean> {
@@ -72,7 +83,7 @@ export async function updateUserCurrency(
 	}
 
 	try {
-		const profile = await getClientProfileByUserId(userId);
+		const profile = await getClientProfileByUserId(userId, tenantId);
 		if (!profile) {
 			return false;
 		}
@@ -88,7 +99,7 @@ export async function updateUserCurrency(
 		}
 
 		if (Object.keys(updates).length > 0) {
-			await updateClientProfile(profile.id, updates);
+			await updateClientProfile(profile.id, updates, tenantId);
 		}
 
 		return true;
@@ -101,9 +112,9 @@ export async function updateUserCurrency(
 /**
  * Update user's country (which may trigger currency update)
  */
-export async function updateUserCountry(userId: string, country: string): Promise<boolean> {
+export async function updateUserCountry(userId: string, tenantId: string, country: string): Promise<boolean> {
 	try {
-		const profile = await getClientProfileByUserId(userId);
+		const profile = await getClientProfileByUserId(userId, tenantId);
 		if (!profile) {
 			return false;
 		}
@@ -111,10 +122,14 @@ export async function updateUserCountry(userId: string, country: string): Promis
 		const { getCurrencyFromCountry } = await import('./currency-detection.service');
 		const currency = getCurrencyFromCountry(country);
 
-		await updateClientProfile(profile.id, {
-			country: country.toUpperCase(),
-			currency: currency
-		});
+		await updateClientProfile(
+			profile.id,
+			{
+				country: country.toUpperCase(),
+				currency: currency
+			},
+			tenantId
+		);
 
 		return true;
 	} catch (error) {

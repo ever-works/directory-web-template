@@ -129,7 +129,7 @@ export async function removeContent(
 			}
 
 			// Delete the item from Git repository
-			await itemRepository.delete(contentId);
+			await itemRepository.delete(contentId, tenantId, { id: adminId });
 
 			// Log moderation action and send email
 			if (ownerResult.userId) {

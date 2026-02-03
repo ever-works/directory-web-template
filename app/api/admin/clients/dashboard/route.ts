@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { getAdminDashboardData } from '@/lib/db/queries';
 
@@ -246,6 +247,13 @@ export async function GET(request: NextRequest) {
 			return authError;
 		}
 
+		// Get session to extract tenantId
+		const session = await auth();
+		if (!session?.user?.tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant ID not found' }, { status: 401 });
+		}
+		const tenantId = session.user.tenantId;
+
 		const { searchParams } = new URL(request.url);
 		console.log('API: Parsed search params');
 
@@ -312,7 +320,8 @@ export async function GET(request: NextRequest) {
 			createdAfter,
 			createdBefore,
 			updatedAfter,
-			updatedBefore
+			updatedBefore,
+			tenantId
 		});
 
 		console.log('API: Dashboard data query completed successfully');

@@ -145,14 +145,11 @@ import { ItemRepository } from '@/lib/repositories/item.repository';
  *                   type: string
  *                   example: "Failed to fetch item history"
  */
-export async function GET(
-	request: NextRequest,
-	{ params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
 		// Check admin authentication
 		const session = await auth();
-		if (!session?.user?.isAdmin) {
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
 			return NextResponse.json(
 				{ success: false, error: 'Unauthorized. Admin access required.' },
 				{ status: 401 }
@@ -166,10 +163,7 @@ export async function GET(
 		const itemRepository = new ItemRepository();
 		const item = await itemRepository.findById(itemId, true); // include deleted items
 		if (!item) {
-			return NextResponse.json(
-				{ success: false, error: 'Item not found' },
-				{ status: 404 }
-			);
+			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
 		}
 
 		// Parse query parameters
@@ -205,7 +199,8 @@ export async function GET(
 			itemId,
 			page,
 			limit,
-			actionFilter
+			actionFilter,
+			tenantId: session.user.tenantId
 		});
 
 		return NextResponse.json({

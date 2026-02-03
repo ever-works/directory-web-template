@@ -124,88 +124,84 @@ import { paymentEmailService } from '@/lib/payment/services/payment-email.servic
  *         - subscriptionId: "Stripe subscription ID"
  *         - manageSubscriptionUrl: "URL to manage subscription"
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ subscriptionId: string }> }
-) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function POST(request: NextRequest, { params }: { params: Promise<{ subscriptionId: string }> }) {
+	try {
+		const session = await auth();
 
-    const { subscriptionId } = await params;
+		if (!session?.user || !session.user.tenantId) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    // Initialize Stripe provider
-    const stripeProvider = getOrCreateStripeProvider();
+		const { subscriptionId } = await params;
 
-    // Verify the subscription belongs to the user
-    const userSubscription = await getSubscriptionByProviderSubscriptionId('stripe',subscriptionId);
-    
+		// Initialize Stripe provider
+		const stripeProvider = getOrCreateStripeProvider();
 
-    if (!userSubscription) {
-      return NextResponse.json(
-        { error: 'Subscription not found or access denied' },
-        { status: 404 }
-      );
-    }
+		// Verify the subscription belongs to the user
+		const userSubscription = await getSubscriptionByProviderSubscriptionId(
+			'stripe',
+			subscriptionId,
+			session.user.tenantId
+		);
 
-    const subscription = userSubscription;
+		if (!userSubscription) {
+			return NextResponse.json({ error: 'Subscription not found or access denied' }, { status: 404 });
+		}
 
-    // Check if subscription is actually cancelled
-    if (!subscription.cancelAtPeriodEnd) {
-      return NextResponse.json(
-        { error: 'Subscription is not scheduled for cancellation' },
-        { status: 400 }
-      );
-    }
+		const subscription = userSubscription;
 
-    // Reactivate the subscription in Stripe
-    const reactivatedSubscription = await stripeProvider.updateSubscription({
-      subscriptionId,
-      cancelAtPeriodEnd: false
-    });
+		// Check if subscription is actually cancelled
+		if (!subscription.cancelAtPeriodEnd) {
+			return NextResponse.json({ error: 'Subscription is not scheduled for cancellation' }, { status: 400 });
+		}
 
-    await updateSubscriptionBySubscriptionId({
-      subscriptionId: subscriptionId,
-      cancelAtPeriodEnd: false,
-      cancelledAt: null,
-      updatedAt: new Date(),
-      status: 'active'
-    });
+		// Reactivate the subscription in Stripe
+		const reactivatedSubscription = await stripeProvider.updateSubscription({
+			subscriptionId,
+			cancelAtPeriodEnd: false
+		});
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
+		await updateSubscriptionBySubscriptionId(
+			{
+				subscriptionId: subscriptionId,
+				cancelAtPeriodEnd: false,
+				cancelledAt: null,
+				updatedAt: new Date(),
+				status: 'active'
+			},
+			session.user.tenantId
+		);
 
-    // Send reactivation email
-    try {
-      const emailData = {
-        customerName: session.user.name || session.user.email || 'User',
-        customerEmail: session.user.email!,
-        planName: userSubscription?.planId || '',
-        subscriptionId: subscriptionId,
-        companyName: "Ever Works",
-        companyUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://ever.works",
-        supportEmail: process.env.EMAIL_SUPPORT || "support@ever.works",
-        manageSubscriptionUrl: `${appUrl || ''}/settings/billing`
-      };
+		const appUrl =
+			process.env.NEXT_PUBLIC_APP_URL ??
+			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
 
-      await paymentEmailService.sendSubscriptionReactivatedEmail(emailData as any);
-    } catch (emailError) {
-      console.error('Failed to send reactivation email:', emailError);
-      // Don't fail the request if email fails
-    }
+		// Send reactivation email
+		try {
+			const emailData = {
+				customerName: session.user.name || session.user.email || 'User',
+				customerEmail: session.user.email!,
+				planName: userSubscription?.planId || '',
+				subscriptionId: subscriptionId,
+				companyName: 'Ever Works',
+				companyUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://ever.works',
+				supportEmail: process.env.EMAIL_SUPPORT || 'support@ever.works',
+				manageSubscriptionUrl: `${appUrl || ''}/settings/billing`
+			};
 
-    return NextResponse.json({
-      success: true,
-      data: reactivatedSubscription,
-      message: 'Subscription reactivated successfully'
-    });
-  } catch (error) {
-    console.error('Error reactivating subscription:', error);
-    return NextResponse.json(
-      { error: 'Failed to reactivate subscription' },
-      { status: 500 }
-    );
-  }
+			await paymentEmailService.sendSubscriptionReactivatedEmail(emailData as any);
+		} catch (emailError) {
+			console.error('Failed to send reactivation email:', emailError);
+			// Don't fail the request if email fails
+		}
+
+		return NextResponse.json({
+			success: true,
+			data: reactivatedSubscription,
+			message: 'Subscription reactivated successfully'
+		});
+	} catch (error) {
+		console.error('Error reactivating subscription:', error);
+		return NextResponse.json({ error: 'Failed to reactivate subscription' }, { status: 500 });
+	}
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -69,7 +70,8 @@ export async function GET(request: NextRequest) {
 		const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(1, Math.floor(rawLimit)), 50) : 10;
 
 		// Get active sponsor ads with item data
-		const sponsorAds = await sponsorAdService.getActiveSponsorAdsWithItems(limit);
+		const tenantId = await getDefaultTenantId();
+		const sponsorAds = await sponsorAdService.getActiveSponsorAdsWithItems(tenantId, limit);
 
 		return NextResponse.json({
 			success: true,

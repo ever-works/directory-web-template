@@ -13,7 +13,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 	try {
 		// Authenticate user
 		const session = await auth();
-		if (!session?.user?.id) {
+		if (!session?.user?.id || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -51,7 +51,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 		// Verify the subscription belongs to the user
 		const subscription = await subscriptionService.getSubscriptionByProviderSubscriptionId(
 			provider,
-			subscriptionId
+			subscriptionId,
+			session.user.tenantId
 		);
 		if (!subscription) {
 			return NextResponse.json({ error: 'Subscription not found' }, { status: 404 });
@@ -62,7 +63,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 		}
 
 		// Update auto-renewal status in local database (use internal ID)
-		const updatedSubscription = await subscriptionService.setAutoRenewal(subscription.id, enabled);
+		const updatedSubscription = await subscriptionService.setAutoRenewal(
+			subscription.id,
+			enabled,
+			session.user.tenantId
+		);
 		if (!updatedSubscription) {
 			return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
 		}
@@ -111,7 +116,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 export async function GET(request: NextRequest, { params }: { params: Promise<{ subscriptionId: string }> }) {
 	try {
 		const session = await auth();
-		if (!session?.user?.id) {
+		if (!session?.user?.id || !session.user.tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
@@ -132,7 +137,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
 		const subscription = await subscriptionService.getSubscriptionByProviderSubscriptionId(
 			provider,
-			subscriptionId
+			subscriptionId,
+			session.user.tenantId
 		);
 
 		if (!subscription) {

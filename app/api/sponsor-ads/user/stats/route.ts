@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { getDefaultTenantId } from '@/lib/db/tenant';
 
 /**
  * @swagger
@@ -166,11 +167,12 @@ export async function GET() {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const stats = await sponsorAdService.getSponsorAdStatsByUser(session.user.id);
+		const tenantId = session.user.tenantId || (await getDefaultTenantId());
+		const stats = await sponsorAdService.getSponsorAdStatsByUser(session.user.id, tenantId);
 
 		return NextResponse.json({
 			success: true,
-			stats,
+			stats
 		});
 	} catch (error) {
 		console.error('Error fetching user sponsor ad stats:', error);

@@ -119,51 +119,45 @@ const logger = Logger.create('SurveyResponsesAPI');
  *       500:
  *         description: "Internal server error"
  */
-export async function GET(
-    request: NextRequest,
-    { params }: { params: Promise<{ surveyId: string }> }
-) {
-    try {
-        const session = await auth();
+export async function GET(request: NextRequest, { params }: { params: Promise<{ surveyId: string }> }) {
+	try {
+		const session = await auth();
 
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-        const { surveyId } = await params;
-        const { searchParams } = new URL(request.url);
+		const { surveyId } = await params;
+		const { searchParams } = new URL(request.url);
 
-        const toInt = (v: string | null) =>
-            v && /^\d+$/.test(v) ? parseInt(v, 10) : undefined;
+		const toInt = (v: string | null) => (v && /^\d+$/.test(v) ? parseInt(v, 10) : undefined);
 
-        const filters: ResponseFilters = {
-            itemId: searchParams.get('itemId') || undefined,
-            userId: searchParams.get('userId') || undefined,
-            startDate: searchParams.get('startDate') || undefined,
-            endDate: searchParams.get('endDate') || undefined,
-            page: toInt(searchParams.get('page')),
-            limit: toInt(searchParams.get('limit')),
-        };
+		const filters: ResponseFilters = {
+			itemId: searchParams.get('itemId') || undefined,
+			userId: searchParams.get('userId') || undefined,
+			startDate: searchParams.get('startDate') || undefined,
+			endDate: searchParams.get('endDate') || undefined,
+			page: toInt(searchParams.get('page')),
+			limit: toInt(searchParams.get('limit')),
+			tenantId: session.user.tenantId!
+		};
 
-        const responses = await surveyService.getResponses(surveyId, filters);
+		const responses = await surveyService.getResponses(surveyId, filters);
 
-        return NextResponse.json({
-            success: true,
-            data: responses
-        });
-    } catch (error) {
-        logger.error('Error fetching responses', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to fetch responses'
-            },
-            { status: 500 }
-        );
-    }
+		return NextResponse.json({
+			success: true,
+			data: responses
+		});
+	} catch (error) {
+		logger.error('Error fetching responses', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to fetch responses'
+			},
+			{ status: 500 }
+		);
+	}
 }
 
 /**
@@ -241,72 +235,62 @@ export async function GET(
  *       500:
  *         description: "Internal server error"
  */
-export async function POST(
-    request: NextRequest,
-    { params }: { params: Promise<{ surveyId: string }> }
-) {
-    try {
-        const { surveyId } = await params;
+export async function POST(request: NextRequest, { params }: { params: Promise<{ surveyId: string }> }) {
+	try {
+		const { surveyId } = await params;
 
-        const body = await request.json();
+		const body = await request.json();
 
-        if (!body || typeof body.data !== 'object' || body.data == null) {
-            return NextResponse.json(
-                { success: false, error: 'Invalid request body: "data" is required' },
-                { status: 400 }
-            );
-        }
+		if (!body || typeof body.data !== 'object' || body.data == null) {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid request body: "data" is required' },
+				{ status: 400 }
+			);
+		}
 
-        const survey = await surveyService.getOne(surveyId);
+		const survey = await surveyService.getOne(surveyId);
 
-        if (!survey) {
-            return NextResponse.json(
-                { success: false, error: 'Survey not found' },
-                { status: 404 }
-            );
-        }
+		if (!survey) {
+			return NextResponse.json({ success: false, error: 'Survey not found' }, { status: 404 });
+		}
 
-        // Get user session if available
-        const session = await auth();
-        
+		// Get user session if available
+		const session = await auth();
 
-        // Get IP address and user agent from request
-        const forwardedFor = request.headers.get('x-forwarded-for') || '';
-        const ipAddress =
-            (forwardedFor.split(',')[0]?.trim()) ||
-            request.headers.get('x-real-ip') ||
-            'unknown';
+		// Get IP address and user agent from request
+		const forwardedFor = request.headers.get('x-forwarded-for') || '';
+		const ipAddress = forwardedFor.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown';
 
-        const userAgent = request.headers.get('user-agent') || 'unknown';
+		const userAgent = request.headers.get('user-agent') || 'unknown';
 
-     
+		const responseData: SubmitResponseData = {
+			surveyId,
+			userId: session?.user?.id,
+			itemId: survey.itemId as string,
+			data: body.data,
+			ipAddress,
+			userAgent,
+			tenantId: survey.tenantId
+		};
 
+		const response = await surveyService.submitResponse(responseData);
 
-        const responseData: SubmitResponseData = {
-            surveyId,
-            userId: session?.user?.id,
-            itemId: survey.itemId as string,
-            data: body.data,
-            ipAddress,
-            userAgent
-        };
-
-        const response = await surveyService.submitResponse(responseData);
-
-        return NextResponse.json({
-            success: true,
-            data: response,
-            message: 'Response submitted successfully'
-        }, { status: 201 });
-    } catch (error) {
-        logger.error('Error submitting response', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to submit response'
-            },
-            { status: 500 }
-        );
-    }
+		return NextResponse.json(
+			{
+				success: true,
+				data: response,
+				message: 'Response submitted successfully'
+			},
+			{ status: 201 }
+		);
+	} catch (error) {
+		logger.error('Error submitting response', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to submit response'
+			},
+			{ status: 500 }
+		);
+	}
 }
-

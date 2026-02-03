@@ -80,89 +80,106 @@ const logger = Logger.create('SurveyAPI');
  *         description: "Internal server error"
  */
 export async function GET(request: NextRequest) {
-    try {
-        // Check database availability first
-        // Note: We check database directly rather than feature flags here.
-        // This is intentional - the API validates actual capability (database availability)
-        // while the client hook checks feature flags to prevent unnecessary calls.
-        // This provides defense in depth: client optimization + server validation.
-        const dbCheck = checkDatabaseAvailability();
-        if (dbCheck) return dbCheck;
+	try {
+		// Check database availability first
+		// Note: We check database directly rather than feature flags here.
+		// This is intentional - the API validates actual capability (database availability)
+		// while the client hook checks feature flags to prevent unnecessary calls.
+		// This provides defense in depth: client optimization + server validation.
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-        const session = await auth();
-        const { searchParams } = new URL(request.url);
+		const session = await auth();
+		const { searchParams } = new URL(request.url);
 
-        const typeParam = searchParams.get('type');
-        const pageParam = searchParams.get('page');
-        const limitParam = searchParams.get('limit');
-        const statusParam = searchParams.get('status');
+		const typeParam = searchParams.get('type');
+		const pageParam = searchParams.get('page');
+		const limitParam = searchParams.get('limit');
+		const statusParam = searchParams.get('status');
 
-        const pageParsed = pageParam ? parseInt(pageParam, 10) : undefined;
-        const limitParsed = limitParam ? parseInt(limitParam, 10) : undefined;
-        const page = pageParsed !== undefined && Number.isInteger(pageParsed) && pageParsed >= 1 ? pageParsed : undefined;
-        const limit = limitParsed !== undefined && Number.isInteger(limitParsed) ? Math.min(100, Math.max(1, limitParsed)) : undefined;
+		const pageParsed = pageParam ? parseInt(pageParam, 10) : undefined;
+		const limitParsed = limitParam ? parseInt(limitParam, 10) : undefined;
+		const page =
+			pageParsed !== undefined && Number.isInteger(pageParsed) && pageParsed >= 1 ? pageParsed : undefined;
+		const limit =
+			limitParsed !== undefined && Number.isInteger(limitParsed)
+				? Math.min(100, Math.max(1, limitParsed))
+				: undefined;
 
-        const filters: SurveyFilters = {
-            type: typeParam as SurveyTypeEnum,
-            itemId: searchParams.get('itemId') || undefined,
-            status: statusParam ? (statusParam as SurveyStatusEnum) : undefined,
-            page,
-            limit,
-        };
+		// Require tenantId for survey queries
+		if (!session?.user?.tenantId) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized - tenant context required' },
+				{ status: 401 }
+			);
+		}
 
-        const result = await surveyService.getMany(filters, session?.user?.id);
+		const filters: SurveyFilters = {
+			type: typeParam as SurveyTypeEnum,
+			itemId: searchParams.get('itemId') || undefined,
+			status: statusParam ? (statusParam as SurveyStatusEnum) : undefined,
+			page,
+			limit,
+			tenantId: session.user.tenantId
+		};
 
-        return NextResponse.json({
-            success: true,
-            data: {
-                surveys: result.surveys,
-                total: result.total,
-                totalPages: result.totalPages,
-                page: result.page
-            }
-        });
-    } catch (error) {
-        // Log errors for debugging
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[API/surveys] Error:', errorMessage);
-        
-        // Check for common database errors
-        if (errorMessage.includes('DATABASE_URL') || 
-            errorMessage.includes('connect ECONNREFUSED') ||
-            errorMessage.includes('connection') ||
-            errorMessage.includes('ENOTFOUND')) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Database connection failed',
-                    code: 'DATABASE_CONNECTION_ERROR'
-                },
-                { status: 503 }
-            );
-        }
-        
-        // Check for schema/table errors
-        if (errorMessage.includes('relation') || 
-            errorMessage.includes('does not exist') ||
-            errorMessage.includes('undefined')) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Database schema not initialized. Run migrations.',
-                    code: 'DATABASE_SCHEMA_ERROR'
-                },
-                { status: 503 }
-            );
-        }
-        
-        return NextResponse.json(
-            {
-                success: false,
-                error: errorMessage
-            },
-            { status: 500 }
-        );
-    }
+		const result = await surveyService.getMany(filters, session?.user?.id);
+
+		return NextResponse.json({
+			success: true,
+			data: {
+				surveys: result.surveys,
+				total: result.total,
+				totalPages: result.totalPages,
+				page: result.page
+			}
+		});
+	} catch (error) {
+		// Log errors for debugging
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		console.error('[API/surveys] Error:', errorMessage);
+
+		// Check for common database errors
+		if (
+			errorMessage.includes('DATABASE_URL') ||
+			errorMessage.includes('connect ECONNREFUSED') ||
+			errorMessage.includes('connection') ||
+			errorMessage.includes('ENOTFOUND')
+		) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Database connection failed',
+					code: 'DATABASE_CONNECTION_ERROR'
+				},
+				{ status: 503 }
+			);
+		}
+
+		// Check for schema/table errors
+		if (
+			errorMessage.includes('relation') ||
+			errorMessage.includes('does not exist') ||
+			errorMessage.includes('undefined')
+		) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Database schema not initialized. Run migrations.',
+					code: 'DATABASE_SCHEMA_ERROR'
+				},
+				{ status: 503 }
+			);
+		}
+
+		return NextResponse.json(
+			{
+				success: false,
+				error: errorMessage
+			},
+			{ status: 500 }
+		);
+	}
 }
 
 /**
@@ -205,39 +222,42 @@ export async function GET(request: NextRequest) {
  *         description: "Internal server error"
  */
 export async function POST(request: NextRequest) {
-    try {
-        // Check database availability first
-        const dbCheck = checkDatabaseAvailability();
-        if (dbCheck) return dbCheck;
+	try {
+		// Check database availability first
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-        const session = await auth();
+		const session = await auth();
 
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-        const body: CreateSurveyData = await request.json();
-        const survey = await surveyService.create(body);
+		const body = await request.json();
+		const surveyData: CreateSurveyData = {
+			...body,
+			tenantId: session.user.tenantId!
+		};
+		const survey = await surveyService.create(surveyData);
 
-        return NextResponse.json({
-            success: true,
-            data: survey
-        }, { status: 201 });
-    } catch (error) {
-        // Only log errors in development mode
-        if (process.env.NODE_ENV === 'development') {
-            logger.error('Error creating survey', error);
-        }
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to create survey'
-            },
-            { status: 500 }
-        );
-    }
+		return NextResponse.json(
+			{
+				success: true,
+				data: survey
+			},
+			{ status: 201 }
+		);
+	} catch (error) {
+		// Only log errors in development mode
+		if (process.env.NODE_ENV === 'development') {
+			logger.error('Error creating survey', error);
+		}
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to create survey'
+			},
+			{ status: 500 }
+		);
+	}
 }
-

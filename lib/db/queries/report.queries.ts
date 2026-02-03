@@ -43,6 +43,7 @@ export async function createReport(data: {
 	reason: ReportReasonValues;
 	details?: string;
 	reportedBy: string;
+	tenantId: string;
 }): Promise<Report> {
 	const insertData: NewReport = {
 		contentType: data.contentType,
@@ -50,7 +51,8 @@ export async function createReport(data: {
 		reason: data.reason,
 		details: data.details || null,
 		reportedBy: data.reportedBy,
-		status: ReportStatus.PENDING
+		status: ReportStatus.PENDING,
+		tenantId: data.tenantId
 	};
 
 	const [report] = await db.insert(reports).values(insertData).returning();
@@ -67,6 +69,7 @@ export async function getReportById(id: string): Promise<ReportWithReporter | nu
 	const result = await db
 		.select({
 			id: reports.id,
+			tenantId: reports.tenantId,
 			contentType: reports.contentType,
 			contentId: reports.contentId,
 			reason: reports.reason,
@@ -173,6 +176,7 @@ export async function getReports(params: {
 	const result = await db
 		.select({
 			id: reports.id,
+			tenantId: reports.tenantId,
 			contentType: reports.contentType,
 			contentId: reports.contentId,
 			reason: reports.reason,

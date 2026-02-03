@@ -1,8 +1,8 @@
 import Credentials from 'next-auth/providers/credentials';
 import {
-	getUserByEmail,
+	getUserByEmailGlobal,
 	logActivity,
-	getClientAccountByEmail,
+	getClientAccountByEmailGlobal,
 	verifyClientPassword,
 	getClientProfileByUserId,
 	isUserAdmin
@@ -56,8 +56,8 @@ export const credentialsProvider = Credentials({
 			const password = credentials.password as string;
 
 			// Check admin user first via role-based check
-			const foundUser = await getUserByEmail(email);
-			const isAdmin = foundUser ? await isUserAdmin(foundUser.id) : false;
+			const foundUser = await getUserByEmailGlobal(email);
+			const isAdmin = foundUser ? await isUserAdmin(foundUser.id, foundUser.tenantId) : false;
 
 			if (isAdmin && foundUser && foundUser.passwordHash) {
 				const isPasswordValid = await comparePasswords(password, foundUser.passwordHash);
@@ -76,13 +76,13 @@ export const credentialsProvider = Credentials({
 			}
 
 			// Check client account
-			const clientAccount = await getClientAccountByEmail(email);
+			const clientAccount = await getClientAccountByEmailGlobal(email);
 
 			if (clientAccount) {
-				const isClientPasswordValid = await verifyClientPassword(email, password);
+				const isClientPasswordValid = await verifyClientPassword(email, password, clientAccount.tenantId);
 
 				if (isClientPasswordValid) {
-					const clientProfile = await getClientProfileByUserId(clientAccount.userId);
+					const clientProfile = await getClientProfileByUserId(clientAccount.userId, clientAccount.tenantId);
 					if (!clientProfile) {
 						throw new Error(AuthErrorCode.PROFILE_NOT_FOUND);
 					}

@@ -131,96 +131,102 @@ const userRepository = new UserRepository();
  *                   type: string
  *                   example: "Failed to review item"
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		// Check admin authentication
+		const session = await auth();
+		if (!session?.user?.isAdmin || !session.user.tenantId) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized. Admin access required.' },
+				{ status: 401 }
+			);
+		}
 
-    const body = await request.json();
-    const { status, review_notes }: ReviewRequest = body;
+		const body = await request.json();
+		const { status, review_notes }: ReviewRequest = body;
 
-    // Validate review data
-    if (!status || !['approved', 'rejected'].includes(status)) {
-      return NextResponse.json(
-        { success: false, error: "Review status must be either 'approved' or 'rejected'" },
-        { status: 400 }
-      );
-    }
+		// Validate review data
+		if (!status || !['approved', 'rejected'].includes(status)) {
+			return NextResponse.json(
+				{ success: false, error: "Review status must be either 'approved' or 'rejected'" },
+				{ status: 400 }
+			);
+		}
 
-    // Review the item with audit logging
-    const resolvedParams = await params;
-    const auditUser = session.user.id
-      ? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
-      : undefined;
+		// Review the item with audit logging
+		const resolvedParams = await params;
+		const auditUser = session.user.id
+			? { id: session.user.id, name: session.user.name ?? session.user.email ?? undefined }
+			: undefined;
 
-    const item = await itemRepository.review(resolvedParams.id, {
-      status,
-      review_notes,
-    }, auditUser);
+		const item = await itemRepository.review(
+			resolvedParams.id,
+			{
+				status,
+				review_notes
+			},
+			session.user.tenantId || 'default-tenant',
+			auditUser
+		);
 
-    // Debug: Log item details for troubleshooting
-    console.log('[Review] Item reviewed:', {
-      id: item.id,
-      name: item.name,
-      status: status,
-      submitted_by: item.submitted_by,
-      hasSubmittedBy: !!item.submitted_by,
-      isAdmin: item.submitted_by === 'admin',
-      isAnonymous: item.submitted_by === 'anonymous'
-    });
+		// Debug: Log item details for troubleshooting
+		console.log('[Review] Item reviewed:', {
+			id: item.id,
+			name: item.name,
+			status: status,
+			submitted_by: item.submitted_by,
+			hasSubmittedBy: !!item.submitted_by,
+			isAdmin: item.submitted_by === 'admin',
+			isAnonymous: item.submitted_by === 'anonymous'
+		});
 
-    // Send email notification to submitter (async, don't block response)
-    if (item.submitted_by && item.submitted_by !== 'admin' && item.submitted_by !== 'anonymous') {
-      console.log('[Review] Attempting to send notification to user:', item.submitted_by);
-      try {
-        const user = await userRepository.findById(item.submitted_by);
-        console.log('[Review] User found:', {
-          id: user?.id,
-          hasEmail: !!user?.email
-        });
+		// Send email notification to submitter (async, don't block response)
+		if (item.submitted_by && item.submitted_by !== 'admin' && item.submitted_by !== 'anonymous') {
+			console.log('[Review] Attempting to send notification to user:', item.submitted_by);
+			try {
+				const user = await userRepository.findById(
+					item.submitted_by,
+					session.user.tenantId || 'default-tenant'
+				);
+				console.log('[Review] User found:', {
+					id: user?.id,
+					hasEmail: !!user?.email
+				});
 
-        if (user?.email) {
-          const emailResult = await EmailNotificationService.sendSubmissionDecisionEmail(
-            user.email,
-            item.name,
-            status,
-            review_notes
-          );
-          console.log('[Review] Email send result:', emailResult);
-        } else {
-          console.warn(`[Review] User ${item.submitted_by} not found or has no email`);
-        }
-      } catch (notificationError) {
-        console.error('[Review] Failed to send notification email:', notificationError);
-        // Don't block the review response if notification fails
-      }
-    } else {
-      console.warn(`[Review] Skipping notification - submitted_by: "${item.submitted_by}" (admin=${item.submitted_by === 'admin'}, anonymous=${item.submitted_by === 'anonymous'}, empty=${!item.submitted_by})`);
-    }
+				if (user?.email) {
+					const emailResult = await EmailNotificationService.sendSubmissionDecisionEmail(
+						user.email,
+						item.name,
+						status,
+						review_notes
+					);
+					console.log('[Review] Email send result:', emailResult);
+				} else {
+					console.warn(`[Review] User ${item.submitted_by} not found or has no email`);
+				}
+			} catch (notificationError) {
+				console.error('[Review] Failed to send notification email:', notificationError);
+				// Don't block the review response if notification fails
+			}
+		} else {
+			console.warn(
+				`[Review] Skipping notification - submitted_by: "${item.submitted_by}" (admin=${item.submitted_by === 'admin'}, anonymous=${item.submitted_by === 'anonymous'}, empty=${!item.submitted_by})`
+			);
+		}
 
-    return NextResponse.json({
-      success: true,
-      data: item,
-      message: `Item ${status} successfully`,
-    });
-
-  } catch (error) {
-    console.error('Failed to review item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to review item' 
-      },
-      { status: 500 }
-    );
-  }
-} 
+		return NextResponse.json({
+			success: true,
+			data: item,
+			message: `Item ${status} successfully`
+		});
+	} catch (error) {
+		console.error('Failed to review item:', error);
+		return NextResponse.json(
+			{
+				success: false,
+				error: error instanceof Error ? error.message : 'Failed to review item'
+			},
+			{ status: 500 }
+		);
+	}
+}

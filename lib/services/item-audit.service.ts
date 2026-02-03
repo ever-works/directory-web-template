@@ -25,6 +25,7 @@ export interface LogActionParams {
 	performedBy?: AuditUser | null;
 	notes?: string | null;
 	metadata?: Record<string, unknown> | null;
+	tenantId: string;
 }
 
 // ===================== Fields to Track =====================
@@ -52,10 +53,7 @@ type TrackedField = (typeof TRACKED_FIELDS)[number];
  * @param current - Current item state
  * @returns Object with field-level changes
  */
-export function detectChanges(
-	previous: Partial<ItemData>,
-	current: Partial<ItemData>
-): ItemAuditChanges | null {
+export function detectChanges(previous: Partial<ItemData>, current: Partial<ItemData>): ItemAuditChanges | null {
 	const changes: ItemAuditChanges = {};
 
 	for (const field of TRACKED_FIELDS) {
@@ -105,7 +103,8 @@ async function logAction(params: LogActionParams): Promise<void> {
 			performedBy: params.performedBy?.id ?? null,
 			performedByName: params.performedBy?.name ?? null,
 			notes: params.notes,
-			metadata: params.metadata
+			metadata: params.metadata,
+			tenantId: params.tenantId
 		};
 
 		await createItemAuditLog(createParams);
@@ -118,9 +117,9 @@ async function logAction(params: LogActionParams): Promise<void> {
 /**
  * Log item creation
  * @param item - Created item
- * @param performedBy - User who performed the action
+ * @param tenantId - Tenant ID
  */
-export async function logCreation(item: ItemData, performedBy?: AuditUser | null): Promise<void> {
+export async function logCreation(item: ItemData, tenantId: string, performedBy?: AuditUser | null): Promise<void> {
 	await logAction({
 		itemId: item.id,
 		itemName: item.name,
@@ -131,7 +130,8 @@ export async function logCreation(item: ItemData, performedBy?: AuditUser | null
 			slug: item.slug,
 			category: item.category,
 			tags: item.tags
-		}
+		},
+		tenantId
 	});
 }
 
@@ -144,6 +144,7 @@ export async function logCreation(item: ItemData, performedBy?: AuditUser | null
 export async function logUpdate(
 	previousItem: ItemData,
 	updatedItem: ItemData,
+	tenantId: string,
 	performedBy?: AuditUser | null
 ): Promise<void> {
 	const changes = detectChanges(previousItem, updatedItem);
@@ -164,7 +165,8 @@ export async function logUpdate(
 		previousStatus: statusChanged ? previousItem.status : undefined,
 		newStatus: statusChanged ? updatedItem.status : undefined,
 		changes,
-		performedBy
+		performedBy,
+		tenantId
 	});
 }
 
@@ -179,6 +181,7 @@ export async function logReview(
 	item: ItemData,
 	previousStatus: string,
 	notes: string | undefined | null,
+	tenantId: string,
 	performedBy?: AuditUser | null
 ): Promise<void> {
 	await logAction({
@@ -188,7 +191,8 @@ export async function logReview(
 		previousStatus,
 		newStatus: item.status,
 		notes,
-		performedBy
+		performedBy,
+		tenantId
 	});
 }
 
@@ -200,6 +204,7 @@ export async function logReview(
  */
 export async function logDeletion(
 	item: ItemData,
+	tenantId: string,
 	performedBy?: AuditUser | null,
 	isSoftDelete = true
 ): Promise<void> {
@@ -212,7 +217,8 @@ export async function logDeletion(
 		metadata: {
 			slug: item.slug,
 			isSoftDelete
-		}
+		},
+		tenantId
 	});
 }
 
@@ -221,7 +227,7 @@ export async function logDeletion(
  * @param item - Restored item
  * @param performedBy - User who performed the action
  */
-export async function logRestoration(item: ItemData, performedBy?: AuditUser | null): Promise<void> {
+export async function logRestoration(item: ItemData, tenantId: string, performedBy?: AuditUser | null): Promise<void> {
 	await logAction({
 		itemId: item.id,
 		itemName: item.name,
@@ -230,7 +236,8 @@ export async function logRestoration(item: ItemData, performedBy?: AuditUser | n
 		performedBy,
 		metadata: {
 			slug: item.slug
-		}
+		},
+		tenantId
 	});
 }
 

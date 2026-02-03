@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
 			if (emailService.isServiceAvailable()) {
 				for (const subscription of result.subscriptions) {
 					try {
-						const user = await getUserById(subscription.userId);
+						const user = await getUserById(subscription.userId, subscription.tenantId);
 						if (!user?.email) {
 							console.warn(`[SubscriptionExpiration] No email found for user ${subscription.userId}`);
 							continue;

@@ -366,25 +366,23 @@ export async function getExpiredActiveSubscriptions(tenantId: string): Promise<S
  * Update expired subscriptions to expired status
  * @returns Array of subscriptions that were updated
  */
-export async function updateExpiredSubscriptionsStatus(tenantId: string): Promise<Subscription[]> {
+export async function updateExpiredSubscriptionsStatus(tenantId?: string): Promise<Subscription[]> {
 	const now = new Date();
 
-	const result = await db
+	const conditions = [eq(subscriptions.status, SubscriptionStatus.ACTIVE), lte(subscriptions.endDate, now)];
+
+	if (tenantId) {
+		conditions.push(eq(subscriptions.tenantId, tenantId));
+	}
+
+	return await db
 		.update(subscriptions)
 		.set({
 			status: SubscriptionStatus.EXPIRED,
 			updatedAt: now
 		})
-		.where(
-			and(
-				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
-				lt(subscriptions.endDate, now),
-				eq(subscriptions.tenantId, tenantId)
-			)
-		)
+		.where(and(...conditions))
 		.returning();
-
-	return result;
 }
 
 // ===================== Subscription History Queries =====================
@@ -507,26 +505,28 @@ export async function getSubscriptionStats(tenantId: string) {
  */
 export async function getSubscriptionsDueForRenewalReminder(
 	days: number = 7,
-	tenantId: string
+	tenantId?: string
 ): Promise<Subscription[]> {
 	const now = new Date();
 	const futureDate = new Date();
 	futureDate.setDate(futureDate.getDate() + days);
 
+	const conditions = [
+		eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+		eq(subscriptions.autoRenewal, true),
+		eq(subscriptions.renewalReminderSent, false),
+		gte(subscriptions.endDate, now),
+		lte(subscriptions.endDate, futureDate)
+	];
+
+	if (tenantId) {
+		conditions.push(eq(subscriptions.tenantId, tenantId));
+	}
+
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(
-			and(
-				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
-				eq(subscriptions.autoRenewal, true),
-				eq(subscriptions.renewalReminderSent, false),
-				gte(subscriptions.endDate, now),
-				gte(subscriptions.endDate, now),
-				lte(subscriptions.endDate, futureDate),
-				eq(subscriptions.tenantId, tenantId)
-			)
-		)
+		.where(and(...conditions))
 		.orderBy(asc(subscriptions.endDate));
 }
 
@@ -535,21 +535,23 @@ export async function getSubscriptionsDueForRenewalReminder(
  * These subscriptions should be cancelled when their period ends
  * @returns Array of subscriptions to cancel
  */
-export async function getSubscriptionsToCancel(tenantId: string): Promise<Subscription[]> {
+export async function getSubscriptionsToCancel(tenantId?: string): Promise<Subscription[]> {
 	const now = new Date();
+
+	const conditions = [
+		eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+		eq(subscriptions.autoRenewal, false),
+		lte(subscriptions.endDate, now)
+	];
+
+	if (tenantId) {
+		conditions.push(eq(subscriptions.tenantId, tenantId));
+	}
 
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(
-			and(
-				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
-				eq(subscriptions.autoRenewal, false),
-				eq(subscriptions.autoRenewal, false),
-				lte(subscriptions.endDate, now),
-				eq(subscriptions.tenantId, tenantId)
-			)
-		);
+		.where(and(...conditions));
 }
 
 /**

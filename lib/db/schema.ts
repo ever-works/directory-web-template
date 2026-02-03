@@ -38,6 +38,7 @@ export const users = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -62,6 +63,7 @@ export const roles = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id').primaryKey(),
 		name: text('name').notNull(),
@@ -86,15 +88,20 @@ export const roles = pgTable(
 export const permissions = pgTable(
 	'permissions',
 	{
+		tenantId: text('tenant_id')
+			.notNull()
+			.default('default-tenant')
+			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
-		key: text('key').notNull().unique(),
+		key: text('key').notNull(),
 		description: text('description'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow()
 	},
 	(table) => ({
+		tenantKeyUnique: uniqueIndex('permissions_tenant_key_idx').on(table.tenantId, table.key),
 		createdAtIndex: index('permissions_created_at_idx').on(table.createdAt)
 	})
 );
@@ -105,6 +112,7 @@ export const rolePermissions = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		roleId: text('role_id')
 			.notNull()
@@ -129,6 +137,7 @@ export const userRoles = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		userId: text('user_id')
 			.notNull()
@@ -152,6 +161,7 @@ export const accounts = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		userId: text('userId')
 			.notNull()
@@ -190,6 +200,7 @@ export const clientProfiles = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -257,6 +268,7 @@ export const sessions = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		sessionToken: text('sessionToken').primaryKey(),
 		userId: text('userId')
@@ -274,6 +286,7 @@ export const verificationTokens = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		identifier: text('identifier').notNull(),
 		email: text('email').notNull(),
@@ -293,6 +306,10 @@ export const verificationTokens = pgTable(
 export const authenticators = pgTable(
 	'authenticators',
 	{
+		tenantId: text('tenant_id')
+			.notNull()
+			.default('default-tenant')
+			.references(() => tenants.id, { onDelete: 'cascade' }),
 		credentialID: text('credentialID').notNull().unique(),
 		userId: text('userId')
 			.notNull()
@@ -318,6 +335,7 @@ export const activityLogs = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: serial('id').primaryKey(),
 		userId: text('userId').references(() => users.id, { onDelete: 'cascade' }), // For user activities
@@ -339,6 +357,7 @@ export const passwordResetTokens = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -357,6 +376,7 @@ export const newsletterSubscriptions = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -382,6 +402,7 @@ export const comments = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -415,6 +436,7 @@ export const votes = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.notNull()
@@ -458,6 +480,7 @@ export const subscriptions = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -517,6 +540,7 @@ export const subscriptionHistory = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -545,15 +569,20 @@ export const subscriptionHistory = pgTable(
 export const paymentProviders = pgTable(
 	'paymentProviders',
 	{
+		tenantId: text('tenant_id')
+			.notNull()
+			.default('default-tenant')
+			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
-		name: text('name').notNull().unique().default(PaymentProvider.STRIPE),
+		name: text('name').notNull().default(PaymentProvider.STRIPE),
 		isActive: boolean('is_active').notNull().default(true),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow()
 	},
 	(table) => ({
+		tenantNameUnique: uniqueIndex('payment_provider_tenant_name_idx').on(table.tenantId, table.name),
 		activeIndex: index('payment_provider_active_idx').on(table.isActive),
 		createdAtIndex: index('payment_provider_created_at_idx').on(table.createdAt)
 	})
@@ -565,6 +594,7 @@ export const paymentAccounts = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -597,6 +627,7 @@ export const notifications = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -691,6 +722,7 @@ export const favorites = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -722,6 +754,7 @@ export const featuredItems = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -776,6 +809,7 @@ export const sponsorAds = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -881,6 +915,7 @@ export const twentyCrmConfig = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -924,6 +959,7 @@ export const integrationMappings = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -958,6 +994,7 @@ export const companies = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -991,6 +1028,7 @@ export const itemsCompanies = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		itemSlug: text('item_slug').notNull().unique(),
 		companyId: text('company_id')
@@ -1050,6 +1088,7 @@ export const reports = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1116,6 +1155,7 @@ export const moderationHistory = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1162,6 +1202,7 @@ export const surveys = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1195,6 +1236,7 @@ export const surveyResponses = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1237,6 +1279,7 @@ export const itemViews = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1321,6 +1364,7 @@ export const itemAuditLogs = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		id: text('id')
 			.primaryKey()
@@ -1376,6 +1420,7 @@ export const itemLocationIndex = pgTable(
 	{
 		tenantId: text('tenant_id')
 			.notNull()
+			.default('default-tenant')
 			.references(() => tenants.id, { onDelete: 'cascade' }),
 		itemSlug: text('item_slug').primaryKey(),
 		// Use doublePrecision for native JS number support (sufficient precision for coordinates)
