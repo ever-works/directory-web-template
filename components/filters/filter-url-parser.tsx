@@ -164,14 +164,11 @@ function FilterURLParserContent() {
     }
 
     // Parse search query from URL (for sitelinks search box support)
+    // Note: useSearchParams().get() already returns decoded values, no need for decodeURIComponent
     if (queryParam) {
-      try {
-        const decodedQuery = decodeURIComponent(queryParam.trim());
-        if (decodedQuery && decodedQuery !== searchTerm) {
-          setSearchTerm(decodedQuery);
-        }
-      } catch (error) {
-        console.error('Error parsing q parameter:', error);
+      const trimmedQuery = queryParam.trim();
+      if (trimmedQuery && trimmedQuery !== searchTerm) {
+        setSearchTerm(trimmedQuery);
       }
     } else if (searchTerm && !queryParam) {
       // Clear search term if q param was removed from URL

@@ -33,7 +33,7 @@ export interface LocationFilterState {
 
 export interface FilterContextType {
   searchTerm: string;
-  setSearchTerm: Dispatch<SetStateAction<string>>;
+  setSearchTerm: (term: string) => void;
   selectedTags: TagId[];
   setSelectedTags: Dispatch<SetStateAction<TagId[]>>;
   selectedCategories: CategoryId[];
