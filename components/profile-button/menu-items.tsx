@@ -90,9 +90,9 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         <div className={`flex items-center justify-center w-10 h-10 mr-3 rounded-xl bg-linear-to-br ${gradientFrom} ${gradientTo} group-hover:from-opacity-80 group-hover:to-opacity-80 transition-all duration-200`}>
           <Icon aria-hidden="true" className={`h-5 w-5 ${iconColor}`} />
         </div>
-        <div className="flex-1">
+        <div className="flex-1 w-4/6">
           <span className="font-semibold">{title}</span>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{description}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{description}</p>
         </div>
         <EndIcon aria-hidden="true" className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       </button>

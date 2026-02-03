@@ -194,7 +194,7 @@ function ProfileButton() {
   }
 
   return (
-    <div className="relative ml-3 cu" role="none">
+    <div className="relative ml-3" role="none">
       <div>
         <ProfileButtonTrigger
           buttonRef={buttonRef}
