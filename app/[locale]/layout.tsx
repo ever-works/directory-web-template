@@ -40,6 +40,7 @@ import {
 	getLocationSettings
 } from '@/lib/utils/settings';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { generateWebSiteSchema } from '@/lib/seo/schema';
 
 const rawUrl =
 	process.env.NEXT_PUBLIC_APP_URL?.trim() ||
@@ -152,6 +153,11 @@ export default async function RootLayout({
 	// Determine if the current locale is RTL
 	return (
 		<>
+			{/* WebSite Schema with SearchAction for sitelinks search box */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(generateWebSiteSchema(locale)) }}
+			/>
 			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="afterInteractive" />
 			<PHProvider>
 				<Suspense fallback={null}>
