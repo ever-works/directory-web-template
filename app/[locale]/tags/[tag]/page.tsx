@@ -1,10 +1,37 @@
+import { Metadata } from "next";
 import { getCachedItems } from "@/lib/content";
 import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { toTitleCase } from "@/lib/utils";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ tag: string; locale: string }>;
+}): Promise<Metadata> {
+  const { tag, locale } = await params;
+  const decodedTag = decodeURIComponent(tag);
+  const formattedTag = toTitleCase(decodedTag);
+  const { items } = await getCachedItems({ lang: locale });
+  const taggedItems = items.filter((item) =>
+    item.tags?.some((t: string | { id: string }) =>
+      typeof t === "string" ? t === decodedTag : t?.id === decodedTag
+    )
+  );
+
+  return generateListingMetadata({
+    title: `${formattedTag} Tag`,
+    path: `/tags/${tag}`,
+    locale,
+    itemCount: taggedItems.length,
+    keywords: [decodedTag, "tag", "directory", "listings"],
+  });
+}
 
 /**
  * Single tag route - renders homepage with tag filter
