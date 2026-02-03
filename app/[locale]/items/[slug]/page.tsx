@@ -9,6 +9,7 @@ import { ItemViewTracker } from '@/components/tracking/item-view-tracker';
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { generateItemHreflangAlternates } from '@/lib/seo/hreflang';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
@@ -153,7 +154,8 @@ export async function generateMetadata({
 				images: [ogImageUrl, fallbackImageUrl]
 			},
 			alternates: {
-				canonical: `${appUrl}/${locale}/items/${slug}`
+				canonical: `${appUrl}/${locale}/items/${slug}`,
+				languages: generateItemHreflangAlternates(slug)
 			}
 		};
 	} catch (error) {

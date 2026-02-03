@@ -6,6 +6,7 @@ import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -24,6 +25,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     metadataBase: new URL(appUrl),
     title: tFooter('TERMS_OF_SERVICE'),
     description: tPages('TERMS_OF_SERVICE_META_DESCRIPTION'),
+    alternates: {
+      languages: generateHreflangAlternates('/terms-of-service')
+    }
   };
 }
 

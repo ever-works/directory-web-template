@@ -8,6 +8,7 @@ import { getCachedPageContent } from '@/lib/content';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
 import { formatDisplayName } from '@/components/filters/utils/text-utils';
 import { siteConfig } from '@/lib/config';
+import { generatePageHreflangAlternates } from '@/lib/seo/hreflang';
 
 interface PageProps {
 	params: Promise<{ slug: string; locale: string }>;
@@ -60,6 +61,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 			card: 'summary_large_image',
 			title,
 			description
+		},
+		alternates: {
+			languages: generatePageHreflangAlternates(slug)
 		}
 	};
 }

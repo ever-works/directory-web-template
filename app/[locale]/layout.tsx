@@ -40,6 +40,7 @@ import {
 	getLocationSettings
 } from '@/lib/utils/settings';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 
 const rawUrl =
 	process.env.NEXT_PUBLIC_APP_URL?.trim() ||
@@ -63,7 +64,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 			siteName: siteConfig.name
 		},
 		alternates: {
-			canonical: `/${locale}`
+			canonical: `/${locale}`,
+			languages: generateHreflangAlternates('/')
 		}
 	};
 }
