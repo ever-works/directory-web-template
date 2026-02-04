@@ -116,7 +116,7 @@ const ProfileButtonTrigger = memo(({
   <button
     ref={buttonRef}
     type="button"
-    className={cn(MENU_STYLES.BUTTON.base)}
+    className={cn(MENU_STYLES.BUTTON.base, "cursor-pointer")}
     id="user-menu-button"
     aria-expanded={isProfileMenuOpen}
     aria-haspopup="menu"
@@ -212,7 +212,7 @@ function ProfileButton() {
       {/* Add backdrop for better UX when menu is open */}
       {isProfileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40"
+          className="fixed inset-0 z-40 bg-black/20 dark:bg-black/40 opacity-0"
           onClick={handleMenuClose}
           aria-hidden="true"
         />

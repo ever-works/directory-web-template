@@ -21,7 +21,7 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
     : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
 
   return (
-    <div className="px-5 py-4 border-b border-gray-100/50 dark:border-gray-600/50">
+    <div className="px-5 py-3 border-b border-gray-100/50 dark:border-gray-600/50">
       <div className="flex items-start space-x-4">
         <div className="relative shrink-0">
           <Avatar
@@ -56,10 +56,10 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
             {userEmail}
           </p>
           <div className="flex items-center gap-2 mt-2">
-            <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${roleBadgeClasses}`}>
+            <span className={`px-2 rounded-full text-[10px] font-medium ${roleBadgeClasses}`}>
               {displayRole}
             </span>
-            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+            <span className={`px-2 rounded-full text-[10px] font-medium ${
               isOnline
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
                 : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
