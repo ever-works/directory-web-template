@@ -2,7 +2,6 @@
 import { Suspense } from 'react';
 import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
-import { slugify } from '@/lib/utils/slug';
 import { getVideoEmbedUrl, toTitleCase } from '@/lib/utils';
 import { ShareButton } from './share-button';
 import { CommentsSection } from './comments-section';
@@ -18,7 +17,7 @@ import { SimilarItemsSection } from './similar-items-section';
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
-import { generateProductSchema } from '@/lib/seo/schema';
+import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
 import { ItemCTAButton } from './item-cta-button';
@@ -60,6 +59,10 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const { tagsEnabled } = useTagsEnabled();
 	const { sponsors } = useSponsorAdsContext();
 	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
+	const categoryId = typeof meta.category === 'string'
+		? meta.category
+		: (meta.category as { id?: string })?.id;
+	const encodedCategory = encodeURIComponent(categoryId || categoryName);
 
 	// Generate Product schema for SEO
 	const productSchema = generateProductSchema({
@@ -72,12 +75,41 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 		brandName: siteConfig.brandName
 	});
 
+	// Generate Breadcrumb schema for SEO
+	const breadcrumbItems: BreadcrumbItem[] = [
+		{
+			name: t('common.HOME'),
+			url: `${siteConfig.url}/${locale}`
+		}
+	];
+
+	// Add category breadcrumb if categories are enabled and category exists
+	if (categoriesEnabled && categoryName) {
+		breadcrumbItems.push({
+			name: toTitleCase(categoryName),
+			url: `${siteConfig.url}/${locale}/categories/${encodedCategory}`
+		});
+	}
+
+	// Add current item
+	breadcrumbItems.push({
+		name: meta.name,
+		url: `${siteConfig.url}/${locale}/items/${meta.slug}`
+	});
+
+	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
 	return (
 		<div className="min-h-screen relative overflow-hidden">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+			/>
+			{/* Breadcrumb Schema JSON-LD */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
 				<div className="flex flex-col lg:flex-row gap-8">
@@ -391,7 +423,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								</div>
 								<div className="flex flex-wrap gap-2">
 									<a
-										href={`/categories/${slugify(categoryName)}`}
+										href={`/categories/${encodedCategory}`}
 										className="group relative px-5 py-3 bg-linear-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 dark:from-purple-900/20 dark:to-pink-900/20 dark:hover:from-purple-900/30 dark:hover:to-pink-900/30 transition-all duration-300 rounded-xl text-sm font-semibold flex items-center border border-purple-200/50 dark:border-purple-700/50 hover:border-purple-300 dark:hover:border-purple-600 transform hover:scale-105 overflow-hidden"
 									>
 										<div className="absolute inset-0 bg-linear-to-r from-transparent via-purple-200/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
