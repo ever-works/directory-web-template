@@ -57,9 +57,19 @@ export function generateProductSchema(input: ProductSchemaInput) {
 
 /**
  * Generate Organization schema for brand identity
+ * Includes social profiles (sameAs) and contact point for Knowledge Panel visibility
  */
 export function generateOrganizationSchema() {
-	return {
+	// Build sameAs array from social profiles, filtering out empty values
+	const sameAs = [
+		siteConfig.social.github,
+		siteConfig.social.x,
+		siteConfig.social.linkedin,
+		siteConfig.social.facebook,
+		siteConfig.social.blog
+	].filter(Boolean);
+
+	const schema: Record<string, unknown> = {
 		'@context': 'https://schema.org',
 		'@type': 'Organization',
 		name: siteConfig.brandName,
@@ -67,6 +77,22 @@ export function generateOrganizationSchema() {
 		logo: `${siteConfig.url}${siteConfig.logo}`,
 		description: siteConfig.description
 	};
+
+	// Only add sameAs if there are valid social profiles
+	if (sameAs.length > 0) {
+		schema.sameAs = sameAs;
+	}
+
+	// Add contact point if email is configured
+	if (siteConfig.social.email) {
+		schema.contactPoint = {
+			'@type': 'ContactPoint',
+			email: siteConfig.social.email,
+			contactType: 'customer service'
+		};
+	}
+
+	return schema;
 }
 
 /**

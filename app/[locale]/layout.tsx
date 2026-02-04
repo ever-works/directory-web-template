@@ -16,6 +16,7 @@ import { Suspense } from 'react';
 import Script from 'next/script';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { siteConfig } from '@/lib/config';
+import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
 import { SpeedInsights } from './integration/speed-insights';
 import { Analytics } from './integration/analytics';
 import { SettingsProvider } from '@/components/providers/settings-provider';
@@ -149,9 +150,31 @@ export default async function RootLayout({
 	// Read location settings server-side
 	const locationSettings = getLocationSettings();
 
+	// Generate structured data schemas for SEO
+	const organizationSchema = generateOrganizationSchema();
+	const websiteSchema = generateWebSiteSchema(locale);
+
 	// Determine if the current locale is RTL
 	return (
 		<>
+			{/* Organization and WebSite JSON-LD schemas for Knowledge Panel and search features */}
+			{/* Using beforeInteractive strategy ensures scripts are hoisted to <head> */}
+			<Script
+				id="organization-jsonld"
+				type="application/ld+json"
+				strategy="beforeInteractive"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c')
+				}}
+			/>
+			<Script
+				id="website-jsonld"
+				type="application/ld+json"
+				strategy="beforeInteractive"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(websiteSchema).replace(/</g, '\\u003c')
+				}}
+			/>
 			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="afterInteractive" />
 			<PHProvider>
 				<Suspense fallback={null}>
