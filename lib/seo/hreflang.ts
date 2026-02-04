@@ -3,7 +3,7 @@
  * Generates language alternates for SEO to help search engines understand localized pages
  */
 
-import { siteConfig } from '@/lib/config/client';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { LOCALES, DEFAULT_LOCALE, type Locale } from '@/lib/constants';
 
 /**
@@ -44,8 +44,8 @@ const LOCALE_TO_HREFLANG: Record<Locale, string> = {
  * @param locale - The target locale
  * @returns Full URL with proper locale prefix
  */
-function getLocalizedUrl(path: string, locale: Locale): string {
-	const baseUrl = siteConfig.url.replace(/\/$/, ''); // Remove trailing slash if present
+export function getLocalizedUrl(path: string, locale: Locale): string {
+	const baseUrl = getBaseUrl().replace(/\/$/, ''); // Remove trailing slash if present
 	const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
 	if (locale === DEFAULT_LOCALE) {

@@ -5,16 +5,14 @@ import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
-const appUrl = cleanUrl(rawUrl);
+const appUrl = getBaseUrl();
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {  
   const { locale } = await params;

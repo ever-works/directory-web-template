@@ -5,10 +5,11 @@ import { PageContainer } from '@/components/ui/container';
 import { Breadcrumb, type BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { formatDisplayName } from '@/components/filters/utils/text-utils';
 import { siteConfig } from '@/lib/config';
-import { generatePageHreflangAlternates } from '@/lib/seo/hreflang';
+import { generatePageHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { type Locale } from '@/lib/constants';
 
 interface PageProps {
 	params: Promise<{ slug: string; locale: string }>;
@@ -19,8 +20,7 @@ interface PageProps {
 export const revalidate = 600;
 export const dynamicParams = true;
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 'http://localhost:3000';
-const baseUrl = cleanUrl(rawUrl);
+const baseUrl = getBaseUrl();
 
 /**
  * Extracts page title from metadata or generates it from slug
@@ -52,7 +52,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 		openGraph: {
 			title,
 			description,
-			url: `${baseUrl}/${locale}/pages/${slug}`,
+			url: getLocalizedUrl(`/pages/${slug}`, locale as Locale),
 			siteName: siteConfig.name,
 			locale,
 			type: 'website'
