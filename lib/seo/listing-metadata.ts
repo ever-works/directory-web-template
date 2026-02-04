@@ -1,14 +1,12 @@
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
-
-// Locales supported by the app
-const locales = ['en', 'fr', 'es', 'de', 'zh', 'ar', 'he', 'ru', 'uk', 'pt', 'it', 'ja', 'ko', 'nl', 'pl', 'tr', 'vi', 'th', 'hi', 'id', 'bg'];
+import { LOCALES } from '@/lib/constants';
 
 function generateHreflangAlternates(path: string): Record<string, string> {
 	const appUrl = process.env.NEXT_PUBLIC_APP_URL || siteConfig.url;
 	const languages: Record<string, string> = {};
 
-	for (const locale of locales) {
+	for (const locale of LOCALES) {
 		const localePath = locale === 'en' ? path : `/${locale}${path}`;
 		languages[locale] = `${appUrl}${localePath}`;
 	}
