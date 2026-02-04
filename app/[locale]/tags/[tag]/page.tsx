@@ -19,9 +19,10 @@ export async function generateMetadata({
   const formattedTag = toTitleCase(decodedTag);
   const { items } = await getCachedItems({ lang: locale });
   const taggedItems = items.filter((item) =>
-    item.tags?.some((t: string | { id: string }) =>
-      typeof t === "string" ? t === decodedTag : t?.id === decodedTag
-    )
+    item.tags?.some((t: string | { id: string }) => {
+      const tagValue = typeof t === "string" ? t : t?.id;
+      return tagValue?.toLowerCase() === decodedTag.toLowerCase();
+    })
   );
 
   return generateListingMetadata({
