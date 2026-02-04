@@ -109,7 +109,7 @@ const PAGINATION_ROUTES = [
 
 // Helper functions
 const getBaseUrl = (): string => {
-  return appUrl;
+  return appUrl.replace(/\/+$/, '');
 };
 
 const sanitizeSlug = (slug: string): string => {
@@ -128,7 +128,8 @@ const validateSlug = (slug: string): boolean => {
 
 /**
  * Converts an icon URL to an absolute URL for sitemap image entries.
- * Handles relative paths, protocol-relative URLs, and already-absolute URLs.
+ * Uses the URL constructor for robust resolution of relative paths,
+ * protocol-relative URLs, and already-absolute URLs.
  * @param iconUrl - The icon URL from the item data
  * @param baseUrl - The base URL of the site
  * @returns Absolute URL string or null if the URL is invalid
@@ -138,25 +139,15 @@ const toAbsoluteImageUrl = (iconUrl: string | undefined, baseUrl: string): strin
     return null;
   }
 
-  const trimmedUrl = iconUrl.trim();
-
-  // Already an absolute URL with protocol
-  if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
-    return trimmedUrl;
+  try {
+    const url = new URL(iconUrl.trim(), baseUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return null;
+    }
+    return url.toString();
+  } catch {
+    return null;
   }
-
-  // Protocol-relative URL (//example.com/image.jpg)
-  if (trimmedUrl.startsWith('//')) {
-    return `https:${trimmedUrl}`;
-  }
-
-  // Relative URL starting with /
-  if (trimmedUrl.startsWith('/')) {
-    return `${baseUrl}${trimmedUrl}`;
-  }
-
-  // Relative URL without leading slash
-  return `${baseUrl}/${trimmedUrl}`;
 };
 
 const generateStaticRoutes = (baseUrl: string): SitemapEntry[] => {
