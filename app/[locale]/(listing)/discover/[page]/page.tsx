@@ -19,7 +19,7 @@ export async function generateMetadata({
 
   return generateListingMetadata({
     title,
-    path: `/discover/${page}`,
+    path: `/discover/${pageNum}`,
     locale,
     itemCount: total,
     keywords: ["discover", "browse", "directory", "listings"],
