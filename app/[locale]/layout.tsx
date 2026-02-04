@@ -40,12 +40,11 @@ import {
 	getHeaderThemeDefault,
 	getLocationSettings
 } from '@/lib/utils/settings';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { generateHreflangAlternates } from '@/lib/seo/hreflang';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
-const rawUrl =
-	process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
-const appUrl = cleanUrl(rawUrl);
+const appUrl = getBaseUrl();
 
 /**
  * Generate metadata dynamically using siteConfig
@@ -64,7 +63,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 			siteName: siteConfig.name
 		},
 		alternates: {
-			canonical: `/${locale}`
+			canonical: locale === DEFAULT_LOCALE ? '/' : `/${locale}`,
+			languages: generateHreflangAlternates('/')
 		}
 	};
 }
