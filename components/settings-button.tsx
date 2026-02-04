@@ -43,7 +43,7 @@ function SettingsButtonComponent() {
 				onMouseLeave={hideTooltip}
 				onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
 				onBlur={hideTooltip}
-				className={BUTTON_CLASSES}
+				className={`${BUTTON_CLASSES} relative inline-flex items-center justify-center h-9 cursor-pointer`}
 				aria-label={t("OPEN_SETTINGS")}
 				type="button"
 			>
