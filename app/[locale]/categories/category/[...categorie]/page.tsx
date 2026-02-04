@@ -20,7 +20,8 @@ export async function generateMetadata({
   const { total } = await getCachedItemsByCategory(category, { lang: locale });
   const formattedCategory = toTitleCase(category);
   const title = page > 1 ? `${formattedCategory} - Page ${page}` : formattedCategory;
-  const path = page > 1 ? `/categories/category/${category}/${page}` : `/categories/category/${category}`;
+  const encodedCategory = encodeURIComponent(category);
+  const path = page > 1 ? `/categories/category/${encodedCategory}/${page}` : `/categories/category/${encodedCategory}`;
 
   return generateListingMetadata({
     title,
