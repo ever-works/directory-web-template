@@ -11,7 +11,7 @@ export function CollectionsBreadcrumb() {
 				<li className="inline-flex items-center text-black dark:text-white">
 					<Link
 						href="/"
-						className="inline-flex items-center text-sm font-medium text-black dark:text-white hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-300"
+						className="inline-flex items-center text-sm font-medium text-black dark:text-[#abaebb] hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-300"
 					>
 						<svg
 							className="w-4 h-4 mr-2"
