@@ -4,6 +4,7 @@
  */
 
 import { siteConfig } from '@/lib/config/client';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export interface ProductSchemaInput {
 	name: string;
@@ -99,16 +100,17 @@ export function generateOrganizationSchema() {
  * Generate WebSite schema with search action
  */
 export function generateWebSiteSchema(locale: string) {
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: siteConfig.name,
-		url: `${siteConfig.url}/${locale}`,
+		url: `${siteConfig.url}${localePrefix}`,
 		potentialAction: {
 			'@type': 'SearchAction',
 			target: {
 				'@type': 'EntryPoint',
-				urlTemplate: `${siteConfig.url}/${locale}?q={search_term_string}`
+				urlTemplate: `${siteConfig.url}${localePrefix}?q={search_term_string}`
 			},
 			'query-input': 'required name=search_term_string'
 		}
