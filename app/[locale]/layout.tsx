@@ -158,19 +158,14 @@ export default async function RootLayout({
 	return (
 		<>
 			{/* Organization and WebSite JSON-LD schemas for Knowledge Panel and search features */}
-			{/* Using beforeInteractive strategy ensures scripts are hoisted to <head> */}
-			<Script
-				id="organization-jsonld"
+			<script
 				type="application/ld+json"
-				strategy="beforeInteractive"
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c')
 				}}
 			/>
-			<Script
-				id="website-jsonld"
+			<script
 				type="application/ld+json"
-				strategy="beforeInteractive"
 				dangerouslySetInnerHTML={{
 					__html: JSON.stringify(websiteSchema).replace(/</g, '\\u003c')
 				}}
