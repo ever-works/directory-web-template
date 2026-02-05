@@ -14,7 +14,7 @@ export function NavigationControls() {
 		<div className="flex items-center gap-2 md:gap-3 transition-all duration-300">
 			{settings.layoutEnabled && isDemo && (
 				<div className="hidden sm:block">
-					<LayoutSwitcher inline={false} />
+					<LayoutSwitcher inline={false} iconOnly={true} />
 				</div>
 			)}
 			{settings.languageEnabled && <LanguageSwitcher />}

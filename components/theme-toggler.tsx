@@ -3,6 +3,8 @@
 import { ChevronDown, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef, useId } from "react";
+import { createPortal } from "react-dom";
+import { useTranslations } from "next-intl";
 
 interface ThemeTogglerProps {
   compact?: boolean;
@@ -16,8 +18,11 @@ export function ThemeToggler({ compact = false, openUp = false, iconOnly = false
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
   const popoverRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
+  const t = useTranslations("common");
 
   useEffect(() => {
     setMounted(true);
@@ -59,19 +64,46 @@ export function ThemeToggler({ compact = false, openUp = false, iconOnly = false
     return null;
   }
 
+  const showTooltip = (btn: HTMLButtonElement) => {
+    const r = btn.getBoundingClientRect();
+    setPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
+    setHovered(true);
+  };
+
+  const hideTooltip = () => setHovered(false);
+
   if (iconOnly) {
+    const tooltipText = theme === "dark" ? t("SWITCH_TO_LIGHT") : t("SWITCH_TO_DARK");
+
     return (
-      <button
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="relative inline-flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 text-gray-700 dark:text-gray-300"
-        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-      >
-        {theme === "dark" ? (
-          <Sun className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
-        ) : (
-          <Moon className="h-5 w-5 text-theme-primary" />
-        )}
-      </button>
+      <>
+        <button
+          onClick={() => {
+            hideTooltip();
+            setTheme(theme === "dark" ? "light" : "dark");
+          }}
+          onMouseEnter={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+          onMouseLeave={hideTooltip}
+          onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+          onBlur={hideTooltip}
+          className="relative inline-flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        >
+          {theme === "dark" ? (
+            <Sun className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+          ) : (
+            <Moon className="h-5 w-5 text-theme-primary" />
+          )}
+        </button>
+        {hovered && typeof document !== 'undefined' && createPortal(
+          <div
+            className="fixed z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-medium border pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
+            style={{ top: pos.top, left: pos.left, transform: 'translateX(-50%)' }}
+          >
+            {tooltipText}
+          </div>, document.body)
+        }
+      </>
     );
   }
 
@@ -79,7 +111,7 @@ export function ThemeToggler({ compact = false, openUp = false, iconOnly = false
     return (
       <button
         onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        className="relative inline-flex items-center h-10 w-20 rounded-full transition-colors duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 bg-gray-300 data-checked:bg-theme-primary"
+        className="relative inline-flex items-center h-10 w-20 rounded-full transition-colors duration-300 bg-gray-300 data-checked:bg-theme-primary"
         data-checked={theme === "dark" ? "" : undefined}
         aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
       >
@@ -103,29 +135,34 @@ export function ThemeToggler({ compact = false, openUp = false, iconOnly = false
   return (
     <div className="relative" ref={popoverRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative flex items-center gap-1.5 px-3 py-1.5 text-sm bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-xs text-gray-800 dark:text-white rounded-lg hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-800/95 dark:hover:to-gray-700/95 transition-all duration-300 border border-gray-100 dark:border-gray-700/50 hover:border-gray-400 dark:hover:border-gray-600/70 group overflow-hidden"
+        onClick={() => {
+          hideTooltip();
+          setIsOpen(!isOpen);
+        }}
+        onMouseEnter={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+        onMouseLeave={hideTooltip}
+        onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+        onBlur={hideTooltip}
+        className="relative inline-flex items-center cursor-pointer justify-center h-9 w-6 rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300"
         aria-label={`Current theme: ${theme || "loading"}`}
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
       >
-        <div
-          className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-            theme === "light" ? "bg-yellow-500/5" : "bg-blue-500/5"
-          }`}
-        ></div>
-        <div className="relative z-10 flex items-center gap-1.5">
-          {theme === "light" ? (
-            <Sun className="h-4 w-4 text-yellow-500 dark:text-yellow-400" />
-          ) : (
-            <Moon className="h-4 w-4 text-theme-primary dark:text-theme-primary" />
-          )}
-          <span className="text-gray-800 dark:text-white capitalize">
-            {theme === "light" ? "Light" : "Dark"}
-          </span>
-          <ChevronDown className={`h-3 w-3 text-gray-500 dark:text-gray-400 transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-        </div>
+        {theme === "light" ? (
+          <Sun className="h-5 w-5 text-yellow-500 dark:text-yellow-400" />
+        ) : (
+          <Moon className="h-5 w-5 text-theme-primary" />
+        )}
       </button>
+
+      {hovered && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-medium border pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
+          style={{ top: pos.top, left: pos.left, transform: 'translateX(-50%)' }}
+        >
+          {theme === "light" ? "Light" : "Dark"}
+        </div>, document.body)
+      }
 
       {isOpen && (
         <div
