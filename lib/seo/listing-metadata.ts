@@ -1,19 +1,6 @@
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
-import { LOCALES } from '@/lib/constants';
-
-function generateHreflangAlternates(path: string): Record<string, string> {
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || siteConfig.url;
-	const languages: Record<string, string> = {};
-
-	for (const locale of LOCALES) {
-		const localePath = locale === 'en' ? path : `/${locale}${path}`;
-		languages[locale] = `${appUrl}${localePath}`;
-	}
-	languages['x-default'] = `${appUrl}${path}`;
-
-	return languages;
-}
+import { generateHreflangAlternates } from './hreflang';
 
 interface ListingMetadataOptions {
 	title: string;
