@@ -52,7 +52,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 
 			{/* Hover image at top, reversed horizontally, only visible on hover, now with higher opacity */}
 			<div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
-				<Image src="/bg-cards.png" alt="Collection Image" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400}/>
+				<Image src="/bg-cards.png" alt="Decorative pattern" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400}/>
 			</div>
 			{/* Blurred background element - reduced opacity */}
 			<div

@@ -38,16 +38,6 @@ export default function Hero({
         className
       )}
     >
-      {/* Background Effects */}
-      {showBackgroundEffects && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Gradient orbs */}
-          {/* <div className="absolute top-0 -left-4 w-72 h-72 bg-linear-to-r from-blue-500/10 to-blue-600/10 dark:from-blue-600/20 dark:to-blue-700/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-linear-to-r from-blue-600/10 to-blue-500/10 dark:from-blue-700/20 dark:to-blue-600/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-linear-to-r from-blue-500/10 to-blue-600/10 dark:from-blue-600/20 dark:to-blue-700/20 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div> */}
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="relative z-10 w-full">
         {/* Header Section - Title and description */}

@@ -109,7 +109,7 @@ export function CollectionsGridContent({ collections }: CollectionsGridContentPr
 				<CollectionsPagination page={safePage} totalPages={totalPagesCount} onPageChange={handlePageChange} />
 			)}
 			<div className='w-4/6 mx-auto -mt-20 relative'>
-				<Image src="/bg-pattern.png" alt="Collection Image" className='w-full z-20 filter brightness-0 dark:brightness-200' width={800} height={400} />
+				<Image src="/bg-pattern.png" alt="Decorative pattern" className='w-full z-20 filter brightness-0 dark:brightness-200' width={800} height={400} />
 				<div className='w-[95rem] h-[82rem] rounded-full bg-[#6209bb] blur-3xl z-10 absolute left-1/2 -translate-x-1/2 -bottom-[75rem] dark:opacity-25 opacity-10'></div>
 			</div>
 		</div>
