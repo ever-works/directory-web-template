@@ -5,6 +5,7 @@ import { Spinner } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Collection } from '@/types/collection';
+import Image from 'next/image';
 
 interface CollectionCardProps {
 	collection: Collection;
@@ -29,12 +30,30 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 					setIsNavigating(true);
 				}
 			}}
-			className="group relative block p-6 bg-linear-to-br from-white via-red-50/30 to-red-100/20 
-      dark:from-gray-800 dark:via-red-900/10 dark:to-red-900/5
-      rounded-2xl border border-gray-200 dark:border-gray-700 
-      transition-all duration-500 hover:shadow-xl hover:shadow-theme-primary/10
-      overflow-hidden cursor-pointer"
+			className="group relative block p-6 bg-white dark:bg-[#101624]
+			rounded-2xl border border-gray-200 dark:border-gray-700/50
+			transition-all duration-100
+			overflow-hidden cursor-pointer"
 		>
+			{/* Decorative short top border accent with fading edges */}
+			<div
+				className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 w-1/2 h-px z-20 opacity-70"
+				style={{
+					background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
+					borderRadius: '9999px',
+				}}
+			/>
+			{/* Decorative blurred circles background */}
+			<div className="pointer-events-none absolute inset-0 z-0">
+				<div className="absolute w-40 h-40 bg-[#6209bb]/20 opacity-50 rounded-full blur-3xl left-2 top-0"></div>
+				<div className="absolute w-32 h-32 bg-blue-200/20 opacity-50 rounded-full blur-3xl right-1 top-20"></div>
+				<div className="absolute w-28 h-28 bg-[#6209bb]/20 opacity-50 rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
+			</div>
+
+			{/* Hover image at top, reversed horizontally, only visible on hover, now with higher opacity */}
+			<div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
+				<Image src="/bg-cards.png" alt="Collection Image" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400}/>
+			</div>
 			{/* Blurred background element - reduced opacity */}
 			<div
 				className="absolute inset-0 bg-linear-to-br from-theme-primary/0 via-theme-primary/0 to-theme-primary/0 
