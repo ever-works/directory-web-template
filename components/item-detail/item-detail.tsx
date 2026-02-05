@@ -20,6 +20,7 @@ import { useTranslations } from 'next-intl';
 import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 import { ItemCTAButton } from './item-cta-button';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useSurveysEnabled } from '@/hooks/use-surveys-enabled';
@@ -63,13 +64,14 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 		? meta.category
 		: (meta.category as { id?: string })?.id;
 	const encodedCategory = encodeURIComponent(categoryId || categoryName);
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 
 	// Generate Product schema for SEO
 	const productSchema = generateProductSchema({
 		name: meta.name,
 		description: meta.description,
 		image: meta.icon_url,
-		url: `${siteConfig.url}/${locale}/items/${meta.slug}`,
+		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`,
 		category: categoryName,
 		sourceUrl: meta.source_url,
 		brandName: siteConfig.brandName
@@ -79,7 +81,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const breadcrumbItems: BreadcrumbItem[] = [
 		{
 			name: t('common.HOME'),
-			url: `${siteConfig.url}/${locale}`
+			url: `${siteConfig.url}${localePrefix}`
 		}
 	];
 
@@ -87,14 +89,14 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	if (categoriesEnabled && categoryName) {
 		breadcrumbItems.push({
 			name: toTitleCase(categoryName),
-			url: `${siteConfig.url}/${locale}/categories/${encodedCategory}`
+			url: `${siteConfig.url}${localePrefix}/categories/${encodedCategory}`
 		});
 	}
 
 	// Add current item
 	breadcrumbItems.push({
 		name: meta.name,
-		url: `${siteConfig.url}/${locale}/items/${meta.slug}`
+		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`
 	});
 
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
