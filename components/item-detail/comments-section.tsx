@@ -478,7 +478,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 				{user ? (
 				<CommentForm onSubmit={handleSubmit} isCreating={isCreating} />
 			) : (
-				<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation')} />
+				<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation', window.location.pathname + window.location.search)} />
 			)}
 			</div>
 
