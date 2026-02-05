@@ -11,7 +11,7 @@ export function UniversalPagination({ page, totalPages, onPageChange, className 
   if (totalPages <= 1) return null;
 
   return (
-    <div className={cn("flex flex-col items-center gap-6 mt-16 mb-12 px-4 sm:px-8 lg:px-16 w-full", className)}>
+    <div className={cn("flex flex-col items-center gap-6 mt-10 mb-12 px-4 sm:px-8 lg:px-16 w-full", className)}>
       {/* Page info */}
       <div className="text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -22,7 +22,7 @@ export function UniversalPagination({ page, totalPages, onPageChange, className 
       <div className="relative group w-full max-w-fit mx-auto">
         {/* Background glow effect */}
         <div className="absolute inset-0 bg-linear-to-r from-primary-500/10 via-primary-600/5 to-primary-500/10 rounded-2xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
-        <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50 rounded-2xl px-4 py-2 shadow-lg hover:shadow-xl transition-all duration-300 dark:shadow-lg dark:shadow-theme-primary-500/20">
+        <div className="relative bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50 rounded-2xl px-4 py-2 transition-all duration-300">
           <Pagination
             showControls
             total={totalPages}
