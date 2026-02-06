@@ -1,9 +1,36 @@
+import { Metadata } from "next";
 import { getCachedItemsByCategory, getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { toTitleCase } from "@/lib/utils";
 import Listing from "../../../(listing)/listing";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ categorie: string[]; locale: string }>;
+}): Promise<Metadata> {
+  const { categorie: categoryMeta, locale } = await params;
+  const [rawCategory, rawPage] = categoryMeta;
+  const category = decodeURIComponent(rawCategory);
+  const page = rawPage ? parseInt(rawPage) : 1;
+  const { total } = await getCachedItemsByCategory(category, { lang: locale });
+  const formattedCategory = toTitleCase(category);
+  const title = page > 1 ? `${formattedCategory} - Page ${page}` : formattedCategory;
+  const encodedCategory = encodeURIComponent(category);
+  const path = page > 1 ? `/categories/category/${encodedCategory}/${page}` : `/categories/category/${encodedCategory}`;
+
+  return generateListingMetadata({
+    title,
+    path,
+    locale,
+    itemCount: total,
+    keywords: [category, "category", "directory", "listings"],
+  });
+}
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

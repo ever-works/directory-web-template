@@ -16,6 +16,7 @@ import { Suspense } from 'react';
 import Script from 'next/script';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { siteConfig } from '@/lib/config';
+import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
 import { SpeedInsights } from './integration/speed-insights';
 import { Analytics } from './integration/analytics';
 import { SettingsProvider } from '@/components/providers/settings-provider';
@@ -39,12 +40,11 @@ import {
 	getHeaderThemeDefault,
 	getLocationSettings
 } from '@/lib/utils/settings';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { generateHreflangAlternates } from '@/lib/seo/hreflang';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
-const rawUrl =
-	process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
-const appUrl = cleanUrl(rawUrl);
+const appUrl = getBaseUrl();
 
 /**
  * Generate metadata dynamically using siteConfig
@@ -63,7 +63,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 			siteName: siteConfig.name
 		},
 		alternates: {
-			canonical: `/${locale}`
+			canonical: locale === DEFAULT_LOCALE ? '/' : `/${locale}`,
+			languages: generateHreflangAlternates('/')
 		}
 	};
 }
@@ -149,9 +150,26 @@ export default async function RootLayout({
 	// Read location settings server-side
 	const locationSettings = getLocationSettings();
 
+	// Generate structured data schemas for SEO
+	const organizationSchema = generateOrganizationSchema();
+	const websiteSchema = generateWebSiteSchema(locale);
+
 	// Determine if the current locale is RTL
 	return (
 		<>
+			{/* Organization and WebSite JSON-LD schemas for Knowledge Panel and search features */}
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(organizationSchema).replace(/</g, '\\u003c')
+				}}
+			/>
+			<script
+				type="application/ld+json"
+				dangerouslySetInnerHTML={{
+					__html: JSON.stringify(websiteSchema).replace(/</g, '\\u003c')
+				}}
+			/>
 			<Script src="https://assets.lemonsqueezy.com/lemon.js" strategy="afterInteractive" />
 			<PHProvider>
 				<Suspense fallback={null}>
