@@ -23,12 +23,12 @@ type SocialProvider = {
   isEnabled: boolean;
 };
 
-export function SocialLogin() {
+export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: string } = {}) {
   const t = useTranslations("common");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const rawRedirectUrl = searchParams.get("redirect") || searchParams.get("callbackUrl");
-  const redirectUrl = isValidCallbackUrl(rawRedirectUrl) ? rawRedirectUrl! : "/client/dashboard";
+  const redirectUrl = isValidCallbackUrl(rawRedirectUrl) ? rawRedirectUrl! : (callbackUrlProp || "/client/dashboard");
   const router = useRouter();
   const config = useConfig();
   const auth = config.auth || {};
