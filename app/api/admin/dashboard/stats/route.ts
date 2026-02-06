@@ -3,6 +3,7 @@ import { AdminStatsRepository } from '@/lib/repositories/admin-stats.repository'
 import { AdminAnalyticsOptimizedRepository } from '@/lib/repositories/admin-analytics-optimized.repository';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { auth } from '@/lib/auth';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 // Disable caching for authenticated dynamic data
 export const dynamic = 'force-dynamic';
@@ -276,7 +277,7 @@ export async function GET() {
 
 		// Get session for tenant ID
 		const session = await auth();
-		const tenantId = session?.user?.tenantId;
+		const tenantId = await getTenantId(session);
 		if (!tenantId) {
 			return NextResponse.json({ success: false, error: 'No tenant ID found in session' }, { status: 401 });
 		}
