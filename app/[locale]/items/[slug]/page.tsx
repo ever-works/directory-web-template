@@ -8,74 +8,16 @@ import { Container } from '@/components/ui/container';
 import { ItemViewTracker } from '@/components/tracking/item-view-tracker';
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { DEFAULT_LOCALE, type Locale } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
 export const revalidate = 600;
 export const dynamicParams = true;
 
-/**
- * Normalize and validate the base URL from environment variables
- * Handles NEXT_PUBLIC_APP_URL and VERCEL_URL with proper scheme detection
- * and validation to prevent URL constructor errors
- */
-function getNormalizedAppUrl(): string {
-	const FALLBACK_URL = 'https://demo.ever.works';
-
-	// Extract and trim environment variables
-	const envAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-	const envVercelUrl = process.env.VERCEL_URL?.trim();
-
-	// Prefer NEXT_PUBLIC_APP_URL if present and non-empty
-	if (envAppUrl) {
-		const cleaned = cleanUrl(envAppUrl);
-		if (cleaned && isValidAbsoluteUrl(cleaned)) {
-			return cleaned;
-		}
-		console.warn(`Invalid NEXT_PUBLIC_APP_URL: "${envAppUrl}" (cleaned: "${cleaned}"). Using fallback.`);
-	}
-
-	// Fallback to VERCEL_URL if available
-	if (envVercelUrl) {
-		// Strip any existing scheme (http:// or https://)
-		let vercelUrl = envVercelUrl.replace(/^https?:\/\//i, '');
-		// Strip trailing slashes
-		vercelUrl = vercelUrl.replace(/\/+$/, '');
-		// Add https:// if no scheme exists (shouldn't happen after strip, but safe)
-		const rawUrl =
-			vercelUrl.startsWith('http://') || vercelUrl.startsWith('https://') ? vercelUrl : `https://${vercelUrl}`;
-
-		const cleaned = cleanUrl(rawUrl);
-		if (cleaned && isValidAbsoluteUrl(cleaned)) {
-			return cleaned;
-		}
-		console.warn(`Invalid VERCEL_URL: "${envVercelUrl}" (cleaned: "${cleaned}"). Using fallback.`);
-	}
-
-	// Use hardcoded fallback
-	return FALLBACK_URL;
-}
-
-/**
- * Validate that a URL string is an absolute URL
- * Attempts to construct a URL object to verify validity
- */
-function isValidAbsoluteUrl(url: string): boolean {
-	if (!url || typeof url !== 'string') {
-		return false;
-	}
-
-	try {
-		const urlObj = new URL(url);
-		// Must have a protocol and hostname
-		return !!urlObj.protocol && !!urlObj.hostname;
-	} catch {
-		return false;
-	}
-}
-
-const appUrl = getNormalizedAppUrl();
+const appUrl = getBaseUrl();
 
 /**
  * Generate metadata for item detail pages
@@ -144,7 +86,7 @@ export async function generateMetadata({
 				],
 				type: 'website',
 				siteName: siteConfig.name,
-				url: `${appUrl}/${locale}/items/${slug}`
+				url: getLocalizedUrl(`/items/${slug}`, locale as Locale)
 			},
 			twitter: {
 				card: 'summary_large_image',
@@ -153,7 +95,8 @@ export async function generateMetadata({
 				images: [ogImageUrl, fallbackImageUrl]
 			},
 			alternates: {
-				canonical: `${appUrl}/${locale}/items/${slug}`
+				canonical: getLocalizedUrl(`/items/${slug}`, locale as Locale),
+				languages: generateItemHreflangAlternates(slug)
 			}
 		};
 	} catch (error) {

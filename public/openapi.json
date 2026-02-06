@@ -32764,6 +32764,530 @@
           }
         }
       }
+    },
+    "/api/admin/geo-analytics": {
+      "get": {
+        "tags": [
+          "Admin - Geographic"
+        ],
+        "summary": "Get geographic analytics data",
+        "description": "Returns geographic distribution analytics including coverage stats, country/service area distributions, and location coordinates for map visualization. Requires admin privileges.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geographic analytics retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized - Admin access required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/admin/location-index": {
+      "get": {
+        "tags": [
+          "Admin - Geographic"
+        ],
+        "summary": "Get location index statistics",
+        "description": "Returns statistics about the location index including total indexed items, cities, countries, and rebuild metadata. Requires admin privileges.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Location index stats retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized - Admin access required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin - Geographic"
+        ],
+        "summary": "Manage location index",
+        "description": "Rebuild or clear the location index. Action 'rebuild' re-indexes all items with location data. Action 'clear' removes all entries from the index. Requires admin privileges.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "rebuild",
+                      "clear"
+                    ]
+                  }
+                },
+                "required": [
+                  "action"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Action completed successfully"
+          },
+          "400": {
+            "description": "Invalid action"
+          },
+          "401": {
+            "description": "Unauthorized - Admin access required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/client/geo-stats": {
+      "get": {
+        "tags": [
+          "Client - Dashboard"
+        ],
+        "summary": "Get geographic statistics for the client's items",
+        "description": "Returns geographic coverage statistics including items with location, remote items, service area breakdown, top cities, and top countries for the authenticated user.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Geographic statistics retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "total_items": {
+                      "type": "integer",
+                      "example": 10
+                    },
+                    "items_with_location": {
+                      "type": "integer",
+                      "example": 7
+                    },
+                    "items_remote": {
+                      "type": "integer",
+                      "example": 2
+                    },
+                    "service_area_breakdown": {
+                      "type": "array",
+                      "description": "Top service areas by count (sorted descending)",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "area": {
+                            "type": "string",
+                            "example": "local"
+                          },
+                          "count": {
+                            "type": "integer",
+                            "example": 3
+                          }
+                        }
+                      }
+                    },
+                    "top_cities": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "city": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    },
+                    "top_countries": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "country": {
+                            "type": "string"
+                          },
+                          "count": {
+                            "type": "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/client/items/coordinates": {
+      "get": {
+        "tags": [
+          "Client - Dashboard"
+        ],
+        "summary": "Get coordinates for the client's items",
+        "description": "Returns slug, name, latitude, and longitude for all items belonging to the authenticated user that have location coordinates.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Coordinates retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "coordinates": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "slug": {
+                            "type": "string",
+                            "example": "my-item"
+                          },
+                          "name": {
+                            "type": "string",
+                            "example": "My Item"
+                          },
+                          "latitude": {
+                            "type": "number",
+                            "example": 40.7128
+                          },
+                          "longitude": {
+                            "type": "number",
+                            "example": -74.006
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Unauthorized. Please sign in to continue."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to fetch item coordinates"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/location/cities": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Get distinct cities from the location index",
+        "responses": {
+          "200": {
+            "description": "List of distinct city names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/location/coordinates": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Get coordinates for all indexed items",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by city name"
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by country name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of item coordinates"
+          }
+        }
+      }
+    },
+    "/api/location/countries": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Get distinct countries from the location index",
+        "responses": {
+          "200": {
+            "description": "List of distinct country names",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/location/search": {
+      "get": {
+        "tags": [
+          "Location"
+        ],
+        "summary": "Search items by location (radius, city, or country)",
+        "parameters": [
+          {
+            "name": "near_lat",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Latitude for radius search"
+          },
+          {
+            "name": "near_lng",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Longitude for radius search"
+          },
+          {
+            "name": "radius",
+            "in": "query",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Radius in km (default 50)"
+          },
+          {
+            "name": "city",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by city name"
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by country name"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching item slugs with optional distances"
+          }
+        }
+      }
+    },
+    "/api/user/profile/location": {
+      "get": {
+        "tags": [
+          "User - Profile Location"
+        ],
+        "summary": "Get user's saved location settings",
+        "description": "Returns the authenticated user's saved default location and privacy preference.",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Location settings retrieved successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Profile not found"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "User - Profile Location"
+        ],
+        "summary": "Update user's location settings",
+        "description": "Updates the authenticated user's default location and privacy preference. Both latitude and longitude must be provided together.",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "defaultLatitude": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "defaultLongitude": {
+                    "type": "number",
+                    "nullable": true
+                  },
+                  "defaultCity": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "defaultCountry": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "locationPrivacy": {
+                    "type": "string",
+                    "enum": [
+                      "private",
+                      "city",
+                      "exact"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Location updated successfully"
+          },
+          "400": {
+            "description": "Validation error"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "tags": []

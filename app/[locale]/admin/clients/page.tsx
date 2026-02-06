@@ -22,6 +22,7 @@ import { LoadingSkeleton } from './components/loading-skeleton';
 
 // Hooks
 import { useClientFilters } from './hooks/use-client-filters';
+import { Container } from '@/components/ui/container';
 
 /**
  * Clients Page Component
@@ -52,7 +53,7 @@ export default function ClientsPage() {
 		filtering: false,
 		paginating: false,
 		submitting: false,
-		deleting: null as string | null,
+		deleting: null as string | null
 	});
 
 	// Modals
@@ -87,9 +88,9 @@ export default function ClientsPage() {
 		updatedAfter,
 		updatedBefore,
 		clearFilters,
-		hasActiveFiltersIncludingDate,
+		hasActiveFiltersIncludingDate
 	} = useClientFilters({
-		onFiltersChange: () => setCurrentPage(1),
+		onFiltersChange: () => setCurrentPage(1)
 	});
 
 	// Data fetching hook
@@ -103,7 +104,7 @@ export default function ClientsPage() {
 		isSubmitting,
 		createClient,
 		updateClient,
-		deleteClient,
+		deleteClient
 	} = useAdminClients({
 		params: {
 			page: currentPage,
@@ -118,8 +119,8 @@ export default function ClientsPage() {
 			updatedAfter,
 			updatedBefore,
 			sortBy: 'createdAt',
-			sortOrder: 'desc',
-		},
+			sortOrder: 'desc'
+		}
 	});
 
 	// Check if skeleton should be shown (only on initial page load)
@@ -267,7 +268,7 @@ export default function ClientsPage() {
 	}
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
+		<Container useGlobalWidth>
 			{/* Page Header */}
 			<PageHeader onAddClient={openCreateForm} />
 
@@ -275,11 +276,7 @@ export default function ClientsPage() {
 			<ClientStats stats={stats} />
 
 			{/* Search */}
-			<ClientSearch
-				searchTerm={searchTerm}
-				onSearchChange={setSearchTerm}
-				isSearching={isSearching}
-			/>
+			<ClientSearch searchTerm={searchTerm} onSearchChange={setSearchTerm} isSearching={isSearching} />
 
 			{/* Clients Table with Filters in Header */}
 			<ClientsTable
@@ -364,6 +361,6 @@ export default function ClientsPage() {
 				onConfirm={confirmDelete}
 				onCancel={cancelDelete}
 			/>
-		</div>
+		</Container>
 	);
 }

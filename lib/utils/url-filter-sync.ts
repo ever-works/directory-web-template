@@ -8,6 +8,8 @@
 export interface FilterState {
   tags: string[];
   categories: string[];
+  // Search query (optional)
+  q?: string;
   // Location filter fields (optional)
   nearLat?: number;
   nearLng?: number;
@@ -68,6 +70,15 @@ function appendLocationParams(params: URLSearchParams, filters: FilterState): vo
 }
 
 /**
+ * Append search query param to a URLSearchParams object
+ */
+function appendSearchParam(params: URLSearchParams, filters: FilterState): void {
+  if (filters.q) {
+    params.set('q', filters.q);
+  }
+}
+
+/**
  * Generate URL based on current filter state
  *
  * Rules:
@@ -75,6 +86,7 @@ function appendLocationParams(params: URLSearchParams, filters: FilterState): vo
  * - Single category, no tags: /categories/[category-slug]
  * - Multiple tags or categories: /?tags=a,b&categories=x,y
  * - No filters: base path (/)
+ * - Search query (q) and location params are appended as query params when present
  */
 export function generateFilterURL(
   filters: FilterState,
@@ -88,39 +100,45 @@ export function generateFilterURL(
   const localePrefix = locale ? `/${locale}` : '';
 
   const hasLocation = hasLocationFilters(filters);
+  const hasSearch = !!filters.q;
+  const hasExtraParams = hasLocation || hasSearch;
 
-  // No filters: return base path (with optional location params)
+  /**
+   * Helper to build query string with location and search params
+   */
+  const buildExtraParams = (): URLSearchParams => {
+    const params = new URLSearchParams();
+    appendLocationParams(params, filters);
+    appendSearchParam(params, filters);
+    return params;
+  };
+
+  /**
+   * Helper to append query string to URL if needed
+   */
+  const appendQueryString = (url: string): string => {
+    if (!hasExtraParams) return url;
+    const params = buildExtraParams();
+    return `${url}?${params.toString()}`;
+  };
+
+  // No filters: return base path (with optional location/search params)
   if (!hasTags && !hasCategories) {
-    if (hasLocation) {
-      const params = new URLSearchParams();
-      appendLocationParams(params, filters);
-      return `${localePrefix}${basePath}?${params.toString()}`;
-    }
-    return `${localePrefix}${basePath}`;
+    return appendQueryString(`${localePrefix}${basePath}`);
   }
 
-  // Single tag, no categories: clean URL (with optional location params)
+  // Single tag, no categories: clean URL (with optional location/search params)
   if (tags.length === 1 && !hasCategories) {
     const encodedTag = encodeFilterValue(tags[0]);
     const cleanUrl = `${localePrefix}/tags/${encodedTag}`;
-    if (hasLocation) {
-      const params = new URLSearchParams();
-      appendLocationParams(params, filters);
-      return `${cleanUrl}?${params.toString()}`;
-    }
-    return cleanUrl;
+    return appendQueryString(cleanUrl);
   }
 
-  // Single category, no tags: clean URL (with optional location params)
+  // Single category, no tags: clean URL (with optional location/search params)
   if (categories.length === 1 && !hasTags) {
     const encodedCategory = encodeFilterValue(categories[0]);
     const cleanUrl = `${localePrefix}/categories/${encodedCategory}`;
-    if (hasLocation) {
-      const params = new URLSearchParams();
-      appendLocationParams(params, filters);
-      return `${cleanUrl}?${params.toString()}`;
-    }
-    return cleanUrl;
+    return appendQueryString(cleanUrl);
   }
 
   // Multiple filters: use query parameters
@@ -136,8 +154,9 @@ export function generateFilterURL(
     params.set('categories', encodedCategories);
   }
 
-  // Append location params if present
+  // Append location and search params if present
   appendLocationParams(params, filters);
+  appendSearchParam(params, filters);
 
   return `${localePrefix}${basePath}?${params.toString()}`;
 }

@@ -17,8 +17,9 @@ interface CompaniesTableProps {
 	filters?: ReactNode;
 }
 
-const TABLE_CARD_WRAPPER = 'border-0 shadow-lg';
-const TABLE_ROW_HOVER = 'px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors';
+const TABLE_CARD_WRAPPER = 'border-0 shadow-sm bg-white dark:bg-gray-900 rounded-2xl overflow-hidden';
+const TABLE_ROW_HOVER =
+	'px-6 py-5 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border-b border-gray-50 dark:border-gray-800/50 last:border-0';
 
 /**
  * Companies Table Component
@@ -31,9 +32,11 @@ export function CompaniesTable(props: CompaniesTableProps) {
 		<Card className={TABLE_CARD_WRAPPER}>
 			<CardBody className="p-0">
 				{/* Table Header */}
-				<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+				<div className="px-6 py-5 border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
 					<div className="flex items-center justify-between gap-4 flex-wrap">
-						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COMPANIES_TITLE')}</h3>
+						<h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+							{t('COMPANIES_TITLE')}
+						</h3>
 						{props.filters}
 					</div>
 				</div>
@@ -42,7 +45,7 @@ export function CompaniesTable(props: CompaniesTableProps) {
 				{props.companies.length === 0 ? (
 					<EmptyState hasActiveFilters={props.hasActiveFilters} onCreateFirst={props.onCreateFirst} />
 				) : (
-					<div className="divide-y divide-gray-100 dark:divide-gray-800">
+					<div className="flex flex-col">
 						{props.companies.map((company) => (
 							<CompanyRow
 								key={company.id}

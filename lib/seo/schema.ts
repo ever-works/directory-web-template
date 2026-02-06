@@ -4,6 +4,7 @@
  */
 
 import { siteConfig } from '@/lib/config/client';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export interface ProductSchemaInput {
 	name: string;
@@ -57,9 +58,19 @@ export function generateProductSchema(input: ProductSchemaInput) {
 
 /**
  * Generate Organization schema for brand identity
+ * Includes social profiles (sameAs) and contact point for Knowledge Panel visibility
  */
 export function generateOrganizationSchema() {
-	return {
+	// Build sameAs array from social profiles, filtering out empty values
+	const sameAs = [
+		siteConfig.social.github,
+		siteConfig.social.x,
+		siteConfig.social.linkedin,
+		siteConfig.social.facebook,
+		siteConfig.social.blog
+	].filter(Boolean);
+
+	const schema: Record<string, unknown> = {
 		'@context': 'https://schema.org',
 		'@type': 'Organization',
 		name: siteConfig.brandName,
@@ -67,22 +78,39 @@ export function generateOrganizationSchema() {
 		logo: `${siteConfig.url}${siteConfig.logo}`,
 		description: siteConfig.description
 	};
+
+	// Only add sameAs if there are valid social profiles
+	if (sameAs.length > 0) {
+		schema.sameAs = sameAs;
+	}
+
+	// Add contact point if email is configured
+	if (siteConfig.social.email) {
+		schema.contactPoint = {
+			'@type': 'ContactPoint',
+			email: siteConfig.social.email,
+			contactType: 'customer service'
+		};
+	}
+
+	return schema;
 }
 
 /**
  * Generate WebSite schema with search action
  */
 export function generateWebSiteSchema(locale: string) {
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: siteConfig.name,
-		url: `${siteConfig.url}/${locale}`,
+		url: `${siteConfig.url}${localePrefix}`,
 		potentialAction: {
 			'@type': 'SearchAction',
 			target: {
 				'@type': 'EntryPoint',
-				urlTemplate: `${siteConfig.url}/${locale}/search?q={search_term_string}`
+				urlTemplate: `${siteConfig.url}${localePrefix}?q={search_term_string}`
 			},
 			'query-input': 'required name=search_term_string'
 		}

@@ -10,6 +10,7 @@ import { CollectionsBreadcrumb } from './collections-breadcrumb';
 import { InfiniteScrollSentinel } from './infinite-scroll-sentinel';
 import { CollectionsPagination } from './collections-pagination';
 import { Container } from '@/components/ui/container';
+import Image from 'next/image';
 
 interface CollectionsGridContentProps {
 	collections: Collection[];
@@ -88,7 +89,7 @@ export function CollectionsGridContent({ collections }: CollectionsGridContentPr
 	};
 
 	return (
-		<>
+		<div className="overflow-hidden">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="flex-1">
 				<CollectionsBreadcrumb />
 				<CollectionsGrid collections={collectionsToShow} />
@@ -107,6 +108,10 @@ export function CollectionsGridContent({ collections }: CollectionsGridContentPr
 			{paginationType === 'standard' && (
 				<CollectionsPagination page={safePage} totalPages={totalPagesCount} onPageChange={handlePageChange} />
 			)}
-		</>
+			<div className='w-4/6 mx-auto -mt-20 relative'>
+				<Image src="/bg-pattern.png" alt="Decorative pattern" className='w-full z-20 filter brightness-0 dark:brightness-200' width={800} height={400} />
+				<div className='w-[95rem] h-[82rem] rounded-full bg-[#6209bb] blur-3xl z-10 absolute left-1/2 -translate-x-1/2 -bottom-[75rem] dark:opacity-25 opacity-10'></div>
+			</div>
+		</div>
 	);
 }

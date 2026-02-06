@@ -1,11 +1,52 @@
+import { Metadata } from "next";
 import { getCachedItems } from "@/lib/content";
 import { notFound } from "next/navigation";
 import { CollectionDetail } from "@/components/collections";
 import { collectionRepository } from "@/lib/repositories/collection.repository";
 import { logger } from "@/lib/logger";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
+
+  let collection = null;
+  try {
+    const allCollections = await collectionRepository.findAll({ includeInactive: false });
+    collection = allCollections.find((c) => c.slug === slug);
+  } catch {
+    // Return basic metadata if collection not found
+    return generateListingMetadata({
+      title: "Collection",
+      path: `/collections/${slug}`,
+      locale,
+    });
+  }
+
+  if (!collection) {
+    return generateListingMetadata({
+      title: "Collection",
+      path: `/collections/${slug}`,
+      locale,
+    });
+  }
+
+  return generateListingMetadata({
+    title: collection.name,
+    description: collection.description,
+    path: `/collections/${slug}`,
+    locale,
+    itemCount: collection.items?.length,
+    keywords: ["collection", collection.name, "curated", "directory"],
+    imageUrl: collection.icon_url,
+  });
+}
 
 // Allow non-English locales to be generated on-demand (ISR)
 export const dynamicParams = true;

@@ -69,7 +69,7 @@ const MENU_ITEMS_CONFIG: Array<{
 
 const STYLES = {
   button: cn(
-    "flex items-center gap-1.5",
+    "flex items-center gap-1",
     "transition-all duration-200 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
     "text-gray-700 dark:text-gray-300",
     "cursor-pointer hover:text-theme-primary",
@@ -77,7 +77,7 @@ const STYLES = {
     "border-none focus:ring-0"
   ),
   dropdownContent: cn(
-    "min-w-[15rem]",
+    "min-w-[11rem]",
     "bg-white/95 dark:bg-gray-900/95",
     "backdrop-blur-xl",
     "border border-gray-200/50 dark:border-gray-700/50",
@@ -253,7 +253,7 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
             {t("MORE")}
             <ChevronDown
               className={cn(
-                "w-4 h-4 transition-transform duration-300",
+                "w-4 h-4 transition-transform duration-300 mt-0.5",
                 isHovered && "rotate-180"
               )}
             />
@@ -264,7 +264,7 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
           <DropdownMenu.Content
             className={STYLES.dropdownContent}
             sideOffset={4}
-            align="end"
+            align="center"
             onPointerEnter={handlePointerEnter}
             onPointerLeave={handlePointerLeave}
           >

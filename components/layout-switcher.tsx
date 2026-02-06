@@ -2,6 +2,7 @@
 
 import { ChevronDown, Layout, Sparkles } from "lucide-react";
 import { useMemo, useCallback, useState, useEffect, useRef, useId } from "react";
+import { createPortal } from "react-dom";
 import {
   LayoutHome,
   ContainerWidth,
@@ -93,13 +94,16 @@ const getLayoutMap = (isDark: boolean, t: any) =>
 
 interface LayoutSwitcherProps {
   inline?: boolean;
+  iconOnly?: boolean;
 }
 
-export function LayoutSwitcher({ inline = false }: LayoutSwitcherProps) {
+export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitcherProps) {
   const { layoutHome, setLayoutHome, containerWidth, setContainerWidth } = useLayoutTheme();
   const { theme, resolvedTheme } = useTheme();
   const t = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
   const popoverRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
@@ -311,6 +315,72 @@ export function LayoutSwitcher({ inline = false }: LayoutSwitcherProps) {
       )}
     </div>
   );
+
+  const showTooltip = (btn: HTMLButtonElement) => {
+    const r = btn.getBoundingClientRect();
+    setPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
+    setHovered(true);
+  };
+
+  const hideTooltip = () => setHovered(false);
+
+  if (iconOnly) {
+    return (
+      <div className="relative" ref={popoverRef}>
+        <button
+          onClick={() => {
+            hideTooltip();
+            setIsOpen(!isOpen);
+          }}
+          onMouseEnter={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+          onMouseLeave={hideTooltip}
+          onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
+          onBlur={hideTooltip}
+          className="relative inline-flex items-center justify-center h-9 w-9 rounded-lg transition-all duration-200 text-gray-700 dark:text-gray-300 cursor-pointer"
+          aria-label={t("LAYOUT")}
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? panelId : undefined}
+        >
+          <Layout className="h-5 w-5 " />
+        </button>
+        {hovered && typeof document !== 'undefined' && createPortal(
+          <div
+            className="fixed z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-medium border pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
+            style={{ top: pos.top, left: pos.left, transform: 'translateX(-50%)' }}
+          >
+            {t("LAYOUT")}
+          </div>, document.body)
+        }
+        {isOpen && (
+          <div
+            id={panelId}
+            className="absolute right-0 mt-2 p-6 w-[500px] max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-2xl z-50"
+          >
+            <div className="space-y-5">
+              <div className="flex items-center gap-4 pb-4 border-b border-gray-200/50 dark:border-gray-700/50">
+                <div className="relative">
+                  <div className="p-3 bg-linear-to-br from-theme-primary-500 to-theme-primary-600 rounded-2xl shadow-lg shadow-theme-primary-500/25">
+                    <Layout className="h-6 w-6 text-white" />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse"></div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                    {t("LAYOUT_SELECTION")}
+                  </h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                    {t("CHOOSE_PREFERRED_DESIGN")}
+                  </p>
+                </div>
+              </div>
+              {containerWidthSwitch}
+              {layoutContent}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   if (inline) {
     return layoutContent;

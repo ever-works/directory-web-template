@@ -2,7 +2,7 @@
 	"crons": [
 		{
 			"path": "/api/cron/sync",
-			"schedule": "*/5 * * * *"
+			"schedule": "0 3 * * *"
 		},
 		{
 			"path": "/api/cron/subscription-reminders",

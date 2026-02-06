@@ -1,9 +1,30 @@
+import { Metadata } from "next";
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta } from "@/lib/paginate";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import Listing from "../../listing";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ page: string; locale: string }>;
+}): Promise<Metadata> {
+  const { page, locale } = await params;
+  const { total } = await getCachedItems({ lang: locale });
+  const pageNum = parseInt(page) || 1;
+  const title = pageNum > 1 ? `Discover - Page ${pageNum}` : "Discover";
+
+  return generateListingMetadata({
+    title,
+    path: `/discover/${pageNum}`,
+    locale,
+    itemCount: total,
+    keywords: ["discover", "browse", "directory", "listings"],
+  });
+}
 
 // Pre-generate first 10 pages for main locales at build time
 // Other pages and locales will be generated on-demand (ISR)
