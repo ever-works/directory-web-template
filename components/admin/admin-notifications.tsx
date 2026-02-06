@@ -241,6 +241,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                     {notifications.map((notification) => (
                       <div
                         role="button"
+                        aria-label={`${notification.type} notification: ${notification.title || notification.message}`}
                         tabIndex={0}
                         key={notification.id}
                         className={`relative p-4 hover:bg-muted/30 cursor-pointer transition-all duration-200 border-l-4 ${

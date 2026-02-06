@@ -138,6 +138,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 							}
 						}}
 						role="button"
+						aria-label={`View ${category.name} category`}
 						tabIndex={0}
 					>
 						{/* Full card loading overlay */}

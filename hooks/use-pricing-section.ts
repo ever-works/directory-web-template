@@ -193,13 +193,16 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const currentProcessingPlanRef = useRef<string | null>(null);
 
 	// Static plans from config (with proper typing)
-	const staticPlans =
-		config.pricing?.plans ??
-		({} as {
-			FREE?: PricingConfig;
-			STANDARD?: PricingConfig;
-			PREMIUM?: PricingConfig;
-		});
+	const staticPlans = useMemo(
+		() =>
+			config.pricing?.plans ??
+			({} as {
+				FREE?: PricingConfig;
+				STANDARD?: PricingConfig;
+				PREMIUM?: PricingConfig;
+			}),
+		[config.pricing?.plans]
+	);
 
 	// Get user's selected checkout provider from Settings
 	const { getActiveProvider } = useSelectedCheckoutProvider();
@@ -509,6 +512,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	}, [searchParams, selectedPlan, FREE, STANDARD, PREMIUM]);
 
 	// Effect to handle checkout error
+	const lemonSqueezyEmbedded = collectPaymentModeConfig().lemonSqueezy;
 	useEffect(() => {
 		if (error) {
 			toast.error('Failed to create checkout session. Please try again.');
@@ -517,14 +521,14 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		}
 
 		if (isSuccess) {
-			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && collectPaymentModeConfig().lemonSqueezy) {
+			if (paymentProvider === PaymentProvider.LEMONSQUEEZY && lemonSqueezyEmbedded) {
 				// Don't show toast for embedded mode as it opens immediately
 			} else {
 				toast.success(`Checkout session created! Redirecting to ${paymentProvider}...`);
 			}
 			setProcessingPlan(null);
 		}
-	}, [error, isSuccess, paymentProvider, collectPaymentModeConfig().lemonSqueezy]);
+	}, [error, isSuccess, paymentProvider, lemonSqueezyEmbedded]);
 
 	return {
 		// State
