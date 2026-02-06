@@ -4,6 +4,7 @@ import { surveyService } from '@/lib/services/survey.service';
 import type { CreateSurveyData, SurveyFilters, SurveyStatusEnum, SurveyTypeEnum } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 const logger = Logger.create('SurveyAPI');
 
@@ -86,6 +87,7 @@ export async function GET(request: NextRequest) {
 		// This is intentional - the API validates actual capability (database availability)
 		// while the client hook checks feature flags to prevent unnecessary calls.
 		// This provides defense in depth: client optimization + server validation.
+		// This provides defense in depth: client optimization + server validation.
 		const dbCheck = checkDatabaseAvailability();
 		if (dbCheck) return dbCheck;
 
@@ -107,7 +109,8 @@ export async function GET(request: NextRequest) {
 				: undefined;
 
 		// Require tenantId for survey queries
-		if (!session?.user?.tenantId) {
+		const tenantId = await getTenantId(session);
+		if (!tenantId) {
 			return NextResponse.json(
 				{ success: false, error: 'Unauthorized - tenant context required' },
 				{ status: 401 }
@@ -120,7 +123,7 @@ export async function GET(request: NextRequest) {
 			status: statusParam ? (statusParam as SurveyStatusEnum) : undefined,
 			page,
 			limit,
-			tenantId: session.user.tenantId
+			tenantId: tenantId
 		};
 
 		const result = await surveyService.getMany(filters, session?.user?.id);
@@ -233,10 +236,18 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
 
+		const tenantId = await getTenantId(session);
+		if (!tenantId) {
+			return NextResponse.json(
+				{ success: false, error: 'Unauthorized - tenant context required' },
+				{ status: 401 }
+			);
+		}
+
 		const body = await request.json();
 		const surveyData: CreateSurveyData = {
 			...body,
-			tenantId: session.user.tenantId!
+			tenantId: tenantId
 		};
 		const survey = await surveyService.create(surveyData);
 

@@ -5,6 +5,7 @@ import { RoleRepository } from '@/lib/repositories/role.repository';
 import { CreateUserRequest, UserListOptions } from '@/lib/types/user';
 import { isValidEmail } from '@/lib/utils/email-validation';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 /**
  * @swagger
@@ -279,7 +280,7 @@ export async function GET(request: NextRequest) {
 		};
 
 		// Get users - extract tenantId from session
-		const tenantId = session.user.tenantId;
+		const tenantId = await getTenantId(session);
 		if (!tenantId) {
 			return NextResponse.json({ success: false, error: 'No tenant ID found in session' }, { status: 401 });
 		}
@@ -456,7 +457,7 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 		}
 
-		const tenantId = session.user.tenantId;
+		const tenantId = await getTenantId(session);
 		if (!tenantId) {
 			return NextResponse.json({ success: false, error: 'No tenant ID found in session' }, { status: 401 });
 		}

@@ -3,6 +3,7 @@ import { RoleRepository } from '@/lib/repositories/role.repository';
 import { auth } from '@/lib/auth';
 import type { CreateRoleRequest, RoleStatus } from '@/lib/types/role';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 const roleRepository = new RoleRepository();
 
@@ -152,7 +153,9 @@ const roleRepository = new RoleRepository();
 export async function GET(request: NextRequest) {
 	try {
 		const session = await auth();
-		if (!session?.user?.id || !session.user.tenantId) {
+		const tenantId = await getTenantId(session);
+
+		if (!tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 		const { searchParams } = new URL(request.url);
@@ -183,7 +186,7 @@ export async function GET(request: NextRequest) {
 			sortOrder: sortOrder || 'asc'
 		};
 
-		const result = await roleRepository.findAllPaginated(session.user.tenantId, options);
+		const result = await roleRepository.findAllPaginated(tenantId, options);
 
 		return NextResponse.json({
 			success: true,
@@ -313,7 +316,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
 	try {
 		const session = await auth();
-		if (!session?.user?.id || !session.user.tenantId) {
+		const tenantId = await getTenantId(session);
+
+		if (!tenantId) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 		const body = await request.json();
@@ -361,7 +366,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Check for duplicate ID (including soft-deleted records)
-		const isDuplicate = await roleRepository.exists(id, session.user.tenantId, { includeDeleted: true });
+		const isDuplicate = await roleRepository.exists(id, tenantId, { includeDeleted: true });
 		if (isDuplicate) {
 			return NextResponse.json(
 				{ success: false, error: 'Role with similar name already exists' },
@@ -380,7 +385,7 @@ export async function POST(request: NextRequest) {
 		};
 
 		// Create the role
-		const newRole = await roleRepository.create(createData, session.user.tenantId);
+		const newRole = await roleRepository.create(createData, tenantId);
 
 		return NextResponse.json(
 			{ success: true, data: newRole, message: 'Role created successfully' },

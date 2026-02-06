@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { getAdminDashboardData } from '@/lib/db/queries';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 /**
  * @swagger
@@ -249,10 +250,12 @@ export async function GET(request: NextRequest) {
 
 		// Get session to extract tenantId
 		const session = await auth();
-		if (!session?.user?.tenantId) {
+		const tenantId = await getTenantId(session);
+
+		if (!tenantId) {
+			console.error('API: Tenant ID not found for user', session?.user?.id);
 			return NextResponse.json({ success: false, error: 'Tenant ID not found' }, { status: 401 });
 		}
-		const tenantId = session.user.tenantId;
 
 		const { searchParams } = new URL(request.url);
 		console.log('API: Parsed search params');

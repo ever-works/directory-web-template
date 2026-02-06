@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { listCompanies, createCompany, getCompanyByDomain, getCompanyBySlug } from '@/lib/db/queries';
 import { createCompanySchema } from '@/lib/validations/company';
 import { ZodError } from 'zod';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 /**
  * @swagger
@@ -163,6 +164,13 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		const tenantId = await getTenantId(session);
+
+		if (!tenantId) {
+			console.error('API: Tenant ID not found for user', session?.user?.id);
+			return NextResponse.json({ error: 'Tenant ID not found' }, { status: 401 });
+		}
+
 		const { searchParams } = new URL(request.url);
 
 		// Parse and validate pagination parameters
@@ -190,7 +198,7 @@ export async function GET(request: NextRequest) {
 			limit,
 			search: q,
 			status,
-			tenantId: session.user.tenantId!
+			tenantId: tenantId
 		});
 
 		return NextResponse.json({
@@ -357,6 +365,13 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
+		const tenantId = await getTenantId(session);
+
+		if (!tenantId) {
+			console.error('API: Tenant ID not found for user', session?.user?.id);
+			return NextResponse.json({ error: 'Tenant ID not found' }, { status: 401 });
+		}
+
 		const body = await request.json();
 
 		// Validate request body
@@ -376,7 +391,7 @@ export async function POST(request: NextRequest) {
 
 		// Check for domain uniqueness if domain is provided
 		if (validatedData.domain) {
-			const existingByDomain = await getCompanyByDomain(validatedData.domain, session.user.tenantId!);
+			const existingByDomain = await getCompanyByDomain(validatedData.domain, tenantId);
 			if (existingByDomain) {
 				return NextResponse.json(
 					{ error: `Company with domain '${validatedData.domain}' already exists` },
@@ -387,7 +402,7 @@ export async function POST(request: NextRequest) {
 
 		// Check for slug uniqueness if slug is provided
 		if (validatedData.slug) {
-			const existingBySlug = await getCompanyBySlug(validatedData.slug, session.user.tenantId!);
+			const existingBySlug = await getCompanyBySlug(validatedData.slug, tenantId);
 			if (existingBySlug) {
 				return NextResponse.json(
 					{ error: `Company with slug '${validatedData.slug}' already exists` },
@@ -399,7 +414,7 @@ export async function POST(request: NextRequest) {
 		// Create company
 		const company = await createCompany({
 			...validatedData,
-			tenantId: session.user.tenantId!
+			tenantId: tenantId
 		});
 
 		return NextResponse.json(

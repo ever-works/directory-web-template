@@ -14,7 +14,7 @@ const logger = {
 		: () => {},
 	warn: (message: string, context?: Record<string, any>) => console.warn(`[ServerClient] ${message}`, context || ''),
 	error: (message: string, context?: Record<string, any>) =>
-		console.error(`[ServerClient] ${message}`, context || ''),
+		console.error(`[ServerClient] ${message}`, context ? JSON.stringify(context, null, 2) : ''),
 	debug: isDev
 		? (message: string, context?: Record<string, any>) => console.log(`[ServerClient] ${message}`, context || '')
 		: () => {}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { auth } from '@/lib/auth';
+import { getTenantId } from '@/lib/auth/session-utils';
 
 /**
  * @swagger
@@ -151,13 +152,14 @@ export async function GET() {
 		}
 
 		const session = await auth();
-		if (!session?.user?.id || !session.user.tenantId) {
+		const tenantId = await getTenantId(session);
+		if (!tenantId) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
 
 		// Get user statistics
 		const userRepository = new UserRepository();
-		const stats = await userRepository.getStats(session.user.tenantId);
+		const stats = await userRepository.getStats(tenantId);
 
 		return NextResponse.json({
 			success: true,
