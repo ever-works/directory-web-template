@@ -1,6 +1,8 @@
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 import { generateHreflangAlternates } from './hreflang';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
 
 interface ListingMetadataOptions {
 	title: string;
@@ -21,11 +23,11 @@ export function generateListingMetadata({
 	keywords,
 	imageUrl,
 }: ListingMetadataOptions): Metadata {
-	const appUrl = process.env.NEXT_PUBLIC_APP_URL || siteConfig.url;
+	const appUrl = getBaseUrl();
 	const fullTitle = `${title} | ${siteConfig.name}`;
 	const metaDescription =
 		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${siteConfig.description}`;
-	const canonicalUrl = `${appUrl}${locale === 'en' ? '' : `/${locale}`}${path}`;
+	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${path}`;
 
 	return {
 		title: fullTitle,
