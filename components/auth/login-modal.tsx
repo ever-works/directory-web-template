@@ -8,13 +8,14 @@ interface LoginModalProps {
 	isOpen: boolean;
 	onClose: () => void;
 	message?: string;
+	callbackUrl?: string;
 }
 
 /**
  * Login modal component - wraps shared LoginContent in a modal
  * Uses custom Modal component to avoid HeroUI compatibility issues
  */
-export function LoginModal({ isOpen, onClose, message = 'Welcome back' }: LoginModalProps) {
+export function LoginModal({ isOpen, onClose, message = 'Welcome back', callbackUrl }: LoginModalProps) {
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -30,7 +31,7 @@ export function LoginModal({ isOpen, onClose, message = 'Welcome back' }: LoginM
 				'dark:bg-opacity-95 dark:backdrop-blur-xl'
 			)}
 		>
-			<LoginContent variant="modal" message={message} type="login" onSuccess={onClose} />
+			<LoginContent variant="modal" message={message} type="login" onSuccess={onClose} callbackUrl={callbackUrl} />
 		</Modal>
 	);
 }

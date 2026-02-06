@@ -15,6 +15,7 @@ function FilterURLParserContent() {
   const {
     setSelectedTags, setSelectedCategories, selectedTags, selectedCategories,
     setNearMe, setLocationCity, setLocationCountry, clearLocationFilter, locationFilter,
+    setSearchTerm, searchTerm,
   } = useFilters();
   const lastUrlRef = useRef('');
   const isUpdatingRef = useRef(false);
@@ -39,6 +40,7 @@ function FilterURLParserContent() {
 
     const tagsParam = searchParams.get('tags');
     const categoriesParam = searchParams.get('categories');
+    const queryParam = searchParams.get('q');
 
     // Check if URL path is /tags/[tag] or /categories/[category]
     // Handle both with and without locale prefix (e.g., /en/tags/open-source or /tags/open-source)
@@ -55,7 +57,7 @@ function FilterURLParserContent() {
     const countryParam = searchParams.get('country');
     const hasLocationParams = !!(nearLatParam || cityParam || countryParam);
 
-    if (pathname === '/' && !tagsParam && !categoriesParam && !tagMatch && !categoryMatch && !hasLocationParams) {
+    if (pathname === '/' && !tagsParam && !categoriesParam && !tagMatch && !categoryMatch && !hasLocationParams && !queryParam) {
       // Check if the previous URL had filters (indicates we're transitioning)
       const wasOnFilteredPage = prevUrl.includes('categories=') ||
                                  prevUrl.includes('tags=') ||
@@ -63,7 +65,8 @@ function FilterURLParserContent() {
                                  prevUrl.includes('/tags/') ||
                                  prevUrl.includes('near_lat=') ||
                                  prevUrl.includes('city=') ||
-                                 prevUrl.includes('country=');
+                                 prevUrl.includes('country=') ||
+                                 prevUrl.includes('q=');
 
       if (wasOnFilteredPage && isUpdatingRef.current) {
         // Don't update lastUrlRef - we want to process the real URL when it arrives
@@ -157,6 +160,22 @@ function FilterURLParserContent() {
       const hasActiveLocation = !!(locationFilter.nearMe || locationFilter.city || locationFilter.country);
       if (hasActiveLocation) {
         clearLocationFilter();
+      }
+    }
+
+    // Parse search query from URL (for sitelinks search box support)
+    // Note: useSearchParams().get() already returns decoded values, no need for decodeURIComponent
+    if (queryParam) {
+      const trimmedQuery = queryParam.trim();
+      if (trimmedQuery && trimmedQuery !== searchTerm) {
+        setSearchTerm(trimmedQuery);
+      }
+    } else if (searchTerm && !queryParam) {
+      // Clear search term if q param was removed from URL
+      // Only clear if we're on a page that should not have a search term
+      // (i.e., the URL changed and no longer has q param)
+      if (prevUrl.includes('q=')) {
+        setSearchTerm('');
       }
     }
 

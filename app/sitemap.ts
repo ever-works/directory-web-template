@@ -13,6 +13,7 @@ interface SitemapEntry {
   lastModified: Date;
   changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
   priority: number;
+  images?: string[];
 }
 
 // Constants
@@ -108,7 +109,7 @@ const PAGINATION_ROUTES = [
 
 // Helper functions
 const getBaseUrl = (): string => {
-  return appUrl;
+  return appUrl.replace(/\/+$/, '');
 };
 
 const sanitizeSlug = (slug: string): string => {
@@ -123,6 +124,30 @@ const sanitizeSlug = (slug: string): string => {
 const validateSlug = (slug: string): boolean => {
   // Ensure slug is safe and not empty
   return Boolean(slug && slug.length > 0 && slug.length < 200 && /^[a-zA-Z0-9\-_]+$/.test(slug));
+};
+
+/**
+ * Converts an icon URL to an absolute URL for sitemap image entries.
+ * Uses the URL constructor for robust resolution of relative paths,
+ * protocol-relative URLs, and already-absolute URLs.
+ * @param iconUrl - The icon URL from the item data
+ * @param baseUrl - The base URL of the site
+ * @returns Absolute URL string or null if the URL is invalid
+ */
+const toAbsoluteImageUrl = (iconUrl: string | undefined, baseUrl: string): string | null => {
+  if (!iconUrl || typeof iconUrl !== 'string' || iconUrl.trim() === '') {
+    return null;
+  }
+
+  try {
+    const url = new URL(iconUrl.trim(), baseUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return null;
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
 };
 
 const generateStaticRoutes = (baseUrl: string): SitemapEntry[] => {
@@ -168,15 +193,25 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> =
     const { items, categories, tags } = await getCachedItems()
 
     return [
-      // Items - validate and sanitize slugs
+      // Items - validate and sanitize slugs, include images for items with icon_url
       ...items
         .filter((item) => item.slug && validateSlug(item.slug))
-        .map((item) => ({
-          url: `${baseUrl}/items/${sanitizeSlug(item.slug)}`,
-          lastModified: item.updatedAt,
-          changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
-          priority: item.featured ? DEFAULT_PRIORITIES.MAIN : DEFAULT_PRIORITIES.SECONDARY,
-        })),
+        .map((item) => {
+          const entry: SitemapEntry = {
+            url: `${baseUrl}/items/${sanitizeSlug(item.slug)}`,
+            lastModified: item.updatedAt,
+            changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
+            priority: item.featured ? DEFAULT_PRIORITIES.MAIN : DEFAULT_PRIORITIES.SECONDARY,
+          };
+
+          // Add image to sitemap if item has an icon_url
+          const absoluteImageUrl = toAbsoluteImageUrl(item.icon_url, baseUrl);
+          if (absoluteImageUrl) {
+            entry.images = [absoluteImageUrl];
+          }
+
+          return entry;
+        }),
       // Categories - validate and sanitize IDs
       ...categories
         .filter((category) => category.id && validateSlug(category.id))

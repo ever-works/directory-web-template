@@ -138,10 +138,10 @@ const STYLES = {
 		'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-11 2xl:h-11 transition-all duration-300 group-hover:scale-110',
 	brandText:
 		'font-bold text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl transition-colors duration-200 group-hover:text-theme-primary',
-	linkBase: 'transition-all duration-200 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base',
-	linkActive: 'text-theme-primary border-b-2 border-theme-primary pb-1 font-semibold',
+	linkBase: 'transition-all duration-200 pb-2.5 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base',
+	linkActive: 'text-theme-primary pb-2.5 font-medium relative after:content-[""] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-theme-primary after:rounded-full',
 	linkInactive: 'text-gray-700 dark:text-gray-300 hover:text-theme-primary hover:scale-105',
-	rightSection: 'flex items-center gap-1 sm:gap-2 md:gap-3 lg:gap-4 xl:gap-5',
+	rightSection: 'flex items-center gap-1 sm:gap-2 md:gap-2 pl-8 py-1 relative lg:before:content-[""] lg:before:absolute lg:before:left-0 lg:before:h-[20px] lg:before:w-px lg:before:bg-gray-200 dark:lg:before:bg-gray-700',
 	mobileMenu: 'mt-6 flex flex-col gap-2 px-4 pb-6',
 	mobileMenuItem:
 		'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200',
@@ -395,32 +395,32 @@ export default function Header() {
 					{renderBrand()}
 				</NavbarContent>
 
-				{/* Desktop Layout */}
-				{containerWidth === 'fluid' ? (
-					<>
-						{/* Full Width: Brand (Left) */}
-						<NavbarContent className="hidden lg:flex" justify="start">
-							{renderBrand()}
-						</NavbarContent>
+				{/* Desktop: Three-column flex layout */}
+				<div className="hidden lg:flex w-full flex-row items-center justify-between">
+					{/* Left: Logo (Brand) */}
+					<div className="flex-shrink-0 flex items-center min-w-0">
+						{renderBrand()}
+					</div>
 
-						{/* Full Width: Nav (Center) */}
-						<NavbarContent className="hidden lg:flex gap-5 xl:gap-6 2xl:gap-6" justify="center">
-							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
-						</NavbarContent>
-					</>
-				) : (
-					/* Fixed Width: Brand (Separate) + Nav (Left) */
-					<>
-						<NavbarContent className="hidden lg:flex pr-5 xl:pr-6" justify="start">
-							{renderBrand()}
-						</NavbarContent>
-						<NavbarContent className={STYLES.navContent} justify="start">
-							{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
-						</NavbarContent>
-					</>
-				)}
-				{/* Right Section (Profile, Settings, etc.) */}
-				{renderRightSection()}
+					{/* Center: Navigation Links with gap */}
+					<div className="flex flex-1 justify-start min-w-0 gap-6 pl-16">
+						{isNavigationLoading ? <HeaderNavSkeleton /> : renderNavigationItems()}
+					</div>
+
+					{/* Right: Profile, Settings, etc. */}
+					<div className="flex-shrink-0 flex items-center min-w-0 justify-end">
+						{renderRightSection()}
+					</div>
+				</div>
+
+				{/* Mobile: Right Section */}
+				<NavbarContent className="lg:hidden" justify="end">
+					<NavbarItem>
+						<div className="scale-90 transition-transform duration-200">
+							<ProfileButton />
+						</div>
+					</NavbarItem>
+				</NavbarContent>
 			</Container>
 
 			<NavbarMenu>

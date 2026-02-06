@@ -22,12 +22,14 @@ export function CredentialsForm({
 	children,
 	hideSwitchButton = false,
 	onSuccess,
-	clientMode = false
+	clientMode = false,
+	callbackUrl: callbackUrlProp
 }: PropsWithChildren<{
 	type: 'login' | 'signup';
 	hideSwitchButton?: boolean;
 	onSuccess?: () => void;
 	clientMode?: boolean;
+	callbackUrl?: string;
 }>) {
 	const isLogin = type === 'login';
 	const t = useTranslations('auth');
@@ -114,7 +116,7 @@ export function CredentialsForm({
 
 					invalidateAllUserData();
 
-					const redirectPath = redirect || state.redirect || '/client/dashboard';
+					const redirectPath = redirect || callbackUrlProp || state.redirect || '/client/dashboard';
 					const shouldPrefixLocale =
 						state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
 					const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;

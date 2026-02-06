@@ -14,6 +14,7 @@ interface LoginContentProps {
 	message?: string;
 	type?: 'login' | 'signup';
 	onSuccess?: () => void;
+	callbackUrl?: string;
 }
 
 /**
@@ -24,7 +25,8 @@ export function LoginContent({
 	variant = 'modal',
 	message = 'Welcome back',
 	type = 'login',
-	onSuccess
+	onSuccess,
+	callbackUrl
 }: LoginContentProps) {
 	const config = useConfig();
 	const { currentTheme } = useTheme();
@@ -154,14 +156,14 @@ export function LoginContent({
 						</div>
 
 						<div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-xs border border-gray-100 dark:border-gray-800">
-							<CredentialsForm type={type} onSuccess={onSuccess}>
+							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
 								<div className="space-y-3">
 									<div className="relative">
 										<div className="absolute inset-0 flex items-center">
 											<div className="w-full border-t border-gray-200 dark:border-gray-800" />
 										</div>
 									</div>
-									<SocialLogin />
+									<SocialLogin callbackUrl={callbackUrl} />
 								</div>
 							</CredentialsForm>
 						</div>

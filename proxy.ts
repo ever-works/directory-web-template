@@ -317,6 +317,92 @@ export default async function proxy(req: NextRequest) {
 		}
 	}
 
+	// Redirect authenticated users away from /auth/* pages (signin, register, etc.)
+	if (pathWithoutLocale.startsWith('/auth/')) {
+		if (cfg.provider === 'next-auth') {
+			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			if (token) {
+				const target = token.isAdmin ? '/admin' : '/client/dashboard';
+				const url = req.nextUrl.clone();
+				url.pathname = `${localePrefix}${target}`;
+				const redirectRes = NextResponse.redirect(url);
+				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+				return redirectRes;
+			}
+		} else if (cfg.provider === 'supabase') {
+			// Refresh Supabase session & get proper cookies
+			await supabaseUpdate(req);
+			const { createServerClient } = await import('@supabase/ssr');
+			const {
+				data: { user }
+			} = await createServerClient(
+				process.env.NEXT_PUBLIC_SUPABASE_URL!,
+				process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+				{
+					cookies: {
+						getAll() {
+							return req.cookies.getAll();
+						},
+						setAll(cookiesToSet: CookieToSet[]) {
+							// Just mocking setAll as we don't need to write back to response here for the check
+						}
+					}
+				}
+			).auth.getUser();
+
+			if (user) {
+				const isAdmin = user.user_metadata?.isAdmin === true || user.user_metadata?.role === 'admin';
+				const target = isAdmin ? '/admin' : '/client/dashboard';
+				const url = req.nextUrl.clone();
+				url.pathname = `${localePrefix}${target}`;
+				const redirectRes = NextResponse.redirect(url);
+				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+				return redirectRes;
+			}
+		} else if (cfg.provider === 'both') {
+			// Check NextAuth first
+			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			if (token) {
+				const target = token.isAdmin ? '/admin' : '/client/dashboard';
+				const url = req.nextUrl.clone();
+				url.pathname = `${localePrefix}${target}`;
+				const redirectRes = NextResponse.redirect(url);
+				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+				return redirectRes;
+			}
+
+			// Then check Supabase
+			await supabaseUpdate(req);
+			const { createServerClient } = await import('@supabase/ssr');
+			const {
+				data: { user }
+			} = await createServerClient(
+				process.env.NEXT_PUBLIC_SUPABASE_URL!,
+				process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+				{
+					cookies: {
+						getAll() {
+							return req.cookies.getAll();
+						},
+						setAll(cookiesToSet: CookieToSet[]) {
+							// mock
+						}
+					}
+				}
+			).auth.getUser();
+
+			if (user) {
+				const isAdmin = user.user_metadata?.isAdmin === true || user.user_metadata?.role === 'admin';
+				const target = isAdmin ? '/admin' : '/client/dashboard';
+				const url = req.nextUrl.clone();
+				url.pathname = `${localePrefix}${target}`;
+				const redirectRes = NextResponse.redirect(url);
+				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+				return redirectRes;
+			}
+		}
+	}
+
 	return intlResponse;
 }
 

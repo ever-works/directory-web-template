@@ -1,5 +1,5 @@
 import { Button } from '@heroui/react';
-import { Building2, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PageHeaderProps {
@@ -21,29 +21,24 @@ export function PageHeader({ onAddCompany }: PageHeaderProps) {
 	const t = useTranslations('admin.ADMIN_COMPANIES_PAGE');
 
 	return (
-		<div className="mb-8">
-			<div className={HEADER_WRAPPER}>
-				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-					<div className="flex items-center space-x-4">
-						<div className={ICON_WRAPPER}>
-							<Building2 aria-hidden="true" className="w-6 h-6 text-white" />
-						</div>
-						<div>
-							<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('TITLE')}</h1>
-							<p className="text-gray-600 dark:text-gray-400 mt-1">{t('SUBTITLE')}</p>
-						</div>
-					</div>
-					<Button
-						color="primary"
-						size="lg"
-						onPress={onAddCompany}
-						startContent={<Plus size={18} />}
-						className={ADD_BUTTON_CLASSES}
-					>
-						{t('ADD_COMPANY')}
-					</Button>
+		<div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+			<div>
+				<h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{t('TITLE')}</h1>
+				<div className="flex items-center gap-2 mt-1">
+					<span className="w-8 h-1 bg-blue-600 rounded-full inline-block" />
+					<p className="text-gray-500 dark:text-gray-400 font-medium">{t('SUBTITLE')}</p>
 				</div>
 			</div>
+
+			<Button
+				color="primary"
+				size="lg"
+				onPress={onAddCompany}
+				startContent={<Plus size={20} />}
+				className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-500/30 transition-all rounded-xl px-6"
+			>
+				{t('ADD_COMPANY')}
+			</Button>
 		</div>
 	);
 }

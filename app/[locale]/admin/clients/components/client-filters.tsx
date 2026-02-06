@@ -7,7 +7,7 @@ import {
 	AdminActiveFilters,
 	type StatusTabOption,
 	type FilterSection,
-	type ActiveFilter,
+	type ActiveFilter
 } from '@/components/admin/shared';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import type { DatePreset, DateFilterType, ClientStatus } from '../hooks/use-client-filters';
@@ -23,7 +23,7 @@ interface ClientSearchProps {
 }
 
 const SEARCH_INPUT_CLASSES =
-	'w-full pl-12 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400';
+	'w-full pl-12 pr-10 py-3 bg-gray-50 dark:bg-gray-800/80 border border-gray-200/70 dark:border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm';
 
 /**
  * Client Search Component
@@ -131,7 +131,7 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 		onAccountTypeChange,
 		onProviderChange,
 		onDatePresetChange,
-		onDateFilterTypeChange,
+		onDateFilterTypeChange
 	} = props;
 
 	// Status tabs options with counts
@@ -142,7 +142,7 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 			{ value: 'active', label: t('ACTIVE'), count: stats?.overview?.active },
 			{ value: 'inactive', label: t('INACTIVE'), count: stats?.overview?.inactive },
 			{ value: 'suspended', label: t('SUSPENDED'), count: stats?.overview?.suspended },
-			{ value: 'trial', label: t('TRIAL'), count: stats?.overview?.trial },
+			{ value: 'trial', label: t('TRIAL'), count: stats?.overview?.trial }
 		],
 		[t, totalCount, stats?.overview]
 	);
@@ -158,10 +158,10 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 					{ id: '', label: t('ALL_PLANS') },
 					{ id: 'free', label: t('FREE') },
 					{ id: 'standard', label: t('STANDARD') },
-					{ id: 'premium', label: t('PREMIUM') },
+					{ id: 'premium', label: t('PREMIUM') }
 				],
 				selectedValues: planFilter ? [planFilter] : [''],
-				onChange: (values) => onPlanChange(values[0] || ''),
+				onChange: (values) => onPlanChange(values[0] || '')
 			},
 			{
 				id: 'accountType',
@@ -171,10 +171,10 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 					{ id: '', label: t('ALL_TYPES') },
 					{ id: 'individual', label: t('INDIVIDUAL') },
 					{ id: 'business', label: t('BUSINESS') },
-					{ id: 'enterprise', label: t('ENTERPRISE') },
+					{ id: 'enterprise', label: t('ENTERPRISE') }
 				],
 				selectedValues: accountTypeFilter ? [accountTypeFilter] : [''],
-				onChange: (values) => onAccountTypeChange(values[0] || ''),
+				onChange: (values) => onAccountTypeChange(values[0] || '')
 			},
 			{
 				id: 'provider',
@@ -187,10 +187,10 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 					{ id: 'github', label: t('GITHUB') },
 					{ id: 'facebook', label: t('FACEBOOK') },
 					{ id: 'twitter', label: t('TWITTER') },
-					{ id: 'linkedin', label: t('LINKEDIN') },
+					{ id: 'linkedin', label: t('LINKEDIN') }
 				],
 				selectedValues: providerFilter ? [providerFilter] : [''],
-				onChange: (values) => onProviderChange(values[0] || ''),
+				onChange: (values) => onProviderChange(values[0] || '')
 			},
 			{
 				id: 'datePreset',
@@ -202,10 +202,10 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 					{ id: 'last30', label: t('LAST_30_DAYS') },
 					{ id: 'last90', label: t('LAST_90_DAYS') },
 					{ id: 'thisMonth', label: t('THIS_MONTH') },
-					{ id: 'custom', label: t('CUSTOM_RANGE') },
+					{ id: 'custom', label: t('CUSTOM_RANGE') }
 				],
 				selectedValues: [datePreset],
-				onChange: (values) => onDatePresetChange((values[0] as DatePreset) || 'all'),
+				onChange: (values) => onDatePresetChange((values[0] as DatePreset) || 'all')
 			},
 			{
 				id: 'dateFilterType',
@@ -213,11 +213,11 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 				type: 'radio',
 				options: [
 					{ id: 'created', label: t('CREATED_DATE') },
-					{ id: 'updated', label: t('UPDATED_DATE') },
+					{ id: 'updated', label: t('UPDATED_DATE') }
 				],
 				selectedValues: [dateFilterType],
-				onChange: (values) => onDateFilterTypeChange((values[0] as DateFilterType) || 'created'),
-			},
+				onChange: (values) => onDateFilterTypeChange((values[0] as DateFilterType) || 'created')
+			}
 		],
 		[
 			t,
@@ -230,7 +230,7 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 			onAccountTypeChange,
 			onProviderChange,
 			onDatePresetChange,
-			onDateFilterTypeChange,
+			onDateFilterTypeChange
 		]
 	);
 
@@ -320,7 +320,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 		hasActiveSearch,
 		searchTerm,
 		customDateFrom,
-		customDateTo,
+		customDateTo
 	} = props;
 
 	// Get label for a filter value
@@ -352,8 +352,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 					if (value === 'last30') return t('LAST_30_DAYS_SHORT');
 					if (value === 'last90') return t('LAST_90_DAYS_SHORT');
 					if (value === 'thisMonth') return t('THIS_MONTH_SHORT');
-					if (value === 'custom')
-						return `${customDateFrom || '...'} - ${customDateTo || '...'}`;
+					if (value === 'custom') return `${customDateFrom || '...'} - ${customDateTo || '...'}`;
 					return value;
 				default:
 					return value;
@@ -371,7 +370,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 				id: 'search',
 				type: 'search',
 				label: t('SEARCH'),
-				value: `"${searchTerm}"`,
+				value: `"${searchTerm}"`
 			});
 		}
 
@@ -380,7 +379,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 				id: `plan:${planFilter}`,
 				type: 'plan',
 				label: t('PLAN'),
-				value: getFilterLabel('plan', planFilter),
+				value: getFilterLabel('plan', planFilter)
 			});
 		}
 
@@ -389,7 +388,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 				id: `accountType:${accountTypeFilter}`,
 				type: 'accountType',
 				label: t('ACCOUNT_TYPE'),
-				value: getFilterLabel('accountType', accountTypeFilter),
+				value: getFilterLabel('accountType', accountTypeFilter)
 			});
 		}
 
@@ -398,7 +397,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 				id: `provider:${providerFilter}`,
 				type: 'provider',
 				label: t('PROVIDER'),
-				value: getFilterLabel('provider', providerFilter),
+				value: getFilterLabel('provider', providerFilter)
 			});
 		}
 
@@ -408,7 +407,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 				type: 'datePreset',
 				label: dateFilterType === 'created' ? t('CREATED_DATE') : t('UPDATED_DATE'),
 				value: getFilterLabel('datePreset', datePreset),
-				icon: <Calendar className="w-3 h-3" />,
+				icon: <Calendar className="w-3 h-3" />
 			});
 		}
 
@@ -422,7 +421,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 		datePreset,
 		dateFilterType,
 		t,
-		getFilterLabel,
+		getFilterLabel
 	]);
 
 	// Handle removing individual filters
@@ -457,7 +456,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 			onDatePresetChange,
 			onCustomDateFromChange,
 			onCustomDateToChange,
-			onDateFilterTypeChange,
+			onDateFilterTypeChange
 		]
 	);
 
@@ -505,4 +504,3 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 		</div>
 	);
 }
-

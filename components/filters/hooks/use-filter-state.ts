@@ -21,7 +21,8 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   const params = useParams();
   const locale = params?.locale as string | undefined;
 
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTermInternal] = useState("");
+  const searchTermRef = useRef("");
 
   /** Multiple tag selection for advanced filtering - allows selecting multiple tags simultaneously */
   const [selectedTags, setSelectedTagsInternal] = useState<TagId[]>(
@@ -66,9 +67,9 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   }, []);
 
   /**
-   * Build location fields for FilterState from current location filter ref
+   * Build extra fields for FilterState from current refs (location + search term)
    */
-  const getLocationFilterStateFields = useCallback((): Partial<FilterState> => {
+  const getExtraFilterStateFields = useCallback((): Partial<FilterState> => {
     const loc = locationFilterRef.current;
     const fields: Partial<FilterState> = {};
     if (loc.nearMe) {
@@ -78,6 +79,7 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     }
     if (loc.city) fields.city = loc.city;
     if (loc.country) fields.country = loc.country;
+    if (searchTermRef.current) fields.q = searchTermRef.current;
     return fields;
   }, []);
 
@@ -111,11 +113,11 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
       syncFilterURL({
         tags: computedTags,
         categories: currentCategories,
-        ...getLocationFilterStateFields(),
+        ...getExtraFilterStateFields(),
       });
       return currentCategories;
     });
-  }, [syncFilterURL, getLocationFilterStateFields]);
+  }, [syncFilterURL, getExtraFilterStateFields]);
 
   /**
    * Wrapped setter that updates both state and URL
@@ -133,17 +135,50 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
       syncFilterURL({
         tags: currentTags,
         categories: computedCategories,
-        ...getLocationFilterStateFields(),
+        ...getExtraFilterStateFields(),
       });
       return currentTags;
     });
-  }, [syncFilterURL, getLocationFilterStateFields]);
+  }, [syncFilterURL, getExtraFilterStateFields]);
+
+  /**
+   * Wrapped setter that updates both search term state and URL
+   */
+  const setSearchTerm = useCallback((term: string) => {
+    setSearchTermInternal(term);
+    searchTermRef.current = term;
+
+    // Read current tags/categories via setter trick, then sync URL
+    setSelectedTagsInternal(currentTags => {
+      setSelectedCategoriesInternal(currentCategories => {
+        const loc = locationFilterRef.current;
+        const locationFields: Partial<FilterState> = {};
+        if (loc.nearMe) {
+          locationFields.nearLat = loc.nearMe.latitude;
+          locationFields.nearLng = loc.nearMe.longitude;
+          locationFields.radius = loc.nearMe.radius;
+        }
+        if (loc.city) locationFields.city = loc.city;
+        if (loc.country) locationFields.country = loc.country;
+
+        syncFilterURL({
+          tags: currentTags,
+          categories: currentCategories,
+          q: term || undefined,
+          ...locationFields,
+        });
+        return currentCategories;
+      });
+      return currentTags;
+    });
+  }, [syncFilterURL]);
 
   /**
    * Clear all active filters
    */
   const clearAllFilters = useCallback(() => {
-    setSearchTerm("");
+    setSearchTermInternal("");
+    searchTermRef.current = "";
     setSelectedTagsInternal([]);
     setSelectedCategoriesInternal([]);
     setSortBy(SORT_OPTIONS.POPULARITY);
@@ -238,6 +273,7 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
         syncFilterURL({
           tags: currentTags,
           categories: currentCategories,
+          q: searchTermRef.current || undefined,
           ...locationFields,
         });
         return currentCategories;

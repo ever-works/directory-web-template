@@ -84,7 +84,6 @@ export const MENU_STYLES = {
 			'focus:ring-theme-primary',
 			'transition-all',
 			'duration-300',
-			'hover:scale-105',
 			'active:scale-95'
 		]
 	},

@@ -134,6 +134,12 @@ export function TagsList({
   const portalTarget = usePortal('tag-popover-portal');
   const itemWidthsRef = useRef<number[]>([]);
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+
+  // Tooltip state for truncated tag names (similar to CategoryItem)
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
+  const [tooltipText, setTooltipText] = useState('');
+  const [tooltipTextIsTruncated, setTooltipTextIsTruncated] = useState(false);
   
   // 'All Tags' is active when no tags are selected
   const isAllTagsActive = setSelectedTags ? selectedTags.length === 0 : !isAnyTagActive;
@@ -369,6 +375,25 @@ export function TagsList({
       : false;
 
     if (setSelectedTags) {
+      const formattedName = formatDisplayName(tag.name)
+      const showTooltip = (btn: HTMLElement | null) => {
+        if (!inPopover && btn) {
+          const textEl = btn.querySelector('[data-tag-label]') as HTMLElement | null;
+          const isTruncated = textEl ? textEl.scrollWidth > textEl.clientWidth + 1 : false;
+          if (isTruncated) {
+            const r = btn.getBoundingClientRect();
+            setTooltipPos({ top: r.top - 8, left: r.left + r.width / 2 });
+            setTooltipText(formattedName);
+            setTooltipTextIsTruncated(true);
+            setTooltipVisible(true);
+          }
+        }
+      };
+      
+      const hideTooltip = () => {
+        setTooltipVisible(false);
+      };
+      
       // Filter mode (multi-select)
       return (
         <Button
@@ -387,6 +412,10 @@ export function TagsList({
             handleTagClick(tag.id);
             if (inPopover) setIsMorePopoverOpen(false);
           }}
+          onMouseEnter={(e) => showTooltip(e.currentTarget as HTMLElement)}
+          onMouseLeave={hideTooltip}
+          onFocus={(e) => showTooltip(e.currentTarget as HTMLElement)}
+          onBlur={hideTooltip}
         >
           {isActive && (
             <svg
@@ -422,6 +451,7 @@ export function TagsList({
                 ? "text-white tracking-wide"
                 : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary"
             )}
+            data-tag-label
           >
             {formatDisplayName(tag.name)}
           </span>
@@ -656,7 +686,9 @@ export function TagsList({
       )}
 
       {showAllTags && (
-        <div className="w-full flex flex-wrap gap-2">
+        <div className="w-full flex flex-wrap gap-2 max-h-[110dvh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
+        style={{ scrollbarWidth: "thin" }}
+        >
           {/* All Tags Button */}
           {setSelectedTags ? (
             <Button
@@ -746,6 +778,21 @@ export function TagsList({
           {/* All Tags */}
           {orderedVisibleTags.map((tag, idx) => renderTag(tag, idx))}
         </div>
+      )}
+      {/* Tooltip for truncated tag names (global) */}
+      {tooltipVisible && tooltipTextIsTruncated && typeof document !== 'undefined' && ReactDOM.createPortal(
+        <div
+          className={cn(
+            "fixed min-w-30 z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-light border pointer-events-none",
+            "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
+          )}
+          style={{ top: tooltipPos.top, left: tooltipPos.left, transform: 'translateX(-50%) translateY(-100%)', whiteSpace: 'pre-line' }}
+        >
+          <div className="flex flex-col gap-1">
+            <div className="font-semibold">{tooltipText}</div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

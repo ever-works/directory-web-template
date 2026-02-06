@@ -96,19 +96,19 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${
-          compact ? "px-2 py-1" : "px-3 py-1.5"
+        className={`flex items-center rounded-md border border-gray-200 dark:border-gray-700 gap-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${
+          compact ? "px-2 py-1" : "px-1.5 py-1"
         }`}
         aria-label="Select language"
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
       >
-        <div className="relative w-5 h-4 overflow-hidden shadow-xs rounded-xs">
+        <div className="relative w-4 h-3 overflow-hidden shadow-xs rounded-xs">
           <Image
             src={currentLanguage.flagSrc}
             alt={currentLanguage.fullName}
             fill
-            sizes="20px"
+            sizes="16px"
             className="object-cover"
           />
         </div>
@@ -125,8 +125,12 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
       {isOpen && (
         <div
           id={panelId}
-          className="absolute right-0 mt-2 p-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-xl shadow-xl z-50 min-w-[140px] max-h-[70vh] overflow-y-auto"
+            className="absolute -right-4 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-xl shadow-xl z-50 min-w-[110px] max-h-[70vh] overflow-hidden"
         >
+          <div
+            className="p-2 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
+            style={{ scrollbarWidth: "thin" }}
+          >
           <div className="flex flex-col gap-1">
             {LOCALES.map((locale) => {
               const language = languageMap[locale as LocaleKey];
@@ -137,7 +141,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
                 <button
                   key={locale}
                   type="button"
-                  className={`flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                  className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm rounded-lg transition-all backdrop-blur-md duration-200 ${
                     isActive
                       ? "bg-theme-primary-100 dark:bg-theme-primary text-theme-primary-800 dark:text-white shadow-md"
                       : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white"
@@ -146,12 +150,12 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
                   disabled={isPending || isActive}
                   aria-label={`Switch to ${language.fullName}`}
                 >
-                  <div className="relative w-5 h-4 overflow-hidden shadow-xs rounded-xs">
+                  <div className="relative w-4 h-3 overflow-hidden shadow-xs rounded-xs">
                     <Image
                       src={language.flagSrc}
                       alt={language.fullName}
                       fill
-                      sizes="20px"
+                      sizes="16px"
                       className="object-cover"
                     />
                   </div>
@@ -162,6 +166,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
                 </button>
               );
             })}
+          </div>
           </div>
         </div>
       )}
