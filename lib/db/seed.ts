@@ -215,6 +215,9 @@ export async function runSeed(): Promise<void> {
 					permissions: {
 						count: allPermissions.length,
 						columns: {
+							tenantId: funcs.valuesFromArray({
+								values: allPermissions.map(() => 'default-tenant')
+							}),
 							key: funcs.valuesFromArray({
 								values: allPermissions,
 								isUnique: true
@@ -237,6 +240,9 @@ export async function runSeed(): Promise<void> {
 					roles: {
 						count: 2,
 						columns: {
+							tenantId: funcs.valuesFromArray({
+								values: ['default-tenant', 'default-tenant']
+							}),
 							id: funcs.valuesFromArray({
 								values: [roleAdminId, roleClientId],
 								isUnique: true
@@ -264,6 +270,9 @@ export async function runSeed(): Promise<void> {
 					users: {
 						count: 3,
 						columns: {
+							tenantId: funcs.valuesFromArray({
+								values: ['default-tenant', 'default-tenant', 'default-tenant']
+							}),
 							id: funcs.valuesFromArray({
 								values: [userAdminId, userClient1Id, userClient2Id],
 								isUnique: true

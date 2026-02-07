@@ -19,12 +19,16 @@ import { getEffectivePlan } from '@/lib/utils/plan-expiration.utils';
  * @param userId - User ID
  * @returns Active subscription or null if not found
  */
-export async function getUserActiveSubscription(userId: string): Promise<Subscription | null> {
-	const result = await db
-		.select()
-		.from(subscriptions)
-		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE)))
-		.limit(1);
+export async function getUserActiveSubscription(userId: string, tenantId?: string): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(
+				eq(subscriptions.userId, userId),
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		: and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE));
+
+	const result = await db.select().from(subscriptions).where(whereClause).limit(1);
 
 	return result[0] || null;
 }
@@ -34,12 +38,12 @@ export async function getUserActiveSubscription(userId: string): Promise<Subscri
  * @param userId - User ID
  * @returns Array of user subscriptions ordered by creation date
  */
-export async function getUserSubscriptions(userId: string): Promise<Subscription[]> {
-	return await db
-		.select()
-		.from(subscriptions)
-		.where(eq(subscriptions.userId, userId))
-		.orderBy(desc(subscriptions.createdAt));
+export async function getUserSubscriptions(userId: string, tenantId?: string): Promise<Subscription[]> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.userId, userId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.userId, userId);
+
+	return await db.select().from(subscriptions).where(whereClause).orderBy(desc(subscriptions.createdAt));
 }
 
 /**
@@ -50,15 +54,18 @@ export async function getUserSubscriptions(userId: string): Promise<Subscription
  */
 export async function getSubscriptionByProviderSubscriptionId(
 	paymentProvider: string,
-	subscriptionId: string
+	subscriptionId: string,
+	tenantId?: string
 ): Promise<Subscription | null> {
-	const result = await db
-		.select()
-		.from(subscriptions)
-		.where(
-			and(eq(subscriptions.paymentProvider, paymentProvider), eq(subscriptions.subscriptionId, subscriptionId))
-		)
-		.limit(1);
+	const whereClause = tenantId
+		? and(
+				eq(subscriptions.paymentProvider, paymentProvider),
+				eq(subscriptions.subscriptionId, subscriptionId),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		: and(eq(subscriptions.paymentProvider, paymentProvider), eq(subscriptions.subscriptionId, subscriptionId));
+
+	const result = await db.select().from(subscriptions).where(whereClause).limit(1);
 
 	return result[0] || null;
 }
@@ -87,12 +94,17 @@ export async function getSubscriptionByUserIdAndSubscriptionId(
  * @returns Updated subscription or null if not found
  */
 export async function updateSubscriptionBySubscriptionId(
-	updateData: Partial<NewSubscription>
+	updateData: Partial<NewSubscription>,
+	tenantId?: string
 ): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.subscriptionId, updateData.subscriptionId!), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.subscriptionId, updateData.subscriptionId!);
+
 	const result = await db
 		.update(subscriptions)
 		.set({ ...updateData, updatedAt: new Date() })
-		.where(eq(subscriptions.subscriptionId, updateData.subscriptionId!))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -124,15 +136,20 @@ export async function createSubscription(data: NewSubscription): Promise<Subscri
  */
 export async function updateSubscription(
 	subscriptionId: string,
-	data: Partial<NewSubscription>
+	data: Partial<NewSubscription>,
+	tenantId?: string
 ): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			...data,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -180,9 +197,14 @@ export async function updateSubscriptionStatus(
  */
 export async function cancelSubscription(
 	subscriptionId: string,
+	tenantId?: string,
 	reason?: string,
 	cancelAtPeriodEnd: boolean = false
 ): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -192,7 +214,7 @@ export async function cancelSubscription(
 			cancelAtPeriodEnd,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -203,12 +225,19 @@ export async function cancelSubscription(
  * @param subscriptionId - Subscription ID
  * @returns Subscription with user details or null if not found
  */
-export async function getSubscriptionWithUser(subscriptionId: string): Promise<SubscriptionWithUser | null> {
+export async function getSubscriptionWithUser(
+	subscriptionId: string,
+	tenantId?: string
+): Promise<SubscriptionWithUser | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.select()
 		.from(subscriptions)
 		.leftJoin(users, eq(subscriptions.userId, users.id))
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.limit(1);
 
 	if (!result[0]) return null;
@@ -224,15 +253,19 @@ export async function getSubscriptionWithUser(subscriptionId: string): Promise<S
  * @param days - Number of days to look ahead (default: 7)
  * @returns Array of subscriptions expiring within the specified days
  */
-export async function getSubscriptionsExpiringSoon(days: number = 7): Promise<Subscription[]> {
+export async function getSubscriptionsExpiringSoon(days: number = 7, tenantId?: string): Promise<Subscription[]> {
 	const expirationDate = new Date();
 	expirationDate.setDate(expirationDate.getDate() + days);
 
-	return await db
-		.select()
-		.from(subscriptions)
-		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lte(subscriptions.endDate, expirationDate)))
-		.orderBy(asc(subscriptions.endDate));
+	const whereClause = tenantId
+		? and(
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				lte(subscriptions.endDate, expirationDate),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		: and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lte(subscriptions.endDate, expirationDate));
+
+	return await db.select().from(subscriptions).where(whereClause).orderBy(asc(subscriptions.endDate));
 }
 
 /**
@@ -240,11 +273,16 @@ export async function getSubscriptionsExpiringSoon(days: number = 7): Promise<Su
  * @param userId - User ID
  * @returns True if user has active subscription, false otherwise
  */
-export async function hasActiveSubscription(userId: string): Promise<boolean> {
-	const result = await db
-		.select({ count: count() })
-		.from(subscriptions)
-		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE)));
+export async function hasActiveSubscription(userId: string, tenantId?: string): Promise<boolean> {
+	const whereClause = tenantId
+		? and(
+				eq(subscriptions.userId, userId),
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		: and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE));
+
+	const result = await db.select({ count: count() }).from(subscriptions).where(whereClause);
 
 	return result[0].count > 0;
 }
@@ -254,8 +292,8 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
  * @param userId - User ID
  * @returns Effective plan ID (defaults to FREE if no active subscription or expired)
  */
-export async function getUserPlan(userId: string): Promise<string> {
-	const subscription = await getUserActiveSubscription(userId);
+export async function getUserPlan(userId: string, tenantId?: string): Promise<string> {
+	const subscription = await getUserActiveSubscription(userId, tenantId);
 	if (!subscription) return PaymentPlan.FREE;
 
 	// Use expiration utility to get effective plan
@@ -267,7 +305,10 @@ export async function getUserPlan(userId: string): Promise<string> {
  * @param userId - User ID
  * @returns Object with plan ID, effective plan, and expiration info
  */
-export async function getUserPlanWithExpiration(userId: string): Promise<{
+export async function getUserPlanWithExpiration(
+	userId: string,
+	tenantId?: string
+): Promise<{
 	planId: string;
 	effectivePlan: string;
 	isExpired: boolean;
@@ -275,7 +316,7 @@ export async function getUserPlanWithExpiration(userId: string): Promise<{
 	status: string | null;
 	subscriptionId: string | null;
 }> {
-	const subscription = await getUserActiveSubscription(userId);
+	const subscription = await getUserActiveSubscription(userId, tenantId);
 
 	if (!subscription) {
 		return {
@@ -319,8 +360,16 @@ export async function getExpiredActiveSubscriptions(): Promise<Subscription[]> {
  * Update expired subscriptions to expired status
  * @returns Array of subscriptions that were updated
  */
-export async function updateExpiredSubscriptionsStatus(): Promise<Subscription[]> {
+export async function updateExpiredSubscriptionsStatus(tenantId?: string): Promise<Subscription[]> {
 	const now = new Date();
+
+	const whereClause = tenantId
+		? and(
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				lt(subscriptions.endDate, now),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		: and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lt(subscriptions.endDate, now));
 
 	const result = await db
 		.update(subscriptions)
@@ -328,7 +377,7 @@ export async function updateExpiredSubscriptionsStatus(): Promise<Subscription[]
 			status: SubscriptionStatus.EXPIRED,
 			updatedAt: now
 		})
-		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lt(subscriptions.endDate, now)))
+		.where(whereClause)
 		.returning();
 
 	return result;
@@ -358,7 +407,11 @@ export async function createSubscriptionHistory(data: NewSubscriptionHistory): P
  * @param subscriptionId - Subscription ID
  * @returns Array of subscription history entries ordered by creation date
  */
-export async function getSubscriptionHistory(subscriptionId: string): Promise<SubscriptionHistoryType[]> {
+export async function getSubscriptionHistory(
+	subscriptionId: string,
+	tenantId?: string
+): Promise<SubscriptionHistoryType[]> {
+	// Note: subscriptionHistory table may not have tenantId - just filter by subscriptionId
 	return await db
 		.select()
 		.from(subscriptionHistory)
@@ -381,6 +434,7 @@ export async function getSubscriptionHistory(subscriptionId: string): Promise<Su
 export async function logSubscriptionChange(
 	subscriptionId: string,
 	action: string,
+	tenantId?: string,
 	previousStatus?: string,
 	newStatus?: string,
 	previousPlan?: string,
@@ -404,18 +458,28 @@ export async function logSubscriptionChange(
  * Get subscription statistics
  * @returns Subscription statistics including total, active, cancelled, and plan distribution
  */
-export async function getSubscriptionStats() {
-	const totalSubscriptions = await db.select({ count: count() }).from(subscriptions);
+export async function getSubscriptionStats(tenantId?: string) {
+	const tenantFilter = tenantId ? eq(subscriptions.tenantId, tenantId) : undefined;
+
+	const totalSubscriptions = await db.select({ count: count() }).from(subscriptions).where(tenantFilter);
 
 	const activeSubscriptions = await db
 		.select({ count: count() })
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.ACTIVE));
+		.where(
+			tenantFilter
+				? and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), tenantFilter)
+				: eq(subscriptions.status, SubscriptionStatus.ACTIVE)
+		);
 
 	const cancelledSubscriptions = await db
 		.select({ count: count() })
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.CANCELLED));
+		.where(
+			tenantFilter
+				? and(eq(subscriptions.status, SubscriptionStatus.CANCELLED), tenantFilter)
+				: eq(subscriptions.status, SubscriptionStatus.CANCELLED)
+		);
 
 	const planDistribution = await db
 		.select({
@@ -423,7 +487,11 @@ export async function getSubscriptionStats() {
 			count: count()
 		})
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.ACTIVE))
+		.where(
+			tenantFilter
+				? and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), tenantFilter)
+				: eq(subscriptions.status, SubscriptionStatus.ACTIVE)
+		)
 		.groupBy(subscriptions.planId);
 
 	return {
@@ -443,23 +511,30 @@ export async function getSubscriptionStats() {
  * @param days - Number of days before expiration to send reminder (default: 7)
  * @returns Array of subscriptions needing renewal reminders
  */
-export async function getSubscriptionsDueForRenewalReminder(days: number = 7): Promise<Subscription[]> {
+export async function getSubscriptionsDueForRenewalReminder(
+	days: number = 7,
+	tenantId?: string
+): Promise<Subscription[]> {
 	const now = new Date();
 	const futureDate = new Date();
 	futureDate.setDate(futureDate.getDate() + days);
 
+	const baseConditions = [
+		eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+		eq(subscriptions.autoRenewal, true),
+		eq(subscriptions.renewalReminderSent, false),
+		gte(subscriptions.endDate, now),
+		lte(subscriptions.endDate, futureDate)
+	];
+
+	if (tenantId) {
+		baseConditions.push(eq(subscriptions.tenantId, tenantId));
+	}
+
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(
-			and(
-				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
-				eq(subscriptions.autoRenewal, true),
-				eq(subscriptions.renewalReminderSent, false),
-				gte(subscriptions.endDate, now),
-				lte(subscriptions.endDate, futureDate)
-			)
-		)
+		.where(and(...baseConditions))
 		.orderBy(asc(subscriptions.endDate));
 }
 
@@ -489,7 +564,15 @@ export async function getSubscriptionsToCancel(): Promise<Subscription[]> {
  * @param enabled - Whether auto-renewal should be enabled
  * @returns Updated subscription or null if not found
  */
-export async function setAutoRenewal(subscriptionId: string, enabled: boolean): Promise<Subscription | null> {
+export async function setAutoRenewal(
+	subscriptionId: string,
+	enabled: boolean,
+	tenantId?: string
+): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -497,7 +580,7 @@ export async function setAutoRenewal(subscriptionId: string, enabled: boolean): 
 			cancelAtPeriodEnd: !enabled,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -509,14 +592,21 @@ export async function setAutoRenewal(subscriptionId: string, enabled: boolean): 
  * @param subscriptionId - Subscription ID
  * @returns Updated subscription or null if not found
  */
-export async function resetRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+export async function resetRenewalReminderSent(
+	subscriptionId: string,
+	tenantId?: string
+): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: false,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -527,14 +617,18 @@ export async function resetRenewalReminderSent(subscriptionId: string): Promise<
  * @param subscriptionId - Subscription ID
  * @returns Updated subscription or null if not found
  */
-export async function markRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+export async function markRenewalReminderSent(subscriptionId: string, tenantId?: string): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: true,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -545,7 +639,14 @@ export async function markRenewalReminderSent(subscriptionId: string): Promise<S
  * @param subscriptionId - Subscription ID
  * @returns Updated subscription or null if not found
  */
-export async function incrementFailedPaymentCount(subscriptionId: string): Promise<Subscription | null> {
+export async function incrementFailedPaymentCount(
+	subscriptionId: string,
+	tenantId?: string
+): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -553,7 +654,7 @@ export async function incrementFailedPaymentCount(subscriptionId: string): Promi
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
@@ -599,7 +700,11 @@ export async function getSubscriptionsWithFailedPayments(threshold: number = 3):
  * @param subscriptionId - Subscription ID
  * @returns Updated subscription or null if not found
  */
-export async function resetRenewalStateAtomic(subscriptionId: string): Promise<Subscription | null> {
+export async function resetRenewalStateAtomic(subscriptionId: string, tenantId?: string): Promise<Subscription | null> {
+	const whereClause = tenantId
+		? and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId))
+		: eq(subscriptions.id, subscriptionId);
+
 	// Use a single update with both fields to ensure atomicity
 	const result = await db
 		.update(subscriptions)
@@ -609,7 +714,7 @@ export async function resetRenewalStateAtomic(subscriptionId: string): Promise<S
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(whereClause)
 		.returning();
 
 	return result[0] || null;
