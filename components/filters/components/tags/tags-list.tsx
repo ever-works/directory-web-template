@@ -404,7 +404,10 @@ export function TagsList({
           className={getButtonVariantStyles(
             isActive,
             cn(
-              "px-1.5 py-1 h-8 font-medium transition-all duration-200 shrink-0 overflow-hidden whitespace-nowrap",
+              "px-2 py-1 h-8 font-medium transition-all duration-200 shrink-0 overflow-hidden whitespace-nowrap",
+              isActive
+                ? "bg-theme-primary-500 dark:bg-theme-primary-600 text-white border border-theme-primary-600 dark:border-theme-primary-600"
+                : "bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-900/20 dark:text-theme-primary-300 hover:bg-theme-primary-100 hover:border-theme-primary-200 dark:hover:border-theme-primary-600 border border-theme-primary-200 dark:border-theme-primary-700/30",
               inPopover ? "w-full justify-start" : "min-w-0 max-w-[140px]"
             )
           )}
@@ -446,7 +449,7 @@ export function TagsList({
           )}
           <span
             className={cn(
-              "text-sm font-medium transition-all duration-300 truncate",
+              "text-xs font-medium transition-all duration-300 truncate",
               isActive
                 ? "text-white tracking-wide"
                 : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary"
@@ -458,11 +461,12 @@ export function TagsList({
           {typeof tag.count === 'number' && (
             <span
               className={cn(
-                "ml-1.5 text-xs font-normal shrink-0",
-                isActive ? "text-white" : "text-dark-500 dark:text-dark-400"
+                "ml-1 text-xs font-normal dark:bg-white/20 bg-dark-500 text-white py-1 px-1.5 rounded-full",
+                isActive ? "bg-white/20 text-white" 
+                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-50 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
               )}
             >
-              ({tag.count})
+              {tag.count}
             </span>
           )}
         </Button>
