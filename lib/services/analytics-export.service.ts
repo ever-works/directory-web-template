@@ -17,7 +17,7 @@ interface ExportOptions {
 	};
 	includeMetadata?: boolean;
 	compression?: boolean;
-	tenantId?: string;
+	tenantId: string;
 }
 
 interface ExportResult {

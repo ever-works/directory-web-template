@@ -112,6 +112,10 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				}
 				if (extendedUser?.tenantId && typeof extendedUser.tenantId === 'string') {
 					token.tenantId = extendedUser.tenantId;
+				} else if (!token.tenantId) {
+					// Fallback for new users or initial sign-in: default to 'default-tenant'
+					// This prevents undefined tenantId in session which causes 401 errors
+					token.tenantId = 'default-tenant';
 				}
 
 				// For OAuth users: ensure client profile exists and populate clientProfileId

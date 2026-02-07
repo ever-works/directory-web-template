@@ -234,7 +234,7 @@ export async function updateSponsorAd(
 			...data,
 			updatedAt: new Date()
 		})
-		.where(eq(sponsorAds.id, id))
+		.where(and(eq(sponsorAds.id, id), eq(sponsorAds.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -258,7 +258,7 @@ export async function rejectSponsorAd(
 			rejectionReason,
 			updatedAt: new Date()
 		})
-		.where(eq(sponsorAds.id, id))
+		.where(and(eq(sponsorAds.id, id), eq(sponsorAds.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -281,7 +281,7 @@ export async function activateSponsorAd(
 			endDate,
 			updatedAt: new Date()
 		})
-		.where(eq(sponsorAds.id, id))
+		.where(and(eq(sponsorAds.id, id), eq(sponsorAds.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -297,7 +297,7 @@ export async function expireSponsorAd(id: string, tenantId: string): Promise<Spo
 			status: SponsorAdStatus.EXPIRED,
 			updatedAt: new Date()
 		})
-		.where(eq(sponsorAds.id, id))
+		.where(and(eq(sponsorAds.id, id), eq(sponsorAds.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;

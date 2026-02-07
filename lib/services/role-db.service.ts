@@ -104,7 +104,9 @@ export class RoleDbService {
 	private async updateRolePermissions(roleId: string, tenantId: string, newPermissions: Permission[]): Promise<void> {
 		await db.transaction(async (tx) => {
 			if (newPermissions.length === 0) {
-				await tx.delete(rolePermissions).where(eq(rolePermissions.roleId, roleId));
+				await tx
+					.delete(rolePermissions)
+					.where(and(eq(rolePermissions.roleId, roleId), eq(rolePermissions.tenantId, tenantId)));
 				return;
 			}
 

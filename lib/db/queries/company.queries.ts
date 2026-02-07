@@ -630,7 +630,10 @@ export async function getCompaniesWithItemCount(params: {
 			itemCount: sql<number>`count(${itemsCompanies.itemSlug})`
 		})
 		.from(companies)
-		.leftJoin(itemsCompanies, eq(companies.id, itemsCompanies.companyId))
+		.leftJoin(
+			itemsCompanies,
+			and(eq(companies.id, itemsCompanies.companyId), eq(itemsCompanies.tenantId, tenantId))
+		)
 		.where(whereClause)
 		.groupBy(companies.id)
 		.orderBy(sortClause)

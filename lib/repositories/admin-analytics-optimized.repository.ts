@@ -417,7 +417,7 @@ export class AdminAnalyticsOptimizedRepository {
 		activityTrendDays?: number;
 		topItemsLimit?: number;
 		recentActivityLimit?: number;
-		tenantId?: string;
+		tenantId: string;
 	}): Promise<{
 		userGrowth: UserGrowthTrend[];
 		activityTrends: ActivityTrend[];
