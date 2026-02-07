@@ -1,0 +1,2 @@
+UPDATE "subscriptions" SET "auto_renewal" = false WHERE "cancel_at_period_end" = true;
+ALTER TABLE "subscriptions" ADD CONSTRAINT "auto_renewal_check" CHECK (NOT ("subscriptions"."auto_renewal" AND "subscriptions"."cancel_at_period_end"));

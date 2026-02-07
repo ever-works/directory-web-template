@@ -1,0 +1,1 @@
+ALTER TABLE "sponsor_ads" ALTER COLUMN "status" SET DEFAULT 'pending_payment';
