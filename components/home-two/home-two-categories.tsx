@@ -24,8 +24,8 @@ const SCROLL_CONTAINER_STYLES = clsx(
   "relative flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none py-1 scroll-smooth",
   "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
   "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1",
-  "after:bg-linear-to-r after:from-transparent after:via-blue-100/20 after:to-transparent",
-  "dark:after:via-blue-900/10",
+  "after:bg-linear-to-r after:from-transparent after:via-dark:bg-[#0b111f]/95 after:to-transparent",
+  "dark:after:via-dark:bg-[#0b111f]/95",
 );
 
 const SCROLL_FADE_LEFT = clsx(
@@ -170,7 +170,7 @@ const CategoryButton = memo(
               className={cn(
                 "ml-1 sm:ml-2 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs transition-all duration-300 capitalize",
                 isActive
-                  ? "bg-theme-primary-20 text-white dark:text-theme-primary-300 dark:bg-theme-primary-10 scale-105"
+                  ? "bg-theme-primary-20 text-white dark:text-theme-primary-300 dark:bg-theme-primary-10"
                   : "bg-gray-200/80 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300"
               )}
             >
@@ -192,7 +192,7 @@ const CategoryButton = memo(
                 {
                   "bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-none shadow-md shadow-blue-500/20 dark:shadow-theme-primary-700/20":
                     isActive,
-                  "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/70 bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md":
+                  "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/70 bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 shadow-xs hover:shadow-md":
                     !isActive,
                 }
               )}
@@ -226,7 +226,7 @@ const CategoryButton = memo(
           <div ref={ref} className="relative group" title={fullName}>
             {button}
             <div
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-gray-900 text-white text-xs rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 capitalize!"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-white dark:text-gray-900  text-white text-xs rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 capitalize!"
               role="tooltip"
             >
               {fullName}
@@ -761,20 +761,22 @@ export function HomeTwoCategories({
                     {isMorePopoverOpen && portalTarget && ReactDOM.createPortal(
                       <div
                         ref={morePopoverRef}
-                        className="fixed w-64 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 z-50"
+                        className="fixed w-64 p-2 rounded-lg bg-white dark:bg-[#0b111f]/95 shadow-lg border border-gray-100 dark:border-gray-700/50 z-50"
                         style={{
                           top: `${popoverPosition.top}px`,
                           left: `${popoverPosition.left}px`,
                         }}
                       >
                         <div className="space-y-2">
-                          <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-1.5 uppercase">
+                          <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300/70 pb-1.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-1.5 uppercase">
                             {tCommon("MORE")} {t("CATEGORIES")}
                             <span className="text-xs bg-gray-100 dark:bg-gray-700 rounded-sm px-1.5 py-0.5">
                               {hiddenCategories.length}
                             </span>
                           </h3>
-                          <div className="grid grid-cols-1 gap-1.5 max-h-64 overflow-y-auto overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full -mr-2">
+                          <div className="grid grid-cols-1 gap-1.5 max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full -mr-2"
+                            style={{ scrollbarWidth: "thin" }}
+                          >
                             {hiddenCategories.map((category) => renderCategory(category))}
                           </div>
                         </div>
@@ -990,7 +992,7 @@ export function Categories(props: {
         </div>
         <div className="relative">
           {!showAllCategories && (
-            <div className="w-full flex flex-nowrap gap-2 overflow-x-auto pb-2 hide-scrollbar scrollbar-thin scrollbar-thumb-blue-500/30 dark:scrollbar-thumb-blue-700/30 scrollbar-track-transparent">
+            <div className="w-full flex flex-nowrap gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-500/30 dark:scrollbar-thumb-blue-700/30 scrollbar-track-transparent -mr-2">
               <Button
                 variant={!isAnyTagActive ? "solid" : "bordered"}
                 radius="full"
