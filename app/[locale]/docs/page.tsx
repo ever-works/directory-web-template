@@ -1,3 +1,5 @@
+export const revalidate = 3600;
+
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { DocsPageContent } from './docs-page-content';

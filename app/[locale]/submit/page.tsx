@@ -1,3 +1,5 @@
+export const revalidate = 600;
+
 import { getCachedItems } from '@/lib/content';
 import { SubmitFormClient } from '@/components/submit/submit-form-client';
 import { cn } from '@/lib/utils';
