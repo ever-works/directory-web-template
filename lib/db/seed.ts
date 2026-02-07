@@ -4,6 +4,7 @@ import { sql, eq } from 'drizzle-orm';
 
 // Import schema tables
 import {
+	tenants,
 	users,
 	accounts,
 	clientProfiles,
@@ -103,6 +104,23 @@ export async function runSeed(): Promise<void> {
 	console.log('[Seed] Checking existing data...');
 
 	try {
+		// Ensure default tenant exists first (required for foreign key constraints)
+		const existingTenant = await db.select().from(tenants).where(eq(tenants.id, 'default-tenant')).limit(1);
+		if (existingTenant.length === 0) {
+			console.log('[Seed] Creating default tenant...');
+			await db
+				.insert(tenants)
+				.values({
+					id: 'default-tenant',
+					name: 'Default Tenant',
+					description: 'Default tenant for single-tenant mode'
+				})
+				.onConflictDoNothing();
+			console.log('[Seed] ✓ Default tenant created');
+		} else {
+			console.log('[Seed] Default tenant already exists');
+		}
+
 		// Check each essential table individually
 		const permissionsEmpty = await isTableEmpty('permissions', permissions);
 		const rolesEmpty = await isTableEmpty('roles', roles);

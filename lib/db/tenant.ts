@@ -68,9 +68,24 @@ export async function getOrCreateDefaultTenant(): Promise<string> {
 }
 
 /**
- * Gets the default tenant ID for pre-authentication operations.
- * This is used when we need a tenant context but the user is not yet authenticated.
+ * Resolves the tenant ID with fallback strategy.
+ *
+ * Strategy:
+ * 1. First attempts to get tenant from authenticated session
+ * 2. Falls back to system/default tenant for unauthenticated contexts
+ *
+ * Use cases:
+ * - Webhook handlers (Stripe, LemonSqueezy, Polar) - no session available
+ * - User registration - user doesn't have tenant yet
+ * - Public pages - content displayed without authentication
+ *
+ * @returns The resolved tenant ID (never undefined)
  */
-export async function getDefaultTenantId(): Promise<string> {
+export async function getTenantIdWithFallback(): Promise<string> {
 	return (await getTenantIdSafe()) || (await getOrCreateDefaultTenant());
 }
+
+/**
+ * @deprecated Use `getTenantIdWithFallback` instead. Will be removed in future version.
+ */
+export const getDefaultTenantId = getTenantIdWithFallback;

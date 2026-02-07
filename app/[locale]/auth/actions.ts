@@ -30,7 +30,7 @@ import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
-import { getDefaultTenantId } from '@/lib/db/tenant';
+import { getTenantIdWithFallback } from '@/lib/db/tenant';
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -60,7 +60,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		const normalizedEmail = email.toLowerCase().trim();
 
 		// Get default tenant for pre-auth operations
-		const tenantId = await getDefaultTenantId();
+		const tenantId = await getTenantIdWithFallback();
 
 		// Step 1: Validate credentials FIRST to get specific error messages
 		// (NextAuth returns generic "CredentialsSignin" which loses the specific error code)
@@ -173,7 +173,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		// hashPassword is CPU-bound (~100ms), checking for existing user is I/O-bound
 		const [passwordHash, existingUser] = await Promise.all([
 			hashPassword(password),
-			getUserByEmail(normalizedEmail, await getDefaultTenantId()).catch(() => null)
+			getUserByEmail(normalizedEmail, await getTenantIdWithFallback()).catch(() => null)
 		]);
 
 		// Fail fast if email already exists
@@ -185,7 +185,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		}
 
 		// Get default tenant for new user registration
-		const tenantId = await getDefaultTenantId();
+		const tenantId = await getTenantIdWithFallback();
 
 		// Handle Supabase auth if needed (after duplicate check to avoid unnecessary calls)
 		const authService = authServiceFactory(data.authProvider);
@@ -431,7 +431,7 @@ const forgotPasswordSchema = z.object({
 export const forgotPassword = validatedAction(forgotPasswordSchema, async ({ email }) => {
 	// Normalize email for consistent lookup
 	const normalizedEmail = email.toLowerCase().trim();
-	const tenantId = await getDefaultTenantId();
+	const tenantId = await getTenantIdWithFallback();
 
 	const dbUser = await getUserByEmail(normalizedEmail, tenantId).catch(() => null);
 	if (!dbUser) {
@@ -449,7 +449,7 @@ export const forgotPassword = validatedAction(forgotPasswordSchema, async ({ ema
 });
 
 export const verifyEmailAction = async (token: string) => {
-	const tenantId = await getDefaultTenantId();
+	const tenantId = await getTenantIdWithFallback();
 	const existingToken = await getVerificationTokenByToken(token, tenantId);
 	if (!existingToken) {
 		return { error: 'Invalid token!' };
@@ -476,7 +476,7 @@ export const verifyEmailAction = async (token: string) => {
 };
 
 export const verifyPasswordTokenAction = async (token: string) => {
-	const tenantId = await getDefaultTenantId();
+	const tenantId = await getTenantIdWithFallback();
 	const existingToken = await getPasswordResetTokenByToken(token, tenantId);
 	if (!existingToken) {
 		return { error: 'Invalid token!' };

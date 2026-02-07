@@ -17,7 +17,7 @@ import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/confi
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { getOrCreateStripeProvider } from '@/lib/auth';
-import { getDefaultTenantId } from '@/lib/db/tenant';
+import { getTenantIdWithFallback } from '@/lib/db/tenant';
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
 const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
@@ -672,7 +672,7 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 		const customerId = data.customer as string;
 
 		// For webhooks, we use default tenant since we don't have session context
-		const tenantId = await getDefaultTenantId();
+		const tenantId = await getTenantIdWithFallback();
 
 		console.log(`🔄 Confirming payment for sponsor ad: ${sponsorAdId}`);
 
@@ -702,7 +702,7 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 
 	try {
 		// For webhooks, we use default tenant since we don't have session context
-		const tenantId = await getDefaultTenantId();
+		const tenantId = await getTenantIdWithFallback();
 
 		console.log(`🔄 Cancelling sponsor ad: ${sponsorAdId}`);
 
@@ -732,7 +732,7 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 
 	try {
 		// For webhooks, we use default tenant since we don't have session context
-		const tenantId = await getDefaultTenantId();
+		const tenantId = await getTenantIdWithFallback();
 
 		console.log(`🔄 Renewing sponsor ad: ${sponsorAdId}`);
 
