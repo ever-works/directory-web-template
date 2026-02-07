@@ -1,3 +1,6 @@
+export const revalidate = 600;
+export const dynamicParams = true;
+
 import { SurveyPageClient } from '@/components/surveys/pages/public-survey-page';
 import { surveyService } from '@/lib/services/survey.service';
 import { notFound } from 'next/navigation';

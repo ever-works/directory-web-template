@@ -46,6 +46,12 @@ import { DEFAULT_LOCALE } from '@/lib/constants';
 
 const appUrl = getBaseUrl();
 
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+	return [{ locale: 'en' }];
+}
+
 /**
  * Generate metadata dynamically using siteConfig
  */

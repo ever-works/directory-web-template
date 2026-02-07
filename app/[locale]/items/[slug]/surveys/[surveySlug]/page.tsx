@@ -1,3 +1,6 @@
+export const revalidate = 600;
+export const dynamicParams = true;
+
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { surveyService } from '@/lib/services/survey.service';
