@@ -420,21 +420,6 @@ export function TagsList({
           onFocus={(e) => showTooltip(e.currentTarget as HTMLElement)}
           onBlur={hideTooltip}
         >
-          {isActive && (
-            <svg
-              className="w-3 h-3 mr-1.5 text-white shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="3"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          )}
           {tag.icon_url && (
             <Image
               src={tag.icon_url}
