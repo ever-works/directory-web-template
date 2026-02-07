@@ -27,7 +27,7 @@ type ItemProps = ItemData & {
 };
 
 const TAG_BUTTON_BASE_CLASS =
-	'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 hover:scale-105 font-medium px-1 py-0.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
+	'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 font-medium px-1 py-[2px]! rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
 
 export default function Item(props: ItemProps) {
 	const params = useParams();
@@ -55,7 +55,7 @@ export default function Item(props: ItemProps) {
 
 	const cardClassName = cn(
 		'group relative border-0 rounded-2xl transition-all duration-300 backdrop-blur-xl overflow-hidden',
-		'bg-white/80 dark:bg-gray-900/80 shadow-lg hover:shadow-xl',
+		'bg-white/80 dark:bg-gray-900/80',
 		'ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-gray-300/70 dark:hover:ring-gray-600/70',
 		'before:absolute before:inset-0 before:bg-linear-to-br before:from-white/60 before:via-transparent before:to-gray-50/40',
 		'dark:before:from-gray-800/60 dark:before:via-transparent dark:before:to-gray-900/40',
@@ -63,7 +63,7 @@ export default function Item(props: ItemProps) {
 		// Grid view: fixed height for consistent card sizes
 		isGridLayout ? 'h-[320px]' : 'h-full',
 		{
-			'ring-2 ring-blue-400/40 dark:ring-blue-500/40 shadow-blue-500/10 dark:shadow-blue-500/20': props.featured
+			'border-1 border-blue-400/40 dark:border-blue-500/40 shadow-blue-500/10 dark:shadow-blue-500/20': props.featured
 		}
 	);
 
@@ -87,7 +87,7 @@ export default function Item(props: ItemProps) {
 	// Tags container styling: for grid/classic layouts, reserve consistent space
 	const tagsContainerClassName = cn(
 		'flex flex-wrap gap-0.5',
-		isGridOrClassicLayout && 'min-h-[1.75em]' // Reserve space for 1 line of tags
+		isGridOrClassicLayout // Reserve space for 1 line of tags
 	);
 
 	return (
@@ -100,14 +100,61 @@ export default function Item(props: ItemProps) {
 			className="block"
 		>
 			<Card className={cardClassName}>
-				<div className="absolute inset-0 bg-linear-to-br from-gray-50/60 via-white/90 to-gray-100/80 dark:from-gray-900/60 dark:via-gray-800/80 dark:to-black/80 transition-all duration-700" />
+					{/* Decorative short top border accent with fading edges */}
+					<div
+						className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 w-1/2 h-px z-20 opacity-70"
+						style={{
+							background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
+							borderRadius: '9999px'
+						}}
+					/>
+
+					{/* Decorative blurred circles background */}
+					<div className="pointer-events-none absolute inset-0 z-0">
+						<div className="absolute w-40 h-40 bg-[#6209bb]/20 opacity-50 rounded-full blur-3xl left-2 top-0"></div>
+						<div className="absolute w-32 h-32 bg-blue-200/20 opacity-50 rounded-full blur-3xl right-1 top-20"></div>
+						<div className="absolute w-28 h-28 bg-[#6209bb]/20 opacity-50 rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
+					</div>
+
+					{/* Hover image at top (decorative) */}
+					<div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
+						<Image src="/bg-cards.png" alt="Decorative pattern" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400} />
+					</div>
+
+					{/* Blurred background element */}
+					<div
+						className="absolute inset-0 bg-linear-to-br from-theme-primary/0 via-theme-primary/0 to-theme-primary/0 
+						group-hover:from-theme-primary/5 group-hover:via-theme-primary/3 group-hover:to-theme-primary/5 
+						transition-all duration-500 rounded-2xl blur-xl"
+					/>
+
+					{/* Color overlay */}
+					<div
+						className="absolute inset-0 bg-theme-primary/0 group-hover:bg-theme-primary/3 
+						transition-all duration-500 rounded-2xl"
+					/>
+
+					{/* Border glow effect */}
+					<div
+						className="absolute inset-0 border-2 border-transparent rounded-2xl 
+						group-hover:border-theme-primary/15 transition-all duration-500"
+					/>
+
+					{/* Subtle particles/blur effect */}
+					<div
+						className="absolute top-0 right-0 w-32 h-32 -translate-y-1/2 translate-x-1/2 
+						bg-theme-primary/5 rounded-full blur-2xl group-hover:blur-2xl 
+						transition-all duration-500"
+					></div>
+
+					{/* <div className="absolute inset-0 bg-linear-to-br from-gray-50/60 via-white/90 to-gray-100/80 dark:from-gray-900/60 dark:via-gray-800/80 dark:to-black/80 transition-all duration-700" /> */}
 
 				<div
 					className="absolute inset-0 opacity-10 dark:opacity-20"
-					style={{
-						backgroundImage:
-							"url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' /%3E%3C/g%3E%3C/svg%3E\")"
-					}}
+					// style={{
+					// 	backgroundImage:
+					// 		"url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' /%3E%3C/g%3E%3C/svg%3E\")"
+					// }}
 				/>
 
 				{/* Content container */}
@@ -120,14 +167,14 @@ export default function Item(props: ItemProps) {
 									<div className="relative shrink-0">
 										{/* Pulse/wave effect on hover */}
 										<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
-										<div className="w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md group-hover:scale-105 group-hover:rotate-2">
-											{shouldShowFallbackIcon ? (
-												<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-300 group-hover:scale-110" />
+										<div className="w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md group-hover:rotate-2">
+												{shouldShowFallbackIcon ? (
+												<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-300" />
 											) : (
 												<Image
 													src={props.icon_url!}
 													alt={`${props.name} icon`}
-													className="w-6 h-6 object-contain transition-transform duration-300 group-hover:scale-110"
+													className="w-6 h-6 object-contain transition-transform duration-300"
 													width={24}
 													height={24}
 													unoptimized={isProblematicUrl(props.icon_url!)}
@@ -144,7 +191,7 @@ export default function Item(props: ItemProps) {
 									{/* Arrow indicator - right after title */}
 									{props.layout === 'classic' && (
 										<div
-											className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300 hover:scale-105"
+											className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300"
 											aria-hidden="true"
 										>
 											<FiArrowUpRight className="w-3 h-3 text-theme-primary-600 dark:text-theme-primary-400" />
@@ -185,7 +232,7 @@ export default function Item(props: ItemProps) {
 											size="sm"
 											collapsible={true}
 											showText={false}
-											className="bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-300 hover:scale-105 shadow-xs hover:shadow-md rounded-full"
+											className="bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-1000 shadow-xs hover:shadow-md rounded-full"
 										/>
 									)}
 								</div>
@@ -283,7 +330,7 @@ function CategoryFilterButton({ category }: { category: CategoryProp }) {
 			type="button"
 			data-category-filter
 			className={
-				'bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-linear-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary  dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border-theme-primary-10 transition-all duration-300 hover:scale-105 hover:shadow-md capitalize shadow-xs border dark:border-gray-600/30 focus:outline-hidden ' +
+				'bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-linear-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary  dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border-theme-primary-10 transition-all duration-300 hover:shadow-md capitalize shadow-xs border dark:border-gray-600/30 focus:outline-hidden ' +
 				(isActive ? 'ring-2 ring-theme-primary-500' : '')
 			}
 			onClick={(e) => {
@@ -311,7 +358,7 @@ function TagFilterButton({ tag, index }: { tag: TagProp; index: number }) {
 			data-tag-filter
 			className={cn(
 				TAG_BUTTON_BASE_CLASS,
-				isActive && 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+				isActive && 'border border-blue-500/50 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
 			)}
 			style={{ animationDelay: `${index * 0.05}s` }}
 			onClick={(e) => {
