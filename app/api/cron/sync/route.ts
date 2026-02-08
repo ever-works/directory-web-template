@@ -25,11 +25,11 @@ interface CronSyncResponse {
 export async function GET(request: Request): Promise<NextResponse<CronSyncResponse>> {
     const startTime = Date.now();
 
-    // Verify cron secret for authentication
+    // Verify cron secret for authentication — required in all environments
     const authHeader = request.headers.get("authorization");
     const cronSecret = integrationsConfig.cron.secret;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
         console.warn("[CRON_SYNC] Unauthorized request - invalid or missing CRON_SECRET");
         return NextResponse.json(
             {

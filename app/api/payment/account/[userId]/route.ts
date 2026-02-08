@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { getUserPaymentAccountByProvider } from '@/lib/db/queries';
 
 /**
@@ -7,7 +8,9 @@ import { getUserPaymentAccountByProvider } from '@/lib/db/queries';
  *   get:
  *     tags: ["Payment Accounts"]
  *     summary: "Get user payment account"
- *     description: "Retrieves a user's payment account information for a specific payment provider. Returns the account details including customer ID and timestamps. Requires both user ID and provider to be specified."
+ *     description: "Retrieves a user's payment account information for a specific payment provider. Returns the account details including customer ID and timestamps. Requires authentication and the requesting user must own the account."
+ *     security:
+ *       - cookieAuth: []
  *     parameters:
  *       - name: "userId"
  *         in: "path"
@@ -78,6 +81,10 @@ import { getUserPaymentAccountByProvider } from '@/lib/db/queries';
  *                   customerId: "cus_stripe_012jkl"
  *                   createdAt: "2024-01-19T15:20:00.000Z"
  *                   updatedAt: "2024-01-19T15:20:00.000Z"
+ *       401:
+ *         description: "Unauthorized - Not authenticated"
+ *       403:
+ *         description: "Forbidden - Cannot access another user's payment account"
  *       400:
  *         description: "Bad request - Missing required parameters"
  *         content:
@@ -127,6 +134,15 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    // Authenticate user and verify ownership
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const { userId } = await params;
     const { searchParams } = new URL(request.url);
     const provider = searchParams.get('provider');
@@ -135,6 +151,14 @@ export async function GET(
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
+      );
+    }
+
+    // Prevent accessing other users' payment accounts
+    if (session.user.id !== userId) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
       );
     }
 
