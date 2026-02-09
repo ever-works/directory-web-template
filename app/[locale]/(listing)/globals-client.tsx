@@ -17,6 +17,7 @@ import { SponsorAdsProvider } from '@/components/sponsor-ads';
 import { LocationFilter } from '@/components/filters/components/location';
 import { useLocationItems } from '@/hooks/use-location-items';
 import { LocationDistanceProvider } from '@/components/filters/context/location-distance-context';
+import DecorativeBg from '@/components/shared/decorative-bg';
 
 type ListingProps = {
 	total: number;
@@ -38,7 +39,7 @@ const LAYOUT_STYLES = {
 	largeUp: 'hidden xl:block',
 	mainContainer: 'pb-8 sm:pb-10 md:pb-12 lg:pb-16 xl:pb-20',
 	contentWrapper: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 md:gap-4 lg:gap-4 xl:gap-5',
-	contentWrapperFluid: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 md:gap-3 lg:gap-3 xl:gap-4',
+	contentWrapperFluid: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 md:gap-2 lg:gap-0 xl:gap-0',
 	sidebar: 'lg:sticky lg:top-4 lg:self-start lg:w-64 lg:flex-shrink-0',
 	sidebarFluid: 'lg:sticky lg:top-4 lg:self-start lg:w-80 xl:w-[340px] 2xl:w-[380px] lg:flex-shrink-0',
 	sidebarMobile: 'mb-3 sm:mb-4 md:mb-5 lg:mb-0',
@@ -111,6 +112,7 @@ export default function GlobalsClient(props: ListingProps) {
 		return (
 			<SponsorAdsProvider limit={10}>
 				<TopLoadingBar isLoading={isLoading} />
+				<div>
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
 				{/* Featured Items Section - Only show on first page and desktop */}
 				{/* {page === 1 && featuredItems.length > 0 && (
@@ -176,6 +178,8 @@ export default function GlobalsClient(props: ListingProps) {
 					</div>
 				</div>
 			</Container>
+			<DecorativeBg />
+			</div>
 			</SponsorAdsProvider>
 		);
 	}
@@ -191,6 +195,7 @@ export default function GlobalsClient(props: ListingProps) {
 					filteredAndSortedItems={filteredItems}
 					searchEnabled={props.searchEnabled}
 				/>
+				<DecorativeBg />
 			</div>
 		</SponsorAdsProvider>
 	);
