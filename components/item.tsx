@@ -74,8 +74,7 @@ export default function Item(props: ItemProps) {
 
 	// Title styling: for grid/classic layouts, reserve space for 3 lines and truncate if longer
 	const titleClassName = cn(
-		'text-lg sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white mb-1 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
-		isGridOrClassicLayout && 'line-clamp-3 min-h-[3.6em]'
+		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
 	);
 
 	const descriptionClassName = cn(
@@ -117,9 +116,9 @@ export default function Item(props: ItemProps) {
 					</div>
 
 					{/* Hover image at top (decorative) */}
-					<div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
+					{/* <div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
 						<Image src="/bg-cards.png" alt="Decorative pattern" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400} />
-					</div>
+					</div> */}
 
 					{/* Blurred background element */}
 					<div
@@ -159,11 +158,11 @@ export default function Item(props: ItemProps) {
 
 				{/* Content container */}
 				<div className="relative z-10">
-					<CardHeader className="flex gap-4  pb-4">
+					<CardHeader className="relative flex gap-3  pb-4">
 						<div className="flex flex-col grow gap-4 min-w-0">
-							<div className="flex justify-between items-start gap-3">
+							<div className="flex justify-between items-start gap-2">
 								{/* Left: Icon + Title + Arrow */}
-								<div className="flex items-center gap-3 min-w-0">
+								<div className="flex items-start gap-2 min-w-0 pr-16">
 									<div className="relative shrink-0">
 										{/* Pulse/wave effect on hover */}
 										<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
@@ -185,9 +184,8 @@ export default function Item(props: ItemProps) {
 
 									<div className="min-w-0">
 										<div className={titleClassName}>{props.name}</div>
-										<div className="w-0 h-0.5 bg-gray-300 dark:bg-gray-600 group-hover:w-12 transition-all duration-500 ease-out" />
+									<div className="w-12 h-0.5 bg-gray-300 dark1:bg-gray-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out" />
 									</div>
-
 									{/* Arrow indicator - right after title */}
 									{props.layout === 'classic' && (
 										<div
@@ -199,8 +197,8 @@ export default function Item(props: ItemProps) {
 									)}
 								</div>
 
-								{/* Right: FavoriteButton + FeaturedBadge */}
-								<div className="flex items-center gap-2">
+								{/* Right: FavoriteButton + FeaturedBadge (absolute at top-right) */}
+								<div className="absolute top-2 right-1 z-20 flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-none group-hover:backdrop-blur-sm transition-all duration-200">
 									{session?.user?.id && (
 										<FavoriteButton
 											itemSlug={props.slug}
