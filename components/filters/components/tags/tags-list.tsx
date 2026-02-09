@@ -342,8 +342,8 @@ export function TagsList({
         if (triggerButtonRef.current) {
           const rect = triggerButtonRef.current.getBoundingClientRect();
           setPopoverPosition({
-            top: rect.bottom + 8,
-            left: Math.max(8, rect.right - 256), // 256px = w-64, ensure it doesn't go off-screen
+            top: rect.bottom + 8, // 8px gap below trigger (viewport relative for fixed positioning)
+            left: rect.right - 208, // 208px = w-52, align popover right edge with trigger right edge (viewport relative)
           });
         }
       });
@@ -406,9 +406,9 @@ export function TagsList({
             cn(
               "px-2 py-1 h-8 font-medium transition-all duration-200 shrink-0 overflow-hidden whitespace-nowrap",
               isActive
-                ? "bg-theme-primary-500 dark:bg-theme-primary-600 text-white border border-theme-primary-600 dark:border-theme-primary-600"
+                ? "bg-theme-primary-500 dark:bg-theme-primary-600 text-white border border-theme-primary-700 dark:border-theme-primary-700"
                 : "bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-900/20 dark:text-theme-primary-300 hover:bg-theme-primary-100 hover:border-theme-primary-200 dark:hover:border-theme-primary-600 border border-theme-primary-200 dark:border-theme-primary-700/30",
-              inPopover ? "w-full justify-start" : "min-w-0 max-w-[140px]"
+              inPopover ? "w-full justify-between" : "min-w-0 max-w-[140px]"
             )
           )}
           onClick={() => {
@@ -446,9 +446,9 @@ export function TagsList({
           {typeof tag.count === 'number' && (
             <span
               className={cn(
-                "ml-1 text-xs font-normal dark:bg-white/20 bg-dark-500 text-white py-1 px-1.5 rounded-full",
+                "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                 isActive ? "bg-white/20 text-white" 
-                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-50 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
               )}
             >
               {tag.count}
@@ -533,13 +533,13 @@ export function TagsList({
                   <span className="whitespace-nowrap">All Tags</span>
                   <span
                     className={cn(
-                      "ml-1.5 text-xs font-normal",
+                      "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
-                        ? "text-white"
-                        : "text-dark-500 dark:text-dark-400"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
                     )}
                   >
-                    ({allItemsCount ?? tags.length})
+                    {allItemsCount ?? tags.length}
                   </span>
                 </Button>
               ) : (
@@ -576,13 +576,13 @@ export function TagsList({
                   <span className="whitespace-nowrap">All Tags</span>
                   <span
                     className={cn(
-                      "ml-1.5 text-xs font-normal",
+                      "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
-                        ? "text-white"
-                        : "text-dark-500 dark:text-dark-400"
+                        ? "bg-white/20 text-white"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
                     )}
                   >
-                    ({allItemsCount ?? tags.length})
+                    {allItemsCount ?? tags.length}
                   </span>
                 </Button>
               )}
@@ -618,6 +618,7 @@ export function TagsList({
                 <Button
                   ref={triggerButtonRef}
                   className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-theme-primary-500 hover:bg-theme-primary-600 dark:bg-theme-primary-500 dark:hover:bg-theme-primary-600 text-white border border-theme-primary-600 shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+                  onClick={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   aria-label={`Show ${hiddenTags.length} more ${hiddenTags.length === 1 ? 'tag' : 'tags'}`}
                 >
@@ -648,34 +649,36 @@ export function TagsList({
           </div>
           
           {/* Popover Content - Portal Rendered */}
-          {isMorePopoverOpen && hiddenTags.length > 0 && portalTarget && ReactDOM.createPortal(
+          {isMorePopoverOpen && hiddenTags.length > 0 && (portalTarget || (typeof document !== 'undefined' ? document.body : null)) && ReactDOM.createPortal(
             <div
               ref={morePopoverRef}
-              className="fixed w-64 p-2 rounded-lg bg-white dark:bg-gray-800 shadow-lg border border-gray-100 dark:border-gray-700 z-50"
+              className="fixed w-52 p-2 rounded-lg bg-white dark:bg-[#0b111f] shadow-lg border border-gray-100 dark:border-gray-700/50 z-50"
               style={{
                 top: `${popoverPosition.top}px`,
                 left: `${popoverPosition.left}px`,
               }}
             >
               <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-1.5 uppercase">
+                <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-1.5 uppercase">
                   {tCommon("MORE")} Tags
                   <span className="text-xs bg-gray-100 dark:bg-gray-700 rounded-sm px-1.5 py-0.5">
                     {hiddenTags.length}
                   </span>
                 </h3>
-                <div className="grid grid-cols-1 gap-1.5 max-h-64 overflow-y-auto w-full pr-1 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
+                <div className="grid grid-cols-1 gap-1.5 max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full"
+                  style={{ scrollbarWidth: "thin" }}
+                >
                   {hiddenTags.map((tag, idx) => renderTag(tag, idx, true))}
                 </div>
               </div>
             </div>,
-            portalTarget
+            (portalTarget || (typeof document !== 'undefined' ? document.body : null)) as Element
           )}
         </div>
       )}
 
       {showAllTags && (
-        <div className="w-full flex flex-wrap gap-2 max-h-[110dvh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
+        <div className="w-full flex flex-wrap gap-2 max-h-[110dvh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-4 [&::-webkit-scrollbar]:w-1"
         style={{ scrollbarWidth: "thin" }}
         >
           {/* All Tags Button */}
