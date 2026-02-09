@@ -86,7 +86,7 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
       )}
 
       {/* Desktop Layout */}
-      <div className={`hidden md:flex flex-col w-full gap-6 ${isFluid ? "" : "max-w-64"}`}>
+      <div className={`hidden md:flex flex-col w-full gap-6 ${isFluid ? "max-w-80" : "max-w-64"}`}>
         {/* Search Bar */}
         <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
