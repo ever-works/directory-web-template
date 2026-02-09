@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { PaymentProviderManager } from '@/lib/auth';
-import { safeErrorResponse } from '@/lib/utils/api-error';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -352,6 +352,7 @@ export async function POST(request: NextRequest) {
 			}
 		);
 	} catch (error) {
+		const duration = Date.now() - startTime;
 		const errorCode = error instanceof Error && 'code' in error ? (error as any).code : 'INTERNAL_ERROR';
 		const statusCode =
 			errorCode === 'VALIDATION_ERROR'
@@ -364,6 +365,23 @@ export async function POST(request: NextRequest) {
 							? 503
 							: 500;
 
-		return safeErrorResponse(error, 'Failed to update subscription', statusCode);
+		return NextResponse.json(
+			{
+				success: false,
+				error: 'Failed to update subscription',
+				code: errorCode,
+				message: safeErrorMessage(error, 'Unknown error occurred'),
+				requestId,
+				timestamp: new Date().toISOString(),
+				duration: `${duration}ms`
+			},
+			{
+				status: statusCode,
+				headers: {
+					'X-Request-ID': requestId,
+					'X-Response-Time': `${duration}ms`
+				}
+			}
+		);
 	}
 }

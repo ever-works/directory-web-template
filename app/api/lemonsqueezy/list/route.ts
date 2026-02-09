@@ -691,6 +691,27 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    return safeErrorResponse(error, 'Failed to fetch LemonSqueezy checkouts');
+    const rawErrorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isNetworkError = rawErrorMessage.includes('fetch') || rawErrorMessage.includes('network');
+    const isAuthError = rawErrorMessage.includes('unauthorized') || rawErrorMessage.includes('forbidden');
+
+    const statusCode = isAuthError ? 401 : isNetworkError ? 503 : 500;
+    const errorCode = isAuthError ? 'AUTH_ERROR' : isNetworkError ? 'SERVICE_UNAVAILABLE' : 'INTERNAL_ERROR';
+
+    return NextResponse.json(
+      { 
+        error: 'Failed to fetch LemonSqueezy checkouts',
+        message: safeErrorMessage(error, 'Internal server error'),
+        code: errorCode,
+        timestamp: new Date().toISOString(),
+        requestId: crypto.randomUUID(),
+      },
+      { 
+        status: statusCode,
+        headers: isNetworkError ? {
+          'Retry-After': '30'
+        } : undefined
+      }
+    );
   }
 }
