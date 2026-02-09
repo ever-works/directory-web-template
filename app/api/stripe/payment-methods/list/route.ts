@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import Stripe from 'stripe';
 import { getUserStripeCustomerId } from '@/lib/stripe-helpers';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -285,7 +286,8 @@ export async function GET() {
 		console.error('Error listing payment methods:', error);
 
 		if (error instanceof Stripe.errors.StripeError) {
-			return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+			const msg = safeErrorMessage(error, 'Stripe request failed');
+			return NextResponse.json({ success: false, error: msg }, { status: 400 });
 		}
 
 		return NextResponse.json({ success: false, error: 'Failed to list payment methods' }, { status: 500 });

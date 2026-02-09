@@ -3,6 +3,7 @@ import { categoryRepository } from "@/lib/repositories/category.repository";
 import { UpdateCategoryRequest } from "@/lib/types/category";
 import { auth } from "@/lib/auth";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 interface RouteParams {
   params: Promise<{
@@ -119,14 +120,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
 
   } catch (error) {
-    console.error('Failed to fetch category:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch category' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch category');
   }
 }
 
@@ -312,13 +306,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to update category' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to update category');
   }
 }
 
@@ -449,12 +437,6 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to delete category' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to delete category');
   }
 } 

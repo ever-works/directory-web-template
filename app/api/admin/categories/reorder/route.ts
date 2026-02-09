@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { categoryRepository } from "@/lib/repositories/category.repository";
 import { auth } from "@/lib/auth";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -136,13 +137,6 @@ export async function PUT(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Failed to reorder categories:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to reorder categories' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to reorder categories');
   }
 } 

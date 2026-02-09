@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreatePolarProvider } from '@/lib/auth';
-import { coreConfig } from '@/lib/config/config-service';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { getPolarSubscription } from '@/lib/payment/lib/utils/polar-subscription-helpers';
 
 /**
@@ -219,34 +219,23 @@ export async function POST(
 			message: 'Subscription reactivated successfully'
 		});
 	} catch (error) {
-
-		let errorMessage = 'Failed to reactivate subscription';
 		let statusCode = 500;
+		let fallbackMessage = 'Failed to reactivate subscription';
 
 		if (error instanceof Error) {
-			errorMessage = error.message;
-
-			// Handle specific error cases
 			if (error.message.includes('not found') || error.message.includes('404')) {
 				statusCode = 404;
-				errorMessage = 'Subscription not found';
+				fallbackMessage = 'Subscription not found';
 			} else if (error.message.includes('Unauthorized') || error.message.includes('401')) {
 				statusCode = 401;
-				errorMessage = 'Unauthorized';
+				fallbackMessage = 'Unauthorized';
 			} else if (error.message.includes('not scheduled for cancellation')) {
 				statusCode = 400;
+				fallbackMessage = 'Subscription is not scheduled for cancellation';
 			}
 		}
 
-		return NextResponse.json(
-			{
-				error: errorMessage,
-				...(coreConfig.NODE_ENV === 'development' && {
-					details: error instanceof Error ? error.stack : String(error)
-				})
-			},
-			{ status: statusCode }
-		);
+		return safeErrorResponse(error, fallbackMessage, statusCode);
 	}
 }
 

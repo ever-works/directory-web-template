@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { PaymentProviderManager } from '@/lib/auth';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -351,46 +352,18 @@ export async function POST(request: NextRequest) {
 			}
 		);
 	} catch (error) {
-		const duration = Date.now() - startTime;
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 		const errorCode = error instanceof Error && 'code' in error ? (error as any).code : 'INTERNAL_ERROR';
+		const statusCode =
+			errorCode === 'VALIDATION_ERROR'
+				? 400
+				: errorCode === 'UNAUTHORIZED'
+					? 401
+					: errorCode === 'SUBSCRIPTION_NOT_FOUND'
+						? 404
+						: errorCode === 'PROVIDER_UNAVAILABLE'
+							? 503
+							: 500;
 
-		// Log the error
-		if (process.env.NODE_ENV === 'development') {
-			console.error(`[${requestId}] Failed to update subscription`, {
-				error: errorMessage,
-				errorCode,
-				duration: `${duration}ms`,
-				timestamp: new Date().toISOString(),
-				stack: error instanceof Error ? error.stack : undefined
-			});
-		}
-		return NextResponse.json(
-			{
-				success: false,
-				error: 'Failed to update subscription',
-				code: errorCode,
-				message: errorMessage,
-				requestId,
-				timestamp: new Date().toISOString(),
-				duration: `${duration}ms`
-			},
-			{
-				status:
-					errorCode === 'VALIDATION_ERROR'
-						? 400
-						: errorCode === 'UNAUTHORIZED'
-							? 401
-							: errorCode === 'SUBSCRIPTION_NOT_FOUND'
-								? 404
-								: errorCode === 'PROVIDER_UNAVAILABLE'
-									? 503
-									: 500,
-				headers: {
-					'X-Request-ID': requestId,
-					'X-Response-Time': `${duration}ms`
-				}
-			}
-		);
+		return safeErrorResponse(error, 'Failed to update subscription', statusCode);
 	}
 }

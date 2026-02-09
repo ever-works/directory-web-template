@@ -4,6 +4,7 @@ import { surveyService } from '@/lib/services/survey.service';
 import type { CreateSurveyData, SurveyFilters, SurveyStatusEnum, SurveyTypeEnum } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const logger = Logger.create('SurveyAPI');
 
@@ -122,46 +123,24 @@ export async function GET(request: NextRequest) {
             }
         });
     } catch (error) {
-        // Log errors for debugging
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[API/surveys] Error:', errorMessage);
-        
-        // Check for common database errors
-        if (errorMessage.includes('DATABASE_URL') || 
-            errorMessage.includes('connect ECONNREFUSED') ||
-            errorMessage.includes('connection') ||
-            errorMessage.includes('ENOTFOUND')) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Database connection failed',
-                    code: 'DATABASE_CONNECTION_ERROR'
-                },
-                { status: 503 }
-            );
+        // Check for common database errors using raw error message for routing
+        const rawMessage = error instanceof Error ? error.message : '';
+
+        if (rawMessage.includes('DATABASE_URL') ||
+            rawMessage.includes('connect ECONNREFUSED') ||
+            rawMessage.includes('connection') ||
+            rawMessage.includes('ENOTFOUND')) {
+            return safeErrorResponse(error, 'Database connection failed', 503);
         }
-        
+
         // Check for schema/table errors
-        if (errorMessage.includes('relation') || 
-            errorMessage.includes('does not exist') ||
-            errorMessage.includes('undefined')) {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Database schema not initialized. Run migrations.',
-                    code: 'DATABASE_SCHEMA_ERROR'
-                },
-                { status: 503 }
-            );
+        if (rawMessage.includes('relation') ||
+            rawMessage.includes('does not exist') ||
+            rawMessage.includes('undefined')) {
+            return safeErrorResponse(error, 'Database schema not initialized. Run migrations.', 503);
         }
-        
-        return NextResponse.json(
-            {
-                success: false,
-                error: errorMessage
-            },
-            { status: 500 }
-        );
+
+        return safeErrorResponse(error, 'Failed to fetch surveys');
     }
 }
 
@@ -227,17 +206,7 @@ export async function POST(request: NextRequest) {
             data: survey
         }, { status: 201 });
     } catch (error) {
-        // Only log errors in development mode
-        if (process.env.NODE_ENV === 'development') {
-            logger.error('Error creating survey', error);
-        }
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to create survey'
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to create survey');
     }
 }
 

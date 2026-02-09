@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { AssignCollectionItemsRequest } from "@/types/collection";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
 import { revalidatePath } from "next/cache";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -24,11 +25,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true, items });
   } catch (error) {
-    console.error("Failed to fetch collection items:", error);
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to fetch collection items" },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch collection items');
   }
 }
 
@@ -66,10 +63,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       message: "Collection items updated successfully",
     });
   } catch (error) {
-    console.error("Failed to assign collection items:", error);
-    return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Failed to assign collection items" },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to assign collection items');
   }
 }

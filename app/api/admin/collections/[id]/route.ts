@@ -5,6 +5,7 @@ import { COLLECTION_VALIDATION, UpdateCollectionRequest } from '@/types/collecti
 import { auth } from '@/lib/auth';
 import { invalidateContentCaches } from '@/lib/cache-invalidation';
 import { z } from 'zod';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 interface RouteParams {
 	params: Promise<{ id: string }>;
@@ -114,11 +115,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 		return NextResponse.json({ success: true, data: collection });
 	} catch (error) {
-		console.error('Failed to fetch collection:', error);
-		return NextResponse.json(
-			{ success: false, error: error instanceof Error ? error.message : 'Failed to fetch collection' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to fetch collection');
 	}
 }
 
@@ -263,10 +260,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 			return NextResponse.json({ success: false, error: error.message }, { status: 400 });
 		}
 
-		return NextResponse.json(
-			{ success: false, error: error instanceof Error ? error.message : 'Failed to update collection' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to update collection');
 	}
 }
 
@@ -340,9 +334,6 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 			return NextResponse.json({ success: false, error: error.message }, { status: 404 });
 		}
 
-		return NextResponse.json(
-			{ success: false, error: error instanceof Error ? error.message : 'Failed to delete collection' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to delete collection');
 	}
 }

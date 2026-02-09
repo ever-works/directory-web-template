@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
 import { statuses } from "@/lib/payment/lib/providers/lemonsqueezy-provider";
+import { safeErrorResponse } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -407,36 +408,13 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('LemonSqueezy API error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-      userAgent: request.headers.get('user-agent'),
-      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
-    });
+    const errorDetail = error instanceof Error ? error.message : 'Unknown error';
+    const isNetworkError = errorDetail.includes('fetch') || errorDetail.includes('network');
+    const isAuthError = errorDetail.includes('unauthorized') || errorDetail.includes('forbidden');
 
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    const isNetworkError = errorMessage.includes('fetch') || errorMessage.includes('network');
-    const isAuthError = errorMessage.includes('unauthorized') || errorMessage.includes('forbidden');
-    
     const statusCode = isAuthError ? 401 : isNetworkError ? 503 : 500;
-    const errorCode = isAuthError ? 'AUTH_ERROR' : isNetworkError ? 'SERVICE_UNAVAILABLE' : 'INTERNAL_ERROR';
 
-    return NextResponse.json(
-      { 
-        error: 'Failed to fetch LemonSqueezy checkouts',
-        message: errorMessage,
-        code: errorCode,
-        timestamp: new Date().toISOString(),
-        requestId: crypto.randomUUID(),
-      },
-      { 
-        status: statusCode,
-        headers: isNetworkError ? {
-          'Retry-After': '30'
-        } : undefined
-      }
-    );
+    return safeErrorResponse(error, 'Failed to fetch LemonSqueezy checkouts', statusCode);
   }
 }
 
@@ -698,23 +676,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('LemonSqueezy POST API error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-    });
-
-    const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-    
-    return NextResponse.json(
-      { 
-        error: 'Failed to fetch LemonSqueezy checkouts',
-        message: errorMessage,
-        code: 'INTERNAL_ERROR',
-        timestamp: new Date().toISOString(),
-        requestId: crypto.randomUUID(),
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch LemonSqueezy checkouts');
   }
 }

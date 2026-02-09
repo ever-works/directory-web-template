@@ -2,6 +2,7 @@ import { auth, initializeStripeProvider } from '@/lib/auth';
 import { NextResponse } from 'next/server';
 import { buildUrl } from '@/lib/utils/url-cleaner';
 import { Logger } from '@/lib/logger';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 const logger = Logger.create('StripePortal');
 
@@ -149,22 +150,20 @@ export async function POST() {
 			});
 		} catch (stripeError: any) {
 			// Log detailed Stripe error
-			const errorMessage = stripeError?.message || 'Unknown Stripe error';
 			const errorCode = stripeError?.code || 'unknown';
 			const errorType = stripeError?.type || 'unknown';
 
 			logger.error('Stripe billing portal error:', {
-				message: errorMessage,
+				message: stripeError?.message,
 				code: errorCode,
 				type: errorType,
 				requestId: stripeError?.requestId
 			});
 
-			// Return the actual Stripe error message
 			return NextResponse.json(
 				{
 					error: 'Invalid request to Stripe',
-					message: errorMessage,
+					message: safeErrorMessage(stripeError, 'Stripe billing portal error'),
 					code: errorCode,
 					type: errorType
 				},
@@ -178,8 +177,8 @@ export async function POST() {
 			message: 'Billing portal session created'
 		});
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-		console.error('Error creating billing portal session:', errorMessage, error);
+		const errorMessage = safeErrorMessage(error, 'Failed to create billing portal session');
+		console.error('Error creating billing portal session:', error);
 		return NextResponse.json(
 			{
 				error: 'Failed to create billing portal session',

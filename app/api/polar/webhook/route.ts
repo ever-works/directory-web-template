@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { getOrCreatePolarProvider } from '@/lib/auth';
 import { Logger } from '@/lib/logger';
-import { coreConfig } from '@/lib/config/config-service';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { validateWebhookPayload } from './utils';
 import { routeWebhookEvent } from './router';
 
@@ -148,21 +148,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 		return NextResponse.json({ received: true });
 	} catch (error) {
-		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-		const isDevelopment = coreConfig.NODE_ENV === 'development';
-
-		logger.error('Webhook processing failed', {
-			error: errorMessage,
-			stack: error instanceof Error ? error.stack : undefined
-		});
-
-		// Don't expose internal error details in production
-		return NextResponse.json(
-			{
-				error: 'Webhook processing failed',
-				...(isDevelopment && { details: errorMessage })
-			},
-			{ status: 400 }
-		);
+		return safeErrorResponse(error, 'Webhook processing failed', 400);
 	}
 }

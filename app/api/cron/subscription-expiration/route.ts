@@ -15,6 +15,7 @@ import { subscriptionService } from '@/lib/services/subscription.service';
 import { getUserById } from '@/lib/db/queries/user.queries';
 import { getSubscriptionExpiredTemplate } from '@/lib/mail/templates/subscription-expired';
 import { createEmailService, sendEmailSafely } from '@/lib/newsletter/utils';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { PaymentPlan } from '@/lib/constants';
 import crypto from 'crypto';
 
@@ -216,16 +217,7 @@ export async function GET(request: NextRequest) {
 			}
 		});
 	} catch (error) {
-		console.error('[SubscriptionExpiration] Error processing expired subscriptions:', error);
-
-		return NextResponse.json(
-			{
-				success: false,
-				message: 'Failed to process expired subscriptions',
-				error: error instanceof Error ? error.message : 'Unknown error'
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to process expired subscriptions');
 	}
 }
 

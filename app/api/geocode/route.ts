@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { auth } from '@/lib/auth';
 import { getGeocodingService } from '@/lib/services/geocoding';
 import { getLocationEnabled } from '@/lib/utils/settings';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 // ===================== Request Schemas =====================
 
@@ -290,7 +291,7 @@ interface ReverseGeocodeResponse {
  *                   type: string
  *                   example: "Location features are disabled"
  */
-export async function POST(request: NextRequest): Promise<NextResponse<GeocodeResponse | ReverseGeocodeResponse>> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
 	try {
 		// Check authentication - require admin to prevent API cost abuse
 		const session = await auth();
@@ -427,8 +428,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeocodeRe
 			);
 		}
 	} catch (error) {
-		console.error('[POST /api/geocode] Error:', error);
-
 		if (error instanceof z.ZodError) {
 			return NextResponse.json(
 				{
@@ -439,13 +438,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<GeocodeRe
 			);
 		}
 
-		return NextResponse.json(
-			{
-				success: false,
-				error: error instanceof Error ? error.message : 'An unexpected error occurred',
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'An unexpected error occurred');
 	}
 }
 
@@ -533,13 +526,6 @@ export async function GET(): Promise<NextResponse> {
 			},
 		});
 	} catch (error) {
-		console.error('[GET /api/geocode] Error:', error);
-		return NextResponse.json(
-			{
-				success: false,
-				error: error instanceof Error ? error.message : 'An unexpected error occurred',
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'An unexpected error occurred');
 	}
 }
