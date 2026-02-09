@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { triggerManualSync } from "@/lib/services/sync-service";
 import { integrationsConfig } from "@/lib/config/config-service";
-import { safeErrorResponse } from "@/lib/utils/api-error";
+import { safeErrorMessage } from "@/lib/utils/api-error";
 
 /**
  * Vercel Cron endpoint for automatic content synchronization.
@@ -66,6 +66,24 @@ export async function GET(request: Request): Promise<NextResponse> {
             },
         });
     } catch (error) {
-        return safeErrorResponse(error, "Cron sync failed");
+        const duration = Date.now() - startTime;
+        const errorDetails = safeErrorMessage(error, "Unknown error");
+
+        console.error(`[CRON_SYNC] Failed after ${duration}ms:`, error);
+
+        const response: CronSyncResponse = {
+            success: false,
+            timestamp: new Date().toISOString(),
+            duration,
+            message: "Cron sync failed",
+            details: errorDetails,
+        };
+
+        return NextResponse.json(response, {
+            status: 500,
+            headers: {
+                "Cache-Control": "no-cache, no-store, must-revalidate",
+            },
+        });
     }
 }

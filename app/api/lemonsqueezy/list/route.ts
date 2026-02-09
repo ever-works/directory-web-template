@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
 import { statuses } from "@/lib/payment/lib/providers/lemonsqueezy-provider";
-import { safeErrorResponse } from "@/lib/utils/api-error";
+import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -408,13 +408,28 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    const errorDetail = error instanceof Error ? error.message : 'Unknown error';
-    const isNetworkError = errorDetail.includes('fetch') || errorDetail.includes('network');
-    const isAuthError = errorDetail.includes('unauthorized') || errorDetail.includes('forbidden');
+    const rawErrorMessage = error instanceof Error ? error.message : 'Unknown error';
+    const isNetworkError = rawErrorMessage.includes('fetch') || rawErrorMessage.includes('network');
+    const isAuthError = rawErrorMessage.includes('unauthorized') || rawErrorMessage.includes('forbidden');
 
     const statusCode = isAuthError ? 401 : isNetworkError ? 503 : 500;
+    const errorCode = isAuthError ? 'AUTH_ERROR' : isNetworkError ? 'SERVICE_UNAVAILABLE' : 'INTERNAL_ERROR';
 
-    return safeErrorResponse(error, 'Failed to fetch LemonSqueezy checkouts', statusCode);
+    return NextResponse.json(
+      { 
+        error: 'Failed to fetch LemonSqueezy checkouts',
+        message: safeErrorMessage(error, 'Internal server error'),
+        code: errorCode,
+        timestamp: new Date().toISOString(),
+        requestId: crypto.randomUUID(),
+      },
+      { 
+        status: statusCode,
+        headers: isNetworkError ? {
+          'Retry-After': '30'
+        } : undefined
+      }
+    );
   }
 }
 
