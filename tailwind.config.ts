@@ -21,6 +21,7 @@ export default {
       animation: {
         'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'shimmer': 'shimmer 2s linear infinite',
+        'bg-cycle': 'bg-cycle 12s ease-in-out infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out',
@@ -51,6 +52,12 @@ export default {
             opacity: '1',
             transform: 'translateY(0)',
           },
+        },
+        'bg-cycle': {
+          '0%': { backgroundColor: 'rgba(98,9,187,0.9)' },
+          '33%': { backgroundColor: 'var(--theme-primary)' },
+          '66%': { backgroundColor: 'var(--theme-accent)' },
+          '100%': { backgroundColor: 'rgba(98,9,187,0.9)' },
         },
       },
       backdropBlur: {
