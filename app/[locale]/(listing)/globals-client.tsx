@@ -112,6 +112,7 @@ export default function GlobalsClient(props: ListingProps) {
 		return (
 			<SponsorAdsProvider limit={10}>
 				<TopLoadingBar isLoading={isLoading} />
+				<DecorativeBg reverse />
 				<div>
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
 				{/* Featured Items Section - Only show on first page and desktop */}
@@ -188,6 +189,7 @@ export default function GlobalsClient(props: ListingProps) {
 		<SponsorAdsProvider limit={10}>
 			<TopLoadingBar isLoading={isLoading} />
 			<div className={LAYOUT_STYLES.mainContainer}>
+				<DecorativeBg reverse />
 				<HomeTwoLayout
 					{...props}
 					categories={sortedCategories}
@@ -195,8 +197,9 @@ export default function GlobalsClient(props: ListingProps) {
 					filteredAndSortedItems={filteredItems}
 					searchEnabled={props.searchEnabled}
 				/>
-				<DecorativeBg />
+				
 			</div>
+			<DecorativeBg />
 		</SponsorAdsProvider>
 	);
 }
