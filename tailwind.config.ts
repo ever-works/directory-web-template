@@ -21,7 +21,7 @@ export default {
       animation: {
         'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'shimmer': 'shimmer 2s linear infinite',
-        'bg-cycle': 'bg-cycle 12s ease-in-out infinite',
+        'bg-cycle': 'bg-cycle 8s ease-in-out infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out',
