@@ -113,7 +113,6 @@ export default function GlobalsClient(props: ListingProps) {
 			<SponsorAdsProvider limit={10}>
 				<TopLoadingBar isLoading={isLoading} />
 				<DecorativeBg reverse />
-				<div>
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
 				{/* Featured Items Section - Only show on first page and desktop */}
 				{/* {page === 1 && featuredItems.length > 0 && (
@@ -180,7 +179,6 @@ export default function GlobalsClient(props: ListingProps) {
 				</div>
 			</Container>
 			<DecorativeBg />
-			</div>
 			</SponsorAdsProvider>
 		);
 	}
