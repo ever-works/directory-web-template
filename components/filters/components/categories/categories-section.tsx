@@ -62,7 +62,7 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
               key="1"
               aria-label="Category"
               title={
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-800 dark:text-gray-200 transition-colors duration-300">
                     {t("CATEGORIES")}
                   </span>
