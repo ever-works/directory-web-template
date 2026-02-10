@@ -184,7 +184,7 @@ export default function Item(props: ItemProps) {
 
 									<div className="min-w-0">
 										<div className={titleClassName}>{props.name}</div>
-									<div className="w-12 h-0.5 bg-gray-300 dark1:bg-gray-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out" />
+										<div className="w-12 h-px bg-gray-300/50 dark:bg-gray-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300 ease-out" />
 									</div>
 									{/* Arrow indicator - right after title */}
 									{props.layout === 'classic' && (
