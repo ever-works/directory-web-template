@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
 import { cancelSponsorAdSchema } from "@/lib/validations/sponsor-ad";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -107,28 +108,20 @@ export async function POST(
 			message: "Sponsor ad cancelled successfully",
 		});
 	} catch (error) {
-		console.error("Error cancelling sponsor ad:", error);
-
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to cancel sponsor ad";
-
-		if (errorMessage === "Sponsor ad not found") {
+		if (error instanceof Error && error.message === "Sponsor ad not found") {
 			return NextResponse.json(
-				{ success: false, error: errorMessage },
+				{ success: false, error: "Sponsor ad not found" },
 				{ status: 404 }
 			);
 		}
 
-		if (errorMessage.includes("Cannot cancel")) {
+		if (error instanceof Error && error.message.includes("Cannot cancel")) {
 			return NextResponse.json(
-				{ success: false, error: errorMessage },
+				{ success: false, error: error.message },
 				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			{ success: false, error: errorMessage },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, "Failed to cancel sponsor ad");
 	}
 }

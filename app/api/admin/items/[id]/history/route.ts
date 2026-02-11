@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { itemAuditService } from '@/lib/services/item-audit.service';
 import { ItemAuditAction, type ItemAuditActionValues } from '@/lib/db/schema';
 import { ItemRepository } from '@/lib/repositories/item.repository';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -213,13 +214,6 @@ export async function GET(
 			data: history
 		});
 	} catch (error) {
-		console.error('Failed to fetch item history:', error);
-		return NextResponse.json(
-			{
-				success: false,
-				error: error instanceof Error ? error.message : 'Failed to fetch item history'
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to fetch item history');
 	}
 }

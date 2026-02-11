@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { createCategoryGitService } from "@/lib/services/category-git.service";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -153,14 +154,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    console.error('Failed to get Git repository status:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to get Git repository status' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to get Git repository status');
   }
 }
 
@@ -356,12 +350,6 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create category via Git' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to create category via Git');
   }
 } 

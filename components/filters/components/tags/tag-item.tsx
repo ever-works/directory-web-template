@@ -77,7 +77,7 @@ export function TagItem({ tag, isActive, href, showCount = true }: TagItemProps)
 
         <span
           className={cn(
-            "text-sm font-medium transition-all duration-300 truncate",
+            "text-xs font-medium transition-all duration-300 truncate",
             isActive
               ? "text-white tracking-wide"
               : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -83,36 +84,28 @@ export async function POST(
 			message: "Sponsor ad approved and activated successfully",
 		});
 	} catch (error) {
-		console.error("Error approving sponsor ad:", error);
-
-		const errorMessage =
-			error instanceof Error ? error.message : "Failed to approve sponsor ad";
-
-		if (errorMessage === "Sponsor ad not found") {
+		if (error instanceof Error && error.message === "Sponsor ad not found") {
 			return NextResponse.json(
-				{ success: false, error: errorMessage },
+				{ success: false, error: "Sponsor ad not found" },
 				{ status: 404 }
 			);
 		}
 
 		// Special case for payment not received - return specific error code
-		if (errorMessage === "PAYMENT_NOT_RECEIVED") {
+		if (error instanceof Error && error.message === "PAYMENT_NOT_RECEIVED") {
 			return NextResponse.json(
 				{ success: false, error: "PAYMENT_NOT_RECEIVED" },
 				{ status: 400 }
 			);
 		}
 
-		if (errorMessage.includes("Cannot approve")) {
+		if (error instanceof Error && error.message.includes("Cannot approve")) {
 			return NextResponse.json(
-				{ success: false, error: errorMessage },
+				{ success: false, error: error.message },
 				{ status: 400 }
 			);
 		}
 
-		return NextResponse.json(
-			{ success: false, error: errorMessage },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, "Failed to approve sponsor ad");
 	}
 }

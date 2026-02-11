@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { cancelSponsorAdSchema } from '@/lib/validations/sponsor-ad';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -95,24 +96,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 			message: 'Sponsor ad cancelled successfully'
 		});
 	} catch (error) {
-		console.error('Error cancelling sponsor ad:', error);
-
-		const errorMessage = error instanceof Error ? error.message : 'Failed to cancel sponsor ad';
-
-		// Handle expected not found errors (404) - keep specific message
-		if (errorMessage === 'Sponsor ad not found') {
-			return NextResponse.json({ success: false, error: errorMessage }, { status: 404 });
+		// Handle expected not found errors (404)
+		if (error instanceof Error && error.message === 'Sponsor ad not found') {
+			return safeErrorResponse(error, 'Sponsor ad not found', 404);
 		}
 
-		// Handle expected validation errors (400) - keep specific message
-		if (errorMessage.includes('Cannot cancel')) {
-			return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+		// Handle expected validation errors (400)
+		if (error instanceof Error && error.message.includes('Cannot cancel')) {
+			return safeErrorResponse(error, 'Cannot cancel sponsor ad with current status', 400);
 		}
 
-		// Use generic message for unexpected errors (500) to avoid exposing sensitive details
-		return NextResponse.json(
-			{ success: false, error: 'An error occurred while cancelling the sponsor ad' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'An error occurred while cancelling the sponsor ad');
 	}
 }

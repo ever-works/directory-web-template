@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { safeErrorResponse } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -256,24 +257,6 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
 
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Update subscription plan error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-      endpoint: '/api/lemonsqueezy/update-plan',
-      method: 'POST'
-    });
-  }
-
-    return NextResponse.json(
-      { 
-        error: 'Failed to update subscription plan',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        code: 'UPDATE_FAILED',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to update subscription plan');
   }
 }

@@ -61,6 +61,7 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
           }
         }}
         role="button"
+        aria-label={`View items tagged ${tag.name}`}
         tabIndex={0}
       >
         {/* Full card loading overlay */}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -100,16 +101,11 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 			message: 'Sponsor ad deleted successfully'
 		});
 	} catch (error) {
-		console.error('Error deleting sponsor ad:', error);
-
-		const errorMessage = error instanceof Error ? error.message : 'Failed to delete sponsor ad';
-
 		// Handle known validation errors (404) - keep specific message for expected errors
-		if (errorMessage === 'Sponsor ad not found') {
-			return NextResponse.json({ success: false, error: errorMessage }, { status: 404 });
+		if (error instanceof Error && error.message === 'Sponsor ad not found') {
+			return NextResponse.json({ success: false, error: 'Sponsor ad not found' }, { status: 404 });
 		}
 
-		// Use generic message for unexpected errors (500) to avoid exposing sensitive details
-		return NextResponse.json({ success: false, error: 'Failed to delete sponsor ad' }, { status: 500 });
+		return safeErrorResponse(error, 'Failed to delete sponsor ad');
 	}
 }

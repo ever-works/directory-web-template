@@ -1,5 +1,7 @@
+export const revalidate = 600;
+
 import { Metadata } from 'next';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
 import { surveyService } from '@/lib/services/survey.service';
 import { getStatusColor, getTypeColor } from '@/components/surveys/utils/survey-helpers';

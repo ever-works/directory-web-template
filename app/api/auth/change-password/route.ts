@@ -7,17 +7,12 @@ import { users } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { ratelimit } from "@/lib/utils/rate-limit";
 import { sendPasswordChangeConfirmationEmail } from "@/lib/mail";
+import { passwordSchema } from "@/lib/validations/auth";
 
 // Validation schema
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: z
-    .string()
-    .min(8, "Password must be at least 8 characters")
-    .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-    .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-    .regex(/[0-9]/, "Password must contain at least one number")
-    .regex(/[^A-Za-z0-9]/, "Password must contain at least one special character"),
+  newPassword: passwordSchema,
   confirmPassword: z.string(),
 }).refine((data) => data.newPassword === data.confirmPassword, {
   message: "Passwords don't match",

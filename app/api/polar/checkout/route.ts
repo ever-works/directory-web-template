@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreatePolarProvider } from '@/lib/auth';
-import { coreConfig } from '@/lib/config/config-service';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -293,32 +293,20 @@ export async function POST(request: NextRequest) {
 			});
 		}
 	} catch (error) {
-		console.error('Polar checkout session creation error:', error);
-
-		// Use PolarProvider's error formatting for better error messages
-		let errorMessage = 'Failed to create checkout session';
+		// Check for payment setup errors
 		let statusCode = 500;
-		
+		let fallbackMessage = 'Failed to create checkout session';
+
 		if (error instanceof Error) {
-			errorMessage = error.message;
-			
-			// Check for payment setup errors
-			if (errorMessage.includes('Payments are currently unavailable') || 
-			    errorMessage.includes('needs to complete their payment setup') ||
-			    errorMessage.includes('payment setup incomplete')) {
+			if (error.message.includes('Payments are currently unavailable') ||
+			    error.message.includes('needs to complete their payment setup') ||
+			    error.message.includes('payment setup incomplete')) {
 				statusCode = 503; // Service Unavailable
-				errorMessage = 'Polar payment setup incomplete: The organization needs to complete payment configuration in the Polar dashboard before payments can be processed. Please contact the administrator or complete the payment setup in your Polar dashboard.';
+				fallbackMessage = 'Polar payment setup incomplete: The organization needs to complete payment configuration in the Polar dashboard before payments can be processed. Please contact the administrator or complete the payment setup in your Polar dashboard.';
 			}
 		}
 
-		return NextResponse.json(
-			{
-				error: errorMessage,
-				message: errorMessage,
-				details: coreConfig.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
-			},
-			{ status: statusCode }
-		);
+		return safeErrorResponse(error, fallbackMessage, statusCode);
 	}
 }
 
@@ -454,17 +442,7 @@ export async function GET(request: NextRequest) {
 			subscription: (checkout as any).subscription?.id || (checkout as any).subscriptionId
 		});
 	} catch (error) {
-		console.error('Polar checkout session retrieval error:', error);
-
-		const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve checkout session';
-
-		return NextResponse.json(
-			{
-				error: errorMessage,
-				details: coreConfig.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to retrieve checkout session');
 	}
 }
 
