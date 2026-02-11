@@ -5,6 +5,8 @@ import { LayoutProvider, ThemeProvider } from '@/components/providers';
 import { siteConfig } from '@/lib/config';
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getLocale } from 'next-intl/server';
+import { RTL_LOCALES, type Locale } from '@/lib/constants';
 
 const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 
 	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
@@ -33,9 +35,12 @@ ensureBackgroundJobsInitialized().catch(err =>
 	console.error('[BackgroundJobs] Initialization failed:', err)
 );
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+	const locale = await getLocale();
+	const dir = RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr';
+
 	return (
-		<html lang="en" suppressHydrationWarning>
+		<html lang={locale} dir={dir} suppressHydrationWarning>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-dark--theme-950`} suppressHydrationWarning>
 				<ThemeProvider>
 					<LayoutProvider>{children}</LayoutProvider>
