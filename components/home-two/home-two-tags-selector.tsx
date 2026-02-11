@@ -36,7 +36,7 @@ const TagButton = ({ tag, isActive, onPress }: TagButtonProps) => {
     <Button
       onPress={onPress}
       className={cn(
-        "group w-full px-1! h-7 font-medium text-left transition-all duration-200",
+        "group w-full !px-1 h-7 font-medium text-left transition-all duration-200",
         {
           "bg-theme-primary-500 dark:bg-theme-primary-600 text-white border border-theme-primary-600 dark:border-theme-primary-600":
             isActive,
