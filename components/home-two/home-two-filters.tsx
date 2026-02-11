@@ -20,12 +20,12 @@ const SORT_OPTIONS: SortOption[] = [
   'date-asc',
 ];
 
-// Style constants
-const FILTERS_CONTAINER = "space-y-3 sm:space-y-4";
-const MOBILE_FILTERS = "block sm:hidden space-y-3";
+// Style constants (tighter spacing)
+const FILTERS_CONTAINER = "space-y-1 sm:space-y-2";
+const MOBILE_FILTERS = "block sm:hidden space-y-1";
 const TABLET_FILTERS = "hidden sm:block md:hidden";
-const DESKTOP_FILTERS = "hidden md:flex justify-between items-center gap-4";
-const FILTERS_GROUP = "flex items-center gap-3";
+const DESKTOP_FILTERS = "hidden md:flex justify-between items-center gap-2";
+const FILTERS_GROUP = "flex items-center gap-1";
 
 type Home2FiltersProps = {
   categories: Category[];
@@ -102,8 +102,8 @@ export function HomeTwoFilters({
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1">
+        <div className="flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1 flex-1">
             <HomeTwoSortSelector setSortBy={handleSortChange} sortBy={sortBy} />
             <HomeTwoTagsSelector
               tags={tags}
@@ -117,8 +117,8 @@ export function HomeTwoFilters({
 
       {/* Tablet Layout */}
       <div className={TABLET_FILTERS}>
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between gap-2">
             <div className={FILTERS_GROUP}>
               <HomeTwoSortSelector setSortBy={handleSortChange} sortBy={sortBy} />
               <HomeTwoTagsSelector
@@ -178,7 +178,7 @@ export function HomeTwoFilters({
       />
 
       {/* New Row: Items count and Toggle button */}
-      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+      <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-gray-800">
         {/* Left: Showing X of Y items */}
         <div className="text-sm text-gray-600 dark:text-gray-400">
           {filteredCount !== undefined && totalCount !== undefined ? (
@@ -194,12 +194,12 @@ export function HomeTwoFilters({
         {categories.length > 5 && (
           <Button
             className={clsx(
-              "px-4 py-1.5 font-medium transition-all duration-300 rounded-full",
+              "px-3 py-1 font-medium transition-all duration-300 rounded-full",
               "text-theme-primary bg-theme-primary-10",
-              "hover:bg-theme-primary-20 hover:shadow-xs hover:scale-105",
+              "hover:bg-theme-primary-20 hover:shadow-xs",
               "active:scale-95",
               "text-xs sm:text-sm h-8",
-              "focus:outline-hidden focus:ring-2 focus:ring-theme-primary-300 focus:ring-offset-2"
+              "focus:outline-hidden focus:ring-1 focus:ring-theme-primary-300 focus:ring-offset-1"
             )}
             onPress={() => setShowAllCategories(!showAllCategories)}
             aria-expanded={showAllCategories}
