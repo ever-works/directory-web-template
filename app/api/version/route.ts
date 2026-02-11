@@ -4,6 +4,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { getContentPath } from "@/lib/lib";
 import { fsExists } from "@/lib/lib";
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -237,7 +238,7 @@ async function getLatestCommit(contentPath: string): Promise<GitCommit> {
       "Failed to retrieve commit information",
       ERROR_CODES.GIT_ERROR,
       500,
-      error instanceof Error ? error.message : "Unknown git error"
+      safeErrorMessage(error, "Unknown git error")
     );
   }
 }
@@ -380,7 +381,7 @@ export async function GET() {
       "Internal server error",
       ERROR_CODES.INTERNAL_ERROR,
       500,
-      error instanceof Error ? error.message : "Unknown error occurred"
+      safeErrorMessage(error, "Unknown error occurred")
     );
 
     return createErrorResponse(unexpectedError);

@@ -4,6 +4,7 @@ import { db } from '@/lib/db/drizzle';
 import { favorites } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -135,13 +136,6 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Failed to remove favorite:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to remove favorite' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to remove favorite');
   }
 }

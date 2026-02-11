@@ -4,6 +4,7 @@ import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 import { ReviewRequest } from '@/lib/types/item';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -214,13 +215,6 @@ export async function POST(
     });
 
   } catch (error) {
-    console.error('Failed to review item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to review item' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to review item');
   }
 } 

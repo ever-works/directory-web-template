@@ -4,6 +4,7 @@ import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UpdateItemRequest } from '@/lib/types/item';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const itemRepository = new ItemRepository();
 
@@ -127,14 +128,7 @@ export async function GET(
     });
 
   } catch (error) {
-    console.error('Failed to fetch item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch item' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch item');
   }
 }
 
@@ -390,14 +384,7 @@ export async function PUT(
     });
 
   } catch (error) {
-    console.error('Failed to update item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to update item' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to update item');
   }
 }
 
@@ -526,13 +513,6 @@ export async function DELETE(
     });
 
   } catch (error) {
-    console.error('Failed to delete item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to delete item' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to delete item');
   }
 } 

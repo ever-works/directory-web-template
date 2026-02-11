@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { triggerManualSync, getSyncStatus } from "@/lib/services/sync-service";
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -271,7 +272,6 @@ export async function POST(request: Request) {
 
   } catch (error) {
     const duration = Date.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
 
     console.error(`[SYNC_API] Manual sync request failed after ${duration}ms:`, error);
 
@@ -279,7 +279,7 @@ export async function POST(request: Request) {
       false,
       "Manual sync request failed",
       duration,
-      errorMessage
+      safeErrorMessage(error, "Unknown error")
     );
   }
 }

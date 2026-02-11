@@ -5,6 +5,7 @@
  * Security: Only accessible in development mode
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -24,10 +25,6 @@ export async function GET(request: NextRequest) {
 			message: 'Database initialization completed' 
 		});
 	} catch (error) {
-		console.error('[DB Init API] Error:', error);
-		return NextResponse.json({ 
-			success: false, 
-			error: error instanceof Error ? error.message : 'Unknown error' 
-		}, { status: 500 });
+		return safeErrorResponse(error, 'Database initialization failed');
 	}
 }

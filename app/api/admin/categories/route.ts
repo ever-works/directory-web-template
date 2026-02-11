@@ -4,6 +4,7 @@ import { CreateCategoryRequest, CategoryListOptions } from "@/lib/types/category
 import { auth } from "@/lib/auth";
 import { validatePaginationParams } from "@/lib/utils/pagination-validation";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -216,14 +217,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Failed to fetch categories:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch categories' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch categories');
   }
 }
 
@@ -393,12 +387,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create category' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to create category');
   }
 } 
