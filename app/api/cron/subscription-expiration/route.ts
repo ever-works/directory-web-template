@@ -20,11 +20,17 @@ import crypto from 'crypto';
 
 /**
  * Verify cron secret with timing-safe comparison.
- * Requires CRON_SECRET in all environments.
+ * Requires CRON_SECRET in production, optional in development.
  */
 function verifyCronSecret(request: NextRequest): boolean {
 	const authHeader = request.headers.get('authorization');
 	const cronSecret = process.env.CRON_SECRET;
+
+	// In development, allow access if CRON_SECRET is not configured
+	if (!cronSecret && process.env.NODE_ENV === 'development') {
+		console.log('[SubscriptionExpiration] Bypassing cron auth in development (CRON_SECRET not set)');
+		return true;
+	}
 
 	if (!cronSecret) {
 		console.error('[SubscriptionExpiration] CRON_SECRET not configured - denying access');
