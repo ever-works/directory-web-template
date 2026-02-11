@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
+import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -126,7 +127,7 @@ export interface BulkActionResponse {
  */
 export async function POST(
 	request: NextRequest
-): Promise<NextResponse<BulkActionResponse | { success: false; error: string }>> {
+): Promise<NextResponse> {
 	try {
 		// Check admin authentication
 		const session = await auth();
@@ -238,7 +239,7 @@ export async function POST(
 				results.push({
 					id,
 					success: false,
-					error: error instanceof Error ? error.message : 'Unknown error'
+					error: safeErrorMessage(error, 'Unknown error')
 				});
 			}
 		}
@@ -259,8 +260,7 @@ export async function POST(
 			}
 		});
 	} catch (error) {
-		console.error('Error in bulk item action:', error);
-		return NextResponse.json({ success: false, error: 'Failed to process bulk action' }, { status: 500 });
+		return safeErrorResponse(error, 'Failed to process bulk action');
 	}
 }
 

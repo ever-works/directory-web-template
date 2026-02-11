@@ -458,10 +458,16 @@ class MapboxAutocompleteInstance implements IAutocompleteInstance {
 			const mainText = feature.text;
 			const secondaryText = feature.context?.map((c) => c.text).join(', ') || '';
 
-			item.innerHTML = `
-				<div class="font-medium text-gray-900 dark:text-gray-100">${mainText}</div>
-				${secondaryText ? `<div class="text-gray-500 dark:text-gray-400 text-xs">${secondaryText}</div>` : ''}
-			`;
+			const mainDiv = document.createElement('div');
+			mainDiv.className = 'font-medium text-gray-900 dark:text-gray-100';
+			mainDiv.textContent = mainText;
+			item.appendChild(mainDiv);
+			if (secondaryText) {
+				const secDiv = document.createElement('div');
+				secDiv.className = 'text-gray-500 dark:text-gray-400 text-xs';
+				secDiv.textContent = secondaryText;
+				item.appendChild(secDiv);
+			}
 
 			item.addEventListener('click', () => {
 				const suggestion: AddressSuggestion = {
@@ -599,7 +605,11 @@ export class MapboxMapProvider implements IMapProvider {
 			element = document.createElement('div');
 			element.className = 'map-marker';
 			if (typeof options.icon === 'string') {
-				element.innerHTML = `<img src="${options.icon}" alt="${options.data.title}" class="w-8 h-8 rounded-full border-2 border-white shadow-md" />`;
+				const img = document.createElement('img');
+				img.src = options.icon;
+				img.alt = options.data.title;
+				img.className = 'w-8 h-8 rounded-full border-2 border-white shadow-md';
+				element.appendChild(img);
 			} else {
 				element.appendChild(options.icon);
 			}

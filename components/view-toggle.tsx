@@ -4,6 +4,7 @@ import { IconClassic, IconGrid, IconMasonry, IconMap } from "@/components/icons/
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { LayoutKey } from "./layouts";
+import { useContainerWidth } from "@/components/ui/container";
 
 type ViewToggleProps = {
   activeView?: LayoutKey;
@@ -28,6 +29,8 @@ export default function ViewToggle({
 }: ViewToggleProps) {
 	const t = useTranslations('listing');
 	const [hovered, setHovered] = useState<string | null>(null);
+	const containerWidth = useContainerWidth();
+	const isFluid = containerWidth === "fluid";
 
   const handleViewChange = (view: LayoutKey) => {
 	if (onViewChange) {
@@ -129,7 +132,7 @@ export default function ViewToggle({
 		    <div
 			  className={`absolute bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-2 py-1 rounded-sm text-xs font-medium shadow-lg whitespace-nowrap pointer-events-none ${
 			    isParentSticky ? 'top-full mt-2' : '-top-8'
-			  }`}
+			  } ${isFluid ? 'right-0' : ''}`}
 		    >
 			  {t('VIEW_MASONRY')}
 		    </div>

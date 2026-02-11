@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { subscriptionService } from '@/lib/services/subscription.service';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -108,7 +109,7 @@ export async function GET(request: NextRequest) {
 			{
 				success: false,
 				message: 'Failed to get plan status',
-				error: error instanceof Error ? error.message : 'Unknown error'
+				error: safeErrorMessage(error, 'Unknown error')
 			},
 			{ status: 500 }
 		);

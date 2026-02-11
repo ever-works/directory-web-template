@@ -5,6 +5,7 @@ import { CreateItemRequest, SortField, SortOrder } from '@/lib/types/item';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const itemRepository = new ItemRepository();
 
@@ -296,14 +297,7 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Failed to fetch items:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to fetch items' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch items');
   }
 }
 
@@ -639,13 +633,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Failed to create item:', error);
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to create item' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to create item');
   }
 } 

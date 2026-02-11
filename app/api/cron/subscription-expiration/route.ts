@@ -15,26 +15,26 @@ import { subscriptionService } from '@/lib/services/subscription.service';
 import { getUserById } from '@/lib/db/queries/user.queries';
 import { getSubscriptionExpiredTemplate } from '@/lib/mail/templates/subscription-expired';
 import { createEmailService, sendEmailSafely } from '@/lib/newsletter/utils';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { PaymentPlan } from '@/lib/constants';
 import crypto from 'crypto';
 
 /**
- * Verify cron secret with timing-safe comparison
- * Allows unauthenticated access only in development mode
- * Requires CRON_SECRET in production
+ * Verify cron secret with timing-safe comparison.
+ * Requires CRON_SECRET in production, optional in development.
  */
 function verifyCronSecret(request: NextRequest): boolean {
 	const authHeader = request.headers.get('authorization');
 	const cronSecret = process.env.CRON_SECRET;
 
-	// If no CRON_SECRET is set, allow in development only
+	// In development, allow access if CRON_SECRET is not configured
+	if (!cronSecret && process.env.NODE_ENV === 'development') {
+		console.log('[SubscriptionExpiration] Bypassing cron auth in development (CRON_SECRET not set)');
+		return true;
+	}
+
 	if (!cronSecret) {
-		if (process.env.NODE_ENV === 'development') {
-			console.warn('[SubscriptionExpiration] CRON_SECRET not configured - allowing in development mode only');
-			return true;
-		}
-		// In production, require CRON_SECRET to be configured
-		console.error('[SubscriptionExpiration] CRON_SECRET not configured in production - denying access');
+		console.error('[SubscriptionExpiration] CRON_SECRET not configured - denying access');
 		return false;
 	}
 
@@ -216,16 +216,7 @@ export async function GET(request: NextRequest) {
 			}
 		});
 	} catch (error) {
-		console.error('[SubscriptionExpiration] Error processing expired subscriptions:', error);
-
-		return NextResponse.json(
-			{
-				success: false,
-				message: 'Failed to process expired subscriptions',
-				error: error instanceof Error ? error.message : 'Unknown error'
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to process expired subscriptions');
 	}
 }
 

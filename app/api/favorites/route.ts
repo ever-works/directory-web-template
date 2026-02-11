@@ -5,6 +5,7 @@ import { favorites } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const addFavoriteSchema = z.object({
   itemSlug: z.string().min(1),
@@ -148,17 +149,7 @@ export async function GET() {
     });
 
   } catch (error) {
-    // Only log errors in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Failed to fetch favorites:', error);
-    }
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch favorites'
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch favorites');
   }
 }
 
@@ -371,8 +362,6 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
-    console.error('Failed to add favorite:', error);
-    
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { success: false, error: "Invalid request data", details: error.message },
@@ -380,12 +369,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Failed to add favorite' 
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to add favorite');
   }
 }

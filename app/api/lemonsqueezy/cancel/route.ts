@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -199,18 +200,10 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
 
   } catch (error) {
-    console.error('Cancel subscription error:', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      timestamp: new Date().toISOString(),
-      endpoint: '/api/lemonsqueezy/subscriptions/cancel',
-      method: 'POST'
-    });
-
     return NextResponse.json(
       { 
         error: 'Failed to cancel subscription',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        message: safeErrorMessage(error, 'Unknown error occurred'),
         code: 'CANCEL_FAILED',
         timestamp: new Date().toISOString()
       },
@@ -218,3 +211,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

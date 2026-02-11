@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreatePolarProvider } from '@/lib/auth';
-import { coreConfig } from '@/lib/config/config-service';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import { getPolarSubscription } from '@/lib/payment/lib/utils/polar-subscription-helpers';
 
 /**
@@ -283,32 +283,20 @@ export async function POST(
 				: 'Subscription cancelled immediately'
 		});
 	} catch (error) {
-
-		let errorMessage = 'Failed to cancel subscription';
 		let statusCode = 500;
+		let fallbackMessage = 'Failed to cancel subscription';
 
 		if (error instanceof Error) {
-			errorMessage = error.message;
-
-			// Handle specific error cases
 			if (error.message.includes('not found') || error.message.includes('404')) {
 				statusCode = 404;
-				errorMessage = 'Subscription not found';
+				fallbackMessage = 'Subscription not found';
 			} else if (error.message.includes('Unauthorized') || error.message.includes('401')) {
 				statusCode = 401;
-				errorMessage = 'Unauthorized';
+				fallbackMessage = 'Unauthorized';
 			}
 		}
 
-		return NextResponse.json(
-			{
-				error: errorMessage,
-				...(coreConfig.NODE_ENV === 'development' && {
-					details: error instanceof Error ? error.stack : String(error)
-				})
-			},
-			{ status: statusCode }
-		);
+		return safeErrorResponse(error, fallbackMessage, statusCode);
 	}
 }
 

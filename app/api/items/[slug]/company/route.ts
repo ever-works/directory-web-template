@@ -10,6 +10,7 @@ import {
 	removeCompanyFromItemSchema,
 } from '@/lib/validations/company';
 import { ZodError } from 'zod';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * GET /api/items/[slug]/company
@@ -93,13 +94,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		// Handle specific errors
 		if (error instanceof Error) {
 			if (error.message.includes('already linked to another company')) {
-				return NextResponse.json({ error: error.message }, { status: 409 });
+				return NextResponse.json({ error: safeErrorMessage(error, 'Item is already linked to another company') }, { status: 409 });
 			}
 			if (
 				error.message.includes('not found') ||
 				error.message.includes('does not exist')
 			) {
-				return NextResponse.json({ error: error.message }, { status: 404 });
+				return NextResponse.json({ error: safeErrorMessage(error, 'Resource not found') }, { status: 404 });
 			}
 		}
 
@@ -152,7 +153,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 			error instanceof Error &&
 			(error.message.includes('not found') || error.message.includes('does not exist'))
 		) {
-			return NextResponse.json({ error: error.message }, { status: 404 });
+			return NextResponse.json({ error: safeErrorMessage(error, 'Resource not found') }, { status: 404 });
 		}
 
 		return NextResponse.json({ error: 'Failed to remove company from item' }, { status: 500 });

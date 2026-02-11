@@ -14,7 +14,7 @@ const configureProviders = () => {
 						clientId: authConfig.google.clientId || '',
 						clientSecret: authConfig.google.clientSecret || '',
 						options: {
-							allowDangerousEmailAccountLinking: true,
+							allowDangerousEmailAccountLinking: false,
 						},
 					}
 				: { enabled: false },

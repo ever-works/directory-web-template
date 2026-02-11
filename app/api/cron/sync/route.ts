@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { triggerManualSync } from "@/lib/services/sync-service";
-import { integrationsConfig } from "@/lib/config/config-service";
+import { coreConfig, integrationsConfig } from "@/lib/config/config-service";
+import { safeErrorMessage } from "@/lib/utils/api-error";
 
 /**
  * Vercel Cron endpoint for automatic content synchronization.
@@ -10,7 +11,8 @@ import { integrationsConfig } from "@/lib/config/config-service";
  * the manual sync endpoint, ensuring consistent behavior and
  * proper cache invalidation after successful sync.
  *
- * Authentication: Requires CRON_SECRET environment variable.
+ * Authentication: Requires CRON_SECRET environment variable in production.
+ * In development, it is optional for a frictionless experience.
  * Vercel automatically sends this in the Authorization header for cron jobs.
  */
 
@@ -22,14 +24,18 @@ interface CronSyncResponse {
     details?: string;
 }
 
-export async function GET(request: Request): Promise<NextResponse<CronSyncResponse>> {
+export async function GET(request: Request): Promise<NextResponse> {
     const startTime = Date.now();
 
     // Verify cron secret for authentication
     const authHeader = request.headers.get("authorization");
     const cronSecret = integrationsConfig.cron.secret;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // In development, allow access if CRON_SECRET is not configured
+    const isDevelopment = coreConfig.NODE_ENV === 'development';
+    const isAuthorized = cronSecret ? authHeader === `Bearer ${cronSecret}` : isDevelopment;
+
+    if (!isAuthorized) {
         console.warn("[CRON_SYNC] Unauthorized request - invalid or missing CRON_SECRET");
         return NextResponse.json(
             {
@@ -66,7 +72,7 @@ export async function GET(request: Request): Promise<NextResponse<CronSyncRespon
         });
     } catch (error) {
         const duration = Date.now() - startTime;
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorDetails = safeErrorMessage(error, "Unknown error");
 
         console.error(`[CRON_SYNC] Failed after ${duration}ms:`, error);
 
@@ -75,7 +81,7 @@ export async function GET(request: Request): Promise<NextResponse<CronSyncRespon
             timestamp: new Date().toISOString(),
             duration,
             message: "Cron sync failed",
-            details: errorMessage,
+            details: errorDetails,
         };
 
         return NextResponse.json(response, {

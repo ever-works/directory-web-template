@@ -11,17 +11,19 @@ import clsx from "clsx";
 
 // Style constants for sticky header
 const STICKY_CONTAINER_BASE = clsx(
-  "sticky top-12 z-20",
+  "sticky top-16 z-20",
   "transition-all duration-300 ease-in-out",
-  "rounded-lg"
+  "rounded-x-lg rounded-b-lg",
+  "bg-white/95 dark:bg-[#0b111f]/95",
+  "backdrop-blur-xs",
 );
 
 const STICKY_CONTAINER_ACTIVE = clsx(
   STICKY_CONTAINER_BASE,
-  "bg-white/95 dark:bg-gray-800/95",
+  "bg-white/95 dark:bg-[#0b111f]/95",
   "shadow-md backdrop-blur-xs",
   "border border-gray-100 dark:border-gray-700/50",
-  "px-4 py-3"
+  "px-4 pt-1.5"
 );
 
 const STICKY_CONTAINER_INACTIVE = clsx(
@@ -51,7 +53,7 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
 
   return (
     <div className="min-h-screen transition-colors duration-300">
-      <Container maxWidth="7xl" padding="default" useGlobalWidth className="flex flex-col gap-4 py-8">
+      <Container maxWidth="7xl" padding="default" useGlobalWidth className="flex flex-col gap-3 py-8">
         <div ref={sentinelRef} className="md:h-4 md:w-full" />
         <div
           ref={targetRef}

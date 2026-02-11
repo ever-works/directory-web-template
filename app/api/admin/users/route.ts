@@ -5,6 +5,7 @@ import { RoleRepository } from '@/lib/repositories/role.repository';
 import { CreateUserRequest, UserListOptions } from '@/lib/types/user';
 import { isValidEmail } from '@/lib/utils/email-validation';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { passwordSchema } from '@/lib/validations/auth';
 
 /**
  * @swagger
@@ -484,8 +485,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate password strength
-    if (typeof body.password !== 'string' || body.password.length < 8) {
-      return NextResponse.json({ success: false, error: 'Password must be at least 8 characters long' }, { status: 400 });
+    const passwordResult = passwordSchema.safeParse(body.password);
+    if (!passwordResult.success) {
+      return NextResponse.json({ success: false, error: passwordResult.error.issues[0]?.message ?? 'Invalid password' }, { status: 400 });
     }
 
     // Validate title if provided

@@ -301,7 +301,10 @@ export function mapStripeProductsToPricingPlans(
 		let features: string[] = [];
 		if (product.metadata?.features) {
 			try {
-				features = JSON.parse(product.metadata.features);
+				const parsed: unknown = JSON.parse(product.metadata.features);
+				features = Array.isArray(parsed) && parsed.every((item): item is string => typeof item === 'string')
+					? parsed
+					: [];
 			} catch {
 				features = [];
 			}

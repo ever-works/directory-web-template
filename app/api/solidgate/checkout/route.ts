@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth, getOrCreateSolidgateProvider } from '@/lib/auth';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -227,7 +228,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error('Solidgate checkout session creation error:', error);
 
-		const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout session';
+		const errorMessage = safeErrorMessage(error, 'Failed to create checkout session');
 
 		return NextResponse.json(
 			{

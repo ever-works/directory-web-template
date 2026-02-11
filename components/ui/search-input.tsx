@@ -1,4 +1,4 @@
-import { cn, Input } from "@heroui/react";
+import { cn } from "@heroui/react";
 import { Search, X } from "lucide-react";
 
 interface SearchInputProps {
@@ -16,28 +16,24 @@ export const SearchInput = ({
     <div className="relative">
       <div
         className={cn(
-          "bg-gray-100 dark:bg-gray-900/90 backdrop-blur-md rounded-lg px-1 border border-gray-200 dark:border-gray-700/30 transition-all duration-300 hover:shadow-md outline-0",
+          "bg-gray-100 dark:bg-gray-900/90 backdrop-blur-md rounded-lg px-1 border border-gray-200 dark:border-gray-700/30 transition-all duration-300 outline-0",
           className
         )}
       >
         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
           <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </div>
-        <Input
+        <input
           type="text"
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-8 w-full"
+          className={cn(
+            "pl-8 py-2 w-full bg-transparent text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm outline-none focus:border-none focus-within:border-none",
+            className
+          )}
           style={{ background: "transparent" }}
           maxLength={20}
-          classNames={{
-            base: "bg-transparent!",
-            input:
-              "bg-transparent! text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm outline-none focus:border-none! focus-within:border-none! focus:outline-hidden!",
-            inputWrapper:
-              "bg-transparent! border-none shadow-none focus-within:ring-0 focus-within:shadow-none hover:bg-transparent dark:hover:bg-transparent",
-          }}
         />
         {searchTerm && (
           <button

@@ -295,8 +295,8 @@ export async function GET() {
           currency: activeSubscription.currency.toUpperCase(),
           billingInterval: activeSubscription.items.data[0]?.price.recurring?.interval || 'monthly',
           items: activeSubscription.items.data[0],
-          currentPeriodEnd: activeSubscription.items.data[0].current_period_end ? new Date(activeSubscription.items.data[0].current_period_end * 1000).toISOString() : '',
-          currentPeriodStart: activeSubscription.items.data[0].current_period_start ? new Date(activeSubscription.items.data[0].current_period_start * 1000).toISOString() : ''
+          currentPeriodEnd: activeSubscription.items.data[0]?.current_period_end ? new Date(activeSubscription.items.data[0].current_period_end * 1000).toISOString() : '',
+          currentPeriodStart: activeSubscription.items.data[0]?.current_period_start ? new Date(activeSubscription.items.data[0].current_period_start * 1000).toISOString() : ''
         } : undefined,
         subscriptionHistory: subscriptions.data.map(sub => ({
           

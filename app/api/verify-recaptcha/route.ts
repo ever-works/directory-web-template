@@ -158,8 +158,15 @@ export async function POST(request: NextRequest) {
     const secretKey = analyticsConfig.recaptcha.secretKey;
     if (!secretKey) {
       if (coreConfig.NODE_ENV === "development") {
-        console.warn("ReCAPTCHA secret key not configured");
-        return NextResponse.json({ success: true });
+        console.warn(
+          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification in development mode. " +
+          "Set RECAPTCHA_SECRET_KEY to enable verification."
+        );
+        return NextResponse.json({
+          success: true,
+          score: 1.0,
+          action: "bypass",
+        });
       }
       return NextResponse.json(
         { success: false, error: "ReCAPTCHA not configured" },

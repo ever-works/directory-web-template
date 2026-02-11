@@ -30,6 +30,9 @@ export const LOCALES = [
 ] as const;
 export type Locale = (typeof LOCALES)[number];
 
+/** Locales that use right-to-left text direction */
+export const RTL_LOCALES: readonly Locale[] = ['ar', 'he'] as const;
+
 // ============================================
 // BRANDING & UI
 // ============================================
