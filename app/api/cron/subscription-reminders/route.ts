@@ -4,19 +4,23 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
 import crypto from 'crypto';
 
 // Verify cron secret to prevent unauthorized access (timing-safe comparison)
+// Requires CRON_SECRET in production, optional in development.
 function verifyCronSecret(request: NextRequest): boolean {
 	const authHeader = request.headers.get('authorization');
 	const cronSecret = process.env.CRON_SECRET;
 
-	// If no CRON_SECRET is set, allow in development
-	// FIXME: This allows unauthenticated access in dev. Consider adding a DEV_SECRET or removing this bypass.
+	// In development, allow access if CRON_SECRET is not configured
 	if (!cronSecret && process.env.NODE_ENV === 'development') {
-		console.warn('CRON_SECRET not configured - allowing in development mode only');
+		console.log('[Cron] Bypassing cron auth in development (CRON_SECRET not set)');
 		return true;
 	}
 
-	if (!cronSecret || !authHeader) {
-		if (!cronSecret) console.warn('CRON_SECRET not configured');
+	if (!cronSecret) {
+		console.error('[Cron] CRON_SECRET not configured - denying access');
+		return false;
+	}
+
+	if (!authHeader) {
 		return false;
 	}
 

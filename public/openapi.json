@@ -16672,7 +16672,7 @@
           "Payment Accounts"
         ],
         "summary": "Get user payment account",
-        "description": "Retrieves a user's payment account information for a specific payment provider. Returns the account details including customer ID and timestamps. Requires both user ID and provider to be specified.",
+        "description": "Retrieves a user's payment account information for a specific payment provider. Returns the account details including customer ID and timestamps. Requires authentication and the requesting user must own the account.",
         "parameters": [
           {
             "name": "userId",
@@ -16805,6 +16805,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized - Not authenticated"
+          },
+          "403": {
+            "description": "Forbidden - Cannot access another user's payment account"
           },
           "404": {
             "description": "Payment account not found",

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { triggerManualSync } from "@/lib/services/sync-service";
-import { integrationsConfig } from "@/lib/config/config-service";
+import { coreConfig, integrationsConfig } from "@/lib/config/config-service";
 import { safeErrorMessage } from "@/lib/utils/api-error";
 
 /**
@@ -11,7 +11,8 @@ import { safeErrorMessage } from "@/lib/utils/api-error";
  * the manual sync endpoint, ensuring consistent behavior and
  * proper cache invalidation after successful sync.
  *
- * Authentication: Requires CRON_SECRET environment variable.
+ * Authentication: Requires CRON_SECRET environment variable in production.
+ * In development, it is optional for a frictionless experience.
  * Vercel automatically sends this in the Authorization header for cron jobs.
  */
 
@@ -30,7 +31,11 @@ export async function GET(request: Request): Promise<NextResponse> {
     const authHeader = request.headers.get("authorization");
     const cronSecret = integrationsConfig.cron.secret;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // In development, allow access if CRON_SECRET is not configured
+    const isDevelopment = coreConfig.NODE_ENV === 'development';
+    const isAuthorized = cronSecret ? authHeader === `Bearer ${cronSecret}` : isDevelopment;
+
+    if (!isAuthorized) {
         console.warn("[CRON_SYNC] Unauthorized request - invalid or missing CRON_SECRET");
         return NextResponse.json(
             {
