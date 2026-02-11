@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { surveyService } from '@/lib/services/survey.service';
 import type { UpdateSurveyData } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const logger = Logger.create('SurveyDetailAPI');
 
@@ -149,8 +150,6 @@ export async function PUT(
             message: 'Survey updated successfully'
         });
     } catch (error) {
-        logger.error('Error updating survey', error);
-
         if (error instanceof Error && error.message === 'Survey not found') {
             return NextResponse.json(
                 { success: false, error: 'Survey not found' },
@@ -158,13 +157,7 @@ export async function PUT(
             );
         }
 
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to update survey'
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to update survey');
     }
 }
 
@@ -231,8 +224,6 @@ export async function DELETE(
             message: 'Survey deleted successfully'
         });
     } catch (error) {
-        logger.error('Error deleting survey', error);
-
         if (error instanceof Error && error.message === 'Survey not found') {
             return NextResponse.json(
                 { success: false, error: 'Survey not found' },
@@ -240,13 +231,7 @@ export async function DELETE(
             );
         }
 
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to delete survey'
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to delete survey');
     }
 }
 

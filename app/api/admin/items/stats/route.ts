@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const itemRepository = new ItemRepository();
 
@@ -113,13 +114,6 @@ export async function GET(request: Request) {
     });
 
   } catch (error) {
-    console.error('Failed to fetch item stats:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch item stats'
-      },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch item stats');
   }
 } 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { buildCheckoutLineItems, createBaseCheckoutParams, applySubscriptionConfig } from './helpers';
+import { safeErrorMessage } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -239,7 +240,7 @@ export async function POST(request: NextRequest) {
 	} catch (error) {
 		console.error('Checkout session creation error:', error);
 
-		const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout session';
+		const errorMessage = safeErrorMessage(error, 'Failed to create checkout session');
 
 		return NextResponse.json(
 			{
@@ -390,7 +391,7 @@ export async function GET(request: NextRequest) {
 	} catch (error) {
 		console.error('Checkout session retrieval error:', error);
 
-		const errorMessage = error instanceof Error ? error.message : 'Failed to retrieve checkout session';
+		const errorMessage = safeErrorMessage(error, 'Failed to retrieve checkout session');
 
 		return NextResponse.json(
 			{

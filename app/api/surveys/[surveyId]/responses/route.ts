@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { surveyService } from '@/lib/services/survey.service';
 import type { SubmitResponseData, ResponseFilters } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const logger = Logger.create('SurveyResponsesAPI');
 
@@ -155,14 +156,7 @@ export async function GET(
             data: responses
         });
     } catch (error) {
-        logger.error('Error fetching responses', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to fetch responses'
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to fetch responses');
     }
 }
 
@@ -299,14 +293,7 @@ export async function POST(
             message: 'Response submitted successfully'
         }, { status: 201 });
     } catch (error) {
-        logger.error('Error submitting response', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error instanceof Error ? error.message : 'Failed to submit response'
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to submit response');
     }
 }
 

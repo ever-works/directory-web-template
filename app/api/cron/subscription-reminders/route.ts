@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { subscriptionRenewalReminderJob } from '@/lib/services/subscription-jobs';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 import crypto from 'crypto';
 
 // Verify cron secret to prevent unauthorized access (timing-safe comparison)
@@ -72,14 +73,7 @@ export async function GET(request: NextRequest) {
 			...result
 		});
 	} catch (error) {
-		console.error('[Cron] Subscription reminders job failed:', error);
-		return NextResponse.json(
-			{
-				error: 'Cron job failed',
-				message: error instanceof Error ? error.message : 'Unknown error'
-			},
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Cron job failed');
 	}
 }
 

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { surveyService } from '@/lib/services/survey.service';
 import { Logger } from '@/lib/logger';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const logger = Logger.create('SurveyResponseDetailAPI');
 
@@ -98,14 +99,7 @@ export async function GET(
             data: response
         });
     } catch (error) {
-        logger.error('Error fetching response', error);
-        return NextResponse.json(
-            { 
-                success: false, 
-                error: error instanceof Error ? error.message : 'Failed to fetch response' 
-            },
-            { status: 500 }
-        );
+        return safeErrorResponse(error, 'Failed to fetch response');
     }
 }
 

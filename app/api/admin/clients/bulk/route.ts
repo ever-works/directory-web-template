@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { updateClientProfile, deleteClientProfile } from '@/lib/db/queries';
+import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -258,7 +259,7 @@ export async function PUT(request: NextRequest) {
       } catch (error) {
         errors.push({
           index,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: safeErrorMessage(error, 'Unknown error'),
           clientData
         });
       }
@@ -276,11 +277,7 @@ export async function PUT(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error in bulk client update:', error);
-    return NextResponse.json(
-      { error: 'Failed to process bulk update' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to process bulk update');
   }
 }
 
@@ -473,7 +470,7 @@ export async function DELETE(request: NextRequest) {
       } catch (error) {
         errors.push({
           index,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: safeErrorMessage(error, 'Unknown error'),
           clientData
         });
       }
@@ -491,10 +488,6 @@ export async function DELETE(request: NextRequest) {
       }
     });
   } catch (error) {
-    console.error('Error in bulk client deletion:', error);
-    return NextResponse.json(
-      { error: 'Failed to process bulk deletion' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to process bulk deletion');
   }
 }

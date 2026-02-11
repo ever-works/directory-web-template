@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { createSponsorAdSchema, querySponsorAdsSchema } from '@/lib/validations/sponsor-ad';
 import { PaymentProvider } from '@/lib/constants';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 // Determine which payment provider to use
 const ACTIVE_PAYMENT_PROVIDER = process.env.NEXT_PUBLIC_PAYMENT_PROVIDER || PaymentProvider.STRIPE;
@@ -189,16 +190,12 @@ export async function POST(request: NextRequest) {
 			{ status: 201 }
 		);
 	} catch (error) {
-		console.error('Error creating sponsor ad:', error);
-
-		const errorMessage = error instanceof Error ? error.message : 'Failed to create sponsor ad';
-
-		// Handle duplicate submission errors (400) - keep specific message for expected validation errors
-		if (errorMessage.includes('already have')) {
-			return NextResponse.json({ success: false, error: errorMessage }, { status: 400 });
+		// Check error content for specific handling
+		const isAlreadyExists = error instanceof Error && error.message.includes('already have');
+		if (isAlreadyExists) {
+			return safeErrorResponse(error, 'You already have an active sponsor ad', 400);
 		}
 
-		// Use generic message for unexpected errors (500) to avoid exposing sensitive details
-		return NextResponse.json({ success: false, error: 'Failed to create sponsor ad' }, { status: 500 });
+		return safeErrorResponse(error, 'Failed to create sponsor ad');
 	}
 }

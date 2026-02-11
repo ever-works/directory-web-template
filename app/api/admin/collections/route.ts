@@ -4,6 +4,7 @@ import { CreateCollectionRequest, CollectionListOptions } from '@/types/collecti
 import { auth } from '@/lib/auth';
 import { invalidateContentCaches } from '@/lib/cache-invalidation';
 import { revalidatePath } from 'next/cache';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -178,11 +179,7 @@ export async function GET(request: NextRequest) {
 			totalPages: result.totalPages
 		});
 	} catch (error) {
-		console.error('Failed to fetch collections:', error);
-		return NextResponse.json(
-			{ success: false, error: error instanceof Error ? error.message : 'Failed to fetch collections' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to fetch collections');
 	}
 }
 
@@ -336,9 +333,6 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: error.message }, { status: 400 });
 		}
 
-		return NextResponse.json(
-			{ success: false, error: error instanceof Error ? error.message : 'Failed to create collection' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to create collection');
 	}
 }
