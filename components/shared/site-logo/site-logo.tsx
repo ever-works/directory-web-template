@@ -96,7 +96,7 @@ export function SiteLogo({ size = 'md', className = '', showText = true, linkToH
 					<div className={`relative ${sizeConfig.iconMargin}`}>
 						<Image
 							src={logoSettings.favicon}
-							alt=""
+							alt={config.company_name || 'Site icon'}
 							width={40}
 							height={40}
 							className={`${sizeConfig.icon} transition-all duration-300 group-hover:scale-110`}

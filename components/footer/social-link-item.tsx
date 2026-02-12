@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Enhanced Social links component
@@ -73,7 +74,7 @@ export function SocialLinks({
     t,
   }: {
     socialLinks: Array<Omit<SocialLinkItemProps, "animationDelay">>;
-    t: any;
+    t: ReturnType<typeof useTranslations>;
   }) {
     return (
       <div

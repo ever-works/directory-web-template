@@ -32,7 +32,8 @@ export default function Hero({
   children,
 }: HeroProps) {
   return (
-    <div
+    <section
+      aria-label="Hero"
       className={cn(
         "w-full min-h-screen bg-white dark:bg-[#0b111f] relative",
         className
@@ -84,6 +85,6 @@ export default function Hero({
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
