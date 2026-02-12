@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getCommentsByItemId, createComment, getClientProfileByUserId } from "@/lib/db/queries";
+import { getCommentsByItemId, createComment, getCommentWithUserById, getClientProfileByUserId } from "@/lib/db/queries";
 import { isUserBlocked, getBlockReasonMessage } from "@/lib/db/queries/moderation.queries";
 import { checkDatabaseAvailability } from "@/lib/utils/database-check";
 
@@ -395,8 +395,7 @@ export async function POST(
       itemId: (await params).slug,
     });
 
-    const itemComments = await getCommentsByItemId((await params).slug);
-    const commentWithUser = itemComments.find((c) => c.id === comment.id);
+    const commentWithUser = await getCommentWithUserById(comment.id);
 
     return NextResponse.json({
       success: true,
