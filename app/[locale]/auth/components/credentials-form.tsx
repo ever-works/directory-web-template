@@ -326,7 +326,7 @@ export function CredentialsForm({
 									autoComplete="name"
 									aria-describedby="name-error"
 									aria-required="true"
-									aria-invalid={!!state?.error}
+									aria-invalid={!!state?.error || !!clientError}
 								/>
 							</div>
 						</div>
