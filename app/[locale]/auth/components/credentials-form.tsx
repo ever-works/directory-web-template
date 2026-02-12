@@ -318,13 +318,15 @@ export function CredentialsForm({
 								<input
 									id="name"
 									type="text"
-									className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary placeholder:text-gray-400"
+									className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 									placeholder={t('ENTER_YOUR_FULL_NAME')}
 									name="name"
 									defaultValue={state?.name}
 									required
 									autoComplete="name"
 									aria-describedby="name-error"
+									aria-required="true"
+									aria-invalid={!!state?.error}
 								/>
 							</div>
 						</div>
@@ -369,13 +371,15 @@ export function CredentialsForm({
 							<input
 								id="email"
 								type="email"
-								className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary placeholder:text-gray-400"
+								className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 								placeholder={t('ENTER_YOUR_EMAIL')}
 								name="email"
 								defaultValue={state?.email}
 								required
 								autoComplete="email"
 								aria-describedby="email-error"
+								aria-required="true"
+								aria-invalid={!!state?.error || !!clientError}
 							/>
 						</div>
 					</div>
@@ -396,7 +400,7 @@ export function CredentialsForm({
 							<input
 								id="password"
 								type={showPassword ? 'text' : 'password'}
-								className="pl-10 pr-10 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary placeholder:text-gray-400"
+								className="pl-10 pr-10 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 								placeholder={t('ENTER_YOUR_PASSWORD')}
 								name="password"
 								required
@@ -404,6 +408,8 @@ export function CredentialsForm({
 								onFocus={() => setShowPasswordTips(!isLogin)}
 								onBlur={() => setShowPasswordTips(false)}
 								aria-describedby={!isLogin && showPasswordTips ? 'password-tips' : undefined}
+								aria-required="true"
+								aria-invalid={!!state?.error || !!clientError}
 							/>
 							<button
 								type="button"
