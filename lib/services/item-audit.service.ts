@@ -42,7 +42,7 @@ const TRACKED_FIELDS = [
 	'status'
 ] as const;
 
-type TrackedField = (typeof TRACKED_FIELDS)[number];
+type _TrackedField = (typeof TRACKED_FIELDS)[number];
 
 // ===================== Change Detection =====================
 

@@ -432,7 +432,7 @@ export class PolarProvider implements PaymentProviderInterface {
 						}
 					}
 				}
-			} catch (parseError) {
+			} catch (_parseError) {
 				// If parsing fails, return original message
 			}
 
@@ -649,7 +649,7 @@ export class PolarProvider implements PaymentProviderInterface {
 			if (subscriptionId) {
 				try {
 					subscription = await this.polar.subscriptions.get({ id: subscriptionId } as any);
-				} catch (err) {
+				} catch (_err) {
 					this.logger.warn('Could not fetch subscription after checkout creation', { subscriptionId });
 				}
 			}
@@ -1550,7 +1550,7 @@ export class PolarProvider implements PaymentProviderInterface {
 			if (!response.ok) {
 				// handleRestApiError throws for fatal errors (401, 403, 404, 400, 429)
 				// and returns true for recoverable errors (allowing fallback)
-				const shouldFallback = await this.handleRestApiError(response, customerId);
+				const _shouldFallback = await this.handleRestApiError(response, customerId);
 				// If we reach here, it's a recoverable error - allow fallback
 				return null;
 			}

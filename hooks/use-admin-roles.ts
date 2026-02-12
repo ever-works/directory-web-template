@@ -123,7 +123,7 @@ export function useAdminRoles(): UseAdminRolesReturn {
   const {
     data: rolesData,
     isLoading,
-    error,
+    error: _error,
     refetch,
   } = useQuery({
     queryKey: rolesQueryKeys.list(),

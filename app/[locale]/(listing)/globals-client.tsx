@@ -51,7 +51,7 @@ const LAYOUT_STYLES = {
 
 export default function GlobalsClient(props: ListingProps) {
 	// Destructure paginationType to subscribe to context changes - forces re-render when pagination type changes
-	const { layoutHome = LayoutHome.HOME_ONE, paginationType } = useLayoutTheme();
+	const { layoutHome = LayoutHome.HOME_ONE, paginationType: _paginationType } = useLayoutTheme();
 	const { selectedCategories, searchTerm, selectedTags, isFiltersLoading, locationFilter } =
 		useFilters();
 	const sortedTags = sortByNumericProperty(props.tags);

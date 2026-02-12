@@ -1,6 +1,6 @@
-import { and, eq, gte, sql, isNull, inArray, desc, count, countDistinct } from 'drizzle-orm';
+import { and, eq, gte, sql, isNull, inArray, count, countDistinct } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { votes, comments, clientProfiles } from '../schema';
+import { votes, comments } from '../schema';
 
 // ===================== Dashboard Stats Queries =====================
 

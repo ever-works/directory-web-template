@@ -28,9 +28,9 @@ export function LoginContent({
 	onSuccess,
 	callbackUrl
 }: LoginContentProps) {
-	const config = useConfig();
+	const _config = useConfig();
 	const { currentTheme } = useTheme();
-	const isDark = currentTheme.background === '#000000' || currentTheme.text === '#ffffff';
+	const _isDark = currentTheme.background === '#000000' || currentTheme.text === '#ffffff';
 	const t = useTranslations('common');
 
 	return (

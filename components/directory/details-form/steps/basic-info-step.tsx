@@ -9,7 +9,6 @@ import { EditorContent, Toolbar, ToolbarContent, useEditorToolbar } from '@/lib/
 import { LinkInput } from '../components/link-input';
 import type { Category, Tag as TagType } from '@/lib/content';
 import type { FormData } from '../validation/form-validators';
-import type { ItemLocationData } from '@/lib/types/item';
 import { LocationFields } from '@/components/directory/location-fields';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';

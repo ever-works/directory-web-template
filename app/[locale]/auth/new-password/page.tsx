@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
-import { KeyRound, Shield, Eye, EyeOff, XCircle, CheckCircle, Lock, ArrowLeft, Key } from "lucide-react";
+import { Shield, Eye, EyeOff, XCircle, CheckCircle, Lock, ArrowLeft, Key } from "lucide-react";
 import { useConfig } from "../../config";
 import { Button, cn } from "@heroui/react";
 import { Link } from "@/i18n/navigation";

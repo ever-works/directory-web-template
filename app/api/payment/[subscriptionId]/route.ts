@@ -23,7 +23,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 		let body: unknown;
 		try {
 			body = await request.json();
-		} catch (parseError) {
+		} catch (_parseError) {
 			return NextResponse.json({ error: 'Invalid JSON in request body' }, { status: 400 });
 		}
 

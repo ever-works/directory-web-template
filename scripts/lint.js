@@ -11,7 +11,7 @@ try {
 	// Use eslint directly with the flat config
 	// This avoids the next lint directory parsing bug
 	console.log('Running ESLint...');
-	execSync('npx eslint . --max-warnings=132', {
+	execSync('npx eslint . --max-warnings=54', {
 		cwd: projectRoot,
 		stdio: 'inherit',
 	});

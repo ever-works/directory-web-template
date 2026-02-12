@@ -79,7 +79,7 @@ export default async function CollectionPage({
   }
   
   // Fetch all items
-  const { categories, tags, items } = await getCachedItems({ lang: locale });
+  const { categories: _categories, tags, items } = await getCachedItems({ lang: locale });
 
   // Build a lookup so string tag IDs can be resolved to full tag objects
   const tagMap = Object.fromEntries(tags.map((tag) => [tag.id, tag]));

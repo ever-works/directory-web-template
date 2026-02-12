@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import type { MapClusterProps, MapClusterData, Coordinates } from '@/lib/maps/types';
+import type { MapClusterData } from '@/lib/maps/types';
 
 // Cluster size thresholds and their corresponding styles
 const CLUSTER_SIZE_STYLES = {

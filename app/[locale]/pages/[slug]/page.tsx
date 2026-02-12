@@ -20,7 +20,7 @@ interface PageProps {
 export const revalidate = 600;
 export const dynamicParams = true;
 
-const baseUrl = getBaseUrl();
+const _baseUrl = getBaseUrl();
 
 /**
  * Extracts page title from metadata or generates it from slug

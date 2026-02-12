@@ -113,7 +113,7 @@ export function TagsList({
   setSelectedTags,
   allItemsCount,
 }: TagsListProps) {
-  const t = useTranslations("listing");
+  const _t = useTranslations("listing");
   const tCommon = useTranslations("common");
   const leftButtonRef = useRef<HTMLButtonElement>(null);
   const rightButtonRef = useRef<HTMLButtonElement>(null);
@@ -127,13 +127,13 @@ export function TagsList({
   
   // Refs for scroll container and tag elements
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const tagsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const _tagsRef = useRef<(HTMLDivElement | null)[]>([]);
   const morePopoverRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const rafId = useRef<number | null>(null);
   const portalTarget = usePortal('tag-popover-portal');
   const itemWidthsRef = useRef<number[]>([]);
-  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
+  const [_visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
 
   // Tooltip state for truncated tag names (similar to CategoryItem)
   const [tooltipVisible, setTooltipVisible] = useState(false);
