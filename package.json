@@ -185,8 +185,7 @@
 		"typescript": "^5"
 	},
 	"engines": {
-		"node": ">=20.19.0",
-		"yarn": ">=1.13.0"
+		"node": ">=20.19.0"
 	},
 	"prettier": {
 		"printWidth": 120,

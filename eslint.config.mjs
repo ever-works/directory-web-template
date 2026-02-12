@@ -66,7 +66,7 @@ export default [
 		rules: {
 			// Basic rules - more comprehensive rules require Next.js configs which have circular reference issues
 			"no-unused-vars": "off", // TypeScript handles this
-			"@typescript-eslint/no-unused-vars": "off", // Can be enabled later if needed
+			"@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
 			"no-console": "off", // Allow console in Next.js
 		},
 	},
