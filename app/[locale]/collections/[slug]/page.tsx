@@ -69,7 +69,7 @@ export default async function CollectionPage({
   try {
     const allCollections = await collectionRepository.findAll({ includeInactive: false });
     collection = allCollections.find(c => c.slug === slug);
-  } catch (error) {
+  } catch (_error) {
     logger.warn('Git collection repository not available, falling back to local content');
   }
 
