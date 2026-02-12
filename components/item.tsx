@@ -12,7 +12,7 @@ import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { shouldShowFallback, isProblematicUrl } from '@/lib/utils/image-domains';
 import { FeaturedBadge } from './featured-items';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { createExcerpt } from '@/components/filters/utils/text-utils';
 import { FILTER_CONSTANTS } from '@/components/filters/constants';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
@@ -29,7 +29,7 @@ type ItemProps = ItemData & {
 const TAG_BUTTON_BASE_CLASS =
 	'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 font-medium px-1 !py-[2px] rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
 
-export default function Item(props: ItemProps) {
+const Item = memo(function Item(props: ItemProps) {
 	const params = useParams();
 	const locale = params?.locale as string | undefined;
 	const { data: session } = useSession();
@@ -313,12 +313,14 @@ export default function Item(props: ItemProps) {
 			</Card>
 		</Link>
 	);
-}
+});
+
+export default Item;
 
 type CategoryProp = string | Category;
 type TagProp = string | Tag;
 
-function CategoryFilterButton({ category }: { category: CategoryProp }) {
+const CategoryFilterButton = memo(function CategoryFilterButton({ category }: { category: CategoryProp }) {
 	const { selectedCategories, addSelectedCategory } = useFilters();
 	const categoryId = typeof category === 'string' ? category : category?.id;
 	const categoryName = typeof category === 'string' ? category : category?.name || categoryId;
@@ -342,9 +344,9 @@ function CategoryFilterButton({ category }: { category: CategoryProp }) {
 			{categoryName}
 		</button>
 	);
-}
+});
 
-function TagFilterButton({ tag, index }: { tag: TagProp; index: number }) {
+const TagFilterButton = memo(function TagFilterButton({ tag, index }: { tag: TagProp; index: number }) {
 	const { selectedTags, addSelectedTag } = useFilters();
 	const tagId = typeof tag === 'string' ? tag : (tag.id ?? '');
 	const tagName = typeof tag === 'string' ? tag : (tag.name ?? tagId);
@@ -370,4 +372,4 @@ function TagFilterButton({ tag, index }: { tag: TagProp; index: number }) {
 			#{tagName}
 		</button>
 	);
-}
+});

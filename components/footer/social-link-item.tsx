@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { memo } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Enhanced Social links component
@@ -73,7 +74,7 @@ export function SocialLinks({
     t,
   }: {
     socialLinks: Array<Omit<SocialLinkItemProps, "animationDelay">>;
-    t: any;
+    t: ReturnType<typeof useTranslations>;
   }) {
     return (
       <div
@@ -86,7 +87,7 @@ export function SocialLinks({
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           {socialLinks.map((social, index) => (
             <SocialLinkItem
-              key={index}
+              key={social.href}
               {...social}
               animationDelay={`${0.3 + index * 0.1}s`}
             />

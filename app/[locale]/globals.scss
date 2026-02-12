@@ -1,8 +1,6 @@
 @use '@/lib/editor/styles/_variables.scss';
 @use '@/lib/editor/styles/_keyframe-animations.scss';
 
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
-
 /* Mapbox GL JS styles - required for proper map rendering */
 @import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -212,10 +210,33 @@
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: 'Poppins', sans-serif !important;
+    font-family: var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-  
+
+  /* Locale-specific font overrides — prepend supplementary font for non-Latin scripts */
+  body.font-locale-zh {
+    font-family: var(--font-noto-sc), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+  body.font-locale-ja {
+    font-family: var(--font-noto-jp), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+  body.font-locale-ko {
+    font-family: var(--font-noto-kr), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+  body.font-locale-ar {
+    font-family: var(--font-noto-arabic), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+  body.font-locale-th {
+    font-family: var(--font-noto-thai), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
+  }
+
   *, *::before, *::after {
     transition-property: background-color, border-color, color, fill, stroke;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
