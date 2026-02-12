@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, memo } from "react";
 import { createPortal } from "react-dom";
 import { Button, cn } from "@heroui/react";
 import { Link } from "@/i18n/navigation";
@@ -10,7 +10,7 @@ import { useContainerWidth } from "@/components/ui/container";
 /**
  * Individual category item component
  */
-export function CategoryItem({ category, isActive, href, isAllCategories = false, totalItems, mode = "navigation", onToggle }: CategoryItemProps) {
+export const CategoryItem = memo(function CategoryItem({ category, isActive, href, isAllCategories = false, totalItems, mode = "navigation", onToggle }: CategoryItemProps) {
   const t = useTranslations("listing");
   const isFluid = useContainerWidth() === "fluid";
   const formattedName = formatDisplayName(category.name);
@@ -108,4 +108,4 @@ export function CategoryItem({ category, isActive, href, isAllCategories = false
       {tooltip}
     </div>
   );
-}
+});
