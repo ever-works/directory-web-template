@@ -397,6 +397,13 @@ export async function POST(
 
     const commentWithUser = await getCommentWithUserById(comment.id);
 
+    if (!commentWithUser) {
+      return NextResponse.json(
+        { success: false, error: "Failed to retrieve comment" },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
       comment: commentWithUser
