@@ -3,6 +3,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import Image from 'next/image';
 import { X, ExternalLink, Tag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MapItemPopupProps } from '@/lib/maps/types';
@@ -133,9 +134,11 @@ export function MapItemPopup({
 			<div className="flex items-start gap-3 p-4 pb-2">
 				{/* Item icon */}
 				{item.icon ? (
-					<img
+					<Image
 						src={item.icon}
 						alt={item.name}
+						width={48}
+						height={48}
 						className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-gray-700"
 					/>
 				) : (
@@ -233,9 +236,11 @@ export function MapItemCard({
 		<>
 			{/* Item icon */}
 			{icon ? (
-				<img
+				<Image
 					src={icon}
 					alt={name}
+					width={48}
+					height={48}
 					className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-gray-700"
 				/>
 			) : (

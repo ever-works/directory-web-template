@@ -87,7 +87,7 @@ export function SocialLinks({
         <div className="flex flex-wrap items-center gap-3 sm:gap-4">
           {socialLinks.map((social, index) => (
             <SocialLinkItem
-              key={index}
+              key={social.href}
               {...social}
               animationDelay={`${0.3 + index * 0.1}s`}
             />
