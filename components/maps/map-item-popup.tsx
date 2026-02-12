@@ -135,7 +135,7 @@ export function MapItemPopup({
 				{item.icon ? (
 					<img
 						src={item.icon}
-						alt=""
+						alt={item.name}
 						className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-gray-700"
 					/>
 				) : (
@@ -235,7 +235,7 @@ export function MapItemCard({
 			{icon ? (
 				<img
 					src={icon}
-					alt=""
+					alt={name}
 					className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-gray-700"
 				/>
 			) : (
