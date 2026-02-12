@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100..900;1,100..900&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap')
-layer(base);
 @import '../../lib/editor/styles/_variables.scss';
 @import '../../lib/editor/styles/_keyframe-animations.scss';
 @import 'tailwindcss';
@@ -425,7 +423,8 @@ layer(base);
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: 'Poppins', sans-serif !important;
+    font-family: var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
+      ui-sans-serif, system-ui, -apple-system, sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
   
