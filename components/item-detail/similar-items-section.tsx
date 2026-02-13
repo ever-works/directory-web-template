@@ -9,7 +9,7 @@ interface SimilarItemsSectionProps {
 
 export function SimilarItemsSection({ allItems, className, title = 'Similar Products' }: SimilarItemsSectionProps) {
 	return (
-		<section className={` w-full`}>
+		<section className={`w-full ${className ?? ''}`}>
 			   <div className="flex items-center gap-3 mb-6">
 				   {/* 2x2 squares icon with gradient */}
 				   <span className="inline-flex items-center justify-center">

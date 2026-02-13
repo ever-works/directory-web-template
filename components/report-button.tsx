@@ -71,9 +71,14 @@ const ReportButton: React.FC<ReportButtonProps> = ({ contentType, contentId, cla
 		};
 	}, [dropdownOpen]);
 
+	const closeModal = () => {
+		setOpen(false);
+		setDropdownOpen(false);
+	};
+
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
 		if (e.key === "Escape" && !isSubmitting) {
-			setOpen(false);
+			closeModal();
 		}
 	};
 
@@ -110,7 +115,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ contentType, contentId, cla
 			}
 
 			// Success
-			setOpen(false);
+			closeModal();
 			setReason("");
 			setDetails("");
 			setSubmitted(true);
@@ -126,19 +131,17 @@ const ReportButton: React.FC<ReportButtonProps> = ({ contentType, contentId, cla
 	const selectedReason = REASON_OPTIONS.find(opt => opt.value === reason);
 
 	const modal = (
-		<div className={MODAL_OVERLAY_CLASS} onClick={() => !isSubmitting && setOpen(false)}>
+		<div className={MODAL_OVERLAY_CLASS} onClick={() => !isSubmitting && closeModal()}>
 			<div className={MODAL_CONTAINER_CLASS} onClick={(e) => e.stopPropagation()}>
 				<button
 					className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors disabled:opacity-50"
-					onClick={() => setOpen(false)}
+					onClick={closeModal}
 					disabled={isSubmitting}
 					aria-label="Close report modal"
 				>
-					<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-					</svg>
+					×
 				</button>
-				
+
 				<div className="flex items-center gap-3 mb-6">
 					<div className="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg">
 						<FiFlag className="w-5 h-5 text-red-500" />

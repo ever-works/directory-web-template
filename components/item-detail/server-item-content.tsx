@@ -1,5 +1,4 @@
 import { MDX } from "@/components/mdx";
-import { useContainerWidth } from '@/components/ui/container';
 
 interface ServerItemContentProps {
   content?: string | null;
