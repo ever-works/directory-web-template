@@ -26,7 +26,7 @@ import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useSurveysEnabled } from '@/hooks/use-surveys-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { ItemDetailSkeleton } from '@/components/ui/skeleton';
-import { Container } from '../ui/container';
+import { Container, useContainerWidth } from '../ui/container';
 import { SidebarSponsor, useSponsorAdsContext } from '@/components/sponsor-ads';
 
 export interface ItemDetailProps {
@@ -59,6 +59,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
 	const { sponsors } = useSponsorAdsContext();
+	const containerWidth = useContainerWidth();
+	const isFluid = containerWidth === 'fluid';
 	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
 	const categoryId = typeof meta.category === 'string'
 		? meta.category
@@ -114,9 +116,9 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
-				<div className="flex flex-col lg:flex-row gap-8">
+				<div className={`flex flex-col lg:flex-row mb-6 lg:mb-20 ${isFluid ? 'gap-4 lg:gap-20' : 'gap-8'}`}>
 					{/* Left column */}
-					<div className="lg:w-2/3">
+					<div className={isFluid ? 'lg:w-[65%]' : 'lg:w-2/3'}>
 						{/* Video Showcase */}
 						<div className="mb-8">
 							<div className="mb-6">
@@ -150,7 +152,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								</div>
 							)}
 
-							<p className="text-base text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+							<p className={`${isFluid ? 'w-5/6' :"full"} text-base text-gray-600 dark:text-gray-400 mb-8 leading-relaxed`}>
 								{meta.description}
 							</p>
 
@@ -194,7 +196,9 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								{t('itemDetail.ABOUT_THIS_TOOL')}
 							</h2>
 							<div className="prose prose-gray dark:prose-invert prose-lg max-w-none">
+								<div>
 								{renderedContent}
+								</div>
 								<div className="flex justify-start mt-6">
 									<ReportButton contentType="item" contentId={meta.slug || meta.name} />
 								</div>
@@ -219,7 +223,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 					</div>
 
 					{/* Right column */}
-					<div className="lg:w-1/3 space-y-6 relative">
+					<div className={`${isFluid ? 'lg:w-[25%] lg:flex-shrink-0' : 'lg:w-1/3'} space-y-6 relative`}>
 						<div className="bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
 							<div className="flex items-center gap-4 mb-6">
 								<div className="p-1.5 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
