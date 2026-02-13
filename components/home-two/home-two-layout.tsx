@@ -13,6 +13,7 @@ import clsx from "clsx";
 const STICKY_CONTAINER_BASE = clsx(
   "sticky top-16 z-20",
   "transition-all duration-300 ease-in-out",
+  "border border-transparent",
   "rounded-x-lg rounded-b-lg",
   "bg-white/95 dark:bg-[#0b111f]/95",
   "backdrop-blur-xs",

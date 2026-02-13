@@ -421,6 +421,23 @@
   .hover\:text-theme-secondary:hover {
     color: var(--theme-secondary);
   }
+  /* Ensure Tailwind transition utilities take precedence over third-party overrides
+     Some libraries (e.g. survey-core) add rules like
+     ".sd-root-modern--animation-disabled * { transition: none !important }"
+     which can disable Tailwind transitions. Re-apply Tailwind vars with higher
+     specificity and !important so utilities work as expected. */
+  // .transition-all,
+  // .transition,
+  // .transition-opacity,
+  // .transition-transform,
+  // .transition-colors,
+  // [class*="transition-"],
+  // [class^="transition-"] {
+  //   transition-property: var(--tw-transition-property, all) !important;
+  //   transition-duration: var(--tw-duration, 50ms) !important;
+  //   transition-timing-function: var(--tw-easing, cubic-bezier(0.4, 0, 0.2, 1)) !important;
+  //   transition-delay: var(--tw-delay, 0s) !important;
+  // }
   
   .hover\:border-theme-primary:hover {
     border-color: var(--theme-primary);
