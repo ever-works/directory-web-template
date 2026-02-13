@@ -11,6 +11,7 @@ import type { CommentWithUser } from '@/lib/types/comment';
 import { toast } from 'sonner';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useLoginModal } from '@/hooks/use-login-modal';
+import { useContainerWidth } from '@/components/ui/container';
 import {
 	Modal,
 	ModalContent,
@@ -179,9 +180,11 @@ const Comment = memo(
 
 		const isOwner = currentUserId === comment.userId;
 		const wasEdited = comment.editedAt !== null;
+		const containerWidth = useContainerWidth();
+		const isFluid = containerWidth === 'fluid';
 
 		return (
-			<div className="group flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all duration-200">
+			<div className={` ${isFluid ? 'w-4/5' : 'full'} group flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all duration-200`}>
 				<Avatar
 					src={comment.user.image}
 					alt={comment.user.name || 'Anonymous'}
