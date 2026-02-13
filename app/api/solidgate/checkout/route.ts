@@ -179,7 +179,7 @@ export async function POST(request: NextRequest) {
 				);
 			}
 			payload = result.data;
-		} catch (e) {
+		} catch (_e) {
 			return NextResponse.json(
 				{
 					error: 'Invalid JSON',

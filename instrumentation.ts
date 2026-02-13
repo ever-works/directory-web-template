@@ -1,7 +1,7 @@
 'use server';
 
 import * as Sentry from '@sentry/nextjs';
-import { SENTRY_DSN, SENTRY_DEBUG, SENTRY_ENABLED } from '@/lib/constants';
+import { SENTRY_DSN, SENTRY_DEBUG } from '@/lib/constants';
 import { initializeDatabase } from '@/lib/db/initialize';
 
 export async function register() {

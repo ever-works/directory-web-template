@@ -168,10 +168,10 @@ function HeaderNavSkeleton() {
 }
 
 export default function Header() {
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [_isMenuOpen, setIsMenuOpen] = useState(false);
 	const { data: session } = useSession();
 	const { features } = useFeatureFlagsWithSimulation();
-	const { hasGlobalSurveys, isPending: surveysPending } = useHasGlobalSurveys();
+	const { hasGlobalSurveys, isPending: _surveysPending } = useHasGlobalSurveys();
 	const { categoriesEnabled } = useCategoriesEnabled();
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
@@ -389,7 +389,7 @@ export default function Header() {
 		[headerSettings.settingsEnabled]
 	);
 
-	const containerWidth = useContainerWidth();
+	const _containerWidth = useContainerWidth();
 
 	return (
 		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>

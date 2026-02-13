@@ -24,7 +24,7 @@ export function FooterLinkGroup({
         {categoryLabel}
       </h4>
       <ul className="space-y-2 sm:space-y-3">
-        {links.map((link, index) => (
+        {links.map((link, _index) => (
           <li key={link.href}>
             <Link
               href={link.href}

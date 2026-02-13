@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useCallback, useEffect, useRef, useMemo } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
 import { useConfig } from '@/app/[locale]/config';

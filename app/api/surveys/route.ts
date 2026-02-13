@@ -6,7 +6,7 @@ import { Logger } from '@/lib/logger';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 
-const logger = Logger.create('SurveyAPI');
+const _logger = Logger.create('SurveyAPI');
 
 /**
  * @swagger

@@ -10,7 +10,7 @@ import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { DEFAULT_LOCALE, type Locale } from '@/lib/constants';
+import { type Locale } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors

@@ -5,7 +5,7 @@ import { MapPin, Loader2, AlertCircle, Maximize2, Minimize2 } from 'lucide-react
 import { cn } from '@/lib/utils';
 import { useMapProviderInstance } from '@/hooks/use-map-provider';
 import { useLocationSettings } from '@/hooks/use-location-settings';
-import type { MapComponentProps, MapMarkerData } from '@/lib/maps/types';
+import type { MapComponentProps } from '@/lib/maps/types';
 import type { IMapInstance, IClustererInstance } from '@/lib/maps/providers/map-provider.interface';
 
 const DEFAULT_ZOOM = 12;

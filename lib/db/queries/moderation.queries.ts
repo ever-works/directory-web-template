@@ -7,7 +7,6 @@ import {
 	type NewModerationHistoryRecord,
 	type ModerationHistoryRecord,
 	type ModerationActionValues,
-	ModerationAction,
 	type ReportContentTypeValues
 } from '../schema';
 

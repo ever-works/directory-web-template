@@ -39,7 +39,7 @@ const MODAL_CLASSES = cn(
 	'animate-fade-in-up'
 );
 
-const DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-gray-700');
+const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-gray-700');
 
 export function SettingsModal() {
 	const { isOpen, closeModal } = useSettingsModal();

@@ -178,7 +178,7 @@ export function useAdminItems(params: ItemsListParams = {}) {
     data: itemsData,
     isLoading,
     isFetching,
-    error,
+    error: _error,
     refetch,
   } = useQuery({
     queryKey: QUERY_KEYS.itemsList(params),

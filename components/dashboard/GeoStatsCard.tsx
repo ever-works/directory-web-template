@@ -22,7 +22,7 @@ interface GeoStatsResponse extends GeoStats {
 async function fetchGeoStats(): Promise<GeoStats> {
 	const response = await fetch('/api/client/geo-stats');
 	if (!response.ok) throw new Error('Failed to fetch stats');
-	const { success, ...stats }: GeoStatsResponse = await response.json();
+	const { success: _success, ...stats }: GeoStatsResponse = await response.json();
 	return stats;
 }
 

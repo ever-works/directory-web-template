@@ -31,7 +31,7 @@ export function SubmissionsContent() {
 	const {
 		items,
 		stats,
-		total,
+		total: _total,
 		totalPages,
 		isLoading,
 		isFetching,

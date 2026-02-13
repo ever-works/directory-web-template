@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
 import { logError, ErrorType, createAppError } from '@/lib/utils/error-handler';
-import { coreConfig, authConfig } from '@/lib/config/config-service';
+import { coreConfig } from '@/lib/config/config-service';
 
 /**
  * Handles NextAuth specific errors and provides appropriate responses

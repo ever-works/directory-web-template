@@ -18,7 +18,7 @@ export async function getFrontendUrl(): Promise<string> {
 			let expectedHost = '';
 			try {
 				expectedHost = new URL(WEB_URL).host;
-			} catch (e) {
+			} catch (_e) {
 				expectedHost = WEB_URL.replace(/https?:\/\//, '').split('/')[0];
 			}
 
