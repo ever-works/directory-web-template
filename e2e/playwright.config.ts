@@ -50,10 +50,10 @@ export default defineConfig({
 	],
 
 	webServer: {
-		command: 'pnpm dev',
+		command: isCI ? 'pnpm build && pnpm start' : 'pnpm dev',
 		url: baseURL,
 		reuseExistingServer: !isCI,
-		timeout: 120_000,
+		timeout: isCI ? 300_000 : 120_000,
 		stdout: 'pipe',
 		stderr: 'pipe',
 	},
