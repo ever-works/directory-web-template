@@ -43,7 +43,7 @@ test.describe('Auth: Sign In', () => {
 		const signInPage = new SignInPage(page);
 		await signInPage.navigate();
 
-		const createAccountLink = page.getByRole('link', { name: /create account/i }).first();
+		const createAccountLink = page.locator('a[href*="/auth/register"]').first();
 		await expect(createAccountLink).toBeVisible();
 	});
 });
