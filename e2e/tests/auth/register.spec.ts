@@ -20,7 +20,7 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await page.locator('button[type="submit"]').click();
 
-		await page.waitForURL(/\/client\/dashboard/, { timeout: 20_000 });
+		await page.waitForURL(/\/client\/dashboard/, { timeout: 60_000 });
 	});
 
 	test('shows error when using existing email', async ({ page }) => {

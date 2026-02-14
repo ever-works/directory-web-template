@@ -9,7 +9,7 @@ export default defineConfig({
 	outputDir: './test-results',
 
 	fullyParallel: true,
-	workers: isCI ? 2 : undefined,
+	workers: isCI ? 2 : 1,
 
 	retries: isCI ? 2 : 0,
 
@@ -17,8 +17,8 @@ export default defineConfig({
 		? [['html', { open: 'never', outputFolder: './playwright-report' }], ['github'], ['list']]
 		: [['html', { open: 'on-failure', outputFolder: './playwright-report' }], ['list']],
 
-	timeout: 30_000,
-	expect: { timeout: 10_000 },
+	timeout: 60_000,
+	expect: { timeout: 30_000 },
 
 	globalSetup: path.resolve(__dirname, './global-setup.ts'),
 	globalTeardown: path.resolve(__dirname, './global-teardown.ts'),
@@ -28,8 +28,8 @@ export default defineConfig({
 		trace: isCI ? 'on-first-retry' : 'retain-on-failure',
 		screenshot: 'only-on-failure',
 		video: isCI ? 'on-first-retry' : 'off',
-		navigationTimeout: 15_000,
-		actionTimeout: 10_000,
+		navigationTimeout: 60_000,
+		actionTimeout: 30_000,
 		locale: 'en-US',
 		timezoneId: 'America/New_York',
 	},

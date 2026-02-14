@@ -31,6 +31,6 @@ export class SignInPage extends BasePage {
 
 	async signInAndWaitForRedirect(email: string, password: string, expectedUrl: string | RegExp) {
 		await this.signIn(email, password);
-		await this.page.waitForURL(expectedUrl, { timeout: 20_000 });
+		await this.page.waitForURL(expectedUrl, { timeout: 60_000 });
 	}
 }

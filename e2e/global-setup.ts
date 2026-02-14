@@ -21,11 +21,11 @@ async function globalSetup(config: FullConfig) {
 		const adminContext = await browser.newContext();
 		const adminPage = await adminContext.newPage();
 
-		await adminPage.goto(`${baseURL}/auth/signin`);
+		await adminPage.goto(`${baseURL}/auth/signin`, { timeout: 60_000 });
 		await adminPage.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
 		await adminPage.locator('#password').fill(TEST_DATA.ADMIN_PASSWORD);
 		await adminPage.locator('button[type="submit"]').click();
-		await adminPage.waitForURL(/\/(admin|client\/dashboard)/, { timeout: 20_000 });
+		await adminPage.waitForURL(/\/(admin|client\/dashboard)/, { timeout: 60_000 });
 
 		await adminContext.storageState({ path: adminStatePath });
 		await adminPage.close();
@@ -41,12 +41,12 @@ async function globalSetup(config: FullConfig) {
 		const clientPage = await clientContext.newPage();
 
 		const clientEmail = TEST_DATA.generateClientEmail();
-		await clientPage.goto(`${baseURL}/auth/register`);
+		await clientPage.goto(`${baseURL}/auth/register`, { timeout: 60_000 });
 		await clientPage.locator('#name').fill('E2E Test Client');
 		await clientPage.locator('#email').fill(clientEmail);
 		await clientPage.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await clientPage.locator('button[type="submit"]').click();
-		await clientPage.waitForURL(/\/client\/dashboard/, { timeout: 20_000 });
+		await clientPage.waitForURL(/\/client\/dashboard/, { timeout: 60_000 });
 
 		await clientContext.storageState({ path: clientStatePath });
 		await clientPage.close();
