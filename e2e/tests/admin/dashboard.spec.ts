@@ -21,7 +21,7 @@ test.describe('Admin: Dashboard', () => {
 
 	test('non-admin client is redirected from admin', async ({ clientPage }) => {
 		await clientPage.goto('/admin');
-		await clientPage.waitForLoadState('networkidle');
+		await clientPage.waitForLoadState('domcontentloaded');
 
 		// Non-admin should be redirected to unauthorized or signin
 		const url = clientPage.url();

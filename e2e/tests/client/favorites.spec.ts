@@ -3,7 +3,7 @@ import { test, expect } from '../../fixtures';
 test.describe('Client: Favorites', () => {
 	test('unauthenticated user sees sign-in prompt on favorites page', async ({ page }) => {
 		await page.goto('/favorites');
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('domcontentloaded');
 
 		// Should show sign-in prompt or redirect
 		const signInLink = page.getByRole('link', { name: /sign in/i }).first();

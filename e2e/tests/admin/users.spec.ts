@@ -9,7 +9,7 @@ test.describe('Admin: User Management', () => {
 
 	test('users page displays content', async ({ adminPage }) => {
 		await adminPage.goto('/admin/users');
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('domcontentloaded');
 
 		const content = adminPage.locator('main, [role="main"], body');
 		await expect(content).toBeVisible();

@@ -16,7 +16,7 @@ test.describe('Client: Dashboard', () => {
 
 	test('dashboard displays stats or content area', async ({ clientPage }) => {
 		await clientPage.goto('/client/dashboard');
-		await clientPage.waitForLoadState('networkidle');
+		await clientPage.waitForLoadState('domcontentloaded');
 
 		// Dashboard should have visible content
 		const heading = clientPage.getByRole('heading', { name: /dashboard/i }).first();

@@ -9,7 +9,7 @@ test.describe('Admin: Categories Management', () => {
 
 	test('categories page displays content', async ({ adminPage }) => {
 		await adminPage.goto('/admin/categories');
-		await adminPage.waitForLoadState('networkidle');
+		await adminPage.waitForLoadState('domcontentloaded');
 
 		const content = adminPage.locator('main, [role="main"], body');
 		await expect(content).toBeVisible();

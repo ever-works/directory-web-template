@@ -13,7 +13,7 @@ test.describe('Public: Legal Pages', () => {
 
 			expect(response?.status()).toBeLessThan(400);
 			await expect(page.locator('body')).toBeVisible();
-			await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+			await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 		});
 	}
 });
