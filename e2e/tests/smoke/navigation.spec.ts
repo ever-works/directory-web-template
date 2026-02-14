@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Smoke: Core navigation', () => {
 	test('home page displays directory items', async ({ page }) => {
 		await page.goto('/');
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('domcontentloaded');
 
 		const items = page.locator('a[href*="/items/"]');
 		await expect(items.first()).toBeVisible({ timeout: 30_000 });
@@ -14,7 +14,7 @@ test.describe('Smoke: Core navigation', () => {
 
 	test('can navigate from home to an item detail page', async ({ page }) => {
 		await page.goto('/');
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('domcontentloaded');
 
 		const firstItem = page.locator('a[href*="/items/"]').first();
 		await expect(firstItem).toBeVisible({ timeout: 30_000 });
@@ -33,7 +33,7 @@ test.describe('Smoke: Core navigation', () => {
 
 	test('can navigate to sign in from home', async ({ page }) => {
 		await page.goto('/');
-		await page.waitForLoadState('networkidle');
+		await page.waitForLoadState('domcontentloaded');
 
 		const signInLink = page.getByRole('link', { name: /sign in/i }).first();
 		if (await signInLink.isVisible()) {
