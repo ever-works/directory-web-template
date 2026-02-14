@@ -22,7 +22,7 @@ test.describe('Public: Tags', () => {
 		await page.waitForLoadState('networkidle');
 
 		const firstTag = page.locator('a[href*="/tags/"]').first();
-		await expect(firstTag).toBeVisible({ timeout: 10_000 });
+		await expect(firstTag).toBeVisible();
 		await firstTag.click();
 
 		await expect(page).toHaveURL(/\/tags\//);

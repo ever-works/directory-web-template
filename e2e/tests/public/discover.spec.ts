@@ -16,7 +16,7 @@ test.describe('Public: Discover / Directory Listing', () => {
 		await discoverPage.navigate(1);
 		await discoverPage.waitForPageReady();
 
-		await expect(discoverPage.itemLinks.first()).toBeVisible({ timeout: 15_000 });
+		await expect(discoverPage.itemLinks.first()).toBeVisible();
 		await discoverPage.clickFirstItem();
 
 		await expect(page).toHaveURL(/\/items\//);

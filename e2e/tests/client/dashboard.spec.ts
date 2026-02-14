@@ -11,7 +11,7 @@ test.describe('Client: Dashboard', () => {
 	test('unauthenticated user is redirected to signin', async ({ page }) => {
 		await page.goto('/client/dashboard');
 
-		await page.waitForURL(/\/auth\/signin/, { timeout: 15_000 });
+		await page.waitForURL(/\/auth\/signin/);
 	});
 
 	test('dashboard displays stats or content area', async ({ clientPage }) => {
@@ -20,6 +20,6 @@ test.describe('Client: Dashboard', () => {
 
 		// Dashboard should have visible content
 		const heading = clientPage.getByRole('heading', { name: /dashboard/i }).first();
-		await expect(heading).toBeVisible({ timeout: 15_000 });
+		await expect(heading).toBeVisible();
 	});
 });

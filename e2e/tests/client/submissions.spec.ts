@@ -19,6 +19,6 @@ test.describe('Client: Submissions', () => {
 	test('unauthenticated user is redirected from submissions', async ({ page }) => {
 		await page.goto('/client/submissions');
 
-		await page.waitForURL(/\/auth\/signin/, { timeout: 15_000 });
+		await page.waitForURL(/\/auth\/signin/);
 	});
 });

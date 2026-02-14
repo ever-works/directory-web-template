@@ -6,7 +6,7 @@ test.describe('Admin: Items Management', () => {
 		const itemsPage = new AdminItemsPage(adminPage);
 		await itemsPage.navigate();
 
-		await expect(itemsPage.heading).toBeVisible({ timeout: 15_000 });
+		await expect(itemsPage.heading).toBeVisible();
 	});
 
 	test('items page displays items list or empty state', async ({ adminPage }) => {
@@ -24,6 +24,6 @@ test.describe('Admin: Items Management', () => {
 		await itemsPage.navigate();
 		await itemsPage.waitForPageReady();
 
-		await expect(itemsPage.addItemButton).toBeVisible({ timeout: 10_000 });
+		await expect(itemsPage.addItemButton).toBeVisible();
 	});
 });

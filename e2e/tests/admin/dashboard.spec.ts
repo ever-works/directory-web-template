@@ -8,7 +8,7 @@ test.describe('Admin: Dashboard', () => {
 
 		await expect(adminPage.locator('body')).toBeVisible();
 		// Admin dashboard should have main content area
-		await expect(dashboard.mainContent).toBeVisible({ timeout: 15_000 });
+		await expect(dashboard.mainContent).toBeVisible();
 	});
 
 	test('admin dashboard displays tab navigation', async ({ adminPage }) => {
@@ -16,7 +16,7 @@ test.describe('Admin: Dashboard', () => {
 		await dashboard.navigate();
 		await dashboard.waitForPageReady();
 
-		await expect(dashboard.tabList).toBeVisible({ timeout: 15_000 });
+		await expect(dashboard.tabList).toBeVisible();
 	});
 
 	test('non-admin client is redirected from admin', async ({ clientPage }) => {
@@ -32,6 +32,6 @@ test.describe('Admin: Dashboard', () => {
 	test('unauthenticated user cannot access admin', async ({ page }) => {
 		await page.goto('/admin');
 
-		await page.waitForURL(/\/(auth\/signin|unauthorized)/, { timeout: 15_000 });
+		await page.waitForURL(/\/(auth\/signin|unauthorized)/);
 	});
 });

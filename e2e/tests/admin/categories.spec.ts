@@ -4,7 +4,7 @@ test.describe('Admin: Categories Management', () => {
 	test('admin can access categories management page', async ({ adminPage }) => {
 		await adminPage.goto('/admin/categories');
 
-		await expect(adminPage.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 });
+		await expect(adminPage.getByRole('heading', { level: 1 })).toBeVisible();
 	});
 
 	test('categories page displays content', async ({ adminPage }) => {

@@ -19,6 +19,6 @@ test.describe('Client: Favorites', () => {
 		await expect(clientPage.locator('body')).toBeVisible();
 		// Should show either favorites list or empty state
 		const heading = clientPage.getByRole('heading').first();
-		await expect(heading).toBeVisible({ timeout: 10_000 });
+		await expect(heading).toBeVisible();
 	});
 });

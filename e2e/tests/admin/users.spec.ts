@@ -4,7 +4,7 @@ test.describe('Admin: User Management', () => {
 	test('admin can access users management page', async ({ adminPage }) => {
 		await adminPage.goto('/admin/users');
 
-		await expect(adminPage.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 });
+		await expect(adminPage.getByRole('heading', { level: 1 })).toBeVisible();
 	});
 
 	test('users page displays content', async ({ adminPage }) => {

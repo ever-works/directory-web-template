@@ -7,7 +7,7 @@ test.describe('Public: Item Detail Page', () => {
 		await page.waitForLoadState('networkidle');
 
 		const firstItem = page.locator('a[href*="/items/"]').first();
-		await expect(firstItem).toBeVisible({ timeout: 15_000 });
+		await expect(firstItem).toBeVisible();
 
 		await firstItem.click();
 		await expect(page).toHaveURL(/\/items\//);
@@ -21,7 +21,7 @@ test.describe('Public: Item Detail Page', () => {
 		await page.waitForLoadState('networkidle');
 
 		const firstItem = page.locator('a[href*="/items/"]').first();
-		await expect(firstItem).toBeVisible({ timeout: 15_000 });
+		await expect(firstItem).toBeVisible();
 		const href = await firstItem.getAttribute('href');
 
 		if (href) {

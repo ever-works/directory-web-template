@@ -22,7 +22,7 @@ test.describe('Public: Categories', () => {
 		await page.waitForLoadState('networkidle');
 
 		const firstCategory = page.locator('a[href*="/categories/"]').first();
-		await expect(firstCategory).toBeVisible({ timeout: 10_000 });
+		await expect(firstCategory).toBeVisible();
 		await firstCategory.click();
 
 		await expect(page).toHaveURL(/\/categories\//);

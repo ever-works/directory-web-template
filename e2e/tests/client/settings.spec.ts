@@ -6,7 +6,7 @@ test.describe('Client: Settings', () => {
 		const settingsPage = new ClientSettingsPage(clientPage);
 		await settingsPage.navigate();
 
-		await expect(settingsPage.heading).toBeVisible({ timeout: 15_000 });
+		await expect(settingsPage.heading).toBeVisible();
 	});
 
 	test('settings page displays settings cards', async ({ clientPage }) => {
@@ -23,6 +23,6 @@ test.describe('Client: Settings', () => {
 	test('unauthenticated user is redirected from settings', async ({ page }) => {
 		await page.goto('/client/settings');
 
-		await page.waitForURL(/\/auth\/signin/, { timeout: 15_000 });
+		await page.waitForURL(/\/auth\/signin/);
 	});
 });
