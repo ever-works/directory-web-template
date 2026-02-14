@@ -11,9 +11,10 @@ export class SignInPage extends BasePage {
 
 	constructor(page: Page) {
 		super(page);
-		this.emailInput = page.locator('#email');
-		this.passwordInput = page.locator('#password');
-		this.submitButton = page.locator('button[type="submit"]');
+		const authForm = page.locator('form').filter({ has: page.locator('#email') });
+		this.emailInput = authForm.locator('#email');
+		this.passwordInput = authForm.locator('#password');
+		this.submitButton = authForm.locator('button[type="submit"]');
 		this.forgotPasswordLink = page.getByRole('link', { name: /forgot password/i });
 		this.errorAlert = page.locator('.bg-red-50').first();
 		this.successAlert = page.locator('.bg-green-50').first();
