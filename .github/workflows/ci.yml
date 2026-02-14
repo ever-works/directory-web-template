@@ -127,3 +127,90 @@ jobs:
             echo "❌ Build failed"
             exit 1
           fi
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-build
+    timeout-minutes: 30
+
+    env:
+      NODE_ENV: test
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/ever_template_test
+      AUTH_SECRET: "ci-e2e-test-secret-at-least-32-characters"
+      COOKIE_SECRET: "ci-e2e-cookie-secret-at-least-32chars"
+      COOKIE_DOMAIN: localhost
+      COOKIE_SECURE: "false"
+      DATA_REPOSITORY: ${{ secrets.DATA_REPOSITORY || '' }}
+      GH_TOKEN: ${{ secrets.GH_TOKEN || '' }}
+      CONTENT_WARNINGS_SILENT: "true"
+      CI: "true"
+      NEXT_PUBLIC_DEMO: "true"
+      SEED_ADMIN_EMAIL: "admin@test.local"
+      SEED_ADMIN_PASSWORD: "TestAdmin123!"
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ever_template_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Create content directories
+        run: mkdir -p .content/data
+
+      - name: Run database migrations
+        run: pnpm db:migrate:cli
+
+      - name: Seed test database
+        run: pnpm db:seed
+
+      - name: Run E2E tests
+        run: pnpm test:e2e:chromium
+
+      - name: Upload Playwright report
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: e2e/playwright-report/
+          retention-days: 14
+
+      - name: Upload Playwright test results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-test-results
+          path: e2e/test-results/
+          retention-days: 14
