@@ -31,6 +31,7 @@ import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { getTenantIdWithFallback } from '@/lib/db/tenant';
+import { createTenantWithOwner } from '@/lib/services/tenant.service';
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -153,13 +154,14 @@ const signUpSchema = z.object({
 	name: z.string().min(2),
 	email: z.string().email(),
 	password: z.string().min(PASSWORD_MIN_LENGTH),
+	organizationName: z.string().min(2).max(100).optional(), // Optional: create own organization
 	authProvider: z.enum(authProviderTypes).default('next-auth'),
 	captchaToken: z.string().optional()
 });
 
 export const signUp = validatedAction(signUpSchema, async (data) => {
 	try {
-		const { name, email, password } = data;
+		const { name, email, password, organizationName } = data;
 		const normalizedEmail = email.toLowerCase().trim();
 
 		// Rate limiting check (by email to prevent spam registrations)
@@ -169,11 +171,14 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
 		}
 
+		// Get default tenant for email duplicate check
+		const defaultTenantId = await getTenantIdWithFallback();
+
 		// OPTIMIZATION 1: Parallelize password hashing with duplicate email check
 		// hashPassword is CPU-bound (~100ms), checking for existing user is I/O-bound
 		const [passwordHash, existingUser] = await Promise.all([
 			hashPassword(password),
-			getUserByEmail(normalizedEmail, await getTenantIdWithFallback()).catch(() => null)
+			getUserByEmail(normalizedEmail, defaultTenantId).catch(() => null)
 		]);
 
 		// Fail fast if email already exists
@@ -184,8 +189,9 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 			};
 		}
 
-		// Get default tenant for new user registration
-		const tenantId = await getTenantIdWithFallback();
+		// Determine tenant: create new org if organizationName provided, otherwise use default
+		let tenantId = defaultTenantId;
+		let createdOrganization = false;
 
 		// Handle Supabase auth if needed (after duplicate check to avoid unnecessary calls)
 		const authService = authServiceFactory(data.authProvider);
@@ -201,19 +207,36 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		// - clientProfiles insert (with username retry)
 		// - accounts insert (was createClientAccount)
 		// - verificationTokens cleanup + insert (was generateVerificationToken)
+		// - (optionally) tenant creation with owner role
 		const result = await db.transaction(async (tx) => {
-			// 1) Create user record
+			// 1) Create user record first (in default tenant initially)
 			const userId = crypto.randomUUID();
 			const [user] = await tx
 				.insert(users)
 				.values({
 					id: userId,
 					email: normalizedEmail,
-					tenantId
+					tenantId: defaultTenantId // Start with default, may be updated if org is created
 				})
 				.returning();
 
-			// 2) Create client profile with unique username
+			// 2) If organizationName provided, create new tenant and assign user as owner
+			if (organizationName && organizationName.trim()) {
+				try {
+					const orgResult = await createTenantWithOwner(userId, {
+						name: organizationName.trim(),
+						description: `Organization created by ${name}`
+					});
+					tenantId = orgResult.tenant.id;
+					createdOrganization = true;
+					console.log(`[SignUp] Created organization "${organizationName}" for user ${normalizedEmail}`);
+				} catch (orgError) {
+					console.error('[SignUp] Failed to create organization:', orgError);
+					// Continue with default tenant if org creation fails
+				}
+			}
+
+			// 3) Create client profile with unique username
 			const extractedUsername = normalizedEmail.split('@')[0] || 'user';
 			const base = (extractedUsername.replace(/[^a-z0-9_]/gi, '').toLowerCase() || 'user').slice(0, 30);
 

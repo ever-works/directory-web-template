@@ -232,6 +232,13 @@
       "when": 1770487131681,
       "tag": "0032_many_random",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1770580859774,
+      "tag": "0033_regular_paper_doll",
+      "breakpoints": true
     }
   ]
 }

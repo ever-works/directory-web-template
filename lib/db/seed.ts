@@ -113,6 +113,7 @@ export async function runSeed(): Promise<void> {
 				.values({
 					id: 'default-tenant',
 					name: 'Default Tenant',
+					slug: 'default',
 					description: 'Default tenant for single-tenant mode'
 				})
 				.onConflictDoNothing();

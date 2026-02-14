@@ -24,12 +24,21 @@ export const tenants = pgTable(
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
 		name: text('name').notNull(),
+		slug: text('slug').notNull(), // URL-friendly unique identifier
+		ownerId: text('owner_id'), // User who created the organization (nullable for default tenant)
 		description: text('description'),
+		settings: jsonb('settings').$type<{
+			allowSignup?: boolean;
+			maxMembers?: number;
+			features?: string[];
+		}>(),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow()
 	},
 	(table) => ({
-		createdAtIndex: index('tenants_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('tenants_created_at_idx').on(table.createdAt),
+		slugUniqueIndex: uniqueIndex('tenants_slug_unique_idx').on(table.slug),
+		ownerIndex: index('tenants_owner_idx').on(table.ownerId)
 	})
 );
 
@@ -351,6 +360,41 @@ export const activityLogs = pgTable(
 		index('activity_logs_tenant_idx').on(table.tenantId)
 	]
 );
+
+// ######################### Tenant Invitations Schema #########################
+export const tenantInvitations = pgTable(
+	'tenant_invitations',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		tenantId: text('tenant_id')
+			.notNull()
+			.references(() => tenants.id, { onDelete: 'cascade' }),
+		email: text('email').notNull(),
+		roleId: text('role_id').references(() => roles.id, { onDelete: 'set null' }),
+		invitedBy: text('invited_by')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		token: text('token').notNull().unique(),
+		status: text('status', { enum: ['pending', 'accepted', 'expired', 'cancelled'] })
+			.notNull()
+			.default('pending'),
+		expiresAt: timestamp('expires_at', { mode: 'date' }).notNull(),
+		acceptedAt: timestamp('accepted_at', { mode: 'date' }),
+		createdAt: timestamp('created_at').notNull().defaultNow()
+	},
+	(table) => ({
+		emailTenantIndex: index('invitations_email_tenant_idx').on(table.email, table.tenantId),
+		tokenIndex: uniqueIndex('invitations_token_unique_idx').on(table.token),
+		statusIndex: index('invitations_status_idx').on(table.status),
+		invitedByIndex: index('invitations_invited_by_idx').on(table.invitedBy),
+		expiresAtIndex: index('invitations_expires_at_idx').on(table.expiresAt)
+	})
+);
+
+export type TenantInvitation = typeof tenantInvitations.$inferSelect;
+export type NewTenantInvitation = typeof tenantInvitations.$inferInsert;
 
 export const passwordResetTokens = pgTable(
 	'passwordResetTokens',

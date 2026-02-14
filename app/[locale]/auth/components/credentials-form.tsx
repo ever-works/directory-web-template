@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { signInAction, signUp } from '../actions';
 import { ActionState } from '@/lib/auth/middleware';
 import { PropsWithChildren, useActionState, useEffect, useState, useTransition } from 'react';
-import { User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Mail, Eye, EyeOff, Building } from 'lucide-react';
 import { Button, cn } from '@heroui/react';
 import { useConfig } from '../../config';
 import { useTranslations, useLocale } from 'next-intl';
@@ -299,6 +299,32 @@ export function CredentialsForm({
 					aria-label={isLogin ? t('SIGN_IN') : t('CREATE_ACCOUNT')}
 				>
 					{/* Name field (signup only) */}
+					{/* Organization Name field (signup only) */}
+					{!isLogin && (
+						<div className="space-y-2">
+							<label
+								htmlFor="organizationName"
+								className="block text-sm font-semibold text-gray-700 dark:text-gray-200"
+							>
+								{t('ORGANIZATION_NAME')}
+							</label>
+							<div className="relative group">
+								<div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+									<Building className="h-4 w-4 text-gray-400 group-focus-within:text-theme-primary transition-colors" />
+								</div>
+								<input
+									id="organizationName"
+									type="text"
+									className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary placeholder:text-gray-400"
+									placeholder={t('ENTER_ORGANIZATION_NAME')}
+									name="organizationName"
+									defaultValue={state?.organizationName}
+									autoComplete="organization"
+								/>
+							</div>
+						</div>
+					)}
+
 					{!isLogin && (
 						<div className="space-y-2">
 							<label

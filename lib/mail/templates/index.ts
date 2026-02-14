@@ -12,3 +12,4 @@ export { getPasswordChangeConfirmationTemplate } from './password-change-confirm
 export { getAccountCreatedTemplate } from './account-created';
 export { getEmailVerificationTemplate } from './email-verification';
 export { getRenewalReminderTemplate } from './subscription-renewal-reminder';
+export { getInvitationEmailTemplate } from './invitation';

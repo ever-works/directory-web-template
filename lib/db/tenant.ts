@@ -56,6 +56,7 @@ export async function getOrCreateDefaultTenant(): Promise<string> {
 			.values({
 				id: DEFAULT_TENANT_ID,
 				name: DEFAULT_TENANT_NAME,
+				slug: 'default',
 				description: 'Default organization for single-tenant deployment'
 			})
 			.returning({ id: tenants.id });
