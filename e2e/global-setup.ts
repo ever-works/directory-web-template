@@ -22,9 +22,10 @@ async function globalSetup(config: FullConfig) {
 		const adminPage = await adminContext.newPage();
 
 		await adminPage.goto(`${baseURL}/auth/signin`, { timeout: 60_000 });
-		await adminPage.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
-		await adminPage.locator('#password').fill(TEST_DATA.ADMIN_PASSWORD);
-		await adminPage.locator('button[type="submit"]').click();
+		const adminForm = adminPage.locator('form').filter({ has: adminPage.locator('#email') });
+		await adminForm.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
+		await adminForm.locator('#password').fill(TEST_DATA.ADMIN_PASSWORD);
+		await adminForm.locator('button[type="submit"]').click();
 		await adminPage.waitForURL(/\/(admin|client\/dashboard)/, { timeout: 60_000 });
 
 		await adminContext.storageState({ path: adminStatePath });
@@ -42,10 +43,11 @@ async function globalSetup(config: FullConfig) {
 
 		const clientEmail = TEST_DATA.generateClientEmail();
 		await clientPage.goto(`${baseURL}/auth/register`, { timeout: 60_000 });
-		await clientPage.locator('#name').fill('E2E Test Client');
-		await clientPage.locator('#email').fill(clientEmail);
-		await clientPage.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
-		await clientPage.locator('button[type="submit"]').click();
+		const clientForm = clientPage.locator('form').filter({ has: clientPage.locator('#email') });
+		await clientForm.locator('#name').fill('E2E Test Client');
+		await clientForm.locator('#email').fill(clientEmail);
+		await clientForm.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
+		await clientForm.locator('button[type="submit"]').click();
 		await clientPage.waitForURL(/\/client\/dashboard/, { timeout: 60_000 });
 
 		await clientContext.storageState({ path: clientStatePath });
