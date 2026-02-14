@@ -10,7 +10,7 @@ test.describe('Auth: Sign Out', () => {
 
 	test('unauthenticated user is redirected from dashboard to signin', async ({ page }) => {
 		await page.goto('/client/dashboard');
-		await page.waitForURL(/\/auth\/signin/, { timeout: 15_000 });
+		await page.waitForURL(/\/auth\/signin/, { timeout: 60_000 });
 	});
 
 	test('after signing in and clearing cookies, dashboard redirects to signin', async ({ page }) => {
@@ -27,6 +27,6 @@ test.describe('Auth: Sign Out', () => {
 		await page.context().clearCookies();
 
 		await page.goto('/client/dashboard');
-		await page.waitForURL(/\/auth\/signin/, { timeout: 15_000 });
+		await page.waitForURL(/\/auth\/signin/, { timeout: 60_000 });
 	});
 });

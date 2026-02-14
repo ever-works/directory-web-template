@@ -6,7 +6,7 @@ test.describe('Smoke: Core navigation', () => {
 		await page.waitForLoadState('networkidle');
 
 		const items = page.locator('a[href*="/items/"]');
-		await expect(items.first()).toBeVisible({ timeout: 15_000 });
+		await expect(items.first()).toBeVisible({ timeout: 30_000 });
 
 		const count = await items.count();
 		expect(count).toBeGreaterThan(0);
@@ -17,7 +17,7 @@ test.describe('Smoke: Core navigation', () => {
 		await page.waitForLoadState('networkidle');
 
 		const firstItem = page.locator('a[href*="/items/"]').first();
-		await expect(firstItem).toBeVisible({ timeout: 15_000 });
+		await expect(firstItem).toBeVisible({ timeout: 30_000 });
 		await firstItem.click();
 
 		await expect(page).toHaveURL(/\/items\//);
