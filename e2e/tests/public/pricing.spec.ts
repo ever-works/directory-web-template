@@ -2,22 +2,20 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Public: Pricing', () => {
 	test('pricing page loads successfully', async ({ page }) => {
-		const response = await page.goto('/pricing');
+		const response = await page.goto('/pricing', { waitUntil: 'domcontentloaded' });
 
 		expect(response?.status()).toBeLessThan(400);
 		await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 	});
 
 	test('pricing page displays plan options', async ({ page }) => {
-		await page.goto('/pricing');
-		await page.waitForLoadState('domcontentloaded');
+		await page.goto('/pricing', { waitUntil: 'domcontentloaded' });
 
 		await expect(page.locator('body')).toBeVisible();
 	});
 
 	test('billing interval toggle is visible', async ({ page }) => {
-		await page.goto('/pricing');
-		await page.waitForLoadState('domcontentloaded');
+		await page.goto('/pricing', { waitUntil: 'domcontentloaded' });
 
 		// Look for monthly/yearly toggle buttons
 		const monthlyButton = page.getByRole('button', { name: /monthly/i }).first();

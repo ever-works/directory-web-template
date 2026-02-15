@@ -15,7 +15,7 @@ export class SignInPage extends BasePage {
 		this.emailInput = authForm.locator('#email');
 		this.passwordInput = authForm.locator('#password');
 		this.submitButton = page.getByRole('button', { name: /sign in/i });
-		this.forgotPasswordLink = page.locator('a[href*="forgot-password"]');
+		this.forgotPasswordLink = authForm.locator('a[href*="forgot-password"]');
 		this.errorAlert = page.locator('.bg-red-50').first();
 		this.successAlert = page.locator('.bg-green-50').first();
 	}

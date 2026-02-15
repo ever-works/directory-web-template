@@ -9,7 +9,7 @@ const LEGAL_PAGES = [
 test.describe('Public: Legal Pages', () => {
 	for (const legalPage of LEGAL_PAGES) {
 		test(`${legalPage.name} page loads with content`, async ({ page }) => {
-			const response = await page.goto(legalPage.path);
+			const response = await page.goto(legalPage.path, { waitUntil: 'domcontentloaded' });
 
 			expect(response?.status()).toBeLessThan(400);
 			await expect(page.locator('body')).toBeVisible();

@@ -18,7 +18,7 @@ test.describe('Auth: Sign In', () => {
 
 		await signInPage.signIn('nonexistent@test.local', 'WrongPassword123!');
 
-		await expect(signInPage.errorAlert).toBeVisible({ timeout: 10_000 });
+		await expect(signInPage.errorAlert).toBeVisible();
 	});
 
 	test('successful admin login redirects to admin or dashboard', async ({ page }) => {

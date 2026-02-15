@@ -20,8 +20,7 @@ test.describe('Admin: Dashboard', () => {
 	});
 
 	test('non-admin client is redirected from admin', async ({ clientPage }) => {
-		await clientPage.goto('/admin');
-		await clientPage.waitForLoadState('domcontentloaded');
+		await clientPage.goto('/admin', { waitUntil: 'domcontentloaded' });
 
 		// Non-admin should be redirected to unauthorized or signin
 		const url = clientPage.url();
@@ -30,7 +29,7 @@ test.describe('Admin: Dashboard', () => {
 	});
 
 	test('unauthenticated user cannot access admin', async ({ page }) => {
-		await page.goto('/admin');
+		await page.goto('/admin', { waitUntil: 'domcontentloaded' });
 
 		await page.waitForURL(/\/(auth\/signin|unauthorized)/);
 	});

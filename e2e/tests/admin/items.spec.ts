@@ -15,7 +15,7 @@ test.describe('Admin: Items Management', () => {
 		await itemsPage.waitForPageReady();
 
 		// Should have either items or an empty state message
-		const content = adminPage.locator('main, [role="main"], body');
+		const content = adminPage.locator('main').first();
 		await expect(content).toBeVisible();
 	});
 

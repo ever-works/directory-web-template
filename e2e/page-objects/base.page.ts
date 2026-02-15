@@ -14,16 +14,16 @@ export class BasePage {
 	}
 
 	async goto(path: string) {
-		await this.page.goto(path);
+		await this.page.goto(path, { waitUntil: 'domcontentloaded' });
 	}
 
 	async gotoLocalized(path: string, locale: string) {
 		const prefix = locale === 'en' ? '' : `/${locale}`;
-		await this.page.goto(`${prefix}${path}`);
+		await this.page.goto(`${prefix}${path}`, { waitUntil: 'domcontentloaded' });
 	}
 
 	async waitForPageReady() {
-		await this.page.waitForLoadState('networkidle');
+		await this.page.waitForLoadState('domcontentloaded');
 	}
 
 	async getTitle(): Promise<string> {

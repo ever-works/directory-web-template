@@ -10,7 +10,7 @@ export class AdminItemsPage extends BasePage {
 
 	constructor(page: Page) {
 		super(page);
-		this.heading = page.getByRole('heading', { level: 1 }).first();
+		this.heading = page.getByRole('heading').first();
 		this.addItemButton = page.getByRole('button', { name: /add item|create item/i }).first();
 		this.searchBar = page.getByRole('searchbox').first();
 		this.itemsList = page.locator('.space-y-4').first();

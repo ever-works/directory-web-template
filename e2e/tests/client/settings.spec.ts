@@ -21,7 +21,7 @@ test.describe('Client: Settings', () => {
 	});
 
 	test('unauthenticated user is redirected from settings', async ({ page }) => {
-		await page.goto('/client/settings');
+		await page.goto('/client/settings', { waitUntil: 'domcontentloaded' });
 
 		await page.waitForURL(/\/auth\/signin/);
 	});

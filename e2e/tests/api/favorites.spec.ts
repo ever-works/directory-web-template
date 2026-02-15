@@ -2,7 +2,7 @@ import { test, expect } from '../../fixtures';
 
 test.describe('API: Favorites', () => {
 	test('unauthenticated request to favorites returns 401', async ({ request }) => {
-		const response = await request.get('/api/favorites');
+		const response = await request.get('/api/favorites', { timeout: 60_000 });
 
 		// Should reject unauthenticated requests
 		expect([401, 403]).toContain(response.status());

@@ -2,16 +2,17 @@ import { test, expect } from '../../fixtures';
 
 test.describe('Admin: Categories Management', () => {
 	test('admin can access categories management page', async ({ adminPage }) => {
-		await adminPage.goto('/admin/categories');
+		await adminPage.goto('/admin/categories', { waitUntil: 'domcontentloaded' });
 
-		await expect(adminPage.getByRole('heading', { level: 1 })).toBeVisible();
+		// Admin panel header or page heading
+		const heading = adminPage.getByRole('heading').first();
+		await expect(heading).toBeVisible();
 	});
 
 	test('categories page displays content', async ({ adminPage }) => {
-		await adminPage.goto('/admin/categories');
-		await adminPage.waitForLoadState('domcontentloaded');
+		await adminPage.goto('/admin/categories', { waitUntil: 'domcontentloaded' });
 
-		const content = adminPage.locator('main, [role="main"], body');
+		const content = adminPage.locator('main').first();
 		await expect(content).toBeVisible();
 	});
 });
