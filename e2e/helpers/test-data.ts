@@ -1,6 +1,6 @@
 export const TEST_DATA = {
-	ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL ?? 'admin@changeme.com',
-	ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD ?? 'changeme_password',
+	ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com',
+	ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD ?? 'test@example.com',
 	CLIENT_PASSWORD: 'TestClient123!',
 	generateClientEmail: () => `e2e-client-${Date.now()}@test.local`,
 } as const;

@@ -4,12 +4,12 @@ import { SignInPage } from '../../page-objects/auth/signin.page';
 
 test.describe('Auth: Sign Out', () => {
 	test('authenticated client can access dashboard', async ({ clientPage }) => {
-		await clientPage.goto('/client/dashboard');
+		await clientPage.goto('/client/dashboard', { waitUntil: 'domcontentloaded' });
 		await expect(clientPage).toHaveURL(/\/client\/dashboard/);
 	});
 
 	test('unauthenticated user is redirected from dashboard to signin', async ({ page }) => {
-		await page.goto('/client/dashboard');
+		await page.goto('/client/dashboard', { waitUntil: 'domcontentloaded' });
 		await page.waitForURL(/\/auth\/signin/, { timeout: 60_000 });
 	});
 
@@ -26,7 +26,7 @@ test.describe('Auth: Sign Out', () => {
 		// Clear all cookies to simulate sign-out
 		await page.context().clearCookies();
 
-		await page.goto('/client/dashboard');
+		await page.goto('/client/dashboard', { waitUntil: 'domcontentloaded' });
 		await page.waitForURL(/\/auth\/signin/, { timeout: 60_000 });
 	});
 });
