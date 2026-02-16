@@ -14,7 +14,8 @@ export const TEST_DATA = {
 		return requireEnv('SEED_ADMIN_PASSWORD');
 	},
 	CLIENT_PASSWORD: 'TestClient123!',
-	generateClientEmail: () => `e2e-client-${Date.now()}@test.local`,
+	generateClientEmail: () =>
+		`e2e-client-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`,
 };
 
 export const REQUIRED_ENV_VARS = ['SEED_ADMIN_EMAIL', 'SEED_ADMIN_PASSWORD'] as const;

@@ -37,9 +37,8 @@ test.describe('Smoke: Core navigation', () => {
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
 
 		const signInLink = page.getByRole('link', { name: /sign in/i }).first();
-		if (await signInLink.isVisible()) {
-			await signInLink.click();
-			await expect(page).toHaveURL(/\/auth\/signin/);
-		}
+		await expect(signInLink).toBeVisible();
+		await signInLink.click();
+		await expect(page).toHaveURL(/\/auth\/signin/);
 	});
 });
