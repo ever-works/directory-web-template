@@ -1,6 +1,14 @@
+function requireEnv(name: string): string {
+	const value = process.env[name];
+	if (!value) {
+		throw new Error(`Missing required environment variable: ${name}. Set it in .env.local`);
+	}
+	return value;
+}
+
 export const TEST_DATA = {
-	ADMIN_EMAIL: process.env.SEED_ADMIN_EMAIL ?? 'admin@example.com',
-	ADMIN_PASSWORD: process.env.SEED_ADMIN_PASSWORD ?? 'test@example.com',
+	ADMIN_EMAIL: requireEnv('SEED_ADMIN_EMAIL'),
+	ADMIN_PASSWORD: requireEnv('SEED_ADMIN_PASSWORD'),
 	CLIENT_PASSWORD: 'TestClient123!',
 	generateClientEmail: () => `e2e-client-${Date.now()}@test.local`,
 } as const;
