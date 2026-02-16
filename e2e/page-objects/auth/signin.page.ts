@@ -27,7 +27,7 @@ export class SignInPage extends BasePage {
 	async signIn(email: string, password: string) {
 		await this.emailInput.fill(email);
 		await this.passwordInput.fill(password);
-		await this.submitButton.click();
+		await this.passwordInput.press('Enter');
 	}
 
 	async signInAndWaitForRedirect(email: string, password: string, expectedUrl: string | RegExp) {
