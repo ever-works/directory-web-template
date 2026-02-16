@@ -18,6 +18,6 @@ export class AdminDashboardPage extends BasePage {
 	}
 
 	async selectTab(tabName: string) {
-		await this.tabList.getByRole('tab', { name: new RegExp(tabName, 'i') }).click();
+		await this.tabList.getByRole('tab', { name: tabName, exact: false }).click();
 	}
 }

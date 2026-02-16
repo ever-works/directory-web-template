@@ -12,7 +12,9 @@ test.describe('API: Favorites', () => {
 		const request = clientContext.request;
 		const response = await request.get('/api/favorites');
 
-		// Authenticated request should succeed (200) or return empty array
+		// Authenticated request should succeed — not 401/403
+		expect(response.status()).not.toBe(401);
+		expect(response.status()).not.toBe(403);
 		expect(response.status()).toBeLessThan(500);
 	});
 });
