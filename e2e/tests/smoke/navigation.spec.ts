@@ -21,8 +21,7 @@ test.describe('Smoke: Core navigation', () => {
 		const href = await firstItem.getAttribute('href');
 		await firstItem.click();
 
-		// Wait for navigation to the item detail page
-		await page.waitForURL(/\/items\//, { timeout: 60_000, waitUntil: 'domcontentloaded' });
+		await page.waitForURL(/\/items\//, { waitUntil: 'domcontentloaded' });
 		await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	});
 

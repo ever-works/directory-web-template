@@ -19,22 +19,18 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#name').fill('E2E Registration Test');
 		await page.locator('#email').fill(uniqueEmail);
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
-
-		// Submit via Enter key (button click doesn't trigger React server action reliably)
 		await page.locator('#password').press('Enter');
 
 		await page.waitForURL(/\/client\/dashboard/, { timeout: 120_000, waitUntil: 'domcontentloaded' });
 	});
 
 	test('shows error when using existing email', async ({ page }) => {
-		test.setTimeout(90_000);
+		test.setTimeout(60_000);
 		await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
 
 		await page.locator('#name').fill('Duplicate User');
 		await page.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
-
-		// Submit via Enter key (button click doesn't trigger React server action reliably)
 		await page.locator('#password').press('Enter');
 
 		const errorAlert = page.locator('.bg-red-50, [role="alert"]').first();
