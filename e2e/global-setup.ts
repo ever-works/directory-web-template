@@ -1,9 +1,40 @@
 import { chromium, type FullConfig } from '@playwright/test';
+import { createInterface } from 'readline/promises';
 import path from 'path';
 import fs from 'fs';
-import { TEST_DATA, ADMIN_STATE_FILE, CLIENT_STATE_FILE, AUTH_STATE_DIR } from './helpers/test-data';
+import {
+	TEST_DATA,
+	ADMIN_STATE_FILE,
+	CLIENT_STATE_FILE,
+	AUTH_STATE_DIR,
+	REQUIRED_ENV_VARS,
+} from './helpers/test-data';
+
+async function promptForMissingEnv(): Promise<void> {
+	const missing = REQUIRED_ENV_VARS.filter((name) => !process.env[name]);
+	if (missing.length === 0) return;
+
+	if (process.env.CI) {
+		throw new Error(`Missing required environment variables in CI: ${missing.join(', ')}`);
+	}
+
+	const rl = createInterface({ input: process.stdin, output: process.stdout });
+	try {
+		for (const name of missing) {
+			const answer = await rl.question(`[global-setup] Enter ${name}: `);
+			if (!answer.trim()) {
+				throw new Error(`${name} cannot be empty`);
+			}
+			process.env[name] = answer.trim();
+		}
+	} finally {
+		rl.close();
+	}
+}
 
 async function globalSetup(config: FullConfig) {
+	await promptForMissingEnv();
+
 	const baseURL = config.projects[0]?.use?.baseURL ?? 'http://localhost:3000';
 
 	const authStatesDir = path.resolve(__dirname, AUTH_STATE_DIR);

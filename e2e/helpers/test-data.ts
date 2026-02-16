@@ -7,11 +7,17 @@ function requireEnv(name: string): string {
 }
 
 export const TEST_DATA = {
-	ADMIN_EMAIL: requireEnv('SEED_ADMIN_EMAIL'),
-	ADMIN_PASSWORD: requireEnv('SEED_ADMIN_PASSWORD'),
+	get ADMIN_EMAIL(): string {
+		return requireEnv('SEED_ADMIN_EMAIL');
+	},
+	get ADMIN_PASSWORD(): string {
+		return requireEnv('SEED_ADMIN_PASSWORD');
+	},
 	CLIENT_PASSWORD: 'TestClient123!',
 	generateClientEmail: () => `e2e-client-${Date.now()}@test.local`,
-} as const;
+};
+
+export const REQUIRED_ENV_VARS = ['SEED_ADMIN_EMAIL', 'SEED_ADMIN_PASSWORD'] as const;
 
 export const PUBLIC_ROUTES = [
 	{ path: '/', name: 'Home' },
