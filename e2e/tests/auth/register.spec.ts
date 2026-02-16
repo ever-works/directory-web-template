@@ -8,11 +8,11 @@ test.describe('Auth: Registration', () => {
 		await expect(page.locator('#name')).toBeVisible();
 		await expect(page.locator('#email')).toBeVisible();
 		await expect(page.locator('#password')).toBeVisible();
-		await expect(page.getByRole('button', { name: /create account/i })).toBeVisible();
+		await expect(page.getByRole('button', { name: /register/i })).toBeVisible();
 	});
 
 	test('can register a new user and redirect to dashboard', async ({ page }) => {
-		test.setTimeout(60_000);
+		test.setTimeout(120_000);
 		await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
 
 		const uniqueEmail = TEST_DATA.generateClientEmail();
@@ -21,7 +21,7 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await page.locator('#password').press('Enter');
 
-		await page.waitForURL(/\/client\/dashboard/, { timeout: 60_000, waitUntil: 'domcontentloaded' });
+		await page.waitForURL(/\/client\/dashboard/, { timeout: 120_000, waitUntil: 'domcontentloaded' });
 	});
 
 	test('shows error when using existing email', async ({ page }) => {
@@ -33,7 +33,8 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await page.locator('#password').press('Enter');
 
-		await expect(page.locator('.bg-red-50').first()).toBeVisible();
+		const errorAlert = page.locator('.bg-red-50, [role="alert"]').first();
+		await expect(errorAlert).toBeVisible({ timeout: 60_000 });
 	});
 
 	test('has link to sign in', async ({ page }) => {

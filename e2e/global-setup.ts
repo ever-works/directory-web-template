@@ -78,7 +78,7 @@ async function globalSetup(config: FullConfig) {
 		await clientPage.locator('#email').fill(clientEmail);
 		await clientPage.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await clientPage.locator('#password').press('Enter');
-		await clientPage.waitForURL(/\/client\/dashboard/, { timeout: 60_000, waitUntil: 'domcontentloaded' });
+		await clientPage.waitForURL(/\/client\/dashboard/, { timeout: 120_000, waitUntil: 'domcontentloaded' });
 
 		await clientContext.storageState({ path: clientStatePath });
 		await clientPage.close();

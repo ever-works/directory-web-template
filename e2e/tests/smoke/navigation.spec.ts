@@ -16,6 +16,9 @@ test.describe('Smoke: Core navigation', () => {
 
 		const firstItem = page.locator('a[href*="/items/"]').first();
 		await expect(firstItem).toBeVisible({ timeout: 30_000 });
+
+		// Get the href before clicking to wait for the exact URL
+		const href = await firstItem.getAttribute('href');
 		await firstItem.click();
 
 		await page.waitForURL(/\/items\//, { waitUntil: 'domcontentloaded' });
