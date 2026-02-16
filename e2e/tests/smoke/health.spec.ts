@@ -6,7 +6,8 @@ test.describe('Smoke: Public pages health check', () => {
 		test(`${route.name} page loads (${route.path})`, async ({ page }) => {
 			const response = await page.goto(route.path, { waitUntil: 'domcontentloaded' });
 
-			expect(response?.status()).toBeLessThan(400);
+			expect(response, `Navigation to ${route.path} returned null`).not.toBeNull();
+			expect(response!.status()).toBeLessThan(400);
 			await expect(page.locator('body')).toBeVisible();
 		});
 	}

@@ -63,7 +63,8 @@ async function globalSetup(config: FullConfig) {
 		await adminContext.close();
 		console.log('[global-setup] Admin auth state saved');
 	} catch (error) {
-		console.warn('[global-setup] Failed to create admin auth state:', error);
+		await browser.close();
+		throw new Error(`[global-setup] Failed to create admin auth state: ${error}`);
 	}
 
 	// Generate client auth state
@@ -84,7 +85,8 @@ async function globalSetup(config: FullConfig) {
 		await clientContext.close();
 		console.log('[global-setup] Client auth state saved');
 	} catch (error) {
-		console.warn('[global-setup] Failed to create client auth state:', error);
+		await browser.close();
+		throw new Error(`[global-setup] Failed to create client auth state: ${error}`);
 	}
 
 	await browser.close();
