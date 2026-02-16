@@ -21,11 +21,11 @@ test.describe('Public: Item Detail Page', () => {
 		const firstItem = page.locator('a[href*="/items/"]').first();
 		await expect(firstItem).toBeVisible();
 		const href = await firstItem.getAttribute('href');
+		expect(href, 'Item link should have an href attribute').toBeTruthy();
 
-		if (href) {
-			const response = await page.goto(href, { waitUntil: 'domcontentloaded' });
-			expect(response?.status()).toBeLessThan(400);
-			await expect(page.locator('body')).toBeVisible();
-		}
+		const response = await page.goto(href!, { waitUntil: 'domcontentloaded' });
+		expect(response, `Navigation to ${href} returned null`).not.toBeNull();
+		expect(response!.status()).toBeLessThan(400);
+		await expect(page.locator('body')).toBeVisible();
 	});
 });

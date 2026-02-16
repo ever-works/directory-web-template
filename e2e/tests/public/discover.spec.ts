@@ -28,12 +28,11 @@ test.describe('Public: Discover / Directory Listing', () => {
 		await discoverPage.waitForPageReady();
 
 		const itemCount = await discoverPage.getItemCount();
-		if (itemCount > 0) {
-			const page2Link = page.locator('a[href*="/discover/2"]');
-			if (await page2Link.isVisible()) {
-				await page2Link.click();
-				await expect(page).toHaveURL(/\/discover\/2/);
-			}
-		}
+		test.skip(itemCount === 0, 'No items available to test pagination');
+
+		const page2Link = page.locator('a[href*="/discover/2"]');
+		await expect(page2Link).toBeVisible();
+		await page2Link.click();
+		await expect(page).toHaveURL(/\/discover\/2/);
 	});
 });

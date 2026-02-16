@@ -22,9 +22,8 @@ test.describe('Public: Pricing', () => {
 		const yearlyButton = page.getByRole('button', { name: /yearly|annual/i }).first();
 
 		// At least one billing toggle should be visible if pricing plans exist
-		const hasToggle = (await monthlyButton.isVisible()) || (await yearlyButton.isVisible());
-		if (hasToggle) {
-			await expect(monthlyButton).toBeVisible();
-		}
+		const monthlyVisible = await monthlyButton.isVisible();
+		const yearlyVisible = await yearlyButton.isVisible();
+		expect(monthlyVisible || yearlyVisible).toBeTruthy();
 	});
 });
