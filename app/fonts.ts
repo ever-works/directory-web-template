@@ -1,5 +1,4 @@
-import { Geist, Geist_Mono } from 'next/font/google';
-import { Poppins, Open_Sans, Noto_Sans_SC, Noto_Sans_JP, Noto_Sans_KR, Noto_Sans_Arabic, Noto_Sans_Thai } from 'next/font/google';
+import { Geist, Geist_Mono, Poppins, Open_Sans, Noto_Sans_SC, Noto_Sans_JP, Noto_Sans_KR, Noto_Sans_Arabic, Noto_Sans_Thai } from 'next/font/google';
 
 // ── Base fonts (always loaded, preloaded by default) ──────────────────────────
 
