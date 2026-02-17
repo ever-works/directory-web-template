@@ -59,6 +59,37 @@ export async function getCommentById(id: string) {
 }
 
 /**
+ * Get comment by ID with user information
+ * @param id - Comment ID
+ * @returns Comment with user details or undefined
+ */
+export async function getCommentWithUserById(id: string): Promise<CommentWithUser | undefined> {
+  const results = await db
+    .select({
+      id: comments.id,
+      content: comments.content,
+      rating: comments.rating,
+      userId: comments.userId,
+      itemId: comments.itemId,
+      createdAt: comments.createdAt,
+      updatedAt: comments.updatedAt,
+      editedAt: comments.editedAt,
+      deletedAt: comments.deletedAt,
+      user: {
+        id: clientProfiles.id,
+        name: clientProfiles.name,
+        email: clientProfiles.email,
+        image: clientProfiles.avatar
+      }
+    })
+    .from(comments)
+    .innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+    .where(eq(comments.id, id))
+    .limit(1);
+  return results[0];
+}
+
+/**
  * Update comment content and/or rating
  * @param id - Comment ID
  * @param data - Updated content and/or rating

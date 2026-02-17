@@ -49,7 +49,7 @@ export function useImageValidation() {
 			}
 
 			return { isValid: true };
-		} catch (error) {
+		} catch (_error) {
 			return {
 				isValid: false,
 				error: 'Invalid URL format'

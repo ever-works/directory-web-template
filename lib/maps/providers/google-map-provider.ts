@@ -452,7 +452,7 @@ export class GoogleMapProvider implements IMapProvider {
 				await importLibrary('places');
 
 				googleMapsLoaded = true;
-			} catch (err) {
+			} catch (_err) {
 				loadingPromise = null;
 				throw new Error('Failed to load Google Maps library');
 			}

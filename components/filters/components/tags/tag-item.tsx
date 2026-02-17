@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, memo } from "react";
 import { Button, cn } from "@heroui/react";
 import { Link } from "@/i18n/navigation";
 import Image from "next/image";
@@ -10,7 +10,7 @@ import { formatDisplayName } from "../../utils/text-utils";
 /**
  * Individual tag item component
  */
-export function TagItem({ tag, isActive, href, showCount = true }: TagItemProps) {
+export const TagItem = memo(function TagItem({ tag, isActive, href, showCount = true }: TagItemProps) {
   const [hovered, setHovered] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
@@ -116,4 +116,4 @@ export function TagItem({ tag, isActive, href, showCount = true }: TagItemProps)
       }
     </>
   );
-}
+});

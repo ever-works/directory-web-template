@@ -5,7 +5,7 @@ import type { SubmitResponseData, ResponseFilters } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 
-const logger = Logger.create('SurveyResponsesAPI');
+const _logger = Logger.create('SurveyResponsesAPI');
 
 /**
  * @swagger

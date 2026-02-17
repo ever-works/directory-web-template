@@ -26,7 +26,7 @@ export function ItemCTAButton({ action = 'visit-website', sourceUrl, itemSlug }:
 
 	const loadFirstSurvey = useCallback(async () => {
 		if (!itemSlug) return;
-		
+
 		setLoading(true);
 		try {
 			const result = await surveyApiClient.getMany({
@@ -71,10 +71,10 @@ export function ItemCTAButton({ action = 'visit-website', sourceUrl, itemSlug }:
 				<button
 					onClick={handleStartSurvey}
 					disabled={loading || !firstSurvey}
-					className="group relative inline-flex items-center px-6 py-3 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 dark:from-theme-primary-700 dark:to-theme-primary-800 dark:hover:from-theme-primary-800 dark:hover:to-theme-primary-900 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-theme-primary-500/25 transform hover:-translate-y-0.5 overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+					className="group relative cursor-pointer inline-flex items-center px-4 py-2 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 dark:from-theme-primary-700 dark:to-theme-primary-800 dark:hover:from-theme-primary-800 dark:hover:to-theme-primary-900 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					<div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-					<span className="mr-2 text-lg">📋</span>
+					<span className="mr-2 text-base">📋</span>
 					<span className="relative">
 						{loading ? t('LOADING') + '...' : tSurvey('TAKE_SURVEY')}
 					</span>
@@ -96,10 +96,10 @@ export function ItemCTAButton({ action = 'visit-website', sourceUrl, itemSlug }:
 		return (
 			<button
 				disabled
-				className="group relative inline-flex items-center px-6 py-3 bg-linear-to-r from-gray-400 to-gray-500 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg opacity-50 cursor-not-allowed"
+				className="group relative cursor-not-allowed inline-flex items-center px-4 py-2 bg-linear-to-r from-gray-400 to-gray-500 text-white rounded-md font-medium transition-all duration-200 shadow-md opacity-50"
 			>
-				<span className="mr-2 text-lg">🛒</span>
-				<span className="relative">Buy (Coming Soon)</span>
+				<span className="mr-2 text-base">🛒</span>
+				<span className="relative text-sm">Buy (Coming Soon)</span>
 			</button>
 		);
 	}
@@ -109,11 +109,10 @@ export function ItemCTAButton({ action = 'visit-website', sourceUrl, itemSlug }:
 		<a
 			target="_blank"
 			href={sourceUrl || '#'}
-			className="group relative inline-flex items-center px-6 py-3 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 dark:from-theme-primary-700 dark:to-theme-primary-800 dark:hover:from-theme-primary-800 dark:hover:to-theme-primary-900 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:shadow-theme-primary-500/25 transform hover:-translate-y-0.5 overflow-hidden"
+			className="group relative inline-flex cursor-pointer items-center px-4 py-2 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 dark:from-theme-primary-700 dark:to-theme-primary-800 dark:hover:from-theme-primary-800 dark:hover:to-theme-primary-900 text-white rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg transform overflow-hidden"
 		>
-			<div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-			<span className="mr-2 text-lg">🌐</span>
-			<span className="relative">{t('VISIT_WEBSITE')}</span>
+			<span className="mr-2 text-base">🌐</span>
+			<span className="relative text-sm">{t('VISIT_WEBSITE')}</span>
 		</a>
 	);
 }

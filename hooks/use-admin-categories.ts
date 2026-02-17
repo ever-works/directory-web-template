@@ -124,7 +124,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}): Use
   const {
     data: categoriesData,
     isLoading,
-    error,
+    error: _error,
     refetch,
   } = useQuery({
     queryKey: QUERY_KEYS.categoriesList(params),

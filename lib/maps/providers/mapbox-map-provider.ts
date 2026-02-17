@@ -545,7 +545,7 @@ export class MapboxMapProvider implements IMapProvider {
 				if (accessToken && mapboxglModule) {
 					(mapboxglModule as { accessToken: string }).accessToken = accessToken;
 				}
-			} catch (err) {
+			} catch (_err) {
 				loadingPromise = null;
 				throw new Error('Failed to load Mapbox GL JS library');
 			}

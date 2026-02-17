@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Sun, Moon } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useRef, useId } from "react";
 import { createPortal } from "react-dom";

@@ -73,12 +73,12 @@ export function FavoriteButton({
 	const sizeClasses = {
 		sm: 'w-6 h-6',
 		md: 'w-8 h-8',
-		lg: 'w-20 h-10'
+		lg: 'w-10 h-10'
 	};
 
 	const iconSizes = {
-		sm: 'w-3 h-3',
-		md: 'w-4 h-4',
+		sm: 'w-4 h-4',
+		md: 'w-5 h-5',
 		lg: 'w-5 h-5'
 	};
 
@@ -98,7 +98,7 @@ export function FavoriteButton({
 			onMouseLeave={() => setIsHovered(false)}
 			disabled={isLoading}
 			className={cn(
-				'group relative flex items-center justify-center rounded-full transition-all duration-300 ease-out',
+				'group relative flex items-center justify-center rounded-md transition-all duration-300 ease-out',
 				'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50',
 				'hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600',
 				'shadow-xs hover:shadow-md active:scale-95',
@@ -151,11 +151,11 @@ export function FavoriteButton({
 			{showText && (
 				<span
 					className={cn(
-						'ml-2 font-semibold transition-colors duration-300',
+						'ml-2 text-sm font-medium transition-colors duration-300',
 						isFav
 							? 'text-gray-700 dark:text-gray-200'
 							: 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'
-					)}
+						)}
 				>
 					{isFav ? 'Favorited' : 'Favorite'}
 				</span>

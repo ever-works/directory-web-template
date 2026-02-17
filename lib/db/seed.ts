@@ -73,7 +73,7 @@ async function isTableEmpty(tableName: string, table: unknown): Promise<boolean>
 /**
  * Get table row count
  */
-async function getTableCount(tableName: string, table: unknown): Promise<number> {
+async function _getTableCount(tableName: string, table: unknown): Promise<number> {
 	const exists = await tableExists(tableName);
 	if (!exists) return 0;
 
@@ -154,7 +154,7 @@ export async function runSeed(): Promise<void> {
 		console.log(`[Seed] Will seed: ${tablesToSeedNames.join(', ')}`);
 
 		// Resolve admin credentials with environment-sensitive defaults
-		const isProd = getNodeEnv() === 'production';
+		const _isProd = getNodeEnv() === 'production';
 
 		// Read seed config directly from process.env to avoid server-only issues in scripts
 		const envAdminEmail = process.env.SEED_ADMIN_EMAIL;

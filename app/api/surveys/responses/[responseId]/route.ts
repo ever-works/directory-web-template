@@ -4,7 +4,7 @@ import { surveyService } from '@/lib/services/survey.service';
 import { Logger } from '@/lib/logger';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 
-const logger = Logger.create('SurveyResponseDetailAPI');
+const _logger = Logger.create('SurveyResponseDetailAPI');
 
 /**
  * @swagger

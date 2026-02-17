@@ -29,17 +29,17 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 			disabled={isLoading}
 			className={cn(
 				'group relative inline-flex items-center justify-center',
-				'px-5 py-3 min-w-[100px]',
-				'rounded-xl font-semibold text-sm',
+				'px-4 py-2 min-w-[88px]',
+				'rounded-lg font-semibold text-sm',
 				'transition-all duration-300 ease-out',
 				'border-2',
-				'shadow-lg hover:shadow-xl',
-				'transform hover:scale-105 active:scale-95',
+				'shadow-md hover:shadow-lg',
+				'transform hover:scale-102 active:scale-95',
 				'focus:outline-none focus:ring-2 focus:ring-offset-2',
 				'overflow-hidden',
 				// Base styles
 				isVoted
-					? 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-theme-primary-400 dark:border-theme-primary-500 shadow-theme-primary-500/20 dark:shadow-theme-primary-500/30 focus:ring-theme-primary-500'
+					? 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-theme-primary-400 dark:border-theme-primary-500 shadow-theme-primary-500/10 dark:shadow-theme-primary-500/20 focus:ring-theme-primary-500'
 					: 'bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-theme-primary-50/50 dark:hover:bg-theme-primary-900/20 focus:ring-theme-primary-500',
 				isLoading && 'cursor-not-allowed opacity-60 pointer-events-none',
 				className
@@ -55,9 +55,6 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 			{/* Pulse effect when voted */}
 			{isVoted && <div className="absolute inset-0 rounded-xl bg-theme-primary-400/20 animate-pulse" />}
 
-			{/* Shine effect on hover */}
-			<div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-linear-to-r from-transparent via-white/20 to-transparent" />
-
 			{/* Sparkle animation on vote */}
 			{isAnimating && !isVoted && (
 				<div className="absolute inset-0 flex items-center justify-center">
@@ -70,10 +67,10 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 				<div className="relative">
 					<ThumbsUp
 						className={cn(
-							'w-5 h-5 transition-all duration-300',
+							'w-4 h-4 transition-all duration-300',
 							isVoted
-								? 'text-white fill-white scale-110'
-								: 'text-gray-600 dark:text-gray-400 group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-400 group-hover:scale-110 group-hover:rotate-12',
+								? 'text-white fill-white scale-105'
+								: 'text-gray-600 dark:text-gray-400 group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-400 group-hover:scale-105',
 							isLoading && 'animate-pulse'
 						)}
 					/>
@@ -85,12 +82,12 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 
 				<span
 					className={cn(
-						'font-bold text-base tabular-nums transition-all duration-300',
+						'font-semibold text-sm tabular-nums transition-all duration-300',
 						isVoted
 							? 'text-white'
 							: 'text-gray-700 dark:text-gray-200 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400',
-						isAnimating && 'scale-125'
-					)}
+						isAnimating && 'scale-110'
+						)}
 					aria-live="polite"
 					aria-atomic="true"
 				>
@@ -100,8 +97,8 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 
 			{/* Loading spinner */}
 			{isLoading && (
-				<div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-xl z-20">
-					<div className="w-5 h-5 border-2 border-theme-primary-500 border-t-transparent rounded-full animate-spin" />
+				<div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-lg z-20">
+					<div className="w-4 h-4 border-2 border-theme-primary-500 border-t-transparent rounded-full animate-spin" />
 				</div>
 			)}
 		</button>

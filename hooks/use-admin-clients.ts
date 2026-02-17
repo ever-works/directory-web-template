@@ -144,7 +144,7 @@ export function useAdminClients(options: UseAdminClientsOptions = {}): UseAdminC
 	const {
 		data: dashboardData,
 		isLoading,
-		error,
+		error: _error,
 		refetch
 	} = useQuery({
 		queryKey: QUERY_KEYS.clientsDashboard(params),

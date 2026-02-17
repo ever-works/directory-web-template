@@ -10,10 +10,10 @@ import {
 	NavbarMenu,
 	NavbarMenuItem
 } from '@heroui/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useMemo, useCallback, useState } from 'react';
+import { useMemo, useCallback, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { LayoutSwitcher } from '../layout-switcher';
 import { NavigationControls } from '../navigation-controls';
@@ -168,10 +168,10 @@ function HeaderNavSkeleton() {
 }
 
 export default function Header() {
-	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [_isMenuOpen, setIsMenuOpen] = useState(false);
 	const { data: session } = useSession();
 	const { features } = useFeatureFlagsWithSimulation();
-	const { hasGlobalSurveys, isPending: surveysPending } = useHasGlobalSurveys();
+	const { hasGlobalSurveys, isPending: _surveysPending } = useHasGlobalSurveys();
 	const { categoriesEnabled } = useCategoriesEnabled();
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
@@ -181,12 +181,24 @@ export default function Header() {
 	const { data: tagsData, isLoading: tagsLoading } = useTagsExists();
 	const isDemo = isDemoMode();
 
+	const locale = useLocale();
 	const t = useTranslations('common');
 	const tListing = useTranslations('listing');
 	const tSurvey = useTranslations('survey');
 	const tGlobal = useTranslations();
 	const config = useConfig();
 	const pathname = usePathname();
+
+	// Stable refs for translation functions to avoid defeating useMemo
+	// (translation functions are new references on every render)
+	const tRef = useRef(t);
+	const tListingRef = useRef(tListing);
+	const tSurveyRef = useRef(tSurvey);
+	const tGlobalRef = useRef(tGlobal);
+	tRef.current = t;
+	tListingRef.current = tListing;
+	tSurveyRef.current = tSurvey;
+	tGlobalRef.current = tGlobal;
 
 	// Check if we're still loading essential data for navigation
 	const isNavigationLoading = categoriesLoading || collectionsLoading || tagsLoading;
@@ -233,10 +245,10 @@ export default function Header() {
 			href: item.href,
 			label: item.translationKey
 				? item.translationNamespace === 'listing'
-					? tListing(item.translationKey as any)
+					? tListingRef.current(item.translationKey as any)
 					: item.translationNamespace === 'survey'
-						? tSurvey(item.translationKey as any)
-						: t(item.translationKey as any)
+						? tSurveyRef.current(item.translationKey as any)
+						: tRef.current(item.translationKey as any)
 				: item.staticLabel || item.key,
 			isExternal: false
 		}));
@@ -255,7 +267,7 @@ export default function Header() {
 				customItems.push({
 					key: `custom-header-${index}`,
 					href: item.path,
-					label: resolveLabel(item.label, tGlobal),
+					label: resolveLabel(item.label, tGlobalRef.current),
 					isExternal
 				});
 			});
@@ -264,10 +276,7 @@ export default function Header() {
 		// Combine default and custom items
 		return [...defaultItems, ...customItems];
 	}, [
-		t,
-		tListing,
-		tSurvey,
-		tGlobal,
+		locale,
 		config.custom_header,
 		session?.user?.id,
 		features.favorites,
@@ -380,7 +389,7 @@ export default function Header() {
 		[headerSettings.settingsEnabled]
 	);
 
-	const containerWidth = useContainerWidth();
+	const _containerWidth = useContainerWidth();
 
 	return (
 		<Navbar maxWidth="full" className={STYLES.navbar} disableAnimation isBordered>
