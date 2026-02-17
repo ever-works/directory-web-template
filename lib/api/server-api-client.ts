@@ -137,7 +137,7 @@ async function fetchWithTimeout(url: string, options: FetchOptions = {}): Promis
 			if (isApiCall && typeof window === 'undefined') {
 				try {
 					headers['X-Frontend-URL'] = await getFrontendUrl();
-				} catch (e) {
+				} catch (_e) {
 					headers['X-Frontend-URL'] = siteConfig.url;
 				}
 			}

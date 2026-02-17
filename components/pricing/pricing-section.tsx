@@ -36,7 +36,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		isLoading,
 		error,
 		user,
-		config,
+		config: _config,
 		t,
 		tBilling,
 		router,

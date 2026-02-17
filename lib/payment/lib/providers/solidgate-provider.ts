@@ -423,7 +423,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 
 	async createPaymentIntent(params: CreatePaymentParams): Promise<PaymentIntent> {
 		try {
-			const { amount, currency, metadata, customerId, successUrl, cancelUrl } = params;
+			const { amount, currency, metadata, customerId, successUrl, cancelUrl: _cancelUrl } = params;
 
 			const orderId = `order_${crypto.randomUUID()}`;
 			const paymentIntentId = `pi_${crypto.randomUUID()}`;

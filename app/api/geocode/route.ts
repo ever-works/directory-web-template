@@ -33,38 +33,6 @@ const reverseGeocodeRequestSchema = z.object({
 		.optional(),
 });
 
-// ===================== Response Types =====================
-
-interface GeocodeResponse {
-	success: boolean;
-	data?: {
-		latitude: number;
-		longitude: number;
-		formattedAddress: string;
-		city?: string;
-		state?: string;
-		country?: string;
-		countryCode?: string;
-		postalCode?: string;
-		confidence?: number;
-	};
-	error?: string;
-}
-
-interface ReverseGeocodeResponse {
-	success: boolean;
-	data?: {
-		formattedAddress: string;
-		streetAddress?: string;
-		city?: string;
-		state?: string;
-		country?: string;
-		countryCode?: string;
-		postalCode?: string;
-	};
-	error?: string;
-}
-
 // ===================== API Route Handler =====================
 
 /**

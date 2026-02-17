@@ -7,9 +7,9 @@ interface CompanyStatsProps {
 	stats: Stats;
 }
 
-const STAT_CARD_WRAPPER = 'border-0 shadow-lg';
-const STAT_CARD_BODY = 'p-6';
-const STAT_ICON_BASE = 'w-12 h-12 rounded-xl flex items-center justify-center shadow-lg';
+const _STAT_CARD_WRAPPER = 'border-0 shadow-lg';
+const _STAT_CARD_BODY = 'p-6';
+const _STAT_ICON_BASE = 'w-12 h-12 rounded-xl flex items-center justify-center shadow-lg';
 
 /**
  * Company Statistics Component

@@ -17,7 +17,7 @@ import { authFeatures } from "@/lib/config/auth-features";
 import { SiteLogo } from "@/components/shared/site-logo/site-logo";
 
 export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode = false }: { form: "login" | "signup", showSocialLogin?: boolean, onSuccess?: () => void, clientMode?: boolean }) {
-  const config = useConfig();
+  const _config = useConfig();
   const t = useTranslations("common");
   const tAuth = useTranslations("admin.AUTH_FORM");
   const isLogin = form === "login";

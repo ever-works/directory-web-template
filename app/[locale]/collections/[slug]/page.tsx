@@ -21,12 +21,13 @@ export async function generateMetadata({
     const allCollections = await collectionRepository.findAll({ includeInactive: false });
     collection = allCollections.find((c) => c.slug === slug);
   } catch {
-    // Return basic metadata if collection not found
-    return generateListingMetadata({
-      title: "Collection",
-      path: `/collections/${slug}`,
-      locale,
-    });
+    // Ignore error, try fallback
+  }
+
+  if (!collection) {
+    // Fallback to local content
+    const { collections } = await getCachedItems({ lang: locale });
+    collection = collections.find(c => c.slug === slug || c.id === slug);
   }
 
   if (!collection) {
@@ -68,10 +69,14 @@ export default async function CollectionPage({
   try {
     const allCollections = await collectionRepository.findAll({ includeInactive: false });
     collection = allCollections.find(c => c.slug === slug);
-  } catch (error) {
-    logger.error('Error fetching collections', { error });
-    // If Git repo not set up, show not found
-    notFound();
+  } catch (_error) {
+    logger.warn('Git collection repository not available, falling back to local content');
+  }
+
+  if (!collection) {
+    // Fallback to local content
+    const { collections } = await getCachedItems({ lang: locale });
+    collection = collections.find(c => c.slug === slug || c.id === slug);
   }
 
   if (!collection) {
@@ -79,7 +84,7 @@ export default async function CollectionPage({
   }
   
   // Fetch all items
-  const { categories, tags, items } = await getCachedItems({ lang: locale });
+  const { categories: _categories, tags, items } = await getCachedItems({ lang: locale });
 
   // Build a lookup so string tag IDs can be resolved to full tag objects
   const tagMap = Object.fromEntries(tags.map((tag) => [tag.id, tag]));

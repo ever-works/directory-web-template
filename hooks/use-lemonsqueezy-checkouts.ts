@@ -200,7 +200,7 @@ export function useLemonSqueezyCheckouts(
   }, [error, onError]);
 
   // POST mutation for complex filters
-  const postMutation = useMutation({
+  const _postMutation = useMutation({
     mutationFn: fetchCheckoutsPost,
     onSuccess: (data) => {
       queryClient.setQueryData(queryKey, data);

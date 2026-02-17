@@ -16,7 +16,7 @@ interface ListingCategoriesProps {
 }
 
 function ListingCategoriesContent(props: ListingCategoriesProps) {
-	const { layoutHome = LayoutHome.HOME_ONE, paginationType } = useLayoutTheme();
+	const { layoutHome = LayoutHome.HOME_ONE, paginationType: _paginationType } = useLayoutTheme();
 	const t = useTranslations();
 
 	return (

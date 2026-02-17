@@ -25,8 +25,8 @@ export function RatingDisplay({ itemId }: RatingDisplayProps) {
   }
 
   return (
-    <div className="flex justify-between items-center p-4 bg-gray-50/80 dark:bg-gray-800/50 rounded-xl hover:bg-gray-100/80 dark:hover:bg-gray-700/50 transition-all duration-300 group">
-      <span className="text-gray-600 dark:text-gray-300 font-medium flex items-center gap-2">
+    <div className="flex justify-between items-center p-4 bg-gray-50/80 dark:bg-gray-800/50 rounded-xl">
+      <span className="text-gray-600 dark:text-gray-300 text-xs font-medium flex items-center gap-2">
         <svg
           className="w-4 h-4"
           fill="none"

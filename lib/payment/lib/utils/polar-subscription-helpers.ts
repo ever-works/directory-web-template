@@ -156,7 +156,7 @@ export async function cancelSubscriptionImmediately(
 	existingSubscription: any,
 	params: PolarCancelSubscriptionParams
 ): Promise<SubscriptionInfo> {
-	const { apiUrl, apiKey, formatErrorMessage, logger } = params;
+	const { apiUrl, apiKey, formatErrorMessage: _formatErrorMessage, logger } = params;
 
 	// Validate and sanitize API URL to prevent SSRF attacks
 	const validatedApiUrl = validateApiUrl(apiUrl);
@@ -214,7 +214,7 @@ export async function cancelSubscriptionAtPeriodEnd(
 	existingSubscription: any,
 	params: PolarCancelSubscriptionParams
 ): Promise<SubscriptionInfo> {
-	const { apiUrl, apiKey, formatErrorMessage, logger } = params;
+	const { apiUrl, apiKey, formatErrorMessage: _formatErrorMessage, logger } = params;
 
 	// Validate and sanitize API URL to prevent SSRF attacks
 	const validatedApiUrl = validateApiUrl(apiUrl);
@@ -465,7 +465,7 @@ export async function reactivatePolarSubscription(
 	existingSubscription: any,
 	params: PolarReactivateSubscriptionParams
 ): Promise<SubscriptionInfo> {
-	const { apiUrl, apiKey, formatErrorMessage, logger, timeout = 30000 } = params;
+	const { apiUrl, apiKey, formatErrorMessage: _formatErrorMessage, logger, timeout = 30000 } = params;
 	
 	// Validate and sanitize API URL to prevent SSRF attacks
 	const validatedApiUrl = validateApiUrl(apiUrl);

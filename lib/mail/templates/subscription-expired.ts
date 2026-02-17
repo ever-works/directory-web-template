@@ -436,10 +436,10 @@ export const getSubscriptionExpiringWarningTemplate = (
 	// Security: Escape all user-provided data
 	const safeCustomerName = escapeHtml(customerName);
 	const safePlanName = escapeHtml(planName);
-	const safeAmount = escapeHtml(amount);
+	const _safeAmount = escapeHtml(amount);
 	const safeCurrency = escapeHtml(currency);
-	const safeBillingPeriod = escapeHtml(billingPeriod);
-	const safeSubscriptionId = escapeHtml(subscriptionId);
+	const _safeBillingPeriod = escapeHtml(billingPeriod);
+	const _safeSubscriptionId = escapeHtml(subscriptionId);
 	const safeExpirationDate = escapeHtml(expirationDate);
 	const safeCompanyName = escapeHtml(companyName);
 	const safeSupportEmail = escapeHtml(supportEmail);
@@ -450,7 +450,7 @@ export const getSubscriptionExpiringWarningTemplate = (
 	const validRenewUrl = renewUrl ? isValidUrl(renewUrl) : null;
 	const safeRenewUrl = validRenewUrl ? escapeHtml(validRenewUrl) : null;
 
-	const currencySymbol = safeCurrency === 'eur' ? '€' : safeCurrency === 'usd' ? '$' : safeCurrency.toUpperCase();
+	const _currencySymbol = safeCurrency === 'eur' ? '€' : safeCurrency === 'usd' ? '$' : safeCurrency.toUpperCase();
 	const urgencyText =
 		daysUntilExpiration <= 1
 			? 'expires today'

@@ -161,7 +161,7 @@ export function useAdminFeaturedItems(options: UseAdminFeaturedItemsOptions = {}
   const {
     data: featuredItemsData,
     isLoading: featuredItemsLoading,
-    error: featuredItemsError,
+    error: _featuredItemsError,
   } = useQuery({
     queryKey: featuredItemsQueryKeys.list({ page: currentPage, limit, showActiveOnly }),
     queryFn: () => fetchFeaturedItems(currentPage, limit, showActiveOnly),
@@ -174,7 +174,7 @@ export function useAdminFeaturedItems(options: UseAdminFeaturedItemsOptions = {}
   const {
     data: allItemsData,
     isLoading: allItemsLoading,
-    error: allItemsError,
+    error: _allItemsError,
   } = useQuery({
     queryKey: allItemsQueryKeys.lists(),
     queryFn: fetchAllItems,

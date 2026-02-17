@@ -7,7 +7,6 @@ import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
 import { MapPin, Wifi } from 'lucide-react';
 import type { LocationPickerValue } from '@/lib/maps/types';
-import type { ItemLocationData } from '@/lib/types/item';
 import type { MapProvider } from '@/lib/types/location';
 
 export interface LocationStepData {
