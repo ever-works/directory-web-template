@@ -166,7 +166,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 							{/* Decorative top image (non-interactive) - uses category.image_url if available */}
 							<div className="pointer-events-none absolute left-0 right-0 top-0 z-20 opacity-40 group-hover:opacity-70 transition-opacity duration-500">
 								<Image
-									src={(category as any).image_url ?? category.icon_url ?? '/bg-cards.png'}
+									src={category.image_url ?? category.icon_url ?? '/bg-cards.png'}
 									alt={category.name}
 									width={800}
 									height={160}

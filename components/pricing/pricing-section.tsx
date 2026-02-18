@@ -81,8 +81,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							{t('CHOOSE_YOUR_PERFECT_PLAN')}
 						</div>
 					</div>
-					<h1 className="font-bold mb-4 bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-colors duration-300">
-						<span className="text-4xl md:text-2xl text-gray-600 mb-4 dark:text-white">{t('START_YOUR_JOURNEY')}</span>
+					<h1 className="font-bold mb-4">
+						<span className="text-xl md:text-2xl text-gray-600 mb-4 dark:text-white">{t('START_YOUR_JOURNEY')}</span>
 						<br className="hidden md:block" />
 						<span className="text-4xl md:text-5xl bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 							{t('CHOOSE_WHAT_FITS_YOU')}
@@ -390,7 +390,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 						</div>
 
 						{/* Title */}
-						<h3 className="text-2xl md:text-xl lg:text-5xl font-bold text-gray-500 dark:text-white max-w-2xl leading-tight">
+						<h3 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-500 dark:text-white max-w-2xl leading-tight">
 							{t('SPONSOR_TITLE')}
 						</h3>
 
@@ -406,7 +406,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									<div
 										key={`${feat}-${idx}`}
 										className={cn(
-											'flex items-center justify-center gap-2 px-4 py-2 w-1/4',
+											'flex items-center justify-center gap-2 px-4 py-2 w-full md:w-1/4',
 											idx === 1 ? 'border-x border-gray-200/50 dark:border-gray-700/50' : ''
 										)}
 									>
@@ -424,7 +424,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							{/* Blurred glow circle behind the card */}
 							<div className="absolute dark:opacity-65 -top-28 inset-0 -z-10 rounded-full bg-linear-to-r from-theme-primary-500/20 via-purple-500/20 to-theme-primary-500/20 dark:from-theme-primary-500/25 dark:via-purple-500/25 dark:to-theme-primary-500/25 blur-3xl scale-100 translate-y-4" />
 
-							<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-gray-800 bg-bg-gray-800/10 dark:bg-gray-800/30">
+							<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-gray-800 bg-white dark:bg-gray-800/30">
 								<div className="rounded-xl border border-theme-primary-200/70 dark:border-gray-800 p-6 bg-white dark:bg-gray-800/30">
 									<div className="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">
 										{t('SPONSOR_STARTING_FROM')}
@@ -437,7 +437,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 											/{t('SPONSOR_WEEK')}
 										</span>
 									</div>
-									<div className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+									<div className="text-md text-gray-500 dark:text-gray-400 mb-6">
 										{t('SPONSOR_OR')} ${SponsorAdPricing.MONTHLY}/{t('SPONSOR_MONTH')}
 									</div>
 									<Link href="/sponsor">
@@ -482,9 +482,9 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 						<button
 							onClick={() => router.push('/submit')}
-							className="group h-14 px-12 rounded-full font-semibold border-2 border-purple-500 hover:border-theme-primary-500 text-gray-600 dark:text-white hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:bg-gradient-to-r hover:from-purple-500/8 hover:to-theme-primary-500/8 transition-all duration-300 ease-out"
+							className="group h-14 px-12 rounded-full font-semibold border border-purple-500 hover:border-theme-primary-500 text-gray-600 dark:text-white hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:!bg-transparent transition-all duration-300 ease-out"
 						>
-							<div className="flex items-center gap-3 cursor-pointer">
+							<div className="flex items-center gap-3">
 								<span className="text-lg">{t('CONTINUE_TO_NEXT_STEP')}</span>
 								<span className="inline-block animate-bounce-x">
 									<ArrowRight className="w-5 h-5 transition-transform duration-300 ease-out" />

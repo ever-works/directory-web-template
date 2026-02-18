@@ -18,11 +18,6 @@ export default {
       '2xl': '1536px',
     },
     extend: {
-      // Override Tailwind's `font-medium` to use 400 so the app's minimum
-      // visible weight is `font-weight: 400` while keeping class names.
-      fontWeight: {
-        medium: '400',
-      },
       animation: {
         'pulse-subtle': 'pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'shimmer': 'shimmer 2s linear infinite',
