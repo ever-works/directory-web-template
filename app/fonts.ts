@@ -81,7 +81,8 @@ const BASE_CLASSES = [
  * - For CJK/Arabic/Thai locales, also includes the supplementary font's CSS
  *   variable class and a `font-locale-{locale}` class for CSS cascade override.
  */
-export function getFontClassNames(locale: string): string {
+export function getFontClassNames(locale?: string): string {
+	if (!locale) return BASE_CLASSES;
 	const entry = LOCALE_FONT_MAP[locale];
 	if (entry) {
 		return `${BASE_CLASSES} ${entry.font.variable} ${entry.localeClass}`;
