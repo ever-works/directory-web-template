@@ -1,15 +1,7 @@
 "use client";
 import Image from 'next/image';
 import { useContainerWidth } from '@/components/ui/container';
-import React, { useMemo, useEffect, useRef } from "react";
-
-interface Star {
-  left: string;
-  delay: string;
-  duration: string;
-  size: string;
-  opacity: string;
-}
+import React, { useMemo, } from "react";
 
 type DecorativeBgProps = {
   className?: string;
