@@ -13,6 +13,7 @@ import { useInfiniteLoading } from '@/hooks/use-infinite-loading';
 import { GridSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Container } from '@/components/ui/container';
+import { GridBackground, DotBgsible } from '@/components/shared/decorative-bg';
 
 /**
  * Hook to calculate optimal items per page based on viewport height
@@ -132,6 +133,7 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 	};
 
 	return (
+		<div className="relative">
 		<Hero
 			badgeText={t('TAGS')}
 			title={
@@ -144,6 +146,9 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 			})}
 			className="min-h-screen text-center flex flex-col"
 		>
+			<div className="absolute inset-x-0 top-0 w-full h-[350px] flex justify-center items-start -z-10">
+				<GridBackground className="w-full h-full" />
+			</div>
 			{/* Breadcrumb */}
 			<nav className="flex mb-8 justify-center" aria-label="Breadcrumb">
 				<ol className="inline-flex items-center space-x-1 md:space-x-3">
@@ -235,6 +240,8 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 				</div>
 			)}
 		</Hero>
+		<DotBgsible />
+		</div>
 	);
 }
 
