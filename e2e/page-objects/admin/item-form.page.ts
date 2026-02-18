@@ -60,8 +60,8 @@ export class AdminItemFormPage {
 		this.cancelButton = this.modal.getByRole('button', { name: /cancel/i });
 		this.previousButton = this.modal.getByRole('button', { name: /previous/i });
 		this.nextButton = this.modal.getByRole('button', { name: /next/i });
-		this.createButton = this.modal.getByRole('button', { name: /^create$/i });
-		this.updateButton = this.modal.getByRole('button', { name: /^update$/i });
+		this.createButton = this.modal.getByRole('button', { name: /create item/i });
+		this.updateButton = this.modal.getByRole('button', { name: /update item/i });
 	}
 
 	async waitForOpen() {
