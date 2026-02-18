@@ -16,6 +16,10 @@ export const TEST_DATA = {
 	CLIENT_PASSWORD: 'TestClient123!',
 	generateClientEmail: () =>
 		`e2e-client-${Date.now()}-${Math.random().toString(36).slice(2, 8)}@test.local`,
+	generateItemName: () =>
+		`E2E Test Item ${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+	generateItemUrl: () =>
+		`https://e2e-test-${Date.now()}.example.com`,
 };
 
 export const REQUIRED_ENV_VARS = ['SEED_ADMIN_EMAIL', 'SEED_ADMIN_PASSWORD'] as const;
