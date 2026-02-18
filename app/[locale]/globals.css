@@ -423,8 +423,7 @@
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
   
@@ -541,6 +540,23 @@
   }
 }
 
+@keyframes star-up {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+}
+
 .animate-fade-in > * {
   animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
@@ -579,6 +595,10 @@
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-star-up {
+  animation: star-up linear infinite;
 }
 
 .animate-gradient-shift {
@@ -1021,7 +1041,12 @@ select option:active {
   white-space: pre-wrap;
   outline: none;
   caret-color: var(--tt-cursor-color);
-  font-family: "DM Sans", sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+}
+
+/* Use Geist Mono for monospace content */
+code, pre, kbd, samp, .mono {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Noto Sans Mono", monospace;
 }
 
 /* Ensure each top-level node has relative positioning */
