@@ -8,6 +8,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useLayoutTheme } from '@/components/context';
 import { Loader2 } from 'lucide-react';
+import { Spinner } from '@heroui/react';
 import { useInView } from 'react-intersection-observer';
 import { PER_PAGE, totalPages } from '@/lib/paginate';
 import { useInfiniteLoading } from '@/hooks/use-infinite-loading';
@@ -129,7 +130,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 				{categoriesToShow.map((category) => (
 					<div
 						key={category.id}
-						className="focus:outline-hidden focus:ring-1 focus:ring-theme-primary rounded-lg transition group cursor-pointer relative"
+						className="focus:outline-hidden focus:ring-2 focus:ring-theme-primary rounded-lg transition group cursor-pointer relative"
 						onClick={() => handleCategoryClick(category.id)}
 						onKeyDown={(e) => {
 							if (e.key === 'Enter' || e.key === ' ') {
@@ -141,35 +142,22 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 						aria-label={`View ${category.name} category`}
 						tabIndex={0}
 					>
-						{/* Full card loading overlay */}
+						{/* Loading overlay */}
 						{loadingCategory === category.id && (
-							<div className="absolute inset-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-lg flex items-center justify-center transition-all duration-300">
-								<div className="flex flex-col items-center gap-3">
-									<div className="relative">
-										<Loader2 className="h-8 w-8 animate-spin text-theme-primary-500 dark:text-theme-primary-400" />
-										<div className="absolute inset-0 rounded-full bg-theme-primary-500/20 animate-ping" />
-									</div>
-									<div className="text-center">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-											Loading...
-										</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-											Navigating to {category.name}
-										</p>
-									</div>
-								</div>
+							<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-lg flex items-center justify-center z-50 transition-opacity duration-300">
+								<Spinner size="lg" color="primary" />
 							</div>
 						)}
 						<Card
-							className="group relative border-0 bg-white dark:bg-[#101624] rounded-lg transition-all duration-700 transform overflow-hidden h-full
-								bg-white dark:bg-[#101624] hover:shadow-xl
+							className="group relative border-0 rounded-lg transition-all duration-700 transform backdrop-blur-xl overflow-hidden h-full
+								bg-white/80 dark:bg-gray-900/80 shadow-md hover:shadow-xl
 								ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-theme-primary/70
-								px-4 py-4 sm:px-5 sm:py-6
+								px-4 py-4 sm:px-5 sm:py-5
 							"
 						>
 							{/* Subtle background pattern */}
 							<div
-								className="absolute inset-0 opacity-10 dark:opacity-20"
+								className="absolute inset-0 opacity-10 dark:opacity-35"
 								style={{
 									backgroundImage:
 										"url('data:image/svg+xml,%3Csvg width=&apos;40&apos; height=&apos;40&apos; viewBox=&apos;0 0 40 40&apos; xmlns=&apos;http://www.w3.org/2000/svg&apos;%3E%3Cg fill=&apos;#000000&apos; fill-opacity=&apos;0.05&apos; fill-rule=&apos;evenodd&apos;%3E%3Cpath d=&apos;M0 0h40v40H0V0zm1 1h38v38H1V1z&apos; /%3E%3C/g%3E%3C/svg%3E')",
@@ -186,7 +174,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 								/>
 							</div>
 							{/* Icon with animated background */}
-							<div className="relative flex flex-col items-center justify-center pt-1 pb-4">
+							<div className="relative flex flex-col items-center justify-center pt-1 pb-2">
 								<div className="relative shrink-0">
 									<div className="w-11 h-11 flex items-center justify-center rounded-lg transition-all duration-500 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md">
 										{category.icon_url ? (
