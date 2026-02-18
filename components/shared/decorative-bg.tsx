@@ -1,7 +1,7 @@
 "use client";
 import Image from 'next/image';
 import { useContainerWidth } from '@/components/ui/container';
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 
 interface Star {
   left: string;
@@ -68,7 +68,7 @@ export function GridBackground({ children, className = "" }: { children?: React.
       {/* Masked grid background */}
       <div
         style={{
-          backgroundImage: "url(https://astro.build/assets/bg-grid.png)",
+          backgroundImage: "url(/bg-grid.png)",
           WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%)",
           maskImage: "linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%)",
         }}
