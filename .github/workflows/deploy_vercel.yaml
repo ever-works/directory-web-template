@@ -1,12 +1,12 @@
 name: Vercel Deployment
+
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Vercel Environment to deploy to (e.g., production, staging, preview)"
+        description: "Vercel environment to deploy to (e.g., production, staging, preview)"
         required: true
         type: string
-
   workflow_call:
     inputs:
       environment:
@@ -23,13 +23,15 @@ concurrency:
 
 env:
   DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
-  Deploy-Vercel:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Target environment
-        run: echo "Target ${{ inputs.environment }}"
+        run: echo "Deploying to ${{ inputs.environment }}"
 
       - uses: actions/checkout@v4
 
@@ -37,13 +39,13 @@ jobs:
         id: detect-pm
         run: |
           if [ -f "pnpm-lock.yaml" ]; then
-            echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "global-cmd=pnpm add --global" >> $GITHUB_OUTPUT
+            echo "manager=pnpm"                    >> $GITHUB_OUTPUT
+            echo "global-cmd=pnpm add --global"    >> $GITHUB_OUTPUT
           elif [ -f "yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "global-cmd=yarn global add" >> $GITHUB_OUTPUT
+            echo "manager=yarn"                    >> $GITHUB_OUTPUT
+            echo "global-cmd=yarn global add"      >> $GITHUB_OUTPUT
           else
-            echo "manager=npm" >> $GITHUB_OUTPUT
+            echo "manager=npm"                     >> $GITHUB_OUTPUT
             echo "global-cmd=npm install --global" >> $GITHUB_OUTPUT
           fi
 
@@ -58,63 +60,50 @@ jobs:
 
       - name: Link Vercel project
         run: |
-          if [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ]; then
-            vercel link --yes --scope ${{ secrets.VERCEL_TEAM_SCOPE }} --project ${{ github.event.repository.name }} --token=${{ secrets.VERCEL_TOKEN }}
-          else
-            vercel link --yes --project ${{ github.event.repository.name }} --token=${{ secrets.VERCEL_TOKEN }}
-          fi
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token=$VERCEL_TOKEN
 
-      - name: Set data repository env variable
-        run: |
-          if [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ]; then
-            echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} --scope ${{ secrets.VERCEL_TEAM_SCOPE }} --token ${{ secrets.VERCEL_TOKEN }}
-          else
-            echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} --token ${{ secrets.VERCEL_TOKEN }}
-          fi
+      - name: Set DATA_REPOSITORY env variable
         continue-on-error: true
-
-      - name: Set GitHub API KEY env variable
         run: |
-          if [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ]; then
-            echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} --scope ${{ secrets.VERCEL_TEAM_SCOPE }} --token ${{ secrets.VERCEL_TOKEN }}
-          else
-            echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} --token ${{ secrets.VERCEL_TOKEN }}
-          fi
-        continue-on-error: true
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
 
-      - name: Set Cron Secret environment variable
+      - name: Set GH_TOKEN env variable
+        continue-on-error: true
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+
+      - name: Set CRON_SECRET env variable
+        continue-on-error: true
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE }}
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           if [ -n "$CRON_SECRET" ]; then
-            if [ -n "$VERCEL_TEAM_SCOPE" ]; then
-              echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} --scope "$VERCEL_TEAM_SCOPE" --token "$VERCEL_TOKEN"
-            else
-              echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} --token "$VERCEL_TOKEN"
-            fi
+            SCOPE_FLAG=""
+            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
           fi
-        continue-on-error: true
 
-      - name: Pull settings
+      - name: Pull Vercel settings
         run: |
-          if [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ]; then
-            vercel pull --yes --scope ${{ secrets.VERCEL_TEAM_SCOPE }} --environment=${{ inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
-          else
-            vercel pull --yes --environment=${{ inputs.environment }} --token=${{ secrets.VERCEL_TOKEN }}
-          fi
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token=$VERCEL_TOKEN
 
-      - name: Trigger Vercel Deployment via API
+      - name: Trigger deployment via API
         id: trigger_deployment
+        continue-on-error: true
         run: |
           API_URL="https://api.vercel.com/v13/deployments"
-          if [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ]; then
-            API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
-          fi
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
 
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL" \
-            -H "Authorization: Bearer ${{ secrets.VERCEL_TOKEN }}" \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
               "name": "${{ github.event.repository.name }}",
@@ -127,52 +116,49 @@ jobs:
               "target": "${{ inputs.environment }}"
             }')
 
-          # Extract HTTP status code and response body
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
           BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
 
-          echo "HTTP Status Code: $HTTP_CODE"
-          echo "Response Body: $BODY"
-
-          # Check if the request was successful
           if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            echo "✅ Deployment triggered successfully"
-            
-            # Extract and display deployment URL
             DEPLOYMENT_URL=$(echo "$BODY" | jq -r '.url // empty')
-            if [ -n "$DEPLOYMENT_URL" ]; then
-              echo "🚀 Deployment URL: https://$DEPLOYMENT_URL"
-            fi
-            
-            # Extract deployment ID
-            DEPLOYMENT_ID=$(echo "$BODY" | jq -r '.id // empty')
-            if [ -n "$DEPLOYMENT_ID" ]; then
-              echo "📋 Deployment ID: $DEPLOYMENT_ID"
-              echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
-            fi
+            DEPLOYMENT_ID=$(echo "$BODY"  | jq -r '.id  // empty')
+            [ -n "$DEPLOYMENT_URL" ] && echo "🚀 Deployment URL: https://$DEPLOYMENT_URL"
+            [ -n "$DEPLOYMENT_ID"  ] && echo "📋 Deployment ID:  $DEPLOYMENT_ID"
+            echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
           else
-            echo "❌ Deployment failed with HTTP $HTTP_CODE"
-            echo "Error details: $BODY"
-            
-            # Extract error message if available
-            ERROR_MSG=$(echo "$BODY" | jq -r '.error.message // "Unknown error"')
-            echo "Error message: $ERROR_MSG"
-            
+            echo "❌ API deployment failed (HTTP $HTTP_CODE) — falling back to CLI"
+            echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
             exit 1
           fi
 
-      - name: Update Cron Schedule
+      - name: Build project artifacts (CLI fallback)
+        if: steps.trigger_deployment.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel build $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
+
+      - name: Deploy project artifacts (CLI fallback)
+        if: steps.trigger_deployment.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel deploy --prebuilt $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
+
+      - name: Update cron schedule
         if: success() && steps.trigger_deployment.outputs.deployment_id != ''
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE }}
           VERCEL_PROJECT_ID: ${{ github.event.repository.name }}
           VERCEL_DEPLOYMENT_ID: ${{ steps.trigger_deployment.outputs.deployment_id }}
           VERCEL_PLAN: ${{ secrets.VERCEL_PLAN }}
-        run: |
-          echo "Running Cron Update Script..."
-          npx tsx scripts/update-cron.ts
+        run: npx tsx scripts/update-cron.ts
 
-      - name: Deployment Summary
+      - name: Deployment summary
         if: success()
-        run: echo "✅ Vercel deployment triggered successfully for ${{ inputs.environment }} environment"
+        run: echo "✅ Deployment to ${{ inputs.environment }} completed successfully"

@@ -13,6 +13,7 @@ import { useDisclosure } from '@heroui/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PaymentFormModal } from '@/components/payment/stripe-payment-modal';
+import DecorativeBg from '../shared/decorative-bg';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -70,19 +71,20 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 	return (
 		<div className="relative z-10 px-4">
+			<DecorativeBg reverse className="-mt-14!" />
 			{/* Enhanced Header */}
 			{!isReview && (
-				<div className="text-center mb-16 animate-fade-in-up">
+				<div className="text-center mb-10 -mt-[180px] animate-fade-in-up">
 					<div className="flex items-center justify-center mb-6">
-						<div className="flex items-center text-gray-900 dark:text-gray-200 bg-gray-200 dark:bg-[#1F2937] py-2 px-4 rounded-full gap-2 text-sm font-medium">
+						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-[#1F2937] py-2 px-4 rounded-full gap-2 text-sm font-medium">
 							<div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
 							{t('CHOOSE_YOUR_PERFECT_PLAN')}
 						</div>
 					</div>
-					<h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6 bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent transition-colors duration-300">
-						{t('START_YOUR_JOURNEY')}
+					<h1 className="font-bold mb-4">
+						<span className="text-xl md:text-2xl text-gray-600 mb-4 dark:text-white">{t('START_YOUR_JOURNEY')}</span>
 						<br className="hidden md:block" />
-						<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
+						<span className="text-4xl md:text-5xl bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 							{t('CHOOSE_WHAT_FITS_YOU')}
 						</span>
 					</h1>
@@ -92,16 +94,21 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					</p>
 
 					{/* Trust Indicators */}
-					<div className="mt-8 inline-flex items-center gap-3 p-1 rounded-xl bg-gray-200/50 dark:bg-gray-800/50 backdrop-blur-xs border border-gray-300/30 dark:border-gray-700/30">
-						<div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 dark:bg-gray-900/60">
-							<Check className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-							<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-gray-900/40 backdrop-blur-md">
+						<div className="flex items-center gap-2 px-4 py-2 ">
+							<div className="w-5 h-5 rounded-full bg-green-500/15 dark:bg-green-500/20 flex items-center justify-center">
+								<Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+							</div>
+							<span className="text-xs text-green-700 dark:text-green-300">
 								{t('NO_HIDDEN_FEES')}
 							</span>
 						</div>
-						<div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/60 dark:bg-gray-900/60">
-							<Zap className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-							<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+						<div className="w-px h-5 bg-gray-200/80 dark:bg-gray-700/60 rounded-full" />
+						<div className="flex items-center gap-2 px-4 py-2 ">
+							<div className="w-5 h-5 rounded-full bg-purple-500/15 dark:bg-purple-500/20 flex items-center justify-center">
+								<Zap className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+							</div>
+							<span className="text-xs text-purple-700 dark:text-purple-300">
 								{t('INSTANT_ACTIVATION')}
 							</span>
 						</div>
@@ -110,12 +117,12 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			)}
 
 			{/* Billing Interval Selector */}
-			<div className="flex justify-center mb-14">
+			<div className="flex justify-center mb-10">
 				<div className="relative inline-flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-xl p-1 border border-slate-200 dark:border-slate-700/50 shadow-xs backdrop-blur-xs">
 					<button
 						onClick={() => setBillingInterval(PaymentInterval.MONTHLY)}
 						className={cn(
-							'relative px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px]',
+							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px]',
 							billingInterval === PaymentInterval.MONTHLY
 								? 'text-slate-900 dark:text-white shadow-xs'
 								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/30'
@@ -126,7 +133,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					<button
 						onClick={() => setBillingInterval(PaymentInterval.YEARLY)}
 						className={cn(
-							'relative px-6 py-2.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px] flex items-center justify-center gap-2',
+							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px] flex items-center justify-center gap-2',
 							billingInterval === PaymentInterval.YEARLY
 								? 'text-slate-900 dark:text-white shadow-xs'
 								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/30'
@@ -148,14 +155,12 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 			<div
 				className={cn(
-					'grid gap-6 lg:gap-8 mb-12 mx-auto',
+					'grid gap-6 lg:gap-8 mt-12 mb-12 mx-auto',
 					shouldShowPaidPlans ? 'grid-cols-1 md:grid-cols-3 max-w-6xl' : 'grid-cols-1 max-w-md'
 				)}
 			>
 				<div className="relative transition duration-700 ease-in-out">
-					{/* Card Glow Effect */}
-					<div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-600/20 dark:to-purple-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-
+				
 					<div
 						className={cn(
 							'relative transition-all duration-500',
@@ -212,14 +217,17 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				{shouldShowPaidPlans && (
 					<>
 						<div className="relative group">
-							{/* Card Glow Effect */}
-							<div className="absolute inset-0 bg-linear-to-r from-purple-500/10 to-pink-500/10 dark:from-purple-600/20 dark:to-pink-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none" />
+							{/* Card Glow Effect — layered ambient + spot glow */}
+							{/* Outer ambient glow - wide, soft */}
+							<div className="absolute -z-1 -inset-3 bg-linear-to-br from-theme-primary-500/15 via-purple-500/10 to-pink-500/15 dark:from-theme-primary-500/25 dark:via-purple-500/20 dark:to-pink-500/25 rounded-3xl blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out pointer-events-none" />
+							{/* Inner top-center spot glow - sharp highlight */}
+							<div className="absolute -z-1 -top-4 left-1/2 -translate-x-1/2 w-2/3 h-12 bg-linear-to-r from-theme-primary-400/20 via-purple-400/30 to-theme-primary-400/20 dark:from-theme-primary-400/35 dark:via-purple-400/45 dark:to-theme-primary-400/35 rounded-full blur-xl opacity-50 transition-all duration-500 ease-out pointer-events-none" />
 
 							<div
 								className={cn(
 									'relative transition-all',
 									selectedPlan === PaymentPlan.STANDARD &&
-										'scale-105 ring-2 ring-purple-500/50 dark:ring-purple-400/50'
+										'scale-105 ring-purple-500/50 dark:ring-purple-400/50'
 								)}
 							>
 								<PlanCard
@@ -337,72 +345,107 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				)}
 			</div>
 
-			{/* Sponsor Ads Block */}
-			<div className="mt-16 mb-12 max-w-4xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-				<div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/40 dark:via-indigo-950/40 dark:to-purple-950/40 border border-blue-200/50 dark:border-theme-primary-800/50 p-8 md:p-10">
-					{/* Background pattern */}
-					<div
-						className="absolute inset-0 opacity-5 dark:opacity-10"
-						style={{
-							backgroundImage:
-								"url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.2'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")"
-						}}
-					/>
-
-					<div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-						{/* Icon */}
-						<div className="shrink-0">
-							<div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 flex items-center justify-center shadow-lg shadow-theme-primary-500/25">
-								<Megaphone className="w-10 h-10 text-white" />
+			{/* Sponsor Ads Block - Modern Centered Design */}
+			<div className="mt-40 mb-12 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+				<div className="relative">
+					{/* Animated Radar Circles at Top — clipped to top half only */}
+					<div className="absolute -top-20 left-1/2 -translate-x-1/2 pointer-events-none">
+						{/* overflow-hidden clips the bottom half of all circles */}
+						<div className="relative overflow-hidden w-[650px] h-[350px]">
+							<div className="absolute bottom-0 left-1/2 w-0 h-0">
+								<div
+									className="absolute -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-theme-primary-400/20 dark:border-theme-primary-500/45 animate-ping"
+									style={{
+										animationDuration: '4s',
+										animationDelay: '0.5s',
+										boxShadow: 'inset 0 0 60px rgb(var(--theme-primary-400) / 0.20)'
+									}}
+								/>
+								<div
+									className="absolute -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full border border-purple-500/50 dark:border-theme-primary-500/55 animate-ping"
+									style={{
+										animationDuration: '4s',
+										animationDelay: '1.3s',
+										boxShadow: 'inset 0 0 60px rgb(var(--theme-primary-400) / 0.35)'
+									}}
+								/>
+								<div
+									className="absolute -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full border-2 border-theme-primary-400/55 dark:border-theme-primary-500/65 animate-ping"
+									style={{
+										animationDuration: '4s',
+										animationDelay: '2.6s',
+										boxShadow: 'inset 0 0 60px rgb(var(--theme-primary-400) / 0.55)'
+									}}
+								/>
 							</div>
 						</div>
+					</div>
 
-						{/* Content */}
-						<div className="flex-1 text-center md:text-left">
-							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-900/50 text-theme-primary-700 dark:text-theme-primary-300 text-sm font-medium mb-3">
-								<span className="w-2 h-2 bg-theme-primary-500 rounded-full animate-pulse" />
-								{t('SPONSOR_BADGE')}
-							</div>
-							<h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-3">
-								{t('SPONSOR_TITLE')}
-							</h3>
-							<p className="text-gray-600 dark:text-gray-300 mb-4 max-w-xl">{t('SPONSOR_DESCRIPTION')}</p>
-							<div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
-								<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-									<Check className="w-4 h-4 text-green-500" />
-									<span>{t('SPONSOR_FEATURE_1')}</span>
-								</div>
-								<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-									<Check className="w-4 h-4 text-green-500" />
-									<span>{t('SPONSOR_FEATURE_2')}</span>
-								</div>
-								<div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-									<Check className="w-4 h-4 text-green-500" />
-									<span>{t('SPONSOR_FEATURE_3')}</span>
-								</div>
-							</div>
+					{/* Centered Content */}
+					<div className="relative z-10 flex flex-col items-center text-center space-y-4 mt-8">
+						{/* Badge */}
+						<div className="inline-flex backdrop-blur-md items-center gap-2 px-4 py-2 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-900/50 text-theme-primary-700 dark:text-theme-primary-300 text-sm font-semibold border border-theme-primary-200/50 dark:border-theme-primary-800/50">
+							<span className="w-2 h-2 bg-theme-primary-500 rounded-full animate-pulse" />
+							{t('SPONSOR_BADGE')}
 						</div>
 
-						{/* Pricing & CTA */}
-						<div className="shrink-0 text-center">
-							<div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
-								<div className="text-sm text-gray-500 dark:text-gray-400 mb-1">
-									{t('SPONSOR_STARTING_FROM')}
+						{/* Title */}
+						<h3 className="text-2xl md:text-3xl lg:text-5xl font-bold text-gray-500 dark:text-white max-w-2xl leading-tight">
+							{t('SPONSOR_TITLE')}
+						</h3>
+
+						{/* Description */}
+						<p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl leading-relaxed">
+							{t('SPONSOR_DESCRIPTION')}
+						</p>
+
+						{/* Features */}
+						<div className="w-full mx-auto flex flex-wrap items-center justify-center gap-6 pt-14">
+							{[t('SPONSOR_FEATURE_1'), t('SPONSOR_FEATURE_2'), t('SPONSOR_FEATURE_3')].map(
+								(feat, idx) => (
+									<div
+										key={`${feat}-${idx}`}
+										className={cn(
+											'flex items-center justify-center gap-2 px-4 py-2 w-full md:w-1/4',
+											idx === 1 ? 'border-x border-gray-200/50 dark:border-gray-700/50' : ''
+										)}
+									>
+										<Check className="w-4 h-4 text-green-500" />
+										<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+											{feat}
+										</span>
+									</div>
+								)
+							)}
+						</div>
+
+						{/* Pricing Card */}
+						<div className="relative max-w-sm w-full mt-8">
+							{/* Blurred glow circle behind the card */}
+							<div className="absolute dark:opacity-65 -top-28 inset-0 -z-10 rounded-full bg-linear-to-r from-theme-primary-500/20 via-purple-500/20 to-theme-primary-500/20 dark:from-theme-primary-500/25 dark:via-purple-500/25 dark:to-theme-primary-500/25 blur-3xl scale-100 translate-y-4" />
+
+							<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-gray-800 bg-white dark:bg-gray-800/30">
+								<div className="rounded-xl border border-theme-primary-200/70 dark:border-gray-800 p-6 bg-white dark:bg-gray-800/30">
+									<div className="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">
+										{t('SPONSOR_STARTING_FROM')}
+									</div>
+									<div className="flex items-baseline justify-center gap-1 mb-1">
+										<span className="text-5xl font-extrabold bg-linear-to-r from-theme-primary-500 to-theme-primary-600 bg-clip-text text-transparent">
+											${SponsorAdPricing.WEEKLY}
+										</span>
+										<span className="text-lg font-bold text-gray-500 dark:text-gray-400">
+											/{t('SPONSOR_WEEK')}
+										</span>
+									</div>
+									<div className="text-md text-gray-500 dark:text-gray-400 mb-6">
+										{t('SPONSOR_OR')} ${SponsorAdPricing.MONTHLY}/{t('SPONSOR_MONTH')}
+									</div>
+									<Link href="/sponsor">
+										<Button className="w-full h-12 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-semibold rounded-xl transition-all duration-300 hover:shadow-2xl shadow-lg shadow-theme-primary-500/25">
+											<span className="text-base">{t('SPONSOR_CTA')}</span>
+										</Button>
+									</Link>
 								</div>
-								<div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-									${SponsorAdPricing.WEEKLY}
-									<span className="text-base font-normal text-gray-500 dark:text-gray-400">
-										/{t('SPONSOR_WEEK')}
-									</span>
-								</div>
-								<div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-									{t('SPONSOR_OR')} ${SponsorAdPricing.MONTHLY}/{t('SPONSOR_MONTH')}
-								</div>
-								<Link href="/sponsor">
-									<Button className="w-full bg-gradient-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg">
-										{t('SPONSOR_CTA')}
-									</Button>
-								</Link>
 							</div>
 						</div>
 					</div>
@@ -411,37 +454,49 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 			{/* Enhanced Continue Section */}
 			{selectedPlan && (
-				<div className="text-center animate-fade-in-up">
-					<div className="inline-flex flex-col items-center gap-6 p-8 rounded-3xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/30 dark:border-gray-700/30 shadow-xl">
-						<div className="flex items-center gap-3">
-							<div className="w-12 h-12 rounded-full bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 flex items-center justify-center">
-								<Check className="w-6 h-6 text-white" />
-							</div>
-							<div className="text-left">
-								<p className="text-lg font-semibold text-gray-900 dark:text-white">
-									{t('GREAT_CHOICE')} {selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}{' '}
-									{t('PLAN')}
-								</p>
-								<p className="text-sm text-gray-600 dark:text-gray-300">{t('READY_TO_GET_STARTED')}</p>
-							</div>
+				<div className="text-center relative animate-fade-in-up">
+
+					<div className={`absolute overflow-hidden top-20 w-4/5 h-72 left-1/2 -translate-x-1/2`}>
+						<div className={`relative isolate h-full`}>
+							<div
+								style={{
+									backgroundImage: 'url(/bg-grid.png)',
+									WebkitMaskImage:
+										'linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%)',
+									maskImage:
+										'linear-gradient(to bottom, transparent 0%, black 40%, black 60%, transparent 100%)'
+								}}
+								className="absolute inset-0 bg-[position-y:9px] bg-[size:100px_100px] z-0 opacity-5 dark:opacity-40"
+							/>
+						</div>
+					</div>
+
+					<div className="inline-flex flex-col items-center gap-6 p-8  backdrop-blur-xl">
+						<div className="">
+							<p className="text-5xl font-semibold text-gray-900/70 dark:text-white w-4/6 mx-auto mb-4">
+								{t('GREAT_CHOICE')} {selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)}{' '}
+								{t('PLAN')}
+							</p>
+							<p className="text-lg text-gray-600 dark:text-gray-300">{t('READY_TO_GET_STARTED')}</p>
 						</div>
 
-						<Button
-							size="lg"
+						<button
 							onClick={() => router.push('/submit')}
-							className="h-14 px-12 rounded-xl font-semibold bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 hover:from-theme-primary-600 hover:via-purple-600 hover:to-theme-primary-700 text-white transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 shadow-lg hover:shadow-xl"
+							className="group h-14 px-12 rounded-full font-semibold border border-purple-500 hover:border-theme-primary-500 text-gray-600 dark:text-white hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:!bg-transparent transition-all duration-300 ease-out"
 						>
 							<div className="flex items-center gap-3">
 								<span className="text-lg">{t('CONTINUE_TO_NEXT_STEP')}</span>
-								<ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+								<span className="inline-block animate-bounce-x">
+									<ArrowRight className="w-5 h-5 transition-transform duration-300 ease-out" />
+								</span>
 							</div>
-						</Button>
+						</button>
 					</div>
 				</div>
 			)}
 
 			{/* Trust Section */}
-			<div className="mt-16 text-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+			<div className="mt-10 lg:mb-20 text-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
 					{[
 						{
@@ -462,13 +517,15 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					].map((item, index) => (
 						<div
 							key={`trust-item-${item.title}-${index}`}
-							className="flex flex-col items-center gap-3 p-6 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-xs border border-gray-200/30 dark:border-gray-700/30 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-all duration-300 hover:scale-105"
+							className="relative overflow-hidden flex flex-col items-center gap-3 p-6 rounded-xl bg-white/80 dark:bg-gray-800/50 backdrop-blur-xs border border-gray-200/80 dark:border-gray-700/30 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-all duration-300"
 						>
+							{/* Top-left gradient accent */}
+							<div className="absolute opacity-70 dark:opacity-100 -top-6 -left-6 w-24 h-24 rounded-full bg-linear-to-br from-purple-500/20 via-theme-primary-500/15 to-transparent blur-xl pointer-events-none" />
 							<div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
 								<item.icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
 							</div>
 							<h4 className="font-semibold text-gray-900 dark:text-white">{item.title}</h4>
-							<p className="text-sm text-gray-600 dark:text-gray-300 text-center">{item.desc}</p>
+							<p className="text-xs text-gray-600 dark:text-gray-300 text-center">{item.desc}</p>
 						</div>
 					))}
 				</div>

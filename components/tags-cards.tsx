@@ -2,9 +2,9 @@
 
 import { Tag } from "@/lib/content";
 import { cn } from "@/lib/utils";
-import { Card, CardBody, CardFooter } from "@heroui/react";
+import { Spinner } from "@heroui/react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { Hash, ArrowRight, Loader2 } from "lucide-react";
+import { Hash, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useContainerWidth } from "@/components/ui/container";
 
@@ -50,7 +50,7 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
       <div
         key={tag.id}
         className={cn(
-          "group cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg relative",
+          "group cursor-pointer overflow-hidden relative rounded-2xl",
           className
         )}
         onClick={handleClick}
@@ -64,34 +64,22 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
         aria-label={`View items tagged ${tag.name}`}
         tabIndex={0}
       >
-        {/* Full card loading overlay */}
+        {/* Loading overlay */}
         {loadingTag === tag.id && (
-          <div className="absolute inset-0 z-20 bg-gray-900/90 dark:bg-gray-800/90 backdrop-blur-xs rounded-lg flex items-center justify-center transition-all duration-300">
-            <div className="flex flex-col items-center gap-3">
-              <div className="relative">
-                <Loader2 className="h-8 w-8 animate-spin text-theme-primary-400 dark:text-theme-primary-300" />
-                <div className="absolute inset-0 rounded-full bg-theme-primary-400/20 animate-ping" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-300 dark:text-gray-300">
-                  Loading...
-                </p>
-                <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">
-                  Navigating to {tag.name}
-                </p>
-              </div>
-            </div>
+          <div className="absolute inset-0 border-1 border-theme-primary-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
+            <Spinner size="lg" color="primary" />
           </div>
         )}
-        <Card
-          className={cn(
-            "dark:bg-gray-800/90 backdrop-blur-xs border border-gray-50 dark:border-gray-700/70",
-            "hover:border-theme-primary-400 dark:hover:border-theme-primary-500",
-            isActive && "ring-2 ring-theme-primary-500 dark:ring-theme-primary-400"
+        <div
+          className={cn( "group overflow-hidden hover:overflow-hidden relative rounded-2xl p-2 shadow-none border-1 border-theme-primary-200 dark:border-gray-800 bg-white dark:bg-gray-800/30 backdrop-blur-md transition-all duration-700 h-full",
+          "hover:shadow-md hover:border-theme-primary/70 dark:hover:border-theme-primary/70",
+          isActive && "border-theme-primary/70 shadow-md"
           )}
         >
-          <CardBody className={cn(
-            compact ? "p-3 sm:p-4" : "p-4 sm:p-6"
+          {/* Bottom-right gradient accent */}
+          <div className="absolute opacity-55 -bottom-6 -right-6 w-24 h-24 rounded-full bg-linear-to-tl from-purple-500/10 via-theme-primary-500/15 to-transparent blur-xl pointer-events-none z-0" />
+          <div className={cn("overflow-hidden rounded-2xl",
+            compact ? "p-3 sm:p-4 relative z-10" : "p-4 sm:p-6 relative z-10"
           )}>
             <div className="flex items-start justify-between">
               <div className={cn(
@@ -100,14 +88,14 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
               )}>
                 <div className={cn(
                   "rounded-lg transition-colors duration-300",
-                  "bg-theme-primary-900/40 dark:bg-theme-primary-900/60",
-                  "group-hover:bg-theme-primary-800/60 dark:group-hover:bg-theme-primary-800/80",
+                  "bg-theme-primary-900/5 dark:bg-theme-primary-900/20 border border-theme-primary/30",
+                  "group-hover:bg-theme-primary-800/10 dark:group-hover:bg-theme-primary-800/20",
                   compact ? "p-1.5" : "p-2"
                 )}>
                   <Hash className={cn(
                     "transition-colors duration-300",
                     "text-theme-primary-500 dark:text-theme-primary-500",
-                    "group-hover:text-theme-primary-300 dark:group-hover:text-theme-primary-500",
+                    "group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-500",
                     compact ? "w-4 h-4" : "w-5 h-5"
                   )} />
                 </div>
@@ -127,28 +115,32 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
               </div>
               <ArrowRight className={cn(
                 "transition-all duration-300 opacity-0 group-hover:opacity-100",
-                "text-theme-primary-400 dark:text-theme-primary-300",
-                "group-hover:translate-x-1",
+                "text-theme-primary-500 dark:text-theme-primary-300",
+                "group-hover:translate-x-1 group-hover:animate-bounce-x",
                 compact ? "w-3.5 h-3.5" : "w-4 h-4"
               )} />
             </div>
-          </CardBody>
-          <CardFooter className={cn(
-            "pt-0",
+          </div>
+          <div className={cn(
+            "pt-0 rounded-2xl",
             compact ? "px-3 sm:px-4 pb-3 sm:pb-4" : "px-4 sm:px-6 pb-4 sm:pb-6"
           )}>
             <div className="flex items-center justify-between w-full">
-              <span className={cn(
-                "font-medium transition-colors duration-300",
-                "text-gray-500 dark:text-gray-500",
-                "group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-500",
+              <span className={cn("inline-flex items-center px-3 py-1 rounded-full",
+										"bg-theme-primary/10 dark:bg-theme-primary/20",
+										"border border-theme-primary/20 dark:border-theme-primary/30",
+										"text-xs font-medium text-theme-primary dark:text-theme-primary-400",
+										"backdrop-blur-sm",
+										"group-hover:bg-theme-primary/15 dark:group-hover:bg-theme-primary/25",
+										"group-hover:border-theme-primary/30 dark:group-hover:border-theme-primary/40",
+										"transition-all duration-300",
                 compact ? "text-xs" : "text-sm"
               )}>
                 {tag.count || 0} items
               </span>
             </div>
-          </CardFooter>
-        </Card>
+          </div>
+        </div>
       </div>
     );
   };

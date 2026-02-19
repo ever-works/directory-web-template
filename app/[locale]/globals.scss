@@ -210,31 +210,26 @@
   body {
     color: var(--foreground);
     background: var(--background);
-    font-family: var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: sans-serif;
+    font-weight: 400;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Locale-specific font overrides — prepend supplementary font for non-Latin scripts */
   body.font-locale-zh {
-    font-family: var(--font-noto-sc), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-noto-sc), sans-serif;
   }
   body.font-locale-ja {
-    font-family: var(--font-noto-jp), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-noto-jp), sans-serif;
   }
   body.font-locale-ko {
-    font-family: var(--font-noto-kr), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-noto-kr), sans-serif;
   }
   body.font-locale-ar {
-    font-family: var(--font-noto-arabic), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-noto-arabic), sans-serif;
   }
   body.font-locale-th {
-    font-family: var(--font-noto-thai), var(--font-poppins), var(--font-open-sans), var(--font-geist-sans),
-      ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: var(--font-noto-thai), sans-serif;
   }
 
   *, *::before, *::after {

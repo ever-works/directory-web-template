@@ -79,17 +79,41 @@ const getCardStyles = (title: string, isPopular: boolean) => {
   const upperTitle = title.toUpperCase();
 
   if (upperTitle === PLAN_TYPES.STANDARD || isPopular) {
-    return [
-      "border-slate-300/50 dark:border-slate-600/50 shadow-xl",
-      "bg-white/95 dark:bg-slate-800/90",
-      "scale-105 z-10", // Larger for middle card
-      "max-w-[380px] min-h-[672px] " // Larger height
-    ];
-  }
+  return [
+    // Base styling
+    "border-theme-primary-200/60 dark:border-slate-600/50 shadow-xl",
+    "bg-white dark:bg-gray-900",
+    "scale-105 z-10",
+    "max-w-[380px] min-h-[672px]",
+
+    // Required for pseudo-elements
+    "relative",
+
+    // ──────────────────────────────────────────
+    // 1. Top-right gradient overlay (::after)
+    //    Light: very faint tint; Dark: richer
+    // ──────────────────────────────────────────
+    "after:absolute after:inset-0 after:rounded-xl after:pointer-events-none",
+    "after:bg-gradient-to-tr after:from-transparent after:via-theme-primary-500/5 after:to-theme-primary-500/10 dark:after:via-theme-primary-900/20 dark:after:to-theme-primary-800/50",
+    "after:z-[1]",
+
+    // ──────────────────────────────────────────
+    // 2. Top + right gradient border (::before)
+    //    Light: muted 40% opacity; Dark: vivid
+    // ──────────────────────────────────────────
+    "before:absolute before:inset-0 before:rounded-xl before:pointer-events-none",
+    "before:bg-[linear-gradient(to_right,transparent_10%,rgb(var(--theme-primary-400)/0.45),rgb(var(--theme-primary-400)/0.45)_90%),linear-gradient(to_bottom,transparent_10%,rgb(var(--theme-primary-400)/0.45),rgb(var(--theme-primary-400)/0.45)_90%)]",
+    "dark:before:bg-[linear-gradient(to_right,transparent_10%,rgb(var(--theme-primary-400)),rgb(var(--theme-primary-400))_90%),linear-gradient(to_bottom,transparent_10%,rgb(var(--theme-primary-400)),rgb(var(--theme-primary-400))_90%)]",
+    "before:bg-[length:100%_2px,2px_100%]",
+    "before:bg-[position:0_0,100%_0]",
+    "before:bg-no-repeat",
+    "before:z-[2]",
+  ];
+}
 
   return [
     "border-slate-200/70 dark:border-slate-600/30 shadow-lg dark:shadow-xl",
-    "bg-white/90 dark:bg-slate-800/80",
+    "bg-white dark:bg-gray-900",
     "max-w-[380px] min-h-[674px]" // Standard height for FREE and PREMIUM
   ];
 };
@@ -117,12 +141,12 @@ export function PlanCard({
   const isPaidPlan = title.toUpperCase() === PLAN_TYPES.STANDARD || title.toUpperCase() === PLAN_TYPES.PREMIUM;
 
   const cardStyles = useMemo(() => cn(
-    "relative flex flex-col",
+    "relative flex flex-col pt-8",
     "w-full rounded-xl border",
     (title.toUpperCase() === 'STANDARD' || isPopular) ? "mt-6" : "mt-2",
 
     ...getCardStyles(title, isPopular),
-    isSelected && "ring-2 ring-blue-500/50 ring-offset-2 ring-offset-white dark:ring-offset-slate-900",
+    isSelected && "",
 
     className
   ), [title, isPopular, isSelected, className]);
@@ -159,31 +183,31 @@ export function PlanCard({
     <article className={cardStyles}>
       {(title.toUpperCase() === 'STANDARD' || isPopular) && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-30">
-          <div className="bg-theme-primary-20 text-white px-4 py-1 rounded-full text-sm font-normal shadow-xl whitespace-nowrap">
+          <div className="bg-theme-primary-700 text-white px-4 py-1 rounded-full text-sm font-normal shadow-xl whitespace-nowrap">
             Most Popular
           </div>
         </div>
       )}
 
-      <header className="flex flex-col items-start text-left px-6 pt-6 pb-4 shrink-0">
+      <header className="relative z-[3] flex flex-col items-start text-left px-6 pt-6 pb-4 shrink-0 max-h-[180px] border-b border-dashed border-gray-500/80 dark:border-gray-500/40">
       <div className="flex items-center justify-between w-full mb-4 gap-4">
           <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
             {title}
           </h3>
           {isPaidPlan && onFlowChange && (
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <ToggleGroup
                 options={PAYMENT_FLOW_OPTIONS}
                 value={selectedFlow}
                 onValueChange={handleFlowChange}
                 size="sm"
                 variant="default"
-                className="flex-shrink-0 h-10 cursor-pointer"
+                className="shrink-0 h-8 cursor-pointer"
               />
               {onOpenModal && (
                 <button
                   onClick={handleOpenModal}
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors flex-shrink-0 cursor-pointer"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 cursor-pointer"
                   aria-label="Learn more about payment options"
                   type="button"
                 >
@@ -214,7 +238,7 @@ export function PlanCard({
       </header>
 
       {/* Features Section - Style exactly like reference image */}
-      <section className="flex-1 px-6 pb-4">
+      <section className="relative z-[3] flex-1 px-6 py-4">
         <div className="space-y-3 h-full flex flex-col justify-start">
           {features.map((feature, index) => (
             <div
@@ -246,7 +270,7 @@ export function PlanCard({
       </section>
 
       {/* Action Button Section - Style exactly like reference image */}
-      <footer className="shrink-0 mt-auto px-6 pb-6">
+      <footer className="relative z-[3] shrink-0 mt-auto px-6 pb-6">
         <Button
           size="default"
           disabled={isLoading}
