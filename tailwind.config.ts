@@ -25,6 +25,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out',
+        'bounce-x': 'bounce-x 1s infinite',
       },
       keyframes: {
         'pulse-subtle': {
@@ -58,6 +59,16 @@ export default {
           '33%': { backgroundColor: 'var(--theme-primary)' },
           '66%': { backgroundColor: 'var(--theme-accent)' },
           '100%': { backgroundColor: 'rgba(98,9,187,0.9)' },
+        },
+        'bounce-x': {
+          '0%, 100%': {
+            transform: 'translateX(-25%)',
+            'animationTimingFunction': 'cubic-bezier(0.8, 0, 1, 1)',
+          },
+          '50%': {
+            transform: 'translateX(0)',
+            'animationTimingFunction': 'cubic-bezier(0, 0, 0.2, 1)',
+          },
         },
       },
       backdropBlur: {

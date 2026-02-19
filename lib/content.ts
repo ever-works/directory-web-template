@@ -178,6 +178,7 @@ export interface PricingPlanConfig {
 
 export interface Category extends Identifiable {
 	count?: number;
+	image_url?: string;
 }
 
 export interface Tag extends Identifiable {

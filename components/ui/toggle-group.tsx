@@ -33,17 +33,17 @@ export function ToggleGroup({
   const sizeClasses = {
     sm: {
       container: 'p-0.5',
-      button: 'px-3 py-1.5 text-xs',
+      button: 'px-2.5 py-1 text-xs',
       badge: 'px-1.5 py-0.5 text-xs'
     },
     md: {
       container: 'p-1',
-      button: 'px-6 py-2.5 text-sm',
+      button: 'px-4 py-2 text-sm',
       badge: 'px-2 py-0.5 text-xs'
     },
     lg: {
       container: 'p-1.5',
-      button: 'px-8 py-3 text-base',
+      button: 'px-6 py-2.5 text-base',
       badge: 'px-2.5 py-1 text-sm'
     }
   };
