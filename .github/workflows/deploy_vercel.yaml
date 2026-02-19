@@ -24,6 +24,7 @@ concurrency:
 env:
   DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
   deploy:
