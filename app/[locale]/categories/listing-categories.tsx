@@ -8,6 +8,7 @@ import { Category } from '@/lib/content';
 import { useLayoutTheme, LayoutHome } from '@/components/context';
 import { ListingSkeleton } from '@/components/ui/skeleton';
 import { Container } from '@/components/ui/container';
+import { GridBackground, DotBgsible } from '@/components/shared/decorative-bg';
 
 interface ListingCategoriesProps {
 	page: number;
@@ -20,7 +21,7 @@ function ListingCategoriesContent(props: ListingCategoriesProps) {
 	const t = useTranslations();
 
 	return (
-		<>
+		<div className="relative">
 			<Hero
 				badgeText={t('listing.CATEGORIES')}
 				title={
@@ -31,12 +32,18 @@ function ListingCategoriesContent(props: ListingCategoriesProps) {
 				description={t('common.CATEGORIES_DESCRIPTION', {
 					defaultValue: 'Browse top categories to find your best Open Source software options.'
 				})}
-				className="min-h-screen text-center pb-24"
+				className="min-h-screen text-center pb-24 relative"
 			>
-				{layoutHome === LayoutHome.HOME_ONE && <HomeOneLayout categories={props.categories} />}
-				{layoutHome === LayoutHome.HOME_TWO && <HomeTwoLayout categories={props.categories} />}
+				<div className="absolute inset-x-0 top-0 w-full h-[350px] flex justify-center items-start -z-10">
+					<GridBackground className="w-full h-full" />
+				</div>
+				<div className='mt-12 xl:mt-[2%]'>
+					{layoutHome === LayoutHome.HOME_ONE && <HomeOneLayout categories={props.categories} />}
+					{layoutHome === LayoutHome.HOME_TWO && <HomeTwoLayout categories={props.categories} />}
+				</div>
 			</Hero>
-		</>
+			<DotBgsible />
+		</div>
 	);
 }
 
@@ -100,7 +107,7 @@ function HomeOneLayout({ categories }: { categories: Category[] }) {
 
 			{/* Categories Grid */}
 			{categories.length > 0 && (
-				<Container maxWidth="7xl" padding="lg" useGlobalWidth>
+				<Container maxWidth="7xl" padding="lg" useGlobalWidth className="">
 					<CategoriesGrid categories={categories} />
 				</Container>
 			)}

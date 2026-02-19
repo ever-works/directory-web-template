@@ -8,6 +8,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useLayoutTheme } from '@/components/context';
 import { Loader2 } from 'lucide-react';
+import { Spinner } from '@heroui/react';
 import { useInView } from 'react-intersection-observer';
 import { PER_PAGE, totalPages } from '@/lib/paginate';
 import { useInfiniteLoading } from '@/hooks/use-infinite-loading';
@@ -141,57 +142,51 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 						aria-label={`View ${category.name} category`}
 						tabIndex={0}
 					>
-						{/* Full card loading overlay */}
+						{/* Loading overlay */}
 						{loadingCategory === category.id && (
-							<div className="absolute inset-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-lg flex items-center justify-center transition-all duration-300">
-								<div className="flex flex-col items-center gap-3">
-									<div className="relative">
-										<Loader2 className="h-8 w-8 animate-spin text-theme-primary-500 dark:text-theme-primary-400" />
-										<div className="absolute inset-0 rounded-full bg-theme-primary-500/20 animate-ping" />
-									</div>
-									<div className="text-center">
-										<p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-											Loading...
-										</p>
-										<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-											Navigating to {category.name}
-										</p>
-									</div>
-								</div>
+							<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-lg flex items-center justify-center z-50 transition-opacity duration-300">
+								<Spinner size="lg" color="primary" />
 							</div>
 						)}
 						<Card
-							className="group relative border-0 rounded-lg transition-all duration-700 transform hover:-translate-y-1 backdrop-blur-xl overflow-hidden h-full
-                bg-white/80 dark:bg-gray-900/80 shadow-md hover:shadow-xl
-                ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-theme-primary/70
-                before:absolute before:inset-0 before:bg-linear-to-br before:from-white/60 before:via-transparent before:to-gray-50/40
-                dark:before:from-gray-800/60 dark:before:via-transparent dark:before:to-gray-900/40
-                hover:before:from-blue-50/30 hover:before:to-purple-50/20 dark:hover:before:from-blue-900/20 dark:hover:before:to-purple-900/10
-                px-4 py-4 sm:px-5 sm:py-5
-              "
+							className="group relative border-0 rounded-lg transition-all duration-700 transform backdrop-blur-xl overflow-hidden h-full
+								bg-white/80 dark:bg-gray-900/80 shadow-md hover:shadow-xl
+								ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-theme-primary/70
+								px-4 py-4 sm:px-5 sm:py-5
+							"
 						>
 							{/* Subtle background pattern */}
 							<div
-								className="absolute inset-0 opacity-10 dark:opacity-20"
+								className="absolute inset-0 opacity-10 dark:opacity-35"
 								style={{
 									backgroundImage:
-										"url('data:image/svg+xml,%3Csvg width=&apos;40&apos; height=&apos;40&apos; viewBox=&apos;0 0 40 40&apos; xmlns=&apos;http://www.w3.org/2000/svg&apos;%3E%3Cg fill=&apos;#000000&apos; fill-opacity=&apos;0.05&apos; fill-rule=&apos;evenodd&apos;%3E%3Cpath d=&apos;M0 0h40v40H0V0zm1 1h38v38H1V1z&apos; /%3E%3C/g%3E%3C/svg%3E')"
+										"url('data:image/svg+xml,%3Csvg width=&apos;40&apos; height=&apos;40&apos; viewBox=&apos;0 0 40 40&apos; xmlns=&apos;http://www.w3.org/2000/svg&apos;%3E%3Cg fill=&apos;#000000&apos; fill-opacity=&apos;0.05&apos; fill-rule=&apos;evenodd&apos;%3E%3Cpath d=&apos;M0 0h40v40H0V0zm1 1h38v38H1V1z&apos; /%3E%3C/g%3E%3C/svg%3E')",
 								}}
 							/>
+							{/* Decorative top image (non-interactive) - uses category.image_url if available */}
+							<div className="pointer-events-none absolute left-0 right-0 top-0 z-20 opacity-40 group-hover:opacity-70 transition-opacity duration-500">
+								<Image
+									src={category.image_url ?? category.icon_url ?? '/bg-cards.png'}
+									alt={category.name}
+									width={800}
+									height={160}
+									className="w-full h-40 object-cover filter brightness-0 dark:brightness-200"
+								/>
+							</div>
 							{/* Icon with animated background */}
 							<div className="relative flex flex-col items-center justify-center pt-1 pb-2">
 								<div className="relative shrink-0">
-									<div className="w-11 h-11 flex items-center justify-center rounded-lg transition-all duration-500 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 group-hover:scale-110 group-hover:rotate-3 shadow-xs group-hover:shadow-md">
+									<div className="w-11 h-11 flex items-center justify-center rounded-lg transition-all duration-500 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md">
 										{category.icon_url ? (
 											<Image
 												src={category.icon_url}
 												alt={category.name}
 												width={24}
 												height={24}
-												className="w-6 h-6 object-contain transition-transform duration-500 group-hover:scale-110"
+												className="w-6 h-6 object-contain transition-transform duration-500"
 											/>
 										) : (
-											<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-500 group-hover:scale-110" />
+											<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-500" />
 										)}
 									</div>
 									{/* Pulse effect */}
@@ -204,9 +199,18 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 								</CardTitle>
 							</CardHeader>
 							{category.count !== undefined && (
-								<CardContent className="text-xs text-gray-500 dark:text-gray-400 p-0">
-									{category.count} items
-								</CardContent>
+								<div className="absolute top-3 left-3 z-20">
+									<div className="inline-flex items-center px-3 py-1.5 rounded-full 
+										bg-theme-primary/10 dark:bg-theme-primary/20
+										border border-theme-primary/20 dark:border-theme-primary/30
+										text-xs font-medium text-theme-primary dark:text-theme-primary-400
+										backdrop-blur-sm
+										group-hover:bg-theme-primary/15 dark:group-hover:bg-theme-primary/25
+										group-hover:border-theme-primary/30 dark:group-hover:border-theme-primary/40
+										transition-all duration-300">
+										{category.count} items
+									</div>
+								</div>
 							)}
 							{/* Enhanced hover indicator */}
 							<div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-2 group-hover:translate-x-0">
