@@ -24,21 +24,25 @@ type AuthFixtures = {
 };
 
 export const test = base.extend<AuthFixtures>({
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	adminContext: async ({ browser }, use) => {
 		const context = await browser.newContext({ storageState: requireAuthState(ADMIN_STATE_PATH) });
 		await use(context);
 		await context.close();
 	},
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	adminPage: async ({ adminContext }, use) => {
 		const page = await adminContext.newPage();
 		await use(page);
 		await page.close();
 	},
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	clientContext: async ({ browser }, use) => {
 		const context = await browser.newContext({ storageState: requireAuthState(CLIENT_STATE_PATH) });
 		await use(context);
 		await context.close();
 	},
+	// eslint-disable-next-line react-hooks/rules-of-hooks
 	clientPage: async ({ clientContext }, use) => {
 		const page = await clientContext.newPage();
 		await use(page);
