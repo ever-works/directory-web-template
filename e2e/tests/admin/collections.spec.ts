@@ -57,7 +57,7 @@ test.describe('Admin: Collections Management', () => {
 		expect(originalName).toBeTruthy();
 
 		// Hover over the collection row to reveal action buttons
-		const collectionRow = firstCollection.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const collectionRow = adminPage.locator('div.group').filter({ hasText: originalName!.trim() }).first();
 		await collectionRow.hover();
 
 		// Click the Edit button
@@ -97,7 +97,7 @@ test.describe('Admin: Collections Management', () => {
 		});
 
 		// Hover to reveal action buttons
-		const collectionRow = firstCollection.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const collectionRow = adminPage.locator('div.group').filter({ hasText: collectionName!.trim() }).first();
 		await collectionRow.hover();
 
 		// Click the Delete button

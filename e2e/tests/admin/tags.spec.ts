@@ -52,7 +52,8 @@ test.describe('Admin: Tags Management', () => {
 		expect(originalName).toBeTruthy();
 
 		// Hover over the tag row to reveal action buttons
-		const tagRow = firstTag.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const tagName = await firstTag.textContent();
+		const tagRow = adminPage.locator('div.group').filter({ hasText: tagName!.trim() }).first();
 		await tagRow.hover();
 
 		// Click the edit button (first small button in the row)
@@ -92,7 +93,7 @@ test.describe('Admin: Tags Management', () => {
 		});
 
 		// Hover over the tag row to reveal action buttons
-		const tagRow = firstTag.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const tagRow = adminPage.locator('div.group').filter({ hasText: tagName!.trim() }).first();
 		await tagRow.hover();
 
 		// Click the delete button (second button with Trash icon)
