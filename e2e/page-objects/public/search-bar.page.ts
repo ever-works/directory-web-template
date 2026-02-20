@@ -11,7 +11,7 @@ export class SearchBar {
 	constructor(page: Page) {
 		this.page = page;
 		this.input = page.locator('input[placeholder*="Search" i]').first();
-		this.clearButton = this.input.locator('..').locator('button').first();
+		this.clearButton = page.locator('button', { hasText: '×' }).first();
 	}
 
 	/** Type a search term into the search input */
