@@ -41,7 +41,7 @@ export function useCreateLemonSqueezyCheckout() {
 	return useMutation({
 		mutationFn: (params: LemonSqueezyCheckoutParams) => lemonsqueezyClient.createCheckout(params),
 
-		onSuccess: (data, variables) => {
+		onSuccess: (data, _variables) => {
 			queryClient.invalidateQueries({
 				queryKey: lemonsqueezyKeys.checkout()
 			});
@@ -51,7 +51,7 @@ export function useCreateLemonSqueezyCheckout() {
 			console.log('✅ Checkout created successfully:', data);
 		},
 
-		onError: (error, variables) => {
+		onError: (error, _variables) => {
 			console.error('❌ Checkout creation failed:', error);
 		}
 	});

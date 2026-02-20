@@ -1,6 +1,6 @@
 import { Category } from '@/lib/content';
 import LayoutGrid from '@/components/layouts/LayoutGrid';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { FiFolder } from 'react-icons/fi';

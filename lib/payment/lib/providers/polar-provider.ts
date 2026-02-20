@@ -473,7 +473,7 @@ export class PolarProvider implements PaymentProviderInterface {
 		};
 	}
 
-	async createSetupIntent(user: User | null): Promise<SetupIntent> {
+	async createSetupIntent(_user: User | null): Promise<SetupIntent> {
 		// Polar doesn't have a direct setup intent equivalent
 		// Return a mock setup intent for compatibility
 		return {
@@ -524,7 +524,7 @@ export class PolarProvider implements PaymentProviderInterface {
 		}
 	}
 
-	async confirmPayment(paymentId: string, paymentMethodId: string): Promise<PaymentIntent> {
+	async confirmPayment(paymentId: string, _paymentMethodId: string): Promise<PaymentIntent> {
 		// Polar handles payment confirmation through webhooks
 		// This method is kept for interface compatibility
 		try {
@@ -1802,7 +1802,7 @@ export class PolarProvider implements PaymentProviderInterface {
 	private getPaymentFormComponent(): React.ComponentType<PaymentFormProps> {
 		// Return a simple payment form component
 		// In a real implementation, this would use Polar's checkout embed
-		const PolarPaymentForm = ({ onSuccess, onError, amount, currency }: PaymentFormProps) => {
+		const PolarPaymentForm = ({ onSuccess, onError: _onError, amount: _amount, currency: _currency }: PaymentFormProps) => {
 			return React.createElement(
 				'div',
 				{ className: 'polar-payment-form' },

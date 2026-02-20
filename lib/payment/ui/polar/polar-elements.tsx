@@ -12,7 +12,7 @@ interface PolarElementsWrapperProps extends PaymentFormProps {
 	onClose?: () => void;
 }
 
-export function PolarElementsWrapper({ checkoutUrl, isReady, isError, ...props }: PolarElementsWrapperProps) {
+export function PolarElementsWrapper({ checkoutUrl, isReady: _isReady, isError, ...props }: PolarElementsWrapperProps) {
 	if (isError) {
 		return (
 			<div className="flex flex-col items-center justify-center p-8 text-center text-red-500">

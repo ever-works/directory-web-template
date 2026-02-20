@@ -56,7 +56,7 @@ export function LocationPicker({
 	showRemoteOption = true,
 	mapHeight = 200,
 	isDisabled = false,
-	isLoading: externalLoading = false,
+	isLoading: _externalLoading = false,
 	id,
 	ariaDescribedBy
 }: LocationPickerProps): React.ReactElement {

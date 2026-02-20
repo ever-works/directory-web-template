@@ -16,15 +16,15 @@ interface SolidgateElementsWrapperProps extends PaymentFormProps {
 export function SolidgatePaymentForm({
 	onSuccess,
 	onError,
-	amount,
-	currency,
-	isSubscription,
+	amount: _amount,
+	currency: _currency,
+	isSubscription: _isSubscription,
 	merchantId,
 	paymentIntent,
 	signature,
-	successUrl,
-	cancelUrl,
-	metadata
+	successUrl: _successUrl,
+	cancelUrl: _cancelUrl,
+	metadata: _metadata
 }: SolidgateElementsWrapperProps) {
 	const [isLoading, setIsLoading] = useState(false);
 	const [errorMessage, setErrorMessage] = useState('');

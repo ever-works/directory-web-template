@@ -410,7 +410,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		});
 	}
 
-	async createSetupIntent(user: User | null): Promise<SetupIntent> {
+	async createSetupIntent(_user: User | null): Promise<SetupIntent> {
 		// Solidgate doesn't have a setup intent concept like Stripe
 		// Return a mock setup intent for compatibility
 		return {
@@ -470,7 +470,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		}
 	}
 
-	async confirmPayment(paymentId: string, paymentMethodId: string): Promise<PaymentIntent> {
+	async confirmPayment(paymentId: string, _paymentMethodId: string): Promise<PaymentIntent> {
 		// Solidgate handles payment confirmation through redirect flow
 		// This method is mainly for compatibility
 		try {

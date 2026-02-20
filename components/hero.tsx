@@ -28,7 +28,7 @@ export default function Hero({
   className = "",
   titleClassName = "",
   descriptionClassName = "",
-  showBackgroundEffects = true,
+  showBackgroundEffects: _showBackgroundEffects = true,
   children,
 }: HeroProps) {
   return (

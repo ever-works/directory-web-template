@@ -28,7 +28,7 @@ interface LemonSqueezyElementsWrapperProps extends PaymentFormProps {
 
 export function LemonSqueezyElementsWrapper({
 	checkoutUrl,
-	isReady,
+	isReady: _isReady,
 	isError,
 	...props
 }: LemonSqueezyElementsWrapperProps) {

@@ -43,11 +43,11 @@ export function ItemFilters({
 	onStatusChange,
 	onCategoriesChange,
 	onTagsChange,
-	onClearAll,
+	onClearAll: _onClearAll,
 	categories,
 	tags,
 	itemCounts,
-	activeFilterCount,
+	activeFilterCount: _activeFilterCount,
 }: ItemFiltersProps) {
 	const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
 	const [categorySearch, setCategorySearch] = useState('');

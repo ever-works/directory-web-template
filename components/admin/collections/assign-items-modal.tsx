@@ -18,7 +18,7 @@ interface AssignItemsModalProps {
 	onSave: (itemSlugs: string[]) => Promise<void>;
 }
 
-export function AssignItemsModal({ isOpen, onClose, collectionName, initialSelected, onSave }: AssignItemsModalProps) {
+export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionName, initialSelected, onSave }: AssignItemsModalProps) {
 	const t = useTranslations('common');
 	const tListing = useTranslations('listing');
 	const PageSize = 50;

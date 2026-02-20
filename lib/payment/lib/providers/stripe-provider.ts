@@ -586,9 +586,9 @@ export class StripeProvider implements PaymentProviderInterface {
 	async handleWebhook(
 		payload: any,
 		signature: string,
-		rawBody?: string,
-		timestamp?: string,
-		webhookId?: string
+		_rawBody?: string,
+		_timestamp?: string,
+		_webhookId?: string
 	): Promise<WebhookResult> {
 		try {
 			const event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);

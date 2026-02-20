@@ -43,7 +43,7 @@ const STATUS_CHIP_CONFIG: Record<string, { color: ChipColor; variant: ChipVarian
  */
 export function SponsorTable({
 	sponsorAds,
-	isLoading,
+	isLoading: _isLoading,
 	isSubmitting,
 	confirmDeleteId,
 	onApprove,
