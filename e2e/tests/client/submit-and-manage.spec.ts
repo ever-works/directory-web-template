@@ -4,6 +4,8 @@ import { ClientSubmissionsPage } from '../../page-objects/client/submissions.pag
 import { TEST_DATA } from '../../helpers/test-data';
 
 test.describe('Client: Submit & Submission Management', () => {
+	test.describe.configure({ mode: 'serial' });
+
 	const testItemName = TEST_DATA.generateItemName();
 	const testItemUrl = TEST_DATA.generateItemUrl();
 	const testDescription = 'This is an E2E test submission for client flow testing.';

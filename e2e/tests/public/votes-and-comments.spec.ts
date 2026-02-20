@@ -104,8 +104,7 @@ test.describe('Item Detail: Comments', () => {
 		await expect(clientPage.getByText(originalText)).toBeVisible({ timeout: 10_000 });
 
 		// Hover over the comment to reveal edit/delete buttons
-		const commentEl = clientPage.getByText(originalText).first();
-		const commentContainer = commentEl.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const commentContainer = clientPage.locator('div.group').filter({ hasText: originalText }).first();
 		await commentContainer.hover();
 
 		// Click the edit button
@@ -119,24 +118,9 @@ test.describe('Item Detail: Comments', () => {
 		await editTextarea.clear();
 		await editTextarea.fill(updatedText);
 
-		// Save the edit (checkmark button)
-		const saveButton = commentContainer.getByRole('button', { name: /save/i }).first();
-		// If save button is not found by name, try the check icon button
-		const isSaveVisible = await saveButton.isVisible().catch(() => false);
-		if (isSaveVisible) {
-			await saveButton.click();
-		} else {
-			// Click the first button that isn't cancel (X)
-			const buttons = commentContainer.locator('button');
-			const buttonCount = await buttons.count();
-			for (let i = 0; i < buttonCount; i++) {
-				const label = await buttons.nth(i).getAttribute('aria-label');
-				if (!label || (!label.includes('Cancel') && !label.includes('Delete'))) {
-					await buttons.nth(i).click();
-					break;
-				}
-			}
-		}
+		// Save the edit — the component renders a button with text "Save" and a Check icon
+		const saveButton = commentContainer.getByRole('button', { name: /save/i });
+		await saveButton.click();
 
 		// Updated comment should be visible
 		await expect(clientPage.getByText(updatedText)).toBeVisible({ timeout: 10_000 });
@@ -162,8 +146,7 @@ test.describe('Item Detail: Comments', () => {
 		await expect(clientPage.getByText(deleteTargetText)).toBeVisible({ timeout: 10_000 });
 
 		// Hover over the comment to reveal delete button
-		const commentEl = clientPage.getByText(deleteTargetText).first();
-		const commentContainer = commentEl.locator('xpath=ancestor::div[contains(@class, "group")]').first();
+		const commentContainer = clientPage.locator('div.group').filter({ hasText: deleteTargetText }).first();
 		await commentContainer.hover();
 
 		// Click the delete button

@@ -48,9 +48,9 @@ export class AdminItemFormPage {
 		this.iconUrlInput = this.modal.locator('#icon_url');
 		this.sourceUrlInput = this.modal.locator('#source_url');
 
-		// Step 3: Classification — inputs have no id, use placeholder/position
-		this.categoryInput = this.modal.locator('input[type="text"]').first();
-		this.tagInput = this.modal.locator('input[type="text"]').nth(1);
+		// Step 3: Classification — inputs have no id; use placeholder text for stable selection
+		this.categoryInput = this.modal.getByPlaceholder(/enter categories/i);
+		this.tagInput = this.modal.getByPlaceholder(/enter tags/i);
 
 		// Last Step: Review
 		this.statusSelect = this.modal.locator('select');

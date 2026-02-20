@@ -4,6 +4,8 @@ import { AdminItemFormPage } from '../../page-objects/admin/item-form.page';
 import { TEST_DATA } from '../../helpers/test-data';
 
 test.describe('Admin: Item CRUD Operations', () => {
+	test.describe.configure({ mode: 'serial' });
+
 	const testItemName = TEST_DATA.generateItemName();
 	const testItemUrl = TEST_DATA.generateItemUrl();
 	const testItemDescription = 'This is an E2E test item description for CRUD testing.';
