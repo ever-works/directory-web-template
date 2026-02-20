@@ -98,8 +98,9 @@ test.describe('Admin: Item Search & Filter', () => {
 		await itemsPage.clearSearch();
 		await adminPage.waitForTimeout(1_000);
 
-		// Items should reappear
+		// Items should reappear with the same count or higher count as before search
 		const restoredItems = adminPage.locator('h4');
+		await expect(restoredItems.first()).toBeVisible({ timeout: 10_000 });
 		const restoredCount = await restoredItems.count();
 		expect(restoredCount).toBeGreaterThanOrEqual(initialCount);
 	});
