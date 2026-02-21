@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, useEffect, useRef } from 'react';
-import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Check, Search, X } from 'lucide-react';
+import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X } from 'lucide-react';
 import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';

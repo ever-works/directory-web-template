@@ -38,8 +38,8 @@ export function FormNavigation({
 					// also attempt to scroll document element and body for some browsers
 					document.documentElement?.scrollTo?.({ top: 0, behavior: 'smooth' } as ScrollToOptions);
 					document.body?.scrollTo?.({ top: 0, behavior: 'smooth' } as ScrollToOptions);
-				} catch (e) {
-					window.scrollTo(0, 0);
+						} catch (_e) {
+							window.scrollTo(0, 0);
 				}
 			}, 50);
 		}
