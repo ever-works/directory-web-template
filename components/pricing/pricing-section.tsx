@@ -1,7 +1,7 @@
 'use client';
 
 import { PlanCard } from './plan-card';
-import { Check, ArrowRight, Zap, Shield } from 'lucide-react';
+import { Check, ArrowRight, Zap, Shield, Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PaymentInterval, PaymentPlan, SponsorAdPricing } from '@/lib/constants';
 import { PaymentFlowSelectorModal } from '../payment';
@@ -71,7 +71,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 	return (
 		<div className="relative z-10 px-4">
-			<DecorativeBg reverse className="-mt-14!" />
+			{!isReview && <DecorativeBg reverse className="-mt-14!" />}
 			{/* Enhanced Header */}
 			{!isReview && (
 				<div className="text-center mb-10 -mt-[180px] animate-fade-in-up">
