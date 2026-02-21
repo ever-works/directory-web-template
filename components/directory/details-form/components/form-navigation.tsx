@@ -28,6 +28,23 @@ export function FormNavigation({
 }: FormNavigationProps) {
 	const isLastStep = currentStep === STEP_DEFINITIONS.length;
 
+	const handleNextClick = () => {
+		onNext();
+		if (typeof window !== 'undefined') {
+			// delay scroll so DOM updates/route transitions don't interrupt animation
+			setTimeout(() => {
+				try {
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+					// also attempt to scroll document element and body for some browsers
+					document.documentElement?.scrollTo?.({ top: 0, behavior: 'smooth' } as ScrollToOptions);
+					document.body?.scrollTo?.({ top: 0, behavior: 'smooth' } as ScrollToOptions);
+				} catch (e) {
+					window.scrollTo(0, 0);
+				}
+			}, 50);
+		}
+	};
+
 	return (
 		<div className={NAVIGATION_CLASSES.container} style={{ animationDelay: '0.5s' }}>
 			<div className="flex gap-4">
@@ -35,8 +52,7 @@ export function FormNavigation({
 					<Button
 						type="button"
 						onClick={onPrevious}
-						variant="outline"
-						className={NAVIGATION_CLASSES.button.base}
+						className={NAVIGATION_CLASSES.button.prev.enabled}
 					>
 						<div className="flex items-center gap-3">
 							<ArrowLeft className="w-5 h-5" />
@@ -49,8 +65,7 @@ export function FormNavigation({
 					<Button
 						type="button"
 						onClick={onBack}
-						variant="outline"
-						className={NAVIGATION_CLASSES.button.base}
+						className={NAVIGATION_CLASSES.button.next.enabled}
 					>
 						<div className="flex items-center gap-3">
 							<ArrowLeft className="w-5 h-5" />
@@ -64,7 +79,7 @@ export function FormNavigation({
 				{!isLastStep ? (
 					<Button
 						type="button"
-						onClick={onNext}
+						onClick={handleNextClick}
 						disabled={!canProceed}
 						className={cn(
 							!canProceed
