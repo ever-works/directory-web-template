@@ -146,7 +146,12 @@ export function ReviewStep({ formData, t }: ReviewStepProps) {
 
 					{formData.introduction && (
 						<ReviewField icon={FileText} label={t('directory.DETAILS_FORM.DETAILED_INTRODUCTION')}>
-							<p className="line-clamp-4">{formData.introduction}</p>
+							<div className="">
+								<div
+									className="prose prose-sm prose-gray dark:prose-invert max-w-none prose-headings:font-semibold prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-code:text-sm prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold prose-ul:list-disc prose-ol:list-decimal prose-li:text-gray-700 dark:prose-li:text-gray-300 prose-blockquote:border-l-4 prose-blockquote:border-blue-500 prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/10 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-lg"
+									dangerouslySetInnerHTML={{ __html: formData.introduction }}
+								/>
+							</div>
 						</ReviewField>
 					)}
 
