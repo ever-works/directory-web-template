@@ -53,8 +53,6 @@ test.describe('UI: Sort Menu', () => {
 			return;
 		}
 
-		const initialLabel = await sortMenu.getCurrentLabel();
-
 		// Open and select a different option
 		await sortMenu.open();
 		await page.waitForTimeout(500);
