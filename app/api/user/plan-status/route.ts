@@ -76,7 +76,7 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *       500:
  *         description: Internal server error
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
 	try {
 		// Verify authentication
 		const session = await auth();

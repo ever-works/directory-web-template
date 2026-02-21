@@ -687,8 +687,8 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		payload: unknown,
 		signature: string,
 		rawBody?: string,
-		timestamp?: string,
-		webhookId?: string
+		_timestamp?: string,
+		_webhookId?: string
 	): Promise<WebhookResult> {
 		try {
 			// Convert webhook secret to key for Web Crypto API

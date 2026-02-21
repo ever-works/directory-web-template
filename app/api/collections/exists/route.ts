@@ -55,7 +55,7 @@ import { collectionRepository } from '@/lib/repositories/collection.repository';
  *                   example: "Failed to check collections existence"
  *               required: ["exists", "count", "error"]
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
 	try {
 		// Fetch only active collections (default behavior of findAll)
 		const collections = await collectionRepository.findAll({ includeInactive: false });

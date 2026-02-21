@@ -63,7 +63,7 @@ import { auth } from '@/lib/auth';
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Check authentication
     const session = await auth();

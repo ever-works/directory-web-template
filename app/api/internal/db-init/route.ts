@@ -10,7 +10,7 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
 	// Security: Only allow in development mode
 	if (process.env.NODE_ENV !== 'development') {
 		return NextResponse.json({ error: 'Not available in production' }, { status: 403 });

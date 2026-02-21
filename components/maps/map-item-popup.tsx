@@ -43,7 +43,7 @@ function truncateText(text: string, maxLength: number): string {
 export function MapItemPopup({
 	item,
 	isOpen,
-	position,
+	position: _position,
 	onClose,
 	locale = 'en'
 }: MapItemPopupProps): React.ReactElement | null {

@@ -88,7 +88,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 		setIsSaving(true);
 		try {
 			// Strip IDs before saving (onUpdate expects CustomNavigationItem[])
-			const itemsToSave: CustomNavigationItem[] = localItems.map(({ id, ...item }) => item);
+			const itemsToSave: CustomNavigationItem[] = localItems.map(({ id: _id, ...item }) => item);
 			await onUpdate(itemsToSave);
 			toast.success(`${type === 'header' ? 'Header' : 'Footer'} navigation updated successfully`);
 		} catch (error) {

@@ -9,7 +9,7 @@ interface UseFeaturedItemsSectionProps {
 
 export function useFeaturedItemsSection({
   limit = 6,
-  enabled = true,
+  enabled: _enabled = true,
 }: UseFeaturedItemsSectionProps = {}) {
   const {
     featuredItems,

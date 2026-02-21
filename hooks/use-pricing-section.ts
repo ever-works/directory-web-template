@@ -150,7 +150,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 
 	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
 		embedded: collectPaymentModeConfig().lemonSqueezy,
-		onPaymentSuccess: (event) => {
+		onPaymentSuccess: (_event) => {
 			toast.success('Subscription created successfully!');
 			router.push('/checkout/success');
 		},

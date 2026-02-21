@@ -181,7 +181,7 @@ export default function Header() {
 	const { data: tagsData, isLoading: tagsLoading } = useTagsExists();
 	const isDemo = isDemoMode();
 
-	const locale = useLocale();
+	const _locale = useLocale();
 	const t = useTranslations('common');
 	const tListing = useTranslations('listing');
 	const tSurvey = useTranslations('survey');
@@ -276,7 +276,6 @@ export default function Header() {
 		// Combine default and custom items
 		return [...defaultItems, ...customItems];
 	}, [
-		locale,
 		config.custom_header,
 		session?.user?.id,
 		features.favorites,

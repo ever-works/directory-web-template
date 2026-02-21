@@ -13,19 +13,19 @@ export class NoOpJobManager implements BackgroundJobManager {
     lastCleanup: new Date()
   };
 
-  scheduleJob(id: string, name: string, job: () => void | Promise<void>, interval: number): void {
+  scheduleJob(_id: string, _name: string, _job: () => void | Promise<void>, _interval: number): void {
     // No-op: Skip job scheduling in development
   }
 
-  scheduleCronJob(id: string, name: string, job: () => void | Promise<void>, cronExpression: string): void {
+  scheduleCronJob(_id: string, _name: string, _job: () => void | Promise<void>, _cronExpression: string): void {
     // No-op: Skip job scheduling in development
   }
 
-  async triggerJob(id: string): Promise<void> {
+  async triggerJob(_id: string): Promise<void> {
     // No-op: Skip job execution in development
   }
 
-  stopJob(id: string): void {
+  stopJob(_id: string): void {
     // No-op: Nothing to stop
   }
 
@@ -33,7 +33,7 @@ export class NoOpJobManager implements BackgroundJobManager {
     // No-op: Nothing to stop
   }
 
-  getJobStatus(id: string): JobStatus | undefined {
+  getJobStatus(_id: string): JobStatus | undefined {
     return undefined;
   }
 

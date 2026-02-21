@@ -1,7 +1,7 @@
 'use client';
 
 import { PlanCard } from './plan-card';
-import { Check, ArrowRight, Zap, Shield, Megaphone } from 'lucide-react';
+import { Check, ArrowRight, Zap, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PaymentInterval, PaymentPlan, SponsorAdPricing } from '@/lib/constants';
 import { PaymentFlowSelectorModal } from '../payment';

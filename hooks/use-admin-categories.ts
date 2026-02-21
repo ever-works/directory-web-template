@@ -138,7 +138,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}): Use
   // Create category mutation
   const createCategoryMutation = useMutation({
     mutationFn: createCategory,
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       toast.success('Category created successfully');
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.categories });
     },
@@ -150,7 +150,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}): Use
   // Update category mutation
   const updateCategoryMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateCategoryRequest }) => updateCategory(id, data),
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       toast.success('Category updated successfully');
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.categories });
     },

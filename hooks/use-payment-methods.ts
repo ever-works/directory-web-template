@@ -239,7 +239,7 @@ export function usePaymentMethods() {
   // Mutation for setting default payment method
   const setDefaultMutation = useMutation<{ success: boolean }, PaymentMethodError, string>({
     mutationFn: setDefaultPaymentMethod,
-    onSuccess: (_, paymentMethodId) => {
+    onSuccess: (_, _paymentMethodId) => {
       // Optimistically update the cache - this would require additional logic to track default
       toast.success('Default payment method updated successfully');
 

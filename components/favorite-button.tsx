@@ -31,7 +31,7 @@ export function FavoriteButton({
 	className,
 	showText = false,
 	position = 'top-right',
-	hideIndicatorInSimilarProducts = false
+	hideIndicatorInSimilarProducts: _hideIndicatorInSimilarProducts = false
 }: FavoriteButtonProps) {
 	// All hooks must be called before any early returns
 	const { data: session } = useSession();

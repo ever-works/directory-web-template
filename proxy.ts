@@ -343,7 +343,7 @@ export default async function proxy(req: NextRequest) {
 						getAll() {
 							return req.cookies.getAll();
 						},
-						setAll(cookiesToSet: CookieToSet[]) {
+						setAll(_cookiesToSet: CookieToSet[]) {
 							// Just mocking setAll as we don't need to write back to response here for the check
 						}
 					}
@@ -384,7 +384,7 @@ export default async function proxy(req: NextRequest) {
 						getAll() {
 							return req.cookies.getAll();
 						},
-						setAll(cookiesToSet: CookieToSet[]) {
+						setAll(_cookiesToSet: CookieToSet[]) {
 							// mock
 						}
 					}
