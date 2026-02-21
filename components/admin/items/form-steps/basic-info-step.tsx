@@ -6,9 +6,9 @@ import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';
 import { EditorContent, Toolbar, ToolbarContent, useEditorToolbar } from '@/lib/editor';
-import { LinkInput } from '../components/link-input';
+import { LinkInput } from '@/components/directory/details-form/components/link-input';
 import type { Category, Tag as TagType } from '@/lib/content';
-import type { FormData } from '../validation/form-validators';
+import type { FormData } from '@/components/directory/details-form/validation/form-validators';
 import { LocationFields } from '@/components/directory/location-fields';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
@@ -20,7 +20,7 @@ import {
 	MAX_DESCRIPTION_LENGTH,
 	DEFAULT_TAGS_TO_SHOW,
 	isValidVideoUrl
-} from '../validation/form-validators';
+} from '@/components/directory/details-form/validation/form-validators';
 
 interface BasicInfoStepProps {
 	formData: FormData;
@@ -63,7 +63,7 @@ export function BasicInfoStep({
 	const { tagsEnabled } = useTagsEnabled();
 	const { extractFromUrl, isLoading: isExtracting } = useUrlExtraction();
 	const [showAllTags, setShowAllTags] = useState(false);
-	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW);
+	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW + 10);
 
 	const [selectedCategories, setSelectedCategories] = useState<string[]>(
 		Array.isArray(formData.categories) ? formData.categories : []
