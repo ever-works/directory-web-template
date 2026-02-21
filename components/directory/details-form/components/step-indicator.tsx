@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Type, Tag, Eye } from 'lucide-react';
+import { Check, Type, CreditCard, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STEP_INDICATOR_CLASSES, STEP_DEFINITIONS } from '../validation/form-validators';
 import type { StepDefinition } from '../validation/form-validators';
@@ -8,15 +8,16 @@ import type { StepDefinition } from '../validation/form-validators';
 interface StepIndicatorProps {
 	currentStep: number;
 	onStepClick: (stepId: number) => void;
+	completedFields?: Set<string>;
 }
 
 const STEP_ICONS = {
 	1: Type,
-	2: Tag,
+	2: CreditCard,
 	3: Eye
 };
 
-export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) {
+export function StepIndicator({ currentStep, onStepClick, completedFields }: StepIndicatorProps) {
 	const steps: StepDefinition[] = STEP_DEFINITIONS.map((step) => ({
 		...step,
 		icon: STEP_ICONS[step.id as keyof typeof STEP_ICONS]
@@ -27,11 +28,38 @@ export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) 
 			{steps.map((step, index) => {
 				const IconComponent = step.icon || Type;
 				const isActive = currentStep === step.id;
-				const isCompleted = currentStep > step.id;
 				const isAccessible = currentStep >= step.id;
 
+				// Use progressFields (all trackable) for connector fill; fields gates navigation
+				const trackFields = (step.progressFields && step.progressFields.length > 0)
+					? step.progressFields
+					: step.fields;
+
+				const totalFields = trackFields.length;
+				const filledFields = totalFields > 0
+					? trackFields.filter((f) => completedFields?.has(f)).length
+					: 0;
+
+				// Step is "completed" when all required (navigation) fields are filled
+				const navFields = step.fields;
+				const stepCompletedFromFields = navFields.length > 0
+					? navFields.every((f) => completedFields?.has(f))
+					: false;
+				const isCompleted = stepCompletedFromFields || currentStep > step.id;
+
+				// fill % for the connector that follows this step
+				let connectorFill = 0;
+				if (stepCompletedFromFields || currentStep > step.id) {
+					connectorFill = 100;
+				} else if (totalFields > 0) {
+					connectorFill = Math.round((filledFields / totalFields) * 100);
+				}
+
+
+
 				return (
-					<div key={step.id} className="flex items-center">
+					<div key={step.id} className="flex items-center flex-1 last:flex-none">
+						{/* Step circle + label */}
 						<div className={STEP_INDICATOR_CLASSES.stepContainer}>
 							<button
 								onClick={() => isAccessible && onStepClick(step.id)}
@@ -40,21 +68,25 @@ export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) 
 								className={cn(
 									STEP_INDICATOR_CLASSES.button.base,
 									isActive && STEP_INDICATOR_CLASSES.button.active,
-									isCompleted && STEP_INDICATOR_CLASSES.button.completed,
-									isActive &&
-										!isCompleted &&
-										`bg-linear-to-r ${step.color} text-white shadow-lg`,
-									!isActive &&
-										!isCompleted &&
-										!isAccessible &&
-										STEP_INDICATOR_CLASSES.button.inaccessible,
-									!isActive &&
-										!isCompleted &&
-										isAccessible &&
-										STEP_INDICATOR_CLASSES.button.accessible
+									isCompleted
+										? STEP_INDICATOR_CLASSES.button.completed
+										: isActive
+										? 'bg-theme-primary-500 text-white shadow-lg shadow-theme-primary-500/30'
+										: isAccessible
+										? STEP_INDICATOR_CLASSES.button.accessible
+										: STEP_INDICATOR_CLASSES.button.inaccessible
 								)}
 							>
-								{isCompleted ? <Check className="w-5 h-5" /> : <IconComponent className="w-5 h-5" />}
+								{isCompleted ? (
+									<Check className="w-5 h-5 text-white" />
+								) : (
+									<IconComponent
+										className={cn(
+											'w-5 h-5',
+											isActive ? 'text-white' : isAccessible ? 'text-theme-primary-500' : 'text-gray-400'
+										)}
+									/>
+								)}
 							</button>
 							<span
 								className={cn(
@@ -67,15 +99,15 @@ export function StepIndicator({ currentStep, onStepClick }: StepIndicatorProps) 
 								{step.title}
 							</span>
 						</div>
+
+						{/* Animated fill connector between steps */}
 						{index < steps.length - 1 && (
-							<div
-								className={cn(
-									STEP_INDICATOR_CLASSES.connector.base,
-									isCompleted
-										? STEP_INDICATOR_CLASSES.connector.completed
-										: STEP_INDICATOR_CLASSES.connector.default
-								)}
-							/>
+							<div className="relative flex-1 mx-4 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+								<div
+									className="absolute inset-0 left-0 rounded-full bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
+									style={{ transform: `scaleX(${connectorFill / 100})` }}
+								/>
+							</div>
 						)}
 					</div>
 				);
