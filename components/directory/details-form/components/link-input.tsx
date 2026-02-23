@@ -128,7 +128,7 @@ export function LinkInput({
 												isMain && onExtract && 'pr-28',
 												focusedField === `link-${link.id}` &&
 													'border-theme-primary-500 dark:border-theme-primary-400 ring-1 ring-theme-primary-500/30',
-												completedFields.has('mainLink') &&
+										isMain && completedFields.has('link') &&
 													'border-green-500 dark:border-green-400 bg-green-50/40 dark:bg-green-900/10',
 												'hover:border-gray-300 dark:hover:border-gray-600'
 											)}
@@ -161,7 +161,7 @@ export function LinkInput({
 													)}
 												</button>
 											)}
-											{isMain && completedFields.has('mainLink') && !isExtracting && (
+											{isMain && completedFields.has('link') && !isExtracting && (
 												<div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-sm shadow-green-500/30">
 													<Check className="h-3 w-3 text-white" />
 												</div>

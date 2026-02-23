@@ -165,7 +165,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 						className={cn(
 							'relative transition-all duration-500',
 							selectedPlan === PaymentPlan.FREE &&
-								'ring-2 ring-theme-primary-500/50 dark:ring-theme-primary-400/50'
+								'ring-2 ring-theme-primary-500/50 dark:ring-theme-primary-400/50 rounded-lg'
 						)}
 					>
 						<PlanCard
@@ -227,7 +227,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 								className={cn(
 									'relative transition-all',
 									selectedPlan === PaymentPlan.STANDARD &&
-										'scale-105 ring-purple-500/50 dark:ring-purple-400/50'
+										'scale-105 ring-purple-500/50 dark:ring-purple-400/50 rounded-lg'
 								)}
 							>
 								<PlanCard
@@ -289,7 +289,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 								className={cn(
 									'relative',
 									selectedPlan === PaymentPlan.PREMIUM &&
-										'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50'
+										'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50 rounded-lg'
 								)}
 							>
 								<PlanCard
