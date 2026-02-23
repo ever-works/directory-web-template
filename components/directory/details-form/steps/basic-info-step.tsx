@@ -200,39 +200,6 @@ export function BasicInfoStep({
 						</div>
 					</div>
 
-					{/* Video URL */}
-					<div className="space-y-3">
-						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
-							Video URL (YouTube or Vimeo)
-						</label>
-						<div className="relative">
-							<input
-								id="video_url"
-								name="video_url"
-								type="url"
-								value={formData.video_url || ''}
-								onChange={handleInputChange}
-								placeholder="https://www.youtube.com/watch?v=..."
-								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
-							/>
-						</div>
-						{/* Video Preview - only for whitelisted hosts */}
-						{formData.video_url && isValidVideoUrl(formData.video_url) && (
-							<div className={VIDEO_PREVIEW_CLASSES.container}>
-								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
-									<iframe
-										src={getVideoEmbedUrl(formData.video_url)}
-										title="Video Preview"
-										style={{ border: 0 }}
-										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-										allowFullScreen
-										className={VIDEO_PREVIEW_CLASSES.iframe}
-									></iframe>
-								</div>
-							</div>
-						)}
-					</div>
-
 					{/* Category - Only show if categories enabled */}
 					{categoriesEnabled && (
 						<div className="space-y-3">
@@ -384,6 +351,39 @@ export function BasicInfoStep({
 							</div>
 						</div>
 					)}
+
+					{/* Video URL */}
+					<div className="space-y-3">
+						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
+							Video URL (YouTube or Vimeo)
+						</label>
+						<div className="relative">
+							<input
+								id="video_url"
+								name="video_url"
+								type="url"
+								value={formData.video_url || ''}
+								onChange={handleInputChange}
+								placeholder="https://www.youtube.com/watch?v=..."
+								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
+							/>
+						</div>
+						{/* Video Preview - only for whitelisted hosts */}
+						{formData.video_url && isValidVideoUrl(formData.video_url) && (
+							<div className={VIDEO_PREVIEW_CLASSES.container}>
+								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
+									<iframe
+										src={getVideoEmbedUrl(formData.video_url)}
+										title="Video Preview"
+										style={{ border: 0 }}
+										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+										allowFullScreen
+										className={VIDEO_PREVIEW_CLASSES.iframe}
+									></iframe>
+								</div>
+							</div>
+						)}
+					</div>
 					</div>
 					
 					<div className='w-1/2 px-4'>

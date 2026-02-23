@@ -63,7 +63,7 @@ export function BasicInfoStep({
 	const { tagsEnabled } = useTagsEnabled();
 	const { extractFromUrl, isLoading: isExtracting } = useUrlExtraction();
 	const [showAllTags, setShowAllTags] = useState(false);
-	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW + 10);
+	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW + 6);
 
 	const [selectedCategories, setSelectedCategories] = useState<string[]>(
 		Array.isArray(formData.categories) ? formData.categories : []
