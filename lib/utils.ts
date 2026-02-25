@@ -212,7 +212,7 @@ export function isCategoryPagePath(pathname: string, href?: string): boolean {
   if (href) {
     return pathname === href || pathname.startsWith(href + "/");
   }
-  return pathname.startsWith('/categories/category/');
+  return pathname === '/categories';
 }
 
 // Returns the embeddable URL for YouTube or Vimeo, or the original if not recognized

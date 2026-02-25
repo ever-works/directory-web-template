@@ -298,7 +298,7 @@ export function CredentialsForm({
 			{auth.credentials && (
 				<form
 					{...(clientMode ? { onSubmit: handleClientSubmit } : { action: handleFormAction as any })}
-					className="space-y-5 animate-fade-in"
+					className="space-y-5 animate-fade-in-stagger"
 					aria-label={isLogin ? t('SIGN_IN') : t('CREATE_ACCOUNT')}
 				>
 					{/* Name field (signup only) */}

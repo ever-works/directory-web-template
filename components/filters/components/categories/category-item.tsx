@@ -57,7 +57,7 @@ export const CategoryItem = memo(function CategoryItem({ category, isActive, hre
       <Button
         ref={btnRef}
         className={cn(
-          "font-medium text-left justify-start items-center transition-all duration-300 mb-1 h-10 px-3 w-full",
+          "font-medium text-left justify-start items-center transition-[color,background-color] duration-200 mb-1 h-10 px-3 w-full",
           "hover:transform-none active:transform-none",
           "group relative",
           isActive
@@ -83,7 +83,7 @@ export const CategoryItem = memo(function CategoryItem({ category, isActive, hre
         <div className="flex items-center justify-between w-full">
           <span
             className={cn(
-              "font-medium truncate pr-2 transition-colors duration-300",
+              "font-medium truncate pr-2 transition-colors duration-200",
               isActive
                 ? "text-white"
                 : "text-gray-700 dark:text-gray-200 group-hover:text-gray-900 dark:group-hover:text-white"
@@ -93,11 +93,10 @@ export const CategoryItem = memo(function CategoryItem({ category, isActive, hre
           </span>
           <span
             className={cn(
-              "text-xs font-semibold px-2 py-0.5 rounded-full transition-all duration-300 shrink-0 z-20",
-              "group-hover:scale-105 group-hover:shadow-sm",
+              "text-xs font-semibold px-2 py-0.5 rounded-full transition-[color,background-color] duration-200 shrink-0 z-20",
               isActive
-                ? "bg-white/20 text-white"
-                : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                ? "bg-white/20 text-white group-hover:bg-white/30"
+                : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 group-hover:bg-theme-primary-100 group-hover:text-theme-primary-700 dark:group-hover:bg-theme-primary-900/30 dark:group-hover:text-theme-primary-300"
             )}
             aria-label={`${isAllCategories ? (totalItems ?? 0) : (category.count ?? 0)} ${t("items", { count: isAllCategories ? (totalItems ?? 0) : (category.count ?? 0), defaultValue: "items" })}`}
           >

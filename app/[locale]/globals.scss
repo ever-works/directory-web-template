@@ -76,7 +76,7 @@
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -232,11 +232,6 @@
     font-family: var(--font-noto-thai), sans-serif;
   }
 
-  *, *::before, *::after {
-    transition-property: background-color, border-color, color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
 }
 
 @layer utilities {
@@ -462,10 +457,10 @@
 }
 
 /* Enhanced animations for modern UI */
-@keyframes fadeIn {
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(5px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -473,10 +468,10 @@
   }
 }
 
-@keyframes fadeInUp {
+@keyframes fadeInUpSubtle {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -567,7 +562,7 @@
   }
 }
 
-.animate-fade-in > * {
+.animate-fade-in-stagger > * {
   animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
 }
@@ -577,8 +572,18 @@
   opacity: 0;
 }
 
+.animate-fade-in-up-subtle {
+  animation: fadeInUpSubtle 0.3s ease-out forwards;
+  opacity: 0;
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 3s;
 }
 
 .animate-float-slow {
@@ -622,12 +627,12 @@
 }
 
 /* Enhanced stagger animations for footer */
-.animate-fade-in > *:nth-child(1) { animation-delay: 0.05s; }
-.animate-fade-in > *:nth-child(2) { animation-delay: 0.1s; }
-.animate-fade-in > *:nth-child(3) { animation-delay: 0.15s; }
-.animate-fade-in > *:nth-child(4) { animation-delay: 0.2s; }
-.animate-fade-in > *:nth-child(5) { animation-delay: 0.25s; }
-.animate-fade-in > *:nth-child(n + 6) { animation-delay: 0.3s; }
+.animate-fade-in-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-fade-in-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.animate-fade-in-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.animate-fade-in-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.animate-fade-in-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.animate-fade-in-stagger > *:nth-child(n + 6) { animation-delay: 0.3s; }
 
 /* Animation delays for stagger effects */
 .animation-delay-2000 {
@@ -669,22 +674,6 @@
 
 .theme-active-pulse {
   animation: theme-pulse 2s infinite;
-}
-
-/* Advanced glassmorphism effects */
-.backdrop-blur-xl {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-}
-
-.backdrop-blur-lg {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
 }
 
 /* Enhanced hover effects */

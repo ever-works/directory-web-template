@@ -18,6 +18,7 @@ import React, {
 import ReactDOM from "react-dom";
 import clsx from "clsx";
 import { usePortal } from "@/hooks/use-portal";
+import { useThrottledScroll } from "@/hooks/use-throttled-scroll";
 import { useCategoriesEnabled } from "@/hooks/use-categories-enabled";
 
 // Style constants
@@ -834,25 +835,21 @@ export function Categories(props: {
   const [isSticky, setIsSticky] = useState(false);
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (props.enableSticky) {
-      const handleScroll = () => {
-        const scrollPosition = window.scrollY;
-        const scrollThreshold = 250;
-        if (scrollPosition > scrollThreshold && !isSticky) {
-          setIsSticky(true);
-        } else if (scrollPosition <= scrollThreshold && isSticky) {
-          setIsSticky(false);
-        }
-      };
+  const isStickyRef = useRef(false);
 
-      window.addEventListener("scroll", handleScroll);
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-      };
+  const handleScroll = useCallback(() => {
+    const scrollPosition = window.scrollY;
+    const scrollThreshold = 250;
+    if (scrollPosition > scrollThreshold && !isStickyRef.current) {
+      isStickyRef.current = true;
+      setIsSticky(true);
+    } else if (scrollPosition <= scrollThreshold && isStickyRef.current) {
+      isStickyRef.current = false;
+      setIsSticky(false);
     }
-    return undefined;
-  }, [isSticky, props.enableSticky]);
+  }, []);
+
+  useThrottledScroll(handleScroll, !!props.enableSticky);
 
   const MAX_VISIBLE_CATEGORIES = props.maxVisibleTags || 8;
   const hasMoreTags = props.categories.length > MAX_VISIBLE_CATEGORIES;

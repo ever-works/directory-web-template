@@ -182,7 +182,9 @@
     "FAVORITE_ITEMS": "favorite items",
     "EXPLORE_ITEMS": "Explore Items",
     "VIEW_DETAILS": "View Details",
-    "ADDED_ON": "Added"
+    "ADDED_ON": "Added",
+    "SWITCH_TO_LIGHT": "切换到浅色模式",
+    "SWITCH_TO_DARK": "切换到深色模式"
   },
   "survey": {
     "SURVEYS": "调查问卷",
@@ -2575,8 +2577,8 @@
       "TITLE": "公司管理",
       "SUBTITLE": "管理公司及其信息",
       "ADD_COMPANY": "添加公司",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "搜索",
       "STATUS_LABEL": "状态",
       "TOTAL_COMPANIES": "公司总数",

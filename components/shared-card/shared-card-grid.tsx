@@ -24,7 +24,7 @@ export function SharedCardGrid({
   layout,
   onItemClick,
   renderCustomItem,
-  animationDelay = 100,
+  animationDelay = 30,
   className = "space-y-4",
 }: SharedCardGridProps) {
   return (
@@ -39,9 +39,9 @@ export function SharedCardGrid({
           {items.length !== 0 && items.map((item, index) => (
             <div
               key={item.slug}
-              className="group animate-fadeInUp h-full"
+              className="group animate-fade-in-up-subtle h-full"
               style={{
-                animationDelay: `${index * animationDelay}ms`,
+                animationDelay: `${Math.min(index * animationDelay, 200)}ms`,
                 animationFillMode: "both",
               }}
             >

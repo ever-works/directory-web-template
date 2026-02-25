@@ -111,7 +111,7 @@
     "OF": "dari",
     "LOADING": "Memuat lebih banyak...",
     "END_OF_CONTENT": "Anda telah mencapai akhir",
-    "RETRY": "Coba Lagi",
+    "RETRY": "Retry",
     "USER_MANAGEMENT": "Manajemen Pengguna",
     "USER_MANAGEMENT_DESC": "Kelola pengguna dan izin platform",
     "CONTENT_MODERATION": "Moderasi Konten",
@@ -169,7 +169,6 @@
     "PUBLISHED_AT": "Dipublikasikan pada",
     "EXPORT_CSV": "Ekspor CSV",
     "GLOBAL": "Global",
-				"RETRY": "Retry",
     "LOADING_ITEMS": "Memuat item...",
     "LOADING_RESPONSES": "Memuat respons...",
     "NO_RESPONSES_FOUND": "Tidak ada respons ditemukan",
@@ -211,7 +210,9 @@
     "VIEW_DETAILS": "Lihat Detail",
     "ADDED_ON": "Ditambahkan",
     "OUR_MOST_POPULAR_ITEMS": "Item kami yang paling populer",
-    "SORT_POPULAR_ITEMS": "Urutkan item populer"
+    "SORT_POPULAR_ITEMS": "Urutkan item populer",
+    "SWITCH_TO_LIGHT": "Beralih ke mode terang",
+    "SWITCH_TO_DARK": "Beralih ke mode gelap"
   },
   "survey": {
     "SURVEYS": "Survei",
@@ -1655,7 +1656,7 @@
         "REGIONAL": "Regional",
         "NATIONAL": "Nasional",
         "GLOBAL": "Global",
-				"RETRY": "Retry"
+        "RETRY": "Retry"
       }
     },
     "CHARTS": {
@@ -2659,8 +2660,8 @@
       "TITLE": "Manajemen Perusahaan",
       "SUBTITLE": "Kelola perusahaan dan informasi mereka",
       "ADD_COMPANY": "Tambah Perusahaan",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Cari",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Total Perusahaan",

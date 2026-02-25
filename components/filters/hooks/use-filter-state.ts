@@ -92,6 +92,15 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     }
     setIsFiltersLoading(true);
     updateURL(filterState);
+    // Scroll to tags/filter section so user sees new filtered results
+    if (typeof window !== 'undefined' && window.scrollY > 100) {
+      const target = document.querySelector('[data-filter-scroll-target]');
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
     loadingTimeoutRef.current = setTimeout(() => {
       setIsFiltersLoading(false);
     }, 400);

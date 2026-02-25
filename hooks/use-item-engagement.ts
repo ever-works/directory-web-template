@@ -71,19 +71,23 @@ export function useItemEngagement(
       try {
         const allMetrics: Record<string, ItemEngagementMetrics> = {};
 
-        // Fetch in batches to avoid URL length limits
+        // Fetch in parallel batches to avoid URL length limits
+        const batches: string[][] = [];
         for (let i = 0; i < slugs.length; i += batchSize) {
-          const batch = slugs.slice(i, i + batchSize);
-          const response = await fetch(
-            `/api/items/engagement?slugs=${encodeURIComponent(batch.join(','))}`
-          );
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch engagement data: ${response.statusText}`);
-          }
-
-          const data = await response.json();
-          
+          batches.push(slugs.slice(i, i + batchSize));
+        }
+        const results = await Promise.all(
+          batches.map(async (batch) => {
+            const response = await fetch(
+              `/api/items/engagement?slugs=${encodeURIComponent(batch.join(','))}`
+            );
+            if (!response.ok) {
+              throw new Error(`Failed to fetch engagement data: ${response.statusText}`);
+            }
+            return response.json();
+          })
+        );
+        for (const data of results) {
           if (data.metrics) {
             Object.assign(allMetrics, data.metrics);
           }

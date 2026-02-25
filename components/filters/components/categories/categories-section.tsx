@@ -38,8 +38,8 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
     } else {
       setSelectedCategories(prev =>
         prev.includes(categoryId)
-          ? prev.filter(id => id !== categoryId)
-          : [...prev, categoryId]
+          ? []             // clicking active category → deselect (show all)
+          : [categoryId]   // clicking inactive category → select ONLY this one
       );
     }
   };

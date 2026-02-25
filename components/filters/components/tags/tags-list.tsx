@@ -21,24 +21,25 @@ const SCROLL_CONTAINER_STYLES = clsx(
 const SCROLL_FADE_LEFT = clsx(
   "absolute left-0 top-0 bottom-2 w-12 pointer-events-none z-5",
   "dark:from-gray-900 dark:via-gray-900/80",
-  "opacity-0 transition-opacity duration-300"
+  "transition-opacity duration-300"
 );
 
 const SCROLL_FADE_RIGHT = clsx(
   "pointer-events-none z-5",
+  "transition-opacity duration-300"
 );
 
 // Sticky left styles for "All Tags" button (similar to home-two-categories)
 const STICKY_LEFT_STYLES = clsx(
   "sticky left-0 shrink-0 z-10 pr-0",
-  "backdrop-blur-sm rounded-r-full",
+  "rounded-r-full",
 );
 
 // Navigation button styles for scroll buttons
 const NAV_BUTTON_STYLES = clsx(
   "h-8 w-8 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center",
   "border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg",
-  "hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200",
+  "hover:bg-gray-50 dark:hover:bg-gray-700 transition-[background-color,box-shadow] duration-200",
   "focus:outline-none focus:ring-0 focus:ring-offset-0",
   "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
   "active:outline-none active:ring-0",
@@ -272,9 +273,16 @@ export function TagsList({
     if (!scrollContainerRef.current || showAllTags) return;
 
     const container = scrollContainerRef.current;
-    const handleScroll = () => measureTags();
+    let rafId: number | null = null;
+    const handleScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        measureTags();
+        rafId = null;
+      });
+    };
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
 
     const resizeObserver = new ResizeObserver(measureTags);
     resizeObserver.observe(container);
@@ -289,6 +297,7 @@ export function TagsList({
 
     return () => {
       container.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) cancelAnimationFrame(rafId);
       resizeObserver.disconnect();
       clearTimeout(timeoutId);
       window.removeEventListener('load', measureTags);
@@ -475,20 +484,14 @@ export function TagsList({
       {!showAllTags && (
         <div className="relative">
           {/* Scroll fade indicators */}
-          {canScrollLeft && (
-            <div
-              className={SCROLL_FADE_LEFT}
-              style={{ opacity: 1 }}
-              aria-hidden="true"
-            />
-          )}
-          {canScrollRight && (
-            <div
-              className={SCROLL_FADE_RIGHT}
-              style={{ opacity: 1 }}
-              aria-hidden="true"
-            />
-          )}
+          <div
+            className={cn(SCROLL_FADE_LEFT, canScrollLeft ? "opacity-100" : "opacity-0")}
+            aria-hidden="true"
+          />
+          <div
+            className={cn(SCROLL_FADE_RIGHT, canScrollRight ? "opacity-100" : "opacity-0")}
+            aria-hidden="true"
+          />
           
           <div 
             ref={scrollContainerRef}

@@ -210,7 +210,9 @@
     "DELETE_COLLECTION_CONFIRM": "Xóa bộ sưu tập \"{name}\"? ",
     "EDIT": "Chỉnh sửa",
     "OUR_MOST_POPULAR_ITEMS": "Các mặt hàng phổ biến nhất của chúng tôi",
-    "SORT_POPULAR_ITEMS": "Sắp xếp các mục phổ biến"
+    "SORT_POPULAR_ITEMS": "Sắp xếp các mục phổ biến",
+    "SWITCH_TO_LIGHT": "Chuyển sang chế độ sáng",
+    "SWITCH_TO_DARK": "Chuyển sang chế độ tối"
   },
   "survey": {
     "SURVEYS": "Khảo sát",
@@ -2639,8 +2641,8 @@
       "TITLE": "Quản lý công ty",
       "SUBTITLE": "Quản lý công ty và thông tin của họ",
       "ADD_COMPANY": "Thêm công ty",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Tìm kiếm",
       "STATUS_LABEL": "Trạng thái",
       "TOTAL_COMPANIES": "Tổng số công ty",

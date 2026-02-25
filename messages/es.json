@@ -144,7 +144,6 @@
     "PUBLISHED_AT": "Publicado en",
     "EXPORT_CSV": "Exportar CSV",
     "GLOBAL": "Global",
-				"RETRY": "Retry",
     "LOADING_ITEMS": "Cargando elementos...",
     "LOADING_RESPONSES": "Cargando respuestas...",
     "NO_RESPONSES_FOUND": "No se encontraron respuestas",
@@ -184,7 +183,9 @@
     "EXPLORE_ITEMS": "Explore Items",
     "VIEW_DETAILS": "View Details",
     "ADDED_ON": "Added",
-    "DIRECTORY": "Directorio"
+    "DIRECTORY": "Directorio",
+    "SWITCH_TO_LIGHT": "Cambiar a modo claro",
+    "SWITCH_TO_DARK": "Cambiar a modo oscuro"
   },
   "survey": {
     "SURVEYS": "Encuestas",
@@ -1587,7 +1588,7 @@
         "REGIONAL": "Regional",
         "NATIONAL": "Nacional",
         "GLOBAL": "Global",
-				"RETRY": "Retry"
+        "RETRY": "Retry"
       }
     },
     "CHARTS": {
@@ -2567,8 +2568,8 @@
       "TITLE": "Gestión de Empresas",
       "SUBTITLE": "Gestionar empresas y su información",
       "ADD_COMPANY": "Agregar Empresa",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Buscar",
       "STATUS_LABEL": "Estado",
       "TOTAL_COMPANIES": "Empresas Totales",

@@ -210,7 +210,9 @@
     "VIEW_DETAILS": "Detayları Görüntüle",
     "ADDED_ON": "Ekleme tarihi",
     "OUR_MOST_POPULAR_ITEMS": "En popüler öğelerimiz",
-    "SORT_POPULAR_ITEMS": "Popüler öğeleri sırala"
+    "SORT_POPULAR_ITEMS": "Popüler öğeleri sırala",
+    "SWITCH_TO_LIGHT": "Açık moda geç",
+    "SWITCH_TO_DARK": "Karanlık moda geç"
   },
   "survey": {
     "SURVEYS": "Anketler",
@@ -2657,8 +2659,8 @@
       "TITLE": "Şirket Yönetimi",
       "SUBTITLE": "Şirketleri ve bilgilerini yönetin",
       "ADD_COMPANY": "Şirket Ekle",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Ara",
       "STATUS_LABEL": "Durum",
       "TOTAL_COMPANIES": "Toplam Şirket",

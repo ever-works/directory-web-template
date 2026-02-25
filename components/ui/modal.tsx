@@ -48,9 +48,11 @@ export function Modal({
 	useEffect(() => {
 		if (isOpen) {
 			setIsRendered(true);
-			// Small delay to trigger animation after render
+			// Double-RAF ensures the DOM has painted before triggering the animation
 			requestAnimationFrame(() => {
-				setIsAnimating(true);
+				requestAnimationFrame(() => {
+					setIsAnimating(true);
+				});
 			});
 			document.body.style.overflow = 'hidden';
 		} else {

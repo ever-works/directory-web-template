@@ -20,8 +20,8 @@ const getTagClasses = () =>
     "dark:from-primary-900/80 dark:to-primary-800/80",
     "text-primary-700 dark:text-primary-300",
     "border border-primary-200/60 dark:border-primary-700/60",
-    "backdrop-blur-xs shadow-xs hover:shadow-md",
-    "transition-all duration-300 hover:-translate-y-1 hover:border-primary-300 dark:hover:border-primary-600",
+    "shadow-xs hover:shadow-md",
+    "transition-[color,box-shadow,border-color] duration-200 hover:border-primary-300 dark:hover:border-primary-600",
     "group overflow-hidden"
   );
 
@@ -50,17 +50,6 @@ export function ItemTag({ name }: { name: string }) {
             {name}
           </span>
 
-          <span
-            className="absolute inset-0 rounded-full bg-linear-to-r from-primary-400/0 via-primary-400/10 to-primary-400/0 
-        dark:via-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-          />
-
-          <span className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-            <span
-              className="absolute -inset-x-full top-0 h-full w-[200%] bg-linear-to-r from-transparent via-white/15 to-transparent 
-          dark:via-white/10 opacity-0 group-hover:opacity-100 animate-[shine_1.5s_ease-out_forwards]"
-            />
-          </span>
         </div>
       </Link>
     </div>
@@ -74,7 +63,7 @@ export function ItemTags({ tags }: { tags: string[] }) {
   }
 
   return (
-    <div className="flex flex-wrap gap-2 animate-fade-in dark:border-dark--theme-200">
+    <div className="flex flex-wrap gap-2 dark:border-dark--theme-200">
       {tags.map((tag, index) => (
         <ItemTag key={index} name={tag} />
       ))}

@@ -63,7 +63,7 @@ export function TopLoadingBar({ isLoading, className }: TopLoadingBarProps) {
       aria-valuemax={100}
     >
       <div
-        className="h-full bg-linear-to-r from-theme-primary via-theme-primary/80 to-theme-primary transition-all duration-300 ease-out shadow-lg"
+        className="h-full bg-linear-to-r from-theme-primary via-theme-primary/80 to-theme-primary transition-[width] duration-300 ease-out shadow-lg"
         style={{
           width: `${progress}%`,
           boxShadow: '0 0 10px rgba(var(--theme-primary-rgb, 59, 130, 246), 0.5)',

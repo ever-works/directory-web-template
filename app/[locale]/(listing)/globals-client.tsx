@@ -110,7 +110,7 @@ export default function GlobalsClient(props: ListingProps) {
 
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
-			<SponsorAdsProvider limit={10}>
+			<SponsorAdsProvider limit={3}>
 				<TopLoadingBar isLoading={isLoading} />
 				<DecorativeBg reverse />
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
@@ -136,7 +136,7 @@ export default function GlobalsClient(props: ListingProps) {
 					)}
 
 					{/* Main Content */}
-					<div className={LAYOUT_STYLES.mainContent}>
+					<div data-filter-scroll-target className={LAYOUT_STYLES.mainContent}>
 						{/* Tags Section - Mobile version - Only show if tags exist */}
 						{sortedTags.length > 0 && (
 							<div className={` lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-8 ${LAYOUT_STYLES.mobileOnly}`}>
@@ -184,9 +184,9 @@ export default function GlobalsClient(props: ListingProps) {
 	}
 
 	return (
-		<SponsorAdsProvider limit={10}>
+		<SponsorAdsProvider limit={3}>
 			<TopLoadingBar isLoading={isLoading} />
-			<div className={LAYOUT_STYLES.mainContainer}>
+			<div data-filter-scroll-target className={LAYOUT_STYLES.mainContainer}>
 				<DecorativeBg reverse />
 				<HomeTwoLayout
 					{...props}

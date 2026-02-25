@@ -4,7 +4,7 @@ import { cn } from "@heroui/react";
  * Common button styles for filter components
  */
 export const buttonStyles = {
-  base: "font-medium transition-all duration-300",
+  base: "font-medium transition-[color,box-shadow,border-color] duration-300",
   active: "bg-theme-primary-500 text-white border-theme-primary-500 shadow-xs",
   inactive: "border border-dark--theme-200 dark:border-dark--theme-800",
   hover: "hover:shadow-md hover:border-theme-primary-200 dark:hover:border-theme-primary-800",
@@ -15,7 +15,7 @@ export const buttonStyles = {
  * Common container styles for filter components
  */
 export const containerStyles = {
-  base: "bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300",
+  base: "bg-white/90 dark:bg-gray-900/90 rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300",
   header: "p-4 border-b border-gray-200/50 dark:border-gray-700/50",
   content: "p-2",
 } as const;

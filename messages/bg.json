@@ -210,7 +210,9 @@
     "VIEW_DETAILS": "Вижте подробности",
     "ADDED_ON": "Добавен",
     "OUR_MOST_POPULAR_ITEMS": "Нашите най-популярни елементи",
-    "SORT_POPULAR_ITEMS": "Подреди популярни елементи"
+    "SORT_POPULAR_ITEMS": "Подреди популярни елементи",
+    "SWITCH_TO_LIGHT": "Превключване към светъл режим",
+    "SWITCH_TO_DARK": "Превключване към тъмен режим"
   },
   "survey": {
     "SURVEYS": "Анкети",
@@ -2657,8 +2659,8 @@
       "TITLE": "Управление на компании",
       "SUBTITLE": "Управление на компании и тяхната информация",
       "ADD_COMPANY": "Добави компания",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Търсене",
       "STATUS_LABEL": "Статус",
       "TOTAL_COMPANIES": "Общо компании",
