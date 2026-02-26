@@ -28,6 +28,12 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
       const update = () => {
         if (typeof window === 'undefined') return;
 
+        // On /categories/[slug] or /tags/[slug] pages, the URL already reflects the
+        // initial filter from the server route. Don't append query params that would
+        // conflict with the path (e.g. /categories/collaboration?categories=communication).
+        const currentPath = window.location.pathname;
+        if (/\/(categories|tags)\/[^/]+/.test(currentPath)) return;
+
         // Build query params from current filter state.
         // Keep the current pathname to avoid triggering Next.js soft navigation.
         const params = new URLSearchParams();
