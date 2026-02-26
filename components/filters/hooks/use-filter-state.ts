@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { SORT_OPTIONS } from '../constants';
 import { SortOption, TagId, CategoryId, LocationFilterState, NearMeCoordinates } from '../types';
@@ -28,11 +28,13 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   const [selectedTags, setSelectedTagsInternal] = useState<TagId[]>(
     initialTag ? [initialTag] : []
   );
+  const selectedTagsRef = useRef<TagId[]>(initialTag ? [initialTag] : []);
 
   /** Multiple category selection for advanced filtering */
   const [selectedCategories, setSelectedCategoriesInternal] = useState<CategoryId[]>(
     initialCategory ? [initialCategory] : []
   );
+  const selectedCategoriesRef = useRef<CategoryId[]>(initialCategory ? [initialCategory] : []);
 
   const [sortBy, setSortBy] = useState<SortOption>(
     initialSortBy && isValidSortOption(initialSortBy) ? initialSortBy : SORT_OPTIONS.POPULARITY
@@ -110,21 +112,15 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
    * Wrapped setter that updates both state and URL
    */
   const setSelectedTags = useCallback((tags: TagId[] | ((prev: TagId[]) => TagId[])) => {
-    let computedTags: TagId[] = [];
-
     setSelectedTagsInternal(prev => {
-      computedTags = typeof tags === 'function' ? tags(prev) : tags;
+      const computedTags = typeof tags === 'function' ? tags(prev) : tags;
+      selectedTagsRef.current = computedTags;
       return computedTags;
     });
-
-    // Read current categories via setter trick, then sync URL
-    setSelectedCategoriesInternal(currentCategories => {
-      syncFilterURL({
-        tags: computedTags,
-        categories: currentCategories,
-        ...getExtraFilterStateFields(),
-      });
-      return currentCategories;
+    syncFilterURL({
+      tags: selectedTagsRef.current,
+      categories: selectedCategoriesRef.current,
+      ...getExtraFilterStateFields(),
     });
   }, [syncFilterURL, getExtraFilterStateFields]);
 
@@ -132,21 +128,15 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
    * Wrapped setter that updates both state and URL
    */
   const setSelectedCategories = useCallback((categories: CategoryId[] | ((prev: CategoryId[]) => CategoryId[])) => {
-    let computedCategories: CategoryId[] = [];
-
     setSelectedCategoriesInternal(prev => {
-      computedCategories = typeof categories === 'function' ? categories(prev) : categories;
+      const computedCategories = typeof categories === 'function' ? categories(prev) : categories;
+      selectedCategoriesRef.current = computedCategories;
       return computedCategories;
     });
-
-    // Read current tags via setter trick, then sync URL
-    setSelectedTagsInternal(currentTags => {
-      syncFilterURL({
-        tags: currentTags,
-        categories: computedCategories,
-        ...getExtraFilterStateFields(),
-      });
-      return currentTags;
+    syncFilterURL({
+      tags: selectedTagsRef.current,
+      categories: selectedCategoriesRef.current,
+      ...getExtraFilterStateFields(),
     });
   }, [syncFilterURL, getExtraFilterStateFields]);
 
@@ -157,30 +147,13 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     setSearchTermInternal(term);
     searchTermRef.current = term;
 
-    // Read current tags/categories via setter trick, then sync URL
-    setSelectedTagsInternal(currentTags => {
-      setSelectedCategoriesInternal(currentCategories => {
-        const loc = locationFilterRef.current;
-        const locationFields: Partial<FilterState> = {};
-        if (loc.nearMe) {
-          locationFields.nearLat = loc.nearMe.latitude;
-          locationFields.nearLng = loc.nearMe.longitude;
-          locationFields.radius = loc.nearMe.radius;
-        }
-        if (loc.city) locationFields.city = loc.city;
-        if (loc.country) locationFields.country = loc.country;
-
-        syncFilterURL({
-          tags: currentTags,
-          categories: currentCategories,
-          q: term || undefined,
-          ...locationFields,
-        });
-        return currentCategories;
-      });
-      return currentTags;
+    syncFilterURL({
+      tags: selectedTagsRef.current,
+      categories: selectedCategoriesRef.current,
+      ...getExtraFilterStateFields(),
+      q: term || undefined,
     });
-  }, [syncFilterURL]);
+  }, [syncFilterURL, getExtraFilterStateFields]);
 
   /**
    * Clear all active filters
@@ -189,7 +162,9 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     setSearchTermInternal("");
     searchTermRef.current = "";
     setSelectedTagsInternal([]);
+    selectedTagsRef.current = [];
     setSelectedCategoriesInternal([]);
+    selectedCategoriesRef.current = [];
     setSortBy(SORT_OPTIONS.POPULARITY);
     setSelectedTag(null);
     setSelectedCategory(null);
@@ -276,18 +251,11 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     if (newFilter.city) locationFields.city = newFilter.city;
     if (newFilter.country) locationFields.country = newFilter.country;
 
-    // Read current tags/categories via setter trick and sync URL
-    setSelectedTagsInternal(currentTags => {
-      setSelectedCategoriesInternal(currentCategories => {
-        syncFilterURL({
-          tags: currentTags,
-          categories: currentCategories,
-          q: searchTermRef.current || undefined,
-          ...locationFields,
-        });
-        return currentCategories;
-      });
-      return currentTags;
+    syncFilterURL({
+      tags: selectedTagsRef.current,
+      categories: selectedCategoriesRef.current,
+      q: searchTermRef.current || undefined,
+      ...locationFields,
     });
   }, [syncFilterURL]);
 
@@ -356,7 +324,7 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     updateLocationFilter({});
   }, [updateLocationFilter]);
 
-  return {
+  return useMemo(() => ({
     // State
     searchTerm,
     selectedTags,
@@ -391,5 +359,33 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     setLocationCity,
     setLocationCountry,
     clearLocationFilter,
-  };
+  }), [
+    searchTerm,
+    selectedTags,
+    selectedCategories,
+    sortBy,
+    selectedTag,
+    selectedCategory,
+    isFiltersLoading,
+    setSearchTerm,
+    setSelectedTags,
+    setSelectedCategories,
+    setSortBy,
+    setSelectedTag,
+    setSelectedCategory,
+    clearAllFilters,
+    removeSelectedTag,
+    addSelectedTag,
+    toggleSelectedTag,
+    removeSelectedCategory,
+    addSelectedCategory,
+    toggleSelectedCategory,
+    clearSelectedCategories,
+    locationFilter,
+    setNearMe,
+    setLocationRadius,
+    setLocationCity,
+    setLocationCountry,
+    clearLocationFilter,
+  ]);
 } 

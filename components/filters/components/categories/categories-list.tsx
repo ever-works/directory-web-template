@@ -1,3 +1,4 @@
+import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { CategoriesListProps } from "../../types";
@@ -24,8 +25,14 @@ export function CategoriesList({
   
   const totalItems = categories.reduce((sum, cat) => sum + (cat.count || 0), 0);
 
+  const allCategory = useMemo(() => ({
+    id: "all",
+    name: t("ALL_CATEGORIES"),
+    count: totalItems,
+  }), [t, totalItems]);
+
   // Handle category toggle for filter mode
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = useCallback((categoryId: string) => {
     if (propOnCategoryToggle) {
       // Use prop callback if provided
       propOnCategoryToggle(categoryId);
@@ -37,14 +44,14 @@ export function CategoriesList({
         toggleSelectedCategory(categoryId);
       }
     }
-  };
+  }, [propOnCategoryToggle, clearSelectedCategories, toggleSelectedCategory]);
 
   if (mode === "filter") {
     return (
       <div className="space-y-1.5 max-h-lvh">
         {/* All Categories Item */}
         <CategoryItem
-          category={{ id: "all", name: t("ALL_CATEGORIES"), count: totalItems }}
+          category={allCategory}
           isActive={selectedCategories.length === 0}
           href="#"
           isAllCategories={true}
@@ -60,7 +67,7 @@ export function CategoriesList({
         >
           {categories.map((category) => {
             if (!category.count) return null;
-            
+
             const isActive = selectedCategories.includes(category.id);
 
             return (
@@ -84,7 +91,7 @@ export function CategoriesList({
     <div className="space-y-1.5 max-h-lvh">
       {/* All Categories Item */}
       <CategoryItem
-        category={{ id: "all", name: t("ALL_CATEGORIES"), count: totalItems }}
+        category={allCategory}
         isActive={isCategoryPagePath(pathname)}
         href="/categories"
         isAllCategories={true}

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import { generateFilterURL, type FilterState } from '@/lib/utils/url-filter-sync';
 
 interface UseFilterURLSyncOptions {
@@ -17,22 +16,22 @@ interface UseFilterURLSyncOptions {
  */
 export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const { basePath = '/', locale, debounceMs = 300 } = options;
-  const router = useRouter();
-  const pathname = usePathname();
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Update URL based on filter state
+   * Uses replaceState to avoid triggering Next.js server navigation
    * Uses debouncing to avoid excessive history entries
    */
   const updateURL = useCallback(
     (filters: FilterState, immediate = false) => {
       const update = () => {
+        if (typeof window === 'undefined') return;
+
         const newURL = generateFilterURL(filters, { basePath, locale });
 
         // Get current full URL (pathname + search)
-        // IMPORTANT: Use window.location to get the ACTUAL browser URL
-        const currentFullPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : pathname;
+        const currentFullPath = window.location.pathname + window.location.search;
 
         // Normalize URLs for comparison
         const normalize = (url: string) => {
@@ -58,7 +57,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
 
         // Only update if the URL actually changed
         if (normalizedNewURL !== normalizedCurrentPath) {
-          router.push(newURL, { scroll: false });
+          window.history.replaceState(null, '', newURL);
         }
       };
 
@@ -77,7 +76,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         }, debounceMs);
       }
     },
-    [router, pathname, basePath, locale, debounceMs]
+    [basePath, locale, debounceMs]
   );
 
   /**
