@@ -562,6 +562,7 @@
   }
 }
 
+.animate-fade-in > *,
 .animate-fade-in-stagger > * {
   animation: fadeIn 0.3s ease-out forwards;
   opacity: 0;
@@ -626,12 +627,18 @@
   scrollbar-width: none;
 }
 
-/* Enhanced stagger animations for footer */
+/* Enhanced stagger animations */
+.animate-fade-in > *:nth-child(1),
 .animate-fade-in-stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.animate-fade-in > *:nth-child(2),
 .animate-fade-in-stagger > *:nth-child(2) { animation-delay: 0.1s; }
+.animate-fade-in > *:nth-child(3),
 .animate-fade-in-stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.animate-fade-in > *:nth-child(4),
 .animate-fade-in-stagger > *:nth-child(4) { animation-delay: 0.2s; }
+.animate-fade-in > *:nth-child(5),
 .animate-fade-in-stagger > *:nth-child(5) { animation-delay: 0.25s; }
+.animate-fade-in > *:nth-child(n + 6),
 .animate-fade-in-stagger > *:nth-child(n + 6) { animation-delay: 0.3s; }
 
 /* Animation delays for stagger effects */
