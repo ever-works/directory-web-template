@@ -54,8 +54,8 @@ export default function GlobalsClient(props: ListingProps) {
 	const { layoutHome = LayoutHome.HOME_ONE, paginationType: _paginationType } = useLayoutTheme();
 	const { selectedCategories, searchTerm, selectedTags, isFiltersLoading, locationFilter } =
 		useFilters();
-	const sortedTags = sortByNumericProperty(props.tags);
-	const sortedCategories = sortByNumericProperty(props.categories);
+	const sortedTags = useMemo(() => sortByNumericProperty(props.tags), [props.tags]);
+	const sortedCategories = useMemo(() => sortByNumericProperty(props.categories), [props.categories]);
 
 	// Use the new hook for featured items
 	const { featuredItems } = useFeaturedItemsSection({
@@ -108,25 +108,24 @@ export default function GlobalsClient(props: ListingProps) {
 	// Combined loading state
 	const isLoading = isFiltersLoading || isEngagementLoading || isLocationLoading;
 
+	// Memoize config object to prevent new object reference on every render
+	const listingConfig = useMemo(() => ({
+		showStats: false,
+		showViewToggle: true,
+		showFilters: false,
+		showPagination: true,
+		showEmptyState: true,
+		enableSearch: false,
+		enableTagFilter: false,
+		enableSorting: !(locationFilter.sortByDistance && distances.size > 0),
+	}), [locationFilter.sortByDistance, distances.size]);
+
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
-			<SponsorAdsProvider limit={10}>
+			<SponsorAdsProvider limit={3}>
 				<TopLoadingBar isLoading={isLoading} />
 				<DecorativeBg reverse />
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
-				{/* Featured Items Section - Only show on first page and desktop */}
-				{/* {page === 1 && featuredItems.length > 0 && (
-          <div className={`mb-8 sm:mb-10 md:mb-12 lg:mb-16 ${LAYOUT_STYLES.desktopOnly}`}>
-            <FeaturedItemsSection
-              className="mb-12"
-              title="Featured Items"
-              description="Discover our handpicked selection of top-rated tools and resources"
-              limit={6}
-              variant="hero"
-            />
-          </div>
-        )} */}
-
 				<div className={isFluid ? LAYOUT_STYLES.contentWrapperFluid : LAYOUT_STYLES.contentWrapper}>
 					{/* Sidebar - Categories */}
 					{sortedCategories.length > 0 && (
@@ -136,7 +135,7 @@ export default function GlobalsClient(props: ListingProps) {
 					)}
 
 					{/* Main Content */}
-					<div className={LAYOUT_STYLES.mainContent}>
+					<div data-filter-scroll-target className={LAYOUT_STYLES.mainContent}>
 						{/* Tags Section - Mobile version - Only show if tags exist */}
 						{sortedTags.length > 0 && (
 							<div className={` lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-8 ${LAYOUT_STYLES.mobileOnly}`}>
@@ -162,16 +161,7 @@ export default function GlobalsClient(props: ListingProps) {
 									{...props}
 									items={filteredItems}
 									totalCount={props.items.length}
-									config={{
-										showStats: false,
-										showViewToggle: true,
-										showFilters: false,
-										showPagination: true,
-										showEmptyState: true,
-										enableSearch: false,
-										enableTagFilter: false,
-										enableSorting: !(locationFilter.sortByDistance && distances.size > 0),
-									}}
+									config={listingConfig}
 								/>
 							</div>
 						</LocationDistanceProvider>
@@ -184,9 +174,9 @@ export default function GlobalsClient(props: ListingProps) {
 	}
 
 	return (
-		<SponsorAdsProvider limit={10}>
+		<SponsorAdsProvider limit={3}>
 			<TopLoadingBar isLoading={isLoading} />
-			<div className={LAYOUT_STYLES.mainContainer}>
+			<div data-filter-scroll-target className={LAYOUT_STYLES.mainContainer}>
 				<DecorativeBg reverse />
 				<HomeTwoLayout
 					{...props}

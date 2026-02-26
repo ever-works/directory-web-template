@@ -2,7 +2,7 @@
 import { Suspense } from 'react';
 import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
-import { getVideoEmbedUrl, toTitleCase } from '@/lib/utils';
+import { getVideoEmbedUrl, toTitleCase, slugify } from '@/lib/utils';
 import { ShareButton } from './share-button';
 import { CommentsSection } from './comments-section';
 import { VoteButton } from './vote-button';
@@ -62,10 +62,11 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
-	const categoryId = typeof meta.category === 'string'
-		? meta.category
-		: (meta.category as { id?: string })?.id;
-	const encodedCategory = encodeURIComponent(categoryId || categoryName);
+	const firstCategory = Array.isArray(meta.category) ? meta.category[0] : meta.category;
+	const rawCategoryId = typeof firstCategory === 'string'
+		? firstCategory
+		: (firstCategory as { id?: string })?.id;
+	const encodedCategory = encodeURIComponent(slugify(rawCategoryId || categoryName));
 	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 
 	// Generate Product schema for SEO

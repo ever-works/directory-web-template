@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Accordion, AccordionItem } from "@heroui/react";
 import { useTranslations } from "next-intl";
 import { CategoriesProps } from "../../types";
@@ -32,17 +33,17 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
     clearAllFilters
   } = useFilters();
 
-  const handleCategoryToggle = (categoryId: string) => {
+  const handleCategoryToggle = useCallback((categoryId: string) => {
     if (categoryId === "all" || categoryId === "clear-all") {
       setSelectedCategories([]);
     } else {
       setSelectedCategories(prev =>
         prev.includes(categoryId)
-          ? prev.filter(id => id !== categoryId)
-          : [...prev, categoryId]
+          ? []             // clicking active category → deselect (show all)
+          : [categoryId]   // clicking inactive category → select ONLY this one
       );
     }
-  };
+  }, [setSelectedCategories]);
 
   // Don't render if no categories
   if (!categories || categories.length === 0) {

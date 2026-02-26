@@ -16,7 +16,6 @@ export function useItemFiltering(
   items: ItemData[],
   searchTerm: string,
   selectedTags: TagId[],
-  selectedTag: TagId | null,
   options: UseItemFilteringOptions
 ): ItemData[] {
   return useMemo(
@@ -25,10 +24,9 @@ export function useItemFiltering(
         items,
         searchTerm,
         selectedTags,
-        selectedTag,
         options.enableSearch,
         options.enableTagFilter
       ),
-    [items, searchTerm, selectedTags, selectedTag, options.enableSearch, options.enableTagFilter]
+    [items, searchTerm, selectedTags, options.enableSearch, options.enableTagFilter]
   );
 }

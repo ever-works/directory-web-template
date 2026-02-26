@@ -169,7 +169,6 @@
 		"PUBLISHED_AT": "Published at",
 		"EXPORT_CSV": "Export CSV",
 		"GLOBAL": "Global",
-		"RETRY": "Retry",
 		"LOADING_ITEMS": "Loading items...",
 		"LOADING_RESPONSES": "Loading responses...",
 		"NO_RESPONSES_FOUND": "No responses found",
@@ -211,7 +210,9 @@
 		"VIEW_DETAILS": "View Details",
 		"ADDED_ON": "Added",
 		"OUR_MOST_POPULAR_ITEMS": "Our most popular items",
-		"SORT_POPULAR_ITEMS": "Sort popular items"
+		"SORT_POPULAR_ITEMS": "Sort popular items",
+		"SWITCH_TO_LIGHT": "Switch to light mode",
+		"SWITCH_TO_DARK": "Switch to dark mode"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

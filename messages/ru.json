@@ -210,7 +210,9 @@
     "VIEW_DETAILS": "Подробнее",
     "ADDED_ON": "Добавлено",
     "OUR_MOST_POPULAR_ITEMS": "Наши самые популярные элементы",
-    "SORT_POPULAR_ITEMS": "Сортировать популярные элементы"
+    "SORT_POPULAR_ITEMS": "Сортировать популярные элементы",
+    "SWITCH_TO_LIGHT": "Переключить на светлую тему",
+    "SWITCH_TO_DARK": "Переключить на тёмную тему"
   },
   "survey": {
     "SURVEYS": "Опросы",
@@ -2657,8 +2659,8 @@
       "TITLE": "Управление компаниями",
       "SUBTITLE": "Управление компаниями и их информацией",
       "ADD_COMPANY": "Добавить компанию",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Поиск",
       "STATUS_LABEL": "Статус",
       "TOTAL_COMPANIES": "Всего компаний",

@@ -48,12 +48,12 @@ export function Tags({
   return (
     <div
       className={cn(
-        "transition-all duration-300",
+        "transition-[background-color,box-shadow] duration-200 py-2",
         enableSticky
           ? cn(
               "sticky top-4 z-10",
               isSticky
-                ? "bg-white/95 dark:bg-[#0b111f]/95 py-2 shadow-md backdrop-blur-xs"
+                ? "bg-white/95 dark:bg-[#0b111f]/95 shadow-md"
                 : "bg-transparent"
             )
           : "bg-inherit"
@@ -77,7 +77,7 @@ export function Tags({
               radius="full"
               size="sm"
               className={cn(
-                "px-4 py-1 font-medium transition-all duration-300 bg-theme-primary-10 text-theme-primary",
+                "px-4 py-1 font-medium transition-[color,box-shadow] duration-200 bg-theme-primary-10 text-theme-primary",
                 isSticky && "shadow-xs"
               )}
               onPress={toggleTagVisibility}

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback, useRef } from "react";
+import { useThrottledScroll } from "@/hooks/use-throttled-scroll";
 import { PageContainer } from "@/components/ui/container";
 import {
   HowItWorks,
@@ -177,13 +178,11 @@ export default function HelpPageClient() {
     }
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowProgress(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+  const handleScroll = useCallback(() => {
+    setShowProgress(window.scrollY > 100);
   }, []);
+
+  useThrottledScroll(handleScroll);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black text-slate-900 dark:text-white transition-all duration-300">

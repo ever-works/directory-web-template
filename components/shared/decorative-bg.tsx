@@ -26,7 +26,10 @@ export default function DecorativeBg({ className = '', reverse = false }: Decora
           height={400}
         />
 
-        <div className="w-[95rem] h-[82rem] rounded-full bg-[#6209bb]/90 blur-3xl z-10 absolute left-1/2 -translate-x-1/2 -bottom-[81rem] dark:opacity-25 opacity-10 animate-bg-cycle motion-reduce:animate-none"></div>
+        <div
+          className="w-[95rem] h-[82rem] rounded-full z-10 absolute left-1/2 -translate-x-1/2 -bottom-[81rem] dark:opacity-25 opacity-10"
+          style={{ background: "radial-gradient(ellipse at center, rgba(98,9,187,0.9) 0%, transparent 70%)" }}
+        ></div>
       </div>
     </div>
   );
@@ -68,7 +71,10 @@ export function GridBackground({ children, className = "" }: { children?: React.
       />
       {/* Stars overlay */}
       <StarsBackground className="z-20" color="#6209bb" glow />
-      <div className="w-[95rem] h-[82rem] rounded-full bg-[#6209bb]/90 blur-3xl z-10 absolute left-1/2 -translate-x-1/2 -bottom-[78rem] dark:opacity-25 opacity-10 animate-bg-cycle motion-reduce:animate-none"></div>
+      <div
+        className="w-[95rem] h-[82rem] rounded-full z-10 absolute left-1/2 -translate-x-1/2 -bottom-[78rem] dark:opacity-25 opacity-10"
+        style={{ background: "radial-gradient(ellipse at center, rgba(98,9,187,0.9) 0%, transparent 70%)" }}
+      ></div>
       {/* Content slot */}
       <div className="relative z-10">
         {children}
@@ -78,7 +84,7 @@ export function GridBackground({ children, className = "" }: { children?: React.
   )
 }
 
-const STAR_COUNT = 60;
+const STAR_COUNT = 20;
 
 function randomBetween(a: number, b: number) {
   return Math.random() * (b - a) + a;
@@ -138,6 +144,7 @@ export function StarsBackground({ className = "", color = "#fff", glow = false }
               opacity: star.opacity,
               background: star.color,
               boxShadow: star.glow ? `0 0 8px ${star.color}` : undefined,
+              willChange: "transform",
               animationDelay: star.delay,
               animationDuration: star.duration,
             }}

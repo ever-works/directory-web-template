@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { useThrottledScroll } from "@/hooks/use-throttled-scroll";
 import { useCategoriesEnabled } from "@/hooks/use-categories-enabled";
 
 export function ItemsCategories(props: {
@@ -19,25 +20,21 @@ export function ItemsCategories(props: {
     const [isSticky, setIsSticky] = useState(false);
     const pathname = usePathname();
 
-    useEffect(() => {
-      if (props.enableSticky) {
-        const handleScroll = () => {
-          const scrollPosition = window.scrollY;
-          const scrollThreshold = 250;
-          if (scrollPosition > scrollThreshold && !isSticky) {
-            setIsSticky(true);
-          } else if (scrollPosition <= scrollThreshold && isSticky) {
-            setIsSticky(false);
-          }
-        };
-  
-        window.addEventListener("scroll", handleScroll);
-        return () => {
-          window.removeEventListener("scroll", handleScroll);
-        };
+    const isStickyRef = useRef(false);
+
+    const handleScroll = useCallback(() => {
+      const scrollPosition = window.scrollY;
+      const scrollThreshold = 250;
+      if (scrollPosition > scrollThreshold && !isStickyRef.current) {
+        isStickyRef.current = true;
+        setIsSticky(true);
+      } else if (scrollPosition <= scrollThreshold && isStickyRef.current) {
+        isStickyRef.current = false;
+        setIsSticky(false);
       }
-      return undefined;
-    }, [isSticky, props.enableSticky]);
+    }, []);
+
+    useThrottledScroll(handleScroll, !!props.enableSticky);
 
     if (!categoriesEnabled) {
       return null;

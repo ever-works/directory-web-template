@@ -62,7 +62,6 @@ export function applyFilters(
   items: ItemData[],
   searchTerm: string,
   selectedTags: TagId[],
-  selectedTag: TagId | null,
   enableSearch: boolean,
   enableTagFilter: boolean
 ): ItemData[] {
@@ -74,7 +73,6 @@ export function applyFilters(
 
   if (enableTagFilter) {
     filtered = filterByTags(filtered, selectedTags);
-    filtered = filterByTag(filtered, selectedTag);
   }
 
   return filtered;

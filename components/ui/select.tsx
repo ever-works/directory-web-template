@@ -133,7 +133,7 @@ export function Select({
       setIsOpen(false);
     };
 
-    window.addEventListener('scroll', handleScroll, { capture: true });
+    window.addEventListener('scroll', handleScroll, { capture: true, passive: true });
 
     return () => {
       window.removeEventListener('scroll', handleScroll, { capture: true });

@@ -98,14 +98,13 @@ export function AnimatedContainer({
   return (
     <div
       className={cn(
-        'transition-all',
+        'transition-[opacity,transform]',
         durationClass,
         isVisible ? animation.animate : animation.initial,
         className
       )}
       style={{
         transitionTimingFunction: easingMap[easing],
-        transitionDelay: `${delay}ms`,
       }}
     >
       {children}
@@ -249,7 +248,7 @@ export function PageTransition({ children, isVisible, className }: PageTransitio
   return (
     <div
       className={cn(
-        'transition-all duration-300 ease-in-out',
+        'transition-[opacity,transform] duration-300 ease-in-out',
         isVisible
           ? 'opacity-100 translate-y-0 scale-100'
           : 'opacity-0 translate-y-4 scale-95',

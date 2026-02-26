@@ -144,7 +144,6 @@
     "PUBLISHED_AT": "Publié le",
     "EXPORT_CSV": "Exporter en CSV",
     "GLOBAL": "Global",
-				"RETRY": "Retry",
     "LOADING_ITEMS": "Chargement des éléments...",
     "LOADING_RESPONSES": "Chargement des réponses...",
     "NO_RESPONSES_FOUND": "Aucune réponse trouvée",
@@ -184,7 +183,9 @@
     "EXPLORE_ITEMS": "Explorer les éléments",
     "VIEW_DETAILS": "Voir les détails",
     "ADDED_ON": "Ajouté le",
-    "DIRECTORY": "Annuaire"
+    "DIRECTORY": "Annuaire",
+    "SWITCH_TO_LIGHT": "Passer en mode clair",
+    "SWITCH_TO_DARK": "Passer en mode sombre"
   },
   "survey": {
     "SURVEYS": "Sondages",
@@ -2635,8 +2636,8 @@
       "TITLE": "Gestion des Entreprises",
       "SUBTITLE": "Gérer les entreprises et leurs informations",
       "ADD_COMPANY": "Ajouter une Entreprise",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Rechercher",
       "STATUS_LABEL": "Statut",
       "TOTAL_COMPANIES": "Entreprises Totales",

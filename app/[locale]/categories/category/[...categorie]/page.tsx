@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getCachedItemsByCategory, getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { toTitleCase } from "@/lib/utils";
+import { toTitleCase, slugify } from "@/lib/utils";
 import Listing from "../../../(listing)/listing";
 
 // Enable ISR with 10 minutes revalidation
@@ -76,16 +76,24 @@ export default async function CategoryListing({
 
   const { items, categories, total, tags } = result;
 
+  // Resolve to a known category ID (handles URL-encoded names with spaces, etc.)
+  const slug = slugify(category);
+  const matchedCategory = categories.find(
+    (c) => c.id === category || c.id === slug
+      || c.name.toLowerCase() === category.toLowerCase()
+  );
+  const resolvedCategory = matchedCategory?.id ?? slug;
+
   return (
     <Listing
       total={total}
       start={start}
       page={page}
-      basePath={`/categories/category/${category}`}
+      basePath={`/categories/category/${resolvedCategory}`}
       categories={categories}
       tags={tags}
       items={items}
-      initialCategory={category}
+      initialCategory={resolvedCategory}
     />
   );
 }

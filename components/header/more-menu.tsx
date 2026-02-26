@@ -70,7 +70,7 @@ const MENU_ITEMS_CONFIG: Array<{
 const STYLES = {
   button: cn(
     "flex items-center gap-1",
-    "transition-all duration-200 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
+    "transition-colors duration-150 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
     "text-gray-700 dark:text-gray-300",
     "cursor-pointer hover:text-theme-primary",
     "outline-none focus:outline-none focus-visible:outline-none",
@@ -79,7 +79,7 @@ const STYLES = {
   dropdownContent: cn(
     "min-w-[11rem]",
     "bg-white/95 dark:bg-gray-900/95",
-    "backdrop-blur-xl",
+    "backdrop-blur-sm",
     "border border-gray-200/50 dark:border-gray-700/50",
     "rounded-2xl",
     "shadow-2xl shadow-gray-900/10 dark:shadow-black/30",
@@ -100,21 +100,20 @@ const STYLES = {
     "hover:bg-gradient-to-r hover:from-theme-primary/10 hover:to-theme-primary/5",
     "hover:text-theme-primary dark:hover:text-theme-primary",
     "cursor-pointer outline-none",
-    "transition-all duration-200",
+    "transition-colors duration-150",
     "group"
   ),
   icon: cn(
     "w-5 h-5",
     "text-gray-400 dark:text-gray-500",
     "group-hover:text-theme-primary",
-    "group-hover:scale-110",
-    "transition-all duration-200"
+    "transition-colors duration-150"
   ),
   mobileButton: cn(
     "flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md",
     "text-gray-700 dark:text-gray-200",
     "hover:bg-gray-100 dark:hover:bg-gray-800",
-    "transition-all duration-200",
+    "transition-colors duration-150",
     "cursor-pointer"
   ),
   mobileMenuContainer: cn(

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { generateFilterURL, type FilterState } from '@/lib/utils/url-filter-sync';
+import { type FilterState } from '@/lib/utils/url-filter-sync';
 
 interface UseFilterURLSyncOptions {
   basePath?: string;
@@ -16,49 +15,58 @@ interface UseFilterURLSyncOptions {
  * Initial state should be passed via initialTag/initialCategory props instead.
  */
 export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
-  const { basePath = '/', locale, debounceMs = 300 } = options;
-  const router = useRouter();
-  const pathname = usePathname();
+  const { debounceMs = 300 } = options;
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Update URL based on filter state
+   * Uses replaceState to avoid triggering Next.js server navigation
    * Uses debouncing to avoid excessive history entries
    */
   const updateURL = useCallback(
     (filters: FilterState, immediate = false) => {
       const update = () => {
-        const newURL = generateFilterURL(filters, { basePath, locale });
+        if (typeof window === 'undefined') return;
 
-        // Get current full URL (pathname + search)
-        // IMPORTANT: Use window.location to get the ACTUAL browser URL
-        const currentFullPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : pathname;
+        // On /categories/[slug] or /tags/[slug] pages, the URL already reflects the
+        // initial filter from the server route. Don't append query params that would
+        // conflict with the path (e.g. /categories/collaboration?categories=communication).
+        const currentPath = window.location.pathname;
+        if (/\/(categories|tags)\/[^/]+/.test(currentPath)) return;
 
-        // Normalize URLs for comparison
-        const normalize = (url: string) => {
-          let normalized = url;
+        // Build query params from current filter state.
+        // Keep the current pathname to avoid triggering Next.js soft navigation.
+        const params = new URLSearchParams();
 
-          // Remove trailing ? if present
-          if (normalized.endsWith('?')) {
-            normalized = normalized.slice(0, -1);
-          }
+        if (filters.tags.length > 0) {
+          params.set('tags', filters.tags.join(','));
+        }
+        if (filters.categories.length > 0) {
+          params.set('categories', filters.categories.join(','));
+        }
+        if (filters.q) {
+          params.set('q', filters.q);
+        }
+        if (filters.nearLat != null && filters.nearLng != null) {
+          params.set('near_lat', String(filters.nearLat));
+          params.set('near_lng', String(filters.nearLng));
+          if (filters.radius != null) params.set('radius', String(filters.radius));
+        } else if (filters.city) {
+          params.set('city', filters.city);
+        } else if (filters.country) {
+          params.set('country', filters.country);
+        }
 
-          // Remove locale prefix for comparison (e.g., /en/tags/foo -> /tags/foo)
-          if (locale && normalized.startsWith(`/${locale}/`)) {
-            normalized = normalized.substring(locale.length + 1);
-          } else if (locale && normalized === `/${locale}`) {
-            normalized = '/';
-          }
+        const queryString = params.toString();
+        const newURL = queryString
+          ? `${window.location.pathname}?${queryString}`
+          : window.location.pathname;
 
-          return normalized;
-        };
-
-        const normalizedNewURL = normalize(newURL);
-        const normalizedCurrentPath = normalize(currentFullPath);
+        const currentFullPath = window.location.pathname + window.location.search;
 
         // Only update if the URL actually changed
-        if (normalizedNewURL !== normalizedCurrentPath) {
-          router.push(newURL, { scroll: false });
+        if (newURL !== currentFullPath) {
+          window.history.replaceState(null, '', newURL);
         }
       };
 
@@ -77,7 +85,7 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         }, debounceMs);
       }
     },
-    [router, pathname, basePath, locale, debounceMs]
+    [debounceMs]
   );
 
   /**

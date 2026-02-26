@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { usePathname } from '@/i18n/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { useFilters } from '@/hooks/use-filters';
+import { slugify } from '@/lib/utils';
 
 /**
  * Client component that parses URL query parameters and path and initializes filter state
@@ -19,6 +20,14 @@ function FilterURLParserContent() {
   } = useFilters();
   const lastUrlRef = useRef('');
   const isUpdatingRef = useRef(false);
+  const updateTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Cleanup timeout on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     // Create a URL signature to detect actual URL changes
@@ -91,7 +100,7 @@ function FilterURLParserContent() {
 
       if (categoriesParam) {
         try {
-          urlCategories = categoriesParam.split(',').map(cat => decodeURIComponent(cat.trim())).filter(Boolean);
+          urlCategories = categoriesParam.split(',').map(cat => slugify(decodeURIComponent(cat.trim()))).filter(Boolean);
         } catch (error) {
           console.error('Error parsing categories parameter:', error);
         }
@@ -107,7 +116,7 @@ function FilterURLParserContent() {
       }
     } else if (categoryMatch) {
       try {
-        const category = decodeURIComponent(categoryMatch[1]);
+        const category = slugify(decodeURIComponent(categoryMatch[1]));
         urlCategories = [category];
       } catch (error) {
         console.error('Error parsing category from path:', error);
@@ -130,8 +139,10 @@ function FilterURLParserContent() {
       }
 
       // Reset the flag after a delay to allow the URL update to complete
-      setTimeout(() => {
+      if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
+      updateTimeoutRef.current = setTimeout(() => {
         isUpdatingRef.current = false;
+        updateTimeoutRef.current = null;
       }, 500);
     }
 

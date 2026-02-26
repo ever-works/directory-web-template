@@ -105,7 +105,7 @@
     "OF": "von",
     "LOADING": "Wird geladen...",
     "END_OF_CONTENT": "Sie haben das Ende erreicht",
-    "RETRY": "Erneut versuchen",
+    "RETRY": "Retry",
     "USER_MANAGEMENT": "User Management",
     "USER_MANAGEMENT_DESC": "Manage platform users and permissions",
     "CONTENT_MODERATION": "Content Moderation",
@@ -145,7 +145,6 @@
     "PUBLISHED_AT": "Veröffentlicht am",
     "EXPORT_CSV": "Als CSV exportieren",
     "GLOBAL": "Global",
-				"RETRY": "Retry",
     "LOADING_ITEMS": "Artikel werden geladen...",
     "LOADING_RESPONSES": "Antworten werden geladen...",
     "NO_RESPONSES_FOUND": "Keine Antworten gefunden",
@@ -184,7 +183,9 @@
     "FAVORITE_ITEMS": "Favoriten-Elemente",
     "EXPLORE_ITEMS": "Elemente erkunden",
     "VIEW_DETAILS": "Details anzeigen",
-    "ADDED_ON": "Hinzugefügt am"
+    "ADDED_ON": "Hinzugefügt am",
+    "SWITCH_TO_LIGHT": "Zum hellen Modus wechseln",
+    "SWITCH_TO_DARK": "Zum dunklen Modus wechseln"
   },
   "survey": {
     "SURVEYS": "Umfragen",
@@ -1598,7 +1599,7 @@
         "REGIONAL": "Regional",
         "NATIONAL": "National",
         "GLOBAL": "Global",
-				"RETRY": "Retry"
+        "RETRY": "Retry"
       }
     },
     "CHARTS": {
@@ -2578,8 +2579,8 @@
       "TITLE": "Unternehmensverwaltung",
       "SUBTITLE": "Unternehmen und ihre Informationen verwalten",
       "ADD_COMPANY": "Unternehmen hinzufügen",
-			"SEARCH_PLACEHOLDER": "Search by name or domain...",
-			"CLEAR_SEARCH": "Clear search",
+      "SEARCH_PLACEHOLDER": "Search by name or domain...",
+      "CLEAR_SEARCH": "Clear search",
       "SEARCH_LABEL": "Suchen",
       "STATUS_LABEL": "Status",
       "TOTAL_COMPANIES": "Unternehmen insgesamt",

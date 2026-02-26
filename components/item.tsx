@@ -27,7 +27,7 @@ type ItemProps = ItemData & {
 };
 
 const TAG_BUTTON_BASE_CLASS =
-	'text-xs transition-all duration-300 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 font-medium px-1 !py-[2px] rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
+	'text-xs transition-colors duration-150 cursor-pointer text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 font-medium px-1 !py-[2px] rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20';
 
 const Item = memo(function Item(props: ItemProps) {
 	const params = useParams();
@@ -54,7 +54,7 @@ const Item = memo(function Item(props: ItemProps) {
 	const isGridOrClassicLayout = isGridLayout || props.layout === 'classic';
 
 	const cardClassName = cn(
-		'group relative border-0 rounded-2xl transition-all duration-300 backdrop-blur-xl overflow-hidden',
+		'group relative border-0 rounded-2xl transition-shadow duration-200 overflow-hidden',
 		'bg-white/80 dark:bg-gray-900/80',
 		'ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-gray-300/70 dark:hover:ring-gray-600/70',
 		'before:absolute before:inset-0 before:bg-linear-to-br before:from-white/60 before:via-transparent before:to-gray-50/40',
@@ -74,11 +74,11 @@ const Item = memo(function Item(props: ItemProps) {
 
 	// Title styling: for grid/classic layouts, reserve space for 3 lines and truncate if longer
 	const titleClassName = cn(
-		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200',
+		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white transition-colors duration-200 group-hover:text-gray-700 dark:group-hover:text-gray-200',
 	);
 
 	const descriptionClassName = cn(
-		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-300 group-hover:text-gray-700 dark:group-hover:text-gray-200 font-medium',
+		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-200 group-hover:text-gray-700 dark:group-hover:text-gray-200 font-medium',
 		!isMasonryLayout && 'line-clamp-3',
 		isGridOrClassicLayout && 'min-h-[4.5em]' // Reserve space for 3 lines of description
 	);
@@ -99,81 +99,31 @@ const Item = memo(function Item(props: ItemProps) {
 			className="block"
 		>
 			<Card className={cardClassName}>
-					{/* Decorative short top border accent with fading edges */}
-					<div
-						className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 w-1/2 h-px z-20 opacity-70"
-						style={{
-							background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
-							borderRadius: '9999px'
-						}}
-					/>
-
-					{/* Decorative blurred circles background */}
-					<div className="pointer-events-none absolute inset-0 z-0">
-						<div className="absolute w-40 h-40 bg-[#6209bb]/20 opacity-50 rounded-full blur-3xl left-2 top-0"></div>
-						<div className="absolute w-32 h-32 bg-blue-200/20 opacity-50 rounded-full blur-3xl right-1 top-20"></div>
-						<div className="absolute w-28 h-28 bg-[#6209bb]/20 opacity-50 rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
-					</div>
-
-					{/* Hover image at top (decorative) */}
-					{/* <div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
-						<Image src="/bg-cards.png" alt="Decorative pattern" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400} />
-					</div> */}
-
-					{/* Blurred background element */}
-					<div
-						className="absolute inset-0 bg-linear-to-br from-theme-primary/0 via-theme-primary/0 to-theme-primary/0 
-						group-hover:from-theme-primary/5 group-hover:via-theme-primary/3 group-hover:to-theme-primary/5 
-						transition-all duration-500 rounded-2xl blur-xl"
-					/>
-
-					{/* Color overlay */}
-					<div
-						className="absolute inset-0 bg-theme-primary/0 group-hover:bg-theme-primary/3 
-						transition-all duration-500 rounded-2xl"
-					/>
-
-					{/* Border glow effect */}
-					<div
-						className="absolute inset-0 border-2 border-transparent rounded-2xl 
-						group-hover:border-theme-primary/15 transition-all duration-500"
-					/>
-
-					{/* Subtle particles/blur effect */}
-					<div
-						className="absolute top-0 right-0 w-32 h-32 -translate-y-1/2 translate-x-1/2 
-						bg-theme-primary/5 rounded-full blur-2xl group-hover:blur-2xl 
-						transition-all duration-500"
-					></div>
-
-					{/* <div className="absolute inset-0 bg-linear-to-br from-gray-50/60 via-white/90 to-gray-100/80 dark:from-gray-900/60 dark:via-gray-800/80 dark:to-black/80 transition-all duration-700" /> */}
-
+				{/* Decorative short top border accent with fading edges */}
 				<div
-					className="absolute inset-0 opacity-10 dark:opacity-20"
-					// style={{
-					// 	backgroundImage:
-					// 		"url(\"data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'%3E%3Cpath d='M0 0h40v40H0V0zm1 1h38v38H1V1z' /%3E%3C/g%3E%3C/svg%3E\")"
-					// }}
+					className="pointer-events-none absolute left-1/2 -translate-x-1/2 top-0 w-1/2 h-px z-20 opacity-70"
+					style={{
+						background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%)',
+						borderRadius: '9999px'
+					}}
 				/>
 
 				{/* Content container */}
 				<div className="relative z-10">
-					<CardHeader className="relative flex gap-3  pb-4">
+					<CardHeader className="relative flex gap-3 pb-4">
 						<div className="flex flex-col grow gap-4 min-w-0">
 							<div className="flex justify-between items-start gap-2">
 								{/* Left: Icon + Title + Arrow */}
 								<div className="flex items-start gap-2 min-w-0 pr-16">
 									<div className="relative shrink-0">
-										{/* Pulse/wave effect on hover */}
-										<div className="absolute inset-0 w-12 h-12 rounded-2xl bg-theme-primary-500/30 dark:bg-theme-primary-400/30 opacity-0 group-hover:opacity-100 group-hover:animate-ping pointer-events-none" />
-										<div className="w-12 h-12 flex items-center justify-center rounded-2xl transition-all duration-300 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md group-hover:rotate-2">
-												{shouldShowFallbackIcon ? (
-												<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-300" />
+										<div className="w-12 h-12 flex items-center justify-center rounded-2xl transition-[background-color,box-shadow] duration-200 bg-linear-to-br from-theme-primary-10 to-indigo-100 border border-theme-primary-500 group-hover:from-theme-primary-10 group-hover:to-indigo-200 dark:from-theme-primary-10 dark:to-indigo-900/30 dark:border-theme-primary-700/30 dark:group-hover:from-theme-primary-800/40 dark:group-hover:to-indigo-800/40 shadow-xs group-hover:shadow-md">
+											{shouldShowFallbackIcon ? (
+												<FiFolder className="w-6 h-6 text-theme-primary dark:text-theme-primary transition-transform duration-200" />
 											) : (
 												<Image
 													src={props.icon_url!}
 													alt={`${props.name} icon`}
-													className="w-6 h-6 object-contain transition-transform duration-300"
+													className="w-6 h-6 object-contain transition-transform duration-200"
 													width={24}
 													height={24}
 													unoptimized={isProblematicUrl(props.icon_url!)}
@@ -189,7 +139,7 @@ const Item = memo(function Item(props: ItemProps) {
 									{/* Arrow indicator - right after title */}
 									{props.layout === 'classic' && (
 										<div
-											className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center backdrop-blur-xs border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-all duration-300"
+											className="shrink-0 h-6 w-6 rounded-full bg-theme-primary-500/10 dark:bg-theme-primary-400/10 flex items-center justify-center border border-theme-primary-10 dark:border-theme-primary opacity-0 group-hover:opacity-100 transition-opacity duration-200"
 											aria-hidden="true"
 										>
 											<FiArrowUpRight className="w-3 h-3 text-theme-primary-600 dark:text-theme-primary-400" />
@@ -198,7 +148,7 @@ const Item = memo(function Item(props: ItemProps) {
 								</div>
 
 								{/* Right: FavoriteButton + FeaturedBadge (absolute at top-right) */}
-								<div className="absolute top-2 right-1 z-20 flex items-center gap-1 px-2 py-1 rounded-full backdrop-blur-none group-hover:backdrop-blur-sm transition-all duration-200">
+								<div className="absolute top-2 right-1 z-20 flex items-center gap-1 px-2 py-1 rounded-full transition-opacity duration-200">
 									{session?.user?.id && (
 										<FavoriteButton
 											itemSlug={props.slug}
@@ -230,7 +180,7 @@ const Item = memo(function Item(props: ItemProps) {
 											size="sm"
 											collapsible={true}
 											showText={false}
-											className="bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-all duration-1000 shadow-xs hover:shadow-md rounded-full"
+											className="bg-linear-to-r from-amber-100 to-yellow-100 text-amber-800 border border-amber-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 dark:text-amber-300 dark:border-amber-700/30 transition-shadow duration-300 shadow-xs hover:shadow-md rounded-full"
 										/>
 									)}
 								</div>
@@ -270,7 +220,7 @@ const Item = memo(function Item(props: ItemProps) {
 										if (!tagName) return null;
 
 										return (
-											<TagFilterButton key={tagId || `tag-${index}`} tag={tag} index={index} />
+											<TagFilterButton key={tagId || `tag-${index}`} tag={tag} />
 										);
 									})}
 								</div>
@@ -301,9 +251,6 @@ const Item = memo(function Item(props: ItemProps) {
 					</CardBody>
 				</div>
 
-				{/* Subtle glow effect */}
-				<div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-
 				{/* Loading overlay */}
 				{isNavigating && (
 					<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
@@ -330,7 +277,7 @@ const CategoryFilterButton = memo(function CategoryFilterButton({ category }: { 
 			type="button"
 			data-category-filter
 			className={
-				'bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-linear-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary  dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border-theme-primary-10 transition-all duration-300 hover:shadow-md capitalize shadow-xs border dark:border-gray-600/30 focus:outline-hidden ' +
+				'bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-linear-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary  dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border-theme-primary-10 transition-shadow duration-200 hover:shadow-md capitalize shadow-xs border dark:border-gray-600/30 focus:outline-hidden ' +
 				(isActive ? 'ring-2 ring-theme-primary-500' : '')
 			}
 			onClick={(e) => {
@@ -346,7 +293,7 @@ const CategoryFilterButton = memo(function CategoryFilterButton({ category }: { 
 	);
 });
 
-const TagFilterButton = memo(function TagFilterButton({ tag, index }: { tag: TagProp; index: number }) {
+const TagFilterButton = memo(function TagFilterButton({ tag }: { tag: TagProp }) {
 	const { selectedTags, addSelectedTag } = useFilters();
 	const tagId = typeof tag === 'string' ? tag : (tag.id ?? '');
 	const tagName = typeof tag === 'string' ? tag : (tag.name ?? tagId);
@@ -360,7 +307,6 @@ const TagFilterButton = memo(function TagFilterButton({ tag, index }: { tag: Tag
 				TAG_BUTTON_BASE_CLASS,
 				isActive && 'border border-blue-500/50 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
 			)}
-			style={{ animationDelay: `${index * 0.05}s` }}
 			onClick={(e) => {
 				e.preventDefault();
 				e.stopPropagation();
