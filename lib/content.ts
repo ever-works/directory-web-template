@@ -524,17 +524,35 @@ async function readCollections(options: FetchOptions): Promise<Map<string, Colle
 	return readCollection<Collection>('collections', options);
 }
 
+function toSlug(text: string): string {
+	return text.toLowerCase().replace(/[&]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 function populate<T extends Identifiable>(item: string | T, collection: Map<string, T & { count?: number }>): T {
 	const id = typeof item === 'string' ? item : item.id;
 	const name = typeof item === 'string' ? item : item.name;
-	const result = { id, name } as T;
 
-	const populated = collection.get(id);
+	// Direct lookup first, then try slug-based lookup.
+	// Items often reference categories by display name (e.g. "Communication Tools")
+	// while categories.yml uses slug IDs (e.g. "communication-tools").
+	let populated = collection.get(id);
+	let resolvedId = id;
+
+	if (!populated) {
+		const slugId = toSlug(id);
+		populated = collection.get(slugId);
+		if (populated) {
+			resolvedId = slugId;
+		}
+	}
+
+	const result = { id: resolvedId, name } as T;
+
 	if (populated) {
 		result.name = populated.name;
 		populated.count = (populated.count || 0) + 1;
 	} else {
-		collection.set(id, { ...result, count: 1 });
+		collection.set(resolvedId, { ...result, count: 1 });
 	}
 
 	return result;

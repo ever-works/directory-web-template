@@ -2,6 +2,7 @@ import { getCachedItems } from "@/lib/content";
 import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getCategoriesEnabled } from "@/lib/utils/settings";
+import { slugify } from "@/lib/utils";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -33,8 +34,14 @@ export default async function CategoryListing({
   const start = 0;
   const basePath = `/`; // Use root path for filter URL generation
 
-  // Decode the category from URL
+  // Decode the category from URL and resolve to a known category ID
   const decodedCategory = decodeURIComponent(category);
+  const slug = slugify(decodedCategory);
+  const matchedCategory = categories.find(
+    (c) => c.id === decodedCategory || c.id === slug
+      || c.name.toLowerCase() === decodedCategory.toLowerCase()
+  );
+  const resolvedCategory = matchedCategory?.id ?? slug;
 
   return (
     <Listing
@@ -45,7 +52,7 @@ export default async function CategoryListing({
       start={start}
       page={page}
       basePath={basePath}
-      initialCategory={decodedCategory}
+      initialCategory={resolvedCategory}
     />
   );
 }

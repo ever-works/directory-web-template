@@ -2,7 +2,6 @@ export const revalidate = 3600;
 
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
@@ -15,6 +14,9 @@ interface PageProps {
 }
 
 const appUrl = getBaseUrl();
+
+// Default about page content when no MDX file exists in .content/pages/
+const DEFAULT_ABOUT_CONTENT = `No content yet. Add an \`about.en.md\` file to your content repository's \`pages/\` directory to customize this page.`;
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
@@ -35,11 +37,9 @@ export default async function AboutPage({ params }: PageProps) {
   const { locale } = await params;
   const pageData = await getCachedPageContent('about', locale);
 
-  if (!pageData) {
-    notFound();
-  }
-
-  const { content, metadata } = pageData;
+  // Use default content if no MDX file exists
+  const content = pageData?.content || DEFAULT_ABOUT_CONTENT;
+  const metadata = pageData?.metadata || {};
   const tCommon = await getTranslations({ locale, namespace: 'common' });
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
   const tPages = await getTranslations({ locale, namespace: 'pages' });

@@ -134,7 +134,6 @@ export function TagsList({
   const rafId = useRef<number | null>(null);
   const portalTarget = usePortal('tag-popover-portal');
   const itemWidthsRef = useRef<number[]>([]);
-  const [_visibleRange, setVisibleRange] = useState({ start: 0, end: 0 });
 
   // Tooltip state for truncated tag names (similar to CategoryItem)
   const [tooltipVisible, setTooltipVisible] = useState(false);
@@ -232,14 +231,14 @@ export function TagsList({
     });
     
     let totalWidth = 0;
-    let startIndex = 0;
+    let _startIndex = 0;
     let endIndex = children.length - 1;
-    
+
     // Calculate start index
     for (let i = 0; i < itemWidthsRef.current.length; i++) {
       totalWidth += itemWidthsRef.current[i];
       if (totalWidth > container.scrollLeft) {
-        startIndex = i;
+        _startIndex = i;
         break;
       }
     }
@@ -255,8 +254,6 @@ export function TagsList({
       }
     }
 
-    setVisibleRange({ start: startIndex, end: endIndex });
-    
     // Calculate hidden tags based on visible range
     const hidden: Tag[] = [];
     for (let i = endIndex + 1; i < orderedVisibleTags.length; i++) {

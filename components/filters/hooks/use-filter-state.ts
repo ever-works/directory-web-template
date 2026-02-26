@@ -8,8 +8,9 @@ import type { FilterState } from '@/lib/utils/url-filter-sync';
 /**
  * Type guard to check if a string is a valid SortOption
  */
+const VALID_SORT_OPTIONS: string[] = Object.values(SORT_OPTIONS);
 function isValidSortOption(value: string): value is SortOption {
-  return ['popularity', 'name-asc', 'name-desc', 'date-desc', 'date-asc'].includes(value);
+  return VALID_SORT_OPTIONS.includes(value);
 }
 
 /**
@@ -220,8 +221,8 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   const toggleSelectedCategory = useCallback((categoryId: CategoryId) => {
     setSelectedCategories(prev =>
       prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
+        ? []             // clicking active category → deselect (show all)
+        : [categoryId]   // clicking inactive category → select ONLY this one
     );
   }, [setSelectedCategories]);
 

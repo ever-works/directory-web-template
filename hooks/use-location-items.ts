@@ -1,7 +1,10 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import type { LocationFilterState } from '@/components/filters/types';
+
+const EMPTY_MAP = new Map<string, number>();
 
 interface LocationSearchResponse {
 	success: boolean;
@@ -88,24 +91,24 @@ export function useLocationItems(locationFilter: LocationFilterState): UseLocati
 		gcTime: 5 * 60 * 1000, // 5 minutes
 	});
 
-	if (!isActive || isError) {
-		return {
-			matchingSlugs: null,
-			distances: new Map(),
-			isLoading: false,
-		};
-	}
-
+	// Memoize return values to prevent unstable references from cascading re-renders
 	// null = data not yet loaded → don't apply location filtering (show all items while loading)
 	// Set = API responded → filter to matching slugs (empty Set = no matches)
-	const matchingSlugs = data?.data?.slugs ? new Set(data.data.slugs) : null;
-	const distances = new Map<string, number>(
-		data?.data?.distances ? Object.entries(data.data.distances) : []
+	const matchingSlugs = useMemo(
+		() => data?.data?.slugs ? new Set(data.data.slugs) : null,
+		[data?.data?.slugs]
 	);
 
-	return {
-		matchingSlugs,
-		distances,
-		isLoading,
-	};
+	const distances = useMemo(
+		() => data?.data?.distances
+			? new Map<string, number>(Object.entries(data.data.distances))
+			: EMPTY_MAP,
+		[data?.data?.distances]
+	);
+
+	if (!isActive || isError) {
+		return { matchingSlugs: null, distances: EMPTY_MAP, isLoading: false };
+	}
+
+	return { matchingSlugs, distances, isLoading };
 }

@@ -183,7 +183,6 @@ export function SharedCard(props: ExtendedCardProps) {
     items,
     searchTerm,
     selectedTags,
-    selectedTag,
     {
       enableSearch: config.enableSearch ?? true,
       enableTagFilter: config.enableTagFilter ?? true,

@@ -18,6 +18,19 @@ export function getItemPath(slug: string) {
   return `/items/${slug}`;
 }
 
+/**
+ * Convert a string to a URL-friendly slug.
+ * e.g. "Communication Tools" → "communication-tools"
+ *      "Scheduling & Time Management" → "scheduling-time-management"
+ */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[&]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '');
+}
+
 export function getCategoryName(category: string | Category) {
   if (typeof category === "string") {
     return category;
@@ -172,8 +185,9 @@ export function filterItems(
       return itemCategories.some((cat: string | Category) => {
         const catId = typeof cat === "string" ? cat : cat?.id;
         if (!catId) return false;
-        // Case-insensitive comparison to match URL encoding behavior
-        return selectedCategories.some(selected => selected.toLowerCase() === catId.toLowerCase());
+        // Normalize both sides to slug format for reliable matching
+        const catSlug = slugify(catId);
+        return selectedCategories.some(selected => slugify(selected) === catSlug);
       });
     });
   }

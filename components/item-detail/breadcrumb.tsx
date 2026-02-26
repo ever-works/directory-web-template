@@ -1,6 +1,6 @@
 'use client';
 import Link from "next/link";
-import { toTitleCase } from "@/lib/utils";
+import { toTitleCase, slugify } from "@/lib/utils";
 import { useCategoriesEnabled } from "@/hooks/use-categories-enabled";
 
 interface BreadcrumbProps {
@@ -15,11 +15,12 @@ export function ItemBreadcrumb({
   categoryName,
 }: BreadcrumbProps) {
   const { categoriesEnabled } = useCategoriesEnabled();
-  const categoryId =
-    typeof category === "string"
-      ? category
-      : (category as { id?: string })?.id || String(category);
-  const encodedCategory = encodeURIComponent(categoryId);
+  const firstCategory = Array.isArray(category) ? category[0] : category;
+  const rawCategoryId =
+    typeof firstCategory === "string"
+      ? firstCategory
+      : (firstCategory as { id?: string })?.id || String(firstCategory);
+  const encodedCategory = encodeURIComponent(slugify(rawCategoryId));
 
   return (
     <nav className="flex mb-4" aria-label="Breadcrumb">

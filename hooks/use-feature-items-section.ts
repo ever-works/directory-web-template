@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useFeaturedItems, FeaturedItem } from './use-featured-items-client';
 
 export type { FeaturedItem };
@@ -19,10 +20,13 @@ export function useFeaturedItemsSection({
   } = useFeaturedItems();
 
   // Filter items based on limit and active status
-  const filteredItems = featuredItems
-    .filter(item => item.isActive)
-    .sort((a, b) => a.featuredOrder - b.featuredOrder)
-    .slice(0, limit);
+  const filteredItems = useMemo(
+    () => featuredItems
+      .filter(item => item.isActive)
+      .sort((a, b) => a.featuredOrder - b.featuredOrder)
+      .slice(0, limit),
+    [featuredItems, limit]
+  );
 
   return {
     featuredItems: filteredItems,
