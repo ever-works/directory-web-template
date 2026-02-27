@@ -16,8 +16,8 @@ export function SimilarItemsSection({ allItems, className, title = 'Similar Prod
 					   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
 						   <defs>
 							   <linearGradient id="squares-gradient-similar" x1="0" y1="0" x2="1" y2="0" gradientTransform="rotate(90)">
-								   <stop offset="0%" stop-color="#6366F1" />
-								   <stop offset="100%" stop-color="#A855F7" stop-opacity="0.8" />
+								   <stop offset="0%" stopColor="#6366F1" />
+								   <stop offset="100%" stopColor="#A855F7" stop-opacity="0.8" />
 							   </linearGradient>
 						   </defs>
 						   <rect x="3" y="3" width="7" height="7" rx="2" fill="url(#squares-gradient-similar)" />
