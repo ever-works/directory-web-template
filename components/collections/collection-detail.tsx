@@ -52,7 +52,7 @@ const LAYOUT_STYLES = {
 };
 
 // Sticky container styles reused from the default Home Two layout
-const STICKY_CONTAINER_BASE = "sticky top-12 z-20 transition-all duration-300 ease-in-out rounded-lg";
+const STICKY_CONTAINER_BASE = "sticky top-12 z-20 transition-[background-color,box-shadow,border-color] duration-200 ease-in-out rounded-lg";
 const STICKY_CONTAINER_ACTIVE = `${STICKY_CONTAINER_BASE} bg-white/95 dark:bg-gray-800/95 shadow-md backdrop-blur-xs border border-gray-100 dark:border-gray-700/50 px-4 py-3`;
 const STICKY_CONTAINER_INACTIVE = `${STICKY_CONTAINER_BASE} bg-transparent`;
 

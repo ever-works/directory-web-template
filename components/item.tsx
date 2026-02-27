@@ -57,9 +57,6 @@ const Item = memo(function Item(props: ItemProps) {
 		'group relative border-0 rounded-2xl transition-shadow duration-200 overflow-hidden',
 		'bg-white/80 dark:bg-gray-900/80',
 		'ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-gray-300/70 dark:hover:ring-gray-600/70',
-		'before:absolute before:inset-0 before:bg-linear-to-br before:from-white/60 before:via-transparent before:to-gray-50/40',
-		'dark:before:from-gray-800/60 dark:before:via-transparent dark:before:to-gray-900/40',
-		'hover:before:from-blue-50/30 hover:before:to-purple-50/20 dark:hover:before:from-blue-900/20 dark:hover:before:to-purple-900/10',
 		// Grid view: fixed height for consistent card sizes
 		isGridLayout ? 'h-[320px]' : 'h-full',
 		{
@@ -74,11 +71,11 @@ const Item = memo(function Item(props: ItemProps) {
 
 	// Title styling: for grid/classic layouts, reserve space for 3 lines and truncate if longer
 	const titleClassName = cn(
-		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white transition-colors duration-200 group-hover:text-gray-700 dark:group-hover:text-gray-200',
+		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white',
 	);
 
 	const descriptionClassName = cn(
-		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 transition-colors duration-200 group-hover:text-gray-700 dark:group-hover:text-gray-200 font-medium',
+		'text-sm leading-relaxed text-gray-600 dark:text-gray-300 font-medium',
 		!isMasonryLayout && 'line-clamp-3',
 		isGridOrClassicLayout && 'min-h-[4.5em]' // Reserve space for 3 lines of description
 	);

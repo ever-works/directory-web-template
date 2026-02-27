@@ -134,6 +134,40 @@ export function getHeaderThemeDefault(): string {
 	return themeDefault ?? 'light';
 }
 
+// ===================== Homepage Hero Text Settings =====================
+
+/**
+ * Server-side utility to get the custom hero badge text
+ * @returns string | undefined - custom badge text, or undefined to use translation fallback
+ */
+export function getHeroBadgeText(): string | undefined {
+	return configManager.getNestedValue('settings.homepage.hero_badge_text') || undefined;
+}
+
+/**
+ * Server-side utility to get the custom hero title
+ * @returns string | undefined - custom title, or undefined to use translation fallback
+ */
+export function getHeroTitle(): string | undefined {
+	return configManager.getNestedValue('settings.homepage.hero_title') || undefined;
+}
+
+/**
+ * Server-side utility to get the custom hero title gradient text
+ * @returns string | undefined - custom gradient text, or undefined to use translation fallback
+ */
+export function getHeroTitleGradient(): string | undefined {
+	return configManager.getNestedValue('settings.homepage.hero_title_gradient') || undefined;
+}
+
+/**
+ * Server-side utility to get the custom hero description
+ * @returns string | undefined - custom description, or undefined to use translation fallback
+ */
+export function getHeroDescription(): string | undefined {
+	return configManager.getNestedValue('settings.homepage.hero_description') || undefined;
+}
+
 // ===================== Footer Settings =====================
 
 /**
