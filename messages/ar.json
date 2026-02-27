@@ -3116,7 +3116,8 @@
 			"REJECTION_REASON": "سبب الرفض",
 			"DESCRIPTION": "الوصف",
 			"EDIT_SUBMISSION_TITLE": "تعديل التقديم",
-			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك"
+			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك",
+			"BULK_IMPORT": "استيراد مجمع"
 		},
 		"dashboard": {
 			"TITLE": "لوحة التحكم",

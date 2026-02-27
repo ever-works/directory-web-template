@@ -3226,7 +3226,8 @@
 			"COMMUNITY_SCORE": "Оценка сообщества",
 			"YOUR_SUBMISSIONS": "Ваши заявки",
 			"NEW_SUBMISSION": "Новая заявка",
-			"TRASH": "Корзина"
+			"TRASH": "Корзина",
+			"BULK_IMPORT": "Массовый импорт"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Мои спонсорства",

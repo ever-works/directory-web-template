@@ -3094,7 +3094,8 @@
 			"REJECTION_REASON": "Powód Odrzucenia",
 			"DESCRIPTION": "Opis",
 			"EDIT_SUBMISSION_TITLE": "Edytuj Zgłoszenie",
-			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia"
+			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia",
+			"BULK_IMPORT": "Import zbiorczy"
 		},
 		"dashboard": {
 			"TITLE": "Panel",

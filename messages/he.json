@@ -3094,7 +3094,8 @@
 			"REJECTION_REASON": "סיבת הדחייה",
 			"DESCRIPTION": "תיאור",
 			"EDIT_SUBMISSION_TITLE": "ערוך הגשה",
-			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך"
+			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך",
+			"BULK_IMPORT": "ייבוא מרובה"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

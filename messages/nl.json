@@ -3094,7 +3094,8 @@
 			"REJECTION_REASON": "Reden voor Afwijzing",
 			"DESCRIPTION": "Beschrijving",
 			"EDIT_SUBMISSION_TITLE": "Inzending Bewerken",
-			"EDIT_SUBMISSION_DESC": "Werk de details van uw inzending bij"
+			"EDIT_SUBMISSION_DESC": "Werk de details van uw inzending bij",
+			"BULK_IMPORT": "Bulk importeren"
 		},
 		"dashboard": {
 			"TITLE": "Dashboard",

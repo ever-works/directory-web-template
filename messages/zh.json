@@ -3126,7 +3126,8 @@
 			"REJECTION_REASON": "拒绝原因",
 			"DESCRIPTION": "描述",
 			"EDIT_SUBMISSION_TITLE": "编辑提交",
-			"EDIT_SUBMISSION_DESC": "更新您的提交详情"
+			"EDIT_SUBMISSION_DESC": "更新您的提交详情",
+			"BULK_IMPORT": "批量导入"
 		},
 		"dashboard": {
 			"TITLE": "仪表盘",

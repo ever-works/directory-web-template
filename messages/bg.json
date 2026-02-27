@@ -3228,7 +3228,8 @@
 			"COMMUNITY_SCORE": "Резултат на общността",
 			"YOUR_SUBMISSIONS": "Вашите подадени материали",
 			"NEW_SUBMISSION": "Нов подаден материал",
-			"TRASH": "Кошче"
+			"TRASH": "Кошче",
+			"BULK_IMPORT": "Масов импорт"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Моите спонсорства",

@@ -3307,7 +3307,8 @@
 			"COMMUNITY_SCORE": "Community Score",
 			"YOUR_SUBMISSIONS": "Your Submissions",
 			"NEW_SUBMISSION": "New Submission",
-			"TRASH": "Trash"
+			"TRASH": "Trash",
+			"BULK_IMPORT": "Bulk Import"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "My Sponsorships",

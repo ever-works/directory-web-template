@@ -3121,7 +3121,8 @@
 			"REJECTION_REASON": "Razón del Rechazo",
 			"DESCRIPTION": "Descripción",
 			"EDIT_SUBMISSION_TITLE": "Editar Envío",
-			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío"
+			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío",
+			"BULK_IMPORT": "Importación masiva"
 		},
 		"dashboard": {
 			"TITLE": "Panel de Control",

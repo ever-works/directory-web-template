@@ -3076,7 +3076,8 @@
 			"SUBMITTED_ON": "Подано {date}",
 			"PER_PAGE": "На сторінці",
 			"ITEMS": "елементів",
-			"ITEMS_PER_PAGE": "Елементів на сторінці"
+			"ITEMS_PER_PAGE": "Елементів на сторінці",
+			"BULK_IMPORT": "Масовий імпорт"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

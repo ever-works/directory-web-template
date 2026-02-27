@@ -3226,7 +3226,8 @@
 			"COMMUNITY_SCORE": "Topluluk Puanı",
 			"YOUR_SUBMISSIONS": "Gönderimleriniz",
 			"NEW_SUBMISSION": "Yeni Gönderim",
-			"TRASH": "Çöp Kutusu"
+			"TRASH": "Çöp Kutusu",
+			"BULK_IMPORT": "Toplu İçe Aktarma"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Sponsorluklarım",

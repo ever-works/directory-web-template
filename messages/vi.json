@@ -3243,7 +3243,8 @@
 			"SUBMISSIONS_MANAGEMENT_DESC": "Theo dõi và quản lý việc gửi thư mục của bạn.",
 			"START_YOUR_JOURNEY": "Bắt đầu hành trình của bạn",
 			"CREATE_FIRST": "Tạo bài gửi đầu tiên của bạn",
-			"TRASH": "Rác"
+			"TRASH": "Rác",
+			"BULK_IMPORT": "Nhập hàng loạt"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Tài trợ của tôi",

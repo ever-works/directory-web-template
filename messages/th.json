@@ -3096,7 +3096,8 @@
 			"REJECTION_REASON": "เหตุผลการปฏิเสธ",
 			"DESCRIPTION": "คำอธิบาย",
 			"EDIT_SUBMISSION_TITLE": "แก้ไขการส่ง",
-			"EDIT_SUBMISSION_DESC": "อัปเดตรายละเอียดการส่งของคุณ"
+			"EDIT_SUBMISSION_DESC": "อัปเดตรายละเอียดการส่งของคุณ",
+			"BULK_IMPORT": "นำเข้าจำนวนมาก"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

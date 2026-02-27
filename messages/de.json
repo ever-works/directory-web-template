@@ -3132,7 +3132,8 @@
 			"REJECTION_REASON": "Ablehnungsgrund",
 			"DESCRIPTION": "Beschreibung",
 			"EDIT_SUBMISSION_TITLE": "Einreichung bearbeiten",
-			"EDIT_SUBMISSION_DESC": "Aktualisieren Sie die Details Ihrer Einreichung"
+			"EDIT_SUBMISSION_DESC": "Aktualisieren Sie die Details Ihrer Einreichung",
+			"BULK_IMPORT": "Massenimport"
 		},
 		"dashboard": {
 			"TITLE": "Dashboard",

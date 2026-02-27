@@ -3227,7 +3227,8 @@
 			"COMMUNITY_SCORE": "Skor Komunitas",
 			"YOUR_SUBMISSIONS": "Kiriman Anda",
 			"NEW_SUBMISSION": "Kiriman Baru",
-			"TRASH": "Tempat Sampah"
+			"TRASH": "Tempat Sampah",
+			"BULK_IMPORT": "Impor Massal"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Sponsor Saya",

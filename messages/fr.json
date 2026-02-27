@@ -3189,7 +3189,8 @@
 			"REJECTION_REASON": "Raison du Rejet",
 			"DESCRIPTION": "Description",
 			"EDIT_SUBMISSION_TITLE": "Modifier la Soumission",
-			"EDIT_SUBMISSION_DESC": "Mettre à jour les détails de votre soumission"
+			"EDIT_SUBMISSION_DESC": "Mettre à jour les détails de votre soumission",
+			"BULK_IMPORT": "Import en masse"
 		},
 		"dashboard": {
 			"TITLE": "Tableau de Bord",

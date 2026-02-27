@@ -3098,7 +3098,8 @@
 			"REJECTION_REASON": "Motivo del Rifiuto",
 			"DESCRIPTION": "Descrizione",
 			"EDIT_SUBMISSION_TITLE": "Modifica Invio",
-			"EDIT_SUBMISSION_DESC": "Aggiorna i dettagli del tuo invio"
+			"EDIT_SUBMISSION_DESC": "Aggiorna i dettagli del tuo invio",
+			"BULK_IMPORT": "Importazione in blocco"
 		},
 		"dashboard": {
 			"TITLE": "Dashboard",

@@ -3099,7 +3099,8 @@
 			"REJECTION_REASON": "却下理由",
 			"DESCRIPTION": "説明",
 			"EDIT_SUBMISSION_TITLE": "提出を編集",
-			"EDIT_SUBMISSION_DESC": "提出の詳細を更新"
+			"EDIT_SUBMISSION_DESC": "提出の詳細を更新",
+			"BULK_IMPORT": "一括インポート"
 		},
 		"dashboard": {
 			"TITLE": "ダッシュボード",

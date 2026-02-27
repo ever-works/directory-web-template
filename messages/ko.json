@@ -3226,7 +3226,8 @@
 			"COMMUNITY_SCORE": "커뮤니티 점수",
 			"YOUR_SUBMISSIONS": "내 제출물",
 			"NEW_SUBMISSION": "새 제출",
-			"TRASH": "휴지통"
+			"TRASH": "휴지통",
+			"BULK_IMPORT": "대량 가져오기"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "내 스폰서십",

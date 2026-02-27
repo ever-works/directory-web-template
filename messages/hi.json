@@ -3100,7 +3100,8 @@
 			"REJECTION_REASON": "अस्वीकृति का कारण",
 			"DESCRIPTION": "विवरण",
 			"EDIT_SUBMISSION_TITLE": "सबमिशन संपादित करें",
-			"EDIT_SUBMISSION_DESC": "अपने सबमिशन का विवरण अपडेट करें"
+			"EDIT_SUBMISSION_DESC": "अपने सबमिशन का विवरण अपडेट करें",
+			"BULK_IMPORT": "बल्क आयात"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {
