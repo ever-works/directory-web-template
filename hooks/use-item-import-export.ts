@@ -3,6 +3,12 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import type {
+	ColumnMapping,
+	ImportDuplicateStrategy,
+	ImportRowValidation,
+	ImportResult,
+} from '@/lib/types/item-import-export';
 
 type ExportFormat = 'csv' | 'xlsx';
 
@@ -109,5 +115,120 @@ export function usePublicItemExport() {
 		exportItems,
 		isExporting,
 		exportEnabled: settings?.export_enabled ?? false,
+	};
+}
+
+// ===================== Import Types =====================
+
+interface ValidateImportResponse {
+	success: boolean;
+	error?: string;
+	headers: string[];
+	suggestedMapping: ColumnMapping;
+	validationResults: ImportRowValidation[];
+	summary: {
+		total: number;
+		valid: number;
+		errors: number;
+		duplicates: number;
+	};
+}
+
+interface ExecuteImportResponse {
+	success: boolean;
+	error?: string;
+	result: ImportResult;
+}
+
+// ===================== Import Hook =====================
+
+/**
+ * Hook for admin item import operations.
+ */
+export function useItemImport() {
+	const [isValidating, setIsValidating] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
+
+	const validateImport = useCallback(
+		async (
+			file: File,
+			mapping: ColumnMapping,
+			duplicateStrategy: ImportDuplicateStrategy,
+			defaultStatus: 'draft' | 'pending' | 'approved'
+		): Promise<ValidateImportResponse | null> => {
+			setIsValidating(true);
+			try {
+				const formData = new FormData();
+				formData.append('file', file);
+				formData.append('mapping', JSON.stringify(mapping));
+				formData.append('duplicateStrategy', duplicateStrategy);
+				formData.append('defaultStatus', defaultStatus);
+
+				const response = await fetch('/api/admin/items/import/validate', {
+					method: 'POST',
+					body: formData,
+				});
+
+				const data = (await response.json()) as ValidateImportResponse;
+
+				if (!response.ok || !data.success) {
+					toast.error(data.error || 'Validation failed');
+					return null;
+				}
+
+				return data;
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Validation failed';
+				toast.error(message);
+				return null;
+			} finally {
+				setIsValidating(false);
+			}
+		},
+		[]
+	);
+
+	const executeImport = useCallback(
+		async (
+			rows: ImportRowValidation[],
+			options: {
+				duplicateStrategy: ImportDuplicateStrategy;
+				defaultStatus: 'draft' | 'pending' | 'approved';
+			}
+		): Promise<ImportResult | null> => {
+			setIsImporting(true);
+			try {
+				const response = await fetch('/api/admin/items/import', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ rows, options }),
+				});
+
+				const data = (await response.json()) as ExecuteImportResponse;
+
+				if (!response.ok || !data.success) {
+					toast.error(data.error || 'Import failed');
+					return null;
+				}
+
+				const { result } = data;
+				toast.success(`Imported ${result.created} items${result.updated > 0 ? `, updated ${result.updated}` : ''}`);
+				return result;
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Import failed';
+				toast.error(message);
+				return null;
+			} finally {
+				setIsImporting(false);
+			}
+		},
+		[]
+	);
+
+	return {
+		validateImport,
+		executeImport,
+		isValidating,
+		isImporting,
 	};
 }
