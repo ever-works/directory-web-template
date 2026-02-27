@@ -134,6 +134,35 @@ export function getHeaderThemeDefault(): string {
 	return themeDefault ?? 'light';
 }
 
+// ===================== Footer Settings =====================
+
+/**
+ * Server-side utility to check if footer newsletter subscription is enabled
+ * @returns boolean - true if enabled, false otherwise
+ */
+export function getFooterSubscribeEnabled(): boolean {
+	const enabled = configManager.getNestedValue('settings.footer.subscribe_enabled');
+	return enabled ?? true;
+}
+
+/**
+ * Server-side utility to check if footer version display is enabled
+ * @returns boolean - true if enabled, false otherwise
+ */
+export function getFooterVersionEnabled(): boolean {
+	const enabled = configManager.getNestedValue('settings.footer.version_enabled');
+	return enabled ?? true;
+}
+
+/**
+ * Server-side utility to check if footer theme selector is enabled
+ * @returns boolean - true if enabled, false otherwise
+ */
+export function getFooterThemeSelectorEnabled(): boolean {
+	const enabled = configManager.getNestedValue('settings.footer.theme_selector_enabled');
+	return enabled ?? true;
+}
+
 // ===================== Sponsor Ads Settings =====================
 
 /**

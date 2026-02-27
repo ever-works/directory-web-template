@@ -38,7 +38,10 @@ import {
 	getHeaderLayoutDefault,
 	getHeaderPaginationDefault,
 	getHeaderThemeDefault,
-	getLocationSettings
+	getLocationSettings,
+	getFooterSubscribeEnabled,
+	getFooterVersionEnabled,
+	getFooterThemeSelectorEnabled
 } from '@/lib/utils/settings';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
@@ -153,6 +156,12 @@ export default async function RootLayout({
 		themeDefault: getHeaderThemeDefault()
 	};
 
+	const footerSettings = {
+		subscribeEnabled: getFooterSubscribeEnabled(),
+		versionEnabled: getFooterVersionEnabled(),
+		themeSelectorEnabled: getFooterThemeSelectorEnabled()
+	};
+
 	// Read location settings server-side
 	const locationSettings = getLocationSettings();
 
@@ -193,6 +202,7 @@ export default async function RootLayout({
 						hasCollections={hasCollections}
 						hasGlobalSurveys={hasGlobalSurveys}
 						headerSettings={headerSettings}
+						footerSettings={footerSettings}
 						locationSettings={locationSettings}
 					>
 						<SettingsModalProvider>

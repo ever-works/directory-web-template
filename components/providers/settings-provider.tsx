@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useMemo, PropsWithChildren } from 'react';
-import type { HeaderSettings, LocationConfigSettings } from '@/lib/content';
+import type { HeaderSettings, FooterSettings, LocationConfigSettings } from '@/lib/content';
 import {
 	type LocationSettings,
 	DEFAULT_LOCATION_SETTINGS,
@@ -21,6 +21,12 @@ const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	themeDefault: 'light'
 };
 
+const DEFAULT_FOOTER_SETTINGS: FooterSettings = {
+	subscribeEnabled: true,
+	versionEnabled: true,
+	themeSelectorEnabled: true
+};
+
 interface SettingsContextValue {
 	// Feature enabled flags (from config)
 	categoriesEnabled: boolean;
@@ -34,6 +40,8 @@ interface SettingsContextValue {
 	hasGlobalSurveys: boolean;
 	// Header settings
 	headerSettings: HeaderSettings;
+	// Footer settings
+	footerSettings: FooterSettings;
 	// Location settings (camelCase runtime type)
 	locationSettings: LocationSettings;
 }
@@ -50,6 +58,7 @@ interface SettingsProviderProps extends PropsWithChildren {
 	hasCollections: boolean;
 	hasGlobalSurveys: boolean;
 	headerSettings: HeaderSettings;
+	footerSettings: FooterSettings;
 	locationSettings?: LocationConfigSettings;
 }
 
@@ -64,6 +73,7 @@ export function SettingsProvider({
 	hasCollections,
 	hasGlobalSurveys,
 	headerSettings,
+	footerSettings,
 	locationSettings: locationConfigSettings
 }: SettingsProviderProps) {
 	// Map snake_case config to camelCase runtime settings
@@ -84,6 +94,7 @@ export function SettingsProvider({
 				hasCollections,
 				hasGlobalSurveys,
 				headerSettings,
+				footerSettings,
 				locationSettings
 			}}
 		>
@@ -106,6 +117,7 @@ export function useSettings(): SettingsContextValue {
 			hasCollections: true,
 			hasGlobalSurveys: false,
 			headerSettings: DEFAULT_HEADER_SETTINGS,
+			footerSettings: DEFAULT_FOOTER_SETTINGS,
 			locationSettings: DEFAULT_LOCATION_SETTINGS
 		};
 	}

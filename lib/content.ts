@@ -274,6 +274,12 @@ export interface HeaderSettings {
 	themeDefault: string;
 }
 
+export interface FooterSettings {
+	subscribeEnabled: boolean;
+	versionEnabled: boolean;
+	themeSelectorEnabled: boolean;
+}
+
 export interface HomepageSettings {
 	hero_enabled?: boolean;
 	search_enabled?: boolean;

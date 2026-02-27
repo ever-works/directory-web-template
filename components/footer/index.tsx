@@ -13,6 +13,7 @@ import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useCategoriesExists } from '@/hooks/use-categories-exists';
 import { useCollectionsExists } from '@/hooks/use-collections-exists';
 import { useTagsExists } from '@/hooks/use-tags-exists';
+import { useFooterSettings } from '@/hooks/use-footer-settings';
 
 export function Footer() {
 	const t = useTranslations();
@@ -22,6 +23,7 @@ export function Footer() {
 	const { data: categoriesData } = useCategoriesExists();
 	const { data: collectionsData } = useCollectionsExists();
 	const { data: tagsData } = useTagsExists();
+	const { settings: footerSettings } = useFooterSettings();
 
 	// Extract existence flags from React Query data
 	const hasCategories = categoriesData?.exists ?? false;
@@ -52,7 +54,7 @@ export function Footer() {
 							<div className="lg:col-span-2 space-y-8">
 								<BrandLink t={t} />
 								<SocialLinks t={t} socialLinks={socialLinks} />
-								<Newsletter t={t} />
+								{footerSettings.subscribeEnabled && <Newsletter t={t} />}
 							</div>
 
 							{/* Enhanced Navigation links section */}
@@ -82,7 +84,7 @@ export function Footer() {
 						</div>
 					</Container>
 				</div>
-				<FooterBottom config={config} t={t} />
+				<FooterBottom config={config} t={t} footerSettings={footerSettings} />
 			</div>
 		</footer>
 	);
