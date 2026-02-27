@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ImportResult } from "@/lib/types/item-import-export";
 
 interface ImportResultsStepProps {
@@ -15,12 +16,14 @@ const statCardClass = cn(
 );
 
 export function ImportResultsStep({ result, isImporting }: ImportResultsStepProps) {
+	const t = useTranslations("admin.ITEM_IMPORT");
+
 	if (isImporting) {
 		return (
 			<div className="flex flex-col items-center justify-center gap-4 py-12">
 				<Loader2 className="w-10 h-10 text-theme-primary animate-spin" />
 				<p className="text-sm text-gray-600 dark:text-gray-400">
-					Importing items...
+					{t("IMPORTING")}
 				</p>
 			</div>
 		);
@@ -41,10 +44,10 @@ export function ImportResultsStep({ result, isImporting }: ImportResultsStepProp
 				)}
 				<div>
 					<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-						{hasErrors ? "Import completed with issues" : "Import completed successfully"}
+						{hasErrors ? t("IMPORT_WITH_ISSUES") : t("IMPORT_SUCCESS")}
 					</h3>
 					<p className="text-sm text-gray-500 dark:text-gray-400">
-						{result.created} created, {result.updated} updated, {result.skipped} skipped
+						{result.created} {t("CREATED")}, {result.updated} {t("UPDATED")}, {result.skipped} {t("SKIPPED")}
 					</p>
 				</div>
 			</div>
@@ -53,19 +56,19 @@ export function ImportResultsStep({ result, isImporting }: ImportResultsStepProp
 			<div className="grid grid-cols-4 gap-3">
 				<div className={statCardClass}>
 					<span className="text-xl font-bold text-gray-900 dark:text-white">{result.total}</span>
-					<span className="text-xs text-gray-500">Total Rows</span>
+					<span className="text-xs text-gray-500">{t("TOTAL_ROWS")}</span>
 				</div>
 				<div className={statCardClass}>
 					<span className="text-xl font-bold text-green-600">{result.created}</span>
-					<span className="text-xs text-gray-500">Created</span>
+					<span className="text-xs text-gray-500">{t("CREATED")}</span>
 				</div>
 				<div className={statCardClass}>
 					<span className="text-xl font-bold text-blue-600">{result.updated}</span>
-					<span className="text-xs text-gray-500">Updated</span>
+					<span className="text-xs text-gray-500">{t("UPDATED")}</span>
 				</div>
 				<div className={statCardClass}>
 					<span className="text-xl font-bold text-gray-500">{result.skipped}</span>
-					<span className="text-xs text-gray-500">Skipped</span>
+					<span className="text-xs text-gray-500">{t("SKIPPED")}</span>
 				</div>
 			</div>
 
@@ -73,7 +76,7 @@ export function ImportResultsStep({ result, isImporting }: ImportResultsStepProp
 			{hasErrors && (
 				<div className="space-y-2">
 					<h4 className="text-sm font-medium text-red-600 dark:text-red-400">
-						Errors ({result.errors.length})
+						{t("ERRORS_LABEL")} ({result.errors.length})
 					</h4>
 					<div className="max-h-[200px] overflow-auto rounded-lg border border-red-200 dark:border-red-800">
 						{result.errors.map((error, idx) => (

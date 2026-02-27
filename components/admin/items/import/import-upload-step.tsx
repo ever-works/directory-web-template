@@ -6,6 +6,7 @@ import useUppyState from "@uppy/react/lib/useUppyState";
 import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 
 interface ImportUploadStepProps {
 	onFileSelected: (file: File) => void;
@@ -37,6 +38,7 @@ const dropzoneErrorClass = cn(
 );
 
 export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
+	const t = useTranslations("admin.ITEM_IMPORT");
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -161,7 +163,7 @@ export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
 								setError(null);
 							}}
 						>
-							Choose different file
+							{t("CHOOSE_DIFFERENT_FILE")}
 						</Button>
 					</>
 				) : (
@@ -169,10 +171,10 @@ export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
 						<Upload className="w-12 h-12 text-gray-400 dark:text-gray-500" />
 						<div className="text-center">
 							<p className="text-sm font-medium text-gray-700 dark:text-gray-200">
-								Drop your file here or click to browse
+								{t("DROP_FILE_HERE")}
 							</p>
 							<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								CSV or Excel files, up to 10 MB
+								{t("FILE_TYPES_HINT")}
 							</p>
 						</div>
 					</>

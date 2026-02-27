@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ColumnMapping } from "@/lib/types/item-import-export";
 import { IMPORTABLE_FIELDS, ALL_IMPORTABLE_FIELDS } from "@/lib/types/item-import-export";
 
@@ -34,6 +35,7 @@ export function ImportMappingStep({
 	mapping,
 	onMappingChange,
 }: ImportMappingStepProps) {
+	const t = useTranslations("admin.ITEM_IMPORT");
 	const requiredFields = IMPORTABLE_FIELDS.required as readonly string[];
 
 	// Find unmapped required fields
@@ -51,7 +53,7 @@ export function ImportMappingStep({
 				<div className="flex items-start gap-2 p-3 text-sm text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
 					<AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
 					<div>
-						<p className="font-medium">Required fields not mapped:</p>
+						<p className="font-medium">{t("REQUIRED_FIELDS_NOT_MAPPED")}</p>
 						<p className="mt-0.5">{unmappedRequired.join(", ")}</p>
 					</div>
 				</div>
@@ -61,8 +63,8 @@ export function ImportMappingStep({
 				<table className="w-full">
 					<thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0">
 						<tr>
-							<th className={headerCellClass}>File Column</th>
-							<th className={headerCellClass}>Map To</th>
+							<th className={headerCellClass}>{t("FILE_COLUMN")}</th>
+							<th className={headerCellClass}>{t("MAP_TO")}</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y divide-gray-100 dark:divide-gray-800">
@@ -87,15 +89,15 @@ export function ImportMappingStep({
 												isRequired && "ring-1 ring-green-400 dark:ring-green-600"
 											)}
 										>
-											<option value="skip">-- Skip --</option>
-											<optgroup label="Required">
+											<option value="skip">{t("SKIP_COLUMN")}</option>
+											<optgroup label={t("REQUIRED_LABEL")}>
 												{IMPORTABLE_FIELDS.required.map((field) => (
 													<option key={field} value={field}>
 														{field} *
 													</option>
 												))}
 											</optgroup>
-											<optgroup label="Optional">
+											<optgroup label={t("OPTIONAL_LABEL")}>
 												{IMPORTABLE_FIELDS.optional.map((field) => (
 													<option key={field} value={field}>
 														{field}
@@ -112,8 +114,7 @@ export function ImportMappingStep({
 			</div>
 
 			<p className="text-xs text-gray-500 dark:text-gray-400">
-				{ALL_IMPORTABLE_FIELDS.length} fields available.
-				Array values (tags, category, images, collections) should be separated by semicolons.
+				{ALL_IMPORTABLE_FIELDS.length} fields available. {t("FIELDS_HINT")}
 			</p>
 		</div>
 	);

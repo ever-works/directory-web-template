@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Modal, ModalBody, ModalFooter } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 import { useItemImport } from "@/hooks/use-item-import-export";
 import { ImportUploadStep } from "./import-upload-step";
 import { ImportMappingStep } from "./import-mapping-step";
@@ -23,11 +24,11 @@ interface ItemImportModalProps {
 
 type WizardStep = "upload" | "mapping" | "preview" | "results";
 
-const STEPS: { key: WizardStep; label: string }[] = [
-	{ key: "upload", label: "Upload" },
-	{ key: "mapping", label: "Mapping" },
-	{ key: "preview", label: "Preview" },
-	{ key: "results", label: "Results" },
+const STEP_KEYS: { key: WizardStep; translationKey: string }[] = [
+	{ key: "upload", translationKey: "STEP_UPLOAD" },
+	{ key: "mapping", translationKey: "STEP_MAPPING" },
+	{ key: "preview", translationKey: "STEP_PREVIEW" },
+	{ key: "results", translationKey: "STEP_RESULTS" },
 ];
 
 const stepIndicatorBase = cn(
@@ -48,6 +49,7 @@ const stepIndicatorPending = cn(
 );
 
 export function ItemImportModal({ isOpen, onClose }: ItemImportModalProps) {
+	const t = useTranslations("admin.ITEM_IMPORT");
 	const [step, setStep] = useState<WizardStep>("upload");
 	const [file, setFile] = useState<File | null>(null);
 	const [sourceHeaders, setSourceHeaders] = useState<string[]>([]);
@@ -134,20 +136,20 @@ export function ItemImportModal({ isOpen, onClose }: ItemImportModalProps) {
 		[file, mapping, validateImport]
 	);
 
-	const currentStepIndex = STEPS.findIndex((s) => s.key === step);
+	const currentStepIndex = STEP_KEYS.findIndex((s) => s.key === step);
 	const canImport = summary.valid > 0 && step === "preview";
 
 	return (
 		<Modal
 			isOpen={isOpen}
 			onClose={handleClose}
-			title="Import Items"
+			title={t("IMPORT_MODAL_TITLE")}
 			size="4xl"
 			isDismissable={step !== "results" || !isImporting}
 		>
 			{/* Step Indicator */}
 			<div className="flex items-center justify-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-gray-700/50">
-				{STEPS.map((s, i) => (
+				{STEP_KEYS.map((s, i) => (
 					<div key={s.key} className="flex items-center gap-2">
 						<div
 							className={cn(
@@ -169,9 +171,9 @@ export function ItemImportModal({ isOpen, onClose }: ItemImportModalProps) {
 									: "text-gray-400 dark:text-gray-500"
 							)}
 						>
-							{s.label}
+							{t(s.translationKey)}
 						</span>
-						{i < STEPS.length - 1 && (
+						{i < STEP_KEYS.length - 1 && (
 							<div className="w-8 h-px bg-gray-300 dark:bg-gray-600 mx-1" />
 						)}
 					</div>
@@ -210,20 +212,20 @@ export function ItemImportModal({ isOpen, onClose }: ItemImportModalProps) {
 			<ModalFooter>
 				{step === "upload" && (
 					<Button variant="outline" onClick={handleClose}>
-						Cancel
+						{t("CANCEL")}
 					</Button>
 				)}
 
 				{step === "mapping" && (
 					<>
 						<Button variant="outline" onClick={() => setStep("upload")}>
-							Back
+							{t("BACK")}
 						</Button>
 						<Button
 							onClick={handleMappingNext}
 							disabled={isValidating}
 						>
-							{isValidating ? "Validating..." : "Next"}
+							{isValidating ? t("VALIDATING") : t("NEXT")}
 						</Button>
 					</>
 				)}
@@ -231,20 +233,20 @@ export function ItemImportModal({ isOpen, onClose }: ItemImportModalProps) {
 				{step === "preview" && (
 					<>
 						<Button variant="outline" onClick={() => setStep("mapping")}>
-							Back
+							{t("BACK")}
 						</Button>
 						<Button
 							onClick={handleImport}
 							disabled={!canImport || isValidating}
 						>
-							Import {summary.valid} items
+							{t("IMPORT_N_ITEMS", { count: summary.valid })}
 						</Button>
 					</>
 				)}
 
 				{step === "results" && (
 					<Button onClick={handleClose} disabled={isImporting}>
-						Close
+						{t("CLOSE")}
 					</Button>
 				)}
 			</ModalFooter>

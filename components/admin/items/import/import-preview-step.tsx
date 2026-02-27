@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ImportRowValidation, ImportDuplicateStrategy } from "@/lib/types/item-import-export";
 
 interface ImportPreviewStepProps {
@@ -44,51 +45,53 @@ export function ImportPreviewStep({
 	defaultStatus,
 	onDefaultStatusChange,
 }: ImportPreviewStepProps) {
+	const t = useTranslations("admin.ITEM_IMPORT");
+
 	return (
 		<div className="space-y-4">
 			{/* Summary Bar */}
 			<div className="grid grid-cols-4 gap-3">
 				<div className={summaryCardClass}>
 					<span className="text-lg font-bold text-gray-900 dark:text-white">{summary.total}</span>
-					<span className="text-xs text-gray-500">Total</span>
+					<span className="text-xs text-gray-500">{t("SUMMARY_TOTAL")}</span>
 				</div>
 				<div className={summaryCardClass}>
 					<span className="text-lg font-bold text-green-600">{summary.valid}</span>
-					<span className="text-xs text-gray-500">Valid</span>
+					<span className="text-xs text-gray-500">{t("SUMMARY_VALID")}</span>
 				</div>
 				<div className={summaryCardClass}>
 					<span className="text-lg font-bold text-red-600">{summary.errors}</span>
-					<span className="text-xs text-gray-500">Errors</span>
+					<span className="text-xs text-gray-500">{t("SUMMARY_ERRORS")}</span>
 				</div>
 				<div className={summaryCardClass}>
 					<span className="text-lg font-bold text-amber-600">{summary.duplicates}</span>
-					<span className="text-xs text-gray-500">Duplicates</span>
+					<span className="text-xs text-gray-500">{t("SUMMARY_DUPLICATES")}</span>
 				</div>
 			</div>
 
 			{/* Options */}
 			<div className="flex flex-wrap gap-4">
 				<div className="flex items-center gap-2">
-					<label className="text-sm text-gray-600 dark:text-gray-400">Duplicates:</label>
+					<label className="text-sm text-gray-600 dark:text-gray-400">{t("DUPLICATES_LABEL")}</label>
 					<select
 						value={duplicateStrategy}
 						onChange={(e) => onDuplicateStrategyChange(e.target.value as ImportDuplicateStrategy)}
 						className={selectClass}
 					>
-						<option value="skip">Skip</option>
-						<option value="update">Update existing</option>
+						<option value="skip">{t("DUPLICATE_SKIP")}</option>
+						<option value="update">{t("DUPLICATE_UPDATE")}</option>
 					</select>
 				</div>
 				<div className="flex items-center gap-2">
-					<label className="text-sm text-gray-600 dark:text-gray-400">Default status:</label>
+					<label className="text-sm text-gray-600 dark:text-gray-400">{t("DEFAULT_STATUS_LABEL")}</label>
 					<select
 						value={defaultStatus}
 						onChange={(e) => onDefaultStatusChange(e.target.value as "draft" | "pending" | "approved")}
 						className={selectClass}
 					>
-						<option value="draft">Draft</option>
-						<option value="pending">Pending</option>
-						<option value="approved">Approved</option>
+						<option value="draft">{t("STATUS_DRAFT")}</option>
+						<option value="pending">{t("STATUS_PENDING")}</option>
+						<option value="approved">{t("STATUS_APPROVED")}</option>
 					</select>
 				</div>
 			</div>
