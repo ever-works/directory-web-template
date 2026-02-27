@@ -18,6 +18,7 @@ import { LocationFilter } from '@/components/filters/components/location';
 import { useLocationItems } from '@/hooks/use-location-items';
 import { LocationDistanceProvider } from '@/components/filters/context/location-distance-context';
 import DecorativeBg from '@/components/shared/decorative-bg';
+import { ExportButton } from '@/components/shared/export-button';
 
 type ListingProps = {
 	total: number;
@@ -162,6 +163,7 @@ export default function GlobalsClient(props: ListingProps) {
 									items={filteredItems}
 									totalCount={props.items.length}
 									config={listingConfig}
+									headerActions={<ExportButton />}
 								/>
 							</div>
 						</LocationDistanceProvider>

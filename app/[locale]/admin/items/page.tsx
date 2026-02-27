@@ -23,6 +23,7 @@ import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
 import { useTranslations } from 'next-intl';
 import { AdminSurveyCreationButton } from "@/components/surveys/admin-survey-creation-button";
+import { ItemImportExport } from "@/components/admin/items/item-import-export";
 import { useDebounceSearch } from "@/hooks/use-debounced-search";
 import {
   AdminSearchBar,
@@ -636,6 +637,7 @@ export default function AdminItemsPage() {
               </div>
             </div>
             <div className="flex gap-3">
+              <ItemImportExport />
               <Button
                 color="primary"
                 size="lg"
@@ -645,7 +647,7 @@ export default function AdminItemsPage() {
               >
                 {t('ADD_ITEM')}
               </Button>
-              <AdminSurveyCreationButton 
+              <AdminSurveyCreationButton
                 showLabel
                 variant="default"
                 size="lg"

@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest } from '@/lib/types/item';
+import type { ItemExportData } from '@/lib/types/item-import-export';
 import { getLocationIndexService } from './location/location-index.service';
 
 // Helper function to format date in the expected format for YAML files
@@ -270,6 +271,125 @@ export class ItemGitService {
     return results;
   }
 
+  /**
+   * Read all items preserving ALL YAML fields (brand, brand_logo_url, images, markdown).
+   * Used for export to avoid discarding extra fields.
+   */
+  async readItemsRaw(includeDeleted: boolean = false): Promise<ItemExportData[]> {
+    try {
+      const dataDir = path.join(this.config.dataDir, 'data');
+
+      try {
+        await fs.access(dataDir);
+      } catch {
+        console.warn('📁 Data directory does not exist:', dataDir);
+        return [];
+      }
+
+      const itemDirs = await fs.readdir(dataDir);
+      const items: ItemExportData[] = [];
+
+      for (const itemDir of itemDirs) {
+        const itemDirPath = path.join(dataDir, itemDir);
+        const itemDirStat = await fs.stat(itemDirPath);
+
+        if (itemDirStat.isDirectory()) {
+          const itemFile = path.join(itemDirPath, `${itemDir}.yml`);
+
+          try {
+            const content = await fs.readFile(itemFile, 'utf-8');
+            const item = yaml.parse(content) as any;
+
+            const normalizedItem: ItemExportData = {
+              id: itemDir,
+              name: item.name || '',
+              slug: itemDir,
+              description: item.description || '',
+              source_url: item.source_url || '',
+              category: Array.isArray(item.category) ? item.category : [item.category].filter(Boolean),
+              tags: Array.isArray(item.tags) ? item.tags : [],
+              collections: Array.isArray(item.collections) ? item.collections : (item.collections ? [item.collections] : []),
+              featured: item.featured || false,
+              icon_url: item.icon_url,
+              updated_at: item.updated_at || formatDateForYaml(),
+              status: item.status || 'approved',
+              submitted_by: item.submitted_by,
+              submitted_at: item.submitted_at || item.updated_at || formatDateForYaml(),
+              reviewed_by: item.reviewed_by || 'admin',
+              reviewed_at: item.reviewed_at || item.updated_at || formatDateForYaml(),
+              review_notes: item.review_notes,
+              deleted_at: item.deleted_at,
+              location: item.location ? {
+                address: item.location.address,
+                city: item.location.city,
+                state: item.location.state,
+                country: item.location.country,
+                postal_code: item.location.postal_code,
+                latitude: item.location.latitude,
+                longitude: item.location.longitude,
+                service_area: item.location.service_area,
+                is_remote: item.location.is_remote ?? false,
+                geocoded_by: item.location.geocoded_by,
+              } : undefined,
+              // Extra YAML fields not in ItemData
+              brand: item.brand,
+              brand_logo_url: item.brand_logo_url,
+              images: Array.isArray(item.images) ? item.images : (item.images ? [item.images] : undefined),
+              markdown: item.markdown,
+            };
+
+            if (!includeDeleted && normalizedItem.deleted_at) {
+              continue;
+            }
+
+            items.push(normalizedItem);
+          } catch (fileError) {
+            console.warn(`⚠️ Could not read item file ${itemFile}:`, fileError);
+          }
+        }
+      }
+
+      return items;
+    } catch (error) {
+      console.error('❌ Error reading raw items:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Create an item file without committing to git.
+   * Used for batch import (write many files, then commit once).
+   */
+  async createItemWithoutCommit(data: CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }): Promise<ItemData> {
+    const newItem: ItemData = {
+      id: data.id,
+      name: data.name,
+      slug: data.slug,
+      description: data.description,
+      source_url: data.source_url,
+      category: data.category,
+      tags: data.tags,
+      collections: data.collections || [],
+      featured: data.featured || false,
+      icon_url: data.icon_url,
+      updated_at: formatDateForYaml(),
+      status: data.status || 'draft',
+      submitted_by: data.submitted_by || 'anonymous',
+      submitted_at: formatDateForYaml(),
+      location: data.location,
+    };
+
+    // Attach extra fields for writeItemFile
+    const extendedItem = newItem as ItemData & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string };
+    if (data.brand) extendedItem.brand = data.brand;
+    if (data.brand_logo_url) extendedItem.brand_logo_url = data.brand_logo_url;
+    if (data.images?.length) extendedItem.images = data.images;
+    if (data.markdown) extendedItem.markdown = data.markdown;
+
+    await this.writeItemFile(extendedItem);
+    return newItem;
+  }
+
   private async writeItemFile(item: ItemData): Promise<void> {
     try {
       const dataDir = path.join(this.config.dataDir, 'data');
@@ -307,6 +427,13 @@ export class ItemGitService {
       if (item.location) {
         itemData.location = item.location;
       }
+
+      // Include extra YAML fields (brand, brand_logo_url, images, markdown)
+      const extItem = item as ItemData & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string };
+      if (extItem.brand) itemData.brand = extItem.brand;
+      if (extItem.brand_logo_url) itemData.brand_logo_url = extItem.brand_logo_url;
+      if (extItem.images?.length) itemData.images = extItem.images;
+      if (extItem.markdown) itemData.markdown = extItem.markdown;
 
       // Write item data
       const content = yaml.stringify(itemData);
