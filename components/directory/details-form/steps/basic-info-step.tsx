@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, useEffect, useRef } from 'react';
-import { Type, FileText, Star, MoreHorizontal, ChevronUp, ChevronDown, Check, Search, X } from 'lucide-react';
+import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X } from 'lucide-react';
 import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';
@@ -63,7 +63,7 @@ export function BasicInfoStep({
 	const { tagsEnabled } = useTagsEnabled();
 	const { extractFromUrl, isLoading: isExtracting } = useUrlExtraction();
 	const [showAllTags, setShowAllTags] = useState(false);
-	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW);
+	const [tagsToShow] = useState(DEFAULT_TAGS_TO_SHOW + 6);
 
 	const [selectedCategories, setSelectedCategories] = useState<string[]>(
 		Array.isArray(formData.categories) ? formData.categories : []
@@ -174,6 +174,8 @@ export function BasicInfoStep({
 						isExtracting={isExtracting}
 					/>
 
+					<div className="flex gap-10">
+					<div className="w-1/2 flex flex-col gap-6">
 					{/* Product Name */}
 					<div className="space-y-3">
 						<label htmlFor="name" className={FORM_FIELD_CLASSES.label}>
@@ -198,39 +200,6 @@ export function BasicInfoStep({
 						</div>
 					</div>
 
-					{/* Video URL */}
-					<div className="space-y-3">
-						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
-							Video URL (YouTube or Vimeo)
-						</label>
-						<div className="relative">
-							<input
-								id="video_url"
-								name="video_url"
-								type="url"
-								value={formData.video_url || ''}
-								onChange={handleInputChange}
-								placeholder="https://www.youtube.com/watch?v=..."
-								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
-							/>
-						</div>
-						{/* Video Preview - only for whitelisted hosts */}
-						{formData.video_url && isValidVideoUrl(formData.video_url) && (
-							<div className={VIDEO_PREVIEW_CLASSES.container}>
-								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
-									<iframe
-										src={getVideoEmbedUrl(formData.video_url)}
-										title="Video Preview"
-										style={{ border: 0 }}
-										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-										allowFullScreen
-										className={VIDEO_PREVIEW_CLASSES.iframe}
-									></iframe>
-								</div>
-							</div>
-						)}
-					</div>
-
 					{/* Category - Only show if categories enabled */}
 					{categoriesEnabled && (
 						<div className="space-y-3">
@@ -243,8 +212,8 @@ export function BasicInfoStep({
 									type="button"
 									role="combobox"
 									className={cn(
-										'group relative inline-flex w-full items-center justify-between rounded-xl border bg-theme-primary-50 px-3 py-3 text-md font-medium text-theme-primary-900 transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:border-gray-600/50 dark:bg-gray-900/50 dark:text-white dark:focus:ring-theme-primary-400',
-										categoryMenuOpen && 'ring-2 ring-theme-primary-500 dark:ring-theme-primary-400',
+										'group relative inline-flex w-full items-center justify-between rounded-lg border bg-theme-primary-50 px-3 py-2 text-md font-medium text-theme-primary-900 transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:border-gray-600/50 dark:bg-gray-900/50 dark:text-white dark:focus:ring-theme-primary-400',
+										categoryMenuOpen && 'ring-1 ring-theme-primary-500 dark:ring-theme-primary-400',
 										focusedField === 'categories' && 'border-theme-primary-500 dark:border-theme-primary-400'
 									)}
 									aria-label={t('directory.DETAILS_FORM.CATEGORIES')}
@@ -268,7 +237,7 @@ export function BasicInfoStep({
 									onBlur={() => setFocusedField(null)}
 									disabled={!categories || categories.length === 0}
 								>
-									<span className="truncate text-left flex flex-wrap gap-1 items-center min-h-[1.5rem] w-[94%]">
+									<span className="truncate text-left flex flex-wrap gap-1 items-center min-h-[1.2rem] w-[94%]">
 										{selectedCategories.length > 0
 											? selectedCategories
 												.map((catId) => {
@@ -277,13 +246,13 @@ export function BasicInfoStep({
 													return (
 														<span
 															key={catId}
-															className="inline-flex items-center rounded-full bg-theme-primary-600 text-white px-2 py-0.5 text-sm font-normal mr-1"
+															className="inline-flex items-center rounded-full bg-theme-primary-600 text-white px-2 py-0.5 text-xs font-normal mr-1"
 														>
 															{cat.name}
 															<button
 																type="button"
 																aria-label={t('directory.DETAILS_FORM.REMOVE_CATEGORY', { name: cat.name })}
-																className="ml-1 cursor-pointer rounded-full hover:bg-theme-primary-700/30 focus:outline-none focus:ring-2 focus:ring-theme-primary-400"
+																className="ml-1 cursor-pointer rounded-full hover:bg-theme-primary-700/30 focus:outline-none focus:ring-1 focus:ring-theme-primary-400"
 																onClick={e => {
 																	e.stopPropagation();
 																	toggleCategory(catId);
@@ -295,7 +264,7 @@ export function BasicInfoStep({
 													);
 												})
 											: (
-												<span className="text-theme-primary-400">
+												<span className="text-gray-700 dark:text-gray-300">
 													{t('directory.DETAILS_FORM.CATEGORY_PLACEHOLDER')}
 												</span>
 											)}
@@ -330,7 +299,7 @@ export function BasicInfoStep({
 												</span>
 											</div>
 										</div>
-										<div className="overflow-y-auto scrollbar-thin scrollbar-thumb-theme-primary-300 scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5 overscroll-contain mx-auto"
+										<div className="overflow-y-auto min-h-20 p-1.5 flex flex-wrap gap-2 items-start scrollbar-thin scrollbar-thumb-theme-primary-300 scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5 overscroll-contain mx-auto"
 											style={{ maxHeight: '20rem', width: '100%', scrollbarWidth: 'thin' }}>
 											{(() => {
 												const filteredCategories = categories?.filter((cat) =>
@@ -342,8 +311,8 @@ export function BasicInfoStep({
 													<div
 														key={category.id}
 														className={cn(
-															'flex items-center justify-between px-3 py-3 border-y border-theme-primary-100 dark:border-gray-800 cursor-pointer hover:bg-theme-primary-200 dark:hover:bg-gray-800',
-															selectedCategories.includes(category.id) && 'bg-theme-primary-200 dark:bg-gray-800'
+															'flex cursor-pointer items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 text-gray-900 dark:text-white',
+															selectedCategories.includes(category.id) && 'bg-theme-primary-600 dark:bg-theme-primary-600 text-white'
 														)}
 														role="option"
 														aria-selected={selectedCategories.includes(category.id)}
@@ -357,13 +326,13 @@ export function BasicInfoStep({
 														}}
 													>
 														<span
-															className={cn('font-medium truncate text-sm', selectedCategories.includes(category.id) ? 'text-theme-primary-700 dark:text-theme-primary-400' : 'text-theme-primary-900 dark:text-white')}
+															className={cn('font-medium truncate text-xs')}
 														>
 															{category.name}
 														</span>
-														{selectedCategories.includes(category.id) && (
+														{/* {selectedCategories.includes(category.id) && (
 															<Check className="h-4 w-4 text-theme-primary-500 dark:text-theme-primary-400" />
-														)}
+														)} */}
 													</div>
 												))) : (
 												<div
@@ -383,6 +352,41 @@ export function BasicInfoStep({
 						</div>
 					)}
 
+					{/* Video URL */}
+					<div className="space-y-3">
+						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
+							Video URL (YouTube or Vimeo)
+						</label>
+						<div className="relative">
+							<input
+								id="video_url"
+								name="video_url"
+								type="url"
+								value={formData.video_url || ''}
+								onChange={handleInputChange}
+								placeholder="https://www.youtube.com/watch?v=..."
+								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
+							/>
+						</div>
+						{/* Video Preview - only for whitelisted hosts */}
+						{formData.video_url && isValidVideoUrl(formData.video_url) && (
+							<div className={VIDEO_PREVIEW_CLASSES.container}>
+								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
+									<iframe
+										src={getVideoEmbedUrl(formData.video_url)}
+										title="Video Preview"
+										style={{ border: 0 }}
+										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+										allowFullScreen
+										className={VIDEO_PREVIEW_CLASSES.iframe}
+									></iframe>
+								</div>
+							</div>
+						)}
+					</div>
+					</div>
+					
+					<div className='w-1/2 px-4'>
 					{/* Tags - Only show if tags enabled */}
 					{tagsEnabled && (
 						<div className="space-y-6">
@@ -395,7 +399,8 @@ export function BasicInfoStep({
 								</p>
 							</div>
 
-							<div className={TAG_CLASSES.container}>
+							<div className={cn(TAG_CLASSES.container, 'max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-theme-primary-300 scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5 overscroll-contain mx-auto')}
+								style={{scrollbarWidth: 'thin' }}>
 								{tags?.slice(0, showAllTags ? undefined : tagsToShow).map((tag) => (
 									<button
 										key={tag.id}
@@ -418,7 +423,7 @@ export function BasicInfoStep({
 										onClick={() => setShowAllTags(true)}
 										className={TAG_CLASSES.showMore}
 									>
-										<MoreHorizontal className="w-4 h-4" />
+										<Plus className="w-4 h-4" />
 										{t('common.SHOW_MORE', { count: tags.length - tagsToShow })}
 									</button>
 								)}
@@ -459,6 +464,8 @@ export function BasicInfoStep({
 							)}
 						</div>
 					)}
+					</div>
+					</div>
 
 					{/* Short Description */}
 					<div className="space-y-3">
