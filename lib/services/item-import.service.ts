@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { importRowSchema } from '@/lib/validations/item-import';
 import { slugify } from '@/lib/utils/slug';
-import type { CreateItemRequest, ItemData } from '@/lib/types/item';
+import type { CreateItemRequest } from '@/lib/types/item';
 import type {
 	ImportRowRaw,
 	ImportRowValidation,
@@ -12,7 +12,7 @@ import type {
 	ImportDuplicateStrategy,
 	ItemExportData,
 } from '@/lib/types/item-import-export';
-import { ALL_IMPORTABLE_FIELDS } from '@/lib/types/item-import-export';
+
 
 /** Maximum items per batch import */
 const MAX_IMPORT_BATCH = 500;

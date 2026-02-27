@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Uppy from "@uppy/core";
-import useUppyState from "@uppy/react/lib/useUppyState";
+import type { Meta, Body, State } from "@uppy/core";
+import { useUppyState } from "@uppy/react";
 import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,7 @@ export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
 		[]
 	);
 
-	const files = useUppyState(uppy, (state) => state.files);
+	const files = useUppyState(uppy, (state: State<Meta, Body>) => state.files);
 	const selectedFile = useMemo(() => {
 		const fileIds = Object.keys(files);
 		return fileIds.length > 0 ? files[fileIds[0]] : null;
