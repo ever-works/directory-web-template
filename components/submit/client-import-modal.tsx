@@ -57,7 +57,7 @@ export function ClientImportModal({ isOpen, onClose }: ClientImportModalProps) {
 	const [summary, setSummary] = useState({ total: 0, valid: 0, errors: 0, duplicates: 0 });
 	const [importResult, setImportResult] = useState<ImportResult | null>(null);
 
-	const { validateImport, executeImport, isValidating, isImporting } = useClientItemImport();
+	const { validateImport, executeImport, downloadSample, isValidating, isImporting, isDownloading } = useClientItemImport();
 
 	const resetState = useCallback(() => {
 		setStep("upload");
@@ -158,7 +158,11 @@ export function ClientImportModal({ isOpen, onClose }: ClientImportModalProps) {
 
 			<ModalBody>
 				{step === "upload" && (
-					<ImportUploadStep onFileSelected={handleFileSelected} />
+					<ImportUploadStep
+						onFileSelected={handleFileSelected}
+						onDownloadSample={downloadSample}
+						isDownloadingSample={isDownloading}
+					/>
 				)}
 
 				{step === "mapping" && (

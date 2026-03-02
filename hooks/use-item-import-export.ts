@@ -242,6 +242,20 @@ export function useItemImport() {
 export function useClientItemImport() {
 	const [isValidating, setIsValidating] = useState(false);
 	const [isImporting, setIsImporting] = useState(false);
+	const [isDownloading, setIsDownloading] = useState(false);
+
+	const downloadSample = useCallback(async (format: ExportFormat) => {
+		setIsDownloading(true);
+		try {
+			await downloadFile(`/api/client/items/import/sample?format=${format}`, `items-import-template.${format}`);
+			toast.success('Template downloaded');
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Download failed';
+			toast.error(message);
+		} finally {
+			setIsDownloading(false);
+		}
+	}, []);
 
 	const validateImport = useCallback(
 		async (
@@ -312,7 +326,9 @@ export function useClientItemImport() {
 	return {
 		validateImport,
 		executeImport,
+		downloadSample,
 		isValidating,
 		isImporting,
+		isDownloading,
 	};
 }

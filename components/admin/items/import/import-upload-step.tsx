@@ -4,13 +4,15 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Uppy from "@uppy/core";
 import type { Meta, Body, State } from "@uppy/core";
 import { useUppyState } from "@uppy/react";
-import { Upload, FileSpreadsheet, AlertCircle } from "lucide-react";
+import { Upload, FileSpreadsheet, AlertCircle, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 
 interface ImportUploadStepProps {
 	onFileSelected: (file: File) => void;
+	onDownloadSample?: (format: 'csv' | 'xlsx') => void;
+	isDownloadingSample?: boolean;
 }
 
 const ACCEPTED_TYPES = [".csv", ".xlsx", ".xls"];
@@ -38,7 +40,7 @@ const dropzoneErrorClass = cn(
 	"dark:border-red-500 dark:bg-red-900/10"
 );
 
-export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
+export function ImportUploadStep({ onFileSelected, onDownloadSample, isDownloadingSample }: ImportUploadStepProps) {
 	const t = useTranslations("admin.ITEM_IMPORT");
 	const [isDragOver, setIsDragOver] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -181,6 +183,30 @@ export function ImportUploadStep({ onFileSelected }: ImportUploadStepProps) {
 					</>
 				)}
 			</div>
+
+			{onDownloadSample && (
+				<div className="flex items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+					<Download className="w-4 h-4 shrink-0" />
+					<span>{t("DOWNLOAD_SAMPLE_LABEL")}:</span>
+					<button
+						type="button"
+						className="text-theme-primary hover:underline disabled:opacity-50"
+						onClick={() => onDownloadSample('csv')}
+						disabled={isDownloadingSample}
+					>
+						CSV
+					</button>
+					<span className="text-gray-300 dark:text-gray-600">|</span>
+					<button
+						type="button"
+						className="text-theme-primary hover:underline disabled:opacity-50"
+						onClick={() => onDownloadSample('xlsx')}
+						disabled={isDownloadingSample}
+					>
+						Excel
+					</button>
+				</div>
+			)}
 
 			{error && (
 				<div className="flex items-center gap-2 p-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg">
