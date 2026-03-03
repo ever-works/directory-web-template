@@ -3021,6 +3021,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "샘플 템플릿 다운로드",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3226,7 +3227,8 @@
 			"COMMUNITY_SCORE": "커뮤니티 점수",
 			"YOUR_SUBMISSIONS": "내 제출물",
 			"NEW_SUBMISSION": "새 제출",
-			"TRASH": "휴지통"
+			"TRASH": "휴지통",
+			"BULK_IMPORT": "대량 가져오기"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "내 스폰서십",

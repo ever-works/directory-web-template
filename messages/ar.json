@@ -2929,6 +2929,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "تحميل نموذج القالب",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3116,7 +3117,8 @@
 			"REJECTION_REASON": "سبب الرفض",
 			"DESCRIPTION": "الوصف",
 			"EDIT_SUBMISSION_TITLE": "تعديل التقديم",
-			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك"
+			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك",
+			"BULK_IMPORT": "استيراد مجمع"
 		},
 		"dashboard": {
 			"TITLE": "لوحة التحكم",

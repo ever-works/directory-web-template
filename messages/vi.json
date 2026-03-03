@@ -3022,6 +3022,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "Tải mẫu template",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3243,7 +3244,8 @@
 			"SUBMISSIONS_MANAGEMENT_DESC": "Theo dõi và quản lý việc gửi thư mục của bạn.",
 			"START_YOUR_JOURNEY": "Bắt đầu hành trình của bạn",
 			"CREATE_FIRST": "Tạo bài gửi đầu tiên của bạn",
-			"TRASH": "Rác"
+			"TRASH": "Rác",
+			"BULK_IMPORT": "Nhập hàng loạt"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Tài trợ của tôi",

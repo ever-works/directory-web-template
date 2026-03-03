@@ -2930,6 +2930,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "Descargar plantilla de ejemplo",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3121,7 +3122,8 @@
 			"REJECTION_REASON": "Razón del Rechazo",
 			"DESCRIPTION": "Descripción",
 			"EDIT_SUBMISSION_TITLE": "Editar Envío",
-			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío"
+			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío",
+			"BULK_IMPORT": "Importación masiva"
 		},
 		"dashboard": {
 			"TITLE": "Panel de Control",

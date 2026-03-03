@@ -2907,6 +2907,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "Pobierz przykładowy szablon",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3094,7 +3095,8 @@
 			"REJECTION_REASON": "Powód Odrzucenia",
 			"DESCRIPTION": "Opis",
 			"EDIT_SUBMISSION_TITLE": "Edytuj Zgłoszenie",
-			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia"
+			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia",
+			"BULK_IMPORT": "Import zbiorczy"
 		},
 		"dashboard": {
 			"TITLE": "Panel",

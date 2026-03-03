@@ -3022,6 +3022,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "Unduh contoh template",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3227,7 +3228,8 @@
 			"COMMUNITY_SCORE": "Skor Komunitas",
 			"YOUR_SUBMISSIONS": "Kiriman Anda",
 			"NEW_SUBMISSION": "Kiriman Baru",
-			"TRASH": "Tempat Sampah"
+			"TRASH": "Tempat Sampah",
+			"BULK_IMPORT": "Impor Massal"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "Sponsor Saya",

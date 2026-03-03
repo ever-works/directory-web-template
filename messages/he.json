@@ -2903,6 +2903,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "הורד תבנית לדוגמה",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3094,7 +3095,8 @@
 			"REJECTION_REASON": "סיבת הדחייה",
 			"DESCRIPTION": "תיאור",
 			"EDIT_SUBMISSION_TITLE": "ערוך הגשה",
-			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך"
+			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך",
+			"BULK_IMPORT": "ייבוא מרובה"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

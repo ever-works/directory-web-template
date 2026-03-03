@@ -17,6 +17,7 @@ interface ImportPreviewStepProps {
 	onDuplicateStrategyChange: (strategy: ImportDuplicateStrategy) => void;
 	defaultStatus: "draft" | "pending" | "approved";
 	onDefaultStatusChange: (status: "draft" | "pending" | "approved") => void;
+	showOptions?: boolean;
 }
 
 const summaryCardClass = cn(
@@ -44,6 +45,7 @@ export function ImportPreviewStep({
 	onDuplicateStrategyChange,
 	defaultStatus,
 	onDefaultStatusChange,
+	showOptions = true,
 }: ImportPreviewStepProps) {
 	const t = useTranslations("admin.ITEM_IMPORT");
 
@@ -70,31 +72,33 @@ export function ImportPreviewStep({
 			</div>
 
 			{/* Options */}
-			<div className="flex flex-wrap gap-4">
-				<div className="flex items-center gap-2">
-					<label className="text-sm text-gray-600 dark:text-gray-400">{t("DUPLICATES_LABEL")}</label>
-					<select
-						value={duplicateStrategy}
-						onChange={(e) => onDuplicateStrategyChange(e.target.value as ImportDuplicateStrategy)}
-						className={selectClass}
-					>
-						<option value="skip">{t("DUPLICATE_SKIP")}</option>
-						<option value="update">{t("DUPLICATE_UPDATE")}</option>
-					</select>
+			{showOptions && (
+				<div className="flex flex-wrap gap-4">
+					<div className="flex items-center gap-2">
+						<label className="text-sm text-gray-600 dark:text-gray-400">{t("DUPLICATES_LABEL")}</label>
+						<select
+							value={duplicateStrategy}
+							onChange={(e) => onDuplicateStrategyChange(e.target.value as ImportDuplicateStrategy)}
+							className={selectClass}
+						>
+							<option value="skip">{t("DUPLICATE_SKIP")}</option>
+							<option value="update">{t("DUPLICATE_UPDATE")}</option>
+						</select>
+					</div>
+					<div className="flex items-center gap-2">
+						<label className="text-sm text-gray-600 dark:text-gray-400">{t("DEFAULT_STATUS_LABEL")}</label>
+						<select
+							value={defaultStatus}
+							onChange={(e) => onDefaultStatusChange(e.target.value as "draft" | "pending" | "approved")}
+							className={selectClass}
+						>
+							<option value="draft">{t("STATUS_DRAFT")}</option>
+							<option value="pending">{t("STATUS_PENDING")}</option>
+							<option value="approved">{t("STATUS_APPROVED")}</option>
+						</select>
+					</div>
 				</div>
-				<div className="flex items-center gap-2">
-					<label className="text-sm text-gray-600 dark:text-gray-400">{t("DEFAULT_STATUS_LABEL")}</label>
-					<select
-						value={defaultStatus}
-						onChange={(e) => onDefaultStatusChange(e.target.value as "draft" | "pending" | "approved")}
-						className={selectClass}
-					>
-						<option value="draft">{t("STATUS_DRAFT")}</option>
-						<option value="pending">{t("STATUS_PENDING")}</option>
-						<option value="approved">{t("STATUS_APPROVED")}</option>
-					</select>
-				</div>
-			</div>
+			)}
 
 			{/* Rows Table */}
 			<div className="overflow-auto max-h-[320px] rounded-lg border border-gray-200 dark:border-gray-700">

@@ -2907,6 +2907,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "サンプルテンプレートをダウンロード",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3099,7 +3100,8 @@
 			"REJECTION_REASON": "却下理由",
 			"DESCRIPTION": "説明",
 			"EDIT_SUBMISSION_TITLE": "提出を編集",
-			"EDIT_SUBMISSION_DESC": "提出の詳細を更新"
+			"EDIT_SUBMISSION_DESC": "提出の詳細を更新",
+			"BULK_IMPORT": "一括インポート"
 		},
 		"dashboard": {
 			"TITLE": "ダッシュボード",

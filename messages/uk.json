@@ -2909,6 +2909,7 @@
 			"TEMPLATE_SECTION": "Template",
 			"DOWNLOAD_CSV_TEMPLATE": "Download CSV Template",
 			"DOWNLOAD_EXCEL_TEMPLATE": "Download Excel Template",
+			"DOWNLOAD_SAMPLE_LABEL": "Завантажити зразок шаблону",
 			"IMPORT_SECTION": "Import",
 			"IMPORT_FROM_FILE": "Import from File",
 			"IMPORT_MODAL_TITLE": "Import Items",
@@ -3076,7 +3077,8 @@
 			"SUBMITTED_ON": "Подано {date}",
 			"PER_PAGE": "На сторінці",
 			"ITEMS": "елементів",
-			"ITEMS_PER_PAGE": "Елементів на сторінці"
+			"ITEMS_PER_PAGE": "Елементів на сторінці",
+			"BULK_IMPORT": "Масовий імпорт"
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

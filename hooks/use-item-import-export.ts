@@ -232,3 +232,103 @@ export function useItemImport() {
 		isImporting,
 	};
 }
+
+// ===================== Client Import Hook =====================
+
+/**
+ * Hook for client-side item import operations.
+ * Simplified: always skip duplicates, status forced to pending.
+ */
+export function useClientItemImport() {
+	const [isValidating, setIsValidating] = useState(false);
+	const [isImporting, setIsImporting] = useState(false);
+	const [isDownloading, setIsDownloading] = useState(false);
+
+	const downloadSample = useCallback(async (format: ExportFormat) => {
+		setIsDownloading(true);
+		try {
+			await downloadFile(`/api/client/items/import/sample?format=${format}`, `items-import-template.${format}`);
+			toast.success('Template downloaded');
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Download failed';
+			toast.error(message);
+		} finally {
+			setIsDownloading(false);
+		}
+	}, []);
+
+	const validateImport = useCallback(
+		async (
+			file: File,
+			mapping: ColumnMapping
+		): Promise<ValidateImportResponse | null> => {
+			setIsValidating(true);
+			try {
+				const formData = new FormData();
+				formData.append('file', file);
+				formData.append('mapping', JSON.stringify(mapping));
+
+				const response = await fetch('/api/client/items/import/validate', {
+					method: 'POST',
+					body: formData,
+				});
+
+				const data = (await response.json()) as ValidateImportResponse;
+
+				if (!response.ok || !data.success) {
+					toast.error(data.error || 'Validation failed');
+					return null;
+				}
+
+				return data;
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Validation failed';
+				toast.error(message);
+				return null;
+			} finally {
+				setIsValidating(false);
+			}
+		},
+		[]
+	);
+
+	const executeImport = useCallback(
+		async (rows: ImportRowValidation[]): Promise<ImportResult | null> => {
+			setIsImporting(true);
+			try {
+				const response = await fetch('/api/client/items/import', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ rows }),
+				});
+
+				const data = (await response.json()) as ExecuteImportResponse;
+
+				if (!response.ok || !data.success) {
+					toast.error(data.error || 'Import failed');
+					return null;
+				}
+
+				const { result } = data;
+				toast.success(`Imported ${result.created} items`);
+				return result;
+			} catch (error) {
+				const message = error instanceof Error ? error.message : 'Import failed';
+				toast.error(message);
+				return null;
+			} finally {
+				setIsImporting(false);
+			}
+		},
+		[]
+	);
+
+	return {
+		validateImport,
+		executeImport,
+		downloadSample,
+		isValidating,
+		isImporting,
+		isDownloading,
+	};
+}
