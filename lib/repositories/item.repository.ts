@@ -202,6 +202,37 @@ export class ItemRepository {
     return results;
   }
 
+  /**
+   * Create multiple items without committing after each one, then commit once.
+   * Used for batch import operations.
+   */
+  async batchCreate(
+    items: Array<CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }>,
+    commitMessage: string,
+    auditUser?: AuditUser
+  ): Promise<ItemData[]> {
+    const gitService = await this.getGitService();
+    const results: ItemData[] = [];
+
+    for (const data of items) {
+      const item = await gitService.createItemWithoutCommit(data);
+      results.push(item);
+    }
+
+    await gitService.commitAndPushBatch(commitMessage);
+
+    // Log all creations to audit trail after successful commit (best-effort)
+    for (const item of results) {
+      try {
+        await itemAuditService.logCreation(item, auditUser);
+      } catch (err) {
+        console.warn('Audit logCreation failed for batch item:', err);
+      }
+    }
+
+    return results;
+  }
+
   async review(id: string, reviewData: ReviewRequest, auditUser?: AuditUser): Promise<ItemData> {
     this.validateReviewData(reviewData);
 
