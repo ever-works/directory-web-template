@@ -19,6 +19,7 @@ import {
 import { useClientItems, useClientItemFilters } from '@/hooks';
 import { ClientUpdateItemInput } from '@/lib/validations/client-item';
 import { Button } from '@/components/ui/button';
+import { BulkSubmitButton } from '@/components/submit/bulk-submit-button';
 
 export function SubmissionsContent() {
 	const t = useTranslations('client.submissions');
@@ -155,6 +156,7 @@ export function SubmissionsContent() {
 										<FiTrash2 className="w-4 h-4" />
 										{t('TRASH')}
 									</Link>
+									<BulkSubmitButton />
 									<Link
 										href="/submit"
 										className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 text-white rounded-lg transition-all duration-300 font-medium shadow-xs hover:shadow-md"

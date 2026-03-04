@@ -19,6 +19,7 @@ interface ListingClientProps extends Omit<BaseCardProps, 'categories'> {
   items: ItemData[];
   filteredAndSortedItems?: ItemData[];
   config?: CardConfigOptions;
+  headerActions?: React.ReactNode;
 }
 
 export function ListingClient(props: ListingClientProps) {

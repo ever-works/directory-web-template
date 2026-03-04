@@ -253,6 +253,17 @@ export function getSponsorAdPricingConfig(): {
 	};
 }
 
+// ===================== Export Settings =====================
+
+/**
+ * Server-side utility to check if public item export is enabled
+ * @returns boolean - true if public export is enabled, false otherwise
+ */
+export function getExportEnabled(): boolean {
+	const enabled = configManager.getNestedValue('settings.export_enabled');
+	return enabled ?? false;
+}
+
 // ===================== Location Settings =====================
 
 /**

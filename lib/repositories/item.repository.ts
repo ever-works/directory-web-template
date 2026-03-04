@@ -1,4 +1,5 @@
 import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest, ItemListOptions } from '@/lib/types/item';
+import type { ItemExportData } from '@/lib/types/item-import-export';
 import { createItemGitService, ItemGitServiceConfig, ItemGitService } from '@/lib/services/item-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
@@ -78,6 +79,15 @@ export class ItemRepository {
     }
 
     return filteredItems;
+  }
+
+  /**
+   * Find all items preserving extra YAML fields (brand, brand_logo_url, images, markdown).
+   * Used for export operations.
+   */
+  async findAllRaw(includeDeleted: boolean = false): Promise<ItemExportData[]> {
+    const gitService = await this.getGitService();
+    return await gitService.readItemsRaw(includeDeleted);
   }
 
   async findAllPaginated(page: number = 1, limit: number = 10, options: ItemListOptions = {}): Promise<{
@@ -186,6 +196,37 @@ export class ItemRepository {
         await itemAuditService.logUpdate(previous, updated, auditUser);
       } catch (err) {
         console.warn('Audit logUpdate failed for batch item:', err);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Create multiple items without committing after each one, then commit once.
+   * Used for batch import operations.
+   */
+  async batchCreate(
+    items: Array<CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }>,
+    commitMessage: string,
+    auditUser?: AuditUser
+  ): Promise<ItemData[]> {
+    const gitService = await this.getGitService();
+    const results: ItemData[] = [];
+
+    for (const data of items) {
+      const item = await gitService.createItemWithoutCommit(data);
+      results.push(item);
+    }
+
+    await gitService.commitAndPushBatch(commitMessage);
+
+    // Log all creations to audit trail after successful commit (best-effort)
+    for (const item of results) {
+      try {
+        await itemAuditService.logCreation(item, auditUser);
+      } catch (err) {
+        console.warn('Audit logCreation failed for batch item:', err);
       }
     }
 
