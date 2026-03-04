@@ -274,11 +274,21 @@ export interface HeaderSettings {
 	themeDefault: string;
 }
 
+export interface FooterSettings {
+	subscribeEnabled: boolean;
+	versionEnabled: boolean;
+	themeSelectorEnabled: boolean;
+}
+
 export interface HomepageSettings {
 	hero_enabled?: boolean;
 	search_enabled?: boolean;
 	default_view?: string;
 	default_sort?: string;
+	hero_badge_text?: string;
+	hero_title?: string;
+	hero_title_gradient?: string;
+	hero_description?: string;
 }
 
 export interface HeaderConfigSettings {

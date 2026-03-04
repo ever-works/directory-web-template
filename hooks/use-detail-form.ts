@@ -1,9 +1,10 @@
 import { PaymentPlan } from '@/lib/constants';
 import { Eye, FileText, Globe, Tag, Type } from 'lucide-react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useCategoriesEnabled } from './use-categories-enabled';
 import { useTagsEnabled } from './use-tags-enabled';
 import { useLocationSettings } from './use-location-settings';
+import { STEP_DEFINITIONS } from '@/components/directory/details-form/validation/form-validators';
 interface ProductLink {
     id: string;
     url: string;
@@ -148,6 +149,65 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
       new Set()
     );
     const [animatingLinkId, setAnimatingLinkId] = useState<string | null>(null);
+
+    // Auto-sync programmatically-set fields to completedFields
+    useEffect(() => {
+      setCompletedFields((prev) => {
+        const next = new Set(prev);
+
+        // Sync 'link' from main link URL
+        const mainLink = formData.links.find((l) => l.type === 'main');
+        if (mainLink?.url?.trim()) {
+          next.add('link');
+        } else {
+          next.delete('link');
+        }
+
+        // Sync 'name'
+        if (formData.name?.trim()) {
+          next.add('name');
+        } else {
+          next.delete('name');
+        }
+
+        // Sync 'description'
+        if (formData.description?.trim()) {
+          next.add('description');
+        } else {
+          next.delete('description');
+        }
+
+        // Sync 'introduction'
+        if (formData.introduction?.trim()) {
+          next.add('introduction');
+        } else {
+          next.delete('introduction');
+        }
+
+        // Sync 'tags'
+        if (Array.isArray(formData.tags) && formData.tags.length > 0) {
+          next.add('tags');
+        } else {
+          next.delete('tags');
+        }
+
+        // Sync 'category'
+        if (formData.category?.trim()) {
+          next.add('category');
+        } else {
+          next.delete('category');
+        }
+
+        // Sync 'selectedPlan'
+        if (formData.selectedPlan && formData.selectedPlan.trim()) {
+          next.add('selectedPlan');
+        } else {
+          next.delete('selectedPlan');
+        }
+
+        return next;
+      });
+    }, [formData.name, formData.description, formData.introduction, formData.tags, formData.category, formData.links, formData.selectedPlan]);
   
     const handleInputChange = useCallback(
       (
@@ -193,11 +253,11 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
         const mainLink = formData.links.find((l) => l.type === "main");
         if (mainLink?.id === id && field === "url") {
           if (value.trim()) {
-            setCompletedFields((prev) => new Set([...prev, "mainLink"]));
+            setCompletedFields((prev) => new Set([...prev, "link"]));
           } else {
             setCompletedFields((prev) => {
               const newSet = new Set([...prev]);
-              newSet.delete("mainLink");
+              newSet.delete("link");
               return newSet;
             });
           }
@@ -277,13 +337,10 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     );
   
     const validateStep = useCallback((step: number) => {
-      const stepConfig = STEPS.find(s => s.id === step);
+      const stepConfig = STEP_DEFINITIONS.find(s => s.id === step);
       if (!stepConfig) return false;
 
-      const fieldsValid = stepConfig.fields.every(field => {
-        if (field === "mainLink") {
-          return formData.links.find((l) => l.type === "main")?.url?.trim();
-        }
+      const fieldsValid = stepConfig.fields.length === 0 || stepConfig.fields.every(field => {
         return formData[field] && formData[field].toString().trim();
       });
 
@@ -303,7 +360,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     }, [formData, locationRequired]);
   
     const nextStep = useCallback(() => {
-      if (currentStep < STEPS.length && validateStep(currentStep)) {
+      if (currentStep < STEP_DEFINITIONS.length && validateStep(currentStep)) {
         setCurrentStep(prev => prev + 1);
       }
     }, [currentStep, validateStep]);
@@ -315,12 +372,12 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     }, [currentStep]);
   
     // Global progress calculation
-    const { progressPercentage, completedRequiredFields, requiredFieldsCount } =
+    const { progressPercentage, completedRequiredFields, requiredFieldsCount, requiredFields } =
       useMemo(() => {
         // Required fields: name, mainLink, description (category only if enabled)
-        const requiredFields = categoriesEnabled
-          ? ["name", "mainLink", "category", "description"]
-          : ["name", "mainLink", "description"];
+        const requiredFields: string[] = categoriesEnabled
+          ? ["name", "link", "category", "description"]
+          : ["name", "link", "description"];
 
         if (locationRequired) {
           requiredFields.push("location");
@@ -328,9 +385,6 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
 
         const completed = requiredFields.filter(
           (field) => {
-            if (field === "mainLink") {
-              return formData.links.find((l) => l.type === "main")?.url?.trim();
-            }
             if (field === "location") {
               const loc = formData.location;
               if (!loc) return false;
@@ -344,6 +398,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           requiredFieldsCount: requiredFields.length,
           completedRequiredFields: completed,
           progressPercentage: (completed / requiredFields.length) * 100,
+          requiredFields,
         };
       }, [formData, categoriesEnabled, locationRequired]);
   
@@ -365,9 +420,10 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
         handleSubmit,
         nextStep,
         prevStep,
-        progressPercentage, 
+        progressPercentage,
         completedRequiredFields,
         requiredFieldsCount,
+        requiredFields,
         getIconComponent,
         validateStep,
        setCurrentStep,

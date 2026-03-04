@@ -3,7 +3,6 @@ import Link from "next/link";
 export function FooterLinkGroup({
   links,
   categoryLabel,
-  animationDelay,
 }: {
   links: Array<{
     label: string;
@@ -13,13 +12,9 @@ export function FooterLinkGroup({
     isExternal?: boolean;
   }>;
   categoryLabel: string;
-  animationDelay: number;
 }) {
   return (
-    <div
-      className="space-y-4 sm:space-y-6 animate-fade-in-up"
-      style={{ animationDelay: `${animationDelay}s` }}
-    >
+    <div className="space-y-4 sm:space-y-6">
       <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
         {categoryLabel}
       </h4>
@@ -30,10 +25,10 @@ export function FooterLinkGroup({
               href={link.href}
               target={link.target}
               rel={link.rel || (link.isExternal ? "noopener noreferrer" : undefined)}
-              className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-all duration-300 hover:translate-x-2"
+              className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-200 hover:translate-x-0.5"
             >
               <span className="text-sm font-medium">{link.label}</span>
-              <div className="w-0 h-px bg-linear-to-r from-theme-primary-500 to-theme-primary-600 group-hover:w-4 ml-0 group-hover:ml-2 transition-all duration-300" />
+              <div className="w-4 h-px bg-linear-to-r from-theme-primary-500 to-theme-primary-600 ml-2 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-200" />
               {link.isExternal && (
                 <svg
                   className="w-4 h-4 ml-1 opacity-70"

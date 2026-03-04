@@ -4,22 +4,20 @@ import { Container } from '../ui/container';
 import { VersionDisplay, VersionTooltip } from '../version';
 import { SiteLogo } from '../shared/site-logo';
 import { processFooterItems } from '@/lib/utils/footer-utils';
-import type { Config } from '@/lib/content';
+import type { Config, FooterSettings } from '@/lib/content';
 
 interface FooterBottomProps {
 	config: Config;
 	t: (key: string) => string;
+	footerSettings: FooterSettings;
 }
 
-export function FooterBottom({ config, t }: FooterBottomProps) {
+export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 	// Process footer items: use custom footer items if available, otherwise use default links
 	const footerItems = processFooterItems(config, t);
 
 	return (
 		<div className="relative backdrop-blur-xl bg-white/5 dark:bg-black/5 border-t border-white/10 dark:border-gray-700/20">
-			{/* Subtle animated background */}
-			<div className="absolute inset-0 bg-linear-to-r from-transparent via-blue-500/5 to-transparent animate-shimmer-slow" />
-
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative px-4 sm:px-6 lg:px-8 py-6">
 				<div className="flex flex-col gap-4">
 					{/* Top row: Logo and disclaimer */}
@@ -64,18 +62,24 @@ export function FooterBottom({ config, t }: FooterBottomProps) {
 						</div>
 
 						{/* Right side: Version and theme toggle */}
-						<div className="flex items-center gap-3">
-							<VersionTooltip>
-								<div className="group cursor-help">
-									<VersionDisplay
-										variant="inline"
-										className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200"
-									/>
-								</div>
-							</VersionTooltip>
-							<div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
-							<ThemeToggler openUp />
-						</div>
+						{(footerSettings.versionEnabled || footerSettings.themeSelectorEnabled) && (
+							<div className="flex items-center gap-3">
+								{footerSettings.versionEnabled && (
+									<VersionTooltip>
+										<div className="group cursor-help">
+											<VersionDisplay
+												variant="inline"
+												className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200"
+											/>
+										</div>
+									</VersionTooltip>
+								)}
+								{footerSettings.versionEnabled && footerSettings.themeSelectorEnabled && (
+									<div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
+								)}
+								{footerSettings.themeSelectorEnabled && <ThemeToggler openUp />}
+							</div>
+						)}
 					</div>
 				</div>
 			</Container>

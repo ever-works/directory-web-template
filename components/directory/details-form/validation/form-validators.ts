@@ -28,7 +28,10 @@ export interface StepDefinition {
 	title: string;
 	description: string;
 	icon?: LucideIcon;
+	/** Required fields that gate navigation to the next step */
 	fields: string[];
+	/** All trackable fields used for the connector fill progress */
+	progressFields?: string[];
 	color: string;
 }
 
@@ -38,6 +41,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 		title: 'Basic Information',
 		description: 'Basic Information Description',
 		fields: ['name', 'link'],
+		progressFields: ['name', 'link', 'description', 'introduction', 'tags', 'category', 'video_url'],
 		color: 'from-theme-primary-500 to-purple-500'
 	},
 	{
@@ -57,43 +61,44 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 ];
 
 export const STEP_INDICATOR_CLASSES = {
-	wrapper: 'flex items-center justify-between mb-8',
+	wrapper: 'flex items-center justify-between mb-8 -mt-3',
 	stepContainer: 'flex flex-col items-center',
 	button: {
-		base: 'w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 mb-2',
-		active: 'scale-110 shadow-lg',
+		base: 'w-10 h-10 cursor-pointer rounded-full mt-4 flex items-center justify-center transition-all duration-300 mb-2',
+		active: 'shadow-lg',
 		completed: 'bg-green-500 text-white shadow-lg',
 		accessible:
 			'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
 		inaccessible: 'bg-gray-200 dark:bg-gray-700 text-gray-400'
 	},
 	label: {
-		base: 'text-sm font-medium text-center',
+		base: 'text-xs font-medium text-center',
 		active: 'text-theme-primary-600 dark:text-theme-primary-400',
 		completed: 'text-green-600 dark:text-green-400',
 		default: 'text-gray-500 dark:text-gray-400'
 	},
 	connector: {
-		base: 'flex-1 h-0.5 mx-4 transition-colors duration-300',
-		completed: 'bg-green-500',
+		base: 'flex-1 h-[2px] mx-4 rounded-full transition-colors duration-300',
+		completed: 'dark:bg-theme-primary-500 bg-theme-primary-400',
+		active: 'bg-gradient-to-r from-theme-primary-500 to-theme-primary-200 dark:to-theme-primary-800',
 		default: 'bg-gray-200 dark:bg-gray-700'
 	}
 };
 
 export const PROGRESS_BAR_CLASSES = {
-	container: 'relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner',
+	container: 'relative w-[94%] mx-auto -mt-22 mb-20 -z-1 bg-gray-200 dark:bg-gray-700 rounded-full h-[2px] overflow-hidden shadow-inner',
 	bar: 'h-full bg-theme-primary-500 rounded-full transition-all duration-700 ease-out shadow-lg',
 	shimmer: 'absolute inset-0 bg-white/20 rounded-full animate-shimmer'
 };
 
 export const HEADER_CLASSES = {
 	wrapper: 'text-center mb-16 animate-fade-in-up',
-	badge: 'inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50 mb-6',
-	badgeIcon: 'w-8 h-8 rounded-full bg-theme-primary-500 flex items-center justify-center',
-	badgeIconInner: 'w-4 h-4 text-white animate-pulse',
-	badgeText: 'text-sm font-semibold text-gray-700 dark:text-gray-300',
-	title: 'text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 bg-linear-to-r from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent',
-	description: 'text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed'
+	badge: 'inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-theme-primary-50 dark:bg-theme-primary-900/20 border border-theme-primary-200/70 dark:border-theme-primary-700/40 mb-6 shadow-sm',
+	badgeIcon: 'w-6 h-6 rounded-lg bg-theme-primary-500 flex items-center justify-center shadow-sm shadow-theme-primary-500/30',
+	badgeIconInner: 'w-3.5 h-3.5 text-white',
+	badgeText: 'text-xs font-semibold tracking-wide text-theme-primary-700 dark:text-theme-primary-400',
+	title: 'text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-theme-primary-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent tracking-tight',
+	description: 'text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed'
 };
 
 export const BACKGROUND_CLASSES = {
@@ -103,36 +108,38 @@ export const BACKGROUND_CLASSES = {
 	blob3: 'absolute -bottom-8 left-1/4 w-96 h-96 bg-linear-to-r from-green-500/10 via-blue-500/10 to-indigo-500/10 dark:from-green-600/20 dark:via-blue-600/20 dark:to-indigo-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'
 };
 
+const FIELD_BASE = 'w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all focus:outline-none focus:ring-1 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 hover:border-gray-300 dark:hover:border-gray-600';
+
 export const FORM_FIELD_CLASSES = {
-	label: 'block text-sm font-bold text-gray-700 dark:text-gray-300',
+	label: 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5',
 	input: {
-		base: 'w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 hover:border-gray-300 dark:hover:border-gray-500 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400',
-		focused: 'scale-[1.02] shadow-xl ring-4 ring-theme-primary-500/20'
+		base: FIELD_BASE,
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
 	},
 	textarea: {
-		base: 'w-full px-6 py-4 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 hover:border-gray-300 dark:hover:border-gray-500 resize-none outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400',
-		focused: 'scale-[1.02] shadow-xl ring-4 ring-theme-primary-500/20'
+		base: `${FIELD_BASE} resize-none`,
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
 	},
 	select: {
-		base: 'w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 hover:border-gray-300 dark:hover:border-gray-500 appearance-none cursor-pointer outline-hidden text-gray-900 dark:text-white',
-		focused: 'scale-[1.02] shadow-xl ring-4 ring-theme-primary-500/20'
+		base: `${FIELD_BASE} appearance-none cursor-pointer`,
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
 	},
 	videoInput: {
-		base: 'w-full h-12 px-4 pr-12 text-base bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400',
-		focus: 'focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-4 focus:ring-theme-primary-500/20'
+		base: `${FIELD_BASE} pr-12`,
+		focus: 'focus:ring-1 focus:ring-theme-primary-500/50 focus:border-gray-200 dark:focus:border-gray-700/50'
 	}
 };
 
 export const TAG_CLASSES = {
-	container: 'flex flex-wrap gap-3',
+	container: 'flex flex-wrap gap-3 items-start',
 	button: {
-		base: 'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 hover:scale-105 border-2 capitalize',
-		selected: 'text-white border-transparent shadow-lg bg-theme-primary-500',
+		base: 'px-2 cursor-pointer py-1 text-xs font-medium rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 text-gray-900 dark:text-white hover:shadow-sm capitalize',
+		selected: 'text-white cursor-pointer  border-transparent shadow-lg bg-theme-primary-500 dark:bg-theme-primary-600',
 		unselected:
 			'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
 	},
 	showMore:
-		'px-4 py-2 text-sm font-medium rounded-xl transition-all duration-300 hover:scale-105 border-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600 flex items-center gap-2',
+		'px-2 cursor-pointer py-1 text-xs text-white font-medium rounded-xl transition-all duration-300 border-1 bg-theme-primary-500 dark:bg-theme-primary-600 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-theme-primary-700 hover:border-gray-300 dark:hover:border-gray-600 flex items-center gap-2',
 	selectedSummary: {
 		container:
 			'p-4 bg-theme-primary-50 dark:bg-gray-800 rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
@@ -172,20 +179,24 @@ export const STEP_CARD_CLASSES = {
 };
 
 export const NAVIGATION_CLASSES = {
-	container: 'flex flex-col sm:flex-row justify-between gap-6 pt-8 animate-fade-in-up',
+	container: 'flex flex-col sm:flex-row justify-between gap-4 pt-8 items-center animate-fade-in-up',
 	button: {
-		base: 'h-12 px-6 sm:h-14 sm:px-8 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 border-2',
+		base: 'h-12 px-4 sm:h-13 cursor-pointer sm:px-6 !border-none rounded-xl font-semibold text-sm sm:text-base transition-colors duration-200',
 		next: {
 			enabled:
-				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-theme-primary-500 text-white hover:shadow-theme-primary-500/30',
+				'min-w-[140px] sm:min-w-[180px] bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm',
 			disabled:
-				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-400 cursor-not-allowed'
+		},
+		prev: {
+			enabled:
+				'min-w-[140px] !ring-none cursor-pointer sm:min-w-[180px] bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm !border-none',
 		},
 		submit: {
 			enabled:
-				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-linear-to-r from-green-500 via-emerald-500 to-green-600 hover:from-green-600 hover:via-emerald-600 hover:to-green-700 text-white hover:shadow-green-500/30',
+				'min-w-[140px] sm:min-w-[180px] bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm hover:from-green-600 hover:via-emerald-600 hover:to-green-700',
 			disabled:
-				'h-12 px-8 sm:h-14 sm:px-12 rounded-2xl font-bold text-base sm:text-lg transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl min-w-[160px] sm:min-w-[200px] bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-400 cursor-not-allowed'
 		}
 	}
 };

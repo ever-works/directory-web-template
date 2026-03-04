@@ -15,10 +15,9 @@ import { ReviewStep } from './details-form/steps/review-step';
 import type { FormData } from './details-form/validation/form-validators';
 import {
 	STEP_DEFINITIONS,
-	PROGRESS_BAR_CLASSES,
-	HEADER_CLASSES,
-	BACKGROUND_CLASSES
+	HEADER_CLASSES
 } from './details-form/validation/form-validators';
+import { GridBackground } from '../shared/decorative-bg';
 
 type ListingProps = {
 	categories?: Category[];
@@ -58,7 +57,6 @@ export function DetailsForm({
 		handleSubmit,
 		nextStep,
 		prevStep,
-		progressPercentage,
 		completedRequiredFields,
 		requiredFieldsCount,
 		getIconComponent,
@@ -82,11 +80,8 @@ export function DetailsForm({
 
 	return (
 		<div className="relative min-h-screen overflow-hidden">
-			{/* Enhanced Background Effects */}
-			<div className={BACKGROUND_CLASSES.container}>
-				<div className={BACKGROUND_CLASSES.blob1}></div>
-				<div className={BACKGROUND_CLASSES.blob2}></div>
-				<div className={BACKGROUND_CLASSES.blob3}></div>
+			<div className="absolute inset-x-0 top-0 w-full h-[300px] flex justify-center items-start z-10">
+				<GridBackground className="w-full h-full" />
 			</div>
 			<Container maxWidth="7xl" padding="default">
 				<div className="relative z-10 px-2 py-12">
@@ -101,6 +96,10 @@ export function DetailsForm({
 									step: currentStep
 								})}
 							</span>
+							<span className="w-px h-3 bg-theme-primary-300 dark:bg-theme-primary-600 mx-0.5" />
+							<span className={HEADER_CLASSES.badgeText}>
+								{STEP_DEFINITIONS[currentStep - 1]?.title}
+							</span>
 						</div>
 
 						<h1 className={HEADER_CLASSES.title}>{t('directory.DETAILS_FORM.TITLE')}</h1>
@@ -108,17 +107,14 @@ export function DetailsForm({
 						<p className={HEADER_CLASSES.description}>{t('directory.DETAILS_FORM.DESCRIPTION')}</p>
 					</div>
 
-					{/* Steps Progress Bar */}
+					{/* Steps Indicator */}
 					<div className="mb-12 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
 						<div className="max-w-7xl mx-auto">
-							<StepIndicator currentStep={currentStep} onStepClick={setCurrentStep} />
-
-							{/* Progress Bar */}
-							<div className={PROGRESS_BAR_CLASSES.container}>
-								<div className={PROGRESS_BAR_CLASSES.bar} style={{ width: `${progressPercentage}%` }}>
-									<div className={PROGRESS_BAR_CLASSES.shimmer}></div>
-								</div>
-							</div>
+							<StepIndicator
+								currentStep={currentStep}
+								onStepClick={setCurrentStep}
+								completedFields={completedFields}
+							/>
 						</div>
 					</div>
 

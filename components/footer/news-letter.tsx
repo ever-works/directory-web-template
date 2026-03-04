@@ -22,7 +22,7 @@ export function Newsletter({ t }: { t: any }) {
 	}, [state, t]);
 
 	return (
-		<div className="space-y-3 sm:space-y-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+		<div className="space-y-3 sm:space-y-4">
 			<h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
 				{t('footer.STAY_UPDATED')}
 			</h4>

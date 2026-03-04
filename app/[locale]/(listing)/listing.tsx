@@ -6,6 +6,7 @@ import Hero from '@/components/hero';
 import CustomHero from '@/components/custom-hero';
 import { FilterURLParser } from '@/components/filters/filter-url-parser';
 import { configManager } from '@/lib/config-manager';
+import { getHeroBadgeText, getHeroTitle, getHeroTitleGradient, getHeroDescription } from '@/lib/utils/settings';
 
 type ListingProps = {
 	total: number;
@@ -28,6 +29,12 @@ export default async function Listing(props: ListingProps) {
 	const searchEnabled = homepageSettings?.search_enabled ?? true;
 	const defaultView = homepageSettings?.default_view ?? 'classic';
 	const defaultSort = homepageSettings?.default_sort ?? 'popularity';
+
+	// Hero text: use settings values with translation fallback
+	const heroBadgeText = getHeroBadgeText() ?? t('INTRODUCING_EVER_WORKS');
+	const heroTitle = getHeroTitle() ?? t('THE_BEST');
+	const heroTitleGradient = getHeroTitleGradient() ?? t('DIRECTORY_WEBSITE_TEMPLATE');
+	const heroDescription = getHeroDescription() ?? t('DEMO_DESCRIPTION');
 
 	// Check for custom hero configuration
 	const customHeroConfig = config.custom_hero;
@@ -59,16 +66,16 @@ export default async function Listing(props: ListingProps) {
 				</CustomHero>
 			) : heroEnabled ? (
 				<Hero
-					badgeText={t('INTRODUCING_EVER_WORKS')}
+					badgeText={heroBadgeText}
 					title={
 						<div className=" font-bold text-balance text-3xl sm:text-4xl md:text-5xl text-center">
-							{t('THE_BEST')} <br className="hidden md:block" />
+							{heroTitle} <br className="hidden md:block" />
 							<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
-								{t('DIRECTORY_WEBSITE_TEMPLATE')}
+								{heroTitleGradient}
 							</span>
 						</div>
 					}
-					description={t('DEMO_DESCRIPTION')}
+					description={heroDescription}
 					className="min-h-screen text-center"
 				>
 					<GlobalsClient {...props} searchEnabled={searchEnabled} defaultView={defaultView} />

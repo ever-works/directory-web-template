@@ -5,6 +5,7 @@ import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/
 import { Sliders } from 'lucide-react';
 import { SettingSwitch } from './SettingSwitch';
 import { SettingSelect } from './SettingSelect';
+import { SettingInput } from './SettingInput';
 import { SettingCurrencyInput } from './SettingCurrencyInput';
 import { SettingSlider } from './SettingSlider';
 import { SettingApiStatus } from './SettingApiStatus';
@@ -101,6 +102,10 @@ interface HomepageSettings {
 	search_enabled?: boolean;
 	default_view?: string;
 	default_sort?: string;
+	hero_badge_text?: string;
+	hero_title?: string;
+	hero_title_gradient?: string;
+	hero_description?: string;
 }
 
 interface HeaderConfigSettings {
@@ -435,6 +440,38 @@ export function SettingsPage() {
 											{ value: 'date-desc', label: 'Newest First' },
 											{ value: 'date-asc', label: 'Oldest First' }
 										]}
+										disabled={saving}
+									/>
+									<SettingInput
+										label={t('HERO_BADGE_TEXT_LABEL')}
+										description={t('HERO_BADGE_TEXT_DESC')}
+										value={settings.homepage?.hero_badge_text ?? ''}
+										onChange={(value) => updateSetting('homepage.hero_badge_text', value)}
+										placeholder="Welcome to Ever Works"
+										disabled={saving}
+									/>
+									<SettingInput
+										label={t('HERO_TITLE_LABEL')}
+										description={t('HERO_TITLE_DESC')}
+										value={settings.homepage?.hero_title ?? ''}
+										onChange={(value) => updateSetting('homepage.hero_title', value)}
+										placeholder="The Best"
+										disabled={saving}
+									/>
+									<SettingInput
+										label={t('HERO_TITLE_GRADIENT_LABEL')}
+										description={t('HERO_TITLE_GRADIENT_DESC')}
+										value={settings.homepage?.hero_title_gradient ?? ''}
+										onChange={(value) => updateSetting('homepage.hero_title_gradient', value)}
+										placeholder="Directory Website Template"
+										disabled={saving}
+									/>
+									<SettingInput
+										label={t('HERO_DESCRIPTION_LABEL')}
+										description={t('HERO_DESCRIPTION_DESC')}
+										value={settings.homepage?.hero_description ?? ''}
+										onChange={(value) => updateSetting('homepage.hero_description', value)}
+										placeholder="Your hero description text"
 										disabled={saving}
 									/>
 								</>

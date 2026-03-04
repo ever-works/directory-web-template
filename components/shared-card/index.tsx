@@ -44,7 +44,6 @@ export interface CardConfigOptions {
   enableSorting?: boolean;
   customEmptyMessage?: string;
   customEmptyDescription?: string;
-  animationDelay?: number;
   perPage?: number;
   defaultLayout?: LayoutKey;
 }
@@ -80,7 +79,6 @@ const DEFAULT_CONFIG: CardConfigOptions = {
   enableSearch: true,
   enableTagFilter: true,
   enableSorting: true,
-  animationDelay: 100,
   perPage: PER_PAGE,
   defaultLayout: "classic",
 };
@@ -324,7 +322,7 @@ export function SharedCard(props: ExtendedCardProps) {
               layout={layoutKey}
               onItemClick={onItemClick}
               renderCustomItem={renderCustomItem}
-              animationDelay={config.animationDelay}
+
             />
 
             {config.showPagination && (
