@@ -287,7 +287,7 @@ export class ItemGitService {
       }
 
       const itemDirs = await fs.readdir(dataDir);
-      const items: ItemExportData[] = [];
+      let items: ItemExportData[] = [];
 
       for (const itemDir of itemDirs) {
         const itemDirPath = path.join(dataDir, itemDir);

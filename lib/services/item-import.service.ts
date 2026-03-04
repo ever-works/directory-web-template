@@ -153,7 +153,7 @@ export class ItemImportService {
 		// Track slugs created within this batch to avoid intra-batch collisions
 		const batchSlugs = new Set<string>();
 
-		const validationResults: ImportRowValidation[] = [];
+		let validationResults: ImportRowValidation[] = [];
 		let validCount = 0;
 		let errorCount = 0;
 		let duplicateCount = 0;
@@ -208,13 +208,14 @@ export class ItemImportService {
 			submittedBy?: string;
 		}
 	): Promise<ImportResult> {
-		const rowsToCreate = validatedRows.filter((r) => r.valid && !r.duplicate?.slug);
+		const rowsToCreate = validatedRows.filter((r) => r.valid && !r.duplicate?.slug && !r.duplicate?.source_url);
 		const rowsToUpdate = validatedRows.filter(
 			(r) => r.valid && r.duplicate?.slug && options.duplicateStrategy === 'update'
 		);
-		const skipped = validatedRows.filter(
-			(r) => !r.valid || (r.duplicate?.slug && options.duplicateStrategy === 'skip')
+		const skippedDuplicates = validatedRows.filter(
+			(r) => r.valid && (r.duplicate?.slug || r.duplicate?.source_url) && options.duplicateStrategy === 'skip'
 		);
+		const invalidRows = validatedRows.filter((r) => !r.valid);
 
 		const totalToProcess = rowsToCreate.length + rowsToUpdate.length;
 		if (totalToProcess === 0) {
@@ -222,8 +223,8 @@ export class ItemImportService {
 				total: validatedRows.length,
 				created: 0,
 				updated: 0,
-				skipped: skipped.length,
-				errors: [],
+				skipped: skippedDuplicates.length,
+				errors: invalidRows.map((r) => ({ rowIndex: r.rowIndex, message: r.errors.join('; ') })),
 			};
 		}
 
@@ -322,11 +323,16 @@ export class ItemImportService {
 			}
 		}
 
+		// Include validation errors from invalid rows
+		for (const row of invalidRows) {
+			errors.push({ rowIndex: row.rowIndex, message: row.errors.join('; ') });
+		}
+
 		return {
 			total: validatedRows.length,
 			created: createdCount,
 			updated: updatedCount,
-			skipped: skipped.length,
+			skipped: skippedDuplicates.length,
 			errors,
 		};
 	}

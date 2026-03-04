@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireClientAuth } from '@/lib/utils/client-auth';
 import { ItemExportService } from '@/lib/services/item-export.service';
+import { exportQuerySchema } from '@/lib/validations/item-import';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
@@ -13,14 +14,7 @@ export async function GET(request: NextRequest) {
 		if (!authResult.success) return authResult.response;
 
 		const { searchParams } = new URL(request.url);
-		const format = searchParams.get('format') || 'csv';
-
-		if (format !== 'csv' && format !== 'xlsx') {
-			return NextResponse.json(
-				{ success: false, error: 'Invalid format. Use "csv" or "xlsx".' },
-				{ status: 400 }
-			);
-		}
+		const { format } = exportQuerySchema.parse(Object.fromEntries(searchParams));
 
 		const exportService = new ItemExportService();
 

@@ -2,6 +2,7 @@
 
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { usePublicItemExport } from "@/hooks/use-item-import-export";
 
@@ -18,6 +19,7 @@ const menuItemClass = cn(
  */
 export function ExportButton() {
 	const { exportItems, isExporting, exportEnabled } = usePublicItemExport();
+	const t = useTranslations("admin.ITEM_IMPORT");
 
 	if (!exportEnabled) return null;
 
@@ -37,14 +39,14 @@ export function ExportButton() {
 						isExporting && "opacity-70 cursor-wait"
 					)}
 					disabled={isExporting}
-					aria-label="Export items"
+					aria-label={t("EXPORT_SECTION")}
 				>
 					{isExporting ? (
 						<Loader2 className="w-3.5 h-3.5 animate-spin" />
 					) : (
 						<Download className="w-3.5 h-3.5" />
 					)}
-					Export
+					{t("EXPORT_SECTION")}
 				</button>
 			</DropdownMenu.Trigger>
 
@@ -65,7 +67,7 @@ export function ExportButton() {
 						disabled={isExporting}
 					>
 						<FileText className="w-4 h-4" />
-						Download CSV
+						{t("EXPORT_CSV")}
 					</DropdownMenu.Item>
 
 					<DropdownMenu.Item
@@ -74,7 +76,7 @@ export function ExportButton() {
 						disabled={isExporting}
 					>
 						<FileSpreadsheet className="w-4 h-4" />
-						Download Excel
+						{t("EXPORT_EXCEL")}
 					</DropdownMenu.Item>
 				</DropdownMenu.Content>
 			</DropdownMenu.Portal>
