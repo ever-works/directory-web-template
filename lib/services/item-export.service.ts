@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import type { ItemExportData } from '@/lib/types/item-import-export';
 import { EXPORT_COLUMNS } from '@/lib/types/item-import-export';
@@ -36,6 +36,7 @@ const SAMPLE_ROWS: Record<string, string>[] = [
 		icon_url: 'https://example.com/icon.png',
 		status: 'draft',
 		collections: '',
+		markdown: '',
 		'location.address': '',
 		'location.city': '',
 		'location.state': '',
@@ -60,6 +61,7 @@ const SAMPLE_ROWS: Record<string, string>[] = [
 		icon_url: '',
 		status: 'approved',
 		collections: 'best-tools',
+		markdown: '',
 		'location.address': '',
 		'location.city': 'San Francisco',
 		'location.state': 'CA',
@@ -99,14 +101,11 @@ export class ItemExportService {
 	 */
 	async exportToXLSX(options: ExportOptions = {}): Promise<XLSXExportResult> {
 		const rows = await this.getExportRows(options);
-		const ws = XLSX.utils.json_to_sheet(rows, { header: EXPORT_COLUMNS as unknown as string[] });
-		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, 'Items');
-		const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+		const buffer = await this.buildXLSXBuffer(rows);
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
 		return {
-			data: Buffer.from(buffer),
+			data: buffer,
 			filename: `items-export-${timestamp}.xlsx`,
 			contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 		};
@@ -128,14 +127,11 @@ export class ItemExportService {
 	/**
 	 * Generate a sample XLSX template with headers and example rows.
 	 */
-	generateSampleXLSX(): XLSXExportResult {
-		const ws = XLSX.utils.json_to_sheet(SAMPLE_ROWS, { header: EXPORT_COLUMNS as unknown as string[] });
-		const wb = XLSX.utils.book_new();
-		XLSX.utils.book_append_sheet(wb, ws, 'Items');
-		const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+	async generateSampleXLSX(): Promise<XLSXExportResult> {
+		const buffer = await this.buildXLSXBuffer(SAMPLE_ROWS);
 
 		return {
-			data: Buffer.from(buffer),
+			data: buffer,
 			filename: 'items-import-template.xlsx',
 			contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 		};
@@ -155,6 +151,24 @@ export class ItemExportService {
 		return filtered.map((item) => this.flattenItem(item));
 	}
 
+	/**
+	 * Build an XLSX buffer from rows using exceljs.
+	 */
+	private async buildXLSXBuffer(rows: Record<string, string>[]): Promise<Buffer> {
+		const workbook = new ExcelJS.Workbook();
+		const sheet = workbook.addWorksheet('Items');
+
+		const columns = EXPORT_COLUMNS as unknown as string[];
+		sheet.columns = columns.map((col) => ({ header: col, key: col }));
+
+		for (const row of rows) {
+			sheet.addRow(row);
+		}
+
+		const arrayBuffer = await workbook.xlsx.writeBuffer();
+		return Buffer.from(arrayBuffer);
+	}
+
 	private flattenItem(item: ItemExportData): Record<string, string> {
 		const categories = Array.isArray(item.category) ? item.category : [item.category].filter(Boolean);
 
@@ -172,6 +186,7 @@ export class ItemExportService {
 			icon_url: item.icon_url || '',
 			status: item.status,
 			collections: (item.collections || []).join(';'),
+			markdown: item.markdown || '',
 			'location.address': item.location?.address || '',
 			'location.city': item.location?.city || '',
 			'location.state': item.location?.state || '',
@@ -180,7 +195,7 @@ export class ItemExportService {
 			'location.latitude': item.location?.latitude != null ? String(item.location.latitude) : '',
 			'location.longitude': item.location?.longitude != null ? String(item.location.longitude) : '',
 			'location.service_area': item.location?.service_area || '',
-			'location.is_remote': item.location?.is_remote ? 'true' : '',
+			'location.is_remote': item.location?.is_remote != null ? String(item.location.is_remote) : '',
 		};
 	}
 }

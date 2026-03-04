@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ItemExportService } from '@/lib/services/item-export.service';
 import { getExportEnabled } from '@/lib/utils/settings';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { ratelimit } from '@/lib/utils/rate-limit';
+
+/** Max 10 exports per IP per 60 seconds */
+const RATE_LIMIT_REQUESTS = 10;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 
 /**
  * GET /api/items/export?format=csv|xlsx
@@ -14,6 +19,22 @@ export async function GET(request: NextRequest) {
 			return NextResponse.json(
 				{ success: false, error: 'Export is not enabled.' },
 				{ status: 403 }
+			);
+		}
+
+		// Rate limit by IP
+		const clientIP = request.headers.get('x-forwarded-for') ||
+			request.headers.get('x-real-ip') || 'unknown';
+		const rateLimitResult = await ratelimit(
+			`export:${clientIP}`,
+			RATE_LIMIT_REQUESTS,
+			RATE_LIMIT_WINDOW_MS
+		);
+
+		if (!rateLimitResult.success) {
+			return NextResponse.json(
+				{ success: false, error: 'Too many requests. Please try again later.' },
+				{ status: 429, headers: { 'Retry-After': String(rateLimitResult.retryAfter || 60) } }
 			);
 		}
 

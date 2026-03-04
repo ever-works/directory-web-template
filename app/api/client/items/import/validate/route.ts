@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
 			parsed = importService.parseCSV(text);
 		} else {
 			const arrayBuffer = await file.arrayBuffer();
-			parsed = importService.parseXLSX(Buffer.from(arrayBuffer));
+			parsed = await importService.parseXLSX(Buffer.from(arrayBuffer));
 		}
 
 		if (parsed.rows.length === 0) {

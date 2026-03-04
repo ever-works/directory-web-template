@@ -87,6 +87,7 @@ export const EXPORT_COLUMNS = [
 	'icon_url',
 	'status',
 	'collections',
+	'markdown',
 	'location.address',
 	'location.city',
 	'location.state',

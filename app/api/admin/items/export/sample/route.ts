@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 		const exportService = new ItemExportService();
 
 		if (format === 'xlsx') {
-			const result = exportService.generateSampleXLSX();
+			const result = await exportService.generateSampleXLSX();
 			return new NextResponse(new Uint8Array(result.data), {
 				headers: {
 					'Content-Type': result.contentType,

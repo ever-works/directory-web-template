@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { importRowSchema } from '@/lib/validations/item-import';
 import { slugify } from '@/lib/utils/slug';
@@ -83,22 +83,40 @@ export class ItemImportService {
 	/**
 	 * Parse an XLSX buffer into headers and rows.
 	 */
-	parseXLSX(buffer: Buffer): ParsedFile {
-		const workbook = XLSX.read(buffer, { type: 'buffer' });
-		const sheetName = workbook.SheetNames[0];
-		if (!sheetName) {
+	async parseXLSX(buffer: Buffer): Promise<ParsedFile> {
+		const workbook = new ExcelJS.Workbook();
+		await workbook.xlsx.load(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer);
+
+		const sheet = workbook.worksheets[0];
+		if (!sheet || sheet.rowCount === 0) {
 			return { headers: [], rows: [] };
 		}
 
-		const sheet = workbook.Sheets[sheetName];
-		const jsonData = XLSX.utils.sheet_to_json<ImportRowRaw>(sheet, { defval: '' });
+		const headerRow = sheet.getRow(1);
+		const headers: string[] = [];
+		headerRow.eachCell((cell, colNumber) => {
+			headers[colNumber - 1] = String(cell.value || '');
+		});
 
-		const headers = jsonData.length > 0 ? Object.keys(jsonData[0]) : [];
+		const rows: ImportRowRaw[] = [];
+		for (let rowIdx = 2; rowIdx <= sheet.rowCount; rowIdx++) {
+			const row = sheet.getRow(rowIdx);
+			const rowData: ImportRowRaw = {};
+			let hasData = false;
 
-		return {
-			headers,
-			rows: jsonData,
-		};
+			headers.forEach((header, colIdx) => {
+				const cell = row.getCell(colIdx + 1);
+				const value = cell.value != null ? String(cell.value) : '';
+				rowData[header] = value;
+				if (value) hasData = true;
+			});
+
+			if (hasData) {
+				rows.push(rowData);
+			}
+		}
+
+		return { headers, rows };
 	}
 
 	/**
