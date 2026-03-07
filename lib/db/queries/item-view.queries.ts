@@ -1,6 +1,7 @@
-import { and, gte, inArray, count } from 'drizzle-orm';
+import { and, gte, inArray, count, eq } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { itemViews, type NewItemView } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * Record an item view with daily deduplication
@@ -14,7 +15,13 @@ import { itemViews, type NewItemView } from '../schema';
 export async function recordItemView(
 	view: Pick<NewItemView, 'itemId' | 'viewerId' | 'viewedDateUtc'>
 ): Promise<boolean> {
-	const result = await db.insert(itemViews).values(view).onConflictDoNothing().returning({ id: itemViews.id });
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const result = await db
+		.insert(itemViews)
+		.values({ ...view, tenantId })
+		.onConflictDoNothing()
+		.returning({ id: itemViews.id });
 
 	return result.length > 0;
 }
@@ -42,11 +49,13 @@ function getUtcDateString(daysAgo: number = 0): string {
  */
 export async function getTotalViewsCount(itemSlugs: string[]): Promise<number> {
 	if (itemSlugs.length === 0) return 0;
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	const [result] = await db
 		.select({ count: count() })
 		.from(itemViews)
-		.where(inArray(itemViews.itemId, itemSlugs));
+		.where(and(inArray(itemViews.itemId, itemSlugs), eq(itemViews.tenantId, tenantId)));
 
 	return Number(result?.count ?? 0);
 }
@@ -59,13 +68,21 @@ export async function getTotalViewsCount(itemSlugs: string[]): Promise<number> {
  */
 export async function getRecentViewsCount(itemSlugs: string[], days: number = 7): Promise<number> {
 	if (itemSlugs.length === 0) return 0;
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	const startDateStr = getUtcDateString(days);
 
 	const [result] = await db
 		.select({ count: count() })
 		.from(itemViews)
-		.where(and(inArray(itemViews.itemId, itemSlugs), gte(itemViews.viewedDateUtc, startDateStr)));
+		.where(
+			and(
+				inArray(itemViews.itemId, itemSlugs),
+				gte(itemViews.viewedDateUtc, startDateStr),
+				eq(itemViews.tenantId, tenantId)
+			)
+		);
 
 	return Number(result?.count ?? 0);
 }
@@ -79,19 +96,27 @@ export async function getRecentViewsCount(itemSlugs: string[], days: number = 7)
  */
 export async function getDailyViewsData(itemSlugs: string[], days: number = 7): Promise<Map<string, number>> {
 	if (itemSlugs.length === 0) return new Map();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	const startDateStr = getUtcDateString(days);
 
 	const dailyViews = await db
 		.select({
 			date: itemViews.viewedDateUtc,
-			count: count(),
+			count: count()
 		})
 		.from(itemViews)
-		.where(and(inArray(itemViews.itemId, itemSlugs), gte(itemViews.viewedDateUtc, startDateStr)))
+		.where(
+			and(
+				inArray(itemViews.itemId, itemSlugs),
+				gte(itemViews.viewedDateUtc, startDateStr),
+				eq(itemViews.tenantId, tenantId)
+			)
+		)
 		.groupBy(itemViews.viewedDateUtc);
 
-	return new Map(dailyViews.map(d => [d.date, Number(d.count)]));
+	return new Map(dailyViews.map((d) => [d.date, Number(d.count)]));
 }
 
 /**
@@ -101,15 +126,17 @@ export async function getDailyViewsData(itemSlugs: string[], days: number = 7): 
  */
 export async function getViewsPerItem(itemSlugs: string[]): Promise<Map<string, number>> {
 	if (itemSlugs.length === 0) return new Map();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	const viewCounts = await db
 		.select({
 			itemId: itemViews.itemId,
-			count: count(),
+			count: count()
 		})
 		.from(itemViews)
-		.where(inArray(itemViews.itemId, itemSlugs))
+		.where(and(inArray(itemViews.itemId, itemSlugs), eq(itemViews.tenantId, tenantId)))
 		.groupBy(itemViews.itemId);
 
-	return new Map(viewCounts.map(v => [v.itemId, Number(v.count)]));
+	return new Map(viewCounts.map((v) => [v.itemId, Number(v.count)]));
 }

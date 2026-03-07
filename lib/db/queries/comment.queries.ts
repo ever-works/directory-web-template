@@ -3,6 +3,7 @@ import { db } from '../drizzle';
 import { comments, clientProfiles, type NewComment } from '../schema';
 import type { CommentWithUser } from './types';
 import { getItemIdFromSlug } from './item.queries';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * Create a new comment
@@ -10,12 +11,14 @@ import { getItemIdFromSlug } from './item.queries';
  * @returns Created comment
  */
 export async function createComment(data: NewComment) {
-  // Ensure itemId is properly normalized (it should be a slug)
-  const normalizedData = {
-    ...data,
-    itemId: getItemIdFromSlug(data.itemId)
-  };
-  return (await db.insert(comments).values(normalizedData).returning())[0];
+	// Ensure itemId is properly normalized (it should be a slug)
+	const tenantId = await getTenantId();
+	const normalizedData = {
+		...data,
+		itemId: getItemIdFromSlug(data.itemId),
+		tenantId: tenantId
+	};
+	return (await db.insert(comments).values(normalizedData).returning())[0];
 }
 
 /**
@@ -24,29 +27,32 @@ export async function createComment(data: NewComment) {
  * @returns Array of comments with user details
  */
 export async function getCommentsByItemId(itemSlug: string): Promise<CommentWithUser[]> {
-  const itemId = getItemIdFromSlug(itemSlug);
-  return db
-    .select({
-      id: comments.id,
-      content: comments.content,
-      rating: comments.rating,
-      userId: comments.userId,
-      itemId: comments.itemId,
-      createdAt: comments.createdAt,
-      updatedAt: comments.updatedAt,
-      editedAt: comments.editedAt,
-      deletedAt: comments.deletedAt,
-      user: {
-        id: clientProfiles.id,
-        name: clientProfiles.name,
-        email: clientProfiles.email,
-        image: clientProfiles.avatar
-      }
-    })
-    .from(comments)
-    .innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-    .where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt)))
-    .orderBy(desc(comments.createdAt));
+	const itemId = getItemIdFromSlug(itemSlug);
+	const tenantId = await getTenantId();
+	if (!tenantId) return [];
+	return db
+		.select({
+			id: comments.id,
+			content: comments.content,
+			rating: comments.rating,
+			userId: comments.userId,
+			itemId: comments.itemId,
+			createdAt: comments.createdAt,
+			updatedAt: comments.updatedAt,
+			editedAt: comments.editedAt,
+			deletedAt: comments.deletedAt,
+			tenantId: comments.tenantId,
+			user: {
+				id: clientProfiles.id,
+				name: clientProfiles.name,
+				email: clientProfiles.email,
+				image: clientProfiles.avatar
+			}
+		})
+		.from(comments)
+		.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+		.where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)))
+		.orderBy(desc(comments.createdAt));
 }
 
 /**
@@ -55,7 +61,15 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
  * @returns Comment or undefined
  */
 export async function getCommentById(id: string) {
-  return (await db.select().from(comments).where(eq(comments.id, id)).limit(1))[0];
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	return (
+		await db
+			.select()
+			.from(comments)
+			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.limit(1)
+	)[0];
 }
 
 /**
@@ -64,29 +78,33 @@ export async function getCommentById(id: string) {
  * @returns Comment with user details or undefined
  */
 export async function getCommentWithUserById(id: string): Promise<CommentWithUser | undefined> {
-  const results = await db
-    .select({
-      id: comments.id,
-      content: comments.content,
-      rating: comments.rating,
-      userId: comments.userId,
-      itemId: comments.itemId,
-      createdAt: comments.createdAt,
-      updatedAt: comments.updatedAt,
-      editedAt: comments.editedAt,
-      deletedAt: comments.deletedAt,
-      user: {
-        id: clientProfiles.id,
-        name: clientProfiles.name,
-        email: clientProfiles.email,
-        image: clientProfiles.avatar
-      }
-    })
-    .from(comments)
-    .innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-    .where(eq(comments.id, id))
-    .limit(1);
-  return results[0];
+	const tenantId = await getTenantId();
+	if (!tenantId) return;
+	const results = await db
+		.select({
+			id: comments.id,
+			content: comments.content,
+			rating: comments.rating,
+			userId: comments.userId,
+			itemId: comments.itemId,
+			createdAt: comments.createdAt,
+			updatedAt: comments.updatedAt,
+			editedAt: comments.editedAt,
+			deletedAt: comments.deletedAt,
+			tenantId: comments.tenantId,
+			user: {
+				id: clientProfiles.id,
+				name: clientProfiles.name,
+				email: clientProfiles.email,
+				tenantId: clientProfiles.tenantId,
+				image: clientProfiles.avatar
+			}
+		})
+		.from(comments)
+		.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+		.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+		.limit(1);
+	return results[0];
 }
 
 /**
@@ -95,23 +113,22 @@ export async function getCommentWithUserById(id: string): Promise<CommentWithUse
  * @param data - Updated content and/or rating
  * @returns Updated comment
  */
-export async function updateComment(
-  id: string,
-  data: { content?: string; rating?: number }
-) {
-  const now = new Date();
-  const [comment] = await db
-    .update(comments)
-    .set({
-      ...(data.content !== undefined && { content: data.content }),
-      ...(data.rating !== undefined && { rating: data.rating }),
-      updatedAt: now,
-      editedAt: now
-    })
-    .where(eq(comments.id, id))
-    .returning();
+export async function updateComment(id: string, data: { content?: string; rating?: number }) {
+	const now = new Date();
+	const tenantId = await getTenantId();
+	if (!tenantId) return;
+	const [comment] = await db
+		.update(comments)
+		.set({
+			...(data.content !== undefined && { content: data.content }),
+			...(data.rating !== undefined && { rating: data.rating }),
+			updatedAt: now,
+			editedAt: now
+		})
+		.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+		.returning();
 
-  return comment;
+	return comment;
 }
 
 /**
@@ -121,7 +138,15 @@ export async function updateComment(
  * @returns Updated comment
  */
 export async function updateCommentRating(id: string, rating: number) {
-  return (await db.update(comments).set({ rating }).where(eq(comments.id, id)).returning())[0];
+	const tenantId = await getTenantId();
+	if (!tenantId) return;
+	return (
+		await db
+			.update(comments)
+			.set({ rating })
+			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.returning()
+	)[0];
 }
 
 /**
@@ -130,11 +155,13 @@ export async function updateCommentRating(id: string, rating: number) {
  * @returns Deleted comment
  */
 export async function deleteComment(id: string) {
-  const [comment] = await db
-    .update(comments)
-    .set({ deletedAt: new Date() })
-    .where(eq(comments.id, id))
-    .returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) return;
+	const [comment] = await db
+		.update(comments)
+		.set({ deletedAt: new Date() })
+		.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+		.returning();
 
-  return comment;
+	return comment;
 }

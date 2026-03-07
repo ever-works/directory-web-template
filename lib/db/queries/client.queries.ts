@@ -5,6 +5,7 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import type { ClientStatus, ClientPlan, ClientAccountType, ClientProfileWithAuth, ClientAccount } from './types';
 import { extractUsernameFromEmail, ensureUniqueUsername } from './utils';
 import { comparePasswords } from '@/lib/auth/credentials';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Client Profile CRUD =====================
 
@@ -28,6 +29,7 @@ export async function createClientProfile(data: {
 }): Promise<ClientProfile> {
 	// Normalize email for consistency
 	const normalizedEmail = data.email.toLowerCase().trim();
+	const tenantId = await getTenantId();
 
 	// Generate a unique username if not provided
 	let finalUsername = data.username;
@@ -56,7 +58,8 @@ export async function createClientProfile(data: {
 		company: data.company || 'Unknown',
 		status: (data.status as 'active' | 'inactive' | 'suspended' | 'trial') || 'active',
 		plan: (data.plan as 'free' | 'standard' | 'premium') || 'free',
-		accountType: (data.accountType as 'individual' | 'business' | 'enterprise') || 'individual'
+		accountType: (data.accountType as 'individual' | 'business' | 'enterprise') || 'individual',
+		tenantId: tenantId
 	};
 
 	const [profile] = await db.insert(clientProfiles).values(insertData).returning();
@@ -70,7 +73,12 @@ export async function createClientProfile(data: {
  * @returns Client profile or null if not found
  */
 export async function getClientProfileById(id: string): Promise<ClientProfile | null> {
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.id, id));
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)));
 
 	return profile || null;
 }
@@ -81,7 +89,12 @@ export async function getClientProfileById(id: string): Promise<ClientProfile | 
  * @returns Client profile or null if not found
  */
 export async function getClientProfileByUserId(userId: string): Promise<ClientProfile | null> {
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.userId, userId));
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)));
 
 	return profile || null;
 }
@@ -93,10 +106,16 @@ export async function getClientProfileByUserId(userId: string): Promise<ClientPr
  */
 export async function getClientProfileByEmail(email: string): Promise<ClientProfile | null> {
 	// Resolve deterministic profile via accounts (accounts.email will be unique after migration)
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
 	const account = await getClientAccountByEmail(email);
 	if (!account) return null;
 
-	const [profile] = await db.select().from(clientProfiles).where(eq(clientProfiles.userId, account.userId)).limit(1);
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(and(eq(clientProfiles.userId, account.userId), eq(clientProfiles.tenantId, tenantId)))
+		.limit(1);
 
 	return profile || null;
 }
@@ -108,10 +127,12 @@ export async function getClientProfileByEmail(email: string): Promise<ClientProf
  * @returns Updated client profile or null if not found
  */
 export async function updateClientProfile(id: string, data: Partial<NewClientProfile>): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
 	const [profile] = await db
 		.update(clientProfiles)
 		.set({ ...data, updatedAt: new Date() })
-		.where(eq(clientProfiles.id, id))
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return profile || null;
@@ -123,7 +144,12 @@ export async function updateClientProfile(id: string, data: Partial<NewClientPro
  * @returns True if deleted, false otherwise
  */
 export async function deleteClientProfile(id: string): Promise<boolean> {
-	const [profile] = await db.delete(clientProfiles).where(eq(clientProfiles.id, id)).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) return false;
+	const [profile] = await db
+		.delete(clientProfiles)
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
+		.returning();
 
 	return !!profile;
 }
@@ -152,6 +178,8 @@ export async function getClientProfiles(params: {
 }> {
 	const { page = 1, limit = 10, search, status, plan, accountType, provider } = params;
 	const offset = (page - 1) * limit;
+	const tenantId = await getTenantId();
+	if (!tenantId) return { profiles: [], total: 0, page, totalPages: 0, limit };
 
 	const whereConditions: SQL[] = [];
 
@@ -171,6 +199,10 @@ export async function getClientProfiles(params: {
 		whereConditions.push(eq(clientProfiles.status, status as ClientStatus));
 	}
 
+	if (tenantId) {
+		whereConditions.push(eq(clientProfiles.tenantId, tenantId));
+	}
+
 	if (plan) {
 		whereConditions.push(eq(clientProfiles.plan, plan as ClientPlan));
 	}
@@ -186,6 +218,7 @@ export async function getClientProfiles(params: {
         from ${accounts}
         where ${accounts.userId} = ${clientProfiles.userId}
           and ${accounts.provider} = ${provider}
+		  and ${accounts.tenantId} = ${tenantId}
       )`
 		);
 	}
@@ -243,10 +276,12 @@ export async function getClientProfiles(params: {
 			bannedAt: clientProfiles.bannedAt,
 			createdAt: clientProfiles.createdAt,
 			updatedAt: clientProfiles.updatedAt,
+			tenantId: clientProfiles.tenantId,
 			// Account fields - use subquery to avoid duplicate rows from multiple accounts
 			accountProvider: sql<string>`coalesce(
         (SELECT provider FROM ${accounts}
          WHERE ${accounts.userId} = ${clientProfiles.userId}
+		 AND ${accounts.tenantId} = ${tenantId}
          LIMIT 1),
         'unknown'
       )`
@@ -282,27 +317,41 @@ export async function getClientProfiles(params: {
  * @returns Basic client statistics
  */
 export async function getClientProfileStats() {
-	const totalResult = await db.select({ count: sql`count(*)` }).from(clientProfiles);
+	const tenantId = await getTenantId();
+	if (!tenantId)
+		return {
+			total: 0,
+			active: 0,
+			inactive: 0,
+			byPlan: {},
+			byAccountType: {}
+		};
+	const totalResult = await db
+		.select({ count: sql`count(*)` })
+		.from(clientProfiles)
+		.where(eq(clientProfiles.tenantId, tenantId));
 
 	const activeResult = await db
 		.select({ count: sql`count(*)` })
 		.from(clientProfiles)
-		.where(eq(clientProfiles.status, 'active'));
+		.where(and(eq(clientProfiles.status, 'active'), eq(clientProfiles.tenantId, tenantId)));
 
 	const inactiveResult = await db
 		.select({ count: sql`count(*)` })
 		.from(clientProfiles)
-		.where(eq(clientProfiles.status, 'inactive'));
+		.where(and(eq(clientProfiles.status, 'inactive'), eq(clientProfiles.tenantId, tenantId)));
 
 	const planStats = await db
 		.select({ plan: clientProfiles.plan, count: sql`count(*)` })
 		.from(clientProfiles)
-		.groupBy(clientProfiles.plan);
+		.groupBy(clientProfiles.plan)
+		.where(eq(clientProfiles.tenantId, tenantId));
 
 	const accountTypeStats = await db
 		.select({ accountType: clientProfiles.accountType, count: sql`count(*)` })
 		.from(clientProfiles)
-		.groupBy(clientProfiles.accountType);
+		.groupBy(clientProfiles.accountType)
+		.where(eq(clientProfiles.tenantId, tenantId));
 
 	const byPlan: Record<string, number> = {};
 	planStats.forEach((stat) => {
@@ -360,6 +409,39 @@ export async function getEnhancedClientStats(): Promise<{
 	};
 }> {
 	// Get comprehensive stats with joins
+	const tenantId = await getTenantId();
+	if (!tenantId)
+		return {
+			overview: {
+				total: 0,
+				active: 0,
+				inactive: 0,
+				suspended: 0,
+				trial: 0
+			},
+			byProvider: {
+				credentials: 0,
+				google: 0,
+				github: 0,
+				facebook: 0,
+				twitter: 0,
+				linkedin: 0,
+				other: 0
+			},
+			byPlan: {},
+			byAccountType: {},
+			byStatus: {},
+			activity: {
+				newThisWeek: 0,
+				newThisMonth: 0,
+				activeThisWeek: 0,
+				activeThisMonth: 0
+			},
+			growth: {
+				weeklyGrowth: 0,
+				monthlyGrowth: 0
+			}
+		};
 	const statsResult = await db
 		.select({
 			status: clientProfiles.status,
@@ -372,7 +454,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.leftJoin(accounts, eq(clientProfiles.userId, accounts.userId))
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(isNull(roles.id))
+		.where(and(isNull(roles.id), eq(clientProfiles.tenantId, tenantId)))
 		.groupBy(clientProfiles.status, clientProfiles.plan, clientProfiles.accountType, accounts.provider);
 
 	// Get total count
@@ -381,7 +463,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(isNull(roles.id));
+		.where(and(isNull(roles.id), eq(clientProfiles.tenantId, tenantId)));
 
 	const total = Number((totalResult[0] as unknown as { count: number })?.count || 0);
 
@@ -442,7 +524,7 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneWeekAgo)));
+		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneWeekAgo), eq(clientProfiles.tenantId, tenantId)));
 
 	const newThisWeek = Number(newThisWeekResult[0]?.count || 0);
 
@@ -452,7 +534,9 @@ export async function getEnhancedClientStats(): Promise<{
 		.from(clientProfiles)
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
-		.where(and(isNull(roles.id), gte(clientProfiles.createdAt, oneMonthAgo)));
+		.where(
+			and(isNull(roles.id), gte(clientProfiles.createdAt, oneMonthAgo), eq(clientProfiles.tenantId, tenantId))
+		);
 
 	const newThisMonth = Number(newThisMonthResult[0]?.count || 0);
 
@@ -466,7 +550,8 @@ export async function getEnhancedClientStats(): Promise<{
 			and(
 				isNull(roles.id),
 				eq(clientProfiles.status, 'active'),
-				or(gte(clientProfiles.updatedAt, oneWeekAgo), gte(clientProfiles.createdAt, oneWeekAgo))
+				or(gte(clientProfiles.updatedAt, oneWeekAgo), gte(clientProfiles.createdAt, oneWeekAgo)),
+				eq(clientProfiles.tenantId, tenantId)
 			)
 		);
 
@@ -482,7 +567,8 @@ export async function getEnhancedClientStats(): Promise<{
 			and(
 				isNull(roles.id),
 				eq(clientProfiles.status, 'active'),
-				or(gte(clientProfiles.updatedAt, oneMonthAgo), gte(clientProfiles.createdAt, oneMonthAgo))
+				or(gte(clientProfiles.updatedAt, oneMonthAgo), gte(clientProfiles.createdAt, oneMonthAgo)),
+				eq(clientProfiles.tenantId, tenantId)
 			)
 		);
 
@@ -533,6 +619,8 @@ export async function createClientAccount(
 ): Promise<ClientAccount | null> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
+		const tenantId = await getTenantId();
+		if (!tenantId) return null;
 
 		const [account] = await db
 			.insert(accounts)
@@ -542,7 +630,8 @@ export async function createClientAccount(
 				provider: 'credentials',
 				providerAccountId: normalizedEmail,
 				email: normalizedEmail,
-				passwordHash
+				passwordHash,
+				tenantId
 			})
 			.returning();
 
@@ -561,12 +650,20 @@ export async function createClientAccount(
 export async function getClientAccountByEmail(email: string): Promise<ClientAccount | null> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
+		const tenantId = await getTenantId();
+		if (!tenantId) return null;
 
 		// Get credentials account specifically (not OAuth accounts)
 		const [account] = await db
 			.select()
 			.from(accounts)
-			.where(and(eq(accounts.provider, 'credentials'), eq(accounts.email, normalizedEmail)))
+			.where(
+				and(
+					eq(accounts.provider, 'credentials'),
+					eq(accounts.email, normalizedEmail),
+					eq(accounts.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		return account || null;
@@ -584,7 +681,14 @@ export async function getClientAccountByEmail(email: string): Promise<ClientAcco
 export async function hasClientAccess(userId: string): Promise<boolean> {
 	try {
 		// Check if account exists for the user (accounts.userId references users.id)
-		const [account] = await db.select().from(accounts).where(eq(accounts.userId, userId)).limit(1);
+		const tenantId = await getTenantId();
+		if (!tenantId) return false;
+
+		const [account] = await db
+			.select()
+			.from(accounts)
+			.where(and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)))
+			.limit(1);
 
 		return !!account;
 	} catch (error) {
@@ -602,12 +706,20 @@ export async function hasClientAccess(userId: string): Promise<boolean> {
 export async function verifyClientPassword(email: string, password: string): Promise<boolean> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
+		const tenantId = await getTenantId();
+		if (!tenantId) return false;
 
 		// Get credentials account specifically (not OAuth accounts)
 		const [account] = await db
 			.select()
 			.from(accounts)
-			.where(and(eq(accounts.provider, 'credentials'), eq(accounts.email, normalizedEmail)))
+			.where(
+				and(
+					eq(accounts.provider, 'credentials'),
+					eq(accounts.email, normalizedEmail),
+					eq(accounts.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		if (!account) {
@@ -703,8 +815,13 @@ export async function getAdminDashboardData(params: {
 		updatedBefore
 	} = params;
 	const offset = (page - 1) * limit;
+	const tenantId = await getTenantId();
 
 	const whereConditions: SQL[] = [];
+
+	if (tenantId) {
+		whereConditions.push(eq(clientProfiles.tenantId, tenantId));
+	}
 
 	// Optimized search with proper escaping and index-friendly patterns
 	if (search) {
@@ -739,6 +856,7 @@ export async function getAdminDashboardData(params: {
         from ${accounts}
         where ${accounts.userId} = ${clientProfiles.userId}
           and ${accounts.provider} = ${provider}
+		  and ${accounts.tenantId} = ${tenantId}
       )`
 		);
 	}
@@ -813,10 +931,12 @@ export async function getAdminDashboardData(params: {
 			bannedAt: clientProfiles.bannedAt,
 			createdAt: clientProfiles.createdAt,
 			updatedAt: clientProfiles.updatedAt,
+			tenantId: clientProfiles.tenantId,
 			// Account fields - use subquery to avoid duplicate rows from multiple accounts
 			accountProvider: sql<string>`coalesce(
         (SELECT provider FROM ${accounts}
          WHERE ${accounts.userId} = ${clientProfiles.userId}
+		 AND ${accounts.tenantId} = ${tenantId}
          LIMIT 1),
         'unknown'
       )`
@@ -937,6 +1057,7 @@ export async function advancedClientSearch(params: {
 	const offset = (page - 1) * limit;
 	const whereConditions: SQL[] = [];
 	const appliedFilters: string[] = [];
+	const tenantId = await getTenantId();
 
 	// Basic text search across multiple fields
 	if (search) {
@@ -961,6 +1082,10 @@ export async function advancedClientSearch(params: {
 		appliedFilters.push(`Status: ${status}`);
 	}
 
+	if (tenantId) {
+		whereConditions.push(eq(clientProfiles.tenantId, tenantId));
+	}
+
 	// Plan filter
 	if (plan) {
 		whereConditions.push(eq(clientProfiles.plan, plan as ClientPlan));
@@ -981,6 +1106,7 @@ export async function advancedClientSearch(params: {
         from ${accounts}
         where ${accounts.userId} = ${clientProfiles.userId}
           and ${accounts.provider} = ${provider}
+		  and ${accounts.tenantId} = ${tenantId}
       )`
 		);
 		appliedFilters.push(`Provider: ${provider}`);
@@ -1169,9 +1295,11 @@ export async function advancedClientSearch(params: {
 			bannedAt: clientProfiles.bannedAt,
 			createdAt: clientProfiles.createdAt,
 			updatedAt: clientProfiles.updatedAt,
+			tenantId: clientProfiles.tenantId,
 			accountProvider: sql<string>`coalesce(
         (SELECT provider FROM ${accounts}
          WHERE ${accounts.userId} = ${clientProfiles.userId}
+		 AND ${accounts.tenantId} = ${tenantId}
          LIMIT 1),
         'unknown'
       )`

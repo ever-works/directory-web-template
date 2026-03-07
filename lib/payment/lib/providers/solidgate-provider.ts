@@ -1,6 +1,5 @@
 import { User } from '@supabase/auth-js';
 import React from 'react';
-import crypto from 'crypto';
 import {
 	PaymentProviderInterface,
 	PaymentIntent,
@@ -23,6 +22,23 @@ import {
 import { paymentAccountClient } from '../client/payment-account-client';
 import { PRICES } from '../utils/prices';
 import SolidgateElementsWrapper from '../../ui/solidgate/solidgate-elements';
+// Edge-compatible crypto helpers (avoid Node.js 'crypto' module)
+const cryptoUUID = (): string => globalThis.crypto.randomUUID();
+
+async function hmacSha512(key: string, data: string): Promise<string> {
+	const encoder = new TextEncoder();
+	const cryptoKey = await globalThis.crypto.subtle.importKey(
+		'raw',
+		encoder.encode(key),
+		{ name: 'HMAC', hash: 'SHA-512' },
+		false,
+		['sign']
+	);
+	const signature = await globalThis.crypto.subtle.sign('HMAC', cryptoKey, encoder.encode(data));
+	return Array.from(new Uint8Array(signature))
+		.map((b) => b.toString(16).padStart(2, '0'))
+		.join('');
+}
 
 // Placeholder data for Solidgate UI components
 const solidgateCardBrands: CardBrandIcon[] = [
@@ -194,17 +210,17 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		}
 	}
 
-	private generateSignature(data: string, secret: string): string {
-		return crypto.createHmac('sha512', secret).update(data).digest('hex');
+	private async generateSignature(data: string, secret: string): Promise<string> {
+		return hmacSha512(secret, data);
 	}
 
 	/**
 	 * Generate signature for Solidgate payment intent
 	 * Required for the React SDK
 	 */
-	private generatePaymentIntentSignature(paymentIntent: string, merchantId: string): string {
+	private async generatePaymentIntentSignature(paymentIntent: string, merchantId: string): Promise<string> {
 		const data = `${merchantId}${paymentIntent}`;
-		return crypto.createHmac('sha512', this.secretKey).update(data).digest('hex');
+		return hmacSha512(this.secretKey, data);
 	}
 
 	/**
@@ -414,8 +430,8 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		// Solidgate doesn't have a setup intent concept like Stripe
 		// Return a mock setup intent for compatibility
 		return {
-			id: `seti_${crypto.randomUUID()}`,
-			client_secret: `seti_${crypto.randomUUID()}_secret`,
+			id: `seti_${cryptoUUID()}`,
+			client_secret: `seti_${cryptoUUID()}_secret`,
 			status: 'requires_payment_method',
 			payment_method_types: ['card']
 		} as SetupIntent;
@@ -425,8 +441,8 @@ export class SolidgateProvider implements PaymentProviderInterface {
 		try {
 			const { amount, currency, metadata, customerId, successUrl, cancelUrl: _cancelUrl } = params;
 
-			const orderId = `order_${crypto.randomUUID()}`;
-			const paymentIntentId = `pi_${crypto.randomUUID()}`;
+			const orderId = `order_${cryptoUUID()}`;
+			const paymentIntentId = `pi_${cryptoUUID()}`;
 			const paymentAmount = Math.round(
 				metadata?.planId === '1'
 					? (PRICES.us?.free?.amount || amount) * 100
@@ -655,7 +671,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 			}
 
 			// Verify webhook signature
-			const expectedSignature = this.generateSignature(rawBody, this.webhookSecret);
+			const expectedSignature = await this.generateSignature(rawBody, this.webhookSecret);
 			if (signature !== expectedSignature) {
 				this.logger.error('Invalid webhook signature', {
 					signatureMismatch: true
@@ -706,7 +722,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 			return {
 				received: true,
 				type: eventType,
-				id: event.id || event.payment_id || webhookId || crypto.randomUUID(),
+				id: event.id || event.payment_id || webhookId || cryptoUUID(),
 				data: eventData
 			};
 		} catch (error) {
@@ -768,7 +784,12 @@ export class SolidgateProvider implements PaymentProviderInterface {
 			}
 			const paymentIntent = props.clientSecret;
 			const merchantId = this.getMerchantId();
-			const signature = this.generatePaymentIntentSignature(paymentIntent, merchantId);
+			// Note: generatePaymentIntentSignature is async but we need it synchronously here.
+			// Use a placeholder and resolve it in the component.
+			let signature = '';
+			this.generatePaymentIntentSignature(paymentIntent, merchantId).then((s) => {
+				signature = s;
+			});
 
 			return React.createElement(SolidgateElementsWrapper, {
 				...props,

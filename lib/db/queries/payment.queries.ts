@@ -1,14 +1,15 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
-  paymentProviders,
-  paymentAccounts,
-  users,
-  type OldPaymentProvider,
-  type NewPaymentProvider,
-  type PaymentAccount,
-  type NewPaymentAccount
+	paymentProviders,
+	paymentAccounts,
+	users,
+	type OldPaymentProvider,
+	type NewPaymentProvider,
+	type PaymentAccount,
+	type NewPaymentAccount
 } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Payment Provider Queries =====================
 
@@ -18,13 +19,16 @@ import {
  * @returns Payment provider or null if not found
  */
 export async function getPaymentProvider(id: string): Promise<OldPaymentProvider | null> {
-  const result = await db
-    .select()
-    .from(paymentProviders)
-    .where(eq(paymentProviders.id, id))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return result[0] || null;
+	const result = await db
+		.select()
+		.from(paymentProviders)
+		.where(and(eq(paymentProviders.id, id), eq(paymentProviders.tenantId, tenantId)))
+		.limit(1);
+
+	return result[0] || null;
 }
 
 /**
@@ -33,13 +37,9 @@ export async function getPaymentProvider(id: string): Promise<OldPaymentProvider
  * @returns Payment provider or null if not found
  */
 export async function getPaymentProviderByName(name: string): Promise<OldPaymentProvider | null> {
-  const result = await db
-    .select()
-    .from(paymentProviders)
-    .where(eq(paymentProviders.name, name))
-    .limit(1);
+	const result = await db.select().from(paymentProviders).where(eq(paymentProviders.name, name)).limit(1);
 
-  return result[0] || null;
+	return result[0] || null;
 }
 
 /**
@@ -47,13 +47,13 @@ export async function getPaymentProviderByName(name: string): Promise<OldPayment
  * @returns Array of active payment providers ordered by name
  */
 export async function getActivePaymentProviders(): Promise<OldPaymentProvider[]> {
-  const result = await db
-    .select()
-    .from(paymentProviders)
-    .where(eq(paymentProviders.isActive, true))
-    .orderBy(paymentProviders.name);
+	const result = await db
+		.select()
+		.from(paymentProviders)
+		.where(eq(paymentProviders.isActive, true))
+		.orderBy(paymentProviders.name);
 
-  return result;
+	return result;
 }
 
 /**
@@ -62,9 +62,9 @@ export async function getActivePaymentProviders(): Promise<OldPaymentProvider[]>
  * @returns Created payment provider
  */
 export async function createPaymentProvider(data: NewPaymentProvider): Promise<OldPaymentProvider> {
-  const result = await db.insert(paymentProviders).values(data).returning();
+	const result = await db.insert(paymentProviders).values(data).returning();
 
-  return result[0];
+	return result[0];
 }
 
 /**
@@ -74,16 +74,12 @@ export async function createPaymentProvider(data: NewPaymentProvider): Promise<O
  * @returns Updated payment provider or null if not found
  */
 export async function updatePaymentProvider(
-  id: string,
-  data: Partial<NewPaymentProvider>
+	id: string,
+	data: Partial<NewPaymentProvider>
 ): Promise<OldPaymentProvider | null> {
-  const result = await db
-    .update(paymentProviders)
-    .set(data)
-    .where(eq(paymentProviders.id, id))
-    .returning();
+	const result = await db.update(paymentProviders).set(data).where(eq(paymentProviders.id, id)).returning();
 
-  return result[0] || null;
+	return result[0] || null;
 }
 
 /**
@@ -92,18 +88,21 @@ export async function updatePaymentProvider(
  * @returns Deactivated payment provider or null if not found
  */
 export async function deactivatePaymentProvider(id: string): Promise<OldPaymentProvider | null> {
-  const result = await db
-    .update(paymentProviders)
-    .set({ isActive: false })
-    .where(eq(paymentProviders.id, id))
-    .returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  if (result.length === 0) {
-    console.warn(`No payment provider found with ID ${id} to deactivate`);
-    return null;
-  }
+	const result = await db
+		.update(paymentProviders)
+		.set({ isActive: false })
+		.where(and(eq(paymentProviders.id, id), eq(paymentProviders.tenantId, tenantId)))
+		.returning();
 
-  return result[0];
+	if (result.length === 0) {
+		console.warn(`No payment provider found with ID ${id} to deactivate`);
+		return null;
+	}
+
+	return result[0];
 }
 
 // ===================== Payment Account Queries =====================
@@ -115,28 +114,35 @@ export async function deactivatePaymentProvider(id: string): Promise<OldPaymentP
  * @returns Payment account with active provider or null if not found
  */
 export async function getPaymentAccountByUserId(userId: string, providerId: string): Promise<PaymentAccount | null> {
-  const result = await db
-    .select({
-      id: paymentAccounts.id,
-      userId: paymentAccounts.userId,
-      providerId: paymentAccounts.providerId,
-      customerId: paymentAccounts.customerId,
-      accountId: paymentAccounts.accountId,
-      createdAt: paymentAccounts.createdAt,
-      updatedAt: paymentAccounts.updatedAt,
-      lastUsed: paymentAccounts.lastUsed
-    })
-    .from(paymentAccounts)
-    .innerJoin(paymentProviders, eq(paymentAccounts.providerId, paymentProviders.id))
-    .innerJoin(users, eq(paymentAccounts.userId, users.id))
-    .where(and(
-      eq(paymentAccounts.userId, userId),
-      eq(paymentAccounts.providerId, providerId),
-      eq(paymentProviders.isActive, true)
-    ))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return result[0] || null;
+	const result = await db
+		.select({
+			id: paymentAccounts.id,
+			userId: paymentAccounts.userId,
+			providerId: paymentAccounts.providerId,
+			customerId: paymentAccounts.customerId,
+			accountId: paymentAccounts.accountId,
+			createdAt: paymentAccounts.createdAt,
+			updatedAt: paymentAccounts.updatedAt,
+			lastUsed: paymentAccounts.lastUsed,
+			tenantId: paymentAccounts.tenantId
+		})
+		.from(paymentAccounts)
+		.innerJoin(paymentProviders, eq(paymentAccounts.providerId, paymentProviders.id))
+		.innerJoin(users, eq(paymentAccounts.userId, users.id))
+		.where(
+			and(
+				eq(paymentAccounts.userId, userId),
+				eq(paymentAccounts.providerId, providerId),
+				eq(paymentProviders.isActive, true),
+				eq(paymentProviders.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return result[0] || null;
 }
 
 /**
@@ -146,16 +152,25 @@ export async function getPaymentAccountByUserId(userId: string, providerId: stri
  * @returns Payment account or null if not found
  */
 export async function getPaymentAccountByCustomerId(
-  customerId: string,
-  providerId: string
+	customerId: string,
+	providerId: string
 ): Promise<PaymentAccount | null> {
-  const result = await db
-    .select()
-    .from(paymentAccounts)
-    .where(and(eq(paymentAccounts.customerId, customerId), eq(paymentAccounts.providerId, providerId)))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return result[0] || null;
+	const result = await db
+		.select()
+		.from(paymentAccounts)
+		.where(
+			and(
+				eq(paymentAccounts.customerId, customerId),
+				eq(paymentAccounts.providerId, providerId),
+				eq(paymentAccounts.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return result[0] || null;
 }
 
 /**
@@ -164,15 +179,18 @@ export async function getPaymentAccountByCustomerId(
  * @returns Created payment account
  */
 export async function createPaymentAccount(data: NewPaymentAccount): Promise<PaymentAccount> {
-  const result = await db
-    .insert(paymentAccounts)
-    .values({
-      ...data,
-      lastUsed: new Date()
-    })
-    .returning();
+	const tenantId = await getTenantId();
 
-  return result[0];
+	const result = await db
+		.insert(paymentAccounts)
+		.values({
+			...data,
+			tenantId,
+			lastUsed: new Date()
+		})
+		.returning();
+
+	return result[0];
 }
 
 /**
@@ -180,7 +198,13 @@ export async function createPaymentAccount(data: NewPaymentAccount): Promise<Pay
  * @param accountId - Payment account ID
  */
 export async function updatePaymentAccountLastUsed(accountId: string): Promise<void> {
-  await db.update(paymentAccounts).set({ lastUsed: new Date() }).where(eq(paymentAccounts.id, accountId));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	await db
+		.update(paymentAccounts)
+		.set({ lastUsed: new Date() })
+		.where(and(eq(paymentAccounts.id, accountId), eq(paymentAccounts.tenantId, tenantId)));
 }
 
 /**
@@ -190,24 +214,24 @@ export async function updatePaymentAccountLastUsed(accountId: string): Promise<v
  * @returns Payment account or null if not found
  */
 export async function getUserPaymentAccountByProvider(
-  userId: string,
-  providerName: string
+	userId: string,
+	providerName: string
 ): Promise<PaymentAccount | null> {
-  try {
-    // Get the provider
-    const provider = await getPaymentProviderByName(providerName);
-    if (!provider) {
-      return null; // Provider does not exist
-    }
+	try {
+		// Get the provider
+		const provider = await getPaymentProviderByName(providerName);
+		if (!provider) {
+			return null; // Provider does not exist
+		}
 
-    // Get the PaymentAccount for this user and provider
-    const paymentAccount = await getPaymentAccountByUserId(userId, provider.id);
+		// Get the PaymentAccount for this user and provider
+		const paymentAccount = await getPaymentAccountByUserId(userId, provider.id);
 
-    return paymentAccount;
-  } catch (error) {
-    console.error(`Error checking PaymentAccount:`, error);
-    return null;
-  }
+		return paymentAccount;
+	} catch (error) {
+		console.error(`Error checking PaymentAccount:`, error);
+		return null;
+	}
 }
 
 // ===================== Payment Account Management =====================
@@ -222,60 +246,60 @@ export async function getUserPaymentAccountByProvider(
  * @returns Payment account with complete data
  */
 export async function ensurePaymentAccount(
-  providerName: string,
-  userId: string,
-  customerId: string,
-  accountId?: string
+	providerName: string,
+	userId: string,
+	customerId: string,
+	accountId?: string
 ): Promise<PaymentAccount> {
-  try {
-    // 1. Check if the provider exists, if not create it
-    let provider = await getPaymentProviderByName(providerName);
+	try {
+		// 1. Check if the provider exists, if not create it
+		let provider = await getPaymentProviderByName(providerName);
 
-    if (!provider) {
-      console.log(`Provider ${providerName} does not exist, creating...`);
+		if (!provider) {
+			console.log(`Provider ${providerName} does not exist, creating...`);
 
-      const newProviderData: NewPaymentProvider = {
-        name: providerName,
-        isActive: true
-      };
+			const newProviderData: NewPaymentProvider = {
+				name: providerName,
+				isActive: true
+			};
 
-      provider = await createPaymentProvider(newProviderData);
-      console.log(`Provider ${providerName} created with ID: ${provider.id}`);
-    } else {
-      console.log(`Provider ${providerName} found with ID: ${provider.id}`);
-    }
+			provider = await createPaymentProvider(newProviderData);
+			console.log(`Provider ${providerName} created with ID: ${provider.id}`);
+		} else {
+			console.log(`Provider ${providerName} found with ID: ${provider.id}`);
+		}
 
-    // 2. Check if PaymentAccount already exists for this user and provider
-    const paymentAccount = await getPaymentAccountByUserId(userId, provider.id);
+		// 2. Check if PaymentAccount already exists for this user and provider
+		const paymentAccount = await getPaymentAccountByUserId(userId, provider.id);
 
-    if (paymentAccount) {
-      console.log(`Existing PaymentAccount found for user ${userId} and provider ${providerName}`);
+		if (paymentAccount) {
+			console.log(`Existing PaymentAccount found for user ${userId} and provider ${providerName}`);
 
-      // Update lastUsed and return existing account
-      await updatePaymentAccountLastUsed(paymentAccount.id);
-      return paymentAccount;
-    }
+			// Update lastUsed and return existing account
+			await updatePaymentAccountLastUsed(paymentAccount.id);
+			return paymentAccount;
+		}
 
-    // 3. Create a new PaymentAccount
-    console.log(`Creating a new PaymentAccount for user ${userId} and provider ${providerName}`);
+		// 3. Create a new PaymentAccount
+		console.log(`Creating a new PaymentAccount for user ${userId} and provider ${providerName}`);
 
-    const newPaymentAccountData: NewPaymentAccount = {
-      userId,
-      providerId: provider.id,
-      customerId,
-      accountId: accountId || null
-    };
+		const newPaymentAccountData: NewPaymentAccount = {
+			userId,
+			providerId: provider.id,
+			customerId,
+			accountId: accountId || null
+		};
 
-    const createdAccount = await createPaymentAccount(newPaymentAccountData);
-    console.log(`PaymentAccount created with ID: ${createdAccount.id}`);
+		const createdAccount = await createPaymentAccount(newPaymentAccountData);
+		console.log(`PaymentAccount created with ID: ${createdAccount.id}`);
 
-    return createdAccount;
-  } catch (error) {
-    console.error(`Error during PaymentAccount creation/validation:`, error);
-    throw new Error(
-      `Unable to create/validate PaymentAccount: ${error instanceof Error ? error.message : 'Unknown error'}`
-    );
-  }
+		return createdAccount;
+	} catch (error) {
+		console.error(`Error during PaymentAccount creation/validation:`, error);
+		throw new Error(
+			`Unable to create/validate PaymentAccount: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
+	}
 }
 
 /**
@@ -288,12 +312,12 @@ export async function ensurePaymentAccount(
  * @returns Payment account with complete data
  */
 export async function getOrCreatePaymentAccount(
-  providerName: string,
-  userId: string,
-  customerId: string,
-  accountId?: string
+	providerName: string,
+	userId: string,
+	customerId: string,
+	accountId?: string
 ): Promise<PaymentAccount> {
-  return ensurePaymentAccount(providerName, userId, customerId, accountId);
+	return ensurePaymentAccount(providerName, userId, customerId, accountId);
 }
 
 /**
@@ -305,77 +329,80 @@ export async function getOrCreatePaymentAccount(
  * @returns Payment account with complete data
  */
 export async function setupUserPaymentAccount(
-  providerName: string,
-  userId: string,
-  customerId: string,
-  accountId?: string
+	providerName: string,
+	userId: string,
+	customerId: string,
+	accountId?: string
 ): Promise<PaymentAccount> {
-  try {
-    let provider = await getPaymentProviderByName(providerName);
-    if (!provider) {
-      const newProviderData: NewPaymentProvider = {
-        name: providerName,
-        isActive: true
-      };
+	try {
+		let provider = await getPaymentProviderByName(providerName);
+		const tenantId = await getTenantId();
+		if (!tenantId) throw new Error('Tenant ID not found');
 
-      provider = await createPaymentProvider(newProviderData);
-      console.log(`✅ Provider ${providerName} created with ID: ${provider.id}`);
-    } else {
-      console.log(`✅ Provider ${providerName} found with ID: ${provider.id}`);
-    }
+		if (!provider) {
+			const newProviderData: NewPaymentProvider = {
+				name: providerName,
+				isActive: true
+			};
 
-    // Check if payment account already exists for this user and provider
-    const existingAccount = await getUserPaymentAccountByProvider(userId, providerName);
+			provider = await createPaymentProvider(newProviderData);
+			console.log(`✅ Provider ${providerName} created with ID: ${provider.id}`);
+		} else {
+			console.log(`✅ Provider ${providerName} found with ID: ${provider.id}`);
+		}
 
-    if (existingAccount) {
-      console.log(`✅ Payment account already exists for user ${userId} and provider ${providerName}`);
-      // Update the existing account with new customerId if different
-      if (existingAccount.customerId !== customerId) {
-        console.log(`🔄 Updating customer ID from ${existingAccount.customerId} to ${customerId}`);
-        // Update the payment account directly in the database
-        await db
-          .update(paymentAccounts)
-          .set({
-            customerId,
-            accountId: accountId || existingAccount.accountId,
-            lastUsed: new Date(),
-            updatedAt: new Date()
-          })
-          .where(eq(paymentAccounts.id, existingAccount.id));
+		// Check if payment account already exists for this user and provider
+		const existingAccount = await getUserPaymentAccountByProvider(userId, providerName);
 
-        return (await getUserPaymentAccountByProvider(userId, providerName)) as PaymentAccount;
-      }
-      // Update last used timestamp
-      await updatePaymentAccountLastUsed(existingAccount.id);
-      return existingAccount;
-    }
+		if (existingAccount) {
+			console.log(`✅ Payment account already exists for user ${userId} and provider ${providerName}`);
+			// Update the existing account with new customerId if different
+			if (existingAccount.customerId !== customerId) {
+				console.log(`🔄 Updating customer ID from ${existingAccount.customerId} to ${customerId}`);
+				// Update the payment account directly in the database
+				await db
+					.update(paymentAccounts)
+					.set({
+						customerId,
+						accountId: accountId || existingAccount.accountId,
+						lastUsed: new Date(),
+						updatedAt: new Date()
+					})
+					.where(and(eq(paymentAccounts.id, existingAccount.id), eq(paymentAccounts.tenantId, tenantId)));
 
-    // Create new payment account
-    const newPaymentAccountData: NewPaymentAccount = {
-      userId,
-      providerId: provider.id,
-      customerId,
-      accountId: accountId || null
-    };
+				return (await getUserPaymentAccountByProvider(userId, providerName)) as PaymentAccount;
+			}
+			// Update last used timestamp
+			await updatePaymentAccountLastUsed(existingAccount.id);
+			return existingAccount;
+		}
 
-    console.log(`🆕 Creating new payment account for user ${userId} and provider ${providerName}`);
-    const createdAccount = await createPaymentAccount(newPaymentAccountData);
-    return createdAccount;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    const fullError = `Unable to configure PaymentAccount for ${providerName} - ${errorMessage}`;
+		// Create new payment account
+		const newPaymentAccountData: NewPaymentAccount = {
+			userId,
+			providerId: provider.id,
+			customerId,
+			accountId: accountId || null
+		};
 
-    console.error(`💥 Error details:`, {
-      providerName,
-      userId,
-      customerId,
-      accountId,
-      error: errorMessage,
-      stack: error instanceof Error ? error.stack : undefined
-    });
+		console.log(`🆕 Creating new payment account for user ${userId} and provider ${providerName}`);
+		const createdAccount = await createPaymentAccount(newPaymentAccountData);
+		return createdAccount;
+	} catch (error) {
+		const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+		const fullError = `Unable to configure PaymentAccount for ${providerName} - ${errorMessage}`;
 
-    throw new Error(fullError);
-  }
+		console.error(`💥 Error details:`, {
+			providerName,
+			userId,
+			customerId,
+			accountId,
+			error: errorMessage,
+			stack: error instanceof Error ? error.stack : undefined
+		});
+
+		throw new Error(fullError);
+	}
 }
 
 /**
@@ -388,10 +415,10 @@ export async function setupUserPaymentAccount(
  * @returns Payment account with complete data
  */
 export async function createOrGetPaymentAccount(
-  providerName: string,
-  userId: string,
-  customerId: string,
-  accountId?: string
+	providerName: string,
+	userId: string,
+	customerId: string,
+	accountId?: string
 ): Promise<PaymentAccount> {
-  return setupUserPaymentAccount(providerName, userId, customerId, accountId);
+	return setupUserPaymentAccount(providerName, userId, customerId, accountId);
 }

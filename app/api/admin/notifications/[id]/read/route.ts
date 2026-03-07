@@ -1,8 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db/drizzle";
-import { notifications } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { NextRequest, NextResponse } from 'next/server';
+import { db } from '@/lib/db/drizzle';
+import { notifications } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { auth } from '@/lib/auth';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -134,56 +135,50 @@ import { auth } from "@/lib/auth";
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const { id: notificationId } = await params;
+		const { id: notificationId } = await params;
 
-    if (!notificationId) {
-      return NextResponse.json(
-        { error: "Notification ID is required" },
-        { status: 400 }
-      );
-    }
+		if (!notificationId) {
+			return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 });
+		}
 
-    const updatedNotification = await db
-      .update(notifications)
-      .set({
-        isRead: true,
-        readAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(notifications.id, notificationId),
-          eq(notifications.userId, session.user.id)
-        )
-      )
-      .returning();
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+		}
 
-    if (updatedNotification.length === 0) {
-      return NextResponse.json(
-        { error: "Notification not found" },
-        { status: 404 }
-      );
-    }
+		const updatedNotification = await db
+			.update(notifications)
+			.set({
+				isRead: true,
+				readAt: new Date(),
+				updatedAt: new Date()
+			})
+			.where(
+				and(
+					eq(notifications.id, notificationId),
+					eq(notifications.userId, session.user.id),
+					eq(notifications.tenantId, tenantId)
+				)
+			)
+			.returning();
 
-    return NextResponse.json({
-      success: true,
-      notification: updatedNotification[0],
-    });
-  } catch (error) {
-    console.error("Error marking notification as read:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+		if (updatedNotification.length === 0) {
+			return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+		}
+
+		return NextResponse.json({
+			success: true,
+			notification: updatedNotification[0]
+		});
+	} catch (error) {
+		console.error('Error marking notification as read:', error);
+		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+	}
 }

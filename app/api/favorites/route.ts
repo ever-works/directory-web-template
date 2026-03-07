@@ -6,12 +6,13 @@ import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { getTenantId } from '@/lib/auth/tenant';
 
 const addFavoriteSchema = z.object({
-  itemSlug: z.string().min(1),
-  itemName: z.string().min(1),
-  itemIconUrl: z.string().optional(),
-  itemCategory: z.string().optional(),
+	itemSlug: z.string().min(1),
+	itemName: z.string().min(1),
+	itemIconUrl: z.string().optional(),
+	itemCategory: z.string().optional()
 });
 
 /**
@@ -124,33 +125,34 @@ const addFavoriteSchema = z.object({
  *                   example: "Failed to fetch favorites"
  */
 export async function GET() {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+	try {
+		// Check database availability
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const userFavorites = await db
-      .select()
-      .from(favorites)
-      .where(eq(favorites.userId, session.user.id))
-      .orderBy(favorites.createdAt);
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      favorites: userFavorites,
-    });
+		const userFavorites = await db
+			.select()
+			.from(favorites)
+			.where(and(eq(favorites.userId, session.user.id), eq(favorites.tenantId, tenantId)))
+			.orderBy(favorites.createdAt);
 
-  } catch (error) {
-    return safeErrorResponse(error, 'Failed to fetch favorites');
-  }
+		return NextResponse.json({
+			success: true,
+			favorites: userFavorites
+		});
+	} catch (error) {
+		return safeErrorResponse(error, 'Failed to fetch favorites');
+	}
 }
 
 /**
@@ -310,65 +312,68 @@ export async function GET() {
  *                   example: "Failed to add favorite"
  */
 export async function POST(request: NextRequest) {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+	try {
+		// Check database availability
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const body = await request.json();
-    const validatedData = addFavoriteSchema.parse(body);
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    // Check if favorite already exists
-    const existingFavorite = await db
-      .select()
-      .from(favorites)
-      .where(
-        and(
-          eq(favorites.userId, session.user.id),
-          eq(favorites.itemSlug, validatedData.itemSlug)
-        )
-      )
-      .limit(1);
+		const body = await request.json();
+		const validatedData = addFavoriteSchema.parse(body);
 
-    if (existingFavorite.length > 0) {
-      return NextResponse.json(
-        { success: false, error: "Item is already in favorites" },
-        { status: 409 }
-      );
-    }
+		// Check if favorite already exists
+		const existingFavorite = await db
+			.select()
+			.from(favorites)
+			.where(
+				and(
+					eq(favorites.userId, session.user.id),
+					eq(favorites.itemSlug, validatedData.itemSlug),
+					eq(favorites.tenantId, tenantId)
+				)
+			)
+			.limit(1);
 
-    const newFavorite = await db
-      .insert(favorites)
-      .values({
-        userId: session.user.id,
-        itemSlug: validatedData.itemSlug,
-        itemName: validatedData.itemName,
-        itemIconUrl: validatedData.itemIconUrl,
-        itemCategory: validatedData.itemCategory,
-      })
-      .returning();
+		if (existingFavorite.length > 0) {
+			return NextResponse.json({ success: false, error: 'Item is already in favorites' }, { status: 409 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      favorite: newFavorite[0],
-    }, { status: 201 });
+		const newFavorite = await db
+			.insert(favorites)
+			.values({
+				userId: session.user.id,
+				itemSlug: validatedData.itemSlug,
+				itemName: validatedData.itemName,
+				itemIconUrl: validatedData.itemIconUrl,
+				itemCategory: validatedData.itemCategory,
+				tenantId
+			})
+			.returning();
 
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { success: false, error: "Invalid request data", details: error.message },
-        { status: 400 }
-      );
-    }
+		return NextResponse.json(
+			{
+				success: true,
+				favorite: newFavorite[0]
+			},
+			{ status: 201 }
+		);
+	} catch (error) {
+		if (error instanceof z.ZodError) {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid request data', details: error.message },
+				{ status: 400 }
+			);
+		}
 
-    return safeErrorResponse(error, 'Failed to add favorite');
-  }
+		return safeErrorResponse(error, 'Failed to add favorite');
+	}
 }

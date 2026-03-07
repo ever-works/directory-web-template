@@ -67,6 +67,7 @@ export const credentialsProvider = Credentials({
 
 					return {
 						...foundUser,
+						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
 						isAdmin: true
 					};

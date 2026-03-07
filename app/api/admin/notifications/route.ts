@@ -4,6 +4,7 @@ import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { eq, and, desc, count } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -160,18 +161,29 @@ export async function GET() {
 			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
 		}
 
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
+
 		// Get notifications for the admin user
 		const userNotifications = await db
 			.select()
 			.from(notifications)
-			.where(eq(notifications.userId, session.user.id))
+			.where(and(eq(notifications.userId, session.user.id), eq(notifications.tenantId, tenantId)))
 			.orderBy(desc(notifications.createdAt))
 			.limit(50);
 
 		const unreadCountResult = await db
 			.select({ count: count() })
 			.from(notifications)
-			.where(and(eq(notifications.userId, session.user.id), eq(notifications.isRead, false)));
+			.where(
+				and(
+					eq(notifications.userId, session.user.id),
+					eq(notifications.isRead, false),
+					eq(notifications.tenantId, tenantId)
+				)
+			);
 
 		return NextResponse.json({
 			success: true,
@@ -352,6 +364,12 @@ export async function POST(request: NextRequest) {
 		if (!type || !title || !message || !userId) {
 			return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 });
 		}
+
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
+
 		const newNotification = await db
 			.insert(notifications)
 			.values({
@@ -359,7 +377,8 @@ export async function POST(request: NextRequest) {
 				type,
 				title,
 				message,
-				data: data ? JSON.stringify(data) : null
+				data: data ? JSON.stringify(data) : null,
+				tenantId
 			})
 			.returning();
 

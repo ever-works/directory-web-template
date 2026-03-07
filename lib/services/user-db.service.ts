@@ -4,326 +4,365 @@ import { eq, desc, asc, and, sql, isNull, type SQL } from 'drizzle-orm';
 import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { AuthUserData, CreateUserRequest, UpdateUserRequest, UserListOptions, UserStatus } from '@/lib/types/user';
 import { hash } from 'bcryptjs';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // Interface for joined query result structure
 interface JoinedUserData {
-  id: string;
-  email: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-  username: string | null;
-  name: string | null;
-  title: string | null;
-  avatar: string | null;
-  status: UserStatus | null;
-  roleId: string | null;
-  roleName: string | null;
+	id: string;
+	email: string | null;
+	createdAt: Date;
+	updatedAt: Date;
+	username: string | null;
+	name: string | null;
+	title: string | null;
+	avatar: string | null;
+	status: UserStatus | null;
+	roleId: string | null;
+	roleName: string | null;
 }
 
 export class UserDbService {
-  async readUsers(): Promise<AuthUserData[]> {
-    try {
-      const result = await db
-        .select()
-        .from(users)
-        .where(isNull(users.deletedAt));
-      return result.map(this.mapDbToAuthUserData);
-    } catch (error) {
-      console.error('Error reading users from database:', error);
-      throw new Error('Failed to retrieve users');
-    }
-  }
+	async readUsers(): Promise<AuthUserData[]> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-  async findById(id: string): Promise<AuthUserData | null> {
-    try {
-      const result = await db
-        .select()
-        .from(users)
-        .where(and(eq(users.id, id), isNull(users.deletedAt)));
-      return result.length > 0 ? this.mapDbToAuthUserData(result[0]) : null;
-    } catch (error) {
-      console.error('Error finding user by ID:', error);
-      throw new Error('Failed to retrieve user');
-    }
-  }
+			const result = await db
+				.select()
+				.from(users)
+				.where(and(isNull(users.deletedAt), eq(users.tenantId, tenantId)));
+			return result.map(this.mapDbToAuthUserData);
+		} catch (error) {
+			console.error('Error reading users from database:', error);
+			throw new Error('Failed to retrieve users');
+		}
+	}
 
-  async createUser(data: Pick<CreateUserRequest, 'email' | 'password'>): Promise<AuthUserData> {
-    try {
-      // Hash the password
-      const passwordHash = await hash(data.password, 10);
+	async findById(id: string): Promise<AuthUserData | null> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-      const userData = {
-        email: data.email.trim().toLowerCase(),
-        passwordHash,
-      } as const;
+			const result = await db
+				.select()
+				.from(users)
+				.where(and(eq(users.id, id), isNull(users.deletedAt), eq(users.tenantId, tenantId)));
+			return result.length > 0 ? this.mapDbToAuthUserData(result[0]) : null;
+		} catch (error) {
+			console.error('Error finding user by ID:', error);
+			throw new Error('Failed to retrieve user');
+		}
+	}
 
-      const result = await db.insert(users).values(userData).returning();
-      return this.mapDbToAuthUserData(result[0]);
-    } catch (error) {
-      console.error('Error creating user:', error);
-      throw error;
-    }
-  }
+	async createUser(data: Pick<CreateUserRequest, 'email' | 'password'>): Promise<AuthUserData> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-  async emailExists(email: string, excludeId?: string): Promise<boolean> {
-    try {
-      const conditions: SQL[] = [
-        sql`lower(${users.email}) = lower(${email})`,
-        isNull(users.deletedAt)
-      ];
-      if (excludeId) {
-        conditions.push(sql`${users.id} != ${excludeId}`);
-      }
-      const res = await db
-        .select({ id: users.id })
-        .from(users)
-        .where(and(...conditions))
-        .limit(1);
-      return res.length > 0;
-    } catch (error) {
-      console.error('Error checking email existence:', error);
-      throw new Error('Failed to check email availability');
-    }
-  }
+			// Hash the password
+			const passwordHash = await hash(data.password, 10);
 
-  async updateUser(id: string, data: UpdateUserRequest): Promise<AuthUserData> {
-    try {
-      const now = new Date();
+			const userData = {
+				email: data.email.trim().toLowerCase(),
+				passwordHash,
+				tenantId
+			} as const;
 
-      // Prepare data for users table update
-      const userUpdateData: Record<string, unknown> = {
-        updatedAt: now,
-      };
-      if (data.email !== undefined) userUpdateData.email = data.email;
+			const result = await db.insert(users).values(userData).returning();
+			return this.mapDbToAuthUserData(result[0]);
+		} catch (error) {
+			console.error('Error creating user:', error);
+			throw error;
+		}
+	}
 
-      // Prepare data for client_profiles table update
-      const profileUpdateData: Record<string, unknown> = {
-        updatedAt: now,
-      };
-      if (data.username !== undefined) profileUpdateData.username = data.username;
-      if (data.name !== undefined) profileUpdateData.name = data.name;
-      if (data.title !== undefined) profileUpdateData.jobTitle = data.title;
-      if (data.avatar !== undefined) profileUpdateData.avatar = data.avatar;
-      if (data.status !== undefined) profileUpdateData.status = data.status;
-      if (data.email !== undefined) profileUpdateData.email = data.email; // Keep email in sync
+	async emailExists(email: string, excludeId?: string): Promise<boolean> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-      const result = await db.transaction(async (tx: PgTransaction<any, any, any>) => {
-        // Update users table
-        const updated = await tx.update(users)
-          .set(userUpdateData)
-          .where(eq(users.id, id))
-          .returning();
+			const conditions: SQL[] = [
+				sql`lower(${users.email}) = lower(${email})`,
+				isNull(users.deletedAt),
+				eq(users.tenantId, tenantId)
+			];
+			if (excludeId) {
+				conditions.push(sql`${users.id} != ${excludeId}`);
+			}
+			const res = await db
+				.select({ id: users.id })
+				.from(users)
+				.where(and(...conditions))
+				.limit(1);
+			return res.length > 0;
+		} catch (error) {
+			console.error('Error checking email existence:', error);
+			throw new Error('Failed to check email availability');
+		}
+	}
 
-        if (updated.length === 0) {
-          throw new Error(`User with ID '${id}' not found`);
-        }
+	async updateUser(id: string, data: UpdateUserRequest): Promise<AuthUserData> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-        // Update client_profiles table if we have profile data to update
-        if (Object.keys(profileUpdateData).length > 1) { // More than just updatedAt
-          await tx.update(clientProfiles)
-            .set(profileUpdateData)
-            .where(eq(clientProfiles.userId, id));
-        }
+			const now = new Date();
 
-        // Update role if provided
-        if (data.role !== undefined) {
-          // Delete existing role assignments
-          await tx.delete(userRoles).where(eq(userRoles.userId, id));
-          // Insert new role assignment
-          if (data.role) {
-            await tx.insert(userRoles).values({
-              userId: id,
-              roleId: data.role,
-            });
-          }
-        }
+			// Prepare data for users table update
+			const userUpdateData: Record<string, unknown> = {
+				updatedAt: now
+			};
+			if (data.email !== undefined) userUpdateData.email = data.email;
 
-        return updated;
-      });
+			// Prepare data for client_profiles table update
+			const profileUpdateData: Record<string, unknown> = {
+				updatedAt: now
+			};
+			if (data.username !== undefined) profileUpdateData.username = data.username;
+			if (data.name !== undefined) profileUpdateData.name = data.name;
+			if (data.title !== undefined) profileUpdateData.jobTitle = data.title;
+			if (data.avatar !== undefined) profileUpdateData.avatar = data.avatar;
+			if (data.status !== undefined) profileUpdateData.status = data.status;
+			if (data.email !== undefined) profileUpdateData.email = data.email; // Keep email in sync
 
-      return this.mapDbToAuthUserData(result[0]);
-    } catch (error) {
-      console.error('Error updating user:', error);
-      throw error;
-    }
-  }
+			const result = await db.transaction(async (tx: PgTransaction<any, any, any>) => {
+				// Update users table
+				const updated = await tx
+					.update(users)
+					.set(userUpdateData)
+					.where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+					.returning();
 
-  async deleteUser(id: string): Promise<void> {
-    try {
-      await db.update(users)
-        .set({ deletedAt: new Date() })
-        .where(eq(users.id, id));
-    } catch (error) {
-      console.error('Error deleting user:', error);
-      throw new Error('Failed to delete user');
-    }
-  }
+				if (updated.length === 0) {
+					throw new Error(`User with ID '${id}' not found`);
+				}
 
-  async findUsers(options: UserListOptions = {}): Promise<{
-    users: AuthUserData[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }> {
-    try {
-      const { page = 1, limit = 10, search, sortBy = 'email', sortOrder = 'asc', role, status } = options as any;
+				// Update client_profiles table if we have profile data to update
+				if (Object.keys(profileUpdateData).length > 1) {
+					// More than just updatedAt
+					await tx
+						.update(clientProfiles)
+						.set(profileUpdateData)
+						.where(and(eq(clientProfiles.userId, id), eq(clientProfiles.tenantId, tenantId)));
+				}
 
-      // Build conditions first
-      const conditions: SQL[] = [];
-      conditions.push(isNull(users.deletedAt));
+				// Update role if provided
+				if (data.role !== undefined) {
+					// Delete existing role assignments
+					await tx.delete(userRoles).where(and(eq(userRoles.userId, id), eq(userRoles.tenantId, tenantId)));
+					// Insert new role assignment
+					if (data.role) {
+						await tx.insert(userRoles).values({
+							userId: id,
+							roleId: data.role,
+							tenantId
+						});
+					}
+				}
 
-      if (search) {
-        // Search in email, name, or username
-        conditions.push(sql`(
-          ${users.email} ILIKE ${`%${search.replace(/\\/g, "\\\\").replace(/[%_]/g, "\\$&")}%`} OR
-          ${clientProfiles.name} ILIKE ${`%${search.replace(/\\/g, "\\\\").replace(/[%_]/g, "\\$&")}%`} OR
-          ${clientProfiles.username} ILIKE ${`%${search.replace(/\\/g, "\\\\").replace(/[%_]/g, "\\$&")}%`}
+				return updated;
+			});
+
+			return this.mapDbToAuthUserData(result[0]);
+		} catch (error) {
+			console.error('Error updating user:', error);
+			throw error;
+		}
+	}
+
+	async deleteUser(id: string): Promise<void> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
+
+			await db
+				.update(users)
+				.set({ deletedAt: new Date() })
+				.where(and(eq(users.id, id), eq(users.tenantId, tenantId)));
+		} catch (error) {
+			console.error('Error deleting user:', error);
+			throw new Error('Failed to delete user');
+		}
+	}
+
+	async findUsers(options: UserListOptions = {}): Promise<{
+		users: AuthUserData[];
+		total: number;
+		page: number;
+		limit: number;
+		totalPages: number;
+	}> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
+
+			const { page = 1, limit = 10, search, sortBy = 'email', sortOrder = 'asc', role, status } = options as any;
+
+			// Build conditions first
+			const conditions: SQL[] = [];
+			conditions.push(isNull(users.deletedAt));
+			conditions.push(eq(users.tenantId, tenantId));
+
+			if (search) {
+				// Search in email, name, or username
+				conditions.push(sql`(
+          ${users.email} ILIKE ${`%${search.replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&')}%`} OR
+          ${clientProfiles.name} ILIKE ${`%${search.replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&')}%`} OR
+          ${clientProfiles.username} ILIKE ${`%${search.replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&')}%`}
         )`);
-      }
+			}
 
-      if (role) {
-        // Filter by role name (e.g., 'admin', 'client') instead of roleId
-        conditions.push(eq(roles.name, role));
-      }
+			if (role) {
+				// Filter by role name (e.g., 'admin', 'client') instead of roleId
+				conditions.push(eq(roles.name, role));
+			}
 
-      if (status) {
-        conditions.push(eq(clientProfiles.status, status));
-      }
+			if (status) {
+				conditions.push(eq(clientProfiles.status, status));
+			}
 
-      // Build query with all conditions
-      const baseQuery = db.select({
-        id: users.id,
-        email: users.email,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
-        // Profile data
-        username: clientProfiles.username,
-        name: clientProfiles.name,
-        title: clientProfiles.jobTitle,
-        avatar: clientProfiles.avatar,
-        status: clientProfiles.status,
-        // Role data
-        roleId: userRoles.roleId,
-        roleName: roles.name,
-      })
-      .from(users)
-      .leftJoin(clientProfiles, eq(users.id, clientProfiles.userId))
-      .leftJoin(userRoles, eq(users.id, userRoles.userId))
-      .leftJoin(roles, eq(userRoles.roleId, roles.id))
-      .where(and(...conditions));
-      
-      // Get total count with same filters (need to join for search to work)
-      const countQuery = db.select({ count: sql`count(*)` })
-        .from(users)
-        .leftJoin(clientProfiles, eq(users.id, clientProfiles.userId))
-        .leftJoin(userRoles, eq(users.id, userRoles.userId))
-        .leftJoin(roles, eq(userRoles.roleId, roles.id))
-        .where(and(...conditions));
+			// Build query with all conditions
+			const baseQuery = db
+				.select({
+					id: users.id,
+					email: users.email,
+					createdAt: users.createdAt,
+					updatedAt: users.updatedAt,
+					// Profile data
+					username: clientProfiles.username,
+					name: clientProfiles.name,
+					title: clientProfiles.jobTitle,
+					avatar: clientProfiles.avatar,
+					status: clientProfiles.status,
+					// Role data
+					roleId: userRoles.roleId,
+					roleName: roles.name
+				})
+				.from(users)
+				.leftJoin(clientProfiles, eq(users.id, clientProfiles.userId))
+				.leftJoin(userRoles, eq(users.id, userRoles.userId))
+				.leftJoin(roles, eq(userRoles.roleId, roles.id))
+				.where(and(...conditions));
 
-      const countResult = await countQuery;
-      const total = Number(countResult[0].count);
+			// Get total count with same filters (need to join for search to work)
+			const countQuery = db
+				.select({ count: sql`count(*)` })
+				.from(users)
+				.leftJoin(clientProfiles, eq(users.id, clientProfiles.userId))
+				.leftJoin(userRoles, eq(users.id, userRoles.userId))
+				.leftJoin(roles, eq(userRoles.roleId, roles.id))
+				.where(and(...conditions));
 
-      // Apply sorting and pagination
-      const sortFieldMap: Record<string, any> = {
-        email: users.email,
-        created_at: users.createdAt
-      };
-      const sortField = sortFieldMap[sortBy] || users.email;
-      const orderFn = sortOrder === 'desc' ? desc : asc;
-      const result = await baseQuery
-        .orderBy(orderFn(sortField))
-        .limit(limit)
-        .offset((page - 1) * limit);
-      
-      return {
-        users: result.map((data) => this.mapJoinedDataToAuthUserData(data as any)),
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      };
-    } catch (error) {
-      console.error('Error finding users:', error);
-      throw new Error('Failed to retrieve users');
-    }
-  }
+			const countResult = await countQuery;
+			const total = Number(countResult[0].count);
 
-  /**
-   * Get user statistics from clientProfiles
-   */
-  async getUserStats(): Promise<{
-    total: number;
-    active: number;
-    inactive: number;
-  }> {
-    try {
-      const result = await db
-        .select({
-          total: sql<number>`count(*)`,
-          active: sql<number>`count(*) filter (where ${clientProfiles.status} = 'active')`,
-          inactive: sql<number>`count(*) filter (where ${clientProfiles.status} != 'active')`
-        })
-        .from(clientProfiles);
+			// Apply sorting and pagination
+			const sortFieldMap: Record<string, any> = {
+				email: users.email,
+				created_at: users.createdAt
+			};
+			const sortField = sortFieldMap[sortBy] || users.email;
+			const orderFn = sortOrder === 'desc' ? desc : asc;
+			const result = await baseQuery
+				.orderBy(orderFn(sortField))
+				.limit(limit)
+				.offset((page - 1) * limit);
 
-      return {
-        total: Number(result[0].total),
-        active: Number(result[0].active),
-        inactive: Number(result[0].inactive)
-      };
-    } catch (error) {
-      console.error('Error getting user stats from clientProfiles:', error);
-      throw new Error('Failed to retrieve user statistics');
-    }
-  }
+			return {
+				users: result.map((data) => this.mapJoinedDataToAuthUserData(data as any)),
+				total,
+				page,
+				limit,
+				totalPages: Math.ceil(total / limit)
+			};
+		} catch (error) {
+			console.error('Error finding users:', error);
+			throw new Error('Failed to retrieve users');
+		}
+	}
 
-  /**
-   * Check if username exists in clientProfiles
-   */
-  async clientProfileUsernameExists(username: string, excludeId?: string): Promise<boolean> {
-    try {
-      const conditions = [eq(clientProfiles.username, username)];
+	/**
+	 * Get user statistics from clientProfiles
+	 */
+	async getUserStats(): Promise<{
+		total: number;
+		active: number;
+		inactive: number;
+	}> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-      if (excludeId) {
-        conditions.push(sql`${clientProfiles.id} != ${excludeId}`);
-      }
+			const result = await db
+				.select({
+					total: sql<number>`count(*)`,
+					active: sql<number>`count(*) filter (where ${clientProfiles.status} = 'active')`,
+					inactive: sql<number>`count(*) filter (where ${clientProfiles.status} != 'active')`
+				})
+				.from(clientProfiles)
+				.where(eq(clientProfiles.tenantId, tenantId));
 
-      const query = db
-        .select({ id: clientProfiles.id })
-        .from(clientProfiles)
-        .where(and(...conditions));
+			return {
+				total: Number(result[0].total),
+				active: Number(result[0].active),
+				inactive: Number(result[0].inactive)
+			};
+		} catch (error) {
+			console.error('Error getting user stats from clientProfiles:', error);
+			throw new Error('Failed to retrieve user statistics');
+		}
+	}
 
-      const result = await query;
-      return result.length > 0;
-    } catch (error) {
-      console.error('Error checking username existence in clientProfiles:', error);
-      throw new Error('Failed to check username availability');
-    }
-  }
+	/**
+	 * Check if username exists in clientProfiles
+	 */
+	async clientProfileUsernameExists(username: string, excludeId?: string): Promise<boolean> {
+		try {
+			const tenantId = await getTenantId();
+			if (!tenantId) throw new Error('Tenant ID not found');
 
-  private mapDbToAuthUserData(dbUser: typeof users.$inferSelect): AuthUserData {
-    return {
-      id: dbUser.id,
-      email: dbUser.email || '',
-      created_at: dbUser.createdAt.toISOString(),
-      updated_at: dbUser.updatedAt.toISOString(),
-    };
-  }
+			const conditions = [eq(clientProfiles.username, username), eq(clientProfiles.tenantId, tenantId)];
 
-  private mapJoinedDataToAuthUserData(joinedData: JoinedUserData): AuthUserData {
-    return {
-      id: joinedData.id,
-      email: joinedData.email ?? '',
-      username: joinedData.username ?? '',
-      name: joinedData.name ?? '',
-      title: joinedData.title ?? '',
-      avatar: joinedData.avatar ?? '',
-      status: joinedData.status ?? 'active',
-      role: joinedData.roleId ?? '',
-      roleName: joinedData.roleName ?? 'No role',
-      created_at: joinedData.createdAt.toISOString(),
-      updated_at: joinedData.updatedAt.toISOString(),
-      created_by: 'system', // TODO: Add proper created_by field
-    };
-  }
-} 
+			if (excludeId) {
+				conditions.push(sql`${clientProfiles.id} != ${excludeId}`);
+			}
+
+			const query = db
+				.select({ id: clientProfiles.id })
+				.from(clientProfiles)
+				.where(and(...conditions));
+
+			const result = await query;
+			return result.length > 0;
+		} catch (error) {
+			console.error('Error checking username existence in clientProfiles:', error);
+			throw new Error('Failed to check username availability');
+		}
+	}
+
+	private mapDbToAuthUserData(dbUser: typeof users.$inferSelect): AuthUserData {
+		return {
+			id: dbUser.id,
+			email: dbUser.email || '',
+			created_at: dbUser.createdAt.toISOString(),
+			updated_at: dbUser.updatedAt.toISOString()
+		};
+	}
+
+	private mapJoinedDataToAuthUserData(joinedData: JoinedUserData): AuthUserData {
+		return {
+			id: joinedData.id,
+			email: joinedData.email ?? '',
+			username: joinedData.username ?? '',
+			name: joinedData.name ?? '',
+			title: joinedData.title ?? '',
+			avatar: joinedData.avatar ?? '',
+			status: joinedData.status ?? 'active',
+			role: joinedData.roleId ?? '',
+			roleName: joinedData.roleName ?? 'No role',
+			created_at: joinedData.createdAt.toISOString(),
+			updated_at: joinedData.updatedAt.toISOString(),
+			created_by: 'system' // TODO: Add proper created_by field
+		};
+	}
+}

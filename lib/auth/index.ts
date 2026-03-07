@@ -10,6 +10,7 @@ import { users, accounts, sessions, verificationTokens } from '../db/schema';
 import authConfig from '../../auth.config';
 import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
+import { getUserById } from '../db/queries/user.queries';
 import { coreConfig } from '@/lib/config/config-service';
 export * from '../payment/config/payment-provider-manager';
 
@@ -20,6 +21,7 @@ interface ExtendedUser {
 	isAdmin?: boolean;
 	isClient?: boolean;
 	clientProfileId?: string;
+	tenantId?: string;
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
@@ -143,6 +145,18 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 					}
 				}
 
+				// Resolve tenantId from the user record on first sign-in
+				if (!token.tenantId && token.userId && isDatabaseAvailable) {
+					try {
+						const dbUser = await getUserById(token.userId);
+						if (dbUser?.tenantId) {
+							token.tenantId = dbUser.tenantId;
+						}
+					} catch (error) {
+						console.error('[auth][jwt] Error resolving tenantId:', error);
+					}
+				}
+
 				// Detect and update currency/country for client profiles on login
 				// Note: Full detection with headers happens on first API call with request context
 				// This is just a placeholder - actual detection happens in getUserCurrency with request headers
@@ -166,7 +180,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 							isAdmin: token.isAdmin,
 							hasUser: !!user,
 							accountProvider: account?.provider,
-							hasClientProfileId: !!token.clientProfileId
+							hasClientProfileId: !!token.clientProfileId,
+							tenantId: token.tenantId
 						});
 					} catch {}
 				}
@@ -190,6 +205,9 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				session.user.provider = typeof token.provider === 'string' ? token.provider : 'credentials';
 				if (typeof token.isAdmin === 'boolean') {
 					session.user.isAdmin = token.isAdmin;
+				}
+				if (typeof token.tenantId === 'string') {
+					session.user.tenantId = token.tenantId;
 				}
 			}
 
