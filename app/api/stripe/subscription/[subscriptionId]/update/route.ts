@@ -190,7 +190,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 		// Verify the subscription belongs to the user
 		const userSubscription = await getSubscriptionByProviderSubscriptionId('stripe', subscriptionId);
 
-		if (!userSubscription) {
+		if (!userSubscription || userSubscription.userId !== session.user.id) {
 			return NextResponse.json({ error: 'Subscription not found or access denied' }, { status: 404 });
 		}
 

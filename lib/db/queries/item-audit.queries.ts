@@ -1,12 +1,12 @@
 import { eq, desc, and, inArray, count } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
-	itemAuditLogs,
-	users,
-	type NewItemAuditLog,
-	type ItemAuditLog,
-	type ItemAuditActionValues,
-	type ItemAuditChanges
+    itemAuditLogs,
+    users,
+    type NewItemAuditLog,
+    type ItemAuditLog,
+    type ItemAuditActionValues,
+    type ItemAuditChanges
 } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
@@ -93,9 +93,6 @@ export async function getItemHistory(params: GetItemHistoryParams): Promise<Pagi
 	const conditions = [eq(itemAuditLogs.itemId, itemId), eq(itemAuditLogs.tenantId, tenantId)];
 	if (actionFilter && actionFilter.length > 0) {
 		conditions.push(inArray(itemAuditLogs.action, actionFilter));
-	}
-	if (tenantId) {
-		conditions.push(eq(itemAuditLogs.tenantId, tenantId));
 	}
 	const whereClause = and(...conditions);
 

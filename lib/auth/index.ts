@@ -6,11 +6,11 @@
 import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db, getDrizzleInstance } from '../db/drizzle';
+import { eq } from 'drizzle-orm';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
 import authConfig from '../../auth.config';
 import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
-import { getUserById } from '../db/queries/user.queries';
 import { coreConfig } from '@/lib/config/config-service';
 export * from '../payment/config/payment-provider-manager';
 
@@ -145,10 +145,22 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 					}
 				}
 
-				// Resolve tenantId from the user record on first sign-in
-				if (!token.tenantId && token.userId && isDatabaseAvailable) {
+				// Resolve tenantId from the user record on first sign-in.
+				// NOTE: We use an unscoped direct query here instead of getUserById()
+				// because getUserById now filters by tenantId internally, creating
+				// a circular dependency (we need tenantId to fetch the user, but we
+				// need the user to get the tenantId).
+				if (!token.tenantId && !token.tenantIdChecked && token.userId && isDatabaseAvailable) {
 					try {
-						const dbUser = await getUserById(token.userId);
+						// Mark that we've checked the DB to prevent looping on every request
+						// for users who legitimately don't have a tenantId
+						token.tenantIdChecked = true;
+
+						const [dbUser] = await getDrizzleInstance()
+							.select({ tenantId: users.tenantId })
+							.from(users)
+							.where(eq(users.id, token.userId))
+							.limit(1);
 						if (dbUser?.tenantId) {
 							token.tenantId = dbUser.tenantId;
 						}

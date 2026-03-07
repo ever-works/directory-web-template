@@ -58,7 +58,7 @@ export async function linkRolesToPermissions() {
 	}
 
 	// Get permissions
-	const allPermissions: Permission[] = await db.select().from(permissions);
+	const allPermissions: Permission[] = await db.select().from(permissions).where(eq(permissions.tenantId, tenantId));
 	const permByKey = new Map(allPermissions.map((p) => [p.key, p]));
 
 	// Create role-permission mappings

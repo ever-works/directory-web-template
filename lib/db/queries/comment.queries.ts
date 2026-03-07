@@ -13,6 +13,7 @@ import { getTenantId } from '@/lib/auth/tenant';
 export async function createComment(data: NewComment) {
 	// Ensure itemId is properly normalized (it should be a slug)
 	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID is required to create a comment');
 	const normalizedData = {
 		...data,
 		itemId: getItemIdFromSlug(data.itemId),

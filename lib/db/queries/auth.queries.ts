@@ -12,7 +12,7 @@ import { getTenantId } from '@/lib/auth/tenant';
  */
 export async function getPasswordResetTokenByEmail(email: string) {
 	const tenantId = await getTenantId();
-	if (!tenantId) return null;
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const tokens = await db
 		.select()
 		.from(passwordResetTokens)
@@ -29,7 +29,7 @@ export async function getPasswordResetTokenByEmail(email: string) {
  */
 export async function getPasswordResetTokenByToken(token: string) {
 	const tenantId = await getTenantId();
-	if (!tenantId) return null;
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const tokens = await db
 		.select()
 		.from(passwordResetTokens)
@@ -60,7 +60,7 @@ export async function deletePasswordResetToken(token: string) {
  */
 export async function getVerificationTokenByEmail(email: string) {
 	const tenantId = await getTenantId();
-	if (!tenantId) return null;
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const tokens = await db
 		.select()
 		.from(verificationTokens)
@@ -77,7 +77,7 @@ export async function getVerificationTokenByEmail(email: string) {
  */
 export async function getVerificationTokenByToken(token: string) {
 	const tenantId = await getTenantId();
-	if (!tenantId) return null;
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const tokens = await db
 		.select()
 		.from(verificationTokens)

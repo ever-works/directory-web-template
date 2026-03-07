@@ -56,6 +56,19 @@ import { getTenantId } from '@/lib/auth/tenant';
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - Tenant not found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Tenant not found"
  *       404:
  *         description: "Favorite not found or doesn't belong to user"
  *         content:

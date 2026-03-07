@@ -1,17 +1,24 @@
 import { auth } from '@/lib/auth';
 
 /**
- * Cached default tenant ID (resolved once per process lifetime)
- * Avoids repeated DB lookups for the fallback tenant.
+ * TTL-based cache for the default tenant ID.
+ * Re-validates from the DB every CACHE_TTL_MS to handle tenant
+ * deactivation in long-lived production workers.
  */
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 let cachedDefaultTenantId: string | null = null;
+let cachedAt = 0;
+
+function isCacheValid(): boolean {
+	return cachedDefaultTenantId !== null && Date.now() - cachedAt < CACHE_TTL_MS;
+}
 
 /**
  * Server-side helper to get the current tenant ID.
  * Resolution order:
  * 1. Authenticated session (user.tenantId)
  * 2. Environment variable TENANT_ID (for single-tenant deployments)
- * 3. Database lookup: first active tenant (single-tenant fallback)
+ * 3. Database lookup: first active tenant (cached with TTL)
  *
  * @returns The tenant ID string or null if not resolvable
  */
@@ -32,25 +39,31 @@ export async function getTenantId(): Promise<string | null> {
 		return process.env.TENANT_ID;
 	}
 
-	// 3. Database fallback: get first active tenant (cached per process)
-	if (cachedDefaultTenantId) {
+	// 3. Database fallback: get first active tenant (cached with TTL)
+	if (isCacheValid()) {
 		return cachedDefaultTenantId;
 	}
 
 	try {
 		const { db } = await import('@/lib/db/drizzle');
 		const { tenant } = await import('@/lib/db/schema');
-		const { eq } = await import('drizzle-orm');
+		const { eq, asc } = await import('drizzle-orm');
 
 		const result = await db
 			.select({ id: tenant.id })
 			.from(tenant)
 			.where(eq(tenant.status, 'active'))
+			.orderBy(asc(tenant.createdAt))
 			.limit(1);
 
 		if (result[0]?.id) {
 			cachedDefaultTenantId = result[0].id;
+			cachedAt = Date.now();
 			return cachedDefaultTenantId;
+		} else {
+			// Tenant was deactivated or deleted — invalidate cache
+			cachedDefaultTenantId = null;
+			cachedAt = 0;
 		}
 	} catch (error) {
 		console.error('[getTenantId] Fallback DB lookup failed:', error instanceof Error ? error.message : error);
@@ -58,3 +71,4 @@ export async function getTenantId(): Promise<string | null> {
 
 	return null;
 }
+

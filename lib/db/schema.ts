@@ -57,7 +57,8 @@ export const users = pgTable(
 		deletedAt: timestamp('deleted_at')
 	},
 	(table) => ({
-		createdAtIndex: index('users_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('users_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('users_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -78,7 +79,8 @@ export const roles = pgTable(
 	(table) => ({
 		statusIndex: index('roles_status_idx').on(table.status),
 		isAdminIndex: index('roles_is_admin_idx').on(table.isAdmin),
-		createdAtIndex: index('roles_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('roles_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('roles_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -96,7 +98,8 @@ export const permissions = pgTable(
 		updatedAt: timestamp('updated_at').notNull().defaultNow()
 	},
 	(table) => ({
-		createdAtIndex: index('permissions_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('permissions_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('permissions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -117,7 +120,8 @@ export const rolePermissions = pgTable(
 		rolePermissionPk: primaryKey({ columns: [table.roleId, table.permissionId] }),
 		roleIndex: index('role_permissions_role_idx').on(table.roleId),
 		permissionIndex: index('role_permissions_permission_idx').on(table.permissionId),
-		createdAtIndex: index('role_permissions_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('role_permissions_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('role_permissions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -138,7 +142,8 @@ export const userRoles = pgTable(
 		userRolePk: primaryKey({ columns: [table.userId, table.roleId] }),
 		userIndex: index('user_roles_user_idx').on(table.userId),
 		roleIndex: index('user_roles_role_idx').on(table.roleId),
-		createdAtIndex: index('user_roles_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('user_roles_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('user_roles_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -172,7 +177,8 @@ export const accounts = pgTable(
 		},
 		index('accounts_email_idx').on(account.email),
 		// Performance index for provider lookups
-		index('accounts_provider_idx').on(account.provider)
+		index('accounts_provider_idx').on(account.provider),
+		index('accounts_tenant_id_idx').on(account.tenantId)
 	]
 );
 
@@ -237,7 +243,8 @@ export const clientProfiles = pgTable(
 		index('client_profile_plan_idx').on(clientProfile.plan),
 		index('client_profile_account_type_idx').on(clientProfile.accountType),
 		index('client_profile_username_idx').on(clientProfile.username),
-		index('client_profile_created_at_idx').on(clientProfile.createdAt)
+		index('client_profile_created_at_idx').on(clientProfile.createdAt),
+		index('client_profile_tenant_id_idx').on(clientProfile.tenantId)
 	]
 );
 
@@ -288,7 +295,8 @@ export const authenticators = pgTable(
 			compositePK: primaryKey({
 				columns: [authenticator.userId, authenticator.credentialID]
 			})
-		}
+		},
+		index('authenticators_tenant_id_idx').on(authenticator.tenantId)
 	]
 );
 
@@ -306,7 +314,8 @@ export const activityLogs = pgTable(
 	(table) => [
 		index('activity_logs_user_idx').on(table.userId),
 		index('activity_logs_timestamp_idx').on(table.timestamp),
-		index('activity_logs_action_idx').on(table.action)
+		index('activity_logs_action_idx').on(table.action),
+		index('activity_logs_tenant_id_idx').on(table.tenantId)
 	]
 );
 
@@ -318,7 +327,9 @@ export const passwordResetTokens = pgTable('passwordResetTokens', {
 	token: text('token').notNull().unique(),
 	expires: timestamp('expires', { mode: 'date' }).notNull(),
 	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
-});
+}, (table) => [
+	index('password_reset_tokens_tenant_id_idx').on(table.tenantId)
+]);
 
 export const newsletterSubscriptions = pgTable('newsletterSubscriptions', {
 	id: text('id')
@@ -333,7 +344,9 @@ export const newsletterSubscriptions = pgTable('newsletterSubscriptions', {
 	lastEmailSent: timestamp('last_email_sent'),
 	source: text('source').default('footer'), // footer, popup, etc.
 	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
-});
+}, (table) => [
+	index('newsletter_subscriptions_tenant_id_idx').on(table.tenantId)
+]);
 
 // ######################### Comment Schema #########################
 export const comments = pgTable('comments', {
@@ -351,7 +364,9 @@ export const comments = pgTable('comments', {
 	editedAt: timestamp('edited_at', { mode: 'date', withTimezone: true }),
 	deletedAt: timestamp('deleted_at', { mode: 'date', withTimezone: true }),
 	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
-});
+}, (table) => [
+	index('comments_tenant_id_idx').on(table.tenantId)
+]);
 
 export const VoteType = {
 	UPVOTE: 'upvote',
@@ -382,7 +397,8 @@ export const votes = pgTable(
 	(table) => ({
 		uniqueUserItemVote: uniqueIndex('unique_user_item_vote_idx').on(table.userId, table.itemId),
 		itemVotesIndex: index('item_votes_idx').on(table.itemId),
-		createdAtIndex: index('votes_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('votes_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('votes_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -452,7 +468,8 @@ export const subscriptions = pgTable(
 		),
 		autoRenewalCheck: check('auto_renewal_check', sql`NOT (${table.autoRenewal} AND ${table.cancelAtPeriodEnd})`),
 		planIndex: index('subscription_plan_idx').on(table.planId),
-		createdAtIndex: index('subscription_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('subscription_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('subscriptions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -479,7 +496,8 @@ export const subscriptionHistory = pgTable(
 	(table) => ({
 		subscriptionHistoryIndex: index('subscription_history_idx').on(table.subscriptionId),
 		actionIndex: index('subscription_action_idx').on(table.action),
-		createdAtIndex: index('subscription_history_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('subscription_history_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('subscription_history_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -498,7 +516,8 @@ export const paymentProviders = pgTable(
 	},
 	(table) => ({
 		activeIndex: index('payment_provider_active_idx').on(table.isActive),
-		createdAtIndex: index('payment_provider_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('payment_provider_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('payment_providers_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -527,7 +546,8 @@ export const paymentAccounts = pgTable(
 		customerProviderIndex: uniqueIndex('customer_provider_unique_idx').on(table.customerId, table.providerId),
 		customerIdIndex: index('payment_account_customer_id_idx').on(table.customerId),
 		providerIndex: index('payment_account_provider_idx').on(table.providerId),
-		createdAtIndex: index('payment_account_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('payment_account_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('payment_accounts_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -564,7 +584,8 @@ export const notifications = pgTable(
 		userIndex: index('notifications_user_idx').on(table.userId),
 		typeIndex: index('notifications_type_idx').on(table.type),
 		isReadIndex: index('notifications_is_read_idx').on(table.isRead),
-		createdAtIndex: index('notifications_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('notifications_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('notifications_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -644,7 +665,8 @@ export const favorites = pgTable(
 		userItemIndex: uniqueIndex('user_item_favorite_unique_idx').on(table.userId, table.itemSlug),
 		userIdIndex: index('favorites_user_id_idx').on(table.userId),
 		itemSlugIndex: index('favorites_item_slug_idx').on(table.itemSlug),
-		createdAtIndex: index('favorites_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('favorites_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('favorites_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -676,7 +698,8 @@ export const featuredItems = pgTable(
 		featuredOrderIndex: index('featured_items_featured_order_idx').on(table.featuredOrder),
 		isActiveIndex: index('featured_items_is_active_idx').on(table.isActive),
 		featuredAtIndex: index('featured_items_featured_at_idx').on(table.featuredAt),
-		featuredUntilIndex: index('featured_items_featured_until_idx').on(table.featuredUntil)
+		featuredUntilIndex: index('featured_items_featured_until_idx').on(table.featuredUntil),
+		tenantIdIdx: index('featured_items_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -772,7 +795,8 @@ export const sponsorAds = pgTable(
 		),
 		startDateIndex: index('sponsor_ads_start_date_idx').on(table.startDate),
 		endDateIndex: index('sponsor_ads_end_date_idx').on(table.endDate),
-		createdAtIndex: index('sponsor_ads_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('sponsor_ads_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('sponsor_ads_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -825,7 +849,8 @@ export const twentyCrmConfig = pgTable(
 	(table) => ({
 		enabledIndex: index('twenty_crm_config_enabled_idx').on(table.enabled),
 		syncModeIndex: index('twenty_crm_config_sync_mode_idx').on(table.syncMode),
-		updatedAtIndex: index('twenty_crm_config_updated_at_idx').on(table.updatedAt)
+		updatedAtIndex: index('twenty_crm_config_updated_at_idx').on(table.updatedAt),
+		tenantIdIdx: index('twenty_crm_config_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -862,11 +887,13 @@ export const integrationMappings = pgTable(
 	(table) => ({
 		everIdObjectTypeIdx: uniqueIndex('integration_mappings_ever_id_object_type_idx').on(
 			table.everId,
-			table.objectType
+			table.objectType,
+			table.tenantId
 		),
 		crmIdIdx: index('integration_mappings_crm_id_idx').on(table.crmId),
 		lastSyncedAtIdx: index('integration_mappings_last_synced_at_idx').on(table.lastSyncedAt),
-		objectTypeIdx: index('integration_mappings_object_type_idx').on(table.objectType)
+		objectTypeIdx: index('integration_mappings_object_type_idx').on(table.objectType),
+		tenantIdIdx: index('integration_mappings_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -895,7 +922,8 @@ export const companies = pgTable(
 		nameIndex: index('companies_name_idx').on(table.name),
 		statusIndex: index('companies_status_idx').on(table.status),
 		domainUniqueIndex: uniqueIndex('companies_domain_unique_idx').on(table.domain),
-		slugUniqueIndex: uniqueIndex('companies_slug_unique_idx').on(table.slug)
+		slugUniqueIndex: uniqueIndex('companies_slug_unique_idx').on(table.slug),
+		tenantIdIdx: index('companies_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -916,7 +944,8 @@ export const itemsCompanies = pgTable(
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 	},
 	(table) => ({
-		companyIdIndex: index('items_companies_company_id_idx').on(table.companyId)
+		companyIdIndex: index('items_companies_company_id_idx').on(table.companyId),
+		tenantIdIdx: index('items_companies_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1003,7 +1032,8 @@ export const reports = pgTable(
 		statusIndex: index('reports_status_idx').on(table.status),
 		reportedByIndex: index('reports_reported_by_idx').on(table.reportedBy),
 		createdAtIndex: index('reports_created_at_idx').on(table.createdAt),
-		contentTypeContentIdIndex: index('reports_content_type_content_id_idx').on(table.contentType, table.contentId)
+		contentTypeContentIdIndex: index('reports_content_type_content_id_idx').on(table.contentType, table.contentId),
+		tenantIdIdx: index('reports_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1056,7 +1086,8 @@ export const moderationHistory = pgTable(
 		actionIndex: index('moderation_history_action_idx').on(table.action),
 		reportIdIndex: index('moderation_history_report_id_idx').on(table.reportId),
 		performedByIndex: index('moderation_history_performed_by_idx').on(table.performedBy),
-		createdAtIndex: index('moderation_history_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('moderation_history_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('moderation_history_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1093,7 +1124,8 @@ export const surveys = pgTable(
 		typeIndex: index('surveys_type_idx').on(table.type),
 		itemIdIndex: index('surveys_item_id_idx').on(table.itemId),
 		statusIndex: index('surveys_status_idx').on(table.status),
-		createdAtIndex: index('surveys_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('surveys_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('surveys_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1120,7 +1152,8 @@ export const surveyResponses = pgTable(
 		surveyIdIndex: index('survey_responses_survey_id_idx').on(table.surveyId),
 		userIdIndex: index('survey_responses_user_id_idx').on(table.userId),
 		itemIdIndex: index('survey_responses_item_id_idx').on(table.itemId),
-		completedAtIndex: index('survey_responses_completed_at_idx').on(table.completedAt)
+		completedAtIndex: index('survey_responses_completed_at_idx').on(table.completedAt),
+		tenantIdIdx: index('survey_responses_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1154,7 +1187,8 @@ export const itemViews = pgTable(
 			table.viewerId,
 			table.viewedDateUtc
 		),
-		itemDateIndex: index('item_views_item_date_idx').on(table.itemId, table.viewedDateUtc)
+		itemDateIndex: index('item_views_item_date_idx').on(table.itemId, table.viewedDateUtc),
+		tenantIdIdx: index('item_views_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1177,7 +1211,8 @@ export const seedStatus = pgTable(
 	},
 	(table) => ({
 		// Unique constraint ensures only one row can exist
-		singletonConstraint: uniqueIndex('seed_status_singleton_idx').on(table.id)
+		singletonConstraint: uniqueIndex('seed_status_singleton_idx').on(table.id),
+		tenantIdIdx: index('seed_status_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1251,7 +1286,8 @@ export const itemAuditLogs = pgTable(
 		actionIndex: index('item_audit_logs_action_idx').on(table.action),
 		performedByIndex: index('item_audit_logs_performed_by_idx').on(table.performedBy),
 		createdAtIndex: index('item_audit_logs_created_at_idx').on(table.createdAt),
-		itemIdActionIndex: index('item_audit_logs_item_id_action_idx').on(table.itemId, table.action)
+		itemIdActionIndex: index('item_audit_logs_item_id_action_idx').on(table.itemId, table.action),
+		tenantIdIdx: index('item_audit_logs_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1301,7 +1337,8 @@ export const itemLocationIndex = pgTable(
 		isRemoteIndex: index('item_location_index_is_remote_idx').on(table.isRemote),
 		indexedAtIndex: index('item_location_index_indexed_at_idx').on(table.indexedAt),
 		// Composite index for geospatial bounding box queries
-		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude)
+		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude),
+		tenantIdIdx: index('item_location_index_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1325,7 +1362,8 @@ export const locationIndexMeta = pgTable(
 		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
-		singletonConstraint: uniqueIndex('location_index_meta_singleton_idx').on(table.id)
+		singletonConstraint: uniqueIndex('location_index_meta_singleton_idx').on(table.id),
+		tenantIdIdx: index('location_index_meta_tenant_id_idx').on(table.tenantId)
 	})
 );
 

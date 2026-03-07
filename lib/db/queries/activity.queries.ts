@@ -14,9 +14,10 @@ export async function logActivity(
 	type: ActivityType,
 	id?: string,
 	entityType: 'user' | 'client' = 'user',
-	ipAddress?: string
+	ipAddress?: string,
+	explicitTenantId?: string
 ): Promise<void> {
-	const tenantId = await getTenantId();
+	const tenantId = explicitTenantId || (await getTenantId());
 	if (!tenantId) throw new Error('Tenant ID not found');
 	const newActivity = {
 		userId: entityType === 'user' ? id || null : null,

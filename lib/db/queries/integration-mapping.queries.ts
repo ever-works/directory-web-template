@@ -92,7 +92,7 @@ export async function upsertMapping(
 			updatedAt: now
 		})
 		.onConflictDoUpdate({
-			target: [integrationMappings.everId, integrationMappings.objectType],
+			target: [integrationMappings.everId, integrationMappings.objectType, integrationMappings.tenantId],
 			set: {
 				crmId: data.crmId,
 				versionHash: data.versionHash,
@@ -132,7 +132,7 @@ export async function upsertManyMappings(
 			}))
 		)
 		.onConflictDoUpdate({
-			target: [integrationMappings.everId, integrationMappings.objectType],
+			target: [integrationMappings.everId, integrationMappings.objectType, integrationMappings.tenantId],
 			set: {
 				crmId: sql`EXCLUDED.crm_id`,
 				versionHash: sql`EXCLUDED.version_hash`,
@@ -213,9 +213,7 @@ export async function findStaleMappings(
 	if (objectType) {
 		conditions.push(eq(integrationMappings.objectType, objectType));
 	}
-	if (tenantId) {
-		conditions.push(eq(integrationMappings.tenantId, tenantId));
-	}
+	conditions.push(eq(integrationMappings.tenantId, tenantId));
 
 	return db
 		.select()

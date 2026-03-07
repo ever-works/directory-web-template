@@ -3,7 +3,6 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -62,7 +61,7 @@ export async function PATCH() {
 			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 		}
 
-		const tenantId = await getTenantId();
+		const tenantId = session.user.tenantId;
 		if (!tenantId) {
 			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
 		}

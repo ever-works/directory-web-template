@@ -170,7 +170,8 @@ export async function GET(request: NextRequest) {
 		if (dbCheck) return dbCheck;
 
 		const { searchParams } = new URL(request.url);
-		const limit = parseInt(searchParams.get('limit') || '6');
+		const rawLimit = Number.parseInt(searchParams.get('limit') ?? '6', 10);
+		const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 6;
 		const includeExpired = searchParams.get('includeExpired') === 'true';
 
 		const tenantId = await getTenantId();

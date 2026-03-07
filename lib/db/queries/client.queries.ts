@@ -30,6 +30,7 @@ export async function createClientProfile(data: {
 	// Normalize email for consistency
 	const normalizedEmail = data.email.toLowerCase().trim();
 	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID is required to create a client profile');
 
 	// Generate a unique username if not provided
 	let finalUsername = data.username;
@@ -816,12 +817,15 @@ export async function getAdminDashboardData(params: {
 	} = params;
 	const offset = (page - 1) * limit;
 	const tenantId = await getTenantId();
-
-	const whereConditions: SQL[] = [];
-
-	if (tenantId) {
-		whereConditions.push(eq(clientProfiles.tenantId, tenantId));
+	if (!tenantId) {
+		return {
+			clients: [],
+			stats: await getEnhancedClientStats(),
+			pagination: { page, totalPages: 0, total: 0, limit }
+		};
 	}
+
+	const whereConditions: SQL[] = [eq(clientProfiles.tenantId, tenantId)];
 
 	// Optimized search with proper escaping and index-friendly patterns
 	if (search) {
@@ -1058,6 +1062,13 @@ export async function advancedClientSearch(params: {
 	const whereConditions: SQL[] = [];
 	const appliedFilters: string[] = [];
 	const tenantId = await getTenantId();
+	if (!tenantId) {
+		return {
+			clients: [],
+			pagination: { page, totalPages: 0, total: 0, limit },
+			searchMetadata: { appliedFilters: [], searchTime: 0, resultCount: 0 }
+		};
+	}
 
 	// Basic text search across multiple fields
 	if (search) {
@@ -1082,9 +1093,7 @@ export async function advancedClientSearch(params: {
 		appliedFilters.push(`Status: ${status}`);
 	}
 
-	if (tenantId) {
-		whereConditions.push(eq(clientProfiles.tenantId, tenantId));
-	}
+	whereConditions.push(eq(clientProfiles.tenantId, tenantId));
 
 	// Plan filter
 	if (plan) {

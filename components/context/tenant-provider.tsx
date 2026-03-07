@@ -53,6 +53,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
 		// No session or no tenantId — nothing to fetch
 		if (!tenantId) {
 			setTenant(null);
+			setIsError(false);
 			setIsLoading(false);
 			return;
 		}
@@ -75,6 +76,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
 				console.error('[TenantProvider] Error fetching tenant:', error);
 				if (!cancelled) {
 					setIsError(true);
+					setTenant(null);
 				}
 			} finally {
 				if (!cancelled) {

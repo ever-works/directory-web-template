@@ -18,6 +18,7 @@ export async function createCompany(data: {
 	status?: 'active' | 'inactive';
 }): Promise<Company> {
 	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	// Normalize domain and slug to lowercase
 	const normalizedData: NewCompany = {
 		name: data.name.trim(),
@@ -272,17 +273,25 @@ export async function getCompaniesStats(): Promise<{
 	active: number;
 	inactive: number;
 }> {
-	const totalResult = await db.select({ count: sql`count(*)` }).from(companies);
+	const tenantId = await getTenantId();
+	if (!tenantId) {
+		return { total: 0, active: 0, inactive: 0 };
+	}
+
+	const totalResult = await db
+		.select({ count: sql`count(*)` })
+		.from(companies)
+		.where(eq(companies.tenantId, tenantId));
 
 	const activeResult = await db
 		.select({ count: sql`count(*)` })
 		.from(companies)
-		.where(eq(companies.status, 'active'));
+		.where(and(eq(companies.status, 'active'), eq(companies.tenantId, tenantId)));
 
 	const inactiveResult = await db
 		.select({ count: sql`count(*)` })
 		.from(companies)
-		.where(eq(companies.status, 'inactive'));
+		.where(and(eq(companies.status, 'inactive'), eq(companies.tenantId, tenantId)));
 
 	return {
 		total: Number(totalResult[0]?.count || 0),

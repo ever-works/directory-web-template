@@ -3,7 +3,6 @@ import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
-import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -114,6 +113,16 @@ import { getTenantId } from '@/lib/auth/tenant';
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - Tenant not found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Tenant not found"
  *       404:
  *         description: "Notification not found or not owned by user"
  *         content:
@@ -148,7 +157,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 			return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 });
 		}
 
-		const tenantId = await getTenantId();
+		const tenantId = session.user.tenantId;
 		if (!tenantId) {
 			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
 		}
