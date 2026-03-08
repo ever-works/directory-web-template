@@ -612,7 +612,7 @@ export async function runSeed(): Promise<void> {
 								: undefined,
 						amountPaid: plan === PaymentPlan.FREE ? 0 : plan === PaymentPlan.STANDARD ? 1000 : 2000, // in cents
 						currency: 'usd',
-						tenantId: user.tenantId || ''
+						tenantId: user.tenantId || tenantId
 					};
 				});
 
@@ -757,8 +757,12 @@ export async function runSeed(): Promise<void> {
 					});
 				});
 
-				await db.insert(activityLogs).values(activityLogValues).onConflictDoNothing();
-				console.log(`[Seed] ✓ Created ${activityLogValues.length} activity logs`);
+				if (activityLogValues.length > 0) {
+					await db.insert(activityLogs).values(activityLogValues).onConflictDoNothing();
+					console.log(`[Seed] ✓ Created ${activityLogValues.length} activity logs`);
+				} else {
+					console.log(`[Seed] ⚠️ No activity logs to insert`);
+				}
 			}
 
 			// Seed Comments

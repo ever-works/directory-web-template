@@ -190,6 +190,26 @@ export async function initializeDatabase(): Promise<void> {
 			return;
 		}
 
+		// STEP 1.5: Ensure environment tenant exists if configured
+		// This prevents foreign key constraint errors when a user overrides the tenant
+		// in the environment variables but the tenant doesn't exist in the database.
+		const { env } = await import('../config/env');
+		if (env.TENANT_ID) {
+			try {
+				const { db } = await import('./drizzle');
+				const { tenant } = await import('./schema');
+				
+				await db.insert(tenant).values({
+					id: env.TENANT_ID,
+					name: 'Environment Tenant',
+					status: 'active'
+				}).onConflictDoNothing();
+				console.log(`[DB Init] Ensured environment tenant '${env.TENANT_ID}' exists`);
+			} catch (e) {
+				console.warn(`[DB Init] Could not ensure environment tenant:`, e);
+			}
+		}
+
 		// STEP 2: Check if already seeded (only matters for seeding, not migrations)
 		const isSeeded = await isDatabaseSeeded();
 

@@ -27,14 +27,36 @@ interface ExtendedUser {
 // Check if DATABASE_URL is set and database is properly initialized
 const isDatabaseAvailable = !!coreConfig.DATABASE_URL && typeof db !== 'undefined';
 
-// Only create the Drizzle adapter if we have a real database connection
-const drizzle = isDatabaseAvailable
+// Only create the base Drizzle adapter if we have a real database connection
+const baseAdapter = isDatabaseAvailable
 	? DrizzleAdapter(getDrizzleInstance(), {
 			usersTable: users as any,
 			accountsTable: accounts as any,
 			sessionsTable: sessions as any,
 			verificationTokensTable: verificationTokens as any
 		})
+	: undefined;
+
+// Wrap the adapter to automatically inject tenantId on user creation (e.g., OAuth flows)
+const drizzle = baseAdapter
+	? {
+			...baseAdapter,
+			createUser: async (data: any) => {
+				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
+				const { getTenantId } = await import('./tenant');
+				const tenantId = await getTenantId();
+				
+				if (!tenantId) {
+					console.warn('[auth] Could not resolve tenantId during OAuth user creation');
+				}
+
+				return baseAdapter.createUser!({
+					...data,
+					// Fallback dynamically ensuring tenant ID isn't completely entirely empty
+					tenantId: tenantId || undefined
+				});
+			}
+		}
 	: undefined;
 
 /**

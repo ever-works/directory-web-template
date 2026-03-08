@@ -1,13 +1,13 @@
 import { and, eq } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
-	paymentProviders,
-	paymentAccounts,
-	users,
-	type OldPaymentProvider,
-	type NewPaymentProvider,
-	type PaymentAccount,
-	type NewPaymentAccount
+  paymentProviders,
+  paymentAccounts,
+  users,
+  type OldPaymentProvider,
+  type NewPaymentProvider,
+  type PaymentAccount,
+  type NewPaymentAccount
 } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
@@ -37,7 +37,10 @@ export async function getPaymentProvider(id: string): Promise<OldPaymentProvider
  * @returns Payment provider or null if not found
  */
 export async function getPaymentProviderByName(name: string): Promise<OldPaymentProvider | null> {
-	const result = await db.select().from(paymentProviders).where(eq(paymentProviders.name, name)).limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db.select().from(paymentProviders).where(and(eq(paymentProviders.name, name), eq(paymentProviders.tenantId, tenantId))).limit(1);
 
 	return result[0] || null;
 }
@@ -47,10 +50,13 @@ export async function getPaymentProviderByName(name: string): Promise<OldPayment
  * @returns Array of active payment providers ordered by name
  */
 export async function getActivePaymentProviders(): Promise<OldPaymentProvider[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.select()
 		.from(paymentProviders)
-		.where(eq(paymentProviders.isActive, true))
+		.where(and(eq(paymentProviders.isActive, true), eq(paymentProviders.tenantId, tenantId)))
 		.orderBy(paymentProviders.name);
 
 	return result;
@@ -62,7 +68,10 @@ export async function getActivePaymentProviders(): Promise<OldPaymentProvider[]>
  * @returns Created payment provider
  */
 export async function createPaymentProvider(data: NewPaymentProvider): Promise<OldPaymentProvider> {
-	const result = await db.insert(paymentProviders).values(data).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db.insert(paymentProviders).values({ ...data, tenantId }).returning();
 
 	return result[0];
 }
@@ -77,7 +86,10 @@ export async function updatePaymentProvider(
 	id: string,
 	data: Partial<NewPaymentProvider>
 ): Promise<OldPaymentProvider | null> {
-	const result = await db.update(paymentProviders).set(data).where(eq(paymentProviders.id, id)).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db.update(paymentProviders).set(data).where(and(eq(paymentProviders.id, id), eq(paymentProviders.tenantId, tenantId))).returning();
 
 	return result[0] || null;
 }

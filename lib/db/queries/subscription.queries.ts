@@ -597,13 +597,16 @@ export async function setAutoRenewal(subscriptionId: string, enabled: boolean): 
  * @returns Updated subscription or null if not found
  */
 export async function resetRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: false,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -615,13 +618,16 @@ export async function resetRenewalReminderSent(subscriptionId: string): Promise<
  * @returns Updated subscription or null if not found
  */
 export async function markRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: true,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -633,6 +639,9 @@ export async function markRenewalReminderSent(subscriptionId: string): Promise<S
  * @returns Updated subscription or null if not found
  */
 export async function incrementFailedPaymentCount(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -640,7 +649,7 @@ export async function incrementFailedPaymentCount(subscriptionId: string): Promi
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -652,6 +661,9 @@ export async function incrementFailedPaymentCount(subscriptionId: string): Promi
  * @returns Updated subscription or null if not found
  */
 export async function resetFailedPaymentCount(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -659,7 +671,7 @@ export async function resetFailedPaymentCount(subscriptionId: string): Promise<S
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -671,11 +683,14 @@ export async function resetFailedPaymentCount(subscriptionId: string): Promise<S
  * @returns Array of subscriptions with too many failed payments
  */
 export async function getSubscriptionsWithFailedPayments(threshold: number = 3): Promise<Subscription[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	return await db
 		.select()
 		.from(subscriptions)
 		.where(
-			and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), gte(subscriptions.failedPaymentCount, threshold))
+			and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), gte(subscriptions.failedPaymentCount, threshold), eq(subscriptions.tenantId, tenantId))
 		);
 }
 
@@ -687,6 +702,9 @@ export async function getSubscriptionsWithFailedPayments(threshold: number = 3):
  * @returns Updated subscription or null if not found
  */
 export async function resetRenewalStateAtomic(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	// Use a single update with both fields to ensure atomicity
 	const result = await db
 		.update(subscriptions)
@@ -696,7 +714,7 @@ export async function resetRenewalStateAtomic(subscriptionId: string): Promise<S
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
