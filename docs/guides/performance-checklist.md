@@ -295,8 +295,8 @@ pnpm start
 
 ## Related Pages
 
-- [Performance Optimization](/template/guides/performance-optimization) -- deep dive into caching and rendering strategies
-- [Caching Strategy](/template/guides/caching-strategy) -- multi-layer caching architecture
-- [Deployment Checklist](/template/guides/deployment-checklist) -- pre-launch verification
-- [Debugging Guide](/template/guides/debugging-guide) -- identifying performance bottlenecks
-- [How to Add Analytics Events](/template/guides/how-to-add-analytics-events) -- tracking performance metrics
+- [Performance Optimization](/docs/guides/performance-optimization) -- deep dive into caching and rendering strategies
+- [Caching Strategy](/docs/guides/caching-strategy) -- multi-layer caching architecture
+- [Deployment Checklist](/docs/guides/deployment-checklist) -- pre-launch verification
+- [Debugging Guide](/docs/guides/debugging-guide) -- identifying performance bottlenecks
+- [How to Add Analytics Events](/docs/guides/how-to-add-analytics-events) -- tracking performance metrics

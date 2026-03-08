@@ -20,15 +20,14 @@ const config: Config = {
         },
       ],
 
-    // Temporarily disabled search plugin due to build issues
     !HAS_ALGOLIA_CREDENTIALS && [
       require.resolve("@easyops-cn/docusaurus-search-local"),
       /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
 
       {
         hashed: true,
-        docsRouteBasePath: ["docs", "template"],
-        docsDir: ["../../docs/intro", "../../docs"],
+        docsRouteBasePath: ["docs"],
+        docsDir: ["../../docs"],
       },
     ],
     [
@@ -36,7 +35,7 @@ const config: Config = {
       {
         id: "template",
         path: "../../docs/",
-        routeBasePath: "template",
+        routeBasePath: "docs",
         sidebarPath: "./sidebarsTemplate.ts",
         include: [
           "*.{md,mdx}",
@@ -121,12 +120,7 @@ const config: Config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       {
         blog: false,
-        docs: {
-          sidebarPath: "./sidebars.ts",
-          path: "../../docs/intro/",
-          // Remove this to remove the "edit this page" links.
-          editUrl: "https://github.com/ever-works/ever-works-docs/tree/main/",
-        },
+        docs: false,
         theme: {
           customCss: "./src/css/custom.css",
         },
@@ -152,16 +146,10 @@ const config: Config = {
         items: [
           {
             type: "docSidebar",
-            sidebarId: "introSidebar",
-            position: "left",
-            label: "Intro",
-          },
-{
-            type: "docSidebar",
             sidebarId: "templateSidebar",
             docsPluginId: "template",
             position: "left",
-            label: "Template",
+            label: "Home",
           },
           { to: "/help", label: "Help", position: "left" },
           {
@@ -188,12 +176,16 @@ const config: Config = {
             title: "Docs",
             items: [
               {
-                label: "Intro",
+                label: "Home",
                 to: "/docs",
               },
-{
-                label: "Template",
-                to: "/template",
+              {
+                label: "Getting Started",
+                to: "/docs/getting-started/getting-started",
+              },
+              {
+                label: "Architecture",
+                to: "/docs/architecture/overview",
               },
             ],
           },
@@ -248,12 +240,9 @@ const config: Config = {
             // Optional: see doc section below
             contextualSearch: true,
 
-            // Optional: Specify domains where the navigation should occur through window.location instead on history.push. Useful when our Algolia config crawls multiple documentation sites and we want to navigate with window.location.href to them.
-            // externalUrlRegex: "external\\.com|domain\\.com",
-
-            // Optional: Replace parts of the item URLs from Algolia. Useful when using the same search index for multiple deployments using a different baseUrl. You can use regexp or string in the `from` param. For example: localhost:3000 vs myCompany.com/docs
+            // Optional: Replace parts of the item URLs from Algolia.
             replaceSearchResultPathname: {
-              from: "/docs/", // or as RegExp: /\/docs\//
+              from: "/docs/",
               to: "/",
             },
 
@@ -265,8 +254,6 @@ const config: Config = {
 
             // Optional: whether the insights feature is enabled or not on Docsearch (`false` by default)
             insights: false,
-
-            //... other Algolia params
           }
         : undefined,
       prism: {

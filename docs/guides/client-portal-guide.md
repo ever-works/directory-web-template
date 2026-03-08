@@ -164,4 +164,4 @@ To add a new client page:
 - [Admin Dashboard Architecture](../guides/admin-dashboard-guide.md) -- the admin counterpart
 - [Submission Workflow](../guides/submission-workflow.md) -- how items flow from submission to publication
 - [User Profiles](../features/user-profiles.md) -- public profile feature
-- [Authentication](../authentication/auth-config-reference.md) -- auth configuration reference
+- [Authentication](../architecture/nextauth-configuration.md) -- auth configuration reference

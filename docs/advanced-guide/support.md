@@ -26,18 +26,18 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 ## 📖 Documentation Resources
 
 ### Getting Started
-- **[Installation Guide](/template/getting-started/installation)** - Complete setup instructions
-- **[Quick Start Guide](/template/getting-started/quick-start)** - Get up and running quickly
-- **[Environment Setup](/template/getting-started/environment-setup)** - Configure your environment
+- **[Installation Guide](/docs/getting-started/installation)** - Complete setup instructions
+- **[Quick Start Guide](/docs/getting-started/quick-start)** - Get up and running quickly
+- **[Environment Setup](/docs/getting-started/environment-setup)** - Configure your environment
 
 ### Architecture & Development
-- **[Architecture Overview](/template/architecture/overview)** - Understand the system design
-- **[Technology Stack](/template/architecture/tech-stack)** - Learn about the technologies used
+- **[Architecture Overview](/docs/architecture/overview)** - Understand the system design
+- **[Technology Stack](/docs/architecture/tech-stack)** - Learn about the technologies used
 
 ### Guides & Tutorials
-- **[Admin Dashboard Guide](/template/guides/admin-dashboard)** - Manage your directory website
-- **[Customization Guide](/template/guides/customization)** - Customize the template
-- **[Deployment Guide](/template/deployment)** - Deploy to production
+- **[Admin Dashboard Guide](/docs/guides/admin-dashboard)** - Manage your directory website
+- **[Customization Guide](/docs/guides/customization)** - Customize the template
+- **[Deployment Guide](/docs/deployment)** - Deploy to production
 
 ## 🚀 Platform Access
 
@@ -47,9 +47,9 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 - **💻 [GitHub Repository](https://github.com/ever-works/ever-works-website-template)** - Source code and examples
 
 ### Deployment Options
-- **🐳 [Docker Deployment](/template/deployment/docker)** - Container-based installation
-- **☁️ [Vercel Deployment](/template/deployment/vercel)** - Deploy to Vercel
-- **☁️ [Cloud Deployment](/template/deployment/cloud)** - Deploy to your preferred cloud provider
+- **🐳 [Docker Deployment](/docs/deployment/docker)** - Container-based installation
+- **☁️ [Vercel Deployment](/docs/deployment/vercel)** - Deploy to Vercel
+- **☁️ [Cloud Deployment](/docs/deployment/cloud)** - Deploy to your preferred cloud provider
 
 ## 🔧 Troubleshooting
 

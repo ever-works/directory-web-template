@@ -309,7 +309,7 @@ All three payment provider webhooks delegate to this service, ensuring consisten
 
 ## Related Pages
 
-- [How to Add a Payment Provider](/template/guides/how-to-add-a-payment-provider) -- configuring Stripe, LemonSqueezy, or Polar
-- [How to Add a Service](/template/guides/how-to-add-a-service) -- building services that webhook handlers delegate to
-- [Error Handling](/template/guides/error-handling) -- consistent error response patterns
-- [How to Add Notifications](/template/guides/how-to-add-notifications) -- sending notifications from webhook events
+- [How to Add a Payment Provider](/docs/guides/how-to-add-a-payment-provider) -- configuring Stripe, LemonSqueezy, or Polar
+- [How to Add a Service](/docs/guides/how-to-add-a-service) -- building services that webhook handlers delegate to
+- [Error Handling](/docs/guides/error-handling) -- consistent error response patterns
+- [How to Add Notifications](/docs/guides/how-to-add-notifications) -- sending notifications from webhook events

@@ -296,5 +296,5 @@ Permanently deletes a user. Includes a self-deletion guard: an admin cannot dele
 ## Related Documentation
 
 - [Admin Roles API](./admin-roles-endpoints.md) -- manage roles assigned to users
-- [Authentication](../features/authentication.md) -- session management and guards
+- [Authentication](../architecture/nextauth-configuration.md) -- session management and guards
 - [Admin Clients API](./admin-clients-endpoints.md) -- client profile management

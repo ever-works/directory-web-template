@@ -376,4 +376,4 @@ Permanently deletes a client profile. This action cannot be undone.
 
 - [Admin Users API](./admin-users-endpoints.md) -- user account management
 - [Admin Roles API](./admin-roles-endpoints.md) -- role and permission management
-- [Authentication](../features/authentication.md) -- session management and guards
+- [Authentication](../architecture/nextauth-configuration.md) -- session management and guards

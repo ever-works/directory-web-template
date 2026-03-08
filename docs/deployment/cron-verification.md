@@ -295,7 +295,7 @@ graph TD
 
 ## 📚 Documentation
 
-- **Full Guide:** [Cron Jobs Configuration](/template/deployment/cron-jobs)
+- **Full Guide:** [Cron Jobs Configuration](/docs/deployment/cron-jobs)
 - **Config Logic:** `lib/background-jobs/config.ts`
 - **Job Registration:** `lib/background-jobs/initialize-jobs.ts`
 - **API Endpoints:** `app/api/cron/*/route.ts`

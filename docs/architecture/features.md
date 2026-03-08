@@ -33,7 +33,7 @@ This document provides a comprehensive overview of all features available in the
 
 **Key files**: `/lib/auth/index.ts`, `/app/[locale]/auth/`
 
-[Learn more about authentication setup →](/template/authentication/setup-guide)
+[Learn more about authentication setup →](/docs/authentication/setup-guide)
 
 ---
 
@@ -354,7 +354,7 @@ This document provides a comprehensive overview of all features available in the
 
 **Key files**: `/lib/services/survey.service.ts`, `/app/api/surveys/`
 
-[Learn more about surveys →](/template/guides/survey-system)
+[Learn more about surveys →](/docs/guides/survey-system)
 
 ---
 
@@ -378,7 +378,7 @@ This document provides a comprehensive overview of all features available in the
 
 **Key files**: `/app/api/stripe/`, `/app/api/lemonsqueezy/`
 
-[Learn more about payment integration →](/template/payment)
+[Learn more about payment integration →](/docs/payment)
 
 ---
 
@@ -494,7 +494,7 @@ This document provides a comprehensive overview of all features available in the
 
 **Key files**: `/messages/`, `/lib/i18n/`, `/middleware.ts`
 
-[Learn more about internationalization →](/template/internationalization)
+[Learn more about internationalization →](/docs/internationalization)
 
 ---
 
@@ -654,7 +654,7 @@ Customizable email templates for:
 - Subscription confirmations
 - Newsletter
 
-[Learn more about email templates →](/template/guides/email-templates)
+[Learn more about email templates →](/docs/guides/email-templates)
 
 ### Theme System
 
@@ -665,19 +665,19 @@ Multiple pre-built themes:
 - Material
 - Funny
 
-[Learn more about theming →](/template/guides/theming)
+[Learn more about theming →](/docs/guides/theming)
 
 ### Dynamic Color System
 
 Automatic color palette generation (shades 50-950) from base colors.
 
-[Learn more about dynamic colors →](/template/guides/dynamic-colors)
+[Learn more about dynamic colors →](/docs/guides/dynamic-colors)
 
 ### Responsive Testing
 
 Cross-device testing guidelines and best practices.
 
-[Learn more about testing →](/template/development/testing)
+[Learn more about testing →](/docs/development/testing)
 
 ---
 
@@ -704,6 +704,6 @@ Cross-device testing guidelines and best practices.
 
 ## Resources
 
-- [Development Setup](/template/development/local-setup) - Set up your environment
-- [Deployment Guide](/template/deployment/overview) - Deploy to production
-- [API Documentation](/template/development/api-documentation) - API reference
+- [Development Setup](/docs/development/local-setup) - Set up your environment
+- [Deployment Guide](/docs/deployment/overview) - Deploy to production
+- [API Documentation](/docs/development/api-documentation) - API reference

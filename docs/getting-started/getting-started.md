@@ -43,7 +43,7 @@ Work through the guides in order. Each one builds on the previous step.
 
 Set up Node.js, pnpm, and clone the repository. The installation guide covers system requirements, dependency installation, and initial project structure orientation.
 
-**Read next:** [Installation](/template/getting-started/installation)
+**Read next:** [Installation](/docs/getting-started/installation)
 
 ### 2. Environment Setup
 
@@ -57,25 +57,25 @@ Topics covered:
 - Payment integrations (Stripe, Polar, LemonSqueezy, Solidgate)
 - Email, analytics, and monitoring services
 
-**Read next:** [Environment Setup](/template/getting-started/environment-setup)
+**Read next:** [Environment Setup](/docs/getting-started/environment-setup)
 
 ### 3. Quick Start
 
 Once your environment is configured, the quick-start guide gets the application running in under ten minutes. You will start the dev server, seed the database, and explore the site at `http://localhost:3000`.
 
-**Read next:** [Quick Start](/template/getting-started/quick-start)
+**Read next:** [Quick Start](/docs/getting-started/quick-start)
 
 ### 4. First Deployment
 
 Take your locally verified setup and deploy it to a live environment. The deployment guide covers Vercel (recommended), Docker standalone builds, and manual hosting. It includes a pre-deployment checklist so nothing is missed.
 
-**Read next:** [First Deployment](/template/getting-started/first-deployment)
+**Read next:** [First Deployment](/docs/getting-started/first-deployment)
 
 ### 5. Quick Reference
 
 A single-page cheat sheet of the most common commands, file paths, and conventions. Keep it open in a tab while you develop.
 
-**Read next:** [Quick Reference](/template/getting-started/quick-reference)
+**Read next:** [Quick Reference](/docs/getting-started/quick-reference)
 
 ## Prerequisites
 
@@ -131,9 +131,9 @@ Understanding this pipeline will save you debugging time if the dev server fails
 
 Once your application is running, the rest of the documentation will help you customize and extend it:
 
-- **[Architecture Overview](/template/architecture)** -- understand the project structure, data flow, and design patterns before making changes.
-- **[Guides and Tutorials](/template/guides)** -- step-by-step instructions for customization, theming, admin features, and more.
+- **[Architecture Overview](/docs/architecture)** -- understand the project structure, data flow, and design patterns before making changes.
+- **[Guides and Tutorials](/docs/guides)** -- step-by-step instructions for customization, theming, admin features, and more.
 
 ---
 
-Ready to begin? Head to the [Installation](/template/getting-started/installation) guide and follow the steps from there.
+Ready to begin? Head to the [Installation](/docs/getting-started/installation) guide and follow the steps from there.

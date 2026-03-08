@@ -214,6 +214,6 @@ Configure auto-scaling based on:
 
 ## Next Steps
 
-- [Environment Variables](/template/deployment/environment-variables) - Configure your deployment
-- [Monitoring](/template/deployment/monitoring) - Monitor your application
-- [Support](/template/advanced-guide/support) - Get deployment help
+- [Environment Variables](/docs/deployment/environment-variables) - Configure your deployment
+- [Monitoring](/docs/deployment/monitoring) - Monitor your application
+- [Support](/docs/advanced-guide/support) - Get deployment help

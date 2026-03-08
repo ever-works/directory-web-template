@@ -268,7 +268,7 @@ Follow these conventions for consistent analytics:
 
 ## Related Pages
 
-- [Instrumentation](/template/guides/instrumentation) -- Sentry setup in `instrumentation.ts`
-- [Performance Optimization](/template/guides/performance-optimization) -- using analytics to identify bottlenecks
-- [Admin Dashboard](/template/guides/admin-dashboard) -- where analytics data is displayed
-- [Logging](/template/guides/logging) -- structured logging complements analytics
+- [Instrumentation](/docs/guides/instrumentation) -- Sentry setup in `instrumentation.ts`
+- [Performance Optimization](/docs/guides/performance-optimization) -- using analytics to identify bottlenecks
+- [Admin Dashboard](/docs/guides/admin-dashboard) -- where analytics data is displayed
+- [Logging](/docs/guides/logging) -- structured logging complements analytics

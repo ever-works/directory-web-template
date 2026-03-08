@@ -224,7 +224,7 @@ Or use the Chrome DevTools Lighthouse panel for manual audits.
 
 ### Connection Pooling
 
-Use connection pooling to avoid opening a new database connection per request. See the [Scaling guide](/template/deployment/scaling) for configuration details.
+Use connection pooling to avoid opening a new database connection per request. See the [Scaling guide](/docs/deployment/scaling) for configuration details.
 
 ### Query Optimization
 

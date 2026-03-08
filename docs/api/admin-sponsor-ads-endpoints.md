@@ -300,4 +300,4 @@ pending_payment --> pending --> active --> expired
 
 - [Admin Users API](./admin-users-endpoints.md) -- user account management
 - [Admin Clients API](./admin-clients-endpoints.md) -- client profile management
-- [Authentication](../features/authentication.md) -- session management and guards
+- [Authentication](../architecture/nextauth-configuration.md) -- session management and guards

@@ -390,20 +390,20 @@ NEXT_PUBLIC_POSTHOG_KEY="phc_..."
 NEXT_PUBLIC_SENTRY_DSN="https://..."
 ```
 
-[Learn more about environment variables →](/template/deployment/environment-variables)
+[Learn more about environment variables →](/docs/deployment/environment-variables)
 
 ---
 
 ## Useful Links
 
-- [Architecture Overview](/template/architecture/overview)
-- [Tech Stack](/template/architecture/tech-stack)
-- [Authentication Guide](/template/authentication/setup-guide)
-- [API Documentation](/template/development/api-documentation)
-- [Testing Guide](/template/development/testing)
-- [Deployment Guide](/template/deployment/overview)
-- [Production Checklist](/template/deployment/production-checklist)
-- [Team Training](/template/team-training)
+- [Architecture Overview](/docs/architecture/overview)
+- [Tech Stack](/docs/architecture/tech-stack)
+- [Authentication Guide](/docs/authentication/setup-guide)
+- [API Documentation](/docs/development/api-documentation)
+- [Testing Guide](/docs/development/testing)
+- [Deployment Guide](/docs/deployment/overview)
+- [Production Checklist](/docs/deployment/production-checklist)
+- [Team Training](/docs/team-training)
 
 ---
 

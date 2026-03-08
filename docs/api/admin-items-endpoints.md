@@ -347,4 +347,4 @@ Returns the complete audit trail for an item, including creation, updates, statu
 
 - [Admin Roles API](./admin-roles-endpoints.md) -- manage roles assigned to users
 - [Admin Users API](./admin-users-endpoints.md) -- user account management
-- [Authentication](../features/authentication.md) -- session management and guards
+- [Authentication](../architecture/nextauth-configuration.md) -- session management and guards

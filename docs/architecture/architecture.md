@@ -65,7 +65,7 @@ template/
   public/           # Static assets
 ```
 
-For a full directory walkthrough, see the [Project Structure](/template/architecture/project-structure) page.
+For a full directory walkthrough, see the [Project Structure](/docs/architecture/project-structure) page.
 
 ## Layered Architecture
 
@@ -83,7 +83,7 @@ Services in `lib/services/` contain the core business rules. The template ships 
 
 Repositories in `lib/repositories/` encapsulate all database queries using Drizzle ORM. Each domain entity (items, categories, collections, users, roles, tags, sponsor ads) has its own repository file. This keeps SQL-level details out of the service layer.
 
-For a deeper look at the data flow between these layers, see [Data Flow](/template/architecture/data-flow).
+For a deeper look at the data flow between these layers, see [Data Flow](/docs/architecture/data-flow).
 
 ## Next.js App Router and Routing
 
@@ -94,7 +94,7 @@ All user-facing routes live under `app/[locale]/`, which enables locale-prefixed
 - **Dynamic Routes** -- `[page]`, `[...tag]`, and named segments for items, categories, and collections.
 - **Rewrites** -- defined in `next.config.ts` to redirect bare category paths to their paginated discover view.
 
-See [Routing](/template/architecture/routing) for the full route map.
+See [Routing](/docs/architecture/routing) for the full route map.
 
 ## Authentication System
 
@@ -106,7 +106,7 @@ Authentication is built on **NextAuth.js v5** with a provider configuration syst
 - **Session caching** -- `lib/auth/cached-session.ts` reduces redundant session lookups.
 - **Guard system** -- `lib/auth/guards.ts` and `lib/guards/` enforce role-based access at the route level.
 
-For details on the guard system and role-based permissions, see [Guards System](/template/architecture/guards-system) and [Permissions System](/template/architecture/permissions-system).
+For details on the guard system and role-based permissions, see [Guards System](/docs/architecture/guards-system) and [Permissions System](/docs/architecture/permissions-system).
 
 ## Drizzle ORM and Database
 
@@ -117,7 +117,7 @@ The database layer uses **Drizzle ORM** with the schema defined in `lib/db/schem
 - **Configuration** lives in `drizzle.config.ts` at the project root.
 - PostgreSQL is required for production; SQLite is supported for local development.
 
-See [Repository Patterns](/template/architecture/repository-patterns) for how the data access layer is structured.
+See [Repository Patterns](/docs/architecture/repository-patterns) for how the data access layer is structured.
 
 ## Middleware Chain
 
@@ -128,7 +128,7 @@ The template uses Next.js middleware (via the `next-intl` plugin applied in `nex
 - Role-based route protection
 - Security headers (HSTS, CSP, X-Frame-Options, and more -- configured in `next.config.ts`)
 
-For a detailed breakdown, see [Middleware](/template/architecture/middleware) and [Middleware Deep Dive](/template/architecture/middleware-deep-dive).
+For a detailed breakdown, see [Middleware](/docs/architecture/middleware) and [Middleware Deep Dive](/docs/architecture/middleware-deep-dive).
 
 ## Configuration and Security
 
@@ -146,34 +146,34 @@ Explore these pages for deeper coverage of individual systems:
 
 | Page | What It Covers |
 |---|---|
-| [Tech Stack](/template/architecture/tech-stack) | Full dependency inventory and version details |
-| [Project Structure](/template/architecture/project-structure) | Directory-by-directory walkthrough |
-| [Data Flow](/template/architecture/data-flow) | Request lifecycle from browser to database |
-| [Routing](/template/architecture/routing) | App Router structure and URL patterns |
-| [Component Patterns](/template/architecture/component-patterns) | Server vs. client components, composition patterns |
-| [State Management](/template/architecture/state-management) | React Query, Zustand, and server state |
-| [API Layer](/template/architecture/api-layer) | REST API design and route handler patterns |
-| [Middleware](/template/architecture/middleware) | Middleware pipeline and request processing |
-| [Guards System](/template/architecture/guards-system) | Role-based access control at the route level |
-| [Permissions System](/template/architecture/permissions-system) | Fine-grained permission definitions |
-| [Repository Patterns](/template/architecture/repository-patterns) | Data access layer conventions |
-| [Validation Patterns](/template/architecture/validation-patterns) | Zod schemas and input validation |
-| [Theme System](/template/architecture/theme-system) | Theming architecture and color management |
-| [Color System](/template/architecture/color-system) | Dynamic color generation pipeline |
-| [SEO System](/template/architecture/seo-system) | Metadata, sitemaps, and structured data |
-| [Payment Library](/template/architecture/payment-library) | Multi-provider payment integration |
-| [Content Library](/template/architecture/content-library) | Git-based CMS content pipeline |
-| [Editor System](/template/architecture/editor-system) | Tiptap rich-text editor integration |
-| [Mapper Patterns](/template/architecture/mapper-patterns) | Data transformation between layers |
-| [Error Boundaries](/template/architecture/error-boundaries) | Error handling and recovery |
-| [Analytics Layer](/template/architecture/analytics-layer) | Event tracking and analytics pipeline |
-| [Swagger System](/template/architecture/swagger-system) | OpenAPI documentation generation |
+| [Tech Stack](/docs/architecture/tech-stack) | Full dependency inventory and version details |
+| [Project Structure](/docs/architecture/project-structure) | Directory-by-directory walkthrough |
+| [Data Flow](/docs/architecture/data-flow) | Request lifecycle from browser to database |
+| [Routing](/docs/architecture/routing) | App Router structure and URL patterns |
+| [Component Patterns](/docs/architecture/component-patterns) | Server vs. client components, composition patterns |
+| [State Management](/docs/architecture/state-management) | React Query, Zustand, and server state |
+| [API Layer](/docs/architecture/api-layer) | REST API design and route handler patterns |
+| [Middleware](/docs/architecture/middleware) | Middleware pipeline and request processing |
+| [Guards System](/docs/architecture/guards-system) | Role-based access control at the route level |
+| [Permissions System](/docs/architecture/permissions-system) | Fine-grained permission definitions |
+| [Repository Patterns](/docs/architecture/repository-patterns) | Data access layer conventions |
+| [Validation Patterns](/docs/architecture/validation-patterns) | Zod schemas and input validation |
+| [Theme System](/docs/architecture/theme-system) | Theming architecture and color management |
+| [Color System](/docs/architecture/color-system) | Dynamic color generation pipeline |
+| [SEO System](/docs/architecture/seo-system) | Metadata, sitemaps, and structured data |
+| [Payment Library](/docs/architecture/payment-library) | Multi-provider payment integration |
+| [Content Library](/docs/architecture/content-library) | Git-based CMS content pipeline |
+| [Editor System](/docs/architecture/editor-system) | Tiptap rich-text editor integration |
+| [Mapper Patterns](/docs/architecture/mapper-patterns) | Data transformation between layers |
+| [Error Boundaries](/docs/architecture/error-boundaries) | Error handling and recovery |
+| [Analytics Layer](/docs/architecture/analytics-layer) | Event tracking and analytics pipeline |
+| [Swagger System](/docs/architecture/swagger-system) | OpenAPI documentation generation |
 
 ## Where to Go Next
 
-- **New to the project?** Start with [Getting Started](/template/getting-started) to install and run the template.
-- **Ready to customize?** Jump to the [Guides](/template/guides) section for step-by-step tutorials.
-- **Want the full tech inventory?** See [Tech Stack](/template/architecture/tech-stack).
+- **New to the project?** Start with [Getting Started](/docs/getting-started) to install and run the template.
+- **Ready to customize?** Jump to the [Guides](/docs/guides) section for step-by-step tutorials.
+- **Want the full tech inventory?** See [Tech Stack](/docs/architecture/tech-stack).
 
 ---
 

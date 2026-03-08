@@ -423,10 +423,10 @@ Congratulations on completing the training! 🎉
 
 ## Additional Resources
 
-- [Quick Reference](/template/getting-started/quick-reference) - Templates and commands
-- [API Documentation](/template/team-training/api-documentation) - Documentation guide
-- [Best Practices](/template/team-training/best-practices) - Coding standards
-- [Testing Guide](/template/development/testing) - Testing strategies
+- [Quick Reference](/docs/getting-started/quick-reference) - Templates and commands
+- [API Documentation](/docs/team-training/api-documentation) - Documentation guide
+- [Best Practices](/docs/team-training/best-practices) - Coding standards
+- [Testing Guide](/docs/development/testing) - Testing strategies
 
 Ready to contribute to real projects? Talk to your team lead about your first assignment! 🚀
 

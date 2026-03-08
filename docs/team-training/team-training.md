@@ -230,11 +230,11 @@ After completing the training, team members should be able to:
 
 ### Internal Documentation
 
-- [Architecture Overview](/template/architecture/overview)
-- [Quick Reference](/template/getting-started/quick-reference)
-- [Database Guide](/template/database/overview)
-- [Authentication Guide](/template/authentication/overview)
-- [Deployment Guide](/template/deployment/overview)
+- [Architecture Overview](/docs/architecture/overview)
+- [Quick Reference](/docs/getting-started/quick-reference)
+- [Database Guide](/docs/database/overview)
+- [Authentication Guide](/docs/authentication/overview)
+- [Deployment Guide](/docs/deployment/overview)
 
 ### External Documentation
 
@@ -248,7 +248,7 @@ After completing the training, team members should be able to:
 ## Getting Help
 
 - Ask your assigned mentor or team lead
-- Check the [Quick Reference](/template/getting-started/quick-reference) for common commands
+- Check the [Quick Reference](/docs/getting-started/quick-reference) for common commands
 - Review the `CLAUDE.md` file in the repository root for AI-assisted development guidelines
 - Use `pnpm db:studio` to visually inspect the database
 - Use Sentry and PostHog dashboards for production debugging

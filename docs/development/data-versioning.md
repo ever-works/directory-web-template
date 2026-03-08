@@ -360,7 +360,7 @@ export function CustomVersion() {
 
 - [Testing](./testing) - Test your implementation
 - [API Documentation](./api-documentation) - Learn about API docs
-- [Deployment](/template/deployment) - Deploy with version tracking
+- [Deployment](/docs/deployment) - Deploy with version tracking
 
 ## Resources
 

@@ -783,6 +783,19 @@ const sidebars: SidebarsConfig = {
         "advanced-guide/api-client-architecture",
       ],
     },
+    {
+      type: "category",
+      label: "About",
+      items: [
+        "faq",
+        "support",
+        "contributing",
+        "changelog",
+        "roadmap",
+        "comparison",
+        "glossary",
+      ],
+    },
   ],
 };
 

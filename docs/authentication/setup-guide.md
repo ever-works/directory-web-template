@@ -208,10 +208,10 @@ The application uses both `AUTH_SECRET` (NextAuth v5) and `NEXTAUTH_SECRET` (Nex
 ## Next Steps
 
 - [Authentication Overview](./overview) - Learn about the authentication architecture
-- [Environment Variables](/template/deployment/environment-variables) - Complete environment setup
-- [Deployment](/template/deployment) - Deploy your authenticated application
+- [Environment Variables](/docs/deployment/environment-variables) - Complete environment setup
+- [Deployment](/docs/deployment) - Deploy your authenticated application
 
 ## Need Help?
 
-If you're still experiencing issues, check our [support page](/template/advanced-guide/support) or join our community.
+If you're still experiencing issues, check our [support page](/docs/advanced-guide/support) or join our community.
 

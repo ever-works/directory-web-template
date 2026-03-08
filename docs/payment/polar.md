@@ -344,9 +344,9 @@ Required packages (already included in Ever Works):
 
 - [Stripe Configuration](./stripe) - Alternative payment provider
 - [LemonSqueezy Configuration](./lemonsqueezy) - Alternative payment provider
-- [Payment Overview](/template/payment) - Compare payment providers
-- [Environment Variables](/template/deployment/environment-variables) - Complete environment setup
-- [Deployment](/template/deployment) - Deploy your payment integration
+- [Payment Overview](/docs/payment) - Compare payment providers
+- [Environment Variables](/docs/deployment/environment-variables) - Complete environment setup
+- [Deployment](/docs/deployment) - Deploy your payment integration
 
 ## Resources
 
@@ -357,4 +357,4 @@ Required packages (already included in Ever Works):
 
 ## Support
 
-Need help with Polar integration? Check our [support page](/template/advanced-guide/support) or join our community.
+Need help with Polar integration? Check our [support page](/docs/advanced-guide/support) or join our community.

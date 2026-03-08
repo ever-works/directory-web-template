@@ -268,7 +268,7 @@ try {
 
 - [Dynamic Colors](./dynamic-colors) - Learn about the dynamic color system
 - [Customization](./customization) - General customization guide
-- [Development](/template/development/local-setup) - Set up your development environment
+- [Development](/docs/development/local-setup) - Set up your development environment
 
 ## Resources
 

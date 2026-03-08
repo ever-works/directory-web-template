@@ -273,5 +273,5 @@ Replaces the entire permissions array. Each permission string is validated again
 ## Related Documentation
 
 - [Admin Users API](./admin-users-endpoints.md) -- assign roles to users
-- [Authentication](../features/authentication.md) -- session and admin guard details
-- [Permissions System](../features/permissions.md) -- permission definitions and validation
+- [Authentication](../architecture/nextauth-configuration.md) -- session and admin guard details
+- [Permissions System](../architecture/permissions-system.md) -- permission definitions and validation

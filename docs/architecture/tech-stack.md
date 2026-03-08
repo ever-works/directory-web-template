@@ -225,7 +225,7 @@ Ever Works supports **13+ languages** out of the box:
 - 🇳🇱 Dutch (nl)
 - 🇵🇱 Polish (pl)
 
-[Learn more about internationalization →](/template/internationalization)
+[Learn more about internationalization →](/docs/internationalization)
 
 ## Analytics & Monitoring
 
@@ -274,7 +274,7 @@ Ever Works supports **13+ languages** out of the box:
   - Simplified setup
   - Affiliate program support
 
-[Learn more about payment integration →](/template/payment)
+[Learn more about payment integration →](/docs/payment)
 
 ### Payment SDKs
 
@@ -325,7 +325,7 @@ Ever Works supports **13+ languages** out of the box:
   - Anonymous or authenticated responses
   - Custom themes
 
-[Learn more about surveys →](/template/guides/survey-system)
+[Learn more about surveys →](/docs/guides/survey-system)
 
 ## Security
 
@@ -522,7 +522,7 @@ Ever Works supports **13+ languages** out of the box:
 
 - [Architecture Overview](./overview) - Understand the system architecture
 - [Platform Features](./features) - Explore all platform features
-- [Development Setup](/template/development/local-setup) - Set up your environment
+- [Development Setup](/docs/development/local-setup) - Set up your environment
 
 ## Resources
 

@@ -283,7 +283,7 @@ Always set `Cache-Control: no-cache, no-store, must-revalidate` on cron response
 
 ## Related Pages
 
-- [How to Add a Service](/template/guides/how-to-add-a-service) -- structuring the job logic as a service
-- [How to Add an API Endpoint](/template/guides/how-to-add-an-api-endpoint) -- API route conventions
-- [Error Handling](/template/guides/error-handling) -- using `safeErrorResponse` for consistent error responses
-- [Logging](/template/guides/logging) -- structured logging for cron job output
+- [How to Add a Service](/docs/guides/how-to-add-a-service) -- structuring the job logic as a service
+- [How to Add an API Endpoint](/docs/guides/how-to-add-an-api-endpoint) -- API route conventions
+- [Error Handling](/docs/guides/error-handling) -- using `safeErrorResponse` for consistent error responses
+- [Logging](/docs/guides/logging) -- structured logging for cron job output

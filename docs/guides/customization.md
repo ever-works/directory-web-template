@@ -93,6 +93,6 @@ For more advanced customization, you can:
 
 ## Next Steps
 
-- [Admin Dashboard](/template/guides/admin-dashboard) - Manage your content
-- [Deployment](/template/deployment) - Deploy your customized site
-- [Support](/template/advanced-guide/support) - Get help with customization
+- [Admin Dashboard](/docs/guides/admin-dashboard) - Manage your content
+- [Deployment](/docs/deployment) - Deploy your customized site
+- [Support](/docs/advanced-guide/support) - Get help with customization

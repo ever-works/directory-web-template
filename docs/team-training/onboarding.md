@@ -27,7 +27,7 @@ By the end of this module, you will:
 
 ### 1.1 Install Required Tools
 
-Follow the detailed [Installation Guide](/template/getting-started/installation) to install:
+Follow the detailed [Installation Guide](/docs/getting-started/installation) to install:
 
 - Node.js 20.19.0+
 - PostgreSQL 14+
@@ -47,7 +47,7 @@ yarn install
 
 ### 1.3 Configure Environment Variables
 
-Follow the [Environment Setup Guide](/template/getting-started/environment-setup) to configure your `.env.local` file.
+Follow the [Environment Setup Guide](/docs/getting-started/environment-setup) to configure your `.env.local` file.
 
 **Quick checklist**:
 - [ ] Database connection configured
@@ -115,7 +115,7 @@ Open your browser and verify:
 - [ ] No console errors in browser DevTools
 
 :::tip First Time Setup
-If you encounter issues, check the [Troubleshooting Guide](/template/getting-started/installation#troubleshooting) or ask your mentor.
+If you encounter issues, check the [Troubleshooting Guide](/docs/getting-started/installation#troubleshooting) or ask your mentor.
 :::
 
 ---
@@ -150,7 +150,7 @@ ever-works/
 - `messages/` - Translation files
 - `.env.local` - Environment variables
 
-[Learn more about the architecture →](/template/architecture/overview)
+[Learn more about the architecture →](/docs/architecture/overview)
 
 ---
 
@@ -224,7 +224,7 @@ Try this simple task to get familiar with the workflow:
 4. Test in Scalar UI
 5. Create a PR
 
-[See detailed exercise →](/template/team-training/exercises#exercise-1-simple-get-route)
+[See detailed exercise →](/docs/team-training/exercises#exercise-1-simple-get-route)
 
 ---
 
@@ -247,17 +247,17 @@ Before moving to the next module, ensure you have:
 
 Great job! You're ready to move on to:
 
-1. [API Documentation](/template/team-training/api-documentation) - Learn the documentation system
-2. [Best Practices](/template/team-training/best-practices) - Learn coding standards
-3. [Exercises](/template/team-training/exercises) - Practice with real tasks
+1. [API Documentation](/docs/team-training/api-documentation) - Learn the documentation system
+2. [Best Practices](/docs/team-training/best-practices) - Learn coding standards
+3. [Exercises](/docs/team-training/exercises) - Practice with real tasks
 
 ---
 
 ## Additional Resources
 
-- [Quick Reference](/template/getting-started/quick-reference) - Essential commands and patterns
-- [Tech Stack](/template/architecture/tech-stack) - Technologies used
-- [Testing Guide](/template/development/testing) - How to write tests
+- [Quick Reference](/docs/getting-started/quick-reference) - Essential commands and patterns
+- [Tech Stack](/docs/architecture/tech-stack) - Technologies used
+- [Testing Guide](/docs/development/testing) - How to write tests
 
 Need help? Ask your mentor or check the team Slack channel! 🚀
 

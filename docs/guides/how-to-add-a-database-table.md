@@ -275,8 +275,8 @@ export async function deleteBookmark(
 
 Your new table is now ready to be consumed by a service and exposed via an API route:
 
-1. **Service**: `lib/services/bookmark.service.ts` -- orchestrates query calls and adds business logic (see [How to Add a Service](/template/guides/how-to-add-a-service))
-2. **API Route**: `app/api/bookmarks/route.ts` -- thin handler that validates input, calls the service, and returns HTTP responses (see [How to Add an API Endpoint](/template/guides/how-to-add-an-api-endpoint))
+1. **Service**: `lib/services/bookmark.service.ts` -- orchestrates query calls and adds business logic (see [How to Add a Service](/docs/guides/how-to-add-a-service))
+2. **API Route**: `app/api/bookmarks/route.ts` -- thin handler that validates input, calls the service, and returns HTTP responses (see [How to Add an API Endpoint](/docs/guides/how-to-add-an-api-endpoint))
 
 ---
 
@@ -316,7 +316,7 @@ pnpm db:seed
 
 ## Related Pages
 
-- [How to Add a Service](/template/guides/how-to-add-a-service) -- building the business logic layer on top of your new table
-- [How to Write Database Migrations](/template/guides/how-to-write-database-migrations) -- advanced migration techniques
-- [Repository Patterns](/template/architecture/repository-patterns) -- when to use repositories vs. queries
-- [Database Health Check](/template/guides/database-health-check) -- monitoring your database in production
+- [How to Add a Service](/docs/guides/how-to-add-a-service) -- building the business logic layer on top of your new table
+- [How to Write Database Migrations](/docs/guides/how-to-write-database-migrations) -- advanced migration techniques
+- [Repository Patterns](/docs/architecture/repository-patterns) -- when to use repositories vs. queries
+- [Database Health Check](/docs/guides/database-health-check) -- monitoring your database in production

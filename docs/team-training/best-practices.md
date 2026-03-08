@@ -208,7 +208,7 @@ export function UserCard({ user }: { user: User }) {
 }
 ```
 
-[Learn more about React →](/template/architecture/tech-stack#frontend)
+[Learn more about React →](/docs/architecture/tech-stack#frontend)
 
 ---
 
@@ -332,7 +332,7 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-[Learn more about security →](/template/deployment/production-checklist#security)
+[Learn more about security →](/docs/deployment/production-checklist#security)
 
 ---
 
@@ -403,7 +403,7 @@ const { data, isLoading } = useQuery({
 });
 ```
 
-[Learn more about performance →](/template/deployment/production-checklist#performance)
+[Learn more about performance →](/docs/deployment/production-checklist#performance)
 
 ---
 
@@ -478,9 +478,9 @@ export type UserRole = 'admin' | 'user';
 
 ### Internal Documentation
 
-- [Tech Stack](/template/architecture/tech-stack) - Technologies and versions
-- [Testing Guide](/template/development/testing) - Testing strategies
-- [Production Checklist](/template/deployment/production-checklist) - Production readiness
+- [Tech Stack](/docs/architecture/tech-stack) - Technologies and versions
+- [Testing Guide](/docs/development/testing) - Testing strategies
+- [Production Checklist](/docs/deployment/production-checklist) - Production readiness
 
 ### External Resources
 
@@ -494,7 +494,7 @@ export type UserRole = 'admin' | 'user';
 
 After learning best practices:
 
-1. [Exercises](/template/team-training/exercises) - Practice with real tasks
+1. [Exercises](/docs/team-training/exercises) - Practice with real tasks
 2. Apply these practices in your daily work
 3. Share knowledge with the team
 
@@ -502,5 +502,5 @@ After learning best practices:
 The best way to learn and enforce best practices is through code reviews. Always request reviews and learn from feedback.
 :::
 
-Ready to practice? Move on to [Exercises](/template/team-training/exercises)! 🚀
+Ready to practice? Move on to [Exercises](/docs/team-training/exercises)! 🚀
 
