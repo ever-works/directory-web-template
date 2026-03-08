@@ -64,6 +64,4 @@ Safe to run when needed:
 ## Source of truth
 
 - This file gives **high-level rules** for Cursor.
-- For deeper details (scripts, env vars, docs, architecture, coding style), **refer to the root `CLAUDE.md`** and the external docs repo at
-  <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>.
-
+- For deeper details (scripts, env vars, docs, architecture, coding style), **refer to the root `CLAUDE.md`** file, to the "docs" folder in the root of this mono-repo and the external docs repo at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>.

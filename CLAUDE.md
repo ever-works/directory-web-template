@@ -79,21 +79,22 @@ pnpm db:studio
 ## 5. Code organization
 
 - **`apps/web/app/`**  Next.js App Router routes.
-  - `apps/web/app/[locale]/**`  localized pages (EN/FR/ES/DE/AR/ZH).
-  - `apps/web/app/api/**`  API route handlers; many are documented via Swagger/JSDoc.
+    - `apps/web/app/[locale]/**`  localized pages (EN/FR/ES/DE/AR/ZH).
+    - `apps/web/app/api/**`  API route handlers; many are documented via Swagger/JSDoc.
 - **`apps/web/components/`**  React components (UI, layout, feature-specific).
 - **`apps/web/lib/`**  Core logic and services:
-  - `apps/web/lib/db/**`  Drizzle schema, DB helpers, migrations.
-  - `apps/web/lib/repositories/**`  data-access layer.
-  - `apps/web/lib/services/**`  business logic.
-  - `apps/web/lib/analytics`, `apps/web/lib/payment`, `apps/web/lib/newsletter`, etc.  integration-specific logic.
+    - `apps/web/lib/db/**`  Drizzle schema, DB helpers, migrations.
+    - `apps/web/lib/repositories/**`  data-access layer.
+    - `apps/web/lib/services/**`  business logic.
+    - `apps/web/lib/analytics`, `apps/web/lib/payment`, `apps/web/lib/newsletter`, etc.  integration-specific logic.
 - **`apps/web/hooks/`**  Custom React hooks, often wrapping React Query or specialized logic.
-- **`docs/`**  Documentation content (Markdown files & assets). The Docusaurus app shell lives in `apps/docs/`. All docs also available at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>
+- **`docs/`**  Documentation content (Markdown files & assets). The Docusaurus app shell lives in `apps/docs/`. The docs for Ever Works platform available at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>
 - **`apps/web/.content/`**  Git-based CMS content cloned from `DATA_REPOSITORY` (do not edit manually in production).
 
 Shared configurations live in `packages/tsconfig/` and `packages/eslint-config/`. E2E tests are in `apps/web-e2e/`. Documentation site (Docusaurus) lives in `apps/docs/` with content sourced from root `docs/`.
 
 When adding features:
+
 - Prefer placing business logic in `apps/web/lib/services` or `apps/web/lib/repositories`, not in components.
 - Keep components mostly presentational and data-fetching, delegating heavy logic to `apps/web/lib/**`.
 - Reuse existing hooks and services when possible instead of duplicating logic.
@@ -106,23 +107,24 @@ When adding features:
 - Validate input with **Zod** where appropriate; see existing schemas in `lib/validations`.
 - For forms, prefer `react-hook-form` + Zod; follow patterns in existing auth/profile forms.
 - For API routes:
-  - Put shared logic in `lib/services` or `lib/repositories`.
-  - Keep handlers thin; do validation, call service, map result to HTTP response.
+    - Put shared logic in `lib/services` or `lib/repositories`.
+    - Keep handlers thin; do validation, call service, map result to HTTP response.
 - Keep i18n-friendly: avoid hard-coded English strings in logic; use `next-intl` messages where relevant.
 
 ## 7. Safe command & editing guidelines for Claude
 
 - It is safe to run:
-  - `pnpm lint`
-  - `pnpm tsc --noEmit`
-  - `pnpm build`
-  - `pnpm dev` / `pnpm start` (for manual verification)
+    - `pnpm lint`
+    - `pnpm tsc --noEmit`
+    - `pnpm build`
+    - `pnpm dev` / `pnpm start` (for manual verification)
 - Avoid:
-  - Changing `.env.example` semantics without clear instructions.
-  - Running destructive scripts like `scripts/clean-database.js` unless explicitly asked.
-  - Installing new global tools or modifying system-level config.
+    - Changing `.env.example` semantics without clear instructions.
+    - Running destructive scripts like `scripts/clean-database.js` unless explicitly asked.
+    - Installing new global tools or modifying system-level config.
 
 When in doubt, ask the user before:
+
 - Adding new dependencies.
 - Running migration or seeding scripts against production-like databases.
 - Changing auth, payments, or analytics integrations.
@@ -130,6 +132,8 @@ When in doubt, ask the user before:
 ## 8. Related documentation
 
 Before large changes, consult:
+
 - `README.md` (monorepo root)  high-level overview and monorepo setup.
 - `apps/web/README.md`  web app environment setup and local project notes.
-- Central docs repository at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>  architecture, auth, payments, theming, translations, API reference, and other feature documentation.
+- `docs` folder with all documentation for template
+- Central docs repository at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>  architecture, auth, payments, theming, translations, API reference, and other feature documentation for the Ever Works platform.
