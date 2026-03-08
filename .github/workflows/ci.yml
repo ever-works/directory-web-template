@@ -16,13 +16,13 @@ jobs:
   lint-and-build:
     name: Lint and Build
     runs-on: ubuntu-latest
-    
+
     env:
       # Default environment variables for development
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
       # Auth defaults to suppress warnings
-      AUTH_SECRET: "ci-test-secret-not-for-production"      
+      AUTH_SECRET: "ci-test-secret-not-for-production"
       # Content repository defaults
       DATA_REPOSITORY: "ci-test-repo-not-used"
       CONTENT_WARNINGS_SILENT: "true"
@@ -33,33 +33,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Detect package manager
-        id: detect-pm
-        run: |
-          if [ -f "pnpm-lock.yaml" ]; then
-            echo "manager=pnpm" >> $GITHUB_OUTPUT
-            echo "lockfile=pnpm-lock.yaml" >> $GITHUB_OUTPUT
-            echo "install-cmd=pnpm install" >> $GITHUB_OUTPUT
-            echo "run-cmd=pnpm run" >> $GITHUB_OUTPUT
-          elif [ -f "yarn.lock" ]; then
-            echo "manager=yarn" >> $GITHUB_OUTPUT
-            echo "lockfile=yarn.lock" >> $GITHUB_OUTPUT
-            echo "install-cmd=yarn install --frozen-lockfile" >> $GITHUB_OUTPUT
-            echo "run-cmd=yarn" >> $GITHUB_OUTPUT
-          elif [ -f "package-lock.json" ]; then
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "lockfile=package-lock.json" >> $GITHUB_OUTPUT
-            echo "install-cmd=npm ci" >> $GITHUB_OUTPUT
-            echo "run-cmd=npm run" >> $GITHUB_OUTPUT
-          else
-            echo "manager=npm" >> $GITHUB_OUTPUT
-            echo "lockfile=none" >> $GITHUB_OUTPUT
-            echo "install-cmd=npm install" >> $GITHUB_OUTPUT
-            echo "run-cmd=npm run" >> $GITHUB_OUTPUT
-          fi
-
       - name: Setup pnpm
-        if: steps.detect-pm.outputs.manager == 'pnpm'
         uses: pnpm/action-setup@v4
         with:
           version: 9
@@ -67,40 +41,40 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: ${{ steps.detect-pm.outputs.manager }}
+          node-version: '24'
+          cache: pnpm
 
       - name: Install dependencies
-        run: ${{ steps.detect-pm.outputs.install-cmd }}
+        run: pnpm install
 
       - name: Run lint
-        run: ${{ steps.detect-pm.outputs.run-cmd }} lint
+        run: pnpm run lint
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Type check
-        run: ${{ steps.detect-pm.outputs.run-cmd }} typecheck || ${{ steps.detect-pm.outputs.run-cmd }} check:types || echo "No type check script found, skipping"
+        run: pnpm run --filter @ever-works/web typecheck || echo "No type check script found, skipping"
 
       - name: Create content directories
         run: |
-          mkdir -p .content/data
+          mkdir -p apps/web/.content/data
           echo "Created content directories for build"
 
       - name: Build project
-        run: ${{ steps.detect-pm.outputs.run-cmd }} build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2)
+        run: pnpm run build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2)
         env:
           # Use GitHub secrets for sensitive environment variables
           # Auth related variables
           NEXT_PUBLIC_APP_URL: ${{ env.NEXT_PUBLIC_APP_URL }}
           AUTH_SECRET: ${{ env.AUTH_SECRET }}
-          
+
           # Supabase related variables (if using Supabase)
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          
+
           # Database related variables
           DATABASE_URL: ${{ secrets.DATABASE_URL || env.DATABASE_URL }}
-          
+
           # OAuth Provider variables
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID || '' }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET || '' }}
@@ -110,18 +84,18 @@ jobs:
           FB_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET || '' }}
           TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID || '' }}
           TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET || '' }}
-          
+
           # Content repository variables
           DATA_REPOSITORY: ${{ secrets.DATA_REPOSITORY || '' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN || '' }}
-          
+
           # Email service variables (Resend)
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'info@ever.works' }}
 
       - name: Check for build success
         run: |
-          if [ -d ".next" ]; then
+          if [ -d "apps/web/.next" ]; then
             echo "✅ Build successful"
           else
             echo "❌ Build failed"

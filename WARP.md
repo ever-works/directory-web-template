@@ -4,7 +4,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Project Overview
 
-This is the **Ever Works Directory Website Template**, a full-stack Next.js 15 application with App Router. It's a versatile directory/listing platform featuring:
+This is the **Ever Works Directory Website Template**, a full-stack Next.js 16 application within the **Ever Works Turborepo monorepo** with App Router. It's a versatile directory/listing platform featuring:
 
 - Git-based CMS for content management
 - Multi-provider authentication (Auth.js)
@@ -17,7 +17,27 @@ This is the **Ever Works Directory Website Template**, a full-stack Next.js 15 a
 - Background job scheduling (Trigger.dev)
 - CRM integration (Twenty CRM)
 
+### Monorepo Structure
+This web app is part of a Turborepo monorepo:
+- `apps/web/` - This Next.js application
+- `apps/web-e2e/` - Playwright E2E tests
+- `apps/docs/` - Docusaurus documentation site (app shell, config, themes)
+- `docs/` - Documentation content (Markdown files & assets, served by `apps/docs/`)
+- `packages/tsconfig/` - Shared TypeScript configurations
+- `packages/eslint-config/` - Shared ESLint configurations
+
 ## Essential Commands
+
+All commands below should be run from `apps/web/` unless noted. For monorepo-wide commands, run from the repository root.
+
+### Monorepo Root Commands
+```bash
+# From the monorepo root
+pnpm run dev          # Start all dev servers
+pnpm run build        # Build all packages
+pnpm run lint         # Lint all packages
+pnpm run --filter @ever-works/web dev   # Start only web app
+```
 
 ### Development
 ```bash
@@ -90,37 +110,37 @@ There is currently **no formal test suite** (no Jest/Vitest). The verification w
 ### High-Level Structure
 
 #### App Router Organization
-- **`app/[locale]/`** - Internationalized pages (supports 21 languages)
+- **`apps/web/app/[locale]/`** - Internationalized pages (supports 21 languages)
   - Main user-facing routes with i18n support
   - Dynamic routing for categories, items, profiles
-- **`app/api/`** - API route handlers
+- **`apps/web/app/api/`** - API route handlers
   - RESTful endpoints documented with Swagger/JSDoc
   - Organized by feature domain (auth, items, payments, admin, etc.)
-- **`app/auth/`** - Authentication pages
-- **`app/unauthorized/`** - Access denied pages
+- **`apps/web/app/auth/`** - Authentication pages
+- **`apps/web/app/unauthorized/`** - Access denied pages
 
-#### Business Logic Layer (`lib/`)
-- **`lib/services/`** - Business logic and operations
+#### Business Logic Layer (`apps/web/lib/`)
+- **`apps/web/lib/services/`** - Business logic and operations
   - Service classes handle complex workflows
   - Examples: `sync-service.ts`, `subscription.service.ts`, `user-db.service.ts`
-- **`lib/repositories/`** - Data access layer
+- **`apps/web/lib/repositories/`** - Data access layer
   - Abstracts database queries with Drizzle ORM
   - Examples: `user.repository.ts`, `item.repository.ts`, `category.repository.ts`
-- **`lib/db/`** - Database infrastructure
+- **`apps/web/lib/db/`** - Database infrastructure
   - `schema.ts` - Complete Drizzle schema definition
   - `migrations/` - Version-controlled database migrations
-- **`lib/auth/`** - Authentication system
+- **`apps/web/lib/auth/`** - Authentication system
   - Next-auth configuration and utilities
   - Middleware for protected routes
-- **`lib/payment/`** - Payment processing
+- **`apps/web/lib/payment/`** - Payment processing
   - Multi-provider support (Stripe, LemonSqueezy, Polar)
   - Unified payment service interface
-- **`lib/analytics/`** - Analytics integrations (PostHog, Sentry)
-- **`lib/middleware/`** - Request middleware
-- **`lib/utils/`** - Shared utility functions
-- **`lib/validations/`** - Zod schemas for input validation
+- **`apps/web/lib/analytics/`** - Analytics integrations (PostHog, Sentry)
+- **`apps/web/lib/middleware/`** - Request middleware
+- **`apps/web/lib/utils/`** - Shared utility functions
+- **`apps/web/lib/validations/`** - Zod schemas for input validation
 
-#### Component Organization (`components/`)
+#### Component Organization (`apps/web/components/`)
 Components are organized by feature domain:
 - `admin/` - Admin dashboard components
 - `auth/` - Authentication UI (login, register, password reset)
@@ -134,7 +154,7 @@ Components are organized by feature domain:
 - `ui/` - Base UI components (buttons, inputs, cards)
 - `layout/` - Page layout components
 
-#### Custom Hooks (`hooks/`)
+#### Custom Hooks (`apps/web/hooks/`)
 React Query-powered hooks for:
 - Data fetching (`use-admin-*.ts`, `use-current-user.ts`)
 - Feature flags (`use-feature-flags.ts`)
@@ -255,30 +275,30 @@ Supports two modes:
 
 ### Adding New Features
 
-**Pages**: Add to `app/[locale]/` with i18n support
+**Pages**: Add to `apps/web/app/[locale]/` with i18n support
 - Use `useTranslations()` hook for text
 - Respect existing layout patterns
 
-**API Endpoints**: Add to `app/api/`
+**API Endpoints**: Add to `apps/web/app/api/`
 - Document with JSDoc for OpenAPI generation
 - Use Zod for input validation
 - Keep thin - delegate to services
 - Handle errors consistently
 
-**Business Logic**: Add to `lib/services/`
+**Business Logic**: Add to `apps/web/lib/services/`
 - Pure business logic, no direct HTTP handling
 - Testable and reusable
 - Use repositories for data access
 
 **Database Changes**:
-1. Modify `lib/db/schema.ts`
+1. Modify `apps/web/lib/db/schema.ts`
 2. Run `pnpm db:generate` to create migration
-3. Review generated SQL in `lib/db/migrations/`
+3. Review generated SQL in `apps/web/lib/db/migrations/`
 4. Run `pnpm db:migrate` to apply
 5. Update seeding script if needed
 
-**Components**: Add to appropriate `components/` subdirectory
-- Use existing UI components from `components/ui/`
+**Components**: Add to appropriate `apps/web/components/` subdirectory
+- Use existing UI components from `apps/web/components/ui/`
 - Follow HeroUI design system
 - Keep presentational components separate from data-fetching
 
@@ -385,14 +405,16 @@ Supports two modes:
 
 ### Important Files
 
-- **`auth.config.ts`** - NextAuth provider configuration
-- **`drizzle.config.ts`** - Drizzle ORM settings
-- **`next.config.ts`** - Next.js configuration (standalone output, image domains)
-- **`tailwind.config.ts`** - Tailwind + HeroUI theming
-- **`middleware.ts`** - Route protection and i18n
-- **`instrumentation.ts`** - OpenTelemetry setup
+- **`apps/web/auth.config.ts`** - NextAuth provider configuration
+- **`apps/web/drizzle.config.ts`** - Drizzle ORM settings
+- **`apps/web/next.config.ts`** - Next.js configuration (standalone output, image domains)
+- **`apps/web/tailwind.config.ts`** - Tailwind + HeroUI theming
+- **`apps/web/middleware.ts`** - Route protection and i18n
+- **`apps/web/instrumentation.ts`** - OpenTelemetry setup
 
 ## Deployment
+
+This web app is deployed as part of the Turborepo monorepo.
 
 **Vercel** (recommended):
 - Standalone output mode configured

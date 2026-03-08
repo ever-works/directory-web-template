@@ -1,0 +1,5 @@
+{
+	"extends": "@ever-works/tsconfig/playwright.json",
+	"include": ["./**/*.ts"],
+	"exclude": ["node_modules"]
+}
