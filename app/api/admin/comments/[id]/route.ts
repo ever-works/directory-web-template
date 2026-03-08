@@ -1,11 +1,12 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { deleteComment, getCommentById } from "@/lib/db/queries";
-import { db } from "@/lib/db/drizzle";
-import { comments, clientProfiles } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { deleteComment, getCommentById } from '@/lib/db/queries';
+import { db } from '@/lib/db/drizzle';
+import { comments, clientProfiles } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { getTenantId } from '@/lib/auth/tenant';
 
-export const runtime = "nodejs";
+export const runtime = 'nodejs';
 
 /**
  * @swagger
@@ -151,76 +152,78 @@ export const runtime = "nodejs";
  *                   type: string
  *                   example: "Internal Server Error"
  */
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+		}
 
-    const { id } = await params;
+		const { id } = await params;
 
-    // Get comment with user information
-    const result = await db
-      .select({
-        id: comments.id,
-        content: comments.content,
-        rating: comments.rating,
-        userId: comments.userId,
-        itemId: comments.itemId,
-        createdAt: comments.createdAt,
-        updatedAt: comments.updatedAt,
-        user: {
-          id: clientProfiles.id,
-          name: clientProfiles.name,
-          email: clientProfiles.email,
-          image: clientProfiles.avatar,
-        },
-      })
-      .from(comments)
-      .leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-      .where(eq(comments.id, id))
-      .limit(1);
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    if (result.length === 0 || result[0].createdAt === null) {
-      return NextResponse.json({ success: false, error: "Comment not found" }, { status: 404 });
-    }
+		// Get comment with user information
+		const result = await db
+			.select({
+				id: comments.id,
+				content: comments.content,
+				rating: comments.rating,
+				userId: comments.userId,
+				itemId: comments.itemId,
+				createdAt: comments.createdAt,
+				updatedAt: comments.updatedAt,
+				user: {
+					id: clientProfiles.id,
+					name: clientProfiles.name,
+					email: clientProfiles.email,
+					image: clientProfiles.avatar
+				}
+			})
+			.from(comments)
+			.leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.limit(1);
 
-    const comment = result[0];
-    const responseData = {
-      id: comment.id,
-      content: comment.content ?? "",
-      rating: comment.rating ?? null,
-      userId: comment.userId ?? "",
-      itemId: comment.itemId ?? "",
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-      user: comment.user
-        ? {
-            id: comment.user.id ?? "",
-            name: comment.user.name ?? null,
-            email: comment.user.email ?? null,
-            image: comment.user.image ?? null,
-          }
-        : {
-            id: "",
-            name: "Unknown User",
-            email: "",
-            image: null,
-          },
-    };
+		if (result.length === 0 || result[0].createdAt === null) {
+			return NextResponse.json({ success: false, error: 'Comment not found' }, { status: 404 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      data: responseData,
-    });
-  } catch (error) {
-    console.error("Failed to get comment:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
-  }
+		const comment = result[0];
+		const responseData = {
+			id: comment.id,
+			content: comment.content ?? '',
+			rating: comment.rating ?? null,
+			userId: comment.userId ?? '',
+			itemId: comment.itemId ?? '',
+			createdAt: comment.createdAt,
+			updatedAt: comment.updatedAt,
+			user: comment.user
+				? {
+						id: comment.user.id ?? '',
+						name: comment.user.name ?? null,
+						email: comment.user.email ?? null,
+						image: comment.user.image ?? null
+					}
+				: {
+						id: '',
+						name: 'Unknown User',
+						email: '',
+						image: null
+					}
+		};
+
+		return NextResponse.json({
+			success: true,
+			data: responseData
+		});
+	} catch (error) {
+		console.error('Failed to get comment:', error);
+		return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+	}
 }
 
 /**
@@ -398,87 +401,89 @@ export async function GET(
  *                   type: string
  *                   example: "Internal Server Error"
  */
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+		}
 
-    const { id } = await params;
-    const { content } = await request.json();
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    if (!content?.trim()) {
-      return NextResponse.json({ success: false, error: "Content is required" }, { status: 400 });
-    }
+		const { id } = await params;
+		const { content } = await request.json();
 
-    // Check if comment exists and is not deleted
-    const existingComment = await getCommentById(id);
-    if (!existingComment || existingComment.deletedAt) {
-      return NextResponse.json({ success: false, error: "Comment not found" }, { status: 404 });
-    }
+		if (!content?.trim()) {
+			return NextResponse.json({ success: false, error: 'Content is required' }, { status: 400 });
+		}
 
-    // Update comment
-    // const updatedComment = await updateComment(id, content);
+		// Check if comment exists and is not deleted
+		const existingComment = await getCommentById(id);
+		if (!existingComment || existingComment.deletedAt) {
+			return NextResponse.json({ success: false, error: 'Comment not found' }, { status: 404 });
+		}
 
-    // Get updated comment with user information
-    const result = await db
-      .select({
-        id: comments.id,
-        content: comments.content,
-        rating: comments.rating,
-        userId: comments.userId,
-        itemId: comments.itemId,
-        createdAt: comments.createdAt,
-        updatedAt: comments.updatedAt,
-        user: {
-          id: clientProfiles.id,
-          name: clientProfiles.name,
-          email: clientProfiles.email,
-          image: clientProfiles.avatar,
-        },
-      })
-      .from(comments)
-      .leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-      .where(eq(comments.id, id))
-      .limit(1);
+		// Update comment
+		// const updatedComment = await updateComment(id, content);
 
-    const comment = result[0];
-    const responseData = {
-      id: comment.id,
-      content: comment.content ?? "",
-      rating: comment.rating ?? null,
-      userId: comment.userId ?? "",
-      itemId: comment.itemId ?? "",
-      createdAt: comment.createdAt,
-      updatedAt: comment.updatedAt,
-      user: comment.user
-        ? {
-            id: comment.user.id ?? "",
-            name: comment.user.name ?? null,
-            email: comment.user.email ?? null,
-            image: comment.user.image ?? null,
-          }
-        : {
-            id: "",
-            name: "Unknown User",
-            email: "",
-            image: null,
-          },
-    };
+		// Get updated comment with user information
+		const result = await db
+			.select({
+				id: comments.id,
+				content: comments.content,
+				rating: comments.rating,
+				userId: comments.userId,
+				itemId: comments.itemId,
+				createdAt: comments.createdAt,
+				updatedAt: comments.updatedAt,
+				user: {
+					id: clientProfiles.id,
+					name: clientProfiles.name,
+					email: clientProfiles.email,
+					image: clientProfiles.avatar
+				}
+			})
+			.from(comments)
+			.leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.limit(1);
 
-    return NextResponse.json({
-      success: true,
-      data: responseData,
-      message: "Comment updated successfully",
-    });
-  } catch (error) {
-    console.error("Failed to update comment:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
-  }
+		const comment = result[0];
+		const responseData = {
+			id: comment.id,
+			content: comment.content ?? '',
+			rating: comment.rating ?? null,
+			userId: comment.userId ?? '',
+			itemId: comment.itemId ?? '',
+			createdAt: comment.createdAt,
+			updatedAt: comment.updatedAt,
+			user: comment.user
+				? {
+						id: comment.user.id ?? '',
+						name: comment.user.name ?? null,
+						email: comment.user.email ?? null,
+						image: comment.user.image ?? null
+					}
+				: {
+						id: '',
+						name: 'Unknown User',
+						email: '',
+						image: null
+					}
+		};
+
+		return NextResponse.json({
+			success: true,
+			data: responseData,
+			message: 'Comment updated successfully'
+		});
+	} catch (error) {
+		console.error('Failed to update comment:', error);
+		return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+	}
 }
 
 /**
@@ -557,31 +562,26 @@ export async function PUT(
  *                   type: string
  *                   example: "Internal Server Error"
  */
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: "Forbidden" }, { status: 403 });
-    }
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+	try {
+		const session = await auth();
+		if (!session?.user?.isAdmin) {
+			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+		}
 
-    const { id } = await params;
-    const comment = await getCommentById(id);
-    if (!comment || comment.deletedAt) {
-      return NextResponse.json({ success: false, error: "Comment not found" }, { status: 404 });
-    }
+		const { id } = await params;
+		const comment = await getCommentById(id);
+		if (!comment || comment.deletedAt) {
+			return NextResponse.json({ success: false, error: 'Comment not found' }, { status: 404 });
+		}
 
-    await deleteComment(id);
-    return NextResponse.json({
-      success: true,
-      message: "Comment deleted successfully",
-    });
-  } catch (error) {
-    console.error("Failed to delete comment:", error);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
-  }
+		await deleteComment(id);
+		return NextResponse.json({
+			success: true,
+			message: 'Comment deleted successfully'
+		});
+	} catch (error) {
+		console.error('Failed to delete comment:', error);
+		return NextResponse.json({ success: false, error: 'Internal Server Error' }, { status: 500 });
+	}
 }
-
-

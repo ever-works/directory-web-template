@@ -1,6 +1,7 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { passwordResetTokens, verificationTokens } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Password Reset Token Queries =====================
 
@@ -10,13 +11,15 @@ import { passwordResetTokens, verificationTokens } from '../schema';
  * @returns Password reset token or undefined
  */
 export async function getPasswordResetTokenByEmail(email: string) {
-  const tokens = await db
-    .select()
-    .from(passwordResetTokens)
-    .where(eq(passwordResetTokens.email, email))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const tokens = await db
+		.select()
+		.from(passwordResetTokens)
+		.where(and(eq(passwordResetTokens.email, email), eq(passwordResetTokens.tenantId, tenantId)))
+		.limit(1);
 
-  return tokens[0];
+	return tokens[0];
 }
 
 /**
@@ -25,13 +28,15 @@ export async function getPasswordResetTokenByEmail(email: string) {
  * @returns Password reset token or undefined
  */
 export async function getPasswordResetTokenByToken(token: string) {
-  const tokens = await db
-    .select()
-    .from(passwordResetTokens)
-    .where(eq(passwordResetTokens.token, token))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const tokens = await db
+		.select()
+		.from(passwordResetTokens)
+		.where(and(eq(passwordResetTokens.token, token), eq(passwordResetTokens.tenantId, tenantId)))
+		.limit(1);
 
-  return tokens.at(0);
+	return tokens.at(0);
 }
 
 /**
@@ -39,7 +44,11 @@ export async function getPasswordResetTokenByToken(token: string) {
  * @param token - Reset token string to delete
  */
 export async function deletePasswordResetToken(token: string) {
-  return db.delete(passwordResetTokens).where(eq(passwordResetTokens.token, token));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.delete(passwordResetTokens)
+		.where(and(eq(passwordResetTokens.token, token), eq(passwordResetTokens.tenantId, tenantId)));
 }
 
 // ===================== Verification Token Queries =====================
@@ -50,13 +59,15 @@ export async function deletePasswordResetToken(token: string) {
  * @returns Verification token or undefined
  */
 export async function getVerificationTokenByEmail(email: string) {
-  const tokens = await db
-    .select()
-    .from(verificationTokens)
-    .where(eq(verificationTokens.email, email))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const tokens = await db
+		.select()
+		.from(verificationTokens)
+		.where(and(eq(verificationTokens.email, email), eq(verificationTokens.tenantId, tenantId)))
+		.limit(1);
 
-  return tokens[0];
+	return tokens[0];
 }
 
 /**
@@ -65,13 +76,15 @@ export async function getVerificationTokenByEmail(email: string) {
  * @returns Verification token or undefined
  */
 export async function getVerificationTokenByToken(token: string) {
-  const tokens = await db
-    .select()
-    .from(verificationTokens)
-    .where(eq(verificationTokens.token, token))
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const tokens = await db
+		.select()
+		.from(verificationTokens)
+		.where(and(eq(verificationTokens.token, token), eq(verificationTokens.tenantId, tenantId)))
+		.limit(1);
 
-  return tokens.at(0);
+	return tokens.at(0);
 }
 
 /**
@@ -79,5 +92,9 @@ export async function getVerificationTokenByToken(token: string) {
  * @param token - Verification token string to delete
  */
 export async function deleteVerificationToken(token: string) {
-  return db.delete(verificationTokens).where(eq(verificationTokens.token, token));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.delete(verificationTokens)
+		.where(and(eq(verificationTokens.token, token), eq(verificationTokens.tenantId, tenantId)));
 }

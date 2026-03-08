@@ -4,6 +4,7 @@ import { db } from '@/lib/db/drizzle';
 import { featuredItems } from '@/lib/db/schema';
 import { eq, desc, and, count } from 'drizzle-orm';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -129,71 +130,73 @@ import { validatePaginationParams } from '@/lib/utils/pagination-validation';
  *                   example: "Failed to fetch featured items"
  */
 export async function GET(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+	try {
+		const session = await auth();
 
-    const { searchParams } = new URL(request.url);
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    // Validate pagination parameters
-    const paginationResult = validatePaginationParams(searchParams);
-    if ('error' in paginationResult) {
-      return NextResponse.json(
-        { success: false, error: paginationResult.error },
-        { status: paginationResult.status }
-      );
-    }
-    const { page, limit } = paginationResult;
+		const { searchParams } = new URL(request.url);
 
-    const activeOnly = searchParams.get('active') === 'true';
-    const offset = (page - 1) * limit;
+		// Validate pagination parameters
+		const paginationResult = validatePaginationParams(searchParams);
+		if ('error' in paginationResult) {
+			return NextResponse.json(
+				{ success: false, error: paginationResult.error },
+				{ status: paginationResult.status }
+			);
+		}
+		const { page, limit } = paginationResult;
 
-    // Build query conditions
-    const conditions = [];
-    if (activeOnly) {
-      conditions.push(eq(featuredItems.isActive, true));
-    }
+		const activeOnly = searchParams.get('active') === 'true';
+		const offset = (page - 1) * limit;
 
-    // Get featured items with pagination
-    const featuredItemsList = await db
-      .select()
-      .from(featuredItems)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(featuredItems.featuredOrder), desc(featuredItems.featuredAt))
-      .limit(limit)
-      .offset(offset);
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    // Get total count
-    const totalResult = await db
-      .select({ count: count() })
-      .from(featuredItems)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
+		// Build query conditions
+		const conditions = [eq(featuredItems.tenantId, tenantId)];
+		if (activeOnly) {
+			conditions.push(eq(featuredItems.isActive, true));
+		}
 
-    const total = totalResult[0]?.count || 0;
-    const totalPages = Math.ceil(total / limit);
+		// Get featured items with pagination
+		const featuredItemsList = await db
+			.select()
+			.from(featuredItems)
+			.where(and(...conditions))
+			.orderBy(desc(featuredItems.featuredOrder), desc(featuredItems.featuredAt))
+			.limit(limit)
+			.offset(offset);
 
-    return NextResponse.json({
-      success: true,
-      data: featuredItemsList,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages,
-        hasNext: page < totalPages,
-        hasPrev: page > 1,
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching featured items:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch featured items' },
-      { status: 500 }
-    );
-  }
+		// Get total count
+		const totalResult = await db
+			.select({ count: count() })
+			.from(featuredItems)
+			.where(and(...conditions));
+
+		const total = totalResult[0]?.count || 0;
+		const totalPages = Math.ceil(total / limit);
+
+		return NextResponse.json({
+			success: true,
+			data: featuredItemsList,
+			pagination: {
+				page,
+				limit,
+				total,
+				totalPages,
+				hasNext: page < totalPages,
+				hasPrev: page > 1
+			}
+		});
+	} catch (error) {
+		console.error('Error fetching featured items:', error);
+		return NextResponse.json({ success: false, error: 'Failed to fetch featured items' }, { status: 500 });
+	}
 }
 
 /**
@@ -304,75 +307,73 @@ export async function GET(request: NextRequest) {
  *                   example: "Failed to create featured item"
  */
 export async function POST(request: NextRequest) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+	try {
+		const session = await auth();
 
-    const body = await request.json();
-    const {
-      itemSlug,
-      itemName,
-      itemIconUrl,
-      itemCategory,
-      itemDescription,
-      featuredOrder = 0,
-      featuredUntil,
-    } = body;
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    if (!itemSlug || !itemName) {
-      return NextResponse.json(
-        { success: false, error: 'Item slug and name are required' },
-        { status: 400 }
-      );
-    }
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    // Check if item is already featured
-    const existingFeatured = await db
-      .select()
-      .from(featuredItems)
-      .where(
-        and(
-          eq(featuredItems.itemSlug, itemSlug),
-          eq(featuredItems.isActive, true)
-        )
-      )
-      .limit(1);
+		const body = await request.json();
+		const {
+			itemSlug,
+			itemName,
+			itemIconUrl,
+			itemCategory,
+			itemDescription,
+			featuredOrder = 0,
+			featuredUntil
+		} = body;
 
-    if (existingFeatured.length > 0) {
-      return NextResponse.json(
-        { success: false, error: 'Item is already featured' },
-        { status: 400 }
-      );
-    }
+		if (!itemSlug || !itemName) {
+			return NextResponse.json({ success: false, error: 'Item slug and name are required' }, { status: 400 });
+		}
 
-    // Create featured item
-    const newFeaturedItem = await db
-      .insert(featuredItems)
-      .values({
-        itemSlug,
-        itemName,
-        itemIconUrl,
-        itemCategory,
-        itemDescription,
-        featuredOrder,
-        featuredUntil: featuredUntil ? new Date(featuredUntil) : null,
-        featuredBy: session.user.id,
-      })
-      .returning();
+		// Check if item is already featured
+		const existingFeatured = await db
+			.select()
+			.from(featuredItems)
+			.where(
+				and(
+					eq(featuredItems.itemSlug, itemSlug),
+					eq(featuredItems.isActive, true),
+					eq(featuredItems.tenantId, tenantId)
+				)
+			)
+			.limit(1);
 
-    return NextResponse.json({
-      success: true,
-      data: newFeaturedItem[0],
-      message: 'Item featured successfully',
-    });
-  } catch (error) {
-    console.error('Error creating featured item:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to create featured item' },
-      { status: 500 }
-    );
-  }
+		if (existingFeatured.length > 0) {
+			return NextResponse.json({ success: false, error: 'Item is already featured' }, { status: 400 });
+		}
+
+		// Create featured item
+		const newFeaturedItem = await db
+			.insert(featuredItems)
+			.values({
+				itemSlug,
+				itemName,
+				itemIconUrl,
+				itemCategory,
+				itemDescription,
+				featuredOrder,
+				featuredUntil: featuredUntil ? new Date(featuredUntil) : null,
+				featuredBy: session.user.id,
+				tenantId
+			})
+			.returning();
+
+		return NextResponse.json({
+			success: true,
+			data: newFeaturedItem[0],
+			message: 'Item featured successfully'
+		});
+	} catch (error) {
+		console.error('Error creating featured item:', error);
+		return NextResponse.json({ success: false, error: 'Failed to create featured item' }, { status: 500 });
+	}
 }

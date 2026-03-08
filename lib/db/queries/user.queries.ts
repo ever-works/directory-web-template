@@ -1,6 +1,7 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, roles, userRoles, type NewUser, type User } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * Get user by email address
@@ -8,6 +9,9 @@ import { users, clientProfiles, roles, userRoles, type NewUser, type User } from
  * @returns User object or null if not found
  */
 export async function getUserByEmail(email: string): Promise<User | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	// Check if DATABASE_URL is set
 	if (!process.env.DATABASE_URL) {
 		console.warn('DATABASE_URL is not set. User validation is disabled.');
@@ -15,7 +19,11 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 	}
 
 	try {
-		const usersList = await db.select().from(users).where(eq(users.email, email)).limit(1);
+		const usersList = await db
+			.select()
+			.from(users)
+			.where(and(eq(users.email, email), eq(users.tenantId, tenantId)))
+			.limit(1);
 
 		if (usersList.length === 0) {
 			console.warn(`User validation failed: No user found with email ${email}`);
@@ -36,13 +44,20 @@ export async function getUserByEmail(email: string): Promise<User | null> {
  * @returns User object or null if not found
  */
 export async function getUserById(id: string): Promise<User | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	if (!process.env.DATABASE_URL) {
 		console.warn('DATABASE_URL is not set. User validation is disabled.');
 		return null;
 	}
 
 	try {
-		const usersList = await db.select().from(users).where(eq(users.id, id)).limit(1);
+		const usersList = await db
+			.select()
+			.from(users)
+			.where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
+			.limit(1);
 
 		if (usersList.length === 0) {
 			console.warn(`User validation failed: No user found with id ${id}`);
@@ -63,7 +78,12 @@ export async function getUserById(id: string): Promise<User | null> {
  * @returns Created user
  */
 export async function insertNewUser(user: NewUser): Promise<User[]> {
-	return db.insert(users).values(user).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.insert(users)
+		.values({ ...user, tenantId })
+		.returning();
 }
 
 /**
@@ -72,7 +92,12 @@ export async function insertNewUser(user: NewUser): Promise<User[]> {
  * @param userId - User ID
  */
 export async function updateUserPassword(newPasswordHash: string, userId: string) {
-	return db.update(users).set({ passwordHash: newPasswordHash }).where(eq(users.id, userId));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.update(users)
+		.set({ passwordHash: newPasswordHash })
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -81,7 +106,12 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * @param userId - User ID
  */
 export async function updateUser(values: Pick<NewUser, 'email'>, userId: string) {
-	return db.update(users).set(values).where(eq(users.id, userId));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.update(users)
+		.set(values)
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -90,10 +120,12 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
  * @param verified - Verification status
  */
 export async function updateUserVerification(email: string, verified: boolean) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	return db
 		.update(users)
 		.set({ emailVerified: verified ? new Date() : null })
-		.where(eq(users.email, email));
+		.where(and(eq(users.email, email), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -101,13 +133,15 @@ export async function updateUserVerification(email: string, verified: boolean) {
  * @param userId - User ID to delete
  */
 export async function softDeleteUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	return db
 		.update(users)
 		.set({
 			deletedAt: sql`CURRENT_TIMESTAMP`,
 			email: sql`CONCAT(email, '-', id, '-deleted')`
 		})
-		.where(eq(users.id, userId));
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 }
 
 /**
@@ -116,7 +150,12 @@ export async function softDeleteUser(userId: string) {
  * @param name - New name
  */
 export async function updateClientProfileName(userId: string, name: string) {
-	return db.update(clientProfiles).set({ name, updatedAt: new Date() }).where(eq(clientProfiles.userId, userId));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.update(clientProfiles)
+		.set({ name, updatedAt: new Date() })
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)));
 }
 
 /**
@@ -131,11 +170,20 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 	}
 
 	try {
+		const tenantId = await getTenantId();
+		if (!tenantId) throw new Error('Tenant ID not found');
 		const result = await db
 			.select({ isAdmin: roles.isAdmin })
 			.from(userRoles)
 			.innerJoin(roles, eq(userRoles.roleId, roles.id))
-			.where(and(eq(userRoles.userId, userId), eq(roles.isAdmin, true), eq(roles.status, 'active')))
+			.where(
+				and(
+					eq(userRoles.userId, userId),
+					eq(roles.isAdmin, true),
+					eq(roles.status, 'active'),
+					eq(userRoles.tenantId, tenantId)
+				)
+			)
 			.limit(1);
 
 		return result.length > 0;

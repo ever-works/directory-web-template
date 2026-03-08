@@ -484,14 +484,15 @@ async function readCollection<T extends Identifiable>(
 		if (useDir && options.lang && options.lang !== 'en') {
 			// Validate language code to prevent path traversal
 			if (!validateLanguageCode(options.lang)) {
-				throw new Error(`Invalid language code: ${options.lang}`);
-			}
-			const translations = await parseTranslation(collectionDir, `${type}.${options.lang}.yml`);
-			if (translations) {
-				for (const translation of translations) {
-					const item = collection.get(translation.id);
-					if (item) {
-						collection.set(translation.id, { ...item, ...translation });
+				console.warn(`[CONTENT] Invalid language code "${options.lang}" (ignoring translations).`);
+			} else {
+				const translations = await parseTranslation(collectionDir, `${type}.${options.lang}.yml`);
+				if (translations) {
+					for (const translation of translations) {
+						const item = collection.get(translation.id);
+						if (item) {
+							collection.set(translation.id, { ...item, ...translation });
+						}
 					}
 				}
 			}
@@ -751,10 +752,11 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 			if (options.lang && options.lang !== 'en') {
 				// Validate language code to prevent path traversal
 				if (!validateLanguageCode(options.lang)) {
-					throw new Error(`Invalid language code: ${options.lang}`);
+					console.warn(`[CONTENT] Invalid language code "${options.lang}" for item ${slug}.`);
+				} else {
+					const translation = await parseTranslation(base, `${sanitizedSlug}.${options.lang}.yml`);
+					if (translation) Object.assign(item, translation);
 				}
-				const translation = await parseTranslation(base, `${sanitizedSlug}.${options.lang}.yml`);
-				if (translation) Object.assign(item, translation);
 			}
 
 			if (Array.isArray(item.tags)) {
@@ -1511,7 +1513,8 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
 
 		// Sanitize inputs to prevent path traversal
 		if (!validateLanguageCode(locale)) {
-			throw new Error(`Invalid language code: ${locale}`);
+			console.warn(`[CONTENT] Invalid language code "${locale}" for fetchHeroContent()`);
+			locale = 'en'; // fallback
 		}
 
 		const blocksDir = path.join(base, sourceDir);

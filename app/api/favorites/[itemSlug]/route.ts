@@ -5,6 +5,7 @@ import { favorites } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -55,6 +56,19 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - Tenant not found"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Tenant not found"
  *       404:
  *         description: "Favorite not found or doesn't belong to user"
  *         content:
@@ -82,60 +96,57 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
  *                   type: string
  *                   example: "Failed to remove favorite"
  */
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ itemSlug: string }> }
-) {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ itemSlug: string }> }) {
+	try {
+		// Check database availability
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
 
-    const { itemSlug } = await params;
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    // Check if favorite exists
-    const existingFavorite = await db
-      .select()
-      .from(favorites)
-      .where(
-        and(
-          eq(favorites.userId, session.user.id),
-          eq(favorites.itemSlug, itemSlug)
-        )
-      )
-      .limit(1);
+		const { itemSlug } = await params;
 
-    if (existingFavorite.length === 0) {
-      return NextResponse.json(
-        { success: false, error: "Favorite not found" },
-        { status: 404 }
-      );
-    }
+		// Check if favorite exists
+		const existingFavorite = await db
+			.select()
+			.from(favorites)
+			.where(
+				and(
+					eq(favorites.userId, session.user.id),
+					eq(favorites.itemSlug, itemSlug),
+					eq(favorites.tenantId, tenantId)
+				)
+			)
+			.limit(1);
 
-    // Delete the favorite
-    await db
-      .delete(favorites)
-      .where(
-        and(
-          eq(favorites.userId, session.user.id),
-          eq(favorites.itemSlug, itemSlug)
-        )
-      );
+		if (existingFavorite.length === 0) {
+			return NextResponse.json({ success: false, error: 'Favorite not found' }, { status: 404 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      message: "Favorite removed successfully",
-    });
+		// Delete the favorite
+		await db
+			.delete(favorites)
+			.where(
+				and(
+					eq(favorites.userId, session.user.id),
+					eq(favorites.itemSlug, itemSlug),
+					eq(favorites.tenantId, tenantId)
+				)
+			);
 
-  } catch (error) {
-    return safeErrorResponse(error, 'Failed to remove favorite');
-  }
+		return NextResponse.json({
+			success: true,
+			message: 'Favorite removed successfully'
+		});
+	} catch (error) {
+		return safeErrorResponse(error, 'Failed to remove favorite');
+	}
 }

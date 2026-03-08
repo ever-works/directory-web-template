@@ -5,6 +5,7 @@ import { ActivityType, users, clientProfiles, accounts, verificationTokens } fro
 import { eq } from 'drizzle-orm';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { db } from '@/lib/db/drizzle';
+import { getTenantId } from '@/lib/auth/tenant';
 
 import { redirect } from 'next/navigation';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
@@ -155,6 +156,9 @@ const signUpSchema = z.object({
 
 export const signUp = validatedAction(signUpSchema, async (data) => {
 	try {
+		const tenantId = await getTenantId();
+		if (!tenantId) throw new Error('Tenant ID not found');
+
 		const { name, email, password } = data;
 		const normalizedEmail = email.toLowerCase().trim();
 
@@ -201,7 +205,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.insert(users)
 				.values({
 					id: userId,
-					email: normalizedEmail
+					email: normalizedEmail,
+					tenantId
 				})
 				.returning();
 
@@ -226,7 +231,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 						company: 'Unknown',
 						status: 'active',
 						plan: 'free',
-						accountType: 'individual'
+						accountType: 'individual',
+						tenantId
 					})
 					.onConflictDoNothing({ target: clientProfiles.username })
 					.returning();
@@ -247,7 +253,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 					provider: 'credentials',
 					providerAccountId: normalizedEmail,
 					email: normalizedEmail,
-					passwordHash
+					passwordHash,
+					tenantId
 				})
 				.returning();
 
@@ -270,7 +277,8 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 					identifier: token,
 					email: normalizedEmail,
 					token,
-					expires
+					expires,
+					tenantId
 				})
 				.returning();
 

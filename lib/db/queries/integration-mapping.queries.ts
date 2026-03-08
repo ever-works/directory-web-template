@@ -3,6 +3,7 @@
  * Database operations for Ever ID ↔ CRM ID mappings
  */
 
+import { getTenantId } from '@/lib/auth/tenant';
 import { db } from '../drizzle';
 import { integrationMappings, type IntegrationMapping, type NewIntegrationMapping } from '../schema';
 import { eq, and, sql, lt } from 'drizzle-orm';
@@ -20,21 +21,25 @@ export type IntegrationObjectType = 'company' | 'person';
  * @returns Mapping if found, null otherwise
  */
 export async function findMappingByEverId(
-  everId: string,
-  objectType: IntegrationObjectType
+	everId: string,
+	objectType: IntegrationObjectType
 ): Promise<IntegrationMapping | null> {
-  const results = await db
-    .select()
-    .from(integrationMappings)
-    .where(
-      and(
-        eq(integrationMappings.everId, everId),
-        eq(integrationMappings.objectType, objectType)
-      )
-    )
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return results[0] ?? null;
+	const results = await db
+		.select()
+		.from(integrationMappings)
+		.where(
+			and(
+				eq(integrationMappings.everId, everId),
+				eq(integrationMappings.objectType, objectType),
+				eq(integrationMappings.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return results[0] ?? null;
 }
 
 /**
@@ -45,21 +50,25 @@ export async function findMappingByEverId(
  * @returns Mapping if found, null otherwise
  */
 export async function findMappingByCrmId(
-  crmId: string,
-  objectType: IntegrationObjectType
+	crmId: string,
+	objectType: IntegrationObjectType
 ): Promise<IntegrationMapping | null> {
-  const results = await db
-    .select()
-    .from(integrationMappings)
-    .where(
-      and(
-        eq(integrationMappings.crmId, crmId),
-        eq(integrationMappings.objectType, objectType)
-      )
-    )
-    .limit(1);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return results[0] ?? null;
+	const results = await db
+		.select()
+		.from(integrationMappings)
+		.where(
+			and(
+				eq(integrationMappings.crmId, crmId),
+				eq(integrationMappings.objectType, objectType),
+				eq(integrationMappings.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return results[0] ?? null;
 }
 
 /**
@@ -69,28 +78,31 @@ export async function findMappingByCrmId(
  * @returns The created/updated mapping
  */
 export async function upsertMapping(
-  data: Omit<NewIntegrationMapping, 'id' | 'createdAt'>
+	data: Omit<NewIntegrationMapping, 'id' | 'createdAt'>
 ): Promise<IntegrationMapping> {
-  const now = new Date();
+	const now = new Date();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  const result = await db
-    .insert(integrationMappings)
-    .values({
-      ...data,
-      updatedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: [integrationMappings.everId, integrationMappings.objectType],
-      set: {
-        crmId: data.crmId,
-        versionHash: data.versionHash,
-        lastSyncedAt: data.lastSyncedAt ?? now,
-        updatedAt: now,
-      },
-    })
-    .returning();
+	const result = await db
+		.insert(integrationMappings)
+		.values({
+			...data,
+			tenantId,
+			updatedAt: now
+		})
+		.onConflictDoUpdate({
+			target: [integrationMappings.everId, integrationMappings.objectType, integrationMappings.tenantId],
+			set: {
+				crmId: data.crmId,
+				versionHash: data.versionHash,
+				lastSyncedAt: data.lastSyncedAt ?? now,
+				updatedAt: now
+			}
+		})
+		.returning();
 
-  return result[0];
+	return result[0];
 }
 
 /**
@@ -100,34 +112,37 @@ export async function upsertMapping(
  * @returns Array of created/updated mappings
  */
 export async function upsertManyMappings(
-  mappings: Array<Omit<NewIntegrationMapping, 'id' | 'createdAt'>>
+	mappings: Array<Omit<NewIntegrationMapping, 'id' | 'createdAt'>>
 ): Promise<IntegrationMapping[]> {
-  if (mappings.length === 0) {
-    return [];
-  }
+	if (mappings.length === 0) {
+		return [];
+	}
 
-  const now = new Date();
+	const now = new Date();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  const result = await db
-    .insert(integrationMappings)
-    .values(
-      mappings.map(mapping => ({
-        ...mapping,
-        updatedAt: now,
-      }))
-    )
-    .onConflictDoUpdate({
-      target: [integrationMappings.everId, integrationMappings.objectType],
-      set: {
-        crmId: sql`EXCLUDED.crm_id`,
-        versionHash: sql`EXCLUDED.version_hash`,
-        lastSyncedAt: sql`EXCLUDED.last_synced_at`,
-        updatedAt: now,
-      },
-    })
-    .returning();
+	const result = await db
+		.insert(integrationMappings)
+		.values(
+			mappings.map((mapping) => ({
+				...mapping,
+				tenantId,
+				updatedAt: now
+			}))
+		)
+		.onConflictDoUpdate({
+			target: [integrationMappings.everId, integrationMappings.objectType, integrationMappings.tenantId],
+			set: {
+				crmId: sql`EXCLUDED.crm_id`,
+				versionHash: sql`EXCLUDED.version_hash`,
+				lastSyncedAt: sql`EXCLUDED.last_synced_at`,
+				updatedAt: now
+			}
+		})
+		.returning();
 
-  return result;
+	return result;
 }
 
 /**
@@ -137,21 +152,22 @@ export async function upsertManyMappings(
  * @param objectType - Type of object
  * @returns True if deleted, false if not found
  */
-export async function deleteMappingByEverId(
-  everId: string,
-  objectType: IntegrationObjectType
-): Promise<boolean> {
-  const result = await db
-    .delete(integrationMappings)
-    .where(
-      and(
-        eq(integrationMappings.everId, everId),
-        eq(integrationMappings.objectType, objectType)
-      )
-    )
-    .returning();
+export async function deleteMappingByEverId(everId: string, objectType: IntegrationObjectType): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  return result.length > 0;
+	const result = await db
+		.delete(integrationMappings)
+		.where(
+			and(
+				eq(integrationMappings.everId, everId),
+				eq(integrationMappings.objectType, objectType),
+				eq(integrationMappings.tenantId, tenantId)
+			)
+		)
+		.returning();
+
+	return result.length > 0;
 }
 
 /**
@@ -162,14 +178,17 @@ export async function deleteMappingByEverId(
  * @returns Array of mappings
  */
 export async function findMappingsByObjectType(
-  objectType: IntegrationObjectType,
-  limit: number = 100
+	objectType: IntegrationObjectType,
+	limit: number = 100
 ): Promise<IntegrationMapping[]> {
-  return db
-    .select()
-    .from(integrationMappings)
-    .where(eq(integrationMappings.objectType, objectType))
-    .limit(limit);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	return db
+		.select()
+		.from(integrationMappings)
+		.where(and(eq(integrationMappings.objectType, objectType), eq(integrationMappings.tenantId, tenantId)))
+		.limit(limit);
 }
 
 /**
@@ -182,21 +201,25 @@ export async function findMappingsByObjectType(
  * @returns Array of stale mappings
  */
 export async function findStaleMappings(
-  olderThan: Date,
-  objectType?: IntegrationObjectType,
-  limit: number = 100
+	olderThan: Date,
+	objectType?: IntegrationObjectType,
+	limit: number = 100
 ): Promise<IntegrationMapping[]> {
-  const conditions = [lt(integrationMappings.lastSyncedAt, olderThan)];
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  if (objectType) {
-    conditions.push(eq(integrationMappings.objectType, objectType));
-  }
+	const conditions = [lt(integrationMappings.lastSyncedAt, olderThan)];
 
-  return db
-    .select()
-    .from(integrationMappings)
-    .where(and(...conditions))
-    .limit(limit);
+	if (objectType) {
+		conditions.push(eq(integrationMappings.objectType, objectType));
+	}
+	conditions.push(eq(integrationMappings.tenantId, tenantId));
+
+	return db
+		.select()
+		.from(integrationMappings)
+		.where(and(...conditions))
+		.limit(limit);
 }
 
 /**
@@ -205,16 +228,20 @@ export async function findStaleMappings(
  * @param objectType - Optional: filter by object type
  * @returns Total count
  */
-export async function getMappingCount(
-  objectType?: IntegrationObjectType
-): Promise<number> {
-  const query = objectType
-    ? db
-        .select({ count: sql<number>`count(*)` })
-        .from(integrationMappings)
-        .where(eq(integrationMappings.objectType, objectType))
-    : db.select({ count: sql<number>`count(*)` }).from(integrationMappings);
+export async function getMappingCount(objectType?: IntegrationObjectType): Promise<number> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
-  const result = await query;
-  return Number(result[0]?.count ?? 0);
+	const query = objectType
+		? db
+				.select({ count: sql<number>`count(*)` })
+				.from(integrationMappings)
+				.where(and(eq(integrationMappings.objectType, objectType), eq(integrationMappings.tenantId, tenantId)))
+		: db
+				.select({ count: sql<number>`count(*)` })
+				.from(integrationMappings)
+				.where(eq(integrationMappings.tenantId, tenantId));
+
+	const result = await query;
+	return Number(result[0]?.count ?? 0);
 }

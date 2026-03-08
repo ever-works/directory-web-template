@@ -1,5 +1,5 @@
-import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { auth } from '@/lib/auth';
+import { NextResponse } from 'next/server';
 
 /**
  * @swagger
@@ -48,6 +48,11 @@ import { NextResponse } from "next/server";
  *                       type: boolean
  *                       description: "Whether the user has admin privileges"
  *                       example: false
+ *                     tenantId:
+ *                       type: string
+ *                       nullable: true
+ *                       description: "The ID of the tenant the user belongs to"
+ *                       example: "tenant_123xyz"
  *                   required: ["id", "isAdmin"]
  *                 - type: "null"
  *                   description: "No authenticated user"
@@ -61,6 +66,7 @@ import { NextResponse } from "next/server";
  *                   image: "https://example.com/avatars/john.jpg"
  *                   provider: "google"
  *                   isAdmin: false
+ *                   tenantId: "tenant_123xyz"
  *               authenticated_admin:
  *                 summary: "Authenticated admin user"
  *                 value:
@@ -70,6 +76,7 @@ import { NextResponse } from "next/server";
  *                   image: "https://example.com/avatars/jane.jpg"
  *                   provider: "credentials"
  *                   isAdmin: true
+ *                   tenantId: null
  *               oauth_user:
  *                 summary: "OAuth user with minimal info"
  *                 value:
@@ -79,6 +86,7 @@ import { NextResponse } from "next/server";
  *                   image: "https://avatars.githubusercontent.com/u/123456"
  *                   provider: "github"
  *                   isAdmin: false
+ *                   tenantId: "tenant_456abc"
  *               credentials_user:
  *                 summary: "Credentials user"
  *                 value:
@@ -88,25 +96,27 @@ import { NextResponse } from "next/server";
  *                   image: null
  *                   provider: "credentials"
  *                   isAdmin: false
+ *                   tenantId: "tenant_789def"
  *               unauthenticated:
  *                 summary: "No authenticated user"
  *                 value: null
  */
 export async function GET() {
-  const session = await auth();
+	const session = await auth();
 
-  if (!session?.user) {
-    return NextResponse.json(null);
-  }
+	if (!session?.user) {
+		return NextResponse.json(null);
+	}
 
-  const safeUser = {
-    id: session.user.id,
-    name: session.user.name,
-    email: session.user.email,
-    image: session.user.image,
-    provider: session.user.provider,
-    isAdmin: session.user.isAdmin || false,
-  };
+	const safeUser = {
+		id: session.user.id,
+		name: session.user.name,
+		email: session.user.email,
+		image: session.user.image,
+		provider: session.user.provider,
+		isAdmin: session.user.isAdmin || false,
+		tenantId: session.user.tenantId
+	};
 
-  return NextResponse.json(safeUser);
-}   
+	return NextResponse.json(safeUser);
+}

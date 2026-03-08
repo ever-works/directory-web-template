@@ -1,6 +1,7 @@
 import { and, eq, desc } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { activityLogs, ActivityType, type ActivityLog } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * Log an activity to the activity logs table
@@ -10,19 +11,23 @@ import { activityLogs, ActivityType, type ActivityLog } from '../schema';
  * @param ipAddress - Optional IP address
  */
 export async function logActivity(
-  type: ActivityType,
-  id?: string,
-  entityType: 'user' | 'client' = 'user',
-  ipAddress?: string
+	type: ActivityType,
+	id?: string,
+	entityType: 'user' | 'client' = 'user',
+	ipAddress?: string,
+	explicitTenantId?: string
 ): Promise<void> {
-  const newActivity = {
-    userId: entityType === 'user' ? (id || null) : null,
-    clientId: entityType === 'client' ? (id || null) : null,
-    action: type,
-    ipAddress: ipAddress || ''
-  };
+	const tenantId = explicitTenantId || (await getTenantId());
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const newActivity = {
+		userId: entityType === 'user' ? id || null : null,
+		clientId: entityType === 'client' ? id || null : null,
+		action: type,
+		ipAddress: ipAddress || '',
+		tenantId: tenantId
+	};
 
-  await db.insert(activityLogs).values(newActivity);
+	await db.insert(activityLogs).values(newActivity);
 }
 
 /**
@@ -32,19 +37,19 @@ export async function logActivity(
  * @returns Last login activity or null if not found
  */
 export async function getLastLoginActivity(
-  id: string,
-  entityType: 'user' | 'client' = 'client'
+	id: string,
+	entityType: 'user' | 'client' = 'client'
 ): Promise<ActivityLog | null> {
-  const idCondition = entityType === 'user'
-    ? eq(activityLogs.userId, id)
-    : eq(activityLogs.clientId, id);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const idCondition = entityType === 'user' ? eq(activityLogs.userId, id) : eq(activityLogs.clientId, id);
 
-  const [lastLogin] = await db
-    .select()
-    .from(activityLogs)
-    .where(and(idCondition, eq(activityLogs.action, ActivityType.SIGN_IN)))
-    .orderBy(desc(activityLogs.timestamp))
-    .limit(1);
+	const [lastLogin] = await db
+		.select()
+		.from(activityLogs)
+		.where(and(idCondition, eq(activityLogs.action, ActivityType.SIGN_IN), eq(activityLogs.tenantId, tenantId)))
+		.orderBy(desc(activityLogs.timestamp))
+		.limit(1);
 
-  return lastLogin || null;
+	return lastLogin || null;
 }

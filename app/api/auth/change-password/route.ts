@@ -1,28 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { z } from "zod";
-import bcrypt from "bcryptjs";
-import { db } from "@/lib/db/drizzle";
-import { users } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { ratelimit } from "@/lib/utils/rate-limit";
-import { sendPasswordChangeConfirmationEmail } from "@/lib/mail";
-import { passwordSchema } from "@/lib/validations/auth";
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { z } from 'zod';
+import bcrypt from 'bcryptjs';
+import { db } from '@/lib/db/drizzle';
+import { users } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
+import { ratelimit } from '@/lib/utils/rate-limit';
+import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
+import { passwordSchema } from '@/lib/validations/auth';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // Validation schema
-const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, "Current password is required"),
-  newPassword: passwordSchema,
-  confirmPassword: z.string(),
-}).refine((data) => data.newPassword === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const changePasswordSchema = z
+	.object({
+		currentPassword: z.string().min(1, 'Current password is required'),
+		newPassword: passwordSchema,
+		confirmPassword: z.string()
+	})
+	.refine((data) => data.newPassword === data.confirmPassword, {
+		message: "Passwords don't match",
+		path: ['confirmPassword']
+	});
 
 // Rate limiting: 5 attempts per 15 minutes per IP
 const rateLimitConfig = {
-  requests: 5,
-  window: 15 * 60 * 1000, // 15 minutes
+	requests: 5,
+	window: 15 * 60 * 1000 // 15 minutes
 };
 
 /**
@@ -212,167 +215,157 @@ const rateLimitConfig = {
  *                   example: "Internal server error. Please try again later."
  */
 export async function POST(request: NextRequest) {
-  try {
-    const clientIP = request.headers.get("x-forwarded-for") ||
-                    request.headers.get("x-real-ip") ||
-                    "unknown";
+	try {
+		const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
-    console.log("Client IP:", clientIP);
+		console.log('Client IP:', clientIP);
 
-    // Apply rate limiting
-    const rateLimitResult = await ratelimit(
-      `change-password:${clientIP}`,
-      rateLimitConfig.requests,
-      rateLimitConfig.window
-    );
+		// Apply rate limiting
+		const rateLimitResult = await ratelimit(
+			`change-password:${clientIP}`,
+			rateLimitConfig.requests,
+			rateLimitConfig.window
+		);
 
-    if (!rateLimitResult.success) {
-      console.log("Rate limit exceeded for IP:", clientIP);
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Too many password change attempts. Please try again later.",
-          retryAfter: rateLimitResult.retryAfter
-        },
-        { status: 429 }
-      );
-    }
+		if (!rateLimitResult.success) {
+			console.log('Rate limit exceeded for IP:', clientIP);
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Too many password change attempts. Please try again later.',
+					retryAfter: rateLimitResult.retryAfter
+				},
+				{ status: 429 }
+			);
+		}
 
-    // Check authentication
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Please sign in." },
-        { status: 401 }
-      );
-    }
-    const body = await request.json();
-    const validationResult = changePasswordSchema.safeParse(body);
+		// Check authentication
+		const session = await auth();
+		if (!session?.user?.id) {
+			return NextResponse.json({ success: false, error: 'Unauthorized. Please sign in.' }, { status: 401 });
+		}
+		const body = await request.json();
+		const validationResult = changePasswordSchema.safeParse(body);
 
-    if (!validationResult.success) {
-      console.log("Validation failed:", validationResult.error.issues);
-    }
+		if (!validationResult.success) {
+			console.log('Validation failed:', validationResult.error.issues);
+		}
 
-    if (!validationResult.success) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Invalid input data",
-          details: validationResult.error.issues
-        },
-        { status: 400 }
-      );
-    }
+		if (!validationResult.success) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Invalid input data',
+					details: validationResult.error.issues
+				},
+				{ status: 400 }
+			);
+		}
 
-    const { currentPassword, newPassword } = validationResult.data;
+		const { currentPassword, newPassword } = validationResult.data;
 
-    // Get user from database
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, session.user.id))
-      .limit(1);
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
-      );
-    }
+		// Get user from database
+		const [user] = await db
+			.select()
+			.from(users)
+			.where(and(eq(users.id, session.user.id), eq(users.tenantId, tenantId)))
+			.limit(1);
 
-    // Check if user has a password (OAuth users might not have one)
-    if (!user.passwordHash) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Password change not available for OAuth accounts. Please contact support."
-        },
-        { status: 400 }
-      );
-    }
+		if (!user) {
+			return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
+		}
 
-    // Verify current password
-    const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-    if (!isCurrentPasswordValid) {
-      return NextResponse.json(
-        { success: false, error: "Current password is incorrect" },
-        { status: 400 }
-      );
-    }
+		// Check if user has a password (OAuth users might not have one)
+		if (!user.passwordHash) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Password change not available for OAuth accounts. Please contact support.'
+				},
+				{ status: 400 }
+			);
+		}
 
-    // Check if new password is different from current
-    const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
-    if (isSamePassword) {
-      return NextResponse.json(
-        { success: false, error: "New password must be different from current password" },
-        { status: 400 }
-      );
-    }
+		// Verify current password
+		const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
+		if (!isCurrentPasswordValid) {
+			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
+		}
 
-    // Hash new password
-    const saltRounds = 12;
-    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+		// Check if new password is different from current
+		const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+		if (isSamePassword) {
+			return NextResponse.json(
+				{ success: false, error: 'New password must be different from current password' },
+				{ status: 400 }
+			);
+		}
 
-    // Update password in database
-    await db
-      .update(users)
-      .set({
-        passwordHash: hashedNewPassword,
-        updatedAt: new Date()
-      })
-      .where(eq(users.id, session.user.id));
+		// Hash new password
+		const saltRounds = 12;
+		const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-    // Send confirmation email
-    try {
-      const clientIP = request.headers.get("x-forwarded-for") ||
-                      request.headers.get("x-real-ip") ||
-                      "unknown";
-      const userAgent = request.headers.get("user-agent") || "unknown";
+		// Update password in database
+		await db
+			.update(users)
+			.set({
+				passwordHash: hashedNewPassword,
+				updatedAt: new Date()
+			})
+			.where(and(eq(users.id, session.user.id), eq(users.tenantId, tenantId)));
 
-      const emailData = {
-        email: user.email || session.user.email!,
-        userName: session.user.name || undefined,
-        clientIP,
-        userAgent
-      };
+		// Send confirmation email
+		try {
+			const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+			const userAgent = request.headers.get('user-agent') || 'unknown';
 
+			const emailData = {
+				email: user.email || session.user.email!,
+				userName: session.user.name || undefined,
+				clientIP,
+				userAgent
+			};
 
-      const emailResult = await sendPasswordChangeConfirmationEmail(
-        emailData.email,
-        emailData.userName,
-        emailData.clientIP,
-        emailData.userAgent
-      );
+			const emailResult = await sendPasswordChangeConfirmationEmail(
+				emailData.email,
+				emailData.userName,
+				emailData.clientIP,
+				emailData.userAgent
+			);
 
-      console.log("📧 Email result:", emailResult);
-    } catch (emailError) {
-      // Log email error but don't fail the password change
-      console.error("Email error details:", {
-        message: emailError instanceof Error ? emailError.message : 'Unknown error',
-        stack: emailError instanceof Error ? emailError.stack : undefined
-      });
-    }
+			console.log('📧 Email result:', emailResult);
+		} catch (emailError) {
+			// Log email error but don't fail the password change
+			console.error('Email error details:', {
+				message: emailError instanceof Error ? emailError.message : 'Unknown error',
+				stack: emailError instanceof Error ? emailError.stack : undefined
+			});
+		}
 
-    // Log security event (optional)
-    console.log(`Password changed for user ${session.user.id} at ${new Date().toISOString()}`);
+		// Log security event (optional)
+		console.log(`Password changed for user ${session.user.id} at ${new Date().toISOString()}`);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Password changed successfully"
-      },
-      { status: 200 }
-    );
+		return NextResponse.json(
+			{
+				success: true,
+				message: 'Password changed successfully'
+			},
+			{ status: 200 }
+		);
+	} catch (error) {
+		console.error('Password change error:', error);
 
-  } catch (error) {
-    console.error("Password change error:", error);
-    
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error. Please try again later."
-      },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json(
+			{
+				success: false,
+				error: 'Internal server error. Please try again later.'
+			},
+			{ status: 500 }
+		);
+	}
 }

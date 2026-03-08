@@ -14,6 +14,7 @@ import {
 	type ReportReasonValues,
 	type ReportResolutionValues
 } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Report Types =====================
 
@@ -44,13 +45,17 @@ export async function createReport(data: {
 	details?: string;
 	reportedBy: string;
 }): Promise<Report> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const insertData: NewReport = {
 		contentType: data.contentType,
 		contentId: data.contentId,
 		reason: data.reason,
 		details: data.details || null,
 		reportedBy: data.reportedBy,
-		status: ReportStatus.PENDING
+		status: ReportStatus.PENDING,
+		tenantId: tenantId
 	};
 
 	const [report] = await db.insert(reports).values(insertData).returning();
@@ -64,6 +69,9 @@ export async function createReport(data: {
  * @returns Report with reporter info or null
  */
 export async function getReportById(id: string): Promise<ReportWithReporter | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.select({
 			id: reports.id,
@@ -80,6 +88,7 @@ export async function getReportById(id: string): Promise<ReportWithReporter | nu
 			updatedAt: reports.updatedAt,
 			reviewedAt: reports.reviewedAt,
 			resolvedAt: reports.resolvedAt,
+			tenantId: reports.tenantId,
 			reporter: {
 				id: clientProfiles.id,
 				name: clientProfiles.name,
@@ -89,7 +98,7 @@ export async function getReportById(id: string): Promise<ReportWithReporter | nu
 		})
 		.from(reports)
 		.leftJoin(clientProfiles, eq(reports.reportedBy, clientProfiles.id))
-		.where(eq(reports.id, id))
+		.where(and(eq(reports.id, id), eq(reports.tenantId, tenantId)))
 		.limit(1);
 
 	if (!result[0]) return null;
@@ -100,7 +109,7 @@ export async function getReportById(id: string): Promise<ReportWithReporter | nu
 		const [reviewerResult] = await db
 			.select({ id: users.id, email: users.email })
 			.from(users)
-			.where(eq(users.id, result[0].reviewedBy))
+			.where(and(eq(users.id, result[0].reviewedBy), eq(users.tenantId, tenantId)))
 			.limit(1);
 		reviewer = reviewerResult || null;
 	}
@@ -131,6 +140,9 @@ export async function getReports(params: {
 	totalPages: number;
 	limit: number;
 }> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const { page = 1, limit = 10, search, status, contentType, reason } = params;
 	const offset = (page - 1) * limit;
 
@@ -145,6 +157,8 @@ export async function getReports(params: {
 				 ${clientProfiles.email} ILIKE ${`%${escapedSearch}%`})`
 		);
 	}
+
+	whereConditions.push(eq(reports.tenantId, tenantId));
 
 	if (status) {
 		whereConditions.push(eq(reports.status, status));
@@ -186,6 +200,7 @@ export async function getReports(params: {
 			updatedAt: reports.updatedAt,
 			reviewedAt: reports.reviewedAt,
 			resolvedAt: reports.resolvedAt,
+			tenantId: reports.tenantId,
 			reporter: {
 				id: clientProfiles.id,
 				name: clientProfiles.name,
@@ -234,6 +249,8 @@ export async function updateReport(
 	const updateData: Partial<Report> = {
 		updatedAt: now
 	};
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	if (data.status !== undefined) {
 		updateData.status = data.status;
@@ -262,7 +279,11 @@ export async function updateReport(
 		updateData.reviewedAt = now;
 	}
 
-	const [report] = await db.update(reports).set(updateData).where(eq(reports.id, id)).returning();
+	const [report] = await db
+		.update(reports)
+		.set(updateData)
+		.where(and(eq(reports.id, id), eq(reports.tenantId, tenantId)))
+		.returning();
 
 	return report || null;
 }
@@ -282,11 +303,14 @@ export async function getReportStats(): Promise<{
 	// Get total
 	const totalResult = await db.select({ count: sql<number>`count(*)` }).from(reports);
 	const total = Number(totalResult[0]?.count || 0);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	// Get counts by status
 	const statusStats = await db
 		.select({ status: reports.status, count: sql<number>`count(*)` })
 		.from(reports)
+		.where(eq(reports.tenantId, tenantId))
 		.groupBy(reports.status);
 
 	const byStatus: Record<string, number> = {
@@ -305,6 +329,7 @@ export async function getReportStats(): Promise<{
 	const contentTypeStats = await db
 		.select({ contentType: reports.contentType, count: sql<number>`count(*)` })
 		.from(reports)
+		.where(eq(reports.tenantId, tenantId))
 		.groupBy(reports.contentType);
 
 	const byContentType: Record<string, number> = {
@@ -321,6 +346,7 @@ export async function getReportStats(): Promise<{
 	const reasonStats = await db
 		.select({ reason: reports.reason, count: sql<number>`count(*)` })
 		.from(reports)
+		.where(eq(reports.tenantId, tenantId))
 		.groupBy(reports.reason);
 
 	const byReason: Record<string, number> = {
@@ -357,6 +383,9 @@ export async function hasUserReportedContent(
 	contentType: ReportContentTypeValues,
 	contentId: string
 ): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [existing] = await db
 		.select({ id: reports.id })
 		.from(reports)
@@ -364,7 +393,8 @@ export async function hasUserReportedContent(
 			and(
 				eq(reports.reportedBy, reportedBy),
 				eq(reports.contentType, contentType),
-				eq(reports.contentId, contentId)
+				eq(reports.contentId, contentId),
+				eq(reports.tenantId, tenantId)
 			)
 		)
 		.limit(1);

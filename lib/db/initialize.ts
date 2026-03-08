@@ -18,11 +18,7 @@ async function getSeedStatus(): Promise<SeedStatus | null> {
 	try {
 		const { db } = await import('./drizzle');
 
-		const result = await db
-			.select()
-			.from(seedStatus)
-			.where(eq(seedStatus.id, 'singleton'))
-			.limit(1);
+		const result = await db.select().from(seedStatus).where(eq(seedStatus.id, 'singleton')).limit(1);
 
 		return result[0] || null;
 	} catch (error) {
@@ -37,26 +33,26 @@ async function getSeedStatus(): Promise<SeedStatus | null> {
  */
 async function waitForSeedingToComplete(): Promise<boolean> {
 	const startTime = Date.now();
-	
+
 	while (Date.now() - startTime < SEED_WAIT_TIMEOUT) {
-		await new Promise(resolve => setTimeout(resolve, SEED_CHECK_INTERVAL));
-		
+		await new Promise((resolve) => setTimeout(resolve, SEED_CHECK_INTERVAL));
+
 		const status = await getSeedStatus();
-		
+
 		if (status?.status === 'completed') {
 			console.log('[DB Init] Seeding completed by another instance');
 			return true;
 		}
-		
+
 		if (status?.status === 'failed') {
 			console.log('[DB Init] Seeding failed in another instance');
 			return false;
 		}
-		
+
 		// Still seeding or no status yet
 		console.log('[DB Init] Waiting for seeding to complete...');
 	}
-	
+
 	console.warn('[DB Init] Timed out waiting for seeding to complete');
 	return false;
 }
@@ -81,7 +77,7 @@ export async function isDatabaseSeeded(): Promise<boolean> {
 			status: status.status,
 			startedAt: status.startedAt,
 			completedAt: status.completedAt,
-			isSeeded,
+			isSeeded
 		});
 	}
 
@@ -96,14 +92,17 @@ async function seedDatabase(): Promise<void> {
 	const { db } = await import('./drizzle');
 
 	console.log('[DB Init] Creating seed status record...');
-	
+
 	// Create seed status record to indicate seeding is in progress
-	// Explicitly pass id to avoid any issues with SQL DEFAULT not being applied
-	await db.insert(seedStatus).values({
-		id: 'singleton',
-		status: 'seeding',
-		startedAt: new Date()
-	}).onConflictDoNothing();
+	// Seed status is a system-level singleton, not tenant-scoped
+	await db
+		.insert(seedStatus)
+		.values({
+			id: 'singleton',
+			status: 'seeding',
+			startedAt: new Date()
+		})
+		.onConflictDoNothing();
 
 	// Verify the record was created
 	const statusCheck = await getSeedStatus();
@@ -129,7 +128,7 @@ async function seedDatabase(): Promise<void> {
 		console.log('[DB Init] Database seeding completed successfully');
 	} catch (error) {
 		console.error('[DB Init] Seed error:', error);
-		
+
 		// Mark seed as failed
 		await db
 			.update(seedStatus)
@@ -181,10 +180,51 @@ export async function initializeDatabase(): Promise<void> {
 			if (getNodeEnv() === 'production' || process.env.VERCEL_ENV === 'production') {
 				throw new Error(errorMsg);
 			}
-			
+
 			// In development/preview, warn but continue (allows debugging)
 			console.warn('[DB Init] ⚠️  Continuing despite migration failure (non-production)');
 			return;
+		}
+
+		// STEP 1.5: Ensure environment tenant exists if configured
+		// This prevents foreign key constraint errors when a user overrides the tenant
+		// in the environment variables but the tenant doesn't exist in the database.
+		const { env } = await import('../config/env');
+		if (env.TENANT_ID) {
+			try {
+				const { db } = await import('./drizzle');
+				const { tenant } = await import('./schema');
+
+				await db
+					.insert(tenant)
+					.values({
+						id: env.TENANT_ID,
+						name: 'Environment Tenant',
+						status: 'active'
+					})
+					.onConflictDoNothing();
+				console.log(`[DB Init] Ensured environment tenant '${env.TENANT_ID}' exists`);
+			} catch (e) {
+				console.warn(`[DB Init] Could not ensure environment tenant:`, e);
+			}
+		}
+
+		// STEP 1.6: Migrate NULL tenant_id rows to the resolved tenant
+		// On existing deployments, rows created before multi-tenant support have
+		// tenant_id = NULL.  This one-time (idempotent) migration assigns them to
+		// the current tenant so they remain visible in tenant-scoped queries.
+		try {
+			const { getTenantId } = await import('../auth/tenant');
+			const resolvedTenantId = env.TENANT_ID || (await getTenantId());
+
+			if (resolvedTenantId) {
+				const { migrateNullTenantIds } = await import('./migrate-tenant-data');
+				await migrateNullTenantIds(resolvedTenantId);
+			} else {
+				console.warn('[DB Init] Could not resolve tenant ID — skipping NULL tenant_id migration');
+			}
+		} catch (e) {
+			console.warn('[DB Init] Tenant data migration failed (non-critical):', e);
 		}
 
 		// STEP 2: Check if already seeded (only matters for seeding, not migrations)
@@ -198,20 +238,24 @@ export async function initializeDatabase(): Promise<void> {
 		// Get current status to check for edge cases
 		const status = await getSeedStatus();
 		console.log('[DB Init] Current seed status:', status ? JSON.stringify(status) : 'null');
-		
+
 		// If previous seed failed, delete the failed status record so we can start fresh
 		if (status?.status === 'failed') {
 			console.log('[DB Init] Previous seed failed - deleting failed status record');
 			const { db } = await import('./drizzle');
 			await db.delete(seedStatus).where(eq(seedStatus.id, 'singleton'));
 		}
-		
+
 		// If seed is marked as 'seeding' but started too long ago, treat it as stale
 		if (status?.status === 'seeding' && status.startedAt) {
 			const startedAtMs = new Date(status.startedAt).getTime();
 			const now = Date.now();
 			if (now - startedAtMs > STALE_SEEDING_THRESHOLD) {
-				console.log('[DB Init] Found stale seeding status (started', Math.round((now - startedAtMs) / 1000), 'seconds ago) - cleaning up');
+				console.log(
+					'[DB Init] Found stale seeding status (started',
+					Math.round((now - startedAtMs) / 1000),
+					'seconds ago) - cleaning up'
+				);
 				const { db } = await import('./drizzle');
 				await db.delete(seedStatus).where(eq(seedStatus.id, 'singleton'));
 			} else {
@@ -254,14 +298,14 @@ export async function initializeDatabase(): Promise<void> {
 
 		try {
 			console.log('[DB Init] Seed lock acquired successfully');
-			
+
 			// Double-check if seeding is still needed (in case another instance just finished)
 			const finalCheck = await isDatabaseSeeded();
 			if (finalCheck) {
 				console.log('[DB Init] Database was seeded while waiting for lock - skipping');
 				return;
 			}
-			
+
 			await seedDatabase();
 		} finally {
 			// Always release the advisory lock
@@ -272,8 +316,6 @@ export async function initializeDatabase(): Promise<void> {
 		// If DATABASE_URL is configured but initialization fails, this is an error
 		console.error('[DB Init] Database initialization failed:', error);
 
-		throw new Error(
-			`Database initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-		);
+		throw new Error(`Database initialization failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
 	}
 }

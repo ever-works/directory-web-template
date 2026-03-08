@@ -1,10 +1,11 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { deleteComment, getClientProfileByUserId, updateComment } from "@/lib/db/queries";
-import { db } from "@/lib/db/drizzle";
-import { comments, clientProfiles } from "@/lib/db/schema";
-import { eq, and, isNull } from "drizzle-orm";
-import { checkDatabaseAvailability } from "@/lib/utils/database-check";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { deleteComment, getClientProfileByUserId, updateComment } from '@/lib/db/queries';
+import { db } from '@/lib/db/drizzle';
+import { comments, clientProfiles } from '@/lib/db/schema';
+import { eq, and, isNull } from 'drizzle-orm';
+import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -57,46 +58,49 @@ import { checkDatabaseAvailability } from "@/lib/utils/database-check";
  *               type: string
  *               example: "Internal Server Error"
  */
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ slug: string; commentId: string }> }
-) {
-  // Check database availability
-  const dbCheck = checkDatabaseAvailability();
-  if (dbCheck) return dbCheck;
+export async function DELETE(request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
+	// Check database availability
+	const dbCheck = checkDatabaseAvailability();
+	if (dbCheck) return dbCheck;
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+	const session = await auth();
+	if (!session?.user?.id) {
+		return new NextResponse('Unauthorized', { status: 401 });
+	}
 
-  try {
-    const clientProfile = await getClientProfileByUserId(session.user.id);
-    if (!clientProfile) {
-      return new NextResponse("Client profile not found", { status: 404 });
-    }
+	try {
+		const clientProfile = await getClientProfileByUserId(session.user.id);
+		if (!clientProfile) {
+			return new NextResponse('Client profile not found', { status: 404 });
+		}
 
-    const [comment] = await db
-      .select()
-      .from(comments)
-      .where(
-        and(
-          eq(comments.id, (await params).commentId),
-          eq(comments.userId, clientProfile.id),
-          isNull(comments.deletedAt)
-        )
-      );
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return new NextResponse('Tenant not found', { status: 403 });
+		}
 
-    if (!comment) {
-      return new NextResponse("Comment not found or not authorized", { status: 404 });
-    }
+		const [comment] = await db
+			.select()
+			.from(comments)
+			.where(
+				and(
+					eq(comments.id, (await params).commentId),
+					eq(comments.userId, clientProfile.id),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId)
+				)
+			);
 
-    await deleteComment((await params).commentId);
-    return new NextResponse(null, { status: 204 });
-  } catch (error) {
-    console.error("Error deleting comment:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
+		if (!comment) {
+			return new NextResponse('Comment not found or not authorized', { status: 404 });
+		}
+
+		await deleteComment((await params).commentId);
+		return new NextResponse(null, { status: 204 });
+	} catch (error) {
+		console.error('Error deleting comment:', error);
+		return new NextResponse('Internal Server Error', { status: 500 });
+	}
 }
 
 /**
@@ -207,117 +211,105 @@ export async function DELETE(
  *             schema:
  *               type: string
  */
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ slug: string; commentId: string }> }
-) {
-  // Check database availability
-  const dbCheck = checkDatabaseAvailability();
-  if (dbCheck) return dbCheck;
+export async function PUT(request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
+	// Check database availability
+	const dbCheck = checkDatabaseAvailability();
+	if (dbCheck) return dbCheck;
 
-  const session = await auth();
-  if (!session?.user?.id) {
-    return new NextResponse("Unauthorized", { status: 401 });
-  }
+	const session = await auth();
+	if (!session?.user?.id) {
+		return new NextResponse('Unauthorized', { status: 401 });
+	}
 
-  try {
-    const clientProfile = await getClientProfileByUserId(session.user.id);
-    if (!clientProfile) {
-      return new NextResponse("Client profile not found", { status: 404 });
-    }
+	try {
+		const clientProfile = await getClientProfileByUserId(session.user.id);
+		if (!clientProfile) {
+			return new NextResponse('Client profile not found', { status: 404 });
+		}
 
-    const { commentId } = await params;
-    const body = await request.json();
-    const { content, rating } = body;
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return new NextResponse('Tenant not found', { status: 403 });
+		}
 
-    // Validate at least one field is being updated
-    if (content === undefined && rating === undefined) {
-      return NextResponse.json(
-        { error: "At least one of content or rating must be provided" },
-        { status: 400 }
-      );
-    }
+		const { commentId } = await params;
+		const body = await request.json();
+		const { content, rating } = body;
 
-    // Validate content if provided
-    if (content !== undefined) {
-      if (typeof content !== 'string') {
-        return NextResponse.json(
-          { error: "Content must be a string" },
-          { status: 400 }
-        );
-      }
-      if (!content.trim() || content.length > 1000) {
-        return NextResponse.json(
-          { error: "Content must be between 1 and 1000 characters" },
-          { status: 400 }
-        );
-      }
-    }
+		// Validate at least one field is being updated
+		if (content === undefined && rating === undefined) {
+			return NextResponse.json({ error: 'At least one of content or rating must be provided' }, { status: 400 });
+		}
 
-    // Validate rating if provided
-    if (rating !== undefined) {
-      if (typeof rating !== 'number' || !Number.isInteger(rating)) {
-        return NextResponse.json(
-          { error: "Rating must be an integer" },
-          { status: 400 }
-        );
-      }
-      if (rating < 1 || rating > 5) {
-        return NextResponse.json(
-          { error: "Rating must be between 1 and 5" },
-          { status: 400 }
-        );
-      }
-    }
+		// Validate content if provided
+		if (content !== undefined) {
+			if (typeof content !== 'string') {
+				return NextResponse.json({ error: 'Content must be a string' }, { status: 400 });
+			}
+			if (!content.trim() || content.length > 1000) {
+				return NextResponse.json({ error: 'Content must be between 1 and 1000 characters' }, { status: 400 });
+			}
+		}
 
-    // Check if comment exists and user owns it
-    const [existingComment] = await db
-      .select()
-      .from(comments)
-      .where(
-        and(
-          eq(comments.id, commentId),
-          eq(comments.userId, clientProfile.id),
-          isNull(comments.deletedAt)
-        )
-      );
+		// Validate rating if provided
+		if (rating !== undefined) {
+			if (typeof rating !== 'number' || !Number.isInteger(rating)) {
+				return NextResponse.json({ error: 'Rating must be an integer' }, { status: 400 });
+			}
+			if (rating < 1 || rating > 5) {
+				return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
+			}
+		}
 
-    if (!existingComment) {
-      return new NextResponse("Comment not found or not authorized", { status: 404 });
-    }
+		// Check if comment exists and user owns it
+		const [existingComment] = await db
+			.select()
+			.from(comments)
+			.where(
+				and(
+					eq(comments.id, commentId),
+					eq(comments.userId, clientProfile.id),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId)
+				)
+			);
 
-    // Update comment
-    await updateComment(commentId, {
-      ...(content !== undefined && { content: content.trim() }),
-      ...(rating !== undefined && { rating })
-    });
+		if (!existingComment) {
+			return new NextResponse('Comment not found or not authorized', { status: 404 });
+		}
 
-    // Fetch updated comment with user information
-    const [updatedComment] = await db
-      .select({
-        id: comments.id,
-        content: comments.content,
-        rating: comments.rating,
-        userId: comments.userId,
-        itemId: comments.itemId,
-        createdAt: comments.createdAt,
-        updatedAt: comments.updatedAt,
-        editedAt: comments.editedAt,
-        deletedAt: comments.deletedAt,
-        user: {
-          id: clientProfiles.id,
-          name: clientProfiles.name,
-          email: clientProfiles.email,
-          image: clientProfiles.avatar
-        }
-      })
-      .from(comments)
-      .leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
-      .where(eq(comments.id, commentId));
+		// Update comment
+		await updateComment(commentId, {
+			...(content !== undefined && { content: content.trim() }),
+			...(rating !== undefined && { rating })
+		});
 
-    return NextResponse.json(updatedComment, { status: 200 });
-  } catch (error) {
-    console.error("Error updating comment:", error);
-    return new NextResponse("Internal Server Error", { status: 500 });
-  }
-} 
+		// Fetch updated comment with user information
+		const [updatedComment] = await db
+			.select({
+				id: comments.id,
+				content: comments.content,
+				rating: comments.rating,
+				userId: comments.userId,
+				itemId: comments.itemId,
+				createdAt: comments.createdAt,
+				updatedAt: comments.updatedAt,
+				editedAt: comments.editedAt,
+				deletedAt: comments.deletedAt,
+				user: {
+					id: clientProfiles.id,
+					name: clientProfiles.name,
+					email: clientProfiles.email,
+					image: clientProfiles.avatar
+				}
+			})
+			.from(comments)
+			.leftJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+			.where(and(eq(comments.id, commentId), eq(comments.tenantId, tenantId)));
+
+		return NextResponse.json(updatedComment, { status: 200 });
+	} catch (error) {
+		console.error('Error updating comment:', error);
+		return new NextResponse('Internal Server Error', { status: 500 });
+	}
+}

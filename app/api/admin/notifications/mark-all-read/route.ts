@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { db } from "@/lib/db/drizzle";
-import { notifications } from "@/lib/db/schema";
-import { eq, and } from "drizzle-orm";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { db } from '@/lib/db/drizzle';
+import { notifications } from '@/lib/db/schema';
+import { eq, and } from 'drizzle-orm';
 
 /**
  * @swagger
@@ -54,36 +54,40 @@ import { eq, and } from "drizzle-orm";
  *                   example: "Internal server error"
  */
 export async function PATCH() {
-  try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const updatedNotifications = await db
-      .update(notifications)
-      .set({
-        isRead: true,
-        readAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(notifications.userId, session.user.id),
-          eq(notifications.isRead, false)
-        )
-      )
-      .returning();
+	try {
+		const session = await auth();
 
-    return NextResponse.json({
-      success: true,
-      updatedCount: updatedNotifications.length,
-    });
-  } catch (error) {
-    console.error("Error marking all notifications as read:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
+		if (!session?.user?.id) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
+
+		const tenantId = session.user.tenantId;
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+		}
+
+		const updatedNotifications = await db
+			.update(notifications)
+			.set({
+				isRead: true,
+				readAt: new Date(),
+				updatedAt: new Date()
+			})
+			.where(
+				and(
+					eq(notifications.userId, session.user.id),
+					eq(notifications.isRead, false),
+					eq(notifications.tenantId, tenantId)
+				)
+			)
+			.returning();
+
+		return NextResponse.json({
+			success: true,
+			updatedCount: updatedNotifications.length
+		});
+	} catch (error) {
+		console.error('Error marking all notifications as read:', error);
+		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+	}
 }

@@ -17,6 +17,30 @@ import { sql } from 'drizzle-orm';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import { PaymentPlan, PaymentProvider } from '../constants/payment';
 
+export const tenant = pgTable(
+	'tenant',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		name: text('name').notNull(),
+		website: text('website'),
+		domain: text('domain'),
+		slug: text('slug'),
+		status: text('status', { enum: ['active', 'inactive'] })
+			.notNull()
+			.default('active'),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		updatedAt: timestamp('updated_at').notNull().defaultNow()
+	},
+	(table) => ({
+		nameIndex: index('tenant_name_idx').on(table.name),
+		statusIndex: index('tenant_status_idx').on(table.status),
+		domainUniqueIndex: uniqueIndex('tenant_domain_unique_idx').on(table.domain),
+		slugUniqueIndex: uniqueIndex('tenant_slug_unique_idx').on(table.slug)
+	})
+);
+
 export const users = pgTable(
 	'users',
 	{
@@ -24,6 +48,7 @@ export const users = pgTable(
 			.primaryKey()
 			.$defaultFn(() => crypto.randomUUID()),
 		email: text('email').unique(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		image: text('image'),
 		emailVerified: timestamp('emailVerified', { mode: 'date' }),
 		passwordHash: text('password_hash'),
@@ -32,7 +57,8 @@ export const users = pgTable(
 		deletedAt: timestamp('deleted_at')
 	},
 	(table) => ({
-		createdAtIndex: index('users_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('users_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('users_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -41,6 +67,7 @@ export const roles = pgTable(
 	{
 		id: text('id').primaryKey(),
 		name: text('name').notNull().unique(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		description: text('description'),
 		isAdmin: boolean('is_admin').notNull().default(false),
 		status: text('status', { enum: ['active', 'inactive'] }).default('active'),
@@ -52,7 +79,8 @@ export const roles = pgTable(
 	(table) => ({
 		statusIndex: index('roles_status_idx').on(table.status),
 		isAdminIndex: index('roles_is_admin_idx').on(table.isAdmin),
-		createdAtIndex: index('roles_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('roles_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('roles_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -65,11 +93,13 @@ export const permissions = pgTable(
 			.$defaultFn(() => crypto.randomUUID()),
 		key: text('key').notNull().unique(),
 		description: text('description'),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow()
 	},
 	(table) => ({
-		createdAtIndex: index('permissions_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('permissions_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('permissions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -83,13 +113,15 @@ export const rolePermissions = pgTable(
 		permissionId: text('permission_id')
 			.notNull()
 			.references(() => permissions.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		createdAt: timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => ({
 		rolePermissionPk: primaryKey({ columns: [table.roleId, table.permissionId] }),
 		roleIndex: index('role_permissions_role_idx').on(table.roleId),
 		permissionIndex: index('role_permissions_permission_idx').on(table.permissionId),
-		createdAtIndex: index('role_permissions_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('role_permissions_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('role_permissions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -103,13 +135,15 @@ export const userRoles = pgTable(
 		roleId: text('role_id')
 			.notNull()
 			.references(() => roles.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		createdAt: timestamp('created_at').notNull().defaultNow()
 	},
 	(table) => ({
 		userRolePk: primaryKey({ columns: [table.userId, table.roleId] }),
 		userIndex: index('user_roles_user_idx').on(table.userId),
 		roleIndex: index('user_roles_role_idx').on(table.roleId),
-		createdAtIndex: index('user_roles_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('user_roles_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('user_roles_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -122,6 +156,7 @@ export const accounts = pgTable(
 		type: text('type').$type<AdapterAccountType>().notNull(),
 		provider: text('provider').notNull(),
 		providerAccountId: text('providerAccountId').notNull(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		// Client authentication fields
 		email: text('email'),
 		passwordHash: text('password_hash'),
@@ -142,7 +177,8 @@ export const accounts = pgTable(
 		},
 		index('accounts_email_idx').on(account.email),
 		// Performance index for provider lookups
-		index('accounts_provider_idx').on(account.provider)
+		index('accounts_provider_idx').on(account.provider),
+		index('accounts_tenant_id_idx').on(account.tenantId)
 	]
 );
 
@@ -157,6 +193,7 @@ export const clientProfiles = pgTable(
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 		email: text('email').notNull(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		name: text('name').notNull(),
 		displayName: text('display_name'),
 		username: text('username').unique(),
@@ -206,7 +243,8 @@ export const clientProfiles = pgTable(
 		index('client_profile_plan_idx').on(clientProfile.plan),
 		index('client_profile_account_type_idx').on(clientProfile.accountType),
 		index('client_profile_username_idx').on(clientProfile.username),
-		index('client_profile_created_at_idx').on(clientProfile.createdAt)
+		index('client_profile_created_at_idx').on(clientProfile.createdAt),
+		index('client_profile_tenant_id_idx').on(clientProfile.tenantId)
 	]
 );
 
@@ -215,7 +253,8 @@ export const sessions = pgTable('sessions', {
 	userId: text('userId')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	expires: timestamp('expires', { mode: 'date' }).notNull()
+	expires: timestamp('expires', { mode: 'date' }).notNull(),
+	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 });
 
 export const verificationTokens = pgTable(
@@ -224,6 +263,7 @@ export const verificationTokens = pgTable(
 		identifier: text('identifier').notNull(),
 		email: text('email').notNull(),
 		token: text('token').notNull(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		expires: timestamp('expires', { mode: 'date' }).notNull()
 	},
 	(table) => [
@@ -247,14 +287,16 @@ export const authenticators = pgTable(
 		counter: integer('counter').notNull(),
 		credentialDeviceType: text('credentialDeviceType').notNull(),
 		credentialBackedUp: boolean('credentialBackedUp').notNull(),
-		transports: text('transports')
+		transports: text('transports'),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(authenticator) => [
 		{
 			compositePK: primaryKey({
 				columns: [authenticator.userId, authenticator.credentialID]
 			})
-		}
+		},
+		index('authenticators_tenant_id_idx').on(authenticator.tenantId)
 	]
 );
 
@@ -266,12 +308,14 @@ export const activityLogs = pgTable(
 		clientId: text('clientId').references(() => clientProfiles.id, { onDelete: 'cascade' }), // For client activities
 		action: text('action').notNull(),
 		timestamp: timestamp('timestamp').notNull().defaultNow(),
-		ipAddress: varchar('ip_address', { length: 45 })
+		ipAddress: varchar('ip_address', { length: 45 }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => [
 		index('activity_logs_user_idx').on(table.userId),
 		index('activity_logs_timestamp_idx').on(table.timestamp),
-		index('activity_logs_action_idx').on(table.action)
+		index('activity_logs_action_idx').on(table.action),
+		index('activity_logs_tenant_id_idx').on(table.tenantId)
 	]
 );
 
@@ -281,8 +325,11 @@ export const passwordResetTokens = pgTable('passwordResetTokens', {
 		.$defaultFn(() => crypto.randomUUID()),
 	email: text('email').notNull(),
 	token: text('token').notNull().unique(),
-	expires: timestamp('expires', { mode: 'date' }).notNull()
-});
+	expires: timestamp('expires', { mode: 'date' }).notNull(),
+	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
+}, (table) => [
+	index('password_reset_tokens_tenant_id_idx').on(table.tenantId)
+]);
 
 export const newsletterSubscriptions = pgTable('newsletterSubscriptions', {
 	id: text('id')
@@ -295,8 +342,11 @@ export const newsletterSubscriptions = pgTable('newsletterSubscriptions', {
 	subscribedAt: timestamp('subscribed_at').notNull().defaultNow(),
 	unsubscribedAt: timestamp('unsubscribed_at'),
 	lastEmailSent: timestamp('last_email_sent'),
-	source: text('source').default('footer') // footer, popup, etc.
-});
+	source: text('source').default('footer'), // footer, popup, etc.
+	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
+}, (table) => [
+	index('newsletter_subscriptions_tenant_id_idx').on(table.tenantId)
+]);
 
 // ######################### Comment Schema #########################
 export const comments = pgTable('comments', {
@@ -312,8 +362,11 @@ export const comments = pgTable('comments', {
 	createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
 	updatedAt: timestamp('updated_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
 	editedAt: timestamp('edited_at', { mode: 'date', withTimezone: true }),
-	deletedAt: timestamp('deleted_at', { mode: 'date', withTimezone: true })
-});
+	deletedAt: timestamp('deleted_at', { mode: 'date', withTimezone: true }),
+	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
+}, (table) => [
+	index('comments_tenant_id_idx').on(table.tenantId)
+]);
 
 export const VoteType = {
 	UPVOTE: 'upvote',
@@ -338,12 +391,14 @@ export const votes = pgTable(
 			.notNull()
 			.default(VoteType.UPVOTE),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		uniqueUserItemVote: uniqueIndex('unique_user_item_vote_idx').on(table.userId, table.itemId),
 		itemVotesIndex: index('item_votes_idx').on(table.itemId),
-		createdAtIndex: index('votes_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('votes_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('votes_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -401,7 +456,8 @@ export const subscriptions = pgTable(
 		invoicePdf: text('invoice_pdf'),
 		metadata: text('metadata'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		userSubscriptionIndex: index('user_subscription_idx').on(table.userId),
@@ -412,7 +468,8 @@ export const subscriptions = pgTable(
 		),
 		autoRenewalCheck: check('auto_renewal_check', sql`NOT (${table.autoRenewal} AND ${table.cancelAtPeriodEnd})`),
 		planIndex: index('subscription_plan_idx').on(table.planId),
-		createdAtIndex: index('subscription_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('subscription_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('subscriptions_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -433,12 +490,14 @@ export const subscriptionHistory = pgTable(
 		newPlan: text('new_plan'),
 		reason: text('reason'),
 		metadata: text('metadata'),
-		createdAt: timestamp('created_at').notNull().defaultNow()
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		subscriptionHistoryIndex: index('subscription_history_idx').on(table.subscriptionId),
 		actionIndex: index('subscription_action_idx').on(table.action),
-		createdAtIndex: index('subscription_history_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('subscription_history_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('subscription_history_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -452,11 +511,13 @@ export const paymentProviders = pgTable(
 		name: text('name').notNull().unique().default(PaymentProvider.STRIPE),
 		isActive: boolean('is_active').notNull().default(true),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		activeIndex: index('payment_provider_active_idx').on(table.isActive),
-		createdAtIndex: index('payment_provider_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('payment_provider_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('payment_providers_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -477,14 +538,16 @@ export const paymentAccounts = pgTable(
 		accountId: text('accountId'),
 		lastUsed: timestamp('lastUsed', { mode: 'date' }),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		userProviderIndex: uniqueIndex('user_provider_unique_idx').on(table.userId, table.providerId),
 		customerProviderIndex: uniqueIndex('customer_provider_unique_idx').on(table.customerId, table.providerId),
 		customerIdIndex: index('payment_account_customer_id_idx').on(table.customerId),
 		providerIndex: index('payment_account_provider_idx').on(table.providerId),
-		createdAtIndex: index('payment_account_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('payment_account_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('payment_accounts_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -514,13 +577,15 @@ export const notifications = pgTable(
 		isRead: boolean('is_read').notNull().default(false),
 		readAt: timestamp('read_at', { mode: 'date' }),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		userIndex: index('notifications_user_idx').on(table.userId),
 		typeIndex: index('notifications_type_idx').on(table.type),
 		isReadIndex: index('notifications_is_read_idx').on(table.isRead),
-		createdAtIndex: index('notifications_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('notifications_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('notifications_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -593,13 +658,15 @@ export const favorites = pgTable(
 		itemIconUrl: text('item_icon_url'),
 		itemCategory: text('item_category'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		userItemIndex: uniqueIndex('user_item_favorite_unique_idx').on(table.userId, table.itemSlug),
 		userIdIndex: index('favorites_user_id_idx').on(table.userId),
 		itemSlugIndex: index('favorites_item_slug_idx').on(table.itemSlug),
-		createdAtIndex: index('favorites_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('favorites_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('favorites_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -623,14 +690,16 @@ export const featuredItems = pgTable(
 		featuredBy: text('featured_by').notNull(), // Admin user ID who featured it
 		featuredAt: timestamp('featured_at').notNull().defaultNow(),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		itemSlugIndex: index('featured_items_item_slug_idx').on(table.itemSlug),
 		featuredOrderIndex: index('featured_items_featured_order_idx').on(table.featuredOrder),
 		isActiveIndex: index('featured_items_is_active_idx').on(table.isActive),
 		featuredAtIndex: index('featured_items_featured_at_idx').on(table.featuredAt),
-		featuredUntilIndex: index('featured_items_featured_until_idx').on(table.featuredUntil)
+		featuredUntilIndex: index('featured_items_featured_until_idx').on(table.featuredUntil),
+		tenantIdIdx: index('featured_items_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -691,6 +760,7 @@ export const sponsorAds = pgTable(
 		// Pricing (in dollars)
 		amount: integer('amount').notNull(),
 		currency: text('currency').notNull().default('usd'),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 
 		// Payment info
 		paymentProvider: text('payment_provider').notNull(),
@@ -725,7 +795,8 @@ export const sponsorAds = pgTable(
 		),
 		startDateIndex: index('sponsor_ads_start_date_idx').on(table.startDate),
 		endDateIndex: index('sponsor_ads_end_date_idx').on(table.endDate),
-		createdAtIndex: index('sponsor_ads_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('sponsor_ads_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('sponsor_ads_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -766,6 +837,7 @@ export const twentyCrmConfig = pgTable(
 		baseUrl: text('base_url').notNull(),
 		apiKey: text('api_key').notNull(),
 		enabled: boolean('enabled').notNull().default(false),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		syncMode: text('sync_mode', { enum: ['disabled', 'platform', 'direct_crm'] })
 			.notNull()
 			.default('disabled'),
@@ -777,7 +849,8 @@ export const twentyCrmConfig = pgTable(
 	(table) => ({
 		enabledIndex: index('twenty_crm_config_enabled_idx').on(table.enabled),
 		syncModeIndex: index('twenty_crm_config_sync_mode_idx').on(table.syncMode),
-		updatedAtIndex: index('twenty_crm_config_updated_at_idx').on(table.updatedAt)
+		updatedAtIndex: index('twenty_crm_config_updated_at_idx').on(table.updatedAt),
+		tenantIdIdx: index('twenty_crm_config_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -808,16 +881,19 @@ export const integrationMappings = pgTable(
 		lastSyncedAt: timestamp('last_synced_at').notNull().defaultNow(),
 		versionHash: text('version_hash'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
-		updatedAt: timestamp('updated_at').notNull().defaultNow()
+		updatedAt: timestamp('updated_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		everIdObjectTypeIdx: uniqueIndex('integration_mappings_ever_id_object_type_idx').on(
 			table.everId,
-			table.objectType
+			table.objectType,
+			table.tenantId
 		),
 		crmIdIdx: index('integration_mappings_crm_id_idx').on(table.crmId),
 		lastSyncedAtIdx: index('integration_mappings_last_synced_at_idx').on(table.lastSyncedAt),
-		objectTypeIdx: index('integration_mappings_object_type_idx').on(table.objectType)
+		objectTypeIdx: index('integration_mappings_object_type_idx').on(table.objectType),
+		tenantIdIdx: index('integration_mappings_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -835,6 +911,7 @@ export const companies = pgTable(
 		website: text('website'),
 		domain: text('domain'),
 		slug: text('slug'),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		status: text('status', { enum: ['active', 'inactive'] })
 			.notNull()
 			.default('active'),
@@ -845,7 +922,8 @@ export const companies = pgTable(
 		nameIndex: index('companies_name_idx').on(table.name),
 		statusIndex: index('companies_status_idx').on(table.status),
 		domainUniqueIndex: uniqueIndex('companies_domain_unique_idx').on(table.domain),
-		slugUniqueIndex: uniqueIndex('companies_slug_unique_idx').on(table.slug)
+		slugUniqueIndex: uniqueIndex('companies_slug_unique_idx').on(table.slug),
+		tenantIdIdx: index('companies_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -861,11 +939,13 @@ export const itemsCompanies = pgTable(
 		companyId: text('company_id')
 			.notNull()
 			.references(() => companies.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
 	},
 	(table) => ({
-		companyIdIndex: index('items_companies_company_id_idx').on(table.companyId)
+		companyIdIndex: index('items_companies_company_id_idx').on(table.companyId),
+		tenantIdIdx: index('items_companies_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -938,6 +1018,7 @@ export const reports = pgTable(
 		reportedBy: text('reported_by')
 			.notNull()
 			.references(() => clientProfiles.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' }),
 		reviewedBy: text('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
 		reviewNote: text('review_note'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -951,7 +1032,8 @@ export const reports = pgTable(
 		statusIndex: index('reports_status_idx').on(table.status),
 		reportedByIndex: index('reports_reported_by_idx').on(table.reportedBy),
 		createdAtIndex: index('reports_created_at_idx').on(table.createdAt),
-		contentTypeContentIdIndex: index('reports_content_type_content_id_idx').on(table.contentType, table.contentId)
+		contentTypeContentIdIndex: index('reports_content_type_content_id_idx').on(table.contentType, table.contentId),
+		tenantIdIdx: index('reports_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -996,14 +1078,16 @@ export const moderationHistory = pgTable(
 		contentType: text('content_type', { enum: [ReportContentType.ITEM, ReportContentType.COMMENT] }),
 		contentId: text('content_id'),
 		details: jsonb('details'),
-		createdAt: timestamp('created_at').notNull().defaultNow()
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		userIdIndex: index('moderation_history_user_id_idx').on(table.userId),
 		actionIndex: index('moderation_history_action_idx').on(table.action),
 		reportIdIndex: index('moderation_history_report_id_idx').on(table.reportId),
 		performedByIndex: index('moderation_history_performed_by_idx').on(table.performedBy),
-		createdAtIndex: index('moderation_history_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('moderation_history_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('moderation_history_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1032,14 +1116,16 @@ export const surveys = pgTable(
 		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 		publishedAt: timestamp('published_at', { withTimezone: true }),
 		closedAt: timestamp('closed_at', { withTimezone: true }),
-		deletedAt: timestamp('deleted_at', { withTimezone: true })
+		deletedAt: timestamp('deleted_at', { withTimezone: true }),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		slugIndex: index('surveys_slug_idx').on(table.slug),
 		typeIndex: index('surveys_type_idx').on(table.type),
 		itemIdIndex: index('surveys_item_id_idx').on(table.itemId),
 		statusIndex: index('surveys_status_idx').on(table.status),
-		createdAtIndex: index('surveys_created_at_idx').on(table.createdAt)
+		createdAtIndex: index('surveys_created_at_idx').on(table.createdAt),
+		tenantIdIdx: index('surveys_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1059,13 +1145,15 @@ export const surveyResponses = pgTable(
 		ipAddress: text('ip_address'),
 		userAgent: text('user_agent'),
 		createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+		updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		surveyIdIndex: index('survey_responses_survey_id_idx').on(table.surveyId),
 		userIdIndex: index('survey_responses_user_id_idx').on(table.userId),
 		itemIdIndex: index('survey_responses_item_id_idx').on(table.itemId),
-		completedAtIndex: index('survey_responses_completed_at_idx').on(table.completedAt)
+		completedAtIndex: index('survey_responses_completed_at_idx').on(table.completedAt),
+		tenantIdIdx: index('survey_responses_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1090,11 +1178,17 @@ export const itemViews = pgTable(
 		itemId: text('item_id').notNull(),
 		viewerId: text('viewer_id').notNull(),
 		viewedDateUtc: text('viewed_date_utc').notNull(), // YYYY-MM-DD format
-		viewedAt: timestamp('viewed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+		viewedAt: timestamp('viewed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
-		uniqueDailyView: uniqueIndex('item_views_unique_daily_idx').on(table.itemId, table.viewerId, table.viewedDateUtc),
-		itemDateIndex: index('item_views_item_date_idx').on(table.itemId, table.viewedDateUtc)
+		uniqueDailyView: uniqueIndex('item_views_unique_daily_idx').on(
+			table.itemId,
+			table.viewerId,
+			table.viewedDateUtc
+		),
+		itemDateIndex: index('item_views_item_date_idx').on(table.itemId, table.viewedDateUtc),
+		tenantIdIdx: index('item_views_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1112,11 +1206,13 @@ export const seedStatus = pgTable(
 		startedAt: timestamp('started_at').notNull().defaultNow(),
 		completedAt: timestamp('completed_at'),
 		version: text('version'), // Optional: track seed version/hash
-		error: text('error') // Optional: store error message if failed
+		error: text('error'), // Optional: store error message if failed
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		// Unique constraint ensures only one row can exist
-		singletonConstraint: uniqueIndex('seed_status_singleton_idx').on(table.id)
+		singletonConstraint: uniqueIndex('seed_status_singleton_idx').on(table.id),
+		tenantIdIdx: index('seed_status_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1182,14 +1278,16 @@ export const itemAuditLogs = pgTable(
 		performedByName: text('performed_by_name'), // Denormalized for display
 		notes: text('notes'), // Review notes or other context
 		metadata: jsonb('metadata'), // Additional context (e.g., source IP, user agent)
-		createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+		createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		itemIdIndex: index('item_audit_logs_item_id_idx').on(table.itemId),
 		actionIndex: index('item_audit_logs_action_idx').on(table.action),
 		performedByIndex: index('item_audit_logs_performed_by_idx').on(table.performedBy),
 		createdAtIndex: index('item_audit_logs_created_at_idx').on(table.createdAt),
-		itemIdActionIndex: index('item_audit_logs_item_id_action_idx').on(table.itemId, table.action)
+		itemIdActionIndex: index('item_audit_logs_item_id_action_idx').on(table.itemId, table.action),
+		tenantIdIdx: index('item_audit_logs_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1226,6 +1324,7 @@ export const itemLocationIndex = pgTable(
 		serviceArea: text('service_area'),
 		isRemote: boolean('is_remote').notNull().default(false),
 		indexedAt: timestamp('indexed_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		latitudeIndex: index('item_location_index_latitude_idx').on(table.latitude),
@@ -1239,6 +1338,7 @@ export const itemLocationIndex = pgTable(
 		indexedAtIndex: index('item_location_index_indexed_at_idx').on(table.indexedAt),
 		// Composite index for geospatial bounding box queries
 		latLongIndex: index('item_location_index_lat_long_idx').on(table.latitude, table.longitude),
+		tenantIdIdx: index('item_location_index_tenant_id_idx').on(table.tenantId)
 	})
 );
 
@@ -1259,9 +1359,11 @@ export const locationIndexMeta = pgTable(
 		lastRebuildDurationMs: integer('last_rebuild_duration_ms'),
 		lastRebuildItemCount: integer('last_rebuild_item_count'),
 		updatedAt: timestamp('updated_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
 	},
 	(table) => ({
 		singletonConstraint: uniqueIndex('location_index_meta_singleton_idx').on(table.id),
+		tenantIdIdx: index('location_index_meta_tenant_id_idx').on(table.tenantId)
 	})
 );
 

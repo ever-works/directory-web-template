@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/db/drizzle";
-import { comments } from "@/lib/db/schema";
-import { and, avg, count, isNull, eq } from "drizzle-orm";
-import { checkDatabaseAvailability } from "@/lib/utils/database-check";
-import { getItemIdFromSlug } from "@/lib/db/queries/item.queries";
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db/drizzle';
+import { comments } from '@/lib/db/schema';
+import { and, avg, count, isNull, eq } from 'drizzle-orm';
+import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { getItemIdFromSlug } from '@/lib/db/queries/item.queries';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -62,42 +63,36 @@ import { getItemIdFromSlug } from "@/lib/db/queries/item.queries";
  *                   type: string
  *                   example: "Failed to fetch ratings"
  */
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    // Check database availability first
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
-    
-    const { slug } = await params;
-    const itemId = getItemIdFromSlug(slug);
-    
-    const result = await db
-      .select({
-        averageRating: avg(comments.rating).as("averageRating"),
-        totalRatings: count().as("totalRatings"),
-      })
-      .from(comments)
-      .where(
-        and(
-          eq(comments.itemId, itemId),
-          isNull(comments.deletedAt)
-        )
-      );
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+	try {
+		// Check database availability first
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const { averageRating, totalRatings } = result[0];
+		const { slug } = await params;
+		const itemId = getItemIdFromSlug(slug);
 
-    return NextResponse.json({
-      averageRating: Number(averageRating) || 0,
-      totalRatings: Number(totalRatings) || 0,
-    });
-  } catch (error) {
-    console.error("Failed to fetch ratings:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch ratings" },
-      { status: 500 }
-    );
-  }
-} 
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+		}
+
+		const result = await db
+			.select({
+				averageRating: avg(comments.rating).as('averageRating'),
+				totalRatings: count().as('totalRatings')
+			})
+			.from(comments)
+			.where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)));
+
+		const { averageRating, totalRatings } = result[0];
+
+		return NextResponse.json({
+			averageRating: Number(averageRating) || 0,
+			totalRatings: Number(totalRatings) || 0
+		});
+	} catch (error) {
+		console.error('Failed to fetch ratings:', error);
+		return NextResponse.json({ error: 'Failed to fetch ratings' }, { status: 500 });
+	}
+}

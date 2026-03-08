@@ -1,6 +1,7 @@
 import { and, eq, gte, sql, isNull, inArray, count, countDistinct } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { votes, comments } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Dashboard Stats Queries =====================
 
@@ -10,14 +11,16 @@ import { votes, comments } from '../schema';
  * @returns Total vote count
  */
 export async function getVotesReceivedCount(itemSlugs: string[]): Promise<number> {
-    if (itemSlugs.length === 0) return 0;
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	if (itemSlugs.length === 0) return 0;
 
-    const [result] = await db
-        .select({ count: count() })
-        .from(votes)
-        .where(inArray(votes.itemId, itemSlugs));
+	const [result] = await db
+		.select({ count: count() })
+		.from(votes)
+		.where(and(inArray(votes.itemId, itemSlugs), eq(votes.tenantId, tenantId)));
 
-    return Number(result?.count ?? 0);
+	return Number(result?.count ?? 0);
 }
 
 /**
@@ -26,14 +29,16 @@ export async function getVotesReceivedCount(itemSlugs: string[]): Promise<number
  * @returns Total comment count
  */
 export async function getCommentsReceivedCount(itemSlugs: string[]): Promise<number> {
-    if (itemSlugs.length === 0) return 0;
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	if (itemSlugs.length === 0) return 0;
 
-    const [result] = await db
-        .select({ count: count() })
-        .from(comments)
-        .where(and(inArray(comments.itemId, itemSlugs), isNull(comments.deletedAt)));
+	const [result] = await db
+		.select({ count: count() })
+		.from(comments)
+		.where(and(inArray(comments.itemId, itemSlugs), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)));
 
-    return Number(result?.count ?? 0);
+	return Number(result?.count ?? 0);
 }
 
 /**
@@ -42,25 +47,27 @@ export async function getCommentsReceivedCount(itemSlugs: string[]): Promise<num
  * @returns Count of unique items
  */
 export async function getUniqueItemsInteractedCount(clientProfileId: string): Promise<number> {
-    // Count distinct items from votes
-    const [votesResult] = await db
-        .select({ count: countDistinct(votes.itemId) })
-        .from(votes)
-        .where(eq(votes.userId, clientProfileId));
+	// Count distinct items from votes
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const [votesResult] = await db
+		.select({ count: countDistinct(votes.itemId) })
+		.from(votes)
+		.where(and(eq(votes.userId, clientProfileId), eq(votes.tenantId, tenantId)));
 
-    // Count distinct items from comments (excluding deleted)
-    const [commentsResult] = await db
-        .select({ count: countDistinct(comments.itemId) })
-        .from(comments)
-        .where(and(eq(comments.userId, clientProfileId), isNull(comments.deletedAt)));
+	// Count distinct items from comments (excluding deleted)
+	const [commentsResult] = await db
+		.select({ count: countDistinct(comments.itemId) })
+		.from(comments)
+		.where(and(eq(comments.userId, clientProfileId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)));
 
-    // Note: This may count same item twice if user both voted and commented
-    // For a more accurate count, we'd need a UNION query
-    // Keeping it simple for now as it's an approximation metric
-    const votesCount = Number(votesResult?.count ?? 0);
-    const commentsCount = Number(commentsResult?.count ?? 0);
+	// Note: This may count same item twice if user both voted and commented
+	// For a more accurate count, we'd need a UNION query
+	// Keeping it simple for now as it's an approximation metric
+	const votesCount = Number(votesResult?.count ?? 0);
+	const commentsCount = Number(commentsResult?.count ?? 0);
 
-    return votesCount + commentsCount;
+	return votesCount + commentsCount;
 }
 
 /**
@@ -69,17 +76,19 @@ export async function getUniqueItemsInteractedCount(clientProfileId: string): Pr
  * @returns Total activity count
  */
 export async function getUserTotalActivityCount(clientProfileId: string): Promise<number> {
-    const [votesResult] = await db
-        .select({ count: count() })
-        .from(votes)
-        .where(eq(votes.userId, clientProfileId));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const [votesResult] = await db
+		.select({ count: count() })
+		.from(votes)
+		.where(and(eq(votes.userId, clientProfileId), eq(votes.tenantId, tenantId)));
 
-    const [commentsResult] = await db
-        .select({ count: count() })
-        .from(comments)
-        .where(and(eq(comments.userId, clientProfileId), isNull(comments.deletedAt)));
+	const [commentsResult] = await db
+		.select({ count: count() })
+		.from(comments)
+		.where(and(eq(comments.userId, clientProfileId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)));
 
-    return Number(votesResult?.count ?? 0) + Number(commentsResult?.count ?? 0);
+	return Number(votesResult?.count ?? 0) + Number(commentsResult?.count ?? 0);
 }
 
 /**
@@ -89,67 +98,70 @@ export async function getUserTotalActivityCount(clientProfileId: string): Promis
  * @returns Array of weekly engagement data
  */
 export async function getWeeklyEngagementData(
-    itemSlugs: string[],
-    weeks: number = 12
+	itemSlugs: string[],
+	weeks: number = 12
 ): Promise<Array<{ week: string; votes: number; comments: number }>> {
-    if (itemSlugs.length === 0) {
-        // Return empty weeks
-        return Array.from({ length: weeks }, (_, i) => ({
-            week: `W${i + 1}`,
-            votes: 0,
-            comments: 0,
-        }));
-    }
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	if (itemSlugs.length === 0) {
+		// Return empty weeks
+		return Array.from({ length: weeks }, (_, i) => ({
+			week: `W${i + 1}`,
+			votes: 0,
+			comments: 0
+		}));
+	}
 
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - weeks * 7);
+	const startDate = new Date();
+	startDate.setDate(startDate.getDate() - weeks * 7);
 
-    // Get weekly votes
-    const weeklyVotes = await db
-        .select({
-            week: sql<string>`to_char(${votes.createdAt}, 'IYYY-IW')`.as('week'),
-            count: count(),
-        })
-        .from(votes)
-        .where(and(inArray(votes.itemId, itemSlugs), gte(votes.createdAt, startDate)))
-        .groupBy(sql`to_char(${votes.createdAt}, 'IYYY-IW')`)
-        .orderBy(sql`to_char(${votes.createdAt}, 'IYYY-IW')`);
+	// Get weekly votes
+	const weeklyVotes = await db
+		.select({
+			week: sql<string>`to_char(${votes.createdAt}, 'IYYY-IW')`.as('week'),
+			count: count()
+		})
+		.from(votes)
+		.where(and(inArray(votes.itemId, itemSlugs), gte(votes.createdAt, startDate), eq(votes.tenantId, tenantId)))
+		.groupBy(sql`to_char(${votes.createdAt}, 'IYYY-IW')`)
+		.orderBy(sql`to_char(${votes.createdAt}, 'IYYY-IW')`);
 
-    // Get weekly comments
-    const weeklyComments = await db
-        .select({
-            week: sql<string>`to_char(${comments.createdAt}, 'IYYY-IW')`.as('week'),
-            count: count(),
-        })
-        .from(comments)
-        .where(
-            and(
-                inArray(comments.itemId, itemSlugs),
-                gte(comments.createdAt, startDate),
-                isNull(comments.deletedAt)
-            )
-        )
-        .groupBy(sql`to_char(${comments.createdAt}, 'IYYY-IW')`)
-        .orderBy(sql`to_char(${comments.createdAt}, 'IYYY-IW')`);
+	// Get weekly comments
+	const weeklyComments = await db
+		.select({
+			week: sql<string>`to_char(${comments.createdAt}, 'IYYY-IW')`.as('week'),
+			count: count()
+		})
+		.from(comments)
+		.where(
+			and(
+				inArray(comments.itemId, itemSlugs),
+				gte(comments.createdAt, startDate),
+				isNull(comments.deletedAt),
+				eq(comments.tenantId, tenantId)
+			)
+		)
+		.groupBy(sql`to_char(${comments.createdAt}, 'IYYY-IW')`)
+		.orderBy(sql`to_char(${comments.createdAt}, 'IYYY-IW')`);
 
-    // Create a map for quick lookup
-    const votesMap = new Map(weeklyVotes.map(v => [v.week, Number(v.count)]));
-    const commentsMap = new Map(weeklyComments.map(c => [c.week, Number(c.count)]));
+	// Create a map for quick lookup
+	const votesMap = new Map(weeklyVotes.map((v) => [v.week, Number(v.count)]));
+	const commentsMap = new Map(weeklyComments.map((c) => [c.week, Number(c.count)]));
 
-    // Generate week labels and merge data
-    const result: Array<{ week: string; votes: number; comments: number }> = [];
-    for (let i = 0; i < weeks; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - (weeks - 1 - i) * 7);
-        const weekKey = getISOWeekString(date);
-        result.push({
-            week: `W${i + 1}`,
-            votes: votesMap.get(weekKey) ?? 0,
-            comments: commentsMap.get(weekKey) ?? 0,
-        });
-    }
+	// Generate week labels and merge data
+	const result: Array<{ week: string; votes: number; comments: number }> = [];
+	for (let i = 0; i < weeks; i++) {
+		const date = new Date();
+		date.setDate(date.getDate() - (weeks - 1 - i) * 7);
+		const weekKey = getISOWeekString(date);
+		result.push({
+			week: `W${i + 1}`,
+			votes: votesMap.get(weekKey) ?? 0,
+			comments: commentsMap.get(weekKey) ?? 0
+		});
+	}
 
-    return result;
+	return result;
 }
 
 /**
@@ -160,78 +172,81 @@ export async function getWeeklyEngagementData(
  * @returns Array of daily activity data
  */
 export async function getDailyActivityData(
-    clientProfileId: string,
-    itemSlugs: string[],
-    days: number = 7
+	clientProfileId: string,
+	itemSlugs: string[],
+	days: number = 7
 ): Promise<Array<{ date: string; submissions: number; views: number; engagement: number }>> {
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    startDate.setHours(0, 0, 0, 0);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const startDate = new Date();
+	startDate.setDate(startDate.getDate() - days);
+	startDate.setHours(0, 0, 0, 0);
 
-    // Get daily engagement (votes + comments received on user's items)
-    // Using EXTRACT(DOW FROM date) for locale-independent day-of-week (0=Sunday, 6=Saturday)
-    let dailyEngagement: Array<{ dayOfWeek: number; count: number }> = [];
+	// Get daily engagement (votes + comments received on user's items)
+	// Using EXTRACT(DOW FROM date) for locale-independent day-of-week (0=Sunday, 6=Saturday)
+	let dailyEngagement: Array<{ dayOfWeek: number; count: number }> = [];
 
-    if (itemSlugs.length > 0) {
-        const votesEngagement = await db
-            .select({
-                dayOfWeek: sql<number>`EXTRACT(DOW FROM ${votes.createdAt})`.as('day_of_week'),
-                count: count(),
-            })
-            .from(votes)
-            .where(and(inArray(votes.itemId, itemSlugs), gte(votes.createdAt, startDate)))
-            .groupBy(sql`EXTRACT(DOW FROM ${votes.createdAt})`);
+	if (itemSlugs.length > 0) {
+		const votesEngagement = await db
+			.select({
+				dayOfWeek: sql<number>`EXTRACT(DOW FROM ${votes.createdAt})`.as('day_of_week'),
+				count: count()
+			})
+			.from(votes)
+			.where(and(inArray(votes.itemId, itemSlugs), gte(votes.createdAt, startDate), eq(votes.tenantId, tenantId)))
+			.groupBy(sql`EXTRACT(DOW FROM ${votes.createdAt})`);
 
-        const commentsEngagement = await db
-            .select({
-                dayOfWeek: sql<number>`EXTRACT(DOW FROM ${comments.createdAt})`.as('day_of_week'),
-                count: count(),
-            })
-            .from(comments)
-            .where(
-                and(
-                    inArray(comments.itemId, itemSlugs),
-                    gte(comments.createdAt, startDate),
-                    isNull(comments.deletedAt)
-                )
-            )
-            .groupBy(sql`EXTRACT(DOW FROM ${comments.createdAt})`);
+		const commentsEngagement = await db
+			.select({
+				dayOfWeek: sql<number>`EXTRACT(DOW FROM ${comments.createdAt})`.as('day_of_week'),
+				count: count()
+			})
+			.from(comments)
+			.where(
+				and(
+					inArray(comments.itemId, itemSlugs),
+					gte(comments.createdAt, startDate),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId)
+				)
+			)
+			.groupBy(sql`EXTRACT(DOW FROM ${comments.createdAt})`);
 
-        // Merge votes and comments engagement using numeric day-of-week
-        const engagementMap = new Map<number, number>();
-        votesEngagement.forEach(v => {
-            const dow = Number(v.dayOfWeek);
-            engagementMap.set(dow, (engagementMap.get(dow) ?? 0) + Number(v.count));
-        });
-        commentsEngagement.forEach(c => {
-            const dow = Number(c.dayOfWeek);
-            engagementMap.set(dow, (engagementMap.get(dow) ?? 0) + Number(c.count));
-        });
+		// Merge votes and comments engagement using numeric day-of-week
+		const engagementMap = new Map<number, number>();
+		votesEngagement.forEach((v) => {
+			const dow = Number(v.dayOfWeek);
+			engagementMap.set(dow, (engagementMap.get(dow) ?? 0) + Number(v.count));
+		});
+		commentsEngagement.forEach((c) => {
+			const dow = Number(c.dayOfWeek);
+			engagementMap.set(dow, (engagementMap.get(dow) ?? 0) + Number(c.count));
+		});
 
-        dailyEngagement = Array.from(engagementMap.entries()).map(([dayOfWeek, count]) => ({
-            dayOfWeek,
-            count,
-        }));
-    }
+		dailyEngagement = Array.from(engagementMap.entries()).map(([dayOfWeek, count]) => ({
+			dayOfWeek,
+			count
+		}));
+	}
 
-    // Generate day labels (0=Sunday, 1=Monday, ..., 6=Saturday)
-    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const engagementMap = new Map(dailyEngagement.map(d => [d.dayOfWeek, d.count]));
+	// Generate day labels (0=Sunday, 1=Monday, ..., 6=Saturday)
+	const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	const engagementMap = new Map(dailyEngagement.map((d) => [d.dayOfWeek, d.count]));
 
-    const result: Array<{ date: string; submissions: number; views: number; engagement: number }> = [];
-    for (let i = 0; i < days; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - (days - 1 - i));
-        const dayOfWeek = date.getDay(); // 0=Sunday, 6=Saturday
-        result.push({
-            date: dayNames[dayOfWeek],
-            submissions: 0, // Will be populated from Git repository in the repository layer
-            views: 0, // Views not tracked yet
-            engagement: engagementMap.get(dayOfWeek) ?? 0,
-        });
-    }
+	const result: Array<{ date: string; submissions: number; views: number; engagement: number }> = [];
+	for (let i = 0; i < days; i++) {
+		const date = new Date();
+		date.setDate(date.getDate() - (days - 1 - i));
+		const dayOfWeek = date.getDay(); // 0=Sunday, 6=Saturday
+		result.push({
+			date: dayNames[dayOfWeek],
+			submissions: 0, // Will be populated from Git repository in the repository layer
+			views: 0, // Views not tracked yet
+			engagement: engagementMap.get(dayOfWeek) ?? 0
+		});
+	}
 
-    return result;
+	return result;
 }
 
 /**
@@ -241,46 +256,48 @@ export async function getDailyActivityData(
  * @returns Array of items with engagement counts
  */
 export async function getTopItemsEngagement(
-    itemSlugs: string[],
-    limit: number = 5
+	itemSlugs: string[],
+	limit: number = 5
 ): Promise<Array<{ itemId: string; votes: number; comments: number }>> {
-    if (itemSlugs.length === 0) return [];
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	if (itemSlugs.length === 0) return [];
 
-    // Get vote counts per item
-    const voteCounts = await db
-        .select({
-            itemId: votes.itemId,
-            count: count(),
-        })
-        .from(votes)
-        .where(inArray(votes.itemId, itemSlugs))
-        .groupBy(votes.itemId);
+	// Get vote counts per item
+	const voteCounts = await db
+		.select({
+			itemId: votes.itemId,
+			count: count()
+		})
+		.from(votes)
+		.where(and(inArray(votes.itemId, itemSlugs), eq(votes.tenantId, tenantId)))
+		.groupBy(votes.itemId);
 
-    // Get comment counts per item
-    const commentCounts = await db
-        .select({
-            itemId: comments.itemId,
-            count: count(),
-        })
-        .from(comments)
-        .where(and(inArray(comments.itemId, itemSlugs), isNull(comments.deletedAt)))
-        .groupBy(comments.itemId);
+	// Get comment counts per item
+	const commentCounts = await db
+		.select({
+			itemId: comments.itemId,
+			count: count()
+		})
+		.from(comments)
+		.where(and(inArray(comments.itemId, itemSlugs), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)))
+		.groupBy(comments.itemId);
 
-    // Create maps for lookup
-    const votesMap = new Map(voteCounts.map(v => [v.itemId, Number(v.count)]));
-    const commentsMap = new Map(commentCounts.map(c => [c.itemId, Number(c.count)]));
+	// Create maps for lookup
+	const votesMap = new Map(voteCounts.map((v) => [v.itemId, Number(v.count)]));
+	const commentsMap = new Map(commentCounts.map((c) => [c.itemId, Number(c.count)]));
 
-    // Combine and sort by total engagement
-    const itemsWithEngagement = itemSlugs.map(slug => ({
-        itemId: slug,
-        votes: votesMap.get(slug) ?? 0,
-        comments: commentsMap.get(slug) ?? 0,
-    }));
+	// Combine and sort by total engagement
+	const itemsWithEngagement = itemSlugs.map((slug) => ({
+		itemId: slug,
+		votes: votesMap.get(slug) ?? 0,
+		comments: commentsMap.get(slug) ?? 0
+	}));
 
-    // Sort by total engagement (votes + comments) descending
-    itemsWithEngagement.sort((a, b) => (b.votes + b.comments) - (a.votes + a.comments));
+	// Sort by total engagement (votes + comments) descending
+	itemsWithEngagement.sort((a, b) => b.votes + b.comments - (a.votes + a.comments));
 
-    return itemsWithEngagement.slice(0, limit);
+	return itemsWithEngagement.slice(0, limit);
 }
 
 /**
@@ -291,9 +308,9 @@ export async function getTopItemsEngagement(
  * @returns Count of recent submissions
  */
 export async function getRecentSubmissionsCount(_days: number = 7): Promise<number> {
-    // Items are stored in Git repository, not database
-    // This will be implemented in the repository layer
-    return 0;
+	// Items are stored in Git repository, not database
+	// This will be implemented in the repository layer
+	return 0;
 }
 
 // ===================== Helper Functions =====================
@@ -304,13 +321,13 @@ export async function getRecentSubmissionsCount(_days: number = 7): Promise<numb
  * which may differ from calendar year at year boundaries.
  */
 function getISOWeekString(date: Date): string {
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    // Set to nearest Thursday (ISO weeks start on Monday, Thursday determines the year)
-    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
-    // ISO week year is the year of the Thursday
-    const isoWeekYear = d.getFullYear();
-    const week1 = new Date(isoWeekYear, 0, 4);
-    const weekNum = 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
-    return `${isoWeekYear}-${weekNum.toString().padStart(2, '0')}`;
+	const d = new Date(date);
+	d.setHours(0, 0, 0, 0);
+	// Set to nearest Thursday (ISO weeks start on Monday, Thursday determines the year)
+	d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+	// ISO week year is the year of the Thursday
+	const isoWeekYear = d.getFullYear();
+	const week1 = new Date(isoWeekYear, 0, 4);
+	const weekNum = 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+	return `${isoWeekYear}-${weekNum.toString().padStart(2, '0')}`;
 }

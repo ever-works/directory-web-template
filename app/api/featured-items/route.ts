@@ -3,6 +3,7 @@ import { db } from '@/lib/db/drizzle';
 import { featuredItems } from '@/lib/db/schema';
 import { eq, desc, and, gte, or, isNull } from 'drizzle-orm';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -163,52 +164,55 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                   example: "Failed to fetch featured items"
  */
 export async function GET(request: NextRequest) {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+	try {
+		// Check database availability
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '6');
-    const includeExpired = searchParams.get('includeExpired') === 'true';
+		const { searchParams } = new URL(request.url);
+		const rawLimit = Number.parseInt(searchParams.get('limit') ?? '6', 10);
+		const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(rawLimit, 1), 50) : 6;
+		const includeExpired = searchParams.get('includeExpired') === 'true';
 
-    // Build query conditions for active featured items
-    const conditions = [eq(featuredItems.isActive, true)];
-    
-    // If not including expired, filter out items past their featured_until date
-    if (!includeExpired) {
-      const currentDate = new Date();
-      const expirationCondition = or(
-        isNull(featuredItems.featuredUntil),
-        gte(featuredItems.featuredUntil, currentDate)
-      );
+		const tenantId = await getTenantId();
+		if (!tenantId) {
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+		}
 
-      if (expirationCondition) {
-        conditions.push(expirationCondition);
-      }
-    }
+		// Build query conditions for active featured items
+		const conditions = [eq(featuredItems.isActive, true), eq(featuredItems.tenantId, tenantId)];
 
-    // Get featured items
-    const featuredItemsList = await db
-      .select()
-      .from(featuredItems)
-      .where(and(...conditions))
-      .orderBy(desc(featuredItems.featuredOrder), desc(featuredItems.featuredAt))
-      .limit(limit);
+		// If not including expired, filter out items past their featured_until date
+		if (!includeExpired) {
+			const currentDate = new Date();
+			const expirationCondition = or(
+				isNull(featuredItems.featuredUntil),
+				gte(featuredItems.featuredUntil, currentDate)
+			);
 
-    return NextResponse.json({
-      success: true,
-      data: featuredItemsList,
-      count: featuredItemsList.length,
-    });
-  } catch (error) {
-    // Only log errors in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error fetching featured items:', error);
-    }
-    return NextResponse.json(
-      { success: false, error: 'Failed to fetch featured items' },
-      { status: 500 }
-    );
-  }
+			if (expirationCondition) {
+				conditions.push(expirationCondition);
+			}
+		}
+
+		// Get featured items
+		const featuredItemsList = await db
+			.select()
+			.from(featuredItems)
+			.where(and(...conditions))
+			.orderBy(desc(featuredItems.featuredOrder), desc(featuredItems.featuredAt))
+			.limit(limit);
+
+		return NextResponse.json({
+			success: true,
+			data: featuredItemsList,
+			count: featuredItemsList.length
+		});
+	} catch (error) {
+		// Only log errors in development mode
+		if (process.env.NODE_ENV === 'development') {
+			console.error('Error fetching featured items:', error);
+		}
+		return NextResponse.json({ success: false, error: 'Failed to fetch featured items' }, { status: 500 });
+	}
 }

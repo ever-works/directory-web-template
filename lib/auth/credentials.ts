@@ -63,10 +63,11 @@ export const credentialsProvider = Credentials({
 				const isPasswordValid = await comparePasswords(password, foundUser.passwordHash);
 
 				if (isPasswordValid) {
-					void logActivity(ActivityType.SIGN_IN, foundUser.id, 'user').catch(() => {});
+					void logActivity(ActivityType.SIGN_IN, foundUser.id, 'user', undefined, foundUser.tenantId || undefined).catch(() => {});
 
 					return {
 						...foundUser,
+						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
 						isAdmin: true
 					};
@@ -95,7 +96,7 @@ export const credentialsProvider = Credentials({
 						isClient: true,
 						isAdmin: false
 					};
-					void logActivity(ActivityType.SIGN_IN, clientProfile.id, 'client').catch(() => {});
+					void logActivity(ActivityType.SIGN_IN, clientProfile.id, 'client', undefined, clientProfile.tenantId || undefined).catch(() => {});
 					return clientUser;
 				}
 				// Client account found but password is invalid

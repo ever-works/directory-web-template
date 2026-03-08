@@ -9,22 +9,22 @@
  * @returns Normalized slug (lowercase, trimmed)
  */
 export function normalizeItemSlug(slug: string): string {
-  if (!slug || typeof slug !== 'string') {
-    throw new Error('Item slug is required and must be a string');
-  }
-  
-  const normalized = slug.toLowerCase().trim();
-  
-  if (!normalized) {
-    throw new Error('Item slug cannot be empty');
-  }
-  
-  // Validate slug format (alphanumeric, hyphens, underscores only)
-  if (!/^[a-zA-Z0-9_-]+$/.test(normalized)) {
-    throw new Error(`Invalid slug format: ${slug}`);
-  }
-  
-  return normalized;
+	if (!slug || typeof slug !== 'string') {
+		throw new Error('Item slug is required and must be a string');
+	}
+
+	const normalized = slug.toLowerCase().trim();
+
+	if (!normalized) {
+		throw new Error('Item slug cannot be empty');
+	}
+
+	// Validate slug format (alphanumeric, hyphens, underscores only)
+	if (!/^[a-zA-Z0-9_-]+$/.test(normalized)) {
+		throw new Error(`Invalid slug format: ${slug}`);
+	}
+
+	return normalized;
 }
 
 /**
@@ -34,7 +34,7 @@ export function normalizeItemSlug(slug: string): string {
  * @returns ItemId for database operations
  */
 export function getItemIdFromSlug(slug: string): string {
-  return normalizeItemSlug(slug);
+	return normalizeItemSlug(slug);
 }
 
 /**
@@ -44,12 +44,12 @@ export function getItemIdFromSlug(slug: string): string {
  * @returns Promise<boolean> - True if slug exists
  */
 export async function validateItemExists(slug: string): Promise<boolean> {
-  // For now, we'll assume all normalized slugs are valid
-  // This can be enhanced later to check against the actual content system
-  try {
-    normalizeItemSlug(slug);
-    return true;
-  } catch {
-    return false;
-  }
+	// For now, we'll assume all normalized slugs are valid
+	// This can be enhanced later to check against the actual content system
+	try {
+		normalizeItemSlug(slug);
+		return true;
+	} catch {
+		return false;
+	}
 }

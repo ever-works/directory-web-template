@@ -13,6 +13,7 @@ import {
 } from '../schema';
 import { PaymentPlan } from '@/lib/constants';
 import { getEffectivePlan } from '@/lib/utils/plan-expiration.utils';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * Get active subscription for a user
@@ -20,10 +21,18 @@ import { getEffectivePlan } from '@/lib/utils/plan-expiration.utils';
  * @returns Active subscription or null if not found
  */
 export async function getUserActiveSubscription(userId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const result = await db
 		.select()
 		.from(subscriptions)
-		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE)))
+		.where(
+			and(
+				eq(subscriptions.userId, userId),
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		)
 		.limit(1);
 
 	return result[0] || null;
@@ -35,10 +44,13 @@ export async function getUserActiveSubscription(userId: string): Promise<Subscri
  * @returns Array of user subscriptions ordered by creation date
  */
 export async function getUserSubscriptions(userId: string): Promise<Subscription[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(eq(subscriptions.userId, userId))
+		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.tenantId, tenantId)))
 		.orderBy(desc(subscriptions.createdAt));
 }
 
@@ -52,11 +64,17 @@ export async function getSubscriptionByProviderSubscriptionId(
 	paymentProvider: string,
 	subscriptionId: string
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const result = await db
 		.select()
 		.from(subscriptions)
 		.where(
-			and(eq(subscriptions.paymentProvider, paymentProvider), eq(subscriptions.subscriptionId, subscriptionId))
+			and(
+				eq(subscriptions.paymentProvider, paymentProvider),
+				eq(subscriptions.subscriptionId, subscriptionId),
+				eq(subscriptions.tenantId, tenantId)
+			)
 		)
 		.limit(1);
 
@@ -73,10 +91,18 @@ export async function getSubscriptionByUserIdAndSubscriptionId(
 	userId: string,
 	subscriptionId: string
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [subscription] = await db
 		.select()
 		.from(subscriptions)
-		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.subscriptionId, subscriptionId)));
+		.where(
+			and(
+				eq(subscriptions.userId, userId),
+				eq(subscriptions.subscriptionId, subscriptionId),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		);
 
 	return subscription || null;
 }
@@ -89,10 +115,13 @@ export async function getSubscriptionByUserIdAndSubscriptionId(
 export async function updateSubscriptionBySubscriptionId(
 	updateData: Partial<NewSubscription>
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({ ...updateData, updatedAt: new Date() })
-		.where(eq(subscriptions.subscriptionId, updateData.subscriptionId!))
+		.where(and(eq(subscriptions.subscriptionId, updateData.subscriptionId!), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -104,10 +133,13 @@ export async function updateSubscriptionBySubscriptionId(
  * @returns Created subscription
  */
 export async function createSubscription(data: NewSubscription): Promise<Subscription> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const result = await db
 		.insert(subscriptions)
 		.values({
 			...data,
+			tenantId,
 			createdAt: new Date(),
 			updatedAt: new Date()
 		})
@@ -126,13 +158,15 @@ export async function updateSubscription(
 	subscriptionId: string,
 	data: Partial<NewSubscription>
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const result = await db
 		.update(subscriptions)
 		.set({
 			...data,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -150,6 +184,8 @@ export async function updateSubscriptionStatus(
 	status: string,
 	reason?: string
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const updateData: Partial<NewSubscription> & { cancelledAt?: Date; cancelReason?: string } = {
 		status,
 		updatedAt: new Date()
@@ -165,7 +201,7 @@ export async function updateSubscriptionStatus(
 	const result = await db
 		.update(subscriptions)
 		.set(updateData)
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -183,6 +219,8 @@ export async function cancelSubscription(
 	reason?: string,
 	cancelAtPeriodEnd: boolean = false
 ): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -192,7 +230,7 @@ export async function cancelSubscription(
 			cancelAtPeriodEnd,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -204,11 +242,14 @@ export async function cancelSubscription(
  * @returns Subscription with user details or null if not found
  */
 export async function getSubscriptionWithUser(subscriptionId: string): Promise<SubscriptionWithUser | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.select()
 		.from(subscriptions)
 		.leftJoin(users, eq(subscriptions.userId, users.id))
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.limit(1);
 
 	if (!result[0]) return null;
@@ -227,11 +268,19 @@ export async function getSubscriptionWithUser(subscriptionId: string): Promise<S
 export async function getSubscriptionsExpiringSoon(days: number = 7): Promise<Subscription[]> {
 	const expirationDate = new Date();
 	expirationDate.setDate(expirationDate.getDate() + days);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lte(subscriptions.endDate, expirationDate)))
+		.where(
+			and(
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				lte(subscriptions.endDate, expirationDate),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		)
 		.orderBy(asc(subscriptions.endDate));
 }
 
@@ -241,10 +290,19 @@ export async function getSubscriptionsExpiringSoon(days: number = 7): Promise<Su
  * @returns True if user has active subscription, false otherwise
  */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.select({ count: count() })
 		.from(subscriptions)
-		.where(and(eq(subscriptions.userId, userId), eq(subscriptions.status, SubscriptionStatus.ACTIVE)));
+		.where(
+			and(
+				eq(subscriptions.userId, userId),
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		);
 
 	return result[0].count > 0;
 }
@@ -307,11 +365,19 @@ export async function getUserPlanWithExpiration(userId: string): Promise<{
  */
 export async function getExpiredActiveSubscriptions(): Promise<Subscription[]> {
 	const now = new Date();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	return await db
 		.select()
 		.from(subscriptions)
-		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lt(subscriptions.endDate, now)))
+		.where(
+			and(
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				lt(subscriptions.endDate, now),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		)
 		.orderBy(asc(subscriptions.endDate));
 }
 
@@ -321,6 +387,8 @@ export async function getExpiredActiveSubscriptions(): Promise<Subscription[]> {
  */
 export async function updateExpiredSubscriptionsStatus(): Promise<Subscription[]> {
 	const now = new Date();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	const result = await db
 		.update(subscriptions)
@@ -328,7 +396,13 @@ export async function updateExpiredSubscriptionsStatus(): Promise<Subscription[]
 			status: SubscriptionStatus.EXPIRED,
 			updatedAt: now
 		})
-		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), lt(subscriptions.endDate, now)))
+		.where(
+			and(
+				eq(subscriptions.status, SubscriptionStatus.ACTIVE),
+				lt(subscriptions.endDate, now),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		)
 		.returning();
 
 	return result;
@@ -342,10 +416,14 @@ export async function updateExpiredSubscriptionsStatus(): Promise<Subscription[]
  * @returns Created history entry
  */
 export async function createSubscriptionHistory(data: NewSubscriptionHistory): Promise<SubscriptionHistoryType> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.insert(subscriptionHistory)
 		.values({
 			...data,
+			tenantId,
 			createdAt: new Date()
 		})
 		.returning();
@@ -359,10 +437,13 @@ export async function createSubscriptionHistory(data: NewSubscriptionHistory): P
  * @returns Array of subscription history entries ordered by creation date
  */
 export async function getSubscriptionHistory(subscriptionId: string): Promise<SubscriptionHistoryType[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	return await db
 		.select()
 		.from(subscriptionHistory)
-		.where(eq(subscriptionHistory.subscriptionId, subscriptionId))
+		.where(and(eq(subscriptionHistory.subscriptionId, subscriptionId), eq(subscriptionHistory.tenantId, tenantId)))
 		.orderBy(desc(subscriptionHistory.createdAt));
 }
 
@@ -405,17 +486,23 @@ export async function logSubscriptionChange(
  * @returns Subscription statistics including total, active, cancelled, and plan distribution
  */
 export async function getSubscriptionStats() {
-	const totalSubscriptions = await db.select({ count: count() }).from(subscriptions);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const totalSubscriptions = await db
+		.select({ count: count() })
+		.from(subscriptions)
+		.where(eq(subscriptions.tenantId, tenantId));
 
 	const activeSubscriptions = await db
 		.select({ count: count() })
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.ACTIVE));
+		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), eq(subscriptions.tenantId, tenantId)));
 
 	const cancelledSubscriptions = await db
 		.select({ count: count() })
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.CANCELLED));
+		.where(and(eq(subscriptions.status, SubscriptionStatus.CANCELLED), eq(subscriptions.tenantId, tenantId)));
 
 	const planDistribution = await db
 		.select({
@@ -423,7 +510,7 @@ export async function getSubscriptionStats() {
 			count: count()
 		})
 		.from(subscriptions)
-		.where(eq(subscriptions.status, SubscriptionStatus.ACTIVE))
+		.where(and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), eq(subscriptions.tenantId, tenantId)))
 		.groupBy(subscriptions.planId);
 
 	return {
@@ -510,13 +597,16 @@ export async function setAutoRenewal(subscriptionId: string, enabled: boolean): 
  * @returns Updated subscription or null if not found
  */
 export async function resetRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: false,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -528,13 +618,16 @@ export async function resetRenewalReminderSent(subscriptionId: string): Promise<
  * @returns Updated subscription or null if not found
  */
 export async function markRenewalReminderSent(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
 			renewalReminderSent: true,
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -546,6 +639,9 @@ export async function markRenewalReminderSent(subscriptionId: string): Promise<S
  * @returns Updated subscription or null if not found
  */
 export async function incrementFailedPaymentCount(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -553,7 +649,7 @@ export async function incrementFailedPaymentCount(subscriptionId: string): Promi
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -565,6 +661,9 @@ export async function incrementFailedPaymentCount(subscriptionId: string): Promi
  * @returns Updated subscription or null if not found
  */
 export async function resetFailedPaymentCount(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.update(subscriptions)
 		.set({
@@ -572,7 +671,7 @@ export async function resetFailedPaymentCount(subscriptionId: string): Promise<S
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;
@@ -584,11 +683,14 @@ export async function resetFailedPaymentCount(subscriptionId: string): Promise<S
  * @returns Array of subscriptions with too many failed payments
  */
 export async function getSubscriptionsWithFailedPayments(threshold: number = 3): Promise<Subscription[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	return await db
 		.select()
 		.from(subscriptions)
 		.where(
-			and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), gte(subscriptions.failedPaymentCount, threshold))
+			and(eq(subscriptions.status, SubscriptionStatus.ACTIVE), gte(subscriptions.failedPaymentCount, threshold), eq(subscriptions.tenantId, tenantId))
 		);
 }
 
@@ -600,6 +702,9 @@ export async function getSubscriptionsWithFailedPayments(threshold: number = 3):
  * @returns Updated subscription or null if not found
  */
 export async function resetRenewalStateAtomic(subscriptionId: string): Promise<Subscription | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	// Use a single update with both fields to ensure atomicity
 	const result = await db
 		.update(subscriptions)
@@ -609,7 +714,7 @@ export async function resetRenewalStateAtomic(subscriptionId: string): Promise<S
 			lastRenewalAttempt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(subscriptions.id, subscriptionId))
+		.where(and(eq(subscriptions.id, subscriptionId), eq(subscriptions.tenantId, tenantId)))
 		.returning();
 
 	return result[0] || null;

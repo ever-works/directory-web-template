@@ -16,6 +16,7 @@ const envSchema = z.object({
 	// Platform API configuration (for Ever Works Platform API integration)
 	PLATFORM_API_URL: z.string().url().optional(),
 	PLATFORM_API_SECRET_TOKEN: z.string().optional(),
+	TENANT_ID: z.string().optional(),
 	NODE_ENV: z.enum([ 'development', 'production', 'test' ]).default('development')
 });
 
@@ -41,5 +42,6 @@ export const env = envSchema.parse({
 	AUTH_ENDPOINT_LOGOUT: process.env.AUTH_ENDPOINT_LOGOUT?.trim() || undefined,
 	AUTH_ENDPOINT_CHECK: process.env.AUTH_ENDPOINT_CHECK?.trim() || undefined,
 	PLATFORM_API_URL: process.env.PLATFORM_API_URL?.trim() || undefined,
-	PLATFORM_API_SECRET_TOKEN: process.env.PLATFORM_API_SECRET_TOKEN?.trim() || undefined
+	PLATFORM_API_SECRET_TOKEN: process.env.PLATFORM_API_SECRET_TOKEN?.trim() || undefined,
+	TENANT_ID: process.env.TENANT_ID?.trim() || undefined
 });

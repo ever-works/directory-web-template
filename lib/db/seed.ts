@@ -1,9 +1,10 @@
 import bcrypt from 'bcryptjs';
 import { seed } from 'drizzle-seed';
-import { sql, eq } from 'drizzle-orm';
+import { sql, eq, and, like } from 'drizzle-orm';
 
 // Import schema tables
 import {
+	tenant,
 	users,
 	accounts,
 	clientProfiles,
@@ -31,6 +32,7 @@ import { PaymentProvider, PaymentPlan } from '../constants';
 import { SubscriptionStatus, VoteType } from './schema';
 import { isDemoMode } from '../utils';
 import { getDatabaseUrl, getNodeEnv } from './config';
+import { getTenantId } from '../auth/tenant';
 
 // Global database connection - will be initialized after environment loading
 let db: ReturnType<typeof import('./drizzle').getDrizzleInstance>;
@@ -91,6 +93,18 @@ async function _getTableCount(tableName: string, table: unknown): Promise<number
 export async function runSeed(): Promise<void> {
 	await ensureDb();
 
+	// Bootstrap: ensure a default tenant exists before resolving tenantId.
+	// On a fresh deployment the tenant table is empty, so getTenantId() would
+	// return null and the seed would abort.  Insert a default row first.
+	const [defaultTenant] = await db
+		.insert(tenant)
+		.values({ name: 'Default', status: 'active' })
+		.onConflictDoNothing()
+		.returning();
+
+	const tenantId = defaultTenant?.id ?? (await getTenantId());
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	// Check if demo mode is enabled
 	const isDemo = isDemoMode();
 
@@ -114,27 +128,27 @@ export async function runSeed(): Promise<void> {
 		if (getNodeEnv() === 'development') {
 			console.log('[Seed] Table status:');
 
-			const permissionsData = await db.select().from(permissions);
+			const permissionsData = await db.select().from(permissions).where(eq(permissions.tenantId, tenantId));
 			console.log(
 				`  permissions: ${permissionsData.length} rows`,
 				permissionsData.length <= 5 ? permissionsData : `[showing first 5]`,
 				permissionsData.slice(0, 5)
 			);
 
-			const rolesData = await db.select().from(roles);
+			const rolesData = await db.select().from(roles).where(eq(roles.tenantId, tenantId));
 			console.log(`  roles: ${rolesData.length} rows`, rolesData);
 
-			const usersData = await db.select().from(users);
+			const usersData = await db.select().from(users).where(eq(users.tenantId, tenantId));
 			console.log(`  users: ${usersData.length} rows`, usersData);
 
-			const accountsData = await db.select().from(accounts);
+			const accountsData = await db.select().from(accounts).where(eq(accounts.tenantId, tenantId));
 			console.log(
 				`  accounts: ${accountsData.length} rows`,
 				accountsData.length <= 5 ? accountsData : `[showing first 5]`,
 				accountsData.slice(0, 5)
 			);
 
-			const profilesData = await db.select().from(clientProfiles);
+			const profilesData = await db.select().from(clientProfiles).where(eq(clientProfiles.tenantId, tenantId));
 			console.log(`  clientProfiles: ${profilesData.length} rows`, profilesData);
 		}
 
@@ -299,12 +313,14 @@ export async function runSeed(): Promise<void> {
 					{
 						userId: client1User.id,
 						email: 'client1@example.com',
-						name: 'Client One'
+						name: 'Client One',
+						tenantId
 					},
 					{
 						userId: client2User.id,
 						email: 'client2@example.com',
-						name: 'Client Two'
+						name: 'Client Two',
+						tenantId
 					}
 				];
 
@@ -332,6 +348,7 @@ export async function runSeed(): Promise<void> {
 						type: 'email',
 						provider: 'credentials',
 						providerAccountId: adminEmail,
+						tenantId,
 						email: adminEmail,
 						passwordHash: hashedPassword
 					},
@@ -341,6 +358,7 @@ export async function runSeed(): Promise<void> {
 						provider: 'credentials',
 						providerAccountId: 'client1@example.com',
 						email: 'client1@example.com',
+						tenantId,
 						passwordHash: hashedPassword
 					},
 					{
@@ -348,6 +366,7 @@ export async function runSeed(): Promise<void> {
 						type: 'oauth',
 						provider: 'google',
 						providerAccountId: 'google-oauth-123',
+						tenantId,
 						email: null,
 						passwordHash: null
 					}
@@ -380,6 +399,7 @@ export async function runSeed(): Promise<void> {
 				const insertedFakeUsers = await db.insert(users).values(fakeUsersData).returning();
 
 				const fakeProfiles = insertedFakeUsers.map((user) => ({
+					tenantId,
 					userId: user.id,
 					email: user.email as string,
 					name: faker.person.fullName()
@@ -393,6 +413,7 @@ export async function runSeed(): Promise<void> {
 					provider: 'credentials',
 					providerAccountId: user.email as string,
 					email: user.email as string,
+					tenantId,
 					passwordHash: hashedPassword
 				}));
 
@@ -409,7 +430,7 @@ export async function runSeed(): Promise<void> {
 		const existingDemoAdmin = await db
 			.select()
 			.from(users)
-			.where(eq(users.email, 'admin@demo.ever.works'))
+			.where(and(eq(users.email, 'admin@demo.ever.works'), eq(users.tenantId, tenantId)))
 			.limit(1);
 
 		if (existingDemoAdmin.length === 0) {
@@ -417,7 +438,7 @@ export async function runSeed(): Promise<void> {
 			const autoGeneratedAdmin = await db
 				.select()
 				.from(users)
-				.where(sql`email LIKE 'admin-%@auto.generated'`)
+				.where(and(like(users.email, 'admin-%@auto.generated'), eq(users.tenantId, tenantId)))
 				.limit(1);
 
 			if (autoGeneratedAdmin.length > 0) {
@@ -430,7 +451,7 @@ export async function runSeed(): Promise<void> {
 						email: 'admin@demo.ever.works',
 						passwordHash: hashedPassword
 					})
-					.where(eq(users.id, autoGeneratedAdmin[0].id));
+					.where(and(eq(users.id, autoGeneratedAdmin[0].id), eq(users.tenantId, tenantId)));
 
 				// Update the associated account
 				await db
@@ -440,7 +461,7 @@ export async function runSeed(): Promise<void> {
 						providerAccountId: 'admin@demo.ever.works',
 						passwordHash: hashedPassword
 					})
-					.where(eq(accounts.userId, autoGeneratedAdmin[0].id));
+					.where(and(eq(accounts.userId, autoGeneratedAdmin[0].id), eq(accounts.tenantId, tenantId)));
 
 				console.log('[Seed] ✓ Migrated auto-generated admin to admin@demo.ever.works with default password');
 			}
@@ -467,11 +488,13 @@ export async function runSeed(): Promise<void> {
 				const providerValues: NewPaymentProvider[] = [
 					{
 						name: PaymentProvider.STRIPE,
-						isActive: true
+						isActive: true,
+						tenantId
 					},
 					{
 						name: PaymentProvider.LEMONSQUEEZY,
-						isActive: true
+						isActive: true,
+						tenantId
 					}
 				];
 
@@ -480,7 +503,10 @@ export async function runSeed(): Promise<void> {
 			}
 
 			// Get seeded providers
-			const allProviders = await db.select().from(paymentProviders);
+			const allProviders = await db
+				.select()
+				.from(paymentProviders)
+				.where(eq(paymentProviders.tenantId, tenantId));
 			const stripeProvider = allProviders.find((p) => p.name === PaymentProvider.STRIPE);
 			const lemonSqueezyProvider = allProviders.find((p) => p.name === PaymentProvider.LEMONSQUEEZY);
 
@@ -502,6 +528,7 @@ export async function runSeed(): Promise<void> {
 					return {
 						userId: user.id,
 						providerId: provider.id,
+						tenantId,
 						customerId: useStripe
 							? `cus_${faker.string.alphanumeric(14).toUpperCase()}`
 							: `cus_${faker.string.alphanumeric(32)}`,
@@ -584,7 +611,8 @@ export async function runSeed(): Promise<void> {
 									: `price_${faker.string.alphanumeric(32)}`
 								: undefined,
 						amountPaid: plan === PaymentPlan.FREE ? 0 : plan === PaymentPlan.STANDARD ? 1000 : 2000, // in cents
-						currency: 'usd'
+						currency: 'usd',
+						tenantId: user.tenantId || tenantId
 					};
 				});
 
@@ -638,6 +666,7 @@ export async function runSeed(): Promise<void> {
 								'Trial ended',
 								'Upgrade'
 							]),
+							tenantId: sub.tenantId || '',
 							metadata: faker.datatype.boolean(0.3)
 								? JSON.stringify({ source: faker.helpers.arrayElement(['web', 'mobile', 'api']) })
 								: undefined,
@@ -679,8 +708,11 @@ export async function runSeed(): Promise<void> {
 				console.log('[Seed] 📊 Seeding activity logs...');
 
 				// Get all users and client profiles
-				const allUsersForActivity = await db.select().from(users);
-				const allProfilesForActivity = await db.select().from(clientProfiles);
+				const allUsersForActivity = await db.select().from(users).where(eq(users.tenantId, tenantId));
+				const allProfilesForActivity = await db
+					.select()
+					.from(clientProfiles)
+					.where(eq(clientProfiles.tenantId, tenantId));
 
 				const activityActions = [
 					'SIGN_UP',
@@ -719,13 +751,18 @@ export async function runSeed(): Promise<void> {
 							clientId: !useUserId && userProfile ? userProfile.id : undefined,
 							action,
 							timestamp: faker.date.recent({ days: 90 }),
-							ipAddress: faker.datatype.boolean(0.8) ? faker.internet.ipv4() : undefined
+							ipAddress: faker.datatype.boolean(0.8) ? faker.internet.ipv4() : undefined,
+							tenantId
 						};
 					});
 				});
 
-				await db.insert(activityLogs).values(activityLogValues).onConflictDoNothing();
-				console.log(`[Seed] ✓ Created ${activityLogValues.length} activity logs`);
+				if (activityLogValues.length > 0) {
+					await db.insert(activityLogs).values(activityLogValues).onConflictDoNothing();
+					console.log(`[Seed] ✓ Created ${activityLogValues.length} activity logs`);
+				} else {
+					console.log(`[Seed] ⚠️ No activity logs to insert`);
+				}
 			}
 
 			// Seed Comments
@@ -748,7 +785,8 @@ export async function runSeed(): Promise<void> {
 						content: faker.lorem.sentences(faker.number.int({ min: 1, max: 5 })),
 						rating: faker.number.int({ min: 1, max: 5 }),
 						createdAt: faker.date.recent({ days: 180 }),
-						editedAt: faker.datatype.boolean(0.2) ? faker.date.recent({ days: 60 }) : undefined
+						editedAt: faker.datatype.boolean(0.2) ? faker.date.recent({ days: 60 }) : undefined,
+						tenantId
 					}));
 				});
 
@@ -764,13 +802,15 @@ export async function runSeed(): Promise<void> {
 				console.log('[Seed] 👍 Seeding votes...');
 
 				// Get all client profiles for votes
-				const allProfilesForVotes = await db.select().from(clientProfiles);
+				const allProfilesForVotes = await db
+					.select()
+					.from(clientProfiles)
+					.where(eq(clientProfiles.tenantId, tenantId));
 
 				// Create 0-10 votes per profile (users vote on different items)
 				const voteValues = allProfilesForVotes.flatMap((profile) => {
 					const numVotes = faker.number.int({ min: 0, max: 10 });
 					const votedItems = new Set<string>(); // Track to avoid duplicate votes on same item
-
 					return Array.from({ length: numVotes }, () => {
 						let itemId;
 						do {
@@ -816,6 +856,7 @@ export async function runSeed(): Promise<void> {
 						favoritedItems.add(itemSlug);
 
 						return {
+							tenantId,
 							userId: user.id,
 							itemSlug,
 							itemName: itemSlug
@@ -895,6 +936,7 @@ export async function runSeed(): Promise<void> {
 
 						return {
 							userId: user.id,
+							tenantId,
 							type,
 							title,
 							message,
@@ -1095,9 +1137,9 @@ export async function runSeed(): Promise<void> {
 					await db
 						.insert(userRoles)
 						.values([
-							{ userId: adminUserForRoles.id, roleId: adminRoles[0].id }, // Admin user → admin role
-							{ userId: client1UserForRoles.id, roleId: clientRoles[0].id }, // Client1 → client role
-							{ userId: client2UserForRoles.id, roleId: clientRoles[0].id } // Client2 → client role
+							{ userId: adminUserForRoles.id, roleId: adminRoles[0].id, tenantId }, // Admin user → admin role
+							{ userId: client1UserForRoles.id, roleId: clientRoles[0].id, tenantId }, // Client1 → client role
+							{ userId: client2UserForRoles.id, roleId: clientRoles[0].id, tenantId } // Client2 → client role
 						])
 						.onConflictDoNothing();
 

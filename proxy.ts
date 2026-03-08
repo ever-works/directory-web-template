@@ -196,6 +196,10 @@ export default async function proxy(req: NextRequest) {
 	const cfg = getAuthConfig();
 	const originalPathname = req.nextUrl.pathname;
 
+	// Inject x-tenant-domain header for subdomain tenant routing
+	const hostname = req.headers.get('host') || '';
+	req.headers.set('x-tenant-domain', hostname);
+
 	const intlResponse = await intl(req as any);
 
 	const { prefix: localePrefix, pathWithoutLocale } = resolveLocalePrefix(originalPathname);

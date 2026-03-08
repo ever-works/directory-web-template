@@ -1,4 +1,4 @@
-import { eq, desc, sql } from 'drizzle-orm';
+import { eq, desc, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	moderationHistory,
@@ -9,6 +9,7 @@ import {
 	type ModerationActionValues,
 	type ReportContentTypeValues
 } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Moderation History Types =====================
 
@@ -41,6 +42,8 @@ export async function createModerationHistory(data: {
 	contentId?: string;
 	details?: Record<string, unknown>;
 }): Promise<ModerationHistoryRecord> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const insertData: NewModerationHistoryRecord = {
 		userId: data.userId,
 		action: data.action,
@@ -49,7 +52,8 @@ export async function createModerationHistory(data: {
 		performedBy: data.performedBy || null,
 		contentType: data.contentType || null,
 		contentId: data.contentId || null,
-		details: data.details || null
+		details: data.details || null,
+		tenantId: tenantId
 	};
 
 	const [record] = await db.insert(moderationHistory).values(insertData).returning();
@@ -63,10 +67,9 @@ export async function createModerationHistory(data: {
  * @param limit - Maximum number of records to return
  * @returns Moderation history entries
  */
-export async function getModerationHistoryByUser(
-	userId: string,
-	limit = 50
-): Promise<ModerationHistoryWithDetails[]> {
+export async function getModerationHistoryByUser(userId: string, limit = 50): Promise<ModerationHistoryWithDetails[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const results = await db
 		.select({
 			id: moderationHistory.id,
@@ -79,6 +82,7 @@ export async function getModerationHistoryByUser(
 			contentId: moderationHistory.contentId,
 			details: moderationHistory.details,
 			createdAt: moderationHistory.createdAt,
+			tenantId: moderationHistory.tenantId,
 			user: {
 				id: clientProfiles.id,
 				name: clientProfiles.name,
@@ -87,7 +91,7 @@ export async function getModerationHistoryByUser(
 		})
 		.from(moderationHistory)
 		.leftJoin(clientProfiles, eq(moderationHistory.userId, clientProfiles.id))
-		.where(eq(moderationHistory.userId, userId))
+		.where(and(eq(moderationHistory.userId, userId), eq(moderationHistory.tenantId, tenantId)))
 		.orderBy(desc(moderationHistory.createdAt))
 		.limit(limit);
 
@@ -99,7 +103,7 @@ export async function getModerationHistoryByUser(
 				const [performer] = await db
 					.select({ id: users.id, email: users.email })
 					.from(users)
-					.where(eq(users.id, record.performedBy))
+					.where(and(eq(users.id, record.performedBy), eq(users.tenantId, tenantId)))
 					.limit(1);
 				performedByUser = performer || null;
 			}
@@ -115,9 +119,10 @@ export async function getModerationHistoryByUser(
  * @param reportId - Report ID
  * @returns Moderation history entries related to the report
  */
-export async function getModerationHistoryByReport(
-	reportId: string
-): Promise<ModerationHistoryWithDetails[]> {
+export async function getModerationHistoryByReport(reportId: string): Promise<ModerationHistoryWithDetails[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const results = await db
 		.select({
 			id: moderationHistory.id,
@@ -130,6 +135,7 @@ export async function getModerationHistoryByReport(
 			contentId: moderationHistory.contentId,
 			details: moderationHistory.details,
 			createdAt: moderationHistory.createdAt,
+			tenantId: moderationHistory.tenantId,
 			user: {
 				id: clientProfiles.id,
 				name: clientProfiles.name,
@@ -138,7 +144,7 @@ export async function getModerationHistoryByReport(
 		})
 		.from(moderationHistory)
 		.leftJoin(clientProfiles, eq(moderationHistory.userId, clientProfiles.id))
-		.where(eq(moderationHistory.reportId, reportId))
+		.where(and(eq(moderationHistory.reportId, reportId), eq(moderationHistory.tenantId, tenantId)))
 		.orderBy(desc(moderationHistory.createdAt));
 
 	// Get performer info for each record
@@ -149,7 +155,7 @@ export async function getModerationHistoryByReport(
 				const [performer] = await db
 					.select({ id: users.id, email: users.email })
 					.from(users)
-					.where(eq(users.id, record.performedBy))
+					.where(and(eq(users.id, record.performedBy), eq(users.tenantId, tenantId)))
 					.limit(1);
 				performedByUser = performer || null;
 			}
@@ -168,13 +174,15 @@ export async function getModerationHistoryByReport(
  * @returns Updated client profile
  */
 export async function incrementWarningCount(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
 			warningCount: sql`COALESCE(${clientProfiles.warningCount}, 0) + 1`,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -186,6 +194,8 @@ export async function incrementWarningCount(userId: string) {
  * @returns Updated client profile
  */
 export async function suspendUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -193,7 +203,7 @@ export async function suspendUser(userId: string) {
 			suspendedAt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -205,6 +215,8 @@ export async function suspendUser(userId: string) {
  * @returns Updated client profile
  */
 export async function unsuspendUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -212,7 +224,7 @@ export async function unsuspendUser(userId: string) {
 			suspendedAt: null,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -224,6 +236,9 @@ export async function unsuspendUser(userId: string) {
  * @returns Updated client profile
  */
 export async function banUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -231,7 +246,7 @@ export async function banUser(userId: string) {
 			bannedAt: new Date(),
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -243,6 +258,9 @@ export async function banUser(userId: string) {
  * @returns Updated client profile
  */
 export async function unbanUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [updated] = await db
 		.update(clientProfiles)
 		.set({
@@ -250,7 +268,7 @@ export async function unbanUser(userId: string) {
 			bannedAt: null,
 			updatedAt: new Date()
 		})
-		.where(eq(clientProfiles.id, userId))
+		.where(and(eq(clientProfiles.id, userId), eq(clientProfiles.tenantId, tenantId)))
 		.returning();
 
 	return updated;
@@ -262,10 +280,13 @@ export async function unbanUser(userId: string) {
  * @returns Client profile or null
  */
 export async function getClientProfileById(id: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.id, id))
+		.where(and(eq(clientProfiles.id, id), eq(clientProfiles.tenantId, tenantId)))
 		.limit(1);
 
 	return profile || null;
@@ -277,10 +298,13 @@ export async function getClientProfileById(id: string) {
  * @returns Client profile or null
  */
 export async function getClientProfileByUserId(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.userId, userId))
+		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)))
 		.limit(1);
 
 	return profile || null;

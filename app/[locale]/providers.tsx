@@ -15,6 +15,7 @@ import {
 import { SessionProvider } from 'next-auth/react';
 import { LoginModalProvider } from '@/components/auth/login-modal-provider';
 import { CurrencyProvider } from '@/components/context';
+import { TenantProvider } from '@/components/context/tenant-provider';
 
 interface ProvidersProps {
 	config: Config;
@@ -30,28 +31,30 @@ export function Providers({ config, children, dehydratedState }: ProvidersProps)
 
 	return (
 		<SessionProvider>
-			<NavigationProvider>
-				<QueryClientProvider dehydratedState={dehydratedState}>
-					<CurrencyProvider>
-						<LayoutProvider configDefaults={configDefaults}>
-							<ErrorProvider>
-								<ConfirmProvider>
-									<FilterProvider>
-										<ConfigProvider config={config}>
-											<ThemeProvider>
-												<HeroUIProvider>
-													<LoginModalProvider />
-													{children}
-												</HeroUIProvider>
-											</ThemeProvider>
-										</ConfigProvider>
-									</FilterProvider>
-								</ConfirmProvider>
-							</ErrorProvider>
-						</LayoutProvider>
-					</CurrencyProvider>
-				</QueryClientProvider>
-			</NavigationProvider>
+			<TenantProvider>
+				<NavigationProvider>
+					<QueryClientProvider dehydratedState={dehydratedState}>
+						<CurrencyProvider>
+							<LayoutProvider configDefaults={configDefaults}>
+								<ErrorProvider>
+									<ConfirmProvider>
+										<FilterProvider>
+											<ConfigProvider config={config}>
+												<ThemeProvider>
+													<HeroUIProvider>
+														<LoginModalProvider />
+														{children}
+													</HeroUIProvider>
+												</ThemeProvider>
+											</ConfigProvider>
+										</FilterProvider>
+									</ConfirmProvider>
+								</ErrorProvider>
+							</LayoutProvider>
+						</CurrencyProvider>
+					</QueryClientProvider>
+				</NavigationProvider>
+			</TenantProvider>
 		</SessionProvider>
 	);
 }

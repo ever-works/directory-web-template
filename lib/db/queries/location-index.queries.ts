@@ -5,15 +5,16 @@
  * This table serves as an index for fast geo queries - source of truth remains in YAML.
  */
 
-import { and, eq, gte, lte, inArray, count, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, inArray, count, sql, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	itemLocationIndex,
 	locationIndexMeta,
 	type NewItemLocationIndex,
 	type ItemLocationIndex,
-	type LocationIndexMeta,
+	type LocationIndexMeta
 } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Helpers =====================
 
@@ -77,6 +78,9 @@ export interface LocationIndexStats {
  * @returns The upserted location entry
  */
 export async function upsertLocationIndex(params: UpsertLocationIndexParams): Promise<ItemLocationIndex> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [result] = await db
 		.insert(itemLocationIndex)
 		.values({
@@ -93,6 +97,7 @@ export async function upsertLocationIndex(params: UpsertLocationIndexParams): Pr
 			serviceArea: params.serviceArea ?? null,
 			isRemote: params.isRemote ?? false,
 			indexedAt: new Date(),
+			tenantId: tenantId
 		})
 		.onConflictDoUpdate({
 			target: itemLocationIndex.itemSlug,
@@ -108,8 +113,8 @@ export async function upsertLocationIndex(params: UpsertLocationIndexParams): Pr
 				postalCode: params.postalCode ?? null,
 				serviceArea: params.serviceArea ?? null,
 				isRemote: params.isRemote ?? false,
-				indexedAt: new Date(),
-			},
+				indexedAt: new Date()
+			}
 		})
 		.returning();
 
@@ -125,6 +130,9 @@ export async function upsertLocationIndex(params: UpsertLocationIndexParams): Pr
 export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParams[]): Promise<number> {
 	if (entries.length === 0) return 0;
 
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const values: NewItemLocationIndex[] = entries.map((entry) => ({
 		itemSlug: entry.itemSlug,
 		latitude: entry.latitude,
@@ -139,6 +147,7 @@ export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParam
 		serviceArea: entry.serviceArea ?? null,
 		isRemote: entry.isRemote ?? false,
 		indexedAt: new Date(),
+		tenantId: tenantId
 	}));
 
 	// Process in batches of 100 to avoid query size limits
@@ -165,8 +174,8 @@ export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParam
 					postalCode: sql`excluded.postal_code`,
 					serviceArea: sql`excluded.service_area`,
 					isRemote: sql`excluded.is_remote`,
-					indexedAt: sql`excluded.indexed_at`,
-				},
+					indexedAt: sql`excluded.indexed_at`
+				}
 			});
 
 		processed += batch.length;
@@ -182,7 +191,13 @@ export async function batchUpsertLocationIndex(entries: UpsertLocationIndexParam
  * @returns true if an entry was deleted
  */
 export async function removeFromLocationIndex(itemSlug: string): Promise<boolean> {
-	const result = await db.delete(itemLocationIndex).where(eq(itemLocationIndex.itemSlug, itemSlug)).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db
+		.delete(itemLocationIndex)
+		.where(and(eq(itemLocationIndex.itemSlug, itemSlug), eq(itemLocationIndex.tenantId, tenantId)))
+		.returning();
 
 	return result.length > 0;
 }
@@ -196,9 +211,12 @@ export async function removeFromLocationIndex(itemSlug: string): Promise<boolean
 export async function batchRemoveFromLocationIndex(itemSlugs: string[]): Promise<number> {
 	if (itemSlugs.length === 0) return 0;
 
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const result = await db
 		.delete(itemLocationIndex)
-		.where(inArray(itemLocationIndex.itemSlug, itemSlugs))
+		.where(and(inArray(itemLocationIndex.itemSlug, itemSlugs), eq(itemLocationIndex.tenantId, tenantId)))
 		.returning();
 
 	return result.length;
@@ -211,7 +229,11 @@ export async function batchRemoveFromLocationIndex(itemSlugs: string[]): Promise
  * @returns Number of entries deleted
  */
 export async function clearLocationIndex(): Promise<number> {
-	const result = await db.delete(itemLocationIndex).returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db.delete(itemLocationIndex).where(eq(itemLocationIndex.tenantId, tenantId)).returning();
+
 	return result.length;
 }
 
@@ -224,10 +246,13 @@ export async function clearLocationIndex(): Promise<number> {
  * @returns Location entry or null
  */
 export async function getLocationBySlug(itemSlug: string): Promise<ItemLocationIndex | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const [result] = await db
 		.select()
 		.from(itemLocationIndex)
-		.where(eq(itemLocationIndex.itemSlug, itemSlug))
+		.where(and(eq(itemLocationIndex.itemSlug, itemSlug), eq(itemLocationIndex.tenantId, tenantId)))
 		.limit(1);
 
 	return result ?? null;
@@ -242,7 +267,13 @@ export async function getLocationBySlug(itemSlug: string): Promise<ItemLocationI
 export async function getLocationsBySlugs(itemSlugs: string[]): Promise<ItemLocationIndex[]> {
 	if (itemSlugs.length === 0) return [];
 
-	return db.select().from(itemLocationIndex).where(inArray(itemLocationIndex.itemSlug, itemSlugs));
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	return db
+		.select()
+		.from(itemLocationIndex)
+		.where(and(inArray(itemLocationIndex.itemSlug, itemSlugs), eq(itemLocationIndex.tenantId, tenantId)));
 }
 
 /**
@@ -253,10 +284,16 @@ export async function getLocationsBySlugs(itemSlugs: string[]): Promise<ItemLoca
  * @returns Array of location entries
  */
 export async function queryByBoundingBox(params: LocationQueryParams): Promise<ItemLocationIndex[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const conditions = [];
 
 	if (params.minLat !== undefined) {
 		conditions.push(gte(itemLocationIndex.latitude, params.minLat));
+	}
+	if (tenantId) {
+		conditions.push(eq(itemLocationIndex.tenantId, tenantId));
 	}
 	if (params.maxLat !== undefined) {
 		conditions.push(lte(itemLocationIndex.latitude, params.maxLat));
@@ -294,10 +331,12 @@ export async function queryByBoundingBox(params: LocationQueryParams): Promise<I
  */
 export async function queryByCity(city: string, includeRemote = false): Promise<string[]> {
 	const normalizedCity = normalizeLocationString(city);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	if (!normalizedCity) return [];
 
 	// Use equality on normalized column (indexed for fast queries)
-	const conditions = [eq(itemLocationIndex.cityNormalized, normalizedCity)];
+	const conditions = [eq(itemLocationIndex.cityNormalized, normalizedCity), eq(itemLocationIndex.tenantId, tenantId)];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));
@@ -321,10 +360,15 @@ export async function queryByCity(city: string, includeRemote = false): Promise<
  */
 export async function queryByCountry(country: string, includeRemote = false): Promise<string[]> {
 	const normalizedCountry = normalizeLocationString(country);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	if (!normalizedCountry) return [];
 
 	// Use equality on normalized column (indexed for fast queries)
-	const conditions = [eq(itemLocationIndex.countryNormalized, normalizedCountry)];
+	const conditions = [
+		eq(itemLocationIndex.countryNormalized, normalizedCountry),
+		eq(itemLocationIndex.tenantId, tenantId)
+	];
 
 	if (!includeRemote) {
 		conditions.push(eq(itemLocationIndex.isRemote, false));
@@ -344,10 +388,12 @@ export async function queryByCountry(country: string, includeRemote = false): Pr
  * @returns Array of item slugs for remote items
  */
 export async function queryRemoteItems(): Promise<string[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const results = await db
 		.select({ itemSlug: itemLocationIndex.itemSlug })
 		.from(itemLocationIndex)
-		.where(eq(itemLocationIndex.isRemote, true));
+		.where(and(eq(itemLocationIndex.isRemote, true), eq(itemLocationIndex.tenantId, tenantId)));
 
 	return results.map((r) => r.itemSlug);
 }
@@ -358,7 +404,12 @@ export async function queryRemoteItems(): Promise<string[]> {
  * @returns Array of all indexed item slugs
  */
 export async function getAllIndexedSlugs(): Promise<string[]> {
-	const results = await db.select({ itemSlug: itemLocationIndex.itemSlug }).from(itemLocationIndex);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const results = await db
+		.select({ itemSlug: itemLocationIndex.itemSlug })
+		.from(itemLocationIndex)
+		.where(eq(itemLocationIndex.tenantId, tenantId));
 
 	return results.map((r) => r.itemSlug);
 }
@@ -369,7 +420,9 @@ export async function getAllIndexedSlugs(): Promise<string[]> {
  * @returns Array of all location entries
  */
 export async function getAllLocationEntries(): Promise<ItemLocationIndex[]> {
-	return db.select().from(itemLocationIndex);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db.select().from(itemLocationIndex).where(eq(itemLocationIndex.tenantId, tenantId));
 }
 
 /**
@@ -388,14 +441,16 @@ export interface RemoteLocationEntry {
  * @returns Array of remote location entries
  */
 export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	return db
 		.select({
 			itemSlug: itemLocationIndex.itemSlug,
 			city: itemLocationIndex.city,
-			country: itemLocationIndex.country,
+			country: itemLocationIndex.country
 		})
 		.from(itemLocationIndex)
-		.where(eq(itemLocationIndex.isRemote, true));
+		.where(and(eq(itemLocationIndex.isRemote, true), eq(itemLocationIndex.tenantId, tenantId)));
 }
 
 // ===================== Distinct Value Queries =====================
@@ -409,10 +464,12 @@ export async function getRemoteLocationEntries(): Promise<RemoteLocationEntry[]>
 export async function getDistinctCities(): Promise<string[]> {
 	// Group by normalized column to deduplicate case/whitespace variants
 	// MIN() picks the lexicographically first variant (favors capitalized form)
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const results = await db
 		.select({ city: sql<string>`MIN(${itemLocationIndex.city})` })
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.cityNormalized} IS NOT NULL`)
+		.where(and(sql`${itemLocationIndex.cityNormalized} IS NOT NULL`, eq(itemLocationIndex.tenantId, tenantId)))
 		.groupBy(itemLocationIndex.cityNormalized)
 		.orderBy(sql`MIN(${itemLocationIndex.city})`);
 
@@ -428,14 +485,20 @@ export async function getDistinctCities(): Promise<string[]> {
 export async function getDistinctCountries(): Promise<string[]> {
 	// Group by normalized column to deduplicate case/whitespace variants
 	// MIN() picks the lexicographically first variant (favors capitalized form)
+
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const results = await db
-		.select({ country: sql<string>`MIN(${itemLocationIndex.country})` })
+		.select({
+			country: sql<string>`MIN(${itemLocationIndex.country})`
+		})
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.countryNormalized} IS NOT NULL`)
+		.where(and(isNotNull(itemLocationIndex.countryNormalized), eq(itemLocationIndex.tenantId, tenantId)))
 		.groupBy(itemLocationIndex.countryNormalized)
 		.orderBy(sql`MIN(${itemLocationIndex.country})`);
 
-	return results.map((r) => r.country).filter((country): country is string => country !== null);
+	return results.map((r) => r.country);
 }
 
 // ===================== Statistics =====================
@@ -447,39 +510,50 @@ export async function getDistinctCountries(): Promise<string[]> {
  */
 export async function getLocationIndexStats(): Promise<LocationIndexStats> {
 	// Get total count
-	const [countResult] = await db.select({ count: count() }).from(itemLocationIndex);
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const [countResult] = await db
+		.select({ count: count() })
+		.from(itemLocationIndex)
+		.where(eq(itemLocationIndex.tenantId, tenantId));
 
 	// Get last indexed timestamp
 	const [lastIndexed] = await db
 		.select({ indexedAt: itemLocationIndex.indexedAt })
 		.from(itemLocationIndex)
+		.where(eq(itemLocationIndex.tenantId, tenantId))
 		.orderBy(sql`${itemLocationIndex.indexedAt} DESC`)
 		.limit(1);
 
 	// Get distinct cities count
 	const [citiesResult] = await db
-		.select({ count: sql<number>`COUNT(DISTINCT ${itemLocationIndex.city})` })
+		.select({
+			count: sql<number>`COUNT(DISTINCT ${itemLocationIndex.city})`
+		})
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.city} IS NOT NULL`);
+		.where(and(isNotNull(itemLocationIndex.city), eq(itemLocationIndex.tenantId, tenantId)));
 
 	// Get distinct countries count
 	const [countriesResult] = await db
-		.select({ count: sql<number>`COUNT(DISTINCT ${itemLocationIndex.country})` })
+		.select({
+			count: sql<number>`COUNT(DISTINCT ${itemLocationIndex.country})`
+		})
 		.from(itemLocationIndex)
-		.where(sql`${itemLocationIndex.country} IS NOT NULL`);
+		.where(and(isNotNull(itemLocationIndex.country), eq(itemLocationIndex.tenantId, tenantId)));
 
 	// Get remote count
 	const [remoteResult] = await db
 		.select({ count: count() })
 		.from(itemLocationIndex)
-		.where(eq(itemLocationIndex.isRemote, true));
+		.where(and(eq(itemLocationIndex.isRemote, true), eq(itemLocationIndex.tenantId, tenantId)));
 
 	return {
 		totalIndexed: Number(countResult?.count ?? 0),
 		lastIndexedAt: lastIndexed?.indexedAt ?? null,
 		citiesCount: Number(citiesResult?.count ?? 0),
 		countriesCount: Number(countriesResult?.count ?? 0),
-		remoteCount: Number(remoteResult?.count ?? 0),
+		remoteCount: Number(remoteResult?.count ?? 0)
 	};
 }
 
@@ -493,11 +567,8 @@ export async function getLocationIndexStats(): Promise<LocationIndexStats> {
  * @param durationMs - Duration of the rebuild in milliseconds
  * @param itemCount - Number of items processed
  */
-export async function updateLocationIndexMeta(
-	rebuildAt: Date,
-	durationMs: number,
-	itemCount: number
-): Promise<void> {
+export async function updateLocationIndexMeta(rebuildAt: Date, durationMs: number, itemCount: number): Promise<void> {
+	const tenantId = await getTenantId();
 	await db
 		.insert(locationIndexMeta)
 		.values({
@@ -505,7 +576,8 @@ export async function updateLocationIndexMeta(
 			lastRebuildAt: rebuildAt,
 			lastRebuildDurationMs: durationMs,
 			lastRebuildItemCount: itemCount,
-			updatedAt: new Date(),
+			tenantId: tenantId,
+			updatedAt: new Date()
 		})
 		.onConflictDoUpdate({
 			target: locationIndexMeta.id,
@@ -513,8 +585,8 @@ export async function updateLocationIndexMeta(
 				lastRebuildAt: rebuildAt,
 				lastRebuildDurationMs: durationMs,
 				lastRebuildItemCount: itemCount,
-				updatedAt: new Date(),
-			},
+				updatedAt: new Date()
+			}
 		});
 }
 
@@ -524,10 +596,12 @@ export async function updateLocationIndexMeta(
  * @returns Metadata or null if not yet set
  */
 export async function getLocationIndexMeta(): Promise<LocationIndexMeta | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [result] = await db
 		.select()
 		.from(locationIndexMeta)
-		.where(eq(locationIndexMeta.id, 'singleton'))
+		.where(and(eq(locationIndexMeta.id, 'singleton'), eq(locationIndexMeta.tenantId, tenantId)))
 		.limit(1);
 
 	return result ?? null;

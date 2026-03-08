@@ -204,6 +204,34 @@
       "when": 1769581940686,
       "tag": "0028_tiresome_mauler",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1772876707755,
+      "tag": "0029_mean_joystick",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1772886798990,
+      "tag": "0030_glossy_the_call",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1772915520692,
+      "tag": "0031_add_tenant_id_to_integration_mapping_unique_idx",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1772916100349,
+      "tag": "0032_add_tenant_id_indexes_to_all_tables",
+      "breakpoints": true
     }
   ]
 }

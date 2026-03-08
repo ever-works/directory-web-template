@@ -6,6 +6,7 @@
 import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db, getDrizzleInstance } from '../db/drizzle';
+import { eq } from 'drizzle-orm';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
 import authConfig from '../../auth.config';
 import { invalidateSessionCache } from './cached-session';
@@ -20,19 +21,42 @@ interface ExtendedUser {
 	isAdmin?: boolean;
 	isClient?: boolean;
 	clientProfileId?: string;
+	tenantId?: string;
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
 const isDatabaseAvailable = !!coreConfig.DATABASE_URL && typeof db !== 'undefined';
 
-// Only create the Drizzle adapter if we have a real database connection
-const drizzle = isDatabaseAvailable
+// Only create the base Drizzle adapter if we have a real database connection
+const baseAdapter = isDatabaseAvailable
 	? DrizzleAdapter(getDrizzleInstance(), {
 			usersTable: users as any,
 			accountsTable: accounts as any,
 			sessionsTable: sessions as any,
 			verificationTokensTable: verificationTokens as any
 		})
+	: undefined;
+
+// Wrap the adapter to automatically inject tenantId on user creation (e.g., OAuth flows)
+const drizzle = baseAdapter
+	? {
+			...baseAdapter,
+			createUser: async (data: any) => {
+				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
+				const { getTenantId } = await import('./tenant');
+				const tenantId = await getTenantId();
+				
+				if (!tenantId) {
+					console.warn('[auth] Could not resolve tenantId during OAuth user creation');
+				}
+
+				return baseAdapter.createUser!({
+					...data,
+					// Fallback dynamically ensuring tenant ID isn't completely entirely empty
+					tenantId: tenantId || undefined
+				});
+			}
+		}
 	: undefined;
 
 /**
@@ -143,6 +167,30 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 					}
 				}
 
+				// Resolve tenantId from the user record on first sign-in.
+				// NOTE: We use an unscoped direct query here instead of getUserById()
+				// because getUserById now filters by tenantId internally, creating
+				// a circular dependency (we need tenantId to fetch the user, but we
+				// need the user to get the tenantId).
+				if (!token.tenantId && !token.tenantIdChecked && token.userId && isDatabaseAvailable) {
+					try {
+						// Mark that we've checked the DB to prevent looping on every request
+						// for users who legitimately don't have a tenantId
+						token.tenantIdChecked = true;
+
+						const [dbUser] = await getDrizzleInstance()
+							.select({ tenantId: users.tenantId })
+							.from(users)
+							.where(eq(users.id, token.userId))
+							.limit(1);
+						if (dbUser?.tenantId) {
+							token.tenantId = dbUser.tenantId;
+						}
+					} catch (error) {
+						console.error('[auth][jwt] Error resolving tenantId:', error);
+					}
+				}
+
 				// Detect and update currency/country for client profiles on login
 				// Note: Full detection with headers happens on first API call with request context
 				// This is just a placeholder - actual detection happens in getUserCurrency with request headers
@@ -166,7 +214,8 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 							isAdmin: token.isAdmin,
 							hasUser: !!user,
 							accountProvider: account?.provider,
-							hasClientProfileId: !!token.clientProfileId
+							hasClientProfileId: !!token.clientProfileId,
+							tenantId: token.tenantId
 						});
 					} catch {}
 				}
@@ -190,6 +239,9 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				session.user.provider = typeof token.provider === 'string' ? token.provider : 'credentials';
 				if (typeof token.isAdmin === 'boolean') {
 					session.user.isAdmin = token.isAdmin;
+				}
+				if (typeof token.tenantId === 'string') {
+					session.user.tenantId = token.tenantId;
 				}
 			}
 

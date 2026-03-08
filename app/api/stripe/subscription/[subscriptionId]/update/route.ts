@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { subscriptions } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { PaymentPlan } from '@/lib/constants';
 import { getSubscriptionByProviderSubscriptionId } from '@/lib/db/queries';
 import { paymentEmailService } from '@/lib/payment/services/payment-email.service';
+import { getTenantId } from '@/lib/auth/tenant';
 
 /**
  * @swagger
@@ -169,98 +170,90 @@ import { paymentEmailService } from '@/lib/payment/services/payment-email.servic
  *         - subscriptionId: "Stripe subscription ID"
  *         - manageSubscriptionUrl: "URL to manage subscription"
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ subscriptionId: string }> }
-) {
-  try {
-    const session = await auth();
-    
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+export async function POST(request: NextRequest, { params }: { params: Promise<{ subscriptionId: string }> }) {
+	try {
+		const session = await auth();
 
-    const { newPlanId, newPriceId } = await request.json();
-    const { subscriptionId } = await params;
+		if (!session?.user) {
+			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+		}
 
-    // Validate the new plan
-    if (!Object.values(PaymentPlan).includes(newPlanId)) {
-      return NextResponse.json(
-        { error: 'Invalid plan ID' },
-        { status: 400 }
-      );
-    }
+		const { newPlanId, newPriceId } = await request.json();
+		const { subscriptionId } = await params;
 
-    const stripeProvider = getOrCreateStripeProvider();
-    // Verify the subscription belongs to the user
-    const userSubscription = await getSubscriptionByProviderSubscriptionId('stripe',subscriptionId);
+		// Validate the new plan
+		if (!Object.values(PaymentPlan).includes(newPlanId)) {
+			return NextResponse.json({ error: 'Invalid plan ID' }, { status: 400 });
+		}
 
-    if (!userSubscription) {
-      return NextResponse.json(
-        { error: 'Subscription not found or access denied' },
-        { status: 404 }
-      );
-    }
+		const stripeProvider = getOrCreateStripeProvider();
+		// Verify the subscription belongs to the user
+		const userSubscription = await getSubscriptionByProviderSubscriptionId('stripe', subscriptionId);
 
-    const subscription = userSubscription;
+		if (!userSubscription || userSubscription.userId !== session.user.id) {
+			return NextResponse.json({ error: 'Subscription not found or access denied' }, { status: 404 });
+		}
 
-    // Check if subscription is active
-    if (subscription.status !== 'active'  && subscription.status !== 'pending' && subscription.status !== 'paused') {
-      return NextResponse.json(
-        { error: 'Subscription is not active' },
-        { status: 400 }
-      );
-    }
+		const subscription = userSubscription;
 
-    // Update the subscription in Stripe
-    const updatedSubscription = await stripeProvider.updateSubscription({
-      subscriptionId,
-      priceId: newPriceId,
-    });
+		// Check if subscription is active
+		if (subscription.status !== 'active' && subscription.status !== 'pending' && subscription.status !== 'paused') {
+			return NextResponse.json({ error: 'Subscription is not active' }, { status: 400 });
+		}
 
-    // Update the subscription in the database
-    await db
-      .update(subscriptions)
-      .set({
-        planId: newPlanId,
-        priceId: newPriceId,
-        updatedAt: new Date()
-      })
-      .where(eq(subscriptions.subscriptionId, subscriptionId));
+		// Update the subscription in Stripe
+		const updatedSubscription = await stripeProvider.updateSubscription({
+			subscriptionId,
+			priceId: newPriceId
+		});
 
+		// Update the subscription in the database
+		const tenantId = await getTenantId();
+		await db
+			.update(subscriptions)
+			.set({
+				planId: newPlanId,
+				priceId: newPriceId,
+				updatedAt: new Date()
+			})
+			.where(
+				and(
+					eq(subscriptions.subscriptionId, subscriptionId),
+					...(tenantId ? [eq(subscriptions.tenantId, tenantId)] : [])
+				)
+			);
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
+		const appUrl =
+			process.env.NEXT_PUBLIC_APP_URL ??
+			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
 
-    // Send plan change email
-    try {
-      const emailData = {
-        customerName: session.user.name || session.user.email || 'User',
-        customerEmail: session.user.email!,
-        oldPlanName: subscription.planId,
-        newPlanName: newPlanId,
-        subscriptionId: subscriptionId,
-        companyName: "Ever Works",
-        companyUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://ever.works",
-        supportEmail: process.env.EMAIL_SUPPORT || "support@ever.works",
-        manageSubscriptionUrl: `${appUrl || ''}/settings/billing`
-      };
+		// Send plan change email
+		try {
+			const emailData = {
+				customerName: session.user.name || session.user.email || 'User',
+				customerEmail: session.user.email!,
+				oldPlanName: subscription.planId,
+				newPlanName: newPlanId,
+				subscriptionId: subscriptionId,
+				companyName: 'Ever Works',
+				companyUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://ever.works',
+				supportEmail: process.env.EMAIL_SUPPORT || 'support@ever.works',
+				manageSubscriptionUrl: `${appUrl || ''}/settings/billing`
+			};
 
-      await paymentEmailService.sendSubscriptionPlanChangedEmail(emailData);
-    } catch (emailError) {
-      console.error('Failed to send plan change email:', emailError);
-      // Don't fail the request if email fails
-    }
+			await paymentEmailService.sendSubscriptionPlanChangedEmail(emailData);
+		} catch (emailError) {
+			console.error('Failed to send plan change email:', emailError);
+			// Don't fail the request if email fails
+		}
 
-    return NextResponse.json({
-      success: true,
-      data: updatedSubscription,
-      message: `Plan updated to ${newPlanId} successfully`
-    });
-  } catch (error) {
-    console.error('Error updating subscription:', error);
-    return NextResponse.json(
-      { error: 'Failed to update subscription' },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			data: updatedSubscription,
+			message: `Plan updated to ${newPlanId} successfully`
+		});
+	} catch (error) {
+		console.error('Error updating subscription:', error);
+		return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 });
+	}
 }

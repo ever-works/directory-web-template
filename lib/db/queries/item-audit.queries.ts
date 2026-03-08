@@ -1,13 +1,14 @@
 import { eq, desc, and, inArray, count } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
-	itemAuditLogs,
-	users,
-	type NewItemAuditLog,
-	type ItemAuditLog,
-	type ItemAuditActionValues,
-	type ItemAuditChanges
+    itemAuditLogs,
+    users,
+    type NewItemAuditLog,
+    type ItemAuditLog,
+    type ItemAuditActionValues,
+    type ItemAuditChanges
 } from '../schema';
+import { getTenantId } from '@/lib/auth/tenant';
 
 // ===================== Types =====================
 
@@ -54,6 +55,9 @@ export interface PaginatedItemHistory {
  * @returns Created audit log entry
  */
 export async function createItemAuditLog(data: CreateItemAuditLogParams): Promise<ItemAuditLog> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
 	const insertData: NewItemAuditLog = {
 		itemId: data.itemId,
 		itemName: data.itemName,
@@ -64,7 +68,8 @@ export async function createItemAuditLog(data: CreateItemAuditLogParams): Promis
 		performedBy: data.performedBy ?? null,
 		performedByName: data.performedByName ?? null,
 		notes: data.notes ?? null,
-		metadata: data.metadata ?? null
+		metadata: data.metadata ?? null,
+		tenantId
 	};
 
 	const [record] = await db.insert(itemAuditLogs).values(insertData).returning();
@@ -81,19 +86,18 @@ export async function createItemAuditLog(data: CreateItemAuditLogParams): Promis
  */
 export async function getItemHistory(params: GetItemHistoryParams): Promise<PaginatedItemHistory> {
 	const { itemId, page = 1, limit = 20, actionFilter } = params;
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 
 	// Build where conditions
-	const conditions = [eq(itemAuditLogs.itemId, itemId)];
+	const conditions = [eq(itemAuditLogs.itemId, itemId), eq(itemAuditLogs.tenantId, tenantId)];
 	if (actionFilter && actionFilter.length > 0) {
 		conditions.push(inArray(itemAuditLogs.action, actionFilter));
 	}
 	const whereClause = and(...conditions);
 
 	// Get total count
-	const [countResult] = await db
-		.select({ count: count() })
-		.from(itemAuditLogs)
-		.where(whereClause);
+	const [countResult] = await db.select({ count: count() }).from(itemAuditLogs).where(whereClause);
 
 	const total = countResult?.count ?? 0;
 	const totalPages = Math.ceil(total / limit);
@@ -114,6 +118,7 @@ export async function getItemHistory(params: GetItemHistoryParams): Promise<Pagi
 			notes: itemAuditLogs.notes,
 			metadata: itemAuditLogs.metadata,
 			createdAt: itemAuditLogs.createdAt,
+			tenantId: itemAuditLogs.tenantId,
 			performer: {
 				id: users.id,
 				email: users.email
@@ -141,10 +146,12 @@ export async function getItemHistory(params: GetItemHistoryParams): Promise<Pagi
  * @returns Most recent audit log or null
  */
 export async function getLatestItemAuditLog(itemId: string): Promise<ItemAuditLog | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const [log] = await db
 		.select()
 		.from(itemAuditLogs)
-		.where(eq(itemAuditLogs.itemId, itemId))
+		.where(and(eq(itemAuditLogs.itemId, itemId), eq(itemAuditLogs.tenantId, tenantId)))
 		.orderBy(desc(itemAuditLogs.createdAt))
 		.limit(1);
 
@@ -157,14 +164,13 @@ export async function getLatestItemAuditLog(itemId: string): Promise<ItemAuditLo
  * @param limit - Maximum number of records
  * @returns Audit logs matching the action
  */
-export async function getAuditLogsByAction(
-	action: ItemAuditActionValues,
-	limit = 50
-): Promise<ItemAuditLog[]> {
+export async function getAuditLogsByAction(action: ItemAuditActionValues, limit = 50): Promise<ItemAuditLog[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	return db
 		.select()
 		.from(itemAuditLogs)
-		.where(eq(itemAuditLogs.action, action))
+		.where(and(eq(itemAuditLogs.action, action), eq(itemAuditLogs.tenantId, tenantId)))
 		.orderBy(desc(itemAuditLogs.createdAt))
 		.limit(limit);
 }
@@ -175,14 +181,13 @@ export async function getAuditLogsByAction(
  * @param limit - Maximum number of records
  * @returns Audit logs by the performer
  */
-export async function getAuditLogsByPerformer(
-	performedBy: string,
-	limit = 50
-): Promise<ItemAuditLog[]> {
+export async function getAuditLogsByPerformer(performedBy: string, limit = 50): Promise<ItemAuditLog[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	return db
 		.select()
 		.from(itemAuditLogs)
-		.where(eq(itemAuditLogs.performedBy, performedBy))
+		.where(and(eq(itemAuditLogs.performedBy, performedBy), eq(itemAuditLogs.tenantId, tenantId)))
 		.orderBy(desc(itemAuditLogs.createdAt))
 		.limit(limit);
 }
@@ -195,13 +200,15 @@ export async function getAuditLogsByPerformer(
  * @returns Count of logs by action type
  */
 export async function getItemAuditStats(itemId: string): Promise<Record<string, number>> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
 	const results = await db
 		.select({
 			action: itemAuditLogs.action,
 			count: count()
 		})
 		.from(itemAuditLogs)
-		.where(eq(itemAuditLogs.itemId, itemId))
+		.where(and(eq(itemAuditLogs.itemId, itemId), eq(itemAuditLogs.tenantId, tenantId)))
 		.groupBy(itemAuditLogs.action);
 
 	const stats: Record<string, number> = {};
