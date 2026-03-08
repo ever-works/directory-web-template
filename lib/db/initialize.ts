@@ -18,11 +18,7 @@ async function getSeedStatus(): Promise<SeedStatus | null> {
 	try {
 		const { db } = await import('./drizzle');
 
-		const result = await db
-			.select()
-			.from(seedStatus)
-			.where(eq(seedStatus.id, 'singleton'))
-			.limit(1);
+		const result = await db.select().from(seedStatus).where(eq(seedStatus.id, 'singleton')).limit(1);
 
 		return result[0] || null;
 	} catch (error) {
@@ -198,16 +194,37 @@ export async function initializeDatabase(): Promise<void> {
 			try {
 				const { db } = await import('./drizzle');
 				const { tenant } = await import('./schema');
-				
-				await db.insert(tenant).values({
-					id: env.TENANT_ID,
-					name: 'Environment Tenant',
-					status: 'active'
-				}).onConflictDoNothing();
+
+				await db
+					.insert(tenant)
+					.values({
+						id: env.TENANT_ID,
+						name: 'Environment Tenant',
+						status: 'active'
+					})
+					.onConflictDoNothing();
 				console.log(`[DB Init] Ensured environment tenant '${env.TENANT_ID}' exists`);
 			} catch (e) {
 				console.warn(`[DB Init] Could not ensure environment tenant:`, e);
 			}
+		}
+
+		// STEP 1.6: Migrate NULL tenant_id rows to the resolved tenant
+		// On existing deployments, rows created before multi-tenant support have
+		// tenant_id = NULL.  This one-time (idempotent) migration assigns them to
+		// the current tenant so they remain visible in tenant-scoped queries.
+		try {
+			const { getTenantId } = await import('../auth/tenant');
+			const resolvedTenantId = env.TENANT_ID || (await getTenantId());
+
+			if (resolvedTenantId) {
+				const { migrateNullTenantIds } = await import('./migrate-tenant-data');
+				await migrateNullTenantIds(resolvedTenantId);
+			} else {
+				console.warn('[DB Init] Could not resolve tenant ID — skipping NULL tenant_id migration');
+			}
+		} catch (e) {
+			console.warn('[DB Init] Tenant data migration failed (non-critical):', e);
 		}
 
 		// STEP 2: Check if already seeded (only matters for seeding, not migrations)

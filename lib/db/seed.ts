@@ -1137,9 +1137,9 @@ export async function runSeed(): Promise<void> {
 					await db
 						.insert(userRoles)
 						.values([
-							{ userId: adminUserForRoles.id, roleId: adminRoles[0].id }, // Admin user → admin role
-							{ userId: client1UserForRoles.id, roleId: clientRoles[0].id }, // Client1 → client role
-							{ userId: client2UserForRoles.id, roleId: clientRoles[0].id } // Client2 → client role
+							{ userId: adminUserForRoles.id, roleId: adminRoles[0].id, tenantId }, // Admin user → admin role
+							{ userId: client1UserForRoles.id, roleId: clientRoles[0].id, tenantId }, // Client1 → client role
+							{ userId: client2UserForRoles.id, roleId: clientRoles[0].id, tenantId } // Client2 → client role
 						])
 						.onConflictDoNothing();
 
