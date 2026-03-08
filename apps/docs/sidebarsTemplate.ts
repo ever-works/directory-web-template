@@ -467,7 +467,7 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Payment Integration",
       items: [
-        "payment/payment",
+        "payment/payment-overview",
         "payment/stripe",
         "payment/lemonsqueezy",
         "payment/polar",
@@ -612,7 +612,7 @@ const sidebars: SidebarsConfig = {
     {
       type: "category",
       label: "Content Management",
-      items: ["content-management/content-management"],
+      items: ["content-management/content-management-guide"],
     },
     {
       type: "category",
@@ -732,7 +732,7 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Deployment",
       items: [
-        "deployment/deployment",
+        "deployment/deployment-introduction",
         "deployment/overview",
         "deployment/vercel",
         "deployment/docker",
@@ -754,7 +754,7 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Team Training",
       items: [
-        "team-training/team-training",
+        "team-training/team-training-overview",
         "team-training/onboarding",
         "team-training/api-documentation",
         "team-training/best-practices",
