@@ -8,13 +8,14 @@ slug: /
 
 # Ever Works Website Template
 
-The Ever Works Website Template is a modern, full-stack directory website solution built with Next.js 15, React 19, TypeScript, and Tailwind CSS. It is designed to help you create professional directory websites for tools, services, products, or any other type of listing platform.
+The Ever Works Website Template is a modern, full-stack directory website solution built with Next.js 16 and organized as a **Turborepo monorepo**. It's designed to help you create professional directory websites for tools, services, products, or any other type of listing platform.
 
 ## Key Features
 
-- **Modern Tech Stack**: Next.js 15, React 19, TypeScript, Tailwind CSS 4, HeroUI React
+- **Modern Tech Stack**: Next.js 16, React 19, TypeScript, Tailwind CSS, HeroUI React
+- **Turborepo Monorepo**: pnpm workspaces with shared configs, web app, e2e tests, and docs
 - **Flexible Authentication**: NextAuth.js v5, Supabase Auth, OAuth providers (Google, GitHub, Facebook, Twitter, Microsoft)
-- **Payment Integration**: Stripe, LemonSqueezy, Polar with subscription management
+- **Payment Integration**: Stripe, LemonSqueezy, Polar, subscription management
 - **Internationalization**: Multiple languages supported with full RTL support via next-intl
 - **Git-based CMS**: Content synchronization from Git repositories with YAML-based structure
 - **Theming System**: Built-in themes with dynamic color generation
@@ -25,19 +26,19 @@ The Ever Works Website Template is a modern, full-stack directory website soluti
 ## Quick Start
 
 ```bash
-# Clone the repository
+# Clone the monorepo
 git clone https://github.com/ever-works/ever-works-website-template.git
 cd ever-works-website-template
 
-# Install dependencies (pnpm is required)
+# Install dependencies (pnpm required)
 pnpm install
 
-# Set up environment
-cp .env.example .env.local
-# Edit .env.local with your configuration
+# Set up environment for the web app
+cp apps/web/.env.example apps/web/.env.local
+# Edit apps/web/.env.local with your configuration
 
 # Start development server
-pnpm dev
+pnpm run dev
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to see your site!
@@ -51,7 +52,7 @@ Visit [http://localhost:3000](http://localhost:3000) to see your site!
 
 ## Use Cases
 
-This template is perfect for:
+This template project is perfect for:
 
 - **Tool directories** (like ProductHunt for tools)
 - **Service marketplaces**
@@ -66,7 +67,7 @@ The Template can be used standalone or paired with the **Ever Works Platform** f
 
 ## Need Help?
 
-- Browse the [documentation](/docs) for guides and references
+- Check our [documentation](/docs) for general information
 - Join our [Discord community](https://discord.gg/ever) for support
 - Visit the [demo site](https://demo.ever.works) to see it in action
-- Check the [Support page](/docs/support) for all support channels
+- Contact [support](/docs/support) for technical assistance

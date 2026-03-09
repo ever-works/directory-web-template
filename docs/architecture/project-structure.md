@@ -7,26 +7,47 @@ sidebar_position: 4
 
 # Project Structure Reference
 
-This document provides a complete reference of the Ever Works template directory structure. The template is a Next.js 16 application using the App Router, TypeScript, Drizzle ORM, and Tailwind CSS.
+This document provides a complete reference of the Ever Works template directory structure. The template is a **Turborepo monorepo** managed with pnpm workspaces. The primary application is a Next.js 16 app using the App Router, TypeScript, Drizzle ORM, and Tailwind CSS, located in `apps/web/`.
 
-## Top-Level Overview
+## Top-Level Overview (Monorepo Root)
 
 ```
 template/
+├── apps/
+│   ├── web/                # Next.js 16 main application
+│   ├── web-e2e/            # Playwright E2E tests
+│   └── docs/               # Docusaurus v3 documentation site
+├── packages/
+│   ├── tsconfig/           # Shared TypeScript configurations
+│   └── eslint-config/      # Shared ESLint 9 flat config
+├── turbo.json              # Turborepo pipeline configuration
+├── pnpm-workspace.yaml     # pnpm workspace definition
+├── package.json            # Root workspace package
+├── CLAUDE.md               # AI coding tool instructions
+├── AGENTS.md               # Cursor agent instructions
+├── WARP.md                 # Warp terminal instructions
+└── AUGMENT.md              # Augment Code instructions
+```
+
+### apps/web/ -- Next.js Application
+
+The primary application lives in `apps/web/`. All source directories that were previously at the repository root now reside here.
+
+```
+apps/web/
 ├── app/                    # Next.js App Router - pages and API routes
 ├── components/             # React components (feature, shared, UI)
 ├── constants/              # Application-wide constants
-├── docs/                   # Internal project documentation
-├── e2e/                    # End-to-end tests (Playwright)
 ├── hooks/                  # Custom React hooks
 ├── i18n/                   # Internationalization configuration
 ├── lib/                    # Core logic, services, and utilities
 ├── messages/               # i18n translation files
 ├── public/                 # Static assets (images, icons, OpenAPI spec)
 ├── scripts/                # Build and utility scripts
+├── styles/                 # Global styles
 ├── templates/              # Email and notification templates
 ├── types/                  # Global TypeScript type definitions
-├── utils/                  # Utility functions
+├── .content/               # Git-based CMS content
 ├── auth.config.ts          # NextAuth.js base configuration
 ├── drizzle.config.ts       # Drizzle ORM / Kit configuration
 ├── env-config.ts           # Environment variable configuration
@@ -35,15 +56,34 @@ template/
 ├── next.config.ts          # Next.js configuration
 ├── sentry.config.ts        # Sentry error tracking configuration
 ├── tailwind.config.ts      # Tailwind CSS configuration
-└── tsconfig.json           # TypeScript configuration
+└── tsconfig.json           # TypeScript configuration (extends packages/tsconfig)
 ```
 
-## app/ -- Pages and API Routes
+## Monorepo Tooling
 
-The `app/` directory follows the Next.js App Router convention with internationalization support via a `[locale]` dynamic segment.
+The template uses **Turborepo** for build orchestration and **pnpm workspaces** for dependency management across the monorepo.
+
+| Tool | Purpose | Configuration |
+|------|---------|---------------|
+| Turborepo | Task orchestration, caching, parallel builds | `turbo.json` |
+| pnpm workspaces | Dependency management, workspace linking | `pnpm-workspace.yaml` |
+| `packages/tsconfig` | Shared TypeScript base configurations | Extended by each app |
+| `packages/eslint-config` | Shared ESLint 9 flat config presets | Imported by each app |
+
+### Workspace Apps
+
+- **`apps/web`** -- The main Next.js 16 application (directory listing, admin panel, API routes).
+- **`apps/web-e2e`** -- Playwright end-to-end tests targeting `apps/web`. Separated into its own workspace for isolated dependencies and independent CI runs.
+- **`apps/docs`** -- Docusaurus v3 documentation site for the template itself.
+
+---
+
+## apps/web/app/ -- Pages and API Routes
+
+The `apps/web/app/` directory follows the Next.js App Router convention with internationalization support via a `[locale]` dynamic segment.
 
 ```
-app/
+apps/web/app/
 ├── [locale]/               # Locale-wrapped pages (en, fr, es, de, ar, zh)
 │   ├── (listing)/          # Route group: main listing pages
 │   ├── about/              # About page
@@ -125,12 +165,12 @@ app/
 └── opengraph-image.tsx     # Dynamic OG image generation
 ```
 
-## components/ -- React Components
+## apps/web/components/ -- React Components
 
 Components are organized by feature domain, with shared and UI components separated.
 
 ```
-components/
+apps/web/components/
 ├── admin/                  # Admin panel components
 ├── api/                    # API-related components
 ├── auth/                   # Authentication components
@@ -177,9 +217,9 @@ components/
 └── version/                # Version display components
 ```
 
-## hooks/ -- Custom React Hooks
+## apps/web/hooks/ -- Custom React Hooks
 
-The `hooks/` directory contains over 100 custom React hooks, organized as flat files with consistent naming. Each hook wraps React Query (TanStack Query), Zustand, or specialized logic.
+The `apps/web/hooks/` directory contains over 100 custom React hooks, organized as flat files with consistent naming. Each hook wraps React Query (TanStack Query), Zustand, or specialized logic.
 
 Key hook categories include:
 
@@ -193,12 +233,12 @@ Key hook categories include:
 | Feature Flags | `use-feature-flag`, `use-feature-flags`, `use-plan-guard` | Feature gating by plan |
 | Geolocation | `use-geolocation`, `use-user-location`, `use-map-provider` | Location features |
 
-## lib/ -- Core Logic and Services
+## apps/web/lib/ -- Core Logic and Services
 
-The `lib/` directory is the backbone of the application, containing business logic, data access, and integrations.
+The `apps/web/lib/` directory is the backbone of the application, containing business logic, data access, and integrations.
 
 ```
-lib/
+apps/web/lib/
 ├── analytics/              # Analytics tracking utilities
 ├── api/                    # API client classes and utilities
 │   ├── api-client.ts       # Browser-side API client
@@ -250,12 +290,12 @@ lib/
 └── utils.ts                # General utility functions
 ```
 
-## e2e/ -- End-to-End Tests
+## apps/web-e2e/ -- End-to-End Tests
 
-End-to-end tests use Playwright with the Page Object Model pattern.
+End-to-end tests live in their own workspace (`apps/web-e2e/`) and use Playwright with the Page Object Model pattern. This separation allows independent dependency management and CI runs.
 
 ```
-e2e/
+apps/web-e2e/
 ├── fixtures/               # Test fixtures and setup
 ├── helpers/                # Test helper utilities
 ├── page-objects/           # Page Object Model classes
@@ -266,22 +306,36 @@ e2e/
 └── tsconfig.json           # E2E TypeScript configuration
 ```
 
-## Other Directories
+## Other Directories (under apps/web/)
 
-### types/
+### apps/web/types/
 Global TypeScript declarations including Next.js module augmentations and shared interfaces.
 
-### public/
+### apps/web/public/
 Static assets including logos, background images, country flag icons, and the OpenAPI specification (`openapi.json`).
 
-### i18n/
+### apps/web/i18n/
 Internationalization configuration for `next-intl`, supporting 6 locales: English, French, Spanish, German, Arabic, and Chinese.
 
-### messages/
+### apps/web/messages/
 Translation message files for each supported locale, used by the `next-intl` library.
 
-### scripts/
+### apps/web/scripts/
 Build and utility scripts including environment validation (`check-env.js`), content repository cloning (`clone.cjs`), and database management tools.
 
-### templates/
+### apps/web/styles/
+Global CSS and SCSS stylesheets for the application.
+
+### apps/web/templates/
 Email and notification templates used by the mail service.
+
+### apps/web/.content/
+Git-based CMS content directory, managed by the content repository system.
+
+## Shared Packages
+
+### packages/tsconfig/
+Shared TypeScript base configurations extended by all apps in the monorepo. Provides consistent compiler options, path aliases, and strictness settings across workspaces.
+
+### packages/eslint-config/
+Shared ESLint 9 flat config presets. Each app imports and extends these presets, ensuring consistent linting rules across the entire monorepo.

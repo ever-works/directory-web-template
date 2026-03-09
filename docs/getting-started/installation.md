@@ -6,8 +6,8 @@ This guide will walk you through setting up the Ever Works on your local machine
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js 20.x or higher** - [Download here](https://nodejs.org/)
-- **npm, yarn, or pnpm** - Package manager
+- **Node.js >= 20.19.0** - [Download here](https://nodejs.org/)
+- **pnpm** - Required package manager (install with `npm install -g pnpm`)
 - **Git** - For version control
 - **PostgreSQL** (optional) - For database
 
@@ -22,6 +22,8 @@ Before you begin, ensure you have the following installed:
 
 ### 1. Clone the Repository
 
+The template is a **Turborepo monorepo** managed with pnpm workspaces. Cloning gives you the monorepo root, which contains the web app at `apps/web/`, an end-to-end test suite at `apps/web-e2e/`, and a docs site at `apps/docs/`.
+
 ```bash
 git clone https://github.com/ever-works/ever-works-website-template.git
 cd ever-works-website-template
@@ -29,19 +31,7 @@ cd ever-works-website-template
 
 ### 2. Install Dependencies
 
-Using npm:
-
-```bash
-npm install
-```
-
-Using yarn:
-
-```bash
-yarn install
-```
-
-Using pnpm:
+Run the install command from the **monorepo root**. pnpm is the required package manager:
 
 ```bash
 pnpm install
@@ -49,15 +39,15 @@ pnpm install
 
 ### 3. Environment Setup
 
-Copy the example environment file:
+Copy the example environment file into the **web app** directory:
 
 ```bash
-cp .env.example .env.local
+cp apps/web/.env.example apps/web/.env.local
 ```
 
 ### 4. Configure Environment Variables
 
-Edit `.env.local` with your configuration:
+Edit `apps/web/.env.local` with your configuration:
 
 ```bash
 # Basic Configuration
@@ -84,27 +74,37 @@ Generate a secure secret for authentication:
 openssl rand -base64 32
 ```
 
-Copy the output and set it as your `AUTH_SECRET` in `.env.local`.
+Copy the output and set it as your `AUTH_SECRET` in `apps/web/.env.local`.
 
 ### 6. Database Setup (Optional)
 
-If you want to use a database:
+If you want to use a database, run the database commands from the `apps/web/` directory:
 
 ```bash
+cd apps/web
+
 # Generate database schema
-npm run db:generate
+pnpm db:generate
 
 # Run migrations
-npm run db:migrate
+pnpm db:migrate
 
 # Seed initial data
-npm run db:seed
+pnpm db:seed
 ```
 
 ### 7. Start Development Server
 
+From the monorepo root, start all apps (web, docs, etc.):
+
 ```bash
-npm run dev
+pnpm run dev
+```
+
+Or start only the web app:
+
+```bash
+pnpm run dev:web
 ```
 
 Your application will be available at [http://localhost:3000](http://localhost:3000).
@@ -125,7 +125,7 @@ To verify your installation:
 If port 3000 is already in use:
 
 ```bash
-npm run dev -- -p 3001
+pnpm run dev:web -- -p 3001
 ```
 
 ### Permission Errors
@@ -143,6 +143,7 @@ Use Node Version Manager (nvm) to switch Node versions:
 ```bash
 nvm install 20
 nvm use 20
+# Verify: node -v should show >= 20.19.0
 ```
 
 ## Troubleshooting {#troubleshooting}
@@ -160,14 +161,14 @@ lsof -ti:3000 | xargs kill -9
 
 ```bash
 # Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules apps/*/node_modules
+pnpm install
 ```
 
 **Database connection errors**
 
 - Verify PostgreSQL is running
-- Check your `.env.local` database credentials
+- Check your `apps/web/.env.local` database credentials
 - Ensure the database exists
 
 ## Next Steps

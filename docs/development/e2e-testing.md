@@ -7,7 +7,7 @@ sidebar_position: 4
 
 # E2E Testing with Playwright
 
-The Ever Works template includes a comprehensive end-to-end testing suite built with [Playwright](https://playwright.dev/). The suite covers admin workflows, client features, public pages, authentication flows, API endpoints, internationalization, and smoke tests.
+The Ever Works template includes a comprehensive end-to-end testing suite built with [Playwright](https://playwright.dev/). The E2E tests live in a dedicated workspace package (`@ever-works/web-e2e`) at `apps/web-e2e/` within the Turborepo monorepo. The suite covers admin workflows, client features, public pages, authentication flows, API endpoints, internationalization, and smoke tests.
 
 ## Test Suite Overview
 
@@ -26,34 +26,35 @@ The E2E suite contains **62 spec files** organized across 7 test categories:
 ## Project Structure
 
 ```
-e2e/
-  playwright.config.ts          # Playwright configuration
-  global-setup.ts               # Pre-test authentication setup
-  global-teardown.ts            # Post-test cleanup
+apps/web-e2e/                     # @ever-works/web-e2e workspace package
+  package.json                    # Workspace package manifest
+  playwright.config.ts            # Playwright configuration
+  global-setup.ts                 # Pre-test authentication setup
+  global-teardown.ts              # Post-test cleanup
   fixtures/
-    auth.fixture.ts             # Custom test fixtures (adminPage, clientPage)
-    index.ts                    # Fixture barrel export
+    auth.fixture.ts               # Custom test fixtures (adminPage, clientPage)
+    index.ts                      # Fixture barrel export
   helpers/
-    test-data.ts                # Test data generators and constants
+    test-data.ts                  # Test data generators and constants
   page-objects/
-    base.page.ts                # Base page object class
-    admin/                      # 17 admin page objects
-    client/                     # 6 client page objects
-    auth/                       # Sign-in page object
-    public/                     # 13 public page objects
+    base.page.ts                  # Base page object class
+    admin/                        # 17 admin page objects
+    client/                       # 6 client page objects
+    auth/                         # Sign-in page object
+    public/                       # 13 public page objects
   tests/
-    admin/                      # 21 admin spec files
-    client/                     # 7 client spec files
-    public/                     # 18 public spec files
-    auth/                       # 3 auth spec files
-    api/                        # 4 API spec files
-    i18n/                       # 2 i18n spec files
-    smoke/                      # 2 smoke spec files
+    admin/                        # 21 admin spec files
+    client/                       # 7 client spec files
+    public/                       # 18 public spec files
+    auth/                         # 3 auth spec files
+    api/                          # 4 API spec files
+    i18n/                         # 2 i18n spec files
+    smoke/                        # 2 smoke spec files
 ```
 
 ## Configuration
 
-The Playwright config is at `e2e/playwright.config.ts`:
+The Playwright config is at `apps/web-e2e/playwright.config.ts`:
 
 ```typescript
 export default defineConfig({
@@ -103,7 +104,7 @@ export default defineConfig({
 
 ## Authentication Fixtures
 
-The test suite uses custom Playwright fixtures to handle authentication. Defined in `e2e/fixtures/auth.fixture.ts`:
+The test suite uses custom Playwright fixtures to handle authentication. Defined in `apps/web-e2e/fixtures/auth.fixture.ts`:
 
 ```typescript
 export const test = base.extend<AuthFixtures>({
@@ -138,7 +139,7 @@ This provides four fixtures:
 - `adminContext` / `adminPage` -- Pre-authenticated admin browser context
 - `clientContext` / `clientPage` -- Pre-authenticated client browser context
 
-Auth state files are generated during global setup and stored in `e2e/auth-states/`.
+Auth state files are generated during global setup and stored in `apps/web-e2e/auth-states/`.
 
 ## Page Object Model
 
@@ -177,7 +178,7 @@ All page interactions are encapsulated in page objects extending `base.page.ts`:
 
 ## Test Data Helpers
 
-Located in `e2e/helpers/test-data.ts`:
+Located in `apps/web-e2e/helpers/test-data.ts`:
 
 ```typescript
 export const TEST_DATA = {
@@ -200,28 +201,34 @@ export const PUBLIC_ROUTES = [
 ## Running Tests
 
 ```bash
+# From the monorepo root — run via the workspace filter
+pnpm run --filter @ever-works/web-e2e test:e2e
+
+# Or change into the E2E workspace directory
+cd apps/web-e2e
+
 # Run all tests (starts dev server automatically)
-cd template && npx playwright test
+pnpm exec playwright test
 
 # Run specific category
-npx playwright test tests/admin/
-npx playwright test tests/client/
-npx playwright test tests/public/
+pnpm exec playwright test tests/admin/
+pnpm exec playwright test tests/client/
+pnpm exec playwright test tests/public/
 
 # Run a single spec file
-npx playwright test tests/admin/items-crud.spec.ts
+pnpm exec playwright test tests/admin/items-crud.spec.ts
 
 # Run with specific browser
-npx playwright test --project=chromium
+pnpm exec playwright test --project=chromium
 
 # Run with UI mode (interactive)
-npx playwright test --ui
+pnpm exec playwright test --ui
 
 # Run with headed browser (visible)
-npx playwright test --headed
+pnpm exec playwright test --headed
 
 # View last test report
-npx playwright show-report
+pnpm exec playwright show-report
 ```
 
 ### Environment Requirements
@@ -243,14 +250,14 @@ The configuration supports CI environments with:
 - Video recording on first retry
 - 2 parallel workers to balance speed and stability
 - 5-minute build timeout for web server startup
-- Output artifacts in `e2e/test-results/` and `e2e/playwright-report/`
+- Output artifacts in `apps/web-e2e/test-results/` and `apps/web-e2e/playwright-report/`
 
 ## Related Files
 
-- `e2e/playwright.config.ts` -- Main configuration
-- `e2e/fixtures/auth.fixture.ts` -- Authentication fixtures
-- `e2e/helpers/test-data.ts` -- Test data and route constants
-- `e2e/global-setup.ts` -- Pre-test setup (authentication state)
-- `e2e/global-teardown.ts` -- Post-test cleanup
-- `e2e/page-objects/` -- All page object classes
-- `e2e/tests/` -- All spec files
+- `apps/web-e2e/playwright.config.ts` -- Main configuration
+- `apps/web-e2e/fixtures/auth.fixture.ts` -- Authentication fixtures
+- `apps/web-e2e/helpers/test-data.ts` -- Test data and route constants
+- `apps/web-e2e/global-setup.ts` -- Pre-test setup (authentication state)
+- `apps/web-e2e/global-teardown.ts` -- Post-test cleanup
+- `apps/web-e2e/page-objects/` -- All page object classes
+- `apps/web-e2e/tests/` -- All spec files

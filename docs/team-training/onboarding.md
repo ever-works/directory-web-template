@@ -30,6 +30,7 @@ By the end of this module, you will:
 Follow the detailed [Installation Guide](/docs/getting-started/installation) to install:
 
 - Node.js 20.19.0+
+- pnpm ([install](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git
 - VS Code (recommended)
@@ -41,13 +42,13 @@ Follow the detailed [Installation Guide](/docs/getting-started/installation) to 
 git clone https://github.com/ever-co/ever-works.git
 cd ever-works
 
-# Install dependencies
-yarn install
+# Install dependencies (pnpm is the monorepo package manager)
+pnpm install
 ```
 
 ### 1.3 Configure Environment Variables
 
-Follow the [Environment Setup Guide](/docs/getting-started/environment-setup) to configure your `.env.local` file.
+Follow the [Environment Setup Guide](/docs/getting-started/environment-setup) to configure your `apps/web/.env.local` file.
 
 **Quick checklist**:
 - [ ] Database connection configured
@@ -75,18 +76,21 @@ docker run --name everworks-postgres \
 ### 2.2 Run Migrations
 
 ```bash
+# Run database commands from the web app directory
+cd apps/web
+
 # Push schema to database
-npx drizzle-kit push
+pnpm exec drizzle-kit push
 
 # (Optional) Seed with sample data
-npm run db:seed
+pnpm run db:seed
 ```
 
 ### 2.3 Verify Database Connection
 
 ```bash
-# Open Drizzle Studio to inspect database
-npx drizzle-kit studio
+# Open Drizzle Studio to inspect database (from apps/web/)
+pnpm exec drizzle-kit studio
 
 # Access at http://localhost:4983
 ```
@@ -98,8 +102,11 @@ npx drizzle-kit studio
 ### 3.1 Run the Application
 
 ```bash
-# Start development server
-npm run dev
+# Start development server (from monorepo root)
+pnpm run dev
+
+# Or start only the web app
+pnpm run dev:web
 
 # Server will start at http://localhost:3000
 ```
@@ -125,30 +132,40 @@ If you encounter issues, check the [Troubleshooting Guide](/docs/getting-started
 ### 4.1 Key Directories
 
 ```
-ever-works/
-├── app/                    # Next.js App Router
-│   ├── api/               # API routes
-│   ├── [locale]/          # Internationalized pages
-│   └── layout.tsx         # Root layout
-├── components/            # React components
-│   ├── ui/               # UI components (HeroUI)
-│   └── ...
-├── lib/                   # Utilities and libraries
-│   ├── db/               # Database (Drizzle ORM)
-│   ├── auth/             # Authentication
-│   └── ...
-├── public/               # Static assets
-├── .content/             # Git-based CMS content
-└── messages/             # i18n translations
+ever-works-website-template/                       # Turborepo monorepo root
+├── apps/
+│   ├── web/                      # Next.js web application
+│   │   ├── app/                  # Next.js App Router
+│   │   │   ├── api/              # API routes
+│   │   │   ├── [locale]/         # Internationalized pages
+│   │   │   └── layout.tsx        # Root layout
+│   │   ├── components/           # React components
+│   │   │   ├── ui/               # UI components (HeroUI)
+│   │   │   └── ...
+│   │   ├── lib/                  # Utilities and libraries
+│   │   │   ├── db/               # Database (Drizzle ORM)
+│   │   │   ├── auth/             # Authentication
+│   │   │   └── ...
+│   │   ├── public/               # Static assets
+│   │   ├── .content/             # Git-based CMS content
+│   │   └── messages/             # i18n translations
+│   ├── web-e2e/                  # Playwright E2E tests
+│   └── docs/                     # Documentation site
+├── packages/                     # Shared configs and libraries
+├── turbo.json                    # Turborepo pipeline config
+├── pnpm-workspace.yaml           # pnpm workspace definition
+└── package.json                  # Root package.json
 ```
 
 ### 4.2 Important Files
 
-- `app/api/**/route.ts` - API endpoints
-- `lib/db/schema/` - Database schemas
-- `components/` - React components
-- `messages/` - Translation files
-- `.env.local` - Environment variables
+- `apps/web/app/api/**/route.ts` - API endpoints
+- `apps/web/lib/db/schema/` - Database schemas
+- `apps/web/components/` - React components
+- `apps/web/messages/` - Translation files
+- `apps/web/.env.local` - Environment variables
+- `turbo.json` - Turborepo pipeline configuration
+- `pnpm-workspace.yaml` - Workspace package definitions
 
 [Learn more about the architecture →](/docs/architecture/overview)
 
@@ -173,8 +190,8 @@ git checkout -b feature/your-feature-name
 4. **Generate API docs** (if you modified API routes)
 
 ```bash
-# If you modified API routes
-yarn generate-docs
+# If you modified API routes (from apps/web/)
+cd apps/web && pnpm run generate-docs
 ```
 
 ### 5.3 Commit and Push
@@ -218,9 +235,9 @@ Try this simple task to get familiar with the workflow:
 
 **Task**: Add a new API endpoint that returns server information
 
-1. Create `app/api/server-info/route.ts`
+1. Create `apps/web/app/api/server-info/route.ts`
 2. Add Swagger documentation
-3. Generate docs with `yarn generate-docs`
+3. Generate docs with `cd apps/web && pnpm run generate-docs`
 4. Test in Scalar UI
 5. Create a PR
 

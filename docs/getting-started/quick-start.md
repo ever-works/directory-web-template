@@ -6,7 +6,7 @@ Get your directory website up and running in under 10 minutes! This guide assume
 
 ### Configure Site Settings
 
-Edit `.content/config.yml` (this file will be created after first sync):
+Edit `apps/web/.content/config.yml` (this file will be created after first sync):
 
 ```yaml
 # Basic site settings
@@ -39,7 +39,7 @@ pricing:
 
 2. **Update environment variables**:
    ```bash
-   # In .env.local
+   # In apps/web/.env.local
    DATA_REPOSITORY="https://github.com/YOUR_USERNAME/awesome-data"
    GH_TOKEN="your_github_token"
    ```
@@ -47,12 +47,20 @@ pricing:
 3. **Generate GitHub token**:
    - Go to GitHub Settings → Developer settings → Personal access tokens
    - Create a token with `repo` permissions
-   - Add it to your `.env.local`
+   - Add it to your `apps/web/.env.local`
 
 ## Step 2: Start the Application
 
+From the monorepo root:
+
 ```bash
-npm run dev
+pnpm run dev
+```
+
+Or to run only the web app:
+
+```bash
+pnpm run dev:web
 ```
 
 Visit [http://localhost:3000](http://localhost:3000) to see your site!
@@ -90,8 +98,8 @@ updated_at: "2024-01-15 10:30"
 
 ### Update Branding
 
-1. **Logo**: Replace files in `public/` folder
-2. **Colors**: Edit theme in `.content/config.yml`:
+1. **Logo**: Replace files in `apps/web/public/` folder
+2. **Colors**: Edit theme in `apps/web/.content/config.yml`:
 
 ```yaml
 theme:
@@ -101,7 +109,7 @@ theme:
     secondary: "#00c853"
 ```
 
-3. **Metadata**: Update `app/layout.tsx` for SEO
+3. **Metadata**: Update `apps/web/app/layout.tsx` for SEO
 
 ### Configure Categories
 
@@ -123,7 +131,7 @@ icon_url: "https://example.com/icon.png"
 2. Create a new project or select existing
 3. Enable Google+ API
 4. Create OAuth 2.0 credentials
-5. Add to `.env.local`:
+5. Add to `apps/web/.env.local`:
 
 ```bash
 GOOGLE_CLIENT_ID="your-google-client-id"
@@ -135,7 +143,7 @@ GOOGLE_CLIENT_SECRET="your-google-client-secret"
 1. Go to GitHub Settings → Developer settings → OAuth Apps
 2. Create a new OAuth App
 3. Set Authorization callback URL: `http://localhost:3000/api/auth/callback/github`
-4. Add to `.env.local`:
+4. Add to `apps/web/.env.local`:
 
 ```bash
 GITHUB_CLIENT_ID="your-github-client-id"
@@ -168,6 +176,7 @@ For a quick deployment to Vercel:
    npm install -g vercel
    vercel
    ```
+   When prompted, set the root directory to `apps/web`.
 
 2. **Set environment variables** in Vercel dashboard
 
@@ -180,7 +189,7 @@ For a quick deployment to Vercel:
 Instead of "tools", you might want "services" or "products":
 
 ```yaml
-# In config.yml
+# In apps/web/.content/config.yml
 item_name: "Service"
 items_name: "Services"
 ```

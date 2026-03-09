@@ -7,6 +7,7 @@ This guide will help you set up a complete local development environment for the
 Ensure you have the following installed:
 
 - **Node.js 20.x or higher** - [Download](https://nodejs.org/)
+- **pnpm** - [Install](https://pnpm.io/installation) (the monorepo package manager)
 - **Git** - [Download](https://git-scm.com/)
 - **PostgreSQL** (optional) - [Download](https://postgresql.org/)
 - **Docker** (optional) - [Download](https://docker.com/)
@@ -20,23 +21,19 @@ Ensure you have the following installed:
 git clone https://github.com/ever-works/ever-works-website-template.git
 cd ever-works-website-template
 
-# Install dependencies
-npm install
-
-# Or using yarn/pnpm
-yarn install
+# Install all dependencies from the monorepo root
 pnpm install
 ```
 
 ### 2. Environment Configuration
 
-Copy the example environment file:
+Copy the example environment file into the web app directory:
 
 ```bash
-cp .env.example .env.local
+cp apps/web/.env.example apps/web/.env.local
 ```
 
-Configure your `.env.local` file:
+Configure your `apps/web/.env.local` file:
 
 ```bash
 # Basic Development Configuration
@@ -68,12 +65,15 @@ GOOGLE_CLIENT_SECRET="your-google-client-secret"
 # Create database
 createdb everworks_dev
 
+# Run database commands from the web app directory
+cd apps/web
+
 # Run migrations
-npm run db:generate
-npm run db:migrate
+pnpm run db:generate
+pnpm run db:migrate
 
 # Seed with sample data
-npm run db:seed
+pnpm run db:seed
 ```
 
 #### Option B: Docker PostgreSQL
@@ -86,17 +86,17 @@ docker run --name everworks-postgres \
   -p 5432:5432 \
   -d postgres:15
 
-# Run migrations
-npm run db:migrate
-npm run db:seed
+# Run migrations (from apps/web/)
+pnpm run db:migrate
+pnpm run db:seed
 ```
 
 #### Option C: Supabase
 
 1. Create project at [Supabase](https://supabase.com)
 2. Get connection string from Settings → Database
-3. Update `DATABASE_URL` in `.env.local`
-4. Run migrations: `npm run db:migrate`
+3. Update `DATABASE_URL` in `apps/web/.env.local`
+4. Run migrations from `apps/web/`: `pnpm run db:migrate`
 
 ### 4. Content Repository Setup
 
@@ -104,80 +104,88 @@ npm run db:seed
 
 1. Visit [awesome-data](https://github.com/ever-works/awesome-data)
 2. Click "Fork" to create your copy
-3. Update `DATA_REPOSITORY` in `.env.local`
+3. Update `DATA_REPOSITORY` in `apps/web/.env.local`
 
 #### Generate GitHub Token
 
 1. Go to GitHub Settings → Developer settings → Personal access tokens
 2. Generate new token (classic)
 3. Select scopes: `repo`, `read:user`, `user:email`
-4. Copy the generated token and add it to `GH_TOKEN` in `.env.local`
+4. Copy the generated token and add it to `GH_TOKEN` in `apps/web/.env.local`
 5. **Important**: Never commit your token to version control
 
 ### 5. Start Development Server
 
 ```bash
-npm run dev
+# From the monorepo root — starts all apps (web, docs, etc.)
+pnpm run dev
+
+# Or start only the web app
+pnpm run dev:web
 ```
 
 Your application will be available at [http://localhost:3000](http://localhost:3000).
 
 ## Development Scripts
 
-### Core Scripts
+### Core Scripts (from monorepo root)
 
 ```bash
-# Start development server
-npm run dev
+# Start all dev servers (web, docs, etc.)
+pnpm run dev
 
-# Build for production
-npm run build
+# Start only the web app
+pnpm run dev:web
 
-# Start production server
-npm start
+# Build all apps
+pnpm run build
 
 # Type checking
-npm run type-check
+pnpm run type-check
 
 # Linting
-npm run lint
-npm run lint:fix
+pnpm run lint
+pnpm run lint:fix
 
 # Code formatting
-npm run format
-npm run format:check
+pnpm run format
+pnpm run format:check
 ```
 
-### Database Scripts
+### Database Scripts (run from `apps/web/`)
 
 ```bash
+cd apps/web
+
 # Generate database schema
-npm run db:generate
+pnpm run db:generate
 
 # Run migrations
-npm run db:migrate
+pnpm run db:migrate
 
 # Reset database
-npm run db:reset
+pnpm run db:reset
 
 # Seed database
-npm run db:seed
+pnpm run db:seed
 
 # Open database studio
-npm run db:studio
+pnpm run db:studio
 ```
 
-### Content Scripts
+### Content Scripts (run from `apps/web/`)
 
 ```bash
+cd apps/web
+
 # Sync content from Git
-npm run content:sync
+pnpm run content:sync
 
 # Validate content files
-npm run content:validate
+pnpm run content:validate
 
 # Generate content types
-npm run content:types
+pnpm run content:types
 ```
 
 ## Development Tools
@@ -232,7 +240,7 @@ Configure VS Code settings (`.vscode/settings.json`):
 
 #### Drizzle Studio
 ```bash
-npm run db:studio
+cd apps/web && pnpm run db:studio
 ```
 - Visual database browser
 - Query builder interface
@@ -258,23 +266,23 @@ If hot reload stops working:
 
 ```bash
 # Clear Next.js cache
-rm -rf .next
+rm -rf apps/web/.next
 
 # Restart development server
-npm run dev
+pnpm run dev
 ```
 
 ## Environment Variables
 
 ### Development vs Production
 
-Create different environment files:
+Create different environment files inside `apps/web/`:
 
 ```bash
-.env.local          # Local development
-.env.development    # Development environment
-.env.staging        # Staging environment
-.env.production     # Production environment
+apps/web/.env.local          # Local development
+apps/web/.env.development    # Development environment
+apps/web/.env.staging        # Staging environment
+apps/web/.env.production     # Production environment
 ```
 
 ### Environment Validation
@@ -282,7 +290,7 @@ Create different environment files:
 The app validates environment variables on startup:
 
 ```typescript
-// lib/env.ts
+// apps/web/lib/env.ts
 import { z } from 'zod';
 
 const envSchema = z.object({
@@ -300,30 +308,30 @@ export const env = envSchema.parse(process.env);
 ### Unit Testing
 
 ```bash
-# Install testing dependencies
-npm install -D jest @testing-library/react @testing-library/jest-dom
-
-# Run tests
-npm test
+# Run tests (from monorepo root)
+pnpm run test
 
 # Run tests in watch mode
-npm run test:watch
+pnpm run test:watch
 
 # Generate coverage report
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### E2E Testing
 
-```bash
-# Install Playwright
-npm install -D @playwright/test
+E2E tests live in the `apps/web-e2e/` workspace package (`@ever-works/web-e2e`).
 
-# Run E2E tests
-npm run test:e2e
+```bash
+# From the monorepo root
+pnpm run --filter @ever-works/web-e2e test:e2e
+
+# Or from the E2E directory
+cd apps/web-e2e
+pnpm exec playwright test
 
 # Run tests in UI mode
-npm run test:e2e:ui
+pnpm exec playwright test --ui
 ```
 
 ## Debugging
@@ -361,7 +369,7 @@ console.group('API Response');
 Enable API logging:
 
 ```bash
-# In .env.local
+# In apps/web/.env.local
 DEBUG=api:*
 LOG_LEVEL=debug
 ```
@@ -371,18 +379,15 @@ LOG_LEVEL=debug
 ### Bundle Analysis
 
 ```bash
-# Analyze bundle size
-npm run analyze
-
-# Check for duplicate dependencies
-npm run check-duplicates
+# Analyze bundle size (from apps/web/)
+cd apps/web && pnpm run analyze
 ```
 
 ### Performance Profiling
 
 ```bash
 # Enable React profiling
-NEXT_PUBLIC_REACT_PROFILING=true npm run dev
+NEXT_PUBLIC_REACT_PROFILING=true pnpm run dev:web
 ```
 
 ## Common Development Issues
@@ -391,7 +396,7 @@ NEXT_PUBLIC_REACT_PROFILING=true npm run dev
 
 ```bash
 # Use different port
-npm run dev -- -p 3001
+pnpm run dev:web -- -p 3001
 
 # Or kill process using port 3000
 lsof -ti:3000 | xargs kill -9
@@ -401,8 +406,8 @@ lsof -ti:3000 | xargs kill -9
 
 ```bash
 # Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules apps/*/node_modules packages/*/node_modules pnpm-lock.yaml
+pnpm install
 ```
 
 ### TypeScript Errors
@@ -412,7 +417,7 @@ npm install
 Cmd/Ctrl + Shift + P → "TypeScript: Restart TS Server"
 
 # Or check types manually
-npm run type-check
+pnpm run type-check
 ```
 
 ### Database Connection Issues
@@ -434,8 +439,8 @@ psql -h localhost -p 5432 -U postgres -d everworks_dev
 git checkout -b feature/new-feature
 
 # Make changes and test
-npm run dev
-npm run test
+pnpm run dev
+pnpm run test
 
 # Commit changes
 git add .
@@ -449,26 +454,29 @@ git push origin feature/new-feature
 
 ```bash
 # Run all checks
-npm run check
+pnpm run check
 
 # Individual checks
-npm run lint
-npm run type-check
-npm run test
-npm run format:check
+pnpm run lint
+pnpm run type-check
+pnpm run test
+pnpm run format:check
 ```
 
 ### 3. Database Changes
 
 ```bash
+# Run from apps/web/
+cd apps/web
+
 # Create migration
-npm run db:generate
+pnpm run db:generate
 
 # Apply migration
-npm run db:migrate
+pnpm run db:migrate
 
 # Test with seed data
-npm run db:seed
+pnpm run db:seed
 ```
 
 ## Next Steps
