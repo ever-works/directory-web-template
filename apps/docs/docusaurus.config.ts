@@ -11,6 +11,22 @@ const HAS_ALGOLIA_CREDENTIALS =
 require("dotenv").config();
 /** @type {import('@docusaurus/types').Config} */
 const config: Config = {
+  themes: [
+    [
+      "@easyops-cn/docusaurus-search-local",
+      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
+      {
+        hashed: true,
+        language: ["en", "fr"],
+        highlightSearchTermsOnTargetPage: true,
+        explicitSearchResultPath: true,
+        docsRouteBasePath: "docs",
+        docsDir: ["../../docs"],
+        docsPluginIdForPreferredVersion: "template",
+      },
+    ],
+    "@docusaurus/theme-mermaid",
+  ],
   plugins: [
     SENTRY_DNS &&
       process.env.NODE_ENV === "production" && [
@@ -19,18 +35,6 @@ const config: Config = {
           DSN: process.env.NEXT_PUBLIC_SENTRY_DNS,
         },
       ],
-
-    !HAS_ALGOLIA_CREDENTIALS && [
-      require.resolve("@easyops-cn/docusaurus-search-local"),
-      /** @type {import("@easyops-cn/docusaurus-search-local").PluginOptions} */
-
-      {
-        hashed: true,
-        docsRouteBasePath: ["docs"],
-        docsDir: ["../../docs"],
-        docsPluginIdForPreferredVersion: "template",
-      },
-    ],
     [
       "@docusaurus/plugin-content-docs",
       {
@@ -91,7 +95,6 @@ const config: Config = {
       onBrokenMarkdownLinks: "warn",
     },
   },
-  themes: ["@docusaurus/theme-mermaid"],
   staticDirectories: ["../../docs/assets", "static"],
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -265,6 +268,76 @@ const config: Config = {
   customFields: {
     EVER_WORKS_WEBSITE_TEMPLATE_API_URL:
       process.env.EVER_WORKS_WEBSITE_TEMPLATE_API_URL,
+    footerData: {
+      description:
+        "Ever Works is an open-source modern directory website solution.",
+      socialLinks: [
+        {
+          title: "GitHub",
+          href: "https://github.com/ever-works",
+          icon: "github",
+        },
+        {
+          title: "Twitter",
+          href: "https://twitter.com/everworks",
+          icon: "twitter",
+        },
+        {
+          title: "Discord",
+          href: "https://discord.gg/ever",
+          icon: "discord",
+        },
+      ],
+      systemStatus: {
+        status: "normal",
+        message: "All systems operational",
+      },
+      products: [
+        {
+          name: "Ever Gauzy",
+          href: "https://gauzy.co",
+          description: "Open-Source Business Management Platform",
+          icon: "/img/ever-works.svg",
+        },
+        {
+          name: "Ever Demand",
+          href: "https://ever.co/demand",
+          description: "Open-Source On-Demand Commerce Platform",
+          icon: "/img/ever-works.svg",
+        },
+        {
+          name: "Ever Teams",
+          href: "https://ever.team",
+          description: "Open-Source Work & Project Management Platform",
+          icon: "/img/ever-team.svg",
+        },
+        {
+          name: "Ever Works",
+          href: "https://ever.works",
+          description: "Modern Directory Website Solution",
+          icon: "/img/ever-works.svg",
+        },
+      ],
+      companyInfo: {
+        copyright: `Copyright © ${new Date().getFullYear()} Ever Co. LTD. All Rights Reserved.`,
+        disclaimer:
+          "*All product names, logos, and brands are property of their respective owners. All company, product and service names used in this website are for identification purposes only. Use of these names, logos, and brands does not imply endorsement.",
+        legalLinks: [
+          {
+            text: "Privacy Policy",
+            href: "https://ever.co/privacy",
+          },
+          {
+            text: "Terms of Service",
+            href: "https://ever.co/tos",
+          },
+          {
+            text: "Cookie Policy",
+            href: "https://ever.co/cookies",
+          },
+        ],
+      },
+    },
   },
 };
 
