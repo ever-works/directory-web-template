@@ -28,6 +28,7 @@ const config: Config = {
         hashed: true,
         docsRouteBasePath: ["docs"],
         docsDir: ["../../docs"],
+        docsPluginIdForPreferredVersion: "template",
       },
     ],
     [

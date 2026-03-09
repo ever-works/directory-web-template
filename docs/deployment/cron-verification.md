@@ -235,9 +235,9 @@ vercel --prod
 
 ```mermaid
 graph TD
-    A[Vercel Platform] -->|Every 5 min| B[/api/cron/sync]
-    A -->|Daily 9 AM| C[/api/cron/subscription-reminders]
-    A -->|Daily Midnight| D[/api/cron/subscription-expiration]
+    A["Vercel Platform"] -->|"Every 5 min"| B["/api/cron/sync"]
+    A -->|"Daily 9 AM"| C["/api/cron/subscription-reminders"]
+    A -->|"Daily Midnight"| D["/api/cron/subscription-expiration"]
     
     B --> E[Sync Content]
     C --> F[Send Renewal Emails]

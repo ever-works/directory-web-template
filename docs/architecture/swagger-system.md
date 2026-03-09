@@ -18,7 +18,7 @@ graph TD
     A --> D[createAdminRouteAnnotation]
     A --> E[CommonAnnotations]
 
-    F[app/api/**/route.ts] --> G[@swagger JSDoc]
+    F["app/api/**/route.ts"] --> G["Swagger JSDoc"]
     G --> H[generate-openapi.ts]
     C --> G
     D --> G

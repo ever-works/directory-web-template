@@ -13,7 +13,7 @@ The template includes an automated OpenAPI documentation generation system that 
 
 ```mermaid
 graph LR
-    A[Route Files<br/>app/api/**/route.ts] -->|@swagger annotations| B[generate-openapi.ts]
+    A["Route Files\napp/api/**/route.ts"] -->|"Swagger annotations"| B["generate-openapi.ts"]
     C[Existing<br/>openapi.json] -->|Read| B
     D[Type Definitions<br/>lib/types/**/*.ts] -->|Schema refs| B
     B -->|Merge| E[public/openapi.json]

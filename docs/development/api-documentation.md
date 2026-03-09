@@ -22,12 +22,12 @@ The system provides:
 
 ```mermaid
 graph TB
-    Routes[API Routes] --> Annotations[@swagger annotations]
-    Manual[public/openapi.json] --> Merge[Merge Process]
-    Annotations --> Extract[Extract Docs]
+    Routes["API Routes"] --> Annotations["Swagger Annotations"]
+    Manual["public/openapi.json"] --> Merge["Merge Process"]
+    Annotations --> Extract["Extract Docs"]
     Extract --> Merge
-    Merge --> OpenAPI[Complete OpenAPI Spec]
-    OpenAPI --> SwaggerUI[Swagger UI]
+    Merge --> OpenAPI["Complete OpenAPI Spec"]
+    OpenAPI --> SwaggerUI["Swagger UI"]
 ```
 
 ### Hybrid Approach

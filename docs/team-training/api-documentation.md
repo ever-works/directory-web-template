@@ -78,7 +78,7 @@ By the end of this module, you will:
 
 ```mermaid
 graph LR
-    A[Developer writes route] --> B[Add @swagger annotations]
+    A["Developer writes route"] --> B["Add Swagger annotations"]
     B --> C[Run generate-docs]
     C --> D[Generate openapi.json]
     D --> E[Scalar UI /api/reference]
