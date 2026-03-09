@@ -11,18 +11,16 @@ The Ever Works template uses a layered protection system consisting of Next.js m
 
 ## Middleware Layers
 
-```
-Request
-  │
-  ├─► next-intl middleware (locale detection & routing)
-  │
-  ├─► Auth guards (page-level authentication)
-  │
-  ├─► Admin guard (API-level admin verification)
-  │
-  ├─► Permission check (RBAC permission verification)
-  │
-  └─► Plan features guard (subscription-based feature gating)
+```mermaid
+flowchart TD
+    Request["Request"]
+    A["next-intl middleware\n(locale detection & routing)"]
+    B["Auth guards\n(page-level authentication)"]
+    C["Admin guard\n(API-level admin verification)"]
+    D["Permission check\n(RBAC permission verification)"]
+    E["Plan features guard\n(subscription-based feature gating)"]
+
+    Request --> A --> B --> C --> D --> E
 ```
 
 ## Locale Middleware (next-intl)

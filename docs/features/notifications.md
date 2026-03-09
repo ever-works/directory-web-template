@@ -146,15 +146,13 @@ Users can manage their notification preferences through the settings interface. 
 
 ## Event Flow
 
-```
-User Action (e.g., submit item)
-       │
-       ▼
-API Route Handler
-       │
-       ├──▶ NotificationService.create()        → Database (in-app)
-       │
-       └──▶ EmailNotificationService.send()     → Resend/Novu (email)
+```mermaid
+flowchart TD
+    A["User Action (e.g., submit item)"] --> B["API Route Handler"]
+    B --> C["NotificationService.create()"]
+    B --> D["EmailNotificationService.send()"]
+    C --> E["Database (in-app)"]
+    D --> F["Resend/Novu (email)"]
 ```
 
 ## Related Documentation

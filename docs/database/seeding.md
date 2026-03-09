@@ -11,20 +11,26 @@ The Ever Works template includes a comprehensive database seeding system that in
 
 ## Seed Architecture
 
-```
-instrumentation.ts (startup)
-        │
-        ▼
-lib/db/initialize.ts
-  ├── runMigrations()          # Step 1: Apply pending migrations
-  └── seedDatabase()           # Step 2: Seed if not already seeded
-        │
-        ├── Advisory lock (pg_try_advisory_lock)
-        ├── Seed status check (seed_status table)
-        └── runSeed()
-              │
-              ├── lib/db/seed.ts          # Main seed script
-              └── lib/db/seed-roles.ts    # Role and permission seeding
+```mermaid
+flowchart TD
+    A["instrumentation.ts (startup)"]
+    B["lib/db/initialize.ts"]
+    C["runMigrations()\nStep 1: Apply pending migrations"]
+    D["seedDatabase()\nStep 2: Seed if not already seeded"]
+    E["Advisory lock\n(pg_try_advisory_lock)"]
+    F["Seed status check\n(seed_status table)"]
+    G["runSeed()"]
+    H["lib/db/seed.ts\nMain seed script"]
+    I["lib/db/seed-roles.ts\nRole and permission seeding"]
+
+    A --> B
+    B --> C
+    B --> D
+    D --> E
+    D --> F
+    D --> G
+    G --> H
+    G --> I
 ```
 
 ## Seed Scripts

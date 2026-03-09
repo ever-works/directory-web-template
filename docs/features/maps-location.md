@@ -11,21 +11,10 @@ The Ever Works template supports interactive maps with a provider abstraction la
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  React Components                    │
-│  MapComponent | LocationPicker | MapItemPopup        │
-└──────────────────────────┬──────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────┐
-│              Map Provider Abstraction                │
-│  lib/maps/providers/ (Google Maps | Mapbox)          │
-└──────────────────────────┬──────────────────────────┘
-                           │
-┌──────────────────────────▼──────────────────────────┐
-│              Hooks Layer                             │
-│  useMapProvider | useMapCoordinates | useGeolocation │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["React Components\nMapComponent | LocationPicker | MapItemPopup"] --> B["Map Provider Abstraction\nGoogle Maps | Mapbox"]
+    B --> C["Hooks Layer\nuseMapProvider | useMapCoordinates | useGeolocation"]
 ```
 
 The `lib/maps/` module re-exports all types and providers:

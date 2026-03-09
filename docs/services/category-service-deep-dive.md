@@ -24,17 +24,13 @@ The Category Service manages taxonomy data for items. Categories are stored as *
 
 ## Architecture
 
-```
-API Routes / Server Components
-        |
-  ┌─────┴──────┐
-  │             │
-CategoryFileService    CategoryGitService
-  │                         │
-categories.yml         categories.yml
-(local read/write)    (Git clone/pull/commit/push)
-                           │
-                    GitHub Remote
+```mermaid
+flowchart TD
+    A[API Routes / Server Components] --> B[CategoryFileService]
+    A --> C[CategoryGitService]
+    B --> D[categories.yml - local read/write]
+    C --> E[categories.yml - Git clone/pull/commit/push]
+    E --> F[(GitHub Remote)]
 ```
 
 Both services operate on `categories.yml` in the `.content` directory. The file service is a simple read/write layer, while the Git service adds version control.

@@ -11,16 +11,11 @@ Collections allow administrators to curate groups of items for display on the si
 
 ## Architecture
 
-```
-┌─────────────────┐     ┌───────────────────────┐     ┌─────────────────────┐
-│  Admin Dashboard │────▶│  /api/admin/collections│────▶│  CollectionRepository│
-│  (React)         │     │  (API Routes)          │     │  (Git-backed)        │
-└─────────────────┘     └───────────────────────┘     └──────────┬──────────┘
-                                                                  │
-                                                       ┌──────────▼──────────┐
-                                                       │  CollectionGitService│
-                                                       │  (GitHub API)        │
-                                                       └─────────────────────┘
+```mermaid
+flowchart TD
+    A["Admin Dashboard (React)"] --> B["/api/admin/collections (API Routes)"]
+    B --> C["CollectionRepository (Git-backed)"]
+    C --> D["CollectionGitService (GitHub API)"]
 ```
 
 Collections are stored as files in the Git-based CMS repository (configured via `DATA_REPOSITORY`), using the `CollectionGitService` for read/write operations through the GitHub API.

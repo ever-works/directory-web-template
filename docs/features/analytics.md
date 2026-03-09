@@ -11,17 +11,11 @@ The Ever Works template integrates with **PostHog**, **Sentry**, and **Vercel An
 
 ## Architecture
 
-```
-┌────────────────────────────────────────────────────────────────┐
-│                    Analytics Singleton                          │
-│                   lib/analytics/index.ts                        │
-│                                                                │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────┐    │
-│  │   PostHog     │  │   Sentry     │  │  Vercel Analytics  │    │
-│  │  (Events,     │  │  (Errors,    │  │  (Web Vitals,      │    │
-│  │   Sessions)   │  │   Traces)    │  │   Page Views)      │    │
-│  └──────────────┘  └──────────────┘  └───────────────────┘    │
-└────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    A["Analytics Singleton\nlib/analytics/index.ts"] --> B["PostHog\n(Events, Sessions)"]
+    A --> C["Sentry\n(Errors, Traces)"]
+    A --> D["Vercel Analytics\n(Web Vitals, Page Views)"]
 ```
 
 ## Analytics Class

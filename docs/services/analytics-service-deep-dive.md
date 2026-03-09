@@ -26,25 +26,16 @@ The Analytics subsystem consists of three cooperating services that handle backg
 
 ## Architecture
 
-```
-Admin Dashboard (React)
-        |
-        v
-  API Routes (/api/admin/analytics)
-        |
-  ┌─────┼──────────────────────┐
-  │     │                      │
-  v     v                      v
-Background    Export       Scheduled
-Processor     Service      Reports
-  │             │              │
-  └──────┬──────┘              │
-         │                     │
-         v                     v
-AdminAnalyticsOptimizedRepository
-         │
-         v
-     PostgreSQL (with in-memory cache)
+```mermaid
+flowchart TD
+    A[Admin Dashboard - React] --> B[API Routes /api/admin/analytics]
+    B --> C[Background Processor]
+    B --> D[Export Service]
+    B --> E[Scheduled Reports]
+    C --> F[AdminAnalyticsOptimizedRepository]
+    D --> F
+    E --> F
+    F --> G[(PostgreSQL with in-memory cache)]
 ```
 
 ## AnalyticsBackgroundProcessor

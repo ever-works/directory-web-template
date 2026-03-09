@@ -11,22 +11,14 @@ The Ever Works template implements a repository pattern through 13 specialized r
 
 ## Architecture
 
-```
-┌────────────────────────┐
-│    API Routes / Pages   │
-└───────────┬────────────┘
-            │
-┌───────────┴────────────┐
-│    Services Layer       │  (orchestrates business logic)
-└───────────┬────────────┘
-            │
-┌───────────┴────────────┐
-│    Repositories (13)    │  (data access abstraction)
-└───────────┬────────────┘
-            │
-┌───────────┴────────────┐
-│  Query Modules / Drizzle│  (raw database operations)
-└────────────────────────┘
+```mermaid
+flowchart TD
+    A["API Routes / Pages"]
+    B["Services Layer\n(orchestrates business logic)"]
+    C["Repositories (13)\n(data access abstraction)"]
+    D["Query Modules / Drizzle\n(raw database operations)"]
+
+    A --> B --> C --> D
 ```
 
 ## Repository List

@@ -61,20 +61,11 @@ The **Ever Works Website Template** (this project) is a production-ready, full-s
 
 The Platform and Template work together through the **Git-based CMS** pattern:
 
-```
-Platform (generates content)
-       |
-       | Git push
-       v
-Git CMS Repository (.content/)
-       |
-       | Clone at build time
-       v
-Template (renders directory website)
-       |
-       | Deploy
-       v
-Public Website (Vercel)
+```mermaid
+flowchart TD
+    A["Platform (generates content)"] -->|"Git push"| B["Git CMS Repository (.content/)"]
+    B -->|"Clone at build time"| C["Template (renders directory website)"]
+    C -->|"Deploy"| D["Public Website (Vercel)"]
 ```
 
 ### Independent Operation
@@ -108,32 +99,31 @@ Public Website (Vercel)
 
 ### Template Only (Simplest)
 
-```
-Git CMS Repo --> Vercel (Template) --> Public Website
+```mermaid
+flowchart LR
+    A["Git CMS Repo"] --> B["Vercel (Template)"] --> C["Public Website"]
 ```
 
 Manual content management via Git. Single Vercel deployment.
 
 ### Platform + Template (Full Stack)
 
-```
-Platform (Docker/VPS)
-       |
-       | generates content
-       v
-Git CMS Repo --> Vercel (Template) --> Public Website
+```mermaid
+flowchart TD
+    A["Platform (Docker/VPS)"] -->|"generates content"| B["Git CMS Repo"]
+    B --> C["Vercel (Template)"]
+    C --> D["Public Website"]
 ```
 
 Automated content generation via Platform. Connected through Git.
 
 ### Platform + Multiple Templates
 
-```
-Platform (Docker/VPS)
-       |
-       |-> Git CMS A --> Vercel (Template A) --> site-a.com
-       |-> Git CMS B --> Vercel (Template B) --> site-b.com
-       |-> Git CMS C --> Vercel (Template C) --> site-c.com
+```mermaid
+flowchart TD
+    P["Platform (Docker/VPS)"] --> A["Git CMS A"] --> VA["Vercel (Template A)"] --> SA["site-a.com"]
+    P --> B["Git CMS B"] --> VB["Vercel (Template B)"] --> SB["site-b.com"]
+    P --> C["Git CMS C"] --> VC["Vercel (Template C)"] --> SC["site-c.com"]
 ```
 
 Single Platform instance managing multiple directory websites.

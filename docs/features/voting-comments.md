@@ -15,21 +15,11 @@ The Ever Works template includes a full voting and commenting system that allows
 
 The voting system uses a per-item vote model where each authenticated user can cast one vote (up or down) per item. The system tracks the net vote count and individual user votes.
 
-```
-┌────────────┐   useItemVote(itemId)   ┌──────────────────┐
-│  Component  │ ─────────────────────▶ │  Vote Hook       │
-│  (UI)       │                        │  (optimistic)    │
-└────────────┘                         └────────┬─────────┘
-                                                │
-                                       ┌────────▼─────────┐
-                                       │  /api/items/:id  │
-                                       │  /votes          │
-                                       └────────┬─────────┘
-                                                │
-                                       ┌────────▼─────────┐
-                                       │  Database         │
-                                       │  (votes table)    │
-                                       └──────────────────┘
+```mermaid
+flowchart TD
+    A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
+    B --> C["/api/items/:id/votes"]
+    C --> D["Database (votes table)"]
 ```
 
 ### useItemVote Hook

@@ -13,36 +13,29 @@ This document describes how data flows through the Ever Works template, from the
 
 The template employs a multi-layered data architecture:
 
-```
-┌─────────────────────────────────────────────────────┐
-│                  Client (Browser)                    │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────────┐  │
-│  │ Zustand   │  │ React Query  │  │ React State  │  │
-│  │ Stores    │  │ Cache        │  │ (local)      │  │
-│  └──────────┘  └──────┬───────┘  └──────────────┘  │
-│                       │                              │
-│              fetch / useMutation                     │
-└───────────────────────┼─────────────────────────────┘
-                        │
-┌───────────────────────┼─────────────────────────────┐
-│               Next.js Server                         │
-│  ┌────────────────────┼────────────────────────┐    │
-│  │     Server Components (direct DB access)     │    │
-│  │     API Route Handlers (/api/*)              │    │
-│  └────────────────────┼────────────────────────┘    │
-│                       │                              │
-│  ┌──────────┐  ┌──────┴──────┐  ┌──────────────┐   │
-│  │ Services  │  │ Repositories│  │ Query Modules│   │
-│  └──────────┘  └──────┬──────┘  └──────┬───────┘   │
-│                       │                 │            │
-│  ┌────────────────────┴─────────────────┘           │
-│  │         Drizzle ORM (lib/db/drizzle.ts)          │
-│  └────────────────────┬─────────────────┘           │
-└───────────────────────┼─────────────────────────────┘
-                        │
-               ┌────────┴────────┐
-               │   PostgreSQL    │
-               └─────────────────┘
+```mermaid
+flowchart TD
+    subgraph Client["Client (Browser)"]
+        Zustand["Zustand Stores"]
+        RQ["React Query Cache"]
+        RS["React State (local)"]
+    end
+
+    RQ -->|"fetch / useMutation"| Server
+
+    subgraph Server["Next.js Server"]
+        SC["Server Components (direct DB access)"]
+        API["API Route Handlers (/api/*)"]
+        Services["Services"]
+        Repositories["Repositories"]
+        QueryModules["Query Modules"]
+        Drizzle["Drizzle ORM (lib/db/drizzle.ts)"]
+
+        SC & API --> Services & Repositories & QueryModules
+        Services & Repositories & QueryModules --> Drizzle
+    end
+
+    Drizzle --> PostgreSQL["PostgreSQL"]
 ```
 
 ## Server-Side Data Fetching

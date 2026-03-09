@@ -21,36 +21,23 @@ The Ever Works template uses **Drizzle ORM** with **PostgreSQL** as its database
 
 ## Database Architecture
 
-```
-┌──────────────────────────────────────────────┐
-│              Application Code                 │
-│                                               │
-│  ┌────────────┐  ┌────────────┐              │
-│  │ Hooks      │  │ API Routes │              │
-│  └─────┬──────┘  └─────┬──────┘              │
-│        │                │                     │
-│  ┌─────┴────────────────┴──────┐             │
-│  │       Services Layer         │             │
-│  └─────────────┬───────────────┘             │
-│                │                              │
-│  ┌─────────────┴───────────────┐             │
-│  │      Repositories (13)       │             │
-│  └─────────────┬───────────────┘             │
-│                │                              │
-│  ┌─────────────┴───────────────┐             │
-│  │    Query Modules (23+)       │             │
-│  └─────────────┬───────────────┘             │
-│                │                              │
-│  ┌─────────────┴───────────────┐             │
-│  │  Drizzle ORM (lib/db/drizzle.ts)         │
-│  │  Schema (lib/db/schema.ts)   │             │
-│  └─────────────┬───────────────┘             │
-└────────────────┼─────────────────────────────┘
-                 │
-        ┌────────┴────────┐
-        │   PostgreSQL     │
-        │   (40+ tables)   │
-        └──────────────────┘
+```mermaid
+flowchart TD
+    subgraph App["Application Code"]
+        Hooks["Hooks"]
+        APIRoutes["API Routes"]
+        Services["Services Layer"]
+        Repos["Repositories (13)"]
+        Queries["Query Modules (23+)"]
+        Drizzle["Drizzle ORM (lib/db/drizzle.ts)\nSchema (lib/db/schema.ts)"]
+
+        Hooks & APIRoutes --> Services
+        Services --> Repos
+        Repos --> Queries
+        Queries --> Drizzle
+    end
+
+    Drizzle --> PostgreSQL["PostgreSQL\n(40+ tables)"]
 ```
 
 ## Configuration

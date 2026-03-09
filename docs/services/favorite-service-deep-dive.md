@@ -29,21 +29,17 @@ This pattern keeps the favorites feature lightweight while still providing a rob
 
 ## Architecture
 
-```
-FavoriteButton / FavoritesPage (React)
-        |
-   useFavorites() hook (React Query + optimistic updates)
-        |
-   serverClient (HTTP)
-        |
-  ┌─────┼──────────────┐
-  │     │              │
-GET   POST           DELETE
-/api/favorites    /api/favorites/{itemSlug}
-        |
-   Drizzle ORM
-        |
-   PostgreSQL (favorites table)
+```mermaid
+flowchart TD
+    A[FavoriteButton / FavoritesPage - React] --> B[useFavorites hook - React Query + optimistic updates]
+    B --> C[serverClient - HTTP]
+    C --> D[GET /api/favorites]
+    C --> E[POST /api/favorites]
+    C --> F[DELETE /api/favorites/itemSlug]
+    D --> G[Drizzle ORM]
+    E --> G
+    F --> G
+    G --> H[(PostgreSQL - favorites table)]
 ```
 
 ## Data Model

@@ -11,16 +11,12 @@ The Ever Works template includes a content reporting and moderation system that 
 
 ## Architecture
 
-```
-┌──────────────┐     ┌─────────────────┐     ┌─────────────────────┐
-│  User reports │────▶│  /api/reports   │────▶│  Database            │
-│  content      │     │  (API Route)    │     │  (reports table)     │
-└──────────────┘     └─────────────────┘     └─────────────────────┘
-                                                       │
-┌──────────────┐     ┌─────────────────┐              │
-│  Admin review │────▶│  ModerationSvc  │◀─────────────┘
-│  dashboard    │     │  (Actions)      │
-└──────────────┘     └─────────────────┘
+```mermaid
+flowchart TD
+    A["User reports content"] --> B["/api/reports (API Route)"]
+    B --> C["Database (reports table)"]
+    C --> E["ModerationSvc (Actions)"]
+    D["Admin review dashboard"] --> E
 ```
 
 ## Content Types

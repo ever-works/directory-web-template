@@ -28,22 +28,16 @@ The mail system consists of two layers:
 
 ## Architecture
 
-```
-API Routes / Server Actions / Background Jobs
-        |
-  ┌─────┴──────────────────┐
-  │                        │
-EmailNotificationService   Direct EmailService usage
-  │                        │
-  └──────┬─────────────────┘
-         │
-    EmailService
-         │
-   EmailProviderFactory
-         │
-  ┌──────┼──────┐
-  │      │      │
-Resend  Novu   Mock
+```mermaid
+flowchart TD
+    A[API Routes / Server Actions / Background Jobs] --> B[EmailNotificationService]
+    A --> C[Direct EmailService usage]
+    B --> D[EmailService]
+    C --> D
+    D --> E[EmailProviderFactory]
+    E --> F[Resend]
+    E --> G[Novu]
+    E --> H[Mock]
 ```
 
 ## EmailService (Core)

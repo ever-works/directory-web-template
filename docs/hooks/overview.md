@@ -19,21 +19,16 @@ Every data-fetching hook follows a consistent pattern:
 4. **`useMutation` for writes** -- Wraps create/update/delete operations with `onSuccess` cache invalidation and `toast` feedback via [Sonner](https://sonner.emilkowal.dev/).
 5. **Memoized handlers** -- `useCallback`-wrapped action functions return `Promise<boolean>` for easy consumer logic.
 
-```
-┌──────────────┐    useQuery / useMutation    ┌─────────────────┐
-│  Component   │ ──────────────────────────▶  │  Custom Hook    │
-└──────────────┘                              │  (hooks/*.ts)   │
-                                              └────────┬────────┘
-                                                       │ serverClient
-                                              ┌────────▼────────┐
-                                              │  API Routes      │
-                                              │  (app/api/*)     │
-                                              └────────┬────────┘
-                                                       │
-                                              ┌────────▼────────┐
-                                              │  Services /      │
-                                              │  Repositories    │
-                                              └─────────────────┘
+```mermaid
+flowchart TD
+    A["Component"]
+    B["Custom Hook\n(hooks/*.ts)"]
+    C["API Routes\n(app/api/*)"]
+    D["Services /\nRepositories"]
+
+    A -->|"useQuery / useMutation"| B
+    B -->|"serverClient"| C
+    C --> D
 ```
 
 ## Naming Conventions

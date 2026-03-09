@@ -19,14 +19,16 @@ This document explains how long-running directory generation is delegated to Tri
 
 The diagram below summarizes the happy path:
 
-```
-Client → API (DirectoryGenerationService) → TriggerService ──▶ Trigger.dev task
-                                         ▲          │
-                                         │          ▼
-                               fallback generation   Trigger worker (Nest)
-                                         │          │
-                                         ▼          ▼
-                                      Database ◀── Internal API (signed)
+```mermaid
+flowchart TD
+    A[Client] --> B[API - DirectoryGenerationService]
+    B --> C[TriggerService]
+    C -->|dispatch| D[Trigger.dev task]
+    D --> E[Trigger worker - Nest]
+    C -->|fallback| F[Fallback generation]
+    F --> G[(Database)]
+    E --> H[Internal API - signed]
+    H --> G
 ```
 
 ## Key Code Components
