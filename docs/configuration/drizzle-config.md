@@ -193,6 +193,6 @@ Because Drizzle generates TypeScript types directly from your schema, all querie
 
 ## Related Resources
 
-- [Environment Reference](/docs/template/configuration/environment-reference) -- Full list of environment variables including `DATABASE_URL`
-- [Database Health Check](/docs/template/guides/database-health-check) -- Monitoring database connectivity
-- [Instrumentation Guide](/docs/template/guides/instrumentation) -- Automatic database initialization at startup
+- [Environment Reference](/template/configuration/environment-reference) -- Full list of environment variables including `DATABASE_URL`
+- [Database Health Check](/template/guides/database-health-check) -- Monitoring database connectivity
+- [Instrumentation Guide](/template/guides/instrumentation) -- Automatic database initialization at startup

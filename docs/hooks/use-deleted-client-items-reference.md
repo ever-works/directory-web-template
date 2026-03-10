@@ -218,6 +218,6 @@ function RestoreButton({ item }: { item: ClientSubmissionData }) {
 
 ## Related Hooks
 
-- [`useClientItems`](/docs/template/hooks/use-client-items-reference) -- Main items listing (shares query key prefix, also has `restoreItem`)
-- [`useClientItemDetails`](/docs/template/hooks/use-client-item-details-reference) -- Detail view with restore capability
-- [`useClientItemFilters`](/docs/template/hooks/use-client-item-filters-reference) -- Filter state for the main items list
+- [`useClientItems`](/template/hooks/use-client-items-reference) -- Main items listing (shares query key prefix, also has `restoreItem`)
+- [`useClientItemDetails`](/template/hooks/use-client-item-details-reference) -- Detail view with restore capability
+- [`useClientItemFilters`](/template/hooks/use-client-item-filters-reference) -- Filter state for the main items list

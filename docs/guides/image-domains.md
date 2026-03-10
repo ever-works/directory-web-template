@@ -362,6 +362,6 @@ patterns.push({
 
 ## Related Resources
 
-- [Performance Optimization](/docs/template/guides/performance-optimization) -- Image optimization strategies
-- [Security Configuration](/docs/template/configuration/security-config) -- Content Security Policy for images
-- [Customization Guide](/docs/template/guides/customization) -- Theming and asset customization
+- [Performance Optimization](/template/guides/performance-optimization) -- Image optimization strategies
+- [Security Configuration](/template/configuration/security-config) -- Content Security Policy for images
+- [Customization Guide](/template/guides/customization) -- Theming and asset customization

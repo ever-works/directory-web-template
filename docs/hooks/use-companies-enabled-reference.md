@@ -118,7 +118,7 @@ function CompanyProfilePage({ companyId }: { companyId: string }) {
 
 ## Related Hooks
 
-- [`useCategoriesEnabled`](/docs/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
-- [`useTagsEnabled`](/docs/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled
-- [`useSurveysEnabled`](/docs/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled
-- [`useItemCompany`](/docs/template/hooks/use-item-company-reference) -- Fetches company data for a specific item
+- [`useCategoriesEnabled`](/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
+- [`useTagsEnabled`](/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled
+- [`useSurveysEnabled`](/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled
+- [`useItemCompany`](/template/hooks/use-item-company-reference) -- Fetches company data for a specific item

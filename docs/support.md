@@ -24,10 +24,10 @@ Welcome to the Directory Web Template support center.
 
 ## Documentation Resources
 
-- **[Installation Guide](/docs/getting-started/installation)** -- Complete setup instructions
-- **[Quick Start Guide](/docs/getting-started/quick-start)** -- Get up and running quickly
-- **[Architecture Overview](/docs/architecture/overview)** -- Understand the system design
-- **[Deployment Guide](/docs/deployment/deployment-introduction)** -- Deploy to production
+- **[Installation Guide](/getting-started/installation)** -- Complete setup instructions
+- **[Quick Start Guide](/getting-started/quick-start)** -- Get up and running quickly
+- **[Architecture Overview](/architecture/overview)** -- Understand the system design
+- **[Deployment Guide](/deployment/deployment-introduction)** -- Deploy to production
 
 For Ever Works Platform documentation, visit [docs.ever.works](https://docs.ever.works).
 

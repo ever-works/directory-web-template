@@ -401,7 +401,7 @@ responses:
 
 ### Before Creating New Route
 
-- [ ] Copy template from [Quick Reference](/docs/getting-started/quick-reference)
+- [ ] Copy template from [Quick Reference](/getting-started/quick-reference)
 - [ ] Choose appropriate tag according to conventions
 - [ ] Document all parameters and responses
 - [ ] Add realistic examples
@@ -544,7 +544,7 @@ yarn dev
    - Verify all endpoints have examples
 
 2. **Use the Quick Reference**:
-   - Follow [Quick Reference](/docs/getting-started/quick-reference) templates
+   - Follow [Quick Reference](/getting-started/quick-reference) templates
    - Copy from well-documented endpoints
    - Ask for code review
 
@@ -593,9 +593,9 @@ Every API endpoint should have:
 
 ### Internal Documentation
 
-- [Quick Reference](/docs/getting-started/quick-reference) - Templates and commands
-- [API Documentation Guide](/docs/development/api-documentation) - Technical details
-- [Development Testing](/docs/development/testing) - Testing strategies
+- [Quick Reference](/getting-started/quick-reference) - Templates and commands
+- [API Documentation Guide](/development/api-documentation) - Technical details
+- [Development Testing](/development/testing) - Testing strategies
 
 ### External Resources
 
@@ -609,12 +609,12 @@ Every API endpoint should have:
 
 After mastering API documentation:
 
-1. [Best Practices](/docs/team-training/best-practices) - Learn coding standards
-2. [Exercises](/docs/team-training/exercises) - Practice with real tasks
+1. [Best Practices](/team-training/best-practices) - Learn coding standards
+2. [Exercises](/team-training/exercises) - Practice with real tasks
 3. Start documenting real endpoints in your project
 
 :::tip Practice Makes Perfect
 The best way to learn is by doing. Start with simple GET endpoints and gradually work up to complex POST/PUT endpoints with validation.
 :::
 
-Need help? Check the [Quick Reference](/docs/getting-started/quick-reference) or ask your team lead! 🚀
+Need help? Check the [Quick Reference](/getting-started/quick-reference) or ask your team lead! 🚀

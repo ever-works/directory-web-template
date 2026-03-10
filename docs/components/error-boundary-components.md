@@ -130,4 +130,4 @@ Both listeners are cleaned up when the component unmounts. Internally, `ErrorPro
 
 ## Related Components
 
-- [Provider Components](/docs/template/components/provider-components) - Application-level providers that include ErrorProvider.
+- [Provider Components](/template/components/provider-components) - Application-level providers that include ErrorProvider.

@@ -158,7 +158,7 @@ function ItemActions({ itemId }: { itemId: string }) {
 
 ## Related Hooks
 
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- The underlying hook that fetches and caches user session data
-- [`useProfileMenu`](/docs/template/hooks/use-profile-menu-reference) -- Profile dropdown menu state (often uses these same user properties)
-- [`useIsDevOrAdmin`](/docs/template/hooks/use-is-dev-or-admin-reference) -- Lightweight admin/developer role check
-- [`useRolePermissions`](/docs/template/hooks/use-role-permissions-reference) -- Granular permission checking based on user role
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- The underlying hook that fetches and caches user session data
+- [`useProfileMenu`](/template/hooks/use-profile-menu-reference) -- Profile dropdown menu state (often uses these same user properties)
+- [`useIsDevOrAdmin`](/template/hooks/use-is-dev-or-admin-reference) -- Lightweight admin/developer role check
+- [`useRolePermissions`](/template/hooks/use-role-permissions-reference) -- Granular permission checking based on user role

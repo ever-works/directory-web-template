@@ -134,6 +134,6 @@ function AnalyticsDashboard() {
 
 ## Related Hooks
 
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Server-fetched feature flags via TanStack Query
-- [`useFeatureFlagsWithSimulation`](/docs/template/hooks/use-feature-flags-with-simulation-reference) -- Feature flags with database simulation mode
-- [`useAnalytics`](/docs/template/hooks/use-analytics-reference) -- Analytics tracking and event management
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Server-fetched feature flags via TanStack Query
+- [`useFeatureFlagsWithSimulation`](/template/hooks/use-feature-flags-with-simulation-reference) -- Feature flags with database simulation mode
+- [`useAnalytics`](/template/hooks/use-analytics-reference) -- Analytics tracking and event management

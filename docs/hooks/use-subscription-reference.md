@@ -225,8 +225,8 @@ if (createError) {
 
 ## Related Hooks
 
-- [`usePlanStatus`](/docs/template/hooks/subscription-hooks) - Check current plan tier
-- [`usePlanGuard`](/docs/template/hooks/subscription-hooks) - Gate features by plan
-- [`usePaymentFlow`](/docs/template/hooks/payment-hooks) - Complete checkout flow
-- [`useCreateCheckout`](/docs/template/hooks/payment-hooks) - Create checkout sessions
-- [`useBillingData`](/docs/template/hooks/payment-hooks) - Billing history and invoices
+- [`usePlanStatus`](/template/hooks/subscription-hooks) - Check current plan tier
+- [`usePlanGuard`](/template/hooks/subscription-hooks) - Gate features by plan
+- [`usePaymentFlow`](/template/hooks/payment-hooks) - Complete checkout flow
+- [`useCreateCheckout`](/template/hooks/payment-hooks) - Create checkout sessions
+- [`useBillingData`](/template/hooks/payment-hooks) - Billing history and invoices

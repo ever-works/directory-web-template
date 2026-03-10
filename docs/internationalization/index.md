@@ -115,10 +115,10 @@ export function MyComponent() {
 ## Next Steps
 
 - [Translation Guide →](./translation-guide) - Learn how to add and manage translations
-- [Getting Started](/docs/getting-started) - Set up your project
-- [Customization](/docs/guides/customization) - Customize your site
+- [Getting Started](/getting-started) - Set up your project
+- [Customization](/guides/customization) - Customize your site
 
 ## Need Help?
 
-Check our [support page](/docs/advanced-guide/support) for assistance with internationalization.
+Check our [support page](/advanced-guide/support) for assistance with internationalization.
 

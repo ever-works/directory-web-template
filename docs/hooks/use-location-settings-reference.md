@@ -212,9 +212,9 @@ function SubmissionForm() {
 
 ## Related Hooks
 
-- [`useMapProvider`](/docs/template/hooks/use-map-provider-reference) -- Loads the map provider implementation based on these settings
-- [`useMapCoordinates`](/docs/template/hooks/use-map-coordinates-reference) -- Fetches item coordinates for map markers
-- [`useUserLocation`](/docs/template/hooks/use-user-location-reference) -- User location with browser geolocation and profile fallback
-- [`useGeolocation`](/docs/template/hooks/use-geolocation-reference) -- Browser Geolocation API wrapper
-- [`useHeaderSettings`](/docs/template/hooks/use-header-settings-reference) -- Similar pattern for header configuration
-- [`useFooterSettings`](/docs/template/hooks/use-footer-settings-reference) -- Similar pattern for footer configuration
+- [`useMapProvider`](/template/hooks/use-map-provider-reference) -- Loads the map provider implementation based on these settings
+- [`useMapCoordinates`](/template/hooks/use-map-coordinates-reference) -- Fetches item coordinates for map markers
+- [`useUserLocation`](/template/hooks/use-user-location-reference) -- User location with browser geolocation and profile fallback
+- [`useGeolocation`](/template/hooks/use-geolocation-reference) -- Browser Geolocation API wrapper
+- [`useHeaderSettings`](/template/hooks/use-header-settings-reference) -- Similar pattern for header configuration
+- [`useFooterSettings`](/template/hooks/use-footer-settings-reference) -- Similar pattern for footer configuration

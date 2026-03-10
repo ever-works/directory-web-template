@@ -27,20 +27,20 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 
 ### Getting Started
 
-- **[Installation Guide](/docs/getting-started/installation)** - Complete setup instructions
-- **[Quick Start Guide](/docs/getting-started/quick-start)** - Get up and running quickly
-- **[Environment Setup](/docs/getting-started/environment-setup)** - Configure your environment
+- **[Installation Guide](/getting-started/installation)** - Complete setup instructions
+- **[Quick Start Guide](/getting-started/quick-start)** - Get up and running quickly
+- **[Environment Setup](/getting-started/environment-setup)** - Configure your environment
 
 ### Architecture & Development
 
-- **[Architecture Overview](/docs/architecture/overview)** - Understand the system design
-- **[Technology Stack](/docs/architecture/tech-stack)** - Learn about the technologies used
+- **[Architecture Overview](/architecture/overview)** - Understand the system design
+- **[Technology Stack](/architecture/tech-stack)** - Learn about the technologies used
 
 ### Guides & Tutorials
 
-- **[Admin Dashboard Guide](/docs/guides/admin-dashboard)** - Manage your directory website
-- **[Customization Guide](/docs/guides/customization)** - Customize the template
-- **[Deployment Guide](/docs/deployment)** - Deploy to production
+- **[Admin Dashboard Guide](/guides/admin-dashboard)** - Manage your directory website
+- **[Customization Guide](/guides/customization)** - Customize the template
+- **[Deployment Guide](/deployment)** - Deploy to production
 
 ## 🚀 Platform Access
 
@@ -52,9 +52,9 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 
 ### Deployment Options
 
-- **🐳 [Docker Deployment](/docs/deployment/docker)** - Container-based installation
-- **☁️ [Vercel Deployment](/docs/deployment/vercel)** - Deploy to Vercel
-- **☁️ [Cloud Deployment](/docs/deployment/cloud)** - Deploy to your preferred cloud provider
+- **🐳 [Docker Deployment](/deployment/docker)** - Container-based installation
+- **☁️ [Vercel Deployment](/deployment/vercel)** - Deploy to Vercel
+- **☁️ [Cloud Deployment](/deployment/cloud)** - Deploy to your preferred cloud provider
 
 ## 🔧 Troubleshooting
 

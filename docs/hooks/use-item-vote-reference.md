@@ -257,8 +257,8 @@ function AdminVoteReset({ itemId }: { itemId: string }) {
 
 ## Related Hooks
 
-- [`useItemRating`](/docs/template/hooks/use-item-rating-reference) -- Rating system (complementary engagement metric)
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- Auth state used to gate voting
-- [`useLoginModal`](/docs/template/hooks/use-login-modal-reference) -- Login modal shown to unauthenticated users
-- [`useItemEngagement`](/docs/template/hooks/use-item-engagement-reference) -- Broader engagement metrics
-- [`useFavorites`](/docs/template/hooks/use-favorites-reference) -- Another user-specific item interaction
+- [`useItemRating`](/template/hooks/use-item-rating-reference) -- Rating system (complementary engagement metric)
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- Auth state used to gate voting
+- [`useLoginModal`](/template/hooks/use-login-modal-reference) -- Login modal shown to unauthenticated users
+- [`useItemEngagement`](/template/hooks/use-item-engagement-reference) -- Broader engagement metrics
+- [`useFavorites`](/template/hooks/use-favorites-reference) -- Another user-specific item interaction

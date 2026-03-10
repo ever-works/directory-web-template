@@ -310,8 +310,8 @@ All admin sections should follow these accessibility patterns:
 
 ## Related Pages
 
-- [Admin Dashboard](/docs/guides/admin-dashboard) -- overview of admin features
-- [Admin Deep Dive](/docs/guides/admin-deep-dive) -- advanced admin topics
-- [Admin Components](/docs/guides/admin-components) -- full component reference
-- [How to Add a New Component](/docs/guides/how-to-add-a-new-component) -- general component creation guide
-- [Accessibility](/docs/guides/accessibility) -- accessibility standards
+- [Admin Dashboard](/guides/admin-dashboard) -- overview of admin features
+- [Admin Deep Dive](/guides/admin-deep-dive) -- advanced admin topics
+- [Admin Components](/guides/admin-components) -- full component reference
+- [How to Add a New Component](/guides/how-to-add-a-new-component) -- general component creation guide
+- [Accessibility](/guides/accessibility) -- accessibility standards

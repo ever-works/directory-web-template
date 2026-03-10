@@ -133,6 +133,6 @@ function CategoryNavItem() {
 
 ## Related Hooks
 
-- [`useCategoriesEnabled`](/docs/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
-- [`useTagsExists`](/docs/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database
-- [`useCollectionsExists`](/docs/template/hooks/use-collections-exists-reference) -- Checks whether collections exist in the database
+- [`useCategoriesEnabled`](/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
+- [`useTagsExists`](/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database
+- [`useCollectionsExists`](/template/hooks/use-collections-exists-reference) -- Checks whether collections exist in the database

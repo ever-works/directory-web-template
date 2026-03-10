@@ -45,10 +45,10 @@ Visit [http://localhost:3000](http://localhost:3000) to see your site!
 
 ## Next Steps
 
-- [Installation Guide](/docs/getting-started/installation) -- Complete setup instructions
-- [Quick Start Guide](/docs/getting-started/quick-start) -- Get up and running in under 10 minutes
-- [Architecture Overview](/docs/architecture/overview) -- Understand the system design
-- [Deployment Guide](/docs/deployment/deployment-introduction) -- Deploy to production
+- [Installation Guide](/getting-started/installation) -- Complete setup instructions
+- [Quick Start Guide](/getting-started/quick-start) -- Get up and running in under 10 minutes
+- [Architecture Overview](/architecture/overview) -- Understand the system design
+- [Deployment Guide](/deployment/deployment-introduction) -- Deploy to production
 
 ## Use Cases
 
@@ -63,11 +63,11 @@ This template project is perfect for:
 
 ## Ever Works Platform
 
-The Template can be used standalone or paired with the **Ever Works Platform** for AI-powered content generation. For Platform documentation, visit [docs.ever.works](https://docs.ever.works). See [Platform vs Template](/docs/comparison) for a detailed comparison.
+The Template can be used standalone or paired with the **Ever Works Platform** for AI-powered content generation. For Platform documentation, visit [docs.ever.works](https://docs.ever.works). See [Platform vs Template](/comparison) for a detailed comparison.
 
 ## Need Help?
 
 - Check our [documentation](/docs) for general information
 - Join our [Discord community](https://discord.gg/ever) for support
 - Visit the [demo site](https://demo.ever.works) to see it in action
-- Contact [support](/docs/support) for technical assistance
+- Contact [support](/support) for technical assistance

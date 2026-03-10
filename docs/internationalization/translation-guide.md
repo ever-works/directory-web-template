@@ -368,9 +368,9 @@ To contribute translations:
 
 ## Next Steps
 
-- [Internationalization Overview](/docs/internationalization) - Learn about i18n architecture
-- [Customization](/docs/guides/customization) - Customize your directory
-- [Development](/docs/development/local-setup) - Set up development environment
+- [Internationalization Overview](/internationalization) - Learn about i18n architecture
+- [Customization](/guides/customization) - Customize your directory
+- [Development](/development/local-setup) - Set up development environment
 
 ## Resources
 

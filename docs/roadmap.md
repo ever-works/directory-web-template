@@ -95,7 +95,7 @@ Join the [Ever Works Discord](https://discord.gg/ever) for real-time conversatio
 ## Contributing to the Roadmap
 
 1. **Submit well-written feature requests** with clear problem statements and use cases.
-2. **Contribute code.** Pull requests are the fastest path from idea to reality. See the [Contributing Guide](/docs/contributing).
+2. **Contribute code.** Pull requests are the fastest path from idea to reality. See the [Contributing Guide](/contributing).
 3. **Participate in discussions.** Provide feedback on proposals and share your experience.
 4. **Report bugs.** Reliable bug reports help prioritize fixes and improve stability.
 
@@ -107,7 +107,7 @@ Releases are made when a meaningful set of features and fixes are ready:
 - **Minor releases** (new features) are published roughly monthly.
 - **Major releases** (breaking changes) are infrequent and accompanied by migration guides.
 
-See the [Changelog & Versioning](/docs/changelog) page for details.
+See the [Changelog & Versioning](/changelog) page for details.
 
 ## Staying Updated
 

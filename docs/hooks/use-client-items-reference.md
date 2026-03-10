@@ -279,7 +279,7 @@ function PaginatedList() {
 
 ## Related Hooks
 
-- [`useClientItemDetails`](/docs/template/hooks/use-client-item-details-reference) -- Single item detail fetching (reuses `CLIENT_ITEMS_QUERY_KEYS`)
-- [`useClientItemFilters`](/docs/template/hooks/use-client-item-filters-reference) -- Filter/sort/pagination state that produces `ClientItemsListParams`
-- [`useDeletedClientItems`](/docs/template/hooks/use-deleted-client-items-reference) -- Manages soft-deleted items (shares the same query key prefix)
-- [`useDetailForm`](/docs/template/hooks/use-detail-form-reference) -- Form state for creating or editing item details
+- [`useClientItemDetails`](/template/hooks/use-client-item-details-reference) -- Single item detail fetching (reuses `CLIENT_ITEMS_QUERY_KEYS`)
+- [`useClientItemFilters`](/template/hooks/use-client-item-filters-reference) -- Filter/sort/pagination state that produces `ClientItemsListParams`
+- [`useDeletedClientItems`](/template/hooks/use-deleted-client-items-reference) -- Manages soft-deleted items (shares the same query key prefix)
+- [`useDetailForm`](/template/hooks/use-detail-form-reference) -- Form state for creating or editing item details

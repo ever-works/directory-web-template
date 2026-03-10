@@ -270,6 +270,6 @@ Check Vercel deployment logs for `[Instrumentation]` prefixed messages. The erro
 
 ## Related Resources
 
-- [Sentry Configuration](/docs/template/configuration/sentry-config) -- Detailed Sentry webpack plugin options
-- [Drizzle Configuration](/docs/template/configuration/drizzle-config) -- Database schema and migration setup
-- [Error Handling Patterns](/docs/template/guides/error-handler-patterns) -- Centralized error handling utilities
+- [Sentry Configuration](/template/configuration/sentry-config) -- Detailed Sentry webpack plugin options
+- [Drizzle Configuration](/template/configuration/drizzle-config) -- Database schema and migration setup
+- [Error Handling Patterns](/template/guides/error-handler-patterns) -- Centralized error handling utilities

@@ -133,5 +133,5 @@ function AdminCollectionsOverview() {
 
 ## Related Hooks
 
-- [`useCategoriesExists`](/docs/template/hooks/use-categories-exists-reference) -- Checks whether categories exist in the database
-- [`useTagsExists`](/docs/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database
+- [`useCategoriesExists`](/template/hooks/use-categories-exists-reference) -- Checks whether categories exist in the database
+- [`useTagsExists`](/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database

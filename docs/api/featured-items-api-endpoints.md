@@ -170,5 +170,5 @@ featuredItems.forEach(item => {
 - Database availability is checked at the start via `checkDatabaseAvailability()`.
 - The `limit` parameter is parsed from the query string with a default of `6`. Input beyond 50 is not clamped (validated client-side).
 - Errors are only logged in development mode to avoid noise in production logs.
-- Featured items are managed through the admin panel endpoints (see [Admin Endpoints](/docs/template/api/admin-endpoints)).
+- Featured items are managed through the admin panel endpoints (see [Admin Endpoints](/template/api/admin-endpoints)).
 - The `featuredUntil` field supports both permanent featuring (`null`) and time-limited featuring.

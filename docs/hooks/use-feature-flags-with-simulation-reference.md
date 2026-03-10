@@ -221,6 +221,6 @@ function DashboardSidebar() {
 
 ## Related Hooks
 
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Base server-fetched feature flags (without simulation)
-- [`useFeatureFlag`](/docs/template/hooks/use-feature-flag-reference) -- Single analytics-provider feature flag (different mechanism)
-- [`useTheme`](/docs/template/hooks/use-theme-reference) -- Theme settings managed in the same LayoutThemeContext
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Base server-fetched feature flags (without simulation)
+- [`useFeatureFlag`](/template/hooks/use-feature-flag-reference) -- Single analytics-provider feature flag (different mechanism)
+- [`useTheme`](/template/hooks/use-theme-reference) -- Theme settings managed in the same LayoutThemeContext

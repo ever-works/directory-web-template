@@ -139,6 +139,6 @@ function AdminFeaturedPreview() {
 
 ## Related Hooks
 
-- [`useFeaturedItems`](/docs/template/hooks/use-featured-items-client-reference) -- Lower-level hook that fetches all featured items from the API
-- [`useAdminFeaturedItems`](/docs/template/hooks/use-admin-featured-items-reference) -- Admin CRUD operations for featured items
-- [`useFeaturedItemForm`](/docs/template/hooks/use-featured-item-form-reference) -- Form state management for creating/editing featured items
+- [`useFeaturedItems`](/template/hooks/use-featured-items-client-reference) -- Lower-level hook that fetches all featured items from the API
+- [`useAdminFeaturedItems`](/template/hooks/use-admin-featured-items-reference) -- Admin CRUD operations for featured items
+- [`useFeaturedItemForm`](/template/hooks/use-featured-item-form-reference) -- Form state management for creating/editing featured items

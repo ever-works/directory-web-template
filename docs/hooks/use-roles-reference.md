@@ -149,7 +149,7 @@ function RoleListWithRefresh() {
 
 ## Related Hooks
 
-- [`useAdminRoles`](/docs/template/hooks/use-admin-roles-reference) -- Full CRUD operations for roles in the admin panel
-- [`useRolePermissions`](/docs/template/hooks/use-role-permissions-reference) -- Check permissions for the current user's role
-- [`useActiveRoles`](/docs/template/hooks/use-active-roles-reference) -- Fetches only active/enabled roles
-- [`useIsDevOrAdmin`](/docs/template/hooks/use-is-dev-or-admin-reference) -- Quick check for admin or developer role
+- [`useAdminRoles`](/template/hooks/use-admin-roles-reference) -- Full CRUD operations for roles in the admin panel
+- [`useRolePermissions`](/template/hooks/use-role-permissions-reference) -- Check permissions for the current user's role
+- [`useActiveRoles`](/template/hooks/use-active-roles-reference) -- Fetches only active/enabled roles
+- [`useIsDevOrAdmin`](/template/hooks/use-is-dev-or-admin-reference) -- Quick check for admin or developer role

@@ -238,7 +238,7 @@ function CurrencyErrorBanner() {
 
 ## Related Hooks
 
-- [`useSubscription`](/docs/template/hooks/use-subscription-reference) - Subscription pricing uses currency context
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) - Authentication state
-- [`useGeolocation`](/docs/template/hooks/data-hooks) - Geolocation detection
-- [`usePaymentFlow`](/docs/template/hooks/payment-hooks) - Checkout flow with currency awareness
+- [`useSubscription`](/template/hooks/use-subscription-reference) - Subscription pricing uses currency context
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) - Authentication state
+- [`useGeolocation`](/template/hooks/data-hooks) - Geolocation detection
+- [`usePaymentFlow`](/template/hooks/payment-hooks) - Checkout flow with currency awareness

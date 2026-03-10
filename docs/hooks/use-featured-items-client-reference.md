@@ -215,7 +215,7 @@ function FeaturedSidebar() {
 
 ## Related Hooks
 
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Feature flag system that gates this hook
-- [`useClientItems`](/docs/template/hooks/use-client-items-reference) -- Regular client items listing
-- [`useItemRating`](/docs/template/hooks/use-item-rating-reference) -- Another feature-flag-gated item hook
-- [`useItemVote`](/docs/template/hooks/use-item-vote-reference) -- Voting functionality for items
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Feature flag system that gates this hook
+- [`useClientItems`](/template/hooks/use-client-items-reference) -- Regular client items listing
+- [`useItemRating`](/template/hooks/use-item-rating-reference) -- Another feature-flag-gated item hook
+- [`useItemVote`](/template/hooks/use-item-vote-reference) -- Voting functionality for items

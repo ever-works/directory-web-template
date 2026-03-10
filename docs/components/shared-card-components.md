@@ -166,7 +166,7 @@ When location settings are enabled and a Mapbox or Google Maps API key is config
 
 ## Related Documentation
 
-- [Filter System](/docs/template/components/filter-system) -- Filter context and URL sync
-- [Layout Components](/docs/template/components/layout-components) -- Grid, list, and compact layouts
-- [Pagination Components](/docs/template/components/pagination-components) -- Universal pagination
-- [Maps Components](/docs/template/components/maps-components) -- Map view integration
+- [Filter System](/template/components/filter-system) -- Filter context and URL sync
+- [Layout Components](/template/components/layout-components) -- Grid, list, and compact layouts
+- [Pagination Components](/template/components/pagination-components) -- Universal pagination
+- [Maps Components](/template/components/maps-components) -- Map view integration

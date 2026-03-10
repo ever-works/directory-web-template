@@ -158,6 +158,6 @@ import ViewToggle from "@/components/view-toggle";
 
 ## Related Components
 
-- [Context Providers](/docs/template/components/context-providers) - `LayoutThemeContext` that stores the layout and container width state.
-- [Settings Modal](/docs/template/components/settings-modal-components) - Alternative location for layout configuration.
-- [Navigation Controls](/docs/template/components/scroll-navigation-components) - Header integration point for the LayoutSwitcher.
+- [Context Providers](/template/components/context-providers) - `LayoutThemeContext` that stores the layout and container width state.
+- [Settings Modal](/template/components/settings-modal-components) - Alternative location for layout configuration.
+- [Navigation Controls](/template/components/scroll-navigation-components) - Header integration point for the LayoutSwitcher.

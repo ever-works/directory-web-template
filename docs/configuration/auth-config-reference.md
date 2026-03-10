@@ -243,6 +243,6 @@ openssl rand -base64 32
 
 ## Related Resources
 
-- [Provider Configuration](/docs/template/configuration/provider-config) -- Choosing between NextAuth, Supabase, or both
-- [Environment Reference](/docs/template/configuration/environment-reference) -- Full environment variable listing
-- [Error Handling Patterns](/docs/template/guides/error-handler-patterns) -- How auth errors are structured
+- [Provider Configuration](/template/configuration/provider-config) -- Choosing between NextAuth, Supabase, or both
+- [Environment Reference](/template/configuration/environment-reference) -- Full environment variable listing
+- [Error Handling Patterns](/template/guides/error-handler-patterns) -- How auth errors are structured

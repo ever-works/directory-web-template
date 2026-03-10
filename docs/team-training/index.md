@@ -23,7 +23,7 @@ By completing this training program, team members will be able to:
 
 ## 📚 Training Modules
 
-### 1. [Onboarding](/docs/team-training/onboarding)
+### 1. [Onboarding](/team-training/onboarding)
 
 **Duration**: 1-2 days  
 **Target**: New team members
@@ -37,7 +37,7 @@ Learn how to set up your development environment, understand the project structu
 - Development workflow
 - Git conventions
 
-### 2. [API Documentation](/docs/team-training/api-documentation)
+### 2. [API Documentation](/team-training/api-documentation)
 
 **Duration**: 2-3 days  
 **Target**: All developers working on API endpoints
@@ -51,7 +51,7 @@ Master the automated API documentation system using Swagger annotations and Scal
 - Quality standards
 - Troubleshooting common issues
 
-### 3. [Best Practices](/docs/team-training/best-practices)
+### 3. [Best Practices](/team-training/best-practices)
 
 **Duration**: 1-2 days  
 **Target**: All team members
@@ -65,7 +65,7 @@ Learn the coding standards, patterns, and best practices used in Ever Works.
 - Security guidelines
 - Performance optimization
 
-### 4. [Hands-On Exercises](/docs/team-training/exercises)
+### 4. [Hands-On Exercises](/team-training/exercises)
 
 **Duration**: 3-5 days  
 **Target**: All team members
@@ -83,20 +83,20 @@ Practice what you've learned with real-world exercises and challenges.
 ### New Team Members (2 weeks)
 
 **Week 1: Foundation**
-- Day 1-2: [Onboarding](/docs/team-training/onboarding)
-- Day 3-4: [API Documentation](/docs/team-training/api-documentation)
-- Day 5: [Best Practices](/docs/team-training/best-practices)
+- Day 1-2: [Onboarding](/team-training/onboarding)
+- Day 3-4: [API Documentation](/team-training/api-documentation)
+- Day 5: [Best Practices](/team-training/best-practices)
 
 **Week 2: Practice**
-- Day 1-3: [Hands-On Exercises](/docs/team-training/exercises)
+- Day 1-3: [Hands-On Exercises](/team-training/exercises)
 - Day 4-5: First real task with mentorship
 
 ### Existing Team Members (3-5 days)
 
 **Refresher Training**
-- Day 1: Review [Best Practices](/docs/team-training/best-practices)
-- Day 2: [API Documentation](/docs/team-training/api-documentation) updates
-- Day 3: Practice with [Exercises](/docs/team-training/exercises)
+- Day 1: Review [Best Practices](/team-training/best-practices)
+- Day 2: [API Documentation](/team-training/api-documentation) updates
+- Day 3: Practice with [Exercises](/team-training/exercises)
 
 ## 📋 Prerequisites
 
@@ -149,11 +149,11 @@ Upon completing the training program, team members should be able to:
 
 ### Internal Documentation
 
-- [Architecture Overview](/docs/architecture/overview)
-- [Tech Stack](/docs/architecture/tech-stack)
-- [Features](/docs/architecture/features)
-- [Quick Reference](/docs/getting-started/quick-reference)
-- [Production Checklist](/docs/deployment/production-checklist)
+- [Architecture Overview](/architecture/overview)
+- [Tech Stack](/architecture/tech-stack)
+- [Features](/architecture/features)
+- [Quick Reference](/getting-started/quick-reference)
+- [Production Checklist](/deployment/production-checklist)
 
 ### External Resources
 
@@ -167,7 +167,7 @@ Upon completing the training program, team members should be able to:
 
 **During Training**:
 - Ask your mentor or team lead
-- Check the [Quick Reference](/docs/getting-started/quick-reference)
+- Check the [Quick Reference](/getting-started/quick-reference)
 - Review relevant documentation sections
 
 **After Training**:
@@ -180,5 +180,5 @@ Upon completing the training program, team members should be able to:
 
 ## Next Steps
 
-Ready to start? Begin with the [Onboarding](/docs/team-training/onboarding) module! 🚀
+Ready to start? Begin with the [Onboarding](/team-training/onboarding) module! 🚀
 

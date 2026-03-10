@@ -112,6 +112,6 @@ const showSkeleton = useSkeletonVisibility(isLoading);
 
 ## Related Hooks
 
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Feature flags that may affect what content loads
-- [`useInfiniteLoading`](/docs/template/hooks/use-infinite-loading-reference) -- Loading states for infinite scroll
-- [`useClientItems`](/docs/template/hooks/use-client-items-reference) -- Client-side item fetching with loading states
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Feature flags that may affect what content loads
+- [`useInfiniteLoading`](/template/hooks/use-infinite-loading-reference) -- Loading states for infinite scroll
+- [`useClientItems`](/template/hooks/use-client-items-reference) -- Client-side item fetching with loading states

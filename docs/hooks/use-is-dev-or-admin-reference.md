@@ -149,5 +149,5 @@ function ItemActions({ item }: { item: Item }) {
 
 ## Related Hooks
 
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- Fetches the current authenticated user
-- [`useRolePermissions`](/docs/template/hooks/use-role-permissions-reference) -- Checks granular role-based permissions
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- Fetches the current authenticated user
+- [`useRolePermissions`](/template/hooks/use-role-permissions-reference) -- Checks granular role-based permissions

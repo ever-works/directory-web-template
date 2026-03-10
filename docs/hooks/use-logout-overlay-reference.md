@@ -156,6 +156,6 @@ If `signOut` throws an error, the overlay is removed from the DOM and the error 
 
 ## Related Hooks
 
-- [`useLogout`](/docs/template/hooks/use-logout-reference) -- Simpler logout hook without the visual overlay
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- Fetches the authenticated user (often used alongside logout)
-- [`useProfileMenu`](/docs/template/hooks/use-profile-menu-reference) -- Profile menu state that commonly triggers logout
+- [`useLogout`](/template/hooks/use-logout-reference) -- Simpler logout hook without the visual overlay
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- Fetches the authenticated user (often used alongside logout)
+- [`useProfileMenu`](/template/hooks/use-profile-menu-reference) -- Profile menu state that commonly triggers logout

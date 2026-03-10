@@ -227,5 +227,5 @@ function DebugPanel() {
 
 ## Related Hooks
 
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- Similar TanStack Query pattern for user data
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Similar server-fetched config pattern
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- Similar TanStack Query pattern for user data
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Similar server-fetched config pattern

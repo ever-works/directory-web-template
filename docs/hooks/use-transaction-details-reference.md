@@ -284,7 +284,7 @@ function TransactionBadge({ sessionId }) {
 
 ## Related Hooks
 
-- [`useSuccessPageFeatures`](/docs/template/hooks/use-success-page-features-reference) -- Full success page logic that consumes transaction details
-- [`useBillingData`](/docs/template/hooks/use-billing-data-reference) -- Historical billing data
-- [`useSubscription`](/docs/template/hooks/use-subscription-reference) -- Active subscription state
-- [`useCheckout`](/docs/template/hooks/use-checkout-reference) -- Checkout session creation
+- [`useSuccessPageFeatures`](/template/hooks/use-success-page-features-reference) -- Full success page logic that consumes transaction details
+- [`useBillingData`](/template/hooks/use-billing-data-reference) -- Historical billing data
+- [`useSubscription`](/template/hooks/use-subscription-reference) -- Active subscription state
+- [`useCheckout`](/template/hooks/use-checkout-reference) -- Checkout session creation

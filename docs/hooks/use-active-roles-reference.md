@@ -247,6 +247,6 @@ The hook fetches from `GET /api/admin/roles/active`. The expected response forma
 
 ## Related Hooks
 
-- [`useAdminRoles`](/docs/template/hooks/use-admin-roles-reference) -- Full admin CRUD operations for roles
-- [`useRolePermissions`](/docs/template/hooks/use-role-permissions-reference) -- Checks permissions for the current user's role
-- [`useIsDevOrAdmin`](/docs/template/hooks/use-is-dev-or-admin-reference) -- Checks if the current user is a developer or admin
+- [`useAdminRoles`](/template/hooks/use-admin-roles-reference) -- Full admin CRUD operations for roles
+- [`useRolePermissions`](/template/hooks/use-role-permissions-reference) -- Checks permissions for the current user's role
+- [`useIsDevOrAdmin`](/template/hooks/use-is-dev-or-admin-reference) -- Checks if the current user is a developer or admin

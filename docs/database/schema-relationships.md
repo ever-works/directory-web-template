@@ -311,6 +311,6 @@ These are plain text columns without foreign key constraints.
 
 ## Related Documentation
 
-- [Schema Reference](/docs/template/database/schema-reference) -- Column-level schema docs
-- [Drizzle Patterns](/docs/template/database/drizzle-patterns) -- ORM usage patterns
-- [Migrations Guide](/docs/template/database/migrations-guide) -- Database migrations
+- [Schema Reference](/template/database/schema-reference) -- Column-level schema docs
+- [Drizzle Patterns](/template/database/drizzle-patterns) -- ORM usage patterns
+- [Migrations Guide](/template/database/migrations-guide) -- Database migrations

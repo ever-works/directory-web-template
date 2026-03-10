@@ -19,7 +19,7 @@ const config: Config = {
 				language: ['en', 'fr'],
 				highlightSearchTermsOnTargetPage: true,
 				explicitSearchResultPath: true,
-				docsRouteBasePath: 'docs',
+				docsRouteBasePath: '/',
 				docsDir: ['../../docs'],
 				docsPluginIdForPreferredVersion: 'template'
 			}
@@ -39,7 +39,7 @@ const config: Config = {
 			{
 				id: 'template',
 				path: '../../docs/',
-				routeBasePath: 'docs',
+				routeBasePath: '/',
 				sidebarPath: './sidebarsTemplate.ts',
 				include: [
 					'*.{md,mdx}',
@@ -166,15 +166,15 @@ const config: Config = {
 						items: [
 							{
 								label: 'Home',
-								to: '/docs'
+								to: '/'
 							},
 							{
 								label: 'Getting Started',
-								to: '/docs/getting-started/getting-started'
+								to: '/getting-started/getting-started'
 							},
 							{
 								label: 'Architecture',
-								to: '/docs/architecture/overview'
+								to: '/architecture/overview'
 							}
 						]
 					},

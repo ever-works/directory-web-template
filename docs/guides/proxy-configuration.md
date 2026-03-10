@@ -301,6 +301,6 @@ Incoming Request
 
 ## Related Resources
 
-- [Auth Config Reference](/docs/template/configuration/auth-config-reference) -- NextAuth provider setup
-- [Provider Configuration](/docs/template/configuration/provider-config) -- Choosing auth providers
-- [Security Configuration](/docs/template/configuration/security-config) -- Security headers and CSP
+- [Auth Config Reference](/template/configuration/auth-config-reference) -- NextAuth provider setup
+- [Provider Configuration](/template/configuration/provider-config) -- Choosing auth providers
+- [Security Configuration](/template/configuration/security-config) -- Security headers and CSP

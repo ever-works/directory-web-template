@@ -390,7 +390,7 @@ The defaults are chosen for backward compatibility -- if a setting is not config
 
 ## Related Resources
 
-- [Feature Configuration](/docs/template/configuration/feature-config) -- High-level feature flag documentation
-- [Config System](/docs/template/configuration/config-system) -- How the config manager works
-- [Map Configuration](/docs/template/configuration/map-config) -- Detailed map provider setup
-- [Sponsorship System](/docs/template/guides/sponsorship-system) -- Sponsor ad placement guide
+- [Feature Configuration](/template/configuration/feature-config) -- High-level feature flag documentation
+- [Config System](/template/configuration/config-system) -- How the config manager works
+- [Map Configuration](/template/configuration/map-config) -- Detailed map provider setup
+- [Sponsorship System](/template/guides/sponsorship-system) -- Sponsor ad placement guide

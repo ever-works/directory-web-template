@@ -159,7 +159,7 @@ function ItemDetailSidebar({ itemId }: { itemId: string }) {
 
 ## Related Hooks
 
-- [`useItemVote`](/docs/template/hooks/use-item-vote-reference) -- Voting system for items (complementary engagement metric)
-- [`useComments`](/docs/template/hooks/use-comments-reference) -- Comments that may include inline ratings
-- [`useFeatureFlags`](/docs/template/hooks/use-feature-flags-reference) -- Feature flag system that gates this hook
-- [`useItemEngagement`](/docs/template/hooks/use-item-engagement-reference) -- Broader engagement metrics (views, likes)
+- [`useItemVote`](/template/hooks/use-item-vote-reference) -- Voting system for items (complementary engagement metric)
+- [`useComments`](/template/hooks/use-comments-reference) -- Comments that may include inline ratings
+- [`useFeatureFlags`](/template/hooks/use-feature-flags-reference) -- Feature flag system that gates this hook
+- [`useItemEngagement`](/template/hooks/use-item-engagement-reference) -- Broader engagement metrics (views, likes)

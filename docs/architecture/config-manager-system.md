@@ -194,4 +194,4 @@ if (isFeatureEnabled('comments')) {
 
 - [Cache System](./cache-system) -- Uses `CACHE_TAGS.CONFIG` for configuration caching
 - [Guards System](./guards-system-deep-dive) -- Consumes plan/feature configuration
-- [Content Library](/docs/template/architecture/content-library) -- Content path resolution used by ConfigManager
+- [Content Library](/template/architecture/content-library) -- Content path resolution used by ConfigManager

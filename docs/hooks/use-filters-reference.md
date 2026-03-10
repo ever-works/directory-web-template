@@ -220,6 +220,6 @@ function ClearFiltersButton() {
 
 ## Related Hooks
 
-- [`useClientItemFilters`](/docs/template/hooks/filter-hooks) - Client-side item filtering logic
-- [`useAdminFilters`](/docs/template/hooks/admin-hooks) - Admin panel filter management
-- [`useDebouncedSearch`](/docs/template/hooks/search-hooks) - Debounced search input
+- [`useClientItemFilters`](/template/hooks/filter-hooks) - Client-side item filtering logic
+- [`useAdminFilters`](/template/hooks/admin-hooks) - Admin panel filter management
+- [`useDebouncedSearch`](/template/hooks/search-hooks) - Debounced search input

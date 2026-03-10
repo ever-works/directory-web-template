@@ -272,8 +272,8 @@ logger.error("Failed to create bookmark", error);
 
 ## Related Pages
 
-- [Architecture Overview](/docs/architecture) -- system layers and conventions
-- [How to Add a Database Table](/docs/guides/how-to-add-a-database-table) -- creating the schema your service operates on
-- [How to Add an API Endpoint](/docs/guides/how-to-add-an-api-endpoint) -- wiring your service to HTTP routes
-- [Repository Patterns](/docs/architecture/repository-patterns) -- data-access conventions
-- [Error Handling](/docs/guides/error-handling) -- global error-handling strategies
+- [Architecture Overview](/architecture) -- system layers and conventions
+- [How to Add a Database Table](/guides/how-to-add-a-database-table) -- creating the schema your service operates on
+- [How to Add an API Endpoint](/guides/how-to-add-an-api-endpoint) -- wiring your service to HTTP routes
+- [Repository Patterns](/architecture/repository-patterns) -- data-access conventions
+- [Error Handling](/guides/error-handling) -- global error-handling strategies

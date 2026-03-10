@@ -260,6 +260,6 @@ export async function getEngagementMetricsPerItem(
 
 ## Related Documentation
 
-- [Voting & Comments Feature](/docs/template/features/voting-comments) -- UI components
-- [Engagement Service](/docs/template/services/engagement-services) -- Full engagement metrics
-- [Comment Service](/docs/template/services/comment-service) -- Comment system
+- [Voting & Comments Feature](/template/features/voting-comments) -- UI components
+- [Engagement Service](/template/services/engagement-services) -- Full engagement metrics
+- [Comment Service](/template/services/comment-service) -- Comment system

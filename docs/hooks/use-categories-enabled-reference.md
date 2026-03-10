@@ -116,7 +116,7 @@ function CategoriesFilter() {
 
 ## Related Hooks
 
-- [`useCategoriesExists`](/docs/template/hooks/use-categories-exists-reference) -- Checks whether categories exist in the database
-- [`useCompaniesEnabled`](/docs/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
-- [`useTagsEnabled`](/docs/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled
-- [`useSurveysEnabled`](/docs/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled
+- [`useCategoriesExists`](/template/hooks/use-categories-exists-reference) -- Checks whether categories exist in the database
+- [`useCompaniesEnabled`](/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
+- [`useTagsEnabled`](/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled
+- [`useSurveysEnabled`](/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled

@@ -181,5 +181,5 @@ function SettingsLink() {
 
 ## Related Modules
 
-- [API Client Layer](/docs/template/architecture/api-client-layer) -- Makes the API calls consumed by query functions
+- [API Client Layer](/template/architecture/api-client-layer) -- Makes the API calls consumed by query functions
 - [Guards System](./guards-system-deep-dive) -- Plan-based access control that may depend on subscription data

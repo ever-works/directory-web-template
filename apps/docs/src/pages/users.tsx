@@ -41,7 +41,7 @@ function UserspageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--outline button--primary button--lg text-text--primary border--primary"
-            to="/docs"
+            to="/"
           >
             <Translate
               id="users.addCompany"

@@ -43,7 +43,7 @@ Stripe, LemonSqueezy, and Polar, all with subscription management support.
 
 ### How do I deploy the Template?
 
-The recommended deployment target is **Vercel** for zero-configuration Next.js hosting. Docker is also supported as an alternative. See the [Deployment Guide](/docs/deployment/deployment-introduction) for detailed instructions.
+The recommended deployment target is **Vercel** for zero-configuration Next.js hosting. Docker is also supported as an alternative. See the [Deployment Guide](/deployment/deployment-introduction) for detailed instructions.
 
 ### What database should I use?
 
@@ -63,4 +63,4 @@ Yes. You can create and edit YAML and Markdown files in the CMS data repository 
 
 ### Where can I get help?
 
-See the [Support page](/docs/support) for community channels, professional support options, and troubleshooting guides.
+See the [Support page](/support) for community channels, professional support options, and troubleshooting guides.

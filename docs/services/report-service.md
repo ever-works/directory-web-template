@@ -272,6 +272,6 @@ export type ReportWithReporter = Report & {
 
 ## Related Documentation
 
-- [Reports & Moderation Feature](/docs/template/features/reports-moderation) -- UI components
-- [Moderation Service](/docs/template/services/moderation-service) -- Moderation actions
-- [Comment Service](/docs/template/services/comment-service) -- Reportable comment content
+- [Reports & Moderation Feature](/template/features/reports-moderation) -- UI components
+- [Moderation Service](/template/services/moderation-service) -- Moderation actions
+- [Comment Service](/template/services/comment-service) -- Reportable comment content

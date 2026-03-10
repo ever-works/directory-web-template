@@ -126,5 +126,5 @@ function LogoutWithFeedback() {
 
 ## Related Hooks
 
-- [`useCurrentUser`](/docs/template/hooks/use-current-user-reference) -- Fetches the current user; cache is cleared by `useLogout`
-- [`useLoginModal`](/docs/template/hooks/use-login-modal-reference) -- Opens the login modal for re-authentication
+- [`useCurrentUser`](/template/hooks/use-current-user-reference) -- Fetches the current user; cache is cleared by `useLogout`
+- [`useLoginModal`](/template/hooks/use-login-modal-reference) -- Opens the login modal for re-authentication

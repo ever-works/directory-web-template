@@ -121,7 +121,7 @@ function GlobalSurveyPrompt() {
 
 ## Related Hooks
 
-- [`useHasGlobalSurveys`](/docs/template/hooks/use-has-global-surveys-reference) -- Checks whether published global surveys exist
-- [`useCategoriesEnabled`](/docs/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
-- [`useCompaniesEnabled`](/docs/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
-- [`useTagsEnabled`](/docs/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled
+- [`useHasGlobalSurveys`](/template/hooks/use-has-global-surveys-reference) -- Checks whether published global surveys exist
+- [`useCategoriesEnabled`](/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
+- [`useCompaniesEnabled`](/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
+- [`useTagsEnabled`](/template/hooks/use-tags-enabled-reference) -- Checks whether the tags feature is enabled

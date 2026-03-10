@@ -27,7 +27,7 @@ By the end of this module, you will:
 
 ### 1.1 Install Required Tools
 
-Follow the detailed [Installation Guide](/docs/getting-started/installation) to install:
+Follow the detailed [Installation Guide](/getting-started/installation) to install:
 
 - Node.js 20.19.0+
 - pnpm ([install](https://pnpm.io/installation))
@@ -48,7 +48,7 @@ pnpm install
 
 ### 1.3 Configure Environment Variables
 
-Follow the [Environment Setup Guide](/docs/getting-started/environment-setup) to configure your `apps/web/.env.local` file.
+Follow the [Environment Setup Guide](/getting-started/environment-setup) to configure your `apps/web/.env.local` file.
 
 **Quick checklist**:
 
@@ -123,7 +123,7 @@ Open your browser and verify:
 - [ ] No console errors in browser DevTools
 
 :::tip First Time Setup
-If you encounter issues, check the [Troubleshooting Guide](/docs/getting-started/installation#troubleshooting) or ask your mentor.
+If you encounter issues, check the [Troubleshooting Guide](/getting-started/installation#troubleshooting) or ask your mentor.
 :::
 
 ---
@@ -168,7 +168,7 @@ directory-web-template/                       # Turborepo monorepo root
 - `turbo.json` - Turborepo pipeline configuration
 - `pnpm-workspace.yaml` - Workspace package definitions
 
-[Learn more about the architecture →](/docs/architecture/overview)
+[Learn more about the architecture →](/architecture/overview)
 
 ---
 
@@ -243,7 +243,7 @@ Try this simple task to get familiar with the workflow:
 4. Test in Scalar UI
 5. Create a PR
 
-[See detailed exercise →](/docs/team-training/exercises#exercise-1-simple-get-route)
+[See detailed exercise →](/team-training/exercises#exercise-1-simple-get-route)
 
 ---
 
@@ -266,16 +266,16 @@ Before moving to the next module, ensure you have:
 
 Great job! You're ready to move on to:
 
-1. [API Documentation](/docs/team-training/api-documentation) - Learn the documentation system
-2. [Best Practices](/docs/team-training/best-practices) - Learn coding standards
-3. [Exercises](/docs/team-training/exercises) - Practice with real tasks
+1. [API Documentation](/team-training/api-documentation) - Learn the documentation system
+2. [Best Practices](/team-training/best-practices) - Learn coding standards
+3. [Exercises](/team-training/exercises) - Practice with real tasks
 
 ---
 
 ## Additional Resources
 
-- [Quick Reference](/docs/getting-started/quick-reference) - Essential commands and patterns
-- [Tech Stack](/docs/architecture/tech-stack) - Technologies used
-- [Testing Guide](/docs/development/testing) - How to write tests
+- [Quick Reference](/getting-started/quick-reference) - Essential commands and patterns
+- [Tech Stack](/architecture/tech-stack) - Technologies used
+- [Testing Guide](/development/testing) - How to write tests
 
 Need help? Ask your mentor or check the team Slack channel! 🚀

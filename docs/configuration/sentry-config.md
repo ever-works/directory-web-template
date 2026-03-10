@@ -224,6 +224,6 @@ SENTRY_DEBUG=true
 
 ## Related Resources
 
-- [Instrumentation Guide](/docs/template/guides/instrumentation) -- Full documentation of the instrumentation lifecycle
-- [Error Handling Patterns](/docs/template/guides/error-handler-patterns) -- How errors are structured and logged
-- [Environment Reference](/docs/template/configuration/environment-reference) -- All environment variables
+- [Instrumentation Guide](/template/guides/instrumentation) -- Full documentation of the instrumentation lifecycle
+- [Error Handling Patterns](/template/guides/error-handler-patterns) -- How errors are structured and logged
+- [Environment Reference](/template/configuration/environment-reference) -- All environment variables

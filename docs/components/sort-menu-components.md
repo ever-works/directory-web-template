@@ -108,5 +108,5 @@ const [sortBy, setSortBy] = useState("newest");
 
 ## Related Components
 
-- [Filter System](/docs/template/components/filter-system) - Sort menus are often used alongside filter components.
-- [Shared Card Components](/docs/template/components/shared-card-components) - Item listing that consumes sort state.
+- [Filter System](/template/components/filter-system) - Sort menus are often used alongside filter components.
+- [Shared Card Components](/template/components/shared-card-components) - Item listing that consumes sort state.

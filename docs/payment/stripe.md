@@ -293,8 +293,8 @@ Required packages (already included in Ever Works):
 ## Next Steps
 
 - [LemonSqueezy Configuration](./lemonsqueezy) - Alternative payment provider
-- [Environment Variables](/docs/deployment/environment-variables) - Complete environment setup
-- [Deployment](/docs/deployment) - Deploy your payment integration
+- [Environment Variables](/deployment/environment-variables) - Complete environment setup
+- [Deployment](/deployment) - Deploy your payment integration
 
 ## Resources
 
@@ -305,4 +305,4 @@ Required packages (already included in Ever Works):
 
 ## Support
 
-Need help with Stripe integration? Check our [support page](/docs/advanced-guide/support) or join our community.
+Need help with Stripe integration? Check our [support page](/advanced-guide/support) or join our community.

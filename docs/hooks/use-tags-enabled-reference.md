@@ -123,7 +123,7 @@ function TagCloud() {
 
 ## Related Hooks
 
-- [`useTagsExists`](/docs/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database
-- [`useCategoriesEnabled`](/docs/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
-- [`useCompaniesEnabled`](/docs/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
-- [`useSurveysEnabled`](/docs/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled
+- [`useTagsExists`](/template/hooks/use-tags-exists-reference) -- Checks whether tags exist in the database
+- [`useCategoriesEnabled`](/template/hooks/use-categories-enabled-reference) -- Checks whether the categories feature is enabled
+- [`useCompaniesEnabled`](/template/hooks/use-companies-enabled-reference) -- Checks whether the companies feature is enabled
+- [`useSurveysEnabled`](/template/hooks/use-surveys-enabled-reference) -- Checks whether the surveys feature is enabled

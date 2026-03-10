@@ -217,6 +217,6 @@ function ConditionalCompany({ itemSlug, showCompany }: { itemSlug: string; showC
 
 ## Related Hooks
 
-- [`useClientItemDetails`](/docs/template/hooks/use-client-item-details-reference) -- Item detail fetching (often displayed alongside company data)
-- [`useItemHistory`](/docs/template/hooks/use-item-history-reference) -- Audit history may include company assignment changes
-- [`useItemRating`](/docs/template/hooks/use-item-rating-reference) -- Another item-level data hook
+- [`useClientItemDetails`](/template/hooks/use-client-item-details-reference) -- Item detail fetching (often displayed alongside company data)
+- [`useItemHistory`](/template/hooks/use-item-history-reference) -- Audit history may include company assignment changes
+- [`useItemRating`](/template/hooks/use-item-rating-reference) -- Another item-level data hook

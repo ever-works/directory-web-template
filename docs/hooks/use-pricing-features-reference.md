@@ -195,5 +195,5 @@ function PlanActionButton({ planType, isLoggedIn }: {
 
 ## Related Hooks
 
-- [`useSuccessPageFeatures`](/docs/template/hooks/use-success-page-features-reference) -- Adds icons/colors to these features for success pages
-- [`usePricingSection`](/docs/template/hooks/use-pricing-section-reference) -- Consumes this hook for the full pricing section
+- [`useSuccessPageFeatures`](/template/hooks/use-success-page-features-reference) -- Adds icons/colors to these features for success pages
+- [`usePricingSection`](/template/hooks/use-pricing-section-reference) -- Consumes this hook for the full pricing section

@@ -255,14 +255,14 @@ The `NotificationService` provides methods for the full notification lifecycle:
 | Email not sending | Check that the email provider (Resend/Novu) is configured with valid API keys |
 | Too many notifications overwhelming admins | Use batching or summary notifications for high-frequency events |
 | Forgetting to stringify `data` | The `NotificationService.create()` method handles `JSON.stringify` internally |
-| Not cleaning up old notifications | Set up the cleanup cron job (see [How to Add a Cron Job](/docs/guides/how-to-add-a-cron-job)) |
+| Not cleaning up old notifications | Set up the cleanup cron job (see [How to Add a Cron Job](/guides/how-to-add-a-cron-job)) |
 
 ---
 
 ## Related Pages
 
-- [Email Templates](/docs/guides/email-templates) -- creating and customizing email templates
-- [How to Add a Service](/docs/guides/how-to-add-a-service) -- service architecture patterns
-- [How to Add a Webhook](/docs/guides/how-to-add-a-webhook) -- triggering notifications from webhook events
-- [How to Add a Cron Job](/docs/guides/how-to-add-a-cron-job) -- scheduling periodic notification cleanups
-- [Admin Dashboard](/docs/guides/admin-dashboard) -- where in-app notifications are displayed
+- [Email Templates](/guides/email-templates) -- creating and customizing email templates
+- [How to Add a Service](/guides/how-to-add-a-service) -- service architecture patterns
+- [How to Add a Webhook](/guides/how-to-add-a-webhook) -- triggering notifications from webhook events
+- [How to Add a Cron Job](/guides/how-to-add-a-cron-job) -- scheduling periodic notification cleanups
+- [Admin Dashboard](/guides/admin-dashboard) -- where in-app notifications are displayed

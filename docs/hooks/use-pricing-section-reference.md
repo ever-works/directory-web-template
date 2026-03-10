@@ -284,10 +284,10 @@ function PricingPage() {
 
 ## Related Hooks
 
-- [`usePricingFeatures`](/docs/template/hooks/use-pricing-features-reference) -- Plan feature lists consumed by this hook
-- [`useSuccessPageFeatures`](/docs/template/hooks/use-success-page-features-reference) -- Success page feature display
-- [`useSelectedCheckoutProvider`](/docs/template/hooks/use-selected-checkout-provider-reference) -- Provider selection used by this hook
-- [`useCheckout`](/docs/template/hooks/use-checkout-reference) -- Lower-level checkout session management
-- [`usePaymentAvailability`](/docs/template/hooks/use-payment-availability-reference) -- Determines if paid plans are available
-- [`useSubscription`](/docs/template/hooks/use-subscription-reference) -- Subscription lifecycle management
-- [`useCurrency`](/docs/template/hooks/use-currency-reference) -- Currency selection and formatting
+- [`usePricingFeatures`](/template/hooks/use-pricing-features-reference) -- Plan feature lists consumed by this hook
+- [`useSuccessPageFeatures`](/template/hooks/use-success-page-features-reference) -- Success page feature display
+- [`useSelectedCheckoutProvider`](/template/hooks/use-selected-checkout-provider-reference) -- Provider selection used by this hook
+- [`useCheckout`](/template/hooks/use-checkout-reference) -- Lower-level checkout session management
+- [`usePaymentAvailability`](/template/hooks/use-payment-availability-reference) -- Determines if paid plans are available
+- [`useSubscription`](/template/hooks/use-subscription-reference) -- Subscription lifecycle management
+- [`useCurrency`](/template/hooks/use-currency-reference) -- Currency selection and formatting

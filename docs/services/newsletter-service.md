@@ -331,6 +331,6 @@ The provider is determined from the app config `mail.provider` field and falls b
 
 ## Related Documentation
 
-- [Mail System](/docs/template/services/mail-system) -- Email service integration
-- [Mail Providers](/docs/template/services/mail-providers) -- Provider configuration
-- [Newsletter Feature](/docs/template/features/newsletter) -- UI components
+- [Mail System](/template/services/mail-system) -- Email service integration
+- [Mail Providers](/template/services/mail-providers) -- Provider configuration
+- [Newsletter Feature](/template/features/newsletter) -- UI components

@@ -250,4 +250,4 @@ const css = generateThemeCss('everworks');
 ## Related Modules
 
 - [Color Generator System](./color-generator-system) -- Mathematical foundation for palette generation
-- [Color System](/docs/template/architecture/color-system) -- Higher-level color system overview
+- [Color System](/template/architecture/color-system) -- Higher-level color system overview
