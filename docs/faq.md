@@ -8,9 +8,9 @@ sidebar_label: FAQ
 
 ## General
 
-### What is the Ever Works Website Template?
+### What is the Directory Web Template?
 
-The Ever Works Website Template is a production-ready, full-stack directory website solution built with Next.js, React, TypeScript, and Tailwind CSS. You can clone, customize, and deploy it to create professional directory websites.
+The Directory Web Template is a production-ready, full-stack directory website solution built with Next.js, React, TypeScript, and Tailwind CSS. You can clone, customize, and deploy it to create professional directory websites.
 
 ### Can I use the Template without the Ever Works Platform?
 

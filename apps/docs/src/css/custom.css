@@ -284,7 +284,6 @@ h6 {
 }
 a {
   text-decoration: dotted;
-  color: rgb(103, 85, 201);
 }
 .navbar__inner {
   margin: 0 auto;
@@ -343,10 +342,10 @@ footer .widget a:hover {
   color: #0d002d;
 }
 .footer.footer--dark {
-  background-color: white !important;
+  background-color: #f8f9fa !important;
 }
 [data-theme="dark"] .footer.footer--dark {
-  background-color: black !important;
+  background-color: #000 !important;
 }
 
 /* Custom Footer Styles */
@@ -405,19 +404,27 @@ footer .widget a:hover {
   margin-bottom: 0 !important;
 }
 
-.footer a {
+/* Reset footer list padding */
+footer ul,
+footer ol {
+  padding-left: 0 !important;
+  margin: 0 !important;
+  list-style: none;
+}
+
+footer a {
   color: #4b5563;
   transition: color 0.3s ease;
   text-decoration: none;
 }
-.footer a:hover {
+footer a:hover {
   color: #1f2937;
 }
-[data-theme="dark"] .footer a {
-  color: #9ca3af;
+[data-theme="dark"] footer a {
+  color: #9CA3AF;
 }
-[data-theme="dark"] .footer a:hover {
-  color: #e5e7eb;
+[data-theme="dark"] footer a:hover {
+  color: #d1d5db;
 }
 .markdown {
   --ifm-font-color-base: #111;
@@ -456,7 +463,7 @@ p {
   border-radius: 32px;
 }
 [data-theme="dark"] p {
-  color: #fff;
+  color: #fff9;
 }
 
 .navbar__logo {
@@ -488,16 +495,17 @@ img {
   --ifm-navbar-padding-vertical: 0;
   --ifm-navbar-padding-horizontal: 0;
   --ifm-navbar-border: none;
-  --ifm-navbar-height: 4rem;
+  --ifm-navbar-height: 3.5rem;
   box-shadow: none;
-  /* Reset Docusaurus defaults that break custom layout */
-  position: fixed !important;
+  background-color: #fff !important;
+  position: sticky !important;
   top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
   width: 100% !important;
   height: auto !important;
-  min-height: 4rem;
+  min-height: 3.5rem;
+}
+[data-theme="dark"] .navbar {
+  background-color: #000 !important;
 }
 
 /* Hide the default navbar inner content - we use custom layout */
@@ -587,9 +595,15 @@ img {
 #__docusaurus {
   background-color: #fff;
 }
-.docs-wrapper footer.footer,
+[data-theme="dark"] #__docusaurus {
+  background-color: #000;
+}
+.docs-wrapper footer.footer {
+  background-color: #f8f9fa !important;
+}
+[data-theme="dark"] .docs-wrapper footer.footer,
 [data-theme="dark"] .footer.footer--dark {
-  background-color: transparent !important;
+  background-color: #000 !important;
 }
 
 .docs-wrapper footer.footer .footer__copyright {
@@ -625,9 +639,7 @@ img {
   margin-top: auto;
   margin-top: 1.5rem;
 }
-[data-theme="dark"] #__docusaurus {
-  background-color: rgb(9, 0, 20);
-}
+/* dark #__docusaurus bg set above */
 
 .container.padding-top--md.padding-bottom--lg,
 .menu {
@@ -642,7 +654,7 @@ img {
   justify-content: flex-start;
   width: 100%;
   flex: 1;
-  max-width: 1664px;
+  max-width: 1400px;
   margin-inline: auto;
 }
 
@@ -653,19 +665,19 @@ img {
 .navbar__inner {
   margin: 0 auto;
   padding: 0 var(--ifm-spacing-horizontal);
-  max-width: 92rem;
+  max-width: 1400px;
   width: 100%;
 }
 #__docusaurus_skipToContent_fallback {
   margin-inline: auto;
   margin-top: 1.5rem;
   padding: 0 var(--ifm-spacing-horizontal);
-  max-width: 92rem;
+  max-width: 1400px;
   width: 100%;
 }
 @media only screen and (min-width: 1280px) {
   :root {
-    --ifm-container-width: 1664px;
+    --ifm-container-width: 1400px;
   }
   .navbar__inner {
     max-width: var(--ifm-container-width);
@@ -675,10 +687,10 @@ img {
 
 .aa-DetachedSearchButton,
 .navbar__search-input {
-  --search-input-bg: #ffffff;
-  --search-color: #9099ae;
+  --search-input-bg: #f3f4f6;
+  --search-color: #6b7280;
   background-color: var(--search-input-bg) !important;
-  border: 1px solid rgba(128, 126, 163, 0.2) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
   padding-block: 1.4rem !important;
   border-radius: 0.5rem !important;
   color: var(--search-color) !important;
@@ -688,6 +700,25 @@ img {
 [data-theme="dark"] .navbar__search-input {
   --search-color: #a3adc2;
   --search-input-bg: #303450;
+  border-color: rgba(128, 126, 163, 0.2) !important;
+}
+
+/* DocSearch theme overrides for light mode */
+:root {
+  --docsearch-primary-color: #6366f1;
+  --docsearch-text-color: #1c1e21;
+  --docsearch-muted-color: #6b7280;
+  --docsearch-searchbox-background: #f3f4f6;
+  --docsearch-key-gradient: linear-gradient(-225deg, #e5e7eb, #d1d5db);
+  --docsearch-key-shadow: inset 0 -2px 0 0 #d1d5db, inset 0 0 1px 1px #fff, 0 1px 2px 1px rgba(30, 35, 90, 0.1);
+}
+[data-theme="dark"] {
+  --docsearch-primary-color: #818cf8;
+  --docsearch-text-color: #e5e7eb;
+  --docsearch-muted-color: #a3adc2;
+  --docsearch-searchbox-background: #303450;
+  --docsearch-key-gradient: linear-gradient(-225deg, #444950, #1c1e21);
+  --docsearch-key-shadow: inset 0 -2px 0 0 #282d33, inset 0 0 1px 1px #51555d, 0 1px 2px 1px rgba(0, 0, 0, 0.3);
 }
 .aa-DetachedSearchButton svg {
   fill: currentColor !important;
@@ -739,8 +770,9 @@ img {
   border-right: var(--ifm-navbar-border);
 }
 [data-theme="dark"] .theme-doc-sidebar-container {
-  --ifm-navbar-border: 1px solid rgb(48 52 80);
+  --ifm-navbar-border: 1px solid rgba(255, 255, 255, 0.06);
   border-right: var(--ifm-navbar-border);
+  background-color: #000;
 }
 
 .pagination-nav__link {
@@ -756,23 +788,23 @@ img {
 .menu__link {
   background-color: var(--menu-bg-color);
   transition-duration: 0.3s;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   transition-property:
     color, background-color, border-color, text-decoration-color, fill, stroke;
-  padding: 0.6rem;
+  padding: 0.4rem;
   color: var(--menu-link-color);
-  min-height: 40px;
+  min-height: 32px;
 
   line-height: 1.25rem;
-  padding-left: 1rem !important;
-  padding-right: 0.75rem !important;
-  padding-block: 0.375rem !important;
-  border-radius: 0.5rem !important;
+  padding-left: 0.75rem !important;
+  padding-right: 0.5rem !important;
+  padding-block: 0.25rem !important;
+  border-radius: 0.375rem !important;
   display: flex;
   align-items: center;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 400;
 }
 .menu__link.menu__link--active {
   --menu-bg-color: rgb(230, 247, 255);
@@ -818,9 +850,9 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
+  width: 1.5rem;
   height: 100%;
-  margin-top: 0.7rem;
+  margin-top: 0.25rem;
 }
 
 .menu__caret:hover {
@@ -828,7 +860,7 @@ img {
 }
 
 .menu__caret::before {
-  background-size: 1.5rem 1rem;
+  background-size: 1.25rem 0.875rem;
 }
 
 .header-github-link:hover {
@@ -925,7 +957,7 @@ html[data-theme="dark"] .card {
 
 /* Adjust page content when using custom fixed navbar */
 .main-wrapper {
-  padding-top: 5rem;
+  padding-top: 0;
 }
 
 /* Animation keyframes for mobile menu */

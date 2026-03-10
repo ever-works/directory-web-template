@@ -6,7 +6,7 @@ sidebar_label: Changelog
 
 # Changelog & Versioning
 
-This page explains how the Ever Works Website Template manages versioning, releases, and upgrade paths.
+This page explains how the Directory Web Template manages versioning, releases, and upgrade paths.
 
 ## Semantic Versioning
 

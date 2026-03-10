@@ -6,7 +6,7 @@ sidebar_label: Support
 
 # Support & Help
 
-Welcome to the Ever Works Website Template support center.
+Welcome to the Directory Web Template support center.
 
 ## Getting Help
 

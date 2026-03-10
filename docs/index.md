@@ -1,14 +1,14 @@
 ---
 id: index
-title: Ever Works Website Template
+title: Directory Web Template
 sidebar_label: Home
 sidebar_position: 0
 slug: /
 ---
 
-# Ever Works Website Template
+# Directory Web Template
 
-The Ever Works Website Template is a modern, full-stack directory website solution built with Next.js 16 and organized as a **Turborepo monorepo**. It's designed to help you create professional directory websites for tools, services, products, or any other type of listing platform.
+The Directory Web Template is a modern, full-stack directory website solution built with Next.js 16 and organized as a **Turborepo monorepo**. It's designed to help you create professional directory websites for tools, services, products, or any other type of listing platform.
 
 ## Key Features
 

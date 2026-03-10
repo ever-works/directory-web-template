@@ -930,7 +930,7 @@
 		"DOCUMENTATION": "Documentation",
 		"DOCUMENTATION_DESC": "Comprehensive guides and API reference for building directories",
 		"DOCS_PAGE_TITLE": "API Documentation",
-		"DOCS_PAGE_DESCRIPTION": "Interactive API documentation for the Ever Works website template",
+		"DOCS_PAGE_DESCRIPTION": "Interactive API documentation for the Directory Web Template",
 		"COMMUNITY": "Community",
 		"COMMUNITY_DESC": "Join our Discord community for support and discussions",
 		"EMAIL_SUPPORT": "Email Support",
@@ -1356,7 +1356,7 @@
 	},
 	"page": {
 		"documentation": {
-			"DOCS_PAGE_DESCRIPTION": "Explore and test the Ever Works website template APIs. This interactive documentation allows you to understand and try out all available endpoints.",
+			"DOCS_PAGE_DESCRIPTION": "Explore and test the Directory Web Template APIs. This interactive documentation allows you to understand and try out all available endpoints.",
 			"DOCS_PAGE_FOOTER_LINE_1": "This documentation is automatically generated from our OpenAPI specification.",
 			"DOCS_PAGE_FOOTER_LINE_2": "For questions or support, please contact the Ever Works team."
 		}

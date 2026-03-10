@@ -6,7 +6,7 @@ sidebar_label: Glossary
 
 # Glossary of Terms
 
-Key terms and concepts used throughout the Ever Works Website Template documentation.
+Key terms and concepts used throughout the Directory Web Template documentation.
 
 ## Core Domain Concepts
 

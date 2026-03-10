@@ -754,7 +754,7 @@ const sidebars: SidebarsConfig = {
       type: "category",
       label: "Team Training",
       items: [
-        "team-training/team-training-overview",
+        "team-training/team-training",
         "team-training/onboarding",
         "team-training/api-documentation",
         "team-training/best-practices",

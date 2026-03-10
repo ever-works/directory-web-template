@@ -14,9 +14,9 @@ The **Ever Works Platform** is the backend infrastructure for building and manag
 
 For full Platform documentation, visit [docs.ever.works](https://docs.ever.works).
 
-## Ever Works Website Template
+## Directory Web Template
 
-The **Ever Works Website Template** (this project) is a production-ready, full-stack directory website that you can clone, customize, and deploy as a standalone application.
+The **Directory Web Template** (this project) is a production-ready, full-stack directory website that you can clone, customize, and deploy as a standalone application.
 
 ### What It Does
 
@@ -43,19 +43,19 @@ The **Ever Works Website Template** (this project) is a production-ready, full-s
 
 ## Side-by-Side Comparison
 
-| Aspect | Platform | Template |
-|---|---|---|
-| **Purpose** | Backend infrastructure and AI pipeline | Frontend directory website |
-| **Architecture** | Monorepo (Turborepo + pnpm) | Standalone Next.js application |
-| **Backend** | NestJS 11 API | Next.js API routes |
-| **Database ORM** | TypeORM | Drizzle ORM |
-| **Authentication** | JWT + OAuth (NestJS Guards) | NextAuth.js v5 + Supabase Auth |
-| **Payments** | Not included | Stripe, LemonSqueezy, Polar |
-| **AI Features** | LangChain agents, 7 LLM providers | None (consumes AI-generated content) |
-| **Content** | Generates content via AI pipelines | Reads content from Git-based CMS |
-| **Deployment** | Docker on any VPS | Vercel (or Docker) |
-| **Testing** | Jest + Vitest | Playwright |
-| **Audience** | Platform operators, AI developers | Website builders, directory creators |
+| Aspect             | Platform                               | Template                             |
+| ------------------ | -------------------------------------- | ------------------------------------ |
+| **Purpose**        | Backend infrastructure and AI pipeline | Frontend directory website           |
+| **Architecture**   | Monorepo (Turborepo + pnpm)            | Standalone Next.js application       |
+| **Backend**        | NestJS 11 API                          | Next.js API routes                   |
+| **Database ORM**   | TypeORM                                | Drizzle ORM                          |
+| **Authentication** | JWT + OAuth (NestJS Guards)            | NextAuth.js v5 + Supabase Auth       |
+| **Payments**       | Not included                           | Stripe, LemonSqueezy, Polar          |
+| **AI Features**    | LangChain agents, 7 LLM providers      | None (consumes AI-generated content) |
+| **Content**        | Generates content via AI pipelines     | Reads content from Git-based CMS     |
+| **Deployment**     | Docker on any VPS                      | Vercel (or Docker)                   |
+| **Testing**        | Jest + Vitest                          | Playwright                           |
+| **Audience**       | Platform operators, AI developers      | Website builders, directory creators |
 
 ## How They Connect
 

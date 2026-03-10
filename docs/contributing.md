@@ -6,7 +6,7 @@ sidebar_label: Contributing
 
 # Contributing Guide
 
-Thank you for your interest in contributing to the Ever Works Website Template. This guide covers everything you need to know to make meaningful contributions.
+Thank you for your interest in contributing to the Directory Web Template. This guide covers everything you need to know to make meaningful contributions.
 
 ## Repository
 
@@ -167,7 +167,7 @@ If your changes touch existing functionality, ensure all related tests pass. If 
 
 ## License
 
-The Ever Works Website Template is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. By submitting a contribution, you agree that your work will be licensed under the same license.
+The Directory Web Template is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0)**. By submitting a contribution, you agree that your work will be licensed under the same license.
 
 ## Code of Conduct
 

@@ -25,7 +25,7 @@ const swaggerOptions = {
 		info: {
 			title: 'Ever Works API',
 			version: '1.0.0',
-			description: 'Comprehensive API documentation for Ever Works website template',
+			description: 'Comprehensive API documentation for Directory Web Template',
 			contact: {
 				name: 'Ever Works Team',
 				url: 'https://ever.works'

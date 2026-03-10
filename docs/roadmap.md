@@ -6,11 +6,11 @@ sidebar_label: Roadmap
 
 # Roadmap & Future Direction
 
-This page outlines the current development direction for the Ever Works Website Template and how the community can participate in shaping its future.
+This page outlines the current development direction for the Directory Web Template and how the community can participate in shaping its future.
 
 ## Product Vision
 
-The Ever Works Website Template aims to be the most comprehensive open-source solution for building professional directory websites. The long-term vision encompasses:
+The Directory Web Template aims to be the most comprehensive open-source solution for building professional directory websites. The long-term vision encompasses:
 
 - **Production-grade directory websites** that are beautiful, performant, and fully customizable
 - **Easy content management** through the Git-based CMS with optional AI-powered content generation via the [Ever Works Platform](https://docs.ever.works)

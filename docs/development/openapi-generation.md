@@ -1,7 +1,7 @@
 ---
 id: openapi-generation
-title: "OpenAPI Generation"
-sidebar_label: "OpenAPI Generation"
+title: 'OpenAPI Generation'
+sidebar_label: 'OpenAPI Generation'
 sidebar_position: 9
 ---
 
@@ -39,43 +39,37 @@ The generator uses `swagger-jsdoc` with the following base configuration:
 
 ```typescript
 const swaggerOptions = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Ever Works API',
-      version: '1.0.0',
-      description: 'Comprehensive API documentation for Ever Works website template',
-      contact: {
-        name: 'Ever Works Team',
-        url: 'https://ever.works'
-      }
-    },
-    servers: [
-      { url: '/', description: 'Current Environment' }
-    ],
-    components: {
-      securitySchemes: {
-        sessionAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-        session: { type: 'apiKey', in: 'cookie', name: 'session_token' },
-        cronSecret: { type: 'http', scheme: 'bearer', bearerFormat: 'Secret' }
-      }
-    }
-  },
-  apis: [
-    './app/api/**/route.ts',
-    './app/api/**/*.ts',
-    './lib/types/**/*.ts'
-  ]
+	definition: {
+		openapi: '3.0.0',
+		info: {
+			title: 'Ever Works API',
+			version: '1.0.0',
+			description: 'Comprehensive API documentation for Directory Web Template',
+			contact: {
+				name: 'Ever Works Team',
+				url: 'https://ever.works'
+			}
+		},
+		servers: [{ url: '/', description: 'Current Environment' }],
+		components: {
+			securitySchemes: {
+				sessionAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+				session: { type: 'apiKey', in: 'cookie', name: 'session_token' },
+				cronSecret: { type: 'http', scheme: 'bearer', bearerFormat: 'Secret' }
+			}
+		}
+	},
+	apis: ['./app/api/**/route.ts', './app/api/**/*.ts', './lib/types/**/*.ts']
 };
 ```
 
 ## Security Schemes
 
-| Scheme | Type | Usage |
-|---|---|---|
-| `sessionAuth` | Bearer JWT | Authenticated user endpoints |
-| `session` | Cookie (`session_token`) | Browser session authentication |
-| `cronSecret` | Bearer Secret | Cron job endpoints |
+| Scheme        | Type                     | Usage                          |
+| ------------- | ------------------------ | ------------------------------ |
+| `sessionAuth` | Bearer JWT               | Authenticated user endpoints   |
+| `session`     | Cookie (`session_token`) | Browser session authentication |
+| `cronSecret`  | Bearer Secret            | Cron job endpoints             |
 
 ## Built-in Component Schemas
 
@@ -85,12 +79,12 @@ The generator provides these reusable schemas out of the box:
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "success": { "type": "boolean", "example": false },
-    "error": { "type": "string", "example": "Error message" }
-  },
-  "required": ["success", "error"]
+	"type": "object",
+	"properties": {
+		"success": { "type": "boolean", "example": false },
+		"error": { "type": "string", "example": "Error message" }
+	},
+	"required": ["success", "error"]
 }
 ```
 
@@ -98,13 +92,13 @@ The generator provides these reusable schemas out of the box:
 
 ```json
 {
-  "type": "object",
-  "properties": {
-    "page": { "type": "integer", "example": 1 },
-    "pageSize": { "type": "integer", "example": 20 },
-    "total": { "type": "integer", "example": 150 },
-    "totalPages": { "type": "integer", "example": 8 }
-  }
+	"type": "object",
+	"properties": {
+		"page": { "type": "integer", "example": 1 },
+		"pageSize": { "type": "integer", "example": 20 },
+		"total": { "type": "integer", "example": 150 },
+		"totalPages": { "type": "integer", "example": 8 }
+	}
 }
 ```
 
@@ -151,7 +145,7 @@ Add `@swagger` JSDoc comments directly above or inside your route files:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
 export async function GET(request: Request) {
-  // handler implementation
+	// handler implementation
 }
 ```
 
@@ -194,10 +188,10 @@ flowchart TD
 
 A route is considered to have "detailed documentation" if it meets at least 2 of these 3 criteria:
 
-| Criterion | Threshold |
-|---|---|
-| Long description | More than 50 characters |
-| Response examples | Contains `example` or `examples` in responses |
+| Criterion           | Threshold                                        |
+| ------------------- | ------------------------------------------------ |
+| Long description    | More than 50 characters                          |
+| Response examples   | Contains `example` or `examples` in responses    |
 | Detailed parameters | Parameters have both `description` and `example` |
 
 ### Merge Priority Rules
@@ -222,11 +216,7 @@ Before each generation run:
 The `lib/swagger/annotations.ts` module provides TypeScript helpers for programmatic annotation generation:
 
 ```typescript
-import {
-  createSwaggerAnnotation,
-  createAdminRouteAnnotation,
-  CommonAnnotations
-} from '@/lib/swagger/annotations';
+import { createSwaggerAnnotation, createAdminRouteAnnotation, CommonAnnotations } from '@/lib/swagger/annotations';
 
 // Use common pagination parameters
 const paginationParams = CommonAnnotations.paginationParameters;
@@ -235,40 +225,36 @@ const paginationParams = CommonAnnotations.paginationParameters;
 const errorResponses = CommonAnnotations.responses;
 
 // Create admin route annotation programmatically
-const annotation = createAdminRouteAnnotation(
-  '/api/admin/users',
-  'GET',
-  {
-    tags: ['Admin'],
-    summary: 'List all users',
-    description: 'Returns paginated list of users for admin dashboard',
-    parameters: paginationParams,
-    responses: {
-      '200': { description: 'User list returned successfully' },
-      '401': errorResponses.unauthorized,
-      '403': errorResponses.forbidden,
-      '500': errorResponses.serverError
-    }
-  }
-);
+const annotation = createAdminRouteAnnotation('/api/admin/users', 'GET', {
+	tags: ['Admin'],
+	summary: 'List all users',
+	description: 'Returns paginated list of users for admin dashboard',
+	parameters: paginationParams,
+	responses: {
+		'200': { description: 'User list returned successfully' },
+		'401': errorResponses.unauthorized,
+		'403': errorResponses.forbidden,
+		'500': errorResponses.serverError
+	}
+});
 ```
 
 ## File Scanning Paths
 
 The generator scans these paths for annotations:
 
-| Path Pattern | Purpose |
-|---|---|
-| `./app/api/**/route.ts` | API route handlers |
-| `./app/api/**/*.ts` | Supporting API files |
-| `./lib/types/**/*.ts` | TypeScript type/schema definitions |
+| Path Pattern            | Purpose                            |
+| ----------------------- | ---------------------------------- |
+| `./app/api/**/route.ts` | API route handlers                 |
+| `./app/api/**/*.ts`     | Supporting API files               |
+| `./lib/types/**/*.ts`   | TypeScript type/schema definitions |
 
 ## Troubleshooting
 
-| Issue | Solution |
-|---|---|
-| Annotations not detected | Verify `@swagger` tag is in a JSDoc comment (`/** */`) |
-| Schema references broken | Check `$ref` paths match defined component schemas |
-| Silent mode on local | Remove `--silent` flag or unset CI env vars |
-| Backup not created | Ensure `public/openapi.json` exists before first run |
-| Merge conflicts | Delete `openapi.json` and regenerate from annotations only |
+| Issue                    | Solution                                                   |
+| ------------------------ | ---------------------------------------------------------- |
+| Annotations not detected | Verify `@swagger` tag is in a JSDoc comment (`/** */`)     |
+| Schema references broken | Check `$ref` paths match defined component schemas         |
+| Silent mode on local     | Remove `--silent` flag or unset CI env vars                |
+| Backup not created       | Ensure `public/openapi.json` exists before first run       |
+| Merge conflicts          | Delete `openapi.json` and regenerate from annotations only |
