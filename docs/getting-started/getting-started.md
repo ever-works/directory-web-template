@@ -7,7 +7,7 @@ sidebar_position: 0
 
 # Getting Started with the Template
 
-Welcome to the Ever Works Directory Website Template. This section walks you through every step required to go from a fresh clone to a running application -- locally and in production.
+Welcome to the Ever Works Directory Web Template. This section walks you through every step required to go from a fresh clone to a running application -- locally and in production.
 
 ## What Is the Ever Works Template?
 
@@ -15,15 +15,15 @@ The Ever Works template is a full-featured **Next.js directory website** organiz
 
 Key facts from the project manifest:
 
-| Detail | Value |
-|---|---|
-| **Package name** | `ever-works-website-template` (monorepo root) |
-| **License** | AGPL-3.0 |
-| **Node.js requirement** | >= 20.19.0 |
-| **Package manager** | pnpm with Turborepo (lockfile: `pnpm-lock.yaml`) |
-| **Framework** | Next.js 16 with React 19 |
-| **Database ORM** | Drizzle ORM with PostgreSQL (or SQLite for local dev) |
-| **Authentication** | NextAuth.js v5 (beta) with multiple providers |
+| Detail                  | Value                                                 |
+| ----------------------- | ----------------------------------------------------- |
+| **Package name**        | `directory-web-template` (monorepo root)              |
+| **License**             | AGPL-3.0                                              |
+| **Node.js requirement** | >= 20.19.0                                            |
+| **Package manager**     | pnpm with Turborepo (lockfile: `pnpm-lock.yaml`)      |
+| **Framework**           | Next.js 16 with React 19                              |
+| **Database ORM**        | Drizzle ORM with PostgreSQL (or SQLite for local dev) |
+| **Authentication**      | NextAuth.js v5 (beta) with multiple providers         |
 
 ## What You Will Learn
 

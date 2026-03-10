@@ -1,15 +1,15 @@
 {
 	"name": "@ever-works/web",
 	"version": "0.1.0",
-	"description": "Ever Works Directory Website Template",
+	"description": "Ever Works Directory Web Template",
 	"license": "AGPL-3.0",
 	"homepage": "https://ever.works",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/ever-works/ever-works-website-template.git"
+		"url": "https://github.com/ever-works/directory-web-template.git"
 	},
 	"bugs": {
-		"url": "https://github.com/ever-works/ever-works-website-template/issues"
+		"url": "https://github.com/ever-works/directory-web-template/issues"
 	},
 	"private": true,
 	"author": {

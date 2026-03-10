@@ -24,8 +24,8 @@ Le Modèle de site Ever Works est une solution de site web d'annuaire moderne et
 
 ```bash
 # Cloner le dépôt
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 
 # Installer les dépendances
 npm install

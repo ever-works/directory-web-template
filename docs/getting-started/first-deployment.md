@@ -38,6 +38,7 @@ vercel
 ```
 
 Follow the prompts:
+
 - Link to existing project? **No**
 - Project name: `your-project-name`
 - Directory: `./` (current directory)
@@ -52,6 +53,7 @@ In the Vercel dashboard:
 3. Set different values for Production, Preview, and Development
 
 **Critical Production Variables:**
+
 ```bash
 NODE_ENV=production
 NEXTAUTH_URL=https://your-domain.vercel.app
@@ -110,8 +112,8 @@ railway up
 
 1. Connect your GitHub repository
 2. Configure build settings:
-   - Build command: `npm run build`
-   - Run command: `npm start`
+    - Build command: `npm run build`
+    - Run command: `npm start`
 3. Set environment variables
 4. Deploy
 
@@ -148,9 +150,9 @@ npm run db:seed
 1. Go to project → Settings → Domains
 2. Add your domain
 3. Configure DNS records:
-   - Type: `CNAME`
-   - Name: `@` (or subdirectory)
-   - Value: `cname.vercel-dns.com`
+    - Type: `CNAME`
+    - Name: `@` (or subdirectory)
+    - Value: `cname.vercel-dns.com`
 
 ### SSL Certificate
 
@@ -161,43 +163,51 @@ SSL is automatically provided by most platforms. Verify HTTPS is working.
 Update your OAuth applications with production URLs:
 
 ### Google OAuth
+
 - Authorized JavaScript origins: `https://yourdomain.com`
 - Authorized redirect URIs: `https://yourdomain.com/api/auth/callback/google`
 
 ### GitHub OAuth
+
 - Homepage URL: `https://yourdomain.com`
 - Authorization callback URL: `https://yourdomain.com/api/auth/callback/github`
 
 ### Stripe Webhooks
+
 - Endpoint URL: `https://yourdomain.com/api/stripe/webhook`
 - Events: `checkout.session.completed`, `invoice.payment_succeeded`
 
 ## Post-Deployment Verification
 
 ### 1. Basic Functionality
+
 - [ ] Homepage loads correctly
 - [ ] Items display properly
 - [ ] Search and filtering work
 - [ ] Navigation functions
 
 ### 2. Authentication
+
 - [ ] Sign in with configured providers
 - [ ] User profiles are created
 - [ ] Sessions persist correctly
 - [ ] Sign out works
 
 ### 3. Content Management
+
 - [ ] Content syncs from Git repository
 - [ ] New submissions create pull requests
 - [ ] Admin panel accessible (if configured)
 
 ### 4. Payment Processing (if configured)
+
 - [ ] Checkout flow works
 - [ ] Webhooks receive events
 - [ ] Subscriptions are created
 - [ ] Customer portal accessible
 
 ### 5. Performance
+
 - [ ] Page load times < 3 seconds
 - [ ] Images load properly
 - [ ] No console errors
@@ -217,6 +227,7 @@ curl -X POST https://yourdomain.com/api/test-error
 ### 2. Analytics
 
 Verify PostHog is tracking events:
+
 - Check PostHog dashboard for page views
 - Test custom events
 - Verify user identification
@@ -224,6 +235,7 @@ Verify PostHog is tracking events:
 ### 3. Uptime Monitoring
 
 Set up monitoring with:
+
 - [UptimeRobot](https://uptimerobot.com)
 - [Pingdom](https://pingdom.com)
 - [StatusCake](https://statuscake.com)
@@ -237,25 +249,26 @@ Ensure these headers are set:
 ```javascript
 // next.config.js
 module.exports = {
-  async headers() {
-    return [
-      {
-        source: '/api/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=300, stale-while-revalidate=60'
-          }
-        ]
-      }
-    ]
-  }
-}
+	async headers() {
+		return [
+			{
+				source: '/api/:path*',
+				headers: [
+					{
+						key: 'Cache-Control',
+						value: 'public, max-age=300, stale-while-revalidate=60'
+					}
+				]
+			}
+		];
+	}
+};
 ```
 
 ### 2. Image Optimization
 
 Verify Next.js image optimization is working:
+
 - Images are served in WebP format
 - Proper sizing for different devices
 - Lazy loading is enabled
@@ -284,6 +297,7 @@ npm run analyze
 ### 1. Database Backups
 
 Set up automated backups:
+
 - Daily database snapshots
 - Point-in-time recovery
 - Cross-region replication
@@ -291,6 +305,7 @@ Set up automated backups:
 ### 2. Content Backups
 
 Your content is already backed up in Git, but consider:
+
 - Regular repository backups
 - Multiple remote repositories
 - Automated sync verification
@@ -309,16 +324,19 @@ Prepare for issues:
 ### Build Failures
 
 **TypeScript errors:**
+
 ```bash
 npm run type-check
 ```
 
 **Missing dependencies:**
+
 ```bash
 npm ci
 ```
 
 **Environment variables:**
+
 ```bash
 npm run check-env
 ```
@@ -326,11 +344,13 @@ npm run check-env
 ### Runtime Errors
 
 **Database connection:**
+
 - Verify connection string
 - Check firewall settings
 - Ensure database is accessible
 
 **Authentication issues:**
+
 - Verify OAuth app settings
 - Check redirect URLs
 - Confirm secrets are set
@@ -338,11 +358,13 @@ npm run check-env
 ### Performance Issues
 
 **Slow page loads:**
+
 - Enable caching
 - Optimize images
 - Check database queries
 
 **High memory usage:**
+
 - Monitor memory consumption
 - Optimize React components
 - Check for memory leaks
@@ -360,4 +382,4 @@ If you encounter deployment issues:
 
 - Review [deployment documentation](../deployment/overview)
 - Join our [Discord community](https://discord.gg/ever)
-- Create an [issue on GitHub](https://github.com/ever-works/ever-works-website-template/issues)
+- Create an [issue on GitHub](https://github.com/ever-works/directory-web-template/issues)

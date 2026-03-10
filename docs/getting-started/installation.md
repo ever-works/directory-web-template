@@ -25,8 +25,8 @@ Before you begin, ensure you have the following installed:
 The template is a **Turborepo monorepo** managed with pnpm workspaces. Cloning gives you the monorepo root, which contains the web app at `apps/web/`, an end-to-end test suite at `apps/web-e2e/`, and a docs site at `apps/docs/`.
 
 ```bash
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 ```
 
 ### 2. Install Dependencies
@@ -182,6 +182,6 @@ Now that you have the template installed:
 
 If you encounter issues:
 
-- Search [existing issues](https://github.com/ever-works/ever-works-website-template/issues)
+- Search [existing issues](https://github.com/ever-works/directory-web-template/issues)
 - Join our [Discord community](https://discord.gg/ever)
-- Create a [new issue](https://github.com/ever-works/ever-works-website-template/issues/new)
+- Create a [new issue](https://github.com/ever-works/directory-web-template/issues/new)

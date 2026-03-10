@@ -5,8 +5,6 @@
  */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
-/* Ever Works styles */
-
 /* Tailwind CSS imports */
 @import "./tailwind.css";
 
@@ -37,13 +35,115 @@
   --menu-link-color: rgb(69, 65, 64);
   /* End Navbar */
 
-  --ifm-font-family-base: "Inter", "Helvetica", system-ui, -apple-system,
-    Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif,
-    BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  --ifm-font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+  --ifm-font-family-base:
+    "Inter", "Helvetica", system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, "Segoe UI", Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --ifm-font-family-monospace:
+    SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+    monospace;
+
+  --scroll-background: #ffffff;
+  --scroll-foreground: #e0e3ea;
+
+  --background: 0 0% 100%;
+  --foreground: 222.2 47.4% 11.2%;
+
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 47.4% 11.2%;
+
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 47.4% 11.2%;
+
+  --primary: 222.2 47.4% 11.2%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 210 0% 80%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 100% 50%;
+  --destructive-foreground: 210 40% 98%;
+
+  --ring: 215 20.2% 65.1%;
+
+  --radius: 0.5rem;
+
+  --z-modal: 1000;
+  --z-overlay: 99999;
+  --z-portal: 99999;
+  --z-dropdown: 99998;
 }
+
+/* Dark mode CSS variables - support both .dark class and Docusaurus data-theme attribute */
+.dark,
+[data-theme="dark"] {
+  --scroll-background: #000000;
+  --scroll-foreground: #303030;
+
+  --background: 0 0% 0%;
+  --foreground: 213 31% 91%;
+
+  --muted: 223 47% 11%;
+  --muted-foreground: 215.4 16.3% 56.9%;
+
+  --accent: 216 34% 17%;
+  --accent-foreground: 210 40% 98%;
+
+  --popover: 224 71% 4%;
+  --popover-foreground: 215 20.2% 65.1%;
+
+  --border: 216 34% 17%;
+  --input: 216 34% 17%;
+
+  --card: 224 71% 4%;
+  --card-foreground: 213 31% 91%;
+
+  --primary: 210 40% 98%;
+  --primary-foreground: 222.2 47.4% 1.2%;
+
+  --secondary: 222.2 47.4% 11.2%;
+  --secondary-foreground: 210 40% 98%;
+
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+
+  --ring: 216 34% 17%;
+
+  --radius: 0.5rem;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  display: block;
+  width: 4px;
+  height: 4px;
+  cursor: pointer;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: var(--scroll-background);
+  border-radius: 1px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: var(--scroll-foreground);
+  border-radius: 1px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .custom-scroll {
+    scrollbar-color: var(--scroll-foreground) var(--scroll-background);
+  }
+}
+
 body {
   font-family: var(----ifm-font-family-base);
 }
@@ -243,18 +343,81 @@ footer .widget a:hover {
   color: #0d002d;
 }
 .footer.footer--dark {
-  background-color: #14141f !important;
+  background-color: white !important;
 }
 [data-theme="dark"] .footer.footer--dark {
-  background-color: #1d1e30 !important;
+  background-color: black !important;
 }
+
+/* Custom Footer Styles */
+.footer__title {
+  font-size: 0.875rem !important;
+  font-weight: 400 !important;
+  color: var(--ifm-color-primary);
+  margin-bottom: 0.75rem;
+}
+
+[data-theme="dark"] .footer__title {
+  color: rgba(252, 253, 255, 0.937);
+}
+
+.footer__col {
+  min-width: fit-content;
+  flex-basis: 9rem;
+  flex-grow: 1;
+  width: fit-content;
+}
+
+.footer__items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  line-height: 1.375;
+}
+
+.footer__item {
+  margin-bottom: 0;
+}
+
+.footer__link-item {
+  font-size: 0.875rem;
+  color: #4b5563;
+  text-transform: capitalize;
+  transition: color 0.2s ease;
+}
+
+.footer__link-item:hover {
+  color: #1f2937;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+[data-theme="dark"] .footer__link-item {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .footer__link-item:hover {
+  color: #e5e7eb;
+}
+
+.footer__links {
+  margin-bottom: 0 !important;
+}
+
 .footer a {
-  color: hsla(0, 0%, 100%, 0.6);
-  transition: color.3s ease;
+  color: #4b5563;
+  transition: color 0.3s ease;
   text-decoration: none;
 }
 .footer a:hover {
-  color: #fff;
+  color: #1f2937;
+}
+[data-theme="dark"] .footer a {
+  color: #9ca3af;
+}
+[data-theme="dark"] .footer a:hover {
+  color: #e5e7eb;
 }
 .markdown {
   --ifm-font-color-base: #111;
@@ -307,7 +470,6 @@ img {
 }
 .navbar__logo img {
   object-fit: contain;
-  max-width:165px;
 }
 .home-container {
   margin-bottom: 8rem;
@@ -321,22 +483,82 @@ img {
   align-items: center;
 }
 
-/* Navbar */
+/* Navbar - Custom styling for swizzled navbar */
 .navbar {
-  --ifm-navbar-padding-vertical: 0.5rem;
-  --ifm-navbar-padding-horizontal: 1rem;
-  --ifm-navbar-background-color: rgb(244, 248, 251);
-  --ifm-navbar-border: 1px solid rgb(237, 242, 247);
+  --ifm-navbar-padding-vertical: 0;
+  --ifm-navbar-padding-horizontal: 0;
+  --ifm-navbar-border: none;
   --ifm-navbar-height: 4rem;
   box-shadow: none;
-  z-index: 10;
-  background-color: var(--ifm-navbar-background-color);
-  display: flex;
-  align-items: center;
-  height: var(--ifm-navbar-height);
-  padding: var(--ifm-navbar-padding-vertical)
-    var(--ifm-navbar-padding-horizontal);
-  border: var(--ifm-navbar-border);
+  /* Reset Docusaurus defaults that break custom layout */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 4rem;
+}
+
+/* Hide the default navbar inner content - we use custom layout */
+.navbar .navbar__inner {
+  display: none;
+}
+
+/* Desktop menu link styling */
+.navbar .navbar__link {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #4b5563;
+  padding: 0.5rem 0.75rem;
+  border-radius: 2rem;
+  transition: all 0.2s ease;
+}
+
+.navbar .navbar__link:hover {
+  color: #1f2937;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .navbar .navbar__link {
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .navbar .navbar__link:hover {
+  color: #e5e7eb;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Dropdown menu styling */
+.navbar .dropdown__menu {
+  border-radius: 0.875rem;
+  border: 1px solid #e5e7eb;
+  box-shadow:
+    0 20px 32px -12px rgba(50, 38, 98, 0.12),
+    0 1px 2px rgba(50, 38, 98, 0.04);
+  padding: 0.5rem;
+  min-width: 200px;
+}
+
+[data-theme="dark"] .navbar .dropdown__menu {
+  border-color: #252525;
+  background-color: #080808;
+  box-shadow: 0px 14px 20px 0px rgba(0, 0, 0, 0.5);
+}
+
+.navbar .dropdown__link {
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.navbar .dropdown__link:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] .navbar .dropdown__link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 .dsla-search-wrapper,
 .navbar__search-input {
@@ -362,11 +584,6 @@ img {
   }
 }
 
-[data-theme="dark"] .navbar {
-  --ifm-navbar-background-color: rgb(29, 30, 48);
-  --ifm-navbar-border: 1px solid rgb(48 52 80);
-  border: var(--ifm-navbar-border);
-}
 #__docusaurus {
   background-color: #fff;
 }
@@ -377,9 +594,9 @@ img {
 
 .docs-wrapper footer.footer .footer__copyright {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   color: var(--menu-link-color);
-  gap:6px;
 }
 .docs-wrapper footer.footer .footer__links {
   display: none;
@@ -535,12 +752,13 @@ img {
   --ifm-navbar-border: 1px solid rgb(48 52 80);
   border-right: var(--ifm-navbar-border);
 }
+
 .menu__link {
   background-color: var(--menu-bg-color);
   transition-duration: 0.3s;
   font-size: 0.875rem;
-  transition-property: color, background-color, border-color,
-    text-decoration-color, fill, stroke;
+  transition-property:
+    color, background-color, border-color, text-decoration-color, fill, stroke;
   padding: 0.6rem;
   color: var(--menu-link-color);
   min-height: 40px;
@@ -594,6 +812,25 @@ img {
   .menu__list-item-collapsible.menu__list-item-collapsible--active {
   background-color: rgba(88, 175, 223, 0.1);
 }
+
+/* Make sidebar menu caret arrow smaller */
+.menu__caret {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 100%;
+  margin-top: 0.7rem;
+}
+
+.menu__caret:hover {
+  background-color: transparent;
+}
+
+.menu__caret::before {
+  background-size: 1.5rem 1rem;
+}
+
 .header-github-link:hover {
   opacity: 0.6;
 }
@@ -681,6 +918,99 @@ html[data-theme="dark"] .card {
   border: none;
   transition: all 0.35s;
 }
-.navbarSearchContainer_bqZ0{
-  order:-1!important;
+
+/* ========================================
+   CUSTOM NAVBAR STYLES
+   ======================================== */
+
+/* Adjust page content when using custom fixed navbar */
+.main-wrapper {
+  padding-top: 5rem;
 }
+
+/* Animation keyframes for mobile menu */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Animation utility classes */
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Search bar styling in custom navbar */
+.navbar-search .dsla-search-wrapper,
+.navbar-search .navbar__search-input {
+  min-width: 200px;
+  border-radius: 0.5rem;
+}
+
+/* ========================================
+   COLLAPSIBLE DETAILS/FAQ STYLES
+   ======================================== */
+
+/* Remove default styling from details element */
+.markdown details {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 0;
+  border-radius: 0;
+}
+
+/* Remove border from last details in a section */
+.markdown details summary {
+  border-bottom: none;
+}
+
+/* Smooth content reveal */
+.markdown details[open] > *:not(summary) {
+  animation: detailsReveal 0.2s ease-out;
+}
+
+@keyframes detailsReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.markdown details summary:focus:not(:focus-visible) {
+  outline: none;
+}
+

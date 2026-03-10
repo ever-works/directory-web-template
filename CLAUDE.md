@@ -1,4 +1,4 @@
-# CLAUDE.md  Ever Works Directory Website Template
+# CLAUDE.md  Ever Works Directory Web Template
 
 This file gives Claude Code (and other AI coding tools) project-specific instructions for working in this monorepo. The main web application lives at `apps/web/`.
 

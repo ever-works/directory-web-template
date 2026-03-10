@@ -51,6 +51,7 @@ pnpm install
 Follow the [Environment Setup Guide](/docs/getting-started/environment-setup) to configure your `apps/web/.env.local` file.
 
 **Quick checklist**:
+
 - [ ] Database connection configured
 - [ ] Authentication secrets set
 - [ ] Payment provider keys added (optional for development)
@@ -132,7 +133,7 @@ If you encounter issues, check the [Troubleshooting Guide](/docs/getting-started
 ### 4.1 Key Directories
 
 ```
-ever-works-website-template/                       # Turborepo monorepo root
+directory-web-template/                       # Turborepo monorepo root
 ├── apps/
 │   ├── web/                      # Next.js web application
 │   │   ├── app/                  # Next.js App Router
@@ -218,12 +219,13 @@ git push origin feature/your-feature-name
 
 :::tip Commit Messages
 Follow [Conventional Commits](https://www.conventionalcommits.org/):
+
 - `feat:` - New feature
 - `fix:` - Bug fix
 - `docs:` - Documentation changes
 - `refactor:` - Code refactoring
 - `test:` - Adding tests
-:::
+  :::
 
 ---
 
@@ -277,4 +279,3 @@ Great job! You're ready to move on to:
 - [Testing Guide](/docs/development/testing) - How to write tests
 
 Need help? Ask your mentor or check the team Slack channel! 🚀
-

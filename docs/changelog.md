@@ -12,10 +12,10 @@ This page explains how the Ever Works Website Template manages versioning, relea
 
 The Template follows [Semantic Versioning (SemVer)](https://semver.org/). Version numbers use the format **MAJOR.MINOR.PATCH**:
 
-| Component | When to increment |
-|---|---|
-| **MAJOR** | Breaking changes that require migration steps |
-| **MINOR** | New features added in a backward-compatible manner |
+| Component | When to increment                                    |
+| --------- | ---------------------------------------------------- |
+| **MAJOR** | Breaking changes that require migration steps        |
+| **MINOR** | New features added in a backward-compatible manner   |
 | **PATCH** | Backward-compatible bug fixes and minor improvements |
 
 Pre-release versions may use suffixes like `-alpha.1`, `-beta.2`, or `-rc.1` for early testing.
@@ -42,7 +42,7 @@ Migration files are stored in the `lib/db/migrations/` directory. Each migration
 When upgrading to a newer version:
 
 ```bash
-cd ever-works-website-template
+cd directory-web-template
 
 # Pull latest changes
 git pull origin main
@@ -70,7 +70,7 @@ If you have customized the Template, you may encounter merge conflicts when pull
 
 ### GitHub Releases
 
-Releases are published on GitHub at [github.com/ever-works/ever-works-website-template/releases](https://github.com/ever-works/ever-works-website-template/releases).
+Releases are published on GitHub at [github.com/ever-works/directory-web-template/releases](https://github.com/ever-works/directory-web-template/releases).
 
 Each release includes:
 
@@ -130,20 +130,25 @@ Release notes follow this structure:
 ## [0.2.0] - 2025-04-15
 
 ### Added
+
 - Category-based directory filtering
 - New Polar payment provider integration
 
 ### Changed
+
 - Improved authentication flow with better error messages
 
 ### Fixed
+
 - Resolved race condition in concurrent directory updates
 - Fixed pagination offset calculation for search results
 
 ### Deprecated
+
 - Legacy REST endpoints under /api/v1/ (use /api/v2/ instead)
 
 ### Breaking Changes
+
 - Removed `LEGACY_AUTH_MODE` environment variable
 - Renamed `DirectoryItem` type to `Item` across all APIs
 ```

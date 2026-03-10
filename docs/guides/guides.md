@@ -17,72 +17,72 @@ Guides are organized by category. If you are **setting up the template for the f
 
 These guides cover how to make the template your own -- from colors and layouts to navigation and footer content.
 
-| Guide | Description |
-|---|---|
-| [Customization](/docs/guides/customization) | Comprehensive guide to customizing your directory site -- branding, colors, layouts, and content |
-| [Theming](/docs/guides/theming) | The theme system: pre-built themes, custom theme creation, and runtime theme switching |
-| [Dynamic Colors](/docs/guides/dynamic-colors) | How the dynamic color generation pipeline works and how to configure it |
-| [Layouts & Templates](/docs/guides/layouts-templates) | Customize page layouts, listing templates, and detail page structures |
-| [Custom Navigation](/docs/guides/custom-navigation) | Configure the navbar, sidebar, and breadcrumb navigation |
-| [Footer Customization](/docs/guides/footer-customization) | Modify footer content, links, and layout |
-| [UI Components](/docs/guides/ui-components) | Available UI components and how to use them in your pages |
+| Guide                                                     | Description                                                                                      |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Customization](/docs/guides/customization)               | Comprehensive guide to customizing your directory site -- branding, colors, layouts, and content |
+| [Theming](/docs/guides/theming)                           | The theme system: pre-built themes, custom theme creation, and runtime theme switching           |
+| [Dynamic Colors](/docs/guides/dynamic-colors)             | How the dynamic color generation pipeline works and how to configure it                          |
+| [Layouts & Templates](/docs/guides/layouts-templates)     | Customize page layouts, listing templates, and detail page structures                            |
+| [Custom Navigation](/docs/guides/custom-navigation)       | Configure the navbar, sidebar, and breadcrumb navigation                                         |
+| [Footer Customization](/docs/guides/footer-customization) | Modify footer content, links, and layout                                                         |
+| [UI Components](/docs/guides/ui-components)               | Available UI components and how to use them in your pages                                        |
 
 ## Admin & Dashboard
 
 Guides for managing content, users, and site settings through the built-in dashboards.
 
-| Guide | Description |
-|---|---|
-| [Admin Dashboard](/docs/guides/admin-dashboard) | Overview of admin features: content management, user roles, analytics, and settings |
-| [Admin Deep Dive](/docs/guides/admin-deep-dive) | Advanced admin topics: bulk operations, audit logs, and moderation workflows |
-| [Admin Components](/docs/guides/admin-components) | Reusable admin UI components and how to extend the admin interface |
+| Guide                                             | Description                                                                                 |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [Admin Dashboard](/docs/guides/admin-dashboard)   | Overview of admin features: content management, user roles, analytics, and settings         |
+| [Admin Deep Dive](/docs/guides/admin-deep-dive)   | Advanced admin topics: bulk operations, audit logs, and moderation workflows                |
+| [Admin Components](/docs/guides/admin-components) | Reusable admin UI components and how to extend the admin interface                          |
 | [Client Dashboard](/docs/guides/client-dashboard) | The client-facing dashboard for item owners: submissions, analytics, and profile management |
 
 ## Data & Content
 
 Guides related to content management, data utilities, and URL handling.
 
-| Guide | Description |
-|---|---|
-| [Slug Utilities](/docs/guides/slug-utilities) | URL slug generation, validation, and conflict resolution |
-| [URL Utilities](/docs/guides/url-utilities) | URL construction helpers, query parameter management, and canonical URLs |
-| [Filter Sync](/docs/guides/filter-sync) | How filter state is synchronized between URL parameters and the UI |
-| [Pagination Patterns](/docs/guides/pagination-patterns) | Server-side and client-side pagination implementations |
-| [Currency Formatting](/docs/guides/currency-formatting) | Locale-aware currency display and detection |
+| Guide                                                   | Description                                                              |
+| ------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [Slug Utilities](/docs/guides/slug-utilities)           | URL slug generation, validation, and conflict resolution                 |
+| [URL Utilities](/docs/guides/url-utilities)             | URL construction helpers, query parameter management, and canonical URLs |
+| [Filter Sync](/docs/guides/filter-sync)                 | How filter state is synchronized between URL parameters and the UI       |
+| [Pagination Patterns](/docs/guides/pagination-patterns) | Server-side and client-side pagination implementations                   |
+| [Currency Formatting](/docs/guides/currency-formatting) | Locale-aware currency display and detection                              |
 
 ## Email & Notifications
 
-| Guide | Description |
-|---|---|
+| Guide                                           | Description                                                     |
+| ----------------------------------------------- | --------------------------------------------------------------- |
 | [Email Templates](/docs/guides/email-templates) | Create and customize transactional email templates using Resend |
 
 ## Monetization & Sponsorship
 
-| Guide | Description |
-|---|---|
+| Guide                                                 | Description                                                  |
+| ----------------------------------------------------- | ------------------------------------------------------------ |
 | [Sponsorship System](/docs/guides/sponsorship-system) | Set up and manage sponsored listings and advertisement slots |
-| [Survey System](/docs/guides/survey-system) | Integrate user surveys for feedback collection |
+| [Survey System](/docs/guides/survey-system)           | Integrate user surveys for feedback collection               |
 
 ## Infrastructure & Operations
 
 Guides for performance, reliability, security, and observability.
 
-| Guide | Description |
-|---|---|
-| [Performance Optimization](/docs/guides/performance-optimization) | Caching strategies, bundle optimization, and rendering performance |
-| [Caching Strategy](/docs/guides/caching-strategy) | The multi-layer caching architecture: in-memory, React Query, and HTTP cache headers |
-| [Error Handling](/docs/guides/error-handling) | Error boundary patterns, API error responses, and user-facing error pages |
-| [Logging](/docs/guides/logging) | Structured logging setup and log levels |
-| [Rate Limiting](/docs/guides/rate-limiting) | API rate limiting configuration and implementation |
-| [Bot Detection](/docs/guides/bot-detection) | reCAPTCHA integration and bot protection strategies |
-| [Database Health Check](/docs/guides/database-health-check) | Monitoring database connectivity and performance |
-| [Accessibility](/docs/guides/accessibility) | Accessibility standards, testing, and common patterns used in the template |
+| Guide                                                             | Description                                                                          |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| [Performance Optimization](/docs/guides/performance-optimization) | Caching strategies, bundle optimization, and rendering performance                   |
+| [Caching Strategy](/docs/guides/caching-strategy)                 | The multi-layer caching architecture: in-memory, React Query, and HTTP cache headers |
+| [Error Handling](/docs/guides/error-handling)                     | Error boundary patterns, API error responses, and user-facing error pages            |
+| [Logging](/docs/guides/logging)                                   | Structured logging setup and log levels                                              |
+| [Rate Limiting](/docs/guides/rate-limiting)                       | API rate limiting configuration and implementation                                   |
+| [Bot Detection](/docs/guides/bot-detection)                       | reCAPTCHA integration and bot protection strategies                                  |
+| [Database Health Check](/docs/guides/database-health-check)       | Monitoring database connectivity and performance                                     |
+| [Accessibility](/docs/guides/accessibility)                       | Accessibility standards, testing, and common patterns used in the template           |
 
 ## Testing & Development
 
-| Guide | Description |
-|---|---|
-| [Testing Patterns](/docs/guides/testing-patterns) | Playwright E2E test structure, page objects, fixtures, and running tests |
+| Guide                                               | Description                                                                    |
+| --------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [Testing Patterns](/docs/guides/testing-patterns)   | Playwright E2E test structure, page objects, fixtures, and running tests       |
 | [Scripts Reference](/docs/guides/scripts-reference) | All CLI scripts in the `scripts/` directory: what they do and when to use them |
 
 ## Suggested Learning Paths
@@ -135,7 +135,7 @@ If you run into issues while following a guide:
 
 1. **Check the [Quick Reference](/docs/getting-started/quick-reference)** for common commands and patterns.
 2. **Review [Getting Started](/docs/getting-started)** if you have environment or setup problems.
-3. **Open an issue** on the [GitHub repository](https://github.com/ever-works/ever-works-website-template/issues) for bugs or feature requests.
+3. **Open an issue** on the [GitHub repository](https://github.com/ever-works/directory-web-template/issues) for bugs or feature requests.
 
 ---
 

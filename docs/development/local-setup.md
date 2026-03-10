@@ -18,8 +18,8 @@ Ensure you have the following installed:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 
 # Install all dependencies from the monorepo root
 pnpm install
@@ -196,14 +196,14 @@ Install recommended extensions:
 
 ```json
 {
-  "recommendations": [
-    "bradlc.vscode-tailwindcss",
-    "esbenp.prettier-vscode",
-    "dbaeumer.vscode-eslint",
-    "ms-vscode.vscode-typescript-next",
-    "formulahendry.auto-rename-tag",
-    "christian-kohler.path-intellisense"
-  ]
+	"recommendations": [
+		"bradlc.vscode-tailwindcss",
+		"esbenp.prettier-vscode",
+		"dbaeumer.vscode-eslint",
+		"ms-vscode.vscode-typescript-next",
+		"formulahendry.auto-rename-tag",
+		"christian-kohler.path-intellisense"
+	]
 }
 ```
 
@@ -211,27 +211,29 @@ Configure VS Code settings (`.vscode/settings.json`):
 
 ```json
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "typescript.preferences.importModuleSpecifier": "relative",
-  "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
-    ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
-  ]
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true
+	},
+	"typescript.preferences.importModuleSpecifier": "relative",
+	"tailwindCSS.experimental.classRegex": [
+		["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+		["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
+	]
 }
 ```
 
 ### Browser DevTools
 
 #### React Developer Tools
+
 - Install [React DevTools](https://react.dev/learn/react-developer-tools)
 - Inspect component tree and props
 - Profile component performance
 
 #### Redux DevTools (for Zustand)
+
 - Install [Redux DevTools](https://github.com/reduxjs/redux-devtools)
 - Monitor state changes
 - Time-travel debugging
@@ -239,14 +241,17 @@ Configure VS Code settings (`.vscode/settings.json`):
 ### Database Tools
 
 #### Drizzle Studio
+
 ```bash
 cd apps/web && pnpm run db:studio
 ```
+
 - Visual database browser
 - Query builder interface
 - Schema visualization
 
 #### pgAdmin (for PostgreSQL)
+
 - Install [pgAdmin](https://www.pgadmin.org/)
 - Connect to local database
 - Advanced query tools
@@ -294,10 +299,10 @@ The app validates environment variables on startup:
 import { z } from 'zod';
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(['development', 'production', 'test']),
-  AUTH_SECRET: z.string().min(32),
-  GH_TOKEN: z.string().startsWith('ghp_'),
-  DATABASE_URL: z.string().url().optional(),
+	NODE_ENV: z.enum(['development', 'production', 'test']),
+	AUTH_SECRET: z.string().min(32),
+	GH_TOKEN: z.string().startsWith('ghp_'),
+	DATABASE_URL: z.string().url().optional()
 });
 
 export const env = envSchema.parse(process.env);
@@ -342,9 +347,9 @@ Add to `package.json`:
 
 ```json
 {
-  "scripts": {
-    "dev:debug": "NODE_OPTIONS='--inspect' next dev"
-  }
+	"scripts": {
+		"dev:debug": "NODE_OPTIONS='--inspect' next dev"
+	}
 }
 ```
 

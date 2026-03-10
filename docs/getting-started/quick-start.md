@@ -10,44 +10,45 @@ Edit `apps/web/.content/config.yml` (this file will be created after first sync)
 
 ```yaml
 # Basic site settings
-company_name: "Your Company"
-item_name: "Tool"
-items_name: "Tools"
+company_name: 'Your Company'
+item_name: 'Tool'
+items_name: 'Tools'
 copyright_year: 2024
 
 # Enable features
 content_table: true
 auth:
-  credentials: true
-  google: true
-  github: true
+    credentials: true
+    google: true
+    github: true
 
 # Payment settings
 payment:
-  provider: "stripe"
+    provider: 'stripe'
 pricing:
-  free: 0
-  pro: 10
-  sponsor: 20
+    free: 0
+    pro: 10
+    sponsor: 20
 ```
 
 ### Set Up Data Repository
 
 1. **Fork the data repository**:
-   - Visit [awesome-data](https://github.com/ever-works/awesome-data)
-   - Click "Fork" to create your copy
+    - Visit [awesome-data](https://github.com/ever-works/awesome-data)
+    - Click "Fork" to create your copy
 
 2. **Update environment variables**:
-   ```bash
-   # In apps/web/.env.local
-   DATA_REPOSITORY="https://github.com/YOUR_USERNAME/awesome-data"
-   GH_TOKEN="your_github_token"
-   ```
+
+    ```bash
+    # In apps/web/.env.local
+    DATA_REPOSITORY="https://github.com/YOUR_USERNAME/awesome-data"
+    GH_TOKEN="your_github_token"
+    ```
 
 3. **Generate GitHub token**:
-   - Go to GitHub Settings → Developer settings → Personal access tokens
-   - Create a token with `repo` permissions
-   - Add it to your `apps/web/.env.local`
+    - Go to GitHub Settings → Developer settings → Personal access tokens
+    - Create a token with `repo` permissions
+    - Add it to your `apps/web/.env.local`
 
 ## Step 2: Start the Application
 
@@ -74,18 +75,18 @@ Visit [http://localhost:3000](http://localhost:3000) to see your site!
 3. Add content:
 
 ```yaml
-id: "my-awesome-tool"
-name: "My Awesome Tool"
-slug: "my-awesome-tool"
-description: "An amazing tool that does incredible things"
-source_url: "https://example.com"
-category: "productivity"
+id: 'my-awesome-tool'
+name: 'My Awesome Tool'
+slug: 'my-awesome-tool'
+description: 'An amazing tool that does incredible things'
+source_url: 'https://example.com'
+category: 'productivity'
 tags:
-  - "productivity"
-  - "tools"
+    - 'productivity'
+    - 'tools'
 featured: false
-status: "approved"
-updated_at: "2024-01-15 10:30"
+status: 'approved'
+updated_at: '2024-01-15 10:30'
 ```
 
 ### Method 2: Submission Form
@@ -103,10 +104,10 @@ updated_at: "2024-01-15 10:30"
 
 ```yaml
 theme:
-  default: "everworks"
-  custom_colors:
-    primary: "#3d70ef"
-    secondary: "#00c853"
+    default: 'everworks'
+    custom_colors:
+        primary: '#3d70ef'
+        secondary: '#00c853'
 ```
 
 3. **Metadata**: Update `apps/web/app/layout.tsx` for SEO
@@ -116,11 +117,11 @@ theme:
 Create `categories/productivity.yml` in your data repository:
 
 ```yaml
-id: "productivity"
-name: "Productivity"
-slug: "productivity"
-description: "Tools to boost your productivity"
-icon_url: "https://example.com/icon.png"
+id: 'productivity'
+name: 'Productivity'
+slug: 'productivity'
+description: 'Tools to boost your productivity'
+icon_url: 'https://example.com/icon.png'
 ```
 
 ## Step 5: Set Up Authentication (Optional)
@@ -153,16 +154,19 @@ GITHUB_CLIENT_SECRET="your-github-client-secret"
 ## Step 6: Test Everything
 
 ### Verify Content Loading
+
 - Check that your items appear on the homepage
 - Test category filtering
 - Verify search functionality
 
 ### Test Authentication
+
 - Try signing in with configured providers
 - Check user profile creation
 - Test admin access (if configured)
 
 ### Test Submission Flow
+
 - Submit a new item via the form
 - Check that it creates a pull request
 - Verify email notifications (if configured)
@@ -172,11 +176,13 @@ GITHUB_CLIENT_SECRET="your-github-client-secret"
 For a quick deployment to Vercel:
 
 1. **Connect to Vercel**:
-   ```bash
-   npm install -g vercel
-   vercel
-   ```
-   When prompted, set the root directory to `apps/web`.
+
+    ```bash
+    npm install -g vercel
+    vercel
+    ```
+
+    When prompted, set the root directory to `apps/web`.
 
 2. **Set environment variables** in Vercel dashboard
 
@@ -190,8 +196,8 @@ Instead of "tools", you might want "services" or "products":
 
 ```yaml
 # In apps/web/.content/config.yml
-item_name: "Service"
-items_name: "Services"
+item_name: 'Service'
+items_name: 'Services'
 ```
 
 ### Add Custom Fields
@@ -200,14 +206,15 @@ Extend item schema in your YAML files:
 
 ```yaml
 # In items/example.yml
-price: "$9.99"
+price: '$9.99'
 rating: 4.5
-author: "John Doe"
+author: 'John Doe'
 ```
 
 ### Modify Layouts
 
 The template supports multiple layout types:
+
 - Grid (default)
 - Masonry
 - Cards
@@ -227,4 +234,4 @@ Now that you have a working site:
 - **Documentation**: Browse the full docs for detailed guides
 - **Examples**: Check the [demo site](https://demo.ever.works) for inspiration
 - **Community**: Join our [Discord](https://discord.gg/ever) for support
-- **Issues**: Report problems on [GitHub](https://github.com/ever-works/ever-works-website-template/issues)
+- **Issues**: Report problems on [GitHub](https://github.com/ever-works/directory-web-template/issues)

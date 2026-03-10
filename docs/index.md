@@ -27,8 +27,8 @@ The Ever Works Website Template is a modern, full-stack directory website soluti
 
 ```bash
 # Clone the monorepo
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 
 # Install dependencies (pnpm required)
 pnpm install

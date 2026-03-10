@@ -58,7 +58,7 @@ The Ever Works Website Template aims to be the most comprehensive open-source so
 
 ### GitHub Issues
 
-The primary way to propose features is through GitHub Issues at [github.com/ever-works/ever-works-website-template/issues](https://github.com/ever-works/ever-works-website-template/issues).
+The primary way to propose features is through GitHub Issues at [github.com/ever-works/directory-web-template/issues](https://github.com/ever-works/directory-web-template/issues).
 
 When creating a feature request:
 
@@ -69,7 +69,7 @@ When creating a feature request:
 
 ### GitHub Discussions
 
-For broader ideas that need community input: [github.com/ever-works/ever-works-website-template/discussions](https://github.com/ever-works/ever-works-website-template/discussions)
+For broader ideas that need community input: [github.com/ever-works/directory-web-template/discussions](https://github.com/ever-works/directory-web-template/discussions)
 
 ### Discord
 
@@ -77,12 +77,12 @@ Join the [Ever Works Discord](https://discord.gg/ever) for real-time conversatio
 
 ## How Priorities Are Decided
 
-| Factor | Weight | Description |
-|---|---|---|
-| **User demand** | High | Number of requests, upvotes, and community interest |
-| **Strategic alignment** | High | How well the feature aligns with the product vision |
-| **Implementation effort** | Medium | Complexity, time investment, and maintenance burden |
-| **Breaking change risk** | Medium | Potential to disrupt existing users |
+| Factor                       | Weight | Description                                             |
+| ---------------------------- | ------ | ------------------------------------------------------- |
+| **User demand**              | High   | Number of requests, upvotes, and community interest     |
+| **Strategic alignment**      | High   | How well the feature aligns with the product vision     |
+| **Implementation effort**    | Medium | Complexity, time investment, and maintenance burden     |
+| **Breaking change risk**     | Medium | Potential to disrupt existing users                     |
 | **Contributor availability** | Medium | Whether maintainers or community members can take it on |
 
 ### Priority Tiers

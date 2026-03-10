@@ -13,9 +13,9 @@ Bienvenue dans le centre de support Ever Works. Nous sommes là pour vous aider 
 
 ### Support communautaire
 
-- **[GitHub Issues](https://github.com/ever-works/ever-works-website-template/issues)** — Signaler des bugs, demander des fonctionnalités ou poser des questions techniques
+- **[GitHub Issues](https://github.com/ever-works/directory-web-template/issues)** — Signaler des bugs, demander des fonctionnalités ou poser des questions techniques
 - **[Communauté Discord](https://discord.gg/ever)** — Rejoignez notre serveur Discord actif pour un support en temps réel
-- **[Stack Overflow](https://stackoverflow.com/questions/tagged/ever-works-website-template)** — Posez des questions techniques avec le tag `ever-works-website-template`
+- **[Stack Overflow](https://stackoverflow.com/questions/tagged/directory-web-template)** — Posez des questions techniques avec le tag `directory-web-template`
 
 ### Support professionnel
 
@@ -41,23 +41,26 @@ Bienvenue dans le centre de support Ever Works. Nous sommes là pour vous aider 
 ## Démonstration et exemples
 
 - **[Site de démonstration](https://demo.ever.works)** — Voir le modèle en action
-- **[Dépôt GitHub](https://github.com/ever-works/ever-works-website-template)** — Code source et exemples
+- **[Dépôt GitHub](https://github.com/ever-works/directory-web-template)** — Code source et exemples
 
 ## Dépannage
 
 ### Problèmes courants
 
 #### Problèmes d'installation
+
 - **Version de Node.js** : Assurez-vous d'utiliser Node.js 20+
 - **Dépendances** : Exécutez `npm install` ou `yarn install` dans le répertoire du site web
 - **Conflits de ports** : Utilisez le flag `--port` pour spécifier un port différent
 
 #### Problèmes de build
+
 - **Erreurs TypeScript** : Vérifiez votre configuration TypeScript
 - **Dépendances manquantes** : Assurez-vous que tous les packages sont correctement installés
 - **Variables d'environnement** : Vérifiez la configuration de votre fichier `.env`
 
 #### Problèmes d'exécution
+
 - **Connexion API** : Vérifiez votre variable d'environnement `NEXT_PUBLIC_API_BASE_URL`
 - **Authentification** : Vérifiez les identifiants de votre fournisseur OAuth
 - **Base de données** : Assurez-vous que votre connexion à la base de données fonctionne
@@ -67,7 +70,7 @@ Bienvenue dans le centre de support Ever Works. Nous sommes là pour vous aider 
 Activez la journalisation de débogage en définissant les variables d'environnement :
 
 ```bash
-DEBUG=ever-works-website-template:*
+DEBUG=directory-web-template:*
 NODE_ENV=development
 ```
 

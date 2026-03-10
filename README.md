@@ -1,8 +1,8 @@
-# Ever Works Directory Website Template
+# Ever Works Directory Web Template
 
 ## ⭐️ What is it?
 
-Welcome to the **Ever Works Directory Website Template**, a cutting-edge, full-stack directory website solution built with [Next.js](https://nextjs.org), organized as a **Turborepo monorepo** with **pnpm workspaces**.
+Welcome to the **Ever Works Directory Web Template**, a cutting-edge, full-stack directory website solution built with [Next.js](https://nextjs.org), organized as a **Turborepo monorepo** with **pnpm workspaces**.
 
 This versatile template is an essential component of the [Ever Works Platform](https://ever.works), offering seamless integration while remaining flexible enough to function as a standalone solution.
 
@@ -20,7 +20,7 @@ This versatile template is an essential component of the [Ever Works Platform](h
 ## Monorepo Structure
 
 ```
-ever-works-monorepo/
+monorepo/
 ├── apps/
 │   ├── web/              # Next.js 16 directory website (main app)
 │   ├── web-e2e/          # Playwright E2E tests
@@ -44,13 +44,13 @@ ever-works-monorepo/
 
 ### Workspace Packages
 
-| Package | Path | Description |
-| --- | --- | --- |
-| `@ever-works/web` | `apps/web` | Next.js 16 directory website app |
-| `@ever-works/web-e2e` | `apps/web-e2e` | Playwright E2E tests |
-| `@ever-works/docs` | `apps/docs` | Docusaurus v3 documentation site (content in root `docs/`) |
-| `@ever-works/tsconfig` | `packages/tsconfig` | Shared TypeScript configurations |
-| `@ever-works/eslint-config` | `packages/eslint-config` | Shared ESLint 9 flat config |
+| Package                     | Path                     | Description                                                |
+| --------------------------- | ------------------------ | ---------------------------------------------------------- |
+| `@ever-works/web`           | `apps/web`               | Next.js 16 directory website app                           |
+| `@ever-works/web-e2e`       | `apps/web-e2e`           | Playwright E2E tests                                       |
+| `@ever-works/docs`          | `apps/docs`              | Docusaurus v3 documentation site (content in root `docs/`) |
+| `@ever-works/tsconfig`      | `packages/tsconfig`      | Shared TypeScript configurations                           |
+| `@ever-works/eslint-config` | `packages/eslint-config` | Shared ESLint 9 flat config                                |
 
 ## Project Overview
 
@@ -105,55 +105,55 @@ apps/web/
 
 1. **Clone the repository**
 
-   ```bash
-   git clone <repository-url>
-   cd ever-works-monorepo
-   ```
+    ```bash
+    git clone <repository-url>
+    cd ever-works-monorepo
+    ```
 
 2. **Install dependencies** (from monorepo root)
 
-   ```bash
-   pnpm install
-   ```
+    ```bash
+    pnpm install
+    ```
 
 3. **Configure environment variables**
 
-   ```bash
-   cp apps/web/.env.example apps/web/.env.local
-   ```
+    ```bash
+    cp apps/web/.env.example apps/web/.env.local
+    ```
 
-   Fill in the required values (see [Environment Configuration](#environment-configuration) below).
+    Fill in the required values (see [Environment Configuration](#environment-configuration) below).
 
 4. **Set up the database** (optional)
 
-   ```bash
-   cd apps/web
-   pnpm db:generate
-   pnpm db:migrate
-   ```
+    ```bash
+    cd apps/web
+    pnpm db:generate
+    pnpm db:migrate
+    ```
 
 5. **Start development servers**
 
-   ```bash
-   # From monorepo root
-   pnpm run dev        # Start all dev servers
-   pnpm run dev:web    # Start only the web app
-   pnpm run dev:docs   # Start only the docs site
-   ```
+    ```bash
+    # From monorepo root
+    pnpm run dev        # Start all dev servers
+    pnpm run dev:web    # Start only the web app
+    pnpm run dev:docs   # Start only the docs site
+    ```
 
-   The web app will be available at [http://localhost:3000](http://localhost:3000/).
+    The web app will be available at [http://localhost:3000](http://localhost:3000/).
 
 ### Common Commands
 
-| Command | Description |
-| --- | --- |
-| `pnpm install` | Install all dependencies (monorepo root) |
-| `pnpm run build` | Build all packages (via Turbo) |
-| `pnpm run dev` | Start all dev servers (via Turbo) |
-| `pnpm run dev:web` | Start only the web app |
-| `pnpm run dev:docs` | Start only the docs site |
-| `pnpm run lint` | Lint all packages |
-| `pnpm run format` | Format code with Prettier |
+| Command             | Description                              |
+| ------------------- | ---------------------------------------- |
+| `pnpm install`      | Install all dependencies (monorepo root) |
+| `pnpm run build`    | Build all packages (via Turbo)           |
+| `pnpm run dev`      | Start all dev servers (via Turbo)        |
+| `pnpm run dev:web`  | Start only the web app                   |
+| `pnpm run dev:docs` | Start only the docs site                 |
+| `pnpm run lint`     | Lint all packages                        |
+| `pnpm run format`   | Format code with Prettier                |
 
 #### Filtering by Package
 
@@ -234,9 +234,9 @@ JWT_REFRESH_TOKEN_EXPIRES_IN=7d
 ### GitHub Integration / Data Repository
 
 1. Fork the data repository:
-   - Visit https://github.com/ever-works/awesome-data
-   - Click "Fork" to create a copy
-   - This repo will hold `.content` data
+    - Visit https://github.com/ever-works/awesome-data
+    - Click "Fork" to create a copy
+    - This repo will hold `.content` data
 
 2. Configure:
 
@@ -288,20 +288,20 @@ auth:
     x: true
 
 custom_header:
-  - label: "About"
-    path: "/about"
-  - label: "Documentation"
-    path: "/pages/docs"
-  - label: "Blog"
-    path: "https://blog.example.com"
+    - label: 'About'
+      path: '/about'
+    - label: 'Documentation'
+      path: '/pages/docs'
+    - label: 'Blog'
+      path: 'https://blog.example.com'
 
 custom_footer:
-  - label: "Privacy Policy"
-    path: "/pages/privacy-policy"
-  - label: "Terms of Service"
-    path: "/terms"
-  - label: "GitHub"
-    path: "https://github.com/example"
+    - label: 'Privacy Policy'
+      path: '/pages/privacy-policy'
+    - label: 'Terms of Service'
+      path: '/terms'
+    - label: 'GitHub'
+      path: 'https://github.com/example'
 ```
 
 ### Configuration Options:
@@ -365,21 +365,21 @@ The payment provider is configured in your site's config file (`apps/web/.conten
 ```yaml
 # Payment configuration
 payment:
-  provider: 'stripe'  # Options: 'stripe' | 'lemonsqueezy'
+    provider: 'stripe' # Options: 'stripe' | 'lemonsqueezy'
 
 # Pricing plans
 pricing:
-  free: 0
-  pro: 10
-  sponsor: 20
+    free: 0
+    pro: 10
+    sponsor: 20
 ```
 
 ### Stripe Setup
 
 1. **Create Stripe Account**
-   - Visit [Stripe Dashboard](https://dashboard.stripe.com/)
-   - Create an account or sign in
-   - Get your API keys from the Developers section
+    - Visit [Stripe Dashboard](https://dashboard.stripe.com/)
+    - Create an account or sign in
+    - Get your API keys from the Developers section
 
 2. **Configure Environment Variables**
 
@@ -396,21 +396,21 @@ NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID="price_your-sponsor-price-id"
 ```
 
 3. **Create Products & Prices in Stripe**
-   - Go to Stripe Dashboard → Products
-   - Create products for each plan (Pro, Sponsor)
-   - Copy the Price IDs to your environment variables
+    - Go to Stripe Dashboard → Products
+    - Create products for each plan (Pro, Sponsor)
+    - Copy the Price IDs to your environment variables
 
 4. **Setup Webhooks**
-   - Go to Stripe Dashboard → Webhooks
-   - Add endpoint: `https://yourdomain.com/api/webhooks/stripe`
-   - Select events: `checkout.session.completed`, `invoice.payment_succeeded`
-   - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
+    - Go to Stripe Dashboard → Webhooks
+    - Add endpoint: `https://yourdomain.com/api/webhooks/stripe`
+    - Select events: `checkout.session.completed`, `invoice.payment_succeeded`
+    - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
 
 ### LemonSqueezy Setup
 
 1. **Create LemonSqueezy Account**
-   - Visit [LemonSqueezy](https://lemonsqueezy.com/)
-   - Create an account and set up your store
+    - Visit [LemonSqueezy](https://lemonsqueezy.com/)
+    - Create an account and set up your store
 
 2. **Configure Environment Variables**
 
@@ -426,14 +426,14 @@ NEXT_PUBLIC_LEMONSQUEEZY_SPONSOR_PRODUCT_ID="your-sponsor-product-id"
 ```
 
 3. **Create Products in LemonSqueezy**
-   - Go to your LemonSqueezy store
-   - Create products for each plan
-   - Copy the Product IDs to your environment variables
+    - Go to your LemonSqueezy store
+    - Create products for each plan
+    - Copy the Product IDs to your environment variables
 
 4. **Setup Webhooks**
-   - Go to Settings → Webhooks
-   - Add webhook URL: `https://yourdomain.com/api/webhooks/lemonsqueezy`
-   - Copy webhook secret to environment variables
+    - Go to Settings → Webhooks
+    - Add webhook URL: `https://yourdomain.com/api/webhooks/lemonsqueezy`
+    - Copy webhook secret to environment variables
 
 ### Switching Payment Providers
 
@@ -443,7 +443,7 @@ To switch between payment providers:
 
 ```yaml
 payment:
-  provider: 'lemonsqueezy'  # Change from 'stripe' to 'lemonsqueezy'
+    provider: 'lemonsqueezy' # Change from 'stripe' to 'lemonsqueezy'
 ```
 
 2. **Restart your application** for changes to take effect
@@ -463,22 +463,22 @@ payment:
 ### Security Notes
 
 1. **Cookie Security**
-   - httpOnly cookies are used for token storage
-   - Prevents XSS attacks by making tokens inaccessible to JavaScript
-   - Secure flag must be enabled in production
-   - SameSite policy helps prevent CSRF attacks
+    - httpOnly cookies are used for token storage
+    - Prevents XSS attacks by making tokens inaccessible to JavaScript
+    - Secure flag must be enabled in production
+    - SameSite policy helps prevent CSRF attacks
 
 2. **API Security**
-   - Automatic token refresh handling
-   - Request queue during token refresh
-   - Exponential backoff for retries
-   - Proper error handling and formatting
+    - Automatic token refresh handling
+    - Request queue during token refresh
+    - Exponential backoff for retries
+    - Proper error handling and formatting
 
 3. **Environment Specific**
-   - Development uses relaxed security for local testing
-   - Production requires strict security settings
-   - Different cookie domains per environment
-   - CORS configuration required for production
+    - Development uses relaxed security for local testing
+    - Production requires strict security settings
+    - Different cookie domains per environment
+    - CORS configuration required for production
 
 ### ReCAPTCHA v2 Integration
 
@@ -487,9 +487,9 @@ This template includes Google ReCAPTCHA v2 for form protection against spam and 
 #### Setup ReCAPTCHA
 
 1. **Get ReCAPTCHA Keys**
-   - Visit [Google ReCAPTCHA Console](https://www.google.com/recaptcha/admin/create)
-   - Create a new site with reCAPTCHA v2 ("I'm not a robot" checkbox)
-   - Add your domains (localhost for development, your domain for production)
+    - Visit [Google ReCAPTCHA Console](https://www.google.com/recaptcha/admin/create)
+    - Create a new site with reCAPTCHA v2 ("I'm not a robot" checkbox)
+    - Add your domains (localhost for development, your domain for production)
 
 2. **Configure Environment Variables**
 
@@ -544,13 +544,13 @@ import { serverClient, apiUtils } from '@/lib/api/server-client';
 // GET request
 const users = await serverClient.get<User[]>('/api/users');
 if (apiUtils.isSuccess(users)) {
-  console.log(users.data); // TypeScript knows this is User[]
+	console.log(users.data); // TypeScript knows this is User[]
 }
 
 // POST request with data
 const result = await serverClient.post('/api/auth/login', {
-  email: 'user@example.com',
-  password: 'password123'
+	email: 'user@example.com',
+	password: 'password123'
 });
 
 // File upload
@@ -559,9 +559,9 @@ const upload = await serverClient.upload('/api/upload', file);
 
 // Form data submission
 const contact = await serverClient.postForm('/api/contact', {
-  name: 'John Doe',
-  email: 'john@example.com',
-  message: 'Hello world'
+	name: 'John Doe',
+	email: 'john@example.com',
+	message: 'Hello world'
 });
 ```
 
@@ -579,9 +579,9 @@ const verification = await recaptchaClient.verify(token);
 // Custom client
 import { createApiClient } from '@/lib/api/server-client';
 const customClient = createApiClient('https://api.myservice.com', {
-  timeout: 30000,
-  retries: 5,
-  headers: { 'Authorization': 'Bearer token' }
+	timeout: 30000,
+	retries: 5,
+	headers: { Authorization: 'Bearer token' }
 });
 ```
 
@@ -589,13 +589,14 @@ const customClient = createApiClient('https://api.myservice.com', {
 
 ```tsx
 const client = new ServerClient('https://api.example.com', {
-  timeout: 10000,        // Request timeout (ms)
-  retries: 3,           // Number of retry attempts
-  retryDelay: 1000,     // Delay between retries (ms)
-  headers: {            // Default headers
-    'Authorization': 'Bearer token',
-    'X-API-Version': 'v2'
-  }
+	timeout: 10000, // Request timeout (ms)
+	retries: 3, // Number of retry attempts
+	retryDelay: 1000, // Delay between retries (ms)
+	headers: {
+		// Default headers
+		Authorization: 'Bearer token',
+		'X-API-Version': 'v2'
+	}
 });
 ```
 
@@ -609,8 +610,8 @@ await api.login({ email: 'user@example.com', password: 'password' });
 
 // Check authentication status
 if (await api.isAuthenticated()) {
-  // Make authenticated requests
-  const response = await api.get('/protected-endpoint');
+	// Make authenticated requests
+	const response = await api.get('/protected-endpoint');
 }
 
 // Logout
@@ -705,20 +706,20 @@ All other brand and product names are trademarks, registered trademarks, or serv
 
 ## 🍺 Contribute
 
--   Please give us a :star: on Github, it **helps**!
--   You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
--   Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
+- Please give us a :star: on Github, it **helps**!
+- You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
+- Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
 
 ## 💪 Thanks to our Contributors
 
-See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-works-website-template/blob/develop/.github/CONTRIBUTORS.md).
-You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/ever-works-website-template/graphs/contributors).
+See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/directory-web-template/blob/develop/.github/CONTRIBUTORS.md).
+You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/directory-web-template/graphs/contributors).
 
-<img src="https://contributors-img.web.app/image?repo=ever-co/ever-works-website-template" />
+<img src="https://contributors-img.web.app/image?repo=ever-co/directory-web-template" />
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/ever-works-website-template&type=Date)](https://star-history.com/#ever-co/ever-works-website-template&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/directory-web-template&type=Date)](https://star-history.com/#ever-co/directory-web-template&Date)
 
 ## ❤️ Powered By
 

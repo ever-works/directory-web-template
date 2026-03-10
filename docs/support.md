@@ -12,9 +12,9 @@ Welcome to the Ever Works Website Template support center.
 
 ### Community Support
 
-- **[GitHub Issues](https://github.com/ever-works/ever-works-website-template/issues)** -- Report bugs, request features, or ask technical questions
+- **[GitHub Issues](https://github.com/ever-works/directory-web-template/issues)** -- Report bugs, request features, or ask technical questions
 - **[Discord Community](https://discord.gg/ever)** -- Join our active Discord server for real-time support
-- **[Stack Overflow](https://stackoverflow.com/questions/tagged/ever-works-website-template)** -- Ask technical questions with the `ever-works-website-template` tag
+- **[Stack Overflow](https://stackoverflow.com/questions/tagged/directory-web-template)** -- Ask technical questions with the `directory-web-template` tag
 
 ### Professional Support
 
@@ -34,7 +34,7 @@ For Ever Works Platform documentation, visit [docs.ever.works](https://docs.ever
 ## Demo & Examples
 
 - **[Demo Site](https://demo.ever.works)** -- See the template in action
-- **[GitHub Repository](https://github.com/ever-works/ever-works-website-template)** -- Source code and examples
+- **[GitHub Repository](https://github.com/ever-works/directory-web-template)** -- Source code and examples
 
 ## Troubleshooting
 
@@ -64,7 +64,7 @@ For Ever Works Platform documentation, visit [docs.ever.works](https://docs.ever
 Enable debug logging by setting environment variables:
 
 ```bash
-DEBUG=ever-works-website-template:*
+DEBUG=directory-web-template:*
 NODE_ENV=development
 ```
 

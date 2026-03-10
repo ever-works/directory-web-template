@@ -21,8 +21,8 @@ This guide covers common errors, debugging techniques, log interpretation, and e
 
 ```typescript
 const nextConfig: NextConfig = {
-  output: "standalone",
-  serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm'],
+	output: 'standalone',
+	serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm']
 };
 ```
 
@@ -75,12 +75,12 @@ mkdir -p .content/data
 
 ```typescript
 config.ignoreWarnings = [
-  { module: /@supabase\/realtime-js/ },
-  { module: /@supabase\/supabase-js/ },
-  { module: /bcryptjs/ },
-  { message: /bcryptjs/ },
-  { module: /postgres/ },
-  { module: /stripe/ },
+	{ module: /@supabase\/realtime-js/ },
+	{ module: /@supabase\/supabase-js/ },
+	{ module: /bcryptjs/ },
+	{ message: /bcryptjs/ },
+	{ module: /postgres/ },
+	{ module: /stripe/ }
 ];
 ```
 
@@ -97,6 +97,7 @@ cross-env NODE_OPTIONS='--max-old-space-size=8192' next build
 ```
 
 If the build still runs out of memory, check for:
+
 - Excessive static page generation (reduce pages built at build time)
 - Large dependencies not tree-shaken properly
 - Memory leaks in build-time scripts
@@ -110,21 +111,21 @@ If the build still runs out of memory, check for:
 **Diagnostic steps**:
 
 1. Verify `DATABASE_URL` in `.env.local`:
-   ```bash
-   node -e "require('dotenv').config({path:'.env.local'}); console.log(process.env.DATABASE_URL ? 'Set' : 'Missing')"
-   ```
+    ```bash
+    node -e "require('dotenv').config({path:'.env.local'}); console.log(process.env.DATABASE_URL ? 'Set' : 'Missing')"
+    ```
 2. Test the connection directly: `psql $DATABASE_URL -c "SELECT 1"`
 3. Check that PostgreSQL is running: `pg_isready`
 
 **Common causes and fixes**:
 
-| Cause | Fix |
-|-------|-----|
-| PostgreSQL not running | Start the service |
-| Wrong port | Verify the port in your connection string |
-| Missing database | `createdb your_database_name` |
-| Auth failure | Check username/password in `DATABASE_URL` |
-| SSL required | Add `?sslmode=require` to the connection string |
+| Cause                  | Fix                                             |
+| ---------------------- | ----------------------------------------------- |
+| PostgreSQL not running | Start the service                               |
+| Wrong port             | Verify the port in your connection string       |
+| Missing database       | `createdb your_database_name`                   |
+| Auth failure           | Check username/password in `DATABASE_URL`       |
+| SSL required           | Add `?sslmode=require` to the connection string |
 
 ### Migration failed
 
@@ -137,6 +138,7 @@ pnpm db:migrate:cli
 ```
 
 This shows:
+
 1. Current migration state (list of applied migrations)
 2. Detailed migration execution output
 3. Schema verification after migration
@@ -155,17 +157,17 @@ SELECT hash, created_at FROM drizzle.__drizzle_migrations ORDER BY created_at;
 
 **Behavior by environment**:
 
-| Environment | On Failure |
-|-------------|-----------|
-| Production | Throws error, deployment serves 503 |
+| Environment | On Failure                             |
+| ----------- | -------------------------------------- |
+| Production  | Throws error, deployment serves 503    |
 | Development | Logs warning, app starts for debugging |
-| Preview | Logs warning, app starts for debugging |
+| Preview     | Logs warning, app starts for debugging |
 
 From `instrumentation.ts`:
 
 ```typescript
 if (isProduction) {
-  throw error; // Fail fast in production
+	throw error; // Fail fast in production
 }
 // In development/preview, allow app to start for debugging
 console.warn('[Instrumentation] Non-production: Allowing app to start despite DB init failure');
@@ -213,12 +215,12 @@ AUTH_SECRET=your_generated_secret_here
 
 **Solution**: The callback URL in your OAuth provider console must match exactly:
 
-| Provider | Callback URL |
-|----------|-------------|
-| Google | `https://yourdomain.com/api/auth/callback/google` |
-| GitHub | `https://yourdomain.com/api/auth/callback/github` |
+| Provider | Callback URL                                        |
+| -------- | --------------------------------------------------- |
+| Google   | `https://yourdomain.com/api/auth/callback/google`   |
+| GitHub   | `https://yourdomain.com/api/auth/callback/github`   |
 | Facebook | `https://yourdomain.com/api/auth/callback/facebook` |
-| Twitter | `https://yourdomain.com/api/auth/callback/twitter` |
+| Twitter  | `https://yourdomain.com/api/auth/callback/twitter`  |
 
 For local development, use `http://localhost:3000/api/auth/callback/<provider>`.
 
@@ -253,11 +255,11 @@ FB_CLIENT_ID + FB_CLIENT_SECRET
 
 **Common causes**:
 
-| Cause | Solution |
-|-------|---------|
-| `AUTH_SECRET` changed | Changing the secret invalidates all sessions |
-| Cookie domain mismatch | Set `COOKIE_DOMAIN` to match your deployment domain |
-| HTTPS mismatch | Set `COOKIE_SECURE=false` for local HTTP development |
+| Cause                  | Solution                                             |
+| ---------------------- | ---------------------------------------------------- |
+| `AUTH_SECRET` changed  | Changing the secret invalidates all sessions         |
+| Cookie domain mismatch | Set `COOKIE_DOMAIN` to match your deployment domain  |
+| HTTPS mismatch         | Set `COOKIE_SECURE=false` for local HTTP development |
 
 ## Deployment Issues
 
@@ -278,9 +280,9 @@ FB_CLIENT_ID + FB_CLIENT_SECRET
 **Diagnostic steps**:
 
 1. Verify `vercel.json` is in the project root with correct paths:
-   ```json
-   { "path": "/api/cron/sync", "schedule": "0 3 * * *" }
-   ```
+    ```json
+    { "path": "/api/cron/sync", "schedule": "0 3 * * *" }
+    ```
 2. Confirm Vercel plan supports cron (Pro or Enterprise)
 3. Check Vercel Dashboard under the Cron Jobs tab for execution logs
 4. Test the endpoint manually: `curl https://yourdomain.com/api/cron/sync`
@@ -297,10 +299,10 @@ FB_CLIENT_ID + FB_CLIENT_SECRET
 
 ```typescript
 if (isProduction) {
-  process.exit(1); // Fail production builds
+	process.exit(1); // Fail production builds
 }
 if (isConnectionError && !isAuthError) {
-  process.exit(0); // Allow preview deployments to continue
+	process.exit(0); // Allow preview deployments to continue
 }
 ```
 
@@ -338,9 +340,27 @@ If a key is missing from the locale file, the English fallback should provide it
 
 ```typescript
 export const LOCALES = [
-  'en', 'fr', 'es', 'de', 'zh', 'ar', 'he',
-  'ru', 'uk', 'pt', 'it', 'ja', 'ko', 'nl',
-  'pl', 'tr', 'vi', 'th', 'hi', 'id', 'bg'
+	'en',
+	'fr',
+	'es',
+	'de',
+	'zh',
+	'ar',
+	'he',
+	'ru',
+	'uk',
+	'pt',
+	'it',
+	'ja',
+	'ko',
+	'nl',
+	'pl',
+	'tr',
+	'vi',
+	'th',
+	'hi',
+	'id',
+	'bg'
 ] as const;
 ```
 
@@ -348,10 +368,10 @@ And verify the routing configuration in `i18n/routing.ts`:
 
 ```typescript
 export const routing = defineRouting({
-  locales: LOCALES,
-  defaultLocale: DEFAULT_LOCALE,
-  localeDetection: true,
-  localePrefix: "as-needed",
+	locales: LOCALES,
+	defaultLocale: DEFAULT_LOCALE,
+	localeDetection: true,
+	localePrefix: 'as-needed'
 });
 ```
 
@@ -359,44 +379,44 @@ export const routing = defineRouting({
 
 ### Log Prefixes
 
-| Prefix | Source | Location |
-|--------|--------|----------|
-| `[Instrumentation]` | App startup (DB init, Sentry) | `instrumentation.ts` |
-| `[Migration]` | Database migration execution | `lib/db/migrate.ts` |
-| `[DB Init]` | Database initialization and seeding | `lib/db/initialize.ts` |
-| `[Build Migration]` | Build-time migration script | `scripts/build-migrate.ts` |
-| `[Layout]` | Root layout data fetching errors | `app/[locale]/layout.tsx` |
+| Prefix              | Source                              | Location                   |
+| ------------------- | ----------------------------------- | -------------------------- |
+| `[Instrumentation]` | App startup (DB init, Sentry)       | `instrumentation.ts`       |
+| `[Migration]`       | Database migration execution        | `lib/db/migrate.ts`        |
+| `[DB Init]`         | Database initialization and seeding | `lib/db/initialize.ts`     |
+| `[Build Migration]` | Build-time migration script         | `scripts/build-migrate.ts` |
+| `[Layout]`          | Root layout data fetching errors    | `app/[locale]/layout.tsx`  |
 
 ### Sentry Error Tags
 
 Sentry errors from instrumentation include these tags for filtering:
 
-| Tag | Values |
-|-----|--------|
-| `component` | `instrumentation` |
-| `phase` | `database_init` |
+| Tag           | Values                                    |
+| ------------- | ----------------------------------------- |
+| `component`   | `instrumentation`                         |
+| `phase`       | `database_init`                           |
 | `environment` | `production`, `preview`, or `development` |
 
 ## Diagnostic Commands
 
-| Task | Command |
-|------|---------|
-| Check TypeScript errors | `pnpm tsc --noEmit` |
-| Run linter | `pnpm lint` |
-| Validate environment | `node scripts/check-env.js` |
-| Quick environment check | `node scripts/check-env.js --quick` |
-| Test database connection | `pnpm db:studio` |
-| View migration state | `pnpm db:migrate:cli` |
-| Generate new migrations | `pnpm db:generate` |
-| Apply pending migrations | `pnpm db:migrate` |
-| Seed database | `pnpm db:seed` |
-| Clean build cache | `rm -rf .next` |
-| Full rebuild | `rm -rf .next && pnpm build` |
-| Reset database | `node scripts/clean-database.js` |
+| Task                     | Command                             |
+| ------------------------ | ----------------------------------- |
+| Check TypeScript errors  | `pnpm tsc --noEmit`                 |
+| Run linter               | `pnpm lint`                         |
+| Validate environment     | `node scripts/check-env.js`         |
+| Quick environment check  | `node scripts/check-env.js --quick` |
+| Test database connection | `pnpm db:studio`                    |
+| View migration state     | `pnpm db:migrate:cli`               |
+| Generate new migrations  | `pnpm db:generate`                  |
+| Apply pending migrations | `pnpm db:migrate`                   |
+| Seed database            | `pnpm db:seed`                      |
+| Clean build cache        | `rm -rf .next`                      |
+| Full rebuild             | `rm -rf .next && pnpm build`        |
+| Reset database           | `node scripts/clean-database.js`    |
 
 ## Getting Help
 
-1. Search [GitHub Issues](https://github.com/ever-works/ever-works-website-template/issues)
+1. Search [GitHub Issues](https://github.com/ever-works/directory-web-template/issues)
 2. Review the `CLAUDE.md` file for AI-assisted development guidelines
 3. Check Sentry dashboard for error details (if configured)
 4. For security issues, email security@ever.co privately

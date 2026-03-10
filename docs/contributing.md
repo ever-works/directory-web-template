@@ -10,7 +10,7 @@ Thank you for your interest in contributing to the Ever Works Website Template. 
 
 ## Repository
 
-The Template source code is hosted at [github.com/ever-works/ever-works-website-template](https://github.com/ever-works/ever-works-website-template).
+The Template source code is hosted at [github.com/ever-works/directory-web-template](https://github.com/ever-works/directory-web-template).
 
 For contributions to the Ever Works Platform, see the [Platform repository](https://github.com/ever-works/ever-works) and its contributing guide at [docs.ever.works](https://docs.ever.works).
 
@@ -39,8 +39,8 @@ npm install -g pnpm
 ## Development Setup
 
 ```bash
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 pnpm install
 
 # Copy environment file and configure
@@ -67,14 +67,14 @@ Formatting is enforced via Prettier. The configuration lives in the root `packag
 
 ```json
 {
-  "printWidth": 120,
-  "singleQuote": true,
-  "semi": true,
-  "useTabs": true,
-  "tabWidth": 4,
-  "arrowParens": "always",
-  "trailingComma": "none",
-  "quoteProps": "as-needed"
+	"printWidth": 120,
+	"singleQuote": true,
+	"semi": true,
+	"useTabs": true,
+	"tabWidth": 4,
+	"arrowParens": "always",
+	"trailingComma": "none",
+	"quoteProps": "as-needed"
 }
 ```
 
@@ -95,28 +95,28 @@ pnpm lint
 
 ### Naming Conventions
 
-| Element | Convention | Example |
-|---|---|---|
-| Files | kebab-case | `auth.service.ts`, `user-profile.tsx` |
-| Classes, Interfaces, Types | PascalCase | `DirectoryService`, `UserProfile` |
-| Functions, Variables | camelCase | `getDirectoryById`, `itemCount` |
-| Constants | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`, `DEFAULT_LOCALE` |
+| Element                    | Convention       | Example                               |
+| -------------------------- | ---------------- | ------------------------------------- |
+| Files                      | kebab-case       | `auth.service.ts`, `user-profile.tsx` |
+| Classes, Interfaces, Types | PascalCase       | `DirectoryService`, `UserProfile`     |
+| Functions, Variables       | camelCase        | `getDirectoryById`, `itemCount`       |
+| Constants                  | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`, `DEFAULT_LOCALE`   |
 
 ## Commit Conventions
 
 The repository enforces [Conventional Commits](https://www.conventionalcommits.org/) via **commitlint** and **husky** pre-commit hooks.
 
-| Prefix | Usage |
-|---|---|
-| `feat:` | New features |
-| `fix:` | Bug fixes |
-| `docs:` | Documentation changes |
+| Prefix      | Usage                                      |
+| ----------- | ------------------------------------------ |
+| `feat:`     | New features                               |
+| `fix:`      | Bug fixes                                  |
+| `docs:`     | Documentation changes                      |
 | `refactor:` | Code restructuring without behavior change |
-| `test:` | Adding or updating tests |
-| `chore:` | Maintenance tasks, dependency updates |
-| `style:` | Formatting changes (no logic change) |
-| `perf:` | Performance improvements |
-| `ci:` | CI/CD configuration changes |
+| `test:`     | Adding or updating tests                   |
+| `chore:`    | Maintenance tasks, dependency updates      |
+| `style:`    | Formatting changes (no logic change)       |
+| `perf:`     | Performance improvements                   |
+| `ci:`       | CI/CD configuration changes                |
 
 Example:
 
@@ -177,6 +177,6 @@ All contributors are expected to follow the project's Code of Conduct. Be respec
 
 If you have questions about contributing:
 
-- Open a [GitHub Discussion](https://github.com/ever-works/ever-works-website-template/discussions)
+- Open a [GitHub Discussion](https://github.com/ever-works/directory-web-template/discussions)
 - Join the [Discord community](https://discord.gg/ever) for real-time help
 - Email [ever@ever.co](mailto:ever@ever.co) for private inquiries

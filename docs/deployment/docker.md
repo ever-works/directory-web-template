@@ -20,8 +20,8 @@ Deploy your Ever Works directory website using Docker containers.
 
 ```bash
 # Clone the repository
-git clone https://github.com/ever-works/ever-works-website-template.git
-cd ever-works-website-template
+git clone https://github.com/ever-works/directory-web-template.git
+cd directory-web-template
 
 # Build the Docker image
 docker build -t ever-works-website .
@@ -44,30 +44,30 @@ Create a `docker-compose.yml` file:
 version: '3.8'
 
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_BASE_URL=https://your-api.com
-    volumes:
-      - ./.content:/app/.content
-    restart: unless-stopped
+    app:
+        build: .
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=production
+            - NEXT_PUBLIC_API_BASE_URL=https://your-api.com
+        volumes:
+            - ./.content:/app/.content
+        restart: unless-stopped
 
-  # Optional: Add a database service
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_DB: everworks
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: unless-stopped
+    # Optional: Add a database service
+    postgres:
+        image: postgres:15
+        environment:
+            POSTGRES_DB: everworks
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: password
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        restart: unless-stopped
 
 volumes:
-  postgres_data:
+    postgres_data:
 ```
 
 ### Run with Docker Compose
@@ -100,16 +100,19 @@ NEXTAUTH_URL=https://your-domain.com
 ## Production Considerations
 
 ### Security
+
 - Use secrets management for sensitive data
 - Enable HTTPS with reverse proxy (nginx, Traefik)
 - Regular security updates
 
 ### Performance
+
 - Use multi-stage builds to reduce image size
 - Configure proper resource limits
 - Enable caching layers
 
 ### Monitoring
+
 - Add health checks
 - Configure logging
 - Set up monitoring and alerts
