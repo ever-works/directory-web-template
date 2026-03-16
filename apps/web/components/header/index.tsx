@@ -30,6 +30,7 @@ import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useHeaderSettings } from '@/hooks/use-header-settings';
 import { useCategoriesExists } from '@/hooks/use-categories-exists';
 import { useCollectionsExists } from '@/hooks/use-collections-exists';
+import { useComparisonsExists } from '@/hooks/use-comparisons-exists';
 import { useTagsExists } from '@/hooks/use-tags-exists';
 import { isDemoMode } from '@/lib/utils';
 import { isExternalUrl, resolveLabel } from '@/lib/utils/custom-navigation';
@@ -88,6 +89,11 @@ const NAVIGATION_CONFIG: Array<{
 		href: '/collections',
 		translationKey: 'COLLECTION',
 		translationNamespace: 'common'
+	},
+	{
+		key: 'comparisons',
+		href: '/comparisons',
+		staticLabel: 'Comparisons'
 	},
 	{
 		key: 'favorites',
@@ -178,6 +184,7 @@ export default function Header() {
 	const { settings: headerSettings } = useHeaderSettings();
 	const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesExists();
 	const { data: collectionsData, isLoading: collectionsLoading } = useCollectionsExists();
+	const { data: comparisonsData, isLoading: comparisonsLoading } = useComparisonsExists();
 	const { data: tagsData, isLoading: tagsLoading } = useTagsExists();
 	const isDemo = isDemoMode();
 
@@ -201,11 +208,12 @@ export default function Header() {
 	tGlobalRef.current = tGlobal;
 
 	// Check if we're still loading essential data for navigation
-	const isNavigationLoading = categoriesLoading || collectionsLoading || tagsLoading;
+	const isNavigationLoading = categoriesLoading || collectionsLoading || comparisonsLoading || tagsLoading;
 
 	// Extract existence flags from React Query data
 	const hasCategories = categoriesData?.exists ?? false;
 	const hasCollections = collectionsData?.exists ?? false;
+	const hasComparisons = comparisonsData?.exists ?? false;
 	const hasTags = tagsData?.exists ?? false;
 
 	const navigationItems = useMemo((): NavigationItem[] => {
@@ -213,6 +221,9 @@ export default function Header() {
 			// Hide collections link when no collections exist
 			// Note: During loading, skeleton is shown, so this filter only applies after data is loaded
 			if (item.key === 'collections' && !hasCollections) {
+				return false;
+			}
+			if (item.key === 'comparisons' && !hasComparisons) {
 				return false;
 			}
 			// Hide categories link when categories are disabled or no categories exist

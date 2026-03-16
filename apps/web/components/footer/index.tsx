@@ -12,6 +12,7 @@ import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useCategoriesExists } from '@/hooks/use-categories-exists';
 import { useCollectionsExists } from '@/hooks/use-collections-exists';
+import { useComparisonsExists } from '@/hooks/use-comparisons-exists';
 import { useTagsExists } from '@/hooks/use-tags-exists';
 import { useFooterSettings } from '@/hooks/use-footer-settings';
 
@@ -22,12 +23,14 @@ export function Footer() {
 	const { tagsEnabled } = useTagsEnabled();
 	const { data: categoriesData } = useCategoriesExists();
 	const { data: collectionsData } = useCollectionsExists();
+	const { data: comparisonsData } = useComparisonsExists();
 	const { data: tagsData } = useTagsExists();
 	const { settings: footerSettings } = useFooterSettings();
 
 	// Extract existence flags from React Query data
 	const hasCategories = categoriesData?.exists ?? false;
 	const hasCollections = collectionsData?.exists ?? false;
+	const hasComparisons = comparisonsData?.exists ?? false;
 	const hasTags = tagsData?.exists ?? false;
 
 	return (

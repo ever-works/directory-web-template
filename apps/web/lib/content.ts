@@ -11,6 +11,7 @@ import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
 import { Collection } from '@/types/collection';
+import type { ComparisonData, ComparisonDetail } from '@/types/comparison';
 import type { ItemLocationData } from '@/lib/types/item';
 import { z } from 'zod';
 
@@ -125,6 +126,11 @@ interface Identifiable {
 interface TypePagination {
 	type: 'standard' | 'infinite';
 	itemsPerPage: number;
+}
+
+interface FetchComparisonsResult {
+	total: number;
+	comparisons: ComparisonData[];
 }
 
 export interface PricingConfig {
@@ -608,6 +614,81 @@ interface FetchItemsResult {
 	categories: Category[];
 	tags: Tag[];
 	collections: Collection[];
+}
+
+async function fetchComparisons(): Promise<FetchComparisonsResult> {
+	const { ensureContentAvailable } = await import('./lib');
+	await ensureContentAvailable();
+
+	const contentPath = getContentPath();
+	const comparisonsDir = path.join(contentPath, 'comparisons');
+
+	if (!(await dirExists(comparisonsDir))) {
+		return { total: 0, comparisons: [] };
+	}
+
+	try {
+		const entries = await fsp.readdir(comparisonsDir, { withFileTypes: true });
+		const comparisons = (await Promise.all(
+			entries
+				.filter((entry) => entry.isDirectory())
+				.map(async (entry) => {
+					const slug = sanitizeFilename(entry.name);
+					const ymlPath = path.join(comparisonsDir, slug, `${slug}.yml`);
+					try {
+						const raw = await safeReadFile(ymlPath, comparisonsDir);
+						return yaml.parse(raw) as ComparisonData;
+					} catch (error) {
+						console.error(`Failed to load comparison ${slug}:`, error);
+						return null;
+					}
+				})
+		)).filter((comparison): comparison is ComparisonData => comparison !== null);
+
+		comparisons.sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
+
+		return { total: comparisons.length, comparisons };
+	} catch (error) {
+		console.error('Failed to load comparisons:', error);
+		return { total: 0, comparisons: [] };
+	}
+}
+
+export async function fetchComparison(slug: string): Promise<ComparisonDetail | null> {
+	const { ensureContentAvailable } = await import('./lib');
+	await ensureContentAvailable();
+
+	const contentPath = getContentPath();
+	const sanitizedSlug = sanitizeFilename(slug);
+	const comparisonDir = path.join(contentPath, 'comparisons', sanitizedSlug);
+
+	if (!(await dirExists(comparisonDir))) {
+		return null;
+	}
+
+	const ymlPath = path.join(comparisonDir, `${sanitizedSlug}.yml`);
+	const mdPath = path.join(comparisonDir, `${sanitizedSlug}.md`);
+	const extendedPath = path.join(comparisonDir, `${sanitizedSlug}-extended.md`);
+
+	try {
+		const raw = await safeReadFile(ymlPath, comparisonDir);
+		const comparison = yaml.parse(raw) as ComparisonData;
+		let markdown: string | undefined;
+		let extendedAnalysisMarkdown: string | undefined;
+
+		if (await fsExists(mdPath)) {
+			markdown = await safeReadFile(mdPath, comparisonDir);
+		}
+
+		if (await fsExists(extendedPath)) {
+			extendedAnalysisMarkdown = await safeReadFile(extendedPath, comparisonDir);
+		}
+
+		return { comparison, markdown, extendedAnalysisMarkdown };
+	} catch (error) {
+		console.error(`Failed to load comparison ${sanitizedSlug}:`, error);
+		return null;
+	}
 }
 
 // IN-MEMORY CACHE INFRASTRUCTURE
@@ -1627,6 +1708,34 @@ export const getCachedItems = async (options: FetchOptions = {}) => {
 				CACHE_TAGS.COLLECTIONS,
 				CACHE_TAGS.ITEMS_LOCALE(locale)
 			]
+		}
+	)();
+};
+
+export const getCachedComparisons = async (options: FetchOptions = {}) => {
+	const locale = options.lang || 'en';
+	return unstable_cache(
+		async () => {
+			return await fetchComparisons();
+		},
+		['comparisons', locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.CONTENT,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.COMPARISONS, CACHE_TAGS.COMPARISONS_LOCALE(locale)]
+		}
+	)();
+};
+
+export const getCachedComparison = async (slug: string, options: FetchOptions = {}) => {
+	const locale = options.lang || 'en';
+	return unstable_cache(
+		async () => {
+			return await fetchComparison(slug);
+		},
+		['comparison', slug, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.ITEM,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.COMPARISONS]
 		}
 	)();
 };

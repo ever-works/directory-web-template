@@ -37,6 +37,7 @@ interface SettingsContextValue {
 	hasCategories: boolean;
 	hasTags: boolean;
 	hasCollections: boolean;
+	hasComparisons: boolean;
 	hasGlobalSurveys: boolean;
 	// Header settings
 	headerSettings: HeaderSettings;
@@ -56,6 +57,7 @@ interface SettingsProviderProps extends PropsWithChildren {
 	hasCategories: boolean;
 	hasTags: boolean;
 	hasCollections: boolean;
+	hasComparisons: boolean;
 	hasGlobalSurveys: boolean;
 	headerSettings: HeaderSettings;
 	footerSettings: FooterSettings;
@@ -71,6 +73,7 @@ export function SettingsProvider({
 	hasCategories,
 	hasTags,
 	hasCollections,
+	hasComparisons,
 	hasGlobalSurveys,
 	headerSettings,
 	footerSettings,
@@ -92,6 +95,7 @@ export function SettingsProvider({
 				hasCategories,
 				hasTags,
 				hasCollections,
+				hasComparisons,
 				hasGlobalSurveys,
 				headerSettings,
 				footerSettings,
@@ -115,6 +119,7 @@ export function useSettings(): SettingsContextValue {
 			hasCategories: true,
 			hasTags: true,
 			hasCollections: true,
+			hasComparisons: true,
 			hasGlobalSurveys: false,
 			headerSettings: DEFAULT_HEADER_SETTINGS,
 			footerSettings: DEFAULT_FOOTER_SETTINGS,

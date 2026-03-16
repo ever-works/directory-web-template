@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
 import './globals.scss';
-import { getCachedConfig, getCachedItems } from '@/lib/content';
+import { getCachedConfig, getCachedItems, getCachedComparisons } from '@/lib/content';
 import { SurveyService } from '@/lib/services/survey.service';
 import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { notFound } from 'next/navigation';
@@ -103,12 +103,17 @@ export default async function RootLayout({
 	let categories: Awaited<ReturnType<typeof getCachedItems>>['categories'] = [];
 	let tags: Awaited<ReturnType<typeof getCachedItems>>['tags'] = [];
 	let collections: Awaited<ReturnType<typeof getCachedItems>>['collections'] = [];
+	let comparisons: Awaited<ReturnType<typeof getCachedComparisons>>['comparisons'] = [];
 
 	try {
-		const itemsData = await getCachedItems({ lang: locale });
+		const [itemsData, comparisonsData] = await Promise.all([
+			getCachedItems({ lang: locale }),
+			getCachedComparisons({ lang: locale }),
+		]);
 		categories = itemsData.categories;
 		tags = itemsData.tags;
 		collections = itemsData.collections;
+		comparisons = comparisonsData.comparisons;
 	} catch (error) {
 		// If content fetch fails (malformed YAML, file system errors, etc.), use empty arrays
 		// This prevents the root layout from crashing
@@ -125,6 +130,7 @@ export default async function RootLayout({
 	const hasCategories = Array.isArray(categories) && categories.length > 0;
 	const hasTags = Array.isArray(tags) && tags.length > 0;
 	const hasCollections = Array.isArray(collections) && collections.length > 0;
+	const hasComparisons = Array.isArray(comparisons) && comparisons.length > 0;
 
 	// Check if global surveys exist (only if surveys feature is enabled)
 	let hasGlobalSurveys = false;
@@ -200,6 +206,7 @@ export default async function RootLayout({
 						hasCategories={hasCategories}
 						hasTags={hasTags}
 						hasCollections={hasCollections}
+						hasComparisons={hasComparisons}
 						hasGlobalSurveys={hasGlobalSurveys}
 						headerSettings={headerSettings}
 						footerSettings={footerSettings}
