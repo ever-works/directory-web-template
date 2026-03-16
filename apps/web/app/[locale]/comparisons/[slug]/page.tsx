@@ -47,7 +47,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
       description={comparison.summary}
       className="text-center"
     >
-      <Container maxWidth="5xl" padding="default" useGlobalWidth className="pb-20 space-y-8 text-left">
+      <Container maxWidth="7xl" padding="default" useGlobalWidth className="pb-20 space-y-8 text-left">
         <div className="rounded-2xl border border-gray-200 dark:border-gray-700/50 bg-white dark:bg-[#101624] p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
