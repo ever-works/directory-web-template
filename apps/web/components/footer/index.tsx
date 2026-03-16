@@ -61,6 +61,7 @@ export function Footer() {
 										hasCategories,
 										hasTags,
 										hasCollections,
+										hasComparisons,
 										customFooterItems: config.custom_footer || []
 									})
 								).map(([category, links]) => (
