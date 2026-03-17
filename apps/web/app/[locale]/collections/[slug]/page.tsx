@@ -16,18 +16,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
 
+  const { collections } = await getCachedItems({ lang: locale });
+  const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);
+
   let collection = null;
   try {
     const allCollections = await collectionRepository.findAll({ includeInactive: false });
-    collection = allCollections.find((c) => c.slug === slug);
+    const repositoryCollection = allCollections.find((c) => c.slug === slug || c.id === slug);
+    collection = repositoryCollection && normalizedCollection
+      ? { ...repositoryCollection, ...normalizedCollection, items: normalizedCollection.items || repositoryCollection.items }
+      : repositoryCollection || normalizedCollection;
   } catch {
-    // Ignore error, try fallback
-  }
-
-  if (!collection) {
-    // Fallback to local content
-    const { collections } = await getCachedItems({ lang: locale });
-    collection = collections.find(c => c.slug === slug || c.id === slug);
+    collection = normalizedCollection;
   }
 
   if (!collection) {
@@ -63,28 +63,25 @@ export default async function CollectionPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  
-  // Fetch collection from Git repository
+
+  const { categories: _categories, tags, items, collections } = await getCachedItems({ lang: locale });
+  const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);
+
   let collection = null;
   try {
     const allCollections = await collectionRepository.findAll({ includeInactive: false });
-    collection = allCollections.find(c => c.slug === slug);
+    const repositoryCollection = allCollections.find((c) => c.slug === slug || c.id === slug);
+    collection = repositoryCollection && normalizedCollection
+      ? { ...repositoryCollection, ...normalizedCollection, items: normalizedCollection.items || repositoryCollection.items }
+      : repositoryCollection || normalizedCollection;
   } catch (_error) {
     logger.warn('Git collection repository not available, falling back to local content');
-  }
-
-  if (!collection) {
-    // Fallback to local content
-    const { collections } = await getCachedItems({ lang: locale });
-    collection = collections.find(c => c.slug === slug || c.id === slug);
+    collection = normalizedCollection;
   }
 
   if (!collection) {
     notFound();
   }
-  
-  // Fetch all items
-  const { categories: _categories, tags, items } = await getCachedItems({ lang: locale });
 
   // Build a lookup so string tag IDs can be resolved to full tag objects
   const tagMap = Object.fromEntries(tags.map((tag) => [tag.id, tag]));

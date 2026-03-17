@@ -209,6 +209,7 @@ export interface ItemData {
 	category: string | Category | Category[] | string[];
 	tags: string[] | Tag[];
 	collections?: string[] | Collection[];
+	collection?: string;
 	featured?: boolean;
 	icon_url?: string;
 	updated_at: string; // raw string timestamp
@@ -583,23 +584,28 @@ function populateTag(tag: string | Tag, tags: Map<string, Tag>) {
 	return populate<Tag>(tag, tags);
 }
 
-function populateCollection(collection: string | Collection, collections: Map<string, Collection>): Collection {
+function populateCollection(collection: string | Collection, collections: Map<string, Collection>, itemSlug?: string): Collection {
 	const id = typeof collection === 'string' ? collection : collection.id;
 	const name = typeof collection === 'string' ? collection : collection.name;
 
 	const populated = collections.get(id);
 	if (populated) {
-		// Increment item_count for the collection
-		populated.item_count = (populated.item_count || 0) + 1;
+		populated.slug = populated.slug || populated.id;
+		populated.items = Array.isArray(populated.items) ? populated.items : [];
+		if (itemSlug && !populated.items.includes(itemSlug)) {
+			populated.items.push(itemSlug);
+		}
+		populated.item_count = populated.items.length;
 		return populated;
 	} else {
-		// Create minimal collection with required fields
-		const newCollection: Collection = {
+		const items = itemSlug ? [itemSlug] : [];
+		const newCollection = {
 			id,
 			name,
-			slug: id, // Use id as slug fallback
+			slug: id,
 			description: '',
-			item_count: 1,
+			item_count: items.length,
+			items,
 			isActive: true
 		};
 		collections.set(id, newCollection);
@@ -844,8 +850,12 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 				item.tags = item.tags.map((tag) => populateTag(tag, tags));
 			}
 
+			if (!Array.isArray(item.collections) && item.collection) {
+				item.collections = [item.collection];
+			}
+
 			if (Array.isArray(item.collections)) {
-				item.collections = item.collections.map((collection) => populateCollection(collection, collections));
+				item.collections = item.collections.map((collection) => populateCollection(collection, collections, item.slug));
 			}
 
 			if (Array.isArray(item.category)) {
