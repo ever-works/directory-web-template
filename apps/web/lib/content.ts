@@ -539,7 +539,21 @@ async function readTags(options: FetchOptions): Promise<Map<string, Tag>> {
 }
 
 async function readCollections(options: FetchOptions): Promise<Map<string, Collection>> {
-	return readCollection<Collection>('collections', options);
+	const collections = await readCollection<Collection>('collections', options);
+
+	return new Map(
+		Array.from(collections.entries()).map(([id, collection]) => [
+			id,
+			{
+				...collection,
+				slug: collection.slug || id,
+				description: collection.description || '',
+				item_count: collection.item_count || 0,
+				items: Array.isArray(collection.items) ? collection.items : [],
+				isActive: collection.isActive !== false
+			}
+		])
+	);
 }
 
 function toSlug(text: string): string {
@@ -611,6 +625,43 @@ function populateCollection(collection: string | Collection, collections: Map<st
 		collections.set(id, newCollection);
 		return newCollection;
 	}
+}
+
+function getLegacyCollectionValue(item: ItemData): string | undefined {
+	const legacyCollection = (item as ItemData & { collection?: string }).collection;
+	return typeof legacyCollection === 'string' && legacyCollection.length > 0 ? legacyCollection : undefined;
+}
+
+function normalizeItemCollections(item: ItemData): string[] {
+	if (Array.isArray(item.collections)) {
+		return item.collections
+			.map((collection) => (typeof collection === 'string' ? collection : collection?.id))
+			.filter((collectionId): collectionId is string => typeof collectionId === 'string' && collectionId.length > 0);
+	}
+
+	const legacyCollection = getLegacyCollectionValue(item);
+	return legacyCollection ? [legacyCollection] : [];
+}
+
+function attachItemToCollections(item: ItemData, collections: Map<string, Collection>): ItemData {
+	const normalizedCollections = normalizeItemCollections(item);
+	if (normalizedCollections.length === 0) {
+		item.collections = [];
+		return item;
+	}
+
+	item.collections = normalizedCollections.map((collectionId) => {
+		const populated = populateCollection(collectionId, collections);
+		const items = Array.isArray(populated.items) ? populated.items : [];
+		if (!items.includes(item.slug)) {
+			items.push(item.slug);
+		}
+		populated.items = items;
+		populated.item_count = items.length;
+		return populated;
+	});
+
+	return item;
 }
 
 // Return type for fetchItems function
@@ -850,13 +901,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 				item.tags = item.tags.map((tag) => populateTag(tag, tags));
 			}
 
-			if (!Array.isArray(item.collections) && item.collection) {
-				item.collections = [item.collection];
-			}
-
-			if (Array.isArray(item.collections)) {
-				item.collections = item.collections.map((collection) => populateCollection(collection, collections, item.slug));
-			}
+			attachItemToCollections(item, collections);
 
 			if (Array.isArray(item.category)) {
 				item.category = item.category.map((cat) => populateCategory(cat, categories));

@@ -49,8 +49,11 @@ export default async function Listing(props: ListingProps) {
 	// Determine which hero to render
 	const shouldShowCustomHero = customHeroEnabled && customHeroContent;
 
+	const filterProviderKey = `${locale}:${props.basePath}:${props.initialCategory ?? ''}:${props.initialTag ?? ''}`;
+
 	return (
 		<FilterProvider
+			key={filterProviderKey}
 			initialTag={props.initialTag}
 			initialCategory={props.initialCategory}
 			initialSortBy={defaultSort}

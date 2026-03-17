@@ -83,7 +83,6 @@ export default async function CollectionPage({
     notFound();
   }
 
-  // Build a lookup so string tag IDs can be resolved to full tag objects
   const tagMap = Object.fromEntries(tags.map((tag) => [tag.id, tag]));
 
   const normalizeItemTags = (itemTags: Array<string | { id: string }> = []) =>
@@ -91,7 +90,6 @@ export default async function CollectionPage({
       .map((tag) => (typeof tag === "string" ? tagMap[tag] : tagMap[tag?.id]))
       .filter(Boolean);
 
-  // Filter items based on collection's item list
   const collectionItemIds = collection.items || [];
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))
