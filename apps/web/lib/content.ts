@@ -11,7 +11,7 @@ import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
 import { Collection } from '@/types/collection';
-import type { ComparisonData, ComparisonDetail } from '@/types/comparison';
+import type { ComparisonData, ComparisonDetail, ComparisonDimension } from '@/types/comparison';
 import type { ItemLocationData } from '@/lib/types/item';
 import { z } from 'zod';
 
@@ -72,6 +72,75 @@ function isValidUrl(url: string): boolean {
 	}
 	// Allow only http and https
 	return trimmed.startsWith('http://') || trimmed.startsWith('https://');
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
+}
+
+function normalizeComparisonDimension(raw: unknown): ComparisonDimension | null {
+	if (!isRecord(raw)) return null;
+
+	const name = typeof raw.name === 'string' ? raw.name : '';
+	const itemASummary = typeof raw.item_a_summary === 'string' ? raw.item_a_summary : '';
+	const itemBSummary = typeof raw.item_b_summary === 'string' ? raw.item_b_summary : '';
+
+	if (!name || !itemASummary || !itemBSummary) {
+		return null;
+	}
+
+	const itemAScore = typeof raw.item_a_score === 'number' && Number.isFinite(raw.item_a_score) ? raw.item_a_score : undefined;
+	const itemBScore = typeof raw.item_b_score === 'number' && Number.isFinite(raw.item_b_score) ? raw.item_b_score : undefined;
+	const winner = raw.winner === 'item_a' || raw.winner === 'item_b' || raw.winner === 'tie' ? raw.winner : undefined;
+
+	return {
+		name,
+		item_a_summary: itemASummary,
+		item_b_summary: itemBSummary,
+		item_a_score: itemAScore,
+		item_b_score: itemBScore,
+		winner,
+	};
+}
+
+function normalizeComparisonData(raw: unknown, fallbackSlug: string): ComparisonData | null {
+	if (!isRecord(raw)) return null;
+
+	const slug = typeof raw.slug === 'string' && raw.slug ? raw.slug : fallbackSlug;
+	const id = typeof raw.id === 'string' && raw.id ? raw.id : slug;
+	const title = typeof raw.title === 'string' ? raw.title : '';
+	const itemASlug = typeof raw.item_a_slug === 'string' ? raw.item_a_slug : '';
+	const itemBSlug = typeof raw.item_b_slug === 'string' ? raw.item_b_slug : '';
+	const itemAName = typeof raw.item_a_name === 'string' ? raw.item_a_name : '';
+	const itemBName = typeof raw.item_b_name === 'string' ? raw.item_b_name : '';
+	const category = typeof raw.category === 'string' ? raw.category : '';
+	const summary = typeof raw.summary === 'string' ? raw.summary : '';
+	const verdict = typeof raw.verdict === 'string' ? raw.verdict : '';
+	const verdictWinner = raw.verdict_winner === 'item_a' || raw.verdict_winner === 'item_b' || raw.verdict_winner === 'tie' ? raw.verdict_winner : undefined;
+	const generatedAt = typeof raw.generated_at === 'string' && raw.generated_at ? raw.generated_at : new Date(0).toISOString();
+	const dimensions = Array.isArray(raw.dimensions) ? raw.dimensions.map(normalizeComparisonDimension).filter((d): d is ComparisonDimension => d !== null) : [];
+	const sources = Array.isArray(raw.sources) ? raw.sources.filter((source): source is string => typeof source === 'string' && source.length > 0) : [];
+
+	if (!slug || !title || !itemAName || !itemBName) {
+		return null;
+	}
+
+	return {
+		id,
+		slug,
+		title,
+		item_a_slug: itemASlug,
+		item_b_slug: itemBSlug,
+		item_a_name: itemAName,
+		item_b_name: itemBName,
+		category,
+		summary,
+		verdict,
+		verdict_winner: verdictWinner,
+		dimensions,
+		sources,
+		generated_at: generatedAt,
+	};
 }
 
 /**
@@ -694,7 +763,7 @@ async function fetchComparisons(): Promise<FetchComparisonsResult> {
 					const ymlPath = path.join(comparisonsDir, slug, `${slug}.yml`);
 					try {
 						const raw = await safeReadFile(ymlPath, comparisonsDir);
-						return yaml.parse(raw) as ComparisonData;
+						return normalizeComparisonData(yaml.parse(raw), slug);
 					} catch (error) {
 						console.error(`Failed to load comparison ${slug}:`, error);
 						return null;
@@ -729,7 +798,10 @@ export async function fetchComparison(slug: string): Promise<ComparisonDetail | 
 
 	try {
 		const raw = await safeReadFile(ymlPath, comparisonDir);
-		const comparison = yaml.parse(raw) as ComparisonData;
+		const comparison = normalizeComparisonData(yaml.parse(raw), sanitizedSlug);
+		if (!comparison) {
+			return null;
+		}
 		let markdown: string | undefined;
 		let extendedAnalysisMarkdown: string | undefined;
 

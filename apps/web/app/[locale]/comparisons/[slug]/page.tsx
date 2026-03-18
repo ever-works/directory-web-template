@@ -11,10 +11,10 @@ import type { ComparisonDimension } from '@/types/comparison';
 export const revalidate = 600;
 export const dynamicParams = true;
 
-function formatComparisonDate(value: string): string {
+function formatComparisonDate(value: string, locale: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale || undefined, {
     month: 'numeric',
     day: 'numeric',
     year: 'numeric',
@@ -95,14 +95,14 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
       <Container maxWidth="7xl" padding="default" useGlobalWidth className="pb-20 text-left">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link
-            href="/comparisons"
+            href={`/${locale}/comparisons`}
             className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 transition-colors hover:text-theme-primary dark:text-gray-300"
           >
             <span aria-hidden="true">&larr;</span>
             <span>Back to comparisons</span>
           </Link>
           <div className="text-xs font-medium uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
-            {formatComparisonDate(comparison.generated_at)}
+            {formatComparisonDate(comparison.generated_at, locale)}
           </div>
         </div>
 

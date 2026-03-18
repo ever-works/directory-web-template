@@ -8,10 +8,10 @@ import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 export const revalidate = 600;
 export const dynamicParams = true;
 
-function formatComparisonDate(value: string): string {
+function formatComparisonDate(value: string, locale: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString('en-US', {
+  return date.toLocaleDateString(locale || undefined, {
     month: 'numeric',
     day: 'numeric',
     year: 'numeric',
@@ -60,7 +60,7 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
                   <span className="rounded-full border border-theme-primary/20 bg-theme-primary/10 px-1.5 py-0.5 text-theme-primary">
                     {comparison.category}
                   </span>
-                  <span>{formatComparisonDate(comparison.generated_at)}</span>
+                  <span>{formatComparisonDate(comparison.generated_at, locale)}</span>
                 </div>
 
                 <h2 className="text-sm font-semibold leading-5 text-gray-900 transition-colors group-hover:text-theme-primary dark:text-white">

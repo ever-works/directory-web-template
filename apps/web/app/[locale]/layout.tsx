@@ -106,18 +106,19 @@ export default async function RootLayout({
 	let comparisons: Awaited<ReturnType<typeof getCachedComparisons>>['comparisons'] = [];
 
 	try {
-		const [itemsData, comparisonsData] = await Promise.all([
-			getCachedItems({ lang: locale }),
-			getCachedComparisons({ lang: locale }),
-		]);
+		const itemsData = await getCachedItems({ lang: locale });
 		categories = itemsData.categories;
 		tags = itemsData.tags;
 		collections = itemsData.collections;
+	} catch (error) {
+		console.error('[Layout] Failed to fetch cached items:', error);
+	}
+
+	try {
+		const comparisonsData = await getCachedComparisons({ lang: locale });
 		comparisons = comparisonsData.comparisons;
 	} catch (error) {
-		// If content fetch fails (malformed YAML, file system errors, etc.), use empty arrays
-		// This prevents the root layout from crashing
-		console.error('[Layout] Failed to fetch cached items:', error);
+		console.error('[Layout] Failed to fetch cached comparisons:', error);
 	}
 
 	// Read settings server-side for instant availability
