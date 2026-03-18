@@ -167,7 +167,9 @@ export async function GET(request: NextRequest) {
 	try {
 		// Check database availability
 		const dbCheck = checkDatabaseAvailability();
-		if (dbCheck) return dbCheck;
+		if (dbCheck) {
+			return NextResponse.json({ success: true, data: [], count: 0 });
+		}
 
 		const { searchParams } = new URL(request.url);
 		const rawLimit = Number.parseInt(searchParams.get('limit') ?? '6', 10);
@@ -176,7 +178,7 @@ export async function GET(request: NextRequest) {
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {
-			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
+			return NextResponse.json({ success: true, data: [], count: 0 });
 		}
 
 		// Build query conditions for active featured items
@@ -209,10 +211,9 @@ export async function GET(request: NextRequest) {
 			count: featuredItemsList.length
 		});
 	} catch (error) {
-		// Only log errors in development mode
 		if (process.env.NODE_ENV === 'development') {
-			console.error('Error fetching featured items:', error);
+			console.warn('Falling back to empty featured items:', error);
 		}
-		return NextResponse.json({ success: false, error: 'Failed to fetch featured items' }, { status: 500 });
+		return NextResponse.json({ success: true, data: [], count: 0 });
 	}
 }

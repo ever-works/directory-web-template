@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 
 /**
  * @swagger
@@ -62,6 +63,11 @@ import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
  */
 export async function GET(request: NextRequest) {
 	try {
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) {
+			return NextResponse.json({ success: true, data: [] });
+		}
+
 		const { searchParams } = new URL(request.url);
 		const limitParam = searchParams.get('limit');
 		// Validate limit parameter: must be a finite number, at least 1, and at most 50
@@ -76,7 +82,9 @@ export async function GET(request: NextRequest) {
 			data: sponsorAds
 		});
 	} catch (error) {
-		console.error('Error fetching active sponsor ads:', error);
-		return NextResponse.json({ success: false, error: 'Failed to fetch sponsor ads' }, { status: 500 });
+		if (process.env.NODE_ENV === 'development') {
+			console.warn('Falling back to empty sponsor ads:', error);
+		}
+		return NextResponse.json({ success: true, data: [] });
 	}
 }
