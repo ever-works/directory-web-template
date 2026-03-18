@@ -49,33 +49,33 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
             <p className="text-gray-600 dark:text-gray-400">No comparison pages are available in this directory yet.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6 mt-12 lg:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-3">
             {comparisons.map((comparison) => (
               <Link
                 key={comparison.slug}
                 href={`/comparisons/${comparison.slug}`}
-                className="group block rounded-3xl border border-gray-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-theme-primary/40 hover:shadow-lg dark:border-gray-700/50 dark:bg-[#101624]"
+                className="group block rounded-[1.75rem] border border-gray-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:border-theme-primary/40 hover:shadow-md dark:border-gray-700/50 dark:bg-[#101624]"
               >
-                <div className="mb-4 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.2em] text-gray-500 dark:text-gray-400">
-                  <span className="rounded-full border border-theme-primary/20 bg-theme-primary/10 px-3 py-1 text-theme-primary">
+                <div className="mb-2 flex flex-wrap items-center gap-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-gray-500 dark:text-gray-400">
+                  <span className="rounded-full border border-theme-primary/20 bg-theme-primary/10 px-1.5 py-0.5 text-theme-primary">
                     {comparison.category}
                   </span>
                   <span>{formatComparisonDate(comparison.generated_at)}</span>
                 </div>
 
-                <h2 className="text-2xl font-semibold text-gray-900 transition-colors group-hover:text-theme-primary dark:text-white">
+                <h2 className="text-sm font-semibold leading-5 text-gray-900 transition-colors group-hover:text-theme-primary dark:text-white">
                   {comparison.title}
                 </h2>
 
-                <div className="mt-4 flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
+                <div className="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                   <span className="font-medium text-gray-900 dark:text-white">{comparison.item_a_name}</span>
                   <span>|</span>
                   <span className="font-medium text-gray-900 dark:text-white">{comparison.item_b_name}</span>
                 </div>
 
-                <p className="mt-4 text-sm leading-7 text-gray-600 dark:text-gray-400">{comparison.summary}</p>
+                <p className="mt-3 line-clamp-4 text-sm leading-6 text-gray-600 dark:text-gray-400">{comparison.summary}</p>
 
-                <div className="mt-6 flex items-center justify-between text-sm">
+                <div className="mt-3.5 flex items-center justify-between text-xs">
                   <span className="text-gray-500 dark:text-gray-400">{comparison.dimensions.length} dimensions</span>
                   <span className="font-semibold text-theme-primary transition-transform group-hover:translate-x-1">Read comparison &rarr;</span>
                 </div>
