@@ -1,4 +1,4 @@
-# Contributing to Ever Works Website Template
+# Contributing to Directory Web Template
 
 We would love for you to contribute to Ever Works Platform!
 

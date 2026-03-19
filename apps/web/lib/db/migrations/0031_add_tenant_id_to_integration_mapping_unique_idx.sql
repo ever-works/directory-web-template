@@ -1,0 +1,2 @@
+DROP INDEX "integration_mappings_ever_id_object_type_idx";--> statement-breakpoint
+CREATE UNIQUE INDEX "integration_mappings_ever_id_object_type_idx" ON "integration_mappings" USING btree ("ever_id","object_type","tenant_id");

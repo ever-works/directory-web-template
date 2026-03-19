@@ -35,28 +35,20 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Detect package manager
-        id: detect-pm
-        run: |
-          if [ -f "pnpm-lock.yaml" ]; then
-            echo "manager=pnpm"                    >> $GITHUB_OUTPUT
-            echo "global-cmd=pnpm add --global"    >> $GITHUB_OUTPUT
-          elif [ -f "yarn.lock" ]; then
-            echo "manager=yarn"                    >> $GITHUB_OUTPUT
-            echo "global-cmd=yarn global add"      >> $GITHUB_OUTPUT
-          else
-            echo "manager=npm"                     >> $GITHUB_OUTPUT
-            echo "global-cmd=npm install --global" >> $GITHUB_OUTPUT
-          fi
-
       - name: Setup pnpm
-        if: steps.detect-pm.outputs.manager == 'pnpm'
         uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          version: 9
+          node-version: '24'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Install Vercel CLI
-        run: ${{ steps.detect-pm.outputs.global-cmd }} vercel@latest
+        run: pnpm add --global vercel@latest
 
       - name: Link Vercel project
         run: |
@@ -157,7 +149,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ github.event.repository.name }}
           VERCEL_DEPLOYMENT_ID: ${{ steps.trigger_deployment.outputs.deployment_id }}
           VERCEL_PLAN: ${{ secrets.VERCEL_PLAN }}
-        run: npx tsx scripts/update-cron.ts
+        run: npx tsx apps/web/scripts/update-cron.ts
 
       - name: Deployment summary
         if: success()
