@@ -54,7 +54,7 @@ export function TabNavigation({
 	}));
 
 	return (
-		<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs my-6">
+		<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs my-6">
 			{/* Desktop Navigation */}
 			<div className="hidden lg:block">
 				<div className="flex items-center justify-between">
@@ -69,15 +69,15 @@ export function TabNavigation({
 									onClick={() => onTabChange(tab.id)}
 									className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
 										isActive
-											? 'bg-theme-primary-50 dark:bg-slate-800 text-theme-primary-700 dark:text-theme-primary-500 border-b-2 border-theme-primary-500'
-											: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+											? 'bg-theme-primary-50 dark:bg-white/[0.05] text-theme-primary-700 dark:text-theme-primary-500 border-b-2 border-theme-primary-500'
+											: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-white/[0.06]/50'
 									}`}
 								>
 									<div
 										className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
 											isActive
 												? 'bg-theme-primary-100 dark:bg-theme-primary-10'
-												: 'bg-slate-100 dark:bg-slate-700/50 group-hover:bg-slate-200 dark:group-hover:bg-slate-600/50'
+												: 'bg-slate-100 dark:bg-white/[0.04] group-hover:bg-slate-200 dark:group-hover:bg-slate-600/50'
 										}`}
 									>
 										<Icon
@@ -95,10 +95,10 @@ export function TabNavigation({
 											{tab.count !== undefined && (
 												<span
 													className={cn(
-														'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 rounded-full dark:border dark:border-slate-500',
+														'inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 rounded-full dark:border dark:border-white/[0.1]',
 														isActive
 															? 'bg-theme-primary-20 dark:bg-theme-primary-10 text-theme-primary-700 dark:text-theme-primary-500 border-b-2 border-theme-primary-500'
-															: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+															: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-white/[0.06]/50'
 													)}
 												>
 													{tab.count}
@@ -150,14 +150,14 @@ function ResponsiveTabNavigation({ activeTab, onTabChange, tabs }: ResponsiveTab
 							className={`flex flex-col items-center gap-2 p-4 rounded-xl transition-all duration-200 ${
 								isActive
 									? 'bg-theme-primary-50 dark:bg-theme-primary-900/20 border-2 border-theme-primary-200 dark:border-theme-primary-700/50'
-									: 'bg-slate-50 dark:bg-slate-700/50 border-2 border-transparent hover:bg-slate-100 dark:hover:bg-slate-600/50'
+									: 'bg-slate-50 dark:bg-white/[0.04] border-2 border-transparent hover:bg-slate-100 dark:hover:bg-white/[0.06]'
 							}`}
 						>
 							<div
 								className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${
 									isActive
 										? 'bg-theme-primary-100 dark:bg-theme-primary-800/50'
-										: 'bg-white dark:bg-slate-600/50'
+										: 'bg-white dark:bg-white/[0.1]/50'
 								}`}
 							>
 								<Icon
@@ -181,7 +181,7 @@ function ResponsiveTabNavigation({ activeTab, onTabChange, tabs }: ResponsiveTab
 										{tab.label}
 									</span>
 									{tab.count !== undefined && (
-										<span className="inline-flex items-center justify-center w-4 h-4 text-xs font-medium bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-400 rounded-full">
+										<span className="inline-flex items-center justify-center w-4 h-4 text-xs font-medium bg-slate-200 dark:bg-white/[0.1] text-slate-600 dark:text-slate-400 rounded-full">
 											{tab.count}
 										</span>
 									)}
@@ -194,7 +194,7 @@ function ResponsiveTabNavigation({ activeTab, onTabChange, tabs }: ResponsiveTab
 
 			{/* Active Tab Description */}
 			{activeTabData && (
-				<div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
+				<div className="bg-slate-50 dark:bg-white/[0.04] rounded-lg p-4 border border-slate-200 dark:border-white/[0.06]">
 					<div className="flex items-center gap-3 mb-2">
 						<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-800/50 rounded-lg flex items-center justify-center">
 							<activeTabData.icon className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />

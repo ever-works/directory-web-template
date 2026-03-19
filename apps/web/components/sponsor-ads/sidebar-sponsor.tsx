@@ -72,7 +72,7 @@ export function SidebarSponsor({
 	return (
 		<div
 			className={cn(
-				'bg-white/95 dark:bg-gray-900/95 rounded-2xl p-6 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1',
+				'bg-white/95 dark:bg-[#141414]/95 rounded-2xl p-6 border border-gray-200/50 dark:border-white/[0.06] backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1',
 				className
 			)}
 		>
@@ -95,7 +95,7 @@ export function SidebarSponsor({
 					<div className="flex items-start gap-4">
 						{/* Icon */}
 						<div className="relative shrink-0">
-							<div className="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border border-blue-200/50 dark:border-blue-700/30 shadow-sm group-hover:shadow-md group-hover:scale-105">
+							<div className="w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-300 bg-white dark:bg-white/[0.05] border border-blue-200/50 dark:border-blue-700/30 shadow-sm group-hover:shadow-md group-hover:scale-105">
 								{shouldShowFallbackIcon ? (
 									<FiFolder className="w-6 h-6 text-blue-600 dark:text-blue-400" />
 								) : (
@@ -152,7 +152,7 @@ export function SidebarSponsor({
 								'w-1.5 h-1.5 rounded-full transition-all duration-300',
 								idx === currentIndex
 									? 'bg-blue-500 w-4'
-									: 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+									: 'bg-gray-300 dark:bg-white/[0.1] hover:bg-gray-400 dark:hover:bg-white/[0.08]'
 							)}
 							aria-label={`Show sponsor ${idx + 1}`}
 						/>

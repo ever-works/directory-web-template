@@ -207,7 +207,7 @@ export function BillingStats({
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 					{/* Monthly Comparison */}
 					{lastMonthSpent !== undefined && (
-						<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs">
+						<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs">
 							<div className="flex items-center justify-between mb-4">
 								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
 									Monthly Comparison
@@ -227,7 +227,7 @@ export function BillingStats({
 										{formatCurrencyAmount(lastMonthSpent || 0, currency, locale)}
 									</span>
 								</div>
-								<div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+								<div className="pt-2 border-t border-slate-200 dark:border-white/[0.06]">
 									<div className="flex justify-between items-center">
 										<span className="text-slate-600 dark:text-slate-300">Change:</span>
 										<span
@@ -252,7 +252,7 @@ export function BillingStats({
 
 					{/* Growth Rate */}
 					{growthRate !== undefined && (
-						<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs">
+						<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs">
 							<div className="flex items-center justify-between mb-4">
 								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
 									Growth Rate
@@ -273,7 +273,7 @@ export function BillingStats({
 										{growthRate.toFixed(1)}%
 									</span>
 								</div>
-								<div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+								<div className="pt-2 border-t border-slate-200 dark:border-white/[0.06]">
 									<div className="text-sm text-slate-500 dark:text-slate-400">
 										{growthRate > 0
 											? 'Your spending is increasing month over month'
@@ -288,7 +288,7 @@ export function BillingStats({
 
 					{/* Renewal Status */}
 					{renewalStatus && (
-						<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs">
+						<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs">
 							<div className="flex items-center justify-between mb-4">
 								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
 									Renewal Status
@@ -319,7 +319,7 @@ export function BillingStats({
 									</div>
 								)}
 								{daysUntilRenewal && (
-									<div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+									<div className="pt-2 border-t border-slate-200 dark:border-white/[0.06]">
 										<div className="flex justify-between items-center">
 											<span className="text-slate-600 dark:text-slate-300">Days Left:</span>
 											<span
@@ -343,7 +343,7 @@ export function BillingStats({
 			)}
 
 			{/* Quick Actions */}
-			<div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-slate-800 dark:to-theme-primary-900/20 border border-slate-200 dark:border-slate-700 rounded-xl p-6">
+			<div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-white/[0.05] dark:to-theme-primary-900/20 border border-slate-200 dark:border-white/[0.06] rounded-xl p-6">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						<div className="w-10 h-10 bg-theme-primary-100 dark:bg-theme-primary-10 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-transparent">
@@ -358,7 +358,7 @@ export function BillingStats({
 					</div>
 
 					<div className="flex items-center gap-3">
-						<button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600/50 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600/50 hover:border-slate-400 dark:hover:border-slate-500/50 transition-colors">
+						<button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-white/[0.04] border border-slate-300 dark:border-white/[0.06] rounded-lg hover:bg-slate-50 dark:hover:bg-white/[0.06] hover:border-slate-400 dark:hover:border-white/[0.08] transition-colors">
 							<Calendar className="w-4 h-4" />
 							View History
 						</button>
@@ -425,13 +425,13 @@ export function DetailedBillingStats({
 			{/* Additional Insights */}
 			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 				{/* Payment Trends */}
-				<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs">
+				<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs">
 					<div className="flex items-center justify-between mb-4">
 						<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Payment Trends</h4>
 						<TrendingUp className="w-5 h-5 text-slate-400" />
 					</div>
 					<div className="space-y-4">
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Average Transaction:</span>
 							<span className="font-semibold text-slate-900 dark:text-slate-100">
 								{totalPayments > 0
@@ -443,13 +443,13 @@ export function DetailedBillingStats({
 									: 'N/A'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Success Rate:</span>
 							<span className="font-semibold text-emerald-600 dark:text-emerald-400">
 								{totalPayments > 0 ? Math.round((activePayments / totalPayments) * 100) : 0}%
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Total Transactions:</span>
 							<span className="font-semibold text-slate-900 dark:text-slate-100">{totalPayments}</span>
 						</div>
@@ -457,7 +457,7 @@ export function DetailedBillingStats({
 				</div>
 
 				{/* Subscription Insights */}
-				<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs">
+				<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs">
 					<div className="flex items-center justify-between mb-4">
 						<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
 							Subscription Insights
@@ -465,13 +465,13 @@ export function DetailedBillingStats({
 						<Users className="w-5 h-5 text-slate-400" />
 					</div>
 					<div className="space-y-4">
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Plan Type:</span>
 							<span className="font-semibold text-slate-900 dark:text-slate-100">
 								{hasActiveSubscription ? 'Premium' : 'Free'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Status:</span>
 							<span
 								className={`font-semibold ${
@@ -483,7 +483,7 @@ export function DetailedBillingStats({
 								{hasActiveSubscription ? 'Active' : 'Inactive'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-200 dark:border-slate-600/50">
+						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.06]">
 							<span className="text-slate-600 dark:text-slate-300">Monthly Cost:</span>
 							<span className="font-semibold text-slate-900 dark:text-slate-100">
 								{hasActiveSubscription

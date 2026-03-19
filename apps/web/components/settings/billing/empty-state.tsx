@@ -116,9 +116,9 @@ export function EmptyState({ type, onAction, className = '' }: EmptyStateProps) 
   const ActionIcon = config.actionIcon;
 
   return (
-    <div className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-xs text-center ${className}`}>
+    <div className={`bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-8 shadow-xs text-center ${className}`}>
       {/* Main Icon */}
-      <div className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 rounded-full flex items-center justify-center">
+      <div className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.08] rounded-full flex items-center justify-center">
         <Icon className="w-10 h-10 text-slate-600 dark:text-slate-400" />
       </div>
 
@@ -143,7 +143,7 @@ export function EmptyState({ type, onAction, className = '' }: EmptyStateProps) 
 
       {/* Additional Help Section */}
       {config.additionalHelp && (
-        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-6 border border-slate-200 dark:border-slate-600/50">
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-lg p-6 border border-slate-200 dark:border-white/[0.06]">
           <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
             {config.additionalHelp.title}
           </h4>
@@ -196,10 +196,10 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
   const Icon = config.icon;
 
   return (
-    <div className={`bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-8 shadow-xs ${className}`}>
+    <div className={`bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-8 shadow-xs ${className}`}>
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.08] rounded-full flex items-center justify-center">
           <Icon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
         </div>
         <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -224,7 +224,7 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
                 className={`inline-flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition-all duration-200 ${
                   isPrimary
                     ? 'bg-linear-to-r from-theme-primary-600 to-theme-primary-700 text-white hover:from-theme-primary-700 hover:to-theme-primary-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
-                    : 'bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600/50 border border-slate-200 dark:border-slate-600/50'
+                    : 'bg-slate-100 dark:bg-white/[0.04] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.06] border border-slate-200 dark:border-white/[0.06]'
                 }`}
               >
                 <ActionIcon className="w-4 h-4" />
@@ -237,7 +237,7 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
 
       {/* Quick Tips */}
       {quickTips && quickTips.length > 0 && (
-        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
+        <div className="bg-slate-50 dark:bg-white/[0.04] rounded-lg p-4 border border-slate-200 dark:border-white/[0.06]">
           <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
             <Zap className="w-4 h-4 text-theme-primary-500" />
             Quick Tips
@@ -255,7 +255,7 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
 
       {/* Additional Help */}
       {config.additionalHelp && (
-        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/[0.06]">
           <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
             {config.additionalHelp.title}
           </h4>

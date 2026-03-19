@@ -50,7 +50,7 @@ export function SearchAndFilters({
   const hasActiveFilters = selectedFilters.length > 0 || searchTerm.length > 0;
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs mb-6">
+    <div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs mb-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export function SearchAndFilters({
             className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
               showFilters
                 ? 'bg-theme-primary-100 dark:bg-theme-primary-900/20 text-theme-primary-700 dark:text-theme-primary-300 border border-theme-primary-200 dark:border-theme-primary-700/50'
-                : 'bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600/50'
+                : 'bg-slate-100 dark:bg-white/[0.04] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.06]'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -86,7 +86,7 @@ export function SearchAndFilters({
           <button
             onClick={onRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600/50 transition-colors disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.04] rounded-lg hover:bg-slate-200 dark:hover:bg-white/[0.06] transition-colors disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
             {isRefreshing ? 'Refreshing...' : 'Refresh'}
@@ -104,7 +104,7 @@ export function SearchAndFilters({
           placeholder="Search payments by plan, description, or status..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="block w-full pl-12 pr-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 bg-white dark:bg-slate-700 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all duration-200"
+          className="block w-full pl-12 pr-4 py-3 border border-slate-300 dark:border-white/[0.08] rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 bg-white dark:bg-white/[0.08] focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all duration-200"
         />
         {searchTerm && (
           <button
@@ -118,7 +118,7 @@ export function SearchAndFilters({
 
       {/* Filters Section */}
       {showFilters && (
-        <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+        <div className="border-t border-slate-200 dark:border-white/[0.06] pt-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Status Filters */}
             <div>
@@ -133,13 +133,13 @@ export function SearchAndFilters({
                       type="checkbox"
                       checked={selectedFilters.includes(filter.value)}
                       onChange={() => handleFilterToggle(filter.value)}
-                      className="w-4 h-4 text-theme-primary-600 border-slate-300 dark:border-slate-600 rounded-sm focus:ring-theme-primary-500 focus:ring-2 bg-white dark:bg-slate-700"
+                      className="w-4 h-4 text-theme-primary-600 border-slate-300 dark:border-white/[0.08] rounded-sm focus:ring-theme-primary-500 focus:ring-2 bg-white dark:bg-white/[0.08]"
                     />
                     <span className="text-sm text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">
                       {filter.label}
                     </span>
                     {filter.count !== undefined && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 rounded-full">
+                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-400 rounded-full">
                         {filter.count}
                       </span>
                     )}
@@ -157,7 +157,7 @@ export function SearchAndFilters({
               
               <button
                 onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="w-full text-left p-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/50 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-600/50 transition-colors"
+                className="w-full text-left p-3 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.06] rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-700 dark:text-slate-300">Date Range & Amount</span>
@@ -177,7 +177,7 @@ export function SearchAndFilters({
 
           {/* Filter Actions */}
           {hasActiveFilters && (
-            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-600 dark:text-slate-400">Active filters:</span>
@@ -193,7 +193,7 @@ export function SearchAndFilters({
                     </span>
                   )}
                   {selectedFilters.map((filter) => (
-                    <span key={filter} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-full">
+                    <span key={filter} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/[0.04] text-slate-700 dark:text-slate-300 text-xs font-medium rounded-full">
                       {filter}
                       <button
                         onClick={() => handleFilterToggle(filter)}
@@ -207,7 +207,7 @@ export function SearchAndFilters({
                 
                 <button
                   onClick={clearAllFilters}
-                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-700/50 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600/50 transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.04] rounded-lg hover:bg-slate-200 dark:hover:bg-white/[0.06] transition-colors"
                 >
                   <X className="w-4 h-4" />
                   Clear All
@@ -219,7 +219,7 @@ export function SearchAndFilters({
       )}
 
       {/* Quick Actions */}
-      <div className="border-t border-slate-200 dark:border-slate-700 pt-4 mt-4">
+      <div className="border-t border-slate-200 dark:border-white/[0.06] pt-4 mt-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
             <span>Quick actions:</span>

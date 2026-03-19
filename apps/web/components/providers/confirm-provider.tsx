@@ -80,7 +80,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
 			{isOpen && options && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-9999 p-4">
-					<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
+					<div className="bg-white dark:bg-white/[0.05] rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
 						<div className="flex items-start gap-4">
 							<div className={`shrink-0 w-10 h-10 rounded-full ${variantStyles.iconBg} flex items-center justify-center`}>
 								<AlertTriangle className={`w-5 h-5 ${variantStyles.iconColor}`} />

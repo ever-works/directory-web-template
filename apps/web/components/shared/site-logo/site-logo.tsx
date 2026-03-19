@@ -67,7 +67,7 @@ export function SiteLogo({ size = 'md', className = '', showText = true, linkToH
 	const renderLogoContent = () => {
 		if (!mounted) {
 			// Return placeholder during SSR to avoid hydration mismatch
-			return <div className={`animate-pulse bg-gray-200 dark:bg-gray-700 rounded ${sizeConfig.icon}`} />;
+			return <div className={`animate-pulse bg-gray-200 dark:bg-white/[0.08] rounded ${sizeConfig.icon}`} />;
 		}
 
 		if (hasImageLogo) {

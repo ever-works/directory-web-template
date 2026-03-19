@@ -28,7 +28,7 @@ const MODAL_CLASSES = cn(
 	'transform -translate-x-1/2 -translate-y-1/2',
 	'w-full max-w-2xl',
 	'max-h-[90vh]',
-	'bg-white/70 dark:bg-gray-900/70',
+	'bg-white/70 dark:bg-[#0a0a0a]/70',
 	'backdrop-blur-2xl backdrop-saturate-200',
 	'border border-white/20 dark:border-white/10',
 	'ring-1 ring-theme-primary-500/10 dark:ring-theme-primary-400/10',
@@ -39,7 +39,7 @@ const MODAL_CLASSES = cn(
 	'animate-fade-in-up'
 );
 
-const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-gray-700');
+const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-white/[0.06]');
 
 export function SettingsModal() {
 	const { isOpen, closeModal } = useSettingsModal();
@@ -85,9 +85,9 @@ export function SettingsModal() {
 				<div
 					className={cn(
 						'flex items-center justify-between px-4 md:px-6 py-4',
-						'border-b border-gray-200 dark:border-gray-700',
+						'border-b border-gray-200 dark:border-white/[0.06]',
 						'bg-gradient-to-r from-gray-50/50 to-white',
-						'dark:from-gray-800/50 dark:to-gray-900/50',
+						'dark:from-[#0a0a0a]/50 dark:to-[#0a0a0a]/50',
 						'shadow-sm'
 					)}
 				>
@@ -115,7 +115,7 @@ export function SettingsModal() {
 							'p-2 rounded-lg transition-all duration-200',
 							'text-gray-500 hover:text-gray-700',
 							'dark:text-gray-400 dark:hover:text-gray-200',
-							'hover:bg-gray-100 dark:hover:bg-gray-800',
+							'hover:bg-gray-100 dark:hover:bg-white/[0.06]',
 							'hover:scale-110'
 						)}
 						aria-label={t('CLOSE_SETTINGS')}

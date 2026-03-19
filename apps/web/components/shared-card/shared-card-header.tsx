@@ -33,18 +33,19 @@ interface SharedCardHeaderProps {
   onMapToggle?: () => void;
 }
 
-const filterStatsClasses = "flex items-center gap-4";
-const filterTextClasses = "text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300";
-const filterBadgeClasses = "flex items-center gap-2 text-xs";
-const filterIconClasses = "w-3 h-3 text-theme-primary-500 dark:text-theme-primary-400";
-const filterLabelClasses = "text-theme-primary-500 dark:text-theme-primary-400 font-medium";
-const headerTitleClasses = "text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300";
-const activeFilterBadgeClasses = "px-2 py-1 bg-theme-primary-10 dark:bg-theme-primary-900/30 text-white rounded-sm text-xs";
-const emptyStateContainerClasses = "text-center py-8 sm:py-10";
-const emptyStateIconWrapperClasses = "w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center transition-colors duration-300";
-const emptyStateIconClasses = "w-8 h-8 text-gray-400 dark:text-gray-500";
-const emptyStateTitleClasses = "text-lg font-medium text-gray-900 dark:text-white mb-2 transition-colors duration-300";
-const emptyStateDescriptionClasses = "text-gray-600 dark:text-gray-400 mb-4 transition-colors duration-300";
+const filterStatsClasses = 'flex items-center gap-4';
+const filterTextClasses = 'text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300';
+const filterBadgeClasses = 'flex items-center gap-2 text-xs';
+const filterIconClasses = 'w-3 h-3 text-theme-primary-500 dark:text-theme-primary-400';
+const filterLabelClasses = 'text-theme-primary-500 dark:text-theme-primary-400 font-medium';
+const headerTitleClasses = 'text-xl font-semibold text-gray-900 dark:text-white transition-colors duration-300';
+const activeFilterBadgeClasses ='px-2 py-1 bg-theme-primary-10 dark:bg-theme-primary-900/30 text-white rounded-sm text-xs';
+const emptyStateContainerClasses = 'text-center py-8 sm:py-10';
+const emptyStateIconWrapperClasses ='w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-white/[0.05] rounded-full flex items-center justify-center transition-colors duration-300';
+const emptyStateIconClasses = 'w-8 h-8 text-gray-400 dark:text-gray-500';
+const emptyStateTitleClasses = 'text-lg font-medium text-gray-900 dark:text-white mb-2 transition-colors duration-300';
+const emptyStateDescriptionClasses = 'text-gray-600 dark:text-gray-400 mb-4 transition-colors duration-300';
+
 
 /**
  * FilterStats - Display filter statistics

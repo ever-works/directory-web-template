@@ -74,8 +74,8 @@ export function SponsorshipFilters({
 							className={cn(
 								"group inline-flex items-center justify-between",
 								"w-full sm:w-40",
-								"rounded-lg border border-gray-200 dark:border-gray-700",
-								"bg-white dark:bg-gray-800",
+								"rounded-lg border border-gray-200 dark:border-white/[0.06]",
+								"bg-white dark:bg-white/[0.05]",
 								"px-3 py-2 text-sm font-medium",
 								"text-gray-900 dark:text-gray-100",
 								"transition-all duration-200",
@@ -97,8 +97,8 @@ export function SponsorshipFilters({
 							sideOffset={6}
 							className={cn(
 								"z-40 w-48",
-								"rounded-lg border border-gray-200 dark:border-gray-700",
-								"bg-white dark:bg-gray-900",
+								"rounded-lg border border-gray-200 dark:border-white/[0.06]",
+								"bg-white dark:bg-white/[0.03]",
 								"shadow-lg shadow-black/10 dark:shadow-black/30",
 								"animate-in fade-in zoom-in-95"
 							)}
@@ -120,8 +120,8 @@ export function SponsorshipFilters({
 											"cursor-pointer outline-hidden",
 											"text-gray-900 dark:text-gray-100",
 											"transition-colors",
-											"hover:bg-gray-100 dark:hover:bg-gray-800",
-											"focus:bg-gray-100 dark:focus:bg-gray-800"
+											"hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+											"focus:bg-gray-100 dark:focus:bg-white/[0.05]"
 										)}
 									>
 										<span>{t(`STATUS_${filter.labelKey}`)}</span>
@@ -133,7 +133,7 @@ export function SponsorshipFilters({
 								))}
 							</DropdownMenu.RadioGroup>
 
-							<DropdownMenu.Arrow className="fill-white dark:fill-gray-900" />
+							<DropdownMenu.Arrow className="fill-white dark:fill-[#0a0a0a]" />
 						</DropdownMenu.Content>
 					</DropdownMenu.Portal>
 				</DropdownMenu.Root>
@@ -152,8 +152,8 @@ export function SponsorshipFilters({
 							className={cn(
 								"group inline-flex items-center justify-between",
 								"w-full sm:w-36",
-								"rounded-lg border border-gray-200 dark:border-gray-700",
-								"bg-white dark:bg-gray-800",
+								"rounded-lg border border-gray-200 dark:border-white/[0.06]",
+								"bg-white dark:bg-white/[0.05]",
 								"px-3 py-2 text-sm font-medium",
 								"text-gray-900 dark:text-gray-100",
 								"transition-all duration-200",
@@ -175,8 +175,8 @@ export function SponsorshipFilters({
 							sideOffset={6}
 							className={cn(
 								"z-40 min-w-36",
-								"rounded-lg border border-gray-200 dark:border-gray-700",
-								"bg-white dark:bg-gray-900",
+								"rounded-lg border border-gray-200 dark:border-white/[0.06]",
+								"bg-white dark:bg-white/[0.03]",
 								"shadow-lg shadow-black/10 dark:shadow-black/30",
 								"animate-in fade-in zoom-in-95"
 							)}
@@ -198,8 +198,8 @@ export function SponsorshipFilters({
 											"cursor-pointer outline-hidden",
 											"text-gray-900 dark:text-gray-100",
 											"transition-colors",
-											"hover:bg-gray-100 dark:hover:bg-gray-800",
-											"focus:bg-gray-100 dark:focus:bg-gray-800"
+											"hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+											"focus:bg-gray-100 dark:focus:bg-white/[0.05]"
 										)}
 									>
 										<span>{t(`INTERVAL_${filter.labelKey}`)}</span>
@@ -211,7 +211,7 @@ export function SponsorshipFilters({
 								))}
 							</DropdownMenu.RadioGroup>
 
-							<DropdownMenu.Arrow className="fill-white dark:fill-gray-900" />
+							<DropdownMenu.Arrow className="fill-white dark:fill-[#0a0a0a]" />
 						</DropdownMenu.Content>
 					</DropdownMenu.Portal>
 				</DropdownMenu.Root>
@@ -234,8 +234,8 @@ export function SponsorshipFilters({
 					disabled={disabled}
 					className={`
 						w-full pl-9 pr-9 py-2.5
-						bg-white dark:bg-gray-800
-						border border-gray-200 dark:border-gray-700
+						bg-white dark:bg-white/[0.05]
+						border border-gray-200 dark:border-white/[0.06]
 						rounded-lg
 						text-sm text-gray-900 dark:text-gray-100
 						placeholder-gray-500 dark:placeholder-gray-400

@@ -36,10 +36,10 @@ interface CancelResponse {
 // ######################### Constants #########################
 
 const MODAL_OVERLAY = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-lg bg-white dark:bg-gray-900 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
-const MODAL_HEADER = 'px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between';
+const MODAL_CONTAINER = 'w-full max-w-lg bg-white dark:bg-white/[0.03] rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
+const MODAL_HEADER = 'px-6 py-4 border-b border-gray-200 dark:border-white/[0.06] flex items-center justify-between';
 const MODAL_BODY = 'p-6 overflow-y-auto flex-1';
-const MODAL_FOOTER = 'px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3';
+const MODAL_FOOTER = 'px-6 py-4 border-t border-gray-200 dark:border-white/[0.06] flex justify-end gap-3';
 const SECTION_TITLE = 'text-sm font-medium text-gray-500 dark:text-gray-400 mb-2';
 const INFO_ROW = 'flex items-center justify-between py-2';
 const INFO_LABEL = 'text-sm text-gray-600 dark:text-gray-400';
@@ -172,7 +172,7 @@ export function SponsorshipDetailModal({
 					<button
 						onClick={handleCloseModal}
 						disabled={isActionLoading}
-						className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+						className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors disabled:opacity-50"
 					>
 						<FiX className="w-5 h-5" />
 					</button>
@@ -206,7 +206,7 @@ export function SponsorshipDetailModal({
 							{/* Item Information */}
 							<div>
 								<h3 className={SECTION_TITLE}>{t('ITEM_INFORMATION')}</h3>
-								<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+								<div className="p-4 bg-gray-50 dark:bg-white/[0.05] rounded-lg">
 									<div className="flex items-start gap-3">
 										<div className="flex-shrink-0 w-10 h-10 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-lg flex items-center justify-center">
 											<FiPackage className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
@@ -226,7 +226,7 @@ export function SponsorshipDetailModal({
 							{/* Subscription Details */}
 							<div>
 								<h3 className={SECTION_TITLE}>{t('SUBSCRIPTION_DETAILS')}</h3>
-								<div className="space-y-1 divide-y divide-gray-100 dark:divide-gray-800">
+								<div className="space-y-1 divide-y divide-gray-100 dark:divide-white/[0.06]">
 									<div className={INFO_ROW}>
 										<span className={INFO_LABEL}>
 											<FiClock className="w-4 h-4 inline mr-2" />
@@ -262,7 +262,7 @@ export function SponsorshipDetailModal({
 							{/* Dates */}
 							<div>
 								<h3 className={SECTION_TITLE}>{t('IMPORTANT_DATES')}</h3>
-								<div className="space-y-1 divide-y divide-gray-100 dark:divide-gray-800">
+								<div className="space-y-1 divide-y divide-gray-100 dark:divide-white/[0.06]">
 									<div className={INFO_ROW}>
 										<span className={INFO_LABEL}>
 											<FiCalendar className="w-4 h-4 inline mr-2" />
@@ -305,7 +305,7 @@ export function SponsorshipDetailModal({
 										</div>
 									)}
 									{sponsorAd.status === 'cancelled' && sponsorAd.cancelReason && (
-										<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+										<div className="p-4 bg-gray-50 dark:bg-white/[0.05] rounded-lg border border-gray-200 dark:border-white/[0.06]">
 											<p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
 												{t('CANCEL_REASON')}
 											</p>
@@ -398,32 +398,32 @@ function ModalSkeleton() {
 	return (
 		<div className="space-y-6 animate-pulse">
 			<div className="flex justify-center">
-				<div className="h-8 w-32 bg-gray-200 dark:bg-gray-700 rounded-full" />
+				<div className="h-8 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
 			</div>
 			<div>
-				<div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-				<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+				<div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
+				<div className="p-4 bg-gray-50 dark:bg-white/[0.05] rounded-lg">
 					<div className="flex items-start gap-3">
-						<div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+						<div className="w-10 h-10 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
 						<div className="flex-1 space-y-2">
-							<div className="h-5 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
-							<div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+							<div className="h-5 w-48 bg-gray-200 dark:bg-white/[0.08] rounded" />
+							<div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded" />
 						</div>
 					</div>
 				</div>
 			</div>
 			<div>
-				<div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+				<div className="h-4 w-40 bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
 				<div className="space-y-3">
-					<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded" />
-					<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded" />
+					<div className="h-10 bg-gray-100 dark:bg-white/[0.05] rounded" />
+					<div className="h-10 bg-gray-100 dark:bg-white/[0.05] rounded" />
 				</div>
 			</div>
 			<div>
-				<div className="h-4 w-36 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+				<div className="h-4 w-36 bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
 				<div className="space-y-3">
-					<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded" />
-					<div className="h-10 bg-gray-100 dark:bg-gray-800 rounded" />
+					<div className="h-10 bg-gray-100 dark:bg-white/[0.05] rounded" />
+					<div className="h-10 bg-gray-100 dark:bg-white/[0.05] rounded" />
 				</div>
 			</div>
 		</div>

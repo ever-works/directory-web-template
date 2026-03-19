@@ -56,16 +56,16 @@ const getStatusConfig = (status: string) => {
     case 'draft':
       return {
         color: 'text-slate-600 dark:text-slate-400',
-        bgColor: 'bg-slate-50 dark:bg-slate-900/20',
-        borderColor: 'border-slate-200 dark:border-slate-700/50',
+        bgColor: 'bg-slate-50 dark:bg-[#0a0a0a]/20',
+        borderColor: 'border-slate-200 dark:border-white/[0.06]/50',
         icon: Clock,
         label: 'Draft'
       };
     default:
       return {
         color: 'text-slate-600 dark:text-slate-400',
-        bgColor: 'bg-slate-50 dark:bg-slate-900/20',
-        borderColor: 'border-slate-200 dark:border-slate-700/50',
+        bgColor: 'bg-slate-50 dark:bg-[#0a0a0a]/20',
+        borderColor: 'border-slate-200 dark:border-white/[0.06]/50',
         icon: Clock,
         label: status.charAt(0).toUpperCase() + status.slice(1)
       };
@@ -97,7 +97,7 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
 
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
+    <div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
       <div className="flex items-start justify-between">
         {/* Left Section - Payment Details */}
         <div className="flex-1">
@@ -105,8 +105,8 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
               isPaid ? 'bg-emerald-100 dark:bg-emerald-800/50' :
               isPending ? 'bg-theme-primary-100 dark:bg-theme-primary-800/50' :
-              'bg-slate-100 dark:bg-slate-700/50'
-            } group-hover:scale-105 transition-transform duration-300 border border-slate-200 dark:border-slate-600/50`}>
+              'bg-slate-100 dark:bg-white/[0.04]'
+            } group-hover:scale-105 transition-transform duration-300 border border-slate-200 dark:border-white/[0.06]`}>
               <CreditCard className={`w-6 h-6 ${
                 isPaid ? 'text-emerald-600 dark:text-emerald-400' :
                 isPending ? 'text-theme-primary-600 dark:text-theme-primary-400' :
@@ -128,7 +128,7 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
                   {statusConfig.label}
                 </span>
                 
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full border border-slate-200 dark:border-slate-600/50 ">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/[0.04] text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full border border-slate-200 dark:border-white/[0.06] ">
                   {getProviderIcon(payment.paymentProvider)}
                   {payment.paymentProvider.charAt(0).toUpperCase() + payment.paymentProvider.slice(1)}
                 </span>
@@ -191,7 +191,7 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
               </a>
             )}
             
-            <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600/50 transition-colors border border-slate-200 dark:border-slate-600/50">
+            <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.04] rounded-lg hover:bg-slate-200 dark:hover:bg-white/[0.06] transition-colors border border-slate-200 dark:border-white/[0.06]">
               <Download className="w-3 h-3" />
               Download
             </button>
@@ -236,18 +236,18 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
       </div>
       
       {/* Footer Section */}
-      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/[0.06]">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
             <span className="font-medium">Payment ID:</span>
-            <code className="bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-slate-600/50">
+            <code className="bg-slate-100 dark:bg-white/[0.04] px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-white/[0.06]">
               {payment.id.slice(-8)}
             </code>
             
             {payment.subscriptionId && (
               <>
                 <span className="font-medium">Subscription:</span>
-                <code className="bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-slate-600/50">
+                <code className="bg-slate-100 dark:bg-white/[0.04] px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-white/[0.06]">
                   {payment.subscriptionId.slice(-8)}
                 </code>
               </>
