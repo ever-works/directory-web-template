@@ -21,13 +21,13 @@ const GRADIENT_HEADER_CLASSES = [
 	'from-white',
 	'via-gray-50',
 	'to-white',
-	'dark:from-gray-900',
-	'dark:via-gray-800',
-	'dark:to-gray-900',
+	'dark:from-[#0a0a0a]',
+	'dark:via-[#0a0a0a]',
+	'dark:to-[#0a0a0a]',
 	'rounded-2xl',
 	'border',
 	'border-gray-100',
-	'dark:border-gray-800',
+	'dark:border-white/[0.06]',
 	'shadow-lg',
 	'p-6',
 	'mb-8'
@@ -63,11 +63,11 @@ const SUBTITLE_CLASSES = ['text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' 
 
 const ACCORDION_ITEM_CLASSES = [
 	'bg-white',
-	'dark:bg-gray-800',
+	'dark:bg-white/[0.05]',
 	'rounded-xl',
 	'border',
 	'border-gray-200',
-	'dark:border-gray-700',
+	'dark:border-white/[0.06]',
 	'shadow-xs',
 	'hover:shadow-md',
 	'transition-all',
@@ -89,12 +89,12 @@ const PLACEHOLDER_TEXT_CLASSES = [
 	'py-6',
 	'text-center',
 	'bg-gray-50',
-	'dark:bg-gray-900/50',
+	'dark:bg-white/[0.03]',
 	'rounded-lg',
 	'border',
 	'border-dashed',
 	'border-gray-300',
-	'dark:border-gray-700'
+	'dark:border-white/[0.06]'
 ].join(' ');
 
 interface HomepageSettings {
@@ -618,7 +618,7 @@ export function SettingsPage() {
 							) : (
 								<>
 									{/* Sponsor Ads Subsection */}
-									<div className="border-b border-gray-200 dark:border-gray-700 pb-4 mb-4">
+									<div className="border-b border-gray-200 dark:border-white/[0.06] pb-4 mb-4">
 										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-1">
 											{t('MONETIZATION_SPONSOR_ADS_TITLE')}
 										</h4>
@@ -763,7 +763,7 @@ export function SettingsPage() {
 									/>
 
 									{/* Feature Toggles */}
-									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+									<div className="border-t border-gray-200 dark:border-white/[0.06] pt-4 mt-4">
 										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
 											{t('LOCATION_FEATURES_TITLE')}
 										</h4>
@@ -799,7 +799,7 @@ export function SettingsPage() {
 									/>
 
 									{/* Privacy Settings */}
-									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+									<div className="border-t border-gray-200 dark:border-white/[0.06] pt-4 mt-4">
 										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
 											{t('LOCATION_PRIVACY_TITLE')}
 										</h4>
@@ -822,7 +822,7 @@ export function SettingsPage() {
 									</div>
 
 									{/* Map Preview */}
-									<div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+									<div className="border-t border-gray-200 dark:border-white/[0.06] pt-4 mt-4">
 										<h4 className="text-base font-medium text-gray-800 dark:text-gray-200 mb-4">
 											{t('LOCATION_MAP_PREVIEW_TITLE')}
 										</h4>
@@ -856,7 +856,7 @@ export function SettingsPage() {
 							) : (
 								<div className="space-y-8">
 									{/* Header Navigation */}
-									<div className="pb-6 border-b border-gray-200 dark:border-gray-700">
+									<div className="pb-6 border-b border-gray-200 dark:border-white/[0.06]">
 										<CustomNavigationManager
 											type="header"
 											items={navigation.custom_header}

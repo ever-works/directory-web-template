@@ -20,7 +20,7 @@ export function SettingApiStatus({ label, description, apis }: SettingApiStatusP
 		<div className="py-3">
 			<p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">{label}</p>
 			{description && <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{description}</p>}
-			<div className="space-y-2 bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 max-w-md">
+			<div className="space-y-2 bg-gray-50 dark:bg-[#0a0a0a]/50 rounded-lg p-4 max-w-md">
 				{apis.map((api) => (
 					<div key={api.envVar} className="flex items-center justify-between">
 						<div className="flex items-center gap-2">
@@ -32,7 +32,7 @@ export function SettingApiStatus({ label, description, apis }: SettingApiStatusP
 							<span className="text-sm text-gray-700 dark:text-gray-300">{api.name}</span>
 						</div>
 						<div className="flex items-center gap-2">
-							<code className="text-xs bg-gray-200 dark:bg-gray-700 px-2 py-0.5 rounded">
+							<code className="text-xs bg-gray-200 dark:bg-white/[0.08] px-2 py-0.5 rounded">
 								{api.envVar}
 							</code>
 							{api.docsUrl && (

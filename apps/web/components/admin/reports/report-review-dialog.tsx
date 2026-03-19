@@ -22,21 +22,21 @@ const CLASSES = {
 
 	// Info section styles
 	infoContainer:
-		'bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4',
+		'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-200 dark:border-white/[0.06] p-4',
 	infoGrid: 'grid grid-cols-2 gap-4',
 	infoItem: 'flex items-center gap-2',
 	infoLabel: 'text-xs text-gray-500 dark:text-gray-400',
 	infoValue: 'text-sm font-medium text-gray-900 dark:text-white',
 
 	// Details section
-	detailsContainer: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4',
+	detailsContainer: 'bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] rounded-lg p-4',
 	detailsText: 'text-gray-700 dark:text-gray-300 text-sm',
 
 	// Form styles
 	formSection: 'space-y-4',
 	label: 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2',
 	textarea:
-		'w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary resize-none',
+		'w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary resize-none',
 
 	// Footer styles
 	footerContainer: 'flex gap-3 w-full',

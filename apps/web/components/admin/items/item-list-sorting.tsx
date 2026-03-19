@@ -63,10 +63,10 @@ export function ItemListSorting({
                     className={cn(
                         "inline-flex items-center justify-center",
                         "px-2 py-1 rounded-l-md",
-                        "border border-r-0 border-gray-200 dark:border-gray-700",
-                        "bg-gray-50 dark:bg-gray-800",
+                        "border border-r-0 border-gray-200 dark:border-white/[0.06]",
+                        "bg-gray-50 dark:bg-white/[0.05]",
                         "text-gray-600 dark:text-gray-300",
-                        "hover:bg-gray-100 dark:hover:bg-gray-700",
+                        "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
                         "hover:text-theme-primary dark:hover:text-theme-primary",
                         "focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/50 focus-visible:z-10",
                         "transition-colors",
@@ -90,9 +90,9 @@ export function ItemListSorting({
                         className={cn(
                             "inline-flex items-center justify-between gap-1.5 px-2.5 py-1 text-xs font-medium rounded-r-md",
                             "min-w-[100px]",
-                            "border border-gray-200 dark:border-gray-700",
+                            "border border-gray-200 dark:border-white/[0.06]",
                             "text-gray-600 dark:text-gray-300",
-                            "hover:bg-gray-50 dark:hover:bg-gray-800",
+                            "hover:bg-gray-50 dark:hover:bg-white/[0.06]",
                             "focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/50",
                             "transition-colors",
                             "disabled:opacity-50 disabled:cursor-not-allowed"
@@ -107,8 +107,8 @@ export function ItemListSorting({
             <DropdownMenu.Portal>
                 <DropdownMenu.Content
                     className={cn(
-                        "min-w-[160px] bg-white dark:bg-gray-800 rounded-lg shadow-lg",
-                        "border border-gray-200 dark:border-gray-700",
+                        "min-w-[160px] bg-white dark:bg-white/[0.05] rounded-lg shadow-lg",
+                        "border border-gray-200 dark:border-white/[0.06]",
                         "py-1 z-50",
                         "animate-in fade-in-0 zoom-in-95 duration-200"
                     )}
@@ -121,8 +121,8 @@ export function ItemListSorting({
                             onSelect={() => handleFieldSelect(field.value)}
                             className={cn(
                                 "flex items-center justify-between px-3 py-2 text-sm cursor-pointer outline-none",
-                                "hover:bg-gray-100 dark:hover:bg-gray-700",
-                                "focus:bg-gray-100 dark:focus:bg-gray-700",
+                                "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+                                "focus:bg-gray-100 dark:focus:bg-white/[0.06]",
                                 "transition-colors",
                                 sortBy === field.value
                                     ? "text-theme-primary"

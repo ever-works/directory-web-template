@@ -36,7 +36,7 @@ const modalBackdropClasses = clsx(
 );
 
 const modalContainerClasses = clsx(
-  'relative bg-white dark:bg-gray-900 rounded-lg shadow-xl',
+  'relative bg-white dark:bg-white/[0.03] rounded-lg shadow-xl',
   'w-full max-w-4xl my-8 mx-auto',
   'max-h-[calc(100vh-4rem)] overflow-hidden',
   'flex flex-col'
@@ -44,8 +44,8 @@ const modalContainerClasses = clsx(
 
 const modalHeaderClasses = clsx(
   'flex items-center justify-between p-6',
-  'border-b border-gray-200 dark:border-gray-700',
-  'bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900'
+  'border-b border-gray-200 dark:border-white/[0.06]',
+  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]'
 );
 
 const modalTitleClasses = clsx(
@@ -57,8 +57,8 @@ const modalBodyClasses = clsx(
 );
 
 const searchSectionClasses = clsx(
-  'p-6 border-b border-gray-200 dark:border-gray-700',
-  'bg-gray-50/50 dark:bg-gray-800/50'
+  'p-6 border-b border-gray-200 dark:border-white/[0.06]',
+  'bg-gray-50/50 dark:bg-white/[0.03]'
 );
 
 const permissionsSectionClasses = clsx(
@@ -67,8 +67,8 @@ const permissionsSectionClasses = clsx(
 
 const modalFooterClasses = clsx(
   'flex justify-between items-center p-6',
-  'border-t border-gray-200 dark:border-gray-700',
-  'bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900'
+  'border-t border-gray-200 dark:border-white/[0.06]',
+  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]'
 );
 
 const changesSummaryClasses = clsx(
@@ -262,7 +262,7 @@ export function RolePermissionsModal({
             <button
               type="button"
               onClick={handleClose}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-sm transition-colors"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-sm transition-colors"
               aria-label={translations.CLOSE}
             >
               <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -283,7 +283,7 @@ export function RolePermissionsModal({
               size="sm"
               classNames={{
                 input: "text-sm",
-                inputWrapper: "bg-white dark:bg-gray-800"
+                inputWrapper: "bg-white dark:bg-white/[0.05]"
               }}
             />
           </div>

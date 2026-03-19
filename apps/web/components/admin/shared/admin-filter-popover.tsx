@@ -60,23 +60,23 @@ export interface AdminFilterPopoverProps<T extends string = string> {
 // Trigger button styles
 const TRIGGER_BASE_CLASSES = cn(
 	'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md',
-	'border border-gray-200 dark:border-gray-700',
-	'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800',
+	'border border-gray-200 dark:border-white/[0.06]',
+	'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06]',
 	'transition-colors cursor-pointer'
 );
 
 // Popover content styles
 const CONTENT_CLASSES = cn(
-	'w-64 bg-white dark:bg-gray-900 rounded-lg shadow-xl',
-	'border border-gray-200 dark:border-gray-700 z-50',
+	'w-64 bg-white dark:bg-white/[0.03] rounded-lg shadow-xl',
+	'border border-gray-200 dark:border-white/[0.06] z-50',
 	'animate-in fade-in-0 zoom-in-95'
 );
 
 // Section search input styles
 const SECTION_SEARCH_CLASSES = cn(
 	'w-full pl-7 pr-2 py-1.5 text-sm rounded-md',
-	'border border-gray-200 dark:border-gray-700',
-	'bg-white dark:bg-gray-800',
+	'border border-gray-200 dark:border-white/[0.06]',
+	'bg-white dark:bg-white/[0.05]',
 	'text-gray-900 dark:text-white placeholder-gray-400',
 	'focus:outline-none focus:border-gray-300 dark:focus:border-gray-600'
 );
@@ -85,7 +85,7 @@ const SECTION_SEARCH_CLASSES = cn(
 const CLEAR_BUTTON_CLASSES = cn(
 	'flex items-center justify-center gap-1.5 w-full px-3 py-1.5 text-xs font-medium rounded-md',
 	'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
-	'border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800',
+	'border border-gray-200 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
 	'transition-colors'
 );
 
@@ -124,7 +124,7 @@ function FilterSectionContent<T extends string>({
 	};
 
 	return (
-		<div className="p-3 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
+		<div className="p-3 border-b border-gray-100 dark:border-white/[0.06] last:border-b-0">
 			<label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 				{section.label}
 			</label>
@@ -161,7 +161,7 @@ function FilterSectionContent<T extends string>({
 								key={String(option.id)}
 								className={cn(
 									'flex items-center gap-2 px-1 py-1 rounded cursor-pointer',
-									'hover:bg-gray-50 dark:hover:bg-gray-800',
+									'hover:bg-gray-50 dark:hover:bg-white/[0.06]',
 									option.disabled && 'opacity-50 cursor-not-allowed'
 								)}
 							>
@@ -252,7 +252,7 @@ export function AdminFilterPopover<T extends string = string>({
 					type="button"
 					className={cn(
 						TRIGGER_BASE_CLASSES,
-						hasActiveFilters && 'bg-gray-50 dark:bg-gray-800',
+					hasActiveFilters && 'bg-gray-50 dark:bg-white/[0.05]',
 						triggerClassName
 					)}
 				>

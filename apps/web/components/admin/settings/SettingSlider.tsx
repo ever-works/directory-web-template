@@ -50,7 +50,7 @@ export function SettingSlider({
 					value={value}
 					onChange={(e) => onChange(Number(e.target.value))}
 					disabled={disabled}
-					className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-theme-primary disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full h-2 bg-gray-200 dark:bg-white/[0.08] rounded-lg appearance-none cursor-pointer accent-theme-primary disabled:opacity-50 disabled:cursor-not-allowed"
 					style={{
 						background: disabled
 							? undefined
