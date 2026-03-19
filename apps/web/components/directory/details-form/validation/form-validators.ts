@@ -68,8 +68,8 @@ export const STEP_INDICATOR_CLASSES = {
 		active: 'shadow-lg',
 		completed: 'bg-green-500 text-white shadow-lg',
 		accessible:
-			'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-		inaccessible: 'bg-gray-200 dark:bg-gray-700 text-gray-400'
+			'bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.06]',
+		inaccessible: 'bg-gray-200 dark:bg-white/[0.08] text-gray-400'
 	},
 	label: {
 		base: 'text-xs font-medium text-center',
@@ -81,12 +81,12 @@ export const STEP_INDICATOR_CLASSES = {
 		base: 'flex-1 h-[2px] mx-4 rounded-full transition-colors duration-300',
 		completed: 'dark:bg-theme-primary-500 bg-theme-primary-400',
 		active: 'bg-gradient-to-r from-theme-primary-500 to-theme-primary-200 dark:to-theme-primary-800',
-		default: 'bg-gray-200 dark:bg-gray-700'
+		default: 'bg-gray-200 dark:bg-white/[0.08]'
 	}
 };
 
 export const PROGRESS_BAR_CLASSES = {
-	container: 'relative w-[94%] mx-auto -mt-22 mb-20 -z-1 bg-gray-200 dark:bg-gray-700 rounded-full h-[2px] overflow-hidden shadow-inner',
+	container: 'relative w-[94%] mx-auto -mt-22 mb-20 -z-1 bg-gray-200 dark:bg-white/[0.08] rounded-full h-[2px] overflow-hidden shadow-inner',
 	bar: 'h-full bg-theme-primary-500 rounded-full transition-all duration-700 ease-out shadow-lg',
 	shimmer: 'absolute inset-0 bg-white/20 rounded-full animate-shimmer'
 };
@@ -108,21 +108,21 @@ export const BACKGROUND_CLASSES = {
 	blob3: 'absolute -bottom-8 left-1/4 w-96 h-96 bg-linear-to-r from-green-500/10 via-blue-500/10 to-indigo-500/10 dark:from-green-600/20 dark:via-blue-600/20 dark:to-indigo-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'
 };
 
-const FIELD_BASE = 'w-full px-3 py-2 rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all focus:outline-none focus:ring-1 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 hover:border-gray-300 dark:hover:border-gray-600';
+const FIELD_BASE = 'w-full px-3 py-2 rounded-lg bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all focus:outline-none focus:ring-1 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 hover:border-gray-300 dark:hover:border-white/[0.08]';
 
 export const FORM_FIELD_CLASSES = {
 	label: 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5',
 	input: {
 		base: FIELD_BASE,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/[0.06]'
 	},
 	textarea: {
 		base: `${FIELD_BASE} resize-none`,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/[0.06]'
 	},
 	select: {
 		base: `${FIELD_BASE} appearance-none cursor-pointer`,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-gray-700/50'
+		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/[0.06]'
 	},
 	videoInput: {
 		base: `${FIELD_BASE} pr-12`,
@@ -133,16 +133,16 @@ export const FORM_FIELD_CLASSES = {
 export const TAG_CLASSES = {
 	container: 'flex flex-wrap gap-3 items-start',
 	button: {
-		base: 'px-2 cursor-pointer py-1 text-xs font-medium rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/70 text-gray-900 dark:text-white hover:shadow-sm capitalize',
+		base: 'px-2 cursor-pointer py-1 text-xs font-medium rounded-full transition-all duration-200 border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-[#0a0a0a]/70 text-gray-900 dark:text-white hover:shadow-sm capitalize',
 		selected: 'text-white cursor-pointer  border-transparent shadow-lg bg-theme-primary-500 dark:bg-theme-primary-600',
 		unselected:
-			'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+			'bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/[0.06] hover:bg-gray-200 dark:hover:bg-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.08]'
 	},
 	showMore:
-		'px-2 cursor-pointer py-1 text-xs text-white font-medium rounded-xl transition-all duration-300 border-1 bg-theme-primary-500 dark:bg-theme-primary-600 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-theme-primary-700 hover:border-gray-300 dark:hover:border-gray-600 flex items-center gap-2',
+		'px-2 cursor-pointer py-1 text-xs text-white font-medium rounded-xl transition-all duration-300 border-1 bg-theme-primary-500 dark:bg-theme-primary-600 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/[0.06] hover:bg-theme-primary-700 hover:border-gray-300 dark:hover:border-white/[0.08] flex items-center gap-2',
 	selectedSummary: {
 		container:
-			'p-4 bg-theme-primary-50 dark:bg-gray-800 rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
+			'p-4 bg-theme-primary-50 dark:bg-white/[0.05] rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
 		header: 'flex items-center gap-2 mb-2',
 		icon: 'w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400',
 		label: 'text-sm font-semibold text-theme-primary-700 dark:text-theme-primary-300',
@@ -165,14 +165,14 @@ export const STEP_CARD_CLASSES = {
 		wrapper: 'relative group animate-fade-in-up',
 		glow: 'absolute inset-0 bg-linear-to-r from-orange-500/20 to-red-500/20 dark:from-orange-400/30 dark:to-red-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500',
 		content:
-			'relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl',
+			'relative bg-white/95 dark:bg-white/[0.05] backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/[0.04] p-8 shadow-2xl',
 		header: {
 			wrapper: 'flex items-center gap-3 mb-8',
 			icon: 'w-12 h-12 rounded-2xl bg-linear-to-r from-orange-500 to-red-500 flex items-center justify-center',
 			iconInner: 'w-6 h-6 text-white',
 			title: 'text-2xl font-bold text-gray-900 dark:text-white'
 		},
-		field: 'p-4 bg-gray-50 dark:bg-gray-800 rounded-xl',
+		field: 'p-4 bg-gray-50 dark:bg-white/[0.05] rounded-xl',
 		fieldTitle: 'font-semibold text-gray-900 dark:text-white mb-2',
 		fieldValue: 'text-gray-600 dark:text-gray-300'
 	}
@@ -186,7 +186,7 @@ export const NAVIGATION_CLASSES = {
 			enabled:
 				'min-w-[140px] sm:min-w-[180px] bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm',
 			disabled:
-				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-white/[0.08] text-gray-400 dark:text-gray-400 cursor-not-allowed'
 		},
 		prev: {
 			enabled:
@@ -196,7 +196,7 @@ export const NAVIGATION_CLASSES = {
 			enabled:
 				'min-w-[140px] sm:min-w-[180px] bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm hover:from-green-600 hover:via-emerald-600 hover:to-green-700',
 			disabled:
-				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-white/[0.08] text-gray-400 dark:text-gray-400 cursor-not-allowed'
 		}
 	}
 };

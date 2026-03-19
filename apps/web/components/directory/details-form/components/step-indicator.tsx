@@ -102,7 +102,7 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 
 						{/* Animated fill connector between steps */}
 						{index < steps.length - 1 && (
-							<div className="relative flex-1 mx-4 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+							<div className="relative flex-1 mx-4 h-1.5 bg-gray-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
 								<div
 									className="absolute inset-0 left-0 rounded-full bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
 									style={{ transform: `scaleX(${connectorFill / 100})` }}

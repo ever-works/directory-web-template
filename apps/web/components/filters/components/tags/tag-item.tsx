@@ -80,7 +80,7 @@ export const TagItem = memo(function TagItem({ tag, isActive, href, showCount = 
             "text-xs font-medium transition-all duration-300 truncate",
             isActive
               ? "text-white tracking-wide"
-              : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary"
+              : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
           )}
           data-tag-label
         >
@@ -91,7 +91,9 @@ export const TagItem = memo(function TagItem({ tag, isActive, href, showCount = 
           <span
             className={cn(
               "ml-1.5 text-xs font-normal",
-              isActive ? "text-white" : "text-dark-500 dark:text-dark-400"
+              isActive
+                ? "bg-white/20 text-white dark:bg-black/10 dark:text-[#0a0a0a] px-1 rounded-md"
+                : "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
             )}
           >
             ({tag.count})
@@ -104,7 +106,7 @@ export const TagItem = memo(function TagItem({ tag, isActive, href, showCount = 
           className={cn(
             "fixed min-w-40 z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-light border pointer-events-none",
             isActive
-              ? "bg-theme-primary-600 text-white border-theme-primary-700"
+              ? "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
               : "bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
           )}
           style={{ top: pos.top, left: pos.left, transform: 'translateX(-50%) translateY(-100%)', whiteSpace: 'pre-line' }}

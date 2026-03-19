@@ -54,7 +54,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return this.props.fallback || (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 via-white to-orange-50 dark:from-red-950 dark:via-gray-900 dark:to-orange-950">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-red-50 via-white to-orange-50 dark:from-red-950 dark:via-[#0a0a0a] dark:to-orange-950">
           <div className="text-center px-6 py-12 max-w-2xl mx-auto">
             {/* Error Icon */}
             <div className="mb-8 flex justify-center">
@@ -79,7 +79,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-2">
                   Show error details
                 </summary>
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40">
+                <div className="bg-gray-100 dark:bg-white/[0.05] rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40">
                   <div className="mb-2">
                     <strong>Error:</strong> {this.state.error.message}
                   </div>

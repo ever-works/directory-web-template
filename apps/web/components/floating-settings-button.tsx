@@ -24,7 +24,7 @@ const BUTTON_CLASSES = cn(
 const TOOLTIP_CLASSES = cn(
 	"absolute right-full mr-3",
 	"px-3 py-2",
-	"bg-gray-900 dark:bg-gray-700",
+	"bg-gray-900 dark:bg-white/[0.08]",
 	"text-white text-sm font-medium",
 	"rounded-lg shadow-lg",
 	"whitespace-nowrap",

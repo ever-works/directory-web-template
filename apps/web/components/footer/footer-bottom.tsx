@@ -17,7 +17,7 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 	const footerItems = processFooterItems(config, t);
 
 	return (
-		<div className="relative backdrop-blur-xl bg-white/5 dark:bg-black/5 border-t border-white/10 dark:border-gray-700/20">
+		<div className="relative backdrop-blur-xl bg-white/5 dark:bg-white/[0.02] border-t border-gray-200/30 dark:border-white/[0.06]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative px-4 sm:px-6 lg:px-8 py-6">
 				<div className="flex flex-col gap-4">
 					{/* Top row: Logo and disclaimer */}
@@ -33,10 +33,10 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 					</div>
 
 					{/* Bottom row: Copyright, links, version, theme */}
-					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-white/10 dark:border-gray-700/20">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/30 dark:border-white/[0.06]">
 						{/* Left side: Copyright and legal links */}
 						<div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-gray-600 dark:text-gray-400">
-							<span className="text-xs sm:text-sm font-medium">
+							<span className="text-xs font-medium">
 								Copyright &copy; {config.copyright_year || new Date().getFullYear()}{' '}
 								{config.company_name}. {t('footer.ALL_RIGHTS_RESERVED')}.
 							</span>
@@ -49,7 +49,7 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 											href={item.href}
 											target={item.target}
 											rel={item.rel}
-											className="text-xs sm:text-sm hover:text-theme-primary transition-colors duration-200"
+											className="text-xs hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
 										>
 											{index > 0 && (
 												<span className="mr-2 text-gray-400 dark:text-gray-600">·</span>
@@ -69,13 +69,13 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 										<div className="group cursor-help">
 											<VersionDisplay
 												variant="inline"
-												className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors duration-200"
+												className="text-xs text-gray-400 dark:text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-200"
 											/>
 										</div>
 									</VersionTooltip>
 								)}
 								{footerSettings.versionEnabled && footerSettings.themeSelectorEnabled && (
-									<div className="w-px h-4 bg-gray-300 dark:bg-gray-600" />
+									<div className="w-px h-4 bg-gray-300 dark:bg-white/[0.08]" />
 								)}
 								{footerSettings.themeSelectorEnabled && <ThemeToggler openUp />}
 							</div>
