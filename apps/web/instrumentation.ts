@@ -7,6 +7,10 @@ import { initializeDatabase } from '@/lib/db/initialize';
 export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
+  const isVercelProduction = process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production';
+  const enableRuntimeDbInit = process.env.ENABLE_RUNTIME_DB_INIT === 'true';
+  const failOnRuntimeDbInit = process.env.FAIL_ON_RUNTIME_DB_INIT === 'true';
+
   // Only initialize Sentry if DSN is configured
   if (SENTRY_DSN.value) {
     Sentry.init({
@@ -21,15 +25,20 @@ export async function register() {
   }
 
   // Auto-initialize database (migrate and seed if needed)
-  // Note: Build-time migrations via scripts/build-migrate.ts are preferred for Vercel
-  // This runtime migration serves as a fallback for preview deployments
+  // Note: Build-time migrations via scripts/build-migrate.ts are preferred for Vercel.
+  // On Vercel production, skip runtime DB initialization by default and rely on build-time
+  // migrations instead. Runtime DB init can be re-enabled explicitly via env when needed.
+  if (isVercelProduction && !enableRuntimeDbInit) {
+    console.log('[Instrumentation] Skipping runtime database initialization on Vercel production');
+    return;
+  }
+
+  // This runtime migration serves as a fallback for preview deployments and optional setups.
   try {
     console.log('[Instrumentation] Running database initialization...');
     await initializeDatabase();
     console.log('[Instrumentation] Database initialization completed');
   } catch (error) {
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
-    
     console.error('[Instrumentation] ❌ Database initialization failed:', error);
     
     // Log detailed error for debugging in Vercel logs
@@ -52,18 +61,15 @@ export async function register() {
       }
     }
     
-    // In production, re-throw to signal critical failure
-    // This ensures Vercel health checks can detect the broken state
-    if (isProduction) {
-      console.error('[Instrumentation] ❌ CRITICAL: Production deployment with failed database initialization');
-      console.error('[Instrumentation] ❌ This deployment should not serve traffic');
+    // Optional strict mode for deployments that want DB initialization to be fatal.
+    if (failOnRuntimeDbInit) {
+      console.error('[Instrumentation] ❌ FAIL_ON_RUNTIME_DB_INIT=true, rethrowing startup failure');
       throw error;
     }
-    
-    // In development/preview, allow app to start for debugging
-    // but log a prominent warning
-    console.warn('[Instrumentation] ⚠️  Non-production: Allowing app to start despite DB init failure');
-    console.warn('[Instrumentation] ⚠️  Database-dependent routes will return errors');
+
+    // Default behavior: allow app startup and let DB-dependent routes fail gracefully.
+    console.warn('[Instrumentation] ⚠️  Allowing app to start despite DB init failure');
+    console.warn('[Instrumentation] ⚠️  Database-dependent routes may return errors until the database is fixed');
   }
 }
 
