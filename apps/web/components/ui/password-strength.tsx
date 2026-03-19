@@ -78,7 +78,7 @@ export function PasswordStrength({ password, className }: PasswordStrengthProps)
             {getStrengthLabel()}
           </span>
         </div>
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+        <div className="w-full bg-gray-200 dark:bg-white/[0.08] rounded-full h-2">
           <div
             className={cn(
               'h-2 rounded-full transition-all duration-300',

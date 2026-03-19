@@ -9,10 +9,10 @@ interface LemonSqueezyPaymentFormProps extends Pick<PaymentFormProps, 'onSuccess
 
 export function LemonSqueezyPaymentForm({ checkoutUrl }: LemonSqueezyPaymentFormProps) {
 	return (
-		<div className="w-full h-[600px] flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg overflow-hidden">
+		<div className="w-full h-[600px] flex items-center justify-center bg-gray-50 dark:bg-white/[0.03] rounded-lg overflow-hidden">
 			<iframe
 				src={checkoutUrl}
-				className="w-full h-full border-0 dark:bg-gray-900"
+				className="w-full h-full border-0 dark:bg-white/[0.03]"
 				title="LemonSqueezy Checkout"
 				allow="payment"
 			/>

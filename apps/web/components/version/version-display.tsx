@@ -90,7 +90,7 @@ const VersionDisplay = memo(function VersionDisplay({
   // Detailed variant
   if (variant === "detailed") {
     return (
-      <div className={`bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-xs hover:shadow-md transition-all duration-200 ${className}`}>
+      <div className={`bg-white dark:bg-white/[0.05] rounded-lg border border-gray-200 dark:border-white/[0.06] p-4 shadow-xs hover:shadow-md transition-all duration-200 ${className}`}>
         <div className="space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -108,7 +108,7 @@ const VersionDisplay = memo(function VersionDisplay({
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <code className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-sm text-xs font-mono text-gray-800 dark:text-gray-200 border">
+                <code className="px-2 py-1 bg-gray-100 dark:bg-white/[0.08] rounded-sm text-xs font-mono text-gray-800 dark:text-gray-200 border">
                   {versionInfo.commit}
                 </code>
                 <span className="text-xs text-gray-500 dark:text-gray-400">•</span>
@@ -124,7 +124,7 @@ const VersionDisplay = memo(function VersionDisplay({
             </div>
 
             {versionInfo.message && (
-              <div className="text-xs text-gray-500 dark:text-gray-400 italic bg-gray-50 dark:bg-gray-700/50 p-2 rounded-sm border-l-2 border-blue-200 dark:border-blue-800">
+              <div className="text-xs text-gray-500 dark:text-gray-400 italic bg-gray-50 dark:bg-white/[0.04] p-2 rounded-sm border-l-2 border-blue-200 dark:border-blue-800">
                 &ldquo;{versionInfo.message.split('\n')[0]}&rdquo;
               </div>
             )}
@@ -132,7 +132,7 @@ const VersionDisplay = memo(function VersionDisplay({
 
           {/* Details section */}
           {showDetails && (
-            <div className="pt-3 border-t border-gray-200 dark:border-gray-700 space-y-2">
+            <div className="pt-3 border-t border-gray-200 dark:border-white/[0.06] space-y-2">
               <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                 <Calendar className="h-3 w-3" />
                 <span>Updated: {dateFormatters.formatDate(versionInfo.date)}</span>
@@ -145,7 +145,7 @@ const VersionDisplay = memo(function VersionDisplay({
               
               <div className="text-xs text-gray-500 dark:text-gray-400">
                 <span>Repository: </span>
-                <code className="text-xs bg-gray-100 dark:bg-gray-700 px-1 py-0.5 rounded-sm font-mono">
+                <code className="text-xs bg-gray-100 dark:bg-white/[0.08] px-1 py-0.5 rounded-sm font-mono">
                   {dateFormatters.getRepositoryName(versionInfo.repository)}
                 </code>
               </div>
@@ -163,7 +163,7 @@ const VersionDisplay = memo(function VersionDisplay({
         <GitBranch className="h-3 w-3" />
         <span className="font-medium">v{versionInfo.commit}</span>
       </div>
-      <div className="w-1 h-1 bg-gray-400 dark:bg-gray-500 rounded-full"></div>
+      <div className="w-1 h-1 bg-gray-400 dark:bg-white/[0.12] rounded-full"></div>
       <span>{dateFormatters.getRelativeTime(versionInfo.date)}</span>
       <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
     </div>

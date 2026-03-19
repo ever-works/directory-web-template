@@ -30,7 +30,7 @@ export interface SearchableSelectItem {
 
 const TRIGGER_BASE = cn(
 	"w-full flex items-center justify-between px-4 py-3 rounded-xl",
-	"border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800",
+	"border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.05]",
 	"text-sm text-gray-900 dark:text-white",
 	"focus:outline-none focus:ring-2 focus:ring-blue-500",
 	"disabled:opacity-50 disabled:cursor-not-allowed",
@@ -39,21 +39,21 @@ const TRIGGER_BASE = cn(
 
 const DROPDOWN_BASE = cn(
 	"z-[9999]",
-	"bg-white dark:bg-gray-800",
-	"border border-gray-200 dark:border-gray-700",
+	"bg-white dark:bg-white/[0.05]",
+	"border border-gray-200 dark:border-white/[0.06]",
 	"rounded-xl shadow-lg overflow-hidden"
 );
 
 const SEARCH_INPUT = cn(
 	"w-full px-4 py-3 text-sm",
-	"bg-transparent border-b border-gray-200 dark:border-gray-700",
+	"bg-transparent border-b border-gray-200 dark:border-white/[0.06]",
 	"text-gray-900 dark:text-white placeholder-gray-400",
 	"focus:outline-none"
 );
 
 const ITEM_BASE = cn(
 	"w-full flex items-center gap-3 px-4 py-3 text-left",
-	"hover:bg-gray-50 dark:hover:bg-gray-700/50",
+	"hover:bg-gray-50 dark:hover:bg-white/[0.04]",
 	"transition-colors cursor-pointer"
 );
 
