@@ -30,7 +30,7 @@ const CLASSES = {
   warningText: "text-sm text-red-700 dark:text-red-300",
   
   // Comment preview styles
-  commentContainer: "bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-xs",
+  commentContainer: "bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-200 dark:border-white/[0.06] p-6 shadow-xs",
   commentHeader: "flex items-start gap-4",
   userAvatar: "w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg shrink-0",
   commentContent: "flex-1 min-w-0",
@@ -38,7 +38,7 @@ const CLASSES = {
   userName: "font-semibold text-gray-900 dark:text-white",
   ratingBadge: "px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full",
   commentDate: "text-sm text-gray-500 dark:text-gray-400 mb-3",
-  commentText: "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg p-4 shadow-xs",
+  commentText: "bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] rounded-lg p-4 shadow-xs",
   commentBody: "text-gray-700 dark:text-gray-300 leading-relaxed",
   commentMeta: "mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400",
   metaItem: "flex items-center gap-1",

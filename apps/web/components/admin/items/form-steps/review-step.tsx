@@ -186,11 +186,11 @@ export function ReviewStep({
                 <FileText className="w-4 h-4 mr-2" />
                 {t('STEPS.BASIC_INFO.TITLE')}
               </h4>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+              <div className="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-4 space-y-2">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">ID:</span>
-                    <p className="text-sm font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded-sm border border-gray-200 dark:border-gray-600">
+                    <p className="text-sm font-mono bg-white dark:bg-white/[0.08] text-gray-900 dark:text-gray-100 px-2 py-1 rounded-sm border border-gray-200 dark:border-white/[0.08]">
                       {basicInfo.id || t('STEPS.REVIEW.NOT_SET')}
                     </p>
                   </div>
@@ -200,14 +200,14 @@ export function ReviewStep({
                   </div>
                   <div>
                     <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Slug:</span>
-                    <p className="text-sm font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 px-2 py-1 rounded-sm border border-gray-200 dark:border-gray-600">
+                    <p className="text-sm font-mono bg-white dark:bg-white/[0.08] text-gray-900 dark:text-gray-100 px-2 py-1 rounded-sm border border-gray-200 dark:border-white/[0.08]">
                       {basicInfo.slug || t('STEPS.REVIEW.NOT_SET')}
                     </p>
                   </div>
                 </div>
                 <div>
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Description:</span>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-gray-700 rounded-sm border border-gray-200 dark:border-gray-600 max-h-20 overflow-y-auto">
+                  <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-white/[0.08] rounded-sm border border-gray-200 dark:border-white/[0.08] max-h-20 overflow-y-auto">
                     {basicInfo.description || t('STEPS.REVIEW.NOT_SET')}
                   </p>
                 </div>
@@ -222,9 +222,9 @@ export function ReviewStep({
                 <LinkIcon className="w-4 h-4 mr-2" />
                 {t('STEPS.MEDIA_LINKS.TITLE')}
               </h4>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
+              <div className="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-4 space-y-3">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 flex items-center justify-center">
+                  <div className="w-12 h-12 border border-gray-200 dark:border-white/[0.08] rounded-lg bg-white dark:bg-white/[0.08] flex items-center justify-center">
                     {mediaLinks.icon_url ? (
                       <img
                         src={mediaLinks.icon_url}
@@ -268,7 +268,7 @@ export function ReviewStep({
                 <Hash className="w-4 h-4 mr-2" />
                 {t('STEPS.CLASSIFICATION.TITLE')}
               </h4>
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-4">
+              <div className="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-4 space-y-4">
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Folder className="w-4 h-4 text-gray-600 dark:text-gray-400" />
@@ -315,7 +315,7 @@ export function ReviewStep({
                     <MapPin className="w-4 h-4 mr-2" />
                     {t('STEPS.LOCATION.TITLE')}
                   </h4>
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+                  <div className="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-4 space-y-2">
                     {location.is_remote ? (
                       <div className="flex items-center gap-2">
                         <Wifi className="w-4 h-4 text-blue-500" />

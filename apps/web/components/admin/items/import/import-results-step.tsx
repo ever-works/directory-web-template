@@ -12,7 +12,7 @@ interface ImportResultsStepProps {
 
 const statCardClass = cn(
 	"flex flex-col items-center p-4 rounded-lg",
-	"bg-gray-50 dark:bg-gray-800/50"
+	"bg-gray-50 dark:bg-white/[0.03]"
 );
 
 export function ImportResultsStep({ result, isImporting }: ImportResultsStepProps) {

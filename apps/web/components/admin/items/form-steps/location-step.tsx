@@ -130,7 +130,7 @@ export function LocationStep({
 
 				{/* Location Summary */}
 				{hasLocation && (
-					<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-2">
+					<div className="bg-gray-50 dark:bg-white/[0.05] rounded-lg p-4 space-y-2">
 						<h4 className="font-medium flex items-center text-gray-900 dark:text-gray-100 text-sm">
 							<MapPin className="w-4 h-4 mr-2" />
 							{t('STEPS.LOCATION.SUMMARY_TITLE')}

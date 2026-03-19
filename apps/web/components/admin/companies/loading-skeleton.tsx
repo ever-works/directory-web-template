@@ -52,13 +52,13 @@ export function LoadingSkeleton() {
 			{/* Table Skeleton */}
 			<Card className="border-0 shadow-lg">
 				<CardBody className="p-0">
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06]">
 						<div className="flex items-center justify-between">
 							<Skeleton className="w-32 h-6 rounded-lg" />
 							<Skeleton className="w-24 h-4 rounded-lg" />
 						</div>
 					</div>
-					<div className="divide-y divide-gray-100 dark:divide-gray-800">
+					<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
 						{[1, 2, 3, 4, 5].map((i) => (
 							<div key={i} className="px-6 py-4">
 								<div className="flex items-center justify-between">

@@ -22,13 +22,13 @@ interface ImportPreviewStepProps {
 
 const summaryCardClass = cn(
 	"flex flex-col items-center p-3 rounded-lg",
-	"bg-gray-50 dark:bg-gray-800/50"
+	"bg-gray-50 dark:bg-white/[0.03]"
 );
 
 const selectClass = cn(
 	"px-3 py-1.5 text-sm rounded-lg",
-	"bg-white dark:bg-gray-800",
-	"border border-gray-200 dark:border-gray-700",
+	"bg-white dark:bg-white/[0.05]",
+	"border border-gray-200 dark:border-white/[0.06]",
 	"text-gray-900 dark:text-white",
 	"focus:outline-none focus:ring-2 focus:ring-theme-primary/50"
 );
@@ -101,9 +101,9 @@ export function ImportPreviewStep({
 			)}
 
 			{/* Rows Table */}
-			<div className="overflow-auto max-h-[320px] rounded-lg border border-gray-200 dark:border-gray-700">
+			<div className="overflow-auto max-h-[320px] rounded-lg border border-gray-200 dark:border-white/[0.06]">
 				<table className="w-full text-sm">
-					<thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0">
+					<thead className="bg-gray-50 dark:bg-white/[0.03] sticky top-0">
 						<tr>
 							<th className={cn(headerCellClass, "w-12")}>#</th>
 							<th className={headerCellClass}>Status</th>
@@ -111,7 +111,7 @@ export function ImportPreviewStep({
 							<th className={headerCellClass}>Details</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+					<tbody className="divide-y divide-gray-100 dark:divide-white/[0.06]">
 						{validationResults.map((row) => (
 							<tr
 								key={row.rowIndex}
