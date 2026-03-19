@@ -54,21 +54,21 @@ jobs:
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token=$VERCEL_TOKEN
+          vercel link --yes --cwd apps/web $SCOPE_FLAG --project ${{ github.event.repository.name }} --token=$VERCEL_TOKEN
 
       - name: Set DATA_REPOSITORY env variable
         continue-on-error: true
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} --cwd apps/web $SCOPE_FLAG --token $VERCEL_TOKEN
 
       - name: Set GH_TOKEN env variable
         continue-on-error: true
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} --cwd apps/web $SCOPE_FLAG --token $VERCEL_TOKEN
 
       - name: Set CRON_SECRET env variable
         continue-on-error: true
@@ -78,14 +78,14 @@ jobs:
           if [ -n "$CRON_SECRET" ]; then
             SCOPE_FLAG=""
             [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} --cwd apps/web $SCOPE_FLAG --token $VERCEL_TOKEN
           fi
 
       - name: Pull Vercel settings
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token=$VERCEL_TOKEN
+          vercel pull --yes --cwd apps/web $SCOPE_FLAG --environment=${{ inputs.environment }} --token=$VERCEL_TOKEN
 
       - name: Trigger deployment via API
         id: trigger_deployment
@@ -99,6 +99,9 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "name": "${{ github.event.repository.name }}",
+              "projectSettings": {
+                "rootDirectory": "apps/web"
+              },
               "gitSource": {
                 "type": "github",
                 "ref": "${{ github.ref_name }}",
@@ -132,7 +135,7 @@ jobs:
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
-          vercel build $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
+          vercel build --cwd apps/web $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
 
       - name: Deploy project artifacts (CLI fallback)
         if: steps.trigger_deployment.outcome == 'failure'
@@ -141,7 +144,7 @@ jobs:
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
-          vercel deploy --prebuilt $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
+          vercel deploy --prebuilt --cwd apps/web $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
 
       - name: Update cron schedule
         if: success() && steps.trigger_deployment.outputs.deployment_id != ''
