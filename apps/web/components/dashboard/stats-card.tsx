@@ -3,7 +3,7 @@ import { LucideIcon } from 'lucide-react';
 
 // Design system constants for accessibility
 const CARD_BASE_STYLES =
-	'bg-white dark:bg-gray-900 rounded-xl shadow-xs p-6 border border-gray-200 dark:border-gray-700';
+	'bg-white dark:bg-white/[0.03] rounded-xl shadow-xs p-6 border border-gray-200 dark:border-white/[0.06]';
 const ICON_CONTAINER_STYLES = 'p-2 bg-theme-primary-100 dark:bg-theme-primary-900/30 rounded-lg';
 const ICON_STYLES = 'h-5 w-5 text-theme-primary-600 dark:text-theme-primary-400';
 const TITLE_STYLES = 'text-sm font-medium text-gray-600 dark:text-gray-400';
@@ -42,12 +42,12 @@ export function StatsCard({
 				<span className="sr-only">{`Loading ${title} statistic`}</span>
 				<div className="animate-pulse">
 					<div className="flex items-center space-x-2">
-						<div className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
-							<div className="h-5 w-5 bg-gray-300 dark:bg-gray-600 rounded-sm"></div>
+						<div className="p-2 bg-gray-200 dark:bg-white/[0.08] rounded-lg">
+							<div className="h-5 w-5 bg-gray-300 dark:bg-white/[0.1] rounded-sm"></div>
 						</div>
 						<div className="flex-1">
-							<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-2"></div>
-							<div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+							<div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-2"></div>
+							<div className="h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm"></div>
 						</div>
 					</div>
 				</div>

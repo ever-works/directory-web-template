@@ -66,8 +66,8 @@ export function EngagementRateChart({
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-gray-200 dark:bg-white/[0.08] rounded-sm"></div>
                 </div>
             </div>
         );

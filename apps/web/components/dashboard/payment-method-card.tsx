@@ -31,7 +31,7 @@ export function PaymentMethodCard({
 
 	return (
 		<div className="relative group">
-			<div className="bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600 hover:shadow-md transition-all duration-200">
+			<div className="bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-lg p-6 border border-gray-200 dark:border-white/[0.08] hover:shadow-md transition-all duration-200">
 				<div className="flex items-start justify-between">
 					<div className="flex items-start space-x-4 flex-1">
 						<div

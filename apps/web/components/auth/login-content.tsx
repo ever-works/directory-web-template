@@ -53,7 +53,7 @@ export function LoginContent({
 						'w-full p-6 flex flex-col justify-center relative',
 						variant === 'modal' ? 'md:w-[45%]' : 'md:w-1/2',
 						'bg-linear-to-br from-gray-50 to-white',
-						'dark:from-gray-900 dark:via-gray-900 dark:to-gray-950'
+						'dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]'
 					)}
 				>
 					<div className="relative z-10">
@@ -137,13 +137,13 @@ export function LoginContent({
 					</div>
 
 					{/* Decorative gradient */}
-					<div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white dark:from-gray-950 to-transparent pointer-events-none" />
+					<div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
 				</div>
 
 				{/* Right Side - Auth Form */}
 				<div
 					className={cn(
-						'w-full p-6 flex items-center justify-center relative bg-white/40 dark:bg-gray-900/40 backdrop-blur-xs',
+						'w-full p-6 flex items-center justify-center relative bg-white/40 dark:bg-white/[0.03] backdrop-blur-xs',
 						variant === 'modal' ? 'md:w-[55%]' : 'md:w-1/2'
 					)}
 				>
@@ -155,12 +155,12 @@ export function LoginContent({
 							</p>
 						</div>
 
-						<div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow-xs border border-gray-100 dark:border-gray-800">
+						<div className="bg-white dark:bg-white/[0.03] p-4 rounded-lg shadow-xs border border-gray-100 dark:border-white/[0.06]">
 							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
 								<div className="space-y-3">
 									<div className="relative">
 										<div className="absolute inset-0 flex items-center">
-											<div className="w-full border-t border-gray-200 dark:border-gray-800" />
+											<div className="w-full border-t border-gray-200 dark:border-white/[0.06]" />
 										</div>
 									</div>
 									<SocialLogin callbackUrl={callbackUrl} />

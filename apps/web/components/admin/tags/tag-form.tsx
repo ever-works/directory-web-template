@@ -19,8 +19,8 @@ export function TagForm({ tag, mode, onSubmit, onCancel, isLoading = false }: Ta
   // Extract long className strings into constants for better maintainability
   const baseInputClasses = "w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500";
   const errorInputClasses = "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700";
-  const normalInputClasses = "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white";
-  const disabledInputClasses = "bg-gray-100 dark:bg-gray-600 cursor-not-allowed";
+  const normalInputClasses = "border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white";
+  const disabledInputClasses = "bg-gray-100 dark:bg-white/[0.1] cursor-not-allowed";
 
   const [formData, setFormData] = useState({
     id: tag?.id || '',
@@ -95,7 +95,7 @@ export function TagForm({ tag, mode, onSubmit, onCancel, isLoading = false }: Ta
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-white/[0.05] rounded-lg shadow-xl border border-gray-200 dark:border-white/[0.06]">
       {/* Header */}
       <div className="bg-linear-to-r from-blue-500 to-purple-600 px-6 py-4 rounded-t-lg">
         <h2 className="text-xl font-bold text-white">
@@ -148,7 +148,7 @@ export function TagForm({ tag, mode, onSubmit, onCancel, isLoading = false }: Ta
             className={`w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
               errors.name 
                 ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700' 
-                : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white'
+                : 'border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white'
             }`}
           />
           {errors.name && (
@@ -171,7 +171,7 @@ export function TagForm({ tag, mode, onSubmit, onCancel, isLoading = false }: Ta
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
                 formData.isActive 
                   ? 'bg-blue-600 dark:bg-blue-500' 
-                  : 'bg-gray-200 dark:bg-gray-700'
+                  : 'bg-gray-200 dark:bg-white/[0.08]'
               }`}
             >
               <span
@@ -193,7 +193,7 @@ export function TagForm({ tag, mode, onSubmit, onCancel, isLoading = false }: Ta
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
           <Button
             type="button"
             variant="outline"

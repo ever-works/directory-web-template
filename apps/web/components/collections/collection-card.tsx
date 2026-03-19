@@ -30,9 +30,10 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 					setIsNavigating(true);
 				}
 			}}
-			className="group relative block p-6 bg-white dark:bg-[#101624]
-			rounded-2xl border border-gray-200 dark:border-gray-700/50
-			transition-all duration-100
+			className="group relative block p-6 bg-white dark:bg-white/[0.03]
+			rounded-xl border border-gray-200/80 dark:border-white/[0.06]
+			hover:border-gray-300 dark:hover:border-white/[0.12]
+			transition-all duration-200
 			overflow-hidden cursor-pointer"
 		>
 			{/* Decorative short top border accent with fading edges */}
@@ -45,9 +46,8 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 			/>
 			{/* Decorative blurred circles background */}
 			<div className="pointer-events-none absolute inset-0 z-0">
-				<div className="absolute w-40 h-40 bg-[#6209bb]/20 opacity-50 rounded-full blur-3xl left-2 top-0"></div>
-				<div className="absolute w-32 h-32 bg-blue-200/20 opacity-50 rounded-full blur-3xl right-1 top-20"></div>
-				<div className="absolute w-28 h-28 bg-[#6209bb]/20 opacity-50 rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
+				<div className="absolute w-40 h-40 bg-theme-primary/5 dark:bg-theme-primary/[0.04] rounded-full blur-3xl left-2 top-0"></div>
+				<div className="absolute w-28 h-28 bg-theme-primary/5 dark:bg-theme-primary/[0.03] rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
 			</div>
 
 			{/* Hover image at top, reversed horizontally, only visible on hover, now with higher opacity */}
@@ -148,7 +148,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 			></div>
 
 			{isNavigating && (
-				<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
+				<div className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs rounded-xl flex items-center justify-center z-50 transition-opacity duration-300">
 					<Spinner size="lg" color="primary" />
 				</div>
 			)}
