@@ -15,6 +15,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 	const t = useTranslations('common');
 	const [isNavigating, setIsNavigating] = useState(false);
 	const pathname = usePathname();
+	const collectionPathSegment = collection.slug || collection.id;
 
 	// Reset spinner when route changes (e.g., back navigation)
 	useEffect(() => {
@@ -23,7 +24,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 
 	return (
 		<Link
-			href={`/collections/${collection.slug}`}
+			href={`/collections/${collectionPathSegment}`}
 			onClick={(e) => {
 				// Only show spinner for regular left-click navigation (not middle-click, Cmd/Ctrl+click)
 				if (e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) {

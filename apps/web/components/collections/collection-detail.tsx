@@ -281,7 +281,12 @@ function CollectionHomeTwoLayout({
           categories={[]}
           tags={tags}
           items={filteredItems}
-          config={{ ...CardPresets.homeTwoListing, perPage: itemsPerPage }}
+          config={{
+            ...CardPresets.homeTwoListing,
+            perPage: itemsPerPage,
+            customEmptyMessage: 'No items found in this collection',
+            customEmptyDescription: 'No items in this collection match the current search or tag filters.',
+          }}
         />
       </Container>
     </div>
@@ -406,6 +411,8 @@ function CollectionDetailContent(props: CollectionDetailProps) {
                     enableSearch: true,
                     enableTagFilter: false,
                     enableSorting: true,
+                    customEmptyMessage: 'No items found in this collection',
+                    customEmptyDescription: 'No items in this collection match the current search or tag filters.',
                   }}
                 />
               </div>
@@ -419,7 +426,7 @@ function CollectionDetailContent(props: CollectionDetailProps) {
 
 export function CollectionDetail(props: CollectionDetailProps) {
   return (
-    <FilterProvider>
+    <FilterProvider initialSortBy="name-asc">
       <CollectionDetailContent {...props} />
     </FilterProvider>
   );

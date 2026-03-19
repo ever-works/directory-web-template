@@ -17,15 +17,17 @@ export async function generateMetadata({
   const { locale, slug } = await params;
 
   const { collections } = await getCachedItems({ lang: locale });
-  let collection = collections.find(c => c.slug === slug || c.id === slug);
+  const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);
 
-  if (!collection) {
-    try {
-      const allCollections = await collectionRepository.findAll({ includeInactive: false });
-      collection = allCollections.find((c) => c.slug === slug);
-    } catch {
-      // Ignore error, fallback already attempted
-    }
+  let collection = null;
+  try {
+    const allCollections = await collectionRepository.findAll({ includeInactive: false });
+    const repositoryCollection = allCollections.find((c) => c.slug === slug || c.id === slug);
+    collection = repositoryCollection && normalizedCollection
+      ? { ...repositoryCollection, ...normalizedCollection, items: normalizedCollection.items || repositoryCollection.items }
+      : repositoryCollection || normalizedCollection;
+  } catch {
+    collection = normalizedCollection;
   }
 
   if (!collection) {
@@ -62,23 +64,25 @@ export default async function CollectionPage({
 }) {
   const { locale, slug } = await params;
 
-  const { collections, tags, items } = await getCachedItems({ lang: locale });
-  let collection = collections.find(c => c.slug === slug || c.id === slug);
+  const { categories: _categories, tags, items, collections } = await getCachedItems({ lang: locale });
+  const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);
 
-  if (!collection) {
-    try {
-      const allCollections = await collectionRepository.findAll({ includeInactive: false });
-      collection = allCollections.find(c => c.slug === slug);
-    } catch (_error) {
-      logger.warn('Git collection repository not available, falling back to local content');
-    }
+  let collection = null;
+  try {
+    const allCollections = await collectionRepository.findAll({ includeInactive: false });
+    const repositoryCollection = allCollections.find((c) => c.slug === slug || c.id === slug);
+    collection = repositoryCollection && normalizedCollection
+      ? { ...repositoryCollection, ...normalizedCollection, items: normalizedCollection.items || repositoryCollection.items }
+      : repositoryCollection || normalizedCollection;
+  } catch (_error) {
+    logger.warn('Git collection repository not available, falling back to local content');
+    collection = normalizedCollection;
   }
 
   if (!collection) {
     notFound();
   }
 
-  // Build a lookup so string tag IDs can be resolved to full tag objects
   const tagMap = Object.fromEntries(tags.map((tag) => [tag.id, tag]));
 
   const normalizeItemTags = (itemTags: Array<string | { id: string }> = []) =>
@@ -86,7 +90,6 @@ export default async function CollectionPage({
       .map((tag) => (typeof tag === "string" ? tagMap[tag] : tagMap[tag?.id]))
       .filter(Boolean);
 
-  // Filter items based on collection's item list
   const collectionItemIds = collection.items || [];
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))

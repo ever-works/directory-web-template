@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEngagementMetricsPerItem, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
+import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,11 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
+    const dbCheck = checkDatabaseAvailability();
+    if (dbCheck) {
+      return NextResponse.json({ metrics: {} });
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const slugsParam = searchParams.get('slugs');
 
@@ -51,10 +57,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ metrics });
   } catch (error) {
-    console.error('[API] Error fetching engagement metrics:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch engagement metrics' },
-      { status: 500 }
-    );
+    console.warn('[API] Falling back to empty engagement metrics:', error);
+    return NextResponse.json({ metrics: {} });
   }
 }

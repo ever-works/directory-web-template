@@ -11,6 +11,7 @@ import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
 import { Collection } from '@/types/collection';
+import type { ComparisonData, ComparisonDetail, ComparisonDimension } from '@/types/comparison';
 import type { ItemLocationData } from '@/lib/types/item';
 import { z } from 'zod';
 
@@ -73,6 +74,75 @@ function isValidUrl(url: string): boolean {
 	return trimmed.startsWith('http://') || trimmed.startsWith('https://');
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
+}
+
+function normalizeComparisonDimension(raw: unknown): ComparisonDimension | null {
+	if (!isRecord(raw)) return null;
+
+	const name = typeof raw.name === 'string' ? raw.name : '';
+	const itemASummary = typeof raw.item_a_summary === 'string' ? raw.item_a_summary : '';
+	const itemBSummary = typeof raw.item_b_summary === 'string' ? raw.item_b_summary : '';
+
+	if (!name || !itemASummary || !itemBSummary) {
+		return null;
+	}
+
+	const itemAScore = typeof raw.item_a_score === 'number' && Number.isFinite(raw.item_a_score) ? raw.item_a_score : undefined;
+	const itemBScore = typeof raw.item_b_score === 'number' && Number.isFinite(raw.item_b_score) ? raw.item_b_score : undefined;
+	const winner = raw.winner === 'item_a' || raw.winner === 'item_b' || raw.winner === 'tie' ? raw.winner : undefined;
+
+	return {
+		name,
+		item_a_summary: itemASummary,
+		item_b_summary: itemBSummary,
+		item_a_score: itemAScore,
+		item_b_score: itemBScore,
+		winner,
+	};
+}
+
+function normalizeComparisonData(raw: unknown, fallbackSlug: string): ComparisonData | null {
+	if (!isRecord(raw)) return null;
+
+	const slug = typeof raw.slug === 'string' && raw.slug ? raw.slug : fallbackSlug;
+	const id = typeof raw.id === 'string' && raw.id ? raw.id : slug;
+	const title = typeof raw.title === 'string' ? raw.title : '';
+	const itemASlug = typeof raw.item_a_slug === 'string' ? raw.item_a_slug : '';
+	const itemBSlug = typeof raw.item_b_slug === 'string' ? raw.item_b_slug : '';
+	const itemAName = typeof raw.item_a_name === 'string' ? raw.item_a_name : '';
+	const itemBName = typeof raw.item_b_name === 'string' ? raw.item_b_name : '';
+	const category = typeof raw.category === 'string' ? raw.category : '';
+	const summary = typeof raw.summary === 'string' ? raw.summary : '';
+	const verdict = typeof raw.verdict === 'string' ? raw.verdict : '';
+	const verdictWinner = raw.verdict_winner === 'item_a' || raw.verdict_winner === 'item_b' || raw.verdict_winner === 'tie' ? raw.verdict_winner : undefined;
+	const generatedAt = typeof raw.generated_at === 'string' && raw.generated_at ? raw.generated_at : new Date(0).toISOString();
+	const dimensions = Array.isArray(raw.dimensions) ? raw.dimensions.map(normalizeComparisonDimension).filter((d): d is ComparisonDimension => d !== null) : [];
+	const sources = Array.isArray(raw.sources) ? raw.sources.filter((source): source is string => typeof source === 'string' && source.length > 0) : [];
+
+	if (!slug || !title || !itemAName || !itemBName) {
+		return null;
+	}
+
+	return {
+		id,
+		slug,
+		title,
+		item_a_slug: itemASlug,
+		item_b_slug: itemBSlug,
+		item_a_name: itemAName,
+		item_b_name: itemBName,
+		category,
+		summary,
+		verdict,
+		verdict_winner: verdictWinner,
+		dimensions,
+		sources,
+		generated_at: generatedAt,
+	};
+}
+
 /**
  * Validates CSS length/size values (e.g., "100px", "50vh", "auto")
  */
@@ -125,6 +195,11 @@ interface Identifiable {
 interface TypePagination {
 	type: 'standard' | 'infinite';
 	itemsPerPage: number;
+}
+
+interface FetchComparisonsResult {
+	total: number;
+	comparisons: ComparisonData[];
 }
 
 export interface PricingConfig {
@@ -203,6 +278,7 @@ export interface ItemData {
 	category: string | Category | Category[] | string[];
 	tags: string[] | Tag[];
 	collections?: string[] | Collection[];
+	collection?: string;
 	featured?: boolean;
 	icon_url?: string;
 	updated_at: string; // raw string timestamp
@@ -591,23 +667,28 @@ function populateTag(tag: string | Tag, tags: Map<string, Tag>) {
 	return populate<Tag>(tag, tags);
 }
 
-function populateCollection(collection: string | Collection, collections: Map<string, Collection>): Collection {
+function populateCollection(collection: string | Collection, collections: Map<string, Collection>, itemSlug?: string): Collection {
 	const id = typeof collection === 'string' ? collection : collection.id;
 	const name = typeof collection === 'string' ? collection : collection.name;
 
 	const populated = collections.get(id);
 	if (populated) {
-		// Increment item_count for the collection
-		populated.item_count = (populated.item_count || 0) + 1;
+		populated.slug = populated.slug || populated.id;
+		populated.items = Array.isArray(populated.items) ? populated.items : [];
+		if (itemSlug && !populated.items.includes(itemSlug)) {
+			populated.items.push(itemSlug);
+		}
+		populated.item_count = populated.items.length;
 		return populated;
 	} else {
-		// Create minimal collection with required fields
-		const newCollection: Collection = {
+		const items = itemSlug ? [itemSlug] : [];
+		const newCollection = {
 			id,
 			name,
-			slug: id, // Use id as slug fallback
+			slug: id,
 			description: '',
-			item_count: 1,
+			item_count: items.length,
+			items,
 			isActive: true
 		};
 		collections.set(id, newCollection);
@@ -659,6 +740,84 @@ interface FetchItemsResult {
 	categories: Category[];
 	tags: Tag[];
 	collections: Collection[];
+}
+
+async function fetchComparisons(): Promise<FetchComparisonsResult> {
+	const { ensureContentAvailable } = await import('./lib');
+	await ensureContentAvailable();
+
+	const contentPath = getContentPath();
+	const comparisonsDir = path.join(contentPath, 'comparisons');
+
+	if (!(await dirExists(comparisonsDir))) {
+		return { total: 0, comparisons: [] };
+	}
+
+	try {
+		const entries = await fsp.readdir(comparisonsDir, { withFileTypes: true });
+		const comparisons = (await Promise.all(
+			entries
+				.filter((entry) => entry.isDirectory())
+				.map(async (entry) => {
+					const slug = sanitizeFilename(entry.name);
+					const ymlPath = path.join(comparisonsDir, slug, `${slug}.yml`);
+					try {
+						const raw = await safeReadFile(ymlPath, comparisonsDir);
+						return normalizeComparisonData(yaml.parse(raw), slug);
+					} catch (error) {
+						console.error(`Failed to load comparison ${slug}:`, error);
+						return null;
+					}
+				})
+		)).filter((comparison): comparison is ComparisonData => comparison !== null);
+
+		comparisons.sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
+
+		return { total: comparisons.length, comparisons };
+	} catch (error) {
+		console.error('Failed to load comparisons:', error);
+		return { total: 0, comparisons: [] };
+	}
+}
+
+export async function fetchComparison(slug: string): Promise<ComparisonDetail | null> {
+	const { ensureContentAvailable } = await import('./lib');
+	await ensureContentAvailable();
+
+	const contentPath = getContentPath();
+	const sanitizedSlug = sanitizeFilename(slug);
+	const comparisonDir = path.join(contentPath, 'comparisons', sanitizedSlug);
+
+	if (!(await dirExists(comparisonDir))) {
+		return null;
+	}
+
+	const ymlPath = path.join(comparisonDir, `${sanitizedSlug}.yml`);
+	const mdPath = path.join(comparisonDir, `${sanitizedSlug}.md`);
+	const extendedPath = path.join(comparisonDir, `${sanitizedSlug}-extended.md`);
+
+	try {
+		const raw = await safeReadFile(ymlPath, comparisonDir);
+		const comparison = normalizeComparisonData(yaml.parse(raw), sanitizedSlug);
+		if (!comparison) {
+			return null;
+		}
+		let markdown: string | undefined;
+		let extendedAnalysisMarkdown: string | undefined;
+
+		if (await fsExists(mdPath)) {
+			markdown = await safeReadFile(mdPath, comparisonDir);
+		}
+
+		if (await fsExists(extendedPath)) {
+			extendedAnalysisMarkdown = await safeReadFile(extendedPath, comparisonDir);
+		}
+
+		return { comparison, markdown, extendedAnalysisMarkdown };
+	} catch (error) {
+		console.error(`Failed to load comparison ${sanitizedSlug}:`, error);
+		return null;
+	}
 }
 
 // IN-MEMORY CACHE INFRASTRUCTURE
@@ -1676,6 +1835,34 @@ export const getCachedItems = async (options: FetchOptions = {}) => {
 				CACHE_TAGS.COLLECTIONS,
 				CACHE_TAGS.ITEMS_LOCALE(locale)
 			]
+		}
+	)();
+};
+
+export const getCachedComparisons = async (options: FetchOptions = {}) => {
+	const locale = options.lang || 'en';
+	return unstable_cache(
+		async () => {
+			return await fetchComparisons();
+		},
+		['comparisons', locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.CONTENT,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.COMPARISONS, CACHE_TAGS.COMPARISONS_LOCALE(locale)]
+		}
+	)();
+};
+
+export const getCachedComparison = async (slug: string, options: FetchOptions = {}) => {
+	const locale = options.lang || 'en';
+	return unstable_cache(
+		async () => {
+			return await fetchComparison(slug);
+		},
+		['comparison', slug, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.ITEM,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.COMPARISONS]
 		}
 	)();
 };
