@@ -742,6 +742,12 @@ interface FetchItemsResult {
 	collections: Collection[];
 }
 
+function sanitizeComparisonMarkdownForMdx(markdown: string): string {
+	// AI-generated comparison markdown occasionally includes raw HTML-like tags that break MDX compilation.
+	// Comparisons do not rely on HTML, so escape tag-shaped fragments before rendering.
+	return markdown.replace(/<[^>\n]+>/g, (match) => match.replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+}
+
 async function fetchComparisons(): Promise<FetchComparisonsResult> {
 	const { ensureContentAvailable } = await import('./lib');
 	await ensureContentAvailable();
@@ -806,7 +812,7 @@ export async function fetchComparison(slug: string): Promise<ComparisonDetail | 
 		let extendedAnalysisMarkdown: string | undefined;
 
 		if (await fsExists(mdPath)) {
-			markdown = await safeReadFile(mdPath, comparisonDir);
+			markdown = sanitizeComparisonMarkdownForMdx(await safeReadFile(mdPath, comparisonDir));
 		}
 
 		if (await fsExists(extendedPath)) {
