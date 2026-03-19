@@ -63,7 +63,7 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 					onSelect && 'cursor-pointer hover:scale-[1.02]',
 					isSelected
 						? 'bg-blue-50/50 dark:bg-theme-primary-900/20 border-2 border-blue-400 dark:border-theme-primary-600 shadow-sm'
-						: 'border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.03] hover:border-gray-300 dark:hover:border-white/[0.08]'
+						: 'border border-gray-200 dark:border-white/6 bg-white dark:bg-white/3 hover:border-gray-300 dark:hover:border-white/8'
 				)}
 			>
 				<div className="p-5 flex items-start gap-4">
@@ -116,7 +116,7 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 			size="lg"
 			backdrop="opaque"
 			hideCloseButton={false}
-			className="bg-white dark:bg-white/[0.03] p-4"
+			className="bg-white dark:bg-white/3 p-4"
 		>
 			<ModalContent>
 					<ModalBody className="space-y-3">

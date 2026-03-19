@@ -39,7 +39,7 @@ const MODAL_CLASSES = cn(
 	'animate-fade-in-up'
 );
 
-const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-white/[0.06]');
+const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-white/6');
 
 export function SettingsModal() {
 	const { isOpen, closeModal } = useSettingsModal();
@@ -85,7 +85,7 @@ export function SettingsModal() {
 				<div
 					className={cn(
 						'flex items-center justify-between px-4 md:px-6 py-4',
-						'border-b border-gray-200 dark:border-white/[0.06]',
+						'border-b border-gray-200 dark:border-white/6',
 						'bg-gradient-to-r from-gray-50/50 to-white',
 						'dark:from-[#0a0a0a]/50 dark:to-[#0a0a0a]/50',
 						'shadow-sm'
@@ -115,7 +115,7 @@ export function SettingsModal() {
 							'p-2 rounded-lg transition-all duration-200',
 							'text-gray-500 hover:text-gray-700',
 							'dark:text-gray-400 dark:hover:text-gray-200',
-							'hover:bg-gray-100 dark:hover:bg-white/[0.06]',
+							'hover:bg-gray-100 dark:hover:bg-white/6',
 							'hover:scale-110'
 						)}
 						aria-label={t('CLOSE_SETTINGS')}

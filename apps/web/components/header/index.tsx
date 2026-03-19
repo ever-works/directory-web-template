@@ -128,7 +128,7 @@ const NAVIGATION_CONFIG: Array<{
 ];
 
 const STYLES = {
-	navbar: 'bg-white/75 dark:bg-[#0a0a0a]/75 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.06] sticky top-0 z-50',
+	navbar: 'bg-white/75 dark:bg-[#0a0a0a]/75 backdrop-blur-md border-b border-gray-200/50 dark:border-white/6 sticky top-0 z-50',
 	container: 'flex items-center justify-between w-full min-h-[60px] sm:min-h-[64px] md:min-h-[68px] lg:min-h-[65px]',
 	navContent: 'hidden lg:flex gap-5 xl:gap-6 2xl:gap-6 mr-6 xl:mr-8 2xl:mr-10',
 	navbarMenuToggle: 'lg:hidden transition-transform duration-150',
@@ -149,8 +149,8 @@ const STYLES = {
 	mobileMenuItem:
 		'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200',
 	mobileLink:
-		'block w-full text-sm sm:text-base md:text-lg py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors duration-150',
-	mobileControls: 'py-4 flex flex-col gap-4 border-t border-gray-200/50 dark:border-white/[0.06] mt-4',
+		'block w-full text-sm sm:text-base md:text-lg py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150',
+	mobileControls: 'py-4 flex flex-col gap-4 border-t border-gray-200/50 dark:border-white/6 mt-4',
 	mobileOnly: 'lg:hidden',
 	desktopOnly: 'hidden lg:block',
 	tabletUp: 'hidden md:block',
@@ -164,7 +164,7 @@ function HeaderNavSkeleton() {
 		<div className="hidden lg:flex gap-4 xl:gap-6 2xl:gap-8 mr-6 xl:mr-8 2xl:mr-10">
 			{/* Show skeleton placeholders for nav items */}
 			{[1, 2, 3, 4, 5].map((i) => (
-				<div key={i} className="h-5 w-16 bg-gray-200/50 dark:bg-white/[0.04] rounded animate-pulse" />
+				<div key={i} className="h-5 w-16 bg-gray-200/50 dark:bg-white/4 rounded animate-pulse" />
 			))}
 		</div>
 	);

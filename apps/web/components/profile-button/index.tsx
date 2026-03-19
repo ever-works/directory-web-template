@@ -26,15 +26,15 @@ const MenuLoadingFallback = () => (
   )}>
     <div className="px-5 py-4">
       <div className="flex items-center space-x-4">
-        <div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-full animate-pulse"></div>
+        <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse"></div>
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
-          <div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse w-3/4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
+          <div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse w-3/4"></div>
         </div>
       </div>
       <div className="mt-4 space-y-2">
-        <div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
-        <div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse w-2/3"></div>
+        <div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
+        <div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse w-2/3"></div>
       </div>
     </div>
   </div>
@@ -241,7 +241,7 @@ function ProfileButton() {
       {/* Full screen loading overlay with backdrop blur - render as portal */}
       {isNavigating && typeof window !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-9999999 bg-black/50 backdrop-blur-xs flex items-center justify-center" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999999 }}>
-          <div className="bg-white dark:bg-white/[0.05] rounded-lg p-8 shadow-2xl">
+          <div className="bg-white dark:bg-white/5 rounded-lg p-8 shadow-2xl">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600 dark:border-gray-400 mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">Loading...</p>

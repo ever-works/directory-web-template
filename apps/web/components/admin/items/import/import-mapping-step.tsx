@@ -14,8 +14,8 @@ interface ImportMappingStepProps {
 
 const selectClass = cn(
 	"w-full px-3 py-2 text-sm rounded-lg",
-	"bg-white dark:bg-white/[0.05]",
-	"border border-gray-200 dark:border-white/[0.06]",
+	"bg-white dark:bg-white/5",
+	"border border-gray-200 dark:border-white/6",
 	"text-gray-900 dark:text-white",
 	"focus:outline-none focus:ring-2 focus:ring-theme-primary/50",
 	"transition-colors duration-150"
@@ -59,15 +59,15 @@ export function ImportMappingStep({
 				</div>
 			)}
 
-			<div className="overflow-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-white/[0.06]">
+			<div className="overflow-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-white/6">
 				<table className="w-full">
-					<thead className="bg-gray-50 dark:bg-white/[0.03] sticky top-0">
+					<thead className="bg-gray-50 dark:bg-white/3 sticky top-0">
 						<tr>
 							<th className={headerCellClass}>{t("FILE_COLUMN")}</th>
 							<th className={headerCellClass}>{t("MAP_TO")}</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-gray-100 dark:divide-white/[0.06]">
+					<tbody className="divide-y divide-gray-100 dark:divide-white/6">
 						{sourceHeaders.map((header) => {
 							const targetField = mapping[header] || "";
 							const isRequired = requiredFields.includes(targetField);

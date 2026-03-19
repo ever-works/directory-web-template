@@ -201,7 +201,7 @@ pnpm start`,
 							{completedSteps.length} of {installationSteps.length} completed
 						</span>
 					</div>
-					<div className="w-full bg-slate-200 dark:bg-white/[0.08] rounded-full h-3">
+					<div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-3">
 						<div
 							className="bg-linear-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
 							style={{ width: `${progressPercentage}%` }}
@@ -224,12 +224,12 @@ pnpm start`,
 								>
 									{/* Step Card */}
 									<div
-										className={`relative bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs rounded-xl p-6 border-2 transition-all duration-300 ${
+										className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border-2 transition-all duration-300 ${
 											activeStep === index
 												? 'border-blue-500 shadow-xl shadow-blue-500/20'
 												: completedSteps.includes(index)
 													? 'border-green-500 shadow-lg shadow-green-500/20'
-													: 'border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.08]'
+													: 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
 										}`}
 									>
 										{/* Step Header */}
@@ -283,7 +283,7 @@ pnpm start`,
 
 									{/* Connection Line */}
 									{index < installationSteps.length - 1 && (
-										<div className="absolute left-6 top-full w-0.5 h-4 bg-slate-300 dark:bg-white/[0.1]"></div>
+										<div className="absolute left-6 top-full w-0.5 h-4 bg-slate-300 dark:bg-white/1"></div>
 									)}
 								</div>
 							))}
@@ -292,9 +292,9 @@ pnpm start`,
 
 					{/* Code Preview */}
 					<div className="lg:col-span-2">
-						<div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
+						<div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
 							{/* Code Header */}
-							<div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
+							<div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
 										<div className="flex gap-2">
@@ -367,13 +367,13 @@ pnpm start`,
 							</div>
 
 							{/* Navigation */}
-							<div className="bg-slate-50 dark:bg-[#0a0a0a]/50 px-6 py-4 border-t border-slate-200 dark:border-white/[0.06]">
+							<div className="bg-slate-50 dark:bg-[#0a0a0a]/50 px-6 py-4 border-t border-slate-200 dark:border-white/6">
 								<div className="flex items-center justify-between">
 									<Button
 										onClick={handlePrevStep}
 										disabled={activeStep === 0}
 										variant="outline"
-										className="border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06]"
+										className="border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6"
 									>
 										← Previous
 									</Button>
@@ -410,7 +410,7 @@ pnpm start`,
 						{tips.map((tip, index) => (
 							<div
 								key={index}
-								className="bg-white/60 dark:bg-white/[0.03] backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/[0.06] hover:bg-white/80 dark:hover:bg-white/[0.05] transition-all duration-300 hover:transform hover:scale-105"
+								className="bg-white/60 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white/80 dark:hover:bg-white/5 transition-all duration-300 hover:transform hover:scale-105"
 							>
 								<div
 									className={`w-12 h-12 ${tip.color} rounded-lg flex items-center justify-center text-white text-xl mb-4`}
@@ -439,7 +439,7 @@ pnpm start`,
 							</Button>
 							<Button
 								variant="outline"
-								className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-8 py-3 rounded-xl transition-all duration-300"
+								className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
 							>
 								View Documentation
 							</Button>

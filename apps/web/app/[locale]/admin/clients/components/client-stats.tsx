@@ -26,7 +26,7 @@ interface ClientStatsProps {
 const PRIMARY_CARD =
 	'bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 border-0 shadow-xl shadow-blue-500/20 ring-1 ring-blue-500/10';
 const DEFAULT_CARD =
-	'bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] shadow-sm hover:shadow-md transition-shadow duration-300';
+	'bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 shadow-sm hover:shadow-md transition-shadow duration-300';
 const CARD_BODY = 'p-5';
 
 /**

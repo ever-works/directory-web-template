@@ -12,7 +12,7 @@ export const SearchInput = ({ searchTerm, setSearchTerm, className }: SearchInpu
     <div className="relative">
       <div
         className={cn(
-          'bg-gray-100 dark:bg-transparent backdrop-blur-md rounded-xs px-1 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 outline-0',
+          'bg-gray-100 dark:bg-transparent backdrop-blur-md rounded-xs px-1 border border-gray-200 dark:border-white/6 transition-all duration-300 outline-0',
           className
         )}
       >

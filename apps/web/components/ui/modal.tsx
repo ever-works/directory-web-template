@@ -134,9 +134,9 @@ export function Modal({
 				className={cn(
 					'relative w-full max-h-[90vh]',
 					sizeClasses[size],
-					'bg-white dark:bg-white/[0.03]',
+					'bg-white dark:bg-white/3',
 					'rounded-2xl shadow-2xl',
-					'border border-gray-200/50 dark:border-white/[0.06]',
+					'border border-gray-200/50 dark:border-white/6',
 					'overflow-hidden',
 					'transform transition-all',
 					isAnimating ? 'scale-100 opacity-100 translate-y-0' : 'scale-95 opacity-0 translate-y-4',
@@ -151,7 +151,7 @@ export function Modal({
 						<div
 							className={cn(
 								'flex flex-col gap-2 px-6 py-4',
-						showHeaderBorder && 'border-b border-gray-200 dark:border-white/[0.06]',
+						showHeaderBorder && 'border-b border-gray-200 dark:border-white/6',
 						'bg-gray-50/50 dark:bg-white/[0.02]'
 							)}
 						>
@@ -172,7 +172,7 @@ export function Modal({
 											'p-2 rounded-lg ml-auto',
 											'text-gray-500 dark:text-gray-400',
 											'hover:text-gray-700 dark:hover:text-gray-200',
-											'hover:bg-gray-100 dark:hover:bg-white/[0.06]',
+											'hover:bg-gray-100 dark:hover:bg-white/6',
 											'transition-all duration-150',
 											'focus:outline-none focus:ring-2 focus:ring-theme-primary/50'
 										)}
@@ -204,7 +204,7 @@ export function ModalHeader({ children, className = '' }: { children: React.Reac
 	return (
 		<div
 			className={cn(
-				'px-6 py-4 border-b border-gray-200 dark:border-white/[0.06]',
+				'px-6 py-4 border-b border-gray-200 dark:border-white/6',
 				'bg-gray-50/50 dark:bg-white/[0.02]',
 				className
 			)}
@@ -222,7 +222,7 @@ export function ModalFooter({ children, className = '' }: { children: React.Reac
 	return (
 		<div
 			className={cn(
-				'px-6 py-4 border-t border-gray-200 dark:border-white/[0.06]',
+				'px-6 py-4 border-t border-gray-200 dark:border-white/6',
 				'bg-gray-50/50 dark:bg-white/[0.02]',
 				'flex items-center justify-end gap-3',
 				className

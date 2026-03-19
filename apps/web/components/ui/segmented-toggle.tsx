@@ -27,7 +27,7 @@ export function SegmentedToggle({
 				'rounded-lg',
 				'bg-gradient-to-r from-gray-100 to-gray-50',
 				'dark:from-[#0a0a0a] dark:to-[#0a0a0a]/90',
-				'border border-gray-200/80 dark:border-white/[0.06]',
+				'border border-gray-200/80 dark:border-white/6',
 				'backdrop-blur-sm',
 				'p-1',
 				'overflow-hidden',

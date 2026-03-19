@@ -59,9 +59,9 @@ export const ShareButton = ({ url, title }: { url: string; title: string }) => {
           <button
             className={cn(
               "group cursor-pointer inline-flex items-center px-4 py-2",
-              "bg-white/90 hover:bg-white dark:bg-white/[0.04] dark:hover:bg-white/[0.06]",
+              "bg-white/90 hover:bg-white dark:bg-white/4 dark:hover:bg-white/6",
               "text-gray-700 dark:text-gray-200 rounded-lg font-medium text-sm",
-              "border border-gray-200 dark:border-white/[0.08] hover:border-purple-300 dark:hover:border-purple-600",
+              "border border-gray-200 dark:border-white/8 hover:border-purple-300 dark:hover:border-purple-600",
               "shadow-sm hover:shadow-md",
               "transition-colors duration-200"
             )}
@@ -88,12 +88,12 @@ export const ShareButton = ({ url, title }: { url: string; title: string }) => {
             sideOffset={5}
             align="end"
             className={cn(
-              "z-50 min-w-(--radix-dropdown-menu-trigger-width) bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/[0.08] rounded-lg shadow-lg shadow-black/10 dark:shadow-black/30 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200",
+              "z-50 min-w-(--radix-dropdown-menu-trigger-width) bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/8 rounded-lg shadow-lg shadow-black/10 dark:shadow-black/30 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-200",
             )}
           >
             <div className="p-1">
             <DropdownMenu.Item
-              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/6"
               onSelect={() => handleShare("copy")}
             >
               {isCopying ? (
@@ -117,7 +117,7 @@ export const ShareButton = ({ url, title }: { url: string; title: string }) => {
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
-              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/6"
               onSelect={() => handleShare("twitter")}
             >
               <svg
@@ -131,7 +131,7 @@ export const ShareButton = ({ url, title }: { url: string; title: string }) => {
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
-              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/6"
               onSelect={() => handleShare("facebook")}
             >
               <svg
@@ -145,7 +145,7 @@ export const ShareButton = ({ url, title }: { url: string; title: string }) => {
             </DropdownMenu.Item>
 
             <DropdownMenu.Item
-              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/[0.06]"
+              className="relative flex items-center gap-1 px-3 py-2 text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-all duration-200 hover:bg-gray-100 dark:hover:bg-white/6"
               onSelect={() => handleShare("linkedin")}
             >
               <svg

@@ -149,7 +149,7 @@ export function MediaLinksStep({
                 className={`w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                   errors.icon_url
                     ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700'
-                    : 'border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white'
+                    : 'border-gray-300 dark:border-white/8 bg-white dark:bg-white/8 text-gray-900 dark:text-white'
                 }`}
               />
               {errors.icon_url && (
@@ -159,7 +159,7 @@ export function MediaLinksStep({
             </div>
 
             {/* Icon Preview */}
-            <div className="w-16 h-16 border-2 border-dashed border-gray-300 dark:border-white/[0.08] rounded-lg flex items-center justify-center bg-gray-50 dark:bg-white/[0.05]">
+            <div className="w-16 h-16 border-2 border-dashed border-gray-300 dark:border-white/8 rounded-lg flex items-center justify-center bg-gray-50 dark:bg-white/5">
               {previewImage ? (
                 <img
                   src={previewImage}
@@ -204,7 +204,7 @@ export function MediaLinksStep({
               className={`w-full px-3 py-2 pr-10 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                 errors.source_url
                   ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700'
-                  : 'border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white'
+                  : 'border-gray-300 dark:border-white/8 bg-white dark:bg-white/8 text-gray-900 dark:text-white'
               }`}
             />
             <ExternalLink className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />

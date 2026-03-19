@@ -55,10 +55,10 @@ const getButtonStyles = (title: string, isPopular: boolean) => {
   }
 
   if (upperTitle === PLAN_TYPES.PREMIUM) {
-    return "bg-transparent border border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:border-gray-400 dark:hover:border-white/[0.2] h-12 text-sm font-medium rounded-lg cursor-pointer";
+    return "bg-transparent border border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 hover:border-gray-400 dark:hover:border-white/[0.2] h-12 text-sm font-medium rounded-lg cursor-pointer";
   }
 
-  return "bg-transparent border border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:border-gray-400 dark:hover:border-white/[0.2] h-12 text-sm font-medium rounded-lg cursor-pointer";
+  return "bg-transparent border border-gray-300 dark:border-white/[0.12] text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 hover:border-gray-400 dark:hover:border-white/[0.2] h-12 text-sm font-medium rounded-lg cursor-pointer";
 };
 
 const getPriceColor = (title: string, isPopular: boolean) => {
@@ -81,8 +81,8 @@ const getCardStyles = (title: string, isPopular: boolean) => {
   if (upperTitle === PLAN_TYPES.STANDARD || isPopular) {
   return [
     // Base styling
-    "border-theme-primary-200/60 dark:border-white/[0.08] shadow-xl",
-    "bg-white dark:bg-white/[0.03]",
+    "border-theme-primary-200/60 dark:border-white/8 shadow-xl",
+    "bg-white dark:bg-white/3",
     "scale-105 z-10",
     "max-w-[380px] min-h-[672px]",
 
@@ -112,8 +112,8 @@ const getCardStyles = (title: string, isPopular: boolean) => {
 }
 
   return [
-    "border-gray-200/70 dark:border-white/[0.06] shadow-lg dark:shadow-xl",
-    "bg-white dark:bg-white/[0.03]",
+    "border-gray-200/70 dark:border-white/6 shadow-lg dark:shadow-xl",
+    "bg-white dark:bg-white/3",
     "max-w-[380px] min-h-[674px]" // Standard height for FREE and PREMIUM
   ];
 };
@@ -189,7 +189,7 @@ export function PlanCard({
         </div>
       )}
 
-      <header className="relative z-[3] flex flex-col items-start text-left px-6 pt-6 pb-4 shrink-0 max-h-[180px] border-b border-dashed border-gray-300 dark:border-white/[0.08]">
+      <header className="relative z-[3] flex flex-col items-start text-left px-6 pt-6 pb-4 shrink-0 max-h-[180px] border-b border-dashed border-gray-300 dark:border-white/8">
       <div className="flex items-center justify-between w-full mb-4 gap-4">
           <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
             {title}
@@ -207,7 +207,7 @@ export function PlanCard({
               {onOpenModal && (
                 <button
                   onClick={handleOpenModal}
-                  className="w-5 h-5 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.08] transition-colors shrink-0 cursor-pointer"
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors shrink-0 cursor-pointer"
                   aria-label="Learn more about payment options"
                   type="button"
                 >

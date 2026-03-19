@@ -83,10 +83,10 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     await onSubmit(payload);
   };
 
-  const containerClasses = "bg-white dark:bg-white/[0.03]";
-  const headerClasses = "px-6 py-4 border-b border-gray-200 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]";
+  const containerClasses = "bg-white dark:bg-white/3";
+  const headerClasses = "px-6 py-4 border-b border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]";
   const formClasses = "p-6 space-y-6";
-  const actionsClasses = "flex justify-between items-center pt-6 border-t border-gray-200 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] -mx-6 -mb-6 px-6 pb-6";
+  const actionsClasses = "flex justify-between items-center pt-6 border-t border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] -mx-6 -mb-6 px-6 pb-6";
 
   return (
     <div className={containerClasses}>

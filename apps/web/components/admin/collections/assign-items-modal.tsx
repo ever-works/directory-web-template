@@ -84,7 +84,7 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 							<h3 className="text-lg font-semibold">{t('ASSIGN_ITEMS')}</h3>
 							<p className="text-sm text-gray-600 dark:text-gray-400">{t('SELECT_ITEMS_DESCRIPTION')}</p>
 						</div>
-						<span className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/[0.05] px-3 py-1 rounded-full">
+						<span className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/5 px-3 py-1 rounded-full">
 							{t('SELECTED_COUNT', { count: selectedCount })}
 						</span>
 					</div>
@@ -110,7 +110,7 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 
 						<div
 							ref={listRef}
-							className="border border-gray-200 dark:border-white/[0.06] rounded-lg divide-y divide-gray-100 dark:divide-white/[0.06] max-h-[420px] overflow-auto"
+							className="border border-gray-200 dark:border-white/6 rounded-lg divide-y divide-gray-100 dark:divide-white/6 max-h-[420px] overflow-auto"
 						>
 							{isLoading ? (
 								<div className="p-6 text-center text-sm text-gray-500">{t('LOADING_ITEMS')}</div>
@@ -120,7 +120,7 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 								items.map((item) => (
 									<label
 										key={item.slug}
-										className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors"
+										className="flex items-start gap-3 p-4 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
 									>
 										<Checkbox
 											isSelected={selectedIds.has(item.slug)}

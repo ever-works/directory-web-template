@@ -27,7 +27,7 @@ export function LoginModal({ isOpen, onClose, message = 'Welcome back', callback
 			className={cn(
 				'bg-linear-to-br from-white to-gray-50',
 				'dark:from-[#0a0a0a] dark:to-[#0a0a0a]',
-				'border border-gray-200/50 dark:border-white/[0.04]',
+				'border border-gray-200/50 dark:border-white/4',
 				'dark:bg-opacity-95 dark:backdrop-blur-xl'
 			)}
 		>

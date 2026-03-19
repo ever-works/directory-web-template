@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 function Skeleton({ className, ...props }: Readonly<React.HTMLAttributes<HTMLDivElement>>) {
 	return (
 		<HeroSkeleton
-			className={cn('animate-pulse rounded-md bg-gray-200/50 dark:bg-white/[0.06]', className)}
+			className={cn('animate-pulse rounded-md bg-gray-200/50 dark:bg-white/6', className)}
 			{...props}
 		/>
 	);
@@ -20,7 +20,7 @@ function TableSkeleton({ rows = 5, columns = 6, className }: Readonly<TableSkele
 	return (
 		<div className={cn('w-full max-w-7xl mx-auto', className)}>
 			{/* Header skeleton */}
-			<div className="flex items-center space-x-4 p-4 border-b border-gray-200 dark:border-white/[0.06]">
+			<div className="flex items-center space-x-4 p-4 border-b border-gray-200 dark:border-white/6">
 				{Array.from({ length: columns }).map((_, index) => (
 					<Skeleton
 						key={`header-${index}`}
@@ -33,7 +33,7 @@ function TableSkeleton({ rows = 5, columns = 6, className }: Readonly<TableSkele
 			{Array.from({ length: rows }).map((_, rowIndex) => (
 				<div
 					key={`row-${rowIndex}`}
-					className="flex items-center space-x-4 p-4 border-b border-gray-100 dark:border-white/[0.06]"
+					className="flex items-center space-x-4 p-4 border-b border-gray-100 dark:border-white/6"
 				>
 					{Array.from({ length: columns }).map((_, colIndex) => (
 						<Skeleton
@@ -55,7 +55,7 @@ function CardSkeleton({ className }: CardSkeletonProps) {
 	return (
 		<div
 			className={cn(
-				'bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6',
+				'bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6',
 				className
 			)}
 		>

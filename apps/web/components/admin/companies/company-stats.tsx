@@ -45,7 +45,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 			</Card>
 
 			{/* Active Companies */}
-			<Card className="border-0 shadow-md bg-white dark:bg-white/[0.05]">
+			<Card className="border-0 shadow-md bg-white dark:bg-white/5">
 				<CardBody className="p-6">
 					<div className="flex flex-col h-full justify-between min-h-[120px]">
 						<div>
@@ -74,7 +74,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 			</Card>
 
 			{/* Inactive Companies */}
-			<Card className="border-0 shadow-md bg-white dark:bg-white/[0.05]">
+			<Card className="border-0 shadow-md bg-white dark:bg-white/5">
 				<CardBody className="p-6">
 					<div className="flex flex-col h-full justify-between min-h-[120px]">
 						<div>
@@ -87,7 +87,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 						</div>
 						<div className="mt-4">
 							<div className="flex items-center gap-2">
-								<span className="text-gray-500 font-medium bg-gray-100 dark:bg-white/[0.08] px-2 py-0.5 rounded text-xs">
+								<span className="text-gray-500 font-medium bg-gray-100 dark:bg-white/8 px-2 py-0.5 rounded text-xs">
 									{Number(stats.total ?? 0) > 0
 										? Math.round((Number(stats.inactive ?? 0) / Number(stats.total ?? 0)) * 100)
 										: 0}

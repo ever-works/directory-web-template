@@ -17,7 +17,7 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 	const footerItems = processFooterItems(config, t);
 
 	return (
-		<div className="relative backdrop-blur-xl bg-white/5 dark:bg-white/[0.02] border-t border-gray-200/30 dark:border-white/[0.06]">
+		<div className="relative backdrop-blur-xl bg-white/5 dark:bg-white/[0.02] border-t border-gray-200/30 dark:border-white/6">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative px-4 sm:px-6 lg:px-8 py-6">
 				<div className="flex flex-col gap-4">
 					{/* Top row: Logo and disclaimer */}
@@ -33,7 +33,7 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 					</div>
 
 					{/* Bottom row: Copyright, links, version, theme */}
-					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/30 dark:border-white/[0.06]">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/30 dark:border-white/6">
 						{/* Left side: Copyright and legal links */}
 						<div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-gray-600 dark:text-gray-400">
 							<span className="text-xs font-medium">
@@ -75,7 +75,7 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 									</VersionTooltip>
 								)}
 								{footerSettings.versionEnabled && footerSettings.themeSelectorEnabled && (
-									<div className="w-px h-4 bg-gray-300 dark:bg-white/[0.08]" />
+									<div className="w-px h-4 bg-gray-300 dark:bg-white/8" />
 								)}
 								{footerSettings.themeSelectorEnabled && <ThemeToggler openUp />}
 							</div>

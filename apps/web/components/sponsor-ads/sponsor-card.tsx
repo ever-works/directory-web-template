@@ -185,7 +185,7 @@ export function SponsorCard({
 						{/* Category - styled to match regular Item cards using theme colors */}
 						{categoryName && (
 							<div className="mb-2">
-								<span className="inline-block bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-gradient-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border border-theme-primary-10 dark:border-white/[0.04] capitalize shadow-sm">
+								<span className="inline-block bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-gradient-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border border-theme-primary-10 dark:border-white/4 capitalize shadow-sm">
 									{categoryName}
 								</span>
 							</div>
@@ -227,7 +227,7 @@ export function SponsorCard({
 											'w-1.5 h-1.5 rounded-full transition-all duration-300',
 											idx === currentIndex
 												? 'bg-blue-500 w-4'
-												: 'bg-gray-300 dark:bg-white/[0.1] hover:bg-gray-400 dark:hover:bg-white/[0.08]'
+												: 'bg-gray-300 dark:bg-white/1 hover:bg-gray-400 dark:hover:bg-white/8'
 										)}
 										aria-label={`Show sponsor ${idx + 1}`}
 									/>

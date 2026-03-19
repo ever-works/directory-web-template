@@ -35,7 +35,7 @@ export default function Hero({
     <section
       aria-label="Hero"
       className={cn(
-        "w-full bg-white dark:bg-[#0a0a0a] relative py-8 sm:py-12",
+        "w-full bg-white dark:bg-[#0a0a0a] relative pt-8 sm:pt-12",
         className
       )}
     >
@@ -47,7 +47,7 @@ export default function Hero({
             {/* Introducing badge */}
             {badgeText && (
               <div className="flex items-center justify-center mb-2 sm:mb-3">
-                <div className="flex items-center text-gray-900 dark:text-gray-200 bg-gray-200 dark:bg-white/[0.04] py-0.5 px-3 sm:py-1 sm:px-3 rounded-full gap-1.5 text-xs font-medium dark:border-white/[0.06] border border-gray-200/50 dark:border-white/[0.06]">
+                <div className="flex items-center text-gray-900 dark:text-gray-200 bg-gray-200 dark:bg-white/4 py-0.5 px-3 sm:py-1 sm:px-3 rounded-full gap-1.5 text-xs font-medium dark:border-white/6 border border-gray-200/50 dark:border-white/6">
                   <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
                   {badgeText}
                 </div>

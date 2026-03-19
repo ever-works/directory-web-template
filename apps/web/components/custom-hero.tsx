@@ -62,7 +62,7 @@ const buttonBaseStyles =
 const primaryStyles =
 	'bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-theme-primary-500';
 const secondaryStyles =
-	'bg-gray-100 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.06] text-gray-900 dark:text-white border border-gray-200 dark:border-white/[0.06] focus-visible:ring-gray-500';
+	'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/6 focus-visible:ring-gray-500';
 
 /**
  * Button component for CTA links in hero

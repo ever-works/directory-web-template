@@ -40,7 +40,7 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 				// Base styles
 				isVoted
 					? 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-theme-primary-400 dark:border-theme-primary-500 shadow-theme-primary-500/10 dark:shadow-theme-primary-500/20 focus:ring-theme-primary-500'
-					: 'bg-white/95 dark:bg-white/[0.04] text-gray-700 dark:text-gray-200 border-gray-300 dark:border-white/[0.1] hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-theme-primary-50/50 dark:hover:bg-theme-primary-900/20 focus:ring-theme-primary-500',
+					: 'bg-white/95 dark:bg-white/4 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-white/1 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-theme-primary-50/50 dark:hover:bg-theme-primary-900/20 focus:ring-theme-primary-500',
 				isLoading && 'cursor-not-allowed opacity-60 pointer-events-none',
 				className
 			)}

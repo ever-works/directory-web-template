@@ -84,11 +84,11 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         type="button"
         onClick={() => handleNavigation(href)}
         disabled={isNavigating}
-        className="group cursor-pointer flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors duration-150 focus:outline-hidden w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+        className="group cursor-pointer flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/4 transition-colors duration-150 focus:outline-hidden w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
         role="menuitem"
       >
         <div
-          className={`flex items-center justify-center w-7 h-7 mr-3 rounded-md bg-gray-100 dark:bg-white/[0.05] shrink-0`}
+          className={`flex items-center justify-center w-7 h-7 mr-3 rounded-md bg-gray-100 dark:bg-white/5 shrink-0`}
         >
           <Icon aria-hidden="true" className={`h-3.5 w-3.5 ${iconColor}`} />
         </div>
@@ -286,7 +286,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         title={translations.settings}
         description={translations.accountSettingsDesc}
         gradientFrom="from-gray-100"
-        gradientTo="to-slate-100 dark:from-white/[0.06] dark:to-white/[0.06] cursor-pointer"
+        gradientTo="to-slate-100 dark:from-white/6 dark:to-white/6 cursor-pointer"
         iconColor="text-gray-600 dark:text-gray-400"
         endIcon={Activity}
       />

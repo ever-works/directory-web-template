@@ -19,8 +19,8 @@ interface SponsorTableProps {
 }
 
 const TABLE_CARD = 'border-0 shadow-lg';
-const TABLE_HEADER = 'px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]';
-const TABLE_ROW = 'px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors';
+const TABLE_HEADER = 'px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3';
+const TABLE_ROW = 'px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/3 transition-colors';
 const ICON_PLACEHOLDER = 'w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center text-white';
 
 type ChipColor = 'warning' | 'primary' | 'success' | 'danger' | 'default';
@@ -69,7 +69,7 @@ export function SponsorTable({
 				{sponsorAds.length === 0 ? (
 					<EmptyState />
 				) : (
-					<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
+					<div className="divide-y divide-gray-100 dark:divide-white/6">
 						{sponsorAds.map((sponsorAd) => (
 							<SponsorRow
 								key={sponsorAd.id}

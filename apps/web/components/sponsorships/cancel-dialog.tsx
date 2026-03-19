@@ -19,10 +19,10 @@ interface CancelDialogProps {
 
 // Styling constants
 const MODAL_OVERLAY = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-md bg-white dark:bg-white/[0.03] rounded-xl shadow-xl overflow-hidden';
+const MODAL_CONTAINER = 'w-full max-w-md bg-white dark:bg-white/3 rounded-xl shadow-xl overflow-hidden';
 const MODAL_HEADER = 'bg-linear-to-r from-amber-500 to-amber-600 px-6 py-4';
 const MODAL_BODY = 'p-6';
-const ITEM_PREVIEW = 'p-3 bg-gray-100 dark:bg-white/[0.05] rounded-lg';
+const ITEM_PREVIEW = 'p-3 bg-gray-100 dark:bg-white/5 rounded-lg';
 const WARNING_BOX =
 	'flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/50';
 

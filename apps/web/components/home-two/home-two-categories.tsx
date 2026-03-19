@@ -44,8 +44,8 @@ const CATEGORIES_WRAPPER_EXPANDED = clsx(CATEGORIES_WRAPPER_BASE, 'flex-wrap');
 
 const NAV_BUTTON_STYLES = clsx(
   'h-8 w-8 rounded-full bg-white dark:bg-[#121212] flex items-center justify-center',
-  'border border-gray-200 dark:border-white/[0.06] shadow-md hover:shadow-lg',
-  'hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-all duration-200',
+  'border border-gray-200 dark:border-white/6 shadow-md hover:shadow-lg',
+  'hover:bg-gray-50 dark:hover:bg-white/6 transition-all duration-200',
   'focus:outline-none focus:ring-0 focus:ring-offset-0',
   'focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
   'active:outline-none active:ring-0',
@@ -167,7 +167,7 @@ const CategoryButton = memo(
           'ml-1 sm:ml-2 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs transition-all duration-300 capitalize',
           isActive
             ? 'bg-white/20 text-white'
-            : 'bg-gray-200/80 dark:bg-white/[0.04] text-gray-700 dark:text-gray-300'
+            : 'bg-gray-200/80 dark:bg-white/4 text-gray-700 dark:text-gray-300'
         );
 
         return (
@@ -196,7 +196,7 @@ const CategoryButton = memo(
                   : 'group h-7 whitespace-nowrap py-1 px-2.5 text-xs transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0',
                 {
                   'bg-theme-primary-500 text-white border-none shadow-sm': isActive,
-                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.06] bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08]':
+                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 bg-white dark:bg-white/4 border border-gray-200 dark:border-white/8':
                     !isActive
                 }
               )}
@@ -214,7 +214,7 @@ const CategoryButton = memo(
                   : 'group h-7 whitespace-nowrap py-1 px-2.5 text-xs transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0',
                 {
                   'bg-theme-primary-500 text-white border-none shadow-sm': isActive,
-                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.06] bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08]':
+                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8':
                     !isActive
                 }
               )}
@@ -619,7 +619,7 @@ export function HomeTwoCategories({
       <div className="md:hidden w-full px-1">
         <div className="relative">
           <select
-            className="w-full p-3 pr-10 text-xs border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-white/[0.05] text-gray-800 dark:text-gray-200 appearance-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-white/30 focus:border-transparent transition-all duration-200"
+            className="w-full p-3 pr-10 text-xs border border-gray-200 dark:border-white/6 rounded-lg bg-white dark:bg-white/5 text-gray-800 dark:text-gray-200 appearance-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-white/30 focus:border-transparent transition-all duration-200"
             value={selectedCategory}
             onChange={handleCategoryChange}
             aria-label="Select category"
@@ -760,16 +760,16 @@ export function HomeTwoCategories({
                       ReactDOM.createPortal(
                         <div
                           ref={morePopoverRef}
-                          className="fixed w-64 rounded-lg overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/[0.06] z-50"
+                          className="fixed w-64 rounded-lg overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/6 z-50"
                           style={{
                             top: `${popoverPosition.top}px`,
                             left: `${popoverPosition.left}px`
                           }}
                         >
                           <div className="space-y-2">
-                            <h3 className="text-xs p-2 font-medium text-gray-700 dark:text-gray-300/70 pb-1.5 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-1.5 uppercase">
+                            <h3 className="text-xs p-2 font-medium text-gray-700 dark:text-gray-300/70 pb-1.5 border-b border-gray-100 dark:border-white/6 flex items-center gap-1.5 uppercase">
                               {tCommon('MORE')} {t('CATEGORIES')}
-                              <span className="text-xs bg-gray-100 dark:bg-white/[0.08] rounded-sm px-1.5 py-0.5">
+                              <span className="text-xs bg-gray-100 dark:bg-white/8 rounded-sm px-1.5 py-0.5">
                                 {hiddenCategories.length}
                               </span>
                             </h3>
@@ -846,7 +846,7 @@ export function Categories(props: {
             'px-2 py-0.5 h-7 font-medium transition-colors duration-150',
             isActive
               ? 'bg-theme-primary text-white border-theme-primary'
-              : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+              : 'border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300',
             'hover:border-theme-primary',
             !showAllCategories && 'shrink-0'
           )}
@@ -899,7 +899,7 @@ export function Categories(props: {
         props.enableSticky
           ? cn(
             'sticky top-4 z-10',
-            isSticky ? 'bg-white/95 dark:bg-white/[0.05] shadow-md backdrop-blur-xs' : 'bg-transparent'
+            isSticky ? 'bg-white/95 dark:bg-white/5 shadow-md backdrop-blur-xs' : 'bg-transparent'
           )
           : 'bg-inherit'
       )}
@@ -920,7 +920,7 @@ export function Categories(props: {
               radius="full"
               size="sm"
               className={cn(
-                'px-3 py-1 text-xs font-medium transition-colors duration-150 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.1]',
+                'px-3 py-1 text-xs font-medium transition-colors duration-150 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/6 border border-gray-200 dark:border-white/8 hover:bg-gray-200 dark:hover:bg-white/1',
                 isSticky && 'shadow-xs'
               )}
               onPress={() => setShowAllCategories(!showAllCategories)}
@@ -985,7 +985,7 @@ export function Categories(props: {
                   'px-2.5 py-0.5 h-7 font-medium transition-colors duration-150 shrink-0 group',
                   !isAnyTagActive
                     ? 'bg-theme-primary text-white border-theme-primary'
-                    : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+                    : 'border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300',
                   'hover:border-theme-primary'
                 )}
               >
@@ -1031,7 +1031,7 @@ export function Categories(props: {
                   'px-2.5 py-0.5 h-7 font-medium transition-colors duration-150',
                   !isAnyTagActive
                     ? 'bg-theme-primary text-white border-theme-primary'
-                    : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+                    : 'border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300',
                   'hover:border-theme-primary'
                 )}
               >

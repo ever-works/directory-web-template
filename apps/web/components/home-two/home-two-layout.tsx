@@ -23,7 +23,7 @@ const STICKY_CONTAINER_ACTIVE = clsx(
   STICKY_CONTAINER_BASE,
   "bg-white/95 dark:bg-[#0a0a0a]/95",
   "shadow-md backdrop-blur-xs",
-  "border border-gray-100 dark:border-white/[0.06]",
+  "border border-gray-100 dark:border-white/6",
   "px-4 pt-1.5"
 );
 

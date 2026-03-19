@@ -31,9 +31,9 @@ export function AdminTouchButton({
       case 'primary':
         return "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800";
       case 'secondary':
-        return "bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 dark:bg-white/[0.08] dark:text-gray-100 dark:hover:bg-white/[0.06]";
+        return "bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/6";
       case 'ghost':
-        return "text-gray-600 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-white/[0.06]";
+        return "text-gray-600 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-white/6";
       case 'danger':
         return "bg-red-600 text-white hover:bg-red-700 active:bg-red-800";
       default:
@@ -332,8 +332,8 @@ export function AdminTouchSearch({
         aria-busy={loading}
         className={cn(
           "w-full px-4 py-3 text-base",
-          "border border-gray-300 dark:border-white/[0.08] rounded-lg",
-          "bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100",
+          "border border-gray-300 dark:border-white/8 rounded-lg",
+          "bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100",
           "focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent",
           "placeholder-gray-500 dark:placeholder-gray-400",
           TOUCH_TARGET_SIZE

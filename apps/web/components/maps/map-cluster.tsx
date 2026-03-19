@@ -132,7 +132,7 @@ export function ClusterList({
 					onClick={() => onClusterClick?.(cluster)}
 					className={cn(
 						'w-full flex items-center gap-3 p-3 rounded-lg transition-colors',
-						'hover:bg-gray-100 dark:hover:bg-white/[0.06]',
+						'hover:bg-gray-100 dark:hover:bg-white/6',
 						selectedClusterId === cluster.id && 'bg-blue-50 dark:bg-blue-900/20'
 					)}
 				>

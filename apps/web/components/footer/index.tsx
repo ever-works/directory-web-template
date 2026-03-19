@@ -34,7 +34,7 @@ export function Footer() {
 		<footer className="relative w-full overflow-hidden">
 			<div className="relative z-10">
 				{/* Main footer content with glassmorphism */}
-				<div className="backdrop-blur-xl bg-white/50 dark:bg-white/[0.02] border-t border-gray-200/50 dark:border-white/[0.06]">
+				<div className="backdrop-blur-xl bg-white/50 dark:bg-white/[0.02] border-t border-gray-200/50 dark:border-white/6">
 					<Container
 						maxWidth="7xl"
 						padding="default"

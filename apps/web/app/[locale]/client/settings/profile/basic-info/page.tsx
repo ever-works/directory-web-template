@@ -87,7 +87,7 @@ function SkillsEditor({
 				{skills.map((skill, idx) => (
 					<div
 						key={idx}
-						className="flex flex-col md:flex-row items-center gap-4 bg-gray-50 dark:bg-white/[0.03] p-4 rounded-xl border border-gray-200 dark:border-white/[0.06]"
+						className="flex flex-col md:flex-row items-center gap-4 bg-gray-50 dark:bg-white/3 p-4 rounded-xl border border-gray-200 dark:border-white/6"
 					>
 						<input
 							type="text"
@@ -95,13 +95,13 @@ function SkillsEditor({
 							value={skill.name}
 							onChange={(e) => handleSkillChange(idx, 'name', e.target.value)}
 							onBlur={() => validateSkill(idx, skill.name)}
-							className="w-full md:w-1/3 h-12 px-4 text-base bg-white dark:bg-white/[0.05] border-2 border-gray-200 dark:border-white/[0.06] rounded-lg focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-400"
+							className="w-full md:w-1/3 h-12 px-4 text-base bg-white dark:bg-white/5 border-2 border-gray-200 dark:border-white/6 rounded-lg focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-400"
 						/>
 						{errors[idx] && <p className="text-red-500 text-sm mt-1">{errors[idx]}</p>}
 						<select
 							value={skill.category}
 							onChange={(e) => handleSkillChange(idx, 'category', e.target.value)}
-							className="w-full md:w-1/4 h-12 px-4 text-base bg-white dark:bg-white/[0.05] border-2 border-gray-200 dark:border-white/[0.06] rounded-lg focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 outline-hidden text-gray-900 dark:text-white"
+							className="w-full md:w-1/4 h-12 px-4 text-base bg-white dark:bg-white/5 border-2 border-gray-200 dark:border-white/6 rounded-lg focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 outline-hidden text-gray-900 dark:text-white"
 						>
 							{SKILL_CATEGORIES.map((cat) => (
 								<option key={cat} value={cat}>
@@ -252,8 +252,8 @@ export default function BasicInfoPage() {
 					</div>
 
 					{/* Form */}
-					<Card className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg max-w-3xl mx-auto">
-						<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/[0.06]">
+					<Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg max-w-3xl mx-auto">
+						<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/6">
 							<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 								<FiUser className="w-5 h-5 text-theme-primary-500" />
 								{t('PERSONAL_INFORMATION')}
@@ -266,7 +266,7 @@ export default function BasicInfoPage() {
 							<form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
 								{/* Avatar Upload */}
 								<div className="flex flex-col items-center gap-4">
-									<div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-white/[0.05] flex items-center justify-center">
+									<div className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-white/5 flex items-center justify-center">
 										{avatarPreview ? (
 											<Image
 												src={avatarPreview}
@@ -312,7 +312,7 @@ export default function BasicInfoPage() {
 											id="displayName"
 											type="text"
 											placeholder={t('DISPLAY_NAME_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('displayName')}
 											defaultValue={session.user?.name || ''}
 										/>
@@ -335,7 +335,7 @@ export default function BasicInfoPage() {
 											type="text"
 											defaultValue={session.user?.name?.toLowerCase().replace(/\s+/g, '') || ''}
 											placeholder={t('USERNAME_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('username')}
 										/>
 										{errors.username && (
@@ -359,7 +359,7 @@ export default function BasicInfoPage() {
 										id="bio"
 										rows={4}
 										placeholder={t('BIO_PLACEHOLDER')}
-										className="w-full px-6 py-4 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 hover:border-gray-300 dark:hover:border-white/[0.08] resize-none outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+										className="w-full px-6 py-4 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 hover:border-gray-300 dark:hover:border-white/8 resize-none outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 										{...register('bio')}
 										defaultValue="Full-stack developer passionate about creating amazing web experiences. I love working with React, TypeScript, and modern web technologies."
 									/>
@@ -382,7 +382,7 @@ export default function BasicInfoPage() {
 										id="interests"
 										type="text"
 										placeholder={t('INTERESTS_PLACEHOLDER')}
-										className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+										className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 										{...register('interests')}
 									/>
 									{errors.interests && (
@@ -394,7 +394,7 @@ export default function BasicInfoPage() {
 								</div>
 
 								{/* Divider */}
-								<div className="border-t border-gray-100 dark:border-white/[0.06]" />
+								<div className="border-t border-gray-100 dark:border-white/6" />
 
 								{/* Location, Company, Job Title, Website */}
 								<div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -410,7 +410,7 @@ export default function BasicInfoPage() {
 											id="location"
 											type="text"
 											placeholder={t('LOCATION_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('location')}
 											defaultValue="" // TODO: Use real user data from session or database
 										/>
@@ -433,7 +433,7 @@ export default function BasicInfoPage() {
 											id="company"
 											type="text"
 											placeholder={t('COMPANY_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('company')}
 											defaultValue="" // TODO: Use real user data from session or database
 										/>
@@ -455,7 +455,7 @@ export default function BasicInfoPage() {
 											id="jobTitle"
 											type="text"
 											placeholder={t('JOB_TITLE_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('jobTitle')}
 											defaultValue="" // TODO: Use real user data from session or database
 										/>
@@ -478,7 +478,7 @@ export default function BasicInfoPage() {
 											id="website"
 											type="url"
 											placeholder={t('WEBSITE_PLACEHOLDER')}
-											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+											className="w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/3 border-2 border-gray-200/60 dark:border-white/6 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-theme-primary-500/20 focus:border-theme-primary-500 dark:theme-primary:border-blue-400 hover:border-gray-300 dark:hover:border-white/8 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
 											{...register('website')}
 											defaultValue="" // TODO: Use real user data from session or database
 										/>
@@ -492,7 +492,7 @@ export default function BasicInfoPage() {
 								</div>
 
 								{/* Actions */}
-								<div className="pt-8 border-t border-gray-100 dark:border-white/[0.06]">
+								<div className="pt-8 border-t border-gray-100 dark:border-white/6">
 									<div className="flex flex-col md:flex-row justify-end gap-4 mt-4">
 										<Link
 											href="/client/settings/profile"

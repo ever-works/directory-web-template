@@ -8,13 +8,13 @@ export default function UnauthorizedPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0a] dark:to-white/[0.05] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-[#0a0a0a] dark:to-white/5 px-4">
       <div className="max-w-md w-full text-center">
         {/* Icon */}
         <div className="flex justify-center mb-6">
           <div className="relative">
             <div className="absolute inset-0 bg-red-500/20 dark:bg-red-500/10 rounded-full blur-xl"></div>
-            <div className="relative bg-white dark:bg-white/[0.05] p-6 rounded-full shadow-lg">
+            <div className="relative bg-white dark:bg-white/5 p-6 rounded-full shadow-lg">
               <ShieldAlert className="w-16 h-16 text-red-500" />
             </div>
           </div>
@@ -42,7 +42,7 @@ export default function UnauthorizedPage() {
 
           <button
             onClick={() => router.back()}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-white/[0.08] dark:hover:bg-white/[0.06] text-gray-900 dark:text-white font-medium rounded-lg transition-colors duration-200"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gray-200 hover:bg-gray-300 dark:bg-white/8 dark:hover:bg-white/6 text-gray-900 dark:text-white font-medium rounded-lg transition-colors duration-200"
           >
             <ArrowLeft className="w-5 h-5" />
             Go Back

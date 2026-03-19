@@ -48,19 +48,19 @@
 
   /* Dark mode styles using Tailwind dark: prefix */
   .dark & {
-    @apply bg-white/[0.03] text-white border-white/[0.08];
+    @apply bg-white/3 text-white border-white/8;
   }
 
   .dark &:hover {
-    @apply border-white/[0.12];
+    @apply border-white/12;
   }
 
   .dark &:focus {
-    @apply bg-white/[0.03] text-white;
+    @apply bg-white/3 text-white;
   }
 
   .dark &:disabled {
-    @apply bg-white/[0.02] text-gray-500;
+    @apply bg-white/2 text-gray-500;
   }
 }
 

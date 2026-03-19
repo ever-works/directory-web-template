@@ -205,9 +205,9 @@ export function BillingSection({ className }: BillingSectionProps) {
 	if (isLoading) {
 		return (
 			<div
-				className={`bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] ${className}`}
+				className={`bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 ${className}`}
 			>
-				<div className="p-6 border-b border-gray-200 dark:border-white/[0.06]">
+				<div className="p-6 border-b border-gray-200 dark:border-white/6">
 					<div className="flex items-center space-x-2">
 						<CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />
 						<h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">{t('TITLE')}</h2>
@@ -215,8 +215,8 @@ export function BillingSection({ className }: BillingSectionProps) {
 				</div>
 				<div className="p-6">
 					<div className="animate-pulse space-y-4">
-						<div className="h-20 bg-gray-200 dark:bg-white/[0.08] rounded-lg"></div>
-						<div className="h-20 bg-gray-200 dark:bg-white/[0.08] rounded-lg"></div>
+						<div className="h-20 bg-gray-200 dark:bg-white/8 rounded-lg"></div>
+						<div className="h-20 bg-gray-200 dark:bg-white/8 rounded-lg"></div>
 					</div>
 				</div>
 			</div>
@@ -227,9 +227,9 @@ export function BillingSection({ className }: BillingSectionProps) {
 	return (
 		<>
 			<div
-				className={`bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] ${className}`}
+				className={`bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 ${className}`}
 			>
-				<div className="p-6 border-b border-gray-200 dark:border-white/[0.06]">
+				<div className="p-6 border-b border-gray-200 dark:border-white/6">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center space-x-2">
 							<CreditCard className="h-5 w-5 text-gray-600 dark:text-gray-400" />

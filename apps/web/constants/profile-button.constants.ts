@@ -96,9 +96,9 @@ export const MENU_STYLES = {
 			'from-slate-200',
 			'via-slate-300',
 			'to-slate-400',
-			'dark:from-white/[0.06]',
-			'dark:via-white/[0.06]',
-			'dark:to-white/[0.1]',
+			'dark:from-white/6',
+			'dark:via-white/6',
+			'dark:to-white/1',
 			'rounded-full',
 			'animate-pulse',
 			'shadow-lg'
@@ -124,7 +124,7 @@ export const MENU_STYLES = {
 			'rounded-full',
 			'border-2',
 			'border-white',
-			'dark:border-white/[0.06]',
+			'dark:border-white/6',
 			'shadow-xs'
 		],
 		adminBadge: [

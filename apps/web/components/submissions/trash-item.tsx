@@ -43,13 +43,13 @@ export function TrashItem({
 
   return (
     <div
-      className={`group p-6 border border-gray-200 dark:border-white/[0.06] rounded-xl transition-all duration-300 bg-white/50 dark:bg-white/[0.03] backdrop-blur-xs ${
-        isDisabled ? 'opacity-60 pointer-events-none' : 'hover:border-gray-300 dark:hover:border-white/[0.08]'
+      className={`group p-6 border border-gray-200 dark:border-white/6 rounded-xl transition-all duration-300 bg-white/50 dark:bg-white/3 backdrop-blur-xs ${
+        isDisabled ? 'opacity-60 pointer-events-none' : 'hover:border-gray-300 dark:hover:border-white/8'
       }`}
     >
       <div className="flex items-start gap-4">
         {/* Trash icon indicator */}
-        <div className="shrink-0 flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-white/[0.05] rounded-xl">
+        <div className="shrink-0 flex items-center justify-center w-12 h-12 bg-gray-100 dark:bg-white/5 rounded-xl">
           <FiTrash2 className="w-6 h-6 text-gray-400 dark:text-gray-500" />
         </div>
 
@@ -103,19 +103,19 @@ export function TrashItem({
 // Skeleton component for loading state
 export function TrashItemSkeleton() {
   return (
-    <div className="p-6 border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white/50 dark:bg-white/[0.03] backdrop-blur-xs animate-pulse">
+    <div className="p-6 border border-gray-200 dark:border-white/6 rounded-xl bg-white/50 dark:bg-white/3 backdrop-blur-xs animate-pulse">
       <div className="flex items-start gap-4">
-        <div className="shrink-0 w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-xl" />
+        <div className="shrink-0 w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl" />
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <div className="h-6 w-48 bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
-              <div className="h-4 w-full bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
-              <div className="h-4 w-3/4 bg-gray-200 dark:bg-white/[0.08] rounded mb-3" />
-              <div className="h-3 w-32 bg-gray-200 dark:bg-white/[0.08] rounded" />
+              <div className="h-6 w-48 bg-gray-200 dark:bg-white/8 rounded mb-2" />
+              <div className="h-4 w-full bg-gray-200 dark:bg-white/8 rounded mb-2" />
+              <div className="h-4 w-3/4 bg-gray-200 dark:bg-white/8 rounded mb-3" />
+              <div className="h-3 w-32 bg-gray-200 dark:bg-white/8 rounded" />
             </div>
             <div className="ml-4">
-              <div className="h-9 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
+              <div className="h-9 w-24 bg-gray-200 dark:bg-white/8 rounded-lg" />
             </div>
           </div>
         </div>

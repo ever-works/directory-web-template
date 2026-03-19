@@ -120,7 +120,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
-				<div className={`flex flex-col lg:flex-row mb-6 lg:mb-20 ${isFluid ? 'gap-4 lg:gap-20' : 'gap-8'}`}>
+				<div className={`flex flex-col lg:flex-row mb-6 lg:mb-20 ${isFluid ? 'gap-4 lg:gap-20 lg:w-[90%] lg:mx-auto' : 'gap-8'}`}>
 					{/* Left column */}
 					<div className={isFluid ? 'lg:w-[65%]' : 'lg:w-2/3'}>
 						{/* Video Showcase */}
@@ -143,7 +143,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							{/* Video Showcase - below title/meta, above description */}
 							{meta.video_url && (
 								<div className="mb-8">
-									<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-white/[0.08]">
+									<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-white/8">
 										<iframe
 											src={getVideoEmbedUrl(meta.video_url)}
 											title={`Video Demo for ${meta.name}`}
@@ -166,8 +166,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 									href={meta.source_url || '#'}
 									target="_blank"
 									rel="noreferrer"
-									title={t('VISIT_WEBSITE')}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/[0.03] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06] hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors duration-150"
+									title={t('common.VISIT_WEBSITE')}
+									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
 								>
 									<Globe className="w-4 h-4" />
 								</a>
@@ -195,17 +195,17 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								{/* Share (copy link) */}
 								<button
 									type="button"
-									title={t('SHARE')}
+									title={t('common.SHARE')}
 									onClick={async (e) => {
 										e.preventDefault();
 										try {
 											await navigator.clipboard.writeText(meta.source_url || window.location.href);
-											toast.success(t('LINK_COPIED'));
+											toast.success(t('common.LINK_COPIED'));
 										} catch {
-											toast.error(t('SHARE_ERROR'));
+											toast.error(t('common.SHARE_ERROR'));
 										}
 									}}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/[0.03] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06] hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors duration-150"
+									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
 								>
 									<Share2 className="w-4 h-4" />
 								</button>
@@ -244,8 +244,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 					</div>
 
 					{/* Right column */}
-					<div className={`${isFluid ? 'lg:w-[25%] lg:flex-shrink-0' : 'lg:w-1/3'} space-y-6 relative`}>
-						<div className="bg-white dark:bg-white/[0.03] rounded-xl p-4 border border-gray-200 dark:border-white/[0.06] shadow-sm">
+					<div className={`${isFluid ? 'lg:w-[25%] lg:shrink-0' : 'lg:w-1/3'} space-y-6 relative`}>
+						<div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-gray-200 dark:border-white/6 shadow-sm">
 							<div className="flex items-center gap-4 mb-6">
 								<div className="p-1.5 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
 									<svg
@@ -272,7 +272,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 
 								{/* Publisher - Only show if defined */}
 								{meta.publisher && (
-									<div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/[0.06]">
+									<div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
 										<span className="text-sm text-gray-600 dark:text-gray-400">
 											{t('itemDetail.PUBLISHER')}
 										</span>
@@ -281,8 +281,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								)}
 								{/* Website - Only show if source_url exists */}
 								{meta.source_url && (
-									<div className="flex text-xs justify-between items-center py-3 border-b border-gray-100 dark:border-white/[0.06]">
-										<span className="text-sm text-gray-600 dark:text-gray-400">
+									<div className="flex text-xs justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
+										<span className="text-xs text-gray-600 dark:text-gray-400">
 											{t('itemDetail.WEBSITE')}
 										</span>
 										<a
@@ -320,7 +320,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 
 						{/* Promo Code Section */}
 						{meta.promo_code && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-xl p-6 border border-gray-200 dark:border-white/[0.06] shadow-sm">
+							<div className="bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-200 dark:border-white/6 shadow-sm">
 								<h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
 									{t('itemDetail.PROMO_CODE')}
 								</h2>
@@ -350,8 +350,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 
 						{/* Categories - Only show if categories enabled and category exists */}
 						{categoriesEnabled && categoryName && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-xl p-6 border border-gray-200 dark:border-white/[0.06] shadow-sm">
-								<div className="flex items-center justify-between mb-4">
+							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
+								<div className="flex justify-between">
 									<div className="flex items-center gap-4 mb-6">
 										<div className="p-1.5 bg-linear-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl">
 											<svg
@@ -379,7 +379,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 								<div className="flex flex-wrap gap-2">
 									<a
 										href={`/categories/${encodedCategory}`}
-										className="inline-flex items-center px-3 py-2 text-xs font-semibold rounded-full bg-white dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.08] transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/[0.08] capitalize"
+										className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-white dark:bg-white/5 text-gray-700 dark:text-gray-500 border border-gray-200 dark:border-white/8 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/8 capitalize"
 									>
 										{toTitleCase(categoryName)}
 									</a>
@@ -389,8 +389,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 
 						{/* Tags - Only show if tags exist and tags are enabled */}
 						{tagsEnabled && tagNames.length > 0 && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-xl p-6 border border-gray-200 dark:border-white/[0.06] shadow-sm">
-								<div className="flex items-center justify-between mb-4">
+							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
+								<div className="flex justify-between mb-4">
 									<div className="flex items-center gap-4">
 										<div className="p-1.5 bg-linear-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl">
 											<svg
@@ -408,9 +408,9 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 												></path>
 											</svg>
 										</div>
-								<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-										{t('listing.TAGS')}
-									</h2>
+										<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+											{t('listing.TAGS')}
+										</h2>
 									</div>
 									<span className="text-xs text-gray-500">
 										{tagNames.length} {tagNames.length === 1 ? t('common.ITEM') : t('common.ITEMS')}
@@ -421,7 +421,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 										<a
 											key={index}
 											href={`/tags/${tag}`}
-											className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-all duration-300"
+											className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-white/6 transition-all duration-300"
 										>
 											#{tag}
 										</a>
@@ -431,7 +431,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 						)}
 
 						{meta.allItems && meta.allItems.length > 0 && (
-							<div className="mt-10">
+							<div className="mt-10 border-t border-gray-200 dark:border-white/8 pt-6 border-dashed">
 								<SimilarItemsSection allItems={meta.allItems} />
 							</div>
 						)}
@@ -473,7 +473,7 @@ function CompactVote({ itemId }: { itemId: string }) {
 			title={isVoted ? 'Remove upvote' : 'Upvote'}
 			className={cn(
 				'w-9 h-9 inline-flex items-center justify-center rounded-md transition-colors duration-150',
-				'bg-white/80 dark:bg-white/[0.03] text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/[0.06] hover:bg-gray-100 dark:hover:bg-white/[0.06]',
+				'bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6',
 				isVoted && 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 text-white'
 			)}
 		>

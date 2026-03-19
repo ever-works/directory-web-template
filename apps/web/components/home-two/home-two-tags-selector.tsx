@@ -38,7 +38,7 @@ const TagButton = ({ tag, isActive, onPress }: TagButtonProps) => {
       className={cn('group w-full !px-1 h-7 font-medium text-left transition-colors duration-150', {
         'bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white':
           isActive,
-        'bg-white dark:bg-white/[0.04] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.08] hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/[0.15]':
+        'bg-white dark:bg-white/4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/8 hover:bg-gray-100 dark:hover:bg-white/6 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-white/[0.15]':
           !isActive
       })}
     >
@@ -72,7 +72,7 @@ const TagButton = ({ tag, isActive, onPress }: TagButtonProps) => {
               'text-[11px] font-medium px-1 rounded-md transition-colors',
               isActive
                 ? 'bg-white/20 text-white dark:bg-black/10 dark:text-[#0a0a0a]'
-                : 'bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white'
+                : 'bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white'
             )}
           >
             {tag.count}
@@ -144,7 +144,7 @@ export const HomeTwoTagsSelector = ({ tags, selectedTags = [], onTagToggle }: Ho
         disableRipple
         onPress={() => setIsOpen(!isOpen)}
         className={cn(
-          'bg-gray-100 dark:bg-white/[0.05] border border-gray-300 dark:border-white/[0.06] rounded-lg px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300',
+          'bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/6 rounded-lg px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300',
           'group flex items-center gap-1 sm:gap-2 min-w-[80px] sm:min-w-[100px]'
         )}
         radius="sm"
@@ -174,7 +174,7 @@ export const HomeTwoTagsSelector = ({ tags, selectedTags = [], onTagToggle }: Ho
           className={cn(
             'absolute top-full mt-2 left-0 z-50',
             'p-0 max-h-[300px] sm:max-h-[400px] w-[300px] sm:w-56',
-            'bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/[0.06]',
+            'bg-white dark:bg-[#0a0a0a] border border-gray-200 dark:border-white/6',
             'rounded-lg shadow-lg overflow-hidden',
             'animate-in fade-in-0 zoom-in-95 duration-200'
           )}
@@ -198,8 +198,8 @@ export const HomeTwoTagsSelector = ({ tags, selectedTags = [], onTagToggle }: Ho
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={t('listing.SEARCH')}
                 className={
-                  'w-full pl-8 sm:pl-9 text-xs pr-7 sm:pr-8 py-1 sm:py-1.5 bg-gray-50 dark:bg-white/[0.03] ' +
-                  'border border-gray-200 dark:border-white/[0.06] rounded-lg text-xs sm:text-sm text-gray-900 dark:text-white ' +
+                  'w-full pl-8 sm:pl-9 text-xs pr-7 sm:pr-8 py-1 sm:py-1.5 bg-gray-50 dark:bg-white/3 ' +
+                  'border border-gray-200 dark:border-white/6 rounded-lg text-xs sm:text-sm text-gray-900 dark:text-white ' +
                   'placeholder-gray-500 dark:placeholder-gray-400 focus:outline-hidden focus:border focus:border-theme-primary-500 ' +
                   'dark:focus:border-theme-primary-400 transition-all duration-200'
                 }

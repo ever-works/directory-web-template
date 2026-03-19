@@ -26,9 +26,9 @@ export function SimilarItemsSection({ allItems, className, title = 'Similar Prod
 						   <rect x="14" y="14" width="7" height="7" rx="2" fill="url(#squares-gradient-similar)" />
 					   </svg>
 				   </span>
-				   <h3 className="text-xl font-semibold bg-[linear-gradient(90deg,_rgb(99,102,241),_rgba(168,85,247,0.8))] bg-clip-text text-transparent">{title}</h3>
+				   <h3 className="text-xl font-semibold bg-[linear-gradient(90deg,rgb(99,102,241),rgba(168,85,247,0.8))] bg-clip-text text-transparent">{title}</h3>
 				   <span
-					   className="text-xs px-3 py-1 rounded-full font-semibold bg-white/5 dark:bg-white/[0.03] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.06]"
+					   className="text-xs px-3 py-1 rounded-full bg-white/5 dark:bg-white/3 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/6"
 				   >
 					   {allItems.length} result(s)
 				   </span>

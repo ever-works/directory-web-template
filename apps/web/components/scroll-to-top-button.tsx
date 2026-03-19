@@ -57,7 +57,7 @@ export function ScrollToTopButton({
 
   const variants = {
     default: "bg-primary-600 hover:bg-primary-700 text-white border-2 border-primary-500 hover:border-primary-600",
-    elegant: "bg-white/90 dark:bg-white/[0.05] backdrop-blur-lg text-gray-800 dark:text-white border border-gray-200/50 dark:border-white/[0.04] hover:bg-white dark:hover:bg-white/[0.06] shadow-lg hover:shadow-xl",
+    elegant: "bg-white/90 dark:bg-white/5 backdrop-blur-lg text-gray-800 dark:text-white border border-gray-200/50 dark:border-white/4 hover:bg-white dark:hover:bg-white/6 shadow-lg hover:shadow-xl",
     minimal: "bg-gray-800/80 dark:bg-white/80 text-white dark:text-gray-800 backdrop-blur-md hover:bg-gray-900 dark:hover:bg-white",
     gradient: "bg-linear-to-r from-blue-500 via-purple-500 to-pink-500 text-white border-2 border-white/20 hover:shadow-2xl hover:shadow-purple-500/25"
   };

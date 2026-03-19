@@ -32,7 +32,7 @@ export function SettingApiStatus({ label, description, apis }: SettingApiStatusP
 							<span className="text-sm text-gray-700 dark:text-gray-300">{api.name}</span>
 						</div>
 						<div className="flex items-center gap-2">
-							<code className="text-xs bg-gray-200 dark:bg-white/[0.08] px-2 py-0.5 rounded">
+							<code className="text-xs bg-gray-200 dark:bg-white/8 px-2 py-0.5 rounded">
 								{api.envVar}
 							</code>
 							{api.docsUrl && (

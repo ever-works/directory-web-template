@@ -17,9 +17,9 @@ interface CompaniesTableProps {
 	filters?: ReactNode;
 }
 
-const TABLE_CARD_WRAPPER = 'border-0 shadow-sm bg-white dark:bg-white/[0.03] rounded-2xl overflow-hidden';
+const TABLE_CARD_WRAPPER = 'border-0 shadow-sm bg-white dark:bg-white/3 rounded-2xl overflow-hidden';
 const TABLE_ROW_HOVER =
-	'px-6 py-5 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors border-b border-gray-50 dark:border-white/[0.04] last:border-0';
+	'px-6 py-5 hover:bg-gray-50 dark:hover:bg-white/3 transition-colors border-b border-gray-50 dark:border-white/4 last:border-0';
 
 /**
  * Companies Table Component
@@ -32,7 +32,7 @@ export function CompaniesTable(props: CompaniesTableProps) {
 		<Card className={TABLE_CARD_WRAPPER}>
 			<CardBody className="p-0">
 				{/* Table Header */}
-				<div className="px-6 py-5 border-b border-gray-100 dark:border-white/[0.06] bg-white dark:bg-white/[0.03]">
+				<div className="px-6 py-5 border-b border-gray-100 dark:border-white/6 bg-white dark:bg-white/3">
 					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
 							{t('COMPANIES_TITLE')}

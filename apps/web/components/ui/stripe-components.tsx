@@ -157,7 +157,7 @@ export function StripeCardInput({ className, disabled, theme = 'auto' }: StripeC
 				<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 					{t('CARD_NUMBER')}
 				</label>
-				<div className="p-3 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.08]">
+				<div className="p-3 border border-gray-300 dark:border-white/8 rounded-md bg-white dark:bg-white/8">
 					<CardNumberElement
 						options={{
 							style: {
@@ -177,7 +177,7 @@ export function StripeCardInput({ className, disabled, theme = 'auto' }: StripeC
 					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 						{t('EXPIRY_MONTH')} / {t('EXPIRY_YEAR')}
 					</label>
-					<div className="p-3 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.08]">
+					<div className="p-3 border border-gray-300 dark:border-white/8 rounded-md bg-white dark:bg-white/8">
 						<CardExpiryElement
 							options={{
 								style: {
@@ -196,7 +196,7 @@ export function StripeCardInput({ className, disabled, theme = 'auto' }: StripeC
 					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 						{t('CVC')}
 					</label>
-					<div className="p-3 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.08]">
+					<div className="p-3 border border-gray-300 dark:border-white/8 rounded-md bg-white dark:bg-white/8">
 						<CardCvcElement
 							options={{
 								style: {
@@ -295,7 +295,7 @@ export function CardHolderInput({ value, onChange, placeholder, disabled, requir
 				value={value}
 				onChange={(e) => onChange(e.target.value)}
 				placeholder={placeholder || t('CARD_HOLDER_NAME_PLACEHOLDER')}
-				className="w-full px-3 py-2 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.08] text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+				className="w-full px-3 py-2 border border-gray-300 dark:border-white/8 rounded-md bg-white dark:bg-white/8 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
 				required={required}
 				disabled={disabled}
 			/>

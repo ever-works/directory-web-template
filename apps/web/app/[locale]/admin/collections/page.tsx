@@ -129,7 +129,7 @@ export default function AdminCollectionsPage() {
 	return (
 		<div className="p-6 max-w-7xl mx-auto">
 			<div className="mb-8">
-				<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
+				<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 						<div className="flex items-center space-x-4">
 							<div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
@@ -217,14 +217,14 @@ export default function AdminCollectionsPage() {
 
 			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
 				<CardBody className="p-0">
-				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03] flex items-center justify-between">
+				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3 flex items-center justify-between">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COLLECTION')}</h3>
 						<span className="text-sm text-gray-600 dark:text-gray-400">
 							{collections.length} {t('OF')} {total}
 						</span>
 					</div>
 
-					<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
+					<div className="divide-y divide-gray-100 dark:divide-white/6">
 						{collections.length === 0 ? (
 							<div className="p-6 text-center text-gray-500">{t('NO_COLLECTIONS_YET')}</div>
 						) : (
@@ -300,7 +300,7 @@ export default function AdminCollectionsPage() {
 					</div>
 
 					{totalPages > 1 && (
-						<div className="p-4 border-t border-gray-100 dark:border-white/[0.06]">
+						<div className="p-4 border-t border-gray-100 dark:border-white/6">
 							<UniversalPagination
 								page={currentPage}
 								totalPages={totalPages}
@@ -320,15 +320,15 @@ export default function AdminCollectionsPage() {
 						className="absolute inset-0 bg-black/50 backdrop-blur-sm"
 						onClick={!isSubmitting ? formDisclosure.onClose : undefined}
 					/>
-					<div className="relative bg-white dark:bg-white/[0.03] rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
-						<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.06]">
+					<div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
+						<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
 							<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{formMode === 'create' ? t('CREATE_COLLECTION') : t('EDIT_COLLECTION')}
 							</h2>
 							{!isSubmitting && (
 								<button
 									onClick={formDisclosure.onClose}
-									className="p-1 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-sm transition-colors"
+									className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
 								>
 									<svg
 										className="w-5 h-5 text-gray-500 dark:text-gray-400"

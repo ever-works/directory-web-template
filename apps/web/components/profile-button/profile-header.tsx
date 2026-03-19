@@ -18,10 +18,10 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
 
   const roleBadgeClasses = isAdmin 
     ? 'bg-linear-to-r from-yellow-100 to-orange-100 text-yellow-800 dark:from-yellow-900/30 dark:to-orange-900/30 dark:text-yellow-200'
-    : 'bg-gray-100 text-gray-800 dark:bg-white/[0.08] dark:text-gray-200';
+    : 'bg-gray-100 text-gray-800 dark:bg-white/8 dark:text-gray-200';
 
   return (
-    <div className="px-5 py-3 border-b border-gray-100/50 dark:border-white/[0.06]">
+    <div className="px-5 py-3 border-b border-gray-100/50 dark:border-white/6">
       <div className="flex items-start space-x-4">
         <div className="relative shrink-0">
           <Avatar
@@ -34,7 +34,7 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
           {/* Online status indicator */}
           <div
             aria-hidden="true"
-            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-white/[0.06] shadow-xs transition-all duration-200 ${
+            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-white/6 shadow-xs transition-all duration-200 ${
               isOnline ? 'bg-green-500 scale-100' : 'bg-gray-400 scale-90'
             }`}
             title={`Status: ${onlineStatus}`}
@@ -62,7 +62,7 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
             <span className={`px-2 rounded-full text-[10px] font-medium ${
               isOnline
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
-                : 'bg-gray-100 text-gray-800 dark:bg-white/[0.08] dark:text-gray-300'
+                : 'bg-gray-100 text-gray-800 dark:bg-white/8 dark:text-gray-300'
             }`}>
               {onlineStatus}
             </span>

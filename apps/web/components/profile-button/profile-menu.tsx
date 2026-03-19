@@ -71,7 +71,7 @@ function ProfileMenu({
       />
 
       {/* Separator */}
-      <div className="border-t border-gray-100/50 dark:border-white/[0.06]"></div>
+      <div className="border-t border-gray-100/50 dark:border-white/6"></div>
 
       <LogoutButton onLogout={onLogout} logoutText={logoutText} logoutDescription={logoutDescription} />
     </div>

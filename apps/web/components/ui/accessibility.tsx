@@ -230,7 +230,7 @@ export function AccessibleButton({
 }: AccessibleButtonProps) {
   const variantClasses = {
     primary: 'bg-theme-primary hover:bg-theme-primary/90 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-white/[0.08] dark:hover:bg-white/[0.06] dark:text-white',
+    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900 dark:bg-white/8 dark:hover:bg-white/6 dark:text-white',
     danger: 'bg-red-600 hover:bg-red-700 text-white',
   };
 

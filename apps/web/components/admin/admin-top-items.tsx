@@ -73,7 +73,7 @@ export function AdminTopItems({ data, isLoading }: AdminTopItemsProps) {
                 </div>
                 
                 {/* Progress bar for views */}
-                <div className="w-full bg-gray-200 dark:bg-white/[0.08] rounded-full h-1.5">
+                <div className="w-full bg-gray-200 dark:bg-white/8 rounded-full h-1.5">
                   <div 
                     className="bg-linear-to-r from-theme-primary to-theme-accent h-1.5 rounded-full transition-all duration-300"
                     style={{ width: `${(item.views / maxViews) * 100}%` }}
@@ -85,7 +85,7 @@ export function AdminTopItems({ data, isLoading }: AdminTopItemsProps) {
         </div>
         
         {data.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/6">
             <button className="text-sm text-theme-primary hover:text-theme-primary/80 font-medium transition-colors">
               {t('VIEW_ALL_ITEMS')}
             </button>

@@ -4,7 +4,7 @@ import { useFilters } from '@/components/filters/context/filter-context';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
 
-const SLIDER_TRACK_CLASS = 'w-full h-2 bg-gray-200 dark:bg-white/[0.08] rounded-lg appearance-none cursor-pointer accent-theme-primary';
+const SLIDER_TRACK_CLASS = 'w-full h-2 bg-gray-200 dark:bg-white/8 rounded-lg appearance-none cursor-pointer accent-theme-primary';
 
 export function RadiusSlider() {
 	const { locationFilter, setLocationRadius } = useFilters();

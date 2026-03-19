@@ -50,7 +50,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	// Show loading while checking auth
 	// if (status === "loading") {
 	//   return (
-	//     <div className="min-h-screen bg-gray-100 dark:bg-white/[0.03] flex items-center justify-center">
+	//     <div className="min-h-screen bg-gray-100 dark:bg-white/3 flex items-center justify-center">
 	//       <div className="text-center">
 	//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
 	//         <p className="text-gray-600 dark:text-gray-400">Loading admin panel...</p>
@@ -62,7 +62,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	// Show loading while redirecting (but not on auth pages)
 	if (!isAuthPage && (!session || !session.user?.isAdmin)) {
 		return (
-			<div className="min-h-screen bg-gray-100 dark:bg-white/[0.03] flex items-center justify-center">
+			<div className="min-h-screen bg-gray-100 dark:bg-white/3 flex items-center justify-center">
 				<div className="text-center">
 					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
 					<p className="text-gray-600 dark:text-gray-400">Redirecting...</p>
@@ -78,7 +78,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-100 dark:bg-white/[0.03]">
+		<div className="min-h-screen bg-gray-100 dark:bg-white/3">
 			<header className="p-4 bg-gray-800 text-white font-bold text-xl">Admin Panel</header>
 			<main className="p-8">{children}</main>
 		</div>

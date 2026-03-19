@@ -48,7 +48,7 @@ export function ProfileHeader({ profile, isOwnProfile = false }: ProfileHeaderPr
 			{/* Avatar - Overlapping the cover */}
 			<div className="absolute left-1/2 md:left-12 top-6 md:top-10 transform -translate-x-1/2 md:translate-x-0 z-20">
 				<div className="relative">
-					<div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-900 shadow-xl bg-white dark:bg-white/[0.03]">
+					<div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-900 shadow-xl bg-white dark:bg-white/3">
 						{!imageError && profile.avatar ? (
 							<Image
 								src={profile.avatar}
@@ -62,14 +62,14 @@ export function ProfileHeader({ profile, isOwnProfile = false }: ProfileHeaderPr
 								}}
 							/>
 						) : (
-							<div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-white/[0.05]">
+							<div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-white/5">
 								<FiUser className="w-8 h-8 text-gray-400" />
 							</div>
 						)}
 					</div>
 					{isOwnProfile && (
 						<button
-							className="absolute bottom-2 right-2 bg-white dark:bg-white/[0.05] rounded-full p-2 shadow-lg hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors border border-gray-200 dark:border-white/[0.06]"
+							className="absolute bottom-2 right-2 bg-white dark:bg-white/5 rounded-full p-2 shadow-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors border border-gray-200 dark:border-white/6"
 							aria-label="Edit profile"
 							title="Edit profile"
 						>
@@ -139,7 +139,7 @@ export function ProfileHeader({ profile, isOwnProfile = false }: ProfileHeaderPr
 												href={link.url}
 												target="_blank"
 												rel="noopener noreferrer"
-												className="flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs rounded-lg hover:bg-white dark:hover:bg-white/[0.06] transition-all duration-200 shadow-xs hover:shadow-md"
+												className="flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-white/4 backdrop-blur-xs rounded-lg hover:bg-white dark:hover:bg-white/6 transition-all duration-200 shadow-xs hover:shadow-md"
 											>
 												{getSocialIcon(link.platform)}
 												<span className="text-sm font-medium text-gray-700 dark:text-gray-300">

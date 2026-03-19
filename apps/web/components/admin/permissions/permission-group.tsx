@@ -20,14 +20,14 @@ interface PermissionGroupProps {
 }
 
 const groupContainerClasses = clsx(
-  'border border-gray-200 dark:border-white/[0.06] rounded-lg',
-  'bg-white dark:bg-white/[0.03] shadow-xs'
+  'border border-gray-200 dark:border-white/6 rounded-lg',
+  'bg-white dark:bg-white/3 shadow-xs'
 );
 
 const groupHeaderClasses = clsx(
   'flex items-center justify-between p-4',
-  'border-b border-gray-200 dark:border-white/[0.06]',
-  'bg-gray-50 dark:bg-white/[0.03]'
+  'border-b border-gray-200 dark:border-white/6',
+  'bg-gray-50 dark:bg-white/3'
 );
 
 const groupTitleClasses = clsx(
@@ -51,17 +51,17 @@ const groupActionsClasses = clsx(
 );
 
 const groupContentClasses = clsx(
-  'divide-y divide-gray-100 dark:divide-white/[0.06]'
+  'divide-y divide-gray-100 dark:divide-white/6'
 );
 
 const toggleButtonClasses = clsx(
-  'p-1 hover:bg-gray-200 dark:hover:bg-white/[0.06]',
+  'p-1 hover:bg-gray-200 dark:hover:bg-white/6',
   'rounded-sm transition-colors duration-200'
 );
 
 const bulkActionButtonClasses = clsx(
   'text-xs px-2 py-1 rounded-sm',
-  'hover:bg-gray-200 dark:hover:bg-white/[0.06]',
+  'hover:bg-gray-200 dark:hover:bg-white/6',
   'transition-colors duration-200'
 );
 

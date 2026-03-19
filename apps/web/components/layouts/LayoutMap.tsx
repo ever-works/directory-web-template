@@ -88,7 +88,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center h-[500px] bg-gray-50 dark:bg-white/[0.03] rounded-xl">
+			<div className="flex items-center justify-center h-[500px] bg-gray-50 dark:bg-white/3 rounded-xl">
 				<Loader2 className="w-8 h-8 animate-spin text-gray-400" />
 			</div>
 		);
@@ -96,7 +96,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 
 	if (markers.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-white/[0.03] rounded-xl">
+			<div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-white/3 rounded-xl">
 				<MapPin className="w-12 h-12 text-gray-400 mb-3" />
 				<p className="text-sm text-gray-500 dark:text-gray-400">
 					{t('MAP_NO_LOCATION_DATA')}

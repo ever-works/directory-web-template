@@ -238,7 +238,7 @@ export function SubscriptionActions({
 			<div className="flex justify-end">
 				<button
 					onClick={() => setIsExpanded(!isExpanded)}
-					className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.04] rounded-lg hover:bg-slate-200 dark:hover:bg-white/[0.06] transition-colors"
+					className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
 				>
 					<Settings className="w-4 h-4" />
 					{isExpanded ? 'Hide' : 'Actions'}
@@ -247,7 +247,7 @@ export function SubscriptionActions({
 
 			{/* Actions Panel */}
 			{isExpanded && (
-				<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-lg p-4 shadow-xs">
+				<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-lg p-4 shadow-xs">
 					<div className="flex items-center justify-between mb-4">
 						<h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">
 							Subscription Actions
@@ -302,7 +302,7 @@ export function SubscriptionActions({
 			{/* Confirmation Dialog */}
 			{showConfirmDialog && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-					<div className="bg-white dark:bg-white/[0.05] rounded-lg p-4 max-w-sm mx-4 shadow-lg border border-slate-200 dark:border-white/[0.06]">
+					<div className="bg-white dark:bg-white/5 rounded-lg p-4 max-w-sm mx-4 shadow-lg border border-slate-200 dark:border-white/6">
 						<div className="flex items-center gap-2 mb-3">
 							<AlertTriangle className="w-5 h-5 text-orange-500" />
 							<h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
@@ -317,7 +317,7 @@ export function SubscriptionActions({
 						<div className="flex gap-2 justify-end">
 							<button
 								onClick={() => setShowConfirmDialog(null)}
-								className="px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/[0.04] rounded-sm hover:bg-slate-200 dark:hover:bg-white/[0.06] transition-colors"
+								className="px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-sm hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
 								disabled={isProcessing}
 							>
 								Cancel

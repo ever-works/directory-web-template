@@ -141,7 +141,7 @@ export function SubmissionsContent() {
 					<SubmissionStatsCards stats={stats} isLoading={isStatsLoading} />
 
 					{/* Submissions List */}
-					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
+					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
 						<CardHeader>
 							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 								<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -151,7 +151,7 @@ export function SubmissionsContent() {
 								<div className="flex items-center gap-3">
 									<Link
 										href="/client/submissions/trash"
-										className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 bg-gray-100 dark:bg-white/[0.05] hover:bg-gray-200 dark:hover:bg-white/[0.06] rounded-lg transition-all duration-300 font-medium"
+										className="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/6 rounded-lg transition-all duration-300 font-medium"
 									>
 										<FiTrash2 className="w-4 h-4" />
 										{t('TRASH')}
@@ -195,7 +195,7 @@ export function SubmissionsContent() {
 
 							{/* Pagination */}
 							{totalPages > 1 && (
-								<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+								<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-white/6">
 									<div className="text-sm text-gray-500 dark:text-gray-400">
 										{t('SHOWING_PAGE', { page, totalPages })}
 									</div>

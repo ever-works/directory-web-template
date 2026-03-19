@@ -109,7 +109,7 @@ export function AdminSubmissionStatus({ data, isLoading }: AdminSubmissionStatus
             </div>
 
             {/* Total */}
-            <div className="pt-3 border-t border-gray-200 dark:border-white/[0.06]">
+            <div className="pt-3 border-t border-gray-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
                   Total Submissions
@@ -305,7 +305,7 @@ export function AdminSubmissionStatus({ data, isLoading }: AdminSubmissionStatus
           </div>
 
           {/* Total */}
-          <div className="pt-3 border-t border-gray-200 dark:border-white/[0.06]">
+          <div className="pt-3 border-t border-gray-200 dark:border-white/6">
             <div className="flex items-center justify-between">
               <span className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400">
                 Total Submissions

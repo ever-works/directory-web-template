@@ -36,8 +36,8 @@ export function TagsModal({
       size="md"
       classNames={{
         backdrop: "bg-black/50",
-        base: "bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white",
-        header: "border-b border-gray-200 dark:border-white/[0.06]",
+        base: "bg-white dark:bg-white/5 text-gray-900 dark:text-white",
+        header: "border-b border-gray-200 dark:border-white/6",
         body: "py-4",
       }}
     >

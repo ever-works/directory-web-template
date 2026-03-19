@@ -224,7 +224,7 @@ export default function AdminTagsPage() {
 
 			{/* Enhanced Header */}
 			<div className="mb-8">
-				<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
+				<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
 					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 						<div className="flex items-center space-x-4">
 							<div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
@@ -299,7 +299,7 @@ export default function AdminTagsPage() {
 			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
 				<CardContent className="p-0">
 					{/* Table Header */}
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]">
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
 						<div className="flex items-center justify-between">
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{t('TAGS_TABLE_TITLE')}
@@ -311,7 +311,7 @@ export default function AdminTagsPage() {
 					</div>
 
 					{/* Enhanced Table Content */}
-					<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
+					<div className="divide-y divide-gray-100 dark:divide-white/6">
 						{tagsData?.tags?.map((tag) => (
 							<div
 								key={tag.id}

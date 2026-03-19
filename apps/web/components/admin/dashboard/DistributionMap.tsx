@@ -11,7 +11,7 @@ import type { GeoLocation } from '@/hooks/use-geo-analytics';
 
 // ===================== Style Constants =====================
 
-const CARD_STYLES = 'bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] overflow-hidden';
+const CARD_STYLES = 'bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-200 dark:border-white/6 overflow-hidden';
 const HEADER_STYLES = 'flex items-center gap-2 px-4 pt-4 md:px-6 md:pt-6 pb-3';
 const TITLE_STYLES = 'text-sm font-semibold text-gray-900 dark:text-gray-100';
 const MAP_CONTAINER_STYLES = 'px-4 pb-4 md:px-6 md:pb-6';

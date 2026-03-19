@@ -30,8 +30,8 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 					setIsNavigating(true);
 				}
 			}}
-			className="group relative block p-6 bg-white dark:bg-white/[0.03]
-			rounded-xl border border-gray-200/80 dark:border-white/[0.06]
+			className="group relative block p-6 bg-white dark:bg-white/3
+			rounded-md border border-gray-200/80 dark:border-white/6
 			hover:border-gray-300 dark:hover:border-white/[0.12]
 			transition-all duration-200
 			overflow-hidden cursor-pointer"
@@ -44,39 +44,16 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 					borderRadius: '9999px',
 				}}
 			/>
-			{/* Decorative blurred circles background */}
-			<div className="pointer-events-none absolute inset-0 z-0">
-				<div className="absolute w-40 h-40 bg-theme-primary/5 dark:bg-theme-primary/[0.04] rounded-full blur-3xl left-2 top-0"></div>
-				<div className="absolute w-28 h-28 bg-theme-primary/5 dark:bg-theme-primary/[0.03] rounded-full blur-2xl left-1/2 -translate-x-1/2 bottom-4"></div>
-			</div>
 
 			{/* Hover image at top, reversed horizontally, only visible on hover, now with higher opacity */}
 			<div className="pointer-events-none absolute left-0 right-0 top-0 z-20">
 				<Image src="/bg-cards.png" alt="Decorative pattern" className="w-full filter brightness-0 dark:brightness-200 -rotate-180" width={800} height={400}/>
 			</div>
-			{/* Blurred background element - reduced opacity */}
-			<div
-				className="absolute inset-0 bg-linear-to-br from-theme-primary/0 via-theme-primary/0 to-theme-primary/0 
-      group-hover:from-theme-primary/5 group-hover:via-theme-primary/3 group-hover:to-theme-primary/5 
-      transition-all duration-500 rounded-2xl blur-xl"
-			/>
-
-			{/* Color overlay - reduced opacity */}
-			<div
-				className="absolute inset-0 bg-theme-primary/0 group-hover:bg-theme-primary/3 
-      transition-all duration-500 rounded-2xl"
-			/>
-
-			{/* Border glow effect - reduced opacity */}
-			<div
-				className="absolute inset-0 border-2 border-transparent rounded-2xl 
-      group-hover:border-theme-primary/15 transition-all duration-500"
-			/>
 
 			{/* Item count badge - top left with primary blue */}
 			<div className="absolute top-3 left-3 z-20">
 				<div
-					className="inline-flex items-center px-3 py-1.5 rounded-full 
+					className="inline-flex items-center px-2 py-1 rounded-full 
         bg-theme-primary/10 dark:bg-theme-primary/20
         border border-theme-primary/20 dark:border-theme-primary/30
         text-xs font-medium text-theme-primary dark:text-theme-primary-400
@@ -92,7 +69,7 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 			</div>
 
 			{/* Content container */}
-			<div className="relative z-10 pt-8">
+			<div className="relative z-10 pt-4">
 				{/* Icon with reduced glow */}
 				<div className="relative mb-4 text-4xl transition-all duration-500">
 					<div
@@ -109,28 +86,27 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 
 				{/* Title */}
 				<h3
-					className="relative text-xl font-bold mb-3 text-gray-900 dark:text-white 
-        group-hover:text-theme-primary transition-colors duration-300"
+					className="relative text-lg font-bold mb-3 text-gray-900 dark:text-white 
+        group-hover:text-theme-primary"
 				>
 					{collection.name}
 				</h3>
 
 				{/* Description */}
 				<p
-					className="relative text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-3 
-        group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors duration-300"
+					className="relative text-xs text-gray-600 dark:text-gray-500 mb-4 line-clamp-3 
+        group-hover:text-gray-700 dark:group-hover:text-gray-300"
 				>
 					{collection.description}
 				</p>
 
 				{/* Arrow indicator - bottom right */}
 				<div className="relative flex items-center justify-end text-sm text-theme-primary font-medium">
-					<span className="text-xs opacity-80 group-hover:opacity-100 transition-opacity duration-300">
+					<span className="text-xs opacity-80 group-hover:opacity-100">
 						{t('VIEW_COLLECTION')}
 					</span>
 					<svg
-						className="w-4 h-4 ml-2 transform transition-all duration-300 
-            group-hover:translate-x-1"
+						className="w-4 h-4 ml-2 transform group-hover:translate-x-1"
 						fill="none"
 						stroke="currentColor"
 						viewBox="0 0 24 24"

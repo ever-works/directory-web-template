@@ -202,7 +202,7 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 					<SponsorshipStatsCards stats={stats} isLoading={isStatsLoading} />
 
 					{/* Sponsorships List */}
-					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
+					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
 						<CardHeader className="pb-4">
 							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 								<CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -247,7 +247,7 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 
 							{/* Pagination */}
 							{totalPages > 1 && (
-								<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+								<div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-white/6">
 									<div className="text-sm text-gray-500 dark:text-gray-400">
 										{t('SHOWING_PAGE', { page: currentPage, totalPages })}
 									</div>

@@ -153,15 +153,15 @@ export function FavoritesClient(props: ListingProps) {
 				{Array.from({ length: 8 }).map((_, i) => (
 					<div key={i} className="bg-white/80 dark:bg-[#0a0a0a]/80 rounded-2xl p-6 shadow-lg animate-pulse">
 						<div className="flex items-center gap-4 mb-4">
-							<div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-2xl" />
+							<div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-2xl" />
 							<div className="flex-1">
-								<div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-2" />
-								<div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm w-2/3" />
+								<div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-2" />
+								<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm w-2/3" />
 							</div>
 						</div>
 						<div className="space-y-2">
-							<div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm" />
-							<div className="h-3 bg-gray-200 dark:bg-white/[0.08] rounded-sm w-4/5" />
+							<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm" />
+							<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm w-4/5" />
 						</div>
 					</div>
 				))}

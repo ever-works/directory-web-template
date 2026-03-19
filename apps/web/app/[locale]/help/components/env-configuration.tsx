@@ -236,9 +236,9 @@ export function EnvConfiguration() {
         </div>
 
         {/* Configuration Dashboard */}
-        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
+        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
           {/* Dashboard Header */}
-          <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.05] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
+          <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-white/6 dark:to-white/5 px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -259,7 +259,7 @@ export function EnvConfiguration() {
                 <Button
                   onClick={() => setShowSecrets(!showSecrets)}
                   variant="outline"
-                  className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06]"
+                  className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6"
                 >
                   {showSecrets ? "Hide" : "Show"} Secrets
                 </Button>
@@ -274,7 +274,7 @@ export function EnvConfiguration() {
           </div>
 
           {/* Category Filter */}
-          <div className="p-6 border-b border-slate-200 dark:border-white/[0.06]">
+          <div className="p-6 border-b border-slate-200 dark:border-white/6">
             <div className="flex flex-wrap gap-2">
               {categories.map((category) => (
                 <button
@@ -283,7 +283,7 @@ export function EnvConfiguration() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     selectedCategory === category.id
                       ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-                      : "bg-slate-100 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.08]"
+                      : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                   }`}
                 >
                   {category.label}
@@ -299,7 +299,7 @@ export function EnvConfiguration() {
               {filteredVariables.map((variable) => (
                 <div
                   key={variable.name}
-                  className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.08] transition-all duration-300"
+                  className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
@@ -331,7 +331,7 @@ export function EnvConfiguration() {
                   </p>
 
                   {/* Example */}
-                  <div className="bg-slate-100 dark:bg-white/[0.08] rounded-lg p-4 mb-4">
+                  <div className="bg-slate-100 dark:bg-white/8 rounded-lg p-4 mb-4">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                         {t("ENV_CONFIG_EXAMPLE")}
@@ -370,7 +370,7 @@ export function EnvConfiguration() {
         {/* Quick Setup Guide */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Local Development */}
-          <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/[0.06] shadow-xl">
+          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-linear-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-lg">💻</span>
@@ -380,15 +380,15 @@ export function EnvConfiguration() {
               </h3>
             </div>
             <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-              <p>1. Create a <code className="bg-slate-100 dark:bg-white/[0.08] px-1 rounded-sm">.env.local</code> file in your project root</p>
+              <p>1. Create a <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">.env.local</code> file in your project root</p>
               <p>2. Copy the required variables from above</p>
               <p>3. Set up your database and other services</p>
-              <p>4. Run <code className="bg-slate-100 dark:bg-white/[0.08] px-1 rounded-sm">pnpm dev</code> to start development</p>
+              <p>4. Run <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">pnpm dev</code> to start development</p>
             </div>
           </div>
 
           {/* Production Deployment */}
-          <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/[0.06] shadow-xl">
+          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6 shadow-xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-lg">🚀</span>
@@ -401,7 +401,7 @@ export function EnvConfiguration() {
               <p>1. Set environment variables in your hosting platform</p>
               <p>2. Ensure all required variables are configured</p>
               <p>3. Use production-grade database and services</p>
-              <p>4. Set <code className="bg-slate-100 dark:bg-white/[0.08] px-1 rounded-sm">NODE_ENV=production</code></p>
+              <p>4. Set <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">NODE_ENV=production</code></p>
             </div>
           </div>
         </div>
@@ -419,7 +419,7 @@ export function EnvConfiguration() {
               <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 {t("ENV_CONFIG_GET_SUPPORT")}
               </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
                 {t("ENV_CONFIG_VIEW_DOCS")}
               </Button>
             </div>

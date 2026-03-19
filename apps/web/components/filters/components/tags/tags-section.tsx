@@ -53,7 +53,7 @@ export function Tags({
           ? cn(
               "sticky top-4 z-10",
               isSticky
-                ? "bg-white/95 dark:bg-[#0a0a0a]/95 shadow-md dark:border-b dark:border-white/[0.06]"
+                ? "bg-white/95 dark:bg-[#0a0a0a]/95 shadow-md dark:border-b dark:border-white/6"
                 : "bg-transparent"
             )
           : "bg-inherit"
@@ -77,7 +77,7 @@ export function Tags({
               radius="full"
               size="sm"
               className={cn(
-                "px-4 py-1 font-medium transition-[color,box-shadow] duration-200 bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.1]",
+                "px-4 py-1 font-medium transition-[color,box-shadow] duration-200 bg-gray-100 dark:bg-white/6 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/1",
                 isSticky && "shadow-xs"
               )}
               onPress={toggleTagVisibility}

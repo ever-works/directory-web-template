@@ -150,8 +150,8 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 						)}
 						<Card
 							className="group relative border-0 rounded-lg transition-all duration-700 transform backdrop-blur-xl overflow-hidden h-full
-								bg-white/80 dark:bg-white/[0.03] shadow-md hover:shadow-xl
-								ring-1 ring-gray-200/50 dark:ring-white/[0.06] hover:ring-theme-primary/70
+								bg-white/80 dark:bg-white/3 shadow-md hover:shadow-xl
+								ring-1 ring-gray-200/50 dark:ring-white/6 hover:ring-theme-primary/70
 								px-4 py-4 sm:px-5 sm:py-5
 							"
 						>

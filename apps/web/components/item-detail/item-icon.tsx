@@ -15,7 +15,7 @@ export function ItemIcon({ iconUrl, name }: ItemIconProps) {
   const shouldShowFallbackIcon = imageError || shouldShowFallback(iconUrl || '');
   return (
     <div className="shrink-0 w-14 h-14 md:w-12 md:h-12 relative">
-      <div className="absolute inset-0 bg-gray-100/80 backdrop-blur-xl rounded-xl overflow-hidden flex items-center justify-center p-4 shadow-md border border-gray-200 group transition-all duration-300 hover:bg-gray-50 hover:border-indigo-100 dark:bg-white/[0.03] dark:border-white/[0.06] dark:hover:bg-white/[0.05] dark:hover:border-indigo-700/50 dark:shadow-lg dark:shadow-indigo-900/10">
+      <div className="absolute inset-0 bg-gray-100/80 backdrop-blur-xl rounded-xl overflow-hidden flex items-center justify-center p-4 shadow-md border border-gray-200 group transition-all duration-300 hover:bg-gray-50 hover:border-indigo-100 dark:bg-white/3 dark:border-white/6 dark:hover:bg-white/5 dark:hover:border-indigo-700/50 dark:shadow-lg dark:shadow-indigo-900/10">
         {shouldShowFallbackIcon ? (
           <svg
           xmlns="http://www.w3.org/2000/svg"

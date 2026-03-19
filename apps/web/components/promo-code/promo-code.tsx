@@ -174,7 +174,7 @@ export function PromoCodeComponent({
 
         {/* Promo Code */}
         <div className="mb-4">
-          <div className="flex items-center gap-3 p-4 bg-white/80 dark:bg-white/[0.03] rounded-xl border border-green-200/50 dark:border-green-700/30">
+          <div className="flex items-center gap-3 p-4 bg-white/80 dark:bg-white/3 rounded-xl border border-green-200/50 dark:border-green-700/30">
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
                 {t("common.PROMO_CODE")}

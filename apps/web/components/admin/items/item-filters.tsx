@@ -33,7 +33,7 @@ const STATUS_TAB = cn(
 
 const STATUS_TAB_ACTIVE = cn(
 	'px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer',
-	'bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white shadow-sm'
+	'bg-white dark:bg-white/8 text-gray-900 dark:text-white shadow-sm'
 );
 
 export function ItemFilters({
@@ -96,7 +96,7 @@ export function ItemFilters({
 	return (
 		<div className="flex items-center gap-3">
 			{/* Status Tabs */}
-			<div className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-white/[0.04] rounded-lg p-0.5">
+			<div className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-white/4 rounded-lg p-0.5">
 				<button
 					onClick={() => onStatusChange('')}
 					className={!statusFilter ? STATUS_TAB_ACTIVE : STATUS_TAB}
@@ -139,10 +139,10 @@ export function ItemFilters({
 				<Popover.Trigger asChild>
 					<button className={cn(
 						'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-md',
-						'border border-gray-200 dark:border-white/[0.06]',
-						'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+						'border border-gray-200 dark:border-white/6',
+						'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6',
 						'transition-colors cursor-pointer',
-						hasAdvancedFilters && 'bg-gray-50 dark:bg-white/[0.05]'
+						hasAdvancedFilters && 'bg-gray-50 dark:bg-white/5'
 					)}>
 						<Filter className="w-3.5 h-3.5" />
 						<span>{t('FILTERS')}</span>
@@ -156,15 +156,15 @@ export function ItemFilters({
 				<Popover.Portal>
 					<Popover.Content
 						className={cn(
-							'w-64 bg-white dark:bg-white/[0.03] rounded-lg shadow-xl',
-							'border border-gray-200 dark:border-white/[0.06] z-50',
+							'w-64 bg-white dark:bg-white/3 rounded-lg shadow-xl',
+							'border border-gray-200 dark:border-white/6 z-50',
 							'animate-in fade-in-0 zoom-in-95'
 						)}
 						sideOffset={8}
 						align="end"
 					>
 						{/* Category Section */}
-						<div className="p-3 border-b border-gray-100 dark:border-white/[0.06]">
+						<div className="p-3 border-b border-gray-100 dark:border-white/6">
 							<label className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 								{t('CATEGORY_LABEL')}
 							</label>
@@ -178,8 +178,8 @@ export function ItemFilters({
 									onChange={(e) => setCategorySearch(e.target.value)}
 									className={cn(
 										'w-full pl-7 pr-2 py-1.5 text-sm rounded-md',
-									'border border-gray-200 dark:border-white/[0.06]',
-									'bg-white dark:bg-white/[0.05]',
+									'border border-gray-200 dark:border-white/6',
+									'bg-white dark:bg-white/5',
 										'text-gray-900 dark:text-white placeholder-gray-400',
 										'focus:outline-none focus:border-gray-300 dark:focus:border-gray-600'
 									)}
@@ -190,7 +190,7 @@ export function ItemFilters({
 								{filteredCategories.map((category) => {
 									const isSelected = categoriesFilter.includes(category.id);
 									return (
-										<label key={category.id} className="flex items-center gap-2 px-1 py-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.06]">
+										<label key={category.id} className="flex items-center gap-2 px-1 py-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-white/6">
 											<input
 												type="checkbox"
 												checked={isSelected}
@@ -227,8 +227,8 @@ export function ItemFilters({
 									onChange={(e) => setTagSearch(e.target.value)}
 									className={cn(
 										'w-full pl-7 pr-2 py-1.5 text-sm rounded-md',
-									'border border-gray-200 dark:border-white/[0.06]',
-									'bg-white dark:bg-white/[0.05]',
+									'border border-gray-200 dark:border-white/6',
+									'bg-white dark:bg-white/5',
 										'text-gray-900 dark:text-white placeholder-gray-400',
 										'focus:outline-none focus:border-gray-300 dark:focus:border-gray-600'
 									)}
@@ -244,7 +244,7 @@ export function ItemFilters({
 									filteredTags.map((tag) => {
 										const isSelected = tagsFilter.includes(tag.id);
 										return (
-											<label key={tag.id} className="flex items-center gap-2 px-1 py-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-white/[0.06]">
+											<label key={tag.id} className="flex items-center gap-2 px-1 py-1 rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-white/6">
 												<input
 													type="checkbox"
 													checked={isSelected}
@@ -269,7 +269,7 @@ export function ItemFilters({
 									className={cn(
 										'flex items-center justify-center gap-1.5 w-full px-3 py-1.5 text-xs font-medium rounded-md',
 										'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200',
-								'border border-gray-200 dark:border-white/[0.06] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+								'border border-gray-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/6',
 										'transition-colors'
 									)}
 								>

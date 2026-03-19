@@ -106,8 +106,8 @@ export function MapItemPopup({
 		<div
 			ref={popupRef}
 			className={cn(
-				'absolute z-20 w-72 bg-white dark:bg-white/[0.05] rounded-xl shadow-lg',
-				'border border-gray-200 dark:border-white/[0.06]',
+				'absolute z-20 w-72 bg-white dark:bg-white/5 rounded-xl shadow-lg',
+				'border border-gray-200 dark:border-white/6',
 				'transform -translate-x-1/2 -translate-y-full',
 				'animate-in fade-in-0 zoom-in-95 duration-200'
 			)}
@@ -126,7 +126,7 @@ export function MapItemPopup({
 					'absolute left-1/2 -translate-x-1/2 top-full',
 					'w-0 h-0 border-l-8 border-r-8 border-t-8',
 					'border-l-transparent border-r-transparent',
-					'border-t-white dark:border-t-white/[0.06]'
+					'border-t-white dark:border-t-white/6'
 				)}
 			/>
 
@@ -139,10 +139,10 @@ export function MapItemPopup({
 						alt={item.name}
 						width={48}
 						height={48}
-						className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-white/[0.06]"
+						className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-white/6"
 					/>
 				) : (
-					<div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center flex-shrink-0">
+					<div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center flex-shrink-0">
 						<Tag className="w-6 h-6 text-gray-400" />
 					</div>
 				)}
@@ -151,7 +151,7 @@ export function MapItemPopup({
 				<div className="flex-1 min-w-0">
 					<h3 className="font-semibold text-gray-900 dark:text-white truncate">{item.name}</h3>
 					{item.category && (
-						<span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300">
+						<span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300">
 							{item.category}
 						</span>
 					)}
@@ -162,7 +162,7 @@ export function MapItemPopup({
 					ref={closeButtonRef}
 					type="button"
 					onClick={onClose}
-					className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+					className="flex-shrink-0 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
 					aria-label={t('MAP_CLOSE_POPUP')}
 				>
 					<X className="w-4 h-4 text-gray-500" />
@@ -241,10 +241,10 @@ export function MapItemCard({
 					alt={name}
 					width={48}
 					height={48}
-					className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-white/[0.06]"
+					className="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-100 dark:border-white/6"
 				/>
 			) : (
-				<div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center flex-shrink-0">
+				<div className="w-12 h-12 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center flex-shrink-0">
 					<Tag className="w-6 h-6 text-gray-400" />
 				</div>
 			)}
@@ -253,7 +253,7 @@ export function MapItemCard({
 			<div className="flex-1 min-w-0">
 				<h3 className="font-semibold text-gray-900 dark:text-white truncate">{name}</h3>
 				{category && (
-					<span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300">
+					<span className="inline-block mt-1 px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300">
 						{category}
 					</span>
 				)}
@@ -268,7 +268,7 @@ export function MapItemCard({
 
 	const baseClasses = cn(
 		'flex items-start gap-3 p-3 rounded-lg transition-colors',
-		'hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+		'hover:bg-gray-50 dark:hover:bg-white/6',
 		className
 	);
 

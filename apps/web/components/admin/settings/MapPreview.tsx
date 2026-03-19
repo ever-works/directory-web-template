@@ -163,7 +163,7 @@ export function MapPreview({ provider, mapStyle, isConfigured, translations }: M
 
 	if (!isConfigured) {
 		return (
-			<div className="w-full h-48 bg-gray-100 dark:bg-white/[0.05] rounded-lg flex flex-col items-center justify-center">
+			<div className="w-full h-48 bg-gray-100 dark:bg-white/5 rounded-lg flex flex-col items-center justify-center">
 				<MapPin className="w-8 h-8 text-gray-400 mb-2" />
 				<p className="text-sm text-gray-500 dark:text-gray-400 text-center px-4">
 					{translations.notConfigured}
@@ -182,9 +182,9 @@ export function MapPreview({ provider, mapStyle, isConfigured, translations }: M
 	}
 
 	return (
-		<div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-white/[0.06]">
+		<div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-white/6">
 			{isLoading && (
-				<div className="absolute inset-0 bg-gray-100 dark:bg-white/[0.05] flex items-center justify-center z-10">
+				<div className="absolute inset-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center z-10">
 					<Loader2 className="w-6 h-6 animate-spin text-gray-400" />
 				</div>
 			)}

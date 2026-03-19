@@ -125,7 +125,7 @@ export function ItemSelector({
 					type="button"
 					onClick={() => !disabled && !isLoading && setIsOpen(!isOpen)}
 					disabled={disabled || isLoading}
-					className="w-full px-4 py-2 border border-gray-300 dark:border-white/[0.08] rounded-lg bg-white dark:bg-white/[0.05] focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between gap-2 text-left"
+					className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between gap-2 text-left"
 				>
 					{isLoading ? (
 						<span className="text-gray-500 dark:text-gray-400"> {tCommon('LOADING_ITEMS')}</span>
@@ -140,7 +140,7 @@ export function ItemSelector({
 									height={24}
 								/>
 							) : (
-								<div className="w-6 h-6 rounded-sm bg-gray-200 dark:bg-white/[0.08] flex items-center justify-center shrink-0">
+								<div className="w-6 h-6 rounded-sm bg-gray-200 dark:bg-white/8 flex items-center justify-center shrink-0">
 									<Package className="w-3 h-3 text-gray-400" aria-hidden="true" focusable="false" />
 								</div>
 							)}
@@ -156,7 +156,7 @@ export function ItemSelector({
 								type="button"
 								onClick={handleClearSelection}
 								aria-label="Clear selection"
-								className="absolute right-9 top-2.5 p-0.5 rounded-sm hover:bg-gray-200 dark:hover:bg-white/[0.06] z-10"
+								className="absolute right-9 top-2.5 p-0.5 rounded-sm hover:bg-gray-200 dark:hover:bg-white/6 z-10"
 							>
 								<X className="w-4 h-4 text-gray-400" aria-hidden="true" focusable="false" />
 							</button>
@@ -167,9 +167,9 @@ export function ItemSelector({
 
 				{/* Dropdown */}
 				{isOpen && !isLoading && (
-					<div className="absolute z-50 w-full mt-1 bg-white dark:bg-white/[0.05] border border-gray-300 dark:border-white/[0.08] rounded-lg shadow-lg">
+					<div className="absolute z-50 w-full mt-1 bg-white dark:bg-white/5 border border-gray-300 dark:border-white/8 rounded-lg shadow-lg">
 						{/* Search Input */}
-						<div className="p-2 border-b border-gray-200 dark:border-white/[0.06]">
+						<div className="p-2 border-b border-gray-200 dark:border-white/6">
 							<div className="relative">
 								<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" focusable="false" />
 								<input
@@ -179,7 +179,7 @@ export function ItemSelector({
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
 									placeholder={tCommon('SEARCH_ITEMS')}
-									className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-white/[0.08] rounded-lg bg-white dark:bg-white/[0.05] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+									className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
 								/>
 							</div>
 						</div>
@@ -195,13 +195,13 @@ export function ItemSelector({
 									)}
 								</div>
 							) : (
-								<div className="divide-y divide-gray-200 dark:divide-white/[0.06]">
+								<div className="divide-y divide-gray-200 dark:divide-white/6">
 									{filteredItems.map((item) => (
 										<button
 											key={item.id}
 											type="button"
 											onClick={() => handleSelectItem(item.id)}
-											className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-white/[0.06] ${selectedItemId === item.id
+											className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 dark:hover:bg-white/6 ${selectedItemId === item.id
 												? 'bg-blue-50 dark:bg-blue-900/20'
 												: ''
 												}`}
@@ -216,7 +216,7 @@ export function ItemSelector({
 														height={24}
 													/>
 												) : (
-													<div className="w-8 h-8 rounded-sm bg-gray-200 dark:bg-white/[0.08] flex items-center justify-center shrink-0">
+													<div className="w-8 h-8 rounded-sm bg-gray-200 dark:bg-white/8 flex items-center justify-center shrink-0">
 														<Package className="w-4 h-4 text-gray-400" aria-hidden="true" focusable="false" />
 													</div>
 												)}

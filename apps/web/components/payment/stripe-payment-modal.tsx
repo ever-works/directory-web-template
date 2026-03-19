@@ -136,7 +136,7 @@ export function PaymentFormModal({
 			size={provider === PaymentProvider.LEMONSQUEEZY || provider === PaymentProvider.POLAR ? '2xl' : 'md'}
 		>
 			<ModalContent>
-				<ModalHeader className="flex items-center justify-between border-b border-gray-200 dark:border-white/[0.06] px-4 py-3">
+				<ModalHeader className="flex items-center justify-between border-b border-gray-200 dark:border-white/6 px-4 py-3">
 					<div className="flex items-center gap-3">
 						<div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
 							<CreditCard className="w-5 h-5 text-white" />

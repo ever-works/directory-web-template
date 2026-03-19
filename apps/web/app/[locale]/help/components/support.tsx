@@ -214,9 +214,9 @@ export function Support() {
         </div>
 
         {/* Support Dashboard */}
-        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
+        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
           {/* Dashboard Header */}
-          <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
+          <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
@@ -228,7 +228,7 @@ export function Support() {
               </div>
               
               {/* Tabs */}
-              <div className="flex bg-slate-200 dark:bg-white/[0.08] rounded-lg p-1">
+              <div className="flex bg-slate-200 dark:bg-white/8 rounded-lg p-1">
                 {[
                   { id: 'channels', label: 'Support Channels', icon: '📞' },
                   { id: 'faq', label: 'FAQ', icon: '❓' },
@@ -239,7 +239,7 @@ export function Support() {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
                       activeTab === tab.id
-                        ? "bg-white dark:bg-white/[0.05] text-slate-900 dark:text-white shadow-xs"
+                        ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xs"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
@@ -259,7 +259,7 @@ export function Support() {
                   {supportChannels.map((channel) => (
                     <div
                       key={channel.id}
-                      className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.08] transition-all duration-300 hover:transform hover:scale-105"
+                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300 hover:transform hover:scale-105"
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
@@ -315,7 +315,7 @@ export function Support() {
                           {channel.features.map((feature, index) => (
                             <span
                               key={index}
-                              className="px-2 py-1 text-xs bg-white dark:bg-white/[0.08] rounded-md border border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-400"
+                              className="px-2 py-1 text-xs bg-white dark:bg-white/8 rounded-md border border-slate-200 dark:border-white/8 text-slate-600 dark:text-slate-400"
                             >
                               {feature}
                             </span>
@@ -347,7 +347,7 @@ export function Support() {
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                         selectedCategory === category.id
                           ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
-                          : "bg-slate-100 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.08]"
+                          : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                       }`}
                     >
                       {category.label}
@@ -361,7 +361,7 @@ export function Support() {
                   {filteredFAQ.map((item, index) => (
                     <div
                       key={index}
-                      className="bg-slate-50 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.08] transition-all duration-300"
+                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300"
                     >
                       <h4 className="font-semibold text-slate-900 dark:text-white mb-3">
                         {item.question}
@@ -388,7 +388,7 @@ export function Support() {
             {activeTab === 'chat' && (
               <div className="h-96 flex flex-col">
                 {/* Chat Header */}
-                <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/[0.08] rounded-lg">
+                <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/8 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-sm">💬</span>
@@ -407,7 +407,7 @@ export function Support() {
                 </div>
 
                 {chatOpen ? (
-                  <div className="flex-1 flex flex-col bg-slate-50 dark:bg-white/[0.03] rounded-lg border border-slate-200 dark:border-white/[0.06]">
+                  <div className="flex-1 flex flex-col bg-slate-50 dark:bg-white/3 rounded-lg border border-slate-200 dark:border-white/6">
                     {/* Messages */}
                     <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                       {chatMessages.map((message) => (
@@ -418,7 +418,7 @@ export function Support() {
                           <div className={`max-w-xs px-4 py-2 rounded-lg ${
                             message.type === 'user'
                               ? 'bg-indigo-600 text-white'
-                              : 'bg-white dark:bg-white/[0.08] text-slate-900 dark:text-white border border-slate-200 dark:border-white/[0.08]'
+                              : 'bg-white dark:bg-white/8 text-slate-900 dark:text-white border border-slate-200 dark:border-white/8'
                           }`}>
                             <p className="text-sm">{message.message}</p>
                             <p className="text-xs opacity-75 mt-1">{message.time}</p>
@@ -428,7 +428,7 @@ export function Support() {
                     </div>
 
                     {/* Input */}
-                    <div className="p-4 border-t border-slate-200 dark:border-white/[0.06]">
+                    <div className="p-4 border-t border-slate-200 dark:border-white/6">
                       <div className="flex gap-2">
                         <input
                           type="text"
@@ -436,7 +436,7 @@ export function Support() {
                           onChange={(e) => setInputMessage(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                           placeholder="Type your message..."
-                          className="flex-1 px-3 py-2 bg-white dark:bg-white/[0.08] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                          className="flex-1 px-3 py-2 bg-white dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                         />
                         <Button
                           onClick={sendMessage}
@@ -484,7 +484,7 @@ export function Support() {
               <Button className="bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 Contact Support
               </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
                 View Documentation
               </Button>
             </div>

@@ -107,7 +107,7 @@ export function FavoriteButton({
 						'absolute inset-0 rounded-full transition-all duration-300',
 						isFav
 							? 'bg-linear-to-r from-yellow-400/20 to-orange-500/20 dark:from-yellow-400/30 dark:to-orange-500/30'
-							: 'bg-linear-to-r from-gray-400/10 to-gray-500/10 dark:from-white/[0.04] dark:to-white/[0.06]',
+							: 'bg-linear-to-r from-gray-400/10 to-gray-500/10 dark:from-white/4 dark:to-white/6',
 						isHovered && isFav && 'scale-110 opacity-100',
 						isHovered && !isFav && 'scale-105 opacity-80'
 					)}
@@ -155,7 +155,7 @@ export function FavoriteButton({
 			{variant === 'heart' && (
 				<div
 					className={cn(
-						'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-white/[0.05] rounded-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10',
+						'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-white/5 rounded-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10',
 						'after:absolute after:top-full after:left-1/2 after:transform after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-gray-900 dark:after:border-t-gray-800'
 					)}
 				>

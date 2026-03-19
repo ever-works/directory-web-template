@@ -79,7 +79,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
                 <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white mb-2">
                   Show error details
                 </summary>
-                <div className="bg-gray-100 dark:bg-white/[0.05] rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40">
+                <div className="bg-gray-100 dark:bg-white/5 rounded-lg p-4 text-sm font-mono text-gray-800 dark:text-gray-200 overflow-auto max-h-40">
                   <div className="mb-2">
                     <strong>Error:</strong> {this.state.error.message}
                   </div>

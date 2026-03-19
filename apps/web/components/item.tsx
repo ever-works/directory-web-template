@@ -56,7 +56,7 @@ const Item = memo(function Item(props: ItemProps) {
 
 	const cardClassName = cn(
 		'group relative rounded-sm overflow-hidden border-0 transition-all duration-200',
-		'bg-white dark:bg-white/[0.03]',
+		'bg-white dark:bg-white/3',
 		'shadow-sm hover:shadow-md dark:shadow-none',
 		'ring-1 ring-black/[0.06] dark:ring-white/[0.12] hover:ring-black/[0.10] dark:hover:ring-white/[0.10]',
 		isGridLayout ? 'h-[300px] flex flex-col' : 'h-full flex flex-col'
@@ -82,7 +82,7 @@ const Item = memo(function Item(props: ItemProps) {
 					{/* Top row: icon + name */}
 				<div className="flex items-start gap-3 min-w-0 overflow-hidden">
 						{/* Icon */}
-						<div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/[0.05]">
+						<div className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-white/5">
 							{shouldShowFallbackIcon ? (
 								<FiFolder className="w-5 h-5 text-gray-400 dark:text-gray-500" />
 							) : (
@@ -223,10 +223,10 @@ const CategoryFilterButton = memo(function CategoryFilterButton({ category }: { 
 			data-category-filter
 			className={cn(
 				'text-xs font-medium px-2.5 py-1 rounded-full capitalize transition-colors duration-150',
-				'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-gray-400',
-			'hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/[0.08] dark:hover:text-white',
+				'bg-gray-100 dark:bg-white/6 text-gray-600 dark:text-gray-400',
+			'hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-white/8 dark:hover:text-white',
 			isActive &&
-				'bg-gray-200 text-gray-900 dark:bg-white/[0.08] dark:text-white'
+				'bg-gray-200 text-gray-900 dark:bg-white/8 dark:text-white'
 			)}
 			onClick={(e) => {
 				e.preventDefault();

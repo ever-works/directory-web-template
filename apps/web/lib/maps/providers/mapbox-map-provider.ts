@@ -368,7 +368,7 @@ class MapboxAutocompleteInstance implements IAutocompleteInstance {
 		// Create dropdown container
 		this.dropdown = document.createElement('div');
 		this.dropdown.className =
-			'absolute z-50 w-full mt-1 bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.06] rounded-lg shadow-lg max-h-60 overflow-auto hidden';
+			'absolute z-50 w-full mt-1 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-lg shadow-lg max-h-60 overflow-auto hidden';
 		this.input.parentElement?.appendChild(this.dropdown);
 
 		// Make parent relative if not already
@@ -453,7 +453,7 @@ class MapboxAutocompleteInstance implements IAutocompleteInstance {
 			const item = document.createElement('button');
 			item.type = 'button';
 			item.className =
-				'w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-white/[0.06] text-sm';
+				'w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-white/6 text-sm';
 
 			const mainText = feature.text;
 			const secondaryText = feature.context?.map((c) => c.text).join(', ') || '';

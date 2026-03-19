@@ -98,7 +98,7 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 	};
 
 	return (
-		<div className="bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.06] rounded-lg p-4 shadow-xs hover:shadow-md transition-all duration-200">
+		<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-lg p-4 shadow-xs hover:shadow-md transition-all duration-200">
 			{/* Header */}
 			<div className="flex justify-between items-start mb-3">
 				<div className="flex-1">
@@ -106,7 +106,7 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 						{subscription.planName}
 					</h3>
 					<span
-						className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border border-slate-200 dark:border-white/[0.08]`}
+						className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border border-slate-200 dark:border-white/8`}
 					>
 						<StatusIcon className="w-3.5 h-3.5" />
 						{statusConfig.label}
@@ -125,7 +125,7 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 
 			{/* Key Info */}
 			<div className="grid grid-cols-2 gap-3 mb-3">
-				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.08]">
+				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/8">
 					<div className="w-7 h-7 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center">
 						<Calendar className="w-3.5 h-3.5 text-white" />
 					</div>
@@ -134,7 +134,7 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 					</div>
 				</div>
 
-				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/[0.04] rounded-lg border border-slate-200 dark:border-white/[0.08]">
+				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/8">
 					<div className="w-7 h-7 bg-emerald-500 dark:bg-emerald-600 rounded-lg flex items-center justify-center">
 						<Clock className="w-3.5 h-3.5 text-white" />
 					</div>
@@ -148,9 +148,9 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 			</div>
 
 			{/* Footer */}
-			<div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-white/[0.06]">
+			<div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-white/6">
 				<div className="flex items-center gap-2">
-					<div className="w-6 h-6 bg-slate-500 dark:bg-white/[0.1] rounded-lg flex items-center justify-center">
+					<div className="w-6 h-6 bg-slate-500 dark:bg-white/1 rounded-lg flex items-center justify-center">
 						<CreditCard className="w-3 h-3 text-white" />
 					</div>
 					<span className="text-xs text-slate-500 dark:text-slate-400 font-medium">

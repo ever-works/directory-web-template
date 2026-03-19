@@ -41,7 +41,7 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 				{/* Header */}
 				<div className="text-center mb-12 -mt-[80px] animate-fade-in-up">
 					<div className="flex items-center justify-center mb-6">
-						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-white/[0.06] py-2 px-4 rounded-full gap-2 text-sm font-medium">
+						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-white/6 py-2 px-4 rounded-full gap-2 text-sm font-medium">
 							<div className="w-2 h-2 bg-theme-primary-500 rounded-full animate-pulse" />
 							{t('BADGE_TEXT')}
 						</div>
@@ -62,7 +62,7 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 					</p>
 
 					{/* Trust Indicators */}
-					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md">
+					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-white/4 backdrop-blur-md">
 						<div className="flex items-center gap-2 px-4 py-2">
 							<div className="w-5 h-5 rounded-full bg-green-500/15 dark:bg-green-500/20 flex items-center justify-center">
 								<Shield className="w-3 h-3 text-green-600 dark:text-green-400" />
@@ -71,7 +71,7 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 								{t('TRUST_SECURE')}
 							</span>
 						</div>
-						<div className="w-px h-5 bg-gray-200/80 dark:bg-white/[0.08] rounded-full" />
+						<div className="w-px h-5 bg-gray-200/80 dark:bg-white/8 rounded-full" />
 						<div className="flex items-center gap-2 px-4 py-2">
 							<div className="w-5 h-5 rounded-full bg-purple-500/15 dark:bg-purple-500/20 flex items-center justify-center">
 								<Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
@@ -85,10 +85,10 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 
 				{/* Benefits */}
 				<div className="mb-16 grid gap-6 sm:grid-cols-3 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/[0.05] transition-all duration-300">
+					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/6 bg-white/80 dark:bg-white/3 backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/5 transition-all duration-300">
 						<div className="absolute opacity-70 dark:opacity-100 -top-6 -left-6 w-24 h-24 rounded-full bg-linear-to-br from-theme-primary-500/10 via-purple-500/5 to-transparent blur-xl pointer-events-none" />
 						<div className="relative flex items-start gap-4">
-							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/[0.06] shadow-sm">
+							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/6 shadow-sm">
 								<Globe className="h-6 w-6 text-theme-primary-500 dark:text-theme-primary-400" />
 							</div>
 							<div>
@@ -102,10 +102,10 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 						</div>
 					</div>
 
-					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/[0.05] transition-all duration-300">
+					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/6 bg-white/80 dark:bg-white/3 backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/5 transition-all duration-300">
 						<div className="absolute opacity-70 dark:opacity-100 -top-6 -left-6 w-24 h-24 rounded-full bg-linear-to-br from-purple-500/10 via-theme-primary-500/5 to-transparent blur-xl pointer-events-none" />
 						<div className="relative flex items-start gap-4">
-							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/[0.06] shadow-sm">
+							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/6 shadow-sm">
 								<TrendingUp className="h-6 w-6 text-theme-primary-500 dark:text-theme-primary-400" />
 							</div>
 							<div>
@@ -119,10 +119,10 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 						</div>
 					</div>
 
-					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/[0.06] bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/[0.05] transition-all duration-300">
+					<div className="group relative overflow-hidden rounded-xl border border-gray-200/80 dark:border-white/6 bg-white/80 dark:bg-white/3 backdrop-blur-xs p-6 hover:bg-white/70 dark:hover:bg-white/5 transition-all duration-300">
 						<div className="absolute opacity-70 dark:opacity-100 -top-6 -left-6 w-24 h-24 rounded-full bg-linear-to-br from-theme-primary-500/10 via-purple-500/5 to-transparent blur-xl pointer-events-none" />
 						<div className="relative flex items-start gap-4">
-							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/[0.06] shadow-sm">
+							<div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-white/6 shadow-sm">
 								<BadgeCheck className="h-6 w-6 text-theme-primary-500 dark:text-theme-primary-400" />
 							</div>
 							<div>
@@ -163,8 +163,8 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 						{userItems.length > 0 ? (
 							<div className="relative mx-auto max-w-2xl">
 								<div className="absolute dark:opacity-65 -top-28 inset-0 -z-10 rounded-full bg-linear-to-r from-theme-primary-500/20 via-purple-500/20 to-theme-primary-500/20 dark:from-theme-primary-500/25 dark:via-purple-500/25 dark:to-theme-primary-500/25 blur-3xl translate-y-4" />
-								<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-white/[0.06] bg-white dark:bg-white/[0.02]">
-									<div className="rounded-xl border border-theme-primary-200/70 dark:border-white/[0.06] bg-white dark:bg-white/[0.02]">
+								<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-white/6 bg-white dark:bg-white/[0.02]">
+									<div className="rounded-xl border border-theme-primary-200/70 dark:border-white/6 bg-white dark:bg-white/[0.02]">
 										<SponsorForm items={userItems} locale={locale} pricingConfig={pricingConfig} />
 									</div>
 								</div>
@@ -172,8 +172,8 @@ export default async function SponsorPage({ params }: { params: Promise<{ locale
 						) : (
 							<div className="relative mx-auto max-w-md text-center">
 								<div className="absolute dark:opacity-65 -top-28 inset-0 -z-10 rounded-full bg-linear-to-r from-theme-primary-500/20 via-purple-500/20 to-theme-primary-500/20 dark:from-theme-primary-500/25 dark:via-purple-500/25 dark:to-theme-primary-500/25 blur-3xl translate-y-4" />
-								<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-white/[0.06] bg-white dark:bg-white/[0.02]">
-									<div className="rounded-xl border border-theme-primary-200/70 dark:border-white/[0.06] p-8 bg-white dark:bg-white/[0.02]">
+								<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-white/6 bg-white dark:bg-white/[0.02]">
+									<div className="rounded-xl border border-theme-primary-200/70 dark:border-white/6 p-8 bg-white dark:bg-white/[0.02]">
 										<div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-theme-primary-500 to-theme-primary-600">
 											<Megaphone className="h-8 w-8 text-white" />
 										</div>

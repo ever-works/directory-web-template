@@ -205,7 +205,7 @@ export function AdminCharts({
           {topItemsData.length > 0 ? (
             <div className="space-y-4">
               {topItemsData.slice(0, 10).map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-white/[0.05]">
+                <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-white/5">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
                       <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
@@ -256,7 +256,7 @@ export function AdminCharts({
           {recentActivityData.length > 0 ? (
             <div className="space-y-3">
               {recentActivityData.slice(0, 10).map((activity, index) => (
-                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-white/[0.05]">
+                <div key={index} className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 dark:bg-white/5">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {activity.description}

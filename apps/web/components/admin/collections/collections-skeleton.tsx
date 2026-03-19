@@ -14,16 +14,16 @@ export function CollectionsSkeleton({ itemCount = 7 }: { itemCount?: number }) {
 			</div>
 
 			{/* Collections Card Skeleton */}
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs" aria-hidden="true">
+			<Card className="border-0 shadow-lg bg-white/80 dark:bg-white/3 backdrop-blur-xs" aria-hidden="true">
 				<CardBody className="p-0">
 					{/* Card Header */}
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/[0.02] flex items-center justify-between">
 						<Skeleton className="h-6 w-32 rounded-lg" />
 						<Skeleton className="h-4 w-24 rounded-lg" />
 					</div>
 
 					{/* Collections List */}
-					<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
+					<div className="divide-y divide-gray-100 dark:divide-white/6">
 						{Array.from({ length: itemCount }, (_, i) => (
 							<div key={i} className="px-6 py-4">
 								<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

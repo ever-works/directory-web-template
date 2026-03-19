@@ -15,8 +15,8 @@ export const buttonStyles = {
  * Common container styles for filter components
  */
 export const containerStyles = {
-	base: 'bg-white/90 dark:bg-transparent rounded-xs border border-gray-200 dark:border-white/[0.06] overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300',
-	header: 'p-2 border-b border-gray-200/50 dark:border-white/[0.06]',
+	base: 'bg-white/90 dark:bg-transparent rounded-xs border border-gray-200 dark:border-white/6 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300',
+	header: 'p-2 border-b border-gray-200/50 dark:border-white/6',
 	content: 'p-2'
 } as const;
 
@@ -35,9 +35,9 @@ export const textStyles = {
 export const filterItemStyles = {
 	base: 'inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium border',
 	primary:
-		'bg-theme-primary-100 dark:bg-white/[0.05] text-theme-primary-700 dark:text-theme-primary-400 border-theme-primary-200 dark:border-white/[0.06]',
-	blue: 'bg-blue-100 dark:bg-white/[0.05] text-blue-700 dark:text-blue-400 border-blue-200 dark:border-white/[0.06]',
-	green: 'bg-green-100 dark:bg-white/[0.05] text-green-700 dark:text-green-400 border-green-200 dark:border-white/[0.06]',
+		'bg-theme-primary-100 dark:bg-white/5 text-theme-primary-700 dark:text-theme-primary-400 border-theme-primary-200 dark:border-white/6',
+	blue: 'bg-blue-100 dark:bg-white/5 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-white/6',
+	green: 'bg-green-100 dark:bg-white/5 text-green-700 dark:text-green-400 border-green-200 dark:border-white/6',
 	removeButton: {
 		primary:
 			'ml-2 text-theme-primary-600/70 dark:text-theme-primary-400/70 hover:text-theme-primary-800 dark:hover:text-theme-primary-300',
@@ -64,7 +64,7 @@ export function getButtonVariantStyles(isActive: boolean, additionalClasses?: st
 export function getContainerStyles(isSticky?: boolean, additionalClasses?: string) {
 	return cn(
 		containerStyles.base,
-		isSticky && 'bg-white/95 dark:bg-white/[0.05] shadow-md backdrop-blur-xs',
+		isSticky && 'bg-white/95 dark:bg-white/5 shadow-md backdrop-blur-xs',
 		additionalClasses
 	);
 }

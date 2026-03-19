@@ -17,17 +17,17 @@ interface EngagementChartProps {
 export function EngagementChart({ data, isLoading = false }: EngagementChartProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-4 w-1/2"></div>
-          <div className="h-[250px] bg-gray-200 dark:bg-white/[0.08] rounded-sm"></div>
+          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/2"></div>
+          <div className="h-[250px] bg-gray-200 dark:bg-white/8 rounded-sm"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6">
+    <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
       <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
         Community Engagement
       </h3>

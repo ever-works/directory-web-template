@@ -44,7 +44,7 @@ const stepIndicatorDone = cn(
 );
 
 const stepIndicatorPending = cn(
-	"bg-gray-200 dark:bg-white/[0.08] text-gray-500 dark:text-gray-400"
+	"bg-gray-200 dark:bg-white/8 text-gray-500 dark:text-gray-400"
 );
 
 export function ClientImportModal({ isOpen, onClose }: ClientImportModalProps) {
@@ -124,7 +124,7 @@ export function ClientImportModal({ isOpen, onClose }: ClientImportModalProps) {
 			isDismissable={step !== "results" || !isImporting}
 		>
 			{/* Step Indicator */}
-			<div className="flex items-center justify-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-white/[0.06]">
+			<div className="flex items-center justify-center gap-2 px-6 py-3 border-b border-gray-200 dark:border-white/6">
 				{STEP_KEYS.map((s, i) => (
 					<div key={s.key} className="flex items-center gap-2">
 						<div
@@ -150,7 +150,7 @@ export function ClientImportModal({ isOpen, onClose }: ClientImportModalProps) {
 							{t(s.translationKey)}
 						</span>
 						{i < STEP_KEYS.length - 1 && (
-							<div className="w-8 h-px bg-gray-300 dark:bg-white/[0.1] mx-1" />
+							<div className="w-8 h-px bg-gray-300 dark:bg-white/1 mx-1" />
 						)}
 					</div>
 				))}

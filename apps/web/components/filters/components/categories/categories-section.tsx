@@ -61,7 +61,7 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
         <div className="md:hidden">
           <Accordion
             variant="bordered"
-            className="shadow-xs bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] rounded-xl transition-colors duration-300"
+            className="shadow-xs bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-xl transition-colors duration-300"
           >
             <AccordionItem
               key="1"
@@ -71,7 +71,7 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
                   <span className="font-bold text-gray-800 dark:text-gray-200 transition-colors duration-300">
                     {t('CATEGORIES')}
                   </span>
-                  <span className="bg-theme-primary-100 dark:bg-white/[0.05] text-theme-primary-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-bold border border-theme-primary-200 dark:border-white/[0.06]">
+                  <span className="bg-theme-primary-100 dark:bg-white/5 text-theme-primary-700 dark:text-gray-300 px-2 py-1 rounded-full text-xs font-bold border border-theme-primary-200 dark:border-white/6">
                     {total}
                   </span>
                 </div>

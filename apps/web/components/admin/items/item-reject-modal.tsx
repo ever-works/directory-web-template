@@ -15,10 +15,10 @@ interface ItemRejectModalProps {
 }
 
 const MODAL_OVERLAY = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-md bg-white dark:bg-white/[0.03] rounded-xl shadow-xl overflow-hidden';
+const MODAL_CONTAINER = 'w-full max-w-md bg-white dark:bg-white/3 rounded-xl shadow-xl overflow-hidden';
 const MODAL_HEADER = 'bg-gradient-to-r from-red-500 to-red-600 px-6 py-4';
 const MODAL_BODY = 'p-6';
-const ITEM_PREVIEW = 'p-3 bg-gray-100 dark:bg-white/[0.05] rounded-lg';
+const ITEM_PREVIEW = 'p-3 bg-gray-100 dark:bg-white/5 rounded-lg';
 
 /**
  * Item Reject Modal Component

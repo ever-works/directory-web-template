@@ -93,7 +93,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center rounded-md border border-gray-200 dark:border-white/[0.06] gap-1.5 text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${compact ? "px-1.5 py-1" : "px-1.5 py-1"
+        className={`flex items-center rounded-md border border-gray-200 dark:border-white/6 gap-1.5 text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${compact ? "px-1.5 py-1" : "px-1.5 py-1"
           }`}
         aria-label="Select language"
         aria-expanded={isOpen}
@@ -139,7 +139,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
                     type="button"
                     className={`flex items-center justify-between cursor-pointer gap-1.5 px-2 py-1 text-xs rounded-lg transition-all backdrop-blur-md duration-200 ${isActive
                         ? "bg-theme-primary-100 dark:bg-theme-primary text-theme-primary-800 dark:text-white shadow-md"
-                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
+                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/6 hover:text-gray-900 dark:hover:text-white"
                       } ${isPending ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02]"}`}
                     onClick={() => changeLanguage(locale)}
                     disabled={isPending || isActive}

@@ -48,7 +48,7 @@ export default function NotFound() {
         </div>
 
         {/* Search Suggestion */}
-        <div className="mt-12 p-4 bg-white/50 dark:bg-white/[0.03] rounded-lg border border-gray-200/50 dark:border-white/[0.04]">
+        <div className="mt-12 p-4 bg-white/50 dark:bg-white/3 rounded-lg border border-gray-200/50 dark:border-white/4">
           <div className="flex items-center gap-3 mb-3">
             <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

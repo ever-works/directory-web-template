@@ -56,7 +56,7 @@ export function SubmissionList({
   if (items.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-white/[0.05] rounded-full mb-4">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full mb-4">
           <FiFileText className="w-8 h-8 text-gray-400" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">

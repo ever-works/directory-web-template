@@ -28,7 +28,7 @@ export function StepIndicator({
     <div className={cn("w-full", className)}>
       {/* Progress Bar */}
       <div className="relative mb-8">
-        <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200 dark:bg-white/[0.08]">
+        <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200 dark:bg-white/8">
           <div
             className="h-full bg-blue-600 transition-all duration-300 ease-in-out"
             style={{
@@ -70,8 +70,8 @@ export function StepIndicator({
                     "w-10 h-10 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-all duration-200",
                     {
                       "bg-blue-600 border-blue-600 text-white": isCompleted,
-                      "bg-white dark:bg-white/[0.05] border-blue-600 text-blue-600": isCurrent && !isCompleted,
-                      "bg-white dark:bg-white/[0.05] border-gray-300 dark:border-white/[0.08] text-gray-400 dark:text-gray-500": !isCurrent && !isCompleted,
+                      "bg-white dark:bg-white/5 border-blue-600 text-blue-600": isCurrent && !isCompleted,
+                      "bg-white dark:bg-white/5 border-gray-300 dark:border-white/8 text-gray-400 dark:text-gray-500": !isCurrent && !isCompleted,
                       "group-hover:border-blue-500 group-hover:text-blue-500": isClickable && !isCompleted && !isCurrent
                     }
                   )}

@@ -16,7 +16,7 @@ interface SettingsCardProps {
 function SettingsCard({ title, description, icon, href }: SettingsCardProps) {
 	return (
 		<Link href={href} className="block group">
-			<Card className="h-full hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 hover:scale-[1.02] cursor-pointer group-hover:border-theme-primary-300 dark:group-hover:border-theme-primary-600 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
+			<Card className="h-full hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/6 transition-all duration-300 hover:scale-[1.02] cursor-pointer group-hover:border-theme-primary-300 dark:group-hover:border-theme-primary-600 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
 				<CardContent className="p-6">
 					<div className="flex items-start justify-between">
 						<div className="flex items-start gap-4 flex-1">

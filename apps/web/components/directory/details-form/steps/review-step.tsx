@@ -19,7 +19,7 @@ function ReviewField({
 	children: React.ReactNode;
 }) {
 	return (
-		<div className="flex gap-4 p-4 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/[0.06] transition-colors">
+		<div className="flex gap-4 p-4 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/6 transition-colors">
 			<div className="flex-shrink-0 w-9 h-9 rounded-lg bg-theme-primary-500/10 dark:bg-theme-primary-500/20 flex items-center justify-center">
 				<Icon className="w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400" />
 			</div>
@@ -190,7 +190,7 @@ export function ReviewStep({ formData, t }: ReviewStepProps) {
 											href={l.url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="px-2 py-0.5 text-xs font-medium rounded-full border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.05] text-theme-primary-600 dark:text-theme-primary-400 hover:border-theme-primary-400 transition-colors"
+											className="px-2 py-0.5 text-xs font-medium rounded-full border border-gray-200 dark:border-white/8 bg-white dark:bg-white/5 text-theme-primary-600 dark:text-theme-primary-400 hover:border-theme-primary-400 transition-colors"
 										>
 											{l.label || l.url}
 										</a>

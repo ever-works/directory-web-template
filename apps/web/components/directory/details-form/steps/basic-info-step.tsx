@@ -212,7 +212,7 @@ export function BasicInfoStep({
 									type="button"
 									role="combobox"
 									className={cn(
-										'group relative inline-flex w-full items-center justify-between rounded-lg border bg-theme-primary-50 px-3 py-2 text-md font-medium text-theme-primary-900 transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-white dark:focus:ring-theme-primary-400',
+										'group relative inline-flex w-full items-center justify-between rounded-lg border bg-theme-primary-50 px-3 py-2 text-md font-medium text-theme-primary-900 transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:border-white/8 dark:bg-white/4 dark:text-white dark:focus:ring-theme-primary-400',
 										categoryMenuOpen && 'ring-1 ring-theme-primary-500 dark:ring-theme-primary-400',
 										focusedField === 'categories' && 'border-theme-primary-500 dark:border-theme-primary-400'
 									)}
@@ -280,7 +280,7 @@ export function BasicInfoStep({
 									<div
 										id={categoryDropdownId}
 										className={cn(
-											'absolute z-50 w-full bg-white dark:bg-[#141414] border border-theme-primary-200 dark:border-white/[0.08] rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col',
+											'absolute z-50 w-full bg-white dark:bg-[#141414] border border-theme-primary-200 dark:border-white/8 rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col',
 											categoryDropdownDirection === 'down' ? 'mt-2' : 'bottom-full mb-2'
 										)}
 										role="listbox"
@@ -292,7 +292,7 @@ export function BasicInfoStep({
 													value={categorySearch}
 													onChange={(e) => setCategorySearch(e.target.value)}
 													placeholder={t('directory.DETAILS_FORM.SEARCH_CATEGORIES_PLACEHOLDER')}
-													className="w-full pl-10 pr-3 py-2 border-b border-theme-primary-200 dark:border-white/[0.08] bg-theme-primary-50/50 dark:bg-white/[0.04] text-md focus:outline-none focus:ring-0 focus:border-theme-primary-200 dark:focus:border-white/[0.08] dark:text-gray-300 placeholder-theme-primary-600 dark:placeholder-gray-500"
+													className="w-full pl-10 pr-3 py-2 border-b border-theme-primary-200 dark:border-white/8 bg-theme-primary-50/50 dark:bg-white/4 text-md focus:outline-none focus:ring-0 focus:border-theme-primary-200 dark:focus:border-white/8 dark:text-gray-300 placeholder-theme-primary-600 dark:placeholder-gray-500"
 												/>
 												<span className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-primary-400 dark:text-gray-500 pointer-events-none">
 													<Search className="w-4 h-4" />
@@ -311,7 +311,7 @@ export function BasicInfoStep({
 													<div
 														key={category.id}
 														className={cn(
-															'flex cursor-pointer items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-gray-900 dark:text-white',
+															'flex cursor-pointer items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-white/4 text-gray-900 dark:text-white',
 															selectedCategories.includes(category.id) && 'bg-theme-primary-600 dark:bg-theme-primary-600 text-white'
 														)}
 														role="option"

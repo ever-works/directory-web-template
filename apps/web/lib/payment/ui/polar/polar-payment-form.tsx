@@ -17,18 +17,18 @@ const PolarSkeleton = () => (
 	<div className="w-full h-full p-8 space-y-8 animate-pulse">
 		<div className="flex items-center justify-between">
 			<div className="space-y-2">
-				<div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
-				<div className="h-6 w-48 bg-gray-300 dark:bg-white/[0.08] rounded-lg" />
+				<div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded-lg" />
+				<div className="h-6 w-48 bg-gray-300 dark:bg-white/8 rounded-lg" />
 			</div>
-			<div className="h-10 w-10 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
+			<div className="h-10 w-10 bg-gray-200 dark:bg-white/8 rounded-full" />
 		</div>
 		<div className="space-y-4">
-			<div className="h-12 w-full bg-gray-200 dark:bg-white/[0.08] rounded-xl" />
+			<div className="h-12 w-full bg-gray-200 dark:bg-white/8 rounded-xl" />
 			<div className="grid grid-cols-2 gap-4">
-				<div className="h-12 w-full bg-gray-200 dark:bg-white/[0.08] rounded-xl" />
-				<div className="h-12 w-full bg-gray-200 dark:bg-white/[0.08] rounded-xl" />
+				<div className="h-12 w-full bg-gray-200 dark:bg-white/8 rounded-xl" />
+				<div className="h-12 w-full bg-gray-200 dark:bg-white/8 rounded-xl" />
 			</div>
-			<div className="h-12 w-full bg-gray-200 dark:bg-white/[0.08] rounded-xl" />
+			<div className="h-12 w-full bg-gray-200 dark:bg-white/8 rounded-xl" />
 		</div>
 		<div className="pt-4">
 			<div className="h-14 w-full bg-blue-500/20 dark:bg-blue-500/10 rounded-xl border border-blue-500/20" />
@@ -70,7 +70,7 @@ export function PolarPaymentForm({ checkoutUrl, onSuccess, onError, theme = 'lig
 	}
 
 	return (
-		<div className="relative w-full h-[650px] overflow-hidden rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200/50 dark:border-white/[0.04] shadow-2xl transition-all duration-500">
+		<div className="relative w-full h-[650px] overflow-hidden rounded-2xl bg-white dark:bg-[#0a0a0a] border border-gray-200/50 dark:border-white/4 shadow-2xl transition-all duration-500">
 			<AnimatePresence mode="wait">
 				{isLoading && (
 					<motion.div

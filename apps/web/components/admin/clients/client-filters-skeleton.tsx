@@ -8,7 +8,7 @@ export function ClientFiltersSkeleton() {
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={`stats-card-${index}`}
-            className="bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6"
+            className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6"
           >
             <div className="flex items-center justify-between">
               <div className="space-y-2">
@@ -26,7 +26,7 @@ export function ClientFiltersSkeleton() {
       </div>
 
       {/* Search and Filters Skeleton */}
-      <div className="bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
         <div className="space-y-4">
           {/* Search Bar */}
           <div className="relative">

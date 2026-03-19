@@ -138,7 +138,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 			</div>
 
 			{localItems.length === 0 ? (
-				<div className="text-center py-8 px-4 bg-gray-50 dark:bg-white/[0.03] rounded-lg border border-dashed border-gray-300 dark:border-white/[0.06]">
+				<div className="text-center py-8 px-4 bg-gray-50 dark:bg-white/3 rounded-lg border border-dashed border-gray-300 dark:border-white/6">
 					<p className="text-sm text-gray-500 dark:text-gray-400">
 						No custom links configured. Click "Add Link" to get started.
 					</p>
@@ -152,7 +152,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 						return (
 							<div
 								key={item.id}
-								className="p-4 bg-white dark:bg-white/[0.05] rounded-lg border border-gray-200 dark:border-white/[0.06] space-y-3"
+								className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/6 space-y-3"
 							>
 								<div className="flex items-start gap-3">
 									{/* Decorative drag handle indicator */}

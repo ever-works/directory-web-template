@@ -93,7 +93,7 @@ export const TagItem = memo(function TagItem({ tag, isActive, href, showCount = 
               "ml-1.5 text-xs font-normal",
               isActive
                 ? "bg-white/20 text-white dark:bg-black/10 dark:text-[#0a0a0a] px-1 rounded-md"
-                : "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
+                : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
             )}
           >
             ({tag.count})

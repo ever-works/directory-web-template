@@ -165,7 +165,7 @@ export default function NewPasswordPageClient() {
       </div>
 
       {/* Main container with modern design */}
-      <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/20 dark:border-white/[0.04] shadow-2xl overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xl border border-white/20 dark:border-white/4 shadow-2xl overflow-hidden">
         <div className="flex flex-col lg:flex-row min-h-[600px]">
           {/* Illustration and branding side */}
           <div className="w-full lg:w-1/2 relative bg-linear-to-br from-theme-primary/5 via-theme-accent/5 to-theme-secondary/5 p-8 lg:p-12 flex flex-col justify-center">
@@ -389,7 +389,7 @@ export default function NewPasswordPageClient() {
                           placeholder={t("ENTER_NEW_PASSWORD")}
                           name="newPassword"
                           required
-                          className="pl-10 pr-12 w-full py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-white/[0.06] focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-sm shadow-xs hover:shadow-md focus:shadow-lg text-sm"
+                          className="pl-10 pr-12 w-full py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-white/6 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-sm shadow-xs hover:shadow-md focus:shadow-lg text-sm"
                         />
                         <button
                           type="button"
@@ -485,7 +485,7 @@ export default function NewPasswordPageClient() {
                           placeholder={t("CONFIRM_NEW_PASSWORD")}
                           name="confirmPassword"
                           required
-                          className="pl-10 pr-4 w-full py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100 border-gray-200 dark:border-white/[0.06] focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-sm shadow-xs hover:shadow-md focus:shadow-lg text-sm"
+                          className="pl-10 pr-4 w-full py-3 border-2 rounded-lg transition-all duration-200 bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 border-gray-200 dark:border-white/6 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/20 placeholder:text-gray-400 dark:placeholder:text-gray-500 placeholder:text-sm shadow-xs hover:shadow-md focus:shadow-lg text-sm"
                         />
                       </div>
                       {confirmPassword && password !== confirmPassword && (

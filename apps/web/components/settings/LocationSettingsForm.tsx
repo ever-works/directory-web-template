@@ -21,8 +21,8 @@ const PRIVACY_OPTIONS: Array<{ value: LocationPrivacy; labelKey: string; descrip
 
 const SELECT_CLASS = cn(
 	'w-full h-12 px-4 text-base rounded-lg outline-hidden',
-	'bg-white dark:bg-white/[0.05]',
-	'border-2 border-gray-200 dark:border-white/[0.06]',
+	'bg-white dark:bg-white/5',
+	'border-2 border-gray-200 dark:border-white/6',
 	'focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400',
 	'text-gray-900 dark:text-white',
 );
@@ -101,8 +101,8 @@ export function LocationSettingsForm() {
 	const hasLocation = pickerValue?.latitude != null && pickerValue?.longitude != null;
 
 	return (
-		<Card className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg max-w-3xl mx-auto">
-			<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/[0.06]">
+		<Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg max-w-3xl mx-auto">
+			<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/6">
 				<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 					<MapPin className="w-5 h-5 text-theme-primary-500" />
 					{t('DEFAULT_LOCATION')}

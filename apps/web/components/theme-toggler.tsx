@@ -78,7 +78,7 @@ export function ThemeToggler({ compact = false }: ThemeTogglerProps) {
 				onMouseLeave={hideTooltip}
 				onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
 				onBlur={hideTooltip}
-				className="relative inline-flex items-center justify-center h-9 w-9 rounded-lg transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-white/[0.06] text-gray-700 dark:text-gray-300"
+				className="relative inline-flex items-center justify-center h-9 w-9 rounded-lg transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-white/6 text-gray-700 dark:text-gray-300"
 				aria-label={tooltipText}
 			>
 				{theme === 'dark' ? (

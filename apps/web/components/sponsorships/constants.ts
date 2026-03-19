@@ -36,7 +36,7 @@ export const SPONSOR_STATUS_CONFIG: Record<SponsorAdStatus, StatusConfig> = {
 		labelKey: 'STATUS_ACTIVE',
 	},
 	expired: {
-		bg: 'bg-gray-100 dark:bg-white/[0.05]',
+		bg: 'bg-gray-100 dark:bg-white/5',
 		text: 'text-gray-700 dark:text-gray-400',
 		labelKey: 'STATUS_EXPIRED',
 	},
@@ -46,7 +46,7 @@ export const SPONSOR_STATUS_CONFIG: Record<SponsorAdStatus, StatusConfig> = {
 		labelKey: 'STATUS_REJECTED',
 	},
 	cancelled: {
-		bg: 'bg-gray-100 dark:bg-white/[0.05]',
+		bg: 'bg-gray-100 dark:bg-white/5',
 		text: 'text-gray-700 dark:text-gray-400',
 		labelKey: 'STATUS_CANCELLED',
 	},

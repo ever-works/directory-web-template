@@ -16,7 +16,7 @@ interface PermissionCheckboxProps {
 
 const checkboxContainerClasses = clsx(
   'group flex items-start space-x-3 p-3 rounded-lg',
-  'hover:bg-gray-50 dark:hover:bg-white/[0.03]',
+  'hover:bg-gray-50 dark:hover:bg-white/3',
   'transition-colors duration-200'
 );
 

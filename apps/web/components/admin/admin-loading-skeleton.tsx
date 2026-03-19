@@ -2,10 +2,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 // Design system constants
-const SHIMMER_STYLES = "animate-pulse bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-white/[0.06] dark:via-white/[0.04] dark:to-white/[0.06]";
-const STATS_CARD_STYLES = "bg-white dark:bg-white/[0.03] rounded-xl shadow-xs p-6 border border-gray-200 dark:border-white/[0.06]";
+const SHIMMER_STYLES = "animate-pulse bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-white/6 dark:via-white/4 dark:to-white/6";
+const STATS_CARD_STYLES = "bg-white dark:bg-white/3 rounded-xl shadow-xs p-6 border border-gray-200 dark:border-white/6";
 const SKELETON_CONTAINER_STYLES = "flex items-center space-x-2";
-const SKELETON_ICON_CONTAINER_STYLES = "p-2 bg-gray-200 dark:bg-white/[0.08] rounded-lg";
+const SKELETON_ICON_CONTAINER_STYLES = "p-2 bg-gray-200 dark:bg-white/8 rounded-lg";
 const SKELETON_CONTENT_STYLES = "flex-1";
 
 // Stats Card Skeleton
@@ -14,11 +14,11 @@ export function AdminStatsCardSkeleton() {
     <div role="status" aria-live="polite" aria-label="Loading" className={STATS_CARD_STYLES}>
       <div className={SKELETON_CONTAINER_STYLES}>
         <div className={`${SKELETON_ICON_CONTAINER_STYLES} ${SHIMMER_STYLES}`}>
-          <div className="h-5 w-5 bg-gray-300 dark:bg-white/[0.1] rounded-sm"></div>
+          <div className="h-5 w-5 bg-gray-300 dark:bg-white/1 rounded-sm"></div>
         </div>
         <div className={SKELETON_CONTENT_STYLES}>
-          <div className={`h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-2 ${SHIMMER_STYLES}`}></div>
-          <div className={`h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm ${SHIMMER_STYLES}`}></div>
+          <div className={`h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-2 ${SHIMMER_STYLES}`}></div>
+          <div className={`h-8 bg-gray-200 dark:bg-white/8 rounded-sm ${SHIMMER_STYLES}`}></div>
         </div>
       </div>
     </div>
@@ -86,7 +86,7 @@ export function AdminTableSkeleton({ rows = 5, columns = 3 }: { rows?: number; c
       <CardContent>
         <div className="space-y-3">
           {/* Header */}
-          <div className="flex space-x-4 pb-2 border-b border-gray-200 dark:border-white/[0.06]">
+          <div className="flex space-x-4 pb-2 border-b border-gray-200 dark:border-white/6">
             {Array.from({ length: columns }, (_, i) => (
               <Skeleton key={i} className="h-4 w-20" />
             ))}

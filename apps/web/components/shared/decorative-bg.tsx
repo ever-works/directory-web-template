@@ -11,7 +11,7 @@ type DecorativeBgProps = {
 export default function DecorativeBg({ className = '', reverse = false }: DecorativeBgProps) {
   // When reversed we rotate the whole decorative block so it mirrors vertically.
   // We also adjust the top margin to avoid pulling content unexpectedly.
-  const rootClasses = `overflow-hidden h-[30dvh] ${reverse ? '-mt-72' : '-mt-40'} -z-10 relative ${reverse ? 'rotate-180' : ''
+  const rootClasses = `overflow-hidden h-[30dvh] ${reverse ? '-mt-60' : '-mt-10'} -z-10 relative ${reverse ? 'rotate-180' : ''
     } ${className}`.trim();
 
   return (

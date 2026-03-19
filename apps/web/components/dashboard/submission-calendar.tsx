@@ -17,7 +17,7 @@ interface DayData {
 }
 
 function getIntensityClass(count: number, maxCount: number): string {
-	if (count === 0) return 'bg-gray-100 dark:bg-white/[0.05]';
+	if (count === 0) return 'bg-gray-100 dark:bg-white/5';
 	const ratio = count / Math.max(maxCount, 1);
 	if (ratio <= 0.25) return 'bg-green-200 dark:bg-green-900';
 	if (ratio <= 0.5) return 'bg-green-400 dark:bg-green-700';
@@ -102,8 +102,8 @@ export function SubmissionCalendar({ data, isLoading = false }: SubmissionCalend
 		return (
 			<div className={CARD_BASE_STYLES}>
 				<div className="animate-pulse">
-					<div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-4 w-1/3"></div>
-					<div className="h-32 bg-gray-200 dark:bg-white/[0.08] rounded-sm"></div>
+					<div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+					<div className="h-32 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
 				</div>
 			</div>
 		);
@@ -159,7 +159,7 @@ export function SubmissionCalendar({ data, isLoading = false }: SubmissionCalend
 			<div className="mt-4 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
 				<span>{t('LESS')}</span>
 				<div className="flex gap-0.5">
-					<div className="w-3 h-3 rounded-xs bg-gray-100 dark:bg-white/[0.05]" />
+					<div className="w-3 h-3 rounded-xs bg-gray-100 dark:bg-white/5" />
 					<div className="w-3 h-3 rounded-xs bg-green-200 dark:bg-green-900" />
 					<div className="w-3 h-3 rounded-xs bg-green-400 dark:bg-green-700" />
 					<div className="w-3 h-3 rounded-xs bg-green-500 dark:bg-green-600" />

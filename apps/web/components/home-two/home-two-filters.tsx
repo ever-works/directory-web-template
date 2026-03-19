@@ -157,7 +157,7 @@ export function HomeTwoFilters({
       />
 
       {/* New Row: Items count and Toggle button */}
-      <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-white/[0.06]">
+      <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-white/6">
         {/* Left: Showing X of Y items (reduced size) */}
         <div className="text-xs text-gray-600 dark:text-gray-400">
           {filteredCount !== undefined && totalCount !== undefined ? (

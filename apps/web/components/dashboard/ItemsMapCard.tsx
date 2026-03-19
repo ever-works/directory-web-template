@@ -29,13 +29,13 @@ async function fetchClientItemCoordinates(): Promise<ClientItemCoords[]> {
 
 const MAP_HEIGHT = 280;
 const SKELETON_CONTAINER_STYLES = 'animate-pulse';
-const SKELETON_TITLE_STYLES = 'h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-4 w-1/3';
-const SKELETON_MAP_STYLES = 'h-[280px] bg-gray-200 dark:bg-white/[0.08] rounded-sm';
+const SKELETON_TITLE_STYLES = 'h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3';
+const SKELETON_MAP_STYLES = 'h-[280px] bg-gray-200 dark:bg-white/8 rounded-sm';
 const HEADER_STYLES = 'flex items-center justify-between mb-4';
 const BADGE_STYLES =
 	'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
 const EMPTY_CONTAINER_STYLES =
-	'flex items-center justify-center bg-gray-50 dark:bg-white/[0.04] rounded-lg';
+	'flex items-center justify-center bg-gray-50 dark:bg-white/4 rounded-lg';
 
 export function ItemsMapCard() {
 	const t = useTranslations('client.dashboard.ITEMS_MAP');

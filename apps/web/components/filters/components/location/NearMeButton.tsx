@@ -23,8 +23,8 @@ const ACTIVE_CLASS = cn(
 
 const INACTIVE_CLASS = cn(
 	'bg-white text-gray-700 border-gray-300',
-	'dark:bg-white/[0.05] dark:text-gray-300 dark:border-white/[0.08]',
-	'hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+	'dark:bg-white/5 dark:text-gray-300 dark:border-white/8',
+	'hover:bg-gray-50 dark:hover:bg-white/6',
 );
 
 export function NearMeButton() {

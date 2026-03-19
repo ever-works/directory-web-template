@@ -62,8 +62,8 @@ export function HeroLanding() {
       <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
         <PageContainer className="flex items-center justify-center min-h-screen">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm w-96 mb-4"></div>
-            <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm w-64"></div>
+            <div className="h-8 bg-gray-200 dark:bg-white/8 rounded-sm w-96 mb-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm w-64"></div>
           </div>
         </PageContainer>
       </div>
@@ -84,7 +84,7 @@ export function HeroLanding() {
           {/* Left Column - Content */}
           <div className="space-y-8">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs border border-slate-200 dark:border-white/[0.06] rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 transition-all duration-700 opacity-100 translate-y-0">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-white/3 backdrop-blur-xs border border-slate-200 dark:border-white/6 rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 transition-all duration-700 opacity-100 translate-y-0">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
               {t('HERO_BADGE_TEXT')}
         </div>
@@ -110,8 +110,8 @@ export function HeroLanding() {
                   key={index}
                   className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-500 cursor-pointer ${
                     activeFeature === index
-                      ? 'bg-white/80 dark:bg-white/[0.03] shadow-lg scale-105'
-                      : 'bg-white/40 dark:bg-white/[0.03] hover:bg-white/60 dark:hover:bg-white/[0.04]'
+                      ? 'bg-white/80 dark:bg-white/3 shadow-lg scale-105'
+                      : 'bg-white/40 dark:bg-white/3 hover:bg-white/60 dark:hover:bg-white/4'
                   }`}
                   onClick={() => setActiveFeature(index)}
                 >
@@ -145,14 +145,14 @@ export function HeroLanding() {
               <Button
                 variant="outline"
                 size="lg"
-                className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-8 py-4 rounded-xl transition-all duration-300"
+                className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-4 rounded-xl transition-all duration-300"
               >
                 {t('HERO_CTA_SECONDARY')}
               </Button>
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200 dark:border-white/[0.06] transition-all duration-700 delay-800 opacity-100 translate-y-0">
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-200 dark:border-white/6 transition-all duration-700 delay-800 opacity-100 translate-y-0">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="text-2xl font-bold text-slate-900 dark:text-white">
@@ -169,7 +169,7 @@ export function HeroLanding() {
           {/* Right Column - Visual Demo */}
           <div className="relative transition-all duration-700 delay-1000 opacity-100 translate-y-0">
             {/* Main Demo Container */}
-            <div className="relative bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-white/[0.06]">
+            <div className="relative bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-white/6">
                 {/* Browser Header */}
               <div className="flex items-center gap-3 mb-6">
                   <div className="flex gap-2">
@@ -177,7 +177,7 @@ export function HeroLanding() {
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 </div>
-                <div className="flex-1 bg-slate-100 dark:bg-white/[0.08] rounded-lg px-4 py-2 text-sm text-slate-600 dark:text-slate-400">
+                <div className="flex-1 bg-slate-100 dark:bg-white/8 rounded-lg px-4 py-2 text-sm text-slate-600 dark:text-slate-400">
                   demo.ever.works
                   </div>
                     </div>
@@ -205,7 +205,7 @@ export function HeroLanding() {
                     { icon: "⚡", title: t('HERO_DEMO_FEATURE_2'), color: "bg-purple-500" },
                     { icon: "🚀", title: t('HERO_DEMO_FEATURE_3'), color: "bg-orange-500" }
                   ].map((item, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-white/[0.04] rounded-lg hover:bg-slate-100 dark:hover:bg-white/[0.06] transition-colors">
+                    <div key={index} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-white/4 rounded-lg hover:bg-slate-100 dark:hover:bg-white/6 transition-colors">
                       <div className={`w-8 h-8 ${item.color} rounded-lg flex items-center justify-center text-white text-sm`}>
                         {item.icon}
                     </div>
@@ -234,7 +234,7 @@ export function HeroLanding() {
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-700 delay-1200 opacity-100 translate-y-0">
         <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
           <span className="text-xs font-medium">{t('HERO_SCROLL_TEXT')}</span>
-          <div className="w-6 h-10 border-2 border-slate-300 dark:border-white/[0.08] rounded-full flex justify-center">
+          <div className="w-6 h-10 border-2 border-slate-300 dark:border-white/8 rounded-full flex justify-center">
             <div className="w-1 h-3 bg-slate-400 dark:bg-white/[0.12] rounded-full mt-2 animate-bounce"></div>
           </div>
         </div>

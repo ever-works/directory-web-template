@@ -188,7 +188,7 @@ export default function SubmissionSuccessPage() {
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{t("NEXT_STEPS")}</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {transactionDetails?.paymentType === "submission" && (
-                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-white/[0.05] rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-white/5 rounded-lg">
                   <Clock className="w-5 h-5 text-theme-primary-600 mt-0.5" />
                   <div>
                     <p className="text-theme-primary-900 dark:text-white font-medium">{t("REVIEW_IN_PROGRESS")}</p>

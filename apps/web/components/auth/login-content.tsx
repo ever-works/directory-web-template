@@ -143,7 +143,7 @@ export function LoginContent({
 				{/* Right Side - Auth Form */}
 				<div
 					className={cn(
-						'w-full p-6 flex items-center justify-center relative bg-white/40 dark:bg-white/[0.03] backdrop-blur-xs',
+						'w-full p-6 flex items-center justify-center relative bg-white/40 dark:bg-white/3 backdrop-blur-xs',
 						variant === 'modal' ? 'md:w-[55%]' : 'md:w-1/2'
 					)}
 				>
@@ -155,12 +155,12 @@ export function LoginContent({
 							</p>
 						</div>
 
-						<div className="bg-white dark:bg-white/[0.03] p-4 rounded-lg shadow-xs border border-gray-100 dark:border-white/[0.06]">
+						<div className="bg-white dark:bg-white/3 p-4 rounded-lg shadow-xs border border-gray-100 dark:border-white/6">
 							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
 								<div className="space-y-3">
 									<div className="relative">
 										<div className="absolute inset-0 flex items-center">
-											<div className="w-full border-t border-gray-200 dark:border-white/[0.06]" />
+											<div className="w-full border-t border-gray-200 dark:border-white/6" />
 										</div>
 									</div>
 									<SocialLogin callbackUrl={callbackUrl} />

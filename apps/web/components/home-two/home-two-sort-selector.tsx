@@ -48,14 +48,14 @@ export function HomeTwoSortSelector({
           className={cn(
             "group inline-flex items-center justify-between text-[10px] sm:text-xs",
             "w-28 sm:w-32",
-            "rounded-lg border border-gray-300 dark:border-white/[0.06]",
-            "bg-gray-50 dark:bg-white/[0.04]",
+            "rounded-lg border border-gray-300 dark:border-white/6",
+            "bg-gray-50 dark:bg-white/4",
             "px-2.5 sm:px-3 py-1 sm:py-1.5",
             "font-medium",
             "text-gray-900 dark:text-white",
             "transition-all duration-200",
-            "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
-            "hover:border-gray-300 dark:hover:border-white/[0.1]",
+            "hover:bg-gray-100 dark:hover:bg-white/6",
+            "hover:border-gray-300 dark:hover:border-white/1",
             "hover:shadow-md",
             "focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500",
             className
@@ -76,7 +76,7 @@ export function HomeTwoSortSelector({
           sideOffset={6}
           className={cn(
             "z-50 w-28 sm:w-32",
-            "rounded-lg border border-gray-200 dark:border-white/[0.08]",
+            "rounded-lg border border-gray-200 dark:border-white/8",
             "bg-white dark:bg-[#141414]",
             "shadow-lg shadow-black/10 dark:shadow-black/30",
             "animate-in fade-in zoom-in-95"
@@ -99,8 +99,8 @@ export function HomeTwoSortSelector({
                   "cursor-pointer outline-hidden",
                   "text-gray-900 dark:text-gray-100",
                   "transition-colors",
-                  "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
-                  "focus:bg-gray-100 dark:focus:bg-white/[0.06]"
+                  "hover:bg-gray-100 dark:hover:bg-white/6",
+                  "focus:bg-gray-100 dark:focus:bg-white/6"
                 )}
               >
                 <span>{option.label}</span>

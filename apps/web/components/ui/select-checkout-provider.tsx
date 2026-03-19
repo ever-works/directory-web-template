@@ -158,7 +158,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 						size="md"
 						className="w-full"
 						classNames={{
-							trigger: 'bg-white dark:bg-white/[0.05] border-purple-200 dark:border-purple-700',
+							trigger: 'bg-white dark:bg-white/5 border-purple-200 dark:border-purple-700',
 							value: 'text-gray-900 dark:text-gray-100',
 							popover: 'z-[1000]'
 						}}

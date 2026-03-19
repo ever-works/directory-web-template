@@ -62,7 +62,7 @@ export default async function SurveysPage() {
                             <Link
                                 key={survey.id}
                                 href={`/surveys/${survey.slug}`}
-                                className="block bg-white dark:bg-white/[0.05] rounded-lg shadow-xs hover:shadow-md transition-shadow p-6 border border-gray-200 dark:border-white/[0.06]"
+                                className="block bg-white dark:bg-white/5 rounded-lg shadow-xs hover:shadow-md transition-shadow p-6 border border-gray-200 dark:border-white/6"
                             >
                                 <div className="flex items-start justify-between mb-3">
                                     <h2 className="text-xl font-semibold flex-1">{survey.title}</h2>

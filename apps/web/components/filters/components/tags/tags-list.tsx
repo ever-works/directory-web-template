@@ -37,9 +37,9 @@ const STICKY_LEFT_STYLES = clsx(
 
 // Navigation button styles for scroll buttons
 const NAV_BUTTON_STYLES = clsx(
-  "h-8 w-8 rounded-full bg-white dark:bg-white/[0.05] flex items-center justify-center",
-  "border border-gray-200 dark:border-white/[0.06] shadow-md hover:shadow-lg",
-  "hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-[background-color,box-shadow] duration-200",
+  "h-8 w-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center",
+  "border border-gray-200 dark:border-white/6 shadow-md hover:shadow-lg",
+  "hover:bg-gray-50 dark:hover:bg-white/6 transition-[background-color,box-shadow] duration-200",
   "focus:outline-none focus:ring-0 focus:ring-offset-0",
   "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
   "active:outline-none active:ring-0",
@@ -420,7 +420,7 @@ export function TagsList({
               "px-2 py-1 h-8 font-medium transition-all duration-200 shrink-0 overflow-hidden whitespace-nowrap",
               isActive
                 ? "bg-[#0a0a0a] text-white/90 border !border-[#0a0a0a] dark:bg-white/20 dark:border-white/40"
-                : "bg-white dark:bg-white/[0.04] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.08] hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:group-hover:text-white hover:border-gray-300 dark:hover:border-white/[0.15]",
+                : "bg-white dark:bg-white/4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/8 hover:bg-gray-100 dark:hover:bg-white/6 hover:text-gray-900 dark:group-hover:text-white hover:border-gray-300 dark:hover:border-white/[0.15]",
               inPopover ? "w-full justify-between" : "min-w-0 max-w-[140px]"
             )
           )}
@@ -461,7 +461,7 @@ export function TagsList({
               className={cn(
                 "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                 isActive ? "bg-white/20 text-white dark:text-white/70 px-1" 
-                : "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
+                : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
               )}
             >
               {tag.count}
@@ -518,7 +518,7 @@ export function TagsList({
                       cn(
                         "px-3 py-1 h-8 ro font-medium transition-all duration-300 shrink-0 group capitalize focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
                         isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white",
-                        !isAllTagsActive && "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
+                        !isAllTagsActive && "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                       )
                     )}
                     onClick={() => setSelectedTags([])}
@@ -544,7 +544,7 @@ export function TagsList({
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
                         ? "bg-gray-400 text-white dark:text-[rgba(10,10,10,0.7)]"
-                        : "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
+                        : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}
                   >
                     {allItemsCount ?? tags.length}
@@ -587,7 +587,7 @@ export function TagsList({
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
                         ? "bg-gray-400 text-white dark:text-[#0a0a0a]"
-                        : "bg-gray-100 dark:bg-white/[0.08] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/[0.1] group-hover:text-gray-900 dark:group-hover:text-white"
+                        : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}
                   >
                     {allItemsCount ?? tags.length}
@@ -625,7 +625,7 @@ export function TagsList({
                 />
                 <Button
                   ref={triggerButtonRef}
-                  className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-white dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.06] shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+                  className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/6 shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
                   onClick={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   aria-label={`Show ${hiddenTags.length} more ${hiddenTags.length === 1 ? 'tag' : 'tags'}`}
@@ -660,16 +660,16 @@ export function TagsList({
           {popoverPosition && isMorePopoverOpen && hiddenTags.length > 0 && (portalTarget || (typeof document !== 'undefined' ? document.body : null)) && ReactDOM.createPortal(
             <div
               ref={morePopoverRef}
-              className="fixed w-52 p-2 rounded-lg bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/[0.06] z-50"
+              className="fixed w-52 p-2 rounded-lg bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/6 z-50"
               style={{
                 top: `${popoverPosition!.top}px`,
                 left: `${popoverPosition!.left}px`,
               }}
             >
               <div className="space-y-2">
-                <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-1.5 uppercase">
+                <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-white/6 flex items-center gap-1.5 uppercase">
                   {tCommon("MORE")} Tags
-                  <span className="text-xs bg-gray-100 dark:bg-white/[0.08] rounded-sm px-1.5 py-0.5">
+                  <span className="text-xs bg-gray-100 dark:bg-white/8 rounded-sm px-1.5 py-0.5">
                     {hiddenTags.length}
                   </span>
                 </h3>

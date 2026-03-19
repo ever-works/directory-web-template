@@ -46,15 +46,15 @@ export const CategoryItem = memo(function CategoryItem({
     'text-xs font-medium text-left transition-colors duration-150 outline-none',
     'focus-visible:ring-2 focus-visible:ring-black/20 dark:focus-visible:ring-white/20',
     isActive
-      ? 'bg-[#0a0a0a] text-white hover:bg-black/85 dark:bg-white/[0.1] dark:text-white dark:hover:bg-white/[0.15]'
-      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-white'
+      ? 'bg-[#0a0a0a] text-white hover:bg-black/85 dark:bg-white/1 dark:text-white dark:hover:bg-white/[0.15]'
+      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
   );
 
   const countClasses = cn(
     'text-xs font-medium px-1.5 py-0.5 rounded-full shrink-0 transition-colors duration-150',
     isActive
       ? 'bg-white/20 text-white dark:bg-white/[0.15]'
-      : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-gray-400'
+      : 'bg-gray-100 dark:bg-white/6 text-gray-500 dark:text-gray-400'
   );
 
   const ariaLabel = isAllCategories
@@ -68,7 +68,7 @@ export const CategoryItem = memo(function CategoryItem({
           className={cn(
             'fixed z-[9999] px-2.5 py-1.5 rounded-lg shadow-lg text-xs font-medium border pointer-events-none',
             isActive
-              ? 'bg-[#0a0a0a]/20 text-white border-black/10 dark:bg-neutral-800 dark:text-white dark:border-white/[0.1]'
+              ? 'bg-[#0a0a0a]/20 text-white border-black/10 dark:bg-neutral-800 dark:text-white dark:border-white/1'
               : 'bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-200'
           )}
           style={{ top: pos.top, left: pos.left, transform: 'translateY(-50%)' }}

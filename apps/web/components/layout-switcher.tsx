@@ -165,7 +165,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
     ];
 
   const containerWidthSwitch = (
-    <div className="mb-3 pb-2 border-b border-gray-200/50 dark:border-white/[0.06]">
+    <div className="mb-3 pb-2 border-b border-gray-200/50 dark:border-white/6">
       <div className="flex items-center gap-1.5 mb-1.5">
         <Maximize2 className="w-3 h-3 text-gray-500 dark:text-gray-400" />
         <span className="text-[10px] font-semibold text-gray-700 dark:text-gray-300">
@@ -179,7 +179,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
             onClick={() => setContainerWidth(option.value)}
             className={`flex-1 flex items-center justify-center gap-1 px-2 py-1.5 rounded-lg transition-all duration-300 ${containerWidth === option.value
                 ? "bg-linear-to-br from-theme-primary-500 to-theme-primary-600 text-white shadow-lg shadow-theme-primary-500/25"
-                : "bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/[0.06]"
+                : "bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/6"
               }`}
             title={option.description}
           >
@@ -199,7 +199,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
             key={key}
             className={`relative w-full p-3 rounded-lg transition-all duration-500 transform hover:scale-[1.01] ${isActive
                 ? "bg-linear-to-br from-theme-primary-50/50 via-white to-theme-primary-100/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-theme-primary-950/30 border-2 border-theme-primary-400/50 dark:border-theme-primary-500/50 shadow-xl shadow-theme-primary-200/30 dark:shadow-theme-primary-900/20"
-                : "bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs border border-gray-200/50 dark:border-white/[0.06] hover:border-theme-primary-300 dark:hover:border-theme-primary-600 shadow-md hover:shadow-xl"
+                : "bg-white/80 dark:bg-white/4 backdrop-blur-xs border border-gray-200/50 dark:border-white/6 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 shadow-md hover:shadow-xl"
               }`}
             onClick={() => changeLayout(key)}
           >
@@ -215,7 +215,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
                   <div
                     className={`relative p-1.5 rounded-lg transition-all duration-300 ${isActive
                         ? "bg-linear-to-br from-theme-primary-500 to-theme-primary-600 shadow-lg shadow-theme-primary-500/30"
-                        : "bg-linear-to-br from-gray-100 to-gray-200 dark:from-white/[0.06] dark:to-[#0a0a0a] group-hover:from-theme-primary-100 group-hover:to-theme-primary-200 dark:group-hover:from-theme-primary-900/30 dark:group-hover:to-theme-primary-800/30"
+                        : "bg-linear-to-br from-gray-100 to-gray-200 dark:from-white/6 dark:to-[#0a0a0a] group-hover:from-theme-primary-100 group-hover:to-theme-primary-200 dark:group-hover:from-theme-primary-900/30 dark:group-hover:to-theme-primary-800/30"
                       }`}
                   >
                     <div
@@ -318,10 +318,10 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
         {isOpen && (
           <div
             id={panelId}
-            className="absolute right-0 mt-2 p-3 w-[340px] max-h-[86vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.06] rounded-xl shadow-2xl z-50"
+            className="absolute right-0 mt-2 p-3 w-[340px] max-h-[86vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
           >
             <div className="space-y-3">
-              <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/[0.06]">
+              <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/6">
                 <div className="relative">
                   <div className="p-1.5 bg-linear-to-br from-theme-primary-500 to-theme-primary-600 rounded-lg shadow-lg shadow-theme-primary-500/25">
                     <Layout className="h-4 w-4 text-white" />
@@ -354,7 +354,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
     <div className="mx-1 relative" ref={popoverRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2 py-1 text-xs bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#0a0a0a]/95 dark:to-[#0a0a0a]/95 dark:text-white rounded-md hover:from-gray-100 hover:to-gray-200 dark:hover:from-white/[0.06] dark:hover:to-white/[0.06] transition-all duration-300 border border-gray-200 dark:border-white/[0.06] hover:border-gray-300 dark:hover:border-white/[0.08] group overflow-hidden shadow-xs hover:shadow-sm"
+        className="flex items-center gap-1.5 px-2 py-1 text-xs bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#0a0a0a]/95 dark:to-[#0a0a0a]/95 dark:text-white rounded-md hover:from-gray-100 hover:to-gray-200 dark:hover:from-white/6 dark:hover:to-white/6 transition-all duration-300 border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/8 group overflow-hidden shadow-xs hover:shadow-sm"
         aria-label={`Current layout: ${currentLayout.name}`}
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
@@ -372,10 +372,10 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
       {isOpen && (
         <div
           id={panelId}
-          className="absolute right-0 mt-2 p-3 w-[340px] max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/[0.06] rounded-xl shadow-2xl z-50"
+          className="absolute right-0 mt-2 p-3 w-[340px] max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
         >
           <div className="space-y-3">
-            <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/[0.06]">
+            <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/6">
               <div className="relative">
                 <div className="p-1.5 bg-linear-to-br from-theme-primary-500 to-theme-primary-600 rounded-lg shadow-lg shadow-theme-primary-500/25">
                   <Layout className="h-4 w-4 text-white" />

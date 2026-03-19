@@ -66,7 +66,7 @@ export function SubmissionStatsCards({ stats, isLoading = false }: SubmissionSta
         return (
           <Card
             key={config.key}
-            className={`hover:shadow-lg ${config.hoverShadow} border border-gray-200 dark:border-white/[0.06] transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
+            className={`hover:shadow-lg ${config.hoverShadow} border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
           >
             <CardContent className="p-6">
               <div className="text-center">
@@ -74,7 +74,7 @@ export function SubmissionStatsCards({ stats, isLoading = false }: SubmissionSta
                   <Icon className={`w-6 h-6 ${config.colorClass}`} />
                 </div>
                 {isLoading ? (
-                  <div className="h-8 w-12 bg-gray-200 dark:bg-white/[0.08] rounded mx-auto mb-1 animate-pulse" />
+                  <div className="h-8 w-12 bg-gray-200 dark:bg-white/8 rounded mx-auto mb-1 animate-pulse" />
                 ) : (
                   <div className={`text-2xl font-bold ${config.key === 'total' ? 'text-gray-900 dark:text-gray-100' : config.colorClass}`}>
                     {value}
@@ -97,13 +97,13 @@ export function SubmissionStatsCardsSkeleton() {
       {Array.from({ length: 4 }).map((_, index) => (
         <Card
           key={index}
-          className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs"
+          className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs"
         >
           <CardContent className="p-6">
             <div className="text-center animate-pulse">
-              <div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-xl mb-3 mx-auto" />
-              <div className="h-8 w-12 bg-gray-200 dark:bg-white/[0.08] rounded mx-auto mb-2" />
-              <div className="h-4 w-24 bg-gray-200 dark:bg-white/[0.08] rounded mx-auto" />
+              <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl mb-3 mx-auto" />
+              <div className="h-8 w-12 bg-gray-200 dark:bg-white/8 rounded mx-auto mb-2" />
+              <div className="h-4 w-24 bg-gray-200 dark:bg-white/8 rounded mx-auto" />
             </div>
           </CardContent>
         </Card>

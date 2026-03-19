@@ -84,12 +84,12 @@ export function PeriodComparison({ data, isLoading = false }: PeriodComparisonPr
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {[...Array(4)].map((_, i) => (
                             <div
                                 key={i}
-                                className="h-24 bg-gray-200 dark:bg-white/[0.08] rounded-lg"
+                                className="h-24 bg-gray-200 dark:bg-white/8 rounded-lg"
                             />
                         ))}
                     </div>
@@ -118,7 +118,7 @@ export function PeriodComparison({ data, isLoading = false }: PeriodComparisonPr
         <section className={CARD_BASE_STYLES} aria-labelledby="period-comparison-title">
             <div className="flex items-center justify-between mb-4">
                 <h3 id="period-comparison-title" className={TITLE_STYLES}>{t("TITLE")}</h3>
-                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/[0.05] px-2 py-1 rounded-full">
+                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-full">
                     {t("THIS_WEEK")} {vsLabel} {t("LAST_WEEK")}
                 </span>
             </div>

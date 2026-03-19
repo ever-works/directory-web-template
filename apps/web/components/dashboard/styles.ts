@@ -2,7 +2,7 @@
 // Centralized design system for dashboard chart components
 
 export const CARD_BASE_STYLES =
-    "bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] p-6";
+    "bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6";
 
 export const TITLE_STYLES = "text-lg font-semibold text-gray-900 dark:text-gray-100";
 
@@ -10,7 +10,7 @@ export const SUBTITLE_STYLES = "text-sm text-gray-500 dark:text-gray-400";
 
 export const VALUE_STYLES = "text-2xl font-bold text-gray-900 dark:text-gray-100";
 
-export const METRIC_CARD_STYLES = "flex flex-col gap-2 p-4 bg-gray-50 dark:bg-white/[0.04] rounded-lg";
+export const METRIC_CARD_STYLES = "flex flex-col gap-2 p-4 bg-gray-50 dark:bg-white/4 rounded-lg";
 
 export const METRIC_LABEL_STYLES = "text-sm font-medium text-gray-600 dark:text-gray-400";
 

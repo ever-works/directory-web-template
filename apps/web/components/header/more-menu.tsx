@@ -80,7 +80,7 @@ const STYLES = {
     "min-w-[5rem]", 
     "bg-white/95 dark:bg-[#141414]/95",
     "backdrop-blur-sm",
-    "border border-gray-200/50 dark:border-white/[0.06]",
+    "border border-gray-200/50 dark:border-white/6",
     "rounded-lg",
     "shadow-2xl shadow-gray-900/10 dark:shadow-black/30",
     "p-1",
@@ -112,7 +112,7 @@ const STYLES = {
   mobileButton: cn(
     "flex items-center justify-between w-full px-3 py-2 text-xs font-medium rounded-md", // reduced from text-sm
     "text-gray-700 dark:text-gray-200",
-    "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+    "hover:bg-gray-100 dark:hover:bg-white/6",
     "transition-colors duration-150",
     "cursor-pointer"
   ),
@@ -122,7 +122,7 @@ const STYLES = {
   mobileMenuItem: cn(
     "flex items-center gap-2 w-full px-3 py-2 text-xs rounded-md", // reduced gap and text
     "text-gray-600 dark:text-gray-400",
-    "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+    "hover:bg-gray-100 dark:hover:bg-white/6",
     "hover:text-theme-primary",
     "transition-colors duration-150"
   ),

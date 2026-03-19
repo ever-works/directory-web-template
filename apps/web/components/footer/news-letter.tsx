@@ -34,7 +34,7 @@ export function Newsletter({ t }: { t: any }) {
 						name="email"
 						placeholder={t('footer.ENTER_EMAIL')}
 						disabled={pending}
-						className="flex-1 px-4 py-3 rounded-lg border border-gray-200/60 bg-white dark:bg-white/[0.05] backdrop-blur-lg dark:border-white/[0.08] focus:border-theme-primary dark:focus:border-theme-primary/30 focus:outline-hidden transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="flex-1 px-4 py-3 rounded-lg border border-gray-200/60 bg-white dark:bg-white/5 backdrop-blur-lg dark:border-white/8 focus:border-theme-primary dark:focus:border-theme-primary/30 focus:outline-hidden transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
 						required
 					/>
 					<button
