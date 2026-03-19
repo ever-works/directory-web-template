@@ -8,6 +8,7 @@ export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
   const isVercelProduction = process.env.VERCEL === '1' && process.env.VERCEL_ENV === 'production';
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
   const enableRuntimeDbInit = process.env.ENABLE_RUNTIME_DB_INIT === 'true';
   const failOnRuntimeDbInit = process.env.FAIL_ON_RUNTIME_DB_INIT === 'true';
 
@@ -28,7 +29,7 @@ export async function register() {
   // Note: Build-time migrations via scripts/build-migrate.ts are preferred for Vercel.
   // On Vercel production, skip runtime DB initialization by default and rely on build-time
   // migrations instead. Runtime DB init can be re-enabled explicitly via env when needed.
-  if (isVercelProduction && !enableRuntimeDbInit) {
+  if (isVercelProduction && !enableRuntimeDbInit && !failOnRuntimeDbInit) {
     console.log('[Instrumentation] Skipping runtime database initialization on Vercel production');
     return;
   }
@@ -40,7 +41,7 @@ export async function register() {
     console.log('[Instrumentation] Database initialization completed');
   } catch (error) {
     console.error('[Instrumentation] ❌ Database initialization failed:', error);
-    
+
     // Log detailed error for debugging in Vercel logs
     if (error instanceof Error) {
       console.error('[Instrumentation] Error details:', {
@@ -48,7 +49,7 @@ export async function register() {
         stack: error.stack,
         name: error.name
       });
-      
+
       // Report to Sentry if configured
       if (SENTRY_DSN.value) {
         Sentry.captureException(error, {
@@ -60,10 +61,11 @@ export async function register() {
         });
       }
     }
-    
-    // Optional strict mode for deployments that want DB initialization to be fatal.
-    if (failOnRuntimeDbInit) {
-      console.error('[Instrumentation] ❌ FAIL_ON_RUNTIME_DB_INIT=true, rethrowing startup failure');
+
+    // Non-Vercel production keeps fail-fast behavior. Vercel production can opt back into
+    // strict runtime failure with FAIL_ON_RUNTIME_DB_INIT=true.
+    if ((isProduction && !isVercelProduction) || failOnRuntimeDbInit) {
+      console.error('[Instrumentation] ❌ Fatal database initialization failure during production startup');
       throw error;
     }
 
