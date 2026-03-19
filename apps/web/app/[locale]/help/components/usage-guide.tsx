@@ -355,7 +355,7 @@ npm start`,
   const currentSection = usageSections.find(s => s.id === activeSection);
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black">
+    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -372,9 +372,9 @@ npm start`,
         </div>
 
         {/* IDE-like Interface */}
-        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
+        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
           {/* IDE Header */}
-          <div className="bg-slate-100 dark:bg-slate-900 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+          <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 {/* Window Controls */}
@@ -405,7 +405,7 @@ npm start`,
 
           <div className="flex">
             {/* Sidebar - Section Navigation */}
-            <div className="w-80 bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700">
+            <div className="w-80 bg-slate-50 dark:bg-[#0a0a0a] border-r border-slate-200 dark:border-white/[0.06]">
               <div className="p-4">
                 <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-wider">
                   Sections
@@ -418,7 +418,7 @@ npm start`,
                       className={`w-full text-left p-3 rounded-lg transition-all duration-300 ${
                         activeSection === section.id
                           ? "bg-blue-100 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
-                          : "hover:bg-slate-100 dark:hover:bg-slate-800"
+                          : "hover:bg-slate-100 dark:hover:bg-white/[0.06]"
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -443,7 +443,7 @@ npm start`,
             {/* Main Content Area */}
             <div className="flex-1">
               {/* Content Tabs */}
-              <div className="bg-slate-100 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+              <div className="bg-slate-100 dark:bg-[#0a0a0a] border-b border-slate-200 dark:border-white/[0.06]">
                 <div className="flex">
                   {["code", "output", "docs"].map((tab) => (
                     <button
@@ -451,7 +451,7 @@ npm start`,
                       onClick={() => setActiveTab(tab)}
                       className={`px-6 py-3 text-sm font-medium transition-all duration-300 ${
                         activeTab === tab
-                          ? "bg-white dark:bg-slate-800 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                          ? "bg-white dark:bg-white/[0.05] text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
@@ -470,7 +470,7 @@ npm start`,
                     {currentSection?.content.map((content, index) => (
                       <div key={index}>
                         {content.type === "text" && (
-                          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                          <div className="bg-slate-50 dark:bg-white/[0.03] rounded-lg p-4 border border-slate-200 dark:border-white/[0.06]">
                             <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
                               {content.value}
                             </p>
@@ -573,7 +573,7 @@ npm start`,
                         <span className="text-blue-600">📋</span>
                         Prerequisites
                       </h4>
-                      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                      <div className="bg-slate-50 dark:bg-white/[0.03] rounded-lg p-4 border border-slate-200 dark:border-white/[0.06]">
                         <ul className="space-y-2">
                           {currentSection?.prerequisites.map((prereq, index) => (
                             <li key={index} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -591,7 +591,7 @@ npm start`,
                         <span className="text-green-600">🚀</span>
                         Next Steps
                       </h4>
-                      <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
+                      <div className="bg-slate-50 dark:bg-white/[0.03] rounded-lg p-4 border border-slate-200 dark:border-white/[0.06]">
                         <ul className="space-y-2">
                           {currentSection?.nextSteps.map((step, index) => (
                             <li key={index} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
@@ -616,7 +616,7 @@ npm start`,
               {t("USAGE_BEST_PRACTICES_TITLE")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white/80 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06]">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
                     <span className="text-white text-lg">✓</span>
@@ -632,7 +632,7 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white/80 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06]">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
                     <span className="text-white text-lg">🔒</span>
@@ -648,7 +648,7 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white/80 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06]">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
                     <span className="text-white text-lg">⚡</span>
@@ -664,7 +664,7 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-slate-800/80 rounded-xl p-6 border border-slate-200 dark:border-slate-700">
+              <div className="bg-white/80 dark:bg-white/[0.03] rounded-xl p-6 border border-slate-200 dark:border-white/[0.06]">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
                     <span className="text-white text-lg">📊</span>

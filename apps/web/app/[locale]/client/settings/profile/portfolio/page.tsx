@@ -58,7 +58,7 @@ export default function PortfolioPage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-8 py-8">
 					{/* Header */}
@@ -78,8 +78,8 @@ export default function PortfolioPage() {
 					</div>
 
 					{/* Add New Project */}
-					<Card className="border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg">
-						<CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
+					<Card className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg">
+						<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/[0.06]">
 							<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 								<FiPlus className="w-5 h-5 text-theme-primary-500 shrink-0" />
 								{t('ADD_NEW_PROJECT')}
@@ -99,7 +99,7 @@ export default function PortfolioPage() {
 											id="title"
 											name="title"
 											placeholder={t('FORM.PROJECT_TITLE_PLACEHOLDER')}
-											className="w-full h-14 px-6 text-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+											className="w-full h-14 px-6 text-lg bg-white dark:bg-white/[0.05] border-2 border-gray-300 dark:border-white/[0.08] rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-white/[0.08] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 											value={title}
 											onChange={(e) => setTitle(e.target.value)}
 											aria-invalid={!!errors.title}
@@ -124,7 +124,7 @@ export default function PortfolioPage() {
 											name="imageUrl"
 											type="url"
 											placeholder={t('FORM.IMAGE_URL_PLACEHOLDER')}
-											className="w-full h-14 px-6 text-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+											className="w-full h-14 px-6 text-lg bg-white dark:bg-white/[0.05] border-2 border-gray-300 dark:border-white/[0.08] rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-white/[0.08] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 											value={imageUrl}
 											onChange={(e) => setImageUrl(e.target.value)}
 											aria-invalid={!!errors.imageUrl}
@@ -150,7 +150,7 @@ export default function PortfolioPage() {
 										name="description"
 										rows={3}
 										placeholder={t('FORM.DESCRIPTION_PLACEHOLDER')}
-										className="w-full px-6 py-4 text-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-gray-500 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+										className="w-full px-6 py-4 text-lg bg-white dark:bg-white/[0.05] border-2 border-gray-300 dark:border-white/[0.08] rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-white/[0.08] resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 										value={description}
 										onChange={(e) => setDescription(e.target.value)}
 										aria-invalid={!!errors.description}
@@ -176,7 +176,7 @@ export default function PortfolioPage() {
 											name="externalUrl"
 											type="url"
 											placeholder={t('FORM.PROJECT_URL_PLACEHOLDER')}
-											className="w-full h-14 px-6 text-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+											className="w-full h-14 px-6 text-lg bg-white dark:bg-white/[0.05] border-2 border-gray-300 dark:border-white/[0.08] rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-white/[0.08] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 											value={externalUrl}
 											onChange={(e) => setExternalUrl(e.target.value)}
 											aria-invalid={!!errors.externalUrl}
@@ -200,7 +200,7 @@ export default function PortfolioPage() {
 											id="tags"
 											name="tags"
 											placeholder={t('FORM.TAGS_PLACEHOLDER')}
-											className="w-full h-14 px-6 text-lg bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-gray-500 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
+											className="w-full h-14 px-6 text-lg bg-white dark:bg-white/[0.05] border-2 border-gray-300 dark:border-white/[0.08] rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 hover:border-gray-400 dark:hover:border-white/[0.08] text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500"
 											value={tags}
 											onChange={(e) => setTags(e.target.value)}
 										/>
@@ -212,7 +212,7 @@ export default function PortfolioPage() {
 										<input
 											type="checkbox"
 											name="isFeatured"
-											className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-theme-primary-600 bg-white dark:bg-gray-800 focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-0"
+											className="w-4 h-4 rounded border-gray-300 dark:border-white/[0.08] text-theme-primary-600 bg-white dark:bg-white/[0.05] focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-0"
 											checked={isFeatured}
 											onChange={(e) => setIsFeatured(e.target.checked)}
 										/>
@@ -230,7 +230,7 @@ export default function PortfolioPage() {
 									</div>
 								)}
 
-								<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+								<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-white/[0.06]">
 									<Button
 										type="submit"
 										className="inline-flex items-center gap-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-2"
@@ -244,8 +244,8 @@ export default function PortfolioPage() {
 					</Card>
 
 					{/* Existing Projects */}
-					<Card className="border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg">
-						<CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
+					<Card className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg">
+						<CardHeader className="pb-4 border-b border-gray-100 dark:border-white/[0.06]">
 							<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 								<FiBriefcase className="w-5 h-5 text-theme-primary-500 shrink-0" />
 								{t('YOUR_PROJECTS')}
@@ -290,7 +290,7 @@ interface PortfolioItemProps {
 
 function PortfolioItem({ project, onEdit, onDelete }: PortfolioItemProps) {
 	return (
-		<div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+		<div className="flex items-start gap-4 p-4 border border-gray-200 dark:border-white/[0.06] rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors">
 			<div className="shrink-0">
 				<ProjectImage imageUrl={project.imageUrl} title={project.title} />
 			</div>
@@ -312,7 +312,7 @@ function PortfolioItem({ project, onEdit, onDelete }: PortfolioItemProps) {
 							{project.tags.map((tag) => (
 								<span
 									key={tag}
-									className="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs"
+									className="inline-flex items-center px-2 py-1 bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 rounded text-xs"
 								>
 									{tag}
 								</span>
@@ -325,20 +325,20 @@ function PortfolioItem({ project, onEdit, onDelete }: PortfolioItemProps) {
 							href={project.externalUrl}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="p-2 text-gray-400 dark:text-gray-500 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+							className="p-2 text-gray-400 dark:text-gray-500 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06]"
 							title="View project"
 						>
 							<FiExternalLink className="w-4 h-4" />
 						</a>
 						<button
-							className="p-2 text-gray-400 dark:text-gray-500 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+							className="p-2 text-gray-400 dark:text-gray-500 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06]"
 							title="Edit project"
 							onClick={onEdit}
 						>
 							<FiEdit className="w-4 h-4" />
 						</button>
 						<button
-							className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+							className="p-2 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-white/[0.06]"
 							title="Delete project"
 							onClick={onDelete}
 						>

@@ -8,7 +8,7 @@ import { UsageGuide } from "./usage-guide";
 
 export const HelpContent = () => {
   return (
-    <div className="relative min-h-screen bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-black overflow-hidden transition-all duration-300">
+    <div className="relative min-h-screen bg-linear-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-black overflow-hidden transition-all duration-300">
       {/* Background Elements */}
       <div className="absolute inset-0">
         <div className="absolute top-20 left-20 w-72 h-72 bg-theme-primary-500/10 dark:bg-theme-primary-500/10 rounded-full blur-3xl animate-pulse"></div>

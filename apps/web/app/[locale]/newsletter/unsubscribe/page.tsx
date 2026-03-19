@@ -29,7 +29,7 @@ export default function UnsubscribePage() {
   if (isSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="w-full max-w-md rounded-lg border dark:border-gray-800 shadow-lg overflow-hidden">
+        <div className="w-full max-w-md rounded-lg border dark:border-white/[0.06] shadow-lg overflow-hidden">
           <div className="p-8">
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
@@ -53,7 +53,7 @@ export default function UnsubscribePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-lg border dark:border-gray-800 shadow-lg overflow-hidden">
+      <div className="w-full max-w-md rounded-lg border dark:border-white/[0.06] shadow-lg overflow-hidden">
         <div className="p-8">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">

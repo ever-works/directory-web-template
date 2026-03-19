@@ -48,19 +48,19 @@
 
   /* Dark mode styles using Tailwind dark: prefix */
   .dark & {
-    @apply bg-gray-800 text-white border-gray-600;
+    @apply bg-white/[0.03] text-white border-white/[0.08];
   }
 
   .dark &:hover {
-    @apply border-gray-500;
+    @apply border-white/[0.12];
   }
 
   .dark &:focus {
-    @apply bg-gray-800 text-white;
+    @apply bg-white/[0.03] text-white;
   }
 
   .dark &:disabled {
-    @apply bg-gray-700 text-gray-400;
+    @apply bg-white/[0.02] text-gray-500;
   }
 }
 
@@ -392,12 +392,12 @@
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #0a0a0a;
+    --card-foreground: #fafafa;
+    --popover: #111111;
+    --popover-foreground: #fafafa;
     --primary: 0 0% 98%;
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
@@ -743,8 +743,8 @@
 
 /* Dark mode specific enhancements */
 .dark .border-gradient {
-  background: linear-gradient(rgb(17, 24, 39), rgb(17, 24, 39)) padding-box,
-              linear-gradient(135deg, #667eea, #764ba2) border-box;
+  background: linear-gradient(#0a0a0a, #0a0a0a) padding-box,
+              linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)) border-box;
 }
 
 .container {

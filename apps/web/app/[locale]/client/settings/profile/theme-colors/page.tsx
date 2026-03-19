@@ -14,7 +14,7 @@ const getThemeButtonClasses = (isSelected: boolean) =>
 		'focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 hover:shadow-lg',
 		isSelected
 			? 'border-theme-primary-500 bg-gradient-to-br from-theme-primary-50 to-theme-primary-100 dark:from-theme-primary-900/30 dark:to-theme-primary-800/20 shadow-lg shadow-theme-primary-500/20'
-			: 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800/50 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+			: 'border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.03] hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-gray-50 dark:hover:bg-white/[0.05]'
 	);
 
 export default function ThemeColorsPage() {
@@ -33,7 +33,7 @@ export default function ThemeColorsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-12 py-8">
 					{/* Header */}
@@ -59,7 +59,7 @@ export default function ThemeColorsPage() {
 					</div>
 
 					{/* Theme Selector */}
-					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-gray-800 transition-all duration-300 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm">
 						<CardHeader className="pb-6">
 							<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 								<FiDroplet className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
@@ -92,15 +92,15 @@ export default function ThemeColorsPage() {
 											<div className="flex items-center gap-3 mb-4">
 												<div className="flex gap-1">
 													<span
-														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-600"
+														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-white/[0.08]"
 														style={{ background: theme.colors.primary }}
 													/>
 													<span
-														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-600"
+														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-white/[0.08]"
 														style={{ background: theme.colors.secondary }}
 													/>
 													<span
-														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-gray-600"
+														className="inline-block w-8 h-6 rounded-md shadow-sm border border-gray-200 dark:border-white/[0.08]"
 														style={{
 															background:
 																theme.colors.accent || theme.colors.primary || '#6366f1'

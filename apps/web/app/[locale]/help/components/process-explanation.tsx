@@ -138,7 +138,7 @@ export const ProcessExplanation = () => {
   };
 
   return (
-    <div className="mt-12 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black rounded-3xl p-8 border border-slate-200 dark:border-slate-700 shadow-2xl">
+    <div className="mt-12 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-3xl p-8 border border-slate-200 dark:border-white/[0.06] shadow-2xl">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
@@ -163,7 +163,7 @@ export const ProcessExplanation = () => {
             {Math.round(progress)}%
           </span>
           </div>
-        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-slate-200 dark:bg-white/[0.08] rounded-full h-3 overflow-hidden">
           <div 
             className="bg-linear-to-r from-blue-500 to-cyan-500 h-full rounded-full transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
@@ -174,7 +174,7 @@ export const ProcessExplanation = () => {
       {/* Timeline */}
       <div className="relative">
         {/* Timeline Line */}
-        <div className="absolute left-8 top-0 bottom-0 w-1 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+        <div className="absolute left-8 top-0 bottom-0 w-1 bg-slate-200 dark:bg-white/[0.08] rounded-full"></div>
         
         <div className="space-y-8">
           {processSteps.map((step, index) => {
@@ -195,14 +195,14 @@ export const ProcessExplanation = () => {
                     ? "bg-green-500 border-green-500 shadow-lg shadow-green-500/50" 
                     : status === "active"
                     ? "bg-blue-500 border-blue-500 shadow-lg shadow-blue-500/50 animate-pulse"
-                    : "bg-slate-300 dark:bg-slate-600 border-slate-300 dark:border-slate-600"
+                    : "bg-slate-300 dark:bg-white/[0.1] border-slate-300 dark:border-white/[0.08]"
                 }`}></div>
 
                 {/* Step Card */}
-                <div className={`ml-16 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-2xl p-6 border-2 transition-all duration-300 ${
+                <div className={`ml-16 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl p-6 border-2 transition-all duration-300 ${
                   isActive
                     ? 'border-blue-500 shadow-xl shadow-blue-500/20'
-                    : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                    : 'border-slate-200 dark:border-white/[0.06] hover:border-slate-300 dark:hover:border-white/[0.08]'
                 }`}>
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
@@ -215,7 +215,7 @@ export const ProcessExplanation = () => {
                           {step.title}
           </h4>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400">
+                          <span className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-white/[0.08] text-slate-600 dark:text-slate-400">
                             {step.duration}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full ${
@@ -242,7 +242,7 @@ export const ProcessExplanation = () => {
 
                   {/* Active Step Details */}
                   {isActive && (
-                    <div className={`mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 transition-all duration-300 ${
+                    <div className={`mt-6 pt-6 border-t border-slate-200 dark:border-white/[0.06] transition-all duration-300 ${
                       isAnimating ? 'animate-fade-in' : ''
                     }`}>
                       <div className="grid md:grid-cols-2 gap-6">
@@ -284,7 +284,7 @@ export const ProcessExplanation = () => {
                         <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
                           Start This Step
                         </Button>
-                        <Button variant="outline" className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold px-6 py-2 rounded-xl transition-all duration-300">
+                        <Button variant="outline" className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-6 py-2 rounded-xl transition-all duration-300">
                           View Documentation
                         </Button>
                       </div>
@@ -310,7 +310,7 @@ export const ProcessExplanation = () => {
             <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
               Begin Setup Process
             </Button>
-            <Button variant="outline" className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+            <Button variant="outline" className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] font-semibold px-8 py-3 rounded-xl transition-all duration-300">
               Download Guide PDF
             </Button>
           </div>

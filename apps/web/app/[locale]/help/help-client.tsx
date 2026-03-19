@@ -174,7 +174,7 @@ export default function HelpPageClient() {
       case "beginner": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
       case "intermediate": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300";
       case "advanced": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
-      default: return "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300";
+      default: return "bg-gray-100 text-gray-700 dark:bg-[#0a0a0a]/30 dark:text-gray-300";
     }
   };
 
@@ -185,17 +185,17 @@ export default function HelpPageClient() {
   useThrottledScroll(handleScroll);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black text-slate-900 dark:text-white transition-all duration-300">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] text-slate-900 dark:text-white transition-all duration-300">
       {/* Progress Bar */}
       {showProgress && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs border-b border-slate-200 dark:border-slate-700">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs border-b border-slate-200 dark:border-white/[0.06]">
           <div className="max-w-7xl mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t("PROGRESS")}: {completedCount}/{totalSteps}
                 </span>
-                <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div className="w-32 h-2 bg-slate-200 dark:bg-white/[0.08] rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-linear-to-r from-theme-primary-500 to-cyan-500 transition-all duration-500"
                     style={{ width: `${progressPercentage}%` }}
@@ -215,9 +215,9 @@ export default function HelpPageClient() {
       <PageContainer className="py-12">
         {/* Interactive Navigation */}
         <div className="mb-16">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
+          <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.05] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 rounded-xl flex items-center justify-center">
@@ -240,7 +240,7 @@ export default function HelpPageClient() {
                     placeholder={t("SEARCH_GUIDES_PLACEHOLDER")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-64 px-4 py-2 pl-10 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500"
+                    className="w-64 px-4 py-2 pl-10 bg-white dark:bg-white/[0.08] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500"
                   />
                   <span className="absolute left-3 top-2.5 text-slate-400">🔍</span>
                 </div>
@@ -259,7 +259,7 @@ export default function HelpPageClient() {
                         ? "border-theme-primary-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/25"
                         : completedSteps.has(step.id)
                         ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                        : "border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 hover:border-slate-300 dark:hover:border-slate-600"
+                        : "border-slate-200 dark:border-white/[0.06] bg-slate-50 dark:bg-white/[0.03] hover:border-slate-300 dark:hover:border-white/[0.08]"
                     }`}
                   >
                     {/* Completion Check */}
@@ -276,7 +276,7 @@ export default function HelpPageClient() {
                           ? "bg-theme-primary-500 text-white"
                           : completedSteps.has(step.id)
                           ? "bg-green-500 text-white"
-                          : "bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                          : "bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-400"
                       }`}>
                         {index + 1}
                       </div>
@@ -324,9 +324,9 @@ export default function HelpPageClient() {
 
         {/* Current Step Content */}
         <div ref={contentSectionRef} className="mb-16">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
+          <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden">
             {/* Step Header */}
-            <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-white/[0.06] dark:to-white/[0.05] px-6 py-4 border-b border-slate-200 dark:border-white/[0.06]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${navigationSteps[currentStep].gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
@@ -348,7 +348,7 @@ export default function HelpPageClient() {
                     onClick={prevStep}
                     disabled={currentStep === 0}
                     variant="outline"
-                    className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50"
+                    className="border-2 border-slate-300 dark:border-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] disabled:opacity-50"
                   >
                     ← {t("PREVIOUS")}
                   </Button>
@@ -371,7 +371,7 @@ export default function HelpPageClient() {
         </div>
 
         {/* Quick Navigation */}
-        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-xl">
+        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/[0.06] shadow-xl">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
             {t("QUICK_NAVIGATION")}
           </h3>
@@ -385,7 +385,7 @@ export default function HelpPageClient() {
                     ? "bg-theme-primary-600 text-white shadow-lg shadow-blue-500/25"
                     : completedSteps.has(step.id)
                     ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
-                    : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                    : "bg-slate-100 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/[0.08]"
                 }`}
               >
                 <span>{step.icon}</span>

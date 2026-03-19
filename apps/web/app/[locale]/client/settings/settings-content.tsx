@@ -16,7 +16,7 @@ interface SettingsCardProps {
 function SettingsCard({ title, description, icon, href }: SettingsCardProps) {
 	return (
 		<Link href={href} className="block group">
-			<Card className="h-full hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-gray-800 transition-all duration-300 hover:scale-[1.02] cursor-pointer group-hover:border-theme-primary-300 dark:group-hover:border-theme-primary-600 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+			<Card className="h-full hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/[0.06] transition-all duration-300 hover:scale-[1.02] cursor-pointer group-hover:border-theme-primary-300 dark:group-hover:border-theme-primary-600 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
 				<CardContent className="p-6">
 					<div className="flex items-start justify-between">
 						<div className="flex items-start gap-4 flex-1">
@@ -110,7 +110,7 @@ export function SettingsContent() {
 	];
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-12 py-8">
 					{/* Section Header */}
