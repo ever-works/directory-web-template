@@ -84,21 +84,21 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         type="button"
         onClick={() => handleNavigation(href)}
         disabled={isNavigating}
-        className="group cursor-pointer flex items-center px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-linear-to-r hover:from-gray-50 hover:to-gray-50 dark:hover:from-gray-700/50 dark:hover:to-gray-700/50 transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
+        className="group cursor-pointer flex items-center px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.04] transition-colors duration-150 focus:outline-hidden w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
         role="menuitem"
       >
-        <div className={`flex items-center justify-center w-10 h-10 mr-3 rounded-xl bg-linear-to-br ${gradientFrom} ${gradientTo} group-hover:from-opacity-80 group-hover:to-opacity-80 transition-all duration-200`}>
-          <Icon aria-hidden="true" className={`h-5 w-5 ${iconColor}`} />
+        <div
+          className={`flex items-center justify-center w-7 h-7 mr-3 rounded-md bg-gray-100 dark:bg-white/[0.05] shrink-0`}
+        >
+          <Icon aria-hidden="true" className={`h-3.5 w-3.5 ${iconColor}`} />
         </div>
-        <div className="flex-1 w-4/6">
-          <span className="font-semibold">{title}</span>
+        <div className="flex-1 min-w-0">
+          <span className="font-medium text-[13px]">{title}</span>
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{description}</p>
         </div>
-        <EndIcon aria-hidden="true" className="h-4 w-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
       </button>
     );
-  };
-
+  }
   if (isAdmin) {
     return (
       <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
@@ -236,7 +236,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
           title={translations.settings}
           description={t("settings.ADMIN_SETTINGS_DESC")}
           gradientFrom="from-slate-100"
-          gradientTo="to-gray-100 dark:from-slate-900/30 dark:to-gray-900/30"
+          gradientTo="to-gray-100 dark:from-[#0a0a0a]/30 dark:to-[#0a0a0a]/30"
           iconColor="text-slate-600 dark:text-slate-400"
           endIcon={Star}
         />
@@ -246,7 +246,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
 
   return (
     <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
-    style={{ scrollbarWidth: "thin" }}
+      style={{ scrollbarWidth: "thin" }}
     >
       <MenuItem
         href={profilePath}
@@ -286,7 +286,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         title={translations.settings}
         description={translations.accountSettingsDesc}
         gradientFrom="from-gray-100"
-        gradientTo="to-slate-100 dark:from-gray-700 dark:to-slate-700 cursor-pointer"
+        gradientTo="to-slate-100 dark:from-white/[0.06] dark:to-white/[0.06] cursor-pointer"
         iconColor="text-gray-600 dark:text-gray-400"
         endIcon={Activity}
       />

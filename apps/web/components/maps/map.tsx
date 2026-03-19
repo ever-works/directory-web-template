@@ -13,9 +13,9 @@ const DEFAULT_ZOOM = 12;
 // CSS class names extracted for reusability
 const mapContainerBaseStyles = 'relative w-full rounded-xl overflow-hidden';
 const mapLoadingOverlayStyles =
-	'absolute inset-0 bg-white/80 dark:bg-gray-900/80 z-10 flex items-center justify-center';
+	'absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 z-10 flex items-center justify-center';
 const mapDisabledStyles =
-	'bg-gray-100 dark:bg-gray-800 flex flex-col items-center justify-center';
+	'bg-gray-100 dark:bg-white/[0.05] flex flex-col items-center justify-center';
 const mapErrorStyles =
 	'bg-red-50 dark:bg-red-900/10 flex flex-col items-center justify-center border border-red-200 dark:border-red-800';
 
@@ -309,7 +309,7 @@ export function Map({
 
 	return (
 		<div
-			className={cn(mapContainerBaseStyles, 'border border-gray-200 dark:border-gray-700', className)}
+			className={cn(mapContainerBaseStyles, 'border border-gray-200 dark:border-white/[0.06]', className)}
 			style={{ height: heightStyle, width: widthStyle }}
 		>
 			{/* Loading overlay */}
@@ -332,7 +332,7 @@ export function Map({
 			{controls.showFullscreenControl && !showLoading && (
 				<button
 					onClick={toggleFullscreen}
-					className="absolute top-3 right-3 z-10 p-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+					className="absolute top-3 right-3 z-10 p-2 bg-white dark:bg-white/[0.05] rounded-lg shadow-md hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-colors"
 					aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
 				>
 					{isFullscreen ? (

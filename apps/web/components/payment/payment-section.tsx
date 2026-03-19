@@ -164,7 +164,7 @@ export function PaymentSection({
       <div className="relative z-10 px-6 py-12">
         {/* Enhanced Header Section */}
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50 mb-6 shadow-lg">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs border border-gray-200/50 dark:border-white/[0.06] mb-6 shadow-lg">
             <div className="w-8 h-8 rounded-full bg-linear-to-r from-theme-primary-500 to-purple-500 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-white animate-pulse" />
             </div>
@@ -203,7 +203,7 @@ export function PaymentSection({
               </span>
             </div>
 
-            <div className="relative w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden shadow-inner">
+            <div className="relative w-full bg-gray-200 dark:bg-white/[0.08] rounded-full h-3 overflow-hidden shadow-inner">
               <div
                 className="h-full bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 rounded-full transition-all duration-700 ease-out shadow-lg"
                 style={{ width: `${progressPercentage}%` }}
@@ -224,7 +224,7 @@ export function PaymentSection({
             >
               <div className="absolute inset-0 bg-linear-to-r from-blue-500/20 to-purple-500/20 dark:from-blue-400/30 dark:to-purple-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-              <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+              <div className="relative bg-white/95 dark:bg-white/[0.05] backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/[0.04] p-8 shadow-2xl">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-theme-primary-500 to-purple-500 flex items-center justify-center">
                     <Shield className="w-6 h-6 text-white" />
@@ -235,7 +235,7 @@ export function PaymentSection({
                 </div>
 
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center p-6 bg-linear-to-r from-gray-50/80 to-blue-50/80 dark:from-gray-900/40 dark:to-blue-900/40 rounded-2xl border border-gray-200/30 dark:border-gray-700/30">
+                  <div className="flex justify-between items-center p-6 bg-linear-to-r from-gray-50/80 to-blue-50/80 dark:from-[#0a0a0a]/40 dark:to-blue-900/40 rounded-2xl border border-gray-200/30 dark:border-white/[0.04]">
                     <div className="flex items-center gap-4">
                       <div className="w-14 h-14 rounded-2xl bg-linear-to-r from-theme-primary-500 to-purple-500 flex items-center justify-center">
                         <Star className="w-7 h-7 text-white" />
@@ -300,7 +300,7 @@ export function PaymentSection({
               >
                 <div className="absolute inset-0 bg-linear-to-r from-purple-500/20 to-pink-500/20 dark:from-purple-400/30 dark:to-pink-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+                <div className="relative bg-white/95 dark:bg-white/[0.05] backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/[0.04] p-8 shadow-2xl">
                   <div className="flex items-center gap-3 mb-8">
                     <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-purple-500 to-pink-500 flex items-center justify-center">
                       <CreditCard className="w-6 h-6 text-white" />
@@ -339,7 +339,7 @@ export function PaymentSection({
                           onBlur={() => setFocusedField(null)}
                           required
                           className={cn(
-                            "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-gray-500 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
+                            "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
                             focusedField === "cardName" &&
                               "scale-[1.02] shadow-xl ring-4 ring-blue-500/20",
                             completedFields.has("cardName") &&
@@ -377,7 +377,7 @@ export function PaymentSection({
                           required
                           maxLength={19}
                           className={cn(
-                            "w-full h-14 px-6 pr-20 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-gray-500 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
+                            "w-full h-14 px-6 pr-20 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
                             focusedField === "cardNumber" &&
                               "scale-[1.02] shadow-xl ring-4 ring-blue-500/20",
                             completedFields.has("cardNumber") &&
@@ -404,7 +404,7 @@ export function PaymentSection({
                                         paymentInfo.cardNumber
                                       ) === "amex"
                                     ? "bg-green-600 text-white"
-                                    : "bg-gray-200 dark:bg-gray-700"
+                                    : "bg-gray-200 dark:bg-white/[0.08]"
                             )}
                           >
                             <CreditCard className="h-4 w-4" />
@@ -435,7 +435,7 @@ export function PaymentSection({
                             required
                             maxLength={5}
                             className={cn(
-                              "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-gray-500 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
+                              "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
                               focusedField === "expiry" &&
                                 "scale-[1.02] shadow-xl ring-4 ring-blue-500/20",
                               completedFields.has("expiry") &&
@@ -472,7 +472,7 @@ export function PaymentSection({
                             required
                             maxLength={4}
                             className={cn(
-                              "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-gray-900/50 border-2 border-gray-200/60 dark:border-gray-600/50 rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-gray-500 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
+                              "w-full h-14 px-6 pr-14 text-lg bg-gray-50/80 dark:bg-white/[0.03] border-2 border-gray-200/60 dark:border-white/[0.06] rounded-2xl transition-all duration-300 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-400 hover:border-gray-300 dark:hover:border-white/[0.08] outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400",
                               focusedField === "cvc" &&
                                 "scale-[1.02] shadow-xl ring-4 ring-blue-500/20",
                               completedFields.has("cvc") &&
@@ -502,7 +502,7 @@ export function PaymentSection({
                   type="button"
                   variant="outline"
                   onClick={onBack}
-                  className="h-14 px-8 rounded-2xl border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl text-lg font-semibold"
+                  className="h-14 px-8 rounded-2xl border-2 border-gray-300 dark:border-white/[0.08] hover:bg-gray-50 dark:hover:bg-white/[0.06] hover:border-gray-400 dark:hover:border-white/[0.08] transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl text-lg font-semibold"
                 >
                   <ArrowLeft className="w-5 h-5 mr-3" />
                   Back
@@ -542,7 +542,7 @@ export function PaymentSection({
                 className="animate-fade-in-up"
                 style={{ animationDelay: "0.5s" }}
               >
-                <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+                <div className="bg-white/95 dark:bg-white/[0.05] backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/[0.04] p-8 shadow-2xl">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-green-500 to-emerald-500 flex items-center justify-center">
                       <Shield className="w-6 h-6 text-white" />
@@ -581,7 +581,7 @@ export function PaymentSection({
                     ].map((item, index) => (
                       <div
                         key={index}
-                        className="group p-4 rounded-2xl bg-gray-50/80 dark:bg-gray-900/40 hover:bg-white/80 dark:hover:bg-gray-800/60 transition-all duration-300 hover:scale-105 border border-gray-200/30 dark:border-gray-700/30"
+                        className="group p-4 rounded-2xl bg-gray-50/80 dark:bg-white/[0.03] hover:bg-white/80 dark:hover:bg-white/[0.06] transition-all duration-300 hover:scale-105 border border-gray-200/30 dark:border-white/[0.04]"
                       >
                         <div className="flex items-start gap-4">
                           <div
@@ -611,7 +611,7 @@ export function PaymentSection({
                     ))}
                   </div>
 
-                  <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-gray-700/50">
+                  <div className="mt-6 pt-6 border-t border-gray-200/50 dark:border-white/[0.06]">
                     <div className="text-center">
                       <div className="flex items-center justify-center gap-2 text-xs text-gray-500 dark:text-gray-400">
                         <Lock className="w-3 h-3" />

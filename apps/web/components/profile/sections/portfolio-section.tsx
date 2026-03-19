@@ -122,7 +122,7 @@ function PortfolioCard({ project, featured = false }: PortfolioCardProps) {
               {project.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 rounded-sm text-xs font-medium"
+                  className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-white/[0.05] text-gray-600 dark:text-gray-300 rounded-sm text-xs font-medium"
                 >
                   <FiTag className="w-3 h-3" />
                   {tag}

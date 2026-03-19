@@ -110,8 +110,8 @@ export function PaymentFlowIndicator({
     // Use a single, clean color scheme for all variants
     return {
       gradient: "from-theme-primary-600 to-theme-primary-800",
-      bgColor: "bg-white dark:bg-slate-800",
-      borderColor: "border-slate-200 dark:border-slate-700",
+      bgColor: "bg-white dark:bg-white/[0.05]",
+      borderColor: "border-slate-200 dark:border-white/[0.06]",
       textColor: "text-slate-900 dark:text-white",
       accentColor: "text-slate-600 dark:text-slate-400",
       shadowColor: "shadow-slate-500/10"
@@ -168,8 +168,8 @@ export function PaymentFlowIndicator({
   if (!isHydrated) {
     return (
       <div className={cn(
-        "flex items-center justify-center p-4 rounded-lg border border-slate-200 dark:border-slate-700",
-        "bg-white dark:bg-slate-800",
+        "flex items-center justify-center p-4 rounded-lg border border-slate-200 dark:border-white/[0.06]",
+        "bg-white dark:bg-white/[0.05]",
         "shadow-xs",
         className
       )}>
@@ -182,8 +182,8 @@ export function PaymentFlowIndicator({
   if (!flowConfig || !IconComponent) {
     return (
       <div className={cn(
-        "flex items-center justify-center p-4 rounded-lg border border-slate-200 dark:border-slate-700",
-        "bg-white dark:bg-slate-800",
+        "flex items-center justify-center p-4 rounded-lg border border-slate-200 dark:border-white/[0.06]",
+        "bg-white dark:bg-white/[0.05]",
         "shadow-xs",
         className
       )}>
@@ -361,7 +361,7 @@ export function PaymentFlowIndicator({
 
         {/* Enhanced Features */}
         {showFeatures && flowConfig.features && (
-          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+          <div className="mt-3 pt-3 border-t border-slate-200 dark:border-white/[0.06]">
             <div className="grid grid-cols-2 gap-2">
               {flowConfig.features.slice(0, 4).map((feature, index) => (
                 <div
@@ -392,7 +392,7 @@ export function PaymentFlowIndicator({
 
       {/* Simple Hover Effect */}
       {animated && isHovered && interactive && !disabled && (
-        <div className="absolute inset-0 bg-slate-100 dark:bg-slate-700 opacity-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-slate-100 dark:bg-white/[0.08] opacity-10 pointer-events-none" />
       )}
 
       {/* Focus Ring */}

@@ -76,7 +76,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			{!isReview && (
 				<div className="text-center mb-10 -mt-[180px] animate-fade-in-up">
 					<div className="flex items-center justify-center mb-6">
-						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-[#1F2937] py-2 px-4 rounded-full gap-2 text-sm font-medium">
+						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-white/[0.06] py-2 px-4 rounded-full gap-2 text-sm font-medium">
 							<div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
 							{t('CHOOSE_YOUR_PERFECT_PLAN')}
 						</div>
@@ -94,7 +94,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					</p>
 
 					{/* Trust Indicators */}
-					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-gray-900/40 backdrop-blur-md">
+					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-white/[0.04] backdrop-blur-md">
 						<div className="flex items-center gap-2 px-4 py-2 ">
 							<div className="w-5 h-5 rounded-full bg-green-500/15 dark:bg-green-500/20 flex items-center justify-center">
 								<Check className="w-3 h-3 text-green-600 dark:text-green-400" />
@@ -103,7 +103,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 								{t('NO_HIDDEN_FEES')}
 							</span>
 						</div>
-						<div className="w-px h-5 bg-gray-200/80 dark:bg-gray-700/60 rounded-full" />
+						<div className="w-px h-5 bg-gray-200/80 dark:bg-white/[0.08] rounded-full" />
 						<div className="flex items-center gap-2 px-4 py-2 ">
 							<div className="w-5 h-5 rounded-full bg-purple-500/15 dark:bg-purple-500/20 flex items-center justify-center">
 								<Zap className="w-3 h-3 text-purple-600 dark:text-purple-400" />
@@ -118,14 +118,14 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 			{/* Billing Interval Selector */}
 			<div className="flex justify-center mb-10">
-				<div className="relative inline-flex items-center bg-slate-100 dark:bg-slate-800/50 rounded-xl p-1 border border-slate-200 dark:border-slate-700/50 shadow-xs backdrop-blur-xs">
+				<div className="relative inline-flex items-center bg-gray-100 dark:bg-white/[0.05] rounded-xl p-1 border border-gray-200 dark:border-white/[0.08] shadow-xs backdrop-blur-xs">
 					<button
 						onClick={() => setBillingInterval(PaymentInterval.MONTHLY)}
 						className={cn(
 							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px]',
 							billingInterval === PaymentInterval.MONTHLY
-								? 'text-slate-900 dark:text-white shadow-xs'
-								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/30'
+								? 'text-gray-900 dark:text-white shadow-xs'
+								: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05]'
 						)}
 					>
 						{tBilling('MONTHLY')}
@@ -135,8 +135,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 						className={cn(
 							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px] flex items-center justify-center gap-2',
 							billingInterval === PaymentInterval.YEARLY
-								? 'text-slate-900 dark:text-white shadow-xs'
-								: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/30'
+								? 'text-gray-900 dark:text-white shadow-xs'
+								: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/[0.05]'
 						)}
 					>
 						<span>{tBilling('YEARLY')}</span>
@@ -144,7 +144,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					{/* Enhanced sliding background - z-0 keeps it behind buttons (which have z-10) */}
 					<div
 						className={cn(
-							'absolute top-1 h-[calc(100%-8px)] bg-white dark:bg-slate-700 rounded-lg shadow-md border border-slate-200/50 dark:border-slate-600/50 transition-all duration-300 ease-out backdrop-blur-xs z-0 pointer-events-none',
+							'absolute top-1 h-[calc(100%-8px)] bg-white dark:bg-white/[0.1] rounded-lg shadow-md border border-gray-200/50 dark:border-white/[0.08] transition-all duration-300 ease-out backdrop-blur-xs z-0 pointer-events-none',
 							billingInterval === PaymentInterval.MONTHLY
 								? 'left-1 w-[calc(50%-4px)]'
 								: 'left-[calc(50%+2px)] w-[calc(50%-4px)]'
@@ -407,7 +407,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 										key={`${feat}-${idx}`}
 										className={cn(
 											'flex items-center justify-center gap-2 px-4 py-2 w-full md:w-1/4',
-											idx === 1 ? 'border-x border-gray-200/50 dark:border-gray-700/50' : ''
+											idx === 1 ? 'border-x border-gray-200/50 dark:border-white/[0.06]' : ''
 										)}
 									>
 										<Check className="w-4 h-4 text-green-500" />
@@ -424,8 +424,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							{/* Blurred glow circle behind the card */}
 							<div className="absolute dark:opacity-65 -top-28 inset-0 -z-10 rounded-full bg-linear-to-r from-theme-primary-500/20 via-purple-500/20 to-theme-primary-500/20 dark:from-theme-primary-500/25 dark:via-purple-500/25 dark:to-theme-primary-500/25 blur-3xl scale-100 translate-y-4" />
 
-							<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-gray-800 bg-white dark:bg-gray-800/30">
-								<div className="rounded-xl border border-theme-primary-200/70 dark:border-gray-800 p-6 bg-white dark:bg-gray-800/30">
+							<div className="rounded-2xl p-2 border border-theme-primary-200/70 dark:border-white/[0.06] bg-white dark:bg-white/[0.02]">
+								<div className="rounded-xl border border-theme-primary-200/70 dark:border-white/[0.06] p-6 bg-white dark:bg-white/[0.02]">
 									<div className="text-sm text-gray-500 dark:text-gray-400 mb-2 font-medium">
 										{t('SPONSOR_STARTING_FROM')}
 									</div>
@@ -517,11 +517,11 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					].map((item, index) => (
 						<div
 							key={`trust-item-${item.title}-${index}`}
-							className="relative overflow-hidden flex flex-col items-center gap-3 p-6 rounded-xl bg-white/80 dark:bg-gray-800/50 backdrop-blur-xs border border-gray-200/80 dark:border-gray-700/30 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-all duration-300"
+							className="relative overflow-hidden flex flex-col items-center gap-3 p-6 rounded-xl bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs border border-gray-200/80 dark:border-white/[0.04] hover:bg-white/70 dark:hover:bg-white/[0.06] transition-all duration-300"
 						>
 							{/* Top-left gradient accent */}
 							<div className="absolute opacity-70 dark:opacity-100 -top-6 -left-6 w-24 h-24 rounded-full bg-linear-to-br from-purple-500/20 via-theme-primary-500/15 to-transparent blur-xl pointer-events-none" />
-							<div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+							<div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-white/[0.08] flex items-center justify-center">
 								<item.icon className="w-6 h-6 text-gray-600 dark:text-gray-400" />
 							</div>
 							<h4 className="font-semibold text-gray-900 dark:text-white">{item.title}</h4>
