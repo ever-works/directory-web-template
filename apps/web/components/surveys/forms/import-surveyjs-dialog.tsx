@@ -83,7 +83,7 @@ export function ImportSurveyJsDialog({ isOpen, onClose, onImport }: ImportSurvey
 						value={surveyJsId}
 						onChange={(e) => setSurveyJsId(e.target.value)}
 						placeholder={t('ENTER_SURVEYJS_ID')}
-						className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+						className="w-full px-4 py-2 border border-gray-300 dark:border-white/[0.08] rounded-lg bg-white dark:bg-white/[0.05] focus:ring-2 focus:ring-green-500 focus:border-transparent"
                         disabled={importSurveyMutation.isPending}
 						onKeyDown={handleKeyDown}
 					/>

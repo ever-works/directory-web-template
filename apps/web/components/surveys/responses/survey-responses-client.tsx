@@ -142,7 +142,7 @@ export function SurveyResponsesClient({
 			</div>
 
 			{/* Filters */}
-			<div className="mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-xs p-4">
+			<div className="mb-6 bg-white dark:bg-white/[0.05] rounded-lg shadow-xs p-4">
 				<div className="flex items-center gap-4">
 					<div className="flex items-center gap-2">
 						<Filter className="w-4 h-4 text-gray-500" />
@@ -155,7 +155,7 @@ export function SurveyResponsesClient({
 							type="date"
 							value={filters.startDate || ''}
 							onChange={(e) => setFilters({ ...filters, startDate: e.target.value })}
-							className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-sm text-sm bg-white dark:bg-gray-900"
+							className="px-2 py-1 border border-gray-300 dark:border-white/[0.08] rounded-sm text-sm bg-white dark:bg-white/[0.03]"
 						/>
 					</div>
 					<div className="flex items-center gap-2">
@@ -165,7 +165,7 @@ export function SurveyResponsesClient({
 							type="date"
 							value={filters.endDate || ''}
 							onChange={(e) => setFilters({ ...filters, endDate: e.target.value })}
-							className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-sm text-sm bg-white dark:bg-gray-900"
+							className="px-2 py-1 border border-gray-300 dark:border-white/[0.08] rounded-sm text-sm bg-white dark:bg-white/[0.03]"
 						/>
 					</div>
 					{(filters.startDate || filters.endDate) && (
@@ -185,14 +185,14 @@ export function SurveyResponsesClient({
 					<p className="text-gray-500 dark:text-gray-400"> {tCommon('LOADING_RESPONSES')}</p>
 				</div>
 			) : responses.length === 0 ? (
-				<div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg">
+				<div className="text-center py-16 bg-white dark:bg-white/[0.05] rounded-lg">
 					<p className="text-gray-500 dark:text-gray-400"> {tCommon('NO_RESPONSES_FOUND')}</p>
 				</div>
 			) : (
-				<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xs overflow-hidden">
+				<div className="bg-white dark:bg-white/[0.05] rounded-lg shadow-xs overflow-hidden">
 					<div className="overflow-x-auto">
 						<table className="w-full">
-							<thead className="bg-gray-50 dark:bg-gray-900">
+							<thead className="bg-gray-50 dark:bg-white/[0.03]">
 								<tr>
 									<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 										 {t('RESPONSE_ID')}
@@ -208,9 +208,9 @@ export function SurveyResponsesClient({
 								</th>
 								</tr>
 							</thead>
-							<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+							<tbody className="divide-y divide-gray-200 dark:divide-white/[0.06]">
 								{responses.map((response) => (
-									<tr key={response.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+									<tr key={response.id} className="hover:bg-gray-50 dark:hover:bg-white/[0.03]">
 										<td className="px-6 py-4 text-sm font-mono">{response.id}</td>
 										<td className="px-6 py-4 text-sm">{response.userId || tCommon('ANONYMOUS')}</td>
 										<td className="px-6 py-4 text-sm">{formatDateTime(response.completedAt, locale)}</td>

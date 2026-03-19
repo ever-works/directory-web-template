@@ -163,7 +163,7 @@ export function UserSurveySection({ item }: UserSurveySectionProps) {
             {surveys.map((survey) => (
               <div
                 key={survey.id}
-                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-white/[0.05] rounded-lg border border-gray-200 dark:border-white/[0.06] p-6 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

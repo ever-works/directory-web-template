@@ -30,8 +30,8 @@ const CLASSES = {
   warningText: "text-sm text-amber-700 dark:text-amber-300",
   formGroup: "space-y-2",
   label: "block text-sm font-medium text-gray-700 dark:text-gray-300",
-  input: "w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200",
-  textarea: "w-full px-4 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200 resize-none",
+  input: "w-full px-4 py-2.5 bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.06] rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200",
+  textarea: "w-full px-4 py-2.5 bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.06] rounded-lg text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200 resize-none",
   errorText: "text-sm text-red-600 dark:text-red-400",
   footerContainer: "flex gap-3 w-full",
   cancelButton: "flex-1",
@@ -213,7 +213,7 @@ export function EditSubmissionModal({
                     submission.tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-sm border border-gray-200 dark:border-gray-700"
+                        className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 rounded-full text-sm border border-gray-200 dark:border-white/[0.06]"
                       >
                         {tag}
                       </span>

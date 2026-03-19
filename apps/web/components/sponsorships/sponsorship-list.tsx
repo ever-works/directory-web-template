@@ -57,7 +57,7 @@ export function SponsorshipList({
 	if (items.length === 0) {
 		return (
 			<div className="flex flex-col items-center justify-center py-12 px-4">
-				<div className="w-16 h-16 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mb-4">
+				<div className="w-16 h-16 bg-linear-to-br from-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl flex items-center justify-center mb-4">
 					<FiDollarSign className="w-8 h-8 text-gray-400 dark:text-gray-500" />
 				</div>
 				<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">

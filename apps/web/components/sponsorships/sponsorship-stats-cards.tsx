@@ -50,7 +50,7 @@ const statCardsConfig: StatCardConfig[] = [
 		icon: FiXCircle,
 		colorClass: 'text-gray-600 dark:text-gray-400',
 		hoverShadow: 'hover:shadow-gray-500/10',
-		iconBg: 'from-gray-100 to-gray-200 dark:from-gray-900/40 dark:to-gray-800/40',
+		iconBg: 'from-gray-100 to-gray-200 dark:from-[#0a0a0a]/40 dark:to-[#0a0a0a]/40',
 	},
 ];
 
@@ -83,7 +83,7 @@ export function SponsorshipStatsCards({ stats, isLoading = false }: SponsorshipS
 				return (
 					<Card
 						key={config.key}
-						className={`hover:shadow-md ${config.hoverShadow} border border-gray-200 dark:border-gray-800 transition-all duration-300 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xs`}
+						className={`hover:shadow-md ${config.hoverShadow} border border-gray-200 dark:border-white/[0.06] transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
 					>
 						<CardContent className="p-3">
 							<div className="flex items-center gap-3">
@@ -92,7 +92,7 @@ export function SponsorshipStatsCards({ stats, isLoading = false }: SponsorshipS
 								</div>
 								<div className="min-w-0">
 									{isLoading ? (
-										<div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+										<div className="h-6 w-8 bg-gray-200 dark:bg-white/[0.08] rounded animate-pulse" />
 									) : (
 										<div className={`text-xl font-bold ${config.key === 'total' ? 'text-gray-900 dark:text-gray-100' : config.colorClass}`}>
 											{value}
@@ -115,14 +115,14 @@ export function SponsorshipStatsCardsSkeleton() {
 			{Array.from({ length: 4 }).map((_, index) => (
 				<Card
 					key={index}
-					className="border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xs"
+					className="border border-gray-200 dark:border-white/[0.06] bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs"
 				>
 					<CardContent className="p-3">
 						<div className="flex items-center gap-3 animate-pulse">
-							<div className="w-9 h-9 bg-gray-200 dark:bg-gray-700 rounded-lg shrink-0" />
-							<div className="min-w-0 flex-1">
-								<div className="h-6 w-8 bg-gray-200 dark:bg-gray-700 rounded mb-1" />
-								<div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+<div className="w-9 h-9 bg-gray-200 dark:bg-white/[0.08] rounded-lg shrink-0" />
+						<div className="min-w-0 flex-1">
+							<div className="h-6 w-8 bg-gray-200 dark:bg-white/[0.08] rounded mb-1" />
+							<div className="h-3 w-16 bg-gray-200 dark:bg-white/[0.08] rounded" />
 							</div>
 						</div>
 					</CardContent>

@@ -62,7 +62,7 @@ export function DeleteSubmissionDialog({
           </p>
 
           {/* Item preview card */}
-          <div className="bg-gray-100 dark:bg-gray-800 rounded-lg px-4 py-3 mb-4">
+          <div className="bg-gray-100 dark:bg-white/[0.05] rounded-lg px-4 py-3 mb-4">
             <p className="font-semibold text-gray-900 dark:text-white">
               {submission.title}
             </p>

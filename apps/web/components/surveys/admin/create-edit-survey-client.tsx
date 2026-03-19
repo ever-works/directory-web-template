@@ -122,7 +122,7 @@ export function CreateEditSurveyClient({ survey, defaultItemId }: CreateEditSurv
 				</p>
 			</div>
 
-		<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xs">
+		<div className="bg-white dark:bg-white/[0.05] rounded-lg shadow-xs">
 			<AdminSurveyForm
 				mode={mode}
 				survey={survey}

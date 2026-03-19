@@ -96,7 +96,7 @@ export function SubmissionItem({
   };
 
   return (
-    <div className={`group p-6 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:shadow-lg hover:shadow-theme-primary-500/10 transition-all duration-300 bg-white/50 dark:bg-gray-800/50 backdrop-blur-xs ${isDisabled ? 'opacity-60 pointer-events-none' : ''}`}>
+    <div className={`group p-6 border border-gray-200 dark:border-white/[0.06] rounded-xl hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:shadow-lg hover:shadow-theme-primary-500/10 transition-all duration-300 bg-white/50 dark:bg-white/[0.03] backdrop-blur-xs ${isDisabled ? 'opacity-60 pointer-events-none' : ''}`}>
       <div className="flex items-start gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-3">
@@ -115,13 +115,13 @@ export function SubmissionItem({
                 {submission.tags.slice(0, 5).map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700"
+                    className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-white/[0.05] text-gray-700 dark:text-gray-300 rounded-full text-xs font-medium border border-gray-200 dark:border-white/[0.06]"
                   >
                     {tag}
                   </span>
                 ))}
                 {submission.tags.length > 5 && (
-                  <span className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-full text-xs font-medium border border-gray-200 dark:border-gray-700">
+                  <span className="inline-flex items-center px-3 py-1 bg-gray-100 dark:bg-white/[0.05] text-gray-500 dark:text-gray-400 rounded-full text-xs font-medium border border-gray-200 dark:border-white/[0.06]">
                     {t('MORE_TAGS', { count: submission.tags.length - 5 })}
                   </span>
                 )}
@@ -223,31 +223,31 @@ export function toSubmission(item: ClientSubmissionData): Submission {
 // Skeleton component for loading state
 export function SubmissionItemSkeleton() {
   return (
-    <div className="p-6 border border-gray-200 dark:border-gray-700 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-xs animate-pulse">
+    <div className="p-6 border border-gray-200 dark:border-white/[0.06] rounded-xl bg-white/50 dark:bg-white/[0.03] backdrop-blur-xs animate-pulse">
       <div className="flex items-start gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
-                <div className="h-6 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                <div className="h-6 w-48 bg-gray-200 dark:bg-white/[0.08] rounded" />
+                <div className="h-6 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
               </div>
-              <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded mb-2" />
-              <div className="h-4 w-3/4 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
+              <div className="h-4 w-full bg-gray-200 dark:bg-white/[0.08] rounded mb-2" />
+              <div className="h-4 w-3/4 bg-gray-200 dark:bg-white/[0.08] rounded mb-3" />
               <div className="flex gap-2 mb-3">
-                <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
-                <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full" />
-                <div className="h-6 w-14 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                <div className="h-6 w-16 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
+                <div className="h-6 w-20 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
+                <div className="h-6 w-14 bg-gray-200 dark:bg-white/[0.08] rounded-full" />
               </div>
               <div className="flex gap-6">
-                <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-4 w-24 bg-gray-200 dark:bg-white/[0.08] rounded" />
+                <div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded" />
               </div>
             </div>
             <div className="flex items-center gap-2 ml-4">
-              <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-              <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
-              <div className="h-8 w-8 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+              <div className="h-8 w-8 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
+              <div className="h-8 w-8 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
+              <div className="h-8 w-8 bg-gray-200 dark:bg-white/[0.08] rounded-lg" />
             </div>
           </div>
         </div>
