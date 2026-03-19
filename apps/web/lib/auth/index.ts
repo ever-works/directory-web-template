@@ -4,6 +4,7 @@
  */
 
 import NextAuth from 'next-auth';
+import crypto from 'crypto';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db, getDrizzleInstance } from '../db/drizzle';
 import { eq } from 'drizzle-orm';
@@ -22,6 +23,28 @@ interface ExtendedUser {
 	isClient?: boolean;
 	clientProfileId?: string;
 	tenantId?: string;
+}
+
+const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
+
+if (!runtimeAuthSecret) {
+	const fallbackSeed = [
+		process.env.VERCEL_PROJECT_PRODUCTION_URL,
+		process.env.VERCEL_URL,
+		process.env.NEXT_PUBLIC_APP_URL,
+		process.env.VERCEL_PROJECT_ID,
+		process.env.NEXT_PUBLIC_SITE_URL
+	]
+		.filter(Boolean)
+		.join('|');
+
+	process.env.AUTH_SECRET = fallbackSeed
+		? crypto.createHash('sha256').update(fallbackSeed).digest('hex')
+		: crypto.randomBytes(32).toString('hex');
+
+	if (coreConfig.NODE_ENV !== 'production') {
+		console.warn('[auth] AUTH_SECRET is not set. Using a temporary fallback secret.');
+	}
 }
 
 // Check if DATABASE_URL is set and database is properly initialized

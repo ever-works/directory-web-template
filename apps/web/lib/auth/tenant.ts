@@ -1,4 +1,5 @@
 import { auth } from '@/lib/auth';
+import { coreConfig } from '@/lib/config/config-service';
 
 // --- Configuration & Caching --- //
 
@@ -13,6 +14,7 @@ let cachedDefaultTenantId: string | null = null;
 let defaultTenantCachedAt = 0;
 
 const domainTenantCache = new Map<string, CacheEntry>();
+let hasSilencedTenantLookupError = false;
 
 function isDefaultCacheValid(): boolean {
 	return cachedDefaultTenantId !== null && (Date.now() - defaultTenantCachedAt < CACHE_TTL_MS);
@@ -169,7 +171,18 @@ async function resolveFromDatabase(): Promise<string | null> {
 		cachedDefaultTenantId = null;
 		defaultTenantCachedAt = 0;
 	} catch (error) {
-		console.error('[getTenantId] Fallback DB lookup failed:', error instanceof Error ? error.message : error);
+		const message = error instanceof Error ? error.message : String(error);
+		const isExpectedUnavailable =
+			!coreConfig.DATABASE_URL ||
+			/relation \"tenant\" does not exist/i.test(message) ||
+			/schema may be out of sync/i.test(message);
+
+		if (!isExpectedUnavailable) {
+			console.error('[getTenantId] Fallback DB lookup failed:', message);
+		} else if (coreConfig.NODE_ENV !== 'production' && !hasSilencedTenantLookupError) {
+			hasSilencedTenantLookupError = true;
+			console.warn('[getTenantId] Tenant lookup unavailable; continuing without database-backed tenant resolution.');
+		}
 	}
 
 	return null;
