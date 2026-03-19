@@ -202,16 +202,16 @@ export default function AdminUsersPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Loading Header */}
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                <div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-xl animate-pulse"></div>
                 <div>
-                  <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse mb-2"></div>
-                  <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                  <div className="h-8 w-48 bg-gray-200 dark:bg-white/[0.08] rounded-lg animate-pulse mb-2"></div>
+                  <div className="h-4 w-64 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                 </div>
               </div>
-              <div className="h-12 w-32 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+              <div className="h-12 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-lg animate-pulse"></div>
             </div>
           </div>
         </div>
@@ -223,10 +223,10 @@ export default function AdminUsersPage() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-2"></div>
-                    <div className="h-8 w-16 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                    <div className="h-4 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse mb-2"></div>
+                    <div className="h-8 w-16 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                   </div>
-                  <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                  <div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-xl animate-pulse"></div>
                 </div>
               </CardContent>
             </Card>
@@ -236,35 +236,35 @@ export default function AdminUsersPage() {
         {/* Loading Table */}
         <Card className="border-0 shadow-lg">
           <CardContent className="p-0">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]">
               <div className="flex items-center justify-between">
-                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                <div className="h-6 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
+                <div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
               </div>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
               {Array.from({ length: 5 }, (_, i) => (
                 <div key={i} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
+                        <div className="w-8 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/[0.08] rounded-full animate-pulse"></div>
+                        <div className="w-6 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                         <div className="flex-1">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-1"></div>
-                          <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                          <div className="h-5 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse mb-1"></div>
+                          <div className="h-3 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                      <div className="w-16 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-full animate-pulse"></div>
                       <div className="flex space-x-1">
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                       </div>
                     </div>
                   </div>
@@ -289,7 +289,7 @@ export default function AdminUsersPage() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Enhanced Header */}
       <div className="mb-8">
-        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
@@ -377,10 +377,10 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
+      <Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
         <CardContent className="p-0">
           {/* Table Header with Filters */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('USERS_TABLE_TITLE')}</h3>
               <div className="flex items-center gap-3">
@@ -404,7 +404,7 @@ export default function AdminUsersPage() {
 
           {/* Active Filters */}
           {activeFiltersDisplay.length > 0 && (
-            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-white/[0.06] bg-gray-25 dark:bg-white/[0.04]">
               <AdminActiveFilters
                 filters={activeFiltersDisplay}
                 onRemove={handleRemoveFilter}
@@ -421,7 +421,7 @@ export default function AdminUsersPage() {
             {/* Loading overlay for filter/page changes */}
             {isFetching && !isLoading && (
               <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <div className="bg-white/90 dark:bg-gray-900/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
+                <div className="bg-white/90 dark:bg-[#0a0a0a]/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
                   <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING_USERS')}</span>
                 </div>
@@ -435,9 +435,9 @@ export default function AdminUsersPage() {
                 <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
               </div>
             ) : users.length > 0 ? (
-              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              <div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                 {users.map((user) => (
-                <div key={user.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <div key={user.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="flex items-center space-x-3">
@@ -534,15 +534,15 @@ export default function AdminUsersPage() {
               }
             }}
           />
-          <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="relative bg-white dark:bg-white/[0.03] rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/[0.06]">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                 {formMode === 'create' ? t('CREATE_NEW_USER') : t('EDIT_USER')}
               </h2>
               {!isSubmitting && (
                 <button
                   onClick={onClose}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-sm transition-colors"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-white/[0.06] rounded-sm transition-colors"
                 >
                   <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

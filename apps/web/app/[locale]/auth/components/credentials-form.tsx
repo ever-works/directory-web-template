@@ -318,7 +318,7 @@ export function CredentialsForm({
 								<input
 									id="name"
 									type="text"
-									className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
+									className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 									placeholder={t('ENTER_YOUR_FULL_NAME')}
 									name="name"
 									defaultValue={state?.name}
@@ -371,7 +371,7 @@ export function CredentialsForm({
 							<input
 								id="email"
 								type="email"
-								className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
+								className="pl-10 pr-4 w-full py-2.5 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 								placeholder={t('ENTER_YOUR_EMAIL')}
 								name="email"
 								defaultValue={state?.email}
@@ -400,7 +400,7 @@ export function CredentialsForm({
 							<input
 								id="password"
 								type={showPassword ? 'text' : 'password'}
-								className="pl-10 pr-10 w-full py-2.5 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
+								className="pl-10 pr-10 w-full py-2.5 border border-gray-300 dark:border-white/[0.08] rounded-md bg-white dark:bg-white/[0.05] text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-2 focus:ring-theme-primary/30 dark:focus:ring-theme-primary/50 placeholder:text-gray-400"
 								placeholder={t('ENTER_YOUR_PASSWORD')}
 								name="password"
 								required
@@ -680,7 +680,7 @@ export function CredentialsForm({
 			{children}
 
 			{auth.credentials && !hideSwitchButton && (
-				<div className="text-center mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
+				<div className="text-center mt-8 pt-6 border-t border-gray-200 dark:border-white/[0.06]">
 					<p className="text-gray-600 dark:text-gray-300 text-sm mb-3">
 						{isLogin ? tCred('NEW_TO_PLATFORM') : tCred('ALREADY_HAVE_ACCOUNT')}
 					</p>

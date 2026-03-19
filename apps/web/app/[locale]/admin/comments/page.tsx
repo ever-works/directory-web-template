@@ -84,13 +84,13 @@ export default function AdminCommentsPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Loading Header */}
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"></div>
+                <div className="w-12 h-12 bg-gray-200 dark:bg-white/[0.08] rounded-xl animate-pulse"></div>
                 <div>
-                  <div className="h-8 w-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse mb-2"></div>
-                  <div className="h-4 w-64 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                  <div className="h-8 w-48 bg-gray-200 dark:bg-white/[0.08] rounded-lg animate-pulse mb-2"></div>
+                  <div className="h-4 w-64 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -102,34 +102,34 @@ export default function AdminCommentsPage() {
         {/* Loading Table */}
         <Card className="border-0 shadow-lg">
           <CardBody className="p-0">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]">
               <div className="flex items-center justify-between">
-                <div className="h-6 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
-                <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                <div className="h-6 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
+                <div className="h-4 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
               </div>
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
               {Array.from({ length: 5 }, (_, i) => (
                 <div key={i} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4 flex-1">
                       <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
+                        <div className="w-8 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
-                        <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/[0.08] rounded-full animate-pulse"></div>
+                        <div className="w-6 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                         <div className="flex-1">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse mb-1"></div>
-                          <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                          <div className="h-5 w-32 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse mb-1"></div>
+                          <div className="h-3 w-24 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                      <div className="w-16 h-6 bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+                      <div className="w-16 h-6 bg-gray-200 dark:bg-white/[0.08] rounded-full animate-pulse"></div>
                       <div className="flex space-x-1">
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-sm animate-pulse"></div>
+                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm animate-pulse"></div>
                       </div>
                     </div>
                   </div>
@@ -154,7 +154,7 @@ export default function AdminCommentsPage() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Enhanced Header */}
       <div className="mb-8">
-        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/[0.06] shadow-lg p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
@@ -225,7 +225,7 @@ export default function AdminCommentsPage() {
       {/* Comments List */}
       <Card className="border-0 shadow-lg">
         <CardBody className="p-0">
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-gray-50/50 dark:bg-white/[0.03]">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COMMENTS_TITLE')}</h3>
               <div className="text-sm text-gray-500 dark:text-gray-400">
@@ -234,7 +234,7 @@ export default function AdminCommentsPage() {
             </div>
           </div>
           
-          <div className="divide-y divide-gray-100 dark:divide-gray-800">
+          <div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
             {comments.length === 0 ? (
               <div className="px-6 py-12 text-center">
                 <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -245,7 +245,7 @@ export default function AdminCommentsPage() {
               </div>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} className="px-6 py-4 hover:bg-gray-50/50 dark:hover:bg-gray-900/50 transition-colors">
+                <div key={comment.id} className="px-6 py-4 hover:bg-gray-50/50 dark:hover:bg-white/[0.03] transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-3 mb-2">
@@ -300,7 +300,7 @@ export default function AdminCommentsPage() {
       {totalComments > 0 && (
         <div className="mt-8 space-y-6">
           {/* Results Info */}
-          <div className="bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 px-6 py-4 shadow-xs">
+          <div className="bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-100 dark:border-white/[0.06] px-6 py-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-theme-primary rounded-full"></div>

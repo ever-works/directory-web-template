@@ -11,7 +11,7 @@ interface ItemSearchProps {
 }
 
 const SEARCH_INPUT_CLASSES =
-	'w-full pl-12 pr-10 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400';
+	'w-full pl-12 pr-10 py-3 bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.06] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400';
 
 /**
  * Item Search Component
@@ -46,7 +46,7 @@ export function ItemSearch(props: ItemSearchProps) {
 					<button
 						type="button"
 						onClick={handleClearSearch}
-						className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+						className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
 						aria-label={t('CLEAR_SEARCH')}
 					>
 						<X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />

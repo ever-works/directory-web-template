@@ -42,7 +42,7 @@ const LAYOUT_STYLES = {
 	contentWrapper: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 pt-16 md:gap-4 lg:gap-4 xl:gap-5',
 	contentWrapperFluid: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 md:gap-2 lg:gap-0 xl:gap-0',
 	sidebar: 'lg:sticky lg:top-4 lg:self-start lg:w-64 lg:flex-shrink-0',
-	sidebarFluid: 'lg:sticky lg:top-4 lg:self-start lg:w-80 xl:w-[340px] 2xl:w-[380px] lg:flex-shrink-0',
+	sidebarFluid: 'lg:sticky lg:top-4 lg:self-start lg:w-68 lg:flex-shrink-0',
 	sidebarMobile: 'mb-3 sm:mb-4 md:mb-5 lg:mb-0',
 	mainContent: 'w-full flex-1 min-w-0',
 	pagination: 'flex items-center justify-center mt-6 sm:mt-8 md:mt-10 lg:mt-12',
@@ -145,7 +145,7 @@ export default function GlobalsClient(props: ListingProps) {
 						)}
 						{/* Tags Section - Desktop version - Only show if tags exist */}
 						{sortedTags.length > 0 && (
-							<div className={`lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-8 ${LAYOUT_STYLES.desktopOnly}`}>
+							<div className={`lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-4 ${LAYOUT_STYLES.desktopOnly}`}>
 								<Tags tags={sortedTags} enableSticky={true} maxVisibleTags={isFluid ? 8 : 5} allItems={props.items} />
 							</div>
 						)}

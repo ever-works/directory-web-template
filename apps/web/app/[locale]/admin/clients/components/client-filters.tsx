@@ -23,7 +23,7 @@ interface ClientSearchProps {
 }
 
 const SEARCH_INPUT_CLASSES =
-	'w-full pl-12 pr-10 py-3 bg-gray-50 dark:bg-gray-800/80 border border-gray-200/70 dark:border-gray-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-800 transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm';
+	'w-full pl-12 pr-10 py-3 bg-gray-50 dark:bg-white/[0.04] border border-gray-200/70 dark:border-white/[0.06] rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 focus:bg-white dark:focus:bg-white/[0.05] transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 shadow-sm';
 
 /**
  * Client Search Component
@@ -56,7 +56,7 @@ export function ClientSearch({ searchTerm, onSearchChange, isSearching }: Client
 					<button
 						type="button"
 						onClick={handleClearSearch}
-						className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+						className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
 						aria-label={t('CLEAR_SEARCH')}
 					>
 						<X className="h-4 w-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
@@ -470,7 +470,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 		<div className="space-y-3">
 			{/* Custom Date Range (when datePreset === 'custom') */}
 			{datePreset === 'custom' && (
-				<div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+				<div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/[0.03] rounded-lg">
 					<Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 					<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
 						{t('CUSTOM_DATE_RANGE')}:
@@ -479,7 +479,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 						type="date"
 						value={customDateFrom}
 						onChange={(e) => onCustomDateFromChange(e.target.value)}
-						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
+						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-md bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
 						aria-label={t('FROM_DATE')}
 					/>
 					<span className="text-gray-400">-</span>
@@ -487,7 +487,7 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 						type="date"
 						value={customDateTo}
 						onChange={(e) => onCustomDateToChange(e.target.value)}
-						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
+						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-white/[0.06] rounded-md bg-white dark:bg-white/[0.05] text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
 						aria-label={t('TO_DATE')}
 					/>
 				</div>

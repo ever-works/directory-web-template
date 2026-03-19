@@ -95,10 +95,10 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
       {/* Elegant separator with gradient */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full h-px bg-linear-to-r from-transparent via-gray-300 to-transparent dark:via-gray-600" />
+          <div className="w-full h-px bg-linear-to-r from-transparent via-gray-300 to-transparent dark:via-white/[0.06]" />
         </div>
         <div className="relative flex justify-center">
-          <div className="bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-xs border border-gray-200 dark:border-gray-700">
+          <div className="bg-white dark:bg-white/[0.05] px-3 py-1.5 rounded-full shadow-xs border border-gray-200 dark:border-white/[0.06]">
             <span className="text-xs font-medium text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
               <svg className="w-3 h-3 text-theme-primary/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -128,8 +128,8 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
                 return {
                   gradient: 'from-gray-500/10 to-slate-500/10',
                   hoverGradient: 'hover:from-gray-500/20 hover:to-slate-500/20',
-                  border: 'border-gray-200/50 dark:border-gray-700/50',
-                  hoverBorder: 'hover:border-gray-300/70 dark:hover:border-gray-600/70',
+                  border: 'border-gray-200/50 dark:border-white/[0.06]',
+                  hoverBorder: 'hover:border-gray-300/70 dark:hover:border-white/[0.08]',
                   shadow: 'shadow-gray-500/20',
                   hoverShadow: 'hover:shadow-gray-500/30'
                 };
@@ -155,8 +155,8 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
                 return {
                   gradient: 'from-gray-800/10 to-black/10',
                   hoverGradient: 'hover:from-gray-800/20 hover:to-black/20',
-                  border: 'border-gray-300/50 dark:border-gray-600/50',
-                  hoverBorder: 'hover:border-gray-400/70 dark:hover:border-gray-500/70',
+                  border: 'border-gray-300/50 dark:border-white/[0.06]',
+                  hoverBorder: 'hover:border-gray-400/70 dark:hover:border-white/[0.08]',
                   shadow: 'shadow-gray-800/20',
                   hoverShadow: 'hover:shadow-gray-800/30'
                 };
@@ -192,10 +192,10 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
                   provider.provider}`}
                 className={cn(
                   "w-9 h-9 rounded-md border",
-                  "bg-white dark:bg-gray-800",
-                  "border-gray-200 dark:border-gray-700",
-                  "hover:border-gray-300 dark:hover:border-gray-600",
-                  "hover:bg-gray-50 dark:hover:bg-gray-700",
+                  "bg-white dark:bg-white/[0.05]",
+                  "border-gray-200 dark:border-white/[0.06]",
+                  "hover:border-gray-300 dark:hover:border-white/[0.08]",
+                  "hover:bg-gray-50 dark:hover:bg-white/[0.06]",
                   "shadow-xs hover:shadow-sm",
                   "focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20",
                   "transition-colors duration-150",

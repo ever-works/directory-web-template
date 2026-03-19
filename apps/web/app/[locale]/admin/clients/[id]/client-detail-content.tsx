@@ -34,14 +34,14 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 	const t = useTranslations('admin.ADMIN_CLIENT_DETAIL_PAGE');
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			{/* Modern Gradient Header */}
-			<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-lg">
+			<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] border-b border-gray-100 dark:border-white/[0.06] shadow-lg">
 				<div className="max-w-7xl mx-auto px-6 py-8">
 					<div className="flex items-center justify-between mb-6">
 						<Link
 							href={`/${encodeURIComponent(locale)}/admin/clients`}
-							className="inline-flex items-center px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-gray-800 rounded-sm transition-colors"
+							className="inline-flex items-center px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-white/[0.05] rounded-sm transition-colors"
 						>
 							<ArrowLeft aria-hidden="true" className="w-4 h-4 mr-1" />
 							{t('BACK_TO_CLIENTS')}
@@ -58,7 +58,7 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 					</div>
 
 					{/* Client Header Card */}
-					<div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
+					<div className="bg-white dark:bg-white/[0.05] rounded-2xl shadow-xl border border-gray-100 dark:border-white/[0.06] p-8">
 						<div className="flex flex-col lg:flex-row lg:items-start gap-6">
 							<div className="flex items-center space-x-6">
 								<div className="relative">
@@ -67,7 +67,7 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 											{(profile.displayName || profile.username || 'U').charAt(0).toUpperCase()}
 										</span>
 									</div>
-									<div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full flex items-center justify-center">
+									<div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 border-2 border-white dark:border-white/[0.06] rounded-full flex items-center justify-center">
 										<div className="w-2 h-2 bg-white rounded-full"></div>
 									</div>
 								</div>
@@ -142,9 +142,9 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 					{/* Main Content */}
 					<div className="lg:col-span-2 space-y-8">
 						{/* Profile Information */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs">
+						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs">
 							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
+								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
 									<div className="flex items-center space-x-3">
 										<User aria-hidden="true" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 										<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -192,7 +192,7 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 										/>
 									</div>
 									{profile.bio && (
-										<div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700">
+										<div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/[0.06]">
 											<div className="flex items-center space-x-2 mb-3">
 												<User
 													aria-hidden="true"
@@ -214,9 +214,9 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 						</Card>
 
 						{/* Contact Information */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs">
+						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs">
 							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
+								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
 									<div className="flex items-center space-x-3">
 										<Mail
 											aria-hidden="true"
@@ -269,9 +269,9 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 					{/* Sidebar */}
 					<div className="space-y-8">
 						{/* Account Status */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs">
+						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs">
 							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
+								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
 									<div className="flex items-center space-x-3">
 										<Shield
 											aria-hidden="true"
@@ -321,7 +321,7 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 											{profile.twoFactorEnabled ? t('ENABLED') : t('DISABLED')}
 										</Chip>
 									</div>
-									<div className="pt-4 border-t border-gray-100 dark:border-gray-700">
+									<div className="pt-4 border-t border-gray-100 dark:border-white/[0.06]">
 										<div className="text-center">
 											<div className="p-4 bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
 												<div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
@@ -338,9 +338,9 @@ export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetail
 						</Card>
 
 						{/* Billing & Subscription */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs">
+						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/[0.04] backdrop-blur-xs">
 							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-700">
+								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/[0.06] bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
 									<div className="flex items-center space-x-3">
 										<CreditCard
 											aria-hidden="true"
@@ -396,7 +396,7 @@ export function ModernField({
 	isLink?: boolean;
 }) {
 	return (
-		<div className="p-4 bg-linear-to-r from-gray-50/50 to-white/50 dark:from-gray-800/50 dark:to-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all duration-200">
+		<div className="p-4 bg-linear-to-r from-gray-50/50 to-white/50 dark:from-[#0a0a0a]/50 dark:to-[#0a0a0a]/50 rounded-xl border border-gray-100 dark:border-white/[0.06] hover:shadow-md transition-all duration-200">
 			<div className="flex items-center space-x-3 mb-2">
 				{icon}
 				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>

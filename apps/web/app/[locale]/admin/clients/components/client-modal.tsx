@@ -32,7 +32,7 @@ export function ClientFormModal({
 
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-50 p-4 overflow-y-auto">
-			<div className="w-full max-w-4xl my-8 bg-white dark:bg-gray-900 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+			<div className="w-full max-w-4xl my-8 bg-white dark:bg-white/[0.03] rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
 				<ClientForm
 					client={selectedClient || undefined}
 					onSubmit={onSubmit}
@@ -69,7 +69,7 @@ export function DeleteConfirmationModal({
 
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6">
+			<div className="w-full max-w-md bg-white dark:bg-white/[0.03] rounded-xl shadow-xl p-6">
 				<div className="text-center">
 					<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
 						<Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
