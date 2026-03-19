@@ -28,7 +28,7 @@ export function SimilarItemsSection({ allItems, className, title = 'Similar Prod
 				   </span>
 				   <h3 className="text-xl font-semibold bg-[linear-gradient(90deg,_rgb(99,102,241),_rgba(168,85,247,0.8))] bg-clip-text text-transparent">{title}</h3>
 				   <span
-					   className="text-xs bg-linear-to-r from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 text-cyan-700 dark:text-cyan-200 px-3 py-1 rounded-full font-semibold border border-cyan-200 dark:border-cyan-700/50"
+					   className="text-xs px-3 py-1 rounded-full font-semibold bg-white/5 dark:bg-white/[0.03] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/[0.06]"
 				   >
 					   {allItems.length} result(s)
 				   </span>

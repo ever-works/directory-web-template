@@ -141,7 +141,7 @@ export function ItemsCategories(props: {
             ? cn(
                 "sticky top-4 z-10",
                 isSticky
-                  ? "bg-white/95 dark:bg-gray-800/95 shadow-md backdrop-blur-xs"
+                  ? "bg-white/95 dark:bg-white/[0.05] shadow-md backdrop-blur-xs"
                   : "bg-transparent"
               )
             : "bg-inherit"

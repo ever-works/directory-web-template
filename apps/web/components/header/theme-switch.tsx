@@ -88,8 +88,8 @@ const ThemeItem: React.FC<ThemeItemProps> = React.memo(
         type="button"
         className={`w-full p-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${
           isActive
-            ? "bg-blue-50 dark:bg-gray-800 border-2 border-blue-400"
-            : "bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
+            ? "bg-blue-50 dark:bg-white/[0.05] border-2 border-blue-400"
+            : "bg-gray-50 dark:bg-white/[0.05] border-2 border-gray-200 dark:border-white/[0.08] hover:border-gray-300 dark:hover:border-white/[0.08]"
         }`}
         onClick={handleClick}
         aria-pressed={isActive}
@@ -99,7 +99,7 @@ const ThemeItem: React.FC<ThemeItemProps> = React.memo(
         <ColorIndicators colors={themeInfo.colors} size="lg" />
 
         {/* Preview */}
-        <div className="w-12 h-8 bg-gray-100 dark:bg-gray-700 rounded-sm overflow-hidden relative">
+        <div className="w-12 h-8 bg-gray-100 dark:bg-white/[0.08] rounded-sm overflow-hidden relative">
           <ThemePreview themeKey={themeInfo.key} />
         </div>
 
@@ -193,7 +193,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   if (!mounted) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded-sm" />
+        <div className="h-8 bg-gray-200 dark:bg-white/[0.08] rounded-sm" />
       </div>
     );
   }
@@ -241,7 +241,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
       {isOpen && (
         <div
           id={panelId}
-          className="absolute right-0 mt-2 p-3 w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50"
+          className="absolute right-0 mt-2 p-3 w-80 bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06] rounded-lg shadow-lg z-50"
         >
           <div className="space-y-3">
             <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">

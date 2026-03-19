@@ -46,13 +46,11 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const panelId = useId();
 
-  // Memoize current language data
   const currentLanguage = useMemo(
     () => languageMap[currentLocale],
     [currentLocale]
   );
 
-  // Handle outside click and Escape key to close popover
   useEffect(() => {
     const handlePointerDownOutside = (event: PointerEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
@@ -65,7 +63,6 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
     };
 
     if (isOpen) {
-      // Defer to next tick to avoid closing from the opening event
       const timeoutId = setTimeout(() => {
         document.addEventListener('pointerdown', handlePointerDownOutside, { capture: true });
         document.addEventListener('keydown', handleKeyDown);
@@ -96,19 +93,18 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center rounded-md border border-gray-200 dark:border-gray-700 gap-1.5 text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${
-          compact ? "px-2 py-1" : "px-1.5 py-1"
-        }`}
+        className={`flex items-center rounded-md border border-gray-200 dark:border-white/[0.06] gap-1.5 text-xs text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-all duration-200 ${compact ? "px-1.5 py-1" : "px-1.5 py-1"
+          }`}
         aria-label="Select language"
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}
       >
-        <div className="relative w-4 h-3 overflow-hidden shadow-xs rounded-xs">
+        <div className="relative w-3.5 h-2.5 overflow-hidden shadow-xs rounded-xs">
           <Image
             src={currentLanguage.flagSrc}
             alt={currentLanguage.fullName}
             fill
-            sizes="16px"
+            sizes="14px"
             className="object-cover"
           />
         </div>
@@ -117,7 +113,7 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
             <span className="font-medium">
               {currentLanguage.name}
             </span>
-            <ChevronDown className={`h-3 w-3 transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`h-2.5 w-2.5 transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`} />
           </>
         )}
       </button>
@@ -125,48 +121,44 @@ export function LanguageSwitcher({ compact = false }: LanguageSwitcherProps) {
       {isOpen && (
         <div
           id={panelId}
-            className="absolute -right-4 mt-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700/50 rounded-xl shadow-xl z-50 min-w-[110px] max-h-[70vh] overflow-hidden"
+          className="absolute -right-4 mt-2 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200 dark:border-white/6 rounded-xl shadow-xl z-50 min-w-[70px] max-h-[90vh] overflow-hidden"
         >
           <div
-            className="p-2 max-h-[70vh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
+            className="p-1.5 max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
             style={{ scrollbarWidth: "thin" }}
           >
-          <div className="flex flex-col gap-1">
-            {LOCALES.map((locale) => {
-              const language = languageMap[locale as LocaleKey];
-              if (!language) return null;
+            <div className="flex flex-col gap-1">
+              {LOCALES.map((locale) => {
+                const language = languageMap[locale as LocaleKey];
+                if (!language) return null;
 
-              const isActive = locale === currentLocale;
-              return (
-                <button
-                  key={locale}
-                  type="button"
-                  className={`flex items-center cursor-pointer gap-2 px-3 py-2 text-sm rounded-lg transition-all backdrop-blur-md duration-200 ${
-                    isActive
-                      ? "bg-theme-primary-100 dark:bg-theme-primary text-theme-primary-800 dark:text-white shadow-md"
-                      : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white"
-                  } ${isPending ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02]"}`}
-                  onClick={() => changeLanguage(locale)}
-                  disabled={isPending || isActive}
-                  aria-label={`Switch to ${language.fullName}`}
-                >
-                  <div className="relative w-4 h-3 overflow-hidden shadow-xs rounded-xs">
-                    <Image
-                      src={language.flagSrc}
-                      alt={language.fullName}
-                      fill
-                      sizes="16px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <span className="font-medium">{language.name}</span>
-                  {isActive && (
-                    <div className="ml-auto w-2 h-2 bg-theme-primary-800 dark:bg-white rounded-full"></div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+                const isActive = locale === currentLocale;
+                return (
+                  <button
+                    key={locale}
+                    type="button"
+                    className={`flex items-center justify-between cursor-pointer gap-1.5 px-2 py-1 text-xs rounded-lg transition-all backdrop-blur-md duration-200 ${isActive
+                        ? "bg-theme-primary-100 dark:bg-theme-primary text-theme-primary-800 dark:text-white shadow-md"
+                        : "text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] hover:text-gray-900 dark:hover:text-white"
+                      } ${isPending ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02]"}`}
+                    onClick={() => changeLanguage(locale)}
+                    disabled={isPending || isActive}
+                    aria-label={`Switch to ${language.fullName}`}
+                  >
+                    <div className="relative w-3.5 h-2.5 overflow-hidden shadow-xs rounded-xs">
+                      <Image
+                        src={language.flagSrc}
+                        alt={language.fullName}
+                        fill
+                        sizes="14px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <span className="font-medium">{language.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}

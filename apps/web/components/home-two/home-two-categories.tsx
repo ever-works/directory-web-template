@@ -1,76 +1,66 @@
-"use client";
+'use client';
 
-import { Category } from "@/lib/content";
-import { Link, usePathname } from "@/i18n/navigation";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Button } from "@heroui/react";
-import { cn } from "@/lib/utils/index";
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import ReactDOM from "react-dom";
-import clsx from "clsx";
-import { usePortal } from "@/hooks/use-portal";
-import { useThrottledScroll } from "@/hooks/use-throttled-scroll";
-import { useCategoriesEnabled } from "@/hooks/use-categories-enabled";
+import { Category } from '@/lib/content';
+import { Link, usePathname } from '@/i18n/navigation';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Button } from '@heroui/react';
+import { cn } from '@/lib/utils/index';
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
+import clsx from 'clsx';
+import { usePortal } from '@/hooks/use-portal';
+import { useThrottledScroll } from '@/hooks/use-throttled-scroll';
+import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 
 // Style constants
 const SCROLL_CONTAINER_STYLES = clsx(
-  "relative flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none py-1 scroll-smooth",
-  "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-  "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1",
-  "after:bg-linear-to-r after:from-transparent after:via-dark:bg-[#0b111f]/95 after:to-transparent",
-  "dark:after:via-dark:bg-[#0b111f]/95",
+  'relative flex items-center gap-2 sm:gap-3 overflow-x-auto scrollbar-none py-1 scroll-smooth',
+  '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+  'after:absolute after:bottom-0 after:left-0 after:right-0 after:h-1',
+  'after:bg-linear-to-r after:from-transparent after:via-dark:bg-[#0a0a0a]/95 after:to-transparent',
+  'dark:after:via-dark:bg-[#0a0a0a]/95'
 );
 
 const SCROLL_FADE_LEFT = clsx(
-  "absolute left-0 top-0 bottom-4 w-16 pointer-events-none z-5",
-  "bg-linear-to-r from-white via-white/80 to-transparent",
-  "dark:from-gray-900 dark:via-gray-900/80",
-  "opacity-0 transition-opacity duration-300"
+  'absolute left-0 top-0 bottom-4 w-16 pointer-events-none z-5',
+  'bg-linear-to-r from-white via-white/80 to-transparent',
+  'dark:from-[#0a0a0a] dark:via-[#0a0a0a]/80',
+  'opacity-0 transition-opacity duration-300'
 );
 
-const SCROLL_FADE_RIGHT = clsx(
-  "absolute right-0 top-0 bottom-4 w-16 pointer-events-none",
-);
+const SCROLL_FADE_RIGHT = clsx('absolute right-0 top-0 bottom-4 w-16 pointer-events-none');
 
 const STICKY_LEFT_STYLES = clsx(
-  "sticky left-0 shrink-0 z-10 pr-0 py-0",
-  "bg-gradient-to-r from-white/20 via-white/10 to-transparent",
-  "dark:from-[#172030]/30 dark:via-[#192232]/10 to-transparent",
-  "backdrop-blur-sm rounded-r-full"
+  'sticky left-0 shrink-0 z-10 pr-0 py-0',
+  'bg-gradient-to-r from-white/20 via-white/10 to-transparent',
+  'dark:from-[#172030]/30 dark:via-[#192232]/10 to-transparent',
+  'backdrop-blur-sm rounded-r-full'
 );
 
-const CATEGORIES_WRAPPER_BASE = "flex items-center gap-2 sm:gap-3 transition-all duration-500";
-const CATEGORIES_WRAPPER_COLLAPSED = clsx(CATEGORIES_WRAPPER_BASE, "flex-nowrap");
-const CATEGORIES_WRAPPER_EXPANDED = clsx(CATEGORIES_WRAPPER_BASE, "flex-wrap");
+const CATEGORIES_WRAPPER_BASE = 'flex items-center gap-2 sm:gap-3 transition-all duration-200';
+const CATEGORIES_WRAPPER_COLLAPSED = clsx(CATEGORIES_WRAPPER_BASE, 'flex-nowrap');
+const CATEGORIES_WRAPPER_EXPANDED = clsx(CATEGORIES_WRAPPER_BASE, 'flex-wrap');
 
 const NAV_BUTTON_STYLES = clsx(
-  "h-8 w-8 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center",
-  "border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg",
-  "hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200",
-  "focus:outline-none focus:ring-0 focus:ring-offset-0",
-  "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
-  "active:outline-none active:ring-0",
-  "disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none",
-  "shrink-0 flex-shrink-0"
+  'h-8 w-8 rounded-full bg-white dark:bg-[#121212] flex items-center justify-center',
+  'border border-gray-200 dark:border-white/[0.06] shadow-md hover:shadow-lg',
+  'hover:bg-gray-50 dark:hover:bg-white/[0.06] transition-all duration-200',
+  'focus:outline-none focus:ring-0 focus:ring-offset-0',
+  'focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
+  'active:outline-none active:ring-0',
+  'disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none',
+  'shrink-0 flex-shrink-0'
 );
-const NAV_BUTTON_ICON = "w-4 h-4 text-gray-600 dark:text-gray-400";
+const NAV_BUTTON_ICON = 'w-4 h-4 text-gray-600 dark:text-gray-400';
 
 type Home2CategoriesProps = {
   categories: Category[];
   basePath?: string;
   resetPath?: string;
-  mode?: "navigation" | "filter";
+  mode?: 'navigation' | 'filter';
   selectedCategories?: string[];
-  onCategoryToggle?: (categoryId: string | "clear-all") => void;
+  onCategoryToggle?: (categoryId: string | 'clear-all') => void;
   totalItems?: number;
   showAllCategories?: boolean;
 };
@@ -88,79 +78,63 @@ type CategoryButtonProps = {
 
 const useCategoryState = (categories: Category[]) => {
   const pathname = usePathname();
-  const totalItems = useMemo(
-    () => categories.reduce((sum, cat) => sum + (cat.count || 0), 0),
-    [categories]
-  );
+  const totalItems = useMemo(() => categories.reduce((sum, cat) => sum + (cat.count || 0), 0), [categories]);
 
   const isHomeActive = useMemo(
-    () =>
-      pathname === "/" ||
-      pathname === "/categories" ||
-      pathname.startsWith("/discover"),
+    () => pathname === '/' || pathname === '/categories' || pathname.startsWith('/discover'),
     [pathname]
   );
 
   return {
     totalItems,
     isHomeActive,
-    pathname,
+    pathname
   };
 };
 
 // Navigation Button Component
-const ScrollButton = memo(React.forwardRef<HTMLButtonElement, {
-  direction: 'left' | 'right';
-  onClick: () => void;
-  disabled: boolean;
-  visible: boolean;
-}>(({ direction, onClick, disabled, visible }, ref) => {
-  // Hide button when disabled or not visible
-  if (disabled || !visible) {
-    return null;
-  }
+const ScrollButton = memo(
+  React.forwardRef<
+    HTMLButtonElement,
+    {
+      direction: 'left' | 'right';
+      onClick: () => void;
+      disabled: boolean;
+      visible: boolean;
+    }
+  >(({ direction, onClick, disabled, visible }, ref) => {
+    // Hide button when disabled or not visible
+    if (disabled || !visible) {
+      return null;
+    }
 
-  return (
-    <button
-      ref={ref}
-      onClick={onClick}
-      className={cn(
-        NAV_BUTTON_STYLES,
-        "transition-opacity duration-300"
-      )}
-      aria-label={`Scroll ${direction}`}
-    >
-      <svg
-        className={NAV_BUTTON_ICON}
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        style={direction === 'left' ? {} : { transform: 'rotate(180deg)' }}
+    return (
+      <button
+        ref={ref}
+        onClick={onClick}
+        className={cn(NAV_BUTTON_STYLES, 'transition-opacity duration-300')}
+        aria-label={`Scroll ${direction}`}
       >
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-  );
-}));
+        <svg
+          className={NAV_BUTTON_ICON}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          style={direction === 'left' ? {} : { transform: 'rotate(180deg)' }}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+    );
+  })
+);
 
-ScrollButton.displayName = "ScrollButton";
+ScrollButton.displayName = 'ScrollButton';
 
 // Memoized components
 const CategoryButton = memo(
   React.forwardRef<HTMLDivElement, CategoryButtonProps>(
-    (
-      {
-        href,
-        isActive,
-        displayName,
-        count,
-        isTextTruncated,
-        fullName,
-        compact,
-        onClick,
-      },
-      ref
-    ) => {
+    ({ href, isActive, displayName, count, isTextTruncated, fullName, compact, onClick }, ref) => {
       const labelRef = useRef<HTMLSpanElement | null>(null);
       const [isOverflowing, setIsOverflowing] = useState(false);
 
@@ -176,52 +150,54 @@ const CategoryButton = memo(
         check();
         const ro = new ResizeObserver(check);
         ro.observe(el);
-        window.addEventListener("resize", check);
+        window.addEventListener('resize', check);
 
         return () => {
           ro.disconnect();
-          window.removeEventListener("resize", check);
+          window.removeEventListener('resize', check);
         };
       }, [displayName, compact]);
 
-      const buttonContent = useMemo(
-        () => {
-          const labelClass = compact
-            ? "inline-block text-[11px] sm:text-[12px] truncate max-w-[9rem] sm:max-w-[10rem] capitalize! font-medium"
-            : "inline-block text-xs sm:text-sm truncate max-w-[90px] sm:max-w-[120px] md:max-w-full capitalize! font-medium";
+      const buttonContent = useMemo(() => {
+        const labelClass = compact
+          ? 'inline-block text-xs sm:text-xs truncate max-w-[9rem] sm:max-w-[10rem] capitalize! font-medium'
+          : 'inline-block text-xs truncate max-w-[90px] sm:max-w-[120px] md:max-w-full capitalize! font-medium';
 
-          const badgeClass = cn(
-            "ml-1 sm:ml-2 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs transition-all duration-300 capitalize",
-            isActive
-              ? "bg-theme-primary-20 text-white dark:text-theme-primary-300 dark:bg-theme-primary-10"
-              : "bg-gray-200/80 dark:bg-gray-700/50 text-gray-700 dark:text-gray-300"
-          );
+        const badgeClass = cn(
+          'ml-1 sm:ml-2 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs transition-all duration-300 capitalize',
+          isActive
+            ? 'bg-white/20 text-white'
+            : 'bg-gray-200/80 dark:bg-white/[0.04] text-gray-700 dark:text-gray-300'
+        );
 
-          return (
-            <>
-              <span ref={labelRef} title={isOverflowing && fullName ? fullName : undefined} className={labelClass}>{displayName}</span>
-              <span className={badgeClass}>{count}</span>
-            </>
-          );
-        },
-        [displayName, count, isActive, fullName, compact, isOverflowing]
-      );
+        return (
+          <>
+            <span
+              ref={labelRef}
+              title={isOverflowing && fullName ? fullName : undefined}
+              className={labelClass}
+            >
+              {displayName}
+            </span>
+            <span className={badgeClass}>{count}</span>
+          </>
+        );
+      }, [displayName, count, isActive, fullName, compact, isOverflowing]);
 
       const button = useMemo(
-        () => (
+        () =>
           onClick ? (
             // Filter mode: Plain button with onClick - NO NAVIGATION
             <Button
               onPress={() => onClick()}
               className={cn(
                 compact
-                  ? "group h-7 sm:h-7 whitespace-nowrap py-1 px-2 sm:px-3 text-[11px] sm:text-[12px] transition-all duration-300 ease-in-out focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                  : "group h-7 sm:h-9 whitespace-nowrap py-1 sm:py-1.5 px-3 sm:px-4 text-xs sm:text-sm transition-all duration-300 ease-in-out focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0",
+                  ? 'group h-6 whitespace-nowrap py-0.5 px-2 text-[11px] transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0'
+                  : 'group h-7 whitespace-nowrap py-1 px-2.5 text-xs transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0',
                 {
-                  "bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-none shadow-md shadow-blue-500/20 dark:shadow-theme-primary-700/20":
-                    isActive,
-                  "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/70 bg-white dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700/50 shadow-xs hover:shadow-md":
-                    !isActive,
+                  'bg-theme-primary-500 text-white border-none shadow-sm': isActive,
+                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.06] bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.08]':
+                    !isActive
                 }
               )}
             >
@@ -234,20 +210,18 @@ const CategoryButton = memo(
               href={href}
               className={cn(
                 compact
-                  ? "group h-7 sm:h-7 whitespace-nowrap py-1 px-2 sm:px-3 text-[11px] sm:text-[12px] transition-all duration-300 ease-in-out focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0"
-                  : "group h-7 sm:h-9 whitespace-nowrap py-1 sm:py-1.5 px-3 sm:px-4 text-xs sm:text-sm transition-all duration-300 ease-in-out focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0",
+                  ? 'group h-6 whitespace-nowrap py-0.5 px-2 text-[11px] transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0'
+                  : 'group h-7 whitespace-nowrap py-1 px-2.5 text-xs transition-colors duration-150 focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0',
                 {
-                  "bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-none shadow-md shadow-blue-500/20 dark:shadow-theme-primary-700/20":
-                    isActive,
-                  "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-700/70 bg-white dark:bg-gray-800/90 border border-gray-100 dark:border-gray-700 shadow-xs hover:shadow-md":
-                    !isActive,
+                  'bg-theme-primary-500 text-white border-none shadow-sm': isActive,
+                  'text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/[0.06] bg-white dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08]':
+                    !isActive
                 }
               )}
             >
               {buttonContent}
             </Button>
-          )
-        ),
+          ),
         [href, isActive, buttonContent, onClick, compact]
       );
 
@@ -257,7 +231,7 @@ const CategoryButton = memo(
           <div ref={ref} className="relative group">
             {button}
             <div
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-white dark:text-gray-900  text-white text-xs rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 capitalize!"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 dark:bg-white dark:text-gray-900 text-white text-xs rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10 capitalize!"
               role="tooltip"
             >
               {fullName}
@@ -271,7 +245,7 @@ const CategoryButton = memo(
   )
 );
 
-CategoryButton.displayName = "CategoryButton";
+CategoryButton.displayName = 'CategoryButton';
 
 // Custom hook for carousel visibility detection
 const useCarouselVisibility = (
@@ -289,14 +263,14 @@ const useCarouselVisibility = (
     const container = containerRef.current;
     const wrapper = container.querySelector('[data-categories-wrapper]');
     if (!wrapper) return;
-    
+
     const children = Array.from(wrapper.children) as HTMLElement[];
     if (!children.length) return;
-    
+
     // Get actual gap from computed styles
     const computedStyle = window.getComputedStyle(wrapper);
     const gap = parseFloat(computedStyle.gap) || 8;
-    
+
     // measure widths
     itemWidthsRef.current = children.map((child) => child.offsetWidth);
     let totalWidth = 0;
@@ -339,16 +313,19 @@ const useCarouselVisibility = (
     const container = containerRef.current;
     const handleScroll = () => measureItems();
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener('scroll', handleScroll);
 
     const resizeObserver = new ResizeObserver(measureItems);
     resizeObserver.observe(container);
+    // Also observe the wrapper so adding new category buttons triggers re-measurement
+    const wrapper = container.querySelector('[data-categories-wrapper]');
+    if (wrapper) resizeObserver.observe(wrapper);
 
-    // initial measurement
-    measureItems();
+    // initial measurement after paint
+    requestAnimationFrame(() => measureItems());
 
     return () => {
-      container.removeEventListener("scroll", handleScroll);
+      container.removeEventListener('scroll', handleScroll);
       resizeObserver.disconnect();
     };
   }, [containerRef, measureItems, showAllCategories]);
@@ -358,29 +335,28 @@ const useCarouselVisibility = (
     hiddenIndices,
     canScrollLeft,
     canScrollRight,
-    measureItems,
+    measureItems
   };
 };
-
 
 export function HomeTwoCategories({
   categories,
   basePath,
   resetPath,
-  mode = "navigation",
+  mode = 'navigation',
   selectedCategories = [],
   onCategoryToggle,
   totalItems,
-  showAllCategories = false,
+  showAllCategories = false
 }: Home2CategoriesProps) {
   const { categoriesEnabled } = useCategoriesEnabled();
-  const t = useTranslations("listing");
-  const tCommon = useTranslations("common");
+  const t = useTranslations('listing');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   // Use totalItems prop for All Categories button, fallback to calculated value
   const { totalItems: calculatedTotalItems, isHomeActive, pathname } = useCategoryState(categories);
   const allCategoriesCount = totalItems ?? calculatedTotalItems;
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [isMorePopoverOpen, setIsMorePopoverOpen] = useState(false);
   const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
   const scrollContainerRef = useRef<HTMLDivElement>(null) as React.RefObject<HTMLDivElement>;
@@ -396,13 +372,7 @@ export function HomeTwoCategories({
   const rightButtonRef = useRef<HTMLButtonElement>(null);
 
   // Use carousel visibility detection
-  const {
-    visibleRange,
-    hiddenIndices,
-    canScrollLeft,
-    canScrollRight,
-    measureItems,
-  } = useCarouselVisibility(
+  const { visibleRange, hiddenIndices, canScrollLeft, canScrollRight, measureItems } = useCarouselVisibility(
     scrollContainerRef,
     categories.length + 1, // +1 for "All Categories" button
     showAllCategories
@@ -444,7 +414,7 @@ export function HomeTwoCategories({
         e.preventDefault(); // Stop vertical scrolling
         container.scrollBy({
           left: e.deltaY, // scroll horizontally
-          behavior: 'smooth', // smooth scrolling
+          behavior: 'smooth' // smooth scrolling
         });
       }
     };
@@ -456,7 +426,7 @@ export function HomeTwoCategories({
 
   const renderCategory = useCallback(
     (category: Category, index?: number, compact?: boolean) => {
-          if (mode === "filter") {
+      if (mode === 'filter') {
         const isActive = selectedCategories.includes(category.id);
         const displayName = category.name;
         return (
@@ -478,9 +448,7 @@ export function HomeTwoCategories({
           />
         );
       } else {
-        const href = basePath
-          ? `${basePath}/${category.id}`
-          : `/categories/${category.id}`;
+        const href = basePath ? `${basePath}/${category.id}` : `/categories/${category.id}`;
         const isActive = pathname === encodeURI(href) || pathname.startsWith(encodeURI(href) + '/');
         const displayName = category.name;
 
@@ -508,9 +476,7 @@ export function HomeTwoCategories({
 
   // Get hidden categories based on hidden indices
   const hiddenCategories = useMemo(() => {
-    return hiddenIndices
-      .map(index => categories[index])
-      .filter(Boolean);
+    return hiddenIndices.map((index) => categories[index]).filter(Boolean);
   }, [categories, hiddenIndices]);
 
   // Calculate which categories to show (visible range)
@@ -563,7 +529,7 @@ export function HomeTwoCategories({
           const rect = triggerButtonRef.current.getBoundingClientRect();
           setPopoverPosition({
             top: rect.bottom + 8, // 8px gap below trigger (viewport relative for fixed positioning)
-            left: rect.right - 256, // 256px = w-64, align popover right edge with trigger right edge (viewport relative)
+            left: rect.right - 256 // 256px = w-64, align popover right edge with trigger right edge (viewport relative)
           });
         }
       });
@@ -596,15 +562,19 @@ export function HomeTwoCategories({
     }
   }, [showAllCategories, measureItems]);
 
-  // Update selected category based on pathname
+  // Re-measure each time visibleCategories grows so the +N more button stays in sync
+  useEffect(() => {
+    if (!showAllCategories) {
+      requestAnimationFrame(() => measureItems());
+    }
+  }, [visibleCategories.length, showAllCategories, measureItems]);
+
   useEffect(() => {
     if (isHomeActive) {
-      setSelectedCategory("all");
+      setSelectedCategory('all');
     } else {
       const currentCategory = categories.find((category) => {
-        const href = basePath
-          ? `${basePath}/${category.id}`
-          : `/categories/${category.id}`;
+        const href = basePath ? `${basePath}/${category.id}` : `/categories/${category.id}`;
         return pathname === encodeURI(href) || pathname.startsWith(encodeURI(href) + '/');
       });
 
@@ -624,21 +594,19 @@ export function HomeTwoCategories({
     const value = e.target.value;
     setSelectedCategory(value);
 
-    if (mode === "filter") {
-      if (value === "all") {
-        onCategoryToggle?.("clear-all");
+    if (mode === 'filter') {
+      if (value === 'all') {
+        onCategoryToggle?.('clear-all');
       } else {
         onCategoryToggle?.(value);
       }
     } else {
-      if (value === "all") {
-        router.push(resetPath || "/");
+      if (value === 'all') {
+        router.push(resetPath || '/');
       } else {
         const category = categories.find((c) => c.id === value);
         if (category) {
-          const href = basePath
-            ? `${basePath}/${category.id}`
-            : `/categories/${category.id}`;
+          const href = basePath ? `${basePath}/${category.id}` : `/categories/${category.id}`;
           router.push(href);
         }
       }
@@ -651,13 +619,13 @@ export function HomeTwoCategories({
       <div className="md:hidden w-full px-1">
         <div className="relative">
           <select
-            className="w-full p-3 pr-10 text-sm border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 appearance-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-200"
+            className="w-full p-3 pr-10 text-xs border border-gray-200 dark:border-white/[0.06] rounded-lg bg-white dark:bg-white/[0.05] text-gray-800 dark:text-gray-200 appearance-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-white/30 focus:border-transparent transition-all duration-200"
             value={selectedCategory}
             onChange={handleCategoryChange}
             aria-label="Select category"
           >
             <option value="all">
-              {t("ALL_CATEGORIES")} ({allCategoriesCount})
+              {t('ALL_CATEGORIES')} ({allCategoriesCount})
             </option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
@@ -667,7 +635,11 @@ export function HomeTwoCategories({
           </select>
           <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
             <svg className="w-5 h-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <path
+                fillRule="evenodd"
+                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
             </svg>
           </div>
         </div>
@@ -678,7 +650,11 @@ export function HomeTwoCategories({
         <div className="relative rounded-xl overflow-hidden py-2">
           <div
             ref={scrollContainerRef}
-            className={showAllCategories ? "relative pb-4 pr-8 transition-all duration-500" : SCROLL_CONTAINER_STYLES}
+            className={
+              showAllCategories
+                ? 'relative pb-4 pr-8 transition-all duration-200'
+                : SCROLL_CONTAINER_STYLES
+            }
             role="region"
             aria-label="Categories filter"
           >
@@ -693,7 +669,7 @@ export function HomeTwoCategories({
             {!showAllCategories && (canScrollRight || hiddenCategories.length > 0) && (
               <div
                 className={SCROLL_FADE_RIGHT}
-                style={{ opacity: (canScrollRight || hiddenCategories.length > 0) ? 1 : 0 }}
+                style={{ opacity: canScrollRight || hiddenCategories.length > 0 ? 1 : 0 }}
                 aria-hidden="true"
               />
             )}
@@ -702,18 +678,18 @@ export function HomeTwoCategories({
               data-categories-wrapper
               className={cn(
                 showAllCategories ? CATEGORIES_WRAPPER_EXPANDED : CATEGORIES_WRAPPER_COLLAPSED,
-                "relative" // Add relative positioning
+                'relative' // Add relative positioning
               )}
             >
               {/* Left Navigation Button placed as first element */}
               {!showAllCategories && (
-                <div className={cn(STICKY_LEFT_STYLES, "flex items-center gap-1")}>
+                <div className={cn(STICKY_LEFT_STYLES, 'flex items-center gap-1')}>
                   <CategoryButton
-                    href={mode === "filter" ? "#" : (resetPath || "/")}
-                    isActive={mode === "filter" ? selectedCategories.length === 0 : isHomeActive}
-                    displayName={t("ALL_CATEGORIES")}
+                    href={mode === 'filter' ? '#' : resetPath || '/'}
+                    isActive={mode === 'filter' ? selectedCategories.length === 0 : isHomeActive}
+                    displayName={t('ALL_CATEGORIES')}
                     count={allCategoriesCount}
-                    onClick={mode === "filter" ? () => onCategoryToggle?.("clear-all") : undefined}
+                    onClick={mode === 'filter' ? () => onCategoryToggle?.('clear-all') : undefined}
                   />
                   <ScrollButton
                     ref={leftButtonRef}
@@ -729,20 +705,18 @@ export function HomeTwoCategories({
               {showAllCategories && (
                 <div className="">
                   <CategoryButton
-                    href={mode === "filter" ? "#" : (resetPath || "/")}
-                    isActive={mode === "filter" ? selectedCategories.length === 0 : isHomeActive}
-                    displayName={t("ALL_CATEGORIES")}
+                    href={mode === 'filter' ? '#' : resetPath || '/'}
+                    isActive={mode === 'filter' ? selectedCategories.length === 0 : isHomeActive}
+                    displayName={t('ALL_CATEGORIES')}
                     count={allCategoriesCount}
-                    onClick={mode === "filter" ? () => onCategoryToggle?.("clear-all") : undefined}
+                    onClick={mode === 'filter' ? () => onCategoryToggle?.('clear-all') : undefined}
                   />
                 </div>
               )}
 
               {/* Render visible categories only */}
               {visibleCategories.map((category, index) => (
-                <React.Fragment key={category.id}>
-                  {renderCategory(category, index)}
-                </React.Fragment>
+                <React.Fragment key={category.id}>{renderCategory(category, index)}</React.Fragment>
               ))}
             </div>
 
@@ -750,7 +724,7 @@ export function HomeTwoCategories({
             {!showAllCategories && hiddenCategories.length > 0 && (
               <div className="sticky right-0 shrink-0 pl-2">
                 <div className="flex items-center gap-1 rounded-l-full py-0.5 bg-white/10 dark:bg-[#172030]/10 backdrop-blur-sm ">
-                <ScrollButton
+                  <ScrollButton
                     ref={rightButtonRef}
                     direction="right"
                     onClick={scrollRight}
@@ -758,60 +732,59 @@ export function HomeTwoCategories({
                     visible={(canScrollRight || hiddenCategories.length > 0) && !showAllCategories}
                   />
                   <div className="relative">
-                    <div className="absolute w-20 -inset-0.5 dark:bg-[#1e2939] rounded-lg blur-xl"></div>
-                    <div className="relative">
-                      <Button
-                        ref={triggerButtonRef}
-                        className="h-8 py-2.5 text-xs flex items-center gap-1.5 bg-theme-primary-500 hover:bg-theme-primary-600 dark:bg-theme-primary-600 dark:hover:bg-theme-primary-500 text-white border border-theme-primary-600 shadow-xs hover:shadow-sm transition-all rounded-xl relative z-10 focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0 active:outline-none active:ring-0"
-                        onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
-                        aria-label={`Show ${hiddenCategories.length} more ${hiddenCategories.length === 1 ? 'category' : 'categories'}`}
+                    <Button
+                      ref={triggerButtonRef}
+                      className="h-7 py-1 text-xs flex items-center gap-1 bg-theme-primary-500 hover:bg-theme-primary-600 dark:bg-theme-primary-600 dark:hover:bg-theme-primary-500 text-white border border-theme-primary-600 shadow-xs hover:shadow-sm transition-colors duration-150 rounded-lg relative z-10 focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:ring-offset-0 focus-visible:ring-offset-0 active:outline-none active:ring-0 px-2"
+                      onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
+                      aria-label={`Show ${hiddenCategories.length} more ${hiddenCategories.length === 1 ? 'category' : 'categories'}`}
+                    >
+                      <span className="font-medium">+{hiddenCategories.length}</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="w-3 h-3"
                       >
-                        <span className="font-medium">
-                          +{hiddenCategories.length}
-                        </span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="w-3.5 h-3.5"
-                        >
-                          <path d="M6 9l6 6 6-6" />
-                        </svg>
-                      </Button>
-                    </div>
-
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </Button>
                     {/* Popover Content - Portal Rendered */}
-                    {isMorePopoverOpen && portalTarget && ReactDOM.createPortal(
-                      <div
-                        ref={morePopoverRef}
-                        className="fixed w-64 rounded-lg overflow-hidden bg-white dark:bg-[#0b111f] shadow-lg border border-gray-100 dark:border-gray-700/50 z-50"
-                        style={{
-                          top: `${popoverPosition.top}px`,
-                          left: `${popoverPosition.left}px`,
-                        }}
-                      >
-                        <div className="space-y-2">
-                          <h3 className="text-xs p-2 font-medium text-gray-700 dark:text-gray-300/70 pb-1.5 border-b border-gray-100 dark:border-gray-700 flex items-center gap-1.5 uppercase">
-                            {tCommon("MORE")} {t("CATEGORIES")}
-                            <span className="text-xs bg-gray-100 dark:bg-gray-700 rounded-sm px-1.5 py-0.5">
-                              {hiddenCategories.length}
-                            </span>
-                          </h3>
-                          <div className="grid grid-cols-1 p-2 gap-1.5 max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full -mr-2"
-                            style={{ scrollbarWidth: "thin" }}
-                          >
-                            {hiddenCategories.map((category) => renderCategory(category, undefined, true))}
+                    {isMorePopoverOpen &&
+                      portalTarget &&
+                      ReactDOM.createPortal(
+                        <div
+                          ref={morePopoverRef}
+                          className="fixed w-64 rounded-lg overflow-hidden bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/[0.06] z-50"
+                          style={{
+                            top: `${popoverPosition.top}px`,
+                            left: `${popoverPosition.left}px`
+                          }}
+                        >
+                          <div className="space-y-2">
+                            <h3 className="text-xs p-2 font-medium text-gray-700 dark:text-gray-300/70 pb-1.5 border-b border-gray-100 dark:border-white/[0.06] flex items-center gap-1.5 uppercase">
+                              {tCommon('MORE')} {t('CATEGORIES')}
+                              <span className="text-xs bg-gray-100 dark:bg-white/[0.08] rounded-sm px-1.5 py-0.5">
+                                {hiddenCategories.length}
+                              </span>
+                            </h3>
+                            <div
+                              className="grid grid-cols-1 p-2 gap-1.5 max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2"
+                              style={{ scrollbarWidth: 'thin' }}
+                            >
+                              {hiddenCategories.map((category) =>
+                                renderCategory(category, undefined, true)
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </div>,
-                      portalTarget
-                    )}
+                        </div>,
+                        portalTarget
+                      )}
                   </div>
                 </div>
               </div>
@@ -856,28 +829,26 @@ export function Categories(props: {
 
   const renderCategory = useCallback(
     (category: Category, index: number) => {
-      const basePath = props.basePath
-        ? `${props.basePath}/${category.id}`
-        : `/categories/${category.id}`;
+      const basePath = props.basePath ? `${props.basePath}/${category.id}` : `/categories/${category.id}`;
 
       const isActive = pathname === encodeURI(basePath) || pathname.startsWith(encodeURI(basePath) + '/');
 
       return (
         <Button
           key={category.id || index}
-          variant={isActive ? "solid" : "bordered"}
+          variant={isActive ? 'solid' : 'bordered'}
           radius="full"
           size="sm"
           as={Link}
           prefetch={false}
           href={basePath}
           className={cn(
-            "px-1.5 py-1 h-8 font-medium transition-all duration-200",
+            'px-2 py-0.5 h-7 font-medium transition-colors duration-150',
             isActive
-              ? "bg-theme-primary text-white border-theme-primary shadow-xs"
-              : "border border-dark--theme-200 dark:border-dark--theme-800",
-            "hover:shadow-md hover:border-primary-200 dark:hover:border-primary-800",
-            !showAllCategories && "shrink-0"
+              ? 'bg-theme-primary text-white border-theme-primary'
+              : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+            'hover:border-theme-primary',
+            !showAllCategories && 'shrink-0'
           )}
         >
           {isActive && (
@@ -887,20 +858,13 @@ export function Categories(props: {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="3"
-                d="M5 13l4 4L19 7"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
             </svg>
           )}
           <span
             className={cn(
-              "text-sm font-medium transition-all duration-300",
-              isActive
-                ? "text-white tracking-wide"
-                : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary capitalize"
+              'text-xs font-medium transition-colors duration-150',
+              isActive ? 'text-white' : 'text-gray-700 dark:text-gray-300 capitalize'
             )}
           >
             {category.name}
@@ -908,8 +872,8 @@ export function Categories(props: {
           {category.count && (
             <span
               className={cn(
-                "ml-1.5 text-xs font-normal",
-                isActive ? "text-white" : "text-dark-500 dark:text-dark-400"
+                'ml-1 text-[10px] font-normal',
+                isActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'
               )}
             >
               ({category.count})
@@ -921,39 +885,31 @@ export function Categories(props: {
     [props.basePath, pathname, showAllCategories]
   );
 
-  const visibleCategories = showAllCategories
-    ? props.categories
-    : props.categories.slice(0, MAX_VISIBLE_CATEGORIES);
+  const visibleCategories = showAllCategories ? props.categories : props.categories.slice(0, MAX_VISIBLE_CATEGORIES);
 
   const isAnyTagActive = props.categories.some((category) => {
-    const basePath = props.basePath
-      ? `${props.basePath}/${category.id}`
-      : `/categories/${category.id}`;
+    const basePath = props.basePath ? `${props.basePath}/${category.id}` : `/categories/${category.id}`;
     return pathname === encodeURI(basePath) || pathname.startsWith(encodeURI(basePath) + '/');
   });
 
   return (
     <div
       className={cn(
-        "p-4 transition-all duration-300",
+        'p-4 transition-all duration-300',
         props.enableSticky
           ? cn(
-            "sticky top-4 z-10",
-            isSticky
-              ? "bg-white/95 dark:bg-gray-800/95 shadow-md backdrop-blur-xs"
-              : "bg-transparent"
+            'sticky top-4 z-10',
+            isSticky ? 'bg-white/95 dark:bg-white/[0.05] shadow-md backdrop-blur-xs' : 'bg-transparent'
           )
-          : "bg-inherit"
+          : 'bg-inherit'
       )}
     >
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-3">
           <h3
             className={cn(
-              "text-lg font-bold transition-colors duration-300",
-              isSticky
-                ? "text-theme-primary dark:text-theme-primary"
-                : "text-gray-900 dark:text-white"
+              'text-sm font-medium transition-colors duration-150',
+              'text-gray-900 dark:text-white'
             )}
           >
             Categories
@@ -964,8 +920,8 @@ export function Categories(props: {
               radius="full"
               size="sm"
               className={cn(
-                "px-4 py-1 font-medium transition-all duration-300  text-theme-primary bg-theme-primary-10 hover:to-theme-primary",
-                isSticky && "shadow-xs"
+                'px-3 py-1 text-xs font-medium transition-colors duration-150 text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/[0.06] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.1]',
+                isSticky && 'shadow-xs'
               )}
               onPress={() => setShowAllCategories(!showAllCategories)}
             >
@@ -978,7 +934,7 @@ export function Categories(props: {
                     height="16"
                     viewBox="0 0 24 24"
                     fill="none"
-                    className="ml-1.5 transition-transform group-hover:-translate-y-0.5 dark:text-default-300"
+                    className="ml-1.5 transition-transform group-.5 dark:text-default-300"
                   >
                     <path
                       d="M3 10h18M3 14h18"
@@ -1019,23 +975,23 @@ export function Categories(props: {
           {!showAllCategories && (
             <div className="w-full flex flex-nowrap gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-blue-500/30 dark:scrollbar-thumb-blue-700/30 scrollbar-track-transparent -mr-2">
               <Button
-                variant={!isAnyTagActive ? "solid" : "bordered"}
+                variant={!isAnyTagActive ? 'solid' : 'bordered'}
                 radius="full"
                 size="sm"
                 as={Link}
                 prefetch={false}
-                href={props.resetPath || props.basePath || "/"}
+                href={props.resetPath || props.basePath || '/'}
                 className={cn(
-                  "px-3 py-1 h-8 font-medium transition-all duration-300 shrink-0 group",
+                  'px-2.5 py-0.5 h-7 font-medium transition-colors duration-150 shrink-0 group',
                   !isAnyTagActive
-                    ? "bg-theme-primary text-white border-theme-primary-500 shadow-xs"
-                    : "border border-dark--theme-200 dark:border-dark--theme-800",
-                  "hover:shadow-md hover:border-theme-primary dark:hover:border-theme-primary"
+                    ? 'bg-theme-primary text-white border-theme-primary'
+                    : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+                  'hover:border-theme-primary'
                 )}
               >
                 {!isAnyTagActive && (
                   <svg
-                    className="w-3 h-3 mr-1.5 text-white"
+                    className="w-2.5 h-2.5 mr-1 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1048,13 +1004,11 @@ export function Categories(props: {
                     />
                   </svg>
                 )}
-                <span>All Categories</span>
+                <span className="text-xs">All Categories</span>
                 <span
                   className={cn(
-                    "ml-1.5 text-xs font-normal",
-                    !isAnyTagActive
-                      ? "text-white"
-                      : "text-dark-500 dark:text-dark-400"
+                    'ml-1 text-[10px] font-normal',
+                    !isAnyTagActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'
                   )}
                 >
                   ({props.categories.length})
@@ -1067,23 +1021,23 @@ export function Categories(props: {
           {showAllCategories && (
             <div className="w-full flex flex-wrap gap-2">
               <Button
-                variant={!isAnyTagActive ? "solid" : "bordered"}
+                variant={!isAnyTagActive ? 'solid' : 'bordered'}
                 radius="full"
                 size="sm"
                 as={Link}
                 prefetch={false}
-                href={props.resetPath || props.basePath || "/"}
+                href={props.resetPath || props.basePath || '/'}
                 className={cn(
-                  "px-3 py-1 h-8 font-medium transition-all duration-200",
+                  'px-2.5 py-0.5 h-7 font-medium transition-colors duration-150',
                   !isAnyTagActive
-                    ? "bg-theme-primary text-white border-theme-primary shadow-xs"
-                    : "border border-dark--theme-200 dark:border-dark--theme-800",
-                  "hover:shadow-md hover:border-theme-primary dark:hover:border-theme-primary"
+                    ? 'bg-theme-primary text-white border-theme-primary'
+                    : 'border border-gray-200 dark:border-white/[0.08] text-gray-700 dark:text-gray-300',
+                  'hover:border-theme-primary'
                 )}
               >
                 {!isAnyTagActive && (
                   <svg
-                    className="w-3 h-3 mr-1.5 text-white"
+                    className="w-2.5 h-2.5 mr-1 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -1096,13 +1050,11 @@ export function Categories(props: {
                     />
                   </svg>
                 )}
-                <span>All Categories</span>
+                <span className="text-xs">All Categories</span>
                 <span
                   className={cn(
-                    "ml-1.5 text-xs font-normal",
-                    !isAnyTagActive
-                      ? "text-white"
-                      : "text-dark-500 dark:text-dark-400"
+                    'ml-1 text-[10px] font-normal',
+                    !isAnyTagActive ? 'text-white/80' : 'text-gray-500 dark:text-gray-400'
                   )}
                 >
                   ({props.categories.length})

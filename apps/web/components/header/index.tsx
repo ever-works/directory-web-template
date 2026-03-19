@@ -128,26 +128,29 @@ const NAVIGATION_CONFIG: Array<{
 ];
 
 const STYLES = {
-	navbar: 'bg-white/75 dark:bg-gray-900/75 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 sticky top-0 z-50',
-	container: 'flex items-center justify-between w-full min-h-[60px] sm:min-h-[64px] md:min-h-[68px] lg:min-h-[72px]',
+	navbar: 'bg-white/75 dark:bg-[#0a0a0a]/75 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.06] sticky top-0 z-50',
+	container: 'flex items-center justify-between w-full min-h-[60px] sm:min-h-[64px] md:min-h-[68px] lg:min-h-[65px]',
 	navContent: 'hidden lg:flex gap-5 xl:gap-6 2xl:gap-6 mr-6 xl:mr-8 2xl:mr-10',
-	navbarMenuToggle: 'lg:hidden transition-transform duration-150 hover:scale-105',
-	brand: 'flex items-center group transition-transform duration-150 hover:scale-[1.02]',
+	navbarMenuToggle: 'lg:hidden transition-transform duration-150',
+	brand: 'flex items-center group transition-transform duration-150',
 	brandIcon: 'relative font-bold mr-2 sm:mr-3 md:mr-4 lg:mr-5',
 	brandIconSvg:
-		'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-11 2xl:h-11 transition-transform duration-150 group-hover:scale-105',
+		'w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 2xl:w-11 2xl:h-11 transition-transform duration-150 group-',
 	brandText:
 		'font-bold text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl transition-colors duration-200 group-hover:text-theme-primary',
-	linkBase: 'transition-colors duration-150 pb-2.5 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base',
-	linkActive: 'text-theme-primary pb-2.5 font-medium relative after:content-[""] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-theme-primary after:rounded-full',
+	linkBase:
+		'transition-colors duration-150 pb-2.5 font-medium whitespace-nowrap text-xs lg:text-sm dark:text-gray-300',
+	linkActive:
+		'text-theme-primary pb-2.5 font-medium relative after:content-[""] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-theme-primary after:rounded-full',
 	linkInactive: 'text-gray-700 dark:text-gray-300 hover:text-theme-primary',
-	rightSection: 'flex items-center gap-1 sm:gap-2 md:gap-2 pl-8 py-1 relative lg:before:content-[""] lg:before:absolute lg:before:left-0 lg:before:h-[20px] lg:before:w-px lg:before:bg-gray-200 dark:lg:before:bg-gray-700',
+	rightSection:
+		'flex items-center gap-1 sm:gap-2 md:gap-2 pl-8 py-1 relative lg:before:content-[""] lg:before:absolute lg:before:left-0 lg:before:h-[20px] lg:before:w-px lg:before:bg-gray-200 dark:lg:before:bg-gray-700',
 	mobileMenu: 'mt-6 flex flex-col gap-2 px-4 pb-6',
 	mobileMenuItem:
 		'text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200',
 	mobileLink:
-		'block w-full text-sm sm:text-base md:text-lg py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150',
-	mobileControls: 'py-4 flex flex-col gap-4 border-t border-gray-200/50 dark:border-gray-700/50 mt-4',
+		'block w-full text-sm sm:text-base md:text-lg py-2 px-3 rounded-md hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors duration-150',
+	mobileControls: 'py-4 flex flex-col gap-4 border-t border-gray-200/50 dark:border-white/[0.06] mt-4',
 	mobileOnly: 'lg:hidden',
 	desktopOnly: 'hidden lg:block',
 	tabletUp: 'hidden md:block',
@@ -161,7 +164,7 @@ function HeaderNavSkeleton() {
 		<div className="hidden lg:flex gap-4 xl:gap-6 2xl:gap-8 mr-6 xl:mr-8 2xl:mr-10">
 			{/* Show skeleton placeholders for nav items */}
 			{[1, 2, 3, 4, 5].map((i) => (
-				<div key={i} className="h-5 w-16 bg-gray-200/50 dark:bg-gray-700/50 rounded animate-pulse" />
+				<div key={i} className="h-5 w-16 bg-gray-200/50 dark:bg-white/[0.04] rounded animate-pulse" />
 			))}
 		</div>
 	);
@@ -406,9 +409,7 @@ export default function Header() {
 				{/* Desktop: Three-column flex layout */}
 				<div className="hidden lg:flex w-full flex-row items-center justify-between">
 					{/* Left: Logo (Brand) */}
-					<div className="flex-shrink-0 flex items-center min-w-0">
-						{renderBrand()}
-					</div>
+					<div className="flex-shrink-0 flex items-center min-w-0">{renderBrand()}</div>
 
 					{/* Center: Navigation Links with gap */}
 					<div className="flex flex-1 justify-start min-w-0 gap-6 pl-16">
@@ -416,9 +417,7 @@ export default function Header() {
 					</div>
 
 					{/* Right: Profile, Settings, etc. */}
-					<div className="flex-shrink-0 flex items-center min-w-0 justify-end">
-						{renderRightSection()}
-					</div>
+					<div className="flex-shrink-0 flex items-center min-w-0 justify-end">{renderRightSection()}</div>
 				</div>
 
 				{/* Mobile: Right Section */}
