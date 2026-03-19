@@ -33,34 +33,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Detect package manager
-      id: detect-pm
-      run: |
-        if [ -f "pnpm-lock.yaml" ]; then
-          echo "manager=pnpm" >> $GITHUB_OUTPUT
-          echo "install-cmd=pnpm install" >> $GITHUB_OUTPUT
-        elif [ -f "yarn.lock" ]; then
-          echo "manager=yarn" >> $GITHUB_OUTPUT
-          echo "install-cmd=yarn install --frozen-lockfile" >> $GITHUB_OUTPUT
-        elif [ -f "package-lock.json" ]; then
-          echo "manager=npm" >> $GITHUB_OUTPUT
-          echo "install-cmd=npm ci" >> $GITHUB_OUTPUT
-        else
-          echo "manager=npm" >> $GITHUB_OUTPUT
-          echo "install-cmd=npm install" >> $GITHUB_OUTPUT
-        fi
-
     - name: Setup pnpm
-      if: steps.detect-pm.outputs.manager == 'pnpm'
       uses: pnpm/action-setup@v4
-      with:
-        version: 9
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
-        cache: ${{ steps.detect-pm.outputs.manager }}
+        node-version: '24'
+        cache: pnpm
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
@@ -68,10 +48,10 @@ jobs:
         languages: ${{ matrix.language }}
 
     - name: Setup CodeQL environment
-      run: node scripts/codeql-setup.js
+      run: node apps/web/scripts/codeql-setup.js
 
     - name: Install dependencies
-      run: ${{ steps.detect-pm.outputs.install-cmd }}
+      run: pnpm install
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v3

@@ -1,0 +1,10 @@
+{
+  "version.label": {
+    "message": "Suivant",
+    "description": "The label for version current"
+  },
+  "sidebar.introSidebar.category.Overview": {
+    "message": "Aperçu",
+    "description": "The label for category 'Overview' in sidebar 'introSidebar'"
+  }
+}

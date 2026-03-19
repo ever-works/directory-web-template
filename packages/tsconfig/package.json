@@ -1,0 +1,7 @@
+{
+	"name": "@ever-works/tsconfig",
+	"version": "0.0.0",
+	"private": true,
+	"license": "AGPL-3.0",
+	"files": ["base.json", "nextjs.json", "playwright.json"]
+}

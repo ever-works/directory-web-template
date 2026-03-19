@@ -1,0 +1,18 @@
+{
+  "version.label": {
+    "message": "Suivant",
+    "description": "The label for version current"
+  },
+  "sidebar.platformSidebar.category.API Reference": {
+    "message": "Référence API",
+    "description": "The label for category 'API Reference' in sidebar 'platformSidebar'"
+  },
+  "sidebar.platformSidebar.category.AI & Generation": {
+    "message": "IA et génération",
+    "description": "The label for category 'AI & Generation' in sidebar 'platformSidebar'"
+  },
+  "sidebar.platformSidebar.category.Plugin System": {
+    "message": "Système de plugins",
+    "description": "The label for category 'Plugin System' in sidebar 'platformSidebar'"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "logo.alt": {
+    "message": "Logo Ever® Works",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Intro": {
+    "message": "Introduction",
+    "description": "Navbar item with label Intro"
+  },
+  "item.label.Platform": {
+    "message": "Plateforme",
+    "description": "Navbar item with label Platform"
+  },
+  "item.label.Template": {
+    "message": "Modèle",
+    "description": "Navbar item with label Template"
+  },
+  "item.label.Help": {
+    "message": "Aide",
+    "description": "Navbar item with label Help"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

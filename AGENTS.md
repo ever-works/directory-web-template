@@ -1,24 +1,25 @@
 # Ever Works Website – Agent Instructions (Cursor)
 
-These instructions are for **Cursor agents** (Chat/Agent) working in this repository.
+These instructions are for **Cursor agents** (Chat/Agent) working in the Ever Works Template monorepo.  
+The main web application lives at `apps/web/`.
 
-For full project details (env vars, build/run/test commands, docs, patterns), see the root-level `CLAUDE.md` file.
+For full project details (env vars, build/run/test commands, docs, patterns), see the root `CLAUDE.md` and `README.md`.
 
 ## Runtime & tooling
 
 - Use **Node.js >= 20.19.0**.
 - Use **pnpm** as the package manager.
-- Run all commands from the **repository root**.
+- Run build/dev/lint commands from the **monorepo root** (via Turborepo). App-specific commands (e.g., `pnpm db:migrate`) can be run from `apps/web/`.
 
 ## Build, dev, and verification
 
 Use these commands:
 
-- `pnpm dev` – start the dev server at `http://localhost:3000`.
-- `pnpm build` – production build (generates OpenAPI docs and static pages).
-- `pnpm start` – serve the production build.
-- `pnpm lint` – ESLint.
-- `pnpm tsc --noEmit` – TypeScript type-check.
+- `pnpm run dev` – start all dev servers (from monorepo root).
+- `pnpm run --filter @ever-works/web dev` – start only the web app.
+- `pnpm run build` – build all packages.
+- `pnpm run lint` – lint all packages.
+- `pnpm tsc --noEmit` – TypeScript type-check (run from `apps/web/`).
 
 Treat as the main verification steps:
 
@@ -33,10 +34,11 @@ Treat as the main verification steps:
 
 ## Code organization
 
-- Next.js App Router under `app/[locale]/**` and `app/api/**`.
-- Shared business logic lives in `lib/services/**` and `lib/repositories/**`.
-- Database schema and helpers in `lib/db/**` (Drizzle ORM).
-- UI and layout components live in `components/**`.
+- Next.js App Router under `apps/web/app/[locale]/**` and `apps/web/app/api/**`.
+- Shared business logic lives in `apps/web/lib/services/**` and `apps/web/lib/repositories/**`.
+- Database schema and helpers in `apps/web/lib/db/**` (Drizzle ORM).
+- UI and layout components live in `apps/web/components/**`.
+- E2E tests live in `apps/web-e2e/`. Shared configs in `packages/`.
 - Prefer **TypeScript** for all code.
 
 When implementing features:
@@ -62,6 +64,4 @@ Safe to run when needed:
 ## Source of truth
 
 - This file gives **high-level rules** for Cursor.
-- For deeper details (scripts, env vars, docs, architecture, coding style), **refer to `CLAUDE.md` at the repo root** and the external docs repo at
-  <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>.
-
+- For deeper details (scripts, env vars, docs, architecture, coding style), **refer to the root `CLAUDE.md`** file, to the "docs" folder in the root of this mono-repo and the external docs repo at <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>.

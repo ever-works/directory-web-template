@@ -1,28 +1,64 @@
-# Ever Works Directory Website Template
+# Ever Works Directory Web Template
 
 ## ⭐️ What is it?
 
-Welcome to the **Ever Works Directory Website Template**, a cutting-edge, full-stack directory website solution built with [Next.js](https://nextjs.org).  
+Welcome to the **Ever Works Directory Web Template**, a cutting-edge, full-stack directory website solution built with [Next.js](https://nextjs.org), organized as a **Turborepo monorepo** with **pnpm workspaces**.
 
 This versatile template is an essential component of the [Ever Works Platform](https://ever.works), offering seamless integration while remaining flexible enough to function as a standalone solution.
 
 ## 🔗 Links
 
-- Demo: [https://demo.ever.works](https://demo.ever.works) (deployed from `main` branch of this repo)
-- Docs: [https://docs.ever.works](https://docs.ever.works)
-- Ever Works website: [https://ever.works](https://ever.works) (WIP)
+- **Demo:** [https://demo.ever.works](https://demo.ever.works) (deployed from `main` branch of this repo)
+- **Docs:** [https://docs.ever.works](https://docs.ever.works)
+- **Ever Works website:** [https://ever.works](https://ever.works) (WIP)
 
 ### Additional Links
 
 - Demo Dev: [https://demodev.ever.works](https://demodev.ever.works) (deployed from `develop` branch of this repo)
 - Demo Stage: [https://demostage.ever.works](https://demostage.ever.works) (deployed from `stage` branch of this repo)
 
+## Monorepo Structure
+
+```
+monorepo/
+├── apps/
+│   ├── web/              # Next.js 16 directory website (main app)
+│   ├── web-e2e/          # Playwright E2E tests
+│   └── docs/             # Docusaurus v3 documentation site (app shell)
+├── docs/                 # Documentation content (MD files & assets)
+│   ├── intro/            # Introduction & overview docs
+│   ├── getting-started/  # Setup & quickstart guides
+│   ├── architecture/     # Architecture documentation
+│   ├── api/              # API reference docs
+│   ├── assets/           # Documentation images & assets
+│   └── ...               # Other doc categories
+├── packages/
+│   ├── tsconfig/         # Shared TypeScript configurations
+│   └── eslint-config/    # Shared ESLint 9 flat config
+├── turbo.json            # Turborepo pipeline configuration
+├── pnpm-workspace.yaml   # PNPM workspace definition
+└── package.json          # Root workspace package
+```
+
+> **Note:** Documentation content (Markdown files and assets) lives in the root `docs/` folder for easy discoverability, while the Docusaurus app shell (config, themes, static assets) lives in `apps/docs/`.
+
+### Workspace Packages
+
+| Package                     | Path                     | Description                                                |
+| --------------------------- | ------------------------ | ---------------------------------------------------------- |
+| `@ever-works/web`           | `apps/web`               | Next.js 16 directory website app                           |
+| `@ever-works/web-e2e`       | `apps/web-e2e`           | Playwright E2E tests                                       |
+| `@ever-works/docs`          | `apps/docs`              | Docusaurus v3 documentation site (content in root `docs/`) |
+| `@ever-works/tsconfig`      | `packages/tsconfig`      | Shared TypeScript configurations                           |
+| `@ever-works/eslint-config` | `packages/eslint-config` | Shared ESLint 9 flat config                                |
+
 ## Project Overview
 
-### 🧱 Technology Stack and Requirements
+### 🧱 Technology Stack
 
 - **[TypeScript](https://www.typescriptlang.org)**
-- **[NodeJs](https://nodejs.org)**
+- **[Node.js](https://nodejs.org)** >= 20.19.0
+- **Build System**: [Turborepo](https://turbo.build) + [pnpm](https://pnpm.io) workspaces
 - **Framework**: [Next.js 16](https://nextjs.org) with App Router
 - **Authentication**: [Auth.js](https://authjs.dev) / [Supabase Auth](https://supabase.com/auth)
 - **ORM**: [Drizzle](https://github.com/drizzle-team/drizzle-orm)
@@ -31,15 +67,17 @@ This versatile template is an essential component of the [Ever Works Platform](h
 - **UI Components**: [HeroUI React](https://www.heroui.com)
 - **Internationalization**: [next-intl](https://github.com/amannn/next-intl)
 - **Form Validation**: [Zod](https://zod.dev)
-- **Notifications/Emails Services**: [Novu](https://novu.co) / [Resend](https://resend.com)
+- **E2E Testing**: [Playwright](https://playwright.dev)
+- **Notifications/Emails**: [Novu](https://novu.co) / [Resend](https://resend.com)
 - **Hosting**: [Vercel](https://vercel.com)
 - **Payment Processing**: [Stripe](https://stripe.com), [Lemon Squeezy](https://www.lemonsqueezy.com), [Polar](https://polar.sh), and [Solidgate](https://solidgate.com)
 - **Security**: [Google ReCAPTCHA v2](https://cloud.google.com/security/products/recaptcha)
 
-### 📄 Project Structure
+### 📄 Web App Structure (`apps/web/`)
 
 ```
-├── .content/             # Content management directory
+apps/web/
+├── .content/             # Git-based CMS content directory
 │   ├── posts/            # Blog posts
 │   ├── categories/       # Category definitions
 │   └── assets/           # Media files related to content
@@ -48,49 +86,113 @@ This versatile template is an essential component of the [Ever Works Platform](h
 │   ├── api/              # API routes
 │   └── auth/             # Authentication pages
 ├── components/           # Reusable UI components
-├── lib/                  # Utility functions and config
+├── lib/                  # Core logic, services, repositories
+├── hooks/                # Custom React hooks
+├── messages/             # i18n translation files
 ├── public/               # Static files
 └── styles/               # Global styles
 ```
 
-### Content Management System (.content)
+## Getting Started
 
-The `.content` folder acts as a Git-based CMS, synchronized with the repository specified in the `DATA_REPOSITORY` environment variable.
+### Prerequisites
 
-### Folder Structure:
+- **Node.js** >= 20.19.0
+- **pnpm** 9.x (`corepack enable` to use the version pinned in `package.json`)
+- PostgreSQL database (optional -- SQLite works for local dev)
 
-- **posts/**: Markdown files for blog articles
-    - Each post has a frontmatter (title, date, author, etc.)
-    - Supports MDX for interactive content
-    - Organized by date and category
-- **categories/**: Content organization
-    - YAML files for category configuration
-    - Supports nested categories
-    - Metadata and category relationships
-- **assets/**: Media files related to content
-    - Images, documents, downloadable resources
-    - Organized according to content structure
+### Installation
 
-### Content Synchronization
+1. **Clone the repository**
 
-Automatic sync via GitHub integration:
+    ```bash
+    git clone <repository-url>
+    cd ever-works-monorepo
+    ```
 
-1. Content is pulled from `DATA_REPOSITORY`
-2. Changes are tracked via Git
-3. Updates occur periodically or on demand
-4. Requires a valid `GH_TOKEN` for private repos
+2. **Install dependencies** (from monorepo root)
 
-### Environment Configuration
+    ```bash
+    pnpm install
+    ```
 
-Create a `.env.local` file in the root directory with the following configuration:
+3. **Configure environment variables**
 
-#### Basic Configuration
+    ```bash
+    cp apps/web/.env.example apps/web/.env.local
+    ```
+
+    Fill in the required values (see [Environment Configuration](#environment-configuration) below).
+
+4. **Set up the database** (optional)
+
+    ```bash
+    cd apps/web
+    pnpm db:generate
+    pnpm db:migrate
+    ```
+
+5. **Start development servers**
+
+    ```bash
+    # From monorepo root
+    pnpm run dev        # Start all dev servers
+    pnpm run dev:web    # Start only the web app
+    pnpm run dev:docs   # Start only the docs site
+    ```
+
+    The web app will be available at [http://localhost:3000](http://localhost:3000/).
+
+### Common Commands
+
+| Command             | Description                              |
+| ------------------- | ---------------------------------------- |
+| `pnpm install`      | Install all dependencies (monorepo root) |
+| `pnpm run build`    | Build all packages (via Turbo)           |
+| `pnpm run dev`      | Start all dev servers (via Turbo)        |
+| `pnpm run dev:web`  | Start only the web app                   |
+| `pnpm run dev:docs` | Start only the docs site                 |
+| `pnpm run lint`     | Lint all packages                        |
+| `pnpm run format`   | Format code with Prettier                |
+
+#### Filtering by Package
+
+Run a command for a specific workspace package:
+
+```bash
+pnpm run --filter @ever-works/web dev
+pnpm run --filter @ever-works/web build
+pnpm run --filter @ever-works/docs dev
+```
+
+#### Web App Commands (from `apps/web/`)
+
+```bash
+pnpm dev              # Start dev server
+pnpm build            # Production build
+pnpm start            # Start built app
+pnpm lint             # ESLint
+pnpm tsc --noEmit     # Type-check only
+pnpm db:generate      # Generate Drizzle migrations
+pnpm db:migrate       # Apply migrations
+pnpm db:seed          # Seed database
+pnpm db:studio        # Open Drizzle Studio GUI
+```
+
+## Environment Configuration
+
+Create a `.env.local` file in `apps/web/` with the following configuration:
+
+### Basic Configuration
+
 ```bash
 # Environment
 NODE_ENV=development
 
+# App URL
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
 # API Configuration
-# Internal website API (Next.js API routes)
 NEXT_PUBLIC_API_BASE_URL="http://localhost:3000/api"
 API_TIMEOUT=10000
 API_RETRY_ATTEMPTS=3
@@ -107,48 +209,99 @@ PLATFORM_API_SECRET_TOKEN="your-platform-api-secret-token"
 
 # Cookie Security
 COOKIE_SECRET="your-secure-cookie-secret"  # Generate with: openssl rand -base64 32
-COOKIE_DOMAIN="localhost"                  # In production: your-domain.com
-COOKIE_SECURE=false                        # In production: true
-COOKIE_SAME_SITE="lax"                    # In production: strict
+COOKIE_DOMAIN="localhost"
+COOKIE_SECURE=false
+COOKIE_SAME_SITE="lax"
 ```
 
-### Site Configuration (config.yml)
+### Auth Setup
+
+```bash
+AUTH_SECRET="your-secret-key"
+# Generate one with: openssl rand -base64 32
+
+# Auth Endpoints
+AUTH_ENDPOINT_LOGIN="/auth/login"
+AUTH_ENDPOINT_REFRESH="/auth/refresh"
+AUTH_ENDPOINT_LOGOUT="/auth/logout"
+AUTH_ENDPOINT_CHECK="/auth/check"
+
+# JWT Configuration
+JWT_ACCESS_TOKEN_EXPIRES_IN=15m
+JWT_REFRESH_TOKEN_EXPIRES_IN=7d
+```
+
+### GitHub Integration / Data Repository
+
+1. Fork the data repository:
+    - Visit https://github.com/ever-works/awesome-data
+    - Click "Fork" to create a copy
+    - This repo will hold `.content` data
+
+2. Configure:
+
+```bash
+GH_TOKEN='your-github-token'
+DATA_REPOSITORY='https://github.com/ever-works/awesome-data'
+```
+
+> 💡 The `.content` folder is created and synced automatically at startup with valid GitHub credentials.
+
+### Database Configuration
+
+```bash
+DATABASE_URL=postgresql://user:password@localhost:5432/db_name
+# Or for local dev with SQLite:
+# DATABASE_URL=file:./dev.db
+```
+
+### Seeding Admin Credentials
+
+```bash
+SEED_ADMIN_EMAIL="admin@demo.ever.works"  # required in production
+SEED_ADMIN_PASSWORD="a-strong-password"   # required in production
+```
+
+- In **development**, the seeder falls back to defaults (`admin@demo.ever.works` / `Passw0rd123!`).
+- In **production**, both variables **must** be set; the default password is rejected.
+- `SEED_FAKE_USER_COUNT` (default: 10) generates extra fake users when the `users` table is empty.
+
+> ⚠️ Security: Never commit `.env.local`. Keep your secrets safe.
+
+### Site Configuration (`apps/web/.content/config.yml`)
 
 The `.content/config.yml` file controls main site settings:
 
 ```yaml
-# Basic site settings
-company_name: Acme             # Company or site name
-content_table: false          # Enable/disable content table
-item_name: Item               # Singular name for items
-items_name: Items             # Plural name for items
-copyright_year: 2025         # Footer copyright
+company_name: Acme
+content_table: false
+item_name: Item
+items_name: Items
+copyright_year: 2025
 
-# Auth settings
 auth:
-    credentials: true         # Email/password login
-    google: true              # Google login
-    github: true              # GitHub login
-    microsoft: true           # Microsoft login
-    fb: true                  # Facebook login
-    x: true                   # X (Twitter) login
+    credentials: true
+    google: true
+    github: true
+    microsoft: true
+    fb: true
+    x: true
 
-# Custom navigation links
 custom_header:
-  - label: "About"
-    path: "/about"
-  - label: "Documentation"
-    path: "/pages/docs"
-  - label: "Blog"
-    path: "https://blog.example.com"
+    - label: 'About'
+      path: '/about'
+    - label: 'Documentation'
+      path: '/pages/docs'
+    - label: 'Blog'
+      path: 'https://blog.example.com'
 
 custom_footer:
-  - label: "Privacy Policy"
-    path: "/pages/privacy-policy"
-  - label: "Terms of Service"
-    path: "/terms"
-  - label: "GitHub"
-    path: "https://github.com/example"
+    - label: 'Privacy Policy'
+      path: '/pages/privacy-policy'
+    - label: 'Terms of Service'
+      path: '/terms'
+    - label: 'GitHub'
+      path: 'https://github.com/example'
 ```
 
 ### Configuration Options:
@@ -158,10 +311,12 @@ custom_footer:
     - `content_table`: Enable or disable content table
     - `item_name` / `items_name`: Custom item labels
     - `copyright`
+
 2. **Auth settings**
     - Enable/disable OAuth providers
     - Use `true` to enable, `false` to disable
     - Configure corresponding OAuth keys
+
 3. **Custom navigation** (see [Custom Navigation Documentation](docs/CUSTOM_NAVIGATION.md))
     - `custom_header`: Array of navigation items for the header menu
     - `custom_footer`: Array of links for the footer section
@@ -170,93 +325,34 @@ custom_footer:
 
 > 💡 Note: Changes in config.yml are applied after syncing content or restarting the server.
 
-## Getting Started
+## Content Management System
 
-### Prerequisites
+The `apps/web/.content` folder acts as a Git-based CMS, synchronized with the repository specified in the `DATA_REPOSITORY` environment variable.
 
-- Node.js 18.x or higher
-- PostgreSQL database (optional)
-- `pnpm` package manager
+### Folder Structure:
 
-### Environment Setup
+- **posts/**: Markdown files for blog articles
+    - Each post has a frontmatter (title, date, author, etc.)
+    - Supports MDX for interactive content
+    - Organized by date and category
 
-1. Copy the `.env.example` file to `.env.local`:
+- **categories/**: Content organization
+    - YAML files for category configuration
+    - Supports nested categories
+    - Metadata and category relationships
 
-```bash
-cp .env.example .env.local
-```
+- **assets/**: Media files related to content
+    - Images, documents, downloadable resources
+    - Organized according to content structure
 
-2. Fill in your environment variables in `.env.local`:
+### Content Synchronization
 
-### Auth Setup
+Automatic sync via GitHub integration:
 
-```
-AUTH_SECRET="your-secret-key"
-# Generate one with: openssl rand -base64 32
-```
-
-### GitHub Integration
-
-### Define the data repository
-
-1. Fork the repository:
-    - Visit https://github.com/ever-works/awesome-data
-    - Click "Fork" to create a copy
-    - This repo will hold `.content` data
-2. Configure GitHub integration:
-
-```
-GH_TOKEN='your-github-token'
-DATA_REPOSITORY='https://github.com/ever-works/awesome-data'
-```
-
-> 💡 Important: The .content folder is created and synced automatically at startup with valid GitHub credentials.
-
-### Database Configuration
-
-```
-DATABASE_URL=postgresql://user:password@localhost:5432/db_name
-```
-
-### Seeding admin user credentials
-
-The database seeding script (`pnpm db:seed`) can create an initial admin user. Admin credentials are controlled via:
-
-```bash
-SEED_ADMIN_EMAIL="admin@demo.ever.works"  # required in production
-SEED_ADMIN_PASSWORD="a-strong-password"   # required in production
-```
-
-- In **production**, both variables **must** be set; the seed will refuse to run with implicit defaults.
-- In **development**, if these are not set, the seeder falls back to convenient defaults (`admin@demo.ever.works` / `Passw0rd123!`).
-- In production, the seeder will **reject** the default `Passw0rd123!` password even if explicitly configured.
-- Optionally, set `SEED_FAKE_USER_COUNT` (**defaults to 10** when unset) to generate extra fake users (with profiles & accounts) using Faker when the `users` table is initially empty. This applies in all environments, including production.
-
-### Details
-
-- `user`: PostgreSQL username
-- `password`: PostgreSQL password
-- `localhost`: Database host
-- `5432`: Default PostgreSQL port
-- `db_name`: Name of your database
-
-> ⚠️ Security: Never commit .env.local. Keep your secrets safe.
-
-### Installation
-
-```bash
-# Install dependencies
-pnpm install
-
-# Set up the database
-pnpm db:generate
-pnpm db:migrate
-
-# Start the dev server
-pnpm dev
-```
-
-The app will be available at [http://localhost:3000](http://localhost:3000/).
+1. Content is pulled from `DATA_REPOSITORY`
+2. Changes are tracked via Git
+3. Updates occur periodically or on demand
+4. Requires a valid `GH_TOKEN` for private repos
 
 ## 💳 Payment Integration
 
@@ -264,28 +360,29 @@ This template supports different payment providers: [Stripe](https://stripe.com)
 
 ### Payment Provider Configuration
 
-The payment provider is configured in your site's config file (`.content/config.yml`):
+The payment provider is configured in your site's config file (`apps/web/.content/config.yml`):
 
 ```yaml
 # Payment configuration
 payment:
-  provider: 'stripe'  # Options: 'stripe' | 'lemonsqueezy'
+    provider: 'stripe' # Options: 'stripe' | 'lemonsqueezy'
 
 # Pricing plans
 pricing:
-  free: 0
-  pro: 10
-  sponsor: 20
+    free: 0
+    pro: 10
+    sponsor: 20
 ```
 
 ### Stripe Setup
 
 1. **Create Stripe Account**
-   - Visit [Stripe Dashboard](https://dashboard.stripe.com/)
-   - Create an account or sign in
-   - Get your API keys from the Developers section
+    - Visit [Stripe Dashboard](https://dashboard.stripe.com/)
+    - Create an account or sign in
+    - Get your API keys from the Developers section
 
 2. **Configure Environment Variables**
+
 ```bash
 # Stripe Configuration
 STRIPE_SECRET_KEY="sk_test_your-stripe-secret-key"
@@ -299,23 +396,24 @@ NEXT_PUBLIC_STRIPE_PREMIUM_PRICE_ID="price_your-sponsor-price-id"
 ```
 
 3. **Create Products & Prices in Stripe**
-   - Go to Stripe Dashboard → Products
-   - Create products for each plan (Pro, Sponsor)
-   - Copy the Price IDs to your environment variables
+    - Go to Stripe Dashboard → Products
+    - Create products for each plan (Pro, Sponsor)
+    - Copy the Price IDs to your environment variables
 
 4. **Setup Webhooks**
-   - Go to Stripe Dashboard → Webhooks
-   - Add endpoint: `https://yourdomain.com/api/webhooks/stripe`
-   - Select events: `checkout.session.completed`, `invoice.payment_succeeded`
-   - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
+    - Go to Stripe Dashboard → Webhooks
+    - Add endpoint: `https://yourdomain.com/api/webhooks/stripe`
+    - Select events: `checkout.session.completed`, `invoice.payment_succeeded`
+    - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
 
 ### LemonSqueezy Setup
 
 1. **Create LemonSqueezy Account**
-   - Visit [LemonSqueezy](https://lemonsqueezy.com/)
-   - Create an account and set up your store
+    - Visit [LemonSqueezy](https://lemonsqueezy.com/)
+    - Create an account and set up your store
 
 2. **Configure Environment Variables**
+
 ```bash
 # LemonSqueezy Configuration
 LEMONSQUEEZY_API_KEY="your-lemonsqueezy-api-key"
@@ -328,27 +426,27 @@ NEXT_PUBLIC_LEMONSQUEEZY_SPONSOR_PRODUCT_ID="your-sponsor-product-id"
 ```
 
 3. **Create Products in LemonSqueezy**
-   - Go to your LemonSqueezy store
-   - Create products for each plan
-   - Copy the Product IDs to your environment variables
+    - Go to your LemonSqueezy store
+    - Create products for each plan
+    - Copy the Product IDs to your environment variables
 
 4. **Setup Webhooks**
-   - Go to Settings → Webhooks
-   - Add webhook URL: `https://yourdomain.com/api/webhooks/lemonsqueezy`
-   - Copy webhook secret to environment variables
+    - Go to Settings → Webhooks
+    - Add webhook URL: `https://yourdomain.com/api/webhooks/lemonsqueezy`
+    - Copy webhook secret to environment variables
 
 ### Switching Payment Providers
 
 To switch between payment providers:
 
 1. **Update config.yml**
+
 ```yaml
 payment:
-  provider: 'lemonsqueezy'  # Change from 'stripe' to 'lemonsqueezy'
+    provider: 'lemonsqueezy' # Change from 'stripe' to 'lemonsqueezy'
 ```
 
 2. **Restart your application** for changes to take effect
-
 3. **Ensure environment variables** are configured for your chosen provider
 
 ### Payment Features
@@ -365,22 +463,22 @@ payment:
 ### Security Notes
 
 1. **Cookie Security**
-   - httpOnly cookies are used for token storage
-   - Prevents XSS attacks by making tokens inaccessible to JavaScript
-   - Secure flag must be enabled in production
-   - SameSite policy helps prevent CSRF attacks
+    - httpOnly cookies are used for token storage
+    - Prevents XSS attacks by making tokens inaccessible to JavaScript
+    - Secure flag must be enabled in production
+    - SameSite policy helps prevent CSRF attacks
 
 2. **API Security**
-   - Automatic token refresh handling
-   - Request queue during token refresh
-   - Exponential backoff for retries
-   - Proper error handling and formatting
+    - Automatic token refresh handling
+    - Request queue during token refresh
+    - Exponential backoff for retries
+    - Proper error handling and formatting
 
 3. **Environment Specific**
-   - Development uses relaxed security for local testing
-   - Production requires strict security settings
-   - Different cookie domains per environment
-   - CORS configuration required for production
+    - Development uses relaxed security for local testing
+    - Production requires strict security settings
+    - Different cookie domains per environment
+    - CORS configuration required for production
 
 ### ReCAPTCHA v2 Integration
 
@@ -389,11 +487,12 @@ This template includes Google ReCAPTCHA v2 for form protection against spam and 
 #### Setup ReCAPTCHA
 
 1. **Get ReCAPTCHA Keys**
-   - Visit [Google ReCAPTCHA Console](https://www.google.com/recaptcha/admin/create)
-   - Create a new site with reCAPTCHA v2 ("I'm not a robot" checkbox)
-   - Add your domains (localhost for development, your domain for production)
+    - Visit [Google ReCAPTCHA Console](https://www.google.com/recaptcha/admin/create)
+    - Create a new site with reCAPTCHA v2 ("I'm not a robot" checkbox)
+    - Add your domains (localhost for development, your domain for production)
 
 2. **Configure Environment Variables**
+
 ```bash
 # ReCAPTCHA Configuration
 NEXT_PUBLIC_RECAPTCHA_SITE_KEY="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"  # Site key (public)
@@ -427,9 +526,10 @@ ReCAPTCHA can be enabled/disabled per form by modifying the component props:
 
 ### Server Client Features
 
-The template includes a robust API client (`lib/api/server-client.ts`) with advanced features:
+The template includes a robust API client (`apps/web/lib/api/server-client.ts`) with advanced features:
 
 #### Core Features
+
 - ✅ **Automatic Retries**: 3 attempts with exponential backoff
 - ✅ **Timeout Handling**: Configurable request timeouts
 - ✅ **Error Management**: Centralized error handling and logging
@@ -444,13 +544,13 @@ import { serverClient, apiUtils } from '@/lib/api/server-client';
 // GET request
 const users = await serverClient.get<User[]>('/api/users');
 if (apiUtils.isSuccess(users)) {
-  console.log(users.data); // TypeScript knows this is User[]
+	console.log(users.data); // TypeScript knows this is User[]
 }
 
 // POST request with data
 const result = await serverClient.post('/api/auth/login', {
-  email: 'user@example.com',
-  password: 'password123'
+	email: 'user@example.com',
+	password: 'password123'
 });
 
 // File upload
@@ -459,9 +559,9 @@ const upload = await serverClient.upload('/api/upload', file);
 
 // Form data submission
 const contact = await serverClient.postForm('/api/contact', {
-  name: 'John Doe',
-  email: 'john@example.com',
-  message: 'Hello world'
+	name: 'John Doe',
+	email: 'john@example.com',
+	message: 'Hello world'
 });
 ```
 
@@ -479,9 +579,9 @@ const verification = await recaptchaClient.verify(token);
 // Custom client
 import { createApiClient } from '@/lib/api/server-client';
 const customClient = createApiClient('https://api.myservice.com', {
-  timeout: 30000,
-  retries: 5,
-  headers: { 'Authorization': 'Bearer token' }
+	timeout: 30000,
+	retries: 5,
+	headers: { Authorization: 'Bearer token' }
 });
 ```
 
@@ -489,13 +589,14 @@ const customClient = createApiClient('https://api.myservice.com', {
 
 ```tsx
 const client = new ServerClient('https://api.example.com', {
-  timeout: 10000,        // Request timeout (ms)
-  retries: 3,           // Number of retry attempts
-  retryDelay: 1000,     // Delay between retries (ms)
-  headers: {            // Default headers
-    'Authorization': 'Bearer token',
-    'X-API-Version': 'v2'
-  }
+	timeout: 10000, // Request timeout (ms)
+	retries: 3, // Number of retry attempts
+	retryDelay: 1000, // Delay between retries (ms)
+	headers: {
+		// Default headers
+		Authorization: 'Bearer token',
+		'X-API-Version': 'v2'
+	}
 });
 ```
 
@@ -509,42 +610,45 @@ await api.login({ email: 'user@example.com', password: 'password' });
 
 // Check authentication status
 if (await api.isAuthenticated()) {
-  // Make authenticated requests
-  const response = await api.get('/protected-endpoint');
+	// Make authenticated requests
+	const response = await api.get('/protected-endpoint');
 }
 
 // Logout
 await api.logout();
 ```
 
-### Developer Tools
-
-- **Database Studio**: `npm run db:studio`
-- **Linting**: `npm run lint`
-- **Type Checking**: `tsc` or during build
-
 ## Developer Guide
 
 ### Adding New Features
 
-1. **Pages**: Add in `app/[locale]`
-2. **API**: Create endpoints in `app/api`
-3. **Components**: Add to `components`
-4. **Database**: Edit schema in `lib/db/schema.ts`
+1. **Pages**: Add in `apps/web/app/[locale]`
+2. **API Routes**: Create endpoints in `apps/web/app/api`
+3. **Components**: Add to `apps/web/components`
+4. **Business Logic**: Add to `apps/web/lib/services`
+5. **Database**: Edit schema in `apps/web/lib/db/schema.ts`
+
+### Adding New Packages to the Monorepo
+
+1. Create a new directory under `apps/` (for applications) or `packages/` (for shared libraries/configs).
+2. Add a `package.json` with a scoped name (e.g., `@ever-works/my-package`).
+3. The package is automatically detected by pnpm workspaces.
+4. If it participates in `build`, `dev`, or `lint` pipelines, ensure scripts are defined in its `package.json` -- Turborepo will pick them up based on `turbo.json`.
 
 ### Internationalization
 
-- Add translations under `messages`
+- Add translations under `apps/web/messages/`
 - Use `useTranslations` in components
 - Add new locales in config
 
 ### Authentication
 
-- Configure providers in `auth.config.ts`
+- Configure providers in `apps/web/auth.config.ts`
 - Protect routes via middleware
-- Customize auth pages in `app/[locale]/auth`
+- Customize auth pages in `apps/web/app/[locale]/auth`
 
 #### Authentication Configuration
+
 ```bash
 # Auth Endpoints
 AUTH_ENDPOINT_LOGIN="/auth/login"
@@ -558,6 +662,7 @@ JWT_REFRESH_TOKEN_EXPIRES_IN=7d
 ```
 
 #### CORS Configuration (Production)
+
 ```bash
 # CORS Settings
 CORS_ORIGIN="https://your-frontend-domain.com"
@@ -565,18 +670,26 @@ CORS_CREDENTIALS=true
 CORS_METHODS="GET,POST,PUT,DELETE,OPTIONS"
 ```
 
+### Developer Tools
+
+- **Database Studio**: `pnpm db:studio` (from `apps/web/`)
+- **Linting**: `pnpm run lint`
+- **Type Checking**: `pnpm tsc --noEmit` (from `apps/web/`)
+
+### Deployment on Vercel
+
+The easiest way to deploy is via the [Vercel platform](https://vercel.com/new?utm_medium=default-template&filter=next.js).
+
+Check the [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying).
+
 ## 🔗 Resources
 
 - [Next.js Docs](https://nextjs.org/docs)
-- [NextAuth.js Guide](https://authjs.dev/)
+- [Auth.js Guide](https://authjs.dev/)
 - [Drizzle ORM Docs](https://orm.drizzle.team/)
 - [Tailwind CSS Docs](https://tailwindcss.com/docs)
-
-## Deployment on Vercel
-
-The easiest way to deploy the app is via the [Vercel platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
-
-Check the [Next.js deployment docs](https://nextjs.org/docs/app/building-your-application/deploying).
+- [Turborepo Docs](https://turbo.build/repo/docs)
+- [pnpm Docs](https://pnpm.io)
 
 ## License
 
@@ -593,20 +706,20 @@ All other brand and product names are trademarks, registered trademarks, or serv
 
 ## 🍺 Contribute
 
--   Please give us a :star: on Github, it **helps**!
--   You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
--   Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
+- Please give us a :star: on Github, it **helps**!
+- You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
+- Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
 
 ## 💪 Thanks to our Contributors
 
-See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/ever-works-website-template/blob/develop/.github/CONTRIBUTORS.md).
-You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/ever-works-website-template/graphs/contributors).
+See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/directory-web-template/blob/develop/.github/CONTRIBUTORS.md).
+You can also view a full list of our [contributors tracked by Github](https://github.com/ever-co/directory-web-template/graphs/contributors).
 
-<img src="https://contributors-img.web.app/image?repo=ever-co/ever-works-website-template" />
+<img src="https://contributors-img.web.app/image?repo=ever-co/directory-web-template" />
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/ever-works-website-template&type=Date)](https://star-history.com/#ever-co/ever-works-website-template&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/directory-web-template&type=Date)](https://star-history.com/#ever-co/directory-web-template&Date)
 
 ## ❤️ Powered By
 

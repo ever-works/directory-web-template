@@ -2,23 +2,24 @@
 
 These instructions customize **GitHub Copilot** for this repository.
 
+This repository is a **Turborepo monorepo** with the main web application at `apps/web/`.
+
 For full project details (build/run/test, env, architecture, docs), Copilot should treat the root `CLAUDE.md` file as the primary reference.
 
 ## Runtime & tooling
 
 - Use **Node.js >= 20.19.0**.
 - Use **pnpm** as the package manager (not npm or yarn).
-- Assume commands are run from the **repository root**.
+- Run build/dev/lint commands from the **monorepo root**. App-specific commands (db, etc.) from `apps/web/`.
 
 ## How to run and verify
 
 Preferred commands:
 
-- `pnpm dev` – start the dev server.
-- `pnpm build` – production build.
-- `pnpm start` – run the built app.
-- `pnpm lint` – lint the codebase.
-- `pnpm tsc --noEmit` – TypeScript type-check.
+- `pnpm run dev` – start all dev servers.
+- `pnpm run --filter @ever-works/web dev` – start only web app.
+- `pnpm run build` – build all packages.
+- `pnpm run lint` – lint all packages.
 
 Treat the following as the main "tests":
 
@@ -28,11 +29,12 @@ Treat the following as the main "tests":
 
 ## Project structure
 
-- Routes and pages: `app/[locale]/**`, `app/api/**` (Next.js App Router).
-- UI components: `components/**`.
-- Business logic: `lib/services/**`.
-- Data access / repositories: `lib/repositories/**`.
-- Database schema & tooling: `lib/db/**`, `drizzle.config.ts`.
+- Routes and pages: `apps/web/app/[locale]/**`, `apps/web/app/api/**` (Next.js App Router).
+- UI components: `apps/web/components/**`.
+- Business logic: `apps/web/lib/services/**`.
+- Data access / repositories: `apps/web/lib/repositories/**`.
+- Database schema & tooling: `apps/web/lib/db/**`, `apps/web/drizzle.config.ts`.
+- E2E tests: `apps/web-e2e/`. Shared configs: `packages/`.
 
 When generating or editing code, Copilot should:
 
@@ -59,7 +61,7 @@ It is **safe** to suggest and run (for verification):
 
 When Copilot needs more context about architecture, auth, payments, theming, or API design, it should:
 
-- First consult `CLAUDE.md` in the repo root.
+- First consult the root `CLAUDE.md`.
 - Then, if needed, refer to the external docs repo at
   <https://github.com/ever-works/ever-works-docs/tree/develop/website/docs>.
 
