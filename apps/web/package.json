@@ -119,7 +119,7 @@
 		"lodash.throttle": "^4.1.1",
 		"lucide-react": "^0.475.0",
 		"mapbox-gl": "^3.18.0",
-		"next": "^16.1.5",
+		"next": "^16.1.7",
 		"next-auth": "5.0.0-beta.30",
 		"next-intl": "^4.5.5",
 		"next-mdx-remote": "^6.0.0",
