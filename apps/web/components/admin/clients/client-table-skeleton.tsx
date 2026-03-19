@@ -6,9 +6,9 @@ interface ClientTableSkeletonProps {
 
 export function ClientTableSkeleton({ rows = 10 }: ClientTableSkeletonProps) {
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden" aria-hidden="true">
+    <div className="bg-white dark:bg-white/[0.03] rounded-xl shadow-xs border border-gray-200 dark:border-white/[0.06] overflow-hidden" aria-hidden="true">
       {/* Table Header */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02]">
         <div className="grid grid-cols-12 gap-4 items-center">
           <div className="col-span-3">
             <Skeleton className="h-4 w-20" />
@@ -32,7 +32,7 @@ export function ClientTableSkeleton({ rows = 10 }: ClientTableSkeletonProps) {
       </div>
 
       {/* Table Body */}
-      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+      <div className="divide-y divide-gray-200 dark:divide-white/[0.06]">
         {Array.from({ length: rows }).map((_, index) => (
           <div key={`client-row-${index}`} className="px-6 py-4">
             <div className="grid grid-cols-12 gap-4 items-center">

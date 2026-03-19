@@ -8,7 +8,7 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900! dark:via-gray-800! dark:to-gray-900!">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a]! dark:via-[#0a0a0a]! dark:to-[#0a0a0a]!">
       <div className="text-center px-6 py-12 max-w-md mx-auto">
         {/* 404 Number */}
         <div className="mb-8">
@@ -48,7 +48,7 @@ export default function NotFound() {
         </div>
 
         {/* Search Suggestion */}
-        <div className="mt-12 p-4 bg-white/50 dark:bg-gray-800/50 rounded-lg border border-gray-200/50 dark:border-gray-700/50">
+        <div className="mt-12 p-4 bg-white/50 dark:bg-white/[0.03] rounded-lg border border-gray-200/50 dark:border-white/[0.04]">
           <div className="flex items-center gap-3 mb-3">
             <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">

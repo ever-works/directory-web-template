@@ -40,7 +40,7 @@ export function AdminRecentActivity({ data, isLoading }: AdminRecentActivityProp
       case 'vote':
         return 'bg-orange-100 dark:bg-orange-900/20';
       default:
-        return 'bg-gray-100 dark:bg-gray-900/20';
+        return 'bg-gray-100 dark:bg-white/[0.02]';
     }
   };
 
@@ -61,7 +61,7 @@ export function AdminRecentActivity({ data, isLoading }: AdminRecentActivityProp
             </div>
           ) : (
             data.map((activity, index) => (
-              <div key={`${activity.timestamp}-${activity.description}-${index}`} className="flex items-start space-x-3 group dark:bg-slate-800">
+              <div key={`${activity.timestamp}-${activity.description}-${index}`} className="flex items-start space-x-3 group dark:bg-white/[0.05]">
                 <div className={`p-2 rounded-full ${getActivityColor(activity.type)} group-hover:scale-110 transition-transform`}>
                   {getActivityIcon(activity.type)}
                 </div>
@@ -86,7 +86,7 @@ export function AdminRecentActivity({ data, isLoading }: AdminRecentActivityProp
         </div>
         
         {data.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
             <button className="text-sm text-theme-primary hover:text-theme-primary/80 font-medium transition-colors">
               View all activity →
             </button>

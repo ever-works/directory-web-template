@@ -6,7 +6,7 @@ export const inputErrorClasses =
   "border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700";
 
 export const inputNormalClasses =
-  "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white";
+  "border-gray-300 dark:border-white/[0.08] bg-white dark:bg-white/[0.08] text-gray-900 dark:text-white";
 
 // Semantic styling classes for form elements
 export const STYLE_CLASSES = {

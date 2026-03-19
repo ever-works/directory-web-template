@@ -19,7 +19,7 @@ export function AdminTopItems({ data, isLoading }: AdminTopItemsProps) {
     if (index === 0) {
       return `${baseClass} bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400`;
     } else if (index === 1) {
-      return `${baseClass} bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400`;
+      return `${baseClass} bg-gray-100 text-gray-800 dark:bg-white/[0.02] dark:text-gray-400`;
     } else if (index === 2) {
       return `${baseClass} bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400`;
     } else {
@@ -73,7 +73,7 @@ export function AdminTopItems({ data, isLoading }: AdminTopItemsProps) {
                 </div>
                 
                 {/* Progress bar for views */}
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                <div className="w-full bg-gray-200 dark:bg-white/[0.08] rounded-full h-1.5">
                   <div 
                     className="bg-linear-to-r from-theme-primary to-theme-accent h-1.5 rounded-full transition-all duration-300"
                     style={{ width: `${(item.views / maxViews) * 100}%` }}
@@ -85,7 +85,7 @@ export function AdminTopItems({ data, isLoading }: AdminTopItemsProps) {
         </div>
         
         {data.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
             <button className="text-sm text-theme-primary hover:text-theme-primary/80 font-medium transition-colors">
               {t('VIEW_ALL_ITEMS')}
             </button>

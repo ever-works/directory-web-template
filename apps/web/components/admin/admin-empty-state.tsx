@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // Design system constants
 const VARIANT_STYLES = {
   default: {
-    card: 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900/50',
+    card: 'border-gray-200 bg-gray-50 dark:border-white/[0.06] dark:bg-[#0a0a0a]/50',
     icon: 'text-gray-400 dark:text-gray-500',
     title: 'text-gray-900 dark:text-gray-100',
     description: 'text-gray-600 dark:text-gray-400',

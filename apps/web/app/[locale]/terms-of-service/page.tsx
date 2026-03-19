@@ -48,7 +48,7 @@ export default async function TermsOfServicePage({ params }: PageProps) {
   const lastUpdated = metadata.lastUpdated as string | undefined;
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black overflow-hidden">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] overflow-hidden">
       {/* Animated Floating Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-float"></div>
@@ -106,7 +106,7 @@ export default async function TermsOfServicePage({ params }: PageProps) {
 
         {/* Hero Section */}
         <div className="mb-12 animate-fade-in">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs border border-slate-200 dark:border-slate-700 rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs border border-slate-200 dark:border-white/[0.06] rounded-full text-sm font-medium text-slate-700 dark:text-slate-300 mb-6">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
             {tPages('LEGAL_BADGE')}
           </div>
@@ -118,7 +118,7 @@ export default async function TermsOfServicePage({ params }: PageProps) {
           </h1>
 
           {lastUpdated && (
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-white/[0.05] rounded-lg">
               <svg
                 className="w-4 h-4 text-slate-600 dark:text-slate-400"
                 fill="none"
@@ -143,7 +143,7 @@ export default async function TermsOfServicePage({ params }: PageProps) {
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden mb-12 animate-fade-in">
+        <div className="bg-white/90 dark:bg-white/[0.03] backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-white/[0.06] shadow-2xl overflow-hidden mb-12 animate-fade-in">
           {/* Content */}
           <div className="px-6 sm:px-8 lg:px-12 py-8 lg:py-12">
             <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:text-slate-900 dark:prose-headings:text-white prose-headings:font-bold prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6 prose-h2:bg-linear-to-r prose-h2:from-theme-primary-600 prose-h2:to-theme-primary-500 dark:prose-h2:from-theme-primary-400 dark:prose-h2:to-theme-primary-500 prose-h2:bg-clip-text prose-h2:text-transparent prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-4 prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed prose-p:text-base prose-a:text-theme-primary-600 dark:prose-a:text-theme-primary-400 prose-a:font-medium prose-a:no-underline prose-a:hover:underline prose-strong:text-slate-900 dark:prose-strong:text-white prose-strong:font-semibold prose-ul:text-slate-700 dark:prose-ul:text-slate-300 prose-ol:text-slate-700 dark:prose-ol:text-slate-300 prose-li:my-2 prose-code:text-theme-primary-600 dark:prose-code:text-theme-primary-400 prose-code:bg-slate-100 dark:prose-code:bg-slate-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-sm prose-code:font-mono prose-code:text-sm">
@@ -153,14 +153,14 @@ export default async function TermsOfServicePage({ params }: PageProps) {
         </div>
 
         {/* Related Links Section */}
-        <div className="bg-linear-to-r from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-700/50 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 p-8 animate-fade-in">
+        <div className="bg-linear-to-r from-slate-50 to-slate-100 dark:from-white/[0.03] dark:to-white/[0.04] backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/[0.06] p-8 animate-fade-in">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
             {tPages('RELATED_INFORMATION')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
               href={`/${locale}/privacy-policy`}
-              className="group flex items-center gap-4 p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl border border-slate-200 dark:border-slate-700 hover:border-theme-primary-500 dark:hover:border-theme-primary-500 transition-all duration-300 hover:shadow-lg hover:scale-105"
+              className="group flex items-center gap-4 p-6 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs rounded-xl border border-slate-200 dark:border-white/[0.06] hover:border-theme-primary-500 dark:hover:border-theme-primary-500 transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
               <div className="w-12 h-12 bg-linear-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                 🔒
@@ -192,7 +192,7 @@ export default async function TermsOfServicePage({ params }: PageProps) {
 
             <Link
               href={`/${locale}/about`}
-              className="group flex items-center gap-4 p-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl border border-slate-200 dark:border-slate-700 hover:border-theme-primary-500 dark:hover:border-theme-primary-500 transition-all duration-300 hover:shadow-lg hover:scale-105"
+              className="group flex items-center gap-4 p-6 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xs rounded-xl border border-slate-200 dark:border-white/[0.06] hover:border-theme-primary-500 dark:hover:border-theme-primary-500 transition-all duration-300 hover:shadow-lg hover:scale-105"
             >
               <div className="w-12 h-12 bg-linear-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                 ℹ️

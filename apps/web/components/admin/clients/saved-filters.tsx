@@ -145,7 +145,7 @@ import { useTranslations } from 'next-intl';
                   value={filterDescription}
                   onChange={(e) => setFilterDescription(e.target.value)}
                 />
-                <div className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="p-3 bg-gray-50 dark:bg-white/[0.05] rounded-lg">
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('CURRENT_FILTERS')}</p>
                   <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                     {Object.entries(currentFilters).map(([key, value]) => {
@@ -186,7 +186,7 @@ import { useTranslations } from 'next-intl';
                 {savedFilters.map((filter) => (
                   <div
                     key={filter.id}
-                    className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                    className="p-3 border border-gray-200 dark:border-white/[0.06] rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1">
