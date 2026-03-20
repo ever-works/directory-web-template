@@ -101,7 +101,7 @@ export function ItemActionsMenu({
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           className={cn(
-            "min-w-[180px] bg-white dark:bg-white/5 rounded-xl shadow-lg",
+            "min-w-45 bg-white dark:bg-white/5 rounded-xl shadow-lg",
             "border border-gray-200 dark:border-white/6",
             "py-1 z-50",
             "animate-in fade-in-0 zoom-in-95 duration-200"

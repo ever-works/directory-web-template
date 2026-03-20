@@ -117,10 +117,10 @@ export function VersionTooltip({
           onMouseEnter={handleTooltipMouseEnter}
           onMouseLeave={handleTooltipMouseLeave}
         >
-          <div className="bg-white dark:bg-white/3 border border-gray-200 dark:border-white/6 rounded-xl shadow-xl p-4 min-w-72 max-w-80 backdrop-blur-xs">
+          <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-white/6 rounded-xl shadow-xl p-4 min-w-72 max-w-80">
             {/* Tooltip Arrow */}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-              <div className="w-3 h-3 bg-white dark:bg-white/3 border-r border-b border-gray-200 dark:border-white/6 transform rotate-45"></div>
+              <div className="w-3 h-3 bg-white dark:bg-[#141414] border-r border-b border-gray-200 dark:border-white/6 transform rotate-45"></div>
             </div>
             
             {/* Header */}

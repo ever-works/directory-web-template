@@ -90,7 +90,7 @@ const VersionDisplay = memo(function VersionDisplay({
   // Detailed variant
   if (variant === "detailed") {
     return (
-      <div className={`bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/6 p-4 shadow-xs hover:shadow-md transition-all duration-200 ${className}`}>
+      <div className={`bg-[#141414]/3 dark:bg-white/4 rounded-lg border border-gray-200 dark:border-white/6 p-4 shadow-xs hover:shadow-md transition-all duration-200 ${className}`}>
         <div className="space-y-3">
           {/* Header */}
           <div className="flex items-center justify-between">
@@ -163,7 +163,7 @@ const VersionDisplay = memo(function VersionDisplay({
         <GitBranch className="h-3 w-3" />
         <span className="font-medium">v{versionInfo.commit}</span>
       </div>
-      <div className="w-1 h-1 bg-gray-400 dark:bg-white/[0.12] rounded-full"></div>
+      <div className="w-1 h-1 bg-gray-400 dark:bg-white/12 rounded-full"></div>
       <span>{dateFormatters.getRelativeTime(versionInfo.date)}</span>
       <div className="w-1 h-1 bg-green-400 rounded-full animate-pulse"></div>
     </div>

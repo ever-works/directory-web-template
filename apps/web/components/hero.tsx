@@ -47,8 +47,8 @@ export default function Hero({
             {/* Introducing badge */}
             {badgeText && (
               <div className="flex items-center justify-center mb-2 sm:mb-3">
-                <div className="flex items-center text-gray-900 dark:text-gray-200 bg-gray-200 dark:bg-white/4 py-0.5 px-3 sm:py-1 sm:px-3 rounded-full gap-1.5 text-xs font-medium dark:border-white/6 border border-gray-200/50 dark:border-white/6">
-                  <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full" />
+                <div className="flex items-center text-gray-900 dark:text-gray-200 bg-gray-200 dark:bg-white/4 py-0.5 px-3 sm:py-1 sm:px-3 rounded-full gap-1.5 text-[11px] font-medium dark:border-white/6 border border-gray-200/50">
+                  <div className="w-1 h-1 bg-yellow-400 rounded-full" />
                   {badgeText}
                 </div>
               </div>
@@ -57,7 +57,7 @@ export default function Hero({
             {title && (
               <h1
                 className={cn(
-                  "text-xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 px-4",
+                  "text-xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2 px-4",
                   titleClassName
                 )}
               >

@@ -70,7 +70,7 @@ const MENU_ITEMS_CONFIG: Array<{
 const STYLES = {
   button: cn(
     "flex items-center gap-1",
-    "transition-colors duration-150 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
+    "transition-colors duration-150 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-sm mt-1",
     "text-gray-700 dark:text-gray-300",
     "cursor-pointer hover:text-theme-primary",
     "outline-none focus:outline-none focus-visible:outline-none",

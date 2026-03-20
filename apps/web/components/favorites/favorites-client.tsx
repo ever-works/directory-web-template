@@ -237,7 +237,7 @@ export function FavoritesClient(props: ListingProps) {
 									value={popularSortBy}
 									onSortChange={(value) => setPopularSortBy(value as SortOption)}
 									ariaLabel={t('SORT_POPULAR_ITEMS', { defaultValue: 'Sort popular items' })}
-									className="w-full sm:w-auto sm:min-w-[180px]"
+									className="w-full sm:w-auto sm:min-w-45"
 								/>
 								<ViewToggle
 									activeView={layoutKey}
@@ -286,7 +286,7 @@ export function FavoritesClient(props: ListingProps) {
 						value={favoritesSortBy}
 						onSortChange={(value) => setFavoritesSortBy(value as SortOption)}
 						ariaLabel={t('SORT_FAVORITES', { defaultValue: 'Sort favorites' })}
-						className="w-full sm:w-auto sm:min-w-[180px]"
+						className="w-full sm:w-auto sm:min-w-45"
 					/>
 					<ViewToggle
 						activeView={layoutKey}

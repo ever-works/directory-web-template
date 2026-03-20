@@ -39,7 +39,7 @@ const LAYOUT_STYLES = {
 	mobileDown: 'lg:hidden',
 	largeUp: 'hidden xl:block',
 	mainContainer: 'pb-8 sm:pb-10 md:pb-12 lg:pb-16 xl:pb-20',
-	contentWrapper: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 pt-16 md:gap-4 lg:gap-4 xl:gap-5',
+	contentWrapper: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 pt-[30px] md:gap-4 lg:gap-4 xl:gap-5',
 	contentWrapperFluid: 'flex flex-col lg:flex-row w-full gap-2 sm:gap-3 md:gap-2 lg:gap-0 xl:gap-0',
 	sidebar: 'lg:sticky lg:top-4 lg:self-start lg:w-64 lg:flex-shrink-0',
 	sidebarFluid: 'lg:sticky lg:top-4 lg:self-start lg:w-68 lg:flex-shrink-0',

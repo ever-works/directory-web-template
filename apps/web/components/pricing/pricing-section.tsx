@@ -76,26 +76,26 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			{!isReview && (
 				<div className="text-center mb-10 -mt-[180px] animate-fade-in-up">
 					<div className="flex items-center justify-center mb-6">
-						<div className="flex items-center text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-white/6 py-2 px-4 rounded-full gap-2 text-sm font-medium">
-							<div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse" />
+						<div className="flex items-center text-[11px] text-gray-600 dark:text-gray-200 bg-gray-200 dark:bg-white/6 py-2 px-4 rounded-full gap-2 text-sm font-medium">
+							<div className="w-1 h-1 bg-yellow-400 rounded-full animate-pulse" />
 							{t('CHOOSE_YOUR_PERFECT_PLAN')}
 						</div>
 					</div>
 					<h1 className="font-bold mb-4">
-						<span className="text-xl md:text-2xl text-gray-600 mb-4 dark:text-white">{t('START_YOUR_JOURNEY')}</span>
+						<span className="text-xl text-gray-600 mb-4 dark:text-white">{t('START_YOUR_JOURNEY')}</span>
 						<br className="hidden md:block" />
-						<span className="text-4xl md:text-5xl bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
+						<span className="text-4xl md:text-3xl bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 							{t('CHOOSE_WHAT_FITS_YOU')}
 						</span>
 					</h1>
 
-					<p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300">
+					<p className="text-sm text-gray-600 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300">
 						{t('DESCRIPTION')}
 					</p>
 
 					{/* Trust Indicators */}
 					<div className="mt-8 inline-flex items-center gap-1.5 p-1.5 rounded-2xl bg-white/60 dark:bg-white/4 backdrop-blur-md">
-						<div className="flex items-center gap-2 px-4 py-2 ">
+						<div className="flex items-center gap-2 px-3 py-1 ">
 							<div className="w-5 h-5 rounded-full bg-green-500/15 dark:bg-green-500/20 flex items-center justify-center">
 								<Check className="w-3 h-3 text-green-600 dark:text-green-400" />
 							</div>
@@ -104,7 +104,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							</span>
 						</div>
 						<div className="w-px h-5 bg-gray-200/80 dark:bg-white/8 rounded-full" />
-						<div className="flex items-center gap-2 px-4 py-2 ">
+						<div className="flex items-center gap-2 px-3 py-1">
 							<div className="w-5 h-5 rounded-full bg-purple-500/15 dark:bg-purple-500/20 flex items-center justify-center">
 								<Zap className="w-3 h-3 text-purple-600 dark:text-purple-400" />
 							</div>

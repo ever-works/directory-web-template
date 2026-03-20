@@ -354,7 +354,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
     <div className="mx-1 relative" ref={popoverRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 px-2 py-1 text-xs bg-linear-to-r from-gray-50 to-gray-100 dark:from-[#0a0a0a]/95 dark:to-[#0a0a0a]/95 dark:text-white rounded-md hover:from-gray-100 hover:to-gray-200 dark:hover:from-white/6 dark:hover:to-white/6 transition-all duration-300 border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/8 group overflow-hidden shadow-xs hover:shadow-sm"
+        className="flex items-center gap-1.5 px-2 py-1 text-xs bg-linear-to-r from-gray-50 to-gray-100 dark:bg-[#0a0a0a] dark:text-white rounded-md hover:from-gray-100 hover:to-gray-200 dark:hover:from-white/6 dark:hover:to-white/6 transition-all duration-300 border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/8 group overflow-hidden shadow-xs hover:shadow-sm"
         aria-label={`Current layout: ${currentLayout.name}`}
         aria-expanded={isOpen}
         aria-controls={isOpen ? panelId : undefined}

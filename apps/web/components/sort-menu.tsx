@@ -41,10 +41,10 @@ const SortMenu: React.FC<SortMenuProps> = ({
             "group inline-flex items-center justify-between",
             "!min-w-36 sm:!min-w-36",
             "rounded-lg border border-gray-300 dark:border-white/6",
-            "bg-gray-100 dark:bg-white/3",
+            "bg-white dark:bg-white/3",
             "px-2.5 sm:px-3 py-1.5",
             "text-xs sm:text-sm font-medium",
-            "text-theme-primary-600 dark:text-theme-primary-400",
+            "text-gray-700 dark:text-white/70",
             "transition-all duration-200",
             "hover:bg-gray-50 dark:hover:bg-white/3",
             "hover:border-gray-300 dark:hover:border-white/6",
@@ -66,7 +66,7 @@ const SortMenu: React.FC<SortMenuProps> = ({
           className={cn(
             "z-50 w-36",
             "rounded-lg border border-gray-200 dark:border-white/6",
-            "bg-white dark:bg-white/3",
+            "bg-white dark:bg-[#141414]",
             "shadow-lg shadow-black/10 dark:shadow-black/30",
             "animate-in fade-in zoom-in-95"
           )}

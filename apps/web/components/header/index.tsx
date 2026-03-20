@@ -141,7 +141,7 @@ const STYLES = {
 	linkBase:
 		'transition-colors duration-150 pb-2.5 font-medium whitespace-nowrap text-xs lg:text-sm dark:text-gray-300',
 	linkActive:
-		'text-theme-primary pb-2.5 font-medium relative after:content-[""] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-theme-primary after:rounded-full',
+		'text-theme-primary dark:text-theme-primary pb-2.5 font-medium relative after:content-[""] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-theme-primary after:rounded-full',
 	linkInactive: 'text-gray-700 dark:text-gray-300 hover:text-theme-primary',
 	rightSection:
 		'flex items-center gap-1 sm:gap-2 md:gap-2 pl-8 py-1 relative lg:before:content-[""] lg:before:absolute lg:before:left-0 lg:before:h-[20px] lg:before:w-px lg:before:bg-gray-200 dark:lg:before:bg-gray-700',
@@ -409,7 +409,7 @@ export default function Header() {
 				{/* Desktop: Three-column flex layout */}
 				<div className="hidden lg:flex w-full flex-row items-center justify-between">
 					{/* Left: Logo (Brand) */}
-					<div className="flex-shrink-0 flex items-center min-w-0">{renderBrand()}</div>
+					<div className="shrink-0 flex items-center min-w-0">{renderBrand()}</div>
 
 					{/* Center: Navigation Links with gap */}
 					<div className="flex flex-1 justify-start min-w-0 gap-6 pl-16">
@@ -417,7 +417,7 @@ export default function Header() {
 					</div>
 
 					{/* Right: Profile, Settings, etc. */}
-					<div className="flex-shrink-0 flex items-center min-w-0 justify-end">{renderRightSection()}</div>
+					<div className="shrink-0 flex items-center min-w-0 justify-end">{renderRightSection()}</div>
 				</div>
 
 				{/* Mobile: Right Section */}

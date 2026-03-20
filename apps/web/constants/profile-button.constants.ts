@@ -62,13 +62,13 @@ export const MENU_CONTAINER_BASE = [
 export const MENU_STYLES = {
 	CONTAINER: {
 		base: [...MENU_CONTAINER_BASE, 'focus:outline-hidden'],
-		background: ['bg-white/95', 'dark:bg-[#141414]/95', 'backdrop-blur-xl'],
+		background: ['bg-white', 'dark:bg-[#141414]', 'backdrop-blur-xl'],
 		border: ['ring-1', 'ring-black/5', 'dark:ring-white/10'],
 		animation: ['animate-in', 'slide-in-from-top-2', 'duration-300']
 	},
 	LOADING_FALLBACK: {
 		base: [...MENU_CONTAINER_BASE, 'animate-pulse'],
-		background: ['bg-white/95', 'dark:bg-[#141414]/95', 'backdrop-blur-xl'],
+		background: ['bg-white', 'dark:bg-[#141414]', 'backdrop-blur-xl'],
 		border: ['ring-1', 'ring-black/5', 'dark:ring-white/10']
 	},
 	BUTTON: {

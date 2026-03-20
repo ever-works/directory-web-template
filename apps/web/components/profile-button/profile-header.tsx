@@ -34,7 +34,7 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
           {/* Online status indicator */}
           <div
             aria-hidden="true"
-            className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-white/6 shadow-xs transition-all duration-200 ${
+            className={`absolute -bottom-1 -right-1 w-2 h-2 rounded-full border-2 border-white dark:border-white/6 shadow-xs transition-all duration-200 ${
               isOnline ? 'bg-green-500 scale-100' : 'bg-gray-400 scale-90'
             }`}
             title={`Status: ${onlineStatus}`}
@@ -44,7 +44,7 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
               className="absolute -top-1 -right-1 w-6 h-6 bg-linear-to-r from-yellow-400 via-orange-500 to-red-500 rounded-full flex items-center justify-center shadow-lg motion-safe:animate-pulse motion-reduce:animate-none"
               title="Administrator"
             >
-              <Crown aria-hidden="true" className="w-3.5 h-3.5 text-white" />
+              <Crown aria-hidden="true" className="w-3 h-3 text-white" />
             </div>
           )}
         </div>
@@ -52,14 +52,14 @@ function ProfileHeader({ user, displayRole, onlineStatus }: ProfileHeaderProps) 
           <p className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
             {displayName}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400 truncate mt-0.5">
             {userEmail}
           </p>
           <div className="flex items-center gap-2 mt-2">
-            <span className={`px-2 rounded-full text-[10px] font-medium ${roleBadgeClasses}`}>
+            <span className={`px-2 rounded-full text-[9px] font-medium ${roleBadgeClasses}`}>
               {displayRole}
             </span>
-            <span className={`px-2 rounded-full text-[10px] font-medium ${
+            <span className={`px-2 rounded-full text-[9px] font-medium ${
               isOnline
                 ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300'
                 : 'bg-gray-100 text-gray-800 dark:bg-white/8 dark:text-gray-300'

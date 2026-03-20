@@ -20,7 +20,7 @@ export function RadiusSlider() {
 	const percentage = ((nearMe.radius - 10) / (500 - 10)) * 100;
 
 	return (
-		<div className="flex items-center gap-3 min-w-[180px] max-w-[220px]">
+		<div className="flex items-center gap-3 min-w-45 max-w-[220px]">
 			<div className="flex-1">
 				<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
 					<span>{t('RADIUS')}</span>

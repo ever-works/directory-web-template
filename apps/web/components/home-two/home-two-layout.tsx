@@ -53,7 +53,7 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
   });
 
   return (
-    <div className="min-h-screen transition-colors duration-300 pt-10">
+    <div className="min-h-screen transition-colors duration-300 pt-[30px] lg:pt-0">
       <Container maxWidth="7xl" padding="default" useGlobalWidth className="flex flex-col gap-3 py-8">
         <div ref={sentinelRef} className="md:h-4 md:w-full" />
         <div

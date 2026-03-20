@@ -184,19 +184,19 @@ export const NAVIGATION_CLASSES = {
 		base: 'h-12 px-4 sm:h-13 cursor-pointer sm:px-6 !border-none rounded-xl font-semibold text-sm sm:text-base transition-colors duration-200',
 		next: {
 			enabled:
-				'min-w-[140px] sm:min-w-[180px] bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm',
+				'min-w-[140px] sm:min-w-45 bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm',
 			disabled:
-				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-45 bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
 		},
 		prev: {
 			enabled:
-				'min-w-[140px] !ring-none cursor-pointer sm:min-w-[180px] bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm !border-none',
+				'min-w-[140px] !ring-none cursor-pointer sm:min-w-45 bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm !border-none',
 		},
 		submit: {
 			enabled:
-				'min-w-[140px] sm:min-w-[180px] bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm hover:from-green-600 hover:via-emerald-600 hover:to-green-700',
+				'min-w-[140px] sm:min-w-45 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm hover:from-green-600 hover:via-emerald-600 hover:to-green-700',
 			disabled:
-				'min-w-[140px] sm:min-w-[180px] bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
+				'min-w-[140px] sm:min-w-45 bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
 		}
 	}
 };

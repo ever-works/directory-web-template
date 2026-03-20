@@ -15,7 +15,7 @@ export function FooterLinkGroup({
 }) {
   return (
     <div className="space-y-3">
-      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-500">
+      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-700 dark:text-white">
         {categoryLabel}
       </h4>
       <ul className="space-y-2">
