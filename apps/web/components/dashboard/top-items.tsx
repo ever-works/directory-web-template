@@ -18,12 +18,12 @@ interface TopItemsProps {
 export function TopItems({ items, isLoading = false }: TopItemsProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-4 w-1/3"></div>
+          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-200 dark:bg-gray-700 h-16 rounded-lg"></div>
+              <div key={i} className="bg-gray-200 dark:bg-white/8 h-16 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -32,7 +32,7 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
   }
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-6">
+			<div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
       <div className="flex items-center space-x-2 mb-4">
         <TrendingUp className="h-5 w-5 text-gray-600 dark:text-gray-400" />
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -55,7 +55,7 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
           items.map((item, index) => (
             <div 
               key={item.id}
-              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/4 rounded-lg border border-gray-200 dark:border-white/6"
             >
               <div className="flex items-center space-x-3">
                 <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold">

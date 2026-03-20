@@ -29,7 +29,7 @@ const CLASSES = {
 	// Header styles
 	headerWrapper: 'mb-8',
 	headerCard:
-		'bg-gradient-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6',
+		'bg-gradient-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6',
 	headerContent: 'flex flex-col sm:flex-row sm:items-center justify-between gap-4',
 	headerLeft: 'flex items-center space-x-4',
 	headerIcon:
@@ -57,7 +57,7 @@ const CLASSES = {
 	searchContainer: 'relative',
 	searchIcon: 'absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400',
 	searchInput:
-		'w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
+		'w-full pl-12 pr-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
 	searchSpinner: 'absolute right-4 top-1/2 transform -translate-y-1/2',
 	spinnerIcon: 'w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin',
 	filterRow: 'flex flex-wrap gap-3 items-center',
@@ -67,13 +67,13 @@ const CLASSES = {
 	// Report cards
 	reportsContainer: 'space-y-4',
 	reportCard:
-		'group bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 p-5',
+		'group bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/6 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 p-5',
 	reportHeader: 'flex items-center justify-between mb-3',
 	reportBadges: 'flex items-center gap-2 flex-wrap',
 	reportDate: 'text-sm text-gray-500 dark:text-gray-400',
 	reportContentId: 'font-medium text-gray-900 dark:text-white mb-2',
 	reportDetails: 'text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4',
-	reportFooter: 'flex items-center justify-between pt-3 border-t border-gray-100 dark:border-gray-700',
+	reportFooter: 'flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/6',
 	reportReporter: 'flex items-center gap-2',
 	reportReporterIcon: 'w-4 h-4 text-gray-400',
 	reportReporterText: 'text-sm text-gray-600 dark:text-gray-400',
@@ -89,7 +89,7 @@ const CLASSES = {
 	// Pagination
 	paginationWrapper: 'mt-8 space-y-6',
 	paginationInfo:
-		'bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl border border-gray-100 dark:border-gray-800 px-6 py-4 shadow-sm',
+		'bg-gradient-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-100 dark:border-white/6 px-6 py-4 shadow-sm',
 	paginationContent: 'flex flex-col sm:flex-row sm:items-center justify-between gap-2',
 	paginationDot: 'w-2 h-2 bg-theme-primary rounded-full',
 	paginationText: 'text-sm font-medium text-gray-600 dark:text-gray-400',
@@ -97,7 +97,7 @@ const CLASSES = {
 	paginationCenter: 'flex justify-center',
 
 	// Loading skeleton
-	loadingSkeleton: 'bg-gray-200 dark:bg-gray-700 rounded animate-pulse'
+	loadingSkeleton: 'bg-gray-200 dark:bg-white/8 rounded animate-pulse'
 } as const;
 
 // Status badge styles
@@ -109,7 +109,7 @@ const STATUS_STYLES: Record<ReportStatusValues, { bg: string; text: string; icon
 		text: 'text-green-700 dark:text-green-300',
 		icon: CheckCircle
 	},
-	dismissed: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300', icon: X }
+	dismissed: { bg: 'bg-gray-100 dark:bg-white/8', text: 'text-gray-700 dark:text-gray-300', icon: X }
 };
 
 // Reason badge styles
@@ -117,7 +117,7 @@ const REASON_STYLES: Record<ReportReasonValues, { bg: string; text: string }> = 
 	spam: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300' },
 	harassment: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300' },
 	inappropriate: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300' },
-	other: { bg: 'bg-gray-100 dark:bg-gray-700', text: 'text-gray-700 dark:text-gray-300' }
+	other: { bg: 'bg-gray-100 dark:bg-white/8', text: 'text-gray-700 dark:text-gray-300' }
 };
 
 // Define status type for filtering
@@ -345,7 +345,7 @@ export default function AdminReportsPage() {
 				{/* Loading Stats */}
 				<div className={CLASSES.statsGrid}>
 					{Array.from({ length: 4 }, (_, i) => (
-						<div key={i} className={`${CLASSES.statCard} bg-gray-50 dark:bg-gray-800`}>
+						<div key={i} className={`${CLASSES.statCard} bg-gray-50 dark:bg-white/5`}>
 							<div className={`h-4 w-20 ${CLASSES.loadingSkeleton} mb-2`}></div>
 							<div className={`h-8 w-16 ${CLASSES.loadingSkeleton}`}></div>
 						</div>
@@ -362,7 +362,7 @@ export default function AdminReportsPage() {
 							</div>
 							<div className={`h-5 w-48 ${CLASSES.loadingSkeleton} mb-2`}></div>
 							<div className={`h-4 w-full ${CLASSES.loadingSkeleton} mb-4`}></div>
-							<div className="flex justify-between pt-3 border-t border-gray-100 dark:border-gray-700">
+						<div className="flex justify-between pt-3 border-t border-gray-100 dark:border-white/6">
 								<div className={`h-4 w-32 ${CLASSES.loadingSkeleton}`}></div>
 								<div className={`h-8 w-20 ${CLASSES.loadingSkeleton} rounded-lg`}></div>
 							</div>
@@ -470,10 +470,10 @@ export default function AdminReportsPage() {
 			)}
 
 			{/* Reports Table Card */}
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm">
 				<CardContent className="p-0">
 					{/* Card Header with Title and Filters */}
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
 						<div className="flex items-center justify-between gap-4 flex-wrap">
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{t('REPORTS_TABLE_TITLE')}

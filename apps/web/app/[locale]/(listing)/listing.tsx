@@ -71,7 +71,7 @@ export default async function Listing(props: ListingProps) {
 				<Hero
 					badgeText={heroBadgeText}
 					title={
-						<div className=" font-bold text-balance text-3xl sm:text-4xl md:text-5xl text-center">
+						<div className=" font-bold text-balance text-2xl sm:text-3xl md:text-4xl text-center">
 							{heroTitle} <br className="hidden md:block" />
 							<span className="bg-linear-to-r from-theme-primary-500 via-purple-500 to-theme-primary-600 bg-clip-text text-transparent">
 								{heroTitleGradient}

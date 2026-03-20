@@ -62,7 +62,7 @@ const buttonBaseStyles =
 const primaryStyles =
 	'bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-lg hover:shadow-xl focus-visible:ring-theme-primary-500';
 const secondaryStyles =
-	'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700 focus-visible:ring-gray-500';
+	'bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/6 text-gray-900 dark:text-white border border-gray-200 dark:border-white/6 focus-visible:ring-gray-500';
 
 /**
  * Button component for CTA links in hero
@@ -262,8 +262,8 @@ export default function CustomHero({
 
 	const themeClasses = {
 		light: 'bg-gradient-to-br from-gray-50 via-white to-gray-100',
-		dark: 'bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white',
-		auto: 'bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900'
+		dark: 'bg-gradient-to-br from-[#0a0a0a] via-[#0a0a0a] to-[#0a0a0a] text-white',
+		auto: 'bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]'
 	};
 
 	return (

@@ -23,13 +23,13 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
   const isLogin = form === "login";
 
   return (
-    <div className="flex items-center justify-center py-8 px-4 relative bg-gray-50 dark:bg-gray-900">
+    <div className="flex items-center justify-center py-8 px-4 relative bg-gray-50 dark:bg-white/3">
       {/* Animated background */}
       <AnimatedBackground />
       <GeometricDecoration />
       {/* Main container with modern design */}
       <AnimatedContainer type="scaleIn" duration="slow" easing="bounce">
-        <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-700/30 shadow-2xl overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-white/3 backdrop-blur-xl border border-white/20 dark:border-white/6 shadow-2xl overflow-hidden">
           <div className="flex flex-col lg:flex-row min-h-[400px] lg:min-h-[500px]">
             {/* Illustration and branding side */}
             <div className="w-full lg:w-1/2 relative bg-linear-to-br from-theme-primary/5 via-theme-accent/5 to-theme-secondary/5 p-6 lg:p-8 flex flex-col justify-center">
@@ -176,7 +176,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
             </div>
 
             {/* Form side */}
-            <div className="w-full lg:w-1/2 p-4 lg:p-6 flex flex-col justify-center bg-white/50 dark:bg-gray-800/50 backdrop-blur-xs">
+            <div className="w-full lg:w-1/2 p-4 lg:p-6 flex flex-col justify-center bg-white/50 dark:bg-white/3 backdrop-blur-xs">
               <div className="max-w-sm mx-auto w-full">
                 <AnimatedContainer type="slideLeft" delay={400}>
                   <CredentialsForm

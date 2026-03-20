@@ -31,15 +31,15 @@ export default async function FavoritesPage({
 
   return (
     
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
       <Container maxWidth="7xl" padding="default" useGlobalWidth>  
-        <div className="relative z-10 py-16">
+        <div className="relative z-10 py-8">
       
-          <div className="mb-16">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-linear-to-r from-gray-900 via-theme-primary-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent tracking-tight leading-tight mb-4">
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-tight mb-3">
               {t('FAVORITES')}
             </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl">
+            <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
               {t('FAVORITES_DESCRIPTION')}
             </p>
           </div>
@@ -66,19 +66,19 @@ function FavoritesSkeleton() {
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}
-          className="bg-white/80 dark:bg-gray-900/80 rounded-2xl p-6 shadow-lg animate-pulse"
+          className="bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-200 dark:border-white/6 animate-pulse"
         >
           <div className="flex items-center gap-4 mb-4">
-            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+            <div className="w-12 h-12 bg-gray-100 dark:bg-white/6 rounded-xl" />
             <div className="flex-1">
-              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-2" />
-              <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-2/3" />
+              <div className="h-4 bg-gray-100 dark:bg-white/6 rounded mb-2" />
+              <div className="h-3 bg-gray-100 dark:bg-white/6 rounded w-2/3" />
             </div>
           </div>
           <div className="space-y-2">
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm" />
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-4/5" />
-            <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-3/5" />
+            <div className="h-3 bg-gray-100 dark:bg-white/6 rounded" />
+            <div className="h-3 bg-gray-100 dark:bg-white/6 rounded w-4/5" />
+            <div className="h-3 bg-gray-100 dark:bg-white/6 rounded w-3/5" />
           </div>
         </div>
       ))}

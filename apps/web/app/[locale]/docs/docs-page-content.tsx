@@ -29,7 +29,7 @@ export function DocsPageContent() {
           </p>
         </div>
         
-        <div className="bg-white w-full flex-1 dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div className="bg-white w-full flex-1 dark:bg-white/5 rounded-lg shadow-lg overflow-hidden">
           <iframe
             src="/api/reference"
             className="w-full h-screen border-0"

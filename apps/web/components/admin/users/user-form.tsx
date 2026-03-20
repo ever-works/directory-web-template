@@ -225,8 +225,8 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700">
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900">
+      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xl border border-gray-200 dark:border-white/6">
+      <div className="px-6 py-4 border-b border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
           {isEditing ? t('TITLE_EDIT') : t('TITLE_CREATE')}
         </h2>
@@ -375,7 +375,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
           >
             <Select.Trigger
               className={cn(
-                "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm",
+                "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-white/8 bg-white dark:bg-white/5 px-3 py-2 text-sm",
                 "focus:outline-none focus:ring-2 focus:ring-theme-primary-500",
                 "disabled:cursor-not-allowed disabled:opacity-50"
               )}
@@ -387,7 +387,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
             </Select.Trigger>
             <Select.Portal>
               <Select.Content
-                className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
                 position="popper"
                 sideOffset={4}
               >
@@ -398,7 +398,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
                       <Select.Item
                         key={role.id}
                         value={role.id}
-                        className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+                        className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
                       >
                         <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
                           <Check className="h-4 w-4" />
@@ -422,7 +422,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
             >
               <Select.Trigger
                 className={cn(
-                  "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm",
+                  "flex h-10 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-white/8 bg-white dark:bg-white/5 px-3 py-2 text-sm",
                   "focus:outline-none focus:ring-2 focus:ring-theme-primary-500",
                   "disabled:cursor-not-allowed disabled:opacity-50"
                 )}
@@ -434,14 +434,14 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
               </Select.Trigger>
               <Select.Portal>
                 <Select.Content
-                  className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+                  className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
                   position="popper"
                   sideOffset={4}
                 >
                   <Select.Viewport className="p-1">
                     <Select.Item
                       value="active"
-                      className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+                      className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
                     >
                       <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
                         <Check className="h-4 w-4" />
@@ -450,7 +450,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
                     </Select.Item>
                     <Select.Item
                       value="inactive"
-                      className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+                      className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
                     >
                       <Select.ItemIndicator className="absolute left-2 inline-flex items-center">
                         <Check className="h-4 w-4" />
@@ -466,7 +466,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700 bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 -mx-6 -mb-6 px-6 pb-6">
+      <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] -mx-6 -mb-6 px-6 pb-6">
         {onCancel && (
           <Button
             variant="bordered"

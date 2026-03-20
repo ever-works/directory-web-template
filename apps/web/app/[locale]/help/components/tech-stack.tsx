@@ -325,7 +325,7 @@ export function TechStack() {
   };
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black">
+    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -343,7 +343,7 @@ export function TechStack() {
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
             <div className="text-center">
               <div className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {stats.total}
@@ -353,7 +353,7 @@ export function TechStack() {
               </div>
             </div>
           </div>
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
                 {stats.highPopularity}
@@ -363,7 +363,7 @@ export function TechStack() {
               </div>
             </div>
           </div>
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
                 {stats.avgPerformance}%
@@ -376,7 +376,7 @@ export function TechStack() {
                 </div>
 
         {/* Controls */}
-        <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 shadow-xl p-6 mb-8">
+        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-xl p-6 mb-8">
           <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             {/* Category Filter */}
             <div className="flex flex-wrap gap-2">
@@ -387,7 +387,7 @@ export function TechStack() {
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     selectedCategory === category.id
                       ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
-                      : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
+                      : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                   }`}
                 >
                   <span>{category.icon}</span>
@@ -402,19 +402,19 @@ export function TechStack() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as "popularity" | "performance" | "name")}
-                className="px-3 py-2 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                className="px-3 py-2 bg-slate-100 dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-sm text-slate-700 dark:text-slate-300 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
               >
                 <option value="popularity">{t("SORT_BY_POPULARITY")}</option>
                 <option value="performance">{t("SORT_BY_PERFORMANCE")}</option>
                 <option value="name">{t("SORT_BY_NAME")}</option>
               </select>
 
-              <div className="flex bg-slate-100 dark:bg-slate-700 rounded-lg p-1">
+              <div className="flex bg-slate-100 dark:bg-white/8 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode("grid")}
                   className={`p-2 rounded-md transition-all duration-300 ${
                     viewMode === "grid"
-                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                      ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xs"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
@@ -426,7 +426,7 @@ export function TechStack() {
                   onClick={() => setViewMode("list")}
                   className={`p-2 rounded-md transition-all duration-300 ${
                     viewMode === "list"
-                      ? "bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs"
+                      ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xs"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
@@ -466,7 +466,7 @@ export function TechStack() {
 
         {/* Results Summary */}
         <div className="mt-12 text-center">
-          <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
+          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6">
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               {t("SHOWING_TECHNOLOGIES", { filtered: filteredTech.length, total: techStack.length })}
             </p>
@@ -497,7 +497,7 @@ export function TechStack() {
               <Button className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 {t("GET_STARTED_NOW")}
               </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
                 {t("VIEW_DOCUMENTATION")}
               </Button>
             </div>

@@ -61,7 +61,7 @@ export function LinkInput({
 									'group relative overflow-hidden rounded-xl border transition-all duration-200',
 									isMain
 										? 'border-theme-primary-200 dark:border-theme-primary-800/70 bg-theme-primary-50/40 dark:bg-theme-primary-900/10 shadow-sm'
-										: 'border-gray-200 dark:border-gray-700/60 bg-white dark:bg-gray-800/60',
+										: 'border-gray-200 dark:border-white/8 bg-white dark:bg-white/3',
 									isAnimating && 'animate-pulse',
 									'hover:border-theme-primary-300 dark:hover:border-theme-primary-700 hover:shadow-sm'
 								)}
@@ -92,7 +92,7 @@ export function LinkInput({
 														? t('directory.DETAILS_FORM.MAIN_WEBSITE_LABEL')
 														: t('directory.DETAILS_FORM.LINK_LABEL_PLACEHOLDER')
 												}
-												className="w-full h-9 px-3 text-sm font-medium bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-1 focus:ring-theme-primary-500/30 transition-all duration-200"
+												className="w-full h-9 px-3 text-sm font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-1 focus:ring-theme-primary-500/30 transition-all duration-200"
 											/>
 										</div>
 
@@ -124,13 +124,13 @@ export function LinkInput({
 											pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$"
 											required={isMain}
 											className={cn(
-												'w-full h-10 px-4 pr-12 text-sm bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl transition-all duration-200 outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500',
+												'w-full h-10 px-4 pr-12 text-sm bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-xl transition-all duration-200 outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500',
 												isMain && onExtract && 'pr-28',
 												focusedField === `link-${link.id}` &&
 													'border-theme-primary-500 dark:border-theme-primary-400 ring-1 ring-theme-primary-500/30',
 										isMain && completedFields.has('link') &&
 													'border-green-500 dark:border-green-400 bg-green-50/40 dark:bg-green-900/10',
-												'hover:border-gray-300 dark:hover:border-gray-600'
+												'hover:border-gray-300 dark:hover:border-white/8'
 											)}
 										/>
 
@@ -144,13 +144,13 @@ export function LinkInput({
 													className={cn(
 														'px-2.5 py-1 text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-1.5 cursor-pointer',
 														isExtracting
-															? 'bg-gray-100 text-gray-400 cursor-wait dark:bg-gray-800 dark:text-gray-500'
+															? 'bg-gray-100 text-gray-400 cursor-wait dark:bg-white/5 dark:text-gray-500'
 															: 'bg-theme-primary-50 text-theme-primary-600 hover:bg-theme-primary-100 dark:bg-theme-primary-900/30 dark:text-theme-primary-400 dark:hover:bg-theme-primary-900/50 border border-theme-primary-200/60 dark:border-theme-primary-700/40'
 													)}
 												>
 													{isExtracting ? (
 														<>
-															<LoadingSpinner size="sm" className="border-gray-400 dark:border-gray-500" />
+															<LoadingSpinner size="sm" className="border-gray-400 dark:border-white/[0.12]" />
 															<span>{t('directory.DETAILS_FORM.EXTRACTING')}</span>
 														</>
 													) : (

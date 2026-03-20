@@ -151,17 +151,17 @@ export function FavoritesClient(props: ListingProps) {
 		return (
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
 				{Array.from({ length: 8 }).map((_, i) => (
-					<div key={i} className="bg-white/80 dark:bg-gray-900/80 rounded-2xl p-6 shadow-lg animate-pulse">
+					<div key={i} className="bg-white/80 dark:bg-[#0a0a0a]/80 rounded-2xl p-6 shadow-lg animate-pulse">
 						<div className="flex items-center gap-4 mb-4">
-							<div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+							<div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-2xl" />
 							<div className="flex-1">
-								<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-2" />
-								<div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-2/3" />
+								<div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-2" />
+								<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm w-2/3" />
 							</div>
 						</div>
 						<div className="space-y-2">
-							<div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm" />
-							<div className="h-3 bg-gray-200 dark:bg-gray-700 rounded-sm w-4/5" />
+							<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm" />
+							<div className="h-3 bg-gray-200 dark:bg-white/8 rounded-sm w-4/5" />
 						</div>
 					</div>
 				))}
@@ -205,7 +205,7 @@ export function FavoritesClient(props: ListingProps) {
 				{/* Empty state message */}
 				<div className="text-center py-8">
 					<div className="max-w-md mx-auto">
-						<div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-gray-100 to-blue-100 dark:from-gray-900/30 dark:to-blue-900/30 rounded-full flex items-center justify-center">
+						<div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-gray-100 to-blue-100 dark:from-[#0a0a0a]/30 dark:to-blue-900/30 rounded-full flex items-center justify-center">
 							<Star className="w-8 h-8 text-gray-500 dark:text-gray-400" />
 						</div>
 						<h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
@@ -237,7 +237,7 @@ export function FavoritesClient(props: ListingProps) {
 									value={popularSortBy}
 									onSortChange={(value) => setPopularSortBy(value as SortOption)}
 									ariaLabel={t('SORT_POPULAR_ITEMS', { defaultValue: 'Sort popular items' })}
-									className="w-full sm:w-auto sm:min-w-[180px]"
+									className="w-full sm:w-auto sm:min-w-45"
 								/>
 								<ViewToggle
 									activeView={layoutKey}
@@ -286,7 +286,7 @@ export function FavoritesClient(props: ListingProps) {
 						value={favoritesSortBy}
 						onSortChange={(value) => setFavoritesSortBy(value as SortOption)}
 						ariaLabel={t('SORT_FAVORITES', { defaultValue: 'Sort favorites' })}
-						className="w-full sm:w-auto sm:min-w-[180px]"
+						className="w-full sm:w-auto sm:min-w-45"
 					/>
 					<ViewToggle
 						activeView={layoutKey}

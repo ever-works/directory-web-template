@@ -120,7 +120,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+			<div className="w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 				{/* Header */}
 				<div className="bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center space-x-3">
@@ -231,7 +231,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 						>
 							<Select.Trigger
 								className={cn(
-									"flex h-12 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm",
+									"flex h-12 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-white/8 bg-white dark:bg-white/5 px-3 py-2 text-sm",
 									"focus:outline-none focus:ring-2 focus:ring-theme-primary-500",
 									"disabled:cursor-not-allowed disabled:opacity-50"
 								)}
@@ -243,14 +243,14 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 							</Select.Trigger>
 							<Select.Portal>
 								<Select.Content
-									className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+									className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
 									position="popper"
 									sideOffset={4}
 								>
 									<Select.Viewport className="p-1">
 										<Select.Item
 											value="active"
-											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
 										>
 											<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 												<Check className="h-4 w-4" />
@@ -259,7 +259,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 										</Select.Item>
 										<Select.Item
 											value="inactive"
-											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
 										>
 											<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 												<Check className="h-4 w-4" />
@@ -273,7 +273,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 					</div>
 
 					{/* Form Actions */}
-					<div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+					<div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-white/6">
 						<Button variant="bordered" onPress={handleClose} isDisabled={isSubmitting}>
 							{t('CANCEL')}
 						</Button>
@@ -317,7 +317,7 @@ export function DeleteConfirmationModal({
 
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-xl p-6">
+			<div className="w-full max-w-md bg-white dark:bg-white/3 rounded-xl shadow-xl p-6">
 				<div className="text-center">
 					<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
 						<Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />

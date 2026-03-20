@@ -36,8 +36,8 @@ export function TagsModal({
       size="md"
       classNames={{
         backdrop: "bg-black/50",
-        base: "bg-white dark:bg-gray-800 text-gray-900 dark:text-white",
-        header: "border-b border-gray-200 dark:border-gray-700",
+        base: "bg-white dark:bg-white/5 text-gray-900 dark:text-white",
+        header: "border-b border-gray-200 dark:border-white/6",
         body: "py-4",
       }}
     >
@@ -51,7 +51,7 @@ export function TagsModal({
           </p>
         </ModalHeader>
         <ModalBody>
-          <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+          <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
             {selectedTags.map((tagId) => {
               const tag = tags.find((t) => t.id === tagId);
               return tag ? (
@@ -72,7 +72,7 @@ export function TagsModal({
           {selectedTags.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="relative mb-6">
-                <div className="w-20 h-20 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-full flex items-center justify-center">
+                <div className="w-20 h-20 bg-linear-to-br from-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-full flex items-center justify-center">
                   <TagIcon className="w-10 h-10 text-gray-400 dark:text-gray-600" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-8 h-8 bg-linear-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center animate-pulse">

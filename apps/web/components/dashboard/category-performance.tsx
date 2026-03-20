@@ -32,8 +32,8 @@ export function CategoryPerformance({ data, isLoading = false }: CategoryPerform
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-gray-700 rounded-sm"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
                 </div>
             </div>
         );

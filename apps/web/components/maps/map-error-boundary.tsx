@@ -45,7 +45,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
 			}
 
 			return (
-				<div className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+				<div className="flex flex-col items-center justify-center p-6 text-center bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/6">
 					<AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
 					<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
 						Map failed to load

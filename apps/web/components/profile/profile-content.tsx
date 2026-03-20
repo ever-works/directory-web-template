@@ -15,7 +15,7 @@ interface ProfileContentProps {
 // Reusable section header component
 function ProfileSectionHeader({ title }: { title: string }) {
   return (
-    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 border-b border-gray-200 dark:border-gray-800 pb-2">
+    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 border-b border-gray-200 dark:border-white/6 pb-2">
       {title}
     </h2>
   );

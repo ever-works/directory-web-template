@@ -15,7 +15,7 @@ const sizeClasses = {
 const colorClasses = {
   primary: "border-theme-primary border-t-transparent",
   white: "border-white border-t-transparent",
-  gray: "border-gray-400 border-t-transparent dark:border-gray-500"
+  gray: "border-gray-400 border-t-transparent dark:border-white/[0.12]"
 } as const satisfies Record<NonNullable<LoadingSpinnerProps["color"]>, string>;
 
 export function LoadingSpinner({ size = "md", className, color = "primary", ...rest }: LoadingSpinnerProps) {

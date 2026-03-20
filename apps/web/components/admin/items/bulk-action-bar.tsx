@@ -22,8 +22,8 @@ const CONTAINER_CLASSES = cn(
 	"fixed bottom-6 left-1/2 -translate-x-1/2",
 	"flex items-center gap-4",
 	"px-6 py-3",
-	"bg-white dark:bg-gray-800",
-	"border border-gray-200 dark:border-gray-700",
+	"bg-white dark:bg-white/5",
+	"border border-gray-200 dark:border-white/6",
 	"rounded-xl shadow-lg",
 	"z-50",
 	"transition-all duration-300 ease-out"
@@ -71,7 +71,7 @@ export function BulkActionBar({
 			</span>
 
 			{/* Divider */}
-			<div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+			<div className="h-6 w-px bg-gray-200 dark:bg-white/8" />
 
 			{/* Action buttons */}
 			<div className="flex items-center gap-2">
@@ -137,7 +137,7 @@ export function BulkActionBar({
 			</div>
 
 			{/* Divider */}
-			<div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
+			<div className="h-6 w-px bg-gray-200 dark:bg-white/8" />
 
 			{/* Clear selection button */}
 			<Button

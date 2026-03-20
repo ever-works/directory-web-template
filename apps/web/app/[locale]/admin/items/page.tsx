@@ -531,9 +531,9 @@ export default function AdminItemsPage() {
     
     const statusClasses = {
       gray: {
-        bg: 'bg-gray-100 dark:bg-gray-900/20',
+        bg: 'bg-gray-100 dark:bg-white/[0.02]',
         text: 'text-gray-800 dark:text-gray-400',
-        border: 'border-gray-200 dark:border-gray-700',
+        border: 'border-gray-200 dark:border-white/6',
       },
       yellow: {
         bg: 'bg-yellow-100 dark:bg-yellow-900/20',
@@ -560,7 +560,7 @@ export default function AdminItemsPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header Skeleton */}
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <Skeleton className="w-12 h-12 rounded-xl" />
@@ -594,12 +594,12 @@ export default function AdminItemsPage() {
         {/* Items Skeleton */}
         <Card className="border-0 shadow-lg">
           <CardContent className="p-0">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6">
               <Skeleton className="h-6 w-32" />
             </div>
             <div className="p-6 space-y-4">
               {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div key={i} className="flex items-center justify-between p-4 border border-gray-200 dark:border-white/6 rounded-lg">
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-48" />
                     <Skeleton className="h-3 w-32" />
@@ -621,7 +621,7 @@ export default function AdminItemsPage() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Enhanced Header */}
       <div className="mb-8">
-        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-lg p-6">
+        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
               <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
@@ -744,10 +744,10 @@ export default function AdminItemsPage() {
       </div>
 
       {/* Items Table */}
-      <Card className="border-0 shadow-lg bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs">
+      <Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
         <CardContent className="p-0">
           {/* Table Header with Filters and Sorting */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-4">
                 {/* Select All Checkbox */}
@@ -793,7 +793,7 @@ export default function AdminItemsPage() {
 
           {/* Active Filters */}
           {activeFiltersDisplay.length > 0 && (
-            <div className="px-6 py-3 border-b border-gray-100 dark:border-gray-800 bg-gray-25 dark:bg-gray-850">
+            <div className="px-6 py-3 border-b border-gray-100 dark:border-white/6 bg-gray-25 dark:bg-white/4">
               <AdminActiveFilters
                 filters={activeFiltersDisplay}
                 onRemove={handleRemoveFilter}
@@ -810,7 +810,7 @@ export default function AdminItemsPage() {
             {/* Loading overlay for tab/filter changes */}
             {isFetching && !isLoading && (
               <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <div className="bg-white/90 dark:bg-gray-900/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
+                <div className="bg-white/90 dark:bg-[#0a0a0a]/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
                   <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING')}</span>
                 </div>
@@ -830,12 +830,12 @@ export default function AdminItemsPage() {
                     "group relative rounded-xl border transition-all duration-300 overflow-hidden",
                     isSelected
                       ? "bg-theme-primary/5 dark:bg-theme-primary/10 border-theme-primary/30"
-                      : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-theme-primary/30 hover:shadow-lg"
+                      : "bg-white dark:bg-white/5 border-gray-200 dark:border-white/6 hover:border-theme-primary/30 hover:shadow-lg"
                   )}
                 >
                   {/* Loading overlay */}
                   {isProcessingThisItem && (
-                    <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-20 transition-opacity duration-300">
+                    <div className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-20 transition-opacity duration-300">
                       <div className="flex flex-col items-center gap-2">
                         <Spinner size="lg" color="primary" />
                         <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -897,14 +897,14 @@ export default function AdminItemsPage() {
                               {item.tags.slice(0, 3).map((tag, index) => (
                                 <span
                                   key={index}
-                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-white/8 dark:text-gray-300"
                                 >
                                   <TagIcon className="w-3 h-3" />
                                   {tag}
                                 </span>
                               ))}
                               {item.tags.length > 3 && (
-                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800 dark:bg-white/8 dark:text-gray-300">
                                   <TagIcon className="w-3 h-3" />
                                   {t('MORE_TAGS', { count: item.tags.length - 3 })}
                                 </span>

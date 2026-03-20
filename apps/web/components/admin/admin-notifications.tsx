@@ -205,7 +205,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
             </CardHeader>
             
             <CardContent className="p-0">
-              <div className="max-h-[400px] overflow-y-auto">
+              <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
                 {error ? (
                   <div className="flex flex-col items-center justify-center py-12 px-4">
                     <AlertCircle className="h-8 w-8 text-destructive mb-3" />

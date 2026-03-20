@@ -58,7 +58,7 @@ export function SponsorshipItem({
 	};
 
 	return (
-		<div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+		<div className="p-4 bg-white dark:bg-white/3 rounded-lg border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/6 transition-colors">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				{/* Item Info */}
 				<div className="flex items-start gap-3 min-w-0 flex-1">
@@ -117,7 +117,7 @@ export function SponsorshipItem({
 
 			{/* Action Buttons */}
 			{hasActions && (
-				<div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
+				<div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/6 flex flex-wrap items-center gap-2">
 					{canPayNow && onPayNow && (
 						<Button
 							size="sm"
@@ -168,7 +168,7 @@ export function SponsorshipItem({
 
 			{/* Cancellation reason if cancelled */}
 			{sponsorAd.status === 'cancelled' && sponsorAd.cancelReason && (
-				<div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+				<div className="mt-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/6">
 					<p className="text-sm text-gray-700 dark:text-gray-400">
 						<span className="font-medium">{t('CANCEL_REASON')}:</span> {sponsorAd.cancelReason}
 					</p>
@@ -180,18 +180,18 @@ export function SponsorshipItem({
 
 export function SponsorshipItemSkeleton() {
 	return (
-		<div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 animate-pulse">
+		<div className="p-4 bg-white dark:bg-white/3 rounded-lg border border-gray-200 dark:border-white/6 animate-pulse">
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div className="flex items-start gap-3 flex-1">
-					<div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-lg" />
+					<div className="w-10 h-10 bg-gray-200 dark:bg-white/8 rounded-lg" />
 					<div className="flex-1 space-y-2">
-						<div className="h-5 w-48 bg-gray-200 dark:bg-gray-700 rounded" />
-						<div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+						<div className="h-5 w-48 bg-gray-200 dark:bg-white/8 rounded" />
+						<div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded" />
 					</div>
 				</div>
 				<div className="flex items-center gap-4">
-					<div className="h-4 w-40 bg-gray-200 dark:bg-gray-700 rounded" />
-					<div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded-full" />
+					<div className="h-4 w-40 bg-gray-200 dark:bg-white/8 rounded" />
+					<div className="h-6 w-20 bg-gray-200 dark:bg-white/8 rounded-full" />
 				</div>
 			</div>
 		</div>

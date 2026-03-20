@@ -16,7 +16,7 @@ export function HomeTwoSearchBar() {
         placeholder="Search any product you need..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        className="pl-8 w-full bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md  pr-10 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-hidden transition-colors duration-300 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 min-w-96"
+        className="pl-8 w-full bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/8 rounded-md  pr-10 py-1.5 text-sm text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-blue-500 dark:focus:border-blue-500 focus:outline-hidden transition-colors duration-300 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 min-w-96"
       />
      
       {searchTerm && (

@@ -8,7 +8,7 @@ import { useLocationIndexAction, type RebuildIndexResult } from '@/hooks/use-geo
 
 // ===================== Style Constants =====================
 
-const CARD_STYLES = 'bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-4 md:p-6';
+const CARD_STYLES = 'bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-4 md:p-6';
 const HEADER_STYLES = 'flex items-center gap-2 mb-3';
 const TITLE_STYLES = 'text-sm font-semibold text-gray-900 dark:text-gray-100';
 const DESCRIPTION_STYLES = 'text-sm text-gray-500 dark:text-gray-400 mb-4';

@@ -36,7 +36,7 @@ export function CacheStatus({
   const getStatusColor = () => {
     if (isStale) return 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700/50';
     if (lastUpdated) return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/50';
-    return 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/20 border-slate-200 dark:border-slate-700/50';
+    return 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#0a0a0a]/20 border-slate-200 dark:border-white/6/50';
   };
 
   const getStatusIcon = () => {
@@ -63,7 +63,7 @@ export function CacheStatus({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs mb-6">
+    <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs mb-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -84,7 +84,7 @@ export function CacheStatus({
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50">
+        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-4 border border-slate-200 dark:border-white/6">
           <div className="flex items-center gap-3 mb-2">
             <Database className="w-4 h-4 text-slate-500 dark:text-slate-400" />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Queries</span>
@@ -122,7 +122,7 @@ export function CacheStatus({
       </div>
 
       {/* Performance Metrics */}
-      <div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-slate-700/50 dark:to-theme-primary-900/20 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50 mb-6">
+      <div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-white/6/50 dark:to-theme-primary-900/20 rounded-lg p-4 border border-slate-200 dark:border-white/6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-800/50 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-theme-primary-600/50">
@@ -145,7 +145,7 @@ export function CacheStatus({
 
       {/* Last Updated Info */}
       {lastUpdated && (
-        <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 border border-slate-200 dark:border-slate-600/50 mb-6">
+        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-4 border border-slate-200 dark:border-white/6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-slate-500 dark:text-slate-400" />
@@ -193,7 +193,7 @@ export function CacheStatus({
         
         <button
           onClick={onInvalidateCache}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600/50 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600/50 hover:border-slate-400 dark:hover:border-slate-500/50 transition-colors"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/4 border border-slate-300 dark:border-white/6 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 hover:border-slate-400 dark:hover:border-white/8 transition-colors"
         >
           <XCircle className="w-4 h-4" />
           Invalidate Cache
@@ -201,7 +201,7 @@ export function CacheStatus({
       </div>
 
       {/* Cache Tips */}
-      <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-700">
+      <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/6">
         <div className="text-xs text-slate-500 dark:text-slate-400">
           <strong>Tip:</strong> The cache automatically manages data freshness and performance. 
           Use &quot;Refresh&quot; to update data and &quot;Invalidate&quot; to clear cached data.

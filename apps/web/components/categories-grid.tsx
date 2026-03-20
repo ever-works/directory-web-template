@@ -144,14 +144,14 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 					>
 						{/* Loading overlay */}
 						{loadingCategory === category.id && (
-							<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-lg flex items-center justify-center z-50 transition-opacity duration-300">
+							<div className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs rounded-lg flex items-center justify-center z-50 transition-opacity duration-300">
 								<Spinner size="lg" color="primary" />
 							</div>
 						)}
 						<Card
 							className="group relative border-0 rounded-lg transition-all duration-700 transform backdrop-blur-xl overflow-hidden h-full
-								bg-white/80 dark:bg-gray-900/80 shadow-md hover:shadow-xl
-								ring-1 ring-gray-200/50 dark:ring-gray-700/50 hover:ring-theme-primary/70
+								bg-white/80 dark:bg-white/3 shadow-md hover:shadow-xl
+								ring-1 ring-gray-200/50 dark:ring-white/6 hover:ring-theme-primary/70
 								px-4 py-4 sm:px-5 sm:py-5
 							"
 						>

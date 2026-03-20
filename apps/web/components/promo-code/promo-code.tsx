@@ -120,7 +120,7 @@ export function PromoCodeComponent({
       className={cn(
         "relative overflow-hidden rounded-2xl border transition-all duration-300 transform",
         "bg-linear-to-br from-white via-green-50/30 to-emerald-50/50",
-        "dark:from-gray-900 dark:via-green-900/10 dark:to-emerald-900/20",
+        "dark:from-[#0a0a0a] dark:via-green-900/10 dark:to-emerald-900/20",
         "border-green-200/60 dark:border-green-700/40",
         "hover:shadow-xl hover:shadow-green-500/10 hover:-translate-y-1",
         "group",
@@ -174,7 +174,7 @@ export function PromoCodeComponent({
 
         {/* Promo Code */}
         <div className="mb-4">
-          <div className="flex items-center gap-3 p-4 bg-white/80 dark:bg-gray-800/50 rounded-xl border border-green-200/50 dark:border-green-700/30">
+          <div className="flex items-center gap-3 p-4 bg-white/80 dark:bg-white/3 rounded-xl border border-green-200/50 dark:border-green-700/30">
             <div className="flex-1">
               <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide">
                 {t("common.PROMO_CODE")}

@@ -56,7 +56,7 @@ function InputLink({
 									'group relative overflow-hidden rounded-2xl border-2',
 									isMain
 										? 'border-theme-primary-200 dark:border-theme-primary-800 bg-blue-50/30 dark:bg-blue-900/10'
-										: 'border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50',
+										: 'border-gray-200 dark:border-white/8 bg-white/50 dark:bg-white/3',
 									isAnimating && 'animate-pulse',
 									'hover:border-blue-300 dark:hover:border-theme-primary-600'
 								)}
@@ -73,7 +73,7 @@ function InputLink({
 								<div className="p-4 space-y-3">
 									{/* Link Label Row */}
 									<div className="flex items-center gap-3">
-										<div className="shrink-0 w-10 h-10 rounded-xl bg-linear-to-r from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center group-hover:from-theme-primary-100 group-hover:to-theme-primary-200 dark:group-hover:from-theme-primary-900 dark:group-hover:to-theme-primary-800 transition-all duration-300">
+										<div className="shrink-0 w-10 h-10 rounded-xl bg-linear-to-r from-gray-100 to-gray-200 dark:from-white/6 dark:to-white/8 flex items-center justify-center group-hover:from-theme-primary-100 group-hover:to-theme-primary-200 dark:group-hover:from-theme-primary-900 dark:group-hover:to-theme-primary-800 transition-all duration-300">
 											<IconComponent className="w-5 h-5 text-gray-600 dark:text-gray-400 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400" />
 										</div>
 
@@ -87,7 +87,7 @@ function InputLink({
 														? t('directory.DETAILS_FORM.MAIN_WEBSITE_LABEL')
 														: t('directory.DETAILS_FORM.LINK_LABEL_PLACEHOLDER')
 												}
-												className="w-full h-10 px-3 text-sm font-medium bg-transparent border border-gray-200 dark:border-gray-600 rounded-lg outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-2 focus:ring-theme-primary-20 transition-all duration-200"
+												className="w-full h-10 px-3 text-sm font-medium bg-transparent border border-gray-200 dark:border-white/8 rounded-lg outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-2 focus:ring-theme-primary-20 transition-all duration-200"
 											/>
 										</div>
 
@@ -118,7 +118,7 @@ function InputLink({
 											pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$"
 											required={isMain}
 											className={cn(
-												'w-full h-12 px-4 pr-12 text-base bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400',
+												'w-full h-12 px-4 pr-12 text-base bg-white dark:bg-white/5 border-2 border-gray-200 dark:border-white/8 rounded-xl transition-all duration-300 outline-hidden text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400',
 												focusedField === `link-${link.id}` &&
 													'border-theme-primary-500 dark:border-theme-primary-400 ring-4 ring-theme-primary-20 scale-[1.01]',
 												completedFields.has('mainLink') &&

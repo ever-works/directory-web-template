@@ -57,7 +57,7 @@ export function SurveysListClient({
 
 	if (surveys.length === 0) {
 		return (
-			<div className="text-center py-16 bg-white dark:bg-gray-800 rounded-lg">
+			<div className="text-center py-16 bg-white dark:bg-white/5 rounded-lg">
 				<p className="text-gray-500 dark:text-gray-400">{emptyMessage}</p>
 				{emptySubMessage && (
 					<p className="text-sm text-gray-400 dark:text-gray-500 mt-2">{emptySubMessage}</p>
@@ -67,10 +67,10 @@ export function SurveysListClient({
 	}
 
 	return (
-		<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xs overflow-hidden">
+		<div className="bg-white dark:bg-white/5 rounded-lg shadow-xs overflow-hidden">
 			<div className="overflow-x-auto">
 				<table className="w-full">
-					<thead className="bg-gray-50 dark:bg-gray-900">
+					<thead className="bg-gray-50 dark:bg-white/3">
 						<tr>
 							<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
 								{t('NAME')}
@@ -98,9 +98,9 @@ export function SurveysListClient({
 							</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+					<tbody className="divide-y divide-gray-200 dark:divide-white/6">
 						{surveys.map((survey) => (
-							<tr key={survey.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50">
+							<tr key={survey.id} className="hover:bg-gray-50 dark:hover:bg-white/3">
 								<td className="px-6 py-4">
 									<div className="font-medium">{survey.title}</div>
 									{survey.itemId && showTypeColumn && (
@@ -153,7 +153,7 @@ export function SurveysListClient({
 									<button
 										type="button"
 										onClick={() => handleCopyLink(survey)}
-										className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-sm transition-colors"
+										className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
 										title={t('COPY_PUBLIC_LINK')}
 									>
 											<Copy className="w-4 h-4" />

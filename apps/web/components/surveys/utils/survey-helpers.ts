@@ -107,11 +107,11 @@ export function getStatusColor(status: string): string {
     case 'published':
       return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400';
     case 'draft':
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      return 'bg-gray-100 text-gray-800 dark:bg-white/[0.02] dark:text-gray-400';
     case 'closed':
       return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400';
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      return 'bg-gray-100 text-gray-800 dark:bg-white/[0.02] dark:text-gray-400';
   }
 }
 
@@ -125,7 +125,7 @@ export function getTypeColor(type: string): string {
     case 'item':
       return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400';
     default:
-      return 'bg-gray-100 text-gray-800 dark:bg-gray-900/20 dark:text-gray-400';
+      return 'bg-gray-100 text-gray-800 dark:bg-white/[0.02] dark:text-gray-400';
   }
 }
 

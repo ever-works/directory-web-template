@@ -39,7 +39,7 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 
 	return (
 		<div
-			className={`rounded-full bg-linear-to-br from-theme-primary-600 to-theme-primary-700 flex items-center justify-center text-white font-medium ${sizeMap[size]} ${
+			className={`rounded-full text-xs bg-linear-to-br from-theme-primary-600 to-theme-primary-700 flex items-center justify-center text-white font-medium ${sizeMap[size]} ${
 				className ?? ''
 			}`}
 			title={alt}

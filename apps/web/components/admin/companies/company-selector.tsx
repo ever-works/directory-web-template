@@ -114,7 +114,7 @@ export function CompanySelector({
 								<Loader2 className="w-6 h-6 animate-spin text-theme-primary" />
 							</div>
 						) : selectedCompany ? (
-							<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+								<div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
 								<div className="flex items-start justify-between">
 									<div className="flex-1">
 										<div className="flex items-center space-x-2 mb-2">
@@ -148,7 +148,7 @@ export function CompanySelector({
 								</div>
 							</div>
 						) : (
-							<div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+								<div className="p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
 								<p className="text-sm text-gray-600 dark:text-gray-400 text-center">{t('NO_COMPANY')}</p>
 							</div>
 						)}
@@ -177,21 +177,21 @@ export function CompanySelector({
 
 							{/* Dropdown Results */}
 							{isDropdownOpen && (
-								<Card className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto shadow-xl">
+								<Card className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 shadow-xl">
 									<CardBody className="p-0">
 										{availableCompanies.length === 0 ? (
 											<div className="p-4 text-center text-sm text-gray-600 dark:text-gray-400">
 												{searchTerm ? t('NO_RESULTS') : t('NO_COMPANIES')}
 											</div>
 										) : (
-											<div className="divide-y divide-gray-100 dark:divide-gray-800">
+											<div className="divide-y divide-gray-100 dark:divide-white/6">
 												{availableCompanies.map((company) => (
 													<button
 														key={company.id}
 														type="button"
 														onClick={() => handleSelect(company.id)}
 														disabled={isOperating}
-														className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+														className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 													>
 														<div className="flex items-center justify-between">
 															<div className="flex-1">

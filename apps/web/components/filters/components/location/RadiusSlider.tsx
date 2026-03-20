@@ -4,7 +4,7 @@ import { useFilters } from '@/components/filters/context/filter-context';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useTranslations } from 'next-intl';
 
-const SLIDER_TRACK_CLASS = 'w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-theme-primary';
+const SLIDER_TRACK_CLASS = 'w-full h-2 bg-gray-200 dark:bg-white/8 rounded-lg appearance-none cursor-pointer accent-theme-primary';
 
 export function RadiusSlider() {
 	const { locationFilter, setLocationRadius } = useFilters();
@@ -20,7 +20,7 @@ export function RadiusSlider() {
 	const percentage = ((nearMe.radius - 10) / (500 - 10)) * 100;
 
 	return (
-		<div className="flex items-center gap-3 min-w-[180px] max-w-[220px]">
+		<div className="flex items-center gap-3 min-w-45 max-w-[220px]">
 			<div className="flex-1">
 				<div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
 					<span>{t('RADIUS')}</span>

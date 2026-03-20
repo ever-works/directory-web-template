@@ -141,15 +141,15 @@ const SelectLayout: React.FC<SelectLayoutProps> = ({ className, disabled = false
 									'overflow-hidden',
 									'group/layout',
 									isActive
-										? 'bg-gradient-to-br from-theme-primary-50/50 via-white to-theme-primary-100/30 dark:from-gray-800 dark:via-gray-900 dark:to-theme-primary-950/30 border-theme-primary-400/50 dark:border-theme-primary-500/50 shadow-lg shadow-theme-primary-200/30 dark:shadow-theme-primary-900/20'
-										: 'bg-white/80 dark:bg-gray-800/80 border-gray-200/50 dark:border-gray-700/50 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:shadow-md',
+										? 'bg-gradient-to-br from-theme-primary-50/50 via-white to-theme-primary-100/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-theme-primary-950/30 border-theme-primary-400/50 dark:border-theme-primary-500/50 shadow-lg shadow-theme-primary-200/30 dark:shadow-theme-primary-900/20'
+										: 'bg-white/80 dark:bg-white/4 border-gray-200/50 dark:border-white/6 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:shadow-md',
 									disabled && 'opacity-50 cursor-not-allowed',
 									!disabled && 'hover:scale-[1.02] active:scale-[0.98]'
 								)}
 							>
 								{/* Active indicator */}
 								{isActive && (
-									<div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-900 animate-pulse z-10" />
+									<div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#0a0a0a] animate-pulse z-10" />
 								)}
 
 								{/* Layout preview image */}
@@ -180,7 +180,7 @@ const SelectLayout: React.FC<SelectLayoutProps> = ({ className, disabled = false
 											'p-1.5 rounded-md transition-colors',
 											isActive
 												? 'bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 text-white'
-												: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+												: 'bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-400'
 										)}
 									>
 										{layout.icon}

@@ -9,8 +9,8 @@ import { usePublicItemExport } from "@/hooks/use-item-import-export";
 const menuItemClass = cn(
 	"flex items-center gap-2 px-3 py-2 text-sm cursor-pointer outline-none rounded-md mx-1",
 	"text-gray-700 dark:text-gray-200",
-	"hover:bg-gray-100 dark:hover:bg-gray-700",
-	"focus:bg-gray-100 dark:focus:bg-gray-700",
+	"hover:bg-gray-100 dark:hover:bg-white/6",
+	"focus:bg-gray-100 dark:focus:bg-white/6",
 	"transition-colors duration-150"
 );
 
@@ -29,10 +29,10 @@ export function ExportButton() {
 				<button
 					className={cn(
 						"inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm",
-						"bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm",
-						"border border-gray-200 dark:border-gray-700",
+						"bg-white/80 dark:bg-white/4 backdrop-blur-sm",
+						"border border-gray-200 dark:border-white/6",
 						"text-gray-600 dark:text-gray-300",
-						"hover:bg-white dark:hover:bg-gray-800",
+						"hover:bg-white dark:hover:bg-white/6",
 						"hover:text-gray-900 dark:hover:text-white",
 						"shadow-sm hover:shadow",
 						"transition-all duration-200",
@@ -53,8 +53,8 @@ export function ExportButton() {
 			<DropdownMenu.Portal>
 				<DropdownMenu.Content
 					className={cn(
-						"min-w-[160px] bg-white dark:bg-gray-800 rounded-xl shadow-lg",
-						"border border-gray-200 dark:border-gray-700",
+						"min-w-[160px] bg-white dark:bg-white/5 rounded-xl shadow-lg",
+						"border border-gray-200 dark:border-white/6",
 						"py-1 z-50",
 						"animate-in fade-in-0 zoom-in-95 duration-200"
 					)}
