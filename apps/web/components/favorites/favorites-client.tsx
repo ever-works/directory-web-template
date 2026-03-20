@@ -8,7 +8,7 @@ import { Heart, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Category, ItemData, Tag } from '@/lib/content';
 import Item from '../item';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { layoutComponents, LayoutKey } from '../layouts';
 import { UniversalPagination } from '../universal-pagination';
 import SortMenu from '../sort-menu';
@@ -34,7 +34,7 @@ const POPULAR_ITEMS_SORT_OPTIONS = [
 ];
 
 export function FavoritesClient(props: ListingProps) {
-	const { data: session } = useSession();
+	const { user } = useCurrentUser();
 	const { favorites, isLoading, error } = useFavorites();
 	const t = useTranslations('common');
 	const tListing = useTranslations('listing');
@@ -117,7 +117,7 @@ export function FavoritesClient(props: ListingProps) {
 		clampAndScrollToTop(page, popularTotalPages, setPopularPage);
 	};
 
-	if (!session?.user?.id) {
+	if (!user?.id) {
 		return (
 			<div className="text-center py-12">
 				<div className="max-w-md mx-auto">

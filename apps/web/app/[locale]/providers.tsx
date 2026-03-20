@@ -67,20 +67,14 @@ function ShellProviders({ config, children, dehydratedState }: ProvidersProps) {
 }
 
 function PublicProviders(props: ProvidersProps) {
-	return (
-		<SessionProvider>
-			<ShellProviders {...props} />
-		</SessionProvider>
-	);
+	return <ShellProviders {...props} />;
 }
 
 function CommerceProviders(props: ProvidersProps) {
 	return (
-		<SessionProvider>
-			<CurrencyProvider>
-				<ShellProviders {...props} />
-			</CurrencyProvider>
-		</SessionProvider>
+		<CurrencyProvider>
+			<ShellProviders {...props} />
+		</CurrencyProvider>
 	);
 }
 
