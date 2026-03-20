@@ -3,8 +3,6 @@ import { Providers } from './providers';
 import './globals.scss';
 import { getCachedConfig } from '@/lib/content';
 import { getCachedContentSignals } from '@/lib/content-signals';
-import { SurveyService } from '@/lib/services/survey.service';
-import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -107,22 +105,7 @@ export default async function RootLayout({
 
 	const { hasCategories, hasTags, hasCollections, hasComparisons } = await getCachedContentSignals(locale);
 
-	// Check if global surveys exist (only if surveys feature is enabled)
-	let hasGlobalSurveys = false;
-	if (surveysEnabled) {
-		try {
-			const surveyService = new SurveyService();
-			const result = await surveyService.getMany({
-				type: SurveyTypeEnum.GLOBAL,
-				status: SurveyStatusEnum.PUBLISHED,
-				limit: 1
-			});
-			hasGlobalSurveys = (result.surveys?.length || 0) > 0;
-		} catch {
-			// If database is not configured or query fails, assume no surveys
-			hasGlobalSurveys = false;
-		}
-	}
+	const hasGlobalSurveys = false;
 
 	const headerSettings = {
 		submitEnabled: getHeaderSubmitEnabled(),
