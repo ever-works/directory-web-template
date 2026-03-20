@@ -22,11 +22,20 @@ export const CategoryItem = memo(function CategoryItem({
   const displayName = isFluid ? truncateText(formattedName, 35) : truncateText(formattedName);
   const textIsTruncated = isFluid ? checkTextTruncated(formattedName, 35) : checkTextTruncated(formattedName);
   const [hovered, setHovered] = useState(false);
+  const [isTruncatedNow, setIsTruncatedNow] = useState(false);
   const [pos, setPos] = useState({ top: 0, left: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const showTooltip = () => {
-    if (textIsTruncated && containerRef.current) {
+    if (!containerRef.current) return;
+
+    // Prefer runtime measurement (scrollWidth vs clientWidth) to detect
+    // truncation caused by container sizing (useful in `isFluid` mode).
+    const textEl = containerRef.current.querySelector('.truncate') as HTMLElement | null;
+    const runtimeTruncated = textEl ? textEl.scrollWidth > textEl.clientWidth + 1 : false;
+    setIsTruncatedNow(runtimeTruncated);
+
+    if ((textIsTruncated || runtimeTruncated) && containerRef.current) {
       const r = containerRef.current.getBoundingClientRect();
       setPos({ top: r.top + r.height / 2, left: r.right + 8 });
       setHovered(true);
@@ -46,8 +55,8 @@ export const CategoryItem = memo(function CategoryItem({
     'text-xs font-medium text-left transition-colors duration-150 outline-none',
     'focus-visible:ring-2 focus-visible:ring-black/20 dark:focus-visible:ring-white/20',
     isActive
-      ? 'bg-[#0a0a0a] text-white hover:bg-black/85 dark:bg-white/1 dark:text-white dark:hover:bg-white/[0.15]'
-      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
+      ? 'bg-[#0a0a0a] text-white hover:bg-black/85 dark:bg-white/10 dark:text-white dark:hover:bg-white/[0.15]'
+      : 'text-gray-600 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white'
   );
 
   const countClasses = cn(
@@ -62,7 +71,7 @@ export const CategoryItem = memo(function CategoryItem({
     : `${formattedName}, ${category.count ?? 0} ${t('items', { count: category.count ?? 0, defaultValue: 'items' })}`;
 
   const tooltip =
-    hovered && textIsTruncated && typeof document !== 'undefined'
+    hovered && (textIsTruncated || isTruncatedNow) && typeof document !== 'undefined'
       ? createPortal(
         <div
           className={cn(

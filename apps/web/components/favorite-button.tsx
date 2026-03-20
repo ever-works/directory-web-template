@@ -92,7 +92,7 @@ export function FavoriteButton({
 			disabled={isLoading}
 			className={cn(
 				'group relative flex items-center justify-center transition-all duration-300 ease-out',
-				'shadow-xs hover:shadow-md active:scale-95',
+				'shadow-0 active:scale-95',
 				'disabled:opacity-50 disabled:cursor-not-allowed',
 				variant === 'star' && sizeClasses[size],
 				// variant === 'star' && positionClasses[position],
