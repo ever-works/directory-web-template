@@ -146,7 +146,7 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 			})}
 			className="min-h-screen text-center flex flex-col"
 		>
-			<div className="absolute inset-x-0 top-0 w-full h-[350px] flex justify-center items-start -z-10">
+			<div className="absolute inset-x-0 -top-20 w-full h-[350px] flex justify-center items-start -z-10">
 				<GridBackground className="w-full h-full" />
 			</div>
 			{/* Breadcrumb */}

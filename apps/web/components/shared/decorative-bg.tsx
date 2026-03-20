@@ -130,7 +130,7 @@ export function StarsBackground({
         aria-hidden="true"
       >
         {/* Line at the bottom where stars start */}
-        <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#6209bb]/40 to-transparent z-30" />
+        {/* <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#6209bb]/40 to-transparent z-30" /> */}
         {stars.map((star, i) => (
           <span
             key={i}
