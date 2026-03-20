@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
 import './globals.scss';
-import { getCachedConfig, getCachedItems, getCachedComparisons } from '@/lib/content';
+import { getCachedConfig } from '@/lib/content';
+import { getCachedContentSignals } from '@/lib/content-signals';
 import { SurveyService } from '@/lib/services/survey.service';
 import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { notFound } from 'next/navigation';
@@ -98,40 +99,13 @@ export default async function RootLayout({
 	const config = await getCachedConfig();
 	const messages = await getMessages();
 
-	// Fetch items data server-side to determine existence flags
-	// This is cached and shared across requests
-	let categories: Awaited<ReturnType<typeof getCachedItems>>['categories'] = [];
-	let tags: Awaited<ReturnType<typeof getCachedItems>>['tags'] = [];
-	let collections: Awaited<ReturnType<typeof getCachedItems>>['collections'] = [];
-	let comparisons: Awaited<ReturnType<typeof getCachedComparisons>>['comparisons'] = [];
-
-	try {
-		const itemsData = await getCachedItems({ lang: locale });
-		categories = itemsData.categories;
-		tags = itemsData.tags;
-		collections = itemsData.collections;
-	} catch (error) {
-		console.error('[Layout] Failed to fetch cached items:', error);
-	}
-
-	try {
-		const comparisonsData = await getCachedComparisons({ lang: locale });
-		comparisons = comparisonsData.comparisons;
-	} catch (error) {
-		console.error('[Layout] Failed to fetch cached comparisons:', error);
-	}
-
 	// Read settings server-side for instant availability
 	const categoriesEnabled = getCategoriesEnabled();
 	const tagsEnabled = getTagsEnabled();
 	const companiesEnabled = getCompaniesEnabled();
 	const surveysEnabled = getSurveysEnabled();
 
-	// Data existence flags (whether data exists in the database/content)
-	const hasCategories = Array.isArray(categories) && categories.length > 0;
-	const hasTags = Array.isArray(tags) && tags.length > 0;
-	const hasCollections = Array.isArray(collections) && collections.length > 0;
-	const hasComparisons = Array.isArray(comparisons) && comparisons.length > 0;
+	const { hasCategories, hasTags, hasCollections, hasComparisons } = await getCachedContentSignals(locale);
 
 	// Check if global surveys exist (only if surveys feature is enabled)
 	let hasGlobalSurveys = false;
