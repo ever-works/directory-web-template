@@ -63,7 +63,7 @@ const Item = memo(function Item(props: ItemProps) {
 	);
 
 	const descriptionClassName = cn(
-		'text-xs leading-relaxed text-gray-500 dark:text-gray-500',
+		'text-[13px] leading-relaxed text-gray-500 dark:text-gray-400',
 		!isMasonryLayout && 'line-clamp-3',
 		isGridOrClassicLayout && 'min-h-[4.5em]'
 	);
@@ -252,8 +252,8 @@ const TagFilterButton = memo(function TagFilterButton({ tag }: { tag: TagProp })
 			type="button"
 			data-tag-filter
 			className={cn(
-				'text-[10px] font-medium px-1 py-0.5 rounded transition-colors duration-150',
-			'text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-white/70',
+			'text-xs font-medium px-1 py-0.5 rounded transition-colors duration-150',
+			'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-white/70',
 			isActive && 'text-gray-700 dark:text-white/70'
 			)}
 			onClick={(e) => {

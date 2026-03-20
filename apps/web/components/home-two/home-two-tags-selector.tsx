@@ -144,7 +144,7 @@ export const HomeTwoTagsSelector = ({ tags, selectedTags = [], onTagToggle }: Ho
         disableRipple
         onPress={() => setIsOpen(!isOpen)}
         className={cn(
-          'bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/6 rounded-lg px-2 sm:px-3 h-8 sm:h-9 text-xs sm:text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300',
+          'bg-gray-100 dark:bg-white/5 border border-gray-300 dark:border-white/6 rounded-lg px-2 sm:px-3 h-7 sm:h-8 text-xs sm:text-sm text-gray-700 dark:text-gray-300 transition-colors duration-300',
           'group flex items-center gap-1 sm:gap-2 min-w-[80px] sm:min-w-[100px]'
         )}
         radius="sm"
@@ -220,8 +220,7 @@ export const HomeTwoTagsSelector = ({ tags, selectedTags = [], onTagToggle }: Ho
 
             {/* Tags List */}
             <div
-              className="max-h-[200px] sm:max-h-[250px] overflow-y-auto overflow-x-hidden -mr-2 pr-2 space-y-1.5 sm:space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent [&::-webkit-scrollbar]:w-2"
-              style={{ scrollbarWidth: 'thin' }}
+              className="max-h-[200px] sm:max-h-[250px] overflow-y-auto overflow-x-hidden -mr-2 pr-2 space-y-1.5 sm:space-y-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
             >
               {filteredTags.map((tag, index) => {
                 const isActive = selectedTags.includes(tag.id);

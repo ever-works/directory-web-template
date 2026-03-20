@@ -177,7 +177,7 @@ export function CompanySelector({
 
 							{/* Dropdown Results */}
 							{isDropdownOpen && (
-								<Card className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto shadow-xl">
+								<Card className="absolute z-50 w-full mt-1 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 shadow-xl">
 									<CardBody className="p-0">
 										{availableCompanies.length === 0 ? (
 											<div className="p-4 text-center text-sm text-gray-600 dark:text-gray-400">

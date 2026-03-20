@@ -120,7 +120,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 
 	return (
 		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
+			<div className="w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 				{/* Header */}
 				<div className="bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4 flex items-center justify-between">
 					<div className="flex items-center space-x-3">

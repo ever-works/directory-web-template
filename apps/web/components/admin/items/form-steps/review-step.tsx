@@ -207,7 +207,7 @@ export function ReviewStep({
                 </div>
                 <div>
                   <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Description:</span>
-                  <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-white/8 rounded-sm border border-gray-200 dark:border-white/8 max-h-20 overflow-y-auto">
+                  <p className="text-sm text-gray-900 dark:text-gray-100 mt-1 p-3 bg-white dark:bg-white/8 rounded-sm border border-gray-200 dark:border-white/8 max-h-20 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
                     {basicInfo.description || t('STEPS.REVIEW.NOT_SET')}
                   </p>
                 </div>

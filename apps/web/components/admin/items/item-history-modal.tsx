@@ -29,7 +29,7 @@ import { cn } from '@/lib/utils';
 const MODAL_OVERLAY = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
 const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
 const MODAL_HEADER = 'bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 shrink-0';
-const MODAL_BODY = 'p-6 overflow-y-auto flex-1';
+const MODAL_BODY = 'p-6 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 flex-1';
 
 const ACTION_CONFIG: Record<
 	ItemAuditActionValues,

@@ -186,7 +186,7 @@ export function ItemFilters({
 								/>
 							</div>
 							{/* Category List */}
-							<div className="mt-2 space-y-0.5 max-h-36 overflow-y-auto">
+							<div className="mt-2 space-y-0.5 max-h-36 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 								{filteredCategories.map((category) => {
 									const isSelected = categoriesFilter.includes(category.id);
 									return (
@@ -235,7 +235,7 @@ export function ItemFilters({
 								/>
 							</div>
 							{/* Tags List */}
-							<div className="mt-2 space-y-0.5 max-h-44 overflow-y-auto">
+							<div className="mt-2 space-y-0.5 max-h-44 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 								{filteredTags.length === 0 && tagSearch ? (
 									<p className="text-xs text-gray-400 px-1 py-2">{t('NO_RESULTS')}</p>
 								) : filteredTags.length === 0 ? (

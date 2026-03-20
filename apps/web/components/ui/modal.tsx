@@ -187,7 +187,7 @@ export function Modal({
 					))}
 
 				{/* Content area */}
-				<div className="overflow-y-auto max-h-[calc(90vh-5rem)]">{children}</div>
+				<div className="overflow-y-auto max-h-[calc(90vh-5rem)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">{children}</div>
 			</div>
 		</div>
 	);

@@ -50,7 +50,7 @@ export function HomeTwoSortSelector({
             "w-28 sm:w-32",
             "rounded-lg border border-gray-300 dark:border-white/6",
             "bg-gray-50 dark:bg-white/4",
-            "px-2.5 sm:px-3 py-1 sm:py-1.5",
+            "px-2.5 sm:px-3 h-7 sm:h-8",
             "font-medium",
             "text-gray-900 dark:text-white",
             "transition-all duration-200",

@@ -686,8 +686,7 @@ export function TagsList({
       )}
 
       {showAllTags && (
-        <div className="w-full flex flex-wrap gap-2 max-h-[110dvh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-4 [&::-webkit-scrollbar]:w-1"
-        style={{ scrollbarWidth: "thin" }}
+        <div className="w-full flex flex-wrap gap-2 max-h-[85dvh] overflow-y-auto  scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
         >
           {/* All Tags Button */}
           {setSelectedTags ? (

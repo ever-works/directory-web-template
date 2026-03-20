@@ -131,10 +131,8 @@ export function SettingsModal() {
 						'px-4 md:px-6 py-4 space-y-5',
 						'overflow-y-auto overscroll-contain',
 						'max-h-[calc(90vh-96px)]',
-						'scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5',
-						'dark:scrollbar-thumb-gray-700'
+						'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1'
 					)}
-					style={{ scrollbarWidth: 'thin' }}
 				>
 					{/* Layout Section - Always show */}
 					<SelectLayout />

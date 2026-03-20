@@ -51,7 +51,7 @@ export function TagsModal({
           </p>
         </ModalHeader>
         <ModalBody>
-          <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto">
+          <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
             {selectedTags.map((tagId) => {
               const tag = tags.find((t) => t.id === tagId);
               return tag ? (

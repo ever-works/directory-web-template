@@ -101,8 +101,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
   if (isAdmin) {
     return (
-      <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
-        style={{ scrollbarWidth: "thin" }}
+      <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
       >
         <MenuItem
           href="/admin"
@@ -245,8 +244,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
 
   return (
-    <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1"
-      style={{ scrollbarWidth: "thin" }}
+    <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
     >
       <MenuItem
         href={profilePath}

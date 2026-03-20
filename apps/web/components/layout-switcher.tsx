@@ -318,7 +318,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
         {isOpen && (
           <div
             id={panelId}
-            className="absolute right-0 mt-2 p-3 w-[340px] max-h-[86vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
+            className="absolute right-0 mt-2 p-3 w-[340px] max-h-[86vh] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
           >
             <div className="space-y-3">
               <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/6">
@@ -371,8 +371,8 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
 
       {isOpen && (
         <div
-          id={panelId}
-          className="absolute right-0 mt-2 p-3 w-[340px] max-h-[80vh] overflow-y-auto bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
+            id={panelId}
+            className="absolute right-0 mt-2 p-3 w-[340px] max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xl border border-gray-200/50 dark:border-white/6 rounded-xl shadow-2xl z-50"
         >
           <div className="space-y-3">
             <div className="flex items-center gap-2 pb-2 border-b border-gray-200/50 dark:border-white/6">

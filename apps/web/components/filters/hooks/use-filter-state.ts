@@ -221,8 +221,8 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   const toggleSelectedCategory = useCallback((categoryId: CategoryId) => {
     setSelectedCategories(prev =>
       prev.includes(categoryId)
-        ? []             // clicking active category → deselect (show all)
-        : [categoryId]   // clicking inactive category → select ONLY this one
+        ? prev.filter(id => id !== categoryId)  // clicking active category → remove it
+        : [...prev, categoryId]                 // clicking inactive category → add to selection
     );
   }, [setSelectedCategories]);
 

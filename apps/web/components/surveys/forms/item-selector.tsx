@@ -185,7 +185,7 @@ export function ItemSelector({
 						</div>
 
 						{/* Items List */}
-						<div className="max-h-64 overflow-y-auto">
+							<div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 							{filteredItems.length === 0 ? (
 								<div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
 									<Package className="w-8 h-8 mx-auto mb-2 opacity-50" aria-hidden="true" focusable="false" />

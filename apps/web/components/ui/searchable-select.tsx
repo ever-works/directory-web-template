@@ -179,7 +179,7 @@ export function SearchableSelect({
 			</div>
 
 			{/* Items List */}
-			<div className="max-h-[240px] overflow-y-auto">
+			<div className="max-h-[240px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 				{filteredItems.length === 0 ? (
 					<div className="px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">
 						{emptyMessage}

@@ -299,8 +299,8 @@ export function BasicInfoStep({
 												</span>
 											</div>
 										</div>
-										<div className="overflow-y-auto min-h-20 p-1.5 flex flex-wrap gap-2 items-start scrollbar-thin scrollbar-thumb-theme-primary-300 scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5 overscroll-contain mx-auto"
-											style={{ maxHeight: '20rem', width: '100%', scrollbarWidth: 'thin' }}>
+										<div className="overflow-y-auto min-h-20 p-1.5 flex flex-wrap gap-2 items-start scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 overscroll-contain mx-auto"
+											style={{ maxHeight: '20rem', width: '100%' }}>
 											{(() => {
 												const filteredCategories = categories?.filter((cat) =>
 													cat.name.toLowerCase().includes(categorySearch.toLowerCase())
@@ -399,7 +399,7 @@ export function BasicInfoStep({
 								</p>
 							</div>
 
-							<div className={cn(TAG_CLASSES.container, 'max-h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-theme-primary-300 scrollbar-track-transparent [&::-webkit-scrollbar]:w-1.5 overscroll-contain mx-auto')}
+						<div className={cn(TAG_CLASSES.container, 'max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 overscroll-contain mx-auto')}
 								style={{scrollbarWidth: 'thin' }}>
 								{tags?.slice(0, showAllTags ? undefined : tagsToShow).map((tag) => (
 									<button

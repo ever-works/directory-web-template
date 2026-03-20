@@ -72,8 +72,7 @@ export function CategoriesList({
 
 				{/* Individual Categories */}
 				<div
-					className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
-					style={{ scrollbarWidth: 'thin' }}
+					className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
 				>
 					{categories.map((category) => {
 						if (!category.count) return null;
@@ -110,8 +109,7 @@ export function CategoriesList({
 
 			{/* Individual Categories */}
 			<div
-				className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-2 [&::-webkit-scrollbar]:w-1"
-				style={{ scrollbarWidth: 'thin' }}
+				className="overflow-y-auto max-h-[650px] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
 			>
 				{categories.map((category) => {
 					if (!category.count) return null;

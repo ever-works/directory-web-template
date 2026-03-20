@@ -144,7 +144,7 @@ function FilterSectionContent<T extends string>({
 			)}
 
 			{/* Options List */}
-			<div className="mt-2 space-y-0.5 max-h-36 overflow-y-auto">
+			<div className="mt-2 space-y-0.5 max-h-36 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 				{filteredOptions.length === 0 && searchValue ? (
 					<p className="text-xs text-gray-400 px-1 py-2">
 						{section.noResultsMessage || t('NO_RESULTS')}

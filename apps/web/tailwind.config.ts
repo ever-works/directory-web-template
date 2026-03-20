@@ -145,5 +145,5 @@ export default {
     }
   },
   darkMode: 'class',
-  plugins: [require('@tailwindcss/typography'), heroui()]
+  plugins: [require('@tailwindcss/typography'), require('tailwind-scrollbar'), heroui()]
 } satisfies Config;
