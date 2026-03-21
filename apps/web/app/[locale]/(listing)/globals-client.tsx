@@ -19,6 +19,7 @@ import { useLocationItems } from '@/hooks/use-location-items';
 import { LocationDistanceProvider } from '@/components/filters/context/location-distance-context';
 import DecorativeBg from '@/components/shared/decorative-bg';
 import { ExportButton } from '@/components/shared/export-button';
+import { SponsorAdsProvider } from '@/components/sponsor-ads';
 
 type ListingProps = {
 	total: number;
@@ -119,7 +120,7 @@ export default function GlobalsClient(props: ListingProps) {
 
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
-			<>
+			<SponsorAdsProvider limit={3}>
 				<TopLoadingBar isLoading={isLoading} />
 				<DecorativeBg reverse />
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
@@ -173,12 +174,12 @@ export default function GlobalsClient(props: ListingProps) {
 					</div>
 				</Container>
 				<DecorativeBg />
-			</>
+			</SponsorAdsProvider>
 		);
 	}
 
 	return (
-		<>
+		<SponsorAdsProvider limit={3}>
 			<TopLoadingBar isLoading={isLoading} />
 			<div data-filter-scroll-target className={LAYOUT_STYLES.mainContainer}>
 				<DecorativeBg reverse />
@@ -191,6 +192,6 @@ export default function GlobalsClient(props: ListingProps) {
 				/>
 			</div>
 			<DecorativeBg />
-		</>
+		</SponsorAdsProvider>
 	);
 }
