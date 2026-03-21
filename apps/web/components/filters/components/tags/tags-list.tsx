@@ -37,7 +37,7 @@ const STICKY_LEFT_STYLES = clsx(
 
 // Navigation button styles for scroll buttons
 const NAV_BUTTON_STYLES = clsx(
-  "h-8 w-8 rounded-full bg-white dark:bg-white/5 flex items-center justify-center",
+  "h-8 w-8 rounded-full bg-white dark:bg-[#161616] flex items-center justify-center",
   "border border-gray-200 dark:border-white/6 shadow-md hover:shadow-lg",
   "hover:bg-gray-50 dark:hover:bg-white/6 transition-[background-color,box-shadow] duration-200",
   "focus:outline-none focus:ring-0 focus:ring-offset-0",
@@ -518,7 +518,7 @@ export function TagsList({
                       cn(
                         "px-3 py-1 h-8 ro font-medium transition-all duration-300 shrink-0 group capitalize focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
                         isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white",
-                        !isAllTagsActive && "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
+                        !isAllTagsActive && "bg-gray-100 dark:bg-[#161616] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                       )
                     )}
                     onClick={() => setSelectedTags([])}
@@ -587,7 +587,7 @@ export function TagsList({
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
                         ? "bg-gray-400 text-white dark:text-[#0a0a0a]"
-                        : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
+                        : "bg-gray-100 dark:bg-[#161616] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}
                   >
                     {allItemsCount ?? tags.length}
