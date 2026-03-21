@@ -14,7 +14,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useMemo, useCallback, useState, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { LayoutSwitcher } from '../layout-switcher';
 import { NavigationControls } from '../navigation-controls';
 import { ProfileButton } from './profile-button';
@@ -178,7 +178,7 @@ function HeaderNavSkeleton() {
 
 export default function Header() {
 	const [_isMenuOpen, setIsMenuOpen] = useState(false);
-	const { data: session } = useSession();
+	const { user } = useCurrentUser();
 	const { features } = useFeatureFlagsWithSimulation();
 	const { hasGlobalSurveys, isPending: _surveysPending } = useHasGlobalSurveys();
 	const { categoriesEnabled } = useCategoriesEnabled();
@@ -238,7 +238,7 @@ export default function Header() {
 				return false;
 			}
 			// Hide favorites link when feature is disabled or user is not logged in
-			if (item.key === 'favorites' && (!features.favorites || !session?.user?.id)) {
+			if (item.key === 'favorites' && (!features.favorites || !user?.id)) {
 				return false;
 			}
 			// Hide surveys link when surveys are disabled or there are no global surveys
@@ -291,7 +291,7 @@ export default function Header() {
 		return [...defaultItems, ...customItems];
 	}, [
 		config.custom_header,
-		session?.user?.id,
+		user?.id,
 		features.favorites,
 		hasGlobalSurveys,
 		categoriesEnabled,
@@ -301,6 +301,7 @@ export default function Header() {
 		headerSettings.submitEnabled,
 		hasCategories,
 		hasCollections,
+		hasComparisons,
 		hasTags
 	]);
 

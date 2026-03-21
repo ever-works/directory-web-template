@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useFavorites } from '@/hooks/use-favorites';
 import { cn } from '@/lib/utils';
 import { Heart, Star } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { useLoginModal } from '@/hooks/use-login-modal';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 
@@ -34,7 +34,7 @@ export function FavoriteButton({
 	hideIndicatorInSimilarProducts: _hideIndicatorInSimilarProducts = false
 }: FavoriteButtonProps) {
 	// All hooks must be called before any early returns
-	const { data: session } = useSession();
+	const { user } = useCurrentUser();
 	const { features, isPending: isFeaturesLoading, isSimulationActive } = useFeatureFlagsWithSimulation();
 	const { isFavorited, toggleFavorite, isAdding, isRemoving } = useFavorites();
 	const [isHovered, setIsHovered] = useState(false);
@@ -57,7 +57,7 @@ export function FavoriteButton({
 		e.preventDefault();
 		e.stopPropagation();
 
-		if (!session?.user?.id) {
+		if (!user?.id) {
 			loginModal.onOpen('Please sign in to add favorites');
 			return;
 		}
