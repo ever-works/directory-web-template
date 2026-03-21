@@ -9,7 +9,7 @@ import { ListingClient } from '@/components/shared-card/listing-client';
 import { useFilters } from '@/hooks/use-filters';
 import { useMemo } from 'react';
 import { SORT_OPTIONS } from '@/components/filters/constants';
-import { sortItemsWithFeatured } from '@/lib/utils/featured-items';
+import { applyFeaturedFlags } from '@/lib/utils/featured-items';
 import { useFeaturedItemsSection } from '@/hooks/use-feature-items-section';
 import { useItemEngagement } from '@/hooks/use-item-engagement';
 import { TopLoadingBar } from '@/components/ui/top-loading-bar';
@@ -87,7 +87,7 @@ export default function GlobalsClient(props: ListingProps) {
 			});
 		}
 
-		return featuredItems.length > 0 ? sortItemsWithFeatured(filtered, featuredItems) : filtered;
+		return featuredItems.length > 0 ? applyFeaturedFlags(filtered, featuredItems) : filtered;
 	}, [
 		itemsWithEngagement,
 		searchTerm,
