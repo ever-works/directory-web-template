@@ -301,6 +301,7 @@ export default function Header() {
 		headerSettings.submitEnabled,
 		hasCategories,
 		hasCollections,
+		hasComparisons,
 		hasTags
 	]);
 
