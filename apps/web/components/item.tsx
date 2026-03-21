@@ -73,6 +73,14 @@ const Item = memo(function Item(props: ItemProps) {
 	// Title styling: for grid/classic layouts, reserve space for 3 lines and truncate if longer
 	const titleClassName = cn(
 		'text-base min-w-2/5 mt-2 mb-1 sm:text-base font-semibold leading-tight text-left text-gray-900 dark:text-white'
+    );
+  
+	const cardClassName = cn(
+		'group relative rounded-sm overflow-hidden border-0 transition-all duration-200',
+		'bg-white dark:bg-white/3',
+		'shadow-sm hover:shadow-md dark:shadow-none',
+		'ring-1 ring-black/[0.06] dark:ring-white/[0.12] hover:ring-black/[0.10] dark:hover:ring-white/30',
+		isGridLayout ? 'h-[300px] flex flex-col' : 'h-full flex flex-col'
 	);
 
 	const descriptionClassName = cn(
