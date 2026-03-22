@@ -63,6 +63,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 			description
 		},
 		alternates: {
+			canonical: getLocalizedUrl(`/pages/${slug}`, locale as Locale),
 			languages: generatePageHreflangAlternates(slug)
 		}
 	};
