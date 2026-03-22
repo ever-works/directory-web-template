@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { Download, FileText, FileSpreadsheet, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -20,8 +21,13 @@ const menuItemClass = cn(
 export function ExportButton() {
 	const { exportItems, isExporting, exportEnabled } = usePublicItemExport();
 	const t = useTranslations("admin.ITEM_IMPORT");
+	const [isMounted, setIsMounted] = useState(false);
 
-	if (!exportEnabled) return null;
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	if (!isMounted || !exportEnabled) return null;
 
 	return (
 		<DropdownMenu.Root>
