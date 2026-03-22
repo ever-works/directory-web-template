@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
-import { getCommentsByItemId, createComment, getCommentWithUserById, getClientProfileByUserId } from "@/lib/db/queries";
-import { isUserBlocked, getBlockReasonMessage } from "@/lib/db/queries/moderation.queries";
-import { checkDatabaseAvailability } from "@/lib/utils/database-check";
+import { NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { getCommentsByItemId, createComment, getCommentWithUserById, getClientProfileByUserId } from '@/lib/db/queries';
+import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
+import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 
 /**
  * @swagger
@@ -135,31 +135,26 @@ import { checkDatabaseAvailability } from "@/lib/utils/database-check";
  *                   type: string
  *                   example: "Failed to fetch comments"
  */
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+	try {
+		// Public item detail should degrade quietly when DB-backed comments are unavailable.
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) {
+			return NextResponse.json({ success: true, comments: [] });
+		}
 
-    const itemComments = await getCommentsByItemId((await params).slug);
+		const itemComments = await getCommentsByItemId((await params).slug);
 
-    return NextResponse.json({
-      success: true,
-      comments: itemComments
-    });
-  } catch (error) {
-    // Only log errors in development mode
-    if (process.env.NODE_ENV === 'development') {
-      console.error("Failed to fetch comments:", error);
-    }
-    return NextResponse.json(
-      { success: false, error: "Failed to fetch comments" },
-      { status: 500 }
-    );
-  }
+		return NextResponse.json({
+			success: true,
+			comments: itemComments
+		});
+	} catch (error) {
+		if (process.env.NODE_ENV === 'development') {
+			console.warn('Falling back to empty comments:', error);
+		}
+		return NextResponse.json({ success: true, comments: [] });
+	}
 }
 
 /**
@@ -340,79 +335,58 @@ export async function GET(
  *                   type: string
  *                   example: "Failed to create comment"
  */
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ slug: string }> }
-) {
-  try {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
+	try {
+		// Check database availability
+		const dbCheck = checkDatabaseAvailability();
+		if (dbCheck) return dbCheck;
 
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json(
-        { success: false, error: "Authentication required" },
-        { status: 401 }
-      );
-    }
+		const session = await auth();
+		if (!session?.user) {
+			return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+		}
 
-    const { content, rating } = await request.json();
-    if (!content?.trim()) {
-      return NextResponse.json(
-        { success: false, error: "Content is required" },
-        { status: 400 }
-      );
-    }
+		const { content, rating } = await request.json();
+		if (!content?.trim()) {
+			return NextResponse.json({ success: false, error: 'Content is required' }, { status: 400 });
+		}
 
-    if (typeof rating !== "number" || rating < 1 || rating > 5) {
-      return NextResponse.json(
-        { success: false, error: "Rating must be between 1 and 5" },
-        { status: 400 }
-      );
-    }
+		if (typeof rating !== 'number' || rating < 1 || rating > 5) {
+			return NextResponse.json({ success: false, error: 'Rating must be between 1 and 5' }, { status: 400 });
+		}
 
-    const clientProfile = await getClientProfileByUserId(session.user.id!);
-    if (!clientProfile) {
-      return NextResponse.json(
-        { success: false, error: "Client profile not found" },
-        { status: 404 }
-      );
-    }
+		const clientProfile = await getClientProfileByUserId(session.user.id!);
+		if (!clientProfile) {
+			return NextResponse.json({ success: false, error: 'Client profile not found' }, { status: 404 });
+		}
 
-    // Check if user is blocked (suspended or banned)
-    if (isUserBlocked(clientProfile.status)) {
-      return NextResponse.json(
-        { success: false, error: getBlockReasonMessage(clientProfile.status) },
-        { status: 403 }
-      );
-    }
+		// Check if user is blocked (suspended or banned)
+		if (isUserBlocked(clientProfile.status)) {
+			return NextResponse.json(
+				{ success: false, error: getBlockReasonMessage(clientProfile.status) },
+				{ status: 403 }
+			);
+		}
 
-    const comment = await createComment({
-      content,
-      rating,
-      userId: clientProfile.id,
-      itemId: (await params).slug,
-    });
+		const comment = await createComment({
+			content,
+			rating,
+			userId: clientProfile.id,
+			itemId: (await params).slug
+		});
 
-    const commentWithUser = await getCommentWithUserById(comment.id);
+		const commentWithUser = await getCommentWithUserById(comment.id);
 
-    if (!commentWithUser) {
-      return NextResponse.json(
-        { success: false, error: "Failed to retrieve comment" },
-        { status: 500 }
-      );
-    }
+		if (!commentWithUser) {
+			return NextResponse.json({ success: false, error: 'Failed to retrieve comment' }, { status: 500 });
+		}
 
-    return NextResponse.json({
-      success: true,
-      comment: commentWithUser
-    });
-  } catch (error) {
-    console.error("Failed to create comment:", error);
-    return NextResponse.json(
-      { success: false, error: "Failed to create comment" },
-      { status: 500 }
-    );
-  }
-} 
+		return NextResponse.json({
+			success: true,
+			comment: commentWithUser
+		});
+	} catch (error) {
+		console.error('Failed to create comment:', error);
+		return NextResponse.json({ success: false, error: 'Failed to create comment' }, { status: 500 });
+	}
+}

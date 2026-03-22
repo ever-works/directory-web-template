@@ -65,16 +65,18 @@ import { getTenantId } from '@/lib/auth/tenant';
  */
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
 	try {
-		// Check database availability first
+		// Public item detail should degrade quietly when DB-backed ratings are unavailable.
 		const dbCheck = checkDatabaseAvailability();
-		if (dbCheck) return dbCheck;
+		if (dbCheck) {
+			return NextResponse.json({ averageRating: 0, totalRatings: 0 });
+		}
 
 		const { slug } = await params;
 		const itemId = getItemIdFromSlug(slug);
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {
-			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+			return NextResponse.json({ averageRating: 0, totalRatings: 0 });
 		}
 
 		const result = await db
@@ -92,7 +94,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 			totalRatings: Number(totalRatings) || 0
 		});
 	} catch (error) {
-		console.error('Failed to fetch ratings:', error);
-		return NextResponse.json({ error: 'Failed to fetch ratings' }, { status: 500 });
+		if (process.env.NODE_ENV === 'development') {
+			console.warn('Falling back to zero ratings:', error);
+		}
+		return NextResponse.json({ averageRating: 0, totalRatings: 0 });
 	}
 }
