@@ -5,6 +5,9 @@ import { CollectionDetail } from "@/components/collections";
 import { collectionRepository } from "@/lib/repositories/collection.repository";
 import { logger } from "@/lib/logger";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { getLocalizedUrl } from "@/lib/seo/hreflang";
+import { generateBreadcrumbSchema, generateCollectionSchema } from "@/lib/seo/schema";
+import type { Locale } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -94,16 +97,43 @@ export default async function CollectionPage({
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))
     .map((item) => ({ ...item, tags: normalizeItemTags(item.tags) }));
+  const collectionUrl = getLocalizedUrl(`/collections/${slug}`, locale as Locale);
+  const collectionSchema = generateCollectionSchema({
+    name: collection.name,
+    description: collection.description,
+    url: collectionUrl,
+    image: collection.icon_url,
+    itemCount: collectionItems.length
+  });
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: "Home", url: getLocalizedUrl("/", locale as Locale) },
+    { name: "Collections", url: getLocalizedUrl("/collections", locale as Locale) },
+    { name: collection.name, url: collectionUrl }
+  ]);
 
   return (
-    <CollectionDetail
-      collection={collection}
-      tags={tags}
-      items={collectionItems}
-      total={collectionItems.length}
-      start={0}
-      page={1}
-      basePath={`/collections/${slug}`}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(collectionSchema).replace(/</g, "\\u003c")
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, "\\u003c")
+        }}
+      />
+      <CollectionDetail
+        collection={collection}
+        tags={tags}
+        items={collectionItems}
+        total={collectionItems.length}
+        start={0}
+        page={1}
+        basePath={`/collections/${slug}`}
+      />
+    </>
   );
 }
