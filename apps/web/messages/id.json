@@ -3429,6 +3429,8 @@
 		"RECOMMENDED": "Direkomendasikan",
 		"FINAL_VERDICT": "Keputusan Akhir",
 		"ITS_A_TIE": "Seri",
+		"TIE_LABEL": "Seri",
+		"NO_WINNER": "Tidak ada pemenang yang jelas",
 		"WINS": "menang",
 		"TIE_DESCRIPTION": "Perbandingan ini berakhir seri.",
 		"WINNER_DESCRIPTION": "{winner} unggul secara keseluruhan.",

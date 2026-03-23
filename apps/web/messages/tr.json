@@ -3428,6 +3428,8 @@
 		"RECOMMENDED": "Önerilen",
 		"FINAL_VERDICT": "Son Karar",
 		"ITS_A_TIE": "Berabere",
+		"TIE_LABEL": "Beraberlik",
+		"NO_WINNER": "Belirgin bir kazanan yok",
 		"WINS": "kazanıyor",
 		"TIE_DESCRIPTION": "Bu karşılaştırma berabere bitiyor.",
 		"WINNER_DESCRIPTION": "{winner} genel olarak öne çıkıyor.",

@@ -3320,6 +3320,8 @@
 		"RECOMMENDED": "Recommandé",
 		"FINAL_VERDICT": "Verdict final",
 		"ITS_A_TIE": "Égalité",
+		"TIE_LABEL": "Égalité",
+		"NO_WINNER": "Pas de vainqueur clair",
 		"WINS": "gagne",
 		"TIE_DESCRIPTION": "Cette comparaison se termine sur une égalité.",
 		"WINNER_DESCRIPTION": "{winner} s'en sort mieux dans l'ensemble.",

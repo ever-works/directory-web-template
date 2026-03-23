@@ -3247,6 +3247,8 @@
 		"RECOMMENDED": "موصى به",
 		"FINAL_VERDICT": "الحكم النهائي",
 		"ITS_A_TIE": "تعادل",
+		"TIE_LABEL": "تعادل",
+		"NO_WINNER": "لا يوجد فائز واضح",
 		"WINS": "يفوز",
 		"TIE_DESCRIPTION": "تنتهي هذه المقارنة بتعادل.",
 		"WINNER_DESCRIPTION": "{winner} يتقدم بشكل عام.",

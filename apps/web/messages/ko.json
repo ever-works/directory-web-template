@@ -3428,6 +3428,8 @@
 		"RECOMMENDED": "추천",
 		"FINAL_VERDICT": "최종 평가",
 		"ITS_A_TIE": "무승부",
+		"TIE_LABEL": "무승부",
+		"NO_WINNER": "명확한 승자 없음",
 		"WINS": "승리",
 		"TIE_DESCRIPTION": "이 비교는 무승부로 끝납니다.",
 		"WINNER_DESCRIPTION": "{winner}이 전반적으로 앞서고 있습니다.",

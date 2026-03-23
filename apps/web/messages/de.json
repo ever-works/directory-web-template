@@ -3263,6 +3263,8 @@
 		"RECOMMENDED": "Empfohlen",
 		"FINAL_VERDICT": "Endurteil",
 		"ITS_A_TIE": "Unentschieden",
+		"TIE_LABEL": "Unentschieden",
+		"NO_WINNER": "Kein eindeutiger Gewinner",
 		"WINS": "gewinnt",
 		"TIE_DESCRIPTION": "Dieser Vergleich endet unentschieden.",
 		"WINNER_DESCRIPTION": "{winner} liegt insgesamt vorne.",

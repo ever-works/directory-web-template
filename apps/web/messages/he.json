@@ -3145,6 +3145,8 @@
 		"RECOMMENDED": "מומלץ",
 		"FINAL_VERDICT": "פסיקה סופית",
 		"ITS_A_TIE": "תיקו",
+		"TIE_LABEL": "תיקו",
+		"NO_WINNER": "אין מנצח ברור",
 		"WINS": "מנצח",
 		"TIE_DESCRIPTION": "ההשוואה הזו מסתיימת בתיקו.",
 		"WINNER_DESCRIPTION": "{winner} יוצא קדימה בסך הכל.",

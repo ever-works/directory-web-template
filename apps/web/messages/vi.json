@@ -3445,6 +3445,8 @@
 		"RECOMMENDED": "Đề xuất",
 		"FINAL_VERDICT": "Kết luận cuối cùng",
 		"ITS_A_TIE": "Hòa",
+		"TIE_LABEL": "Hòa",
+		"NO_WINNER": "Không có người chiến thắng rõ ràng",
 		"WINS": "thắng",
 		"TIE_DESCRIPTION": "So sánh này kết thúc hòa.",
 		"WINNER_DESCRIPTION": "{winner} vượt trội hơn về tổng thể.",

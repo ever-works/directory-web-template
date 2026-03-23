@@ -3509,6 +3509,8 @@
 		"RECOMMENDED": "Recommended",
 		"FINAL_VERDICT": "Final Verdict",
 		"ITS_A_TIE": "It's a tie",
+		"TIE_LABEL": "Tie",
+		"NO_WINNER": "No clear winner",
 		"WINS": "wins",
 		"TIE_DESCRIPTION": "This comparison ends in a tie.",
 		"WINNER_DESCRIPTION": "{winner} comes out ahead overall.",

@@ -3257,6 +3257,8 @@
 		"RECOMMENDED": "推荐",
 		"FINAL_VERDICT": "最终评定",
 		"ITS_A_TIE": "平局",
+		"TIE_LABEL": "平局",
+		"NO_WINNER": "没有明确的赢家",
 		"WINS": "胜出",
 		"TIE_DESCRIPTION": "此对比以平局告终。",
 		"WINNER_DESCRIPTION": "{winner} 综合领先。",

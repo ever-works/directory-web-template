@@ -3428,6 +3428,8 @@
 		"RECOMMENDED": "Рекомендуется",
 		"FINAL_VERDICT": "Итоговый вердикт",
 		"ITS_A_TIE": "Ничья",
+		"TIE_LABEL": "Ничья",
+		"NO_WINNER": "Нет явного победителя",
 		"WINS": "побеждает",
 		"TIE_DESCRIPTION": "Это сравнение заканчивается ничьёй.",
 		"WINNER_DESCRIPTION": "{winner} выходит вперёд в целом.",

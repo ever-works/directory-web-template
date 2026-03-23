@@ -3127,6 +3127,8 @@
 		"RECOMMENDED": "Рекомендовано",
 		"FINAL_VERDICT": "Остаточний вердикт",
 		"ITS_A_TIE": "Нічия",
+		"TIE_LABEL": "Нічия",
+		"NO_WINNER": "Немає явного переможця",
 		"WINS": "перемагає",
 		"TIE_DESCRIPTION": "Це порівняння завершується нічиєю.",
 		"WINNER_DESCRIPTION": "{winner} виходить уперед загалом.",

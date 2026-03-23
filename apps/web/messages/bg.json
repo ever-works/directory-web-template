@@ -3430,6 +3430,8 @@
 		"RECOMMENDED": "Препоръчано",
 		"FINAL_VERDICT": "Окончателна присъда",
 		"ITS_A_TIE": "Равенство",
+		"TIE_LABEL": "Равенство",
+		"NO_WINNER": "Няма ясен победител",
 		"WINS": "печели",
 		"TIE_DESCRIPTION": "Това сравнение завършва с равенство.",
 		"WINNER_DESCRIPTION": "{winner} излиза напред като цяло.",

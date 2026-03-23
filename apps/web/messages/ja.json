@@ -3230,6 +3230,8 @@
 		"RECOMMENDED": "推奨",
 		"FINAL_VERDICT": "最終評価",
 		"ITS_A_TIE": "引き分け",
+		"TIE_LABEL": "引き分け",
+		"NO_WINNER": "明確な勝者なし",
 		"WINS": "が優勝",
 		"TIE_DESCRIPTION": "この比較は引き分けで終わります。",
 		"WINNER_DESCRIPTION": "{winner}が総合的に優勢です。",

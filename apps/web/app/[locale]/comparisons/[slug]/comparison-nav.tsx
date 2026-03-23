@@ -67,7 +67,7 @@ export function ComparisonNav({ sections }: ComparisonNavProps) {
 							tooltip === section.id ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-1'
 						}`}>
 							{section.label}
-							<span className="absolute right-1.25 top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-white dark:border-l-gray-900" />
+							<span className="absolute right-[5px] top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-white dark:border-l-gray-900" />
 						</div>
 						<button
 							onClick={() => scrollTo(section.id)}

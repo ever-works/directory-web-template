@@ -3225,6 +3225,8 @@
 		"RECOMMENDED": "Aanbevolen",
 		"FINAL_VERDICT": "Eindvonnis",
 		"ITS_A_TIE": "Gelijkspel",
+		"TIE_LABEL": "Gelijkspel",
+		"NO_WINNER": "Geen duidelijke winnaar",
 		"WINS": "wint",
 		"TIE_DESCRIPTION": "Deze vergelijking eindigt in gelijkspel.",
 		"WINNER_DESCRIPTION": "{winner} komt er overall bovenuit.",

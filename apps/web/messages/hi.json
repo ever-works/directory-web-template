@@ -3151,6 +3151,8 @@
 		"RECOMMENDED": "अनुशंसित",
 		"FINAL_VERDICT": "अंतिम निर्णय",
 		"ITS_A_TIE": "बराबरी है",
+		"TIE_LABEL": "बराबरी",
+		"NO_WINNER": "कोई स्पष्ट विजेता नहीं",
 		"WINS": "जीतता है",
 		"TIE_DESCRIPTION": "यह तुलना बराबरी पर समाप्त होती है।",
 		"WINNER_DESCRIPTION": "{winner} कुल मिलाकर आगे निकलता है।",

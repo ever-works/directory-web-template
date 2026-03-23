@@ -3147,6 +3147,8 @@
 		"RECOMMENDED": "แนะนำ",
 		"FINAL_VERDICT": "คำตัดสินสุดท้าย",
 		"ITS_A_TIE": "เสมอกัน",
+		"TIE_LABEL": "เสมอ",
+		"NO_WINNER": "ไม่มีผู้ชนะที่ชัดเจน",
 		"WINS": "ชนะ",
 		"TIE_DESCRIPTION": "การเปรียบเทียบนี้จบลงด้วยการเสมอ",
 		"WINNER_DESCRIPTION": "{winner} ได้เปรียบโดยรวม",

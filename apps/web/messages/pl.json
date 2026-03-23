@@ -3225,6 +3225,8 @@
 		"RECOMMENDED": "Zalecane",
 		"FINAL_VERDICT": "Ostateczny werdykt",
 		"ITS_A_TIE": "Remis",
+		"TIE_LABEL": "Remis",
+		"NO_WINNER": "Brak wyraźnego zwycięzcy",
 		"WINS": "wygrywa",
 		"TIE_DESCRIPTION": "To porównanie kończy się remisem.",
 		"WINNER_DESCRIPTION": "{winner} wyprzedza ogólnie.",

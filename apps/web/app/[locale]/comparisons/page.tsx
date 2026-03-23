@@ -1,12 +1,11 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { getCachedComparisons } from '@/lib/content';
 import { Container } from '@/components/ui/container';
 import Hero from '@/components/hero';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
-import { GridBackground, DotBgsible } from '@/components/shared/decorative-bg';
+import { DotBgsible } from '@/components/shared/decorative-bg';
 import DecorativeBg from '@/components/shared/decorative-bg';
 
 export const revalidate = 600;
@@ -42,7 +41,7 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
 	const { locale } = await params;
 	const [{ comparisons }, t] = await Promise.all([
 		getCachedComparisons({ lang: locale }),
-		getTranslations('comparisons')
+		getTranslations({ locale, namespace: 'comparisons' })
 	]);
 
 	return (
@@ -74,7 +73,7 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
 							{comparisons.map((comparison) => (
 								<Link
 									key={comparison.slug}
-									href={`/comparisons/${comparison.slug}`}
+									href={`/${locale}/comparisons/${comparison.slug}`}
 									className="group relative rounded-sm border-0 ring-1 ring-gray-200/50 bg-white/80 p-6 shadow-md transition-all duration-700 hover:ring-theme-primary/70 dark:hover:ring-white/40 hover:shadow-xl overflow-hidden dark:ring-white/6 dark:bg-white/3"
 								>
 									<div className="relative z-10">

@@ -31,12 +31,14 @@ function formatComparisonDate(value: string, locale: string): string {
 function getWinnerLabel(
 	winner: ComparisonDimension['winner'] | 'item_a' | 'item_b' | 'tie' | undefined,
 	itemAName: string,
-	itemBName: string
+	itemBName: string,
+	tieLabel: string,
+	noWinnerLabel: string
 ): string {
 	if (winner === 'item_a') return itemAName;
 	if (winner === 'item_b') return itemBName;
-	if (winner === 'tie') return 'Tie';
-	return 'No clear winner';
+	if (winner === 'tie') return tieLabel;
+	return noWinnerLabel;
 }
 
 /** Simple 0-10 score bar */
@@ -88,7 +90,9 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 
 	const { comparison, markdown } = detail;
 	const t = await getTranslations('comparisons');
-	const overallWinner = getWinnerLabel(comparison.verdict_winner, comparison.item_a_name, comparison.item_b_name);
+	const tieLabel = t('TIE_LABEL');
+	const noWinnerLabel = t('NO_WINNER');
+	const overallWinner = getWinnerLabel(comparison.verdict_winner, comparison.item_a_name, comparison.item_b_name, tieLabel, noWinnerLabel);
 	const isTie = comparison.verdict_winner === 'tie';
 
 	const comparisonUrl = getLocalizedUrl(`/comparisons/${slug}`, locale as Locale);
@@ -313,7 +317,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 							</div>
 							<div className="h-px flex-1 bg-gray-100 dark:bg-white/8" />
 							<div className="rounded-full border border-gray-200/60 bg-white/70 px-2.5 py-0.5 text-xs font-medium text-gray-500 dark:border-white/10 dark:bg-white/4">
-								{t('CATEGORIES_COUNT', { count: comparison.dimensions.length })}
+								{t('DIMENSIONS_COUNT', { count: comparison.dimensions.length })}
 							</div>
 						</div>
 
@@ -340,7 +344,9 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 								const winner = getWinnerLabel(
 									dimension.winner,
 									comparison.item_a_name,
-									comparison.item_b_name
+									comparison.item_b_name,
+									tieLabel,
+									noWinnerLabel
 								);
 								const aWins = dimension.winner === 'item_a';
 								const bWins = dimension.winner === 'item_b';

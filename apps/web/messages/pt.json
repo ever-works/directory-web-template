@@ -3226,6 +3226,8 @@
 		"RECOMMENDED": "Recomendado",
 		"FINAL_VERDICT": "Veredicto final",
 		"ITS_A_TIE": "É um empate",
+		"TIE_LABEL": "Empate",
+		"NO_WINNER": "Sem vencedor claro",
 		"WINS": "vence",
 		"TIE_DESCRIPTION": "Esta comparação termina em empate.",
 		"WINNER_DESCRIPTION": "{winner} sai na frente no geral.",
