@@ -8,17 +8,18 @@ import { HomeTwoLayout } from '@/components/home-two';
 import { ListingClient } from '@/components/shared-card/listing-client';
 import { useFilters } from '@/hooks/use-filters';
 import { useMemo } from 'react';
-import { sortItemsWithFeatured } from '@/lib/utils/featured-items';
+import { SORT_OPTIONS } from '@/components/filters/constants';
+import { applyFeaturedFlags } from '@/lib/utils/featured-items';
 import { useFeaturedItemsSection } from '@/hooks/use-feature-items-section';
 import { useItemEngagement } from '@/hooks/use-item-engagement';
 import { TopLoadingBar } from '@/components/ui/top-loading-bar';
 import { Container, useContainerWidth } from '@/components/ui/container';
-import { SponsorAdsProvider } from '@/components/sponsor-ads';
 import { LocationFilter } from '@/components/filters/components/location';
 import { useLocationItems } from '@/hooks/use-location-items';
 import { LocationDistanceProvider } from '@/components/filters/context/location-distance-context';
 import DecorativeBg from '@/components/shared/decorative-bg';
 import { ExportButton } from '@/components/shared/export-button';
+import { SponsorAdsProvider } from '@/components/sponsor-ads';
 
 type ListingProps = {
 	total: number;
@@ -51,28 +52,23 @@ const LAYOUT_STYLES = {
 };
 
 export default function GlobalsClient(props: ListingProps) {
-	// Destructure paginationType to subscribe to context changes - forces re-render when pagination type changes
 	const { layoutHome = LayoutHome.HOME_ONE, paginationType: _paginationType } = useLayoutTheme();
-	const { selectedCategories, searchTerm, selectedTags, isFiltersLoading, locationFilter } =
-		useFilters();
+	const { selectedCategories, searchTerm, selectedTags, sortBy, isFiltersLoading, locationFilter } = useFilters();
 	const sortedTags = useMemo(() => sortByNumericProperty(props.tags), [props.tags]);
 	const sortedCategories = useMemo(() => sortByNumericProperty(props.categories), [props.categories]);
+	const shouldLoadPopularityData = sortBy === SORT_OPTIONS.POPULARITY && !locationFilter.sortByDistance;
 
-	// Use the new hook for featured items
 	const { featuredItems } = useFeaturedItemsSection({
 		limit: 6,
-		enabled: true
+		enabled: shouldLoadPopularityData
 	});
 
-	// Fetch engagement metrics for popularity sorting
-	// This enriches items with views, votes, favorites, comments data
-	const { items: itemsWithEngagement, isLoading: isEngagementLoading } = useItemEngagement(props.items);
+	const { items: itemsWithEngagement, isLoading: isEngagementLoading } = useItemEngagement(props.items, {
+		enabled: shouldLoadPopularityData
+	});
 
-	// Location-based filtering via API
 	const { matchingSlugs, distances, isLoading: isLocationLoading } = useLocationItems(locationFilter);
 
-	// Filtering logic using shared utility
-	// Uses items with engagement data for true popularity sorting
 	const filteredItems = useMemo(() => {
 		let filtered = filterItems(itemsWithEngagement, {
 			searchTerm,
@@ -80,12 +76,10 @@ export default function GlobalsClient(props: ListingProps) {
 			selectedCategories
 		});
 
-		// Apply location filter: intersect with matching slugs from API
 		if (matchingSlugs !== null) {
-			filtered = filtered.filter(item => matchingSlugs.has(item.slug));
+			filtered = filtered.filter((item) => matchingSlugs.has(item.slug));
 		}
 
-		// When sorting by distance, sort by distance instead of featured/popularity
 		if (locationFilter.sortByDistance && distances.size > 0) {
 			return filtered.sort((a, b) => {
 				const distA = distances.get(a.slug) ?? Infinity;
@@ -94,32 +88,35 @@ export default function GlobalsClient(props: ListingProps) {
 			});
 		}
 
-		// Sort items with featured items first (popularity sorting uses engagement data)
-		return sortItemsWithFeatured(filtered, featuredItems);
-	}, [itemsWithEngagement, searchTerm, selectedTags, selectedCategories, featuredItems, matchingSlugs, distances, locationFilter.sortByDistance]);
+		return featuredItems.length > 0 ? applyFeaturedFlags(filtered, featuredItems) : filtered;
+	}, [
+		itemsWithEngagement,
+		searchTerm,
+		selectedTags,
+		selectedCategories,
+		featuredItems,
+		matchingSlugs,
+		distances,
+		locationFilter.sortByDistance
+	]);
 
-	// Note: URL parsing is handled by FilterURLParser in the Listing component
-	// No need to duplicate that logic here
-	// IMPORTANT: This file should NOT parse URL params - FilterURLParser handles that
-
-	// Get container width to conditionally apply styles
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
+	const isLoading = isFiltersLoading || isLocationLoading || (shouldLoadPopularityData && isEngagementLoading);
 
-	// Combined loading state
-	const isLoading = isFiltersLoading || isEngagementLoading || isLocationLoading;
-
-	// Memoize config object to prevent new object reference on every render
-	const listingConfig = useMemo(() => ({
-		showStats: false,
-		showViewToggle: true,
-		showFilters: false,
-		showPagination: true,
-		showEmptyState: true,
-		enableSearch: false,
-		enableTagFilter: false,
-		enableSorting: !(locationFilter.sortByDistance && distances.size > 0),
-	}), [locationFilter.sortByDistance, distances.size]);
+	const listingConfig = useMemo(
+		() => ({
+			showStats: false,
+			showViewToggle: true,
+			showFilters: false,
+			showPagination: true,
+			showEmptyState: true,
+			enableSearch: false,
+			enableTagFilter: false,
+			enableSorting: !(locationFilter.sortByDistance && distances.size > 0)
+		}),
+		[locationFilter.sortByDistance, distances.size]
+	);
 
 	if (layoutHome === LayoutHome.HOME_ONE) {
 		return (
@@ -127,50 +124,56 @@ export default function GlobalsClient(props: ListingProps) {
 				<TopLoadingBar isLoading={isLoading} />
 				<DecorativeBg reverse />
 				<Container maxWidth="7xl" padding="default" useGlobalWidth className={LAYOUT_STYLES.mainContainer}>
-				<div className={isFluid ? LAYOUT_STYLES.contentWrapperFluid : LAYOUT_STYLES.contentWrapper}>
-					{/* Sidebar - Categories */}
-					{sortedCategories.length > 0 && (
-						<div className={`${isFluid ? LAYOUT_STYLES.sidebarFluid : LAYOUT_STYLES.sidebar} ${LAYOUT_STYLES.sidebarMobile}`}>
-							<Categories total={props.total} categories={sortedCategories} tags={sortedTags} />
-						</div>
-					)}
-
-					{/* Main Content */}
-					<div data-filter-scroll-target className={LAYOUT_STYLES.mainContent}>
-						{/* Tags Section - Mobile version - Only show if tags exist */}
-						{sortedTags.length > 0 && (
-							<div className={` lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-8 ${LAYOUT_STYLES.mobileOnly}`}>
-								<Tags tags={sortedTags} enableSticky={false} maxVisibleTags={3} allItems={props.items} />
-							</div>
-						)}
-						{/* Tags Section - Desktop version - Only show if tags exist */}
-						{sortedTags.length > 0 && (
-							<div className={`lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-4 ${LAYOUT_STYLES.desktopOnly}`}>
-								<Tags tags={sortedTags} enableSticky={true} maxVisibleTags={isFluid ? 8 : 5} allItems={props.items} />
+					<div className={isFluid ? LAYOUT_STYLES.contentWrapperFluid : LAYOUT_STYLES.contentWrapper}>
+						{sortedCategories.length > 0 && (
+							<div
+								className={`${isFluid ? LAYOUT_STYLES.sidebarFluid : LAYOUT_STYLES.sidebar} ${LAYOUT_STYLES.sidebarMobile}`}
+							>
+								<Categories total={props.total} categories={sortedCategories} tags={sortedTags} />
 							</div>
 						)}
 
-						{/* Location Filters */}
-						<div className="mb-4 sm:mb-6">
-							<LocationFilter />
-						</div>
+						<div data-filter-scroll-target className={LAYOUT_STYLES.mainContent}>
+							{sortedTags.length > 0 && (
+								<div className={` lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-8 ${LAYOUT_STYLES.mobileOnly}`}>
+									<Tags
+										tags={sortedTags}
+										enableSticky={false}
+										maxVisibleTags={3}
+										allItems={props.items}
+									/>
+								</div>
+							)}
+							{sortedTags.length > 0 && (
+								<div className={`lg:sticky lg:top-4 mb-4 sm:mb-6 md:mb-4 ${LAYOUT_STYLES.desktopOnly}`}>
+									<Tags
+										tags={sortedTags}
+										enableSticky={true}
+										maxVisibleTags={isFluid ? 8 : 5}
+										allItems={props.items}
+									/>
+								</div>
+							)}
 
-						{/* Listing Content */}
-						<LocationDistanceProvider distances={distances}>
-							<div className="mb-6 sm:mb-8 md:mb-10">
-								<ListingClient
-									{...props}
-									items={filteredItems}
-									totalCount={props.items.length}
-									config={listingConfig}
-									headerActions={<ExportButton />}
-								/>
+							<div className="mb-4 sm:mb-6">
+								<LocationFilter />
 							</div>
-						</LocationDistanceProvider>
+
+							<LocationDistanceProvider distances={distances}>
+								<div className="mb-6 sm:mb-8 md:mb-10">
+									<ListingClient
+										{...props}
+										items={filteredItems}
+										totalCount={props.items.length}
+										config={listingConfig}
+										headerActions={<ExportButton />}
+									/>
+								</div>
+							</LocationDistanceProvider>
+						</div>
 					</div>
-				</div>
-			</Container>
-			<DecorativeBg />
+				</Container>
+				<DecorativeBg />
 			</SponsorAdsProvider>
 		);
 	}
@@ -187,7 +190,6 @@ export default function GlobalsClient(props: ListingProps) {
 					filteredAndSortedItems={filteredItems}
 					searchEnabled={props.searchEnabled}
 				/>
-				
 			</div>
 			<DecorativeBg />
 		</SponsorAdsProvider>
