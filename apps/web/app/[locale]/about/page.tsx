@@ -7,7 +7,8 @@ import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { generateHreflangAlternates } from '@/lib/seo/hreflang';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { Locale } from '@/lib/constants';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: tFooter('ABOUT_US'),
     description: tPages('ABOUT_PAGE_META_DESCRIPTION'),
     alternates: {
+      canonical: getLocalizedUrl('/about', locale as Locale),
       languages: generateHreflangAlternates('/about')
     }
   };

@@ -6,6 +6,9 @@ import Hero from '@/components/hero';
 import { MDX } from '@/components/mdx';
 import { getCachedComparison } from '@/lib/content';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
+import { generateBreadcrumbSchema, generateComparisonSchema } from '@/lib/seo/schema';
+import { getLocalizedUrl } from '@/lib/seo/hreflang';
+import type { Locale } from '@/lib/constants';
 import type { ComparisonDimension } from '@/types/comparison';
 
 export const revalidate = 600;
@@ -80,6 +83,21 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
     comparison.item_a_name,
     comparison.item_b_name
   );
+  const comparisonUrl = getLocalizedUrl(`/comparisons/${slug}`, locale as Locale);
+  const comparisonSchema = generateComparisonSchema({
+    title: comparison.title,
+    description: comparison.summary,
+    url: comparisonUrl,
+    datePublished: comparison.generated_at,
+    itemAName: comparison.item_a_name,
+    itemBName: comparison.item_b_name,
+    category: comparison.category
+  });
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: getLocalizedUrl('/', locale as Locale) },
+    { name: 'Comparisons', url: getLocalizedUrl('/comparisons', locale as Locale) },
+    { name: comparison.title, url: comparisonUrl }
+  ]);
 
   return (
     <Hero
@@ -92,6 +110,18 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
       description={comparison.summary}
       className="text-center"
     >
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(comparisonSchema).replace(/</g, '\\u003c')
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbSchema).replace(/</g, '\\u003c')
+        }}
+      />
       <Container maxWidth="7xl" padding="default" useGlobalWidth className="pb-20 text-left">
         <div className="mb-8 flex items-center justify-between gap-4">
           <Link
