@@ -3128,5 +3128,33 @@
 				"NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות כיסוי גיאוגרפי."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "השוואות",
+		"TITLE": "עיין בהשוואות",
+		"DESCRIPTION": "עיין בהשוואות כלים שנוצרו ומפורסמות ממאגר הנתונים.",
+		"EMPTY_STATE_TITLE": "לא נמצאו השוואות",
+		"EMPTY_STATE_DESC": "אין עדיין עמודי השוואה זמינים בספרייה זו.",
+		"DIMENSIONS_COUNT": "{count} ממדים",
+		"READ_COMPARISON": "קרא השוואה",
+		"ALL_COMPARISONS": "כל ההשוואות",
+		"OPTION_A": "אפשרות א",
+		"OPTION_B": "אפשרות ב",
+		"AVG_LABEL": "ממוצע",
+		"SCORE_LABEL": "ציון",
+		"RECOMMENDED": "מומלץ",
+		"FINAL_VERDICT": "פסיקה סופית",
+		"ITS_A_TIE": "תיקו",
+		"WINS": "מנצח",
+		"TIE_DESCRIPTION": "ההשוואה הזו מסתיימת בתיקו.",
+		"WINNER_DESCRIPTION": "{winner} יוצא קדימה בסך הכל.",
+		"DIMENSION_ANALYSIS": "ניתוח ממדים",
+		"CATEGORIES_COUNT": "{count} קטגוריות",
+		"FULL_ARTICLE": "מאמר מלא",
+		"NO_ARTICLE": "אין עדיין תוכן מאמר השוואה זמין.",
+		"NAV_OVERVIEW": "סקירה",
+		"NAV_VERDICT": "פסיקה",
+		"NAV_DIMENSIONS": "ממדים",
+		"NAV_ARTICLE": "מאמר"
 	}
 }

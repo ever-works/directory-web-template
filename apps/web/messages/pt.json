@@ -3209,5 +3209,33 @@
 				"NO_DATA_DESC": "Adicione dados de localização aos seus itens para ver a cobertura geográfica."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Comparações",
+		"TITLE": "Explorar comparações",
+		"DESCRIPTION": "Navegue pelas comparações de ferramentas geradas publicadas no repositório de dados.",
+		"EMPTY_STATE_TITLE": "Nenhuma comparação encontrada",
+		"EMPTY_STATE_DESC": "Ainda não há páginas de comparação disponíveis neste diretório.",
+		"DIMENSIONS_COUNT": "{count} dimensões",
+		"READ_COMPARISON": "Ler comparação",
+		"ALL_COMPARISONS": "Todas as comparações",
+		"OPTION_A": "Opção A",
+		"OPTION_B": "Opção B",
+		"AVG_LABEL": "méd.",
+		"SCORE_LABEL": "pontuação",
+		"RECOMMENDED": "Recomendado",
+		"FINAL_VERDICT": "Veredicto final",
+		"ITS_A_TIE": "É um empate",
+		"WINS": "vence",
+		"TIE_DESCRIPTION": "Esta comparação termina em empate.",
+		"WINNER_DESCRIPTION": "{winner} sai na frente no geral.",
+		"DIMENSION_ANALYSIS": "Análise de dimensões",
+		"CATEGORIES_COUNT": "{count} categorias",
+		"FULL_ARTICLE": "Artigo completo",
+		"NO_ARTICLE": "Ainda não há conteúdo de artigo de comparação disponível.",
+		"NAV_OVERVIEW": "Visão geral",
+		"NAV_VERDICT": "Veredicto",
+		"NAV_DIMENSIONS": "Dimensões",
+		"NAV_ARTICLE": "Artigo"
 	}
 }

@@ -3110,5 +3110,33 @@
 				"NO_DATA_DESC": "Додайте дані про місцезнаходження до ваших елементів, щоб побачити географічне покриття."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Порівняння",
+		"TITLE": "Перегляд порівнянь",
+		"DESCRIPTION": "Перегляньте згенеровані порівняння інструментів, опубліковані з репозиторію даних.",
+		"EMPTY_STATE_TITLE": "Порівнянь не знайдено",
+		"EMPTY_STATE_DESC": "У цьому каталозі ще немає доступних сторінок порівняння.",
+		"DIMENSIONS_COUNT": "{count} критеріїв",
+		"READ_COMPARISON": "Читати порівняння",
+		"ALL_COMPARISONS": "Всі порівняння",
+		"OPTION_A": "Варіант A",
+		"OPTION_B": "Варіант B",
+		"AVG_LABEL": "сер.",
+		"SCORE_LABEL": "оцінка",
+		"RECOMMENDED": "Рекомендовано",
+		"FINAL_VERDICT": "Остаточний вердикт",
+		"ITS_A_TIE": "Нічия",
+		"WINS": "перемагає",
+		"TIE_DESCRIPTION": "Це порівняння завершується нічиєю.",
+		"WINNER_DESCRIPTION": "{winner} виходить уперед загалом.",
+		"DIMENSION_ANALYSIS": "Аналіз критеріїв",
+		"CATEGORIES_COUNT": "{count} категорій",
+		"FULL_ARTICLE": "Повна стаття",
+		"NO_ARTICLE": "Вміст статті порівняння ще недоступний.",
+		"NAV_OVERVIEW": "Огляд",
+		"NAV_VERDICT": "Вердикт",
+		"NAV_DIMENSIONS": "Критерії",
+		"NAV_ARTICLE": "Стаття"
 	}
 }

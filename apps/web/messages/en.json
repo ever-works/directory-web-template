@@ -3492,5 +3492,33 @@
 				"NO_DATA_DESC": "Add location data to your items to see geographic coverage."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Comparisons",
+		"TITLE": "Explore Comparisons",
+		"DESCRIPTION": "Browse generated tool comparisons published from the data repository.",
+		"EMPTY_STATE_TITLE": "No comparisons found",
+		"EMPTY_STATE_DESC": "No comparison pages are available in this directory yet.",
+		"DIMENSIONS_COUNT": "{count} dimensions",
+		"READ_COMPARISON": "Read comparison",
+		"ALL_COMPARISONS": "All Comparisons",
+		"OPTION_A": "Option A",
+		"OPTION_B": "Option B",
+		"AVG_LABEL": "avg.",
+		"SCORE_LABEL": "score",
+		"RECOMMENDED": "Recommended",
+		"FINAL_VERDICT": "Final Verdict",
+		"ITS_A_TIE": "It's a tie",
+		"WINS": "wins",
+		"TIE_DESCRIPTION": "This comparison ends in a tie.",
+		"WINNER_DESCRIPTION": "{winner} comes out ahead overall.",
+		"DIMENSION_ANALYSIS": "Dimension Analysis",
+		"CATEGORIES_COUNT": "{count} categories",
+		"FULL_ARTICLE": "Full Article",
+		"NO_ARTICLE": "No comparison article content is available yet.",
+		"NAV_OVERVIEW": "Overview",
+		"NAV_VERDICT": "Verdict",
+		"NAV_DIMENSIONS": "Dimensions",
+		"NAV_ARTICLE": "Article"
 	}
 }

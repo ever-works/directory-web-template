@@ -3134,5 +3134,33 @@
 				"NO_DATA_DESC": "भौगोलिक कवरेज देखने के लिए अपने आइटम में स्थान डेटा जोड़ें।"
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "तुलनाएं",
+		"TITLE": "तुलनाएं खोजें",
+		"DESCRIPTION": "डेटा रिपॉजिटरी से प्रकाशित जेनरेट किए गए टूल तुलनाओं को ब्राउज़ करें।",
+		"EMPTY_STATE_TITLE": "कोई तुलना नहीं मिली",
+		"EMPTY_STATE_DESC": "इस डायरेक्टरी में अभी कोई तुलना पेज उपलब्ध नहीं है।",
+		"DIMENSIONS_COUNT": "{count} आयाम",
+		"READ_COMPARISON": "तुलना पढ़ें",
+		"ALL_COMPARISONS": "सभी तुलनाएं",
+		"OPTION_A": "विकल्प A",
+		"OPTION_B": "विकल्प B",
+		"AVG_LABEL": "औसत",
+		"SCORE_LABEL": "स्कोर",
+		"RECOMMENDED": "अनुशंसित",
+		"FINAL_VERDICT": "अंतिम निर्णय",
+		"ITS_A_TIE": "बराबरी है",
+		"WINS": "जीतता है",
+		"TIE_DESCRIPTION": "यह तुलना बराबरी पर समाप्त होती है।",
+		"WINNER_DESCRIPTION": "{winner} कुल मिलाकर आगे निकलता है।",
+		"DIMENSION_ANALYSIS": "आयाम विश्लेषण",
+		"CATEGORIES_COUNT": "{count} श्रेणियां",
+		"FULL_ARTICLE": "पूरा लेख",
+		"NO_ARTICLE": "अभी कोई तुलना लेख सामग्री उपलब्ध नहीं है।",
+		"NAV_OVERVIEW": "अवलोकन",
+		"NAV_VERDICT": "निर्णय",
+		"NAV_DIMENSIONS": "आयाम",
+		"NAV_ARTICLE": "लेख"
 	}
 }

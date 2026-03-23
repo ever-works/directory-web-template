@@ -3230,5 +3230,33 @@
 				"NO_DATA_DESC": "أضف بيانات الموقع إلى عناصرك لرؤية التغطية الجغرافية."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "مقارنات",
+		"TITLE": "استعرض المقارنات",
+		"DESCRIPTION": "تصفح مقارنات الأدوات المنشورة من مستودع البيانات.",
+		"EMPTY_STATE_TITLE": "لا توجد مقارنات",
+		"EMPTY_STATE_DESC": "لا تتوفر صفحات مقارنة في هذا الدليل بعد.",
+		"DIMENSIONS_COUNT": "{count} أبعاد",
+		"READ_COMPARISON": "قراءة المقارنة",
+		"ALL_COMPARISONS": "كل المقارنات",
+		"OPTION_A": "الخيار أ",
+		"OPTION_B": "الخيار ب",
+		"AVG_LABEL": "متوسط",
+		"SCORE_LABEL": "النتيجة",
+		"RECOMMENDED": "موصى به",
+		"FINAL_VERDICT": "الحكم النهائي",
+		"ITS_A_TIE": "تعادل",
+		"WINS": "يفوز",
+		"TIE_DESCRIPTION": "تنتهي هذه المقارنة بتعادل.",
+		"WINNER_DESCRIPTION": "{winner} يتقدم بشكل عام.",
+		"DIMENSION_ANALYSIS": "تحليل الأبعاد",
+		"CATEGORIES_COUNT": "{count} فئات",
+		"FULL_ARTICLE": "المقال الكامل",
+		"NO_ARTICLE": "لا يوجد محتوى مقارن متاح بعد.",
+		"NAV_OVERVIEW": "نظرة عامة",
+		"NAV_VERDICT": "الحكم",
+		"NAV_DIMENSIONS": "الأبعاد",
+		"NAV_ARTICLE": "المقال"
 	}
 }
