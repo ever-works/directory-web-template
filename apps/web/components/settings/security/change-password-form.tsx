@@ -46,7 +46,7 @@ function PasswordStrength({ password }: PasswordStrengthProps) {
       {password && (
         <>
           <div className="flex items-center gap-2">
-            <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div className="flex-1 bg-gray-200 dark:bg-white/8 rounded-full h-2">
               <div
                 className={cn("h-2 rounded-full transition-all duration-300", barColors[strength])}
                 style={{ width: `${(strength / 3) * 100}%` }}
@@ -62,7 +62,7 @@ function PasswordStrength({ password }: PasswordStrengthProps) {
                 {req.test(password) ? (
                   <CheckCircle className="w-4 h-4 text-green-500" />
                 ) : (
-                  <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                  <div className="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-white/8" />
                 )}
                 <span className={cn(
                   req.test(password) ? "text-green-600 dark:text-green-400" : "text-gray-500 dark:text-gray-400"
@@ -111,7 +111,7 @@ function PasswordInput({ id, label, placeholder, error, register, showStrength, 
             "block w-full pl-10 pr-10 py-3 border rounded-lg shadow-xs placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-colors text-gray-900 dark:text-gray-100",
             error
               ? "border-red-300 dark:border-red-600 bg-red-50 dark:bg-red-900/20"
-              : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+              : "border-gray-300 dark:border-white/8 bg-white dark:bg-white/5"
           )}
         />
         <button
@@ -204,8 +204,8 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <Card className="border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xs shadow-lg">
-      <CardHeader className="pb-4 border-b border-gray-100 dark:border-gray-800">
+    <Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs shadow-lg">
+      <CardHeader className="pb-4 border-b border-gray-100 dark:border-white/6">
         <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
           <Shield className="w-5 h-5 text-theme-primary-500 flex-shrink-0" />
           Change Password
@@ -261,7 +261,7 @@ export function ChangePasswordForm() {
               type="button"
               variant="outline"
               onClick={() => reset()}
-              className="sm:flex-shrink-0 px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              className="sm:flex-shrink-0 px-6 py-3 border border-gray-300 dark:border-white/8 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               Cancel
             </Button>

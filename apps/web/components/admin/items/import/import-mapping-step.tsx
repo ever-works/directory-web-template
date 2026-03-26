@@ -14,8 +14,8 @@ interface ImportMappingStepProps {
 
 const selectClass = cn(
 	"w-full px-3 py-2 text-sm rounded-lg",
-	"bg-white dark:bg-gray-800",
-	"border border-gray-200 dark:border-gray-700",
+	"bg-white dark:bg-white/5",
+	"border border-gray-200 dark:border-white/6",
 	"text-gray-900 dark:text-white",
 	"focus:outline-none focus:ring-2 focus:ring-theme-primary/50",
 	"transition-colors duration-150"
@@ -59,15 +59,15 @@ export function ImportMappingStep({
 				</div>
 			)}
 
-			<div className="overflow-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-gray-700">
+			<div className="overflow-auto max-h-[400px] rounded-lg border border-gray-200 dark:border-white/6">
 				<table className="w-full">
-					<thead className="bg-gray-50 dark:bg-gray-800/50 sticky top-0">
+					<thead className="bg-gray-50 dark:bg-white/3 sticky top-0">
 						<tr>
 							<th className={headerCellClass}>{t("FILE_COLUMN")}</th>
 							<th className={headerCellClass}>{t("MAP_TO")}</th>
 						</tr>
 					</thead>
-					<tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+					<tbody className="divide-y divide-gray-100 dark:divide-white/6">
 						{sourceHeaders.map((header) => {
 							const targetField = mapping[header] || "";
 							const isRequired = requiredFields.includes(targetField);
@@ -75,7 +75,7 @@ export function ImportMappingStep({
 							return (
 								<tr
 									key={header}
-									className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors"
+									className="hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-colors"
 								>
 									<td className={cn(bodyCellClass, "font-medium text-gray-700 dark:text-gray-200")}>
 										{header}

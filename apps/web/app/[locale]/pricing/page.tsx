@@ -44,7 +44,7 @@ export default function PricingPage() {
 	return (
 		<div
 			className={cn(
-				'w-full min-h-screen bg-white dark:bg-[#0b111f]'
+				'w-full min-h-screen bg-white dark:bg-[#0a0a0a]'
 			)}
 		>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-12">

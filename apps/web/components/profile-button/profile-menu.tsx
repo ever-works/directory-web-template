@@ -49,7 +49,7 @@ function ProfileMenu({
         MENU_STYLES.CONTAINER.background,
         MENU_STYLES.CONTAINER.border,
         MENU_STYLES.CONTAINER.animation,
-        "max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain" // Ensure menu doesn't exceed viewport height and can scroll
+        "max-h-[calc(100vh-2rem)] overflow-y-auto overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1" // Ensure menu doesn't exceed viewport height and can scroll
       )}
       role="menu"
       aria-orientation="vertical"
@@ -71,7 +71,7 @@ function ProfileMenu({
       />
 
       {/* Separator */}
-      <div className="border-t border-gray-100/50 dark:border-gray-600/50"></div>
+      <div className="border-t border-gray-100/50 dark:border-white/6"></div>
 
       <LogoutButton onLogout={onLogout} logoutText={logoutText} logoutDescription={logoutDescription} />
     </div>

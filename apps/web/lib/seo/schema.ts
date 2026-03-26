@@ -16,6 +16,24 @@ export interface ProductSchemaInput {
 	brandName?: string;
 }
 
+export interface CollectionSchemaInput {
+	name: string;
+	description?: string;
+	url: string;
+	image?: string;
+	itemCount?: number;
+}
+
+export interface ComparisonSchemaInput {
+	title: string;
+	description?: string;
+	url: string;
+	datePublished?: string;
+	itemAName?: string;
+	itemBName?: string;
+	category?: string;
+}
+
 /**
  * Generate Product schema for item detail pages
  */
@@ -51,6 +69,68 @@ export function generateProductSchema(input: ProductSchemaInput) {
 			url: input.sourceUrl,
 			availability: 'https://schema.org/InStock'
 		};
+	}
+
+	return schema;
+}
+
+/**
+ * Generate CollectionPage schema for curated collection detail pages
+ */
+export function generateCollectionSchema(input: CollectionSchemaInput) {
+	const schema: Record<string, any> = {
+		'@context': 'https://schema.org',
+		'@type': 'CollectionPage',
+		name: input.name,
+		url: input.url
+	};
+
+	if (input.description) {
+		schema.description = input.description;
+	}
+
+	if (input.image) {
+		schema.image = input.image;
+	}
+
+	if (typeof input.itemCount === 'number') {
+		schema.mainEntity = {
+			'@type': 'ItemList',
+			numberOfItems: input.itemCount
+		};
+	}
+
+	return schema;
+}
+
+/**
+ * Generate Article-like schema for comparison detail pages
+ */
+export function generateComparisonSchema(input: ComparisonSchemaInput) {
+	const schema: Record<string, any> = {
+		'@context': 'https://schema.org',
+		'@type': 'Article',
+		headline: input.title,
+		url: input.url
+	};
+
+	if (input.description) {
+		schema.description = input.description;
+	}
+
+	if (input.datePublished) {
+		schema.datePublished = input.datePublished;
+	}
+
+	if (input.category) {
+		schema.articleSection = input.category;
+	}
+
+	if (input.itemAName || input.itemBName) {
+		schema.about = [input.itemAName, input.itemBName].filter(Boolean).map((name) => ({
+			'@type': 'Thing',
+			name
+		}));
 	}
 
 	return schema;

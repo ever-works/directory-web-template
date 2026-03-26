@@ -3240,5 +3240,35 @@
 				"NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "对比",
+		"TITLE": "探索对比",
+		"DESCRIPTION": "浏览从数据仓库发布的工具对比内容。",
+		"EMPTY_STATE_TITLE": "未找到对比",
+		"EMPTY_STATE_DESC": "此目录中还没有对比页面。",
+		"DIMENSIONS_COUNT": "{count} 个维度",
+		"READ_COMPARISON": "阅读对比",
+		"ALL_COMPARISONS": "所有对比",
+		"OPTION_A": "选项 A",
+		"OPTION_B": "选项 B",
+		"AVG_LABEL": "均值",
+		"SCORE_LABEL": "得分",
+		"RECOMMENDED": "推荐",
+		"FINAL_VERDICT": "最终评定",
+		"ITS_A_TIE": "平局",
+		"TIE_LABEL": "平局",
+		"NO_WINNER": "没有明确的赢家",
+		"WINS": "胜出",
+		"TIE_DESCRIPTION": "此对比以平局告终。",
+		"WINNER_DESCRIPTION": "{winner} 综合领先。",
+		"DIMENSION_ANALYSIS": "维度分析",
+		"CATEGORIES_COUNT": "{count} 个类别",
+		"FULL_ARTICLE": "完整文章",
+		"NO_ARTICLE": "暂无对比文章内容。",
+		"NAV_OVERVIEW": "概览",
+		"NAV_VERDICT": "评定",
+		"NAV_DIMENSIONS": "维度",
+		"NAV_ARTICLE": "文章"
 	}
 }

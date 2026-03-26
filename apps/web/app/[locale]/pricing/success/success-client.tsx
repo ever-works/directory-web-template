@@ -65,7 +65,7 @@ export default function SubmissionSuccessPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
         <div className="text-center">
           <Loader2 className="w-12 h-12 animate-spin text-theme-primary-600 mx-auto mb-4" />
           <p className="text-slate-600 dark:text-white">{t("LOADING_SUBMISSION_DETAILS")}</p>
@@ -76,7 +76,7 @@ export default function SubmissionSuccessPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
+      <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
         <Container maxWidth="7xl" padding="default" useGlobalWidth>
           <div className="text-center">
             <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -94,7 +94,7 @@ export default function SubmissionSuccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-blue-50/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
       <Container maxWidth="7xl" padding="default" useGlobalWidth>
           <div className="text-center mb-12">
             <div className="w-20 h-20   flex items-center justify-center mx-auto mb-6">
@@ -188,7 +188,7 @@ export default function SubmissionSuccessPage() {
             <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">{t("NEXT_STEPS")}</h3>
             <div className="grid md:grid-cols-2 gap-6">
               {transactionDetails?.paymentType === "submission" && (
-                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-slate-800 rounded-lg">
+                <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-white/5 rounded-lg">
                   <Clock className="w-5 h-5 text-theme-primary-600 mt-0.5" />
                   <div>
                     <p className="text-theme-primary-900 dark:text-white font-medium">{t("REVIEW_IN_PROGRESS")}</p>

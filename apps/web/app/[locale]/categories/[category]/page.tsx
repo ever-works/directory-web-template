@@ -1,11 +1,51 @@
+import { Metadata } from "next";
 import { getCachedItems } from "@/lib/content";
 import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getCategoriesEnabled } from "@/lib/utils/settings";
-import { slugify } from "@/lib/utils";
+import { slugify, toTitleCase } from "@/lib/utils";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string; locale: string }>;
+}): Promise<Metadata> {
+  const { category, locale } = await params;
+  const decodedCategory = decodeURIComponent(category);
+  const formattedCategory = toTitleCase(decodedCategory);
+  const { categories, items } = await getCachedItems({ lang: locale });
+  const slug = slugify(decodedCategory);
+  const matchedCategory = categories.find(
+    (c) => c.id === decodedCategory || c.id === slug || c.name.toLowerCase() === decodedCategory.toLowerCase()
+  );
+  const resolvedCategory = matchedCategory?.id ?? slug;
+  const categoryItems = items.filter((item) => {
+    const categoryValue = item.category;
+
+    if (!categoryValue) return false;
+    if (Array.isArray(categoryValue)) {
+      return categoryValue.some((entry) =>
+        typeof entry === "string" ? entry === resolvedCategory : entry?.id === resolvedCategory
+      );
+    }
+
+    return typeof categoryValue === "string"
+      ? categoryValue === resolvedCategory
+      : categoryValue.id === resolvedCategory;
+  });
+
+  return generateListingMetadata({
+    title: `${formattedCategory} Category`,
+    path: `/categories/${category}`,
+    locale,
+    itemCount: categoryItems.length,
+    keywords: [decodedCategory, "category", "directory", "listings"],
+  });
+}
 
 /**
  * Single category route - renders homepage with category filter

@@ -3212,5 +3212,35 @@
 				"NO_DATA_DESC": "Aggiungi dati di posizione ai tuoi elementi per vedere la copertura geografica."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Confronti",
+		"TITLE": "Esplora i confronti",
+		"DESCRIPTION": "Sfoglia i confronti di strumenti generati dal repository di dati.",
+		"EMPTY_STATE_TITLE": "Nessun confronto trovato",
+		"EMPTY_STATE_DESC": "Nessuna pagina di confronto è ancora disponibile in questa directory.",
+		"DIMENSIONS_COUNT": "{count} dimensioni",
+		"READ_COMPARISON": "Leggi confronto",
+		"ALL_COMPARISONS": "Tutti i confronti",
+		"OPTION_A": "Opzione A",
+		"OPTION_B": "Opzione B",
+		"AVG_LABEL": "media",
+		"SCORE_LABEL": "punteggio",
+		"RECOMMENDED": "Consigliato",
+		"FINAL_VERDICT": "Verdetto finale",
+		"ITS_A_TIE": "È un pareggio",
+		"TIE_LABEL": "Pareggio",
+		"NO_WINNER": "Nessun vincitore chiaro",
+		"WINS": "vince",
+		"TIE_DESCRIPTION": "Questo confronto finisce in pareggio.",
+		"WINNER_DESCRIPTION": "{winner} è avanti nel complesso.",
+		"DIMENSION_ANALYSIS": "Analisi delle dimensioni",
+		"CATEGORIES_COUNT": "{count} categorie",
+		"FULL_ARTICLE": "Articolo completo",
+		"NO_ARTICLE": "Nessun contenuto dell'articolo di confronto ancora disponibile.",
+		"NAV_OVERVIEW": "Panoramica",
+		"NAV_VERDICT": "Verdetto",
+		"NAV_DIMENSIONS": "Dimensioni",
+		"NAV_ARTICLE": "Articolo"
 	}
 }

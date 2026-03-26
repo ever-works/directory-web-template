@@ -18,7 +18,7 @@ export function SettingSwitch({
 	disabled = false
 }: SettingSwitchProps) {
 	return (
-		<div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-800 last:border-b-0">
+		<div className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-white/6 last:border-b-0">
 			<div className="flex-1 pr-4">
 				<label className="text-sm font-medium text-gray-900 dark:text-gray-100">
 					{label}

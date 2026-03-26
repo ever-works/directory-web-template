@@ -18,7 +18,7 @@ const STATUS_TAB = cn(
 
 const STATUS_TAB_ACTIVE = cn(
 	'px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer',
-	'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+	'bg-white dark:bg-white/8 text-gray-900 dark:text-white shadow-sm'
 );
 
 /**
@@ -31,7 +31,7 @@ export function SponsorTableFilters({ statusFilter, onStatusChange, stats }: Spo
 	const totalCount = stats?.overview.total ?? 0;
 
 	return (
-		<div className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-lg p-0.5">
+		<div className="flex items-center gap-0.5 bg-gray-100/80 dark:bg-white/4 rounded-lg p-0.5">
 			<button
 				onClick={() => onStatusChange('')}
 				className={!statusFilter ? STATUS_TAB_ACTIVE : STATUS_TAB}

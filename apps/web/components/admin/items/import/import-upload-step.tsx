@@ -25,8 +25,8 @@ const dropzoneBaseClass = cn(
 );
 
 const dropzoneIdleClass = cn(
-	"border-gray-300 dark:border-gray-600",
-	"bg-gray-50/50 dark:bg-gray-800/30",
+	"border-gray-300 dark:border-white/8",
+	"bg-gray-50/50 dark:bg-white/3",
 	"hover:border-theme-primary/50 hover:bg-theme-primary/5"
 );
 

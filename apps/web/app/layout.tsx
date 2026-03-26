@@ -31,7 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 	return (
 		<html lang={locale} dir={dir} suppressHydrationWarning>
-			<body className={`${getFontClassNames(locale)} antialiased dark:bg-dark--theme-950`} suppressHydrationWarning>
+			<body className={`${getFontClassNames(locale)} antialiased dark:bg-[#0a0a0a]`} suppressHydrationWarning>
 				<ThemeProvider>
 					<LayoutProvider>{children}</LayoutProvider>
 				</ThemeProvider>

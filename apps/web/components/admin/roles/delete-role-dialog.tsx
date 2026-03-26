@@ -71,9 +71,9 @@ export function DeleteRoleDialog({ role, isOpen, onConfirm, onCancel }: DeleteRo
         onClick={handleCancel}
         aria-hidden="true"
       />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-md w-full mx-4">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/6">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
               <AlertTriangle size={16} className="text-red-600 dark:text-red-400" aria-hidden="true" focusable="false" />
@@ -84,7 +84,7 @@ export function DeleteRoleDialog({ role, isOpen, onConfirm, onCancel }: DeleteRo
             <button
               type="button"
               onClick={handleCancel}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-sm transition-colors"
+              className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
               aria-label={t('CLOSE_DIALOG')}
             >
               <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -140,7 +140,7 @@ export function DeleteRoleDialog({ role, isOpen, onConfirm, onCancel }: DeleteRo
         </div>
 
         {/* Footer */}
-        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-white/6 bg-gray-50 dark:bg-white/5">
           <Button
             variant="bordered"
             onPress={handleCancel}

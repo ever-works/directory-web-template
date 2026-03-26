@@ -15,8 +15,8 @@ import { IndexManagement } from './IndexManagement';
 
 const DISABLED_CONTAINER_STYLES = 'flex flex-col items-center justify-center text-center py-12 px-6 text-gray-500 dark:text-gray-400';
 const LOADING_SKELETON_STYLES = 'animate-pulse space-y-6';
-const SKELETON_CARD_STYLES = 'bg-gray-200 dark:bg-gray-700 rounded-xl h-80';
-const SKELETON_BAR_STYLES = 'bg-gray-200 dark:bg-gray-700 rounded-xl h-40';
+const SKELETON_CARD_STYLES = 'bg-gray-200 dark:bg-white/8 rounded-xl h-80';
+const SKELETON_BAR_STYLES = 'bg-gray-200 dark:bg-white/8 rounded-xl h-40';
 const ERROR_CONTAINER_STYLES = 'text-center py-8';
 const ERROR_TEXT_STYLES = 'text-sm text-red-600 dark:text-red-400 mb-4';
 

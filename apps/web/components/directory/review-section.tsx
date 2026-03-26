@@ -119,7 +119,7 @@ export function ReviewSection({
       <div className="relative z-10 py-12">
         {/* Enhanced Header Section */}
         <div className="text-center mb-16 animate-fade-in-up">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50 mb-6 shadow-lg">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 dark:bg-white/4 backdrop-blur-xs border border-gray-200/50 dark:border-white/6 mb-6 shadow-lg">
             <div className="w-8 h-8 rounded-full bg-linear-to-r from-green-500 to-emerald-500 flex items-center justify-center">
               <Eye className="w-4 h-4 text-white animate-pulse" />
             </div>
@@ -146,7 +146,7 @@ export function ReviewSection({
           >
             <div className="absolute inset-0 bg-linear-to-r from-theme-primary-500/20 to-purple-500/20 dark:from-theme-primary-400/30 dark:to-purple-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+            <div className="relative bg-white/95 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/4 p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-theme-primary-500 to-purple-500 flex items-center justify-center">
                   <Star className="w-6 h-6 text-white" />
@@ -156,7 +156,7 @@ export function ReviewSection({
                 </h3>
               </div>
 
-              <div className="flex justify-between items-center p-6 bg-linear-to-r from-gray-50/80 to-theme-primary-50/80 dark:from-gray-900/40 dark:to-theme-primary-900/40 rounded-2xl border border-gray-200/30 dark:border-gray-700/30">
+              <div className="flex justify-between items-center p-6 bg-linear-to-r from-gray-50/80 to-theme-primary-50/80 dark:from-[#0a0a0a]/40 dark:to-theme-primary-900/40 rounded-2xl border border-gray-200/30 dark:border-white/4">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-linear-to-r from-theme-primary-500 to-purple-500 flex items-center justify-center">
                     <Star className="w-8 h-8 text-white" />
@@ -191,7 +191,7 @@ export function ReviewSection({
           >
             <div className="absolute inset-0 bg-linear-to-r from-purple-500/20 to-pink-500/20 dark:from-purple-400/30 dark:to-pink-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+            <div className="relative bg-white/95 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/4 p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-8">
                 <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-purple-500 to-pink-500 flex items-center justify-center">
                   <Globe className="w-6 h-6 text-white" />
@@ -208,7 +208,7 @@ export function ReviewSection({
                     <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Product Name
                     </h4>
-                    <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                    <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                       <p className="text-lg font-semibold text-gray-900 dark:text-white">
                         {formData.name || "Not provided"}
                       </p>
@@ -219,7 +219,7 @@ export function ReviewSection({
                     <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Category
                     </h4>
-                    <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                    <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                       <p className="text-lg font-semibold text-gray-900 dark:text-white">
                         {formData.category || "Not selected"}
                       </p>
@@ -232,7 +232,7 @@ export function ReviewSection({
                   <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Product Link
                   </h4>
-                  <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                     <p className="text-lg font-semibold text-theme-primary-600 dark:text-theme-primary-400 break-all">
                       {formData.link || "Not provided"}
                     </p>
@@ -244,7 +244,7 @@ export function ReviewSection({
                   <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Tags
                   </h4>
-                  <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                     {formData.tags.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {formData.tags.map((tag) => (
@@ -269,7 +269,7 @@ export function ReviewSection({
                   <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Description
                   </h4>
-                  <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                     <p className="text-lg text-gray-900 dark:text-white leading-relaxed">
                       {formData.description || "Not provided"}
                     </p>
@@ -282,7 +282,7 @@ export function ReviewSection({
                     <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                       Detailed Introduction
                     </h4>
-                    <div className="p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                    <div className="p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                       <p className="text-lg text-gray-900 dark:text-white leading-relaxed whitespace-pre-wrap">
                         {formData.introduction}
                       </p>
@@ -300,7 +300,7 @@ export function ReviewSection({
           >
             <div className="absolute inset-0 bg-linear-to-r from-green-500/20 to-emerald-500/20 dark:from-green-400/30 dark:to-emerald-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-            <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-gray-700/30 p-8 shadow-2xl">
+            <div className="relative bg-white/95 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/4 p-8 shadow-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-2xl bg-linear-to-r from-green-500 to-emerald-500 flex items-center justify-center">
                   <Shield className="w-6 h-6 text-white" />
@@ -315,7 +315,7 @@ export function ReviewSection({
                   <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Current Status
                   </h4>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                     <div
                       className={cn(
                         "w-10 h-10 rounded-xl flex items-center justify-center",
@@ -334,7 +334,7 @@ export function ReviewSection({
                   <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
                     Processing Time
                   </h4>
-                  <div className="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-gray-900/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50">
+                  <div className="flex items-center gap-3 p-4 bg-gray-50/80 dark:bg-white/3 rounded-xl border border-gray-200/50 dark:border-white/6">
                     <div className="w-10 h-10 rounded-xl bg-theme-primary-100 dark:bg-theme-primary-900/30 flex items-center justify-center">
                       <Zap className="w-5 h-5 text-theme-primary-500 dark:text-theme-primary-400" />
                     </div>
@@ -408,7 +408,7 @@ export function ReviewSection({
               type="button"
               variant="outline"
               onClick={onBack}
-              className="h-14 px-8 rounded-2xl border-2 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl text-lg font-semibold"
+              className="h-14 px-8 rounded-2xl border-2 border-gray-300 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6 hover:border-gray-400 dark:hover:border-white/8 transition-all duration-300 hover:scale-105 hover:-translate-y-1 shadow-lg hover:shadow-xl text-lg font-semibold"
             >
               <ArrowLeft className="w-5 h-5 mr-3" />
               Back to Edit

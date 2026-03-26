@@ -3130,5 +3130,35 @@
 				"NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งในรายการของคุณเพื่อดูความครอบคลุมทางภูมิศาสตร์"
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "การเปรียบเทียบ",
+		"TITLE": "สำรวจการเปรียบเทียบ",
+		"DESCRIPTION": "เรียกดูการเปรียบเทียบเครื่องมือที่สร้างขึ้นจากพื้นที่เก็บข้อมูล",
+		"EMPTY_STATE_TITLE": "ไม่พบการเปรียบเทียบ",
+		"EMPTY_STATE_DESC": "ยังไม่มีหน้าเปรียบเทียบในไดเรกทอรีนี้",
+		"DIMENSIONS_COUNT": "{count} มิติ",
+		"READ_COMPARISON": "อ่านการเปรียบเทียบ",
+		"ALL_COMPARISONS": "การเปรียบเทียบทั้งหมด",
+		"OPTION_A": "ตัวเลือก A",
+		"OPTION_B": "ตัวเลือก B",
+		"AVG_LABEL": "เฉลี่ย",
+		"SCORE_LABEL": "คะแนน",
+		"RECOMMENDED": "แนะนำ",
+		"FINAL_VERDICT": "คำตัดสินสุดท้าย",
+		"ITS_A_TIE": "เสมอกัน",
+		"TIE_LABEL": "เสมอ",
+		"NO_WINNER": "ไม่มีผู้ชนะที่ชัดเจน",
+		"WINS": "ชนะ",
+		"TIE_DESCRIPTION": "การเปรียบเทียบนี้จบลงด้วยการเสมอ",
+		"WINNER_DESCRIPTION": "{winner} ได้เปรียบโดยรวม",
+		"DIMENSION_ANALYSIS": "การวิเคราะห์มิติ",
+		"CATEGORIES_COUNT": "{count} หมวดหมู่",
+		"FULL_ARTICLE": "บทความเต็ม",
+		"NO_ARTICLE": "ยังไม่มีเนื้อหาบทความสำหรับการเปรียบเทียบ",
+		"NAV_OVERVIEW": "ภาพรวม",
+		"NAV_VERDICT": "คำตัดสิน",
+		"NAV_DIMENSIONS": "มิติ",
+		"NAV_ARTICLE": "บทความ"
 	}
 }

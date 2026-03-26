@@ -13,7 +13,7 @@ export default function TrashPage() {
 	const { items, isLoading, restoreItem, restoringItemId, total } = useDeletedClientItems();
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-8 py-8">
 					{/* Header */}
@@ -29,7 +29,7 @@ export default function TrashPage() {
 
 					{/* Page Header */}
 					<div className="text-center space-y-4">
-						<div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl mb-4">
+						<div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-white/5 dark:to-white/8 rounded-2xl mb-4">
 							<FiTrash2 className="w-8 h-8 text-gray-500 dark:text-gray-400" />
 						</div>
 						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t('TRASH_TITLE')}</h1>
@@ -39,7 +39,7 @@ export default function TrashPage() {
 					</div>
 
 					{/* Trash Items List */}
-					<Card className="border border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+					<Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm">
 						<CardHeader>
 							<CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 								<FiTrash2 className="w-5 h-5 text-gray-500 dark:text-gray-400" />
@@ -68,7 +68,7 @@ export default function TrashPage() {
 								) : (
 									// Empty state
 									<div className="text-center py-12">
-										<div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full mb-4">
+										<div className="inline-flex items-center justify-center w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full mb-4">
 											<FiInbox className="w-8 h-8 text-gray-400" />
 										</div>
 										<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">

@@ -43,8 +43,8 @@ const ICON_SIZES = {
 } as const;
 
 const INPUT_BASE_CLASSES = cn(
-	'w-full bg-white dark:bg-gray-800',
-	'border border-gray-200 dark:border-gray-700 rounded-xl',
+	'w-full bg-white dark:bg-white/5',
+	'border border-gray-200 dark:border-white/6 rounded-xl',
 	'focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary',
 	'transition-all duration-200',
 	'text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400'
@@ -52,7 +52,7 @@ const INPUT_BASE_CLASSES = cn(
 
 const CLEAR_BUTTON_CLASSES = cn(
 	'absolute top-1/2 -translate-y-1/2 p-1 rounded-full',
-	'hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
+	'hover:bg-gray-100 dark:hover:bg-white/6 transition-colors',
 	'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/50'
 );
 

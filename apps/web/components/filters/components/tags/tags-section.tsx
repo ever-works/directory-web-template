@@ -53,7 +53,7 @@ export function Tags({
           ? cn(
               "sticky top-4 z-10",
               isSticky
-                ? "bg-white/95 dark:bg-[#0b111f]/95 shadow-md"
+                ? "bg-white/95 dark:bg-[#0a0a0a]/95 shadow-md dark:border-b dark:border-white/6"
                 : "bg-transparent"
             )
           : "bg-inherit"
@@ -65,7 +65,7 @@ export function Tags({
             className={cn(
               "text-lg font-bold transition-colors duration-300",
               isSticky
-                ? "text-theme-primary dark:text-theme-primary"
+                ? "text-gray-900 dark:text-white"
                 : "text-gray-900 dark:text-white"
             )}
           >
@@ -77,7 +77,7 @@ export function Tags({
               radius="full"
               size="sm"
               className={cn(
-                "px-4 py-1 font-medium transition-[color,box-shadow] duration-200 bg-theme-primary-10 text-theme-primary",
+                "px-4 py-1 font-medium transition-[color,box-shadow] duration-200 bg-gray-100 dark:bg-white/6 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/1",
                 isSticky && "shadow-xs"
               )}
               onPress={toggleTagVisibility}
@@ -104,13 +104,13 @@ export function Tags({
                 </>
               ) : (
                 <>
-                  <span className="hidden sm:inline">
+                  <span className="hidden sm:inline text-[1opx]">
                     Show all {tags.length} tags
                   </span>
                   <span className="sm:hidden">All tags</span>
                   <svg
-                    width="16"
-                    height="16"
+                    width="10"
+                    height="10"
                     viewBox="0 0 24 24"
                     fill="none"
                     className="ml-1.5 transition-transform group-hover:translate-y-0.5 dark:text-default-300"

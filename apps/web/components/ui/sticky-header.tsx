@@ -24,8 +24,8 @@ export function StickyHeader({
       className={cn(
         "sticky transition-all duration-300",
         withShadow && "shadow-md",
-        withBorder && "border-b border-gray-200 dark:border-gray-700",
-        "bg-white/95 dark:bg-gray-800/95",
+        withBorder && "border-b border-gray-200 dark:border-white/6",
+        "bg-white/95 dark:bg-white/5",
         className
       )}
       style={{ top, zIndex }}

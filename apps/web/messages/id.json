@@ -3412,5 +3412,35 @@
 				"NO_DATA_DESC": "Tambahkan data lokasi ke item Anda untuk melihat cakupan geografis."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Perbandingan",
+		"TITLE": "Jelajahi Perbandingan",
+		"DESCRIPTION": "Telusuri perbandingan alat yang dihasilkan dari repositori data.",
+		"EMPTY_STATE_TITLE": "Tidak ada perbandingan ditemukan",
+		"EMPTY_STATE_DESC": "Belum ada halaman perbandingan yang tersedia di direktori ini.",
+		"DIMENSIONS_COUNT": "{count} dimensi",
+		"READ_COMPARISON": "Baca perbandingan",
+		"ALL_COMPARISONS": "Semua Perbandingan",
+		"OPTION_A": "Opsi A",
+		"OPTION_B": "Opsi B",
+		"AVG_LABEL": "rata-rata",
+		"SCORE_LABEL": "skor",
+		"RECOMMENDED": "Direkomendasikan",
+		"FINAL_VERDICT": "Keputusan Akhir",
+		"ITS_A_TIE": "Seri",
+		"TIE_LABEL": "Seri",
+		"NO_WINNER": "Tidak ada pemenang yang jelas",
+		"WINS": "menang",
+		"TIE_DESCRIPTION": "Perbandingan ini berakhir seri.",
+		"WINNER_DESCRIPTION": "{winner} unggul secara keseluruhan.",
+		"DIMENSION_ANALYSIS": "Analisis Dimensi",
+		"CATEGORIES_COUNT": "{count} kategori",
+		"FULL_ARTICLE": "Artikel Lengkap",
+		"NO_ARTICLE": "Belum ada konten artikel perbandingan yang tersedia.",
+		"NAV_OVERVIEW": "Ikhtisar",
+		"NAV_VERDICT": "Keputusan",
+		"NAV_DIMENSIONS": "Dimensi",
+		"NAV_ARTICLE": "Artikel"
 	}
 }

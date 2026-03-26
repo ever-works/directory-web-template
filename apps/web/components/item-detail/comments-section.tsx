@@ -21,10 +21,10 @@ import {
 } from '@/components/ui/modal';
 
 // Design system class constants - Clean & Modern
-const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-gray-900 rounded-xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-300';
-const ICON_CONTAINER_CLASSES = 'p-3 bg-linear-to-br from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-xl';
+const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6 shadow-sm hover:shadow-md transition-all duration-300';
+const ICON_CONTAINER_CLASSES = 'p-3 bg-linear-to-br from-gray-200 to-gray-200 dark:from-white/4 dark:to-white/6 rounded-xl';
 const SECTION_HEADER_CLASSES = 'flex items-center gap-4 mb-8';
-const FORM_CONTAINER_CLASSES = 'p-6 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800';
+const FORM_CONTAINER_CLASSES = 'p-6 rounded-lg bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/6';
 
 // Delete confirmation dialog class constants
 const DELETE_DIALOG_CLASSES = {
@@ -45,25 +45,25 @@ const CommentSkeleton = memo(() => (
 	<div className={CARD_WRAPPER_CLASSES}>
 		{/* Header Skeleton */}
 		<div className={SECTION_HEADER_CLASSES}>
-			<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-lg animate-pulse" />
-			<div className="h-7 bg-gray-200 dark:bg-gray-700 rounded-lg w-48 animate-pulse" />
+			<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-white/6 dark:to-white/8 rounded-lg animate-pulse" />
+			<div className="h-7 bg-gray-200 dark:bg-white/8 rounded-lg w-48 animate-pulse" />
 		</div>
 
 		{/* Form Skeleton */}
 		<div className="mb-8 space-y-4">
-			<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
-			<div className="h-10 bg-gray-200 dark:bg-gray-700 rounded-lg w-32 ml-auto animate-pulse" />
+			<div className="h-32 bg-gray-100 dark:bg-white/5 rounded-lg animate-pulse" />
+			<div className="h-10 bg-gray-200 dark:bg-white/8 rounded-lg w-32 ml-auto animate-pulse" />
 		</div>
 
 		{/* Comments List Skeleton */}
 		<div className="space-y-4">
 			{[1, 2, 3].map((i) => (
 				<div key={i} className="flex gap-4 animate-pulse">
-					<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-full" />
+					<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-white/6 dark:to-white/8 rounded-full" />
 					<div className="flex-1 space-y-2">
-						<div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
-						<div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-3/4" />
-						<div className="h-4 bg-gray-100 dark:bg-gray-800 rounded w-2/3" />
+						<div className="h-4 bg-gray-200 dark:bg-white/8 rounded w-1/4" />
+						<div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-3/4" />
+						<div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-2/3" />
 					</div>
 				</div>
 			))}
@@ -108,7 +108,7 @@ const CommentForm = memo(
 						value={content}
 						onChange={(e) => setContent(e.target.value)}
 						autoFocus
-						className="min-h-[100px] bg-white dark:bg-gray-900 resize-none border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
+						className="min-h-[100px] bg-white dark:bg-white/5 resize-none border border-gray-200 dark:border-white/8 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
 						maxLength={1000}
 						required
 					/>
@@ -184,7 +184,7 @@ const Comment = memo(
 		const isFluid = containerWidth === 'fluid';
 
 		return (
-			<div className={` ${isFluid ? 'w-4/5' : 'full'} group flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-all duration-200`}>
+			<div className={` ${isFluid ? 'w-4/5' : 'full'} group flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-all duration-200`}>
 				<Avatar
 					src={comment.user.image}
 					alt={comment.user.name || 'Anonymous'}
@@ -216,7 +216,7 @@ const Comment = memo(
 										<Button
 											variant="ghost"
 											size="sm"
-										className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20 rounded-lg"
+										className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-white/6 rounded-lg"
 										onClick={() => setIsEditing(true)}
 										disabled={isDeleting || isUpdating}
 										aria-label="Edit comment"
@@ -252,7 +252,7 @@ const Comment = memo(
 								value={editContent}
 								onChange={(e) => setEditContent(e.target.value)}
 								autoFocus
-								className="min-h-20 bg-white dark:bg-gray-900 resize-none border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
+								className="min-h-20 bg-white dark:bg-white/5 resize-none border border-gray-200 dark:border-white/8 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
 								maxLength={1000}
 								required
 							/>
@@ -262,7 +262,7 @@ const Comment = memo(
 									size="sm"
 									onClick={handleCancel}
 									disabled={isUpdating}
-									className="h-9 px-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+									className="h-9 px-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-white/6 rounded-lg"
 								>
 									<X className="h-4 w-4 mr-2" />
 									Cancel
@@ -362,7 +362,7 @@ Comment.displayName = 'Comment';
 // Empty state component
 const EmptyState = memo(() => (
 	<div className="text-center py-10" role="status">
-		<div className="w-14 h-14 mx-auto mb-3 bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-lg flex items-center justify-center">
+		<div className="w-14 h-14 mx-auto mb-3 bg-linear-to-br from-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-lg flex items-center justify-center">
 			<MessageCircle className="w-7 h-7 text-gray-400 dark:text-gray-500" aria-hidden="true" />
 		</div>
 		<p className="text-gray-500 dark:text-gray-400 font-medium">No comments yet. Be the first to share your thoughts!</p>

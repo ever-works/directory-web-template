@@ -26,7 +26,7 @@ const MODAL_OVERLAY = cn(
 
 const MODAL_CONTAINER = cn(
 	"w-full max-w-md",
-	"bg-white dark:bg-gray-900",
+	"bg-white dark:bg-[#0a0a0a]",
 	"rounded-xl shadow-xl overflow-hidden"
 );
 

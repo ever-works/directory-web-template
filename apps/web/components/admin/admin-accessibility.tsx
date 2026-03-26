@@ -173,8 +173,8 @@ export const AdminAccessibleButton = forwardRef<HTMLButtonElement, AdminAccessib
     
     const variantStyles = {
       primary: "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600",
-      secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600",
-      ghost: "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+      secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/6",
+      ghost: "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/6"
     };
     
     const sizeStyles = {

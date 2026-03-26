@@ -3411,5 +3411,35 @@
 				"NO_DATA_DESC": "Coğrafi kapsamı görmek için öğelerinize konum verisi ekleyin."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Karşılaştırmalar",
+		"TITLE": "Karşılaştırmaları Keşfet",
+		"DESCRIPTION": "Veri deposundan yayımlanan oluşturulmuş araç karşılaştırmalarına göz atın.",
+		"EMPTY_STATE_TITLE": "Karşılaştırma bulunamadı",
+		"EMPTY_STATE_DESC": "Bu dizinde henüz karşılaştırma sayfası bulunmuyor.",
+		"DIMENSIONS_COUNT": "{count} boyut",
+		"READ_COMPARISON": "Karşılaştırmayı oku",
+		"ALL_COMPARISONS": "Tüm Karşılaştırmalar",
+		"OPTION_A": "Seçenek A",
+		"OPTION_B": "Seçenek B",
+		"AVG_LABEL": "ort.",
+		"SCORE_LABEL": "puan",
+		"RECOMMENDED": "Önerilen",
+		"FINAL_VERDICT": "Son Karar",
+		"ITS_A_TIE": "Berabere",
+		"TIE_LABEL": "Beraberlik",
+		"NO_WINNER": "Belirgin bir kazanan yok",
+		"WINS": "kazanıyor",
+		"TIE_DESCRIPTION": "Bu karşılaştırma berabere bitiyor.",
+		"WINNER_DESCRIPTION": "{winner} genel olarak öne çıkıyor.",
+		"DIMENSION_ANALYSIS": "Boyut Analizi",
+		"CATEGORIES_COUNT": "{count} kategori",
+		"FULL_ARTICLE": "Tam Makale",
+		"NO_ARTICLE": "Henüz karşılaştırma makalesi içeriği mevcut değil.",
+		"NAV_OVERVIEW": "Genel Bakış",
+		"NAV_VERDICT": "Karar",
+		"NAV_DIMENSIONS": "Boyutlar",
+		"NAV_ARTICLE": "Makale"
 	}
 }

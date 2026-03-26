@@ -40,9 +40,9 @@ const FALLBACK_AREA_ICON = <Layers className="h-4 w-4" />;
 const TRANSLATED_AREAS = new Set(['local', 'regional', 'national', 'global']);
 
 const SKELETON_CONTAINER_STYLES = 'animate-pulse';
-const SKELETON_TITLE_STYLES = 'h-4 bg-gray-200 dark:bg-gray-700 rounded-sm mb-4 w-1/3';
-const SKELETON_BODY_STYLES = 'h-64 bg-gray-200 dark:bg-gray-700 rounded-sm';
-const PROGRESS_BG_STYLES = 'w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden';
+const SKELETON_TITLE_STYLES = 'h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3';
+const SKELETON_BODY_STYLES = 'h-64 bg-gray-200 dark:bg-white/8 rounded-sm';
+const PROGRESS_BG_STYLES = 'w-full h-2 bg-gray-200 dark:bg-white/8 rounded-full overflow-hidden';
 const PROGRESS_FILL_STYLES = 'h-full bg-blue-500 rounded-full transition-all duration-300';
 const SECTION_HEADER_STYLES = 'text-sm font-medium text-gray-700 dark:text-gray-300 mb-3';
 const STAT_ROW_STYLES = 'flex justify-between text-sm';

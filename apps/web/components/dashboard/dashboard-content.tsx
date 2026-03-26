@@ -41,7 +41,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
 	// Auth handled at route level - all dashboard pages require authentication
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<PageContainer className="py-8">
 				{/* Error Handling */}
 				{statsError && (

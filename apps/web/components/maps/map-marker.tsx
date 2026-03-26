@@ -166,7 +166,7 @@ export function MapMarkerDisplay({
 			onClick={onClick}
 			className={cn(
 				'inline-flex items-center gap-2 p-2 rounded-lg transition-colors',
-				'hover:bg-gray-100 dark:hover:bg-gray-800',
+				'hover:bg-gray-100 dark:hover:bg-white/6',
 				isSelected && 'bg-blue-50 dark:bg-blue-900/20',
 				onClick ? 'cursor-pointer' : 'cursor-default',
 				className
@@ -180,7 +180,7 @@ export function MapMarkerDisplay({
 					className={cn(
 						ICON_SIZES[size],
 						'rounded-full border-2 shadow-sm object-cover',
-						isSelected ? 'border-blue-500' : 'border-gray-200 dark:border-gray-700'
+						isSelected ? 'border-blue-500' : 'border-gray-200 dark:border-white/6'
 					)}
 				/>
 			) : (

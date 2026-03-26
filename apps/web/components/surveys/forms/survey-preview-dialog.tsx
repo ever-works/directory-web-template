@@ -33,7 +33,7 @@ export function SurveyPreviewDialog({
 
 			<PreviewWarningBanner />
 
-		<div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+		<div className="bg-gray-50 dark:bg-white/5 rounded-lg p-6">
 			<SurveyFormNoSSR
 				surveyJson={surveyJson}
 				mode="display"

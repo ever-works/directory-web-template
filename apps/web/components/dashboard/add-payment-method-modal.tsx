@@ -303,7 +303,7 @@ export function AddPaymentMethodModal({ isOpen, onClose, onSuccess }: AddPayment
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+      <div className="bg-white dark:bg-[#141414] rounded-lg p-6 w-full max-w-md">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
             {t('ADD_PAYMENT_METHOD')}

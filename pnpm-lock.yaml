@@ -545,6 +545,9 @@ importers:
       sass:
         specifier: ^1.94.2
         version: 1.97.3
+      tailwind-scrollbar:
+        specifier: ^4.0.2
+        version: 4.0.2(react@19.2.1)(tailwindcss@4.2.1)
       tailwindcss:
         specifier: ^4.1.17
         version: 4.2.1
@@ -12037,6 +12040,12 @@ packages:
 
   tailwind-merge@3.5.0:
     resolution: {integrity: sha512-I8K9wewnVDkL1NTGoqWmVEIlUcB9gFriAEkXkfCjX5ib8ezGxtR3xD7iZIxrfArjEsH7F1CHD4RFUtxefdqV/A==}
+
+  tailwind-scrollbar@4.0.2:
+    resolution: {integrity: sha512-wAQiIxAPqk0MNTPptVe/xoyWi27y+NRGnTwvn4PQnbvB9kp8QUBiGl/wsfoVBHnQxTmhXJSNt9NHTmcz9EivFA==}
+    engines: {node: '>=12.13.0'}
+    peerDependencies:
+      tailwindcss: 4.x
 
   tailwind-variants@3.2.2:
     resolution: {integrity: sha512-Mi4kHeMTLvKlM98XPnK+7HoBPmf4gygdFmqQPaDivc3DpYS6aIY6KiG/PgThrGvii5YZJqRsPz0aPyhoFzmZgg==}
@@ -25939,6 +25948,12 @@ snapshots:
       clsx: 2.1.1
       react: 18.3.1
 
+  prism-react-renderer@2.4.1(react@19.2.1):
+    dependencies:
+      '@types/prismjs': 1.26.6
+      clsx: 2.1.1
+      react: 19.2.1
+
   prismjs@1.30.0: {}
 
   process-nextick-args@2.0.1: {}
@@ -27383,6 +27398,13 @@ snapshots:
   tailwind-merge@3.4.0: {}
 
   tailwind-merge@3.5.0: {}
+
+  tailwind-scrollbar@4.0.2(react@19.2.1)(tailwindcss@4.2.1):
+    dependencies:
+      prism-react-renderer: 2.4.1(react@19.2.1)
+      tailwindcss: 4.2.1
+    transitivePeerDependencies:
+      - react
 
   tailwind-variants@3.2.2(tailwind-merge@3.4.0)(tailwindcss@4.2.1):
     dependencies:

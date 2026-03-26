@@ -66,12 +66,12 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
       >
         {/* Loading overlay */}
         {loadingTag === tag.id && (
-          <div className="absolute inset-0 border-1 border-theme-primary-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
+          <div className="absolute inset-0 border-1 border-theme-primary-200 dark:border-white/6 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
             <Spinner size="lg" color="primary" />
           </div>
         )}
         <div
-          className={cn( "group overflow-hidden hover:overflow-hidden relative rounded-2xl p-2 shadow-none border-1 border-theme-primary-200 dark:border-gray-800 bg-white dark:bg-gray-800/30 backdrop-blur-md transition-all duration-700 h-full",
+          className={cn( "group overflow-hidden hover:overflow-hidden relative rounded-2xl p-2 shadow-none border-1 border-theme-primary-200 dark:border-white/6 bg-white dark:bg-white/3 backdrop-blur-md transition-all duration-700 h-full",
           "hover:shadow-md hover:border-theme-primary/70 dark:hover:border-theme-primary/70",
           isActive && "border-theme-primary/70 shadow-md"
           )}
