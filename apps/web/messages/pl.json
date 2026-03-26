@@ -3208,5 +3208,35 @@
 				"NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć zasięg geograficzny."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Porównania",
+		"TITLE": "Przeglądaj porównania",
+		"DESCRIPTION": "Przeglądaj wygenerowane porównania narzędzi opublikowane z repozytorium danych.",
+		"EMPTY_STATE_TITLE": "Nie znaleziono porównań",
+		"EMPTY_STATE_DESC": "W tym katalogu nie ma jeszcze dostępnych stron porównawczych.",
+		"DIMENSIONS_COUNT": "{count} wymiarów",
+		"READ_COMPARISON": "Czytaj porównanie",
+		"ALL_COMPARISONS": "Wszystkie porównania",
+		"OPTION_A": "Opcja A",
+		"OPTION_B": "Opcja B",
+		"AVG_LABEL": "śr.",
+		"SCORE_LABEL": "wynik",
+		"RECOMMENDED": "Zalecane",
+		"FINAL_VERDICT": "Ostateczny werdykt",
+		"ITS_A_TIE": "Remis",
+		"TIE_LABEL": "Remis",
+		"NO_WINNER": "Brak wyraźnego zwycięzcy",
+		"WINS": "wygrywa",
+		"TIE_DESCRIPTION": "To porównanie kończy się remisem.",
+		"WINNER_DESCRIPTION": "{winner} wyprzedza ogólnie.",
+		"DIMENSION_ANALYSIS": "Analiza wymiarów",
+		"CATEGORIES_COUNT": "{count} kategorii",
+		"FULL_ARTICLE": "Pełny artykuł",
+		"NO_ARTICLE": "Brak treści artykułu porównawczego.",
+		"NAV_OVERVIEW": "Przegląd",
+		"NAV_VERDICT": "Werdykt",
+		"NAV_DIMENSIONS": "Wymiary",
+		"NAV_ARTICLE": "Artykuł"
 	}
 }

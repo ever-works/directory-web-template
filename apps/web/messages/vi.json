@@ -3428,5 +3428,35 @@
 				"NO_DATA_DESC": "Thêm dữ liệu vị trí vào các mục của bạn để xem phạm vi địa lý."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "So sánh",
+		"TITLE": "Khám phá so sánh",
+		"DESCRIPTION": "Duyệt các so sánh công cụ được tạo ra từ kho dữ liệu.",
+		"EMPTY_STATE_TITLE": "Không tìm thấy so sánh",
+		"EMPTY_STATE_DESC": "Chưa có trang so sánh nào trong thư mục này.",
+		"DIMENSIONS_COUNT": "{count} chiều",
+		"READ_COMPARISON": "Đọc so sánh",
+		"ALL_COMPARISONS": "Tất cả so sánh",
+		"OPTION_A": "Tùy chọn A",
+		"OPTION_B": "Tùy chọn B",
+		"AVG_LABEL": "tb.",
+		"SCORE_LABEL": "điểm",
+		"RECOMMENDED": "Đề xuất",
+		"FINAL_VERDICT": "Kết luận cuối cùng",
+		"ITS_A_TIE": "Hòa",
+		"TIE_LABEL": "Hòa",
+		"NO_WINNER": "Không có người chiến thắng rõ ràng",
+		"WINS": "thắng",
+		"TIE_DESCRIPTION": "So sánh này kết thúc hòa.",
+		"WINNER_DESCRIPTION": "{winner} vượt trội hơn về tổng thể.",
+		"DIMENSION_ANALYSIS": "Phân tích chiều",
+		"CATEGORIES_COUNT": "{count} danh mục",
+		"FULL_ARTICLE": "Bài viết đầy đủ",
+		"NO_ARTICLE": "Chưa có nội dung bài viết so sánh.",
+		"NAV_OVERVIEW": "Tổng quan",
+		"NAV_VERDICT": "Kết luận",
+		"NAV_DIMENSIONS": "Chiều",
+		"NAV_ARTICLE": "Bài viết"
 	}
 }
