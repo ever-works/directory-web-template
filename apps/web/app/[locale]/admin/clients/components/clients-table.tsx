@@ -40,10 +40,10 @@ export function ClientsTable(props: ClientsTableProps) {
 	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
 
 	return (
-		<Card className="border-0 shadow-lg bg-white dark:bg-gray-900 overflow-hidden">
+		<Card className="border-0 shadow-lg bg-white dark:bg-white/3 overflow-hidden">
 			<CardBody className="p-0">
 				{/* Table Header with Filters */}
-				<div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30">
+				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/[0.02]">
 					<div className="flex items-center justify-between gap-4 flex-wrap">
 						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('CLIENTS_TITLE')}</h3>
 						<div className="flex items-center gap-3 flex-wrap flex-1 justify-end">{props.filterBar}</div>
@@ -53,7 +53,7 @@ export function ClientsTable(props: ClientsTableProps) {
 				</div>
 
 				{/* Column Headers */}
-				<div className="hidden md:flex items-center gap-4 px-6 py-3 bg-gray-50/80 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+				<div className="hidden md:flex items-center gap-4 px-6 py-3 bg-gray-50/80 dark:bg-white/3 border-b border-gray-100 dark:border-white/6">
 					{TABLE_COLUMNS.map((col) => (
 						<div key={col.key} className={col.width}>
 							<span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -67,7 +67,7 @@ export function ClientsTable(props: ClientsTableProps) {
 				{props.clients.length === 0 ? (
 					<EmptyState hasActiveFilters={props.hasActiveFilters} onCreateFirst={props.onCreateFirst} />
 				) : (
-					<div className="divide-y divide-gray-50 dark:divide-gray-800/50">
+					<div className="divide-y divide-gray-50 dark:divide-white/4">
 						{props.clients.map((client) => (
 							<ClientRow
 								key={client.id}
@@ -96,7 +96,7 @@ function EmptyState({ hasActiveFilters, onCreateFirst }: EmptyStateProps) {
 
 	return (
 		<div className="px-6 py-16 text-center">
-			<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+			<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
 				<Building2 className="w-8 h-8 text-gray-400" />
 			</div>
 			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_CLIENTS_FOUND')}</h3>
@@ -163,7 +163,7 @@ function ClientRow({ client, isNavigating, isDeleting, onView, onEdit, onDelete 
 		>
 			{/* Loading overlay */}
 			{isNavigating && (
-				<div className="absolute inset-0 bg-white/60 dark:bg-gray-900/60 flex items-center justify-center z-10 pointer-events-none">
+				<div className="absolute inset-0 bg-white/60 dark:bg-[#0a0a0a]/60 flex items-center justify-center z-10 pointer-events-none">
 					<div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
 				</div>
 			)}
@@ -180,7 +180,7 @@ function ClientRow({ client, isNavigating, isDeleting, onView, onEdit, onDelete 
 					aria-disabled={isNavigating}
 					aria-busy={isNavigating}
 					className={`flex items-center gap-3 flex-1 min-w-0 text-left rounded-lg p-1 -m-1 transition-colors ${
-						isNavigating ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50'
+						isNavigating ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3'
 					}`}
 					onClick={() => !isNavigating && onView(client.id)}
 					onKeyDown={handleKeyDown}

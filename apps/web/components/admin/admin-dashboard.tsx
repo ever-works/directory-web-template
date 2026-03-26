@@ -55,7 +55,7 @@ export function AdminDashboard() {
 	// Show loading state while fetching data
 	if (isLoading) {
 		return (
-			<div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+			<div className="min-h-screen bg-gray-50 dark:bg-white/3 flex items-center justify-center">
 				<div className="text-center">
 					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
 					<p className="text-gray-600 dark:text-gray-400">{t('LOADING_DASHBOARD_DATA')}</p>
@@ -126,7 +126,7 @@ export function AdminDashboard() {
 								className={`px-4 py-2 rounded-full text-sm font-medium border transition-colors ${
 									activeTab === (tab.key as any)
 										? 'bg-theme-primary text-white border-theme-primary'
-										: 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800'
+										: 'bg-white dark:bg-white/3 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/6'
 								}`}
 							>
 								{tab.label}

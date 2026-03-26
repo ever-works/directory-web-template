@@ -34,10 +34,10 @@ function ListingCategoriesContent(props: ListingCategoriesProps) {
 				})}
 				className="min-h-screen text-center pb-24 relative"
 			>
-				<div className="absolute inset-x-0 top-0 w-full h-[350px] flex justify-center items-start -z-10">
+				<div className="absolute inset-x-0 -top-30 w-full h-[350px] flex justify-center items-start -z-10">
 					<GridBackground className="w-full h-full" />
 				</div>
-				<div className='mt-12 xl:mt-[2%]'>
+				<div className='mt-12 xl:mt-[4%]'>
 					{layoutHome === LayoutHome.HOME_ONE && <HomeOneLayout categories={props.categories} />}
 					{layoutHome === LayoutHome.HOME_TWO && <HomeTwoLayout categories={props.categories} />}
 				</div>

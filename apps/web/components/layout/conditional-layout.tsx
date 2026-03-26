@@ -18,7 +18,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   return (
     <>
       {!isAuthDemoPage && <Header />}
-      <main className="flex-1">
+      <main className="flex-1 bg-white dark:bg-[#0a0a0a]">
         {children}
       </main>
       {!isAuthDemoPage && <Footer />}

@@ -84,7 +84,7 @@ export default function TagsFilter({
         </div>
       </div>
 
-      <div className="px-2 py-1 max-h-60 overflow-y-auto">
+      <div className="px-2 py-1 max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
         <label className="flex items-center px-2 py-1.5 hover:bg-gray-800/50 rounded-sm cursor-pointer">
           <input
             type="checkbox"

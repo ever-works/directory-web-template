@@ -17,20 +17,20 @@ interface RoleFormProps {
 }
 
 const containerClasses = clsx(
-  'bg-white dark:bg-gray-900 rounded-xl shadow-xl',
-  'border border-gray-200 dark:border-gray-700'
+  'bg-white dark:bg-white/3 rounded-xl shadow-xl',
+  'border border-gray-200 dark:border-white/6'
 );
 
 const headerClasses = clsx(
-  'px-6 py-4 border-b border-gray-200 dark:border-gray-700',
-  'bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900'
+  'px-6 py-4 border-b border-gray-200 dark:border-white/6',
+  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]'
 );
 
 const formClasses = 'p-6 space-y-6';
 
 const actionsClasses = clsx(
-  'flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700',
-  'bg-linear-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-900',
+  'flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-white/6',
+  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]',
   '-mx-6 -mb-6 px-6 pb-6'
 );
 
@@ -199,8 +199,8 @@ export function RoleForm({ role, onSubmit, onCancel, isLoading = false, mode }: 
             onChange={(e) => handleInputChange('isAdmin', e.target.value === 'admin')}
             disabled={isLoading}
             className={clsx(
-              'w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg',
-              'bg-white dark:bg-gray-800 text-gray-900 dark:text-white',
+              'w-full px-3 py-2 border border-gray-200 dark:border-white/6 rounded-lg',
+              'bg-white dark:bg-white/5 text-gray-900 dark:text-white',
               'focus:outline-hidden focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary',
               'transition-all duration-200'
             )}

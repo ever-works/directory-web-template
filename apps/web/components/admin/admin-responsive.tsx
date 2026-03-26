@@ -62,7 +62,7 @@ export function AdminResponsiveCard({
 
   return (
     <div className={cn(
-      "bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700",
+      "bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6",
       getVariantStyles(),
       className
     )}>
@@ -90,7 +90,7 @@ export function AdminResponsiveTable({
       {/* Desktop table */}
       <table className="hidden md:table w-full">
         <thead>
-          <tr className="border-b border-gray-200 dark:border-gray-700">
+          <tr className="border-b border-gray-200 dark:border-white/6">
             {headers.map((header, index) => (
               <th 
                 key={index}
@@ -134,7 +134,7 @@ export function AdminResponsiveNav({
   return (
     <nav className={cn("relative", className)}>
       {/* Mobile header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {title}
         </h2>
@@ -338,7 +338,7 @@ export function AdminResponsiveChart({
         {title}
       </h3>
       <div className={cn(
-        "w-full bg-gray-50 dark:bg-gray-800 rounded-lg p-3 md:p-4",
+        "w-full bg-gray-50 dark:bg-white/5 rounded-lg p-3 md:p-4",
         getHeightStyles()
       )}>
         {children}

@@ -2,11 +2,11 @@
 
 import type { Config } from '@/lib/content';
 import { HeroUIProvider } from '@heroui/react';
+import { usePathname } from 'next/navigation';
 import { ConfigProvider } from './config';
 import {
 	ConfirmProvider,
 	ErrorProvider,
-	FilterProvider,
 	LayoutProvider,
 	QueryClientProvider,
 	ThemeProvider,
@@ -23,38 +23,80 @@ interface ProvidersProps {
 	dehydratedState?: unknown;
 }
 
-export function Providers({ config, children, dehydratedState }: ProvidersProps) {
-	// Extract homepage settings for layout defaults
+type ProviderMode = 'public' | 'commerce' | 'app';
+
+function getProviderMode(pathname: string): ProviderMode {
+	const normalizedPath = pathname.replace(/^\/[a-z]{2}(?=\/|$)/, '') || '/';
+	const appRoutes = ['/admin', '/client', '/dashboard', '/auth'];
+	const commerceRoutes = ['/pricing', '/submit', '/sponsor'];
+
+	if (appRoutes.some((route) => normalizedPath === route || normalizedPath.startsWith(`${route}/`))) {
+		return 'app';
+	}
+
+	if (commerceRoutes.some((route) => normalizedPath === route || normalizedPath.startsWith(`${route}/`))) {
+		return 'commerce';
+	}
+
+	return 'public';
+}
+
+function ShellProviders({ config, children, dehydratedState }: ProvidersProps) {
 	const configDefaults = {
 		defaultView: config.settings?.homepage?.default_view
 	};
 
 	return (
+		<NavigationProvider>
+			<QueryClientProvider dehydratedState={dehydratedState}>
+				<LayoutProvider configDefaults={configDefaults}>
+					<ErrorProvider>
+						<ConfigProvider config={config}>
+							<ThemeProvider>
+								<HeroUIProvider>
+									<LoginModalProvider />
+									{children}
+								</HeroUIProvider>
+							</ThemeProvider>
+						</ConfigProvider>
+					</ErrorProvider>
+				</LayoutProvider>
+			</QueryClientProvider>
+		</NavigationProvider>
+	);
+}
+
+function PublicProviders(props: ProvidersProps) {
+	return <ShellProviders {...props} />;
+}
+
+function CommerceProviders(props: ProvidersProps) {
+	return (
+		<CurrencyProvider>
+			<ShellProviders {...props} />
+		</CurrencyProvider>
+	);
+}
+
+function AppProviders(props: ProvidersProps) {
+	return (
 		<SessionProvider>
 			<TenantProvider>
-				<NavigationProvider>
-					<QueryClientProvider dehydratedState={dehydratedState}>
-						<CurrencyProvider>
-							<LayoutProvider configDefaults={configDefaults}>
-								<ErrorProvider>
-									<ConfirmProvider>
-										<FilterProvider>
-											<ConfigProvider config={config}>
-												<ThemeProvider>
-													<HeroUIProvider>
-														<LoginModalProvider />
-														{children}
-													</HeroUIProvider>
-												</ThemeProvider>
-											</ConfigProvider>
-										</FilterProvider>
-									</ConfirmProvider>
-								</ErrorProvider>
-							</LayoutProvider>
-						</CurrencyProvider>
-					</QueryClientProvider>
-				</NavigationProvider>
+				<CurrencyProvider>
+					<ConfirmProvider>
+						<ShellProviders {...props} />
+					</ConfirmProvider>
+				</CurrencyProvider>
 			</TenantProvider>
 		</SessionProvider>
 	);
+}
+
+export function Providers(props: ProvidersProps) {
+	const pathname = usePathname();
+	const mode = getProviderMode(pathname);
+
+	if (mode === 'app') return <AppProviders {...props} />;
+	if (mode === 'commerce') return <CommerceProviders {...props} />;
+	return <PublicProviders {...props} />;
 }

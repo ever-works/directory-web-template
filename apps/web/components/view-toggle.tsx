@@ -40,12 +40,12 @@ export default function ViewToggle({
 
   return (
 	<div className="relative flex items-center gap-1 justify-end">
-	  <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xs rounded-lg p-1 flex items-center shadow-md dark:shadow-lg border border-gray-200/50 dark:border-gray-700/50 transition-all duration-300 hover:shadow-lg dark:hover:shadow-xl">
+	  <div className="relative bg-white/90 dark:bg-white/4 backdrop-blur-xs rounded-lg p-1 flex items-center shadow-md dark:shadow-lg border border-gray-200/50 dark:border-white/6 transition-all duration-300 hover:shadow-lg dark:hover:shadow-xl">
 		<button
 		  className={`relative ${
 			activeView === "classic" && !isMapActive
 			  ? "bg-theme-primary text-white shadow-md transform scale-105"
-			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-white/4"
 		  } rounded-md p-1 transition-all duration-300 ease-out transform ${
 			hovered === "classic" && (activeView !== "classic" || isMapActive)
 			  ? "scale-110 shadow-xs"
@@ -78,7 +78,7 @@ export default function ViewToggle({
 		  className={`relative ${
 			activeView === "grid" && !isMapActive
 			  ? "bg-theme-primary text-white shadow-md transform scale-105"
-			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-white/4"
 		  } rounded-md p-1 transition-all duration-300 ease-out transform ${
 			hovered === "grid" && (activeView !== "grid" || isMapActive)
 			  ? "scale-110 shadow-xs"
@@ -110,7 +110,7 @@ export default function ViewToggle({
 		  className={`relative ${
 			activeView === "masonry" && !isMapActive
 			  ? "bg-theme-primary text-white shadow-md transform scale-105"
-			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-white/4"
 		  } rounded-md p-1 transition-all duration-300 ease-out transform ${
 			hovered === "masonry" && (activeView !== "masonry" || isMapActive)
 			  ? "scale-110 shadow-xs"
@@ -143,7 +143,7 @@ export default function ViewToggle({
 		  className={`relative ${
 			isMapActive
 			  ? "bg-theme-primary text-white shadow-md transform scale-105"
-			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+			  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-white/4"
 		  } rounded-md p-1 transition-all duration-300 ease-out transform ${
 			hovered === "map" && !isMapActive
 			  ? "scale-110 shadow-xs"

@@ -3411,5 +3411,35 @@
 				"NO_DATA_DESC": "Добавьте данные о местоположении к вашим элементам, чтобы увидеть географический охват."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Сравнения",
+		"TITLE": "Просмотр сравнений",
+		"DESCRIPTION": "Просматривайте сгенерированные сравнения инструментов, опубликованные из репозитория данных.",
+		"EMPTY_STATE_TITLE": "Сравнения не найдены",
+		"EMPTY_STATE_DESC": "В этом каталоге ещё нет доступных страниц сравнения.",
+		"DIMENSIONS_COUNT": "{count} критериев",
+		"READ_COMPARISON": "Читать сравнение",
+		"ALL_COMPARISONS": "Все сравнения",
+		"OPTION_A": "Вариант A",
+		"OPTION_B": "Вариант B",
+		"AVG_LABEL": "сред.",
+		"SCORE_LABEL": "оценка",
+		"RECOMMENDED": "Рекомендуется",
+		"FINAL_VERDICT": "Итоговый вердикт",
+		"ITS_A_TIE": "Ничья",
+		"TIE_LABEL": "Ничья",
+		"NO_WINNER": "Нет явного победителя",
+		"WINS": "побеждает",
+		"TIE_DESCRIPTION": "Это сравнение заканчивается ничьёй.",
+		"WINNER_DESCRIPTION": "{winner} выходит вперёд в целом.",
+		"DIMENSION_ANALYSIS": "Анализ критериев",
+		"CATEGORIES_COUNT": "{count} категорий",
+		"FULL_ARTICLE": "Полная статья",
+		"NO_ARTICLE": "Контент статьи сравнения пока недоступен.",
+		"NAV_OVERVIEW": "Обзор",
+		"NAV_VERDICT": "Вердикт",
+		"NAV_DIMENSIONS": "Критерии",
+		"NAV_ARTICLE": "Статья"
 	}
 }

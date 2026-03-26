@@ -39,14 +39,14 @@ interface PricingOption {
 
 // ######################### Styling Constants #########################
 
-const CARD_WRAPPER = "border-0 shadow-lg bg-white dark:bg-gray-900";
-const CARD_HEADER = "px-6 py-4 border-b border-gray-100 dark:border-gray-800";
+const CARD_WRAPPER = "border-0 shadow-lg bg-white dark:bg-white/3";
+const CARD_HEADER = "px-6 py-4 border-b border-gray-100 dark:border-white/6";
 const CARD_BODY = "p-6";
 const STEP_BADGE = "flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-blue-500 to-indigo-600 text-sm font-semibold text-white shadow-lg";
 const PRICING_CARD_BASE = "relative flex flex-col items-start rounded-xl border-2 p-5 text-left transition-all duration-300 cursor-pointer";
 const PRICING_CARD_SELECTED = "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/10";
-const PRICING_CARD_UNSELECTED = "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md";
-const SUMMARY_BOX = "rounded-xl bg-gray-50 dark:bg-gray-800/50 p-5";
+const PRICING_CARD_UNSELECTED = "border-gray-200 dark:border-white/6 hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md";
+const SUMMARY_BOX = "rounded-xl bg-gray-50 dark:bg-white/3 p-5";
 const NOTICE_BOX = "rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-900/20";
 const SUBMIT_BUTTON = "w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white font-medium shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30";
 

@@ -37,10 +37,10 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
   const totalSteps = 4;
 
   // Extract long className strings into constants for better maintainability
-  const containerClasses = "bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden";
+  const containerClasses = "bg-white dark:bg-white/3 rounded-2xl shadow-2xl border border-gray-200 dark:border-white/6 overflow-hidden";
   const headerClasses = "bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4";
   const formClasses = "p-6 space-y-6";
-  const actionsClasses = "flex items-center justify-between pt-6 border-t border-gray-200 dark:border-gray-700";
+  const actionsClasses = "flex items-center justify-between pt-6 border-t border-gray-200 dark:border-white/6";
 
   // Helper function to construct form defaults based on client data and mode
   const defaultsFor = (m: 'create' | 'edit', c?: ClientProfileWithAuth): FormData => ({
@@ -286,7 +286,7 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
       </div>
 
       {/* Step Indicator */}
-      <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="px-6 py-4 bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/6">
         <div className="flex items-center justify-between">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
@@ -298,7 +298,7 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
                       ? "bg-theme-primary text-white"
                       : currentStep > step
                       ? "bg-green-500 text-white"
-                      : "bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400"
+                      : "bg-gray-300 dark:bg-white/1 text-gray-600 dark:text-gray-400"
                   )}
                 >
                   {step}
@@ -322,7 +322,7 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
                     "hidden md:block h-0.5 flex-1 mx-2 transition-colors",
                     currentStep > step
                       ? "bg-green-500"
-                      : "bg-gray-300 dark:bg-gray-600"
+                      : "bg-gray-300 dark:bg-white/1"
                   )}
                 />
               )}

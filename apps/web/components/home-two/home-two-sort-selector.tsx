@@ -46,16 +46,16 @@ export function HomeTwoSortSelector({
           aria-haspopup="menu"
           aria-controls={dropdownId}
           className={cn(
-            "group inline-flex items-center justify-between",
-            "w-36",
-            "rounded-lg border border-gray-300 dark:border-gray-600/50",
-            "bg-gray-50 dark:bg-gray-900/50",
-            "px-3 sm:px-4 py-1.5 sm:py-2",
-            "text-xs sm:text-sm font-medium",
+            "group inline-flex items-center justify-between text-[10px] sm:text-xs",
+            "w-28 sm:w-32",
+            "rounded-lg border border-gray-300 dark:border-white/6",
+            "bg-gray-50 dark:bg-white/4",
+            "px-2.5 sm:px-3 h-7 sm:h-8",
+            "font-medium",
             "text-gray-900 dark:text-white",
             "transition-all duration-200",
-            "hover:bg-gray-100 dark:hover:bg-gray-800/50",
-            "hover:border-gray-300 dark:hover:border-gray-500/50",
+            "hover:bg-gray-100 dark:hover:bg-white/6",
+            "hover:border-gray-300 dark:hover:border-white/1",
             "hover:shadow-md",
             "focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500",
             className
@@ -65,7 +65,7 @@ export function HomeTwoSortSelector({
             {currentOption?.label ?? t("listing.SORT_BY")}
           </span>
 
-          <ChevronDown className="h-3.5 w-3.5 transition-transform group-data-[state=open]:rotate-180 text-theme-primary-500" />
+          <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180 text-theme-white/30" />
         </button>
       </DropdownMenu.Trigger>
 
@@ -75,9 +75,9 @@ export function HomeTwoSortSelector({
           align="end"
           sideOffset={6}
           className={cn(
-            "z-50 w-36",
-            "rounded-lg border border-gray-200 dark:border-gray-700",
-            "bg-white dark:bg-gray-900",
+            "z-50 w-28 sm:w-32",
+            "rounded-lg border border-gray-200 dark:border-white/8",
+            "bg-white dark:bg-[#141414]",
             "shadow-lg shadow-black/10 dark:shadow-black/30",
             "animate-in fade-in zoom-in-95"
           )}
@@ -86,33 +86,33 @@ export function HomeTwoSortSelector({
           <DropdownMenu.RadioGroup
             value={sortBy}
             onValueChange={value => setSortBy?.(value as SortValue)}
-            className="p-1.5"
+            className="p-1"
           >
             {options.map(option => (
               <DropdownMenu.RadioItem
                 key={option.value}
                 value={option.value}
                 className={cn(
-                  "relative flex items-center justify-between",
-                  "px-3 py-1.5 rounded-md",
-                  "text-xs sm:text-sm font-medium",
+                  "relative flex items-center justify-between text-[10px] sm:text-xs",
+                  "px-2 py-1 rounded-md",
+                  "font-medium",
                   "cursor-pointer outline-hidden",
                   "text-gray-900 dark:text-gray-100",
                   "transition-colors",
-                  "hover:bg-gray-100 dark:hover:bg-gray-800",
-                  "focus:bg-gray-100 dark:focus:bg-gray-800"
+                  "hover:bg-gray-100 dark:hover:bg-white/6",
+                  "focus:bg-gray-100 dark:focus:bg-white/6"
                 )}
               >
                 <span>{option.label}</span>
 
                 <DropdownMenu.ItemIndicator>
-                  <Check className="h-4 w-4 text-theme-primary-500 dark:text-theme-primary-400" />
+                  <Check className="h-3 w-3 text-theme-primary-500 dark:text-theme-primary-400" />
                 </DropdownMenu.ItemIndicator>
               </DropdownMenu.RadioItem>
             ))}
           </DropdownMenu.RadioGroup>
 
-          <DropdownMenu.Arrow className="fill-white dark:fill-gray-900" />
+          <DropdownMenu.Arrow className="fill-white dark:fill-[#0a0a0a]" />
         </DropdownMenu.Content>
       </DropdownMenu.Portal>
     </DropdownMenu.Root>

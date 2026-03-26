@@ -1,31 +1,25 @@
-"use client";
+'use client';
 
-import { Category, Tag } from "@/lib/content";
-import { HomeTwoSortSelector, HomeTwoTagsSelector } from ".";
-import { useFilters } from "@/hooks/use-filters";
-import { SearchInput } from "../ui/search-input";
-import { HomeTwoCategories } from "./home-two-categories";
-import { LayoutKey } from "../layouts";
-import { SortOption } from "../filters/types";
-import { LayoutSettings } from "../layout-settings";
-import { Button } from "@heroui/react";
-import { useState } from "react";
-import clsx from "clsx";
+import { Category, Tag } from '@/lib/content';
+import { HomeTwoSortSelector, HomeTwoTagsSelector } from '.';
+import { useFilters } from '@/hooks/use-filters';
+import { SearchInput } from '../ui/search-input';
+import { HomeTwoCategories } from './home-two-categories';
+import { LayoutKey } from '../layouts';
+import { SortOption } from '../filters/types';
+import { LayoutSettings } from '../layout-settings';
+import { Button } from '@heroui/react';
+import { useState } from 'react';
+import clsx from 'clsx';
 
-const SORT_OPTIONS: SortOption[] = [
-  'popularity',
-  'name-asc',
-  'name-desc',
-  'date-desc',
-  'date-asc',
-];
+const SORT_OPTIONS: SortOption[] = ['popularity', 'name-asc', 'name-desc', 'date-desc', 'date-asc'];
 
 // Style constants (tighter spacing)
-const FILTERS_CONTAINER = "space-y-1 sm:space-y-2";
-const MOBILE_FILTERS = "block sm:hidden space-y-1";
-const TABLET_FILTERS = "hidden sm:block md:hidden";
-const DESKTOP_FILTERS = "hidden md:flex justify-between items-center gap-2";
-const FILTERS_GROUP = "flex items-center gap-1";
+const FILTERS_CONTAINER = 'space-y-1 sm:space-y-2';
+const MOBILE_FILTERS = 'block sm:hidden space-y-1';
+const TABLET_FILTERS = 'hidden sm:block md:hidden';
+const DESKTOP_FILTERS = 'hidden md:flex justify-between items-center gap-2';
+const FILTERS_GROUP = 'flex items-center gap-1';
 
 type Home2FiltersProps = {
   categories: Category[];
@@ -46,7 +40,7 @@ export function HomeTwoFilters({
   totalCount,
   filteredCount,
   searchEnabled = true,
-  isSticky = false,
+  isSticky = false
 }: Home2FiltersProps) {
   const {
     searchTerm,
@@ -63,7 +57,7 @@ export function HomeTwoFilters({
   const [showAllCategories, setShowAllCategories] = useState(false);
 
   const handleCategoryToggle = (categoryId: string) => {
-    if (categoryId === "clear-all") {
+    if (categoryId === 'clear-all') {
       clearSelectedCategories();
     } else {
       toggleSelectedCategory(categoryId);
@@ -94,22 +88,14 @@ export function HomeTwoFilters({
       <div className={MOBILE_FILTERS}>
         {searchEnabled && (
           <div className="w-full">
-            <SearchInput
-              searchTerm={searchTerm}
-              setSearchTerm={handleSearchChange}
-              className="w-full"
-            />
+            <SearchInput searchTerm={searchTerm} setSearchTerm={handleSearchChange} className="w-full" />
           </div>
         )}
 
         <div className="flex items-center justify-between gap-1">
           <div className="flex items-center gap-1 flex-1">
             <HomeTwoSortSelector setSortBy={handleSortChange} sortBy={sortBy} />
-            <HomeTwoTagsSelector
-              tags={tags}
-              selectedTags={selectedTags}
-              onTagToggle={handleTagToggle}
-            />
+            <HomeTwoTagsSelector tags={tags} selectedTags={selectedTags} onTagToggle={handleTagToggle} />
           </div>
           <LayoutSettings isParentSticky={isSticky} />
         </div>
@@ -147,21 +133,14 @@ export function HomeTwoFilters({
         {/* Left Side: Sort and Tags */}
         <div className={FILTERS_GROUP}>
           <HomeTwoSortSelector setSortBy={handleSortChange} sortBy={sortBy} />
-          <HomeTwoTagsSelector
-            tags={tags}
-            selectedTags={selectedTags}
-            onTagToggle={handleTagToggle}
-          />
+          <HomeTwoTagsSelector tags={tags} selectedTags={selectedTags} onTagToggle={handleTagToggle} />
         </div>
 
         {/* Right Side: Search and Layout */}
         <div className={FILTERS_GROUP}>
           {searchEnabled && (
             <div className="w-64 lg:w-80 xl:w-96">
-              <SearchInput
-                searchTerm={searchTerm}
-                setSearchTerm={handleSearchChange}
-              />
+              <SearchInput searchTerm={searchTerm} setSearchTerm={handleSearchChange} />
             </div>
           )}
           <LayoutSettings isParentSticky={isSticky} />
@@ -178,14 +157,16 @@ export function HomeTwoFilters({
       />
 
       {/* New Row: Items count and Toggle button */}
-      <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-gray-800">
-        {/* Left: Showing X of Y items */}
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+      <div className="flex items-center justify-between pb-1 border-b border-gray-100 dark:border-white/6">
+        {/* Left: Showing X of Y items (reduced size) */}
+        <div className="text-xs text-gray-600 dark:text-gray-400">
           {filteredCount !== undefined && totalCount !== undefined ? (
             filteredCount === totalCount ? (
               <span>Showing {totalCount} items</span>
             ) : (
-              <span>Showing {filteredCount} of {totalCount} items</span>
+              <span>
+                Showing {filteredCount} of {totalCount} items
+              </span>
             )
           ) : null}
         </div>
@@ -194,18 +175,17 @@ export function HomeTwoFilters({
         {categories.length > 5 && (
           <Button
             className={clsx(
-              "px-3 py-1 font-medium transition-all duration-300 rounded-full",
-              "text-theme-primary bg-theme-primary-10",
-              "hover:bg-theme-primary-20 hover:shadow-xs",
-              "active:scale-95",
-              "text-xs sm:text-sm h-8",
-              "focus:outline-hidden focus:ring-1 focus:ring-theme-primary-300 focus:ring-offset-1"
+              'px-2 py-0.5 font-medium transition-colors duration-150 rounded-full',
+              'text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-white/6',
+              'hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/8',
+              'text-[11px] sm:text-xs h-7',
+              'focus:outline-hidden'
             )}
             onPress={() => setShowAllCategories(!showAllCategories)}
             aria-expanded={showAllCategories}
             aria-label={
               showAllCategories
-                ? "Collapse categories to single row"
+                ? 'Collapse categories to single row'
                 : `Expand to show all ${categories.length} categories`
             }
           >
@@ -214,11 +194,11 @@ export function HomeTwoFilters({
                 <span className="hidden sm:inline">Show as single row</span>
                 <span className="sm:hidden">Single row</span>
                 <svg
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="ml-1.5 transition-transform"
+                  className="ml-1 transition-transform"
                   aria-hidden="true"
                 >
                   <path
@@ -232,16 +212,14 @@ export function HomeTwoFilters({
               </>
             ) : (
               <>
-                <span className="hidden sm:inline">
-                  Show all {categories.length} categories
-                </span>
+                <span className="hidden sm:inline">Show all {categories.length} categories</span>
                 <span className="sm:hidden">All categories</span>
                 <svg
-                  width="16"
-                  height="16"
+                  width="14"
+                  height="14"
                   viewBox="0 0 24 24"
                   fill="none"
-                  className="ml-1.5 transition-transform"
+                  className="ml-1 transition-transform"
                   aria-hidden="true"
                 >
                   <path
@@ -260,5 +238,3 @@ export function HomeTwoFilters({
     </div>
   );
 }
-
-

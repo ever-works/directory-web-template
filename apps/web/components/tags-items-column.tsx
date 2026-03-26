@@ -27,7 +27,7 @@ function BlockLink({
         {
           "bg-theme-primary-500 text-white": isActive,
           "bg-gray-800 text-white": !isActive && isAlltags,
-          "bg-transparent text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800":
+          "bg-transparent text-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/6":
             !isActive && !isAlltags,
         }
       )}
@@ -72,7 +72,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
         <div className="md:hidden">
           <Accordion
             variant="bordered"
-            className="shadow-xs bg-white dark:bg-gray-900/90 border border-gray-100 dark:border-gray-700 rounded-xl transition-colors duration-300"
+            className="shadow-xs bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-xl transition-colors duration-300"
           >
             <AccordionItem
               key="1"
@@ -82,7 +82,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                   <span className="font-bold text-gray-800 dark:text-gray-200 transition-colors duration-300 text-sm sm:text-base">
                     {t("TAG")}
                   </span>
-                  <span className="bg-theme-primary-100 dark:bg-gray-800 text-theme-primary-700 dark:text-gray-300 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold border border-theme-primary-200 dark:border-gray-700/50">
+                  <span className="bg-theme-primary-100 dark:bg-white/5 text-theme-primary-700 dark:text-gray-300 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-xs font-bold border border-theme-primary-200 dark:border-white/6">
                     {props.total}
                   </span>
                 </div>
@@ -99,8 +99,8 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
           {/* Search Bar */}
           <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
           {/* Categories Section */}
-          <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
-            <div className="p-3 lg:p-4 border-b border-gray-200/50 dark:border-gray-700/50">
+          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-xl border border-gray-200 dark:border-white/6 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
+            <div className="p-3 lg:p-4 border-b border-gray-200/50 dark:border-white/6">
               <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-200 transition-colors duration-300">
                 {t("TAGS")}
               </h2>
@@ -112,8 +112,8 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
   
           {/* Active Filters Section */}
           {(searchTerm || selectedTags.length > 0 || sortBy !== "popularity") && (
-            <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs rounded-xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
-              <div className="p-3 lg:p-4 border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between">
+            <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-xl border border-gray-200/50 dark:border-white/6 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
+              <div className="p-3 lg:p-4 border-b border-gray-200/50 dark:border-white/6 flex items-center justify-between">
                 <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-200 transition-colors duration-300">
                   Active Filters
                 </h2>
@@ -133,7 +133,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Search:
                     </span>
-                    <span className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-theme-primary-100 dark:bg-gray-800 text-theme-primary-700 dark:text-theme-primary-400 text-xs lg:text-sm font-medium border border-theme-primary-200 dark:border-gray-700">
+                    <span className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-theme-primary-100 dark:bg-white/5 text-theme-primary-700 dark:text-theme-primary-400 text-xs lg:text-sm font-medium border border-theme-primary-200 dark:border-white/6">
                       {searchTerm}
                       <button
                         onClick={() => setSearchTerm("")}
@@ -156,7 +156,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                         return tag ? (
                           <span
                             key={tagId}
-                            className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-theme-primary-100 dark:bg-gray-800 text-theme-primary-700 dark:text-theme-primary-400 text-xs lg:text-sm font-medium border border-theme-primary-200 dark:border-gray-700"
+                            className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-theme-primary-100 dark:bg-white/5 text-theme-primary-700 dark:text-theme-primary-400 text-xs lg:text-sm font-medium border border-theme-primary-200 dark:border-white/6"
                           >
                             {tag.name}
                             <button
@@ -177,7 +177,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Sort:
                     </span>
-                    <span className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-green-100 dark:bg-gray-800 text-green-700 dark:text-green-400 text-xs lg:text-sm font-medium border border-green-200 dark:border-gray-700">
+                    <span className="inline-flex items-center px-2 lg:px-3 py-0.5 lg:py-1 rounded-lg bg-green-100 dark:bg-white/5 text-green-700 dark:text-green-400 text-xs lg:text-sm font-medium border border-green-200 dark:border-white/6">
                       {sortBy === "name-asc"
                         ? "Name (A-Z)"
                         : sortBy === "name-desc"
@@ -201,8 +201,8 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
           )}
   
           {/* Sort By Section */}
-          <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xs rounded-xl border border-gray-200 dark:border-gray-700/50 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
-            <div className="p-3 lg:p-4 border-b border-gray-200 dark:border-gray-700/50">
+          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-xl border border-gray-200 dark:border-white/6 overflow-hidden shadow-xs dark:shadow-lg transition-colors duration-300">
+            <div className="p-3 lg:p-4 border-b border-gray-200 dark:border-white/6">
               <h2 className="text-base lg:text-lg font-semibold text-gray-900 dark:text-gray-200 transition-colors duration-300 capitalize">
                 {t("SORT_BY")}
               </h2>
@@ -250,7 +250,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                     "text-xs font-semibold px-2 py-0.5 rounded-full transition-all duration-300 shrink-0 group-hover:scale-105",
                     pathname === "/tags"
                       ? "text-white"
-                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                      : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300"
                   )}
                 >
                   {total}
@@ -293,7 +293,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
                           "text-xs font-semibold px-1.5 lg:px-2 py-0.5 rounded-full transition-all duration-300 shrink-0 group-hover:scale-105",
                           isActive
                             ? "text-white"
-                            : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                            : "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-gray-300"
                         )}
                       >
                         {tag.count}

@@ -70,8 +70,8 @@ const getStatusConfig = (status: string) => {
 		default:
 			return {
 				color: 'text-slate-600 dark:text-slate-300',
-				bgColor: 'bg-slate-50 dark:bg-slate-700/50',
-				borderColor: 'border-slate-200 dark:border-slate-500',
+				bgColor: 'bg-slate-50 dark:bg-white/4',
+				borderColor: 'border-slate-200 dark:border-white/1',
 				icon: Clock,
 				label: status.charAt(0).toUpperCase() + status.slice(1)
 			};
@@ -100,7 +100,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 	const isTrialing = subscription.status.toLowerCase() === 'trialing';
 
 	return (
-		<div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
+		<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
 			<div className="flex items-start justify-between">
 				{/* Left Section - Subscription Details */}
 				<div className="flex-1">
@@ -113,7 +113,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 										? 'bg-red-100 dark:bg-red-700/50'
 										: isTrialing
 											? 'bg-theme-primary-100 dark:bg-theme-primary-20'
-											: 'bg-slate-100 dark:bg-slate-700/50'
+											: 'bg-slate-100 dark:bg-white/4'
 							} group-hover:scale-105 transition-transform duration-300 dark:bg-theme-primary-20`}
 						>
 							<PlanIcon
@@ -136,13 +136,13 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 
 							<div className="flex items-center gap-3">
 								<span
-									className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.bgColor} ${statusConfig.color} ${statusConfig.borderColor} dark:border-slate-500`}
+									className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.bgColor} ${statusConfig.color} ${statusConfig.borderColor} dark:border-white/1`}
 								>
 									<StatusIcon className="w-3 h-3" />
 									{statusConfig.label}
 								</span>
 
-								<span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-700/50 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full">
+								<span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/4 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full">
 									{subscription.billingInterval.charAt(0).toUpperCase() +
 										subscription.billingInterval.slice(1)}
 								</span>
@@ -213,7 +213,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 
 					{/* Action Buttons */}
 					<div className="flex flex-col gap-2">
-						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 dark:bg-slate-700/50 rounded-lg hover:bg-slate-200 transition-colors dark:text-slate-300">
+						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 transition-colors dark:text-slate-300">
 							<Calendar className="w-3 h-3" />
 							View Details
 						</button>
@@ -229,16 +229,16 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 			</div>
 
 			{/* Footer Section */}
-			<div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+			<div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/6">
 				<div className="flex items-center justify-between text-sm">
 					<div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
 						<span className="font-medium">Subscription ID:</span>
-						<code className="bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-sm text-xs font-mono">
+						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
 							{subscription.id.slice(-8)}
 						</code>
 
 						<span className="font-medium">Plan ID:</span>
-						<code className="bg-slate-100 dark:bg-slate-700/50 px-2 py-1 rounded-sm text-xs font-mono">
+						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
 							{subscription.planId.slice(-8)}
 						</code>
 					</div>

@@ -15,15 +15,15 @@ const STICKY_CONTAINER_BASE = clsx(
   "transition-all duration-300 ease-in-out",
   "border border-transparent",
   "rounded-x-lg rounded-b-lg",
-  "bg-white/95 dark:bg-[#0b111f]/95",
+  "bg-white/95 dark:bg-[#0a0a0a]",
   "backdrop-blur-xs",
 );
 
 const STICKY_CONTAINER_ACTIVE = clsx(
   STICKY_CONTAINER_BASE,
-  "bg-white/95 dark:bg-[#0b111f]/95",
+  "bg-white/95 dark:bg-[#0a0a0a]/95",
   "shadow-md backdrop-blur-xs",
-  "border border-gray-100 dark:border-gray-700/50",
+  "border border-gray-100 dark:border-white/6",
   "px-4 pt-1.5"
 );
 
@@ -53,7 +53,7 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
   });
 
   return (
-    <div className="min-h-screen transition-colors duration-300 pt-10">
+    <div className="min-h-screen transition-colors duration-300 pt-[30px] lg:pt-0">
       <Container maxWidth="7xl" padding="default" useGlobalWidth className="flex flex-col gap-3 py-8">
         <div ref={sentinelRef} className="md:h-4 md:w-full" />
         <div

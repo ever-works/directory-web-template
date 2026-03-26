@@ -3213,5 +3213,35 @@
 				"NO_DATA_DESC": "地理的カバレッジを確認するには、アイテムに位置情報を追加してください。"
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "比較",
+		"TITLE": "比較を探す",
+		"DESCRIPTION": "データリポジトリから公開されたツール比較を閲覧する。",
+		"EMPTY_STATE_TITLE": "比較が見つかりません",
+		"EMPTY_STATE_DESC": "このディレクトリにはまだ比較ページがありません。",
+		"DIMENSIONS_COUNT": "{count}つの評価軸",
+		"READ_COMPARISON": "比較を読む",
+		"ALL_COMPARISONS": "すべての比較",
+		"OPTION_A": "オプションA",
+		"OPTION_B": "オプションB",
+		"AVG_LABEL": "平均",
+		"SCORE_LABEL": "スコア",
+		"RECOMMENDED": "推奨",
+		"FINAL_VERDICT": "最終評価",
+		"ITS_A_TIE": "引き分け",
+		"TIE_LABEL": "引き分け",
+		"NO_WINNER": "明確な勝者なし",
+		"WINS": "が優勝",
+		"TIE_DESCRIPTION": "この比較は引き分けで終わります。",
+		"WINNER_DESCRIPTION": "{winner}が総合的に優勢です。",
+		"DIMENSION_ANALYSIS": "評価軸の分析",
+		"CATEGORIES_COUNT": "{count}カテゴリ",
+		"FULL_ARTICLE": "全記事",
+		"NO_ARTICLE": "比較記事のコンテンツはまだありません。",
+		"NAV_OVERVIEW": "概要",
+		"NAV_VERDICT": "評価",
+		"NAV_DIMENSIONS": "評価軸",
+		"NAV_ARTICLE": "記事"
 	}
 }

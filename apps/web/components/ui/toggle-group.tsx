@@ -50,24 +50,24 @@ export function ToggleGroup({
 
   const variantClasses = {
     default: {
-      container: 'bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700',
+      container: 'bg-gray-100 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/6',
       button: 'rounded-md cursor-pointer',
       activeButton: 'text-gray-900 dark:text-white',
       inactiveButton: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white',
-      slider: 'bg-white dark:bg-gray-700 rounded-md shadow-xs border border-gray-200/50 dark:border-gray-600/50'
+      slider: 'bg-white dark:bg-white/8 rounded-md shadow-xs border border-gray-200/50 dark:border-white/6'
     },
     modern: {
-      container: 'bg-slate-100 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700/50 shadow-xs backdrop-blur-xs',
+      container: 'bg-slate-100 dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6/50 shadow-xs backdrop-blur-xs',
       button: 'rounded-lg cursor-pointer',
       activeButton: 'text-slate-900 dark:text-white shadow-xs',
-      inactiveButton: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-700/30',
-      slider: 'bg-white dark:bg-slate-700 rounded-lg shadow-md border border-slate-200/50 dark:border-slate-600/50 backdrop-blur-xs'
+      inactiveButton: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/6/30',
+      slider: 'bg-white dark:bg-white/8 rounded-lg shadow-md border border-slate-200/50 dark:border-white/6 backdrop-blur-xs'
     },
     pills: {
-      container: 'bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-700/30 shadow-inner',
+      container: 'bg-slate-50 dark:bg-[#0a0a0a]/50 rounded-2xl border border-slate-200 dark:border-white/6/30 shadow-inner',
       button: 'rounded-xl cursor-pointer',
       activeButton: 'text-white shadow-lg',
-      inactiveButton: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50',
+      inactiveButton: 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/6/50',
       slider: 'bg-linear-to-r from-blue-500 to-purple-600 rounded-xl shadow-lg'
     }
   };
@@ -173,7 +173,7 @@ export function ToggleGroupDemo() {
   const [theme, setTheme] = useState('light');
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0a] py-20 px-4">
       <div className="max-w-4xl mx-auto space-y-12">
         <div className="text-center">
           <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
@@ -237,19 +237,19 @@ export function ToggleGroupDemo() {
         </div>
 
         {/* Debug Info */}
-        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 border border-slate-200 dark:border-slate-700">
+        <div className="bg-white dark:bg-white/5 rounded-lg p-6 border border-slate-200 dark:border-white/6">
           <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
             Current Values
           </h3>
           <div className="space-y-2 text-sm">
             <p className="text-slate-600 dark:text-slate-400">
-              Billing: <code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-sm">{billingInterval}</code>
+              Billing: <code className="bg-slate-100 dark:bg-white/8 px-2 py-1 rounded-sm">{billingInterval}</code>
             </p>
             <p className="text-slate-600 dark:text-slate-400">
-              View Mode: <code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-sm">{viewMode}</code>
+              View Mode: <code className="bg-slate-100 dark:bg-white/8 px-2 py-1 rounded-sm">{viewMode}</code>
             </p>
             <p className="text-slate-600 dark:text-slate-400">
-              Theme: <code className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded-sm">{theme}</code>
+              Theme: <code className="bg-slate-100 dark:bg-white/8 px-2 py-1 rounded-sm">{theme}</code>
             </p>
           </div>
         </div>

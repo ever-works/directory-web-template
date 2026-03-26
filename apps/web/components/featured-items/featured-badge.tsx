@@ -24,15 +24,15 @@ export function FeaturedBadge({
 	const sizeClasses = {
 		xs: 'text-xs px-1 py-0.5',
 		sm: 'text-xs px-2 py-1',
-		md: 'text-xs px-3 py-1.5',
-		lg: 'text-xs px-4 py-2'
+		md: 'text-xs px-3 py-1',
+		lg: 'text-xs px-4 py-1'
 	};
 
 	const iconSizes = {
 		xs: 'w-2 h-2',
 		sm: 'w-3 h-3',
-		md: 'w-4 h-4',
-		lg: 'w-4 h-4'
+		md: 'w-3 h-3',
+		lg: 'w-3 h-3'
 	};
 
 	const renderContent = (icon: React.ReactNode, text: string) => {

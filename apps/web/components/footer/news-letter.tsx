@@ -34,14 +34,14 @@ export function Newsletter({ t }: { t: any }) {
 						name="email"
 						placeholder={t('footer.ENTER_EMAIL')}
 						disabled={pending}
-						className="flex-1 px-4 py-3 rounded-xl border border-gray-200/60 bg-white dark:bg-gray-800/50 backdrop-blur-lg dark:border-gray-700/40 focus:border-theme-primary dark:focus:border-theme-primary/30 focus:outline-hidden transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="flex-1 px-3 py-1.5 rounded-lg border border-gray-200/60 bg-white dark:bg-white/5 backdrop-blur-lg dark:border-white/8 focus:border-theme-primary dark:focus:border-theme-primary/30 focus:outline-hidden transition-all duration-300 text-sm placeholder-gray-500 dark:placeholder-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
 						required
 					/>
 					<button
 						type="submit"
 						disabled={pending}
-						className="mt-2 sm:mt-0 w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-3 rounded-xl bg-gradient-to-r from-theme-primary-500 via-purple-500 to-purple-600 bg-[length:200%_200%] bg-left hover:bg-right
-             transition-[background-position] duration-500 ease-in-out text-white font-medium hover:shadow-lg hover:shadow-blue-500/25 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+						className="mt-2 sm:mt-0 w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-1.5 rounded-lg bg-white text-gray-900 dark:bg-white dark:text-black font-medium hover:bg-gray-100 dark:hover:bg-gray-200
+             transition-all duration-200 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{pending ? t('footer.SUBMITTING') : t('footer.SUBSCRIBE')}
 					</button>

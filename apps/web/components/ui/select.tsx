@@ -157,10 +157,10 @@ export function Select({
   };
 
   const variantClasses = {
-    flat: "bg-gray-100 dark:bg-gray-800 border-0",
-    bordered: "border border-gray-300 dark:border-gray-600 bg-transparent",
-    faded: "border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800",
-    underlined: "border-0 border-b-2 border-gray-300 dark:border-gray-600 bg-transparent rounded-none",
+    flat: "bg-gray-100 dark:bg-white/5 border-0",
+    bordered: "border border-gray-300 dark:border-white/8 bg-transparent",
+    faded: "border border-gray-200 dark:border-white/6 bg-gray-50 dark:bg-white/5",
+    underlined: "border-0 border-b-2 border-gray-300 dark:border-white/8 bg-transparent rounded-none",
   };
 
   const colorClasses = {
@@ -252,8 +252,8 @@ export function Select({
         {isOpen && !usePortal && (
           <div
             className={cn(
-              "absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg",
-              "max-h-60 overflow-y-auto",
+              "absolute z-50 w-full mt-1 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-lg shadow-lg",
+              "max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1",
               classNames.popover
             )}
           >
@@ -275,8 +275,8 @@ export function Select({
               zIndex: 9999,
             }}
             className={cn(
-              "bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg",
-              "max-h-60 overflow-y-auto",
+              "bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-lg shadow-lg",
+              "max-h-60 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1",
               classNames.popover
             )}
           >
@@ -326,7 +326,7 @@ export function SelectItem({
       disabled={disabled}
       className={cn(
         "w-full flex items-center gap-2 px-3 py-2 text-left transition-colors",
-        "hover:bg-gray-100 dark:hover:bg-gray-700",
+        "hover:bg-gray-100 dark:hover:bg-white/6",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         isSelected && "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
         className

@@ -62,7 +62,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+		<div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-8 pb-16">
 					<ProfileHeader profile={profile} />

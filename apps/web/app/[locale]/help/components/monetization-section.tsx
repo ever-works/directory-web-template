@@ -119,7 +119,7 @@ const monetizationMethods: MonetizationMethod[] = [
 ];
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-black">
+    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
@@ -140,7 +140,7 @@ const monetizationMethods: MonetizationMethod[] = [
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-all duration-300 hover:transform hover:scale-105"
+              className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105"
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
@@ -173,10 +173,10 @@ const monetizationMethods: MonetizationMethod[] = [
               onClick={() => setActiveMethod(index)}
             >
               {/* Method Card */}
-              <div className={`relative bg-white/80 dark:bg-slate-800/80 backdrop-blur-xs rounded-2xl p-8 border-2 transition-all duration-300 h-full ${
+              <div className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 border-2 transition-all duration-300 h-full ${
                 activeMethod === index
                   ? 'border-blue-500 shadow-xl shadow-blue-500/20'
-                  : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                  : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Header */}
                 <div className="text-center mb-6">
@@ -226,9 +226,9 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Detailed View */}
         <div className="mb-16">
-          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden">
+          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-slate-100 dark:bg-slate-900 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+            <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-8 h-8 rounded-lg bg-linear-to-r ${monetizationMethods[activeMethod].gradient} flex items-center justify-center text-white`}>
@@ -242,7 +242,7 @@ const monetizationMethods: MonetizationMethod[] = [
                   onClick={() => setShowDetails(!showDetails)}
                   variant="outline"
                   size="sm"
-                  className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                  className="border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300"
                 >
                   {showDetails ? t("HIDE_DETAILS") : t("SHOW_DETAILS")}
                 </Button>
@@ -303,9 +303,9 @@ const monetizationMethods: MonetizationMethod[] = [
 
               {/* Expanded Details */}
               {showDetails && (
-                <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
+                <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/6">
                   <div className="grid md:grid-cols-3 gap-6">
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
+                    <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
                       <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Implementation Steps</h5>
                       <ol className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <li>1. Configure payment gateway</li>
@@ -314,7 +314,7 @@ const monetizationMethods: MonetizationMethod[] = [
                         <li>4. Launch beta testing</li>
                       </ol>
                     </div>
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
+                    <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
                       <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Required Tools</h5>
                       <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <li>• Stripe integration</li>
@@ -323,7 +323,7 @@ const monetizationMethods: MonetizationMethod[] = [
                         <li>• User authentication</li>
                       </ul>
                     </div>
-                    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4">
+                    <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
                       <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Success Metrics</h5>
                       <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
                         <li>• Monthly recurring revenue</li>
@@ -352,7 +352,7 @@ const monetizationMethods: MonetizationMethod[] = [
               <Button className="bg-linear-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 {t("GET_STARTED_NOW")}
               </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
                 {t("VIEW_CASE_STUDIES")}
               </Button>
             </div>

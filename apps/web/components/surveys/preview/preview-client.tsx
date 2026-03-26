@@ -67,7 +67,7 @@ export function SurveyPreviewClient({ survey, backLink, surveysEnabled }: Survey
 				{survey.description && <p className="text-gray-600 dark:text-gray-400">{survey.description}</p>}
 			</div>
 
-		<div className="bg-white dark:bg-gray-800 rounded-lg shadow-xs p-6">
+		<div className="bg-white dark:bg-white/5 rounded-lg shadow-xs p-6">
 			<SurveyFormNoSSR
 				surveyJson={survey.surveyJson as object}
 				mode="display"

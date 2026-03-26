@@ -23,67 +23,67 @@ const MENU_ITEMS_CONFIG: Array<{
   isExternal: boolean;
   icon: LucideIcon;
 }> = [
-  {
-    key: "blog",
-    href: "https://blog.ever.works",
-    translationKey: "BLOG",
-    isExternal: true,
-    icon: BookOpen,
-  },
-  {
-    key: "help",
-    href: "/help",
-    translationKey: "HELP",
-    isExternal: false,
-    icon: HelpCircle,
-  },
-  {
-    key: "docs",
-    href: "https://docs.ever.works",
-    translationKey: "DOCS",
-    isExternal: true,
-    icon: FileText,
-  },
-  {
-    key: "api-docs",
-    href: "/docs",
-    translationKey: "API_DOCS",
-    isExternal: true,
-    icon: Code,
-  },
-  {
-    key: "about",
-    href: "/about",
-    translationKey: "ABOUT",
-    isExternal: false,
-    icon: Building,
-  },
-  {
-    key: "contacts",
-    href: "https://ever.co/contacts",
-    translationKey: "CONTACTS",
-    isExternal: true,
-    icon: Mail,
-  },
-];
+    {
+      key: "blog",
+      href: "https://blog.ever.works",
+      translationKey: "BLOG",
+      isExternal: true,
+      icon: BookOpen,
+    },
+    {
+      key: "help",
+      href: "/help",
+      translationKey: "HELP",
+      isExternal: false,
+      icon: HelpCircle,
+    },
+    {
+      key: "docs",
+      href: "https://docs.ever.works",
+      translationKey: "DOCS",
+      isExternal: true,
+      icon: FileText,
+    },
+    {
+      key: "api-docs",
+      href: "/docs",
+      translationKey: "API_DOCS",
+      isExternal: true,
+      icon: Code,
+    },
+    {
+      key: "about",
+      href: "/about",
+      translationKey: "ABOUT",
+      isExternal: false,
+      icon: Building,
+    },
+    {
+      key: "contacts",
+      href: "https://ever.co/contacts",
+      translationKey: "CONTACTS",
+      isExternal: true,
+      icon: Mail,
+    },
+  ];
 
 const STYLES = {
   button: cn(
     "flex items-center gap-1",
-    "transition-colors duration-150 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-base",
+    "transition-colors duration-150 font-medium whitespace-nowrap text-sm lg:text-sm xl:text-sm mt-1",
     "text-gray-700 dark:text-gray-300",
     "cursor-pointer hover:text-theme-primary",
     "outline-none focus:outline-none focus-visible:outline-none",
     "border-none focus:ring-0"
   ),
   dropdownContent: cn(
-    "min-w-[11rem]",
-    "bg-white/95 dark:bg-gray-900/95",
+    "min-w-[5rem]", 
+    "bg-white/95 dark:bg-[#141414]/95",
     "backdrop-blur-sm",
-    "border border-gray-200/50 dark:border-gray-700/50",
-    "rounded-2xl",
+    "border border-gray-200/50 dark:border-white/6",
+    "rounded-lg",
     "shadow-2xl shadow-gray-900/10 dark:shadow-black/30",
-    "p-2",
+    "p-1",
     "z-50",
     "data-[state=open]:animate-in data-[state=closed]:animate-out",
     "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -92,27 +92,27 @@ const STYLES = {
     "data-[side=top]:slide-in-from-bottom-2"
   ),
   dropdownItem: cn(
-    "flex items-center gap-3",
-    "px-4 py-3",
-    "rounded-xl",
-    "text-sm font-medium",
-    "text-gray-700 dark:text-gray-300",
-    "hover:bg-gradient-to-r hover:from-theme-primary/10 hover:to-theme-primary/5",
-    "hover:text-theme-primary dark:hover:text-theme-primary",
+    "flex items-center gap-2", 
+    "px-3 py-2", 
+    "rounded-md",
+    "text-xs font-medium", 
+    "text-gray-700 dark:text-gray-300/70",
+    "hover:bg-theme-primary/10 dark:hover:bg-white/6",
+    "hover:text-theme-primary dark:hover:text-white",
     "cursor-pointer outline-none",
     "transition-colors duration-150",
     "group"
   ),
   icon: cn(
-    "w-5 h-5",
+    "w-4 h-4", // reduced from w-5 h-5
     "text-gray-400 dark:text-gray-500",
     "group-hover:text-theme-primary",
     "transition-colors duration-150"
   ),
   mobileButton: cn(
-    "flex items-center justify-between w-full px-3 py-2 text-sm font-medium rounded-md",
+    "flex items-center justify-between w-full px-3 py-2 text-xs font-medium rounded-md", // reduced from text-sm
     "text-gray-700 dark:text-gray-200",
-    "hover:bg-gray-100 dark:hover:bg-gray-800",
+    "hover:bg-gray-100 dark:hover:bg-white/6",
     "transition-colors duration-150",
     "cursor-pointer"
   ),
@@ -120,9 +120,9 @@ const STYLES = {
     "mt-1 ml-4 space-y-1"
   ),
   mobileMenuItem: cn(
-    "flex items-center gap-3 w-full px-3 py-2 text-sm rounded-md",
+    "flex items-center gap-2 w-full px-3 py-2 text-xs rounded-md", // reduced gap and text
     "text-gray-600 dark:text-gray-400",
-    "hover:bg-gray-100 dark:hover:bg-gray-800",
+    "hover:bg-gray-100 dark:hover:bg-white/6",
     "hover:text-theme-primary",
     "transition-colors duration-150"
   ),
@@ -135,9 +135,7 @@ interface MoreMenuProps {
 
 function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
   const t = useTranslations("common");
-  // State for mobile inline collapsible mode
   const [isOpen, setIsOpen] = useState(false);
-  // State for desktop hover trigger
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -172,7 +170,6 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
     }, 300);
   }, []);
 
-  // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
       if (hoverTimeoutRef.current) {
@@ -211,7 +208,6 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
     );
   };
 
-  // Mobile/inline version (collapsible)
   if (inline) {
     return (
       <div>
@@ -225,7 +221,7 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
           {t("MORE")}
           <ChevronDown
             className={cn(
-              "w-4 h-4 transition-transform duration-200",
+              "w-3.5 h-3.5 transition-transform duration-200", // reduced from w-4 h-4
               isOpen && "rotate-180"
             )}
           />
@@ -239,7 +235,6 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
     );
   }
 
-  // Desktop version (Radix UI Dropdown with hover trigger)
   return (
     <div onPointerEnter={handlePointerEnter} onPointerLeave={handlePointerLeave}>
       <DropdownMenu.Root open={isHovered} onOpenChange={(open) => setIsHovered(open)} modal={false}>
@@ -252,7 +247,7 @@ function MoreMenuComponent({ inline = false, onItemClick }: MoreMenuProps) {
             {t("MORE")}
             <ChevronDown
               className={cn(
-                "w-4 h-4 transition-transform duration-300 mt-0.5",
+                "w-3.5 h-3.5 transition-transform duration-300 mt-0.5", // reduced from w-4 h-4
                 isHovered && "rotate-180"
               )}
             />

@@ -48,7 +48,7 @@ export default async function SubmitPage({ params }: { params: Promise<{ locale:
 	return (
 		<div
 			className={cn(
-				'w-full min-h-screen bg-white dark:bg-[#0b111f]',
+				'w-full min-h-screen bg-white dark:bg-[#0a0a0a]',
 			)}
 		>
 			<SubmitFormClient

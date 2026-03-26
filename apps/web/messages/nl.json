@@ -3208,5 +3208,35 @@
 				"NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om de geografische dekking te zien."
 			}
 		}
+	},
+	"comparisons": {
+		"BADGE_TEXT": "Vergelijkingen",
+		"TITLE": "Vergelijkingen verkennen",
+		"DESCRIPTION": "Blader door gegenereerde toolsvergelijkingen gepubliceerd vanuit de gegevensrepository.",
+		"EMPTY_STATE_TITLE": "Geen vergelijkingen gevonden",
+		"EMPTY_STATE_DESC": "Er zijn nog geen vergelijkingspagina's beschikbaar in deze directory.",
+		"DIMENSIONS_COUNT": "{count} dimensies",
+		"READ_COMPARISON": "Vergelijking lezen",
+		"ALL_COMPARISONS": "Alle vergelijkingen",
+		"OPTION_A": "Optie A",
+		"OPTION_B": "Optie B",
+		"AVG_LABEL": "gem.",
+		"SCORE_LABEL": "score",
+		"RECOMMENDED": "Aanbevolen",
+		"FINAL_VERDICT": "Eindvonnis",
+		"ITS_A_TIE": "Gelijkspel",
+		"TIE_LABEL": "Gelijkspel",
+		"NO_WINNER": "Geen duidelijke winnaar",
+		"WINS": "wint",
+		"TIE_DESCRIPTION": "Deze vergelijking eindigt in gelijkspel.",
+		"WINNER_DESCRIPTION": "{winner} komt er overall bovenuit.",
+		"DIMENSION_ANALYSIS": "Dimensieanalyse",
+		"CATEGORIES_COUNT": "{count} categorieën",
+		"FULL_ARTICLE": "Volledig artikel",
+		"NO_ARTICLE": "Er is nog geen vergelijkingsartikelinhoud beschikbaar.",
+		"NAV_OVERVIEW": "Overzicht",
+		"NAV_VERDICT": "Vonnis",
+		"NAV_DIMENSIONS": "Dimensies",
+		"NAV_ARTICLE": "Artikel"
 	}
 }

@@ -76,7 +76,7 @@ export function SponsorCard({
 	const cardClassName = cn(
 		'group relative border-0 rounded-2xl transition-all duration-300 backdrop-blur-xl overflow-hidden h-full',
 		'bg-gradient-to-br from-blue-50/90 via-white/95 to-indigo-50/90',
-		'dark:from-blue-950/40 dark:via-gray-900/90 dark:to-indigo-950/40',
+		'dark:from-blue-950/40 dark:via-[#0a0a0a]/90 dark:to-indigo-950/40',
 		'shadow-lg hover:shadow-xl',
 		'ring-1 ring-blue-200/50 dark:ring-blue-800/50 hover:ring-blue-300/70 dark:hover:ring-blue-700/70',
 		className
@@ -132,7 +132,7 @@ export function SponsorCard({
 		<Link href={detailPath} className="block">
 			<Card className={cardClassName}>
 				{/* Background pattern */}
-				<div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-white/90 to-indigo-50/80 dark:from-blue-950/60 dark:via-gray-900/80 dark:to-indigo-950/80 transition-all duration-700" />
+				<div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-white/90 to-indigo-50/80 dark:from-blue-950/60 dark:via-[#0a0a0a]/80 dark:to-indigo-950/80 transition-all duration-700" />
 				<div
 					className="absolute inset-0 opacity-5 dark:opacity-10"
 					style={{
@@ -185,7 +185,7 @@ export function SponsorCard({
 						{/* Category - styled to match regular Item cards using theme colors */}
 						{categoryName && (
 							<div className="mb-2">
-								<span className="inline-block bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-gradient-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border border-theme-primary-10 dark:border-gray-600/30 capitalize shadow-sm">
+								<span className="inline-block bg-theme-primary-10 px-3 py-2 text-xs font-semibold rounded-full bg-gradient-to-r from-theme-primary-100 to-theme-primary-100 text-theme-primary dark:from-theme-primary-900/30 dark:to-theme-primary-900/30 dark:text-theme-primary border border-theme-primary-10 dark:border-white/4 capitalize shadow-sm">
 									{categoryName}
 								</span>
 							</div>
@@ -227,7 +227,7 @@ export function SponsorCard({
 											'w-1.5 h-1.5 rounded-full transition-all duration-300',
 											idx === currentIndex
 												? 'bg-blue-500 w-4'
-												: 'bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500'
+												: 'bg-gray-300 dark:bg-white/1 hover:bg-gray-400 dark:hover:bg-white/8'
 										)}
 										aria-label={`Show sponsor ${idx + 1}`}
 									/>

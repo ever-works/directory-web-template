@@ -10,7 +10,7 @@ export default function LocationSettingsPage() {
 	const t = useTranslations('settings.LOCATION_SETTINGS');
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
+		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-8 py-8">
 					{/* Back link */}

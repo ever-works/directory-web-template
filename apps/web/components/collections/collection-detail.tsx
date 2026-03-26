@@ -53,7 +53,7 @@ const LAYOUT_STYLES = {
 
 // Sticky container styles reused from the default Home Two layout
 const STICKY_CONTAINER_BASE = "sticky top-12 z-20 transition-[background-color,box-shadow,border-color] duration-200 ease-in-out rounded-lg";
-const STICKY_CONTAINER_ACTIVE = `${STICKY_CONTAINER_BASE} bg-white/95 dark:bg-gray-800/95 shadow-md backdrop-blur-xs border border-gray-100 dark:border-gray-700/50 px-4 py-3`;
+const STICKY_CONTAINER_ACTIVE = `${STICKY_CONTAINER_BASE} bg-white/95 dark:bg-white/5 shadow-md backdrop-blur-xs border border-gray-100 dark:border-white/6 px-4 py-3`;
 const STICKY_CONTAINER_INACTIVE = `${STICKY_CONTAINER_BASE} bg-transparent`;
 
 // Filter layout styles adapted from HomeTwoFilters without categories
@@ -221,7 +221,7 @@ function CollectionHomeTwoFilters({ tags, totalCount, filteredCount, searchEnabl
         </div>
       </div>
 
-      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-gray-800">
+      <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-white/6">
         <div className="text-sm text-gray-600 dark:text-gray-400">
           {filteredCount !== undefined && totalCount !== undefined ? (
             filteredCount === totalCount ? (

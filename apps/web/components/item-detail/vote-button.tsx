@@ -40,7 +40,7 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 				// Base styles
 				isVoted
 					? 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 dark:from-theme-primary-600 dark:to-theme-primary-700 text-white border-theme-primary-400 dark:border-theme-primary-500 shadow-theme-primary-500/10 dark:shadow-theme-primary-500/20 focus:ring-theme-primary-500'
-					: 'bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-theme-primary-50/50 dark:hover:bg-theme-primary-900/20 focus:ring-theme-primary-500',
+					: 'bg-white/95 dark:bg-white/4 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-white/1 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 hover:bg-theme-primary-50/50 dark:hover:bg-theme-primary-900/20 focus:ring-theme-primary-500',
 				isLoading && 'cursor-not-allowed opacity-60 pointer-events-none',
 				className
 			)}
@@ -97,7 +97,7 @@ export function VoteButton({ itemId, className }: VoteButtonProps) {
 
 			{/* Loading spinner */}
 			{isLoading && (
-				<div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-lg z-20">
+				<div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-[#0a0a0a]/80 rounded-lg z-20">
 					<div className="w-4 h-4 border-2 border-theme-primary-500 border-t-transparent rounded-full animate-spin" />
 				</div>
 			)}

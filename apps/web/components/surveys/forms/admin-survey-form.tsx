@@ -160,7 +160,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 					type="text"
 					value={formData.title}
 					onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-					className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+					className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 					placeholder={t('ENTER_SURVEY_TITLE')}
 					disabled={isLoading}
 					required
@@ -176,7 +176,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 					id="survey-description"
 					value={formData.description}
 					onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-					className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+					className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
 					rows={3}
 					placeholder={t('ENTER_SURVEY_DESCRIPTION')}
 					disabled={isLoading}
@@ -201,7 +201,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 								itemId: newType === SurveyTypeEnum.GLOBAL ? '' : prev.itemId
 							}));
 						}}
-						className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+						className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 						disabled={isLoading || mode === 'edit'}
 					>
 						<option value={SurveyTypeEnum.GLOBAL}>{t('GLOBAL_SURVEY')}</option>
@@ -223,7 +223,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 						id="survey-status"
 						value={formData.status}
 						onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as SurveyStatusEnum }))}
-						className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+						className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
 						disabled={isLoading}
 					>
 						<option value={SurveyStatusEnum.DRAFT}> {tCommon('DRAFT')}</option>
@@ -297,7 +297,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 					id="survey-json"
 					value={jsonInput}
 					onChange={(e) => handleJsonChange(e.target.value)}
-					className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm ${jsonError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+					className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm ${jsonError ? 'border-red-500' : 'border-gray-300 dark:border-white/8'
 						}`}
 					rows={12}
 					placeholder='{"title": "My Survey", "pages": [...]}'
@@ -338,7 +338,7 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 			</div>
 
 			{/* Actions */}
-			<div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+			<div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/6">
 				<Button
 					type="button"
 					variant="outline"

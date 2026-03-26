@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useFavorites } from '@/hooks/use-favorites';
 import { cn } from '@/lib/utils';
 import { Heart, Star } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { useLoginModal } from '@/hooks/use-login-modal';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 
@@ -34,7 +34,7 @@ export function FavoriteButton({
 	hideIndicatorInSimilarProducts: _hideIndicatorInSimilarProducts = false
 }: FavoriteButtonProps) {
 	// All hooks must be called before any early returns
-	const { data: session } = useSession();
+	const { user } = useCurrentUser();
 	const { features, isPending: isFeaturesLoading, isSimulationActive } = useFeatureFlagsWithSimulation();
 	const { isFavorited, toggleFavorite, isAdding, isRemoving } = useFavorites();
 	const [isHovered, setIsHovered] = useState(false);
@@ -57,7 +57,7 @@ export function FavoriteButton({
 		e.preventDefault();
 		e.stopPropagation();
 
-		if (!session?.user?.id) {
+		if (!user?.id) {
 			loginModal.onOpen('Please sign in to add favorites');
 			return;
 		}
@@ -77,16 +77,9 @@ export function FavoriteButton({
 	};
 
 	const iconSizes = {
-		sm: 'w-4 h-4',
-		md: 'w-5 h-5',
-		lg: 'w-5 h-5'
-	};
-
-	const positionClasses = {
-		'top-right': 'top-2 right-2',
-		'top-left': 'top-2 left-2',
-		'bottom-right': 'bottom-2 right-2',
-		'bottom-left': 'bottom-2 left-2'
+		sm: 'w-3 h-3',
+		md: 'w-4 h-4',
+		lg: 'w-4 h-4'
 	};
 
 	const IconComponent = variant === 'star' ? Star : Heart;
@@ -98,14 +91,11 @@ export function FavoriteButton({
 			onMouseLeave={() => setIsHovered(false)}
 			disabled={isLoading}
 			className={cn(
-				'group relative flex items-center justify-center rounded-md transition-all duration-300 ease-out',
-				'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs border border-gray-200/50 dark:border-gray-700/50',
-				'hover:bg-white dark:hover:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600',
-				'shadow-xs hover:shadow-md active:scale-95',
-				'focus:outline-hidden focus:ring-2 focus:ring-blue-500/50 focus:ring-offset-2 dark:focus:ring-offset-gray-900',
+				'group relative flex items-center justify-center transition-all duration-300 ease-out',
+				'shadow-0 active:scale-95',
 				'disabled:opacity-50 disabled:cursor-not-allowed',
 				variant === 'star' && sizeClasses[size],
-				variant === 'star' && positionClasses[position],
+				// variant === 'star' && positionClasses[position],
 				className
 			)}
 			aria-label={isFav ? `Remove ${itemName} from favorites` : `Add ${itemName} to favorites`}
@@ -117,7 +107,7 @@ export function FavoriteButton({
 						'absolute inset-0 rounded-full transition-all duration-300',
 						isFav
 							? 'bg-linear-to-r from-yellow-400/20 to-orange-500/20 dark:from-yellow-400/30 dark:to-orange-500/30'
-							: 'bg-linear-to-r from-gray-400/10 to-gray-500/10 dark:from-gray-400/20 dark:to-gray-500/20',
+							: 'bg-linear-to-r from-gray-400/10 to-gray-500/10 dark:from-white/4 dark:to-white/6',
 						isHovered && isFav && 'scale-110 opacity-100',
 						isHovered && !isFav && 'scale-105 opacity-80'
 					)}
@@ -155,7 +145,7 @@ export function FavoriteButton({
 						isFav
 							? 'text-gray-700 dark:text-gray-200'
 							: 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200'
-						)}
+					)}
 				>
 					{isFav ? 'Favorited' : 'Favorite'}
 				</span>
@@ -165,7 +155,7 @@ export function FavoriteButton({
 			{variant === 'heart' && (
 				<div
 					className={cn(
-						'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-gray-800 rounded-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10',
+						'absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-900 dark:bg-white/5 rounded-sm shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10',
 						'after:absolute after:top-full after:left-1/2 after:transform after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-gray-900 dark:after:border-t-gray-800'
 					)}
 				>

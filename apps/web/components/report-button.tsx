@@ -11,17 +11,17 @@ const BUTTON_CLASS =
 const MODAL_OVERLAY_CLASS =
 	"fixed inset-0 w-screen h-screen flex items-center justify-center bg-black/50 backdrop-blur-sm z-50";
 const MODAL_CONTAINER_CLASS =
-	"bg-white dark:bg-gray-900 rounded-xl shadow-lg p-6 w-full max-w-md relative border border-gray-200 dark:border-gray-800 mx-4";
+	"bg-white dark:bg-white/3 rounded-xl shadow-lg p-6 w-full max-w-md relative border border-gray-200 dark:border-white/6 mx-4";
 const CONFIRM_OVERLAY_CLASS =
 	"fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-xs animate-fade-in";
 const CONFIRM_CONTAINER_CLASS =
 	"flex flex-col items-center gap-3 bg-green-500 text-white px-8 py-6 rounded-2xl shadow-2xl";
 const DROPDOWN_BUTTON_CLASS =
-	"relative w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-300 dark:border-gray-600/50 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:border-gray-400 dark:hover:border-gray-500/50 disabled:opacity-50 disabled:cursor-not-allowed";
+	"relative w-full px-4 py-2.5 bg-gray-50 dark:bg-white/3 border border-gray-300 dark:border-white/6 rounded-lg text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 transition-all hover:bg-gray-100 dark:hover:bg-white/3 hover:border-gray-400 dark:hover:border-white/6 disabled:opacity-50 disabled:cursor-not-allowed";
 const DROPDOWN_MENU_CLASS =
-	"absolute left-0 right-0 mt-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-10";
+	"absolute left-0 right-0 mt-2 bg-white dark:bg-white/3 border border-gray-200 dark:border-white/6 rounded-lg shadow-lg overflow-hidden z-10";
 const INPUT_CLASS =
-	"block w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:border-transparent transition";
+	"block w-full rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-gray-100 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-red-500 dark:focus:ring-red-400 focus:border-transparent transition";
 const SUBMIT_BUTTON_CLASS =
 	"w-full bg-red-600 text-white py-2.5 rounded-lg font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed";
 
@@ -174,7 +174,7 @@ const ReportButton: React.FC<ReportButtonProps> = ({ contentType, contentId, cla
 											<button
 												key={option.value}
 												type="button"
-												className="relative flex items-center justify-between w-full px-3 py-2 text-sm text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+												className="relative flex items-center justify-between w-full px-3 py-2 text-sm text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-colors hover:bg-gray-100 dark:hover:bg-white/6"
 												onClick={() => {
 													setReason(option.value);
 													setDropdownOpen(false);

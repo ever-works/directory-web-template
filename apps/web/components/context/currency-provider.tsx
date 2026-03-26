@@ -10,12 +10,15 @@ interface CurrencyContextType {
 	updateCurrency: (currency: string, options?: UpdateCurrencyOptions) => void;
 }
 
+const DEFAULT_CURRENCY_CONTEXT: CurrencyContextType = {
+	currency: 'USD',
+	country: null,
+	isLoading: false,
+	updateCurrency: () => undefined
+};
+
 const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
-/**
- * Currency Provider
- * Provides currency context to the entire application
- */
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 	const { currency, country, isLoading, updateCurrency } = useCurrency();
 	return (
@@ -32,9 +35,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
 	);
 }
 
-/**
- * Hook to use currency context
- */
+export function useOptionalCurrencyContext(): CurrencyContextType {
+	return useContext(CurrencyContext) ?? DEFAULT_CURRENCY_CONTEXT;
+}
+
 export function useCurrencyContext(): CurrencyContextType {
 	const context = useContext(CurrencyContext);
 	if (context === undefined) {

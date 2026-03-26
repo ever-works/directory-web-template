@@ -68,7 +68,7 @@ export function DeletePaymentMethodModal({ isOpen, onClose, paymentMethod, isDef
 						</div>
 					)}
 
-					<div className="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+					<div className="bg-gray-50 dark:bg-white/4 border border-gray-200 dark:border-white/6 rounded-lg p-3">
 						<h4 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">
 							{t('DELETE_CONSEQUENCES')}
 						</h4>

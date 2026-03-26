@@ -88,7 +88,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 
 	if (isLoading) {
 		return (
-			<div className="flex items-center justify-center h-[500px] bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+			<div className="flex items-center justify-center h-[500px] bg-gray-50 dark:bg-white/3 rounded-xl">
 				<Loader2 className="w-8 h-8 animate-spin text-gray-400" />
 			</div>
 		);
@@ -96,7 +96,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 
 	if (markers.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-gray-900/50 rounded-xl">
+			<div className="flex flex-col items-center justify-center h-[400px] bg-gray-50 dark:bg-white/3 rounded-xl">
 				<MapPin className="w-12 h-12 text-gray-400 mb-3" />
 				<p className="text-sm text-gray-500 dark:text-gray-400">
 					{t('MAP_NO_LOCATION_DATA')}
@@ -118,7 +118,7 @@ export default function LayoutMap({ items }: LayoutMapProps) {
 			/>
 
 			{/* Item count overlay */}
-			<div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xs px-3 py-1.5 rounded-full shadow-md text-sm font-medium text-gray-700 dark:text-gray-200">
+			<div className="absolute top-4 left-4 z-10 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-xs px-3 py-1.5 rounded-full shadow-md text-sm font-medium text-gray-700 dark:text-gray-200">
 				{t(markers.length === 1 ? 'MAP_ITEM_WITH_LOCATION' : 'MAP_ITEMS_WITH_LOCATION', { count: markers.length })}
 			</div>
 

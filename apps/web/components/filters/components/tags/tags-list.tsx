@@ -20,7 +20,7 @@ const SCROLL_CONTAINER_STYLES = clsx(
 
 const SCROLL_FADE_LEFT = clsx(
   "absolute left-0 top-0 bottom-2 w-12 pointer-events-none z-5",
-  "dark:from-gray-900 dark:via-gray-900/80",
+  "dark:from-[rgba(10,10,10,1)] dark:via-[rgba(10,10,10,0.8)]",
   "transition-opacity duration-300"
 );
 
@@ -37,9 +37,9 @@ const STICKY_LEFT_STYLES = clsx(
 
 // Navigation button styles for scroll buttons
 const NAV_BUTTON_STYLES = clsx(
-  "h-8 w-8 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center",
-  "border border-gray-200 dark:border-gray-700 shadow-md hover:shadow-lg",
-  "hover:bg-gray-50 dark:hover:bg-gray-700 transition-[background-color,box-shadow] duration-200",
+  "h-8 w-8 rounded-full bg-white dark:bg-[#161616] flex items-center justify-center",
+  "border border-gray-200 dark:border-white/6 shadow-md hover:shadow-lg",
+  "hover:bg-gray-50 dark:hover:bg-white/6 transition-[background-color,box-shadow] duration-200",
   "focus:outline-none focus:ring-0 focus:ring-offset-0",
   "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
   "active:outline-none active:ring-0",
@@ -124,7 +124,7 @@ export function TagsList({
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [hiddenTags, setHiddenTags] = useState<Tag[]>([]);
   const [isMorePopoverOpen, setIsMorePopoverOpen] = useState(false);
-  const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0 });
+  const [popoverPosition, setPopoverPosition] = useState<{ top: number; left: number } | null>(null);
   
   // Refs for scroll container and tag elements
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -370,6 +370,13 @@ export function TagsList({
     };
   }, [isMorePopoverOpen]);
 
+  // Keep popover hidden until we compute a position to avoid flashing at 0,0
+  useEffect(() => {
+    if (!isMorePopoverOpen) {
+      setPopoverPosition(null);
+    }
+  }, [isMorePopoverOpen]);
+
   // Render a single tag (button for filter, link for navigation)
   const renderTag = useCallback((tag: Tag, index: number, inPopover = false) => {
     const tagBasePath = basePath
@@ -412,8 +419,8 @@ export function TagsList({
             cn(
               "px-2 py-1 h-8 font-medium transition-all duration-200 shrink-0 overflow-hidden whitespace-nowrap",
               isActive
-                ? "bg-theme-primary-500 dark:bg-theme-primary-600 text-white border border-theme-primary-700 dark:border-theme-primary-700"
-                : "bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-900/20 dark:text-theme-primary-300 hover:bg-theme-primary-100 hover:border-theme-primary-200 dark:hover:border-theme-primary-600 border border-theme-primary-200 dark:border-theme-primary-700/30",
+                ? "bg-[#0a0a0a] text-white/90 border !border-[#0a0a0a] dark:bg-white/20 dark:border-white/40"
+                : "bg-white dark:bg-white/4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/8 hover:bg-gray-100 dark:hover:bg-white/6 hover:text-gray-900 dark:group-hover:text-white hover:border-gray-300 dark:hover:border-white/[0.15]",
               inPopover ? "w-full justify-between" : "min-w-0 max-w-[140px]"
             )
           )}
@@ -443,7 +450,7 @@ export function TagsList({
               "text-xs font-medium transition-all duration-300 truncate",
               isActive
                 ? "text-white tracking-wide"
-                : "text-gray-700 dark:text-gray-300 group-hover:text-theme-primary dark:group-hover:text-theme-primary"
+                : "text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white"
             )}
             data-tag-label
           >
@@ -453,8 +460,8 @@ export function TagsList({
             <span
               className={cn(
                 "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
-                isActive ? "bg-white/20 text-white" 
-                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
+                isActive ? "bg-white/20 text-white dark:text-white/70 px-1" 
+                : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
               )}
             >
               {tag.count}
@@ -509,15 +516,16 @@ export function TagsList({
                     className={getButtonVariantStyles(
                       isAllTagsActive,
                       cn(
-                        "px-3 py-1 h-8 font-medium transition-all duration-300 shrink-0 group capitalize focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900 dark:bg-[#182131] bg-white",
-                        isAllTagsActive && "bg-theme-primary-500! text-white! border-theme-primary-500!"
+                        "px-3 py-1 h-8 ro font-medium transition-all duration-300 shrink-0 group capitalize focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
+                        isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white",
+                        !isAllTagsActive && "bg-gray-100 dark:bg-[#161616] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                       )
                     )}
                     onClick={() => setSelectedTags([])}
                   >
                   {isAllTagsActive && (
                     <svg
-                      className="w-3 h-3 mr-1.5 text-white"
+                      className="w-3 h-3 mr-1.5 text-white dark:text-gray-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -535,8 +543,8 @@ export function TagsList({
                     className={cn(
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
+                        ? "bg-gray-400 text-white dark:text-[rgba(10,10,10,0.7)]"
+                        : "bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}
                   >
                     {allItemsCount ?? tags.length}
@@ -554,13 +562,13 @@ export function TagsList({
                     isAllTagsActive,
                     cn(
                       "px-3 py-1 h-8 font-medium transition-all duration-300 shrink-0 group capitalize focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
-                      isAllTagsActive && "bg-theme-primary-500! text-white! border-theme-primary-500!"
+                      isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
                     )
                   )}
                 >
                   {isAllTagsActive && (
                     <svg
-                      className="w-3 h-3 mr-1.5 text-white"
+                      className="w-3 h-3 mr-1.5 text-white dark:text-gray-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -578,8 +586,8 @@ export function TagsList({
                     className={cn(
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
                       isAllTagsActive
-                        ? "bg-white/20 text-white"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 group-hover:bg-theme-primary-200 dark:group-hover:bg-theme-primary-900/30 group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400"
+                        ? "bg-gray-400 text-white dark:text-[#0a0a0a]"
+                        : "bg-gray-100 dark:bg-[#161616] text-gray-600 dark:text-gray-300 group-hover:bg-gray-200 dark:group-hover:bg-white/1 group-hover:text-gray-900 dark:group-hover:text-white"
                     )}
                   >
                     {allItemsCount ?? tags.length}
@@ -607,7 +615,7 @@ export function TagsList({
             
             {/* "+N more" button with Right Navigation Button */}
             {hiddenTags.length > 0 && (
-              <div className="sticky right-0 shrink-0 pl-0 flex items-center gap-1 bg-white/10 dark:bg-[#172030]/10 backdrop-blur-sm rounded-l-full">
+              <div className="sticky right-0 shrink-0 pl-0 flex items-center gap-1 bg-white dark:bg-[#0a0a0a] rounded-l-full">
                 <ScrollButton
                   ref={rightButtonRef}
                   direction="right"
@@ -617,7 +625,7 @@ export function TagsList({
                 />
                 <Button
                   ref={triggerButtonRef}
-                  className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-theme-primary-500 hover:bg-theme-primary-600 dark:bg-theme-primary-500 dark:hover:bg-theme-primary-600 text-white border border-theme-primary-600 shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
+                  className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/6 shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
                   onClick={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   aria-label={`Show ${hiddenTags.length} more ${hiddenTags.length === 1 ? 'tag' : 'tags'}`}
@@ -649,19 +657,19 @@ export function TagsList({
           </div>
           
           {/* Popover Content - Portal Rendered */}
-          {isMorePopoverOpen && hiddenTags.length > 0 && (portalTarget || (typeof document !== 'undefined' ? document.body : null)) && ReactDOM.createPortal(
+          {popoverPosition && isMorePopoverOpen && hiddenTags.length > 0 && (portalTarget || (typeof document !== 'undefined' ? document.body : null)) && ReactDOM.createPortal(
             <div
               ref={morePopoverRef}
-              className="fixed w-52 p-2 rounded-lg bg-white dark:bg-[#0b111f] shadow-lg border border-gray-100 dark:border-gray-700/50 z-50"
+              className="fixed w-52 p-2 rounded-lg bg-white dark:bg-[#0a0a0a] shadow-lg border border-gray-100 dark:border-white/6 z-50"
               style={{
-                top: `${popoverPosition.top}px`,
-                left: `${popoverPosition.left}px`,
+                top: `${popoverPosition!.top}px`,
+                left: `${popoverPosition!.left}px`,
               }}
             >
               <div className="space-y-2">
-                <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-gray-700/50 flex items-center gap-1.5 uppercase">
+                <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-white/6 flex items-center gap-1.5 uppercase">
                   {tCommon("MORE")} Tags
-                  <span className="text-xs bg-gray-100 dark:bg-gray-700 rounded-sm px-1.5 py-0.5">
+                  <span className="text-xs bg-gray-100 dark:bg-white/8 rounded-sm px-1.5 py-0.5">
                     {hiddenTags.length}
                   </span>
                 </h3>
@@ -678,8 +686,7 @@ export function TagsList({
       )}
 
       {showAllTags && (
-        <div className="w-full flex flex-wrap gap-2 max-h-[110dvh] overflow-y-auto scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 -mr-4 [&::-webkit-scrollbar]:w-1"
-        style={{ scrollbarWidth: "thin" }}
+        <div className="w-full flex flex-wrap gap-2 max-h-[85dvh] overflow-y-auto  scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
         >
           {/* All Tags Button */}
           {setSelectedTags ? (
@@ -691,7 +698,7 @@ export function TagsList({
                 isAllTagsActive,
                 cn(
                   "px-3 py-1 h-8 font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
-                  isAllTagsActive && "bg-theme-primary-500! text-white! border-theme-primary-500!"
+                  isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
                 )
               )}
               onClick={() => setSelectedTags([])}
@@ -716,8 +723,8 @@ export function TagsList({
                 className={cn(
                   "ml-1.5 text-xs font-normal",
                   isAllTagsActive
-                    ? "text-white"
-                    : "text-dark-500 dark:text-dark-400"
+                    ? "bg-white/20 text-white dark:bg-black/10 dark:text-[#0a0a0a] px-1 rounded-md"
+                    : "text-gray-700 dark:text-gray-300"
                 )}
               >
                 ({allItemsCount ?? tags.length})
@@ -735,7 +742,7 @@ export function TagsList({
                 isAllTagsActive,
                 cn(
                   "px-3 py-1 h-8 font-medium transition-all duration-200 focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900",
-                  isAllTagsActive && "bg-theme-primary-500! text-white! border-theme-primary-500!"
+                  isAllTagsActive && "bg-[#0a0a0a] text-white border border-[#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
                 )
               )}
             >
@@ -759,8 +766,8 @@ export function TagsList({
                 className={cn(
                   "ml-1.5 text-xs font-normal",
                   isAllTagsActive
-                    ? "text-white"
-                    : "text-dark-500 dark:text-dark-400"
+                    ? "bg-white/20 text-white dark:bg-black/10 dark:text-[#0a0a0a] px-1 rounded-md"
+                    : "text-gray-700 dark:text-gray-300"
                 )}
               >
                 ({allItemsCount ?? tags.length})

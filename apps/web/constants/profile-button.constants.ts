@@ -62,13 +62,13 @@ export const MENU_CONTAINER_BASE = [
 export const MENU_STYLES = {
 	CONTAINER: {
 		base: [...MENU_CONTAINER_BASE, 'focus:outline-hidden'],
-		background: ['bg-white/95', 'dark:bg-gray-900/95', 'backdrop-blur-xl'],
+		background: ['bg-white', 'dark:bg-[#141414]', 'backdrop-blur-xl'],
 		border: ['ring-1', 'ring-black/5', 'dark:ring-white/10'],
 		animation: ['animate-in', 'slide-in-from-top-2', 'duration-300']
 	},
 	LOADING_FALLBACK: {
 		base: [...MENU_CONTAINER_BASE, 'animate-pulse'],
-		background: ['bg-white/95', 'dark:bg-gray-900/95', 'backdrop-blur-xl'],
+		background: ['bg-white', 'dark:bg-[#141414]', 'backdrop-blur-xl'],
 		border: ['ring-1', 'ring-black/5', 'dark:ring-white/10']
 	},
 	BUTTON: {
@@ -96,9 +96,9 @@ export const MENU_STYLES = {
 			'from-slate-200',
 			'via-slate-300',
 			'to-slate-400',
-			'dark:from-slate-700',
-			'dark:via-slate-600',
-			'dark:to-slate-500',
+			'dark:from-white/6',
+			'dark:via-white/6',
+			'dark:to-white/1',
 			'rounded-full',
 			'animate-pulse',
 			'shadow-lg'
@@ -124,7 +124,7 @@ export const MENU_STYLES = {
 			'rounded-full',
 			'border-2',
 			'border-white',
-			'dark:border-gray-800',
+			'dark:border-white/6',
 			'shadow-xs'
 		],
 		adminBadge: [

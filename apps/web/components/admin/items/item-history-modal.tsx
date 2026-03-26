@@ -27,9 +27,9 @@ import { cn } from '@/lib/utils';
 // ===================== Constants =====================
 
 const MODAL_OVERLAY = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-gray-900 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
+const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
 const MODAL_HEADER = 'bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 shrink-0';
-const MODAL_BODY = 'p-6 overflow-y-auto flex-1';
+const MODAL_BODY = 'p-6 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 flex-1';
 
 const ACTION_CONFIG: Record<
 	ItemAuditActionValues,
@@ -242,7 +242,7 @@ function HistoryEntry({ entry }: { entry: ItemAuditLogEntry }) {
 
 				{/* Expanded changes */}
 				{expanded && hasChanges && (
-					<div className="mt-2 pl-2 border-l-2 border-gray-200 dark:border-gray-700 space-y-1">
+					<div className="mt-2 pl-2 border-l-2 border-gray-200 dark:border-white/6 space-y-1">
 						{changes.map(([field, { old, new: newVal }]) => (
 							<ChangeItem key={field} field={field} old={old} newValue={newVal} />
 						))}
@@ -306,7 +306,7 @@ function ActionFilterSelect({
 			>
 				<Select.Trigger
 					className={cn(
-						'flex h-9 w-[200px] items-center justify-between rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm',
+						'flex h-9 w-[200px] items-center justify-between rounded-md border border-gray-200 dark:border-white/6 bg-white dark:bg-white/5 px-3 py-2 text-sm',
 						'focus:outline-none focus:ring-2 focus:ring-blue-500',
 						'disabled:cursor-not-allowed disabled:opacity-50'
 					)}
@@ -321,14 +321,14 @@ function ActionFilterSelect({
 				</Select.Trigger>
 				<Select.Portal>
 					<Select.Content
-						className="overflow-hidden bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50"
+						className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
 						position="popper"
 						sideOffset={4}
 					>
 						<Select.Viewport className="p-1">
 							<Select.Item
 								value="all"
-								className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+								className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
 							>
 								<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 									<Check className="h-4 w-4" />
@@ -339,7 +339,7 @@ function ActionFilterSelect({
 								<Select.Item
 									key={action}
 									value={action}
-									className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+									className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
 								>
 									<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 										<Check className="h-4 w-4" />
@@ -464,7 +464,7 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 
 					{/* History List */}
 					{!isLoading && !isError && data && data.logs.length > 0 && (
-						<div className="divide-y divide-gray-100 dark:divide-gray-800">
+						<div className="divide-y divide-gray-100 dark:divide-white/6">
 							{data.logs.map((entry) => (
 								<HistoryEntry key={entry.id} entry={entry} />
 							))}
@@ -474,7 +474,7 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 
 				{/* Pagination Footer */}
 				{data && data.totalPages > 1 && (
-					<div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 shrink-0">
+					<div className="px-6 py-4 border-t border-gray-100 dark:border-white/6 bg-gray-50 dark:bg-white/3 shrink-0">
 						<UniversalPagination
 							page={page}
 							totalPages={data.totalPages}

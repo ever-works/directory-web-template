@@ -7,13 +7,13 @@ import type { GeoAnalyticsStats, CountryDistribution, CityDistribution, ServiceA
 
 // ===================== Style Constants =====================
 
-const CARD_STYLES = 'bg-white dark:bg-gray-900 rounded-xl shadow-xs border border-gray-200 dark:border-gray-700 p-4 md:p-6';
+const CARD_STYLES = 'bg-white dark:bg-[#0a0a0a] rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-4 md:p-6';
 const HEADER_STYLES = 'flex items-center justify-between mb-4';
 const TITLE_STYLES = 'text-sm font-semibold text-gray-900 dark:text-gray-100';
 const BADGE_BASE_STYLES = 'inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium';
 const BADGE_SYNCED_STYLES = 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
 const BADGE_OUT_OF_SYNC_STYLES = 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-const PROGRESS_TRACK_STYLES = 'w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden';
+const PROGRESS_TRACK_STYLES = 'w-full h-2 bg-gray-200 dark:bg-white/8 rounded-full overflow-hidden';
 const STAT_ITEM_STYLES = 'flex items-center gap-2 text-sm';
 const STAT_LABEL_STYLES = 'text-gray-600 dark:text-gray-400';
 const STAT_VALUE_STYLES = 'ml-auto font-medium text-gray-900 dark:text-gray-100';

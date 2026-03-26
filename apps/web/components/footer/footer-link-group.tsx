@@ -14,21 +14,20 @@ export function FooterLinkGroup({
   categoryLabel: string;
 }) {
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <h4 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+    <div className="space-y-3">
+      <h4 className="text-[10px] font-semibold uppercase tracking-widest text-gray-700 dark:text-white">
         {categoryLabel}
       </h4>
-      <ul className="space-y-2 sm:space-y-3">
+      <ul className="space-y-2">
         {links.map((link, _index) => (
           <li key={link.href}>
             <Link
               href={link.href}
               target={link.target}
               rel={link.rel || (link.isExternal ? "noopener noreferrer" : undefined)}
-              className="group inline-flex items-center text-gray-600 dark:text-gray-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-200 hover:translate-x-0.5"
+              className="group inline-flex items-center text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
             >
-              <span className="text-sm font-medium">{link.label}</span>
-              <div className="w-4 h-px bg-linear-to-r from-theme-primary-500 to-theme-primary-600 ml-2 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-200" />
+              <span className="text-xs">{link.label}</span>
               {link.isExternal && (
                 <svg
                   className="w-4 h-4 ml-1 opacity-70"

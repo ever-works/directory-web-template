@@ -2,7 +2,7 @@
 
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useSession } from 'next-auth/react';
+import { useCurrentUser } from '@/hooks/use-current-user';
 import { useCallback } from 'react';
 
 // Constants
@@ -82,9 +82,9 @@ async function fetchUserCurrency(): Promise<{ currency: string; country: string 
  *
  */
 export function useCurrency() {
-	const { data: session } = useSession();
+	const { user } = useCurrentUser();
 	const queryClient = useQueryClient();
-	const isAuthenticated = !!session?.user?.id;
+	const isAuthenticated = !!user?.id;
 
 	const {
 		data: currencyData,

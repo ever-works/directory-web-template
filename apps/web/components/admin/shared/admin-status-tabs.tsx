@@ -42,7 +42,7 @@ const TAB_INACTIVE_CLASSES = cn(
 
 const TAB_ACTIVE_CLASSES = cn(
 	TAB_BASE_CLASSES,
-	'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+	'bg-white dark:bg-white/8 text-gray-900 dark:text-white shadow-sm'
 );
 
 const SIZE_CLASSES = {
@@ -51,7 +51,7 @@ const SIZE_CLASSES = {
 } as const;
 
 const CONTAINER_CLASSES = cn(
-	'flex items-center gap-0.5 bg-gray-100/80 dark:bg-gray-800/80 rounded-lg p-0.5'
+	'flex items-center gap-0.5 bg-gray-100/80 dark:bg-white/5 rounded-lg p-0.5'
 );
 
 /**

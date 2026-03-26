@@ -295,12 +295,12 @@ export function LocationPicker({
 						disabled={isDisabled}
 						className={cn(
 							'w-full px-4 py-2.5 pl-10 rounded-lg border transition-colors',
-							'bg-white dark:bg-gray-800',
+							'bg-white dark:bg-white/5',
 							'text-gray-900 dark:text-white',
 							'placeholder-gray-400 dark:placeholder-gray-500',
 							errors?.address
 								? 'border-red-500 focus:ring-red-500'
-								: 'border-gray-300 dark:border-gray-600 focus:ring-blue-500',
+								: 'border-gray-300 dark:border-white/8 focus:ring-blue-500',
 							'focus:outline-none focus:ring-2 focus:border-transparent',
 							isDisabled && 'opacity-50 cursor-not-allowed'
 						)}
@@ -322,7 +322,7 @@ export function LocationPicker({
 				disabled={isDisabled || geoLoading || permission === 'denied'}
 				className={cn(
 					'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-colors',
-					'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600',
+					'bg-gray-100 dark:bg-white/8 hover:bg-gray-200 dark:hover:bg-white/6',
 					'text-gray-700 dark:text-gray-200',
 					(isDisabled || geoLoading || permission === 'denied') && 'opacity-50 cursor-not-allowed'
 				)}
@@ -337,10 +337,10 @@ export function LocationPicker({
 
 			{/* Map preview */}
 			{showMap && (
-				<div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+				<div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-white/6">
 					{isMapLoading && (
 						<div
-							className="absolute inset-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center z-10"
+							className="absolute inset-0 bg-gray-100 dark:bg-white/5 flex items-center justify-center z-10"
 							style={{ height: mapHeightStyle }}
 						>
 							<Loader2 className="w-6 h-6 animate-spin text-gray-400" />
@@ -348,7 +348,7 @@ export function LocationPicker({
 					)}
 					<div ref={mapContainerRef} style={{ height: mapHeightStyle }} className="w-full" />
 					{errors?.coordinates && (
-						<p className="absolute bottom-2 left-2 text-xs text-red-500 bg-white dark:bg-gray-800 px-2 py-1 rounded">
+						<p className="absolute bottom-2 left-2 text-xs text-red-500 bg-white dark:bg-white/5 px-2 py-1 rounded">
 							{errors.coordinates}
 						</p>
 					)}
@@ -374,12 +374,12 @@ export function LocationPicker({
 						disabled={isDisabled}
 						className={cn(
 							'w-full flex items-center justify-between px-4 py-2.5 rounded-lg border transition-colors',
-							'bg-white dark:bg-gray-800',
+							'bg-white dark:bg-white/5',
 							'text-gray-900 dark:text-white',
 							errors?.serviceArea
 								? 'border-red-500'
-								: 'border-gray-300 dark:border-gray-600',
-							'hover:bg-gray-50 dark:hover:bg-gray-700',
+								: 'border-gray-300 dark:border-white/8',
+							'hover:bg-gray-50 dark:hover:bg-white/6',
 							isDisabled && 'opacity-50 cursor-not-allowed'
 						)}
 					>
@@ -399,7 +399,7 @@ export function LocationPicker({
 					</button>
 
 					{isServiceAreaOpen && (
-						<div className="absolute z-20 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+						<div className="absolute z-20 w-full mt-1 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-lg shadow-lg">
 							{SERVICE_AREA_OPTIONS.map((option) => (
 								<button
 									key={option.value}
@@ -407,7 +407,7 @@ export function LocationPicker({
 									onClick={() => handleServiceAreaChange(option.value)}
 									className={cn(
 										'w-full flex items-center justify-between px-4 py-2.5 text-left',
-										'hover:bg-gray-100 dark:hover:bg-gray-700',
+										'hover:bg-gray-100 dark:hover:bg-white/6',
 										'text-gray-900 dark:text-white',
 										option.value === value?.serviceArea && 'bg-blue-50 dark:bg-blue-900/20'
 									)}
@@ -435,7 +435,7 @@ export function LocationPicker({
 						onChange={handleRemoteChange}
 						disabled={isDisabled}
 						className={cn(
-							'w-5 h-5 rounded border-gray-300 dark:border-gray-600',
+							'w-5 h-5 rounded border-gray-300 dark:border-white/8',
 							'text-blue-600 focus:ring-blue-500',
 							isDisabled && 'opacity-50 cursor-not-allowed'
 						)}
