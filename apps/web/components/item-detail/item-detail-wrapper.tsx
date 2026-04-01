@@ -3,6 +3,7 @@
 import { SponsorAdsProvider } from '@/components/sponsor-ads';
 import { ItemDetail, ItemDetailProps } from './item-detail';
 import { DotBgsible } from '@/components/shared/decorative-bg';
+import { FilterProvider } from '@/components/filters/context/filter-context';
 
 /**
  * Client wrapper component for ItemDetail that provides sponsor ads context.
@@ -11,12 +12,14 @@ import { DotBgsible } from '@/components/shared/decorative-bg';
  */
 export function ItemDetailWrapper(props: ItemDetailProps) {
 	return (
-		<div className="relative">
-			<DotBgsible reverse />
-				<SponsorAdsProvider limit={5}>
-					<ItemDetail {...props} />
-				</SponsorAdsProvider>
-			<DotBgsible />
-		</div>
+		<FilterProvider>
+			<div className="relative">
+				<DotBgsible reverse />
+					<SponsorAdsProvider limit={5}>
+						<ItemDetail {...props} />
+					</SponsorAdsProvider>
+				<DotBgsible />
+			</div>
+		</FilterProvider>
 	);
 }
