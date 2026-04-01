@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { QueryClient, QueryClientProvider as ReactQueryClientProvider, dehydrate } from '@tanstack/react-query';
+import { QueryClientProvider as ReactQueryClientProvider, dehydrate } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { getQueryClient } from '@/lib/query-client';
 
@@ -11,25 +11,28 @@ interface QueryProviderProps {
 }
 
 export function QueryClientProvider({ children, dehydratedState }: QueryProviderProps) {
-  const queryClientRef = React.useRef<QueryClient>(getQueryClient() || new QueryClient());
-  
-  if (!queryClientRef.current) {
-    queryClientRef.current = getQueryClient();
+  // Use useState to ensure the query client is only created once on the client
+  // and a new one is created for each request on the server.
+  const [queryClient] = React.useState(() => {
+    const client = getQueryClient();
     
-    if (dehydratedState) {
-      queryClientRef.current.setDefaultOptions({
+    // Apply dehydrated state if provided during initialization
+    if (dehydratedState && client) {
+      client.setDefaultOptions({
         queries: {
-          ...queryClientRef.current.getDefaultOptions().queries,
+          ...client.getDefaultOptions().queries,
           initialData: () => {
             return typeof dehydratedState === 'object' ? dehydratedState : undefined;
           },
         },
       });
     }
-  }
+    
+    return client;
+  });
 
   return (
-    <ReactQueryClientProvider client={queryClientRef.current}>
+    <ReactQueryClientProvider client={queryClient}>
       {children}
       {process.env.NODE_ENV === 'development' && <ReactQueryDevtools initialIsOpen={false} />}
     </ReactQueryClientProvider>

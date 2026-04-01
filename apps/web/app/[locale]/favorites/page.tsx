@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import { Container } from '@/components/ui/container';
 import { FavoritesClient } from '@/components/favorites/favorites-client';
+import { FilterProvider } from '@/components/filters/context/filter-context';
 import { getTranslations } from 'next-intl/server';
 import { getCachedItems } from '@/lib/content';
 import { requireAuth } from '@/lib/auth/guards';
@@ -45,15 +46,17 @@ export default async function FavoritesPage({
           </div>
 
           {/* Favorites Grid */}
-          <Suspense fallback={<FavoritesSkeleton />}>
-            <FavoritesClient 
-              items={items}
-              categories={categories}
-              total={total}
-              tags={tags}
-              basePath={`/`}
-            />
-          </Suspense>
+          <FilterProvider>
+            <Suspense fallback={<FavoritesSkeleton />}>
+              <FavoritesClient 
+                items={items}
+                categories={categories}
+                total={total}
+                tags={tags}
+                basePath={`/`}
+              />
+            </Suspense>
+          </FilterProvider>
         </div>
       </Container>
     </div>
