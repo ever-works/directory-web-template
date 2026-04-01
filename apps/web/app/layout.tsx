@@ -6,7 +6,17 @@ import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-
 import { cleanUrl } from '@/lib/utils/url-cleaner';
 import { getLocale } from 'next-intl/server';
 import { RTL_LOCALES, type Locale } from '@/lib/constants';
-import { getFontClassNames } from './fonts';
+import { Geist, Geist_Mono } from 'next/font/google';
+
+const geistSans = Geist({
+    variable: '--font-geist-sans',
+    subsets: ['latin'],
+});
+
+const geistMono = Geist_Mono({
+    variable: '--font-geist-mono',
+    subsets: ['latin'],
+});
 
 const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ||
 	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
@@ -31,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 	return (
 		<html lang={locale} dir={dir} suppressHydrationWarning>
-			<body className={`${getFontClassNames(locale)} antialiased dark:bg-[#0a0a0a]`} suppressHydrationWarning>
+			<body className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-[#0a0a0a]`} suppressHydrationWarning>
 				<ThemeProvider>
 					<LayoutProvider>{children}</LayoutProvider>
 				</ThemeProvider>
