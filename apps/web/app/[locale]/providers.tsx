@@ -41,28 +41,24 @@ function getProviderMode(pathname: string): ProviderMode {
 	return 'public';
 }
 
-function ShellProviders({ config, children, dehydratedState }: ProvidersProps) {
+function ShellProviders({ config, children }: Omit<ProvidersProps, 'dehydratedState'>) {
 	const configDefaults = {
 		defaultView: config.settings?.homepage?.default_view
 	};
 
 	return (
-		<NavigationProvider>
-			<QueryClientProvider dehydratedState={dehydratedState}>
-				<LayoutProvider configDefaults={configDefaults}>
-					<ErrorProvider>
-						<ConfigProvider config={config}>
-							<ThemeProvider>
-								<HeroUIProvider>
-									<LoginModalProvider />
-									{children}
-								</HeroUIProvider>
-							</ThemeProvider>
-						</ConfigProvider>
-					</ErrorProvider>
-				</LayoutProvider>
-			</QueryClientProvider>
-		</NavigationProvider>
+		<LayoutProvider configDefaults={configDefaults}>
+			<ErrorProvider>
+				<ConfigProvider config={config}>
+					<ThemeProvider>
+						<HeroUIProvider>
+							<LoginModalProvider />
+							{children}
+						</HeroUIProvider>
+					</ThemeProvider>
+				</ConfigProvider>
+			</ErrorProvider>
+		</LayoutProvider>
 	);
 }
 
@@ -92,11 +88,22 @@ function AppProviders(props: ProvidersProps) {
 	);
 }
 
-export function Providers(props: ProvidersProps) {
+export function Providers({ config, children, dehydratedState }: ProvidersProps) {
 	const pathname = usePathname();
 	const mode = getProviderMode(pathname);
 
-	if (mode === 'app') return <AppProviders {...props} />;
-	if (mode === 'commerce') return <CommerceProviders {...props} />;
-	return <PublicProviders {...props} />;
+	const renderProviders = () => {
+		const props = { config, children, dehydratedState };
+		if (mode === 'app') return <AppProviders {...props} />;
+		if (mode === 'commerce') return <CommerceProviders {...props} />;
+		return <PublicProviders {...props} />;
+	};
+
+	return (
+		<NavigationProvider>
+			<QueryClientProvider dehydratedState={dehydratedState}>
+				{renderProviders()}
+			</QueryClientProvider>
+		</NavigationProvider>
+	);
 }
