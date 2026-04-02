@@ -56,7 +56,7 @@ export function FooterLinks({ columns }: FooterLinksProps): React.ReactElement {
                       </span>
                       {isExternal && (
                         <svg
-                          className="align-baseline transition-transform duration-300 ease-in-out size-4 group-hover:translate-x-1 group-hover:rotate-1"
+                          className="align-baseline transition-transform duration-300 ease-in-out size-3 opacity-50 group-hover:translate-x-0.5 group-hover:opacity-80"
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 18 18"
                           fill="currentColor"

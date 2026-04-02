@@ -11,7 +11,8 @@
 }
 .navbar .clean-btn,
 .clean-btn {
-  color: #1b005d !important;
+
+  color: var(--ifm-font-color-secondary);
 }
 .clean-btn svg {
   fill: currentColor !important;
