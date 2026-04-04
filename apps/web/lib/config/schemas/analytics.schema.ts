@@ -62,6 +62,67 @@ export const recaptchaConfigSchema = z
 export const exceptionTrackingProviderSchema = z.enum(['posthog', 'sentry', 'none']).default('posthog').catch('posthog');
 
 /**
+ * Google Analytics configuration schema
+ */
+export const googleAnalyticsSchema = z
+	.object({
+		measurementId: z.string().optional(),
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.measurementId),
+	}));
+
+/**
+ * Plausible Analytics configuration schema
+ */
+export const plausibleSchema = z
+	.object({
+		domain: z.string().optional(),
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.domain),
+	}));
+
+/**
+ * DataFast Analytics configuration schema
+ */
+export const dataFastSchema = z
+	.object({
+		apiKey: z.string().optional(),
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.apiKey),
+	}));
+
+/**
+ * Jitsu Analytics configuration schema
+ */
+export const jitsuSchema = z
+	.object({
+		key: z.string().optional(),
+		domain: z.string().optional(),
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.key && data.domain),
+	}));
+
+/**
+ * Segment Analytics configuration schema
+ */
+export const segmentSchema = z
+	.object({
+		writeKey: z.string().optional(),
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.writeKey),
+	}));
+
+/**
  * Vercel analytics configuration
  */
 export const vercelAnalyticsSchema = z.object({
@@ -94,6 +155,11 @@ export const analyticsConfigSchema = z.object({
 		debug: false,
 		exceptionTracking: true,
 	}),
+	googleAnalytics: googleAnalyticsSchema.optional().default({ enabled: false }),
+	plausible: plausibleSchema.optional().default({ enabled: false }),
+	dataFast: dataFastSchema.optional().default({ enabled: false }),
+	jitsu: jitsuSchema.optional().default({ enabled: false }),
+	segment: segmentSchema.optional().default({ enabled: false }),
 	recaptcha: recaptchaConfigSchema.optional().default({ enabled: false }),
 	vercel: vercelAnalyticsSchema.optional().default({ speedInsightsEnabled: false, speedInsightsSampleRate: 0.5 }),
 });
@@ -132,6 +198,22 @@ export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> 
 			enableDev: process.env.SENTRY_ENABLE_DEV === 'true',
 			debug: process.env.SENTRY_DEBUG === 'true',
 			exceptionTracking: process.env.SENTRY_EXCEPTION_TRACKING !== 'false',
+		},
+		googleAnalytics: {
+			measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+		},
+		plausible: {
+			domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
+		},
+		dataFast: {
+			apiKey: process.env.NEXT_PUBLIC_DATAFAST_API_KEY,
+		},
+		jitsu: {
+			key: process.env.NEXT_PUBLIC_JITSU_KEY,
+			domain: process.env.NEXT_PUBLIC_JITSU_DOMAIN,
+		},
+		segment: {
+			writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY,
 		},
 		recaptcha: {
 			siteKey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
