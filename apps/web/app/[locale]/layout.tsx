@@ -17,7 +17,7 @@ import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { siteConfig } from '@/lib/config';
 import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
 import { SpeedInsights } from './integration/speed-insights';
-import { Analytics, GoogleAnalytics, PlausibleAnalytics, DataFastAnalytics, JitsuAnalytics, SegmentAnalytics } from './integration/analytics';
+import { Analytics, ThirdPartyAnalytics } from './integration/analytics';
 import { SettingsProvider } from '@/components/providers/settings-provider';
 import { SettingsModalProvider } from '@/components/providers/settings-modal-provider';
 import { SettingsModal } from '@/components/settings-modal';
@@ -203,31 +203,7 @@ export default async function RootLayout({
 			<Suspense fallback={null}>
 				<Analytics />
 			</Suspense>
-			<Suspense fallback={null}>
-				{analyticsConfig.googleAnalytics?.enabled && (
-					<GoogleAnalytics gaId={analyticsConfig.googleAnalytics.measurementId} />
-				)}
-			</Suspense>
-			<Suspense fallback={null}>
-				{analyticsConfig.plausible?.enabled && (
-					<PlausibleAnalytics domain={analyticsConfig.plausible.domain} />
-				)}
-			</Suspense>
-			<Suspense fallback={null}>
-				{analyticsConfig.dataFast?.enabled && (
-					<DataFastAnalytics apiKey={analyticsConfig.dataFast.apiKey} />
-				)}
-			</Suspense>
-			<Suspense fallback={null}>
-				{analyticsConfig.jitsu?.enabled && (
-					<JitsuAnalytics jitsuKey={analyticsConfig.jitsu.key} domain={analyticsConfig.jitsu.domain} />
-				)}
-			</Suspense>
-			<Suspense fallback={null}>
-				{analyticsConfig.segment?.enabled && (
-					<SegmentAnalytics writeKey={analyticsConfig.segment.writeKey} />
-				)}
-			</Suspense>
+			<ThirdPartyAnalytics config={analyticsConfig} />
 		</>
 	);
 }

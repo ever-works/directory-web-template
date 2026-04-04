@@ -4,3 +4,4 @@ export { PlausibleAnalytics } from './plausible-analytics';
 export { DataFastAnalytics } from './datafast-analytics';
 export { JitsuAnalytics } from './jitsu-analytics';
 export { SegmentAnalytics } from './segment-analytics';
+export { ThirdPartyAnalytics } from './third-party-analytics';
