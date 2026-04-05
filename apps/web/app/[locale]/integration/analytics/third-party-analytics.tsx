@@ -17,7 +17,10 @@ export function ThirdPartyAnalytics({ config }: ThirdPartyAnalyticsProps) {
 				<GoogleAnalytics gaId={config.googleAnalytics.measurementId} />
 			)}
 			{config.plausible?.enabled && (
-				<PlausibleAnalytics domain={config.plausible.domain} />
+				<PlausibleAnalytics 
+					domain={config.plausible.domain} 
+					scriptId={config.plausible.scriptId}
+				/>
 			)}
 			{config.dataFast?.enabled && (
 				<DataFastAnalytics apiKey={config.dataFast.apiKey} />
