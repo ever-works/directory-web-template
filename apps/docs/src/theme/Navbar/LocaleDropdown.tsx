@@ -97,15 +97,14 @@ const LocaleDropdown: React.FC = () => {
         <ChevronDownIcon />
       </button>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 py-2 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
+       {isOpen && (
+        <div className="absolute right-0 bottom-full mb-2 p-1.5 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700/40 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
           {locales.map((locale) => (
             <a
               key={locale}
               href={getLocaleUrl(locale)}
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
+              className={`flex items-center gap-3 px-4 py-2.5 mb-px text-sm rounded-md transition-colors duration-150 ${
                 locale === currentLocale
                   ? "bg-gray-50 dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium"
                   : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-white"
