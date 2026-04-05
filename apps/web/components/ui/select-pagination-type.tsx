@@ -32,33 +32,12 @@ const SelectPaginationType: React.FC<SelectPaginationTypeProps> = ({ className, 
 	return (
 		<div
 			className={cn(
-				// Structure
-				'group p-5 rounded-xl',
-
-				// Blue/Indigo/Purple gradient - navigation feel
-				'bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/40',
-				'dark:from-blue-950/40 dark:via-indigo-950/30 dark:to-purple-950/20',
-
-				// Glassmorphism
-				'backdrop-blur-xl backdrop-saturate-150',
-
-				// Border with blue tones
-				'border border-blue-200/40 dark:border-blue-800/30',
-
-				// Enhanced shadow
-				'shadow-lg shadow-black/5 dark:shadow-black/20',
-
-				// Spring animation on hover
-				'transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-
-				// Hover effects - lift and enhanced border
-				'hover:shadow-2xl hover:shadow-blue-500/10',
-				'hover:border-blue-300/60 dark:hover:border-blue-700/50',
-
-				// Animation entrance
-				'animate-fade-in-up',
-
-				className
+			'group p-5 rounded-xl',
+			'bg-white/80 dark:bg-white/[0.04]',
+			'border border-gray-200/50 dark:border-white/[0.07]',
+			'shadow-sm',
+			'transition-all duration-200',
+			className
 			)}
 		>
 			<div className="flex flex-col md:flex-row items-start justify-between gap-4">
@@ -67,18 +46,10 @@ const SelectPaginationType: React.FC<SelectPaginationTypeProps> = ({ className, 
 					{/* Icon container with blue gradient and glassmorphism */}
 					<div
 						className={cn(
-							'p-2 rounded-lg flex-shrink-0',
-							'bg-gradient-to-br from-blue-100 to-indigo-200',
-							'dark:from-blue-900/40 dark:to-indigo-900/40',
-							'backdrop-blur-md',
-							'border border-blue-300/50 dark:border-blue-700/50',
-							'shadow-inner',
-							// Icon animation
-							'transition-transform duration-700 ease-in-out',
-							'group-hover:scale-110 group-hover:rotate-3'
+							'bg-gray-100 dark:bg-white/5 p-2 rounded-lg flex-shrink-0',
 						)}
 					>
-						<Layers className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+						<Layers className="h-5 w-5 text-gray-400 dark:text-gray-500" />
 					</div>
 
 					{/* Text content with improved typography */}

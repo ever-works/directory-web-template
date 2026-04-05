@@ -32,32 +32,11 @@ const SelectDatabaseMode: React.FC<SelectDatabaseModeProps> = ({ className, disa
 	return (
 		<div
 			className={cn(
-				// Structure
 				'group p-5 rounded-xl',
-
-				// Emerald/Teal/Cyan gradient - data/storage feel
-				'bg-gradient-to-br from-emerald-50/80 via-teal-50/60 to-cyan-50/40',
-				'dark:from-emerald-950/40 dark:via-teal-950/30 dark:to-cyan-950/20',
-
-				// Glassmorphism
-				'backdrop-blur-xl backdrop-saturate-150',
-
-				// Border with green tones
-				'border border-emerald-200/40 dark:border-emerald-800/30',
-
-				// Enhanced shadow
-				'shadow-lg shadow-black/5 dark:shadow-black/20',
-
-				// Spring animation on hover
-				'transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-
-				// Hover effects - lift and enhanced border
-				'hover:shadow-2xl hover:shadow-emerald-500/10',
-				'hover:border-emerald-300/60 dark:hover:border-emerald-700/50',
-
-				// Animation entrance
-				'animate-fade-in-up',
-
+				'bg-white/80 dark:bg-white/[0.04]',
+				'border border-gray-200/50 dark:border-white/[0.07]',
+				'shadow-sm',
+				'transition-all duration-200',
 				className
 			)}
 		>
@@ -67,18 +46,10 @@ const SelectDatabaseMode: React.FC<SelectDatabaseModeProps> = ({ className, disa
 					{/* Icon container with emerald gradient and glassmorphism */}
 					<div
 						className={cn(
-							'p-2 rounded-lg flex-shrink-0',
-							'bg-gradient-to-br from-emerald-100 to-teal-200',
-							'dark:from-emerald-900/40 dark:to-teal-900/40',
-							'backdrop-blur-md',
-							'border border-emerald-300/50 dark:border-emerald-700/50',
-							'shadow-inner',
-							// Icon animation
-							'transition-transform duration-700 ease-in-out',
-							'group-hover:scale-110 group-hover:rotate-3'
+							'bg-gray-100 dark:bg-white/5 p-2 rounded-lg flex-shrink-0',
 						)}
 					>
-						<Database className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
+						<Database className="h-5 w-5 text-gray-400 dark:text-gray-500" />
 					</div>
 
 					{/* Text content with improved typography */}

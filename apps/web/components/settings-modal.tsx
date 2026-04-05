@@ -24,14 +24,13 @@ const BACKDROP_CLASSES = cn(
 );
 
 const MODAL_CLASSES = cn(
-	'fixed top-1/2 left-1/2',
+	'fixed top-1/2 left-1/2 overflow-hidden',
 	'transform -translate-x-1/2 -translate-y-1/2',
 	'w-full max-w-2xl',
 	'max-h-[90vh]',
-	'bg-white/70 dark:bg-[#0a0a0a]/70',
-	'backdrop-blur-2xl backdrop-saturate-200',
-	'border border-white/20 dark:border-white/10',
-	'ring-1 ring-theme-primary-500/10 dark:ring-theme-primary-400/10',
+	'bg-white/95 dark:bg-[#0a0a0a]/95',
+	'backdrop-blur-xl',
+	'border border-gray-200/50 dark:border-white/[0.07]',
 	'rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/60',
 	'z-[9999]',
 	'overflow-visible',
@@ -94,17 +93,17 @@ export function SettingsModal() {
 					<div className="flex items-center gap-3">
 						<div
 							className={cn(
-								'p-2 rounded-lg',
+								'p-2 rounded-lg overflow-hidden',
 								'bg-gradient-to-br from-theme-primary-100 to-theme-primary-200',
 								'dark:from-theme-primary-900/30 dark:to-theme-primary-800/30',
 								'border border-theme-primary-300/50 dark:border-theme-primary-600/50'
 							)}
 						>
-							<Settings className="h-5 w-5 text-theme-primary-600 dark:text-theme-primary-400" />
+							<Settings className="h-4 w-4 text-theme-primary-600 dark:text-theme-primary-400" />
 						</div>
 						<h2
 							id="settings-title"
-							className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+							className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
 						>
 							{t('SETTINGS')}
 						</h2>
