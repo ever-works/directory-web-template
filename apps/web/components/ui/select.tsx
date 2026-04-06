@@ -326,7 +326,7 @@ export function SelectItem({
       disabled={disabled}
       className={cn(
         "w-full flex items-center gap-2 px-3 py-2 text-left transition-colors",
-        "hover:bg-gray-100 dark:hover:bg-white/6",
+        "hover:bg-gray-100 dark:hover:bg-[#121212]",
         "disabled:opacity-50 disabled:cursor-not-allowed",
         isSelected && "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
         className

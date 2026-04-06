@@ -33,8 +33,8 @@ export function DatabaseStatusWarning({ className }: DatabaseStatusWarningProps)
 				'flex items-start gap-3',
 				'px-4 py-3',
 				'rounded-lg',
-				'bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30',
-				'border border-blue-200/50 dark:border-blue-700/50',
+				'bg-white/80 dark:bg-white/[0.04]',
+				'border border-gray-200/50 dark:border-white/[0.07]',
 				'backdrop-blur-sm',
 				'shadow-sm',
 				'animate-fade-in-up',
@@ -43,7 +43,7 @@ export function DatabaseStatusWarning({ className }: DatabaseStatusWarningProps)
 			role="status"
 			aria-live="polite"
 		>
-			<Info className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5 animate-pulse-subtle" />
+			<Info className="h-5 w-5 text-gray-400 dark:text-gray-500" />
 			<div>
 				<h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
 					{t('DATABASE_PREVIEW_MODE')}

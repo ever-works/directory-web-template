@@ -77,7 +77,7 @@ const RightMenu: React.FC = () => {
           href={githubItem.href}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center w-8 h-8 text-gray-400 dark:text-[#808098] hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+          className="flex items-center justify-center w-8 h-8 text-gray-500 dark:text-[#808098] hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
           aria-label="GitHub"
         >
           <GitHubIcon />
@@ -87,7 +87,7 @@ const RightMenu: React.FC = () => {
       {/* Settings / Color Mode Toggle */}
       <button
         onClick={toggleColorMode}
-        className="flex items-center justify-center w-8 h-8 text-gray-400 dark:text-[#808098] hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+        className="flex items-center cursor-pointer justify-center w-8 h-8 text-gray-500 dark:text-[#808098] transition-colors duration-200"
         aria-label={`Switch to ${colorMode === "dark" ? "light" : "dark"} mode`}
       >
         {colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
