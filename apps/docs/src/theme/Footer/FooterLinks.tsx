@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "@docusaurus/Link";
+import GitHubStarWidget from "./GitHubStarWidget";
 
 interface FooterLinkItem {
   label: string;
@@ -31,16 +32,38 @@ export function FooterLinks({ columns }: FooterLinksProps): React.ReactElement {
           <ul className="flex flex-col gap-2 items-start w-full leading-snug text-neutral-500 list-none pl-0 m-0">
             {column.items.map((item, itemIndex) => {
               if (item.html) {
+                // If this is the GitHub star widget, render it as a live React component
+                if (item.html.includes('class="widget"')) {
+                  const repoMatch = item.html.match(
+                    /github\.com\/([\w-]+\/[\w.-]+)/
+                  );
+                  const repo = repoMatch ? repoMatch[1] : "ever-works/ever-works";
+                  return (
+                    <li key={itemIndex} className="flex items-center">
+                      <GitHubStarWidget repo={repo} />
+                    </li>
+                  );
+                }
                 return (
                   <li
                     key={itemIndex}
+                    className="flex items-center"
                     dangerouslySetInnerHTML={{ __html: item.html }}
                   />
                 );
               }
 
               const isExternal = item.href && !item.to;
-              const url = item.to || item.href || "#";
+              const rawUrl = item.to || item.href || "#";
+              // Normalize incorrect getting-started link that points to /getting-started/getting-started
+              let url = rawUrl;
+              if (/^\/?getting-started\/getting-started\/?$/.test(rawUrl)) {
+                url = "/getting-started";
+              }
+              // Normalize architecture overview links to the canonical /architecture
+              if (/^\/?architecture(\/overview)?\/?$/.test(rawUrl)) {
+                url = "/architecture";
+              }
 
               return (
                 <li key={itemIndex}>
@@ -50,22 +73,28 @@ export function FooterLinks({ columns }: FooterLinksProps): React.ReactElement {
                     rel={isExternal ? "noopener noreferrer" : undefined}
                     className="hover:underline hover:underline-offset-2"
                   >
-                    <span className="inline-flex gap-x-2 items-center text-sm text-gray-600 capitalize group hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
-                      <span className="text-gray-600 dark:text-gray-500 hover:text-black dark:hover:text-white">
-                        {item.label}
-                      </span>
-                      {isExternal && (
-                        <svg
-                          className="align-baseline transition-transform duration-300 ease-in-out size-4 group-hover:translate-x-1 group-hover:rotate-1"
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 18 18"
-                          fill="currentColor"
-                        >
-                          <polygon points="9 2 9 3 14.3 3 6.4 10.9 7.1 11.6 15 3.7 15 9 16 9 16 2 9 2" />
-                          <polygon points="15 13 15 15 3 15 3 3 5 3 5 2 2 2 2 3 2 15 2 16 16 16 16 15 16 13 15 13" />
-                        </svg>
-                      )}
-                    </span>
+                    {(() => {
+                      const labelText = (item.label || "").toString();
+                      const displayLabel = labelText.trim().toLowerCase() === "twitter" ? "X" : labelText;
+                      return (
+                        <span className="inline-flex gap-x-2 items-center text-sm text-gray-600 capitalize group hover:text-gray-800 dark:text-gray-400 dark:hover:text-white">
+                          <span className="text-gray-600 dark:text-gray-500 hover:text-black dark:hover:text-white">
+                            {displayLabel}
+                          </span>
+                          {isExternal && (
+                            <svg
+                              className="align-baseline transition-transform duration-300 ease-in-out size-3 opacity-50 group-hover:translate-x-0.5 group-hover:opacity-80"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 18 18"
+                              fill="currentColor"
+                            >
+                              <polygon points="9 2 9 3 14.3 3 6.4 10.9 7.1 11.6 15 3.7 15 9 16 9 16 2 9 2" />
+                              <polygon points="15 13 15 15 3 15 3 3 5 3 5 2 2 2 2 3 2 15 2 16 16 16 16 15 16 13 15 13" />
+                            </svg>
+                          )}
+                        </span>
+                      );
+                    })()}
                   </Link>
                 </li>
               );

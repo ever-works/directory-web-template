@@ -8,7 +8,7 @@ import {
   ContainerWidth,
   useLayoutTheme,
 } from "@/components/context/LayoutThemeContext";
-import { Maximize2, Minimize2 } from "lucide-react";
+import { Maximize2, Minimize2, LayoutGrid } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
@@ -21,13 +21,13 @@ const getLayoutMap = (isDark: boolean, t: any) =>
       color: "blue",
       icon: <Layout className="w-3 h-3" />, // kept small inside panel
       preview: (
-        <div className="relative w-full h-24 rounded-xl overflow-hidden group">
+        <div className="relative w-full h-24 rounded-xl overflow-hidden group cursor-pointer">
           <div className="absolute inset-0 bg-linear-to-br from-theme-primary-100/20 to-theme-primary-200/20 dark:from-theme-primary-900/20 dark:to-theme-primary-800/20"></div>
           <Image
             src={isDark ? "/home-1.png" : "/home-light-1.png"}
             alt="Home 1 Layout Preview"
             fill
-            className="object-cover object-top transition-all duration-700 group-hover:scale-110"
+            className="object-cover object-top transition-all duration-700"
             sizes="(max-width: 768px) 100vw, 300px"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -46,15 +46,15 @@ const getLayoutMap = (isDark: boolean, t: any) =>
       name: "Home 2",
       description: t("GRID_LAYOUT_DESC"),
       color: "purple",
-      icon: <Sparkles className="w-3 h-3" />,
+      icon: <LayoutGrid className="w-3 h-3" />,
       preview: (
-        <div className="relative w-full h-24 rounded-xl overflow-hidden group">
+        <div className="relative w-full h-24 rounded-xl overflow-hidden group cursor-pointer">
           <div className="absolute inset-0 bg-linear-to-br from-purple-100/20 to-pink-100/20 dark:from-purple-900/20 dark:to-pink-900/20"></div>
           <Image
             src={isDark ? "/home-2.png" : "/home-light-2.png"}
             alt="Home 2 Layout Preview"
             fill
-            className="object-cover object-top transition-all duration-700 group-hover:scale-110"
+            className="object-cover object-top transition-all duration-700"
             sizes="(max-width: 768px) 100vw, 300px"
           />
           <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
@@ -197,7 +197,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
         return (
           <button
             key={key}
-            className={`relative w-full p-3 rounded-lg transition-all duration-500 transform hover:scale-[1.01] ${isActive
+            className={`relative w-full p-3 rounded-lg transition-all duration-500 transform ${isActive
                 ? "bg-linear-to-br from-theme-primary-50/50 via-white to-theme-primary-100/30 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-theme-primary-950/30 border-2 border-theme-primary-400/50 dark:border-theme-primary-500/50 shadow-xl shadow-theme-primary-200/30 dark:shadow-theme-primary-900/20"
                 : "bg-white/80 dark:bg-white/4 backdrop-blur-xs border border-gray-200/50 dark:border-white/6 hover:border-theme-primary-300 dark:hover:border-theme-primary-600 shadow-md hover:shadow-xl"
               }`}
@@ -251,7 +251,7 @@ export function LayoutSwitcher({ inline = false, iconOnly = false }: LayoutSwitc
                   </div>
                 </div>
                 {isActive && (
-                  <div className="flex items-center gap-1 px-2 py-0.5 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 text-white rounded-full text-[10px] font-semibold shadow-lg animate-pulse">
+                  <div className="flex items-center gap-1 px-2 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 text-white rounded-full text-[9px] font-semibold shadow-lg animate-pulse">
                     <svg className="w-2 h-2" fill="currentColor" viewBox="0 0 20 20">
                       <path
                         fillRule="evenodd"

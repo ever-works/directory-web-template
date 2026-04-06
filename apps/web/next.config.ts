@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 import { withSentryConfig } from '@sentry/nextjs';
@@ -5,7 +6,11 @@ import { sentryWebpackPluginOptions } from './sentry.config';
 import { generateImageRemotePatterns } from './lib/utils/image-domains';
 
 const nextConfig: NextConfig = {
+	turbopack: {
+		root: path.join(__dirname, '../..')
+	},
 	output: 'standalone',
+	outputFileTracingRoot: path.join(__dirname, '../..'),
 	serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm'],
 	experimental: {
 		optimizePackageImports: ['@heroui/react', 'lucide-react']

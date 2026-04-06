@@ -56,3 +56,5 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.5); }
 }
+
+/* Custom scrollbar utilities removed (define classes in custom.css) */

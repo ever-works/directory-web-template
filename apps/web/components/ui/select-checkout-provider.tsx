@@ -79,32 +79,11 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 	return (
 		<div
 			className={cn(
-				// Structure - relative z-10 to ensure dropdown appears above sibling sections
-				'group p-5 rounded-xl relative z-10',
-
-				// Purple/pink gradient - payment/checkout theme
-				'bg-gradient-to-br from-purple-50/80 via-pink-50/60 to-rose-50/40',
-				'dark:from-purple-950/40 dark:via-pink-950/30 dark:to-rose-950/20',
-
-				// Glassmorphism
-				'backdrop-blur-xl backdrop-saturate-150',
-
-				// Border with purple/pink tones
-				'border border-purple-200/40 dark:border-purple-800/30',
-
-				// Enhanced shadow
-				'shadow-lg shadow-black/5 dark:shadow-black/20',
-
-				// Spring animation on hover
-				'transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]',
-
-				// Hover effects - lift and enhanced border
-				'hover:shadow-2xl hover:shadow-purple-500/10',
-				'hover:border-purple-300/60 dark:hover:border-purple-700/50',
-
-				// Animation entrance
-				'animate-fade-in-up',
-
+				'group p-5 rounded-xl',
+				'bg-white/80 dark:bg-white/[0.04]',
+				'border border-gray-200/50 dark:border-white/[0.07]',
+				'shadow-sm',
+				'transition-all duration-200',
 				className
 			)}
 		>
@@ -114,18 +93,10 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 					{/* Icon container with purple gradient and glassmorphism */}
 					<div
 						className={cn(
-							'p-2 rounded-lg flex-shrink-0',
-							'bg-gradient-to-br from-purple-100 to-pink-200',
-							'dark:from-purple-900/40 dark:to-pink-900/40',
-							'backdrop-blur-md',
-							'border border-purple-300/50 dark:border-purple-700/50',
-							'shadow-inner',
-							// Icon animation
-							'transition-transform duration-700 ease-in-out',
-							'group-hover:scale-110 group-hover:rotate-3'
+							'bg-gray-100 dark:bg-white/5 p-2 rounded-lg flex-shrink-0',
 						)}
 					>
-						<CreditCard className="h-5 w-5 text-purple-700 dark:text-purple-300" />
+						<CreditCard className="h-5 w-5 text-gray-400 dark:text-gray-500" />
 					</div>
 
 					{/* Text content with improved typography */}
@@ -158,7 +129,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 						size="md"
 						className="w-full"
 						classNames={{
-							trigger: 'bg-white dark:bg-white/5 border-purple-200 dark:border-purple-700',
+							trigger: 'bg-white dark:bg-white/5 border-purple-200 dark:border-white/6',
 							value: 'text-gray-900 dark:text-gray-100',
 							popover: 'z-[1000]'
 						}}
