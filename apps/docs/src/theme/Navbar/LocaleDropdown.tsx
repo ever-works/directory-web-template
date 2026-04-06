@@ -88,7 +88,7 @@ const LocaleDropdown: React.FC = () => {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-gray-600 hover:bg-white/80 dark:hover:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 shadow-sm"
+        className="flex items-center gap-1.5 px-2 py-1.5 text-xs rounded-lg border border-gray-200/80 dark:border-zinc-700/80 bg-gray-100 dark:bg-zinc-800/80 text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-zinc-600 hover:bg-white dark:hover:bg-zinc-800 backdrop-blur-sm transition-all duration-200"
         aria-label="Select language"
         aria-expanded={isOpen}
       >
@@ -97,24 +97,23 @@ const LocaleDropdown: React.FC = () => {
         <ChevronDownIcon />
       </button>
 
-      {/* Dropdown Menu */}
-      {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 py-2 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
+       {isOpen && (
+        <div className="absolute right-0 bottom-full mb-2 p-1.5 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700/40 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
           {locales.map((locale) => (
             <a
               key={locale}
               href={getLocaleUrl(locale)}
               onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors duration-150 ${
+              className={`flex items-center gap-3 px-4 py-2.5 mb-px text-sm rounded-md transition-colors duration-150 ${
                 locale === currentLocale
-                  ? "bg-gradient-to-r from-purple-500/10 to-cyan-500/10 text-purple-600 dark:text-purple-400 font-medium"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  ? "bg-gray-50 dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <span className="flex-1">{getLocaleLabel(locale)}</span>
               {locale === currentLocale && (
                 <svg
-                  className="w-4 h-4 text-purple-500"
+                  className="w-3 h-3 text-gray-500 dark:text-zinc-400"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"

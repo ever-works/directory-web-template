@@ -11,18 +11,18 @@ export function ThemeToggle(): React.ReactElement {
   return (
     <button
       onClick={onThemeToggle}
-      className="flex gap-3 items-center px-2 py-1.5 bg-[#D7DAE0] dark:bg-[#1D222A] rounded-full relative max-h-fit"
+      className="flex gap-1.5 items-center px-1.5 py-1 bg-gray-100 dark:bg-zinc-800/80 border border-gray-200/80 dark:border-zinc-700/80 rounded-full relative max-h-fit transition-colors duration-200"
       aria-label="Toggle theme"
     >
       <span
-        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
+        className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
           colorMode === "light"
-            ? "bg-[#AFB6C1] text-[#231645]"
-            : "bg-transparent text-white"
+            ? "bg-white shadow-sm text-gray-700"
+            : "bg-transparent text-zinc-500"
         }`}
       >
         <svg
-          className="w-3 h-3 sm:w-[18px] sm:h-[18px]"
+          className="w-3 h-3"
           width={19}
           height={19}
           viewBox="0 0 19 19"
@@ -47,14 +47,14 @@ export function ThemeToggle(): React.ReactElement {
       </span>
 
       <span
-        className={`w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center ${
+        className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-200 ${
           colorMode === "dark"
-            ? "bg-[#3B4454] text-white"
-            : "bg-transparent text-[#231645]"
+            ? "bg-zinc-700 text-zinc-200"
+            : "bg-transparent text-zinc-400"
         }`}
       >
         <svg
-          className="w-3 h-3 sm:w-[18px] sm:h-[18px]"
+          className="w-3 h-3"
           width={19}
           height={19}
           viewBox="0 0 19 19"

@@ -4,51 +4,29 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useIsBrowser from "@docusaurus/useIsBrowser";
 
 // Icons
-const SearchIcon = () => (
-  <svg
-    className="w-4 h-4 text-[#808098]"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-    />
+const SearchIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M6 18L18 6M6 6l12 12"
-    />
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
 
 const DocIcon = () => (
-  <svg
-    className="w-4 h-4"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-    />
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+  </svg>
+);
+
+const ArrowIcon = () => (
+  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
   </svg>
 );
 
@@ -307,226 +285,194 @@ export default function SearchBar(): JSX.Element {
 
   return (
     <>
-      {/* Search Trigger Button */}
+      {/* ── Search Trigger Button ── */}
       <button
-        onClick={() => {
-          openModal();
-          loadIndex();
-        }}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-full border border-gray-200 dark:border-[#2a2a3d] bg-gray-100 dark:bg-[#0d0d15]/80 text-gray-500 dark:text-[#808098] hover:text-gray-700 dark:hover:text-[#b0b0c8] hover:border-gray-300 dark:hover:border-[#3a3a5d] backdrop-blur-sm transition-all duration-200 min-w-[160px]"
+        onClick={() => { openModal(); loadIndex(); }}
+        className="group flex items-center gap-2 h-8 px-3 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.04] text-gray-400 dark:text-zinc-500 hover:border-gray-300 dark:hover:border-white/[0.14] hover:bg-gray-50 dark:hover:bg-white/[0.06] hover:text-gray-600 dark:hover:text-zinc-400 transition-all duration-150 min-w-[160px] shadow-sm"
         aria-label="Search documentation"
       >
-        <SearchIcon />
-        <span className="flex-1 text-left text-[13px]">Search...</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-medium text-gray-400 dark:text-[#606078] bg-gray-200 dark:bg-[#1a1a2e] rounded border border-gray-300 dark:border-[#2a2a3d]">
+        <SearchIcon className="w-3.5 h-3.5 flex-shrink-0" />
+        <span className="flex-1 text-left text-[12.5px] font-normal leading-none">Search…</span>
+        <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1 py-0.5 text-[10px] font-medium text-gray-400 dark:text-zinc-600 bg-gray-100 dark:bg-white/[0.05] rounded border border-gray-200 dark:border-white/[0.07] leading-none">
           {isMac ? "⌘" : "Ctrl"}K
         </kbd>
       </button>
 
-      {/* Search Modal */}
+      {/* ── Search Modal ── */}
       {isOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] px-4 animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[12vh] px-4 animate-fade-in">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" />
+          <div
+            className="absolute inset-0 bg-black/40 dark:bg-black/65 backdrop-blur-sm"
+            onClick={closeModal}
+          />
 
-          {/* Modal */}
+          {/* Modal card */}
           <div
             ref={modalRef}
-            className="relative w-full max-w-2xl bg-white dark:bg-black rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden animate-slide-up"
+            role="dialog"
+            aria-label="Search"
+            aria-modal="true"
+            className="relative w-full max-w-[560px] bg-white dark:bg-[#0a0a0a] rounded-xl shadow-[0_24px_64px_rgba(0,0,0,0.18)] dark:shadow-[0_24px_64px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-white/[0.07] overflow-hidden animate-slide-up"
             onKeyDown={handleKeyDown}
           >
-            {/* Search Input */}
-            <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-              <SearchIcon />
+            {/* Input row */}
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-gray-100 dark:border-white/[0.07]">
+              <SearchIcon className="w-4 h-4 text-gray-400 dark:text-zinc-500 flex-shrink-0" />
               <input
                 ref={inputRef}
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search documentation..."
-                className="flex-1 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none text-base"
+                placeholder="Search documentation…"
+                className="flex-1 bg-transparent text-[14px] text-gray-900 dark:text-zinc-100 placeholder-gray-400 dark:placeholder-zinc-600 outline-none leading-none"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
-                spellCheck="false"
+                spellCheck={false}
               />
-              {query && (
-                <button
-                  onClick={() => setQuery("")}
-                  className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              <div className="flex items-center gap-1.5">
+                {query && (
+                  <button
+                    onClick={() => setQuery("")}
+                    className="p-1 text-gray-400 hover:text-gray-600 dark:text-zinc-600 dark:hover:text-zinc-400 transition-colors rounded"
+                    aria-label="Clear search"
+                  >
+                    <CloseIcon />
+                  </button>
+                )}
+                <kbd
+                  onClick={closeModal}
+                  className="cursor-pointer px-1.5 py-0.5 text-[11px] font-medium text-gray-400 dark:text-zinc-600 bg-gray-100 dark:bg-white/[0.05] rounded border border-gray-200 dark:border-white/[0.07] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
                 >
-                  <CloseIcon />
-                </button>
-              )}
-              <button
-                onClick={closeModal}
-                className="px-2 py-1 text-xs font-medium text-gray-400 dark:text-gray-500 bg-gray-100 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-              >
-                ESC
-              </button>
+                  Esc
+                </kbd>
+              </div>
             </div>
 
-            {/* Results */}
-            <div className="max-h-[60vh] overflow-y-auto">
-              {/* Error state */}
+            {/* Body */}
+            <div className="max-h-[60vh] overflow-y-auto scrollbar-soft">
 
+              {/* Error */}
               {error && (
-                <div className="flex flex-col items-center justify-center py-12 text-red-500 dark:text-red-400">
-                  <svg
-                    className="w-6 h-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                    />
+                <div className="flex flex-col items-center gap-2 py-10 text-sm text-red-500 dark:text-red-400">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
-                  <p className="mt-4 text-sm">{error}</p>
+                  <p>{error}</p>
                 </div>
               )}
 
-              {/* Loading state - show when loading index or searching */}
+              {/* Loading */}
               {!error && (isLoading || indexLoading) && (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <div className="w-6 h-6 border-2 border-gray-300 dark:border-gray-600 border-t-purple-500 rounded-full animate-spin" />
-                  <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-                    {indexLoading ? "Loading search index..." : "Searching..."}
+                <div className="flex flex-col items-center gap-3 py-10">
+                  <div className="w-5 h-5 border-2 border-gray-200 dark:border-white/[0.1] border-t-gray-500 dark:border-t-zinc-400 rounded-full animate-spin" />
+                  <p className="text-sm text-gray-400 dark:text-zinc-500">
+                    {indexLoading ? "Loading search index…" : "Searching…"}
                   </p>
                 </div>
               )}
 
-              {/* No results found */}
-              {!error &&
-                !isLoading &&
-                !indexLoading &&
-                results.length === 0 &&
-                query &&
-                indexLoaded && (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-                    <SearchIcon />
-                    <p className="mt-4 text-sm">
-                      No results found for &quot;{query}&quot;
+              {/* No results */}
+              {!error && !isLoading && !indexLoading && results.length === 0 && query && indexLoaded && (
+                <div className="flex flex-col items-center gap-2 py-10 text-sm text-gray-400 dark:text-zinc-500">
+                  <SearchIcon className="w-5 h-5" />
+                  <p>No results for <span className="font-medium text-gray-600 dark:text-zinc-300">&ldquo;{query}&rdquo;</span></p>
+                  {process.env.NODE_ENV !== "production" && (
+                    <p className="mt-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/40 rounded-lg text-amber-700 dark:text-amber-300 text-xs text-center">
+                      Search only works in production — run{" "}
+                      <code className="font-mono font-semibold">pnpm build && pnpm serve</code>
                     </p>
-                    {process.env.NODE_ENV !== "production" && (
-                      <div className="mt-4 px-4 py-2 bg-amber-100 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 rounded-lg text-amber-800 dark:text-amber-200 text-xs text-center max-w-sm">
-                        <strong>Note:</strong> Search only works in production.
-                        Run{" "}
-                        <code className="px-1 py-0.5 bg-amber-200 dark:bg-amber-800 rounded">
-                          npm run build && npm run serve
-                        </code>{" "}
-                        to test.
-                      </div>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
 
-              {/* Initial state - no query */}
-              {!error &&
-                !isLoading &&
-                !indexLoading &&
-                results.length === 0 &&
-                !query && (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-500 dark:text-gray-400">
-                    <p className="text-sm">Start typing to search...</p>
-                    <div className="flex items-center gap-4 mt-4 text-xs">
-                      <span className="flex items-center gap-1">
-                        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
-                          ↑↓
-                        </kbd>
-                        Navigate
+              {/* Empty prompt */}
+              {!error && !isLoading && !indexLoading && results.length === 0 && !query && (
+                <div className="flex flex-col items-center gap-3 py-10 text-sm text-gray-400 dark:text-zinc-500">
+                  <p>Type to search across docs…</p>
+                  <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-zinc-600">
+                    {[
+                      { keys: ["↑", "↓"], label: "Navigate" },
+                      { keys: ["↵"], label: "Open" },
+                      { keys: ["Esc"], label: "Close" },
+                    ].map(({ keys, label }) => (
+                      <span key={label} className="flex items-center gap-1">
+                        {keys.map((k) => (
+                          <kbd key={k} className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.08] rounded text-[11px]">{k}</kbd>
+                        ))}
+                        <span>{label}</span>
                       </span>
-                      <span className="flex items-center gap-1">
-                        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
-                          ↵
-                        </kbd>
-                        Select
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
-                          Esc
-                        </kbd>
-                        Close
-                      </span>
-                    </div>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
 
+              {/* Results */}
               {!isLoading && results.length > 0 && (
-                <ul className="p-2">
-                  {results.map((result, index) => (
-                    <li key={`${result.document.u}-${index}`}>
-                      <button
-                        onClick={() => navigateToResult(result)}
-                        className={`w-full flex items-start gap-3 p-3 rounded-lg text-left ${
-                          index === selectedIndex
-                            ? "bg-gradient-to-r from-purple-500/10 to-cyan-500/10 dark:from-purple-500/20 dark:to-cyan-500/20 border border-purple-300/50 dark:border-purple-500/30"
-                            : "hover:bg-gray-100 dark:hover:bg-gray-800/50"
-                        }`}
-                        onMouseEnter={() => setSelectedIndex(index)}
-                      >
-                        <div
-                          className={`flex-shrink-0 p-1.5 rounded-lg ${
-                            index === selectedIndex
-                              ? "bg-purple-500/20 text-purple-600 dark:text-purple-400"
-                              : "bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
+                <ul className="p-1.5">
+                  {results.map((result, index) => {
+                    const isActive = index === selectedIndex;
+                    return (
+                      <li key={`${result.document.u}-${index}`}>
+                        <button
+                          onClick={() => navigateToResult(result)}
+                          onMouseEnter={() => setSelectedIndex(index)}
+                          className={`group w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-colors duration-100 ${
+                            isActive
+                              ? "bg-gray-100 dark:bg-white/[0.06]"
+                              : "hover:bg-gray-50 dark:hover:bg-white/[0.04]"
                           }`}
                         >
-                          <DocIcon />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div
-                            className={`font-medium truncate ${
-                              index === selectedIndex
-                                ? "text-purple-700 dark:text-purple-300"
-                                : "text-gray-900 dark:text-white"
-                            }`}
-                          >
-                            {result.document.t}
+                          {/* Icon */}
+                          <div className={`mt-0.5 flex-shrink-0 p-1.5 rounded-md transition-colors ${
+                            isActive
+                              ? "bg-gray-200 dark:bg-white/[0.1] text-gray-700 dark:text-zinc-200"
+                              : "bg-gray-100 dark:bg-white/[0.05] text-gray-400 dark:text-zinc-500"
+                          }`}>
+                            <DocIcon />
                           </div>
-                          {result.document.s && (
-                            <div className="text-sm text-gray-500 dark:text-gray-400 truncate mt-0.5">
-                              {result.document.s}
+
+                          {/* Text */}
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-[13px] font-medium truncate leading-snug ${
+                              isActive ? "text-gray-900 dark:text-zinc-100" : "text-gray-700 dark:text-zinc-300"
+                            }`}>
+                              {result.document.t}
+                            </div>
+                            {result.document.s && (
+                              <div className="text-[12px] text-gray-400 dark:text-zinc-500 truncate mt-0.5 leading-snug">
+                                {result.document.s}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Arrow indicator */}
+                          {isActive && (
+                            <div className="flex-shrink-0 mt-1 text-gray-400 dark:text-zinc-500">
+                              <ArrowIcon />
                             </div>
                           )}
-                        </div>
-                        {index === selectedIndex && (
-                          <div className="flex-shrink-0 text-purple-500 dark:text-purple-400">
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M13 7l5 5m0 0l-5 5m5-5H6"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                      </button>
-                    </li>
-                  ))}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-end px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-xs text-gray-500 dark:text-gray-400">
-              <span className="flex items-center gap-2">
-                <span className="hidden sm:inline">
-                  Press{" "}
-                  <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded">
-                    {isMac ? "⌘" : "Ctrl"}K
-                  </kbd>{" "}
-                  to toggle
-                </span>
+            {/* Footer hint bar */}
+            <div className="flex items-center justify-between px-4 py-2 border-t border-gray-100 dark:border-white/[0.07] bg-gray-50/80 dark:bg-white/[0.02]">
+              <span className="text-[11px] text-gray-400 dark:text-zinc-600">
+                {results.length > 0 && `${results.length} result${results.length !== 1 ? "s" : ""}`}
+              </span>
+              <span className="hidden sm:flex items-center gap-1 text-[11px] text-gray-400 dark:text-zinc-600">
+                Press{" "}
+                <kbd className="px-1.5 py-0.5 bg-gray-100 dark:bg-white/[0.05] border border-gray-200 dark:border-white/[0.07] rounded">
+                  {isMac ? "⌘" : "Ctrl"}K
+                </kbd>{" "}
+                to toggle
               </span>
             </div>
           </div>
