@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { PaymentFlow, SubmissionStatus } from "@/lib/payment/types/payment";
 import { getPaymentFlowConfig } from "@/lib/config/payment-flows";
 import { usePaymentFlowStorage } from "./use-local-storage";
@@ -47,6 +47,8 @@ export function usePaymentFlow(options: UsePaymentFlowOptions = {}): UsePaymentF
   // Initialize selectedFlow with a consistent default for SSR
   const [selectedFlow, setSelectedFlowState] = useState<PaymentFlow>(initialFlow);
   const [isHydrated, setIsHydrated] = useState(false);
+  const selectionDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Handle hydration - only use stored value after client-side hydration
   useEffect(() => {
@@ -55,6 +57,17 @@ export function usePaymentFlow(options: UsePaymentFlowOptions = {}): UsePaymentF
       setSelectedFlowState(storedFlow);
     }
   }, [autoSave, storedFlow]);
+
+  useEffect(() => {
+    return () => {
+      if (selectionDelayTimeoutRef.current) {
+        clearTimeout(selectionDelayTimeoutRef.current);
+      }
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const [isAnimating, setIsAnimating] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
@@ -135,7 +148,16 @@ export function usePaymentFlow(options: UsePaymentFlowOptions = {}): UsePaymentF
     
     // Simulate selection delay for better UX
     if (enableAnimations) {
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise<void>((resolve) => {
+        if (selectionDelayTimeoutRef.current) {
+          clearTimeout(selectionDelayTimeoutRef.current);
+        }
+
+        selectionDelayTimeoutRef.current = setTimeout(() => {
+          selectionDelayTimeoutRef.current = null;
+          resolve();
+        }, 150);
+      });
     }
     
     setSelectedFlow(flow);
@@ -163,7 +185,14 @@ export function usePaymentFlow(options: UsePaymentFlowOptions = {}): UsePaymentF
     if (!enableAnimations) return;
     
     setIsAnimating(true);
-    setTimeout(() => setIsAnimating(false), 500);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+      animationTimeoutRef.current = null;
+    }, 500);
   }, [enableAnimations]);
 
   const getAnimationDelay = useCallback((index: number) => {

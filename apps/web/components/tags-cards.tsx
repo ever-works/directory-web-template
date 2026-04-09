@@ -34,8 +34,8 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
     setLoadingTag(null);
   }, [pathname, searchParams]);
 
-  // Don't render if tags array is empty or undefined (after all hooks)
-  if (!tags || tags.length === 0) {
+  // Don't render if tags are missing entirely.
+  if (!tags) {
     return null;
   }
 
@@ -161,8 +161,8 @@ export function TagsCards({ tags, className, compact = false }: TagsCardsProps) 
         <div className="text-center py-12">
           <div className="text-gray-500 dark:text-gray-400">
             <Hash className="w-12 h-12 mx-auto mb-4 opacity-50" />
-            <h3 className="text-lg font-medium mb-2">{t("NO_ITEMS_FOUND")}</h3>
-            <p className="text-sm">{t("TAGS_DESCRIPTION")}</p>
+            <h3 className="text-lg font-medium mb-2">{t("NO_TAGS_FOUND")}</h3>
+            <p className="text-sm">{t("NO_TAGS_DESCRIPTION")}</p>
           </div>
         </div>
       )}

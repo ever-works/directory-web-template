@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
 import { PolarElementsWrapper } from '@/lib/payment/ui/polar/polar-elements';
@@ -64,6 +64,7 @@ export function PaymentFormModal({
 	isDismissable = true
 }: PaymentFormModalProps) {
 	const t = useTranslations('payment');
+	const locale = useLocale();
 	const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
 	const handleSuccess = useCallback(
@@ -80,8 +81,11 @@ export function PaymentFormModal({
 		[onError]
 	);
 
+	const localizedSuccessPath = `/${locale}/pricing/success`;
 	const successUrl =
-		typeof window !== 'undefined' ? `${window.location.origin}/checkout/success` : '/checkout/success';
+		typeof window !== 'undefined'
+			? `${window.location.origin}${localizedSuccessPath}`
+			: localizedSuccessPath;
 
 	useEffect(() => {
 		if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
