@@ -1,6 +1,6 @@
 import { PaymentPlan } from '@/lib/constants';
 import { Eye, FileText, Globe, Tag, Type } from 'lucide-react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCategoriesEnabled } from './use-categories-enabled';
 import { useTagsEnabled } from './use-tags-enabled';
 import { useLocationSettings } from './use-location-settings';
@@ -149,6 +149,23 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
       new Set()
     );
     const [animatingLinkId, setAnimatingLinkId] = useState<string | null>(null);
+    const animationTimeoutsRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+    const scheduleAnimationTimeout = useCallback((callback: () => void, delay: number) => {
+      const timeoutId = setTimeout(() => {
+        animationTimeoutsRef.current = animationTimeoutsRef.current.filter((id) => id !== timeoutId);
+        callback();
+      }, delay);
+
+      animationTimeoutsRef.current.push(timeoutId);
+    }, []);
+
+    useEffect(() => {
+      return () => {
+        animationTimeoutsRef.current.forEach((timeoutId) => clearTimeout(timeoutId));
+        animationTimeoutsRef.current = [];
+      };
+    }, []);
 
     // Auto-sync programmatically-set fields to completedFields
     useEffect(() => {
@@ -283,8 +300,8 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           },
         ],
       }));
-      setTimeout(() => setAnimatingLinkId(null), 500);
-    }, []);
+      scheduleAnimationTimeout(() => setAnimatingLinkId(null), 500);
+    }, [scheduleAnimationTimeout]);
   
     const removeLink = useCallback(
       (id: string) => {
@@ -292,9 +309,9 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
         if (linkToRemove?.type === "main") return; // Don't remove main link
   
         setAnimatingLinkId(id);
-  
+
         // Delay removal for exit animation
-        setTimeout(() => {
+        scheduleAnimationTimeout(() => {
           setFormData((prev) => ({
             ...prev,
             links: prev.links.filter((link) => link.id !== id),
@@ -302,7 +319,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           setAnimatingLinkId(null);
         }, 300);
       },
-      [formData.links]
+      [formData.links, scheduleAnimationTimeout]
     );
   
     const handleTagToggle = useCallback((tag: string) => {
@@ -433,4 +450,3 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     
     }
 }
-

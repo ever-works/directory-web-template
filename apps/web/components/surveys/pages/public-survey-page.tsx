@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { Survey } from '@/lib/db/schema';
@@ -17,17 +17,30 @@ interface SurveyPageClientProps {
 export function SurveyPageClient({ survey, itemSlug }: SurveyPageClientProps) {
 	const router = useRouter();
 	const t = useTranslations('survey');
+	const redirectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-	const handleCompleted = () => {
+	useEffect(() => {
+		return () => {
+			if (redirectTimeoutRef.current) {
+				clearTimeout(redirectTimeoutRef.current);
+			}
+		};
+	}, []);
+
+	const handleCompleted = useCallback(() => {
 		// Redirect after completion
-		setTimeout(() => {
+		if (redirectTimeoutRef.current) {
+			clearTimeout(redirectTimeoutRef.current);
+		}
+		redirectTimeoutRef.current = setTimeout(() => {
 			if (itemSlug) {
 				router.push(`/items/${itemSlug}`);
 			} else {
 				router.push('/surveys');
 			}
+			redirectTimeoutRef.current = null;
 		}, 2000);
-	};
+	}, [itemSlug, router]);
 
 	if (survey.status !== 'published') {
 		return (
@@ -67,4 +80,3 @@ export function SurveyPageClient({ survey, itemSlug }: SurveyPageClientProps) {
 		</>
 	);
 }
-
