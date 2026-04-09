@@ -13,10 +13,12 @@ import { useInView } from 'react-intersection-observer';
 import { PER_PAGE, totalPages } from '@/lib/paginate';
 import { useInfiniteLoading } from '@/hooks/use-infinite-loading';
 import { UniversalPagination } from '@/components/universal-pagination';
+import { useTranslations } from 'next-intl';
 
 const PAGE_SIZE = PER_PAGE;
 
 export default function CategoriesGrid({ categories }: { categories: Category[] }) {
+	const t = useTranslations('common');
 	const { paginationType } = useLayoutTheme();
 	const [page, setPage] = useState(1);
 	const router = useRouter();
@@ -139,7 +141,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 							}
 						}}
 						role="button"
-						aria-label={`View ${category.name} category`}
+						aria-label={t('VIEW_CATEGORY', { name: category.name })}
 						tabIndex={0}
 					>
 						{/* Loading overlay */}
@@ -208,7 +210,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 										group-hover:bg-theme-primary/15 dark:group-hover:bg-theme-primary/25
 										group-hover:border-theme-primary/30 dark:group-hover:border-theme-primary/40
 										transition-all duration-300">
-										{category.count} items
+										{t('ITEMS_COUNT', { count: category.count })}
 									</div>
 								</div>
 							)}
@@ -245,7 +247,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 						<div className="w-full flex items-center justify-center py-8">
 							<div className="flex items-center gap-2 text-theme-primary-500 dark:text-theme-primary-400">
 								<Loader2 className="h-5 w-5 animate-spin" />
-								<span className="text-sm font-medium">Loading...</span>
+								<span className="text-sm font-medium">{t('LOADING_GENERIC')}</span>
 							</div>
 						</div>
 					)}
@@ -266,7 +268,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 									{isLoading && (
 										<>
 											<Loader2 className="h-5 w-5 animate-spin" />
-											<span className="text-sm font-medium">Loading...</span>
+											<span className="text-sm font-medium">{t('LOADING_GENERIC')}</span>
 										</>
 									)}
 								</div>
@@ -275,7 +277,7 @@ export default function CategoriesGrid({ categories }: { categories: Category[] 
 					)}
 					{!hasMore && !error && (
 						<div className="text-center py-4">
-							<p className="text-sm text-gray-500 dark:text-gray-400">You&apos;ve reached the end</p>
+							<p className="text-sm text-gray-500 dark:text-gray-400">{t('END_OF_CONTENT')}</p>
 						</div>
 					)}
 				</div>
