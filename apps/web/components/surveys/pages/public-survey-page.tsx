@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useRouter } from '@/i18n/navigation';
 import type { Survey } from '@/lib/db/schema';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';

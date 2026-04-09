@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { surveyApiClient } from '@/lib/api/survey-api.client';
 import type { Survey } from '@/lib/db/schema';
 import { toast } from 'sonner';
@@ -13,7 +13,6 @@ import { SurveyTypeEnum } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { useTranslations } from 'next-intl';
 import { useSurveysEnabled } from '@/hooks/use-surveys-enabled';
-import Link from 'next/link';
 
 const logger = Logger.create('AdminSurveysList');
 
