@@ -135,7 +135,7 @@ ProfileButtonTrigger.displayName = "ProfileButtonTrigger";
 function ProfileButton() {
   const t = useTranslations();
   const { isProfileMenuOpen, menuRef, buttonRef, toggleMenu, closeMenu } = useProfileMenu();
-  const { handleLogout } = useLogoutOverlay();
+  const { handleLogout, isLoggingOut } = useLogoutOverlay();
   const { user, profilePath, isAdmin, displayRole, onlineStatus, isLoading } = useUserUtils();
   const warnedRef = useRef(false);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -155,6 +155,11 @@ function ProfileButton() {
   const handleNavigationEnd = () => {
     setIsNavigating(false);
     closeMenu();
+  };
+
+  const handleMenuLogout = async () => {
+    closeMenu();
+    await handleLogout();
   };
 
   // Warn once when user data is incomplete (dev only)
@@ -217,7 +222,7 @@ function ProfileButton() {
             onNavigationStart={handleNavigationStart}
             onNavigationEnd={handleNavigationEnd}
             isNavigating={isNavigating}
-            onLogout={handleLogout}
+            onLogout={handleMenuLogout}
             logoutText={t("settings.LOGOUT")}
             logoutDescription={t("settings.LOGOUT_DESC")}
           />
@@ -231,6 +236,24 @@ function ProfileButton() {
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-600 dark:border-gray-400 mx-auto mb-4"></div>
               <p className="text-gray-600 dark:text-gray-400">{t("common.LOADING_GENERIC")}</p>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {isLoggingOut && typeof window !== 'undefined' && createPortal(
+        <div
+          className="fixed inset-0 z-9999999 bg-black/55 backdrop-blur-xs flex items-center justify-center"
+          style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999999 }}
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <div className="bg-white dark:bg-white/5 rounded-lg p-8 shadow-2xl min-w-[280px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 dark:border-red-400 mx-auto mb-4"></div>
+              <p className="text-gray-900 dark:text-gray-100 font-semibold">{t("settings.LOGOUT")}</p>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-2">{t("settings.LOGOUT_DESC")}</p>
             </div>
           </div>
         </div>,
