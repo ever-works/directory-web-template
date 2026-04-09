@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { MapPin, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
@@ -50,9 +50,9 @@ export function LocationSettingsForm() {
 
 	const [privacy, setPrivacy] = useState<LocationPrivacy>(profileLocation?.locationPrivacy ?? 'private');
 
-	// Sync when profile data loads for the first time
-	const [hasInitialized, setHasInitialized] = useState(false);
-	if (!hasInitialized && profileLocation && !isLoading) {
+	useEffect(() => {
+		if (isLoading || !profileLocation) return;
+
 		if (profileLocation.defaultLatitude != null && profileLocation.defaultLongitude != null) {
 			setPickerValue({
 				latitude: profileLocation.defaultLatitude,
@@ -60,10 +60,12 @@ export function LocationSettingsForm() {
 				city: profileLocation.defaultCity ?? undefined,
 				country: profileLocation.defaultCountry ?? undefined,
 			});
+		} else {
+			setPickerValue(undefined);
 		}
+
 		setPrivacy(profileLocation.locationPrivacy ?? 'private');
-		setHasInitialized(true);
-	}
+	}, [profileLocation, isLoading]);
 
 	const handlePickerChange = useCallback((value: LocationPickerValue) => {
 		setPickerValue(value);

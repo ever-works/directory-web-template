@@ -1,5 +1,5 @@
 'use client';
-import { useState, useMemo, useRef, Suspense, useEffect, useCallback } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { Tag } from '@/lib/content';
 import { TagsCards } from '@/components/tags-cards';
 import UniversalPagination from '@/components/universal-pagination';
@@ -10,7 +10,6 @@ import { useLayoutTheme } from '@/components/context';
 import { Loader2 } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import { useInfiniteLoading } from '@/hooks/use-infinite-loading';
-import { GridSkeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import { Container } from '@/components/ui/container';
 import { GridBackground, DotBgsible } from '@/components/shared/decorative-bg';
@@ -115,6 +114,15 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 		threshold: 0.5,
 		rootMargin: '100px'
 	});
+
+	useEffect(() => {
+		return () => {
+			if (debounceRef.current) {
+				clearTimeout(debounceRef.current);
+				debounceRef.current = null;
+			}
+		};
+	}, []);
 
 	// Handle empty state
 	if (tags.length === 0) {
@@ -246,9 +254,5 @@ function TagsGridContent({ tags }: { tags: Tag[] }) {
 }
 
 export default function TagsGridClient({ tags }: { tags: Tag[] }) {
-	return (
-		<Suspense fallback={<GridSkeleton count={12} />}>
-			<TagsGridContent tags={tags} />
-		</Suspense>
-	);
+	return <TagsGridContent tags={tags} />;
 }

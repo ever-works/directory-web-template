@@ -157,20 +157,6 @@ function ProfileButton() {
     closeMenu();
   };
 
-  // Add keyboard navigation support
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isProfileMenuOpen) {
-        closeMenu();
-      }
-    };
-
-    if (isProfileMenuOpen) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => document.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isProfileMenuOpen, closeMenu]);
-
   // Warn once when user data is incomplete (dev only)
   useEffect(() => {
     if (process.env.NODE_ENV !== 'development') return;

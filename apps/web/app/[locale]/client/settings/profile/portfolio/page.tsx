@@ -4,14 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FiBriefcase, FiArrowLeft, FiPlus, FiEdit, FiTrash2, FiStar, FiExternalLink } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
-import { dummyPortfolio } from '@/lib/dummy-data';
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 
+interface PortfolioProject {
+	id: string;
+	title: string;
+	description: string;
+	imageUrl: string;
+	externalUrl: string;
+	tags: string[];
+	isFeatured: boolean;
+}
+
 export default function PortfolioPage() {
 	const t = useTranslations('settings.PORTFOLIO_PAGE');
-	const [projects, setProjects] = useState<any[]>(dummyPortfolio);
+	const [projects, setProjects] = useState<PortfolioProject[]>([]);
+	const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
 	const [title, setTitle] = useState('');
 	const [imageUrl, setImageUrl] = useState('');
@@ -42,19 +52,63 @@ export default function PortfolioPage() {
 		}
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		setSuccess('');
-		const validationErrors = validate();
-		setErrors(validationErrors);
-		if (Object.keys(validationErrors).length > 0) return;
-		setSuccess(t('SUCCESS.PROJECT_ADDED'));
+	const resetForm = () => {
 		setTitle('');
 		setImageUrl('');
 		setDescription('');
 		setExternalUrl('');
 		setTags('');
 		setIsFeatured(false);
+		setErrors({});
+		setEditingProjectId(null);
+	};
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		setSuccess('');
+		const validationErrors = validate();
+		setErrors(validationErrors);
+		if (Object.keys(validationErrors).length > 0) return;
+
+		const nextProject: PortfolioProject = {
+			id: editingProjectId ?? `local-project-${Date.now()}`,
+			title: title.trim(),
+			imageUrl: imageUrl.trim(),
+			description: description.trim(),
+			externalUrl: externalUrl.trim(),
+			tags: tags
+				.split(',')
+				.map((tag) => tag.trim())
+				.filter(Boolean),
+			isFeatured
+		};
+
+		setProjects((prev) =>
+			editingProjectId
+				? prev.map((project) => (project.id === editingProjectId ? nextProject : project))
+				: [nextProject, ...prev]
+		);
+		setSuccess(editingProjectId ? 'Project updated locally for this session.' : 'Project added locally for this session.');
+		resetForm();
+	};
+
+	const handleEditProject = (project: PortfolioProject) => {
+		setEditingProjectId(project.id);
+		setTitle(project.title);
+		setImageUrl(project.imageUrl);
+		setDescription(project.description);
+		setExternalUrl(project.externalUrl);
+		setTags(project.tags.join(', '));
+		setIsFeatured(project.isFeatured);
+		setSuccess('');
+	};
+
+	const handleDeleteProject = (projectId: string) => {
+		setProjects((prev) => prev.filter((project) => project.id !== projectId));
+		if (editingProjectId === projectId) {
+			resetForm();
+		}
+		setSuccess('Project removed from the local session.');
 	};
 
 	return (
@@ -72,10 +126,14 @@ export default function PortfolioPage() {
 						</Link>
 					</div>
 
-					<div className="text-center">
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('TITLE')}</h1>
-						<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">{t('DESCRIPTION')}</p>
-					</div>
+						<div className="text-center">
+							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('TITLE')}</h1>
+							<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">{t('DESCRIPTION')}</p>
+						</div>
+
+						<div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
+							Portfolio changes on this page are local to the current session until portfolio persistence is implemented.
+						</div>
 
 					{/* Add New Project */}
 					<Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg">
@@ -230,16 +288,26 @@ export default function PortfolioPage() {
 									</div>
 								)}
 
-								<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-white/6">
-									<Button
-										type="submit"
-										className="inline-flex items-center gap-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-2"
-									>
-										<FiPlus className="w-4 h-4" />
-										{t('FORM.ADD_PROJECT')}
-									</Button>
-								</div>
-							</form>
+									<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-white/6">
+										{editingProjectId && (
+											<Button
+												type="button"
+												variant="outline"
+												className="py-3 px-6"
+												onClick={resetForm}
+											>
+												Cancel edit
+											</Button>
+										)}
+										<Button
+											type="submit"
+											className="inline-flex items-center gap-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-2"
+										>
+											{editingProjectId ? <FiEdit className="w-4 h-4" /> : <FiPlus className="w-4 h-4" />}
+											{editingProjectId ? 'Save project' : t('FORM.ADD_PROJECT')}
+										</Button>
+									</div>
+								</form>
 						</CardContent>
 					</Card>
 
@@ -251,23 +319,25 @@ export default function PortfolioPage() {
 								{t('YOUR_PROJECTS')}
 							</CardTitle>
 						</CardHeader>
-						<CardContent className="p-6">
-							<div className="space-y-4">
-								{projects.map((project) => (
-									<PortfolioItem
-										key={project.id}
-										project={project}
-										onEdit={() => alert(`Edit project: ${project.title}`)}
-										onDelete={() => {
-											if (window.confirm(`Are you sure you want to delete "${project.title}"?`)) {
-												setProjects((prev) => prev.filter((p) => p.id !== project.id));
-											}
-										}}
-									/>
-								))}
-							</div>
-						</CardContent>
-					</Card>
+							<CardContent className="p-6">
+								{projects.length === 0 ? (
+									<div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">
+										No portfolio projects have been added in this session yet.
+									</div>
+								) : (
+									<div className="space-y-4">
+										{projects.map((project) => (
+											<PortfolioItem
+												key={project.id}
+												project={project}
+												onEdit={() => handleEditProject(project)}
+												onDelete={() => handleDeleteProject(project.id)}
+											/>
+										))}
+									</div>
+								)}
+							</CardContent>
+						</Card>
 				</div>
 			</Container>
 		</div>
@@ -275,15 +345,7 @@ export default function PortfolioPage() {
 }
 
 interface PortfolioItemProps {
-	project: {
-		id: string;
-		title: string;
-		description: string;
-		imageUrl: string;
-		externalUrl: string;
-		tags: string[];
-		isFeatured: boolean;
-	};
+		project: PortfolioProject;
 	onEdit: () => void;
 	onDelete: () => void;
 }
