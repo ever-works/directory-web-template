@@ -15,6 +15,34 @@
     "message": "Authentification",
     "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
   },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "Base de données",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "Définitions de types",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "Routes API",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "Services",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "Composants",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "Fonctionnalités",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
   "sidebar.templateSidebar.category.Payment Integration": {
     "message": "Intégration de paiement",
     "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
@@ -22,6 +50,18 @@
   "sidebar.templateSidebar.category.Internationalization": {
     "message": "Internationalisation",
     "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "Configuration",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "Gestion de contenu",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "Intégrations",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Guides": {
     "message": "Guides",
@@ -42,5 +82,13 @@
   "sidebar.templateSidebar.category.Advanced Guide": {
     "message": "Guide avancé",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Plans": {
+    "message": "Forfaits",
+    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Trigger.dev": {
+    "message": "Trigger.dev",
+    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
   }
 }
