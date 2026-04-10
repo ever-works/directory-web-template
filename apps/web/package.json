@@ -109,7 +109,7 @@
 		"date-fns": "^4.1.0",
 		"deepmerge": "^4.3.1",
 		"dotenv": "^16.4.7",
-		"drizzle-orm": "^0.40.0",
+		"drizzle-orm": "^0.45.2",
 		"exceljs": "^4.4.0",
 		"framer-motion": "12.16.0",
 		"import-in-the-middle": "^2.0.0",
