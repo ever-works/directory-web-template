@@ -1,0 +1,94 @@
+{
+  "version.label": {
+    "message": "Nächste",
+    "description": "The label for version current"
+  },
+  "sidebar.templateSidebar.category.Getting Started": {
+    "message": "Erste Schritte",
+    "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Architecture": {
+    "message": "Architektur",
+    "description": "The label for category 'Architecture' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Authentication": {
+    "message": "Authentifizierung",
+    "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "Datenbank",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "Typdefinitionen",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "API-Routen",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "Dienste",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "Komponenten",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "Funktionen",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Payment Integration": {
+    "message": "Zahlungsintegration",
+    "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Internationalization": {
+    "message": "Internationalisierung",
+    "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "Konfiguration",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "Inhaltsverwaltung",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "Integrationen",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Guides": {
+    "message": "Leitfäden",
+    "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Development": {
+    "message": "Entwicklung",
+    "description": "The label for category 'Development' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Deployment": {
+    "message": "Bereitstellung",
+    "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Team Training": {
+    "message": "Team-Schulung",
+    "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Advanced Guide": {
+    "message": "Erweiterte Anleitung",
+    "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Plans": {
+    "message": "Pläne",
+    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Trigger.dev": {
+    "message": "Trigger.dev",
+    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  }
+}

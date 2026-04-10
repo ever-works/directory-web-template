@@ -1,0 +1,94 @@
+{
+  "version.label": {
+    "message": "Próxima",
+    "description": "The label for version current"
+  },
+  "sidebar.templateSidebar.category.Getting Started": {
+    "message": "Primeiros passos",
+    "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Architecture": {
+    "message": "Arquitetura",
+    "description": "The label for category 'Architecture' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Authentication": {
+    "message": "Autenticação",
+    "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "Base de dados",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "Definições de tipos",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "Rotas de API",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "Serviços",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "Componentes",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "Funcionalidades",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Payment Integration": {
+    "message": "Integração de pagamentos",
+    "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Internationalization": {
+    "message": "Internacionalização",
+    "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "Configuração",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "Gestão de conteúdo",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "Integrações",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Guides": {
+    "message": "Guias",
+    "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Development": {
+    "message": "Desenvolvimento",
+    "description": "The label for category 'Development' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Deployment": {
+    "message": "Implementação",
+    "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Team Training": {
+    "message": "Formação da equipa",
+    "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Advanced Guide": {
+    "message": "Guia avançado",
+    "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Plans": {
+    "message": "Planos",
+    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Trigger.dev": {
+    "message": "Trigger.dev",
+    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  }
+}

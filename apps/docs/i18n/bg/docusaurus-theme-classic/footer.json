@@ -1,0 +1,18 @@
+{
+  "link.item.label.Home": {
+    "message": "Начало",
+    "description": "Footer link with label Home"
+  },
+  "link.item.label.Help": {
+    "message": "Помощ",
+    "description": "Footer link with label Help"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Footer link with label GitHub"
+  },
+  "copyright": {
+    "message": "© {year} Ever® Works. Всички права запазени.",
+    "description": "The footer copyright"
+  }
+}

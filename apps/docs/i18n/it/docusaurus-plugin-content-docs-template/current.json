@@ -1,0 +1,94 @@
+{
+  "version.label": {
+    "message": "Prossima",
+    "description": "The label for version current"
+  },
+  "sidebar.templateSidebar.category.Getting Started": {
+    "message": "Per iniziare",
+    "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Architecture": {
+    "message": "Architettura",
+    "description": "The label for category 'Architecture' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Authentication": {
+    "message": "Autenticazione",
+    "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "Database",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "Definizioni dei tipi",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "Route API",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "Servizi",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "Componenti",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "Funzionalità",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Payment Integration": {
+    "message": "Integrazione pagamenti",
+    "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Internationalization": {
+    "message": "Internazionalizzazione",
+    "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "Configurazione",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "Gestione dei contenuti",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "Integrazioni",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Guides": {
+    "message": "Guide",
+    "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Development": {
+    "message": "Sviluppo",
+    "description": "The label for category 'Development' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Deployment": {
+    "message": "Distribuzione",
+    "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Team Training": {
+    "message": "Formazione del team",
+    "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Advanced Guide": {
+    "message": "Guida avanzata",
+    "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Plans": {
+    "message": "Piani",
+    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Trigger.dev": {
+    "message": "Trigger.dev",
+    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  }
+}

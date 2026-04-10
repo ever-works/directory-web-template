@@ -1,0 +1,18 @@
+{
+  "link.item.label.Home": {
+    "message": "首页",
+    "description": "Footer link with label Home"
+  },
+  "link.item.label.Help": {
+    "message": "帮助",
+    "description": "Footer link with label Help"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Footer link with label GitHub"
+  },
+  "copyright": {
+    "message": "© {year} Ever® Works。保留所有权利。",
+    "description": "The footer copyright"
+  }
+}
