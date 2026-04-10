@@ -102,7 +102,7 @@
 		"@uppy/status-bar": "^5.1.0",
 		"@vercel/analytics": "^1.5.0",
 		"@vercel/speed-insights": "^1.2.0",
-		"axios": "^1.13.5",
+		"axios": "^1.15.0",
 		"bcryptjs": "^3.0.2",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
