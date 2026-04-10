@@ -1,51 +1,13 @@
 {
+  "help.message": {
+    "message": "Hulp nodig?"
+  },
+  "help.description": {
+    "message": "Dit project wordt onderhouden door een groep toegewijde mensen."
+  },
   "theme.ErrorPageContent.title": {
     "message": "Deze pagina is gecrasht.",
     "description": "The title of the fallback page when the page crashed"
-  },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Opnieuw proberen",
-    "description": "The label of the button to try again when the page crashed"
-  },
-  "theme.NotFound.title": {
-    "message": "Pagina niet gevonden",
-    "description": "The title of the 404 page"
-  },
-  "theme.NotFound.p1": {
-    "message": "We konden niet vinden wat u zocht.",
-    "description": "The first paragraph of the 404 page"
-  },
-  "theme.NotFound.p2": {
-    "message": "Neem contact op met de eigenaar van de site die u hiernaartoe heeft verwezen en laat hem weten dat de link is verbroken.",
-    "description": "The 2nd paragraph of the 404 page"
-  },
-  "theme.admonition.caution": {
-    "message": "let op",
-    "description": "The default label used for the Caution admonition"
-  },
-  "theme.admonition.danger": {
-    "message": "gevaar",
-    "description": "The default label used for the Danger admonition"
-  },
-  "theme.admonition.info": {
-    "message": "info",
-    "description": "The default label used for the Info admonition"
-  },
-  "theme.admonition.note": {
-    "message": "noot",
-    "description": "The default label used for the Note admonition"
-  },
-  "theme.admonition.tip": {
-    "message": "tip",
-    "description": "The default label used for the Tip admonition"
-  },
-  "theme.admonition.warning": {
-    "message": "waarschuwing",
-    "description": "The default label used for the Warning admonition"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Sluiten",
-    "description": "The ARIA label for close button of announcement bar"
   },
   "theme.BackToTopButton.buttonAriaLabel": {
     "message": "Terug naar boven",
@@ -60,7 +22,7 @@
     "description": "The page & hero description of the blog archive page"
   },
   "theme.blog.paginator.navAriaLabel": {
-    "message": "Blognavigatie",
+    "message": "Bloglijst paginering",
     "description": "The ARIA label for the blog pagination"
   },
   "theme.blog.paginator.newerEntries": {
@@ -72,7 +34,7 @@
     "description": "The label used to navigate to the older blog posts page (next page)"
   },
   "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Blogberichtnavigatie",
+    "message": "Blogbericht paginering",
     "description": "The ARIA label for the blog posts pagination"
   },
   "theme.blog.post.paginator.newerPost": {
@@ -83,12 +45,282 @@
     "message": "Ouder bericht",
     "description": "The blog post button label to navigate to the older/next post"
   },
+  "theme.tags.tagsPageLink": {
+    "message": "Alle tags bekijken",
+    "description": "The label of the link targeting the tag list page"
+  },
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "systeemmodus",
+    "description": "The name for the system color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.light": {
+    "message": "lichte modus",
+    "description": "The name for the light color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "donkere modus",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Schakelen tussen donkere en lichte modus (momenteel {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Kruimelpad",
+    "description": "The ARIA label for the breadcrumbs"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "1 item|{count} items",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
+  },
+  "theme.docs.paginator.navAriaLabel": {
+    "message": "Documentatiepagina's",
+    "description": "The ARIA label for the docs pagination"
+  },
+  "theme.docs.paginator.previous": {
+    "message": "Vorige",
+    "description": "The label used to navigate to the previous doc"
+  },
+  "theme.docs.paginator.next": {
+    "message": "Volgende",
+    "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "1 document getagd|{count} documenten getagd",
+    "description": "Pluralized label for \"{count} docs tagged\""
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} met \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Versie: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "Dit is de documentatie voor de aankomende {versionLabel} versie van {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "Dit is de documentatie van {siteTitle} {versionLabel}, die niet meer actief wordt onderhouden.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "Zie {latestVersionLink} ({versionLabel}) voor actuele documentatie.",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "nieuwste versie",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "Deze pagina bewerken",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Directe link naar {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " op {date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " door {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "Laatst bijgewerkt{atDate}{byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Versies",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "Pagina niet gevonden",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "Tags:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "let op",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "gevaar",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "info",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "opmerking",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "tip",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "waarschuwing",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Sluiten",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Recente blogberichten navigatie",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Categorie '{label}' in zijbalk uitvouwen",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Categorie '{label}' in zijbalk invouwen",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.IconExternalLink.ariaLabel": {
+    "message": "(opent in een nieuw tabblad)",
+    "description": "The ARIA label for the external link icon"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Hoofdnavigatie",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Talen",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "We konden niet vinden wat u zocht.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Neem contact op met de eigenaar van de site die u naar de oorspronkelijke URL heeft geleid en laat hen weten dat de link niet werkt.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "Op deze pagina",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Lees meer",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Lees meer over {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "Eén minuut leestijd|{readingTime} minuten leestijd",
+    "description": "Pluralized label for \"{readingTime} min read\""
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Kopiëren",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Gekopieerd",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Code kopiëren",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Startpagina",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Woordterugloop in-/uitschakelen",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "Zijbalk invouwen",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "Zijbalk invouwen",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Documentatie zijbalk",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "Navigatiebalk sluiten",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Terug naar hoofdmenu",
+    "description": "The label of the back button to return to main menu"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "Navigatiebalk openen/sluiten",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Uitklapmenu uitvouwen",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Uitklapmenu invouwen",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "Zijbalk uitvouwen",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "Zijbalk uitvouwen",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "Geen resultaten"
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "Alle resultaten buiten « {context} » bekijken"
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "Alle resultaten in « {context} » bekijken"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Alle resultaten bekijken"
+  },
+  "theme.SearchBar.label": {
+    "message": "Zoeken",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Zoekresultaten voor « {query} »",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Documentatie doorzoeken",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "Overal"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "1 document gevonden|{count} documenten gevonden",
+    "description": "Pluralized label for \"{count} documents found\""
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "Geen documenten gevonden",
+    "description": "The paragraph for empty search result"
+  },
   "theme.blog.post.plurals": {
-    "message": "Één bericht|{count} berichten",
+    "message": "Eén bericht|{count} berichten",
     "description": "Pluralized label for \"{count} posts\""
   },
   "theme.blog.tagTitle": {
-    "message": "{nPosts} getagd met \"{tagName}\"",
+    "message": "{nPosts} getagd met « {tagName} »",
     "description": "The title of the page for a blog tag"
   },
   "theme.blog.author.pageTitle": {
@@ -103,144 +335,76 @@
     "message": "Alle auteurs bekijken",
     "description": "The label of the link targeting the blog authors page"
   },
-  "theme.breadcrumbs.home": {
-    "message": "Startpagina",
-    "description": "The ARIA label for the home page in breadcrumbs"
+  "theme.blog.author.noPosts": {
+    "message": "Deze auteur heeft nog geen berichten geschreven.",
+    "description": "The text for authors with 0 blog post"
   },
-  "theme.breadcrumbs.navAriaLabel": {
-    "message": "Broodkruimels",
-    "description": "The ARIA label for the breadcrumbs"
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "Niet-vermelde pagina",
+    "description": "The unlisted content banner title"
   },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Schakel tussen donkere en lichte modus (momenteel {mode})",
-    "description": "The ARIA label for the navbar color mode toggle"
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "Deze pagina is niet vermeld. Zoekmachines zullen deze niet indexeren en alleen gebruikers met een directe link hebben toegang.",
+    "description": "The unlisted content banner message"
   },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "donkere modus",
-    "description": "The name for the dark color mode"
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "Conceptpagina",
+    "description": "The draft content banner title"
   },
-  "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "lichte modus",
-    "description": "The name for the light color mode"
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "Deze pagina is een concept. Het is alleen zichtbaar in de ontwikkelmodus en wordt uitgesloten van de productieversie.",
+    "description": "The draft content banner message"
   },
-  "theme.docs.breadcrumbs.home": {
-    "message": "Startpagina",
-    "description": "The ARIA label for the home page in doc breadcrumbs"
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Opnieuw proberen",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
   },
-  "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "1 item|{count} items",
-    "description": "The default description for a category card in the docs home page."
+  "theme.common.skipToMainContent": {
+    "message": "Ga naar de hoofdinhoud",
+    "description": "The skip to content label used for accessibility"
   },
-  "theme.docs.paginator.navAriaLabel": {
-    "message": "Documentatienavigatie",
-    "description": "The ARIA label for the docs pagination"
+  "theme.tags.tagsPageTitle": {
+    "message": "Tags",
+    "description": "The title of the tag list page"
   },
-  "theme.docs.paginator.previous": {
-    "message": "Vorige",
-    "description": "The label used to navigate to the previous doc"
+  "users.title": {
+    "message": "Wie gebruikt dit project?",
+    "description": "Users page heading"
   },
-  "theme.docs.paginator.next": {
-    "message": "Volgende",
-    "description": "The label used to navigate to the next doc"
+  "users.subtitle": {
+    "message": "Dit project wordt door veel mensen gebruikt",
+    "description": "Users page subtitle"
   },
-  "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Zijbalk inklappen",
-    "description": "The title attribute for collapse button of doc sidebar"
+  "users.callToAction": {
+    "message": "Gebruikt u dit project?",
+    "description": "Users page call to action"
   },
-  "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Zijbalk inklappen",
-    "description": "The title attribute for collapse button of doc sidebar"
+  "users.addCompany": {
+    "message": "Voeg uw bedrijf toe",
+    "description": "Button label to add company"
   },
-  "theme.docs.sidebar.navAriaLabel": {
-    "message": "Documentatiezijbalk",
-    "description": "The ARIA label for the sidebar navigation"
+  "help.browseDocs.title": {
+    "message": "Documentatie bekijken",
+    "description": "Help page feature title for browsing docs"
   },
-  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Navigatiebalk sluiten",
-    "description": "The ARIA label for close button of mobile sidebar"
+  "help.browseDocs.description": {
+    "message": "Leer meer via de documentatie van deze site.",
+    "description": "Help page feature description for browsing docs"
   },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Talen",
-    "description": "The ARIA label for the mobile language selection dropdown"
+  "help.joinCommunity.title": {
+    "message": "Word lid van de community",
+    "description": "Help page feature title for joining community"
   },
-  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Navigatiebalk in-/uitschakelen",
-    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  "help.joinCommunity.description": {
+    "message": "Stel vragen over de documentatie en het project",
+    "description": "Help page feature description for joining community"
   },
-  "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Zijbalk uitvouwen",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  "help.stayUpToDate.title": {
+    "message": "Blijf op de hoogte",
+    "description": "Help page feature title for staying up to date"
   },
-  "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Zijbalk uitvouwen",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
-  },
-  "theme.DocSidebarItem.toggleCollapsedCategoryAriaLabel": {
-    "message": "Inklapbare categorie '{label}' in-/uitschakelen",
-    "description": "The ARIA label to toggle the collapsible sidebar category"
-  },
-  "theme.DocSidebarItem.linkAriaLabel": {
-    "message": "Zijbalklink '{label}'",
-    "description": "The ARIA label for a sidebar link"
-  },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Terug naar hoofdmenu",
-    "description": "The label of the back button to return to main menu"
-  },
-  "theme.SearchBar.label": {
-    "message": "Zoeken",
-    "description": "The ARIA label and placeholder for search button"
-  },
-  "theme.SearchBar.sidebarSearchPlaceholder": {
-    "message": "Zoeken...",
-    "description": "The placeholder for the search bar located in the sidebar"
-  },
-  "theme.SearchPage.emptyResultsTitle": {
-    "message": "Zoek in de documentatie",
-    "description": "The search page title for empty query"
-  },
-  "theme.SearchPage.existingResultsTitle": {
-    "message": "Zoekresultaten voor \"{query}\"",
-    "description": "The search page title for non-empty query"
-  },
-  "theme.SearchPage.fetchingNewResults": {
-    "message": "Nieuwe resultaten ophalen...",
-    "description": "The status when new results are being fetched"
-  },
-  "theme.SearchPage.inputPlaceholder": {
-    "message": "Typ uw zoekopdracht hier",
-    "description": "The placeholder for search page input"
-  },
-  "theme.SearchPage.noResultsText": {
-    "message": "Geen resultaten gevonden",
-    "description": "The paragraph for empty search result"
-  },
-  "theme.SearchPage.seeAll": {
-    "message": "Alle {count} resultaten bekijken",
-    "description": "The search page link to see all results for the searched query"
-  },
-  "theme.lastUpdated.atDate": {
-    "message": " op {date}",
-    "description": "The words used to describe at which date a page has been last updated"
-  },
-  "theme.lastUpdated.byUser": {
-    "message": " door {user}",
-    "description": "The words used to describe by who the page has been last updated"
-  },
-  "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Laatste update{atDate}{byUser}",
-    "description": "The sentence used to display when a page has been last updated, and by who"
-  },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "Op deze pagina",
-    "description": "The label used by the button on the collapsible TOC component"
-  },
-  "theme.tags.tagsPageLink": {
-    "message": "Alle tags bekijken",
-    "description": "The label of the link targeting the tag list page"
-  },
-  "theme.tags.tagsListLabel": {
-    "message": "Tags:",
-    "description": "The label alongside a tag list"
+  "help.stayUpToDate.description": {
+    "message": "Ontdek wat er nieuw is in dit project",
+    "description": "Help page feature description for staying up to date"
   }
 }

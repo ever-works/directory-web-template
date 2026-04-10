@@ -13,7 +13,7 @@
   },
   "link.item.label.Home": {
     "message": "Inicio",
-    "description": "The label of footer link with label=Home linking to /"
+    "description": "The label of footer link with label=Home"
   },
   "link.item.label.Getting Started": {
     "message": "Primeros pasos",
@@ -25,14 +25,14 @@
   },
   "link.item.label.User Showcases": {
     "message": "Proyectos de usuarios",
-    "description": "The label of footer link with label=User Showcases linking to /users"
+    "description": "The label of footer link with label=User Showcases"
   },
   "link.item.label.Stack Overflow": {
     "message": "Stack Overflow",
     "description": "The label of footer link with label=Stack Overflow"
   },
   "link.item.label.Discord Chat": {
-    "message": "Chat Discord",
+    "message": "Chat de Discord",
     "description": "The label of footer link with label=Discord Chat"
   },
   "link.item.label.Twitter": {
@@ -44,7 +44,7 @@
     "description": "The label of footer link with label=GitHub"
   },
   "copyright": {
-    "message": "Copyright © 2024-Presente <a href=\"https://ever.co/\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: inherit; text-decoration: underline;\">Ever Co. LTD.</a>",
+    "message": "Derechos de autor © 2024-Presente <a href=\"https://ever.co/\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: inherit; text-decoration: underline;\">Ever Co. LTD.</a>",
     "description": "The footer copyright"
   }
 }

@@ -32,7 +32,7 @@
     "description": "The label for category 'Services' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Hooks": {
-    "message": "Hooks",
+    "message": "Куки",
     "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Components": {
@@ -44,7 +44,7 @@
     "description": "The label for category 'Features' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Payment Integration": {
-    "message": "Интеграция с плащания",
+    "message": "Интеграция на плащания",
     "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Internationalization": {
@@ -72,23 +72,19 @@
     "description": "The label for category 'Development' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Deployment": {
-    "message": "Разполагане",
+    "message": "Внедряване",
     "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Team Training": {
-    "message": "Обучение на екипа",
+    "message": "Обучение на екип",
     "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Advanced Guide": {
     "message": "Разширено ръководство",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Планове",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Относно",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

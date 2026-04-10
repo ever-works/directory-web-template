@@ -4,11 +4,11 @@
     "description": "The alt text of navbar logo"
   },
   "item.label.Home": {
-    "message": "Startpagina",
+    "message": "Home",
     "description": "Navbar item with label Home"
   },
   "item.label.Help": {
-    "message": "Hulp",
+    "message": "Help",
     "description": "Navbar item with label Help"
   },
   "item.label.GitHub": {

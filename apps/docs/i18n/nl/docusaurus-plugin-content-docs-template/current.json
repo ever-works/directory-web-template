@@ -28,7 +28,7 @@
     "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Services": {
-    "message": "Services",
+    "message": "Diensten",
     "description": "The label for category 'Services' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Hooks": {
@@ -83,12 +83,8 @@
     "message": "Geavanceerde handleiding",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Plannen",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Over",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

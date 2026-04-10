@@ -24,7 +24,7 @@
     "description": "The label of footer link with label=Architecture"
   },
   "link.item.label.User Showcases": {
-    "message": "Benutzer-Showcases",
+    "message": "Anwendungsbeispiele",
     "description": "The label of footer link with label=User Showcases"
   },
   "link.item.label.Stack Overflow": {
@@ -44,7 +44,7 @@
     "description": "The label of footer link with label=GitHub"
   },
   "copyright": {
-    "message": "Copyright © 2024-Gegenwart <a href=\"https://ever.co/\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: inherit; text-decoration: underline;\">Ever Co. LTD.</a>",
+    "message": "Copyright © 2024-Heute <a href=\"https://ever.co/\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color: inherit; text-decoration: underline;\">Ever Co. LTD.</a>",
     "description": "The footer copyright"
   }
 }

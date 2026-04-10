@@ -1,6 +1,6 @@
 {
   "version.label": {
-    "message": "Próxima",
+    "message": "Próximo",
     "description": "The label for version current"
   },
   "sidebar.templateSidebar.category.Getting Started": {
@@ -16,7 +16,7 @@
     "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Database": {
-    "message": "Base de dados",
+    "message": "Banco de dados",
     "description": "The label for category 'Database' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Type Definitions": {
@@ -44,7 +44,7 @@
     "description": "The label for category 'Features' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Payment Integration": {
-    "message": "Integração de pagamentos",
+    "message": "Integração de pagamento",
     "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Internationalization": {
@@ -72,23 +72,19 @@
     "description": "The label for category 'Development' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Deployment": {
-    "message": "Implementação",
+    "message": "Implantação",
     "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Team Training": {
-    "message": "Formação da equipa",
+    "message": "Treinamento de equipe",
     "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Advanced Guide": {
     "message": "Guia avançado",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Planos",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Sobre",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

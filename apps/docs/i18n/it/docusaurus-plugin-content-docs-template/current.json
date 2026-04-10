@@ -1,10 +1,10 @@
 {
   "version.label": {
-    "message": "Prossima",
+    "message": "Successivo",
     "description": "The label for version current"
   },
   "sidebar.templateSidebar.category.Getting Started": {
-    "message": "Per iniziare",
+    "message": "Primi passi",
     "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Architecture": {
@@ -20,11 +20,11 @@
     "description": "The label for category 'Database' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Type Definitions": {
-    "message": "Definizioni dei tipi",
+    "message": "Definizioni di tipo",
     "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.API Routes": {
-    "message": "Route API",
+    "message": "Rotte API",
     "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Services": {
@@ -56,7 +56,7 @@
     "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Content Management": {
-    "message": "Gestione dei contenuti",
+    "message": "Gestione contenuti",
     "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Integrations": {
@@ -83,12 +83,8 @@
     "message": "Guida avanzata",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Piani",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Informazioni",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

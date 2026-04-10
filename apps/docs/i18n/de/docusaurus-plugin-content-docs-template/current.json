@@ -64,7 +64,7 @@
     "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Guides": {
-    "message": "Leitfäden",
+    "message": "Anleitungen",
     "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Development": {
@@ -76,19 +76,15 @@
     "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Team Training": {
-    "message": "Team-Schulung",
+    "message": "Teamschulung",
     "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Advanced Guide": {
-    "message": "Erweiterte Anleitung",
+    "message": "Erweiterter Leitfaden",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Pläne",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Über",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

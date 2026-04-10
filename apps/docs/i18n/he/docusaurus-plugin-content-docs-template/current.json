@@ -48,11 +48,11 @@
     "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Internationalization": {
-    "message": "בינאום",
+    "message": "בינלאומיות",
     "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Configuration": {
-    "message": "הגדרות",
+    "message": "תצורה",
     "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Content Management": {
@@ -83,12 +83,8 @@
     "message": "מדריך מתקדם",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "תוכניות",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "אודות",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

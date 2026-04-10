@@ -1,54 +1,16 @@
 {
+  "help.message": {
+    "message": "Potrzebujesz pomocy?"
+  },
+  "help.description": {
+    "message": "Ten projekt jest utrzymywany przez grupę oddanych osób."
+  },
   "theme.ErrorPageContent.title": {
     "message": "Ta strona uległa awarii.",
     "description": "The title of the fallback page when the page crashed"
   },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Spróbuj ponownie",
-    "description": "The label of the button to try again when the page crashed"
-  },
-  "theme.NotFound.title": {
-    "message": "Strona nie znaleziona",
-    "description": "The title of the 404 page"
-  },
-  "theme.NotFound.p1": {
-    "message": "Nie mogliśmy znaleźć tego, czego szukałeś.",
-    "description": "The first paragraph of the 404 page"
-  },
-  "theme.NotFound.p2": {
-    "message": "Skontaktuj się z właścicielem witryny, który cię tu skierował i poinformuj go, że link jest zepsuty.",
-    "description": "The 2nd paragraph of the 404 page"
-  },
-  "theme.admonition.caution": {
-    "message": "ostrożnie",
-    "description": "The default label used for the Caution admonition"
-  },
-  "theme.admonition.danger": {
-    "message": "niebezpieczeństwo",
-    "description": "The default label used for the Danger admonition"
-  },
-  "theme.admonition.info": {
-    "message": "informacja",
-    "description": "The default label used for the Info admonition"
-  },
-  "theme.admonition.note": {
-    "message": "uwaga",
-    "description": "The default label used for the Note admonition"
-  },
-  "theme.admonition.tip": {
-    "message": "wskazówka",
-    "description": "The default label used for the Tip admonition"
-  },
-  "theme.admonition.warning": {
-    "message": "ostrzeżenie",
-    "description": "The default label used for the Warning admonition"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Zamknij",
-    "description": "The ARIA label for close button of announcement bar"
-  },
   "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Wróć na górę",
+    "message": "Powrót na górę",
     "description": "The ARIA label for the back to top button"
   },
   "theme.blog.archive.title": {
@@ -60,7 +22,7 @@
     "description": "The page & hero description of the blog archive page"
   },
   "theme.blog.paginator.navAriaLabel": {
-    "message": "Nawigacja po stronach bloga",
+    "message": "Paginacja listy blogów",
     "description": "The ARIA label for the blog pagination"
   },
   "theme.blog.paginator.newerEntries": {
@@ -72,7 +34,7 @@
     "description": "The label used to navigate to the older blog posts page (next page)"
   },
   "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Nawigacja po wpisach bloga",
+    "message": "Paginacja wpisów na blogu",
     "description": "The ARIA label for the blog posts pagination"
   },
   "theme.blog.post.paginator.newerPost": {
@@ -83,56 +45,36 @@
     "message": "Starszy wpis",
     "description": "The blog post button label to navigate to the older/next post"
   },
-  "theme.blog.post.plurals": {
-    "message": "Jeden wpis|{count} wpisy|{count} wpisów",
-    "description": "Pluralized label for \"{count} posts\""
+  "theme.tags.tagsPageLink": {
+    "message": "Zobacz wszystkie tagi",
+    "description": "The label of the link targeting the tag list page"
   },
-  "theme.blog.tagTitle": {
-    "message": "{nPosts} oznaczonych tagiem \"{tagName}\"",
-    "description": "The title of the page for a blog tag"
-  },
-  "theme.blog.author.pageTitle": {
-    "message": "{authorName} - {nPosts}",
-    "description": "The title of the page for a blog author"
-  },
-  "theme.blog.authorsList.pageTitle": {
-    "message": "Autorzy",
-    "description": "The title of the authors page"
-  },
-  "theme.blog.authorsList.viewAll": {
-    "message": "Zobacz wszystkich autorów",
-    "description": "The label of the link targeting the blog authors page"
-  },
-  "theme.breadcrumbs.home": {
-    "message": "Strona główna",
-    "description": "The ARIA label for the home page in breadcrumbs"
-  },
-  "theme.breadcrumbs.navAriaLabel": {
-    "message": "Okruszki chleba",
-    "description": "The ARIA label for the breadcrumbs"
-  },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Przełączanie między trybem ciemnym a jasnym (aktualnie {mode})",
-    "description": "The ARIA label for the navbar color mode toggle"
-  },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "tryb ciemny",
-    "description": "The name for the dark color mode"
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "tryb systemowy",
+    "description": "The name for the system color mode"
   },
   "theme.colorToggle.ariaLabel.mode.light": {
     "message": "tryb jasny",
     "description": "The name for the light color mode"
   },
-  "theme.docs.breadcrumbs.home": {
-    "message": "Strona główna",
-    "description": "The ARIA label for the home page in doc breadcrumbs"
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "tryb ciemny",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Przełączanie między trybem ciemnym a jasnym (obecnie {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Ścieżka nawigacji",
+    "description": "The ARIA label for the breadcrumbs"
   },
   "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "1 element|{count} elementy|{count} elementów",
-    "description": "The default description for a category card in the docs home page."
+    "message": "1 element|{count} elementów",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
   },
   "theme.docs.paginator.navAriaLabel": {
-    "message": "Nawigacja po stronach dokumentacji",
+    "message": "Strony dokumentacji",
     "description": "The ARIA label for the docs pagination"
   },
   "theme.docs.paginator.previous": {
@@ -142,6 +84,161 @@
   "theme.docs.paginator.next": {
     "message": "Następny",
     "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "1 dokument otagowany|{count} dokumentów otagowanych",
+    "description": "Pluralized label for \"{count} docs tagged\""
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} z \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Wersja: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "To jest dokumentacja nadchodzącej wersji {versionLabel} {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "To jest dokumentacja {siteTitle} {versionLabel}, która nie jest już aktywnie utrzymywana.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "Aby uzyskać aktualną dokumentację, zobacz {latestVersionLink} ({versionLabel}).",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "najnowsza wersja",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "Edytuj tę stronę",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Bezpośredni link do {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " dnia {date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " przez {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "Ostatnia aktualizacja{atDate}{byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Wersje",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "Strona nie znaleziona",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "Tagi:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "uwaga",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "niebezpieczeństwo",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "informacja",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "notatka",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "wskazówka",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "ostrzeżenie",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Zamknij",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Nawigacja ostatnich wpisów na blogu",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Rozwiń kategorię '{label}' na pasku bocznym",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Zwiń kategorię '{label}' na pasku bocznym",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.IconExternalLink.ariaLabel": {
+    "message": "(otwiera się w nowej karcie)",
+    "description": "The ARIA label for the external link icon"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Nawigacja główna",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Języki",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "Nie znaleźliśmy tego, czego szukasz.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Skontaktuj się z właścicielem strony, który skierował Cię na oryginalny adres URL i poinformuj go, że link jest uszkodzony.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "Na tej stronie",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Czytaj więcej",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Czytaj więcej o {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "Jedna minuta czytania|{readingTime} minut czytania",
+    "description": "Pluralized label for \"{readingTime} min read\""
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Kopiuj",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Skopiowano",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Kopiuj kod",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Strona główna",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Przełącz zawijanie wierszy",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
   },
   "theme.docs.sidebar.collapseButtonTitle": {
     "message": "Zwiń pasek boczny",
@@ -156,16 +253,24 @@
     "description": "The ARIA label for the sidebar navigation"
   },
   "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Zamknij pasek nawigacyjny",
+    "message": "Zamknij nawigację",
     "description": "The ARIA label for close button of mobile sidebar"
   },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Języki",
-    "description": "The ARIA label for the mobile language selection dropdown"
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Powrót do menu głównego",
+    "description": "The label of the back button to return to main menu"
   },
   "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Przełącz pasek nawigacyjny",
+    "message": "Otwórz/zamknij nawigację",
     "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Rozwiń menu rozwijane",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Zwiń menu rozwijane",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
   },
   "theme.docs.sidebar.expandButtonTitle": {
     "message": "Rozwiń pasek boczny",
@@ -175,72 +280,131 @@
     "message": "Rozwiń pasek boczny",
     "description": "The ARIA label and title attribute for expand button of doc sidebar"
   },
-  "theme.DocSidebarItem.toggleCollapsedCategoryAriaLabel": {
-    "message": "Przełącz zwijaną kategorię '{label}'",
-    "description": "The ARIA label to toggle the collapsible sidebar category"
+  "theme.SearchBar.noResultsText": {
+    "message": "Brak wyników"
   },
-  "theme.DocSidebarItem.linkAriaLabel": {
-    "message": "Link w pasku bocznym '{label}'",
-    "description": "The ARIA label for a sidebar link"
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "Zobacz wszystkie wyniki poza « {context} »"
   },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Powrót do menu głównego",
-    "description": "The label of the back button to return to main menu"
+  "theme.SearchBar.searchInContext": {
+    "message": "Zobacz wszystkie wyniki w « {context} »"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Zobacz wszystkie wyniki"
   },
   "theme.SearchBar.label": {
     "message": "Szukaj",
     "description": "The ARIA label and placeholder for search button"
   },
-  "theme.SearchBar.sidebarSearchPlaceholder": {
-    "message": "Szukaj...",
-    "description": "The placeholder for the search bar located in the sidebar"
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Wyniki wyszukiwania dla « {query} »",
+    "description": "The search page title for non-empty query"
   },
   "theme.SearchPage.emptyResultsTitle": {
     "message": "Przeszukaj dokumentację",
     "description": "The search page title for empty query"
   },
-  "theme.SearchPage.existingResultsTitle": {
-    "message": "Wyniki wyszukiwania dla \"{query}\"",
-    "description": "The search page title for non-empty query"
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "Wszędzie"
   },
-  "theme.SearchPage.fetchingNewResults": {
-    "message": "Pobieranie nowych wyników...",
-    "description": "The status when new results are being fetched"
-  },
-  "theme.SearchPage.inputPlaceholder": {
-    "message": "Wpisz tutaj swoje zapytanie",
-    "description": "The placeholder for search page input"
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "1 dokument znaleziony|{count} dokumentów znalezionych",
+    "description": "Pluralized label for \"{count} documents found\""
   },
   "theme.SearchPage.noResultsText": {
-    "message": "Brak wyników",
+    "message": "Nie znaleziono dokumentów",
     "description": "The paragraph for empty search result"
   },
-  "theme.SearchPage.seeAll": {
-    "message": "Zobacz wszystkie {count} wyniki",
-    "description": "The search page link to see all results for the searched query"
+  "theme.blog.post.plurals": {
+    "message": "Jeden wpis|{count} wpisów",
+    "description": "Pluralized label for \"{count} posts\""
   },
-  "theme.lastUpdated.atDate": {
-    "message": " dnia {date}",
-    "description": "The words used to describe at which date a page has been last updated"
+  "theme.blog.tagTitle": {
+    "message": "{nPosts} otagowanych « {tagName} »",
+    "description": "The title of the page for a blog tag"
   },
-  "theme.lastUpdated.byUser": {
-    "message": " przez {user}",
-    "description": "The words used to describe by who the page has been last updated"
+  "theme.blog.author.pageTitle": {
+    "message": "{authorName} - {nPosts}",
+    "description": "The title of the page for a blog author"
   },
-  "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Ostatnia aktualizacja{atDate}{byUser}",
-    "description": "The sentence used to display when a page has been last updated, and by who"
+  "theme.blog.authorsList.pageTitle": {
+    "message": "Autorzy",
+    "description": "The title of the authors page"
   },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "Na tej stronie",
-    "description": "The label used by the button on the collapsible TOC component"
+  "theme.blog.authorsList.viewAll": {
+    "message": "Zobacz wszystkich autorów",
+    "description": "The label of the link targeting the blog authors page"
   },
-  "theme.tags.tagsPageLink": {
-    "message": "Zobacz wszystkie tagi",
-    "description": "The label of the link targeting the tag list page"
+  "theme.blog.author.noPosts": {
+    "message": "Ten autor nie napisał jeszcze żadnych wpisów.",
+    "description": "The text for authors with 0 blog post"
   },
-  "theme.tags.tagsListLabel": {
-    "message": "Tagi:",
-    "description": "The label alongside a tag list"
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "Strona niewidoczna",
+    "description": "The unlisted content banner title"
+  },
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "Ta strona nie jest widoczna publicznie. Wyszukiwarki nie będą jej indeksować, a dostęp mają tylko użytkownicy z bezpośrednim linkiem.",
+    "description": "The unlisted content banner message"
+  },
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "Strona robocza",
+    "description": "The draft content banner title"
+  },
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "Ta strona jest szkicem. Będzie widoczna tylko w trybie deweloperskim i zostanie wykluczona z wersji produkcyjnej.",
+    "description": "The draft content banner message"
+  },
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Spróbuj ponownie",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+  },
+  "theme.common.skipToMainContent": {
+    "message": "Przejdź do głównej treści",
+    "description": "The skip to content label used for accessibility"
+  },
+  "theme.tags.tagsPageTitle": {
+    "message": "Tagi",
+    "description": "The title of the tag list page"
+  },
+  "users.title": {
+    "message": "Kto korzysta z tego projektu?",
+    "description": "Users page heading"
+  },
+  "users.subtitle": {
+    "message": "Ten projekt jest używany przez wiele osób",
+    "description": "Users page subtitle"
+  },
+  "users.callToAction": {
+    "message": "Czy korzystasz z tego projektu?",
+    "description": "Users page call to action"
+  },
+  "users.addCompany": {
+    "message": "Dodaj swoją firmę",
+    "description": "Button label to add company"
+  },
+  "help.browseDocs.title": {
+    "message": "Przeglądaj dokumentację",
+    "description": "Help page feature title for browsing docs"
+  },
+  "help.browseDocs.description": {
+    "message": "Dowiedz się więcej z dokumentacji tej strony.",
+    "description": "Help page feature description for browsing docs"
+  },
+  "help.joinCommunity.title": {
+    "message": "Dołącz do społeczności",
+    "description": "Help page feature title for joining community"
+  },
+  "help.joinCommunity.description": {
+    "message": "Zadawaj pytania dotyczące dokumentacji i projektu",
+    "description": "Help page feature description for joining community"
+  },
+  "help.stayUpToDate.title": {
+    "message": "Bądź na bieżąco",
+    "description": "Help page feature title for staying up to date"
+  },
+  "help.stayUpToDate.description": {
+    "message": "Odkryj nowości w tym projekcie",
+    "description": "Help page feature description for staying up to date"
   }
 }

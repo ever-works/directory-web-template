@@ -1,54 +1,16 @@
 {
+  "help.message": {
+    "message": "Нуждаете се от помощ?"
+  },
+  "help.description": {
+    "message": "Този проект се поддържа от група отдадени хора."
+  },
   "theme.ErrorPageContent.title": {
     "message": "Тази страница се срина.",
     "description": "The title of the fallback page when the page crashed"
   },
-  "theme.ErrorPageContent.tryAgain": {
-    "message": "Опитайте отново",
-    "description": "The label of the button to try again when the page crashed"
-  },
-  "theme.NotFound.title": {
-    "message": "Страницата не е намерена",
-    "description": "The title of the 404 page"
-  },
-  "theme.NotFound.p1": {
-    "message": "Не можахме да намерим това, което търсите.",
-    "description": "The first paragraph of the 404 page"
-  },
-  "theme.NotFound.p2": {
-    "message": "Моля, свържете се с собственика на сайта, който ви е насочил тук, и го уведомете, че връзката е счупена.",
-    "description": "The 2nd paragraph of the 404 page"
-  },
-  "theme.admonition.caution": {
-    "message": "внимание",
-    "description": "The default label used for the Caution admonition"
-  },
-  "theme.admonition.danger": {
-    "message": "опасност",
-    "description": "The default label used for the Danger admonition"
-  },
-  "theme.admonition.info": {
-    "message": "информация",
-    "description": "The default label used for the Info admonition"
-  },
-  "theme.admonition.note": {
-    "message": "забележка",
-    "description": "The default label used for the Note admonition"
-  },
-  "theme.admonition.tip": {
-    "message": "съвет",
-    "description": "The default label used for the Tip admonition"
-  },
-  "theme.admonition.warning": {
-    "message": "предупреждение",
-    "description": "The default label used for the Warning admonition"
-  },
-  "theme.AnnouncementBar.closeButtonAriaLabel": {
-    "message": "Затвори",
-    "description": "The ARIA label for close button of announcement bar"
-  },
   "theme.BackToTopButton.buttonAriaLabel": {
-    "message": "Назад към горната част",
+    "message": "Обратно към началото",
     "description": "The ARIA label for the back to top button"
   },
   "theme.blog.archive.title": {
@@ -60,7 +22,7 @@
     "description": "The page & hero description of the blog archive page"
   },
   "theme.blog.paginator.navAriaLabel": {
-    "message": "Навигация на страниците в блога",
+    "message": "Пагинация на блог списъка",
     "description": "The ARIA label for the blog pagination"
   },
   "theme.blog.paginator.newerEntries": {
@@ -72,7 +34,7 @@
     "description": "The label used to navigate to the older blog posts page (next page)"
   },
   "theme.blog.post.paginator.navAriaLabel": {
-    "message": "Навигация на страниците с публикации в блога",
+    "message": "Пагинация на блог публикации",
     "description": "The ARIA label for the blog posts pagination"
   },
   "theme.blog.post.paginator.newerPost": {
@@ -83,12 +45,282 @@
     "message": "По-стара публикация",
     "description": "The blog post button label to navigate to the older/next post"
   },
+  "theme.tags.tagsPageLink": {
+    "message": "Виж всички тагове",
+    "description": "The label of the link targeting the tag list page"
+  },
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "системен режим",
+    "description": "The name for the system color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.light": {
+    "message": "светъл режим",
+    "description": "The name for the light color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "тъмен режим",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Превключване между тъмен и светъл режим (текущо {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Навигационна пътека",
+    "description": "The ARIA label for the breadcrumbs"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "1 елемент|{count} елемента",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
+  },
+  "theme.docs.paginator.navAriaLabel": {
+    "message": "Страници на документацията",
+    "description": "The ARIA label for the docs pagination"
+  },
+  "theme.docs.paginator.previous": {
+    "message": "Предишна",
+    "description": "The label used to navigate to the previous doc"
+  },
+  "theme.docs.paginator.next": {
+    "message": "Следваща",
+    "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "Един документ с таг|{count} документа с таг",
+    "description": "Pluralized label for \"{count} docs tagged\""
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} с \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Версия: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "Това е документацията за предстоящата версия {versionLabel} на {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "Това е документацията на {siteTitle} {versionLabel}, която вече не се поддържа активно.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "За актуална документация вижте {latestVersionLink} ({versionLabel}).",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "последна версия",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "Редактиране на тази страница",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Директен линк към {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " на {date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " от {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "Последно обновяване{atDate}{byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Версии",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "Страницата не е намерена",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "Тагове:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "внимание",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "опасност",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "информация",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "бележка",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "съвет",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "предупреждение",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Затвори",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Навигация на скорошни блог публикации",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Разгъни категория '{label}' в страничната лента",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Свий категория '{label}' в страничната лента",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.IconExternalLink.ariaLabel": {
+    "message": "(отваря се в нов раздел)",
+    "description": "The ARIA label for the external link icon"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Главна",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Езици",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "Не намерихме това, което търсите.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Моля, свържете се със собственика на сайта, който ви е насочил към оригиналния URL, и го уведомете, че линкът е повреден.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "На тази страница",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Прочетете повече",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Прочетете повече за {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "Една минута за четене|{readingTime} минути за четене",
+    "description": "Pluralized label for \"{readingTime} min read\""
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Копирай",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Копирано",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Копирай кода",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Начална страница",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Превключване на пренасянето на редове",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "Свий страничната лента",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "Свий страничната лента",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Странична лента на документацията",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "Затвори навигацията",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Обратно към главното меню",
+    "description": "The label of the back button to return to main menu"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "Отвори/затвори навигацията",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Разгъни падащото меню",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Свий падащото меню",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "Разгъни страничната лента",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "Разгъни страничната лента",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "Няма резултати"
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "Виж всички резултати извън « {context} »"
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "Виж всички резултати в « {context} »"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "Виж всички резултати"
+  },
+  "theme.SearchBar.label": {
+    "message": "Търсене",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Резултати от търсене за « {query} »",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Търсене в документацията",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "Навсякъде"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "1 намерен документ|{count} намерени документа",
+    "description": "Pluralized label for \"{count} documents found\""
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "Не са намерени документи",
+    "description": "The paragraph for empty search result"
+  },
   "theme.blog.post.plurals": {
     "message": "Една публикация|{count} публикации",
-    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language grammar requires."
+    "description": "Pluralized label for \"{count} posts\""
   },
   "theme.blog.tagTitle": {
-    "message": "{nPosts} маркирани с \"{tagName}\"",
+    "message": "{nPosts} с таг « {tagName} »",
     "description": "The title of the page for a blog tag"
   },
   "theme.blog.author.pageTitle": {
@@ -100,183 +332,79 @@
     "description": "The title of the authors page"
   },
   "theme.blog.authorsList.viewAll": {
-    "message": "Вижте всички автори",
+    "message": "Виж всички автори",
     "description": "The label of the link targeting the blog authors page"
   },
-  "theme.breadcrumbs.home": {
-    "message": "Начало",
-    "description": "The ARIA label for the home page in breadcrumbs"
-  },
-  "theme.breadcrumbs.navAriaLabel": {
-    "message": "Хлебни трохи",
-    "description": "The ARIA label for the breadcrumbs"
-  },
-  "theme.colorToggle.ariaLabel": {
-    "message": "Смяна между тъмен и светъл режим (в момента {mode})",
-    "description": "The ARIA label for the navbar color mode toggle"
-  },
-  "theme.colorToggle.ariaLabel.mode.dark": {
-    "message": "тъмен режим",
-    "description": "The name for the dark color mode"
-  },
-  "theme.colorToggle.ariaLabel.mode.light": {
-    "message": "светъл режим",
-    "description": "The name for the light color mode"
-  },
-  "theme.docs.breadcrumbs.home": {
-    "message": "Начална страница",
-    "description": "The ARIA label for the home page in doc breadcrumbs"
-  },
-  "theme.docs.DocCard.categoryDescription.plurals": {
-    "message": "1 елемент|{count} елемента",
-    "description": "The default description for a category card in the docs home page. Use as much plural forms (separated by \"|\") as your language grammar requires."
-  },
-  "theme.docs.paginator.navAriaLabel": {
-    "message": "Навигация на страниците с документация",
-    "description": "The ARIA label for the docs pagination"
-  },
-  "theme.docs.paginator.previous": {
-    "message": "Предишен",
-    "description": "The label used to navigate to the previous doc"
-  },
-  "theme.docs.paginator.next": {
-    "message": "Следващ",
-    "description": "The label used to navigate to the next doc"
-  },
-  "theme.docs.sidebar.collapseButtonTitle": {
-    "message": "Свиване на страничната лента",
-    "description": "The title attribute for collapse button of doc sidebar"
-  },
-  "theme.docs.sidebar.collapseButtonAriaLabel": {
-    "message": "Свиване на страничната лента",
-    "description": "The title attribute for collapse button of doc sidebar"
-  },
-  "theme.docs.sidebar.navAriaLabel": {
-    "message": "Документационна странична лента",
-    "description": "The ARIA label for the sidebar navigation"
-  },
-  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
-    "message": "Затваряне на навигационната лента",
-    "description": "The ARIA label for close button of mobile sidebar"
-  },
-  "theme.navbar.mobileLanguageDropdown.label": {
-    "message": "Език",
-    "description": "The ARIA label for the mobile language selection dropdown"
-  },
-  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
-    "message": "Превключване на навигационната лента",
-    "description": "The ARIA label for hamburger menu button of mobile navigation"
-  },
-  "theme.docs.sidebar.expandButtonTitle": {
-    "message": "Разгъване на страничната лента",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
-  },
-  "theme.docs.sidebar.expandButtonAriaLabel": {
-    "message": "Разгъване на страничната лента",
-    "description": "The ARIA label and title attribute for expand button of doc sidebar"
-  },
-  "theme.DocSidebarItem.toggleCollapsedCategoryAriaLabel": {
-    "message": "Превключване на свиваемата категория '{label}'",
-    "description": "The ARIA label to toggle the collapsible sidebar category"
-  },
-  "theme.DocSidebarItem.linkAriaLabel": {
-    "message": "'{label}', страница в страничната лента",
-    "description": "The ARIA label for a sidebar link"
-  },
-  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
-    "message": "← Назад към главното меню",
-    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
-  },
-  "theme.SearchBar.label": {
-    "message": "Търсене",
-    "description": "The ARIA label and placeholder for search button"
-  },
-  "theme.SearchBar.sidebarSearchPlaceholder": {
-    "message": "Търсене...",
-    "description": "The placeholder for the search bar located in the sidebar"
-  },
-  "theme.SearchPage.algoliaLabel": {
-    "message": "Търсене с Algolia",
-    "description": "The ARIA label for Algolia search settings button"
-  },
-  "theme.SearchPage.emptyResultsTitle": {
-    "message": "Търсене в документацията",
-    "description": "The search page title for empty query"
-  },
-  "theme.SearchPage.existingResultsTitle": {
-    "message": "Резултати от търсенето за \"{query}\"",
-    "description": "The search page title for non-empty query"
-  },
-  "theme.SearchPage.fetchingNewResults": {
-    "message": "Зареждане на нови резултати...",
-    "description": "The status when new results are being fetched"
-  },
-  "theme.SearchPage.inputPlaceholder": {
-    "message": "Въведете вашата заявка тук",
-    "description": "The placeholder for search page input"
-  },
-  "theme.SearchPage.noResultsText": {
-    "message": "Няма намерени резултати",
-    "description": "The paragraph for empty search result"
-  },
-  "theme.SearchPage.seeAll": {
-    "message": "Виж всичките {count} резултата",
-    "description": "The search page link to see all results for the searched query"
-  },
-  "theme.SearchPage.sourceUrlLabel": {
-    "message": "Адрес",
-    "description": "Prefix label of the \"source url\" value in the search results"
-  },
-  "theme.SearchPage.searchResultSections": {
-    "message": "{title} раздел",
-    "description": "The label for each section in the search results"
-  },
-  "theme.lastUpdated.atDate": {
-    "message": " на {date}",
-    "description": "The words used to describe at which date a page has been last updated"
-  },
-  "theme.lastUpdated.byUser": {
-    "message": " от {user}",
-    "description": "The words used to describe by who the page has been last updated"
-  },
-  "theme.lastUpdated.lastUpdatedAtBy": {
-    "message": "Последна актуализация{atDate}{byUser}",
-    "description": "The sentence used to display when a page has been last updated, and by who"
+  "theme.blog.author.noPosts": {
+    "message": "Този автор все още не е написал публикации.",
+    "description": "The text for authors with 0 blog post"
   },
   "theme.contentVisibility.unlistedBanner.title": {
-    "message": "Нелистедена страница",
-    "description": "The unlisted banner title"
+    "message": "Нелистирана страница",
+    "description": "The unlisted content banner title"
   },
   "theme.contentVisibility.unlistedBanner.message": {
-    "message": "Тази страница е нелистедена. Търсачките няма да я индексират, и тя е достъпна само за потребители с директна връзка.",
-    "description": "The unlisted banner message"
+    "message": "Тази страница не е в списъка. Търсачките няма да я индексират и само потребители с директен линк могат да я достъпят.",
+    "description": "The unlisted content banner message"
   },
   "theme.contentVisibility.draftBanner.title": {
-    "message": "Чернова страница",
-    "description": "The draft banner title"
+    "message": "Чернова",
+    "description": "The draft content banner title"
   },
   "theme.contentVisibility.draftBanner.message": {
-    "message": "Тази страница е чернова. Тя ще бъде видима само в режим на разработка, а не в производствената компилация.",
-    "description": "The draft banner message"
+    "message": "Тази страница е чернова. Тя ще бъде видима само в режим на разработка и ще бъде изключена от производствената версия.",
+    "description": "The draft content banner message"
   },
-  "theme.TOCCollapsible.toggleButtonLabel": {
-    "message": "На тази страница",
-    "description": "The label used by the button on the collapsible TOC component"
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Опитайте отново",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
   },
-  "theme.tags.tagsPageLink": {
-    "message": "Вижте всички маркери",
-    "description": "The label of the link targeting the tag list page"
+  "theme.common.skipToMainContent": {
+    "message": "Премини към основното съдържание",
+    "description": "The skip to content label used for accessibility"
   },
-  "theme.tags.tagsListLabel": {
-    "message": "Маркери:",
-    "description": "The label alongside a tag list"
+  "theme.tags.tagsPageTitle": {
+    "message": "Тагове",
+    "description": "The title of the tag list page"
   },
-  "theme.unlistedContent.unlistedPageBanner": {
-    "message": "Нелистедена страница",
-    "description": "The unlisted page banner label"
+  "users.title": {
+    "message": "Кой използва този проект?",
+    "description": "Users page heading"
   },
-  "theme.unlistedContent.draftPageBanner": {
-    "message": "Чернова страница",
-    "description": "The draft page banner label"
+  "users.subtitle": {
+    "message": "Този проект се използва от много хора",
+    "description": "Users page subtitle"
+  },
+  "users.callToAction": {
+    "message": "Използвате ли този проект?",
+    "description": "Users page call to action"
+  },
+  "users.addCompany": {
+    "message": "Добавете вашата компания",
+    "description": "Button label to add company"
+  },
+  "help.browseDocs.title": {
+    "message": "Преглед на документацията",
+    "description": "Help page feature title for browsing docs"
+  },
+  "help.browseDocs.description": {
+    "message": "Научете повече от документацията на този сайт.",
+    "description": "Help page feature description for browsing docs"
+  },
+  "help.joinCommunity.title": {
+    "message": "Присъединете се към общността",
+    "description": "Help page feature title for joining community"
+  },
+  "help.joinCommunity.description": {
+    "message": "Задавайте въпроси за документацията и проекта",
+    "description": "Help page feature description for joining community"
+  },
+  "help.stayUpToDate.title": {
+    "message": "Бъдете в крак",
+    "description": "Help page feature title for staying up to date"
+  },
+  "help.stayUpToDate.description": {
+    "message": "Открийте новостите в този проект",
+    "description": "Help page feature description for staying up to date"
   }
 }

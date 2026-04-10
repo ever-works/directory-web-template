@@ -24,7 +24,7 @@
     "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.API Routes": {
-    "message": "Rutas API",
+    "message": "Rutas de API",
     "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Services": {
@@ -83,12 +83,8 @@
     "message": "Guía avanzada",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "Planes",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "Acerca de",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }

@@ -40,7 +40,7 @@
     "description": "The label for category 'Components' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Features": {
-    "message": "功能特性",
+    "message": "功能",
     "description": "The label for category 'Features' in sidebar 'templateSidebar'"
   },
   "sidebar.templateSidebar.category.Payment Integration": {
@@ -83,12 +83,8 @@
     "message": "高级指南",
     "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
   },
-  "sidebar.templateSidebar.category.Plans": {
-    "message": "方案",
-    "description": "The label for category 'Plans' in sidebar 'templateSidebar'"
-  },
-  "sidebar.templateSidebar.category.Trigger.dev": {
-    "message": "Trigger.dev",
-    "description": "The label for category 'Trigger.dev' in sidebar 'templateSidebar'"
+  "sidebar.templateSidebar.category.About": {
+    "message": "关于",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
   }
 }
