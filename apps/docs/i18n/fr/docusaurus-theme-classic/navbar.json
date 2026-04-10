@@ -3,17 +3,9 @@
     "message": "Logo Ever® Works",
     "description": "The alt text of navbar logo"
   },
-  "item.label.Intro": {
-    "message": "Introduction",
-    "description": "Navbar item with label Intro"
-  },
-  "item.label.Platform": {
-    "message": "Plateforme",
-    "description": "Navbar item with label Platform"
-  },
-  "item.label.Template": {
-    "message": "Modèle",
-    "description": "Navbar item with label Template"
+  "item.label.Home": {
+    "message": "Accueil",
+    "description": "Navbar item with label Home"
   },
   "item.label.Help": {
     "message": "Aide",

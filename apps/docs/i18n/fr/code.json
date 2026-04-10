@@ -87,7 +87,7 @@
   },
   "theme.docs.tagDocListPageTitle.nDocsTagged": {
     "message": "Un document tagué|{count} documents tagués",
-    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "description": "Pluralized label for \"{count} docs tagged\""
   },
   "theme.docs.tagDocListPageTitle": {
     "message": "{nDocsTagged} avec \"{tagName}\"",
@@ -218,7 +218,7 @@
   },
   "theme.blog.post.readingTime.plurals": {
     "message": "Une minute de lecture|{readingTime} minutes de lecture",
-    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "description": "Pluralized label for \"{readingTime} min read\""
   },
   "theme.CodeBlock.copy": {
     "message": "Copier",
@@ -258,7 +258,7 @@
   },
   "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
     "message": "← Retour au menu principal",
-    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
+    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu"
   },
   "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
     "message": "Ouvrir/fermer la barre de navigation",
@@ -309,7 +309,7 @@
   },
   "theme.SearchPage.documentsFound.plurals": {
     "message": "1 document trouvé|{count} documents trouvés",
-    "description": "Pluralized label for \"{count} documents found\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "description": "Pluralized label for \"{count} documents found\""
   },
   "theme.SearchPage.noResultsText": {
     "message": "Aucun document trouvé",
@@ -317,7 +317,7 @@
   },
   "theme.blog.post.plurals": {
     "message": "Un article|{count} articles",
-    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+    "description": "Pluralized label for \"{count} posts\""
   },
   "theme.blog.tagTitle": {
     "message": "{nPosts} tagués avec « {tagName} »",
@@ -361,7 +361,7 @@
   },
   "theme.common.skipToMainContent": {
     "message": "Aller au contenu principal",
-    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+    "description": "The skip to content label used for accessibility"
   },
   "theme.tags.tagsPageTitle": {
     "message": "Tags",
