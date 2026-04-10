@@ -23,7 +23,10 @@ export function ThirdPartyAnalytics({ config }: ThirdPartyAnalyticsProps) {
 				/>
 			)}
 			{config.dataFast?.enabled && (
-				<DataFastAnalytics apiKey={config.dataFast.apiKey} />
+				<DataFastAnalytics 
+					websiteId={config.dataFast.websiteId} 
+					domain={config.dataFast.domain} 
+				/>
 			)}
 			{config.jitsu?.enabled && (
 				<JitsuAnalytics jitsuKey={config.jitsu.key} domain={config.jitsu.domain} />

@@ -94,11 +94,12 @@ export const plausibleSchema = z
  */
 export const dataFastSchema = z
 	.object({
-		apiKey: z.string().optional()
+		websiteId: z.string().optional(),
+		domain: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.apiKey)
+		enabled: Boolean(data.websiteId)
 	}));
 
 /**
@@ -207,7 +208,8 @@ export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> 
 			scriptId: process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_ID
 		},
 		dataFast: {
-			apiKey: process.env.NEXT_PUBLIC_DATAFAST_API_KEY
+			websiteId: process.env.NEXT_PUBLIC_DATAFAST_WEBSITE_ID,
+			domain: process.env.NEXT_PUBLIC_DATAFAST_DOMAIN
 		},
 		jitsu: {
 			key: process.env.NEXT_PUBLIC_JITSU_KEY,
