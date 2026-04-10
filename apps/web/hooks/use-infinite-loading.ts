@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { startTransition, useCallback, useState } from "react";
 import { useLayoutTheme } from "@/components/context";
 import { PER_PAGE } from "@/lib/paginate";
 
@@ -32,9 +32,6 @@ export function useInfiniteLoading<T>({
   const displayedItems = items.slice(0, currentPage * perPage);
   const hasMore = currentPage < totalPages && displayedItems.length < items.length;
 
-  // Set to 0 for production, or e.g. 300 for development
-  const ARTIFICIAL_DELAY = 300;
-
   const loadMore = useCallback(async () => {
     if (isLoading || !hasMore || paginationType !== "infinite") return;
 
@@ -42,10 +39,9 @@ export function useInfiniteLoading<T>({
     setError(null);
 
     try {
-      if (ARTIFICIAL_DELAY) {
-        await new Promise(resolve => setTimeout(resolve, ARTIFICIAL_DELAY));
-      }
-      setCurrentPage(prev => prev + 1);
+      startTransition(() => {
+        setCurrentPage(prev => prev + 1);
+      });
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Failed to load more items"));
     } finally {

@@ -1,6 +1,7 @@
 'use client';
 
 import { Session } from 'next-auth';
+import { useTranslations } from 'next-intl';
 import { MessageSquare, ThumbsUp, TrendingUp, Activity, RefreshCw } from 'lucide-react';
 import { StatsCard } from './stats-card';
 import { ActivityChart } from './activity-chart';
@@ -27,6 +28,7 @@ interface DashboardContentProps {
 }
 
 export function DashboardContent({ session }: DashboardContentProps) {
+	const t = useTranslations('client.dashboard');
 	const { data: stats, refetch: refetchStats, error: statsError } = useDashboardStats();
 	const { settings: locationSettings } = useLocationSettings();
 
@@ -46,16 +48,16 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				{/* Error Handling */}
 				{statsError && (
 					<div className="mb-4 p-4 bg-red-100 text-red-800 rounded-sm">
-						Failed to load dashboard stats: {statsError.message}
+						{t('FAILED_TO_LOAD')}: {statsError.message}
 					</div>
 				)}
 				{/* Header */}
 				<div className="mb-8">
 					<div className="flex items-center justify-between">
 						<div>
-							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('TITLE')}</h1>
 							<p className="mt-2 text-gray-600 dark:text-gray-400">
-								Welcome back, {session?.user?.name || 'User'}! Here&apos;s your activity overview.
+								{t('WELCOME_BACK', { name: session?.user?.name || 'User' })}
 							</p>
 						</div>
 						<Button
@@ -65,7 +67,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
 							className="flex items-center space-x-2"
 						>
 							<RefreshCw className="h-4 w-4" />
-							<span>Refresh</span>
+							<span>{t('REFRESH')}</span>
 						</Button>
 					</div>
 				</div>
@@ -73,30 +75,30 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				{/* Stats Grid */}
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 					<StatsCard
-						title="Total Submissions"
+						title={t('STATS.TOTAL_SUBMISSIONS')}
 						value={stats?.totalSubmissions || 0}
-						description="Content you've created"
+						description={t('STATS.CONTENT_CREATED')}
 						icon={MessageSquare}
 						isLoading={!stats}
 					/>
 					<StatsCard
-						title="Total Views"
+						title={t('STATS.TOTAL_VIEWS')}
 						value={stats?.totalViews || 0}
-						description="Views on your content"
+						description={t('STATS.VIEWS_ON_CONTENT')}
 						icon={TrendingUp}
 						isLoading={!stats}
 					/>
 					<StatsCard
-						title="Votes Received"
+						title={t('STATS.VOTES_RECEIVED')}
 						value={stats?.totalVotesReceived || 0}
-						description="Votes on your content"
+						description={t('STATS.VOTES_ON_CONTENT')}
 						icon={ThumbsUp}
 						isLoading={!stats}
 					/>
 					<StatsCard
-						title="Comments Received"
+						title={t('STATS.COMMENTS_RECEIVED')}
 						value={stats?.totalCommentsReceived || 0}
-						description="Comments on your content"
+						description={t('STATS.COMMENTS_ON_CONTENT')}
 						icon={Activity}
 						isLoading={!stats}
 					/>

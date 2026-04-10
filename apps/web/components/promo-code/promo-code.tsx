@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { FiCopy, FiCheck, FiPercent, FiDollarSign, FiTruck, FiClock, FiExternalLink } from "react-icons/fi";
 import { PromoCode } from "@/lib/content";
 import { cn } from "@heroui/react";
@@ -25,6 +25,26 @@ export function PromoCodeComponent({
 }: PromoCodeProps) {
   const [copied, setCopied] = useState(false);
   const t = useTranslations();
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const scheduleCopiedReset = useCallback(() => {
+    if (copiedTimeoutRef.current) {
+      clearTimeout(copiedTimeoutRef.current);
+    }
+
+    copiedTimeoutRef.current = setTimeout(() => {
+      setCopied(false);
+      copiedTimeoutRef.current = null;
+    }, 2000);
+  }, []);
 
   const copyToClipboard = useCallback(async () => {
     try {
@@ -33,7 +53,7 @@ export function PromoCodeComponent({
       onCodeCopied?.(promoCode.code);
       
       // Reset copied state after 2 seconds
-      setTimeout(() => setCopied(false), 2000);
+      scheduleCopiedReset();
     } catch (error) {
       console.error("Failed to copy promo code:", error);
       // Fallback for older browsers
@@ -44,9 +64,9 @@ export function PromoCodeComponent({
       document.execCommand("copy");
       document.body.removeChild(textArea);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      scheduleCopiedReset();
     }
-  }, [promoCode.code, onCodeCopied]);
+  }, [promoCode.code, onCodeCopied, scheduleCopiedReset]);
 
   const handleRedirect = useCallback(() => {
     if (promoCode.url) {

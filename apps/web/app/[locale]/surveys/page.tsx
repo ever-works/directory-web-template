@@ -3,6 +3,7 @@ export const revalidate = 600;
 import { Metadata } from 'next';
 import { Link } from '@/i18n/navigation';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { surveyService } from '@/lib/services/survey.service';
 import { getStatusColor, getTypeColor } from '@/components/surveys/utils/survey-helpers';
 import { Container } from '@/components/ui/container';
@@ -18,13 +19,23 @@ const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
 const appUrl = cleanUrl(rawUrl);
 
-export const metadata: Metadata = {
-    metadataBase: new URL(appUrl),
-    title: 'Surveys | Ever Works',
-    description: 'Browse and complete surveys'
-};
+export async function generateMetadata({
+    params
+}: {
+    params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'survey' });
+
+    return {
+        metadataBase: new URL(appUrl),
+        title: t('PAGE_TITLE'),
+        description: t('PAGE_META_DESCRIPTION')
+    };
+}
 
 export default async function SurveysPage() {
+    const t = await getTranslations('survey');
     // Redirect to 404 if surveys are disabled
     const surveysEnabled = getSurveysEnabled();
     if (!surveysEnabled) {
@@ -48,13 +59,13 @@ export default async function SurveysPage() {
         <div className="py-8">
             <Container maxWidth="7xl" padding="default" useGlobalWidth>
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold mb-2">Surveys</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Help us improve by sharing your feedback</p>
+                    <h1 className="text-3xl font-bold mb-2">{t('SURVEYS')}</h1>
+                    <p className="text-gray-600 dark:text-gray-400">{t('PAGE_DESCRIPTION')}</p>
                 </div>
 
                 {publishedSurveys.length === 0 ? (
                     <div className="text-center py-16">
-                    <p className="text-gray-500 dark:text-gray-400">No surveys available at this time.</p>
+                    <p className="text-gray-500 dark:text-gray-400">{t('NO_SURVEYS_AVAILABLE')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -77,7 +88,7 @@ export default async function SurveysPage() {
                                     </span>
                                 </div>
 
-                                <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">Take Survey →</div>
+                                <div className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t('TAKE_SURVEY')} →</div>
                             </Link>
                         ))}
                     </div>
@@ -86,4 +97,3 @@ export default async function SurveysPage() {
         </div>
     );
 }
-

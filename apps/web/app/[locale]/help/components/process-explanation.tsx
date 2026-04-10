@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +23,7 @@ export const ProcessExplanation = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
+  const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const processSteps: ProcessStep[] = [
     {
@@ -125,10 +126,24 @@ export const ProcessExplanation = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const handleStepClick = (stepIndex: number) => {
     setIsAnimating(true);
     setActiveStep(stepIndex);
-    setTimeout(() => setIsAnimating(false), 300);
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+      animationTimeoutRef.current = null;
+    }, 300);
   };
 
   const getStepStatus = (stepIndex: number) => {
@@ -319,4 +334,3 @@ export const ProcessExplanation = () => {
     </div>
   );
 };
-

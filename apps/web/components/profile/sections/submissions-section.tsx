@@ -1,4 +1,4 @@
-import { FiExternalLink, FiEdit, FiEye, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
+import { FiExternalLink, FiEye, FiCheckCircle, FiClock, FiXCircle } from "react-icons/fi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Profile } from "@/lib/types/profile";
 
@@ -140,12 +140,6 @@ interface SubmissionCardProps {
 }
 
 function SubmissionCard({ submission, getStatusIcon, getStatusColor, formatDate }: SubmissionCardProps) {
-  // Placeholder edit handler
-  const handleEdit = () => {
-    // TODO: Implement edit logic/modal
-    alert(`Edit submission: ${submission.title}`);
-  };
-  const isEditable = submission.status === "approved";
   return (
     <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm hover:shadow-md transition-shadow duration-200 p-0">
       <CardContent className="p-6">
@@ -181,15 +175,6 @@ function SubmissionCard({ submission, getStatusIcon, getStatusColor, formatDate 
             >
               <FiEye className="w-4 h-4" />
             </a>
-            <button
-              className={`p-2 text-gray-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors ${!isEditable ? 'opacity-60 cursor-not-allowed' : ''}`}
-              title={isEditable ? "Edit submission" : "Editing disabled for pending/rejected submissions"}
-              onClick={isEditable ? handleEdit : undefined}
-              disabled={!isEditable}
-              aria-disabled={!isEditable}
-            >
-              <FiEdit className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </CardContent>

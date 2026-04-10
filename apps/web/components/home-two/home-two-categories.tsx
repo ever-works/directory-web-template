@@ -804,6 +804,7 @@ export function Categories(props: {
   enableSticky?: boolean;
   maxVisibleTags?: number;
 }) {
+  const tCommon = useTranslations('common');
   const [showAllCategories, setShowAllCategories] = useState(false);
   const [isSticky, setIsSticky] = useState(false);
   const pathname = usePathname();
@@ -912,7 +913,7 @@ export function Categories(props: {
               'text-gray-900 dark:text-white'
             )}
           >
-            Categories
+            {tCommon('CATEGORY')}
           </h3>
           {hasMoreTags && (
             <Button
@@ -927,8 +928,8 @@ export function Categories(props: {
             >
               {showAllCategories ? (
                 <>
-                  <span className="hidden sm:inline">Show as single row</span>
-                  <span className="sm:hidden">Single row</span>
+                  <span className="hidden sm:inline">{tCommon('SHOW_AS_SINGLE_ROW')}</span>
+                  <span className="sm:hidden">{tCommon('SINGLE_ROW')}</span>
                   <svg
                     width="16"
                     height="16"
@@ -948,9 +949,9 @@ export function Categories(props: {
               ) : (
                 <>
                   <span className="hidden sm:inline">
-                    Show all {props.categories.length} categories
+                    {tCommon('SHOW_ALL_CATEGORIES', { count: props.categories.length })}
                   </span>
-                  <span className="sm:hidden">All categories</span>
+                  <span className="sm:hidden">{tCommon('ALL_CATEGORIES')}</span>
                   <svg
                     width="16"
                     height="16"
@@ -1004,7 +1005,7 @@ export function Categories(props: {
                     />
                   </svg>
                 )}
-                <span className="text-xs">All Categories</span>
+                <span className="text-xs">{tCommon('ALL_CATEGORIES')}</span>
                 <span
                   className={cn(
                     'ml-1 text-[10px] font-normal',
@@ -1050,7 +1051,7 @@ export function Categories(props: {
                     />
                   </svg>
                 )}
-                <span className="text-xs">All Categories</span>
+                <span className="text-xs">{tCommon('ALL_CATEGORIES')}</span>
                 <span
                   className={cn(
                     'ml-1 text-[10px] font-normal',

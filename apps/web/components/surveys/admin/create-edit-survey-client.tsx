@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import { AdminSurveyForm, SurveyFormData } from '../forms/admin-survey-form';
 import { surveyApiClient } from '@/lib/api/survey-api.client';
 import type { Survey } from '@/lib/db/schema';
@@ -12,7 +12,6 @@ import { SurveyTypeEnum } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { useTranslations } from 'next-intl';
 import { useSurveysEnabled } from '@/hooks/use-surveys-enabled';
-import Link from 'next/link';
 
 const logger = Logger.create('CreateEditSurveyClient');
 
@@ -136,4 +135,3 @@ export function CreateEditSurveyClient({ survey, defaultItemId }: CreateEditSurv
 		</div>
 	);
 }
-

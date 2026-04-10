@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { NAVIGATION_CLASSES, STEP_DEFINITIONS } from '../validation/form-validators';
@@ -26,6 +27,7 @@ export function FormNavigation({
 	onBack,
 	isSubmitting = false
 }: FormNavigationProps) {
+	const t = useTranslations('common');
 	const isLastStep = currentStep === STEP_DEFINITIONS.length;
 
 	const handleNextClick = () => {
@@ -56,7 +58,7 @@ export function FormNavigation({
 					>
 						<div className="flex items-center gap-3">
 							<ArrowLeft className="w-5 h-5" />
-							<span>Previous</span>
+							<span>{t('PREVIOUS')}</span>
 						</div>
 					</Button>
 				)}
@@ -69,7 +71,7 @@ export function FormNavigation({
 					>
 						<div className="flex items-center gap-3">
 							<ArrowLeft className="w-5 h-5" />
-							<span>Back to Plans</span>
+							<span>{t('BACK_TO_PLANS')}</span>
 						</div>
 					</Button>
 				)}
@@ -88,7 +90,7 @@ export function FormNavigation({
 						)}
 					>
 						<div className="flex items-center gap-3">
-							<span>Next Step</span>
+							<span>{t('NEXT_STEP')}</span>
 							<ArrowRight className="w-5 h-5" />
 						</div>
 					</Button>
@@ -106,11 +108,11 @@ export function FormNavigation({
 							{isSubmitting ? (
 								<>
 									<Loader2 className="w-5 h-5 animate-spin" />
-									<span>Submitting...</span>
+									<span>{t('SUBMITTING')}</span>
 								</>
 							) : (
 								<>
-									<span>Submit Product</span>
+									<span>{t('SUBMIT_PRODUCT')}</span>
 									<Check className="w-5 h-5" />
 								</>
 							)}
