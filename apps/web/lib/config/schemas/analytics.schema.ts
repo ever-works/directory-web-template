@@ -108,11 +108,12 @@ export const dataFastSchema = z
 export const jitsuSchema = z
 	.object({
 		key: z.string().optional(),
-		domain: z.string().optional()
+		domain: z.string().optional(),
+		host: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.key && data.domain)
+		enabled: Boolean(data.key)
 	}));
 
 /**
@@ -163,7 +164,7 @@ export const analyticsConfigSchema = z.object({
 	googleAnalytics: googleAnalyticsSchema.optional().default({ enabled: false }),
 	plausible: plausibleSchema.optional().default({ enabled: false }),
 	dataFast: dataFastSchema.optional().default({ enabled: false }),
-	jitsu: jitsuSchema.optional().default({ enabled: false }),
+	jitsu: jitsuSchema.optional().default({ enabled: true }),
 	segment: segmentSchema.optional().default({ enabled: false }),
 	recaptcha: recaptchaConfigSchema.optional().default({ enabled: false }),
 	vercel: vercelAnalyticsSchema.optional().default({ speedInsightsEnabled: false, speedInsightsSampleRate: 0.5 })
@@ -213,7 +214,8 @@ export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> 
 		},
 		jitsu: {
 			key: process.env.NEXT_PUBLIC_JITSU_KEY,
-			domain: process.env.NEXT_PUBLIC_JITSU_DOMAIN
+			domain: process.env.NEXT_PUBLIC_JITSU_DOMAIN,
+			host: process.env.NEXT_PUBLIC_JITSU_HOST
 		},
 		segment: {
 			writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY

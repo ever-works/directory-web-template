@@ -29,7 +29,7 @@ export function ThirdPartyAnalytics({ config }: ThirdPartyAnalyticsProps) {
 				/>
 			)}
 			{config.jitsu?.enabled && (
-				<JitsuAnalytics jitsuKey={config.jitsu.key} domain={config.jitsu.domain} />
+				<JitsuAnalytics jitsuKey={config.jitsu.key} domain={config.jitsu.domain} host={config.jitsu.host} />
 			)}
 			{config.segment?.enabled && (
 				<SegmentAnalytics writeKey={config.segment.writeKey} />
