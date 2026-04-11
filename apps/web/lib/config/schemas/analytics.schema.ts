@@ -18,11 +18,11 @@ export const posthogConfigSchema = z
 		exceptionTracking: z.boolean().default(true),
 		// Server-side API (for admin dashboard)
 		personalApiKey: z.string().optional(),
-		projectId: z.string().optional(),
+		projectId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.key),
+		enabled: Boolean(data.key)
 	}));
 
 /**
@@ -36,11 +36,11 @@ export const sentryConfigSchema = z
 		authToken: z.string().optional(),
 		enableDev: z.boolean().default(false),
 		debug: z.boolean().default(false),
-		exceptionTracking: z.boolean().default(true),
+		exceptionTracking: z.boolean().default(true)
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.dsn),
+		enabled: Boolean(data.dsn)
 	}));
 
 /**
@@ -49,24 +49,91 @@ export const sentryConfigSchema = z
 export const recaptchaConfigSchema = z
 	.object({
 		siteKey: z.string().optional(),
-		secretKey: z.string().optional(),
+		secretKey: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.siteKey && data.secretKey),
+		enabled: Boolean(data.siteKey && data.secretKey)
 	}));
 
 /**
  * Exception tracking provider type
  */
-export const exceptionTrackingProviderSchema = z.enum(['posthog', 'sentry', 'none']).default('posthog').catch('posthog');
+export const exceptionTrackingProviderSchema = z
+	.enum(['posthog', 'sentry', 'none'])
+	.default('posthog')
+	.catch('posthog');
+
+/**
+ * Google Analytics configuration schema
+ */
+export const googleAnalyticsSchema = z
+	.object({
+		measurementId: z.string().optional()
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.measurementId)
+	}));
+
+/**
+ * Plausible Analytics configuration schema
+ */
+export const plausibleSchema = z
+	.object({
+		domain: z.string().optional(),
+		scriptId: z.string().optional()
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.domain || data.scriptId)
+	}));
+
+/**
+ * DataFast Analytics configuration schema
+ */
+export const dataFastSchema = z
+	.object({
+		websiteId: z.string().optional(),
+		domain: z.string().optional()
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.websiteId)
+	}));
+
+/**
+ * Jitsu Analytics configuration schema
+ */
+export const jitsuSchema = z
+	.object({
+		key: z.string().optional(),
+		domain: z.string().optional(),
+		host: z.string().optional()
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.key)
+	}));
+
+/**
+ * Segment Analytics configuration schema
+ */
+export const segmentSchema = z
+	.object({
+		writeKey: z.string().optional()
+	})
+	.transform((data) => ({
+		...data,
+		enabled: Boolean(data.writeKey)
+	}));
 
 /**
  * Vercel analytics configuration
  */
 export const vercelAnalyticsSchema = z.object({
 	speedInsightsEnabled: z.boolean().default(false),
-	speedInsightsSampleRate: z.number().min(0).max(1).default(0.5),
+	speedInsightsSampleRate: z.number().min(0).max(1).default(0.5)
 });
 
 /**
@@ -86,16 +153,21 @@ export const analyticsConfigSchema = z.object({
 		debug: false,
 		sessionRecordingEnabled: true,
 		autoCapture: false,
-		exceptionTracking: true,
+		exceptionTracking: true
 	}),
 	sentry: sentryConfigSchema.optional().default({
 		enabled: false,
 		enableDev: false,
 		debug: false,
-		exceptionTracking: true,
+		exceptionTracking: true
 	}),
+	googleAnalytics: googleAnalyticsSchema.optional().default({ enabled: false }),
+	plausible: plausibleSchema.optional().default({ enabled: false }),
+	dataFast: dataFastSchema.optional().default({ enabled: false }),
+	jitsu: jitsuSchema.optional().default({ enabled: false }),
+	segment: segmentSchema.optional().default({ enabled: false }),
 	recaptcha: recaptchaConfigSchema.optional().default({ enabled: false }),
-	vercel: vercelAnalyticsSchema.optional().default({ speedInsightsEnabled: false, speedInsightsSampleRate: 0.5 }),
+	vercel: vercelAnalyticsSchema.optional().default({ speedInsightsEnabled: false, speedInsightsSampleRate: 0.5 })
 });
 
 /**
@@ -108,11 +180,7 @@ export type AnalyticsConfig = z.infer<typeof analyticsConfigSchema>;
  */
 export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> {
 	return {
-		exceptionTrackingProvider: process.env.EXCEPTION_TRACKING_PROVIDER as
-			| 'posthog'
-			| 'sentry'
-			| 'none'
-			| undefined,
+		exceptionTrackingProvider: process.env.EXCEPTION_TRACKING_PROVIDER as 'posthog' | 'sentry' | 'none' | undefined,
 		analyze: process.env.ANALYZE === 'true',
 		posthog: {
 			key: process.env.NEXT_PUBLIC_POSTHOG_KEY,
@@ -122,7 +190,7 @@ export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> 
 			autoCapture: process.env.POSTHOG_AUTO_CAPTURE === 'true',
 			exceptionTracking: process.env.POSTHOG_EXCEPTION_TRACKING !== 'false',
 			personalApiKey: process.env.POSTHOG_PERSONAL_API_KEY,
-			projectId: process.env.POSTHOG_PROJECT_ID,
+			projectId: process.env.POSTHOG_PROJECT_ID
 		},
 		sentry: {
 			dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -131,17 +199,36 @@ export function collectAnalyticsConfig(): z.input<typeof analyticsConfigSchema> 
 			authToken: process.env.SENTRY_AUTH_TOKEN,
 			enableDev: process.env.SENTRY_ENABLE_DEV === 'true',
 			debug: process.env.SENTRY_DEBUG === 'true',
-			exceptionTracking: process.env.SENTRY_EXCEPTION_TRACKING !== 'false',
+			exceptionTracking: process.env.SENTRY_EXCEPTION_TRACKING !== 'false'
+		},
+		googleAnalytics: {
+			measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+		},
+		plausible: {
+			domain: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN,
+			scriptId: process.env.NEXT_PUBLIC_PLAUSIBLE_SCRIPT_ID
+		},
+		dataFast: {
+			websiteId: process.env.NEXT_PUBLIC_DATAFAST_WEBSITE_ID,
+			domain: process.env.NEXT_PUBLIC_DATAFAST_DOMAIN
+		},
+		jitsu: {
+			key: process.env.NEXT_PUBLIC_JITSU_KEY,
+			domain: process.env.NEXT_PUBLIC_JITSU_DOMAIN,
+			host: process.env.NEXT_PUBLIC_JITSU_HOST
+		},
+		segment: {
+			writeKey: process.env.NEXT_PUBLIC_SEGMENT_WRITE_KEY
 		},
 		recaptcha: {
 			siteKey: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
-			secretKey: process.env.RECAPTCHA_SECRET_KEY,
+			secretKey: process.env.RECAPTCHA_SECRET_KEY
 		},
 		vercel: {
 			speedInsightsEnabled: process.env.NEXT_PUBLIC_SPEED_INSIGHTS_ENABLED === 'true',
 			speedInsightsSampleRate: process.env.NEXT_PUBLIC_SPEED_INSIGHTS_SAMPLE_RATE
 				? parseFloat(process.env.NEXT_PUBLIC_SPEED_INSIGHTS_SAMPLE_RATE)
-				: undefined,
-		},
+				: undefined
+		}
 	};
 }

@@ -17,7 +17,7 @@ import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { siteConfig } from '@/lib/config';
 import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
 import { SpeedInsights } from './integration/speed-insights';
-import { Analytics } from './integration/analytics';
+import { Analytics, ThirdPartyAnalytics } from './integration/analytics';
 import { SettingsProvider } from '@/components/providers/settings-provider';
 import { SettingsModalProvider } from '@/components/providers/settings-modal-provider';
 import { SettingsModal } from '@/components/settings-modal';
@@ -45,6 +45,7 @@ import {
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 import { DEFAULT_LOCALE } from '@/lib/constants';
+import { analyticsConfig } from '@/lib/config/config-service';
 
 const appUrl = getBaseUrl();
 
@@ -202,6 +203,7 @@ export default async function RootLayout({
 			<Suspense fallback={null}>
 				<Analytics />
 			</Suspense>
+			<ThirdPartyAnalytics config={analyticsConfig} />
 		</>
 	);
 }
