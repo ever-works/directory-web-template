@@ -11,6 +11,7 @@ import { LayoutSettings } from '../layout-settings';
 import { Button } from '@heroui/react';
 import { useState } from 'react';
 import clsx from 'clsx';
+import { useTranslations } from 'next-intl';
 
 const SORT_OPTIONS: SortOption[] = ['popularity', 'name-asc', 'name-desc', 'date-desc', 'date-asc'];
 
@@ -42,6 +43,7 @@ export function HomeTwoFilters({
   searchEnabled = true,
   isSticky = false
 }: Home2FiltersProps) {
+  const t = useTranslations('common');
   const {
     searchTerm,
     setSearchTerm,
@@ -185,14 +187,14 @@ export function HomeTwoFilters({
             aria-expanded={showAllCategories}
             aria-label={
               showAllCategories
-                ? 'Collapse categories to single row'
-                : `Expand to show all ${categories.length} categories`
+                ? t('SHOW_AS_SINGLE_ROW')
+                : t('SHOW_ALL_CATEGORIES', { count: categories.length })
             }
           >
             {showAllCategories ? (
               <>
-                <span className="hidden sm:inline">Show as single row</span>
-                <span className="sm:hidden">Single row</span>
+                <span className="hidden sm:inline">{t('SHOW_AS_SINGLE_ROW')}</span>
+                <span className="sm:hidden">{t('SINGLE_ROW')}</span>
                 <svg
                   width="14"
                   height="14"
@@ -212,8 +214,8 @@ export function HomeTwoFilters({
               </>
             ) : (
               <>
-                <span className="hidden sm:inline">Show all {categories.length} categories</span>
-                <span className="sm:hidden">All categories</span>
+                <span className="hidden sm:inline">{t('SHOW_ALL_CATEGORIES', { count: categories.length })}</span>
+                <span className="sm:hidden">{t('ALL_CATEGORIES')}</span>
                 <svg
                   width="14"
                   height="14"

@@ -1,0 +1,90 @@
+{
+  "version.label": {
+    "message": "下一版",
+    "description": "The label for version current"
+  },
+  "sidebar.templateSidebar.category.Getting Started": {
+    "message": "入门指南",
+    "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Architecture": {
+    "message": "架构",
+    "description": "The label for category 'Architecture' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Authentication": {
+    "message": "身份验证",
+    "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "数据库",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "类型定义",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "API 路由",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "服务",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "组件",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "功能",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Payment Integration": {
+    "message": "支付集成",
+    "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Internationalization": {
+    "message": "国际化",
+    "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "配置",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "内容管理",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "集成",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Guides": {
+    "message": "指南",
+    "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Development": {
+    "message": "开发",
+    "description": "The label for category 'Development' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Deployment": {
+    "message": "部署",
+    "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Team Training": {
+    "message": "团队培训",
+    "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Advanced Guide": {
+    "message": "高级指南",
+    "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.About": {
+    "message": "关于",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
+  }
+}

@@ -3,7 +3,7 @@
 import { ThumbsUp, Check, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useItemVote } from '@/hooks/use-item-vote';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface VoteButtonProps {
 	itemId: string;
@@ -13,13 +13,28 @@ interface VoteButtonProps {
 export function VoteButton({ itemId, className }: VoteButtonProps) {
 	const { voteCount, userVote, isLoading, handleVote } = useItemVote(itemId);
 	const [isAnimating, setIsAnimating] = useState(false);
+	const animationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const isVoted = userVote === 'up';
+
+	useEffect(() => {
+		return () => {
+			if (animationTimeoutRef.current) {
+				clearTimeout(animationTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	const handleClick = () => {
 		if (!isLoading) {
 			setIsAnimating(true);
 			handleVote('up');
-			setTimeout(() => setIsAnimating(false), 600);
+			if (animationTimeoutRef.current) {
+				clearTimeout(animationTimeoutRef.current);
+			}
+			animationTimeoutRef.current = setTimeout(() => {
+				setIsAnimating(false);
+				animationTimeoutRef.current = null;
+			}, 600);
 		}
 	};
 

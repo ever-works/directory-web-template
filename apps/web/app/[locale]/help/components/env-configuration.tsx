@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from 'next-intl';
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +20,7 @@ export function EnvConfiguration() {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [showSecrets, setShowSecrets] = useState(false);
   const [copiedVar, setCopiedVar] = useState<string | null>(null);
+  const copiedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const envVariables: EnvVariable[] = [
     // Database
@@ -186,10 +187,24 @@ export function EnvConfiguration() {
     ? envVariables 
     : envVariables.filter(v => v.category === selectedCategory);
 
+  useEffect(() => {
+    return () => {
+      if (copiedTimeoutRef.current) {
+        clearTimeout(copiedTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setCopiedVar(text);
-    setTimeout(() => setCopiedVar(null), 2000);
+    if (copiedTimeoutRef.current) {
+      clearTimeout(copiedTimeoutRef.current);
+    }
+    copiedTimeoutRef.current = setTimeout(() => {
+      setCopiedVar(null);
+      copiedTimeoutRef.current = null;
+    }, 2000);
   };
 
   const getImportanceColor = (importance: string) => {

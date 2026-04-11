@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -138,6 +138,7 @@ function StripePaymentForm({ onClose, onSuccess }: StripePaymentFormProps) {
   const t = useTranslations('billing');
   const stripe = useStripe();
   const elements = useElements();
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Custom hooks for state management
   const formState = useFormState();
@@ -146,6 +147,14 @@ function StripePaymentForm({ onClose, onSuccess }: StripePaymentFormProps) {
   // External hooks
   const { createSetupIntentAsync } = useCreateSetupIntentWithCustomParams();
   const { createPaymentMethodAsync } = usePaymentMethods();
+
+  useEffect(() => {
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Memoized validation
   const isFormValid = useMemo(() => {
@@ -206,9 +215,13 @@ function StripePaymentForm({ onClose, onSuccess }: StripePaymentFormProps) {
         });
 
         formState.setSuccess(true);
-        setTimeout(() => {
+        if (successTimeoutRef.current) {
+          clearTimeout(successTimeoutRef.current);
+        }
+        successTimeoutRef.current = setTimeout(() => {
           onSuccess?.();
           onClose();
+          successTimeoutRef.current = null;
         }, SUCCESS_DISPLAY_DURATION);
       }
     } catch (err: any) {

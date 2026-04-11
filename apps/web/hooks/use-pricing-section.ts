@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { PaymentFlow, PaymentInterval, PaymentPlan, PaymentProvider } from '@/lib/constants';
@@ -25,6 +25,7 @@ import { usePaymentAvailability } from './use-payment-availability';
 import { useStripeProducts, isStripeDynamicPricingEnabled } from './use-stripe-products';
 import { mapStripeProductsToPricingPlans } from '@/lib/services/stripe-products.service';
 import { collectPaymentModeConfig } from '@/lib/config/schemas/payment.schema';
+import { useRouter } from '@/i18n/navigation';
 
 export interface UsePricingSectionParams {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -148,12 +149,12 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	// Hooks for different payment providers
 	const stripeHook: ReturnType<typeof useCreateCheckoutSession> = useCreateCheckoutSession(); // Stripe checkout hook
 
-	const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
-		embedded: collectPaymentModeConfig().lemonSqueezy,
-		onPaymentSuccess: (_event) => {
-			toast.success('Subscription created successfully!');
-			router.push('/checkout/success');
-		},
+		const lemonsqueezyHook: ReturnType<typeof useCheckoutButton> = useCheckoutButton({
+			embedded: collectPaymentModeConfig().lemonSqueezy,
+			onPaymentSuccess: (_event) => {
+				toast.success('Subscription created successfully!');
+				router.push('/pricing/success');
+			},
 		onClose: () => {
 			// Clear checkout URL to prevent stale state
 			lemonsqueezyHook.clearCheckout();
@@ -620,7 +621,7 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 					setShowPaymentForm(false);
 					setPlanForPayment(null);
 					// Optionally redirect to success page or dashboard
-					router.push('/checkout/success');
+					router.push('/pricing/success');
 				} catch (error) {
 					toast.error('Failed to create subscription. Please try again or contact support.', { id: toastId });
 					console.error('Subscription creation failed:', error);

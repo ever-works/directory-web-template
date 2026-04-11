@@ -1,10 +1,8 @@
 "use client";
-import { Suspense } from "react";
 import { useTranslations } from "next-intl";
 import Hero from "@/components/hero";
 import Link from "next/link";
 import { Collection } from "@/types/collection";
-import { ListingSkeleton } from "@/components/ui/skeleton";
 import { Container } from "@/components/ui/container";
 import { Paginate } from "@/components/filters/components/pagination/paginate";
 import { totalPages } from "@/lib/paginate";
@@ -87,9 +85,5 @@ function CollectionsListContent(props: CollectionsListProps) {
 }
 
 export function CollectionsList(props: CollectionsListProps) {
-  return (
-    <Suspense fallback={<ListingSkeleton />}>
-      <CollectionsListContent {...props} />
-    </Suspense>
-  );
+  return <CollectionsListContent {...props} />;
 }

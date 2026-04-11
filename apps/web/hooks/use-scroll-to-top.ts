@@ -43,6 +43,8 @@ export function useScrollToTop(options: UseScrollToTopOptions = {}) {
   const router = useRouter();
   const isNavigatingRef = useRef(false);
   const animationFrameRef = useRef<number>(0);
+  const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navigationResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isScrolled = useCallback(() => window.scrollY > threshold, [threshold]);
 
   const smoothScrollTo = useCallback(
@@ -110,12 +112,21 @@ export function useScrollToTop(options: UseScrollToTopOptions = {}) {
         const scrollDistance = window.scrollY;
         const dynamicDelay = Math.min(delay + scrollDistance / SCROLL_DELAY_FACTOR, MAX_DYNAMIC_DELAY);
 
-        setTimeout(() => {
+        if (navigationTimeoutRef.current) {
+          clearTimeout(navigationTimeoutRef.current);
+        }
+        if (navigationResetTimeoutRef.current) {
+          clearTimeout(navigationResetTimeoutRef.current);
+        }
+
+        navigationTimeoutRef.current = setTimeout(() => {
           document.body.style.cursor = "";
           router.push(path);
 
-          setTimeout(() => {
+          navigationTimeoutRef.current = null;
+          navigationResetTimeoutRef.current = setTimeout(() => {
             isNavigatingRef.current = false;
+            navigationResetTimeoutRef.current = null;
           }, NAVIGATION_RESET_DELAY);
         }, dynamicDelay);
       } else {
@@ -130,6 +141,12 @@ export function useScrollToTop(options: UseScrollToTopOptions = {}) {
       isNavigatingRef.current = false;
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+      }
+      if (navigationTimeoutRef.current) {
+        clearTimeout(navigationTimeoutRef.current);
+      }
+      if (navigationResetTimeoutRef.current) {
+        clearTimeout(navigationResetTimeoutRef.current);
       }
       document.body.style.cursor = "";
     };

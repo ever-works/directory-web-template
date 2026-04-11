@@ -18,7 +18,7 @@ interface CollectionsGridContentProps {
 }
 
 export function CollectionsGridContent({ collections }: CollectionsGridContentProps) {
-	let COLLECTIONS_PER_PAGE = 9;
+	const COLLECTIONS_PER_PAGE = 9;
 	const { paginationType, itemsPerPage: defaultItemsPerPage } = useLayoutTheme();
 	const itemsPerPage = defaultItemsPerPage || COLLECTIONS_PER_PAGE;
 

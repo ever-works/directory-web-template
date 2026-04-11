@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 // Tailwind breakpoints
 export const BREAKPOINTS = {
@@ -14,36 +14,27 @@ export const BREAKPOINTS = {
 
 export type Breakpoint = keyof typeof BREAKPOINTS;
 
+function subscribeToWindowResize(onStoreChange: () => void) {
+  window.addEventListener("resize", onStoreChange);
+  return () => window.removeEventListener("resize", onStoreChange);
+}
+
+function getCurrentBreakpoint(): Breakpoint {
+  const width = window.innerWidth;
+
+  if (width >= BREAKPOINTS["2xl"]) return "2xl";
+  if (width >= BREAKPOINTS.xl) return "xl";
+  if (width >= BREAKPOINTS.lg) return "lg";
+  if (width >= BREAKPOINTS.md) return "md";
+  if (width >= BREAKPOINTS.sm) return "sm";
+  return "xs";
+}
+
 /**
  * Hook pour détecter le breakpoint actuel
  */
 export function useBreakpoint() {
-  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xs");
-
-  useEffect(() => {
-    const getBreakpoint = (): Breakpoint => {
-      const width = window.innerWidth;
-      
-      if (width >= BREAKPOINTS["2xl"]) return "2xl";
-      if (width >= BREAKPOINTS.xl) return "xl";
-      if (width >= BREAKPOINTS.lg) return "lg";
-      if (width >= BREAKPOINTS.md) return "md";
-      if (width >= BREAKPOINTS.sm) return "sm";
-      return "xs";
-    };
-
-    const handleResize = () => {
-      setBreakpoint(getBreakpoint());
-    };
-
-    // Initial check
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return breakpoint;
+  return useSyncExternalStore<Breakpoint>(subscribeToWindowResize, getCurrentBreakpoint, () => "xs");
 }
 
 /**

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { LocationPicker } from '@/components/maps/location-picker';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import type { LocationPickerValue } from '@/lib/maps/types';
@@ -52,6 +53,7 @@ function fromPickerValue(value: LocationPickerValue, existing?: ItemLocationData
  * Renders within the Basic Info step when location is enabled in settings.
  */
 export function LocationFields({ location, onLocationChange }: LocationFieldsProps) {
+	const t = useTranslations('common');
 	const { settings } = useLocationSettings();
 
 	const handlePickerChange = useCallback(
@@ -68,9 +70,9 @@ export function LocationFields({ location, onLocationChange }: LocationFieldsPro
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center gap-2 mb-2">
-				<h3 className="text-lg font-bold text-gray-900 dark:text-white">Location</h3>
+				<h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('LOCATION')}</h3>
 				{!settings.requireLocationOnSubmit && (
-					<span className="text-xs text-gray-500 dark:text-gray-400">(Optional)</span>
+					<span className="text-xs text-gray-500 dark:text-gray-400">({t('OPTIONAL')})</span>
 				)}
 			</div>
 
@@ -85,7 +87,7 @@ export function LocationFields({ location, onLocationChange }: LocationFieldsPro
 
 			{!settings.showExactAddress && location?.address && (
 				<p className="text-xs text-gray-500 dark:text-gray-400">
-					Your exact address won&apos;t be shown publicly, only the city.
+					{t('EXACT_ADDRESS_NOTE')}
 				</p>
 			)}
 		</div>

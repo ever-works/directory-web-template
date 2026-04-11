@@ -1,4 +1,3 @@
-'use client';
 import { Tag } from '@/lib/content';
 import { ListingTagsContent } from './listing-tags-content';
 

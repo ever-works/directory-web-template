@@ -18,6 +18,8 @@ interface State {
 }
 
 export class ErrorBoundary extends React.Component<Props, State> {
+  private retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
+
   constructor(props: Props) {
     super(props);
     this.state = { hasError: false, isRetrying: false };
@@ -40,12 +42,23 @@ export class ErrorBoundary extends React.Component<Props, State> {
     this.setState({ error, errorInfo });
   }
 
+  componentWillUnmount() {
+    if (this.retryTimeoutId) {
+      clearTimeout(this.retryTimeoutId);
+    }
+  }
+
   handleRetry = () => {
     this.setState({ isRetrying: true });
+
+    if (this.retryTimeoutId) {
+      clearTimeout(this.retryTimeoutId);
+    }
     
     // Simulate a small delay for better UX
-    setTimeout(() => {
+    this.retryTimeoutId = setTimeout(() => {
       this.setState({ hasError: false, error: undefined, errorInfo: undefined, isRetrying: false });
+      this.retryTimeoutId = null;
     }, 500);
   };
 
