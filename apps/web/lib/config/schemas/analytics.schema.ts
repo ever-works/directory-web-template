@@ -162,10 +162,10 @@ export const analyticsConfigSchema = z.object({
 		exceptionTracking: true
 	}),
 	googleAnalytics: googleAnalyticsSchema.optional().default({ enabled: false }),
-	plausible: plausibleSchema.optional().default({ enabled: false }),
-	dataFast: dataFastSchema.optional().default({ enabled: false }),
+	plausible: plausibleSchema.optional().default({ enabled: true }),
+	dataFast: dataFastSchema.optional().default({ enabled: true }),
 	jitsu: jitsuSchema.optional().default({ enabled: true }),
-	segment: segmentSchema.optional().default({ enabled: false }),
+	segment: segmentSchema.optional().default({ enabled: true }),
 	recaptcha: recaptchaConfigSchema.optional().default({ enabled: false }),
 	vercel: vercelAnalyticsSchema.optional().default({ speedInsightsEnabled: false, speedInsightsSampleRate: 0.5 })
 });

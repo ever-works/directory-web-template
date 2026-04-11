@@ -15,7 +15,8 @@ plausible.init();`}
 		);
 	}
 
-	return (
-		<Script defer data-domain={domain || ''} src="https://plausible.io/js/script.js" strategy="afterInteractive" />
-	);
+	const isDev = process.env.NODE_ENV === 'development';
+	const plausibleSrc = isDev ? 'https://plausible.io/js/script.local.js' : 'https://plausible.io/js/script.js';
+
+	return <Script defer data-domain={domain || ''} src={plausibleSrc} strategy="afterInteractive" />;
 }
