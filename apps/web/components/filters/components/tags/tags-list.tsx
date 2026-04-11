@@ -497,11 +497,11 @@ export function TagsList({
             aria-hidden="true"
           />
           
-          <div 
+        <div 
             ref={scrollContainerRef}
             className={SCROLL_CONTAINER_STYLES}
             role="region"
-            aria-label="Tags filter"
+            aria-label={tCommon("TAGS_FILTER")}
           >
             {/* Tags wrapper with data attribute for measurement */}
             <div data-tags-wrapper className="flex items-center gap-2">
@@ -538,7 +538,7 @@ export function TagsList({
                       />
                     </svg>
                   )}
-                  <span className="whitespace-nowrap">All Tags</span>
+                  <span className="whitespace-nowrap">{tCommon("ALL_TAGS")}</span>
                   <span
                     className={cn(
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
@@ -581,7 +581,7 @@ export function TagsList({
                       />
                     </svg>
                   )}
-                  <span className="whitespace-nowrap">All Tags</span>
+                  <span className="whitespace-nowrap">{tCommon("ALL_TAGS")}</span>
                   <span
                     className={cn(
                       "ml-1 text-[12px] font-normal dark:bg-white/20 bg-dark-500 text-white py-0.5 px-1.5 rounded-full",
@@ -628,7 +628,7 @@ export function TagsList({
                   className="h-8 py-2 px-3 text-xs flex items-center gap-1.5 bg-white dark:bg-white/5 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/6 shadow-xs hover:shadow-sm transition-all rounded-full focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-900"
                   onClick={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
                   onPress={() => setIsMorePopoverOpen(!isMorePopoverOpen)}
-                  aria-label={`Show ${hiddenTags.length} more ${hiddenTags.length === 1 ? 'tag' : 'tags'}`}
+                  aria-label={tCommon("SHOW_MORE", { count: hiddenTags.length })}
                 >
                   <span className="font-medium">
                     +{hiddenTags.length}
@@ -668,7 +668,7 @@ export function TagsList({
             >
               <div className="space-y-2">
                 <h3 className="text-xs font-medium text-gray-700 dark:text-gray-300 pb-1.5 border-b border-gray-100 dark:border-white/6 flex items-center gap-1.5 uppercase">
-                  {tCommon("MORE")} Tags
+                  {tCommon("MORE")} {tCommon("TAG")}
                   <span className="text-xs bg-gray-100 dark:bg-white/8 rounded-sm px-1.5 py-0.5">
                     {hiddenTags.length}
                   </span>
@@ -718,7 +718,7 @@ export function TagsList({
                   />
                 </svg>
               )}
-              <span>All Tags</span>
+              <span>{tCommon("ALL_TAGS")}</span>
               <span
                 className={cn(
                   "ml-1.5 text-xs font-normal",
@@ -761,7 +761,7 @@ export function TagsList({
                   />
                 </svg>
               )}
-              <span>All Tags</span>
+              <span>{tCommon("ALL_TAGS")}</span>
               <span
                 className={cn(
                   "ml-1.5 text-xs font-normal",

@@ -1,0 +1,410 @@
+{
+  "help.message": {
+    "message": "צריכים עזרה?"
+  },
+  "help.description": {
+    "message": "פרויקט זה מתוחזק על ידי קבוצת אנשים מסורים."
+  },
+  "theme.ErrorPageContent.title": {
+    "message": "דף זה קרס.",
+    "description": "The title of the fallback page when the page crashed"
+  },
+  "theme.BackToTopButton.buttonAriaLabel": {
+    "message": "חזרה למעלה",
+    "description": "The ARIA label for the back to top button"
+  },
+  "theme.blog.archive.title": {
+    "message": "ארכיון",
+    "description": "The page & hero title of the blog archive page"
+  },
+  "theme.blog.archive.description": {
+    "message": "ארכיון",
+    "description": "The page & hero description of the blog archive page"
+  },
+  "theme.blog.paginator.navAriaLabel": {
+    "message": "ניווט עמודי בלוג",
+    "description": "The ARIA label for the blog pagination"
+  },
+  "theme.blog.paginator.newerEntries": {
+    "message": "רשומות חדשות יותר",
+    "description": "The label used to navigate to the newer blog posts page (previous page)"
+  },
+  "theme.blog.paginator.olderEntries": {
+    "message": "רשומות ישנות יותר",
+    "description": "The label used to navigate to the older blog posts page (next page)"
+  },
+  "theme.blog.post.paginator.navAriaLabel": {
+    "message": "ניווט פוסטי בלוג",
+    "description": "The ARIA label for the blog posts pagination"
+  },
+  "theme.blog.post.paginator.newerPost": {
+    "message": "פוסט חדש יותר",
+    "description": "The blog post button label to navigate to the newer/previous post"
+  },
+  "theme.blog.post.paginator.olderPost": {
+    "message": "פוסט ישן יותר",
+    "description": "The blog post button label to navigate to the older/next post"
+  },
+  "theme.tags.tagsPageLink": {
+    "message": "הצג את כל התגיות",
+    "description": "The label of the link targeting the tag list page"
+  },
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "מצב מערכת",
+    "description": "The name for the system color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.light": {
+    "message": "מצב בהיר",
+    "description": "The name for the light color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "מצב כהה",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "מעבר בין מצב כהה לבהיר (כרגע {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "נתיב ניווט",
+    "description": "The ARIA label for the breadcrumbs"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "פריט אחד|{count} פריטים",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
+  },
+  "theme.docs.paginator.navAriaLabel": {
+    "message": "דפי תיעוד",
+    "description": "The ARIA label for the docs pagination"
+  },
+  "theme.docs.paginator.previous": {
+    "message": "הקודם",
+    "description": "The label used to navigate to the previous doc"
+  },
+  "theme.docs.paginator.next": {
+    "message": "הבא",
+    "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "מסמך אחד מתויג|{count} מסמכים מתויגים",
+    "description": "Pluralized label for \"{count} docs tagged\""
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} עם \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "גרסה: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "זהו תיעוד עבור הגרסה הקרובה {versionLabel} של {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "זהו תיעוד {siteTitle} {versionLabel}, שאינו מתוחזק באופן פעיל יותר.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "לתיעוד עדכני, ראו {latestVersionLink} ({versionLabel}).",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "הגרסה האחרונה",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "ערוך דף זה",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "קישור ישיר אל {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " ב-{date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " על ידי {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "עודכן לאחרונה{atDate}{byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "גרסאות",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "הדף לא נמצא",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "תגיות:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "זהירות",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "סכנה",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "מידע",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "הערה",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "טיפ",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "אזהרה",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "סגור",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "ניווט פוסטים אחרונים",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "הרחב קטגוריה '{label}' בסרגל הצד",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "כווץ קטגוריה '{label}' בסרגל הצד",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.IconExternalLink.ariaLabel": {
+    "message": "(נפתח בלשונית חדשה)",
+    "description": "The ARIA label for the external link icon"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "ניווט ראשי",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "שפות",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "לא מצאנו את מה שחיפשתם.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "אנא צרו קשר עם בעל האתר שהפנה אתכם לכתובת המקורית והודיעו לו שהקישור שבור.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "בדף זה",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "קראו עוד",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "קראו עוד על {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "דקת קריאה אחת|{readingTime} דקות קריאה",
+    "description": "Pluralized label for \"{readingTime} min read\""
+  },
+  "theme.CodeBlock.copy": {
+    "message": "העתק",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "הועתק",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "העתק קוד",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "דף הבית",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "הפעל/בטל גלישת שורות",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "כווץ סרגל צד",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "כווץ סרגל צד",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "סרגל צד של תיעוד",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "סגור ניווט",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← חזרה לתפריט הראשי",
+    "description": "The label of the back button to return to main menu"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "פתח/סגור ניווט",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "הרחב תפריט נפתח",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "כווץ תפריט נפתח",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "הרחב סרגל צד",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "הרחב סרגל צד",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.noResultsText": {
+    "message": "אין תוצאות"
+  },
+  "theme.SearchBar.seeAllOutsideContext": {
+    "message": "הצג את כל התוצאות מחוץ ל-« {context} »"
+  },
+  "theme.SearchBar.searchInContext": {
+    "message": "הצג את כל התוצאות ב-« {context} »"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "הצג את כל התוצאות"
+  },
+  "theme.SearchBar.label": {
+    "message": "חיפוש",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "תוצאות חיפוש עבור « {query} »",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "חיפוש בתיעוד",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.searchContext.everywhere": {
+    "message": "בכל מקום"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "נמצא מסמך אחד|נמצאו {count} מסמכים",
+    "description": "Pluralized label for \"{count} documents found\""
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "לא נמצאו מסמכים",
+    "description": "The paragraph for empty search result"
+  },
+  "theme.blog.post.plurals": {
+    "message": "פוסט אחד|{count} פוסטים",
+    "description": "Pluralized label for \"{count} posts\""
+  },
+  "theme.blog.tagTitle": {
+    "message": "{nPosts} מתויגים ב-« {tagName} »",
+    "description": "The title of the page for a blog tag"
+  },
+  "theme.blog.author.pageTitle": {
+    "message": "{authorName} - {nPosts}",
+    "description": "The title of the page for a blog author"
+  },
+  "theme.blog.authorsList.pageTitle": {
+    "message": "מחברים",
+    "description": "The title of the authors page"
+  },
+  "theme.blog.authorsList.viewAll": {
+    "message": "הצג את כל המחברים",
+    "description": "The label of the link targeting the blog authors page"
+  },
+  "theme.blog.author.noPosts": {
+    "message": "מחבר זה טרם כתב פוסטים.",
+    "description": "The text for authors with 0 blog post"
+  },
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "דף לא רשום",
+    "description": "The unlisted content banner title"
+  },
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "דף זה אינו רשום. מנועי חיפוש לא יאנדקסו אותו, ורק משתמשים עם קישור ישיר יכולים לגשת אליו.",
+    "description": "The unlisted content banner message"
+  },
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "דף טיוטה",
+    "description": "The draft content banner title"
+  },
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "דף זה הוא טיוטה. הוא יהיה גלוי רק במצב פיתוח ויוחרג מגרסת הייצור.",
+    "description": "The draft content banner message"
+  },
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "נסו שוב",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+  },
+  "theme.common.skipToMainContent": {
+    "message": "דלג לתוכן הראשי",
+    "description": "The skip to content label used for accessibility"
+  },
+  "theme.tags.tagsPageTitle": {
+    "message": "תגיות",
+    "description": "The title of the tag list page"
+  },
+  "users.title": {
+    "message": "מי משתמש בפרויקט הזה?",
+    "description": "Users page heading"
+  },
+  "users.subtitle": {
+    "message": "פרויקט זה נמצא בשימוש אנשים רבים",
+    "description": "Users page subtitle"
+  },
+  "users.callToAction": {
+    "message": "האם אתם משתמשים בפרויקט הזה?",
+    "description": "Users page call to action"
+  },
+  "users.addCompany": {
+    "message": "הוסיפו את החברה שלכם",
+    "description": "Button label to add company"
+  },
+  "help.browseDocs.title": {
+    "message": "עיינו בתיעוד",
+    "description": "Help page feature title for browsing docs"
+  },
+  "help.browseDocs.description": {
+    "message": "למדו עוד מתיעוד אתר זה.",
+    "description": "Help page feature description for browsing docs"
+  },
+  "help.joinCommunity.title": {
+    "message": "הצטרפו לקהילה",
+    "description": "Help page feature title for joining community"
+  },
+  "help.joinCommunity.description": {
+    "message": "שאלו שאלות על התיעוד והפרויקט",
+    "description": "Help page feature description for joining community"
+  },
+  "help.stayUpToDate.title": {
+    "message": "הישארו מעודכנים",
+    "description": "Help page feature title for staying up to date"
+  },
+  "help.stayUpToDate.description": {
+    "message": "גלו מה חדש בפרויקט הזה",
+    "description": "Help page feature description for staying up to date"
+  }
+}

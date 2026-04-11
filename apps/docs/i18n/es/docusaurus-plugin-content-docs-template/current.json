@@ -1,0 +1,90 @@
+{
+  "version.label": {
+    "message": "Siguiente",
+    "description": "The label for version current"
+  },
+  "sidebar.templateSidebar.category.Getting Started": {
+    "message": "Primeros pasos",
+    "description": "The label for category 'Getting Started' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Architecture": {
+    "message": "Arquitectura",
+    "description": "The label for category 'Architecture' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Authentication": {
+    "message": "Autenticación",
+    "description": "The label for category 'Authentication' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Database": {
+    "message": "Base de datos",
+    "description": "The label for category 'Database' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Type Definitions": {
+    "message": "Definiciones de tipos",
+    "description": "The label for category 'Type Definitions' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.API Routes": {
+    "message": "Rutas de API",
+    "description": "The label for category 'API Routes' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Services": {
+    "message": "Servicios",
+    "description": "The label for category 'Services' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Hooks": {
+    "message": "Hooks",
+    "description": "The label for category 'Hooks' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Components": {
+    "message": "Componentes",
+    "description": "The label for category 'Components' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Features": {
+    "message": "Características",
+    "description": "The label for category 'Features' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Payment Integration": {
+    "message": "Integración de pagos",
+    "description": "The label for category 'Payment Integration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Internationalization": {
+    "message": "Internacionalización",
+    "description": "The label for category 'Internationalization' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Configuration": {
+    "message": "Configuración",
+    "description": "The label for category 'Configuration' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Content Management": {
+    "message": "Gestión de contenido",
+    "description": "The label for category 'Content Management' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Integrations": {
+    "message": "Integraciones",
+    "description": "The label for category 'Integrations' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Guides": {
+    "message": "Guías",
+    "description": "The label for category 'Guides' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Development": {
+    "message": "Desarrollo",
+    "description": "The label for category 'Development' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Deployment": {
+    "message": "Despliegue",
+    "description": "The label for category 'Deployment' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Team Training": {
+    "message": "Formación del equipo",
+    "description": "The label for category 'Team Training' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.Advanced Guide": {
+    "message": "Guía avanzada",
+    "description": "The label for category 'Advanced Guide' in sidebar 'templateSidebar'"
+  },
+  "sidebar.templateSidebar.category.About": {
+    "message": "Acerca de",
+    "description": "The label for category 'About' in sidebar 'templateSidebar'"
+  }
+}

@@ -83,24 +83,38 @@ export function useGeolocation(options: UseGeolocationOptions = {}): UseGeolocat
 	useEffect(() => {
 		if (!isSupported) return;
 
+		let permissionStatus: PermissionStatus | null = null;
+		let isMounted = true;
+		const handlePermissionChange = () => {
+			if (isMounted && permissionStatus) {
+				setPermission(permissionStatus.state);
+			}
+		};
+
 		const checkPermission = async () => {
 			try {
 				if (navigator.permissions) {
-					const result = await navigator.permissions.query({ name: 'geolocation' });
-					setPermission(result.state);
+					permissionStatus = await navigator.permissions.query({ name: 'geolocation' });
 
-					// Listen for permission changes
-					result.addEventListener('change', () => {
-						setPermission(result.state);
-					});
+					if (!isMounted) return;
+
+					setPermission(permissionStatus.state);
+					permissionStatus.addEventListener('change', handlePermissionChange);
 				}
 			} catch {
 				// Permissions API not supported, permission state unknown
-				setPermission(null);
+				if (isMounted) {
+					setPermission(null);
+				}
 			}
 		};
 
 		checkPermission();
+
+		return () => {
+			isMounted = false;
+			permissionStatus?.removeEventListener('change', handlePermissionChange);
+		};
 	}, [isSupported]);
 
 	// Watch position if enabled

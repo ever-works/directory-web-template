@@ -1,9 +1,10 @@
 'use client';
 
 import { useSession } from 'next-auth/react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { SessionProvider } from 'next-auth/react';
+import { useRouter } from '@/i18n/navigation';
 
 function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	const { data: session, status } = useSession();
@@ -18,23 +19,23 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (status === 'loading' || hasRedirectedRef.current) return;
 
-		if (!session) {
-			if (isAuthPage) return;
-			console.log('No session, redirecting to signin');
-			hasRedirectedRef.current = true;
-			// Not authenticated, redirect to admin signin with callback URL
+			if (!session) {
+				if (isAuthPage) return;
+				console.log('No session, redirecting to signin');
+				hasRedirectedRef.current = true;
+				// Not authenticated, redirect to admin signin with callback URL
 			router.replace(`/admin/auth/signin?callbackUrl=${encodeURIComponent(pathname)}`);
 			return;
 		}
 
 		// Check if user is admin
-		if (!session.user?.isAdmin) {
-			console.log('User not admin, redirecting to unauthorized');
-			hasRedirectedRef.current = true;
-			// Not admin, redirect to unauthorized (mirrors server-side requireAdmin)
-			router.replace('/unauthorized');
-			return;
-		}
+			if (!session.user?.isAdmin) {
+				console.log('User not admin, redirecting to unauthorized');
+				hasRedirectedRef.current = true;
+				// Not admin, redirect to unauthorized (mirrors server-side requireAdmin)
+				window.location.replace('/unauthorized');
+				return;
+			}
 
 		console.log('User authenticated and is admin');
 

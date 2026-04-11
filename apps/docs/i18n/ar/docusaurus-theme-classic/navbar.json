@@ -1,0 +1,18 @@
+{
+  "logo.alt": {
+    "message": "شعار Ever® Works",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.Home": {
+    "message": "الرئيسية",
+    "description": "Navbar item with label Home"
+  },
+  "item.label.Help": {
+    "message": "المساعدة",
+    "description": "Navbar item with label Help"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

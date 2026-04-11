@@ -49,14 +49,19 @@ export function useStickyState(options: UseStickyStateOptions = {}) {
   const [isSticky, setIsSticky] = useState(false);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
+  const stickyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stickyStateRef = useRef(false);
 
   const { threshold = 0, rootMargin = "0px", debug = false } = options;
 
   useEffect(() => {
-    const sentinel = sentinelRef.current;
-    const target = targetRef.current;
+    stickyStateRef.current = isSticky;
+  }, [isSticky]);
 
-    if (!sentinel || !target) return;
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+
+    if (!sentinel) return;
 
     const observerOptions = {
       threshold,
@@ -77,9 +82,15 @@ export function useStickyState(options: UseStickyStateOptions = {}) {
         });
       }
 
-      if (newIsSticky !== isSticky) {
-        setTimeout(() => {
+      if (stickyTimeoutRef.current) {
+        clearTimeout(stickyTimeoutRef.current);
+      }
+
+      if (newIsSticky !== stickyStateRef.current) {
+        stickyTimeoutRef.current = setTimeout(() => {
+          stickyStateRef.current = newIsSticky;
           setIsSticky(newIsSticky);
+          stickyTimeoutRef.current = null;
         }, 10);
       }
     };
@@ -92,9 +103,12 @@ export function useStickyState(options: UseStickyStateOptions = {}) {
     observer.observe(sentinel);
 
     return () => {
+      if (stickyTimeoutRef.current) {
+        clearTimeout(stickyTimeoutRef.current);
+      }
       observer.disconnect();
     };
-  }, [threshold, rootMargin, debug, isSticky]);
+  }, [threshold, rootMargin, debug]);
 
   return { isSticky, sentinelRef, targetRef };
 }
@@ -104,25 +118,26 @@ interface StickyHeaderProps {
 }
 export const useStickyHeader = ({ enableSticky }: StickyHeaderProps) => {
   const [isSticky, setIsSticky] = useState(false);
-  useEffect(() => {
-    if (enableSticky) {
-      const handleScroll = () => {
-        const scrollPosition = window.scrollY;
-        const scrollThreshold = 250;
-        if (scrollPosition > scrollThreshold && !isSticky) {
-          setIsSticky(true);
-        } else if (scrollPosition <= scrollThreshold && isSticky) {
-          setIsSticky(false);
-        }
-      };
 
-      window.addEventListener("scroll", handleScroll, { passive: true });
-      return () => {
-        window.removeEventListener("scroll", handleScroll);
-      };
+  useEffect(() => {
+    if (!enableSticky) {
+      setIsSticky(false);
+      return undefined;
     }
-    return undefined;
-  }, [isSticky, enableSticky]);
+
+    const handleScroll = () => {
+      const scrollThreshold = 250;
+      const nextIsSticky = window.scrollY > scrollThreshold;
+      setIsSticky((current) => (current === nextIsSticky ? current : nextIsSticky));
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [enableSticky]);
 
   return { isSticky };
 };

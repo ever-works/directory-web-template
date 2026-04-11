@@ -1,5 +1,6 @@
 import { Button, cn } from "@heroui/react";
 import { usePathname } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { TagsProps } from "../../types";
 import { TagsList } from "./tags-list";
 import { useStickyHeader } from "../../hooks/use-sticky-header";
@@ -20,6 +21,7 @@ export function Tags({
   mode = "navigation", // "navigation" | "filter"
   allItems,
 }: TagsProps & { mode?: "navigation" | "filter" }) {
+  const t = useTranslations("common");
   const pathname = usePathname();
   const { isSticky } = useStickyHeader({ enableSticky });
   const { selectedTags, setSelectedTags } = useFilters();
@@ -69,7 +71,7 @@ export function Tags({
                 : "text-gray-900 dark:text-white"
             )}
           >
-            Tags
+            {t("TAG")}
           </h3>
           {hasMoreTags && (
             <Button
@@ -84,8 +86,8 @@ export function Tags({
             >
               {showAllTags ? (
                 <>
-                  <span className="hidden sm:inline">Show as single row</span>
-                  <span className="sm:hidden">Single row</span>
+                  <span className="hidden sm:inline">{t("SHOW_AS_SINGLE_ROW")}</span>
+                  <span className="sm:hidden">{t("SINGLE_ROW")}</span>
                   <svg
                     width="16"
                     height="16"
@@ -105,9 +107,9 @@ export function Tags({
               ) : (
                 <>
                   <span className="hidden sm:inline text-[1opx]">
-                    Show all {tags.length} tags
+                    {t("SHOW_ALL_TAGS", { count: tags.length })}
                   </span>
-                  <span className="sm:hidden">All tags</span>
+                  <span className="sm:hidden">{t("ALL_TAGS")}</span>
                   <svg
                     width="10"
                     height="10"

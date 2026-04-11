@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import { useAlternatePageUtils } from "@docusaurus/theme-common/internal";
 
 const LanguageIcon = () => (
   <svg
@@ -35,10 +34,8 @@ const LocaleDropdown: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const {
-    i18n: { currentLocale, locales, localeConfigs },
+    i18n: { defaultLocale, currentLocale, locales, localeConfigs },
   } = useDocusaurusContext();
-
-  const alternatePageUtils = useAlternatePageUtils();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -71,16 +68,58 @@ const LocaleDropdown: React.FC = () => {
     return localeConfigs[locale]?.label || locale.toUpperCase();
   };
 
-  const getLocaleUrl = (locale: string) => {
-    try {
-      return alternatePageUtils.createUrl({ locale, fullyQualified: false });
-    } catch {
-      // Fallback: if page doesn't exist in target locale, go to locale root
-      if (locale === currentLocale || locale === 'en') {
-        return '/';
-      }
-      return `/${locale}/`;
+  // Derive the active locale directly from the browser URL so the indicator is
+  // always correct — including on 404 pages where context may return the default locale.
+  const activeLocale = (() => {
+    if (typeof window === 'undefined') return currentLocale;
+    const path = window.location.pathname;
+    for (const loc of locales) {
+      if (loc === defaultLocale) continue;
+      const prefix = `/${loc}`;
+      if (path === prefix || path.startsWith(`${prefix}/`)) return loc;
     }
+    return defaultLocale;
+  })();
+
+  const buildLocaleUrl = (locale: string): string => {
+    // Read the real browser path (not the internal router path, which may differ).
+    const realPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+
+    // Iteratively strip every leading locale prefix so stale URLs like
+    // /bg/fr/page are fully cleaned to /page before the new prefix is added.
+    const nonDefault = locales.filter((l) => l !== defaultLocale);
+    let canonical = realPath;
+    let peeled = true;
+    while (peeled) {
+      peeled = false;
+      for (const loc of nonDefault) {
+        const pfx = `/${loc}`;
+        if (canonical === pfx) { canonical = '/'; peeled = true; break; }
+        if (canonical.startsWith(`${pfx}/`)) { canonical = canonical.slice(pfx.length); peeled = true; break; }
+      }
+    }
+
+    const targetPrefix = locale !== defaultLocale ? `/${locale}` : '';
+    return (targetPrefix + canonical) || '/';
+  };
+
+  const switchLocale = (locale: string) => {
+    setIsOpen(false);
+    const targetUrl = buildLocaleUrl(locale);
+    // Navigate to the target page. If it 404s (e.g. page not yet translated),
+    // fall back to the locale root so the user never gets stuck on a 404.
+    const fallbackUrl = locale !== defaultLocale ? `/${locale}/` : '/';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    fetch(targetUrl, { method: 'HEAD', signal: controller.signal })
+      .then((res) => {
+        clearTimeout(timeout);
+        window.location.href = res.ok ? targetUrl : fallbackUrl;
+      })
+      .catch(() => {
+        clearTimeout(timeout);
+        window.location.href = fallbackUrl;
+      });
   };
 
   return (
@@ -93,25 +132,25 @@ const LocaleDropdown: React.FC = () => {
         aria-expanded={isOpen}
       >
         <LanguageIcon />
-        <span className="hidden md:inline">{currentLocale.toUpperCase()}</span>
+        <span className="hidden md:inline">{activeLocale.toUpperCase()}</span>
         <ChevronDownIcon />
       </button>
 
        {isOpen && (
         <div className="absolute right-0 bottom-full mb-2 p-1.5 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700/40 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
           {locales.map((locale) => (
-            <a
+            <button
               key={locale}
-              href={getLocaleUrl(locale)}
-              onClick={() => setIsOpen(false)}
-              className={`flex items-center gap-3 px-4 py-2.5 mb-px text-sm rounded-md transition-colors duration-150 ${
-                locale === currentLocale
+              type="button"
+              onClick={() => switchLocale(locale)}
+              className={`flex w-full items-center gap-3 px-4 py-2.5 mb-px text-sm rounded-md transition-colors duration-150 ${
+                locale === activeLocale
                   ? "bg-gray-50 dark:bg-zinc-900 text-gray-900 dark:text-gray-100 font-medium"
                   : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-zinc-900 hover:text-gray-900 dark:hover:text-white"
               }`}
             >
-              <span className="flex-1">{getLocaleLabel(locale)}</span>
-              {locale === currentLocale && (
+              <span className="flex-1 text-left">{getLocaleLabel(locale)}</span>
+              {locale === activeLocale && (
                 <svg
                   className="w-3 h-3 text-gray-500 dark:text-zinc-400"
                   fill="none"
@@ -126,7 +165,7 @@ const LocaleDropdown: React.FC = () => {
                   />
                 </svg>
               )}
-            </a>
+            </button>
           ))}
         </div>
       )}

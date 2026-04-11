@@ -1,12 +1,10 @@
 'use client';
-import { Suspense } from 'react';
 import { useTranslations } from 'next-intl';
 import Hero from '@/components/hero';
 import Link from 'next/link';
 import CategoriesGrid from '@/components/categories-grid';
 import { Category } from '@/lib/content';
 import { useLayoutTheme, LayoutHome } from '@/components/context';
-import { ListingSkeleton } from '@/components/ui/skeleton';
 import { Container } from '@/components/ui/container';
 import { GridBackground, DotBgsible } from '@/components/shared/decorative-bg';
 
@@ -48,11 +46,7 @@ function ListingCategoriesContent(props: ListingCategoriesProps) {
 }
 
 export default function ListingCategories(props: ListingCategoriesProps) {
-	return (
-		<Suspense fallback={<ListingSkeleton />}>
-			<ListingCategoriesContent {...props} />
-		</Suspense>
-	);
+	return <ListingCategoriesContent {...props} />;
 }
 
 function HomeOneLayout({ categories }: { categories: Category[] }) {
