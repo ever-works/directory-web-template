@@ -1,6 +1,6 @@
 ---
 id: lemonsqueezy-deep-dive
-title: LemonSqueezy: глубокое погружение
+title: "LemonSqueezy: глубокое погружение"
 sidebar_label: ЛимонСжатый
 sidebar_position: 5
 ---
