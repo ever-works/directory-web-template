@@ -1,31 +1,31 @@
 ---
 id: solidgate-deep-dive
-title: Solidgate 深入探讨
-sidebar_label: 固体门
+title: Подробное описание Solidgate
+sidebar_label: Солидгейт
 sidebar_position: 7
 ---
 
-# Solidgate 深入探讨
+# Подробное описание Solidgate
 
-此页面涵盖完整的 Solidgate 集成，包括结帐创建、Webhook 处理、付款验证和嵌入式付款表单。
+На этой странице описана полная интеграция с Solidgate, включая создание оформления заказа, обработку веб-перехватчика, проверку платежа и встроенную форму оплаты.
 
-## 概述
+## Обзор
 
-Solidgate 是一家支付基础设施提供商，支持托管结帐流程和用于内联支付表单的嵌入式 React SDK。该集成通过 Solidgate API 创建支付意图，并支持具有幂等性保护的 Webhook 驱动的事件处理。 Solidgate 使用 HMAC-SHA512 进行 Webhook 签名验证。
+Solidgate — поставщик платежной инфраструктуры, который поддерживает как размещенные потоки оформления заказа, так и встраиваемый React SDK для встроенных форм оплаты. Интеграция создает платежные намерения через API Solidgate и поддерживает обработку событий на основе веб-перехватчиков с защитой идемпотентности. Solidgate использует HMAC-SHA512 для проверки подписи веб-перехватчика.
 
-## 路由表
+## Таблица маршрутов
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|`POST`|`/api/solidgate/checkout`|需要会话|创建结帐会话/付款意图|
-|`POST`|`/api/solidgate/webhook`|需要签名|处理传入的 Webhook 事件|
-|`GET`|`/api/solidgate/webhook`|无|返回端点文档|
+|`POST`|`/api/solidgate/checkout`|Требуется сеанс|Создайте сеанс оформления заказа/намерение платежа|
+|`POST`|`/api/solidgate/webhook`|Требуется подпись|Обработка входящих событий вебхука|
+|`GET`|`/api/solidgate/webhook`|Нет|Возвращает документацию по конечной точке|
 
-## 结帐创建 (POST)
+## Создание оформления заказа (POST)
 
-### 请求正文
+### Тело запроса
 
-结帐端点使用 Zod 验证进行严格的输入检查：
+Конечная точка оформления заказа использует проверку Zod для строгой проверки ввода:
 
 ```typescript
 const checkoutSchema = z.object({
@@ -38,7 +38,7 @@ const checkoutSchema = z.object({
 });
 ```
 
-### 请求示例
+### Пример запроса
 
 ```bash
 curl -X POST /api/solidgate/checkout \
@@ -54,17 +54,17 @@ curl -X POST /api/solidgate/checkout \
   }'
 ```
 
-### 它是如何运作的
+### Как это работает
 
-1. 通过`auth()` 对用户进行身份验证
-2. 使用 Zod 架构验证请求正文
-3. 解决或创建 Solidgate 客户
-4. 通过 Solidgate API 创建付款意图
-5. 返回嵌入式 SDK 的支付 ID 和客户端密钥
+1. Аутентифицирует пользователя через `auth()`
+2. Проверяет тело запроса по схеме Zod.
+3. Решает или создает клиента Solidgate
+4. Создает намерение платежа через Solidgate API.
+5. Возвращает идентификатор платежа и секрет клиента для встроенного SDK.
 
-### 提供商实施
+### Реализация поставщика
 
-`createPaymentIntent`方法构造API请求：
+Метод `createPaymentIntent` создает запрос API:
 
 ```typescript
 const paymentRequest: SolidgatePaymentRequest = {
@@ -84,7 +84,7 @@ const response = await this.makeApiRequest<SolidgatePaymentResponse>(
 );
 ```
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -97,11 +97,11 @@ const response = await this.makeApiRequest<SolidgatePaymentResponse>(
 }
 ```
 
-`url` 字段包含用于初始化 Solidgate React SDK 的支付意图 ID。
+Поле `url` содержит идентификатор платежного намерения, используемый для инициализации Solidgate React SDK.
 
-## 嵌入付款表格
+## Встроенная форма оплаты
 
-Solidgate 为内联支付表单提供了 React SDK。提供者生成SDK初始化的签名：
+Solidgate предоставляет React SDK для встроенных форм оплаты. Поставщик генерирует подпись для инициализации SDK:
 
 ```typescript
 private generatePaymentIntentSignature(paymentIntent: string, merchantId: string): string {
@@ -110,7 +110,7 @@ private generatePaymentIntentSignature(paymentIntent: string, merchantId: string
 }
 ```
 
-`getUIComponents()` 方法返回配置的付款表单包装器：
+Метод `getUIComponents()` возвращает настроенную оболочку платежной формы:
 
 ```typescript
 getUIComponents(): UIComponents {
@@ -131,17 +131,17 @@ getUIComponents(): UIComponents {
 }
 ```
 
-## Webhook 处理
+## Обработка вебхука
 
-### 签名验证
+### Проверка подписи
 
-Solidgate 使用 HMAC-SHA512 进行 Webhook 签名。签名头可以是`x-signature`或`solidgate-signature`：
+Solidgate использует HMAC-SHA512 для подписей веб-перехватчиков. Заголовок подписи может быть `x-signature` или `solidgate-signature`:
 
 ```typescript
 const signature = headersList.get('x-signature') || headersList.get('solidgate-signature');
 ```
 
-提供者根据原始主体验证签名：
+Поставщик проверяет подпись по необработанному телу:
 
 ```typescript
 const expectedSignature = this.generateSignature(rawBody, this.webhookSecret);
@@ -154,9 +154,9 @@ private generateSignature(data: string, secret: string): string {
 }
 ```
 
-### 幂等性保护
+### Защита от идемпотентности
 
-Webhook 端点包括内存中幂等性保护，以防止重复处理：
+Конечная точка веб-перехватчика включает защиту идемпотентности в памяти для предотвращения дублирующей обработки:
 
 ```typescript
 const processedWebhooks = new Set<string>();
@@ -174,13 +174,13 @@ if (webhookId) {
 }
 ```
 
-:::注意
-在生产 Serverless 环境中，内存中的 Set 应替换为 Redis 或数据库表以实现跨实例幂等性。
+:::примечание
+В производственной бессерверной среде набор в памяти следует заменить Redis или таблицей базы данных для обеспечения идемпотентности между экземплярами.
 :::
 
-### 事件映射
+### Сопоставление событий
 
-|固体门事件|内部型|
+|Событие Солидгейт|Внутренний тип|
 |----------------|---------------|
 |`payment.succeeded` / `payment.completed`|`payment_succeeded`|
 |`payment.failed` / `payment.declined`|`payment_failed`|
@@ -189,9 +189,9 @@ if (webhookId) {
 |`subscription.cancelled` / `subscription.canceled`|`subscription_cancelled`|
 |`refund.processed` / `refund.completed`|`refund_succeeded`|
 
-### 处理程序结构
+### Структура обработчика
 
-每个处理程序委托给 `WebhookSubscriptionService`：
+Каждый обработчик делегирует `WebhookSubscriptionService`:
 
 ```typescript
 async function handleSubscriptionCreated(data: any) {
@@ -203,15 +203,15 @@ async function handleSubscriptionCreated(data: any) {
 }
 ```
 
-`WebhookSubscriptionService` 使用 `SOLIDGATE` 提供程序常量进行初始化：
+`WebhookSubscriptionService` инициализируется константой провайдера `SOLIDGATE`:
 
 ```typescript
 const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvider.SOLIDGATE);
 ```
 
-## 付款验证
+## Проверка платежа
 
-提供商支持通过 Solidgate API 进行付款验证：
+Провайдер поддерживает проверку платежей через Solidgate API:
 
 ```typescript
 async verifyPayment(paymentId: string): Promise<PaymentVerificationResult> {
@@ -234,9 +234,9 @@ async verifyPayment(paymentId: string): Promise<PaymentVerificationResult> {
 }
 ```
 
-## 订阅管理
+## Управление подпиской
 
-### 创建订阅
+### Создание подписок
 
 ```typescript
 async createSubscription(params: CreateSubscriptionParams): Promise<SubscriptionInfo> {
@@ -249,9 +249,9 @@ async createSubscription(params: CreateSubscriptionParams): Promise<Subscription
 }
 ```
 
-### 取消订阅
+### Отмена подписок
 
-支持立即取消和期末取消：
+Поддерживает как немедленную отмену, так и отмену в конце периода:
 
 ```typescript
 const endpoint = cancelAtPeriodEnd
@@ -259,7 +259,7 @@ const endpoint = cancelAtPeriodEnd
   : `/subscriptions/${subscriptionId}/cancel-immediate`;
 ```
 
-### 更新订阅
+### Обновление подписок
 
 ```typescript
 const updateData: any = {};
@@ -270,9 +270,9 @@ if (metadata) updateData.metadata = metadata;
 await this.makeApiRequest(`/subscriptions/${subscriptionId}`, 'PUT', updateData);
 ```
 
-## API通讯
+## API-коммуникация
 
-所有 Solidgate API 调用都使用集中式 `makeApiRequest` 方法：
+Все вызовы Solidgate API используют централизованный метод `makeApiRequest`:
 
 ```typescript
 private async makeApiRequest<T>(
@@ -293,19 +293,19 @@ private async makeApiRequest<T>(
 }
 ```
 
-## 错误处理
+## Обработка ошибок
 
-|状态|错误|原因|
+|Статус|Ошибка|Причина|
 |--------|-------|-------|
-| 400 |`Invalid request body`|Zod 验证失败|
-| 400 |`Invalid JSON`|请求正文格式错误|
-| 400 |`Failed to create customer`|客户解决失败|
-| 400 |`No signature provided`|Webhook 缺少签名|
-| 400 |`Webhook not processed`|签名验证失败|
-| 401 |`Unauthorized`|没有经过身份验证的会话|
-| 500 |`Failed to create checkout session`|Solidgate API 错误|
+| 400 |`Invalid request body`|Проверка Zod не удалась|
+| 400 |`Invalid JSON`|Неверный формат тела запроса|
+| 400 |`Failed to create customer`|Разрешение клиента не удалось|
+| 400 |`No signature provided`|У вебхука отсутствует подпись|
+| 400 |`Webhook not processed`|Проверка подписи не удалась|
+| 401 |`Unauthorized`|Нет аутентифицированного сеанса|
+| 500 |`Failed to create checkout session`|Ошибка API Solidgate|
 
-Zod 验证错误返回详细的字段级消息：
+Ошибки проверки Zod возвращают подробные сообщения на уровне поля:
 
 ```typescript
 const errorMessage = result.error.issues
@@ -313,29 +313,29 @@ const errorMessage = result.error.issues
   .join(', ');
 ```
 
-## 配置要求
+## Требования к конфигурации
 
-|变量|必填|描述|
+|Переменная|Требуется|Описание|
 |----------|----------|-------------|
-|`SOLIDGATE_API_KEY`|是的|Solidgate API 密钥|
-|`SOLIDGATE_SECRET_KEY`|是的|签名生成的密钥|
-|`SOLIDGATE_WEBHOOK_SECRET`|是的|Webhook 签名秘密|
-|`SOLIDGATE_PUBLISHABLE_KEY`|是的|React SDK 的可发布密钥|
-|`SOLIDGATE_MERCHANT_ID`|是的|商户标识符|
-|`SOLIDGATE_API_BASE_URL`|否|API 基本 URL（默认：`https://api.solidgate.com/v1`）|
+|`SOLIDGATE_API_KEY`|Да|API-ключ Solidgate|
+|`SOLIDGATE_SECRET_KEY`|Да|Секретный ключ для генерации подписи|
+|`SOLIDGATE_WEBHOOK_SECRET`|Да|Секрет подписи вебхука|
+|`SOLIDGATE_PUBLISHABLE_KEY`|Да|Публикуемый ключ для React SDK|
+|`SOLIDGATE_MERCHANT_ID`|Да|Идентификатор продавца|
+|`SOLIDGATE_API_BASE_URL`|Нет|Базовый URL-адрес API (по умолчанию: `https://api.solidgate.com/v1`)|
 
-## 安全考虑
+## Вопросы безопасности
 
-- HMAC-SHA512 用于 webhook 和支付意图签名验证
-- 密钥和 Webhook 秘密永远不会暴露给客户端
-- 幂等性保护可防止重复的 Webhook 处理
-- Zod 验证确保对结帐端点进行严格的输入检查
-- 错误堆栈跟踪仅包含在开发模式中
-- `safeErrorMessage` 实用程序清理生产中的错误消息
+- HMAC-SHA512 используется как для веб-перехватчика, так и для проверки подписи платежного намерения.
+- Секретный ключ и секрет вебхука никогда не раскрываются клиенту.
+- Защита идемпотентности предотвращает дублирование обработки веб-перехватчиков
+- Проверка Zod обеспечивает строгую проверку ввода на конечной точке оформления заказа.
+- Трассировки стека ошибок включены только в режиме разработки.
+- Утилита `safeErrorMessage` очищает сообщения об ошибках для производства.
 
-## 相关页面
+## Похожие страницы
 
-- [Stripe Checkout 深入探究](./stripe-checkout-deep-dive.md)
-- [LemonSqueezy 深度潜水](./lemonsqueezy-deep-dive.md)
-- [极地深潜](./polar-deep-dive.md)
-- [支付提供商架构](./ payment-provider-architecture.md)
+- [Подробное описание Stripe Checkout](./stripe-checkout-deep-dive.md)
+- [Глубокий обзор LemonSqueezy](./lemonsqueezy-deep-dive.md)
+- [Полярное глубокое погружение](./polar-deep-dive.md)
+- [Архитектура платежного провайдера](./pay-provider-architecture.md)

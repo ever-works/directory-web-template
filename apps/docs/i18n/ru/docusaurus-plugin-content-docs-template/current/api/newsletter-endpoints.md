@@ -1,41 +1,41 @@
 ---
 id: newsletter-endpoints
-title: 新闻通讯服务器操作
-sidebar_label: 时事通讯
+title: Действия сервера рассылок
+sidebar_label: Информационный бюллетень
 sidebar_position: 26
 ---
 
-# 新闻通讯服务器操作
+# Действия сервера рассылок
 
-新闻通讯系统使用 Next.js 服务器操作而不是传统的 API 路由处理程序。这些操作管理电子邮件订阅，包括订阅、取消订阅和检索统计信息。使用可配置的电子邮件提供商发送订阅和取消订阅事件的电子邮件通知。
+Система новостной рассылки использует действия сервера Next.js, а не традиционные обработчики маршрутов API. Эти действия управляют подписками по электронной почте, включая подписку, отмену подписки и получение статистики. Уведомления по электронной почте отправляются как о событиях подписки, так и об отмене подписки с использованием настраиваемых поставщиков электронной почты.
 
-## 概述
+## Обзор
 
-|行动|授权|描述|
+|Действие|Авторизация|Описание|
 |---|---|---|
-|`subscribeToNewsletter`|公共|订阅时事通讯的电子邮件|
-|`unsubscribeFromNewsletter`|公共|取消订阅时事通讯的电子邮件|
-|`getNewsletterStatistics`|无|获取订阅统计信息|
+|`subscribeToNewsletter`|Общественный|Подписаться на рассылку новостей|
+|`unsubscribeFromNewsletter`|Общественный|Отписаться от электронной рассылки|
+|`getNewsletterStatistics`|Нет|Получить статистику подписок|
 
-这些是使用 `'use server'` 定义的服务器操作，并通过表单提交或直接调用从 React 组件调用，而不是通过 HTTP 端点。
+Это действия сервера, определенные с помощью `'use server'` и вызываемые из компонентов React посредством отправки форм или прямых вызовов, а не через конечные точки HTTP.
 
-## 服务器操作
+## Действия сервера
 
-### 订阅时事通讯
+### Подписаться на рассылку
 
 ```typescript
 subscribeToNewsletter(data: { email: string })
 ```
 
-使用电子邮件地址订阅时事通讯。使用 Zod 验证电子邮件、检查重复的活动订阅、创建数据库记录并发送欢迎电子邮件。电子邮件会自动标准化为小写并进行修剪。
+Подписывает адрес электронной почты на информационный бюллетень. Проверяет электронную почту с помощью Zod, проверяет наличие повторяющихся активных подписок, создает запись в базе данных и отправляет приветственное письмо. Электронная почта автоматически преобразуется в нижний регистр и обрезается.
 
-**输入验证（Zod）：**
+**Проверка ввода (Зод):**
 
-|领域|类型|必填|约束条件|
+|Поле|Тип|Требуется|Ограничения|
 |---|---|---|---|
-|`email`|字符串|是的|必须是有效的电子邮件格式|
+|`email`|строка|Да|Должен быть действительный формат электронной почты.|
 
-**成功响应：**
+**Успешный ответ:**
 
 ```json
 {
@@ -43,7 +43,7 @@ subscribeToNewsletter(data: { email: string })
 }
 ```
 
-**错误响应：**
+**Ответы об ошибках:**
 
 ```json
 {
@@ -52,33 +52,33 @@ subscribeToNewsletter(data: { email: string })
 }
 ```
 
-|错误|条件|
+|Ошибка|Состояние|
 |---|---|
-|`"Please enter a valid email address"`|电子邮件格式无效（Zod 验证）|
-|`"Email is already subscribed to the newsletter"`|有效订阅已存在|
-|`"Failed to create subscription. Please try again."`|数据库插入失败|
-|`"Failed to subscribe to newsletter. Please try again."`|意外错误|
+|`"Please enter a valid email address"`|Неверный формат электронной почты (проверка Zod)|
+|`"Email is already subscribed to the newsletter"`|Активная подписка уже существует|
+|`"Failed to create subscription. Please try again."`|Вставка базы данных не удалась|
+|`"Failed to subscribe to newsletter. Please try again."`|Неожиданная ошибка|
 
-**处理步骤：**
+**Этапы обработки:**
 
-1. 验证和规范化电子邮件（小写、修剪）
-2. 通过 `getNewsletterSubscriptionByEmail` 检查现有的有效订阅
-3. 通过 `createNewsletterSubscription` 创建源 `"footer"` 的订阅记录
-4. 使用配置的电子邮件提供商（Resend 或 Novu）发送欢迎电子邮件
+1. Проверка и нормализация электронной почты (строчные буквы, обрезка)
+2. Проверьте наличие активной подписки через `getNewsletterSubscriptionByEmail`
+3. Создайте запись о подписке с источником `"footer"` через `createNewsletterSubscription`
+4. Отправьте приветственное письмо, используя настроенного поставщика электронной почты (Resend или Novu).
 
-电子邮件发送失败会被静默捕获，并且不会阻止订阅成功。
+Ошибки отправки электронной почты фиксируются автоматически и не препятствуют успешному выполнению подписки.
 
-**来源：** `template/app/[locale]/newsletter/actions.ts`
+**Источник:** `template/app/[locale]/newsletter/actions.ts`
 
-### 取消订阅时事通讯
+### Отписаться от новостной рассылки
 
 ```typescript
 unsubscribeFromNewsletter(data: { email: string })
 ```
 
-通过将 `isActive` 设置为 `false` 取消订阅时事通讯的电子邮件。发送取消订阅确认电子邮件。
+Отменяет подписку на рассылку новостей, устанавливая `isActive` на `false`. Отправляет электронное письмо с подтверждением отказа от подписки.
 
-**成功响应：**
+**Успешный ответ:**
 
 ```json
 {
@@ -86,24 +86,24 @@ unsubscribeFromNewsletter(data: { email: string })
 }
 ```
 
-**错误响应：**
+**Ответы об ошибках:**
 
-|错误|条件|
+|Ошибка|Состояние|
 |---|---|
-|`"Email is not subscribed to the newsletter"`|未找到有效订阅|
-|`"Failed to unsubscribe. Please try again."`|数据库更新失败|
+|`"Email is not subscribed to the newsletter"`|Активная подписка не найдена|
+|`"Failed to unsubscribe. Please try again."`|Обновление базы данных не удалось|
 
-**来源：** `template/app/[locale]/newsletter/actions.ts`
+**Источник:** `template/app/[locale]/newsletter/actions.ts`
 
-### 获取新闻通讯统计数据
+### Получить статистику новостной рассылки
 
 ```typescript
 getNewsletterStatistics()
 ```
 
-返回聚合新闻通讯统计数据。无需输入参数。
+Возвращает совокупную статистику новостной рассылки. Входные параметры не требуются.
 
-**成功响应：**
+**Успешный ответ:**
 
 ```json
 {
@@ -115,37 +115,37 @@ getNewsletterStatistics()
 }
 ```
 
-|领域|类型|描述|
+|Поле|Тип|Описание|
 |---|---|---|
-|`totalActive`|整数|当前活跃订阅数量|
-|`recentSubscriptions`|整数|过去 30 天内创建的订阅|
+|`totalActive`|целое число|Количество активных на данный момент подписок|
+|`recentSubscriptions`|целое число|Подписки, созданные за последние 30 дней|
 
-如果查询失败，则两个字段都返回零，以确保正常降级。
+Возвращает нули для обоих полей в случае сбоя запроса, обеспечивая постепенное ухудшение.
 
-**来源：** `template/app/[locale]/newsletter/actions.ts`
+**Источник:** `template/app/[locale]/newsletter/actions.ts`
 
-## 数据库查询
+## Запросы к базе данных
 
-时事通讯订阅数据通过`lib/db/queries/newsletter.queries.ts`中的专用查询功能进行管理。
+Данные о подписке на информационный бюллетень управляются с помощью специальных функций запросов в `lib/db/queries/newsletter.queries.ts`.
 
-### 订阅操作
+### Операции по подписке
 
-|功能|描述|
+|Функция|Описание|
 |---|---|
-|`createNewsletterSubscription(email, source)`|创造新的订阅记录|
-|`getNewsletterSubscriptionByEmail(email)`|通过电子邮件查找订阅|
-|`updateNewsletterSubscription(email, updates)`|更新订阅字段|
-|`unsubscribeFromNewsletter(email)`|设置`isActive: false`并记录`unsubscribedAt`|
-|`resubscribeToNewsletter(email)`|设置 `isActive: true` 并清除 `unsubscribedAt`|
-|`getNewsletterStats()`|返回活跃计数和 30 天订阅计数|
+|`createNewsletterSubscription(email, source)`|Создает новую запись о подписке|
+|`getNewsletterSubscriptionByEmail(email)`|Ищет подписку по электронной почте|
+|`updateNewsletterSubscription(email, updates)`|Обновляет поля подписки|
+|`unsubscribeFromNewsletter(email)`|Устанавливает `isActive: false` и записывает `unsubscribedAt`|
+|`resubscribeToNewsletter(email)`|Устанавливает `isActive: true` и очищает `unsubscribedAt`|
+|`getNewsletterStats()`|Возвращает количество активных и количество 30-дневных подписок.|
 
-所有电子邮件查找都会在查询之前将输入规范化为小写并修剪空格。
+Все поиски по электронной почте переводят входные данные в нижний регистр и обрезают пробелы перед запросом.
 
-**来源：** `template/lib/db/queries/newsletter.queries.ts`
+**Источник:** `template/lib/db/queries/newsletter.queries.ts`
 
-## 配置
+## Конфигурация
 
-时事通讯配置常量在 `lib/newsletter/config.ts` 中定义：
+Константы конфигурации новостной рассылки определены в `lib/newsletter/config.ts`:
 
 ```
 NEWSLETTER_CONFIG.DEFAULT_PROVIDER = "resend"
@@ -153,38 +153,38 @@ NEWSLETTER_CONFIG.DEFAULT_FROM = "onboarding@resend.dev"
 NEWSLETTER_CONFIG.DEFAULT_COMPANY_NAME = "Ever Works"
 ```
 
-### 订阅来源
+### Источники подписки
 
-|来源|描述|
+|Источник|Описание|
 |---|---|
-|`footer`|从网站页脚表格订阅|
-|`popup`|从弹出对话框订阅|
-|`signup`|用户注册时订阅|
+|`footer`|Подписка из формы нижнего колонтитула сайта|
+|`popup`|Подписка из всплывающего диалогового окна|
+|`signup`|Подписка при регистрации пользователя|
 
-### 验证模式
+### Схемы проверки
 
-导出两个 Zod 模式以进行验证：
+Для проверки экспортируются две схемы Zod:
 
-- **`emailSchema`** -- 验证并规范化单个电子邮件字段
-- **`newsletterSubscriptionSchema`** -- 验证电子邮件和来源（默认为`"footer"`）
+- **`emailSchema`** — проверяет и нормализует одно поле электронной почты.
+- **`newsletterSubscriptionSchema`** — проверяет адрес электронной почты и источник (по умолчанию `"footer"`)
 
-### 电子邮件提供商
+### Поставщики электронной почты
 
-系统支持通过 `config.yml` 和环境变量配置的两个电子邮件提供商：
+Система поддерживает двух поставщиков электронной почты, настроенных через `config.yml` и переменные среды:
 
-|提供者|环境变量|描述|
+|Поставщик|Переменная среды|Описание|
 |---|---|---|
-|重新发送|`RESEND_API_KEY`|默认电子邮件提供商|
-|诺武|`NOVU_API_KEY`|具有模板支持的替代提供商|
+|Отправить повторно|`RESEND_API_KEY`|Поставщик электронной почты по умолчанию|
+|Нову|`NOVU_API_KEY`|Альтернативный провайдер с поддержкой шаблонов|
 
-根据`config.yml` 中的`mail.provider` 字段选择提供商。电子邮件配置是使用 `createEmailConfig()` 从应用程序配置动态构建的。
+Провайдер выбирается на основе поля `mail.provider` в `config.yml`. Конфигурация электронной почты создается динамически из конфигурации приложения с помощью `createEmailConfig()`.
 
-**来源：** `template/lib/newsletter/config.ts`
+**Источник:** `template/lib/newsletter/config.ts`
 
-## 关键实施细节
+## Ключевые детали реализации
 
-- **服务器操作：** 这些不是 REST API 端点。他们使用 `lib/auth/middleware` 中的 `validatedAction` 包装器，该包装器在操作执行之前提供 Zod 模式验证。
-- **电子邮件标准化：** 所有电子邮件均标准化为小写，并在操作级别和数据库查询级别进行修剪，以实现一致的查找。
-- **优雅的电子邮件失败：** 欢迎和取消订阅确认电子邮件通过 `sendEmailSafely()` 发送，它会默默地捕获错误。失败的电子邮件不会阻止订阅操作完成。
-- **重复预防：** 在创建订阅之前，系统使用 `validateExistingSubscription()` 检查现有的活动订阅。
-- **软取消订阅：** 取消订阅设置 `isActive: false` 而不是删除记录，保留订阅历史记录。
+- **Действия сервера:** Это не конечные точки REST API. Они используют оболочку `validatedAction` от `lib/auth/middleware`, которая обеспечивает проверку схемы Zod перед выполнением действия.
+- **Нормализация электронной почты.** Все электронные письма преобразуются в нижний регистр и обрезаются как на уровне действий, так и на уровне запросов к базе данных для единообразного поиска.
+- **Удобные ошибки электронной почты:** Электронные письма с приветствием и подтверждением отказа от подписки отправляются через `sendEmailSafely()`, который автоматически выявляет ошибки. Неудачное электронное письмо не препятствует завершению операции подписки.
+- **Предотвращение дублирования.** Перед созданием подписки система проверяет наличие существующей активной подписки с помощью `validateExistingSubscription()`.
+- **Мягкая отмена подписки:** Отмена подписки устанавливает `isActive: false` вместо удаления записи, сохраняя историю подписок.

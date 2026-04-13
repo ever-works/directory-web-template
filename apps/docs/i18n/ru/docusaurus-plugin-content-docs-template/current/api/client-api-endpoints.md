@@ -1,15 +1,15 @@
 ---
 id: client-api-endpoints
-title: 客户端 API 端点
-sidebar_label: 客户端API
+title: Конечные точки клиентского API
+sidebar_label: Клиентский API
 sidebar_position: 58
 ---
 
-# 客户端 API 端点
+# Конечные точки клиентского API
 
-客户端 API 为注册用户提供经过身份验证的端点，以管理其提交的项目、查看仪表板统计数据和访问地理数据。所有端点都需要通过`requireClientAuth()`进行基于会话的身份验证。
+Клиентский API предоставляет зарегистрированным пользователям аутентифицированные конечные точки для управления отправленными ими элементами, просмотра статистики информационной панели и доступа к географическим данным. Все конечные точки требуют аутентификации на основе сеанса через `requireClientAuth()`.
 
-**源码目录：** `template/app/api/client/`
+**Исходный каталог:** `template/app/api/client/`
 
 ---
 
@@ -27,22 +27,22 @@ Every endpoint in this group requires a valid user session. Unauthenticated requ
 
 ---
 
-## 仪表板统计
+## Статистика информационной панели
 
-### 获取仪表板统计数据
+### Получить статистику панели мониторинга
 
-返回经过身份验证的用户的全面仪表板统计信息。
+Возвращает подробную статистику информационной панели для аутентифицированного пользователя.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`GET`|
-|**路径**|`/api/client/dashboard/stats`|
-|**授权**|会话（用户）|
-|**来源**|`client/dashboard/stats/route.ts`|
+|**Метод**|`GET`|
+|**Путь**|`/api/client/dashboard/stats`|
+|**Аутентификация**|Сеанс (пользователь)|
+|**Источник**|`client/dashboard/stats/route.ts`|
 
-#### 回应
+#### Ответ
 
-**状态 200**
+**Статус 200**
 
 ```json
 {
@@ -81,7 +81,7 @@ Every endpoint in this group requires a valid user session. Unauthenticated requ
 }
 ```
 
-#### 卷曲示例
+#### Пример завитка
 
 ```bash
 curl -s http://localhost:3000/api/client/dashboard/stats \
@@ -133,20 +133,20 @@ curl -s http://localhost:3000/api/client/geo-stats \
 
 ---
 
-### 获取物品坐标
+### Получить координаты объекта
 
-返回具有位置数据的所有用户项的坐标，适合地图渲染。
+Возвращает координаты для всех пользовательских элементов, имеющих данные о местоположении, подходящие для рендеринга карты.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`GET`|
-|**路径**|`/api/client/items/coordinates`|
-|**授权**|会话（用户）|
-|**来源**|`client/items/coordinates/route.ts`|
+|**Метод**|`GET`|
+|**Путь**|`/api/client/items/coordinates`|
+|**Аутентификация**|Сеанс (пользователь)|
+|**Источник**|`client/items/coordinates/route.ts`|
 
-#### 回应
+#### Ответ
 
-**状态 200**
+**Статус 200**
 
 ```json
 {
@@ -162,7 +162,7 @@ curl -s http://localhost:3000/api/client/geo-stats \
 }
 ```
 
-#### 卷曲示例
+#### Пример завитка
 
 ```bash
 curl -s http://localhost:3000/api/client/items/coordinates \
@@ -236,18 +236,18 @@ curl -s "http://localhost:3000/api/client/items?deleted=true" \
 
 ---
 
-### 创建项目
+### Создать элемент
 
-创建一个新的项目提交。该项目设置为 `pending` 状态以供管理员审核。
+Создает новую отправку элемента. Для элемента установлен статус `pending` для проверки администратором.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`POST`|
-|**路径**|`/api/client/items`|
-|**授权**|会话（用户）|
-|**来源**|`client/items/route.ts`|
+|**Метод**|`POST`|
+|**Путь**|`/api/client/items`|
+|**Аутентификация**|Сеанс (пользователь)|
+|**Источник**|`client/items/route.ts`|
 
-#### 请求正文
+#### Тело запроса
 
 ```json
 {
@@ -260,18 +260,18 @@ curl -s "http://localhost:3000/api/client/items?deleted=true" \
 }
 ```
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`name`|`string`|是的|商品名称（3-100个字符）|
-|`description`|`string`|是的|物品描述（10-500 个字符）|
-|`source_url`|`string`（URI）|是的|该项目的主要 URL/链接|
-|`category`|`字符串\|字符串[]`|否|类别名称或类别数组|
-|`tags`|`string[]`|否|标签字符串数组|
-|`icon_url`|`string`（URI）|否|项目图标的 URL|
+|`name`|`string`|Да|Название товара (3–100 символов)|
+|`description`|`string`|Да|Описание товара (10-500 символов)|
+|`source_url`|`string` (URI)|Да|Основной URL/ссылка на элемент|
+|`category`|`строка \|строка[]`|Нет|Имя категории или массив категорий|
+|`tags`|`string[]`|Нет|Массив строк тегов|
+|`icon_url`|`string` (URI)|Нет|URL-адрес значка элемента|
 
-#### 回应
+#### Ответ
 
-**状态 201**
+**Статус 201**
 
 ```json
 {
@@ -281,7 +281,7 @@ curl -s "http://localhost:3000/api/client/items?deleted=true" \
 }
 ```
 
-**状态 400** -- 验证错误
+**Статус 400** – Ошибка проверки.
 
 ```json
 {
@@ -290,7 +290,7 @@ curl -s "http://localhost:3000/api/client/items?deleted=true" \
 }
 ```
 
-#### 卷曲示例
+#### Пример завитка
 
 ```bash
 curl -s -X POST http://localhost:3000/api/client/items \
@@ -348,20 +348,20 @@ Returns details of a specific item owned by the authenticated user.
 
 ---
 
-### 更新项目
+### Обновить элемент
 
-更新经过身份验证的用户拥有的项目。如果该项目之前已获得批准，则更新它会将其状态更改为 `pending` 以重新审核。
+Обновляет элемент, принадлежащий аутентифицированному пользователю. Если элемент был ранее одобрен, его обновление меняет его статус на `pending` для повторного рассмотрения.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`PUT`|
-|**路径**|`/api/client/items/{id}`|
-|**授权**|会话（用户、所有者）|
-|**来源**|`client/items/[id]/route.ts`|
+|**Метод**|`PUT`|
+|**Путь**|`/api/client/items/{id}`|
+|**Аутентификация**|Сеанс (пользователь, владелец)|
+|**Источник**|`client/items/[id]/route.ts`|
 
-#### 请求正文
+#### Тело запроса
 
-所有字段都是可选的。必须至少提供一个字段。
+Все поля являются необязательными. Должно быть указано хотя бы одно поле.
 
 ```json
 {
@@ -374,9 +374,9 @@ Returns details of a specific item owned by the authenticated user.
 }
 ```
 
-#### 回应
+#### Ответ
 
-**状态 200**
+**Статус 200**
 
 ```json
 {
@@ -388,12 +388,12 @@ Returns details of a specific item owned by the authenticated user.
 }
 ```
 
-|领域|类型|描述|
+|Поле|Тип|Описание|
 |-------|------|-------------|
-|`statusChanged`|`boolean`|`true` 如果状态从已批准更改为待处理|
-|`previousStatus`|`string`|更新前的项目状态|
+|`statusChanged`|`boolean`|`true`, если статус изменился с одобренного на ожидающий|
+|`previousStatus`|`string`|Статус предмета до обновления|
 
-#### 卷曲示例
+#### Пример завитка
 
 ```bash
 curl -s -X PUT http://localhost:3000/api/client/items/item_123 \
@@ -435,20 +435,20 @@ Soft-deletes an item owned by the authenticated user. The item is hidden but can
 
 ---
 
-### 恢复项目
+### Восстановить предмет
 
-恢复以前软删除的项目。
+Восстанавливает ранее обратимо удаленный элемент.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`POST`|
-|**路径**|`/api/client/items/{id}/restore`|
-|**授权**|会话（用户、所有者）|
-|**来源**|`client/items/[id]/restore/route.ts`|
+|**Метод**|`POST`|
+|**Путь**|`/api/client/items/{id}/restore`|
+|**Аутентификация**|Сеанс (пользователь, владелец)|
+|**Источник**|`client/items/[id]/restore/route.ts`|
 
-#### 回应
+#### Ответ
 
-**状态 200**
+**Статус 200**
 
 ```json
 {
@@ -458,14 +458,14 @@ Soft-deletes an item owned by the authenticated user. The item is hidden but can
 }
 ```
 
-|状态|描述|
+|Статус|Описание|
 |--------|-------------|
-| 400 |项目未删除（无法恢复活动项目）|
-| 401 |未经授权|
-| 403 |不是物品所有者|
-| 404 |未找到项目|
+| 400 |Элемент не удален (невозможно восстановить активный элемент)|
+| 401 |Несанкционированный|
+| 403 |Не владелец предмета|
+| 404 |Товар не найден|
 
-#### 卷曲示例
+#### Пример завитка
 
 ```bash
 curl -s -X POST http://localhost:3000/api/client/items/item_123/restore \
@@ -512,7 +512,7 @@ curl -s http://localhost:3000/api/client/items/stats \
 
 ---
 
-## TypeScript 用法
+## Использование TypeScript
 
 ```typescript
 import type { ClientCreateItemResponse } from '@/lib/types/client-item';
@@ -546,9 +546,9 @@ if (updated.statusChanged) {
 }
 ```
 
-## 错误响应模式
+## Шаблон ответа об ошибке
 
-所有客户端 API 端点都遵循一致的错误形状：
+Все конечные точки клиентского API имеют единообразную форму ошибки:
 
 ```json
 {
@@ -557,4 +557,4 @@ if (updated.statusChanged) {
 }
 ```
 
-错误响应使用 `serverErrorResponse()` 实用程序，该实用程序在服务器端记录详细的错误信息，同时仅向客户端返回通用消息以防止信息泄露。
+В ответах на ошибки используется утилита `serverErrorResponse()`, которая регистрирует подробную информацию об ошибках на стороне сервера, возвращая клиенту только общее сообщение, чтобы предотвратить раскрытие информации.

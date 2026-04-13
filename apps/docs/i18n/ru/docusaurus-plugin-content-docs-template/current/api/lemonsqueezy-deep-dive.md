@@ -1,29 +1,29 @@
 ---
 id: lemonsqueezy-deep-dive
-title: LemonSqueezy 深度探索
-sidebar_label: 挤柠檬
+title: LemonSqueezy: глубокое погружение
+sidebar_label: ЛимонСжатый
 sidebar_position: 5
 ---
 
-# LemonSqueezy 深度探索
+# LemonSqueezy: глубокое погружение
 
-此页面涵盖了完整的 LemonSqueezy 集成，包括结帐创建、订阅管理、Webhook 处理和产品同步。
+На этой странице описана полная интеграция LemonSqueezy, включая создание оформления заказа, управление подписками, обработку веб-перехватчиков и синхронизацию продуктов.
 
-## 概述
+## Обзор
 
-LemonSqueezy 是一家记录商户支付提供商，负责处理税收、合规性和支付处理。该集成使用 LemonSqueezy 的托管结账流程、基于变体的产品模型和 Webhook 系统。与 Stripe 不同，LemonSqueezy 不支持设置意图或直接支付方式管理——所有支付处理都通过其托管 UI 进行。
+LemonSqueezy — это зарегистрированный поставщик платежных услуг, который занимается сбором налогов, соблюдением требований и обработкой платежей. В интеграции используется размещенный процесс оформления заказа LemonSqueezy, модель продукта на основе вариантов и система веб-перехватчиков. В отличие от Stripe, LemonSqueezy не поддерживает намерения настройки или прямое управление способами оплаты — вся обработка платежей происходит через размещенный на их сервере пользовательский интерфейс.
 
-## 路由表
+## Таблица маршрутов
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|`POST`|`/api/lemonsqueezy/checkout`|需要会话|从 JSON 正文创建结帐会话|
-|`GET`|`/api/lemonsqueezy/checkout`|无|从查询参数创建结帐会话|
-|`POST`|`/api/lemonsqueezy/webhook`|需要签名|处理传入的 Webhook 事件|
+|`POST`|`/api/lemonsqueezy/checkout`|Требуется сеанс|Создать сеанс оформления заказа из тела JSON|
+|`GET`|`/api/lemonsqueezy/checkout`|Нет|Создать сеанс оформления заказа на основе параметров запроса|
+|`POST`|`/api/lemonsqueezy/webhook`|Требуется подпись|Обработка входящих событий вебхука|
 
-## 结帐创建 (POST)
+## Создание оформления заказа (POST)
 
-### 请求正文
+### Тело запроса
 
 ```typescript
 interface LemonSqueezyCheckoutRequest {
@@ -34,7 +34,7 @@ interface LemonSqueezyCheckoutRequest {
 }
 ```
 
-### 请求示例
+### Пример запроса
 
 ```bash
 curl -X POST /api/lemonsqueezy/checkout \
@@ -47,16 +47,16 @@ curl -X POST /api/lemonsqueezy/checkout \
   }'
 ```
 
-### 它是如何运作的
+### Как это работает
 
-1. 通过`auth()` 对用户进行身份验证
-2. 使用 `validateCheckoutRequestBody()` 验证请求正文
-3. 使用用户元数据调用`lemonsqueezyProvider.createCustomCheckout()`
-4. 返回结帐 URL
+1. Аутентифицирует пользователя через `auth()`
+2. Проверяет тело запроса, используя `validateCheckoutRequestBody()`.
+3. Вызов `lemonsqueezyProvider.createCustomCheckout()` с метаданными пользователя
+4. Возвращает URL-адрес оформления заказа
 
-### 提供商实施
+### Реализация поставщика
 
-`createCustomCheckout` 方法创建一个具有全面配置的 LemonSqueezy 结账：
+Метод `createCustomCheckout` создает кассу LemonSqueezy с комплексной настройкой:
 
 ```typescript
 const { data, error } = await createCheckout(Number(this.storeId), Number(params.variantId), {
@@ -84,7 +84,7 @@ const { data, error } = await createCheckout(Number(this.storeId), Number(params
 });
 ```
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -105,22 +105,22 @@ const { data, error } = await createCheckout(Number(this.storeId), Number(params
 }
 ```
 
-## 通过查询参数 (GET) 结帐
+## Оформление заказа через параметры запроса (GET)
 
-GET 端点支持通过查询参数为直接链接场景创建结帐：
+Конечная точка GET поддерживает создание извлечений с помощью параметров запроса для сценариев прямой ссылки:
 
-|参数|必填|描述|
+|Параметр|Требуется|Описание|
 |-----------|----------|-------------|
-|`variantId`|是的|LemonSqueezy 变体 ID|
-|`email`|是的|客户邮箱|
-|`customPrice`|否|定制价格（以美分为单位）|
-|`metadata`|否|元数据的 JSON 字符串|
+|`variantId`|Да|Идентификатор варианта LemonSqueezy|
+|`email`|Да|Электронная почта клиента|
+|`customPrice`|Нет|Индивидуальная цена в центах|
+|`metadata`|Нет|Строка метаданных JSON|
 
-## 订阅管理
+## Управление подпиской
 
-### 创建订阅
+### Создание подписок
 
-订阅是通过结账流程创建的。 `createSubscription` 方法包装了 LemonSqueezy 的结账 API：
+Подписки создаются в процессе оформления заказа. Метод `createSubscription` оборачивает API оформления заказа LemonSqueezy:
 
 ```typescript
 const { data, error } = await createCheckout(Number(this.storeId), finalProductId, {
@@ -135,7 +135,7 @@ const { data, error } = await createCheckout(Number(this.storeId), finalProductI
 });
 ```
 
-### 取消订阅
+### Отмена подписок
 
 ```typescript
 async cancelSubscription(subscriptionId: string): Promise<SubscriptionInfo> {
@@ -148,9 +148,9 @@ async cancelSubscription(subscriptionId: string): Promise<SubscriptionInfo> {
 }
 ```
 
-### 更新订阅
+### Обновление подписок
 
-更新方法支持计划更改、暂停、恢复和重新激活：
+Метод обновления поддерживает изменения плана, приостановку, возобновление и повторную активацию:
 
 ```typescript
 // Plan change via variant ID
@@ -176,11 +176,11 @@ if (params.metadata?.resumeAction) {
 }
 ```
 
-## Webhook 处理
+## Обработка вебхука
 
-### 签名验证
+### Проверка подписи
 
-LemonSqueezy 使用 HMAC SHA-256 进行 Webhook 签名验证。提供商使用 Web Crypto API 验证签名：
+LemonSqueezy использует HMAC SHA-256 для проверки подписи веб-перехватчика. Провайдер проверяет подписи с помощью Web Crypto API:
 
 ```typescript
 const cryptoKey = await crypto.subtle.importKey(
@@ -195,9 +195,9 @@ if (calculatedSignature !== signature) {
 }
 ```
 
-### 事件映射
+### Сопоставление событий
 
-|挤柠檬活动|内部型|
+|Событие LemonSqueezy|Внутренний тип|
 |-------------------|---------------|
 |`subscription_created`|`SUBSCRIPTION_CREATED`|
 |`subscription_updated`|`SUBSCRIPTION_UPDATED`|
@@ -208,9 +208,9 @@ if (calculatedSignature !== signature) {
 |`order_created`|`PAYMENT_SUCCEEDED`|
 |`order_refunded`|`REFUND_SUCCEEDED`|
 
-### Webhook 处理程序结构
+### Структура обработчика веб-перехватчика
 
-每个处理程序都遵循一致的模式：
+Каждый обработчик следует единому шаблону:
 
 ```typescript
 async function handleSubscriptionCreated(data: any) {
@@ -227,9 +227,9 @@ async function handleSubscriptionCreated(data: any) {
 }
 ```
 
-### 赞助商广告检测
+### Обнаружение спонсорской рекламы
 
-LemonSqueezy 使用 `custom_data` 代替 Stripe 的 `metadata`：
+LemonSqueezy использует `custom_data` вместо `metadata` Stripe:
 
 ```typescript
 function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
@@ -240,13 +240,13 @@ function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
 }
 ```
 
-## 客户管理
+## Управление клиентами
 
-该提供商遵循与其他提供商相同的三步客户解决模式：
+Поставщик следует той же трехэтапной схеме решения проблем с клиентами, что и другие поставщики:
 
-1. 检查 `lemonsqueezy_customer_id` 的用户元数据
-2. 查询`PaymentAccount`数据库表
-3. 通过 LemonSqueezy API 创建新客户
+1. Проверьте метаданные пользователя для `lemonsqueezy_customer_id`
+2. Запросить таблицу базы данных `PaymentAccount`
+3. Создайте нового клиента через API LemonSqueezy.
 
 ```typescript
 const { data, error } = await createCustomer(Number(this.storeId), {
@@ -258,40 +258,40 @@ const { data, error } = await createCustomer(Number(this.storeId), {
 });
 ```
 
-## 错误处理
+## Обработка ошибок
 
-|状态|错误代码|原因|
+|Статус|Код ошибки|Причина|
 |--------|-----------|-------|
-| 400 |`VALIDATION_ERROR`|请求正文或参数无效|
-| 401 |`Unauthorized`|没有经过身份验证的会话|
-| 500 |`CONFIGURATION_ERROR`|缺少环境变量|
-| 500 |`INTERNAL_ERROR`|未处理的错误|
-| 503 |`PAYMENT_SERVICE_ERROR`|LemonSqueezy API 不可用|
+| 400 |`VALIDATION_ERROR`|Неверное тело или параметры запроса.|
+| 401 |`Unauthorized`|Нет аутентифицированного сеанса|
+| 500 |`CONFIGURATION_ERROR`|Отсутствуют переменные среды|
+| 500 |`INTERNAL_ERROR`|Необработанная ошибка|
+| 503 |`PAYMENT_SERVICE_ERROR`|API LemonSqueezy недоступен.|
 
-## 配置要求
+## Требования к конфигурации
 
-|变量|必填|描述|
+|Переменная|Требуется|Описание|
 |----------|----------|-------------|
-|`LEMONSQUEEZY_API_KEY`|是的|LemonSqueezy API 密钥|
-|`LEMONSQUEEZY_WEBHOOK_SECRET`|是的|Webhook 签名秘密|
-|`LEMONSQUEEZY_STORE_ID`|是的|数字商店 ID|
+|`LEMONSQUEEZY_API_KEY`|Да|API-ключ LemonSqueezy|
+|`LEMONSQUEEZY_WEBHOOK_SECRET`|Да|Секрет подписи вебхука|
+|`LEMONSQUEEZY_STORE_ID`|Да|Числовой идентификатор магазина|
 
-## 局限性
+## Ограничения
 
-- **无设置意图**：LemonSqueezy 不支持在未购买的情况下保存卡片。 `createSetupIntent` 方法抛出错误。
-- **无直接退款 API**：退款必须通过 LemonSqueezy 仪表板处理。
-- **基于变体的定价**：产品使用变体 ID 而不是价格 ID。计划变更使用`variantId`。
+- **Нет намерений установки**: LemonSqueezy не поддерживает сохранение карт без покупки. Метод `createSetupIntent` выдает ошибку.
+- **Нет API прямого возврата**. Возвраты должны осуществляться через панель управления LemonSqueezy.
+- **Ценообразование на основе вариантов**. В продуктах используются идентификаторы вариантов вместо идентификаторов цен. Для изменения плана используйте `variantId`.
 
-## 安全考虑
+## Вопросы безопасности
 
-- Webhook 签名使用 HMAC SHA-256 进行验证
-- 原始正文文本用于签名验证，以防止 JSON 重新序列化问题
-- API 密钥永远不会暴露给客户端
-- 开发模式日志记录可净化 PII（电子邮件地址已部分编辑）
+- Подписи вебхуков проверяются с помощью HMAC SHA-256.
+- Необработанный основной текст используется для проверки подписи, чтобы предотвратить проблемы повторной сериализации JSON.
+- Ключи API никогда не предоставляются клиенту
+- Ведение журнала в режиме разработки очищает личные данные (адреса электронной почты частично отредактированы)
 
-## 相关页面
+## Похожие страницы
 
-- [Stripe Checkout 深入探究](./stripe-checkout-deep-dive.md)
-- [极地深潜](./polar-deep-dive.md)
-- [Solidgate 深度潜水](./solidgate-deep-dive.md)
-- [支付提供商架构](./ payment-provider-architecture.md)
+- [Подробное описание Stripe Checkout](./stripe-checkout-deep-dive.md)
+- [Полярное глубокое погружение](./polar-deep-dive.md)
+- [Подробное описание Solidgate](./solidgate-deep-dive.md)
+- [Архитектура платежного провайдера](./pay-provider-architecture.md)

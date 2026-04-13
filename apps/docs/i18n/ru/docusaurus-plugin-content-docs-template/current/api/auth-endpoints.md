@@ -1,17 +1,17 @@
 ---
 id: auth-endpoints
-title: 身份验证 API 端点
-sidebar_label: 身份验证端点
+title: Конечные точки API аутентификации
+sidebar_label: Конечные точки аутентификации
 sidebar_position: 4
 ---
 
-# 身份验证 API 端点
+# Конечные точки API аутентификации
 
-身份验证端点处理 NextAuth.js 路由处理、密码管理和当前用户会话检索。核心 NextAuth 包罗万象的路由自动管理所有 OAuth 回调、会话管理和 CSRF 保护。
+Конечные точки аутентификации обрабатывают обработку маршрута NextAuth.js, управление паролями и получение текущего сеанса пользователя. Основной универсальный маршрут NextAuth автоматически управляет всеми обратными вызовами OAuth, управлением сеансами и защитой CSRF.
 
-## NextAuth 处理程序 (`/api/auth/[...nextauth]`)
+## Следующий обработчик аутентификации (`/api/auth/[...nextauth]`)
 
-catch-all 路由从 `lib/auth/index.ts` 导出 NextAuth 的处理程序：
+Общий маршрут экспортирует обработчики NextAuth из `lib/auth/index.ts`:
 
 ```typescript
 import { handlers } from '@/lib/auth';
@@ -19,31 +19,31 @@ import { handlers } from '@/lib/auth';
 export const { GET, POST } = handlers;
 ```
 
-此单一路由处理所有 NextAuth 操作：
+Этот единственный маршрут обрабатывает все операции NextAuth:
 
-### 获取端点（通过 NextAuth）
+### ПОЛУЧИТЬ конечные точки (через NextAuth)
 
-|路径|描述|
+|Путь|Описание|
 |------|-------------|
-|`/api/auth/signin`|呈现登录页面或重定向到提供商|
-|`/api/auth/signout`|处理注销|
-|`/api/auth/session`|以 JSON 格式获取当前会话|
-|`/api/auth/csrf`|获取CSRF令牌|
-|`/api/auth/providers`|列出可用的身份验证提供者|
-|`/api/auth/callback/[provider]`|OAuth 回调处理程序|
+|`/api/auth/signin`|Отобразить страницу входа или перенаправить к провайдеру|
+|`/api/auth/signout`|Обработка выхода из системы|
+|`/api/auth/session`|Получить текущий сеанс в формате JSON|
+|`/api/auth/csrf`|Получить токен CSRF|
+|`/api/auth/providers`|Список доступных поставщиков аутентификации|
+|`/api/auth/callback/[provider]`|Обработчик обратного вызова OAuth|
 
-### POST 端点（通过 NextAuth）
+### Конечные точки POST (через NextAuth)
 
-|路径|描述|
+|Путь|Описание|
 |------|-------------|
-|`/api/auth/signin/[provider]`|开始向提供商登录|
-|`/api/auth/signout`|处理退出|
-|`/api/auth/callback/credentials`|处理凭据登录|
-|`/api/auth/_log`|Auth.js 内部日志记录|
+|`/api/auth/signin/[provider]`|Начать вход с помощью провайдера|
+|`/api/auth/signout`|Процесс выхода из системы|
+|`/api/auth/callback/credentials`|Обработка учетных данных для входа в систему|
+|`/api/auth/_log`|Внутреннее ведение журнала Auth.js|
 
-### OAuth 回调流程
+### Обратный вызов OAuth
 
-当用户通过 OAuth 提供者进行身份验证时：
+Когда пользователь проходит аутентификацию с помощью провайдера OAuth:
 
 ```
 1. User clicks "Sign in with Google"
@@ -59,25 +59,25 @@ export const { GET, POST } = handlers;
 7. Session created, user redirected to callback URL
 ```
 
-### 自定义页面
+### Пользовательские страницы
 
-NextAuth 配置为使用自定义身份验证页面而不是默认的 NextAuth UI：
+NextAuth настроен на использование пользовательских страниц аутентификации, а не пользовательского интерфейса NextAuth по умолчанию:
 
-|目的|自定义路径|
+|Цель|Пользовательский путь|
 |---------|-------------|
-|登录|`/auth/signin`|
-|退出|`/auth/signout`|
-|错误|`/auth/error`|
-|验证请求|`/auth/verify-request`|
-|新用户注册|`/auth/register`|
+|Войти|`/auth/signin`|
+|Выйти|`/auth/signout`|
+|Ошибка|`/auth/error`|
+|Подтвердить запрос|`/auth/verify-request`|
+|Регистрация нового пользователя|`/auth/register`|
 
-## 密码管理 (`/api/auth/change-password`)
+## Управление паролями (`/api/auth/change-password`)
 
-|方法|路径|描述|
+|Метод|Путь|Описание|
 |--------|------|-------------|
-|`POST`|`/api/auth/change-password`|更改经过身份验证的用户的密码|
+|`POST`|`/api/auth/change-password`|Изменить пароль аутентифицированного пользователя|
 
-### 请求正文
+### Тело запроса
 
 ```json
 {
@@ -86,11 +86,11 @@ NextAuth 配置为使用自定义身份验证页面而不是默认的 NextAuth U
 }
 ```
 
-### 认证
+### Аутентификация
 
-需要有效的会话。终端在更新之前验证当前密码。
+Требуется действительный сеанс. Конечная точка проверяет текущий пароль перед обновлением.
 
-### 回应
+### Ответ
 
 ```json
 // Success
@@ -100,15 +100,15 @@ NextAuth 配置为使用自定义身份验证页面而不是默认的 NextAuth U
 { "success": false, "error": "Current password is incorrect" }
 ```
 
-## 当前用户 (`/api/current-user`)
+## Текущий пользователь (`/api/current-user`)
 
-|方法|路径|描述|
+|Метод|Путь|Описание|
 |--------|------|-------------|
-|`GET`|`/api/current-user`|获取当前经过身份验证的用户数据|
+|`GET`|`/api/current-user`|Получить текущие аутентифицированные данные пользователя|
 
-### 回应
+### Ответ
 
-返回包含应用程序特定字段的会话用户对象：
+Возвращает объект пользователя сеанса, обогащенный полями, специфичными для приложения:
 
 ```json
 {
@@ -124,45 +124,45 @@ NextAuth 配置为使用自定义身份验证页面而不是默认的 NextAuth U
 }
 ```
 
-### 未经身份验证的响应
+### Неаутентифицированный ответ
 
-当不存在有效会话时，返回 `null` 或 `401` 状态。
+Возвращает статус `null` или `401`, если действительный сеанс не существует.
 
-## 会话令牌处理
+## Обработка токена сеанса
 
-NextAuth 将会话令牌存储在仅 HTTP 的 cookie 中：
+NextAuth хранит токены сеанса в файлах cookie только для HTTP:
 
-|Cookie 名称|环境|
+|Имя файла cookie|Окружающая среда|
 |------------|-------------|
-|`next-auth.session-token`|开发（HTTP）|
-|`__Secure-next-auth.session-token`|生产（HTTPS）|
+|`next-auth.session-token`|Разработка (HTTP)|
+|`__Secure-next-auth.session-token`|Производство (HTTPS)|
 
-### 跨站请求伪造保护
+### CSRF-защита
 
-NextAuth 包括内置的 CSRF 保护。 CSRF 令牌 cookie (`next-auth.csrf-token`) 在客户端上设置，并且必须包含在对 NextAuth 端点的 POST 请求中。
+NextAuth включает встроенную защиту CSRF. Файл cookie токена CSRF (`next-auth.csrf-token`) установлен на клиенте и должен быть включен в запросы POST к конечным точкам NextAuth.
 
-## 错误处理
+## Обработка ошибок
 
-身份验证错误映射到 `lib/auth/error-handler.ts` 中的用户友好消息：
+Ошибки аутентификации сопоставляются с удобными для пользователя сообщениями в `lib/auth/error-handler.ts`:
 
-|错误模式|用户留言|
+|Шаблон ошибки|Сообщение пользователя|
 |--------------|--------------|
-|`GOOGLE_CLIENT_ID`相关|Google 身份验证配置不正确|
-|`GITHUB_CLIENT_ID`相关|GitHub 身份验证配置不正确|
-|`FB_CLIENT_ID`相关|Facebook 身份验证配置不正确|
-|`MICROSOFT_CLIENT_ID`相关|Microsoft 身份验证配置不正确|
-|`SUPABASE`相关|Supabase 身份验证配置不正确|
-|`NEXTAUTH`相关|NextAuth 未正确配置|
+|`GOOGLE_CLIENT_ID` связанное|Аутентификация Google настроена неправильно.|
+|`GITHUB_CLIENT_ID` связанное|Аутентификация GitHub настроена неправильно.|
+|`FB_CLIENT_ID` связанное|Аутентификация Facebook настроена неправильно|
+|`MICROSOFT_CLIENT_ID` связанное|Аутентификация Microsoft настроена неправильно.|
+|`SUPABASE` связанное|Аутентификация Supabase настроена неправильно.|
+|`NEXTAUTH` связанное|NextAuth настроен неправильно.|
 
-`handleAuthError()` 函数捕获这些错误并返回结构化的`{ error: string }` 响应。
+Функция `handleAuthError()` улавливает эти ошибки и возвращает структурированный ответ `{ error: string }`.
 
-## 验证事件
+## События аутентификации
 
-`lib/auth/index.ts` 中的 NextAuth 配置处理生命周期事件：
+Конфигурация NextAuth в `lib/auth/index.ts` обрабатывает события жизненного цикла:
 
-### 注销事件
+### Событие выхода из системы
 
-使用户的会话缓存无效，以确保不提供过时的会话数据：
+Делает недействительным кэш сеанса для пользователя, чтобы гарантировать, что устаревшие данные сеанса не обслуживаются:
 
 ```typescript
 events: {
@@ -175,9 +175,9 @@ events: {
 }
 ```
 
-### 用户更新事件
+### Событие обновления пользователя
 
-当用户数据更改时（例如，配置文件更新、角色更改），使会话缓存失效：
+Делает кэш сеанса недействительным при изменении пользовательских данных (например, обновлении профиля, смене роли):
 
 ```typescript
 events: {
@@ -189,13 +189,13 @@ events: {
 }
 ```
 
-## 相关配置
+## Сопутствующая конфигурация
 
-|文件|目的|
+|Файл|Цель|
 |------|---------|
-|`auth.config.ts`|顶级提供商配置|
-|`lib/auth/index.ts`|具有回调和事件的 NextAuth 实例|
-|`lib/auth/providers.ts`|OAuth 提供者工厂|
-|`lib/auth/credentials.ts`|电子邮件/密码提供商|
-|`lib/auth/cached-session.ts`|会话缓存层|
-|`lib/auth/admin-guard.ts`|管理路由中间件|
+|`auth.config.ts`|Конфигурация провайдера верхнего уровня|
+|`lib/auth/index.ts`|Экземпляр NextAuth с обратными вызовами и событиями|
+|`lib/auth/providers.ts`|Фабрика поставщиков OAuth|
+|`lib/auth/credentials.ts`|Поставщик электронной почты/пароля|
+|`lib/auth/cached-session.ts`|Уровень кэширования сеанса|
+|`lib/auth/admin-guard.ts`|Промежуточное программное обеспечение маршрута администратора|

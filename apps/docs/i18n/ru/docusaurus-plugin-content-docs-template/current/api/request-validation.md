@@ -1,15 +1,15 @@
 ---
 id: request-validation
-title: "API请求验证"
-sidebar_label: "请求验证"
+title: "Проверка запроса API"
+sidebar_label: "Запросить проверку"
 sidebar_position: 8
 ---
 
-# API请求验证
+# Проверка запроса API
 
-该模板在多个层验证 API 请求：用于正文/查询验证的 Zod 模式、用于分页和正文大小限制的实用函数以及用于枚举参数的内联类型保护。本页记录了每种验证机制以及它们如何在 API 路由处理程序中使用。
+Шаблон проверяет запросы API на нескольких уровнях: схемы Zod для проверки тела/запроса, служебные функции для разбиения на страницы и ограничения размера тела, а также встроенные средства защиты типов для параметров перечисления. На этой странице описывается каждый механизм проверки и то, как они используются в обработчиках маршрутов API.
 
-## 验证架构
+## Архитектура проверки
 
 ```mermaid
 flowchart TD
@@ -28,11 +28,11 @@ flowchart TD
     L -->|Success| N[200/201 Response]
 ```
 
-## Zod 验证模式
+## Схемы проверки Zod
 
-### 位置架构 (`lib/validations/item.ts`)
+### Схема расположения (`lib/validations/item.ts`)
 
-所有字段都是可选的；严格性由表单级别设置控制：
+Все поля являются необязательными; строгость контролируется настройками уровня формы:
 
 ```typescript
 export const locationSchema = z.object({
@@ -55,9 +55,9 @@ export const locationSchema = z.object({
 }).optional();
 ```
 
-### 客户端项目架构 (`lib/validations/client-item.ts`)
+### Схемы элементов клиента (`lib/validations/client-item.ts`)
 
-#### 创建项目
+#### Создать элемент
 
 ```typescript
 export const clientCreateItemSchema = z.object({
@@ -78,9 +78,9 @@ export const clientCreateItemSchema = z.object({
 });
 ```
 
-#### 更新项目
+#### Обновить элемент
 
-使用相同的字段定义，所有字段都是可选的：
+Использует те же определения полей, но все поля являются необязательными:
 
 ```typescript
 export const clientUpdateItemSchema = z.object({
@@ -94,9 +94,9 @@ export const clientUpdateItemSchema = z.object({
 });
 ```
 
-#### 列出查询参数
+#### Получение списка параметров запроса
 
-查询参数使用 `.transform()` 将字符串输入转换为键入的值：
+Параметры запроса используют `.transform()` для преобразования строковых входных данных в типизированные значения:
 
 ```typescript
 export const clientItemsListQuerySchema = z.object({
@@ -116,7 +116,7 @@ export const clientItemsListQuerySchema = z.object({
 });
 ```
 
-### 密码架构 (`lib/validations/auth.ts`)
+### Схема пароля (`lib/validations/auth.ts`)
 
 ```typescript
 export const passwordSchema = z.string()
@@ -127,7 +127,7 @@ export const passwordSchema = z.string()
   .regex(/[^A-Za-z0-9]/, "Must contain at least one special character");
 ```
 
-### 公司架构 (`lib/validations/company.ts`)
+### Схемы компании (`lib/validations/company.ts`)
 
 ```typescript
 export const createCompanySchema = z.object({
@@ -142,9 +142,9 @@ export const createCompanySchema = z.object({
 });
 ```
 
-### 推断类型
+### Выведенные типы
 
-所有模式都将 Zod 推断的类型与模式一起导出：
+Все схемы экспортируют типы, выведенные Zod, вместе со схемой:
 
 ```typescript
 export type ClientUpdateItemInput = z.infer<typeof clientUpdateItemSchema>;
@@ -152,9 +152,9 @@ export type ClientCreateItemInput = z.infer<typeof clientCreateItemSchema>;
 export type CreateCompanyInput = z.infer<typeof createCompanySchema>;
 ```
 
-## 分页验证 (`lib/utils/pagination-validation.ts`)
+## Проверка нумерации страниц (`lib/utils/pagination-validation.ts`)
 
-用于验证 `page` 和 `limit` 查询参数的共享实用程序：
+Общая утилита для проверки параметров запроса `page` и `limit`:
 
 ```typescript
 export function validatePaginationParams(
@@ -173,7 +173,7 @@ export function validatePaginationParams(
 }
 ```
 
-路由处理程序中的使用遵循可区分的联合模式：
+Использование в обработчиках маршрутов соответствует шаблону дискриминируемого объединения:
 
 ```typescript
 const paginationResult = validatePaginationParams(searchParams);
@@ -186,11 +186,11 @@ if ('error' in paginationResult) {
 const { page, limit } = paginationResult;
 ```
 
-## 请求正文大小限制 (`lib/utils/request-body.ts`)
+## Запросить ограничения на размер тела (`lib/utils/request-body.ts`)
 
 ### `readBodyWithLimit`
 
-通过 `ReadableStream` 读取请求正文并进行增量大小检查：
+Считывает тело запроса через `ReadableStream` с дополнительной проверкой размера:
 
 ```typescript
 export async function readBodyWithLimit<T = unknown>(
@@ -199,11 +199,11 @@ export async function readBodyWithLimit<T = unknown>(
 ): Promise<ReadBodyResult<T>>
 ```
 
-特点：
-- 快速路径：首先检查`Content-Length`标头
-- 增量：读取流块并在字节到达时检查大小
-- 取消：超出限制时调用`reader.cancel()`
-- JSON解析：可选，优雅地处理`SyntaxError`
+Особенности:
+- Быстрый путь: сначала проверяется заголовок `Content-Length`
+- Инкрементальный: считывает фрагменты потока и проверяет размер по мере поступления байтов.
+- Отмена: вызывает `reader.cancel()` при превышении лимита.
+- Анализ JSON: необязательно, корректно обрабатывается `SyntaxError`
 
 ```typescript
 // Usage
@@ -212,17 +212,17 @@ const { data } = await readBodyWithLimit(request, { maxSize: 1024 });
 
 ### `validateContentLength`
 
-未阅读正文的早期拒绝：
+Ранний отказ без чтения тела:
 
 ```typescript
 export function validateContentLength(request: NextRequest, maxSize: number): boolean
 ```
 
-如果 `Content-Length` 标头超出限制，则抛出 `BodySizeLimitError`。
+Выдает `BodySizeLimitError`, если заголовок `Content-Length` превышает предел.
 
 ### `BodySizeLimitError`
 
-具有 `maxSize` 和 `actualSize` 属性的自定义错误类：
+Пользовательский класс ошибок со свойствами `maxSize` и `actualSize`:
 
 ```typescript
 export class BodySizeLimitError extends Error {
@@ -235,9 +235,9 @@ export class BodySizeLimitError extends Error {
 }
 ```
 
-## 内联参数验证
+## Встроенная проверка параметров
 
-对于 Zod 架构未涵盖的枚举参数，路由处理程序使用内联类型保护：
+Для параметров перечисления, которые не охватываются схемами Zod, обработчики маршрутов используют защиту встроенного типа:
 
 ```typescript
 // Type-safe status validation
@@ -254,18 +254,18 @@ if (statusParam && !isItemStatus(statusParam)) {
 }
 ```
 
-`sortBy` 和 `sortOrder` 参数重复此模式。
+Этот шаблон повторяется для параметров `sortBy` и `sortOrder`.
 
-## 搜索输入清理
+## Очистка входных данных поиска
 
-文本搜索参数被修剪和规范化：
+Параметры текстового поиска обрезаны и нормализованы:
 
 ```typescript
 const searchRaw = searchParams.get('search');
 const search = searchRaw?.trim() ? searchRaw.trim() : undefined;
 ```
 
-CSV 参数被解析和标准化：
+Параметры CSV анализируются и нормализуются:
 
 ```typescript
 const parseCsv = (value: string | null): string[] | undefined => {
@@ -275,9 +275,9 @@ const parseCsv = (value: string | null): string[] | undefined => {
 };
 ```
 
-## 分页实用程序 (`lib/paginate.ts`)
+## Утилиты разбивки на страницы (`lib/paginate.ts`)
 
-用于模板级分页的简单分页助手：
+Простые помощники по нумерации страниц для нумерации страниц на уровне шаблона:
 
 ```typescript
 export const PER_PAGE = 12;
@@ -293,13 +293,13 @@ export function paginateMeta(rawPage: number | string = 1, perPage: number = PER
 }
 ```
 
-## 验证层摘要
+## Сводка уровня проверки
 
-|图层|地点|机制|目的|
+|Слой|Расположение|Механизм|Цель|
 |-------|----------|-----------|---------|
-|授权|路线处理程序|`session?.user?.isAdmin`|基于角色的访问|
-|机身尺寸|`lib/utils/request-body.ts`|流阅读器|防止负载过大|
-|分页|`lib/utils/pagination-validation.ts`|URLSearchParams解析|验证页面/限制|
-|枚举参数|内联路由处理程序|类型保护功能|验证状态、排序依据等。|
-|身体图式|`lib/validations/*.ts`|Zod 模式|结构化输入验证|
-|搜索|内联路由处理程序|修剪 + CSV 解析|输入净化|
+|Авторизация|Обработчик маршрута|`session?.user?.isAdmin`|Ролевой доступ|
+|Размер тела|`lib/utils/request-body.ts`|Потоковый читатель|Предотвратите негабаритную полезную нагрузку|
+|Пагинация|`lib/utils/pagination-validation.ts`|Парсинг URLSearchParams|Подтвердить страницу/лимит|
+|Параметры перечисления|Встроенный обработчик маршрута|Тип охранных функций|Проверка статуса, сортировка по и т. д.|
+|Схема тела|`lib/validations/*.ts`|Схемы Зода|Структурированная проверка ввода|
+|Поиск|Встроенный обработчик маршрута|Обрезка + анализ CSV|Входная санитарная обработка|

@@ -1,15 +1,15 @@
 ---
 id: categories-api-endpoints
-title: 类别 API 端点
-sidebar_label: 类别API
+title: Категории Конечные точки API
+sidebar_label: Категории API
 sidebar_position: 56
 ---
 
-# 类别 API 端点
+# Категории Конечные точки API
 
-类别 API 提供了一个公共端点来检查内容系统中是否存在任何类别。类别源自基于 Git 的 CMS 内容存储库，代表组织项目的顶级分类法。
+API категорий предоставляет общедоступную конечную точку для проверки наличия каких-либо категорий в системе контента. Категории берутся из репозитория контента CMS на базе Git и представляют собой таксономию верхнего уровня для организации элементов.
 
-**来源：** `template/app/api/categories/exists/route.ts`
+**Источник:** `template/app/api/categories/exists/route.ts`
 
 ---
 

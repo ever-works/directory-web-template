@@ -1,15 +1,15 @@
 ---
 id: favorites-api-endpoints
-title: 收藏夹 API 端点
-sidebar_label: 收藏夹API
+title: Избранные конечные точки API
+sidebar_label: API избранного
 sidebar_position: 62
 ---
 
-# 收藏夹 API 端点
+# Избранные конечные точки API
 
-收藏夹 API 允许经过身份验证的用户管理他们收藏的项目。用户可以从他们的个人收藏夹列表中列出、添加和删除项目。收藏夹记录存储项目元数据（名称、图标、类别）以便快速显示，而无需加入项目表。
+API избранного позволяет аутентифицированным пользователям управлять своими любимыми элементами. Пользователи могут перечислять, добавлять и удалять элементы из своего личного списка избранного. Записи избранного хранят метаданные элемента (имя, значок, категория) для быстрого отображения без присоединения к таблице элементов.
 
-**源码目录：** `template/app/api/favorites/`
+**Исходный каталог:** `template/app/api/favorites/`
 
 ---
 
@@ -27,20 +27,20 @@ All favorites endpoints require session-based authentication. Unauthenticated re
 
 ---
 
-## 列出用户收藏夹
+## Список избранного пользователя
 
-返回经过身份验证的用户收藏的所有项目。
+Возвращает все элементы, избранные авторизованным пользователем.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`GET`|
-|**路径**|`/api/favorites`|
-|**授权**|会话（用户）|
-|**来源**|`favorites/route.ts`|
+|**Метод**|`GET`|
+|**Путь**|`/api/favorites`|
+|**Аутентификация**|Сеанс (пользователь)|
+|**Источник**|`favorites/route.ts`|
 
-### 回应
+### Ответ
 
-**状态 200**
+**Статус 200**
 
 ```json
 {
@@ -60,20 +60,20 @@ All favorites endpoints require session-based authentication. Unauthenticated re
 }
 ```
 
-|领域|类型|描述|
+|Поле|Тип|Описание|
 |-------|------|-------------|
-|`favorites[].id`|`string`|收藏夹记录 ID|
-|`favorites[].userId`|`string`|收藏该商品的用户|
-|`favorites[].itemSlug`|`string`|物品块标识符|
-|`favorites[].itemName`|`string`|项目显示名称|
-|`favorites[].itemIconUrl`|`字符串\|空`|项目图标 URL|
-|`favorites[].itemCategory`|`字符串\|空`|项目类别|
-|`favorites[].createdAt`|`string` (ISO 8601)|当该项目被收藏时|
-|`favorites[].updatedAt`|`字符串\|空`|最后更新时间戳|
+|`favorites[].id`|`string`|Идентификатор избранной записи|
+|`favorites[].userId`|`string`|Пользователь, который добавил элемент в избранное|
+|`favorites[].itemSlug`|`string`|Идентификатор пула элемента|
+|`favorites[].itemName`|`string`|Отображаемое имя элемента|
+|`favorites[].itemIconUrl`|`строка \|ноль`|URL-адрес значка элемента|
+|`favorites[].itemCategory`|`строка \|ноль`|Категория товара|
+|`favorites[].createdAt`|`string` (ISO 8601)|Когда товар был добавлен в избранное|
+|`favorites[].updatedAt`|`строка \|ноль`|Временная метка последнего обновления|
 
-收藏夹按 `createdAt` 排序（最旧的在前）。
+Избранное упорядочено по `createdAt` (сначала самые старые).
 
-### 卷曲示例
+### Пример завитка
 
 ```bash
 curl -s http://localhost:3000/api/favorites \
@@ -166,26 +166,26 @@ curl -s -X POST http://localhost:3000/api/favorites \
 
 ---
 
-## 删除收藏夹
+## Удалить избранное
 
-从经过身份验证的用户的收藏夹列表中删除特定项目。
+Удаляет определенный элемент из списка избранного аутентифицированного пользователя.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`DELETE`|
-|**路径**|`/api/favorites/{itemSlug}`|
-|**授权**|会话（用户）|
-|**来源**|`favorites/[itemSlug]/route.ts`|
+|**Метод**|`DELETE`|
+|**Путь**|`/api/favorites/{itemSlug}`|
+|**Аутентификация**|Сеанс (пользователь)|
+|**Источник**|`favorites/[itemSlug]/route.ts`|
 
-### 路径参数
+### Параметры пути
 
-|参数|类型|描述|
+|Параметр|Тип|Описание|
 |-----------|------|-------------|
-|`itemSlug`|`string`|要从收藏夹中删除的项目 slug 标识符|
+|`itemSlug`|`string`|Идентификатор фрагмента элемента, который нужно удалить из избранного|
 
-### 回应
+### Ответы
 
-**状态 200** -- 已成功删除收藏夹。
+**Статус 200** – Избранное успешно удалено.
 
 ```json
 {
@@ -194,7 +194,7 @@ curl -s -X POST http://localhost:3000/api/favorites \
 }
 ```
 
-**状态 404** -- 未找到收藏夹。
+**Статус 404** – Избранное не найдено.
 
 ```json
 {
@@ -203,7 +203,7 @@ curl -s -X POST http://localhost:3000/api/favorites \
 }
 ```
 
-### 卷曲示例
+### Пример завитка
 
 ```bash
 curl -s -X DELETE http://localhost:3000/api/favorites/awesome-productivity-tool \

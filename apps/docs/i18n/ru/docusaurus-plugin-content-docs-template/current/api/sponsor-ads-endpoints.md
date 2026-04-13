@@ -1,15 +1,15 @@
 ---
 id: sponsor-ads-endpoints
-title: "赞助商广告 API 端点"
-sidebar_label: "赞助商广告"
+title: "Конечные точки API спонсорской рекламы"
+sidebar_label: "Спонсорские объявления"
 sidebar_position: 16
 ---
 
-# 赞助商广告 API 端点
+# Конечные точки API спонсорской рекламы
 
-赞助商广告 API 管理赞助商广告的整个生命周期：创建、付款结账、续订、取消和统计。它与多个支付提供商（Stripe、LemonSqueezy、Polar）集成进行计费。
+API спонсорской рекламы управляет полным жизненным циклом спонсируемой рекламы: созданием, оплатой, продлением, отменой и статистикой. Он интегрируется с несколькими поставщиками платежей (Stripe, LemonSqueezy, Polar) для выставления счетов.
 
-**源文件：**
+**Исходные файлы:**
 - `template/app/api/sponsor-ads/route.ts`
 - `template/app/api/sponsor-ads/checkout/route.ts`
 - `template/app/api/sponsor-ads/user/route.ts`
@@ -18,18 +18,18 @@ sidebar_position: 16
 - `template/app/api/sponsor-ads/user/[id]/renew/route.ts`
 - `template/app/api/sponsor-ads/user/stats/route.ts`
 
-## 端点摘要
+## Сводка конечных точек
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|获取|`/api/sponsor-ads`|无|获取活跃的赞助商广告（公开）|
-|后处理|`/api/sponsor-ads/checkout`|会议|创建结账会话|
-|获取|`/api/sponsor-ads/user`|会议|列出用户的赞助商广告|
-|后处理|`/api/sponsor-ads/user`|会议|提交新的赞助商广告|
-|获取|`/api/sponsor-ads/user/{id}`|会议|获取单一赞助商广告|
-|后处理|`/api/sponsor-ads/user/{id}/cancel`|会议|取消赞助商广告|
-|后处理|`/api/sponsor-ads/user/{id}/renew`|会议|续订赞助商广告|
-|获取|`/api/sponsor-ads/user/stats`|会议|获取用户的广告统计信息|
+|ПОЛУЧИТЬ|`/api/sponsor-ads`|Нет|Получите активную спонсорскую рекламу (публичную)|
+|ПОСТ|`/api/sponsor-ads/checkout`|Сессия|Создать сеанс оформления заказа|
+|ПОЛУЧИТЬ|`/api/sponsor-ads/user`|Сессия|Получение списка спонсорских объявлений пользователя|
+|ПОСТ|`/api/sponsor-ads/user`|Сессия|Подать новое объявление спонсора|
+|ПОЛУЧИТЬ|`/api/sponsor-ads/user/{id}`|Сессия|Получить рекламу от одного спонсора|
+|ПОСТ|`/api/sponsor-ads/user/{id}/cancel`|Сессия|Отменить рекламу спонсора|
+|ПОСТ|`/api/sponsor-ads/user/{id}/renew`|Сессия|Продлить спонсорскую рекламу|
+|ПОЛУЧИТЬ|`/api/sponsor-ads/user/stats`|Сессия|Получить статистику рекламы пользователя|
 
 ---
 
@@ -70,21 +70,21 @@ Returns active sponsor ads with associated item data for public display. **No au
 
 ---
 
-## 发布 `/api/sponsor-ads/checkout`
+## ПОСТ `/api/sponsor-ads/checkout`
 
-为已批准的赞助商广告创建付款结账会话。支持 Stripe、LemonSqueezy 和 Polar 提供商。
+Создает сеанс оплаты для одобренного спонсорского объявления. Поддерживает поставщиков Stripe, LemonSqueezy и Polar.
 
-### 请求正文
+### Тело запроса
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`sponsorAdId`|字符串|**是**|批准的赞助商广告 ID|
-|`successUrl`|字符串|否|支付成功后重定向URL|
-|`cancelUrl`|字符串|否|取消付款后重定向 URL|
+|`sponsorAdId`|строка|**Да**|Идентификатор одобренного спонсорского объявления|
+|`successUrl`|строка|Нет|URL-адрес перенаправления после успешной оплаты|
+|`cancelUrl`|строка|Нет|URL-адрес перенаправления после отмены платежа|
 
-### 安全性：开放重定向预防
+### Безопасность: предотвращение открытого перенаправления
 
-重定向 URL 根据应用程序的来源进行验证，以防止开放重定向攻击：
+URL-адреса перенаправления проверяются на соответствие источнику приложения, чтобы предотвратить атаки с открытым перенаправлением:
 
 ```ts
 function validateRedirectUrl(url, allowedOrigin) {
@@ -97,9 +97,9 @@ function validateRedirectUrl(url, allowedOrigin) {
 }
 ```
 
-无效的 URL 会默默地替换为安全的默认值。
+Недействительные URL-адреса автоматически заменяются безопасными значениями по умолчанию.
 
-### 回复：200
+### Ответ: 200
 
 ```json
 {
@@ -113,14 +113,14 @@ function validateRedirectUrl(url, allowedOrigin) {
 }
 ```
 
-### 错误响应
+### Реакции на ошибки
 
-|状态|描述|
+|Статус|Описание|
 |--------|-------------|
-| 400 |缺少赞助商广告 ID、广告不处于 `pending_payment` 状态或缺少价格配置|
-| 401 |未经过验证|
-| 403 |User does not own this sponsor ad|
-| 404 |找不到赞助商广告|
+| 400 |Отсутствует идентификатор спонсорского объявления, объявление не в статусе `pending_payment` или отсутствует конфигурация цены.|
+| 401 |Не аутентифицирован|
+| 403 |Пользователь не является владельцем этого спонсорского объявления|
+| 404 |Спонсорское объявление не найдено|
 
 ---
 
@@ -166,22 +166,22 @@ Query parameters are validated using the `querySponsorAdsSchema` Zod schema.
 
 ---
 
-## 发布 `/api/sponsor-ads/user`
+## ПОСТ `/api/sponsor-ads/user`
 
-Creates a new sponsor ad submission. The ad starts in a pending state awaiting admin approval.
+Создает новое объявление спонсора. Объявление начинается в состоянии ожидания и ожидает одобрения администратора.
 
-### 请求正文
+### Тело запроса
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`itemSlug`|字符串|**是**|Slug of the item to sponsor|
-|`itemName`|字符串|**是**|项目的显示名称|
-|`itemIconUrl`|字符串|否|图标网址|
-|`itemCategory`|字符串|否|项目类别|
-|`itemDescription`|字符串|否|Description (max 500 chars)|
-|`interval`|`"weekly"` 或 `"monthly"`|**是**|订阅间隔|
+|`itemSlug`|строка|**Да**|Ссылка на предмет, спонсируемый|
+|`itemName`|строка|**Да**|Отображаемое имя элемента|
+|`itemIconUrl`|строка|Нет|URL-адрес значка|
+|`itemCategory`|строка|Нет|Категория товара|
+|`itemDescription`|строка|Нет|Описание (максимум 500 символов)|
+|`interval`|`"weekly"` или `"monthly"`|**Да**|Интервал подписки|
 
-### 响应：201 已创建
+### Ответ: 201 Создано
 
 ```json
 {
@@ -195,7 +195,7 @@ Creates a new sponsor ad submission. The ad starts in a pending state awaiting a
 }
 ```
 
-### 400 -- Duplicate Submission
+### 400 – двойная отправка
 
 ```json
 {
@@ -212,17 +212,17 @@ Retrieves a single sponsor ad owned by the authenticated user. Returns 404 if th
 
 ---
 
-## 发布 `/api/sponsor-ads/user/{id}/cancel`
+## ПОСТ `/api/sponsor-ads/user/{id}/cancel`
 
-取消赞助商广告。 Only ads with status `pending_payment`, `pending`, or `active` can be cancelled.
+Отменяет спонсорскую рекламу. Отменить можно только объявления со статусом `pending_payment`, `pending` или `active`.
 
-### 请求正文
+### Тело запроса
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`cancelReason`|字符串|否|取消原因（最多 500 个字符）|
+|`cancelReason`|строка|Нет|Причина отмены (максимум 500 символов)|
 
-### 回复：200
+### Ответ: 200
 
 ```json
 {
@@ -232,13 +232,13 @@ Retrieves a single sponsor ad owned by the authenticated user. Returns 404 if th
 }
 ```
 
-### 错误响应
+### Реакции на ошибки
 
-|状态|描述|
+|Статус|Описание|
 |--------|-------------|
-| 400 |Cannot cancel ad with current status|
-| 403 |User does not own this sponsor ad|
-| 404 |找不到赞助商广告|
+| 400 |Невозможно отменить объявление с текущим статусом|
+| 403 |Пользователь не является владельцем этого спонсорского объявления|
+| 404 |Спонсорское объявление не найдено|
 
 ---
 
@@ -269,11 +269,11 @@ Creates a checkout session to renew an active or expired sponsor ad. Only ads wi
 
 ---
 
-## 获取`/api/sponsor-ads/user/stats`
+## ПОЛУЧИТЬ `/api/sponsor-ads/user/stats`
 
-Returns statistics for the authenticated user's sponsor ads including status breakdown, interval distribution, and revenue metrics.
+Возвращает статистику спонсорских объявлений аутентифицированного пользователя, включая разбивку по статусу, распределение по интервалам и показатели дохода.
 
-### 回复：200
+### Ответ: 200
 
 ```json
 {
@@ -301,7 +301,7 @@ Returns statistics for the authenticated user's sponsor ads including status bre
 }
 ```
 
-Revenue values are in **minor currency units** (for example, cents for USD).
+Значения дохода указаны в **дополнительных валютных единицах** (например, в центах за доллар США).
 
 ---
 
@@ -317,17 +317,17 @@ The active payment provider is determined by `NEXT_PUBLIC_PAYMENT_PROVIDER` (def
 
 ---
 
-## 相关源文件
+## Связанные исходные файлы
 
-|文件|目的|
+|Файл|Цель|
 |------|---------|
-|`template/app/api/sponsor-ads/route.ts`|Public active ads endpoint|
-|`template/app/api/sponsor-ads/checkout/route.ts`|Checkout session creation|
-|`template/app/api/sponsor-ads/user/route.ts`|User ads list and creation|
-|`template/app/api/sponsor-ads/user/[id]/route.ts`|单个广告检索|
-|`template/app/api/sponsor-ads/user/[id]/cancel/route.ts`|广告取消|
-|`template/app/api/sponsor-ads/user/[id]/renew/route.ts`|广告续订|
-|`template/app/api/sponsor-ads/user/stats/route.ts`|用户统计|
-|`template/lib/services/sponsor-ad.service.ts`|业务逻辑层|
-|`template/lib/validations/sponsor-ad.ts`|Zod 验证模式|
-|`template/lib/payment/config/payment-provider-manager.ts`|支付提供商工厂|
+|`template/app/api/sponsor-ads/route.ts`|Конечная точка публичной активной рекламы|
+|`template/app/api/sponsor-ads/checkout/route.ts`|Создание сеанса оформления заказа|
+|`template/app/api/sponsor-ads/user/route.ts`|Список и создание пользовательских объявлений|
+|`template/app/api/sponsor-ads/user/[id]/route.ts`|Получение одного объявления|
+|`template/app/api/sponsor-ads/user/[id]/cancel/route.ts`|Отмена объявления|
+|`template/app/api/sponsor-ads/user/[id]/renew/route.ts`|Продление объявления|
+|`template/app/api/sponsor-ads/user/stats/route.ts`|Статистика пользователей|
+|`template/lib/services/sponsor-ad.service.ts`|Уровень бизнес-логики|
+|`template/lib/validations/sponsor-ad.ts`|Схемы проверки Zod|
+|`template/lib/payment/config/payment-provider-manager.ts`|Фабрика платежных провайдеров|

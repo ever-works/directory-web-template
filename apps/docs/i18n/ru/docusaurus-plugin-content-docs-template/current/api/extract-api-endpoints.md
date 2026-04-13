@@ -1,15 +1,15 @@
 ---
 id: extract-api-endpoints
-title: 提取API端点
-sidebar_label: 提取API
+title: Извлечение конечных точек API
+sidebar_label: Извлечь API
 sidebar_position: 61
 ---
 
-# 提取API端点
+# Извлечение конечных точек API
 
-Extract API 提供了一个安全代理端点，用于从给定 URL 中提取项目元数据（名称、描述、类别等）。它将请求转发到 Ever Works Platform API，以进行人工智能驱动的内容提取。
+API извлечения предоставляет безопасную конечную точку прокси-сервера для извлечения метаданных элемента (имя, описание, категории и т. д.) из заданного URL-адреса. Он перенаправляет запросы к API платформы Ever Works для извлечения контента с помощью искусственного интеллекта.
 
-**来源：** `template/app/api/extract/route.ts`
+**Источник:** `template/app/api/extract/route.ts`
 
 ---
 

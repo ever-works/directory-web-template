@@ -1,24 +1,24 @@
 ---
 id: extraction-endpoints
-title: "提取和验证端点"
-sidebar_label: "提取与验证"
+title: "Конечные точки извлечения и проверки"
+sidebar_label: "Извлечение и проверка"
 sidebar_position: 19
 ---
 
-# 提取和验证端点
+# Конечные точки извлечения и проверки
 
-这些端点提供 URL 元数据提取（通过 Ever Works Platform API）和 Google reCAPTCHA 令牌验证。两者都充当安全的服务器端代理，以防止 API 密钥和机密暴露在客户端代码之外。
+Эти конечные точки обеспечивают извлечение метаданных URL-адреса (через API платформы Ever Works) и проверку токена Google reCAPTCHA. Оба действуют как безопасные прокси-серверы на стороне сервера, защищая ключи и секреты API от кода на стороне клиента.
 
-**源文件：**
+**Исходные файлы:**
 - `template/app/api/extract/route.ts`
 - `template/app/api/verify-recaptcha/route.ts`
 
-## 端点摘要
+## Сводка конечных точек
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|后处理|`/api/extract`|无|从 URL 中提取项目元数据|
-|后处理|`/api/verify-recaptcha`|无|验证 reCAPTCHA 令牌|
+|ПОСТ|`/api/extract`|Нет|Извлечение метаданных элемента из URL-адреса|
+|ПОСТ|`/api/verify-recaptcha`|Нет|Проверьте токен reCAPTCHA|
 
 ---
 
@@ -133,17 +133,17 @@ The response is passed through directly from the Platform API:
 
 ---
 
-## 发布 `/api/verify-recaptcha`
+## ПОСТ `/api/verify-recaptcha`
 
-通过与 Google 的 `siteverify` API 通信来验证 Google reCAPTCHA 令牌。支持 reCAPTCHA v2 和 v3 令牌。开发模式下，未配置密钥时，终端可以绕过验证。
+Проверяет токен Google reCAPTCHA, взаимодействуя с API Google `siteverify`. Поддерживает токены reCAPTCHA v2 и v3. В режиме разработки конечная точка может обходить проверку, если секретный ключ не настроен.
 
-### 请求正文
+### Тело запроса
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`token`|字符串|**是**|来自客户端验证的 reCAPTCHA 令牌|
+|`token`|строка|**Да**|Токен reCAPTCHA от проверки на стороне клиента|
 
-### 请求示例
+### Пример запроса
 
 ```json
 {
@@ -151,9 +151,9 @@ The response is passed through directly from the Platform API:
 }
 ```
 
-### 它是如何运作的
+### Как это работает
 
-该处理程序使用 URL 编码的表单数据将令牌发送到 Google 的验证端点：
+Обработчик отправляет токен в конечную точку проверки Google, используя данные формы в URL-кодировке:
 
 ```ts
 const response = await externalClient.postForm(
@@ -165,7 +165,7 @@ const response = await externalClient.postForm(
 );
 ```
 
-### 回复：200（已验证）
+### Ответ: 200 (Проверено)
 
 ```json
 {
@@ -178,7 +178,7 @@ const response = await externalClient.postForm(
 }
 ```
 
-### 响应：200（验证失败）
+### Ответ: 200 (неудачная проверка)
 
 ```json
 {
@@ -191,9 +191,9 @@ const response = await externalClient.postForm(
 }
 ```
 
-### 开发模式绕过
+### Обход режима разработки
 
-当`RECAPTCHA_SECRET_KEY`未配置且`NODE_ENV`为`"development"`时，端点绕过验证并返回成功：
+Если `RECAPTCHA_SECRET_KEY` не настроен и `NODE_ENV` имеет значение `"development"`, конечная точка обходит проверку и возвращает успех:
 
 ```ts
 if (!secretKey) {
@@ -211,31 +211,31 @@ if (!secretKey) {
 }
 ```
 
-### 错误响应
+### Реакции на ошибки
 
-|状态|描述|
+|Статус|Описание|
 |--------|-------------|
-| 400 |`token` 字段缺失或为空|
-| 500 |未配置密钥（仅限生产）|
-| 500 |Google API 请求失败|
-| 500 |验证过程中出现意外错误|
+| 400 |Поле `token` отсутствует или пусто.|
+| 500 |Секретный ключ не настроен (только рабочая версия)|
+| 500 |Запрос API Google не выполнен|
+| 500 |Неожиданная ошибка во время проверки|
 
-### 响应字段
+### Поля ответа
 
-|领域|类型|描述|
+|Поле|Тип|Описание|
 |-------|------|-------------|
-|`success`|布尔值|验证是否通过|
-|`score`|数字（0.0-1.0）|reCAPTCHA v3 分数（1.0 = 可能是人类，0.0 = 可能是机器人）|
-|`action`|字符串|来自 reCAPTCHA 的操作名称|
-|`hostname`|字符串|进行验证的主机名|
-|`challenge_ts`|字符串|挑战的时间戳|
-|`error_codes`|字符串[]|来自 Google API 的错误代码|
+|`success`|логическое значение|Прошла ли проверка|
+|`score`|число (0,0-1,0)|Оценка reCAPTCHA v3 (1,0 = вероятно человек, 0,0 = вероятно бот)|
+|`action`|строка|Название действия из reCAPTCHA|
+|`hostname`|строка|Имя хоста, на котором произошла проверка|
+|`challenge_ts`|строка|Временная метка вызова|
+|`error_codes`|строка[]|Коды ошибок API Google|
 
-### 环境变量
+### Переменные среды
 
-|变量|必填|描述|
+|Переменная|Требуется|Описание|
 |----------|----------|-------------|
-|`RECAPTCHA_SECRET_KEY`|是（生产）|Google reCAPTCHA 密钥|
+|`RECAPTCHA_SECRET_KEY`|Да (производство)|Секретный ключ Google reCAPTCHA|
 
 ---
 
@@ -293,11 +293,11 @@ if (success && score >= 0.5) {
 
 ---
 
-## 相关源文件
+## Связанные исходные файлы
 
-|文件|目的|
+|Файл|Цель|
 |------|---------|
-|`template/app/api/extract/route.ts`|URL提取代理|
-|`template/app/api/verify-recaptcha/route.ts`|reCAPTCHA 验证代理|
-|`template/lib/api/server-api-client.ts`|支持 `postForm` 的外部 API 客户端|
-|`template/lib/config/config-service.ts`|环境变量的配置服务|
+|`template/app/api/extract/route.ts`|Прокси-сервер для извлечения URL-адресов|
+|`template/app/api/verify-recaptcha/route.ts`|Прокси-сервер проверки reCAPTCHA|
+|`template/lib/api/server-api-client.ts`|Внешний API-клиент с поддержкой `postForm`|
+|`template/lib/config/config-service.ts`|Служба настройки для переменных окружения|

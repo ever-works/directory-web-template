@@ -1,29 +1,29 @@
 ---
 id: polar-deep-dive
-title: 极地深潜
-sidebar_label: 极地
+title: Полярное глубокое погружение
+sidebar_label: Полярный
 sidebar_position: 6
 ---
 
-# 极地深潜
+# Полярное глубокое погружение
 
-此页面涵盖完整的 Polar 集成，包括结帐创建、订阅管理、客户门户和 Webhook 处理。
+На этой странице описана полная интеграция с Polar, включая создание оформления заказа, управление подписками, клиентский портал и обработку веб-перехватчиков.
 
-## 概述
+## Обзор
 
-Polar 是专为软件和数字产品设计的现代支付平台。该集成支持通过 Polar 结账系统进行一次性支付和订阅，并具有 webhook 驱动的生命周期管理。 Polar 使用组织范围的产品和 `@polar-sh/sdk` 进行 API 交互。
+Polar — современная платежная платформа, предназначенная для программного обеспечения и цифровых продуктов. Интеграция поддерживает как разовые платежи, так и подписки через систему оплаты Polar с управлением жизненным циклом на основе веб-перехватчиков. Polar использует продукты для организаций и `@polar-sh/sdk` для взаимодействия через API.
 
-## 路由表
+## Таблица маршрутов
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|`POST`|`/api/polar/checkout`|需要会话|创建结帐会话（订阅或一次性）|
-|`GET`|`/api/polar/checkout`|需要会话|检索结帐会话状态|
-|`POST`|`/api/polar/webhook`|需要签名|处理传入的 Webhook 事件|
+|`POST`|`/api/polar/checkout`|Требуется сеанс|Создать сеанс оформления заказа (по подписке или разово)|
+|`GET`|`/api/polar/checkout`|Требуется сеанс|Получить статус сеанса оформления заказа|
+|`POST`|`/api/polar/webhook`|Требуется подпись|Обработка входящих событий вебхука|
 
-## 结帐创建 (POST)
+## Создание оформления заказа (POST)
 
-### 请求正文
+### Тело запроса
 
 ```typescript
 interface PolarCheckoutRequest {
@@ -40,7 +40,7 @@ interface PolarCheckoutRequest {
 }
 ```
 
-### 请求示例
+### Пример запроса
 
 ```bash
 curl -X POST /api/polar/checkout \
@@ -55,24 +55,24 @@ curl -X POST /api/polar/checkout \
   }'
 ```
 
-### 它是如何运作的
+### Как это работает
 
-结帐路由处理两个流程：
+Маршрут оформления заказа обрабатывает два потока:
 
-**订阅模式：**
-1. 对用户进行身份验证并解析 Polar 客户
-2. 清理元数据（删除`undefined`值——Polar拒绝它们）
-3. 调用 `polarProvider.createSubscription()` 创建结帐会话
-4. 返回订阅结果的结帐 URL
+**Режим подписки:**
+1. Аутентифицирует пользователя и определяет клиента Polar
+2. Обеззараживает метаданные (удаляет значения `undefined` — Polar их отклоняет)
+3. Вызывает `polarProvider.createSubscription()`, который создает сеанс оформления заказа.
+4. Возвращает URL-адрес оформления заказа из результата подписки.
 
-**一次性付款方式：**
-1. 对用户进行身份验证并解析 Polar 客户
-2. 直接使用Polar SDK创建结账
-3. 返回结帐 URL
+**Режим единовременной оплаты:**
+1. Аутентифицирует пользователя и определяет клиента Polar
+2. Использует Polar SDK напрямую для создания оформления заказа.
+3. Возвращает URL-адрес оформления заказа
 
-### 元数据清理
+### Очистка метаданных
 
-Polar 要求所有元数据值均非空且非未定义：
+Polar требует, чтобы все значения метаданных были ненулевыми и неопределенными:
 
 ```typescript
 const sanitizedMetadata: Record<string, any> = {
@@ -88,7 +88,7 @@ Object.entries(metadata).forEach(([key, value]) => {
 });
 ```
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -101,15 +101,15 @@ Object.entries(metadata).forEach(([key, value]) => {
 }
 ```
 
-## 检索结帐会话 (GET)
+## Получение сеанса оформления заказа (GET)
 
-### 查询参数
+### Параметры запроса
 
-|参数|必填|描述|
+|Параметр|Требуется|Описание|
 |-----------|----------|-------------|
-|`checkout_id`|是的|Polar 结账会话 ID|
+|`checkout_id`|Да|Идентификатор сеанса оформления заказа Polar|
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -120,11 +120,11 @@ Object.entries(metadata).forEach(([key, value]) => {
 }
 ```
 
-## 订阅管理
+## Управление подпиской
 
-### 创建订阅
+### Создание подписок
 
-`PolarProvider.createSubscription()` 方法为订阅创建结账：
+Метод `PolarProvider.createSubscription()` создает оформление подписки:
 
 ```typescript
 const checkout = await this.polar.checkouts.create({
@@ -136,9 +136,9 @@ const checkout = await this.polar.checkouts.create({
 });
 ```
 
-### 取消订阅
+### Отмена подписок
 
-Polar 支持两种取消策略：
+Polar поддерживает две стратегии отмены:
 
 ```typescript
 // Cancel at period end (soft cancel)
@@ -148,7 +148,7 @@ await cancelSubscriptionAtPeriodEnd({ polar, subscriptionId });
 await cancelSubscriptionImmediately({ polar, subscriptionId });
 ```
 
-提供者在取消之前验证订阅状态：
+Поставщик проверяет состояние подписки перед отменой:
 
 ```typescript
 const validateResult = validateSubscriptionId(subscriptionId);
@@ -157,9 +157,9 @@ if (!validateResult.isValid) {
 }
 ```
 
-### 重新激活订阅
+### Повторная активация подписок
 
-可以重新激活计划取消的订阅：
+Подписки, запланированные к отмене, можно повторно активировать:
 
 ```typescript
 if (isScheduledForCancellation(subscription)) {
@@ -169,9 +169,9 @@ if (isScheduledForCancellation(subscription)) {
 }
 ```
 
-### 更新订阅
+### Обновление подписок
 
-计划变更通过`polar.subscriptions.update()`处理：
+Изменения плана обрабатываются через `polar.subscriptions.update()`:
 
 ```typescript
 const updated = await this.polar.subscriptions.update({
@@ -180,17 +180,17 @@ const updated = await this.polar.subscriptions.update({
 });
 ```
 
-## Webhook 处理
+## Обработка вебхука
 
-### 签名验证
+### Проверка подписи
 
-Polar 使用 `@polar-sh/sdk/webhooks` `validateEvent` 函数进行验证。 Webhook 需要三个标头：
+Polar использует функцию `@polar-sh/sdk/webhooks` `validateEvent` для проверки. Вебхук требует трех заголовков:
 
-|标头|描述|
+|Заголовок|Описание|
 |--------|-------------|
-|`webhook-signature`|HMAC SHA256签名（格式：`v1,<hex_signature>`）|
-|`webhook-timestamp`|事件的 Unix 时间戳|
-|`webhook-id`|唯一的 Webhook 交付 ID|
+|`webhook-signature`|Подпись HMAC SHA256 (формат: `v1,<hex_signature>`)|
+|`webhook-timestamp`|Unix-временная метка события|
+|`webhook-id`|Уникальный идентификатор доставки вебхука|
 
 ```typescript
 const webhookResult = await polarProvider.handleWebhook(
@@ -202,31 +202,31 @@ const webhookResult = await polarProvider.handleWebhook(
 );
 ```
 
-### 事件类型
+### Типы событий
 
-|极地事件|内部映射|
+|Полярное событие|Внутреннее картографирование|
 |-------------|-----------------|
-|`checkout.succeeded`|付款成功|
-|`checkout.failed`|付款失败|
-|`subscription.created`|订阅已创建|
-|`subscription.updated`|订阅已更新|
-|`subscription.canceled`|订阅已取消|
-|`invoice.paid`|订阅付款成功|
-|`invoice.payment_failed`|订阅付款失败|
+|`checkout.succeeded`|Платеж прошел успешно|
+|`checkout.failed`|Платеж не выполнен|
+|`subscription.created`|Подписка создана|
+|`subscription.updated`|Подписка обновлена|
+|`subscription.canceled`|Подписка отменена|
+|`invoice.paid`|Оплата подписки прошла успешно|
+|`invoice.payment_failed`|Оплата подписки не удалась|
 
-### Webhook 路由器
+### Вебхук-маршрутизатор
 
-事件通过专用路由器模块调度：
+События отправляются через специальный модуль маршрутизатора:
 
 ```typescript
 await routeWebhookEvent(webhookResult.type, webhookResult.data);
 ```
 
-路由器将事件类型映射到处理程序函数，这些函数通过 `WebhookSubscriptionService` 更新数据库并发送电子邮件通知。
+Маршрутизатор сопоставляет типы событий функциям-обработчикам, которые обновляют базу данных через `WebhookSubscriptionService` и отправляют уведомления по электронной почте.
 
-### 有效负载验证
+### Проверка полезной нагрузки
 
-Webhook 端点在处理之前验证有效负载结构：
+Конечная точка веб-перехватчика проверяет структуру полезных данных перед обработкой:
 
 ```typescript
 if (!validateWebhookPayload(body)) {
@@ -234,13 +234,13 @@ if (!validateWebhookPayload(body)) {
 }
 ```
 
-## 客户管理
+## Управление клиентами
 
-提供商遵循标准的三步解决模式：
+Поставщик следует стандартному трехэтапному шаблону разрешения:
 
-1. 检查 Polar 客户 ID 的用户元数据
-2. 查询`PaymentAccount`数据库表
-3. 通过 Polar SDK 创建新客户
+1. Проверьте метаданные пользователя для идентификатора клиента Polar.
+2. Запросить таблицу базы данных `PaymentAccount`
+3. Создайте нового клиента с помощью Polar SDK
 
 ```typescript
 const customer = await this.polar.customers.create({
@@ -251,19 +251,19 @@ const customer = await this.polar.customers.create({
 });
 ```
 
-## 错误处理
+## Обработка ошибок
 
-|状态|错误|原因|
+|Статус|Ошибка|Причина|
 |--------|-------|-------|
-| 400 |`Product ID is required`|请求中缺少`productId`|
-| 400 |`Checkout ID is required`|GET 请求缺失`checkout_id`|
-| 400 |`No signature provided`|Webhook 缺少签名标头|
-| 401 |`Unauthorized`|没有经过身份验证的会话|
-| 500 |`Failed to create checkout`|结账网址不可用|
-| 500 |`Configuration error`|Polar 提供商未配置|
-| 503 |付款设置不完整|组织尚未在 Polar 中完成付款设置|
+| 400 |`Product ID is required`|В запросе отсутствует `productId`|
+| 400 |`Checkout ID is required`|GET-запрос отсутствует `checkout_id`|
+| 400 |`No signature provided`|В Webhook отсутствует заголовок подписи|
+| 401 |`Unauthorized`|Нет аутентифицированного сеанса|
+| 500 |`Failed to create checkout`|URL-адрес оформления заказа недоступен.|
+| 500 |`Configuration error`|Поставщик Polar не настроен|
+| 503 |Настройка платежа не завершена|Организация не завершила настройку оплаты в Polar|
 
-结账端点包括对支付设置错误的特殊检测：
+Конечная точка оформления заказа включает в себя специальное обнаружение ошибок настройки платежа:
 
 ```typescript
 if (error.message.includes('Payments are currently unavailable') ||
@@ -273,25 +273,25 @@ if (error.message.includes('Payments are currently unavailable') ||
 }
 ```
 
-## 配置要求
+## Требования к конфигурации
 
-|变量|必填|描述|
+|Переменная|Требуется|Описание|
 |----------|----------|-------------|
-|`POLAR_ACCESS_TOKEN`|是的|Polar API 访问令牌|
-|`POLAR_WEBHOOK_SECRET`|是的|Webhook 签名秘密|
-|`POLAR_ORGANIZATION_ID`|是的|Polar 组织 ID|
+|`POLAR_ACCESS_TOKEN`|Да|Токен доступа к API Polar|
+|`POLAR_WEBHOOK_SECRET`|Да|Секрет подписи вебхука|
+|`POLAR_ORGANIZATION_ID`|Да|Идентификатор полярной организации|
 
-## 安全考虑
+## Вопросы безопасности
 
-- Webhook 签名使用官方 SDK 中的 `validateEvent` 函数进行验证
-- 保留原始正文文本用于签名验证（JSON 重新序列化可能会更改正文）
-- 检查三个单独的标头：签名、时间戳和 Webhook ID
-- 元数据在服务器端进行清理，以防止注入未定义的值
-- 错误响应使用`safeErrorResponse`防止信息泄露
+- Подписи вебхуков проверяются с помощью функции `validateEvent` из официального SDK.
+- Необработанный основной текст сохраняется для проверки подписи (повторная сериализация JSON может изменить тело).
+- Проверяются три отдельных заголовка: подпись, временная метка и идентификатор веб-перехватчика.
+- Метаданные очищаются на стороне сервера, чтобы предотвратить внедрение неопределенных значений.
+- В ответах об ошибках используется `safeErrorResponse` для предотвращения утечки информации.
 
-## 相关页面
+## Похожие страницы
 
-- [LemonSqueezy 深度潜水](./lemonsqueezy-deep-dive.md)
-- [Solidgate 深度潜水](./solidgate-deep-dive.md)
-- [Stripe Checkout 深入探究](./stripe-checkout-deep-dive.md)
-- [支付提供商架构](./ payment-provider-architecture.md)
+- [Глубокий обзор LemonSqueezy](./lemonsqueezy-deep-dive.md)
+- [Подробное описание Solidgate](./solidgate-deep-dive.md)
+- [Подробное описание Stripe Checkout](./stripe-checkout-deep-dive.md)
+- [Архитектура платежного провайдера](./pay-provider-architecture.md)

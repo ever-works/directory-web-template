@@ -1,28 +1,28 @@
 ---
 id: stripe-checkout-deep-dive
-title: Stripe Checkout 深入探讨
-sidebar_label: 条纹结账
+title: Подробное описание Stripe Checkout
+sidebar_label: Полоса
 sidebar_position: 1
 ---
 
-# Stripe Checkout 深入探讨
+# Подробное описание Stripe Checkout
 
-此页面涵盖了完整的 Stripe 结账流程，包括会话创建、价格 ID 解析、货币处理、重定向 URL、成功/取消流程和元数据传播。
+На этой странице описан весь процесс оформления заказа Stripe, включая создание сеанса, разрешение идентификатора цены, обработку валюты, URL-адреса перенаправления, потоки успеха/отмены и распространение метаданных.
 
-## 概述
+## Обзор
 
-Stripe 结账集成提供了一个服务器端 API，可为一次性付款和订阅创建 Stripe 结账会话。该流程对用户进行身份验证，解析或创建 Stripe 客户，构建具有可选试用支持的订单项，并返回托管结帐 URL。
+Интеграция проверки Stripe предоставляет серверный API, который создает сеансы проверки Stripe как для разовых платежей, так и для подписок. Поток аутентифицирует пользователя, определяет или создает клиента Stripe, создает позиции с дополнительной пробной поддержкой и возвращает размещенный URL-адрес оформления заказа.
 
-## 路由表
+## Таблица маршрутов
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|`POST`|`/api/stripe/checkout`|需要会话|创建新的结帐会话|
-|`GET`|`/api/stripe/checkout`|需要会话|检索现有的结帐会话|
+|`POST`|`/api/stripe/checkout`|Требуется сеанс|Создать новый сеанс оформления заказа|
+|`GET`|`/api/stripe/checkout`|Требуется сеанс|Получить существующий сеанс оформления заказа|
 
-## 创建结帐会话 (POST)
+## Создание сеанса оформления заказа (POST)
 
-### 请求正文
+### Тело запроса
 
 ```typescript
 interface CreateCheckoutRequest {
@@ -38,7 +38,7 @@ interface CreateCheckoutRequest {
 }
 ```
 
-### 请求示例
+### Пример запроса
 
 ```bash
 curl -X POST /api/stripe/checkout \
@@ -58,7 +58,7 @@ curl -X POST /api/stripe/checkout \
   }'
 ```
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -71,9 +71,9 @@ curl -X POST /api/stripe/checkout \
 }
 ```
 
-## 模式映射
+## Сопоставление режимов
 
-API 将传入模式映射到 Stripe 预期的 `Mode` 类型：
+API сопоставляет входящие режимы с ожидаемым типом `Mode` Stripe:
 
 ```typescript
 const stripeMode: 'payment' | 'setup' | 'subscription' =
@@ -82,37 +82,37 @@ const stripeMode: 'payment' | 'setup' | 'subscription' =
     : 'setup';
 ```
 
-- `one_time` 映射到 Stripe `payment` 模式
-- `subscription` 映射到 Stripe `subscription` 模式
-- 任何其他值映射到 `setup` 模式
+- `one_time` сопоставляется с режимом Stripe `payment`
+- `subscription` сопоставляется с режимом Stripe `subscription`
+- Любое другое значение отображается в режиме `setup`.
 
-## 客户解决方案
+## Разрешение клиентов
 
-在创建结帐会话之前，API 会解析或创建 Stripe 客户：
+Перед созданием сеанса оформления заказа API разрешает или создает клиента Stripe:
 
 ```typescript
 const stripeCustomerId = await stripeProvider.getCustomerId(session.user);
 ```
 
-`getCustomerId` 方法遵循三步解析：
+Метод `getCustomerId` предполагает трехэтапное решение:
 
-1. **元数据检查** -- 在用户元数据中查找 `stripe_customer_id`
-2. **数据库查找** -- 查询 `PaymentAccount` 表中的现有记录
-3. **创建新** -- 创建新的 Stripe 客户并与数据库同步
+1. **Проверка метаданных** – ищет `stripe_customer_id` в метаданных пользователя.
+2. **Поиск в базе данных** – запрашивает таблицу `PaymentAccount` на наличие существующей записи.
+3. **Создать новый** – создает нового клиента Stripe и синхронизирует его с базой данных.
 
-如果客户创建失败，端点将返回 `400` 错误。
+Если создать клиента не удается, конечная точка возвращает ошибку `400`.
 
-## 试用配置
+## Пробная конфигурация
 
-试验需要满足两个条件：
+Для испытаний необходимо соблюдение двух условий:
 
 ```typescript
 const hasTrial = trialPeriodDays > 0 && isAuthorizedTrialAmount;
 ```
 
-When a trial is enabled, `trialAmountId` is required.这允许在试用期间收取安装费。 `buildCheckoutLineItems` 帮助程序构建包含订阅价格和可选试用金额的行项目。
+Если пробная версия включена, требуется `trialAmountId`. Это позволяет взимать плату за установку в течение пробного периода. Помощник `buildCheckoutLineItems` создает позиции, которые включают в себя как цену подписки, так и необязательную пробную сумму.
 
-如果 `hasTrial` 为 true 但 `trialAmountId` 缺失，则端点返回：
+Если `hasTrial` истинно, но `trialAmountId` отсутствует, конечная точка возвращает:
 
 ```json
 {
@@ -121,9 +121,9 @@ When a trial is enabled, `trialAmountId` is required.这允许在试用期间收
 }
 ```
 
-## 特定于订阅的配置
+## Конфигурация для конкретной подписки
 
-当模式为`subscription`时，通过`applySubscriptionConfig`应用附加配置：
+Если выбран режим `subscription`, дополнительная конфигурация применяется через `applySubscriptionConfig`:
 
 ```typescript
 if (stripeMode === 'subscription') {
@@ -137,11 +137,11 @@ if (stripeMode === 'subscription') {
 }
 ```
 
-这会将订阅元数据（包括 `userId`、`planId`、`planName` 和计费间隔）附加到结账会话的 `subscription_data`。
+Это прикрепляет метаданные подписки, включая `userId`, `planId`, `planName` и интервал выставления счетов, к `subscription_data` сеанса оформления заказа.
 
-## 元数据传播
+## Распространение метаданных
 
-来自请求的元数据与会话用户数据合并：
+Метаданные запроса объединяются с данными пользователя сеанса:
 
 ```typescript
 metadata: {
@@ -150,24 +150,24 @@ metadata: {
 }
 ```
 
-这可确保用户身份信息（ID、电子邮件、姓名）始终附加到结帐会话，以便在 Webhook 处理程序中进行协调。
+Это гарантирует, что идентификационная информация пользователя (идентификатор, адрес электронной почты, имя) всегда прикрепляется к сеансу оформления заказа для сверки в обработчиках веб-перехватчиков.
 
-## 检索结帐会话 (GET)
+## Получение сеанса оформления заказа (GET)
 
-### 查询参数
+### Параметры запроса
 
-|参数|必填|描述|
+|Параметр|Требуется|Описание|
 |-----------|----------|-------------|
-|`session_id`|是的|Stripe 结帐会话 ID|
+|`session_id`|Да|Идентификатор сеанса оформления заказа Stripe|
 
-### 请求示例
+### Пример запроса
 
 ```bash
 curl -X GET "/api/stripe/checkout?session_id=cs_test_1234567890abcdef" \
   -H "Cookie: session=..."
 ```
 
-### 成功响应 (200)
+### Успешный ответ (200)
 
 ```json
 {
@@ -178,7 +178,7 @@ curl -X GET "/api/stripe/checkout?session_id=cs_test_1234567890abcdef" \
 }
 ```
 
-使用扩展的 `line_items` 和 `subscription` 数据检索会话：
+Сеанс извлекается с расширенными данными `line_items` и `subscription`:
 
 ```typescript
 const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId, {
@@ -186,9 +186,9 @@ const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId, {
 });
 ```
 
-## 多币种支持
+## Мультивалютная поддержка
 
-货币处理通过 `stripe.config.ts` 配置。 `STRIPE_CONFIG` 对象将计划映射到特定于货币的价格 ID：
+Обработка валюты настраивается через `stripe.config.ts`. Объект `STRIPE_CONFIG` сопоставляет планы с идентификаторами цен для конкретной валюты:
 
 ```typescript
 export const STRIPE_CONFIG: Record<PlanName, PlanConfig> = {
@@ -202,50 +202,50 @@ export const STRIPE_CONFIG: Record<PlanName, PlanConfig> = {
 };
 ```
 
-使用 `getStripePriceConfig(plan, currency, interval)` 解析给定计划、货币和计费间隔的正确价格 ID。
+Используйте `getStripePriceConfig(plan, currency, interval)`, чтобы определить правильный идентификатор цены для данного плана, валюты и интервала выставления счетов.
 
-## 动态定价
+## Динамическое ценообразование
 
-当 `NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING=true` 时，`/api/stripe/products` 端点直接从 Stripe API 获取产品和价格，缓存 TTL 为 5 分钟。产品必须在 Stripe 仪表板中设置以下元数据键：
+Когда `NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING=true`, конечная точка `/api/stripe/products` получает продукты и цены непосредственно из Stripe API с 5-минутным TTL кэша. Продукты должны иметь следующие ключи метаданных, установленные на панели инструментов Stripe:
 
-- `plan` -- 计划类型（`free`、`standard`、`premium`）
-- `type` -- 产品类型 (`subscription`, `sponsor_ad`)
-- `features` -- 特征字符串的 JSON 数组
-- `annualDiscount` -- 年度折扣百分比
+- `plan` -- Тип плана (`free`, `standard`, `premium`)
+- `type` -- Тип продукта (`subscription`, `sponsor_ad`)
+- `features` -- Массив строк функций в формате JSON.
+- `annualDiscount` -- Годовой процент скидки
 
-## 配置要求
+## Требования к конфигурации
 
-|变量|必填|描述|
+|Переменная|Требуется|Описание|
 |----------|----------|-------------|
-|`STRIPE_SECRET_KEY`|是的|Stripe 秘密 API 密钥|
-|`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`|是的|Stripe 可发布密钥|
-|`STRIPE_WEBHOOK_SECRET`|是的|Webhook 签名秘密|
-|`NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING`|否|启用动态定价|
-|`NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID_USD`|有条件的|每个计划/货币的价格 ID|
+|`STRIPE_SECRET_KEY`|Да|Секретный API-ключ Stripe|
+|`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`|Да|Публикуемый ключ Stripe|
+|`STRIPE_WEBHOOK_SECRET`|Да|Секрет подписи вебхука|
+|`NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING`|Нет|Включить динамическое ценообразование|
+|`NEXT_PUBLIC_STRIPE_PREMIUM_MONTHLY_PRICE_ID_USD`|Условный|Идентификаторы цен для каждого плана/валюты|
 
-## 错误处理
+## Обработка ошибок
 
-|状态|错误|原因|
+|Статус|Ошибка|Причина|
 |--------|-------|-------|
-| 400 |`Failed to create customer`|客户解析/创建失败|
-| 400 |`Invalid trial configuration`|无需 `trialAmountId` 即可试用|
-| 400 |`Session ID is required`|GET request missing `session_id` param|
-| 401 |`Unauthorized`|没有经过身份验证的会话|
-| 500 |`Failed to create checkout session`|Stripe API 错误或内部错误|
+| 400 |`Failed to create customer`|Не удалось разрешить/создать клиента.|
+| 400 |`Invalid trial configuration`|Пробная версия включена без `trialAmountId`|
+| 400 |`Session ID is required`|В запросе GET отсутствует параметр `session_id`|
+| 401 |`Unauthorized`|Нет аутентифицированного сеанса|
+| 500 |`Failed to create checkout session`|Ошибка Stripe API или внутренняя ошибка|
 
-在开发模式下，错误响应包括带有堆栈跟踪的 `details` 字段。
+В режиме разработки ответы об ошибках включают поле `details` со трассировкой стека.
 
-## 安全考虑
+## Вопросы безопасности
 
-- 所有结帐端点都需要通过 `auth()` 进行身份验证的会话
-- Stripe 密钥永远不会暴露给客户端
-- 元数据在服务器端合并；客户端无法欺骗用户身份
-- 结帐会话的范围仅限于经过身份验证的用户的 Stripe 客户
-- 错误消息通过 `safeErrorMessage` 进行清理，以防止生产中的信息泄露
+- Для всех конечных точек оформления заказа требуется сеанс с аутентификацией через `auth()`.
+- Секретный ключ Stripe никогда не предоставляется клиенту.
+- Метаданные объединяются на стороне сервера; клиенты не могут подделать личность пользователя
+- Сеансы оформления заказа ограничены клиентом Stripe аутентифицированного пользователя.
+- Сообщения об ошибках обрабатываются с помощью `safeErrorMessage`, чтобы предотвратить утечку информации в рабочей среде.
 
-## 相关页面
+## Похожие страницы
 
-- [Stripe 订阅深度探究](./stripe-subscription-deep-dive.md)
-- [Stripe Webhook 深度探究](./stripe-webhook-deep-dive.md)
-- [Stripe 支付方式深入探究](./stripe- payment-methods-deep-dive.md)
-- [支付提供商架构](./ payment-provider-architecture.md)
+- [Подробный обзор подписки Stripe](./stripe-subscription-deep-dive.md)
+- [Подробное описание Stripe Webhook](./stripe-webhook-deep-dive.md)
+- [Подробное описание способов оплаты Stripe](./stripe-pay-methods-deep-dive.md)
+- [Архитектура платежного провайдера](./pay-provider-architecture.md)

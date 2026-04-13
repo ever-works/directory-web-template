@@ -1,32 +1,32 @@
-﻿---
+---
 id: survey-endpoints
-title: "?? API ??"
-sidebar_label: "??"
+title: "Конечные точки API опросов"
+sidebar_label: "Опросы"
 sidebar_position: 14
 ---
 
-# ?? API ??
+# Конечные точки API опросов
 
-?? API ??????????????? CRUD ????????**??**(????)?**????**,?????/???/??????????
+API опросов обеспечивает полные операции CRUD для опросов и сбора ответов. Опросы могут быть **глобальными** (для всего сайта) или **отдельными** и поддерживать состояния чернового, опубликованного и закрытого жизненного цикла.
 
-**???:**
+**Исходные файлы:**
 - `template/app/api/surveys/route.ts`
 - `template/app/api/surveys/[surveyId]/route.ts`
 - `template/app/api/surveys/[surveyId]/responses/route.ts`
 - `template/app/api/surveys/responses/[responseId]/route.ts`
 
-## ????
+## Сводка конечных точек
 
-|??|??|??|??|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|??|`/api/surveys`|??|??????????|
-|???|`/api/surveys`|???|?????|
-|??|`/api/surveys/{surveyId}`|????|?? ID ? slug ??????|
-|??|`/api/surveys/{surveyId}`|???|????|
-|??|`/api/surveys/{surveyId}`|???|????|
-|??|`/api/surveys/{surveyId}/responses`|???|??????|
-|???|`/api/surveys/{surveyId}/responses`|??|????|
-|??|`/api/surveys/responses/{responseId}`|???|??????|
+|ПОЛУЧИТЬ|`/api/surveys`|Необязательно|Список опросов с фильтрами|
+|ПОСТ|`/api/surveys`|Админ|Создать новый опрос|
+|ПОЛУЧИТЬ|`/api/surveys/{surveyId}`|Условный|Получите один опрос по идентификатору или слагу|
+|ПОСТАВИТЬ|`/api/surveys/{surveyId}`|Админ|Обновить опрос|
+|УДАЛИТЬ|`/api/surveys/{surveyId}`|Админ|Удаление опроса|
+|ПОЛУЧИТЬ|`/api/surveys/{surveyId}/responses`|Админ|Список ответов на опрос|
+|ПОСТ|`/api/surveys/{surveyId}/responses`|Необязательно|Отправить ответ|
+|ПОЛУЧИТЬ|`/api/surveys/responses/{responseId}`|Админ|Получите один ответ|
 
 ---
 
@@ -78,22 +78,22 @@ The endpoint has special handling for common database errors:
 
 ---
 
-## ?? `/api/surveys`
+## ПОСТ `/api/surveys`
 
-????????? **??????????**
+Создает новый опрос. **Требуется аутентификация администратора.**
 
-### ????
+### Тело запроса
 
-|??|??|??|??|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`title`|???|**?**|????|
-|`description`|???|?|????|
-|`type`|`"global"` ? `"item"`|**?**|????|
-|`itemId`|???|?|???? ID(????????)|
-|`status`|`"draft"`?`"published"` ? `"closed"`|?|????|
-|`surveyJson`|??|**?**|????(?????)|
+|`title`|строка|**Да**|Название опроса|
+|`description`|строка|Нет|Описание опроса|
+|`type`|`"global"` или `"item"`|**Да**|Тип опроса|
+|`itemId`|строка|Нет|Идентификатор связанного элемента (для опросов по типу элемента)|
+|`status`|`"draft"`, `"published"` или `"closed"`|Нет|Исходный статус|
+|`surveyJson`|объект|**Да**|Определение опроса (вопросы, структура)|
 
-### ??:201 ???
+### Ответ: 201 Создано
 
 ```json
 {
@@ -144,20 +144,20 @@ Returned when the survey does not exist OR when a non-admin requests a non-publi
 
 ---
 
-## ?`/api/surveys/{surveyId}`
+## ПОСТАВЬТЕ `/api/surveys/{surveyId}`
 
-??????? **??????????** ???????,???????? ID ? slug ?????
+Обновляет существующий опрос. **Требуется проверка подлинности администратора.** Перед применением обновлений обработчик сначала разрешает опрос по идентификатору или пулу.
 
-### ????
+### Тело запроса
 
-|??|??|??|??|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`title`|???|?|????|
-|`description`|???|?|?????|
-|`status`|`"draft"`?`"published"` ? `"closed"`|?|????|
-|`surveyJson`|??|?|???????|
+|`title`|строка|Нет|Обновлено название|
+|`description`|строка|Нет|Обновлено описание|
+|`status`|`"draft"`, `"published"` или `"closed"`|Нет|Обновленный статус|
+|`surveyJson`|объект|Нет|Обновленное определение опроса|
 
-### ??:200 ??
+### Ответ: 200 Обновлено
 
 ```json
 {
@@ -185,22 +185,22 @@ Permanently deletes a survey. **Requires admin authentication.**
 
 ---
 
-## ??`/api/surveys/{surveyId}/responses`
+## ПОЛУЧИТЬ `/api/surveys/{surveyId}/responses`
 
-???????????? **??????????**
+Извлекает ответы с разбивкой по страницам для конкретного опроса. **Требуется аутентификация администратора.**
 
-### ????
+### Параметры запроса
 
-|??|??|??|??|
+|Параметр|Тип|Требуется|Описание|
 |-----------|------|----------|-------------|
-|`itemId`|???|?|??? ID ????|
-|`userId`|???|?|??? ID ????|
-|`startDate`|???(??)|?|??????????|
-|`endDate`|???(??)|?|??????????|
-|`page`|??|?|??|
-|`limit`|??|?|?????|
+|`itemId`|строка|Нет|Фильтровать ответы по идентификатору элемента|
+|`userId`|строка|Нет|Фильтровать ответы по идентификатору пользователя|
+|`startDate`|строка (дата)|Нет|Фильтровать ответы за эту дату|
+|`endDate`|строка (дата)|Нет|Фильтровать ответы до этой даты|
+|`page`|целое число|Нет|Номер страницы|
+|`limit`|целое число|Нет|Элементов на странице|
 
-### ??:200
+### Ответ: 200
 
 ```json
 {
@@ -275,11 +275,11 @@ const userAgent = request.headers.get('user-agent') || 'unknown';
 
 ---
 
-## ??`/api/surveys/responses/{responseId}`
+## ПОЛУЧИТЬ `/api/surveys/responses/{responseId}`
 
-? ID ????????? **??????????**
+Получает один ответ на опрос по идентификатору. **Требуется аутентификация администратора.**
 
-### ??:200
+### Ответ: 200
 
 ```json
 {
@@ -306,4 +306,3 @@ const userAgent = request.headers.get('user-agent') || 'unknown';
 | `template/app/api/surveys/responses/[responseId]/route.ts` | Single response retrieval |
 | `template/lib/services/survey.service.ts` | Survey business logic |
 | `template/lib/types/survey.ts` | TypeScript types and interfaces |
-

@@ -1,15 +1,15 @@
 ---
 id: cron-api-endpoints
-title: Cron API 端点
-sidebar_label: 定时任务API
+title: Конечные точки API Cron
+sidebar_label: Крон API
 sidebar_position: 59
 ---
 
-# Cron API 端点
+# Конечные точки API Cron
 
-Cron API 提供由 Vercel Cron、外部调度程序或内部 `BackgroundJobManager` 触发的计划作业端点。所有 cron 端点都需要使用 `Authorization` 标头中的 `Bearer` 令牌通过 `CRON_SECRET` 环境变量进行身份验证。
+API Cron предоставляет конечные точки запланированных заданий, которые запускаются Vercel Cron, внешними планировщиками или внутренним `BackgroundJobManager`. Все конечные точки cron требуют аутентификации через переменную среды `CRON_SECRET` с использованием токена `Bearer` в заголовке `Authorization`.
 
-**源码目录：** `template/app/api/cron/`
+**Исходный каталог:** `template/app/api/cron/`
 
 ---
 
@@ -32,9 +32,9 @@ Cron endpoints use a shared secret for authorization:
 
 ---
 
-## Vercel Cron 配置
+## Конфигурация Vercel Cron
 
-cron 计划在 `vercel.json` 中定义：
+Расписание cron определено в `vercel.json`:
 
 ```json
 {
@@ -55,11 +55,11 @@ cron 计划在 `vercel.json` 中定义：
 }
 ```
 
-|职位|时间表|描述|
+|Работа|Расписание|Описание|
 |-----|----------|-------------|
-|内容同步|世界标准时间 (UTC) 每天凌晨 3:00|同步来自基于 Git 的 CMS 的内容|
-|订阅提醒|世界标准时间 (UTC) 每天上午 9:00|发送续订提醒电子邮件|
-|订阅到期|世界标准时间 (UTC) 每日午夜|处理过期的订阅|
+|Синхронизация контента|Ежедневно в 3:00 утра по всемирному координированному времени|Синхронизирует контент из CMS на базе Git.|
+|Напоминания о подписке|Ежедневно в 9:00 UTC|Отправляет электронные письма с напоминанием о продлении|
+|Срок действия подписки|Ежедневно в полночь UTC|Обрабатывает просроченные подписки|
 
 ---
 
@@ -120,20 +120,20 @@ curl -s http://localhost:3000/api/cron/sync \
 
 ---
 
-## 订阅到期
+## Срок действия подписки
 
-通过将过期订阅的状态从 `active` 更新为 `expired` 并发送通知电子邮件来查找和处理过期订阅。
+Находит и обрабатывает просроченные подписки, обновляя их статус с `active` на `expired` и отправляя уведомления по электронной почте.
 
-|财产|价值|
+|Недвижимость|Значение|
 |----------|-------|
-|**方法**|`GET`、`POST`|
-|**路径**|`/api/cron/subscription-expiration`|
-|**授权**|`CRON_SECRET`（不记名代币）|
-|**来源**|`cron/subscription-expiration/route.ts`|
+|**Методы**|`GET`, `POST`|
+|**Путь**|`/api/cron/subscription-expiration`|
+|**Аутентификация**|`CRON_SECRET` (токен на предъявителя)|
+|**Источник**|`cron/subscription-expiration/route.ts`|
 
-### 回应
+### Ответ
 
-**状态 200** -- 处理成功。
+**Статус 200** – обработано успешно.
 
 ```json
 {
@@ -154,21 +154,21 @@ curl -s http://localhost:3000/api/cron/sync \
 }
 ```
 
-|领域|类型|描述|
+|Поле|Тип|Описание|
 |-------|------|-------------|
-|`data.processed`|`number`|更新为过期的订阅数量|
-|`data.affectedUsers`|`array`|受影响的订阅列表（无 PII）|
-|`data.errors`|`string[]`|任何非致命错误（例如电子邮件发送失败）|
-|`data.timestamp`|`string`|处理时间戳|
+|`data.processed`|`number`|Количество подписок, срок действия которых истек|
+|`data.affectedUsers`|`array`|Список затронутых подписок (без идентификационных данных)|
+|`data.errors`|`string[]`|Любые нефатальные ошибки (например, сбои доставки электронной почты).|
+|`data.timestamp`|`string`|Временная метка обработки|
 
-### 加工步骤
+### Этапы обработки
 
-1. 查找超过结束日期的有效订阅。
-2. 将状态从 `active` 更新为 `expired`。
-3. 通过电子邮件服务发送到期通知电子邮件。
-4. 返回摘要 - 电子邮件失败不会导致整个作业失败。
+1. Находит активные подписки после даты их окончания.
+2. Обновляет статус с `active` на `expired`.
+3. Отправляет электронные письма с уведомлением об истечении срока действия через службу электронной почты.
+4. Возвращает сводку: сбои электронной почты не приводят к сбою всего задания.
 
-### 卷曲示例
+### Пример завитка
 
 ```bash
 # Via GET
@@ -226,22 +226,22 @@ curl -s http://localhost:3000/api/cron/subscription-reminders \
 
 ---
 
-## 后台作业初始化
+## Инициализация фоновых заданий
 
-后台作业模块 (`cron/jobs/background-jobs-init.ts`) 不是 API 端点，而是用于在应用程序启动时配置调度模式的单例初始化模块。
+Модуль фоновых заданий (`cron/jobs/background-jobs-init.ts`) не является конечной точкой API, а представляет собой одноэлементный модуль инициализации, используемый для настройки режима планирования при запуске приложения.
 
-**来源：** `cron/jobs/background-jobs-init.ts`
+**Источник:** `cron/jobs/background-jobs-init.ts`
 
-### 调度方式
+### Режимы планирования
 
-|模式|描述|
+|Режим|Описание|
 |------|-------------|
-|`vercel`|Vercel Cron 通过 `/api/cron/*` 端点处理的作业|
-|`local`|内部调度程序（用于自托管部署）|
-|`trigger-dev`|用于托管后台作业的 Trigger.dev 集成|
-|`disabled`|后台同步已禁用 (`DISABLE_AUTO_SYNC=true`)|
+|`vercel`|Задания, обрабатываемые Vercel Cron через конечные точки `/api/cron/*`|
+|`local`|Внутренний планировщик (для локальных развертываний)|
+|`trigger-dev`|Интеграция Trigger.dev для управляемых фоновых заданий|
+|`disabled`|Фоновая синхронизация отключена (`DISABLE_AUTO_SYNC=true`)|
 
-### 用途
+### Использование
 
 ```typescript
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
@@ -250,11 +250,11 @@ import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-
 await ensureBackgroundJobsInitialized();
 ```
 
-### 主要特点
+### Ключевые особенности
 
-- 使用 `globalThis` 作为单例状态，确保每个进程只运行一次初始化。
-- 在测试 (`NODE_ENV=test`) 和构建 (`NEXT_PHASE=phase-production-build`) 期间跳过初始化。
-- 失败的初始化会重置状态以允许在下次调用时自动重试。
+- Использует `globalThis` для одноэлементного состояния, гарантируя, что инициализация выполняется только один раз для каждого процесса.
+- Пропускает инициализацию во время тестов (`NODE_ENV=test`) и сборки (`NEXT_PHASE=phase-production-build`).
+- Неудачная инициализация сбрасывает состояние, чтобы разрешить автоматическую повторную попытку следующего вызова.
 
 ---
 

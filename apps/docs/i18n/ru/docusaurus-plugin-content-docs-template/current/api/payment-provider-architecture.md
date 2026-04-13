@@ -1,19 +1,19 @@
 ---
 id: payment-provider-architecture
-title: 支付提供商架构
-sidebar_label: 提供商架构
+title: Архитектура платежного провайдера
+sidebar_label: Архитектура поставщика
 sidebar_position: 8
 ---
 
-# 支付提供商架构
+# Архитектура платежного провайдера
 
-本页介绍了支付提供商工厂和服务层的工作方式、如何交换提供商以及统一所有四种支付集成的与提供商无关的接口。
+На этой странице объясняется, как работают фабрика поставщиков платежей и уровень обслуживания, как менять поставщиков, а также независимые от поставщика интерфейсы, которые объединяют все четыре платежные интеграции.
 
-## 概述
+## Обзор
 
-该模板使用策略模式实现与提供商无关的支付架构。工厂创建提供程序实例，服务层公开统一的 API，每个提供程序实现公共接口。这种设计允许应用程序通过一组接口支持 Stripe、LemonSqueezy、Polar 和 Solidgate。
+Шаблон реализует независимую от поставщика платежную архитектуру с использованием шаблона Strategy. Фабрика создает экземпляры поставщика, уровень обслуживания предоставляет унифицированный API, а каждый поставщик реализует общий интерфейс. Такая конструкция позволяет приложению поддерживать Stripe, LemonSqueezy, Polar и Solidgate через единый набор интерфейсов.
 
-## 架构图
+## Схема архитектуры
 
 ```
 Application Code
@@ -30,22 +30,22 @@ PaymentProviderFactory.createProvider()
       +---> SolidgateProvider
 ```
 
-## 支持的提供商
+## Поддерживаемые провайдеры
 
-|提供者|类型 ID|特点|
+|Поставщик|Идентификатор типа|Особенности|
 |----------|---------|----------|
-|条纹|`stripe`|完整结帐、订阅、付款方式、设置意图、退款|
-|挤柠檬|`lemonsqueezy`|托管结帐、订阅、基于变体的定价|
-|极地|`polar`|结帐、订阅、组织范围内的产品|
-|固体门|`solidgate`|基于API的支付、嵌入式SDK、订阅、退款|
+|Полоса|`stripe`|Полная проверка, подписки, способы оплаты, намерения установки, возврат средств|
+|ЛимонСжатый|`lemonsqueezy`|Хостинг-оформление заказа, подписки, ценообразование на основе вариантов|
+|Полярный|`polar`|Оформление заказа, подписки, продукты на уровне организации|
+|Солидгейт|`solidgate`|Платежи на основе API, встроенный SDK, подписки, возврат средств|
 
 ```typescript
 export type SupportedProvider = 'stripe' | 'solidgate' | 'lemonsqueezy' | 'polar';
 ```
 
-## 提供者接口
+## Интерфейс провайдера
 
-所有提供商均实施`PaymentProviderInterface`：
+Все провайдеры реализуют `PaymentProviderInterface`:
 
 ```typescript
 interface PaymentProviderInterface {
@@ -78,9 +78,9 @@ interface PaymentProviderInterface {
 }
 ```
 
-## 工厂
+## Фабрика
 
-`PaymentProviderFactory` 基于字符串标识符创建提供程序实例：
+`PaymentProviderFactory` создает экземпляры поставщика на основе строкового идентификатора:
 
 ```typescript
 export class PaymentProviderFactory {
@@ -104,9 +104,9 @@ export class PaymentProviderFactory {
 }
 ```
 
-## 服务层
+## Сервисный уровень
 
-`PaymentService` 包装一个提供程序实例并公开统一的 API：
+`PaymentService` оборачивает экземпляр поставщика и предоставляет унифицированный API:
 
 ```typescript
 export class PaymentService {
@@ -136,7 +136,7 @@ export class PaymentService {
 }
 ```
 
-### 使用示例
+### Пример использования
 
 ```typescript
 const paymentService = new PaymentService({
@@ -158,9 +158,9 @@ const intent = await paymentService.createPaymentIntent({
 });
 ```
 
-## 单例提供商管理
+## Управление поставщиками Singleton
 
-该模板对提供程序实例使用单例模式，通过 `@/lib/auth` 进行管理：
+В шаблоне используются одноэлементные шаблоны для экземпляров поставщика, управляемые через `@/lib/auth`:
 
 ```typescript
 import { getOrCreateStripeProvider } from '@/lib/auth';
@@ -169,11 +169,11 @@ import { getOrCreatePolarProvider } from '@/lib/auth';
 import { getOrCreateSolidgateProvider } from '@/lib/auth';
 ```
 
-这些函数确保每个运行时仅存在一个提供程序实例，从而避免不必要的 API 客户端重新初始化。
+Эти функции гарантируют, что во время выполнения существует только один экземпляр поставщика, что позволяет избежать ненужной повторной инициализации клиента API.
 
-## 键类型定义
+## Определения ключевых типов
 
-### 支付提供商配置
+### Конфигурация платежного поставщика
 
 ```typescript
 interface PaymentProviderConfig {
@@ -192,7 +192,7 @@ interface PaymentProviderConfig {
 }
 ```
 
-### 付款意向
+### Платежное намерение
 
 ```typescript
 interface PaymentIntent {
@@ -205,7 +205,7 @@ interface PaymentIntent {
 }
 ```
 
-### 订阅信息
+### Информация о подписке
 
 ```typescript
 interface SubscriptionInfo {
@@ -222,7 +222,7 @@ interface SubscriptionInfo {
 }
 ```
 
-### 订阅状态
+### Статус подписки
 
 ```typescript
 enum SubscriptionStatus {
@@ -236,7 +236,7 @@ enum SubscriptionStatus {
 }
 ```
 
-### Webhook结果
+### ВебхукРезультат
 
 ```typescript
 interface WebhookResult {
@@ -247,7 +247,7 @@ interface WebhookResult {
 }
 ```
 
-### Webhook事件类型
+### ВебхукEventType
 
 ```typescript
 enum WebhookEventType {
@@ -264,15 +264,15 @@ enum WebhookEventType {
 }
 ```
 
-## 如何更换提供商
+## Как поменять провайдера
 
-### 第1步：设置环境变量
+### Шаг 1. Установите переменные среды
 
-每个提供程序都需要自己的一组环境变量。仅配置您选择的提供商的变量。
+Каждому поставщику требуется свой собственный набор переменных среды. Настройте только переменные для выбранного вами провайдера.
 
-### 第 2 步：更新提供程序初始化
+### Шаг 2. Обновите инициализацию поставщика
 
-更改路由处理程序中使用的 `getOrCreate*Provider` 函数，或使用不同的提供程序字符串配置 `PaymentService`：
+Измените функцию `getOrCreate*Provider`, используемую в ваших обработчиках маршрутов, или настройте `PaymentService` с другой строкой провайдера:
 
 ```typescript
 // Before (Stripe)
@@ -288,22 +288,22 @@ const paymentService = new PaymentService({
 });
 ```
 
-### 第 3 步：更新 Webhook 端点
+### Шаг 3. Обновите конечные точки вебхука
 
-每个提供商都有自己的 webhook 路由（`/api/stripe/webhook`、`/api/lemonsqueezy/webhook` 等）。确保仅注册活动提供商的 Webhook。
+У каждого провайдера есть собственный маршрут вебхука (`/api/stripe/webhook`, `/api/lemonsqueezy/webhook` и т. д.). Убедитесь, что зарегистрирован только веб-перехватчик активного поставщика.
 
-### 第 4 步：处理特定于提供商的功能
+### Шаг 4. Обработка функций, специфичных для поставщика
 
-一些功能是特定于提供商的：
-- **设置意图**：仅 Stripe 和 Solidgate（模拟）
-- **嵌入式支付表单**：通过 React SDK 的 Stripe 和 Solidgate
-- **基于变体的定价**：仅限 LemonSqueezy
-- **组织范围内的产品**：仅限 Polar
-- **直接退款 API**：仅限 Stripe 和 Solidgate
+Некоторые функции зависят от поставщика:
+- **Цели установки**: только Stripe и Solidgate (макет)
+- **Встроенные формы оплаты**: Stripe и Solidgate через React SDK
+- **Цены на основе вариантов**: только LemonSqueezy
+- **Продукты для организаций**: только Polar.
+- **API прямого возврата**: только Stripe и Solidgate.
 
-## 客户解决模式
+## Шаблон разрешения проблем с клиентами
 
-所有四家提供商都遵循相同的三步客户解决模式：
+Все четыре поставщика следуют одной и той же трехэтапной схеме решения проблем с клиентами:
 
 ```
 1. Check user metadata (e.g., user.user_metadata.stripe_customer_id)
@@ -317,22 +317,22 @@ const paymentService = new PaymentService({
    -> Return new customer ID
 ```
 
-此模式在每个提供程序的 `getCustomerId()` 方法中以相同的方式实现，从而确保无论哪个提供程序处于活动状态都具有一致的行为。
+Этот шаблон реализуется одинаково в методе `getCustomerId()` каждого поставщика, обеспечивая единообразное поведение независимо от того, какой поставщик активен.
 
-## Webhook 事件规范化
+## Нормализация событий вебхука
 
-每个提供程序将其本机事件类型映射到公共`WebhookEventType` 枚举。这允许 `WebhookSubscriptionService` 一般处理事件：
+Каждый поставщик сопоставляет свои собственные типы событий с общим перечислением `WebhookEventType`. Это позволяет `WebhookSubscriptionService` обрабатывать события в общем виде:
 
-|行动|条纹|挤柠檬|极地|固体门|
+|Действие|Полоса|ЛимонСжатый|Полярный|Солидгейт|
 |--------|--------|-------------|-------|-----------|
-|子已创建|`customer.subscription.created`|`subscription_created`|`subscription.created`|`subscription.created`|
-|子取消|`customer.subscription.deleted`|`subscription_cancelled`|`subscription.canceled`|`subscription.cancelled`|
-|支付成功|`payment_intent.succeeded`|`order_created`|`checkout.succeeded`|`payment.succeeded`|
-|付款失败|`payment_intent.payment_failed`|不适用|`checkout.failed`|`payment.failed`|
+|Подписка создана|`customer.subscription.created`|`subscription_created`|`subscription.created`|`subscription.created`|
+|Подписка отменена|`customer.subscription.deleted`|`subscription_cancelled`|`subscription.canceled`|`subscription.cancelled`|
+|Успешный платеж|`payment_intent.succeeded`|`order_created`|`checkout.succeeded`|`payment.succeeded`|
+|Платеж не выполнен|`payment_intent.payment_failed`|Н/Д|`checkout.failed`|`payment.failed`|
 
-## 用户界面组件
+## Компоненты пользовательского интерфейса
 
-每个提供者通过`getUIComponents()`公开UI组件：
+Каждый поставщик предоставляет компоненты пользовательского интерфейса через `getUIComponents()`:
 
 ```typescript
 interface UIComponents {
@@ -344,9 +344,9 @@ interface UIComponents {
 }
 ```
 
-这使得前端能够在不知道哪个提供商处于活动状态的情况下呈现正确的支付表单、徽标和卡品牌图标。
+Это позволяет интерфейсу отображать правильную форму оплаты, логотипы и значки брендов карт, не зная, какой поставщик активен.
 
-## 文件结构
+## Структура файла
 
 ```
 lib/payment/
@@ -365,12 +365,12 @@ lib/payment/
     solidgate/                    # Solidgate Elements wrapper
 ```
 
-## 相关页面
+## Похожие страницы
 
-- [Stripe Checkout 深入探究](./stripe-checkout-deep-dive.md)
-- [Stripe 订阅深度探究](./stripe-subscription-deep-dive.md)
-- [Stripe 支付方式深入探究](./stripe- payment-methods-deep-dive.md)
-- [Stripe Webhook 深度探究](./stripe-webhook-deep-dive.md)
-- [LemonSqueezy 深度潜水](./lemonsqueezy-deep-dive.md)
-- [极地深潜](./polar-deep-dive.md)
-- [Solidgate 深度潜水](./solidgate-deep-dive.md)
+- [Подробное описание Stripe Checkout](./stripe-checkout-deep-dive.md)
+- [Подробный обзор подписки Stripe](./stripe-subscription-deep-dive.md)
+- [Подробное описание способов оплаты Stripe](./stripe-pay-methods-deep-dive.md)
+- [Подробное описание Stripe Webhook](./stripe-webhook-deep-dive.md)
+- [Глубокий обзор LemonSqueezy](./lemonsqueezy-deep-dive.md)
+- [Полярное глубокое погружение](./polar-deep-dive.md)
+- [Подробное описание Solidgate](./solidgate-deep-dive.md)

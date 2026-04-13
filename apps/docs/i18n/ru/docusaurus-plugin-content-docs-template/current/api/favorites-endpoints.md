@@ -1,27 +1,27 @@
 ---
 id: favorites-endpoints
-title: "收藏夹 API 端点"
-sidebar_label: "收藏夹"
+title: "Избранные конечные точки API"
+sidebar_label: "Избранное"
 sidebar_position: 13
 ---
 
-# 收藏夹 API 端点
+# Избранные конечные точки API
 
-收藏夹 API 允许经过身份验证的用户管理其个人收藏夹项目列表。每个收藏夹都存储项目元数据（名称、图标、类别）以便快速显示，而无需加入内容层。
+API избранного позволяет прошедшим проверку подлинности пользователям управлять своим личным списком избранных элементов. В каждом избранном хранятся метаданные элемента (имя, значок, категория) для быстрого отображения без необходимости присоединения к слою контента.
 
-**源文件：**
+**Исходные файлы:**
 - `template/app/api/favorites/route.ts`
 - `template/app/api/favorites/[itemSlug]/route.ts`
 
-## 端点摘要
+## Сводка конечных точек
 
-|方法|路径|授权|描述|
+|Метод|Путь|Авторизация|Описание|
 |--------|------|------|-------------|
-|获取|`/api/favorites`|会议|列出当前用户的所有收藏夹|
-|后处理|`/api/favorites`|会议|将项目添加到收藏夹|
-|删除|`/api/favorites/{itemSlug}`|会议|从收藏夹中删除项目|
+|ПОЛУЧИТЬ|`/api/favorites`|Сессия|Список всех избранных для текущего пользователя|
+|ПОСТ|`/api/favorites`|Сессия|Добавить товар в избранное|
+|УДАЛИТЬ|`/api/favorites/{itemSlug}`|Сессия|Удалить элемент из избранного|
 
-所有端点都需要经过身份验证的用户会话和工作数据库连接（通过`checkDatabaseAvailability`检查）。
+Для всех конечных точек требуется аутентифицированный сеанс пользователя и работающее соединение с базой данных (проверяется через `checkDatabaseAvailability`).
 
 ---
 
@@ -75,20 +75,20 @@ No query parameters or body required. Authentication is provided via session coo
 
 ---
 
-## 发布 `/api/favorites`
+## ПОСТ `/api/favorites`
 
-将项目添加到经过身份验证的用户的收藏夹中。包括重复检查以防止两次添加相同的项目。
+Добавляет элемент в избранное аутентифицированного пользователя. Включает проверку дубликатов, чтобы предотвратить добавление одного и того же элемента дважды.
 
-### 请求正文
+### Тело запроса
 
-|领域|类型|必填|描述|
+|Поле|Тип|Требуется|Описание|
 |-------|------|----------|-------------|
-|`itemSlug`|字符串|**是**|唯一的物品标识符|
-|`itemName`|字符串|**是**|项目显示名称|
-|`itemIconUrl`|字符串|否|项目图标的 URL|
-|`itemCategory`|字符串|否|项目的类别名称|
+|`itemSlug`|строка|**Да**|Уникальный идентификатор фрагмента элемента|
+|`itemName`|строка|**Да**|Отображаемое имя элемента|
+|`itemIconUrl`|строка|Нет|URL-адрес значка элемента|
+|`itemCategory`|строка|Нет|Название категории для товара|
 
-使用 Zod 模式验证请求正文：
+Тело запроса проверяется с использованием схемы Zod:
 
 ```ts
 const addFavoriteSchema = z.object({
@@ -99,7 +99,7 @@ const addFavoriteSchema = z.object({
 });
 ```
 
-### 请求示例
+### Пример запроса
 
 ```json
 {
@@ -110,9 +110,9 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-### 响应形状
+### Форма ответа
 
-#### 201 -- 创建
+#### 201 -- Создано
 
 ```json
 {
@@ -130,7 +130,7 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-#### 400 -- 验证错误
+#### 400 — Ошибка проверки.
 
 ```json
 {
@@ -140,7 +140,7 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-#### 401 -- 未经授权
+#### 401 -- Несанкционированный
 
 ```json
 {
@@ -149,7 +149,7 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-#### 409 -- 冲突（重复）
+#### 409 -- Конфликт (Дубликат)
 
 ```json
 {
@@ -158,9 +158,9 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-### 重复检测
+### Обнаружение дубликатов
 
-在插入之前，处理程序会检查是否存在具有相同用户和项目 slug 的现有收藏夹：
+Перед вставкой обработчик проверяет наличие существующего избранного с тем же пользователем и слагом элемента:
 
 ```ts
 const existingFavorite = await db
@@ -260,7 +260,7 @@ await db
 
 ---
 
-## 使用示例（完整工作流程）
+## Пример использования (полный рабочий процесс)
 
 ```ts
 // 1. List current favorites
@@ -286,18 +286,18 @@ const deleteRes = await fetch('/api/favorites/new-tool', {
 const { message } = await deleteRes.json();
 ```
 
-## 数据库要求
+## Требования к базе данных
 
-- 要求`favorites` 表存在于数据库模式中。
-- `checkDatabaseAvailability()` 在每个处理程序开始时调用。
-- 错误响应使用 `safeErrorResponse` 以避免泄露内部详细信息。
+- Требуется, чтобы таблица `favorites` существовала в схеме базы данных.
+- `checkDatabaseAvailability()` вызывается в начале каждого обработчика.
+- В ответах об ошибках используется `safeErrorResponse`, чтобы избежать утечки внутренних данных.
 
-## 相关源文件
+## Связанные исходные файлы
 
-|文件|目的|
+|Файл|Цель|
 |------|---------|
-|`template/app/api/favorites/route.ts`|GET（列表）和 POST（添加）处理程序|
-|`template/app/api/favorites/[itemSlug]/route.ts`|删除处理程序|
-|`template/lib/db/schema.ts`|`favorites` 表定义|
-|`template/lib/utils/database-check.ts`|数据库可用性检查|
-|`template/lib/utils/api-error.ts`|安全错误响应实用程序|
+|`template/app/api/favorites/route.ts`|Обработчики GET (список) и POST (добавление)|
+|`template/app/api/favorites/[itemSlug]/route.ts`|УДАЛИТЬ обработчик|
+|`template/lib/db/schema.ts`|`favorites` определение таблицы|
+|`template/lib/utils/database-check.ts`|Проверка доступности базы данных|
+|`template/lib/utils/api-error.ts`|Утилита безопасного реагирования на ошибки|
