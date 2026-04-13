@@ -1,11 +1,73 @@
-﻿---
+---
 id: health-endpoints
-title: "Health API Reference"
-sidebar_label: "Health API Reference"
+title: "Health API Справочник"
+sidebar_label: "здраве"
+sidebar_position: 52
 ---
 
-:::info
-Тази страница се превежда. Пълното съдържание е налично на английски.
-:::
+# Health API Справочник
 
-See the [English documentation](/api/health-endpoints) for the full content of this section.
+## Преглед
+
+Крайната точка Health осигурява проста проверка на свързаността на базата данни за целите на мониторинга и инфраструктурата. Той изпълнява лека заявка, за да потвърди, че връзката с базата данни е активна и отзивчива, като връща информация за състоянието с времеви отпечатъци.
+
+## Крайни точки
+
+### ВЗЕМЕТЕ /api/health/база данни
+
+Извършва основна проверка на изправността на базата данни чрез изпълнение на `SELECT 1` заявка за проверка на връзката с базата данни.
+
+**Заявка**
+
+Не са необходими параметри или тяло.
+
+**Отговор**
+```typescript
+// Healthy response
+{
+  status: "healthy";
+  database: "connected";
+  timestamp: string;        // ISO 8601 format, e.g. "2024-01-15T10:30:00.000Z"
+  result: object;           // Raw query result from SELECT 1
+}
+
+// Unhealthy response (status 500)
+{
+  status: "unhealthy";
+  database: "disconnected";
+  error: "Database connection check failed";
+  timestamp: string;
+}
+```
+
+**Пример**
+```typescript
+const response = await fetch('/api/health/database');
+const health = await response.json();
+
+if (health.status === 'healthy') {
+  console.log('Database is connected at', health.timestamp);
+} else {
+  console.error('Database is disconnected:', health.error);
+}
+```
+
+## Удостоверяване
+
+Тази крайна точка е **публична** -- не се изисква удостоверяване. Предназначен е за използване от програми за балансиране на натоварването, монитори за непрекъсната работа и проверки на състоянието на внедряване.
+
+## Отговори за грешки
+
+|Статус|Описание|
+|--------|-------------|
+| 200 |Връзката с базата данни е здрава|
+| 500 |Неуспешна връзка с базата данни -- връща статус `"unhealthy"` с подробности за грешката|
+
+## Ограничаване на скоростта
+
+Не се прилага изрично ограничение на скоростта. Тази крайна точка е лека и подходяща за често запитване от системи за мониторинг.
+
+## Свързани крайни точки
+
+- [Конфигуриране на крайни точки на функции](./config-feature-endpoints) -- Флагове за наличност на функции (също зависи от базата данни)
+- [Крайни точки за синхронизиране на версия](./version-sync-endpoints) -- Версия на системата и състояние на синхронизиране

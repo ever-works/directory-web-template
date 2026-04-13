@@ -1,58 +1,74 @@
-﻿---
+---
 id: collections-api-endpoints
-title: Конечные точки API коллекций
-sidebar_label: API коллекций
+title: 集合 API 端点
+sidebar_label: 集合API
 sidebar_position: 57
 ---
 
-# Конечные точки API коллекций
+# 集合 API 端点
 
-Публичный API коллекций позволяет проверять наличие активных коллекций в базе данных.
+Collections API 提供了一个公共端点来检查数据库中是否存在任何活动集合。集合是通过管理面板管理的项目的策划分组，并通过集合存储库存储在数据库中。
 
-**Источник:** `template/app/api/collections/exists/route.ts`
+**来源：** `template/app/api/collections/exists/route.ts`
 
 ---
 
-## Проверка наличия коллекций
+## Check Collections Existence
 
-| Свойство | Значение |
-|----------|----------|
-| **Метод** | `GET` |
-| **Путь** | `/api/collections/exists` |
-| **Аутентификация** | Нет (публичный) |
+Checks if there are any active collections available in the system.
 
-### Параметры запроса
+| Property | Value |
+|----------|-------|
+| **Method** | `GET` |
+| **Path** | `/api/collections/exists` |
+| **Auth** | None (public) |
 
-Отсутствуют.
+### Query Parameters
 
-### Ответ
+None.
 
-**200 — наличие проверено:**
+### Response
+
+**Status 200** -- Collections existence checked successfully.
 
 ```json
-{ "exists": true, "count": 5 }
+{
+  "exists": true,
+  "count": 5
+}
 ```
 
-| Поле | Тип | Описание |
+| Field | Type | Description |
 |-------|------|-------------|
-| `exists` | boolean | Есть ли активные коллекции |
-| `count` | number | Количество активных коллекций |
+| `exists` | `boolean` | Whether any active collections exist |
+| `count` | `number` | Number of active collections |
 
-### Ошибочный ответ
+### Error Response
 
-**500 — внутренняя ошибка:**
+**Status 500** -- Internal server error.
 
 ```json
-{ "exists": false, "count": 0, "error": "Failed to check collections existence" }
+{
+  "exists": false,
+  "count": 0,
+  "error": "Failed to check collections existence"
+}
 ```
 
-| Поле | Описание |
-|-------|-------------|
-| `exists` | Всегда `false` при ошибке |
-| `count` | Всегда `0` при ошибке |
-| `error` | Общее сообщение; подробности логируются на сервере |
+| Field | Type | Description |
+|-------|------|-------------|
+| `exists` | `boolean` | Always `false` on error |
+| `count` | `number` | Always `0` on error |
+| `error` | `string` | Generic error message (detailed errors are logged server-side only) |
 
-### Пример на TypeScript
+### curl Example
+
+```bash
+# Check if active collections exist
+curl -s http://localhost:3000/api/collections/exists
+```
+
+### TypeScript Usage
 
 ```typescript
 interface CollectionsExistResponse {
@@ -66,15 +82,18 @@ async function checkCollectionsExist(): Promise<CollectionsExistResponse> {
   return res.json();
 }
 
+// Usage
 const { exists, count } = await checkCollectionsExist();
 if (exists) {
-  console.log(`Найдено ${count} активных коллекций`);
+  console.log(`Found ${count} active collections`);
+} else {
+  console.log('No collections available');
 }
 ```
 
-### Примечания
+### Implementation Notes
 
-- Учитываются только **активные** коллекции (`includeInactive: false`).
-- В отличие от API категорий, ошибка возвращает статус `500`.
-- Подробности ошибок логируются только на сервере.
-- Требуется рабочее соединение с БД.
+- Collections are fetched from the database via `collectionRepository.findAll()` with `includeInactive: false`, meaning only active collections are counted.
+- Unlike the categories endpoint, this endpoint returns a proper `500` status on error rather than silently returning safe defaults.
+- The error response includes a generic `error` field -- detailed error information is logged server-side to avoid information disclosure.
+- This endpoint is used by the frontend to conditionally render the collections navigation section.

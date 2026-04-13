@@ -1,177 +1,379 @@
-﻿---
+---
 id: admin-clients-endpoints
-title: Конечные точки API клиентов администратора
-sidebar_label: Клиенты администратора
+title: 管理客户端 API 端点
+sidebar_label: 管理客户端
 sidebar_position: 38
 ---
 
-# Конечные точки API клиентов администратора
+# 管理客户端 API 端点
 
-API клиентов предоставляет конечные точки для управления профилями клиентов, включая создание, обновление, расширенный поиск, групповые операции, аналитику панели управления и статистику. Все конечные точки требуют аутентификации администратора.
+客户端 API 提供用于管理客户端配置文件的端点，包括创建、更新、高级搜索、批量操作、仪表板分析和综合统计。客户端代表链接到身份验证帐户的最终用户配置文件。所有端点都需要管理员身份验证。
 
-## Базовый путь
+## 基本路径
 
 ```
 /api/admin/clients
 ```
 
-## Сводка маршрутов
+## 路线概要
 
-| Метод | Путь | Аутентификация | Описание |
-|--------|-----|-------|-------------|
-| `GET` | `/api/admin/clients` | Администратор | Список клиентов (с пагинацией) |
-| `POST` | `/api/admin/clients` | Администратор | Создать профиль клиента |
-| `GET` | `/api/admin/clients/stats` | Администратор | Получить статистику клиентов |
-| `GET` | `/api/admin/clients/dashboard` | Администратор | Данные панели управления |
-| `GET` | `/api/admin/clients/advanced-search` | Администратор | Расширенный поиск с несколькими фильтрами |
-| `PUT` | `/api/admin/clients/bulk` | Администратор | Групповое обновление |
-| `DELETE` | `/api/admin/clients/bulk` | Администратор | Групповое удаление |
-| `GET` | `/api/admin/clients/{clientId}` | Администратор | Получить клиента по ID |
-| `PUT` | `/api/admin/clients/{clientId}` | Администратор | Обновить профиль |
-| `DELETE` | `/api/admin/clients/{clientId}` | Администратор | Удалить профиль |
+|方法|路径|授权|描述|
+| -------- | --------------------------------------- | ----- | ------------------------------------ |
+|`GET`|`/api/admin/clients`|管理员|获取分页客户列表|
+|`POST`|`/api/admin/clients`|管理员|创建新的客户资料|
+|`GET`|`/api/admin/clients/stats`|管理员|获取全面的客户统计数据|
+|`GET`|`/api/admin/clients/dashboard`|管理员|获取合并的仪表板数据|
+|`GET`|`/api/admin/clients/advanced-search`|管理员|高级多重过滤搜索|
+|`PUT`|`/api/admin/clients/bulk`|管理员|批量更新客户资料|
+|`DELETE`|`/api/admin/clients/bulk`|管理员|批量删除客户资料|
+|`GET`|`/api/admin/clients/{clientId}`|管理员|通过ID获取客户端|
+|`PUT`|`/api/admin/clients/{clientId}`|管理员|更新客户资料|
+|`DELETE`|`/api/admin/clients/{clientId}`|管理员|删除客户资料|
 
 ---
 
-## Список клиентов
+## List Clients
 
 ```
 GET /api/admin/clients
 ```
 
-Возвращает список профилей клиентов с пагинацией и фильтрацией.
+Returns a paginated list of client profiles with basic filtering.
 
-**Параметры запроса:**
+**Query Parameters:**
 
-| Параметр | Тип | По умолчанию | Описание |
-|-----------|------|---------|-------------|
-| `page` | integer | `1` | Номер страницы |
-| `limit` | integer | `10` | Результатов на странице (1–100) |
-| `search` | string | — | Поиск по имени или email |
-| `status` | string | — | Фильтр: `active`, `inactive`, `suspended`, `trial` |
-| `plan` | string | — | Фильтр: `free`, `standard`, `premium` |
-| `accountType` | string | — | Фильтр: `individual`, `business`, `enterprise` |
-| `provider` | string | — | Фильтр по поставщику аутентификации |
+| Parameter     | Type    | Default | Description                                            |
+| ------------- | ------- | ------- | ------------------------------------------------------ |
+| `page`        | integer | `1`     | Page number (minimum: 1)                                |
+| `limit`       | integer | `10`    | Results per page (1--100)                               |
+| `search`      | string  | --      | Search by name or email                                 |
+| `status`      | string  | --      | Filter: `active`, `inactive`, `suspended`, `trial`      |
+| `plan`        | string  | --      | Filter: `free`, `standard`, `premium`                   |
+| `accountType` | string  | --      | Filter: `individual`, `business`, `enterprise`          |
+| `provider`    | string  | --      | Filter by authentication provider                       |
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "clients": [
+      {
+        "id": "client_123abc",
+        "displayName": "John Doe",
+        "username": "johndoe",
+        "email": "john.doe@example.com",
+        "company": "Tech Corp Inc",
+        "status": "active",
+        "plan": "premium",
+        "accountType": "business",
+        "joinedAt": "2024-01-15T10:30:00.000Z",
+        "lastActiveAt": "2024-01-20T14:45:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "page": 1,
+    "totalPages": 5,
+    "total": 47,
+    "limit": 10
+  }
+}
+```
 
 ---
 
-## Создать клиента
+## 创建客户端
 
 ```
 POST /api/admin/clients
 ```
 
-Создаёт новый профиль клиента. Если пользовательского аккаунта с указанным email не существует, автоматически создаётся новый пользователь.
+创建新的客户资料。如果所提供的电子邮件不存在用户帐户，则会自动使用临时密码创建新用户。启用后触发 CRM 同步。
 
-**Обязательные поля:**
+**请求正文：**
 
-| Поле | Тип | Обязательный | Описание |
-|-------|------|----------|-------------|
-| `email` | string | Да | Email-адрес |
-| `displayName` | string | Нет | Отображаемое имя |
-| `status` | string | Нет | `active` (по умолч.) / `inactive` / `suspended` / `trial` |
-| `plan` | string | Нет | `free` (по умолч.) / `standard` / `premium` |
-| `accountType` | string | Нет | `individual` (по умолч.) / `business` / `enterprise` |
+|领域|类型|必填|描述|
+| ---------------- | ------- | -------- | -------------------------------------------- |
+|`email`|字符串|是的|客户电子邮件地址|
+|`displayName`|字符串|否|显示名称（默认为电子邮件前缀）|
+|`username`|字符串|否|唯一的用户名|
+|`bio`|字符串|否|客户简介|
+|`jobTitle`|字符串|否|职称|
+|`company`|字符串|否|公司名称|
+|`industry`|字符串|否|工业部门|
+|`phone`|字符串|否|电话号码|
+|`website`|字符串|否|网站网址|
+|`location`|字符串|否|地点|
+|`accountType`|字符串|否|`individual`（默认）、`business`、`enterprise`|
+|`status`|字符串|否|`active`（默认）、`inactive`、`suspended`、`trial`|
+|`plan`|字符串|否|`free`（默认）、`standard`、`premium`|
+
+**回复 (200)：**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "client_789ghi",
+    "displayName": "John Doe",
+    "email": "john.doe@example.com",
+    "status": "active",
+    "plan": "premium",
+    "accountType": "business",
+    "createdAt": "2024-01-20T16:45:00.000Z"
+  },
+  "message": "Client created successfully"
+}
+```
 
 ---
 
-## Статистика клиентов
+## Get Client Statistics
 
 ```
 GET /api/admin/clients/stats
 ```
 
-Возвращает комплексную аналитику по всем клиентам: общее количество, рост, тарифы, типы аккаунтов, вовлечённость, демография и поставщики аутентификации.
+Returns comprehensive analytics across all clients, grouped by overview, growth, plans, account types, engagement, demographics, and authentication providers.
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "overview": {
+      "totalClients": 1247,
+      "activeClients": 1156,
+      "inactiveClients": 67,
+      "suspendedClients": 24,
+      "trialClients": 89
+    },
+    "growth": {
+      "newClientsToday": 3,
+      "newClientsThisWeek": 18,
+      "newClientsThisMonth": 45,
+      "growthRate": 3.8
+    },
+    "plans": {
+      "free": 856,
+      "standard": 267,
+      "premium": 124,
+      "conversionRate": 31.4
+    },
+    "accountTypes": {
+      "individual": 789,
+      "business": 356,
+      "enterprise": 102
+    },
+    "engagement": {
+      "averageSubmissions": 12.5,
+      "totalSubmissions": 15587,
+      "activeThisWeek": 892,
+      "activeThisMonth": 1034
+    },
+    "demographics": {
+      "topCountries": [{ "country": "United States", "count": 456 }],
+      "topCompanies": [{ "company": "Tech Corp Inc", "count": 25 }],
+      "topIndustries": [{ "industry": "Technology", "count": 234 }]
+    },
+    "providers": { "google": 567, "github": 234, "email": 446 }
+  }
+}
+```
 
 ---
 
-## Панель управления
+## 仪表板
 
 ```
 GET /api/admin/clients/dashboard
 ```
 
-Возвращает комбинированный ответ со списком клиентов, агрегированной статистикой и метаданными пагинации. Поддерживает параметры `createdAfter` и `createdBefore`.
+返回包含分页客户端列表、聚合统计信息和分页元数据的组合响应。支持所有基本过滤器以及日期范围参数。
+
+**查询参数（除列表参数外）：**
+
+|参数|类型|描述|
+| --------------- | ------ | ------------------------------------------ |
+|`createdAfter`|字符串|ISO 日期或 `YYYY-MM-DD` -- 创建于之后|
+|`createdBefore`|字符串|ISO 日期或 `YYYY-MM-DD` -- 之前创建|
 
 ---
 
-## Расширенный поиск
+## Advanced Search
 
 ```
 GET /api/admin/clients/advanced-search
 ```
 
-Многомерный поиск: фильтр по домену email, компании, локации, числу отправлений, наличию аватара/сайта/телефона, двухфакторной аутентификации и датам создания.
+Performs a multi-dimensional search across client profiles. In addition to the basic list filters, supports field-specific searches, numeric ranges, boolean flags, and date ranges. Returns search metadata including applied filters and execution time.
+
+**Additional Query Parameters:**
+
+| Parameter          | Type    | Description                                    |
+| ------------------ | ------- | ---------------------------------------------- |
+| `sortBy`           | string  | `createdAt`, `updatedAt`, `name`, `email`, `company`, `totalSubmissions` |
+| `sortOrder`        | string  | `asc` or `desc`                                |
+| `createdAfter`     | string  | ISO date-time filter                           |
+| `createdBefore`    | string  | ISO date-time filter                           |
+| `emailDomain`      | string  | Filter by email domain (e.g., `example.com`)   |
+| `companySearch`    | string  | Search within company names                    |
+| `locationSearch`   | string  | Search within locations                        |
+| `industrySearch`   | string  | Search within industries                       |
+| `minSubmissions`   | integer | Minimum submission count                       |
+| `maxSubmissions`   | integer | Maximum submission count                       |
+| `emailVerified`    | boolean | Filter by email verification status            |
+| `twoFactorEnabled` | boolean | Filter by 2FA status                          |
+| `hasAvatar`        | boolean | Filter clients with/without avatar             |
+| `hasWebsite`       | boolean | Filter clients with/without website            |
+| `hasPhone`         | boolean | Filter clients with/without phone              |
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "clients": [{ "id": "client_123abc", "..." : "..." }],
+    "pagination": { "page": 1, "limit": 20, "total": 15, "totalPages": 1 },
+    "searchMetadata": {
+      "appliedFilters": { "status": "active", "plan": "premium" },
+      "searchTime": 45.2
+    }
+  }
+}
+```
 
 ---
 
-## Групповые операции
+## 批量操作
 
-### Групповое обновление
+### 批量更新
 
 ```
 PUT /api/admin/clients/bulk
 ```
 
-Обновляет несколько профилей за один запрос. Каждый объект должен содержать поле `id`.
+在单个请求中更新多个客户端配置文件。每个客户端对象必须包含 `id` 字段以及要更新的字段。个别失败不会中止整个批次。
 
-### Групповое удаление
+**请求正文：**
+
+```json
+{
+  "clients": [
+    { "id": "client_123abc", "plan": "premium", "status": "active" },
+    { "id": "client_456def", "plan": "standard" }
+  ]
+}
+```
+
+### 批量删除
 
 ```
 DELETE /api/admin/clients/bulk
 ```
 
-Удаляет несколько профилей клиентов. Каждый объект в массиве должен содержать поле `id`.
+永久删除多个客户端配置文件。数组中的每个对象都必须包含 `id` 字段。
+
+**请求正文：**
+
+```json
+{
+  "clients": [
+    { "id": "client_123abc" },
+    { "id": "client_456def" }
+  ]
+}
+```
+
+**响应 (200) -- 两个批量端点：**
+
+```json
+{
+  "success": true,
+  "message": "Bulk update completed: 2 successful, 1 failed",
+  "results": [{ "index": 0, "success": true }],
+  "errors": [{ "index": 2, "error": "Client not found" }],
+  "summary": { "total": 3, "successful": 2, "failed": 1 }
+}
+```
 
 ---
 
-## Получить / Обновить / Удалить клиента
+## Get / Update / Delete Client
 
-### Получить клиента
+### Get Client
 
 ```
 GET /api/admin/clients/{clientId}
 ```
 
-Возвращает полный профиль клиента.
+Returns the complete client profile including display name, company, plan, account type, and activity timestamps.
 
-### Обновить клиента
+### Update Client
 
 ```
 PUT /api/admin/clients/{clientId}
 ```
 
-Частичное обновление: изменяются только указанные поля. Инициирует синхронизацию с CRM при изменении компании или профильных данных.
+Partial update -- only provided fields are modified. Triggers CRM sync when company or profile data changes.
 
-### Удалить клиента
+**Request Body (all fields optional):**
+
+```json
+{
+  "displayName": "John Doe Updated",
+  "username": "johndoe_updated",
+  "bio": "Senior Developer",
+  "jobTitle": "Lead Developer",
+  "company": "Tech Corp Inc",
+  "status": "active",
+  "plan": "premium",
+  "accountType": "business"
+}
+```
+
+### Delete Client
 
 ```
 DELETE /api/admin/clients/{clientId}
 ```
 
-Удаляет профиль клиента навсегда. Действие необратимо.
+Permanently deletes a client profile. This action cannot be undone.
+
+**Response (200):**
+
+```json
+{ "success": true, "message": "Client deleted successfully" }
+```
 
 ---
 
-## Правила валидации
+## 验证规则
 
-| Поле | Правило |
-|-------|-------|
-| `email` | Обязателен при создании; должен быть валидным email |
-| `status` | `active`, `inactive`, `suspended` или `trial` |
-| `plan` | `free`, `standard` или `premium` |
-| `accountType` | `individual`, `business` или `enterprise` |
+|领域|规则|
+| ------------- | ---------------------------------------------------------- |
+|`email`|创作所需；有效的电子邮件格式|
+|`status`|必须是 `active`、`inactive`、`suspended` 或 `trial`|
+|`plan`|必须是 `free`、`standard` 或 `premium`|
+|`accountType`|必须是 `individual`、`business` 或 `enterprise`|
+|`clients`|Bulk：非空数组，每个对象都需要 `id`|
 
-## Коды ошибок
+## 错误代码
 
-| Статус | Значение |
-|--------|----------|
-| `400` | Ошибка валидации, отсутствует email |
-| `401` | Требуется аутентификация |
-| `403` | Требуются права администратора |
-| `404` | Клиент не найден |
-| `500` | Внутренняя ошибка сервера |
+|状态|含义|
+| ------ | ------------------------------------------------------ |
+| `400`  |验证错误、缺少电子邮件、用户创建失败|
+| `401`  |需要身份验证|
+| `403`  |需要管理员权限|
+| `404`  |找不到客户端|
+| `500`  |服务器内部错误|
 
-## Связанная документация
+## 相关文档
 
-- [API пользователей администратора](./admin-users-endpoints.md)
-- [API ролей администратора](./admin-roles-endpoints.md)
+- [Admin Users API](./admin-users-endpoints.md) -- 用户账户管理
+- [Admin Roles API](./admin-roles-endpoints.md) -- 角色和权限管理
+- [Authentication](../architecture/nextauth-configuration.md) -- 会话管理和防护

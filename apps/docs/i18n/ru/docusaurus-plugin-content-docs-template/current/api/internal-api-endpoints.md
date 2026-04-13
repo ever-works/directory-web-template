@@ -1,37 +1,38 @@
-﻿---
+---
 id: internal-api-endpoints
-title: "Внутренние конечные точки API"
-sidebar_label: "Внутренний API"
+title: 内部 API 端点
+sidebar_label: 内部API
+sidebar_position: 64
 ---
 
-# Внутренние конечные точки API
+# 内部 API 端点
 
-Внутренний API предоставляет системные конечные точки для инфраструктурных операций. Эти конечные точки доступны только в режиме разработки и недоступны в продакшне.
+内部 API 提供用于基础设施操作的系统级端点。这些端点仅限于开发模式，在生产中无法访问。
 
-**Директория источника:** `template/app/api/internal/`
+**源码目录：** `template/app/api/internal/`
 
 ---
 
-## Инициализация базы данных
+## Database Initialization
 
-Запускает автоматическую миграцию базы данных и заполнение данными, если база данных ещё не инициализирована.
+Triggers automatic database migration and seeding if the database is not yet initialized.
 
-| Свойство | Значение |
+| Property | Value |
 |----------|-------|
-| **Метод** | `GET` |
-| **Путь** | `/api/internal/db-init` |
-| **Аутентификация** | Только в режиме разработки |
-| **Рантайм** | `nodejs` |
-| **Кэширование** | `force-dynamic` |
-| **Источник** | `internal/db-init/route.ts` |
+| **Method** | `GET` |
+| **Path** | `/api/internal/db-init` |
+| **Auth** | Development mode only |
+| **Runtime** | `nodejs` |
+| **Caching** | `force-dynamic` |
+| **Source** | `internal/db-init/route.ts` |
 
-### Безопасность
+### Security
 
-Эта конечная точка **доступна только в режиме разработки** (`NODE_ENV === 'development'`). В продакшне возвращает `403 Forbidden`.
+This endpoint is **only accessible in development mode** (`NODE_ENV === 'development'`). In production, it returns a `403 Forbidden` response.
 
-### Ответ
+### Response
 
-**Статус 200** — Инициализация завершена.
+**Status 200** -- Database initialization completed.
 
 ```json
 {
@@ -40,7 +41,7 @@ sidebar_label: "Внутренний API"
 }
 ```
 
-**Статус 403** — Продакшная среда (otkазано в доступе).
+**Status 403** -- Production environment (access denied).
 
 ```json
 {
@@ -48,7 +49,7 @@ sidebar_label: "Внутренний API"
 }
 ```
 
-**Статус 500** — Ошибка инициализации.
+**Status 500** -- Initialization failed.
 
 ```json
 {
@@ -57,35 +58,59 @@ sidebar_label: "Внутренний API"
 }
 ```
 
-### Что делает конечная точка
+### What It Does
 
-При вызове динамически импортирует и выполняет `initializeDatabase()` из `@/lib/db/initialize`, которая:
+When called, the endpoint dynamically imports and executes `initializeDatabase()` from `@/lib/db/initialize`, which:
 
-1. Запускает ожидающие миграции Drizzle.
-2. Заполняет начальными данными, если база пуста.
-3. Обеспечивает актуальность схемы базы данных.
+1. Runs pending Drizzle database migrations.
+2. Seeds initial data if the database is empty (e.g., default admin user, initial configuration).
+3. Ensures the database schema is up to date for development.
 
-### Пример curl
+### curl Example
 
 ```bash
-# Инициализация базы данных (только в режиме разработки)
+# Initialize database (development only)
 curl -s http://localhost:3000/api/internal/db-init
 ```
 
-### Связанные команды
+### TypeScript Usage
 
-Для ручных операций с базой данных вне API используйте CLI:
+```typescript
+// Typically called during development setup
+async function initializeDevDatabase(): Promise<void> {
+  const res = await fetch('/api/internal/db-init');
+  const data = await res.json();
+
+  if (data.success) {
+    console.log('Database initialized successfully');
+  } else {
+    console.error('Database initialization failed:', data.error);
+  }
+}
+```
+
+### Implementation Notes
+
+- The `initializeDatabase()` function is dynamically imported using `await import()` to avoid loading database initialization code in production bundles.
+- The route is configured with `export const runtime = 'nodejs'` to ensure it runs in the Node.js runtime (not the Edge runtime), as database operations require full Node.js APIs.
+- The route uses `export const dynamic = 'force-dynamic'` to prevent Next.js from caching the response.
+- Error handling uses `safeErrorResponse()` to return generic error messages while logging detailed errors server-side.
+- This endpoint is designed for use during local development setup and CI/CD pipelines. It should never be exposed in production.
+
+### Related Commands
+
+For manual database operations outside of the API, use the CLI commands:
 
 ```bash
-# Сгенерировать файлы миграций
+# Generate migration files
 pnpm db:generate
 
-# Запустить миграции
+# Run migrations
 pnpm db:migrate
 
-# Заполнить базу данными
+# Seed database
 pnpm db:seed
 
-# Открыть студию базы данных
+# Open database studio
 pnpm db:studio
 ```

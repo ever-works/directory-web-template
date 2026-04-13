@@ -1,11 +1,72 @@
-﻿---
+---
 id: config-feature-endpoints
-title: "Config & Feature Flags API Reference"
-sidebar_label: "Config & Feature Flags API Reference"
+title: "Справочник за API за флагове за конфигурация и функции"
+sidebar_label: "Конфигурация и функции"
+sidebar_position: 53
 ---
 
-:::info
-Тази страница се превежда. Пълното съдържание е налично на английски.
-:::
+# Справочник за API за флагове за конфигурация и функции
 
-See the [English documentation](/api/config-feature-endpoints) for the full content of this section.
+## Преглед
+
+Крайната точка на Config Features излага текущите флагове за наличност на функции за приложението. Тези флагове показват кои функции, зависещи от базата данни, са активни, позволявайки на интерфейса да се деградира грациозно, когато функциите не са налични. Това е публична, кеширана крайна точка, предназначена за високочестотно потребление.
+
+## Крайни точки
+
+### ВЗЕМЕТЕ /api/config/features
+
+Връща текущата наличност на функция въз основа на системната конфигурация и наличността на базата данни.
+
+**Заявка**
+
+Не са необходими параметри или тяло.
+
+**Отговор**
+```typescript
+{
+  ratings: boolean;         // Whether the ratings feature is available
+  comments: boolean;        // Whether the comments feature is available
+  favorites: boolean;       // Whether the favorites feature is available
+  featuredItems: boolean;   // Whether the featured items feature is available
+  surveys: boolean;         // Whether the surveys feature is available
+}
+```
+
+**Пример**
+```typescript
+const response = await fetch('/api/config/features');
+const features = await response.json();
+
+if (features.ratings) {
+  // Render rating component
+}
+
+if (!features.surveys) {
+  // Hide survey section
+}
+```
+
+## Удостоверяване
+
+Тази крайна точка е **публична** -- не се изисква удостоверяване. Той е проектиран да се използва от интерфейса при първоначално зареждане на страницата, за да се определи кои функции на потребителския интерфейс трябва да бъдат изобразени.
+
+## Отговори за грешки
+
+|Статус|Описание|
+|--------|-------------|
+| 200 |Флаговете на функциите са извлечени успешно|
+| 500 |Вътрешна грешка -- връща всички флагове като `false` за безопасност със заглавка `no-cache`|
+
+При грешка крайната точка връща всички функции като `false`, за да гарантира, че приложението се проваля безопасно, вместо да разкрива повредена функционалност.
+
+## Ограничаване на скоростта
+
+Отговорите се кешират със следните заглавки:
+- `Cache-Control: public, s-maxage=300, stale-while-revalidate=600`
+- Ефективно кеширан за 5 минути на ниво CDN с 10-минутен прозорец за остаряла по време на повторна проверка.
+
+Отговорите за грешка използват `Cache-Control: no-cache` за предотвратяване на кеширане на влошено състояние.
+
+## Свързани крайни точки
+
+- [Крайни точки на изправност](./health-endpoints) -- Проверка на изправността на свързаността на базата данни

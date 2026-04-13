@@ -1,64 +1,96 @@
-﻿---
+---
 id: categories-api-endpoints
-title: Конечные точки API категорий
-sidebar_label: Конечные точки API категорий
+title: 类别 API 端点
+sidebar_label: 类别API
 sidebar_position: 56
 ---
 
-# Конечные точки API категорий
+# 类别 API 端点
 
-Публичный API категорий, позволяющий проверять наличие категорий в базе данных.
+类别 API 提供了一个公共端点来检查内容系统中是否存在任何类别。类别源自基于 Git 的 CMS 内容存储库，代表组织项目的顶级分类法。
 
-## Маршрут
+**来源：** `template/app/api/categories/exists/route.ts`
 
-| Метод | Путь | Аутентификация | Описание |
-|--------|------|-------|-------------|
-| `GET` | `/api/categories/exists` | Нет | Проверить наличие категорий |
+---
 
-## Проверка наличия категорий
+## Check Categories Existence
 
-```
-GET /api/categories/exists
-```
+Checks whether any categories are available in the system and returns the count.
 
-**Параметры запроса:**
+| Property | Value |
+|----------|-------|
+| **Method** | `GET` |
+| **Path** | `/api/categories/exists` |
+| **Auth** | None (public) |
 
-| Параметр | Тип | Обязательный | Описание |
-|-----------|------|----------|-------------|
-| `locale` | string | Нет | Код локали (`en`, `fr`, `es`, ...) |
+### Query Parameters
 
-**Пример запроса:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `locale` | `string` | No | `"en"` | Locale code for fetching categories (e.g., `en`, `fr`, `de`) |
 
-```
-GET /api/categories/exists?locale=en
-```
+### Response
 
-**Ответ (успех):**
+**Status 200** -- Categories existence checked successfully.
 
 ```json
-{ "exists": true, "count": 24 }
-```
-
-**Ответ (ошибка):**
-
-```json
-{ "exists": false, "count": 0 }
-```
-
-:::note
-В случае ошибки базы данных конечная точка возвращает `200` с `{ exists: false, count: 0 }`, а не `500`.
-:::
-
-## Пример на TypeScript
-
-```typescript
-const res = await fetch('/api/categories/exists?locale=en');
-const { exists, count } = await res.json();
-if (exists) {
-  console.log(`Найдено ${count} категорий`);
+{
+  "exists": true,
+  "count": 12
 }
 ```
 
-## Связанная документация
+| Field | Type | Description |
+|-------|------|-------------|
+| `exists` | `boolean` | Whether any categories exist |
+| `count` | `number` | Number of categories found |
 
-- [Конечные точки API категорий (подробно)](./category-endpoints.md)
+### Error Handling
+
+On any error, the endpoint returns a `200` response with safe defaults rather than an error status code:
+
+```json
+{
+  "exists": false,
+  "count": 0
+}
+```
+
+This fail-safe behavior ensures that the UI can degrade gracefully when the content system is unavailable.
+
+### curl Example
+
+```bash
+# Check if categories exist (default locale)
+curl -s http://localhost:3000/api/categories/exists
+
+# Check categories for French locale
+curl -s http://localhost:3000/api/categories/exists?locale=fr
+```
+
+### TypeScript Usage
+
+```typescript
+interface CategoriesExistResponse {
+  exists: boolean;
+  count: number;
+}
+
+async function checkCategoriesExist(locale: string = 'en'): Promise<CategoriesExistResponse> {
+  const res = await fetch(`/api/categories/exists?locale=${locale}`);
+  return res.json();
+}
+
+// Usage
+const { exists, count } = await checkCategoriesExist('en');
+if (exists) {
+  console.log(`Found ${count} categories`);
+}
+```
+
+### Implementation Notes
+
+- Categories are fetched from the Git-based CMS via `fetchItems()` from `@/lib/content`.
+- The endpoint does not require authentication -- it is designed for use by the public-facing UI to conditionally render category navigation elements.
+- Errors are only logged in development mode (`NODE_ENV === 'development'`).
+- The `locale` parameter maps to the `lang` option in the content fetch layer.

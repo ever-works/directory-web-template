@@ -1,11 +1,259 @@
-﻿---
+---
 id: admin-companies-endpoints
-title: "Admin Companies API Endpoints"
-sidebar_label: "Admin Companies API Endpoints"
+title: נקודות קצה של חברות ניהול ממשק API
+sidebar_label: חברות ניהול
+sidebar_position: 32
 ---
 
-:::info
-דף זה נמצא בתהליך תרגום. התוכן המלא זמין באנגלית.
+# נקודות קצה של חברות ניהול ממשק API
+
+ממשק ה-API של Admin Companies מספק נקודות קצה לניהול עבור רישומי החברה. חברות מייצגות ארגונים הקשורים לפריטים ברשימה. ה-API תומך בפעולות CRUD מלאות עם אימות מבוסס Zod, אכיפת ייחודיות של תחום/שבלול וסנכרון CRM אופציונלי על עדכונים.
+
+## סיכום מסלול
+
+|שיטה|נתיב|Auth|תיאור|
+|--------|------|------|-------------|
+|`GET`|`/api/admin/companies`|מנהל מערכת|רשימת חברות (בעמודים, ניתנות לחיפוש)|
+|`POST`|`/api/admin/companies`|מנהל מערכת|צור חברה חדשה|
+|`GET`|`/api/admin/companies/{id}`|מנהל מערכת|קבל חברה יחידה על ידי UUID|
+|`PUT`|`/api/admin/companies/{id}`|מנהל מערכת|עדכן חברה|
+|`DELETE`|`/api/admin/companies/{id}`|מנהל מערכת|מחק חברה לצמיתות|
+
+## אימות
+
+כל נקודות הקצה של החברה מאמתות שלהפעלה יש הרשאות מנהל:
+
+```typescript
+const session = await auth();
+if (!session?.user?.isAdmin) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+}
+```
+
+## נקודות קצה
+
+### קבל `/api/admin/companies`
+
+מחזירה רשימה מעומדת של חברות עם סינון חיפוש וסטטוס. מחזיר גם ספירות גלובליות של חברות פעילות ולא פעילות ללא קשר למסננים שהוחלו.
+
+**פרמטרי שאילתה:**
+
+|פרמטר|הקלד|ברירת מחדל|תיאור|
+|-----------|------|---------|-------------|
+|`page`|מספר שלם| `1` |מספר עמוד (חייב להיות >= 1)|
+|`limit`|מספר שלם| `10` |פריטים בעמוד (1--100)|
+|`q`|מחרוזת| -- |חיפוש לפי שם או תחום (לא תלוי רישיות)|
+|`status`|מחרוזת| -- |מסנן: `"active"` או `"inactive"`|
+
+**תגובה (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "companies": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440000",
+        "name": "Acme Corporation",
+        "website": "https://acme.com",
+        "domain": "acme.com",
+        "slug": "acme-corporation",
+        "status": "active",
+        "createdAt": "2024-01-15T10:30:00.000Z",
+        "updatedAt": "2024-01-20T14:45:00.000Z"
+      }
+    ]
+  },
+  "meta": {
+    "page": 1,
+    "totalPages": 5,
+    "total": 47,
+    "limit": 10,
+    "activeCount": 40,
+    "inactiveCount": 7
+  }
+}
+```
+
+הערכים `meta.activeCount` ו-`meta.inactiveCount` משקפים סכומים גלובליים ואינם מושפעים מהמסננים `q` או `status`. זה מאפשר לממשק המשתמש להציג ספירת כרטיסיות לצד תוצאות מסוננות.
+
+### פרסם `/api/admin/companies`
+
+יוצר שיא חברה חדש. נתוני הבקשה מאומתים עם סכימת Zod (`createCompanySchema`). ערכי הדומיין והשבלול מנורמלים לאותיות קטנות. הייחודיות נבדקת הן עבור `domain` והן עבור `slug` לפני ההוספה.
+
+**גוף הבקשה:**
+
+```json
+{
+  "name": "Acme Corporation",
+  "website": "https://acme.com",
+  "domain": "acme.com",
+  "slug": "acme-corporation",
+  "status": "active"
+}
+```
+
+|שדה|הקלד|חובה|תיאור|
+|-------|------|----------|-------------|
+|`name`|מחרוזת|כן|שם חברה (1--255 תווים)|
+|`website`|מחרוזת (URI)|לא|כתובת האתר המלאה|
+|`domain`|מחרוזת|לא|דומיין מנורמל (מקסימום 255 תווים)|
+|`slug`|מחרוזת|לא|מזהה ידידותי לכתובת אתר (`^[a-z0-9-]+$`, מקסימום 255)|
+|`status`|מחרוזת|לא|`"active"` או `"inactive"` (ברירת מחדל: `"active"`)|
+
+**אימות:** משתמש באימות סכימת Zod. במקרה של כשל, מחזיר שגיאות מפורטות ברמת השדה:
+
+```json
+{
+  "error": "Validation error",
+  "details": [
+    { "field": "name", "message": "Company name is required" }
+  ]
+}
+```
+
+**תגובה (201):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Acme Corporation",
+    "website": "https://acme.com",
+    "domain": "acme.com",
+    "slug": "acme-corporation",
+    "status": "active",
+    "createdAt": "2024-01-20T16:45:00.000Z",
+    "updatedAt": "2024-01-20T16:45:00.000Z"
+  }
+}
+```
+
+### קבל `/api/admin/companies/{id}`
+
+מאחזר חברה בודדת לפי UUID שלה.
+
+**פרמטרי נתיב:**
+
+|פרמטר|הקלד|תיאור|
+|-----------|------|-------------|
+|`id`|מחרוזת (UUID)|מזהה ייחודי של החברה|
+
+**תגובה (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Acme Corporation",
+    "website": "https://acme.com",
+    "domain": "acme.com",
+    "slug": "acme-corporation",
+    "status": "active",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "updatedAt": "2024-01-20T14:45:00.000Z"
+  }
+}
+```
+
+### PUT `/api/admin/companies/{id}`
+
+מעדכן חברה קיימת. תומך בעדכונים חלקיים - רק שדות בתנאי משתנים. מאומת עם `updateCompanySchema`. הייחודיות של הדומיין והשבלול מאומתת מחדש כאשר שדות אלה משתנים. לאחר עדכון מוצלח, נתוני החברה מסונכרנים באופן אופציונלי למערכת CRM.
+
+**פרמטרי נתיב:**
+
+|פרמטר|הקלד|תיאור|
+|-----------|------|-------------|
+|`id`|מחרוזת (UUID)|מזהה ייחודי של החברה|
+
+**גוף הבקשה:**
+
+```json
+{
+  "name": "Acme Corporation Updated",
+  "website": "https://acme.com",
+  "status": "active"
+}
+```
+
+כל השדות הם אופציונליים. רק שדות שסופקו יעודכנו.
+
+**סנכרון CRM:**
+
+כאשר `TWENTY_CRM_ENABLED` אינו מוגדר ל-`"false"`, החברה המעודכנת מסונכרנת אוטומטית למערכת Twenty CRM. סנכרון זה אינו חוסם -- אם הוא נכשל, ה-API עדיין מחזיר הצלחה עבור עדכון מסד הנתונים:
+
+```typescript
+const syncService = createTwentyCrmSyncServiceFromEnv();
+const companyPayload = mapCompanyToTwentyCompany(company);
+await syncService.upsertCompany(companyPayload);
+```
+
+**תגובה (200):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "Acme Corporation Updated",
+    "status": "active",
+    "updatedAt": "2024-01-20T16:30:00.000Z"
+  }
+}
+```
+
+### מחק `/api/admin/companies/{id}`
+
+מוחק חברה לצמיתות. זוהי מחיקה קשה -- הרשומה מוסרת ממסד הנתונים. קישורי פריט-חברה משויכים מוסרים באמצעות אילוצי CASCADE.
+
+**פרמטרי נתיב:**
+
+|פרמטר|הקלד|תיאור|
+|-----------|------|-------------|
+|`id`|מחרוזת (UUID)|מזהה ייחודי של החברה|
+
+**תגובה (200):**
+
+```json
+{
+  "success": true,
+  "message": "Company deleted successfully"
+}
+```
+
+:::זהירות
+מחיקת החברה היא לצמיתות ולא ניתן לבטלה. כל שיוך הפריטים עבור החברה שנמחקה יוסרו באמצעות כללי CASCADE של מסד הנתונים.
 :::
 
-See the [English documentation](/api/admin-companies-endpoints) for the full content of this section.
+## כללי אימות
+
+נתוני החברה מאומתים באמצעות סכימות Zod המוגדרות ב-`lib/validations/company.ts`:
+
+|שדה|כלל|
+|-------|------|
+|`name`|חובה, 1--255 תווים|
+|`website`|אופציונלי, חייב להיות פורמט URI חוקי|
+|`domain`|אופציונלי, מקסימום 255 תווים, מנורמל לאותיות קטנות|
+|`slug`|אופציונלי, מקסימום 255 תווים, אותיות אלפאנומריות קטנות ומקפים בלבד|
+|`status`|אופציונלי, חייב להיות `"active"` או `"inactive"`|
+
+## קודי שגיאה
+
+|סטטוס|שגיאה|סיבה|
+|--------|-------|-------|
+| `400` |שגיאת אימות|כשל באימות סכימת Zod (כולל פרטי שדה)|
+| `400` |פרמטר דף לא חוקי|הדף אינו מספר שלם חיובי|
+| `400` |פרמטר מגבלה לא חוקי|מגבלה מחוץ לטווח 1--100|
+| `401` |לא מורשה|הפעלה חסרה או שאינה מנהלת|
+| `404` |החברה לא נמצאה|אין חברה עם ה-UUID הנתון|
+| `409` |חברה עם דומיין כבר קיימת|הפרת ייחוד הדומיין|
+| `409` |חברה עם שבלול כבר קיימת|הפרת ייחוד הקליעה|
+| `500` |יצירת/עדכון/מחיקת החברה נכשלה|שגיאת שרת או מסד נתונים|
+
+## תיעוד קשור
+
+- [סקירה כללית של נקודות קצה של מנהל מערכת](./admin-endpoints.md)
+- [דפוסי תגובה](./response-patterns.md)
+- [בקש אימות](./request-validation.md)
