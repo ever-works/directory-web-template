@@ -164,7 +164,7 @@
 		"@types/mapbox-gl": "^3.4.1",
 		"@types/node": "^20.11.24",
 		"@types/papaparse": "^5.5.2",
-		"@types/react": "19.2.14",
+		"@types/react": "19.2.7",
 		"@types/react-dom": "19.2.3",
 		"@types/react-google-recaptcha": "^2.1.9",
 		"@types/react-responsive-masonry": "^2.6.0",
