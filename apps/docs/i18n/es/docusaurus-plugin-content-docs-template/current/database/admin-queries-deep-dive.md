@@ -1,7 +1,7 @@
 ---
 id: admin-queries-deep-dive
 title: Consultas de administración y panel de control Análisis profundo
-sidebar_label: Consultas de administrador: análisis profundo
+sidebar_label: "Consultas de administrador: análisis profundo"
 sidebar_position: 62
 ---
 
