@@ -24,10 +24,32 @@ interface ExtendedUser {
 	tenantId?: string;
 }
 
+function createDevelopmentAuthSecret(): string {
+	const fallbackSeed = [
+		process.env.VERCEL_PROJECT_PRODUCTION_URL,
+		process.env.VERCEL_URL,
+		process.env.NEXT_PUBLIC_APP_URL,
+		process.env.VERCEL_PROJECT_ID,
+		process.env.NEXT_PUBLIC_SITE_URL
+	]
+		.filter(Boolean)
+		.join('|');
+
+	if (fallbackSeed) {
+		return `ever-works-dev:${fallbackSeed}`;
+	}
+
+	const runtimeCrypto = globalThis.crypto;
+	if (runtimeCrypto?.randomUUID) {
+		return `${runtimeCrypto.randomUUID()}${runtimeCrypto.randomUUID()}`;
+	}
+
+	return `ever-works-dev-${Math.random().toString(36).slice(2)}${Date.now()}`;
+}
+
 const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
 
 if (!runtimeAuthSecret) {
-	const { createDevelopmentAuthSecret } = await import('./auth-secret.node');
 	process.env.AUTH_SECRET = createDevelopmentAuthSecret();
 
 	if (coreConfig.NODE_ENV !== 'production') {
