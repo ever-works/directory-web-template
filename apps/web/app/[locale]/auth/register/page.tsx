@@ -12,10 +12,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "auth" });
+  const tCommon = await getTranslations({ locale, namespace: "common" });
 
   const path = "/auth/register";
   const title = `${t("CREATE_ACCOUNT")} | ${siteConfig.name}`;
-  const description = t("CREATE_ACCOUNT_DESC");
+  const description = tCommon("CREATE_ACCOUNT_DESC");
 
   return {
     title,
