@@ -152,8 +152,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       '@novu/api':
-        specifier: ^3.11.0
-        version: 3.14.1
+        specifier: ^3.15.0
+        version: 3.15.0
       '@opentelemetry/api':
         specifier: 1.9.0
         version: 1.9.0
@@ -3515,8 +3515,8 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@novu/api@3.14.1':
-    resolution: {integrity: sha512-TqCIlayGdFELzZRgAzsqA2HjfX5k5Sd3LcWgNtIWVHtl0wXtmUAXq5FsXKl1HAZe3uWkN+jisWrINW1vJ5KdPQ==}
+  '@novu/api@3.15.0':
+    resolution: {integrity: sha512-S1fK3S+qxfTe0bbU0NstNR7EZic500j5YcF9Cg8OdTxw+IDzUGZPjBdzE1G1JHZdhfNQBBuplb9w4wCZC7us1Q==}
 
   '@opentelemetry/api-logs@0.203.0':
     resolution: {integrity: sha512-9B9RU0H7Ya1Dx/Rkyc4stuBZSGVQF27WigitInx2QQoj6KUpEFYPKoWjdFTunJYxmXmh17HeBvbMa1EhGyPmqQ==}
@@ -17008,7 +17008,7 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
 
-  '@novu/api@3.14.1':
+  '@novu/api@3.15.0':
     dependencies:
       zod: 4.3.6
 
