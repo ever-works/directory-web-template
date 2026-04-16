@@ -10,25 +10,25 @@ import type { ServiceArea, MapMarkerData } from '@/lib/maps/types';
 // ######################### Style Constants #########################
 
 const sectionCardStyles =
-	'bg-white/95 dark:bg-white/3 rounded-2xl p-8 border border-gray-200/50 dark:border-white/6 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-1';
+	'bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden';
 
-const sectionHeaderStyles = 'flex items-center justify-between mb-6';
+const sectionHeaderStyles = 'px-5 py-4 border-b border-gray-100 dark:border-white/6 flex items-center justify-between';
 
 const iconContainerStyles =
-	'p-3 bg-linear-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-xl';
+	'p-1.5 bg-orange-100 dark:bg-orange-900/20 rounded-lg';
 
-const iconStyles = 'w-6 h-6 text-orange-600 dark:text-orange-400';
+const iconStyles = 'w-4 h-4 text-orange-600 dark:text-orange-400';
 
-const sectionTitleStyles = 'text-2xl font-bold text-gray-800 dark:text-white';
+const sectionTitleStyles = 'text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400';
 
 const serviceAreaBadgeStyles =
-	'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-linear-to-r from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-700/50';
+	'inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-700/30';
 
 const remoteBadgeStyles =
-	'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border bg-white/5 dark:bg-white/3 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/6';
+	'inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/8';
 
 const directionsButtonStyles =
-	'inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5';
+	'inline-flex items-center gap-2 px-4 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg text-xs font-semibold hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors duration-150 shadow-sm';
 
 // ######################### Types #########################
 
@@ -76,19 +76,19 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 		return (
 			<div className={sectionCardStyles}>
 				<div className={sectionHeaderStyles}>
-					<div className="flex items-center gap-4">
-						<div className={iconContainerStyles}>
-							<Globe className={iconStyles} />
-						</div>
-						<h2 className={sectionTitleStyles}>{t('itemDetail.LOCATION')}</h2>
-					</div>
-				</div>
 				<div className="flex items-center gap-3">
-					<span className={remoteBadgeStyles}>
-						<Globe className="w-4 h-4" />
-						{t('itemDetail.REMOTE_SERVICE')}
-					</span>
-					<p className="text-sm text-gray-500 dark:text-gray-400">
+					<div className={iconContainerStyles}>
+						<Globe className={iconStyles} />
+					</div>
+					<h2 className={sectionTitleStyles}>{t('itemDetail.LOCATION')}</h2>
+				</div>
+			</div>
+			<div className="px-5 py-4 flex items-center gap-3">
+				<span className={remoteBadgeStyles}>
+					<Globe className="w-3.5 h-3.5" />
+					{t('itemDetail.REMOTE_SERVICE')}
+				</span>
+				<p className="text-xs text-gray-500 dark:text-gray-400">
 						{t('itemDetail.REMOTE_SERVICE_DESC')}
 					</p>
 				</div>
@@ -132,7 +132,7 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 		<div className={sectionCardStyles}>
 			{/* Header */}
 			<div className={sectionHeaderStyles}>
-				<div className="flex items-center gap-4">
+				<div className="flex items-center gap-3">
 					<div className={iconContainerStyles}>
 						<MapPin className={iconStyles} />
 					</div>
@@ -146,15 +146,15 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 				)}
 			</div>
 
-			<div className="space-y-4">
+			<div className="px-5 py-4 space-y-4">
 				{/* Mini Map */}
 				{marker && (
-					<div className="h-48 rounded-xl overflow-hidden">
+					<div className="h-44 rounded-xl overflow-hidden border border-gray-100 dark:border-white/6">
 						<Map
 							markers={[marker]}
 							center={marker.coordinates}
 							zoom={14}
-							height={192}
+							height={176}
 							controls={{
 								showZoomControls: false,
 								showFullscreenControl: false,
@@ -166,15 +166,15 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 				)}
 
 				{/* Address Info */}
-				<div className="space-y-1">
+				<div className="space-y-0.5">
 					{displayAddress && (
-						<p className="font-medium text-gray-800 dark:text-gray-200">{displayAddress}</p>
+						<p className="text-sm font-medium text-gray-800 dark:text-gray-200">{displayAddress}</p>
 					)}
 					{locationLine && (
-						<p className="text-gray-600 dark:text-gray-400">{locationLine}</p>
+						<p className="text-xs text-gray-500 dark:text-gray-400">{locationLine}</p>
 					)}
 					{location.postal_code && (
-						<p className="text-sm text-gray-500 dark:text-gray-400">{location.postal_code}</p>
+						<p className="text-xs text-gray-400 dark:text-gray-500">{location.postal_code}</p>
 					)}
 				</div>
 
@@ -186,7 +186,7 @@ export function LocationSection({ location, itemName, itemSlug }: LocationSectio
 						rel="noopener noreferrer"
 						className={directionsButtonStyles}
 					>
-						<Navigation className="w-4 h-4" />
+						<Navigation className="w-3.5 h-3.5" />
 						{t('itemDetail.GET_DIRECTIONS')}
 					</a>
 				)}

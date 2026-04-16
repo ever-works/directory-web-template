@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
 import { getVideoEmbedUrl, toTitleCase, slugify, cn } from '@/lib/utils';
@@ -108,7 +108,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
 	return (
-		<div className="min-h-screen relative overflow-hidden">
+		<div className="min-h-screen bg-gray-50/40 dark:bg-transparent">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
@@ -119,267 +119,231 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
-			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
-				<div className={`flex flex-col lg:flex-row mb-6 lg:mb-20 ${isFluid ? 'gap-4 lg:gap-20 lg:w-[90%] lg:mx-auto' : 'gap-8'}`}>
-					{/* Left column */}
-					<div className={isFluid ? 'lg:w-[65%]' : 'lg:w-2/3'}>
-						{/* Video Showcase */}
-						<div className="mb-8">
-							<div className="mb-6">
-								<ItemBreadcrumb name={meta.name} category={meta.category} categoryName={categoryName} />
+			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-8 lg:py-12">
+				{/* Breadcrumb row */}
+				<div className="mb-8">
+					<ItemBreadcrumb name={meta.name} category={meta.category} categoryName={categoryName} />
+				</div>
+
+				<div className={`flex flex-col lg:flex-row ${isFluid ? 'gap-8 lg:gap-16 lg:w-[92%] lg:mx-auto' : 'gap-10 lg:gap-14'}`}>
+					{/* ── Left column ─────────────────────────────────────── */}
+					<div className={isFluid ? 'lg:w-[65%] min-w-0' : 'lg:w-2/3 min-w-0'}>
+
+						{/* Hero header */}
+						<div className="flex items-start gap-5 mb-6">
+							<div className="shrink-0 mt-0.5">
+								<ItemIcon iconUrl={meta.icon_url} name={meta.name} />
 							</div>
-
-							<div className="flex items-center gap-6 my-8">
-								<div className="shrink-0">
-									<ItemIcon iconUrl={meta.icon_url} name={meta.name} />
-								</div>
-								<div className="flex-1 min-w-0">
-									<h1 className="text-lg sm:text-2xl font-bold bg-linear-to-r from-gray-900 via-theme-primary-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent tracking-tight leading-tight mb-2">
-										{meta.name}
-									</h1>
-								</div>
-							</div>
-
-							{/* Video Showcase - below title/meta, above description */}
-							{meta.video_url && (
-								<div className="mb-8">
-									<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-white/8">
-										<iframe
-											src={getVideoEmbedUrl(meta.video_url)}
-											title={`Video Demo for ${meta.name}`}
-											frameBorder="0"
-											allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-											allowFullScreen
-											className="absolute top-0 left-0 w-full h-full"
-										></iframe>
-									</div>
-								</div>
-							)}
-
-							<p className={`${isFluid ? 'w-4/6' :"w-4/5"} text-sm text-gray-600 dark:text-gray-400 mb-8 leading-relaxed`}>
-								{meta.description}
-							</p>
-
-							<div className="flex items-center gap-2 mb-6">
-								{/* Visit (external) */}
-								<a
-									href={meta.source_url || '#'}
-									target="_blank"
-									rel="noreferrer"
-									title={t('common.VISIT_WEBSITE')}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
-								>
-									<Globe className="w-4 h-4" />
-								</a>
-
-								{/* Favorite (compact) */}
-								<FavoriteButton
-									itemSlug={meta.slug || ''}
-									itemName={meta.name}
-									itemIconUrl={meta.icon_url}
-									itemCategory={
-										Array.isArray(meta.category)
-											? typeof meta.category[0] === 'string'
-												? meta.category[0]
-												: meta.category[0]?.name
-											: typeof meta.category === 'string'
-												? meta.category
-												: meta.category?.name
-									}
-									variant="heart"
-									size="sm"
-									showText={false}
-									className="w-9 h-9 p-0"
-								/>
-
-								{/* Share (copy link) */}
-								<button
-									type="button"
-									title={t('common.SHARE')}
-									onClick={async (e) => {
-										e.preventDefault();
-										try {
-											await navigator.clipboard.writeText(meta.source_url || window.location.href);
-											toast.success(t('common.LINK_COPIED'));
-										} catch {
-											toast.error(t('common.SHARE_ERROR'));
-										}
-									}}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
-								>
-									<Share2 className="w-4 h-4" />
-								</button>
-
-								{/* Compact vote (icon-only) */}
-								<CompactVote itemId={meta.slug || meta.name} />
+							<div className="flex-1 min-w-0">
+								<h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight mb-2">
+									{meta.name}
+								</h1>
+								<p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
+									{meta.description}
+								</p>
 							</div>
 						</div>
 
-						<div className="">
-							<div className="">
-								<div>
-								{renderedContent}
-								</div>
-								<div className="flex justify-start mt-6">
-									<ReportButton contentType="item" contentId={meta.slug || meta.name} />
-								</div>
-							</div>
-						</div>
+						{/* Action bar */}
+						<div className="flex items-center gap-2 mb-8 pb-8 border-b border-gray-200 dark:border-white/8">
+							<a
+								href={meta.source_url || '#'}
+								target="_blank"
+								rel="noreferrer"
+								title={t('common.VISIT_WEBSITE')}
+								className="inline-flex items-center gap-2 h-9 px-4 text-xs font-semibold rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors duration-150 shadow-sm"
+							>
+								<Globe className="w-3.5 h-3.5" />
+								{t('common.VISIT_WEBSITE')}
+							</a>
 
-						{/* Location Section */}
-						<LocationSection location={meta.location} itemName={meta.name} itemSlug={meta.slug || ''} />
+							<div className="h-5 w-px bg-gray-200 dark:bg-white/10 mx-1" />
 
-						{/* Surveys Section - Only show if showSurveys is not false and surveys are enabled */}
-						{meta.showSurveys !== false && surveysEnabled && (
-							<UserSurveySection
-								item={meta}
+							<FavoriteButton
+								itemSlug={meta.slug || ''}
+								itemName={meta.name}
+								itemIconUrl={meta.icon_url}
+								itemCategory={
+									Array.isArray(meta.category)
+										? typeof meta.category[0] === 'string'
+											? meta.category[0]
+											: meta.category[0]?.name
+										: typeof meta.category === 'string'
+											? meta.category
+											: meta.category?.name
+								}
+								variant="heart"
+								size="sm"
+								showText={false}
+								className="w-9 h-9 p-0 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-white/3 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
 							/>
+
+							<button
+								type="button"
+								title={t('common.SHARE')}
+								onClick={async (e) => {
+									e.preventDefault();
+									try {
+										await navigator.clipboard.writeText(meta.source_url || window.location.href);
+										toast.success(t('common.LINK_COPIED'));
+									} catch {
+										toast.error(t('common.SHARE_ERROR'));
+									}
+								}}
+								className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-white dark:bg-white/3 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
+							>
+								<Share2 className="w-4 h-4" />
+							</button>
+
+							<CompactVote itemId={meta.slug || meta.name} />
+						</div>
+
+						{/* Video embed */}
+						{meta.video_url && (
+							<div className="mb-10">
+								<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/8 shadow-sm">
+									<iframe
+										src={getVideoEmbedUrl(meta.video_url)}
+										title={`Video Demo for ${meta.name}`}
+										frameBorder="0"
+										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+										allowFullScreen
+										className="absolute top-0 left-0 w-full h-full"
+									/>
+								</div>
+							</div>
 						)}
 
-						{/* Comments Section */}
-						<div className="mt-8">
-							<CommentsSection itemId={meta.slug || meta.name} />
+						{/* Main content body */}
+						<div className="prose-container">
+							{renderedContent}
+							<div className="flex justify-start mt-8 pt-6 border-t border-gray-100 dark:border-white/6">
+								<ReportButton contentType="item" contentId={meta.slug || meta.name} />
+							</div>
 						</div>
 
+						{/* Location */}
+						<div className="mt-10">
+							<LocationSection location={meta.location} itemName={meta.name} itemSlug={meta.slug || ''} />
+						</div>
+
+						{/* Surveys */}
+						{meta.showSurveys !== false && surveysEnabled && (
+							<div className="mt-10">
+								<UserSurveySection item={meta} />
+							</div>
+						)}
+
+						{/* Comments */}
+						<div className="mt-10">
+							<CommentsSection itemId={meta.slug || meta.name} />
+						</div>
 					</div>
 
-					{/* Right column */}
-					<div className={`${isFluid ? 'lg:w-[25%] lg:shrink-0' : 'lg:w-1/3'} space-y-6 relative`}>
-						<div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-gray-200 dark:border-white/6 shadow-sm">
-							<div className="flex items-center gap-4 mb-6">
-								<div className="p-1.5 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
-									<svg
-										className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth="2"
-											d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-										></path>
-									</svg>
-								</div>
-							<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+					{/* ── Right / Sidebar column ──────────────────────────── */}
+					<div className={`${isFluid ? 'lg:w-[25%] lg:shrink-0' : 'lg:w-[320px] shrink-0'} space-y-4`}>
+
+						{/* Information card */}
+						<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
+							<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
+								<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
 									{t('itemDetail.INFORMATION')}
 								</h2>
 							</div>
-							<div className="space-y-3">
-								<RatingDisplay itemId={meta.slug || meta.name} />
+							<div className="px-5 py-3 divide-y divide-gray-100 dark:divide-white/6">
+								<div className="py-2">
+									<RatingDisplay itemId={meta.slug || meta.name} />
+								</div>
 
-								{/* Publisher - Only show if defined */}
 								{meta.publisher && (
-									<div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
-										<span className="text-sm text-gray-600 dark:text-gray-400">
+									<div className="flex justify-between items-center py-3">
+										<span className="text-xs text-gray-500 dark:text-gray-400">
 											{t('itemDetail.PUBLISHER')}
 										</span>
-										<span className="text-sm font-medium text-gray-900 dark:text-white">{meta.publisher}</span>
+										<span className="text-xs font-medium text-gray-900 dark:text-white">{meta.publisher}</span>
 									</div>
 								)}
-								{/* Website - Only show if source_url exists */}
+
 								{meta.source_url && (
-									<div className="flex text-xs justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
-										<span className="text-xs text-gray-600 dark:text-gray-400">
+									<div className="flex justify-between items-center py-3">
+										<span className="text-xs text-gray-500 dark:text-gray-400">
 											{t('itemDetail.WEBSITE')}
 										</span>
 										<a
 											href={meta.source_url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-500 dark:hover:text-theme-primary-400"
+											className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-400 dark:hover:text-theme-primary-300 transition-colors"
 										>
 											{(() => {
-												try {
-													return new URL(meta.source_url).hostname;
-												} catch {
-													return 'N/A';
-												}
+												try { return new URL(meta.source_url).hostname; } catch { return 'N/A'; }
 											})()}
 										</a>
 									</div>
 								)}
+
 								<div className="flex justify-between items-center py-3">
-									<span className="text-xs text-gray-600 dark:text-gray-400">
+									<span className="text-xs text-gray-500 dark:text-gray-400">
 										{t('itemDetail.PUBLISHED')}
 									</span>
 									<span className="text-xs font-medium text-gray-900 dark:text-white">
 										{meta.updated_at
-											? new Date(meta.updated_at).toLocaleDateString('en-US', {
-												year: 'numeric',
-												month: 'short',
-												day: 'numeric'
-											})
+											? new Date(meta.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 											: 'N/A'}
 									</span>
 								</div>
 							</div>
 						</div>
 
-						{/* Promo Code Section */}
+						{/* Promo Code */}
 						{meta.promo_code && (
-							<div className="bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-200 dark:border-white/6 shadow-sm">
-								<h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
-									{t('itemDetail.PROMO_CODE')}
-								</h2>
-								<PromoCodeComponent
-									promoCode={meta.promo_code}
-									variant="featured"
-									showDescription={true}
-									showTerms={true}
-									onCodeCopied={(code) => {
-										if (typeof window !== 'undefined' && (window as any).gtag) {
-											(window as any).gtag('event', 'promo_code_copied', {
-												event_category: 'engagement',
-												event_label: code,
-												item_name: meta.name,
-												page_location: window.location.href
-											});
-										}
-									}}
-								/>
+							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
+								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
+									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+										{t('itemDetail.PROMO_CODE')}
+									</h2>
+								</div>
+								<div className="px-5 py-4">
+									<PromoCodeComponent
+										promoCode={meta.promo_code}
+										variant="featured"
+										showDescription={true}
+										showTerms={true}
+										onCodeCopied={(code) => {
+											if (typeof window !== 'undefined' && (window as any).gtag) {
+												(window as any).gtag('event', 'promo_code_copied', {
+													event_category: 'engagement',
+													event_label: code,
+													item_name: meta.name,
+													page_location: window.location.href
+												});
+											}
+										}}
+									/>
+								</div>
 							</div>
 						)}
 
-						{/* Sponsor Ads Section */}
+						{/* Sponsor Ads */}
 						{sponsors.length > 0 && (
 							<SidebarSponsor sponsors={sponsors} rotationInterval={5000} />
 						)}
 
-						{/* Categories - Only show if categories enabled and category exists */}
+						{/* Category */}
 						{categoriesEnabled && categoryName && (
-							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
-								<div className="flex justify-between">
-									<div className="flex items-center gap-4 mb-6">
-										<div className="p-1.5 bg-linear-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl">
-											<svg
-												className="w-4 h-4 text-green-600 dark:text-green-400"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth="2"
-													d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-												/>
-											</svg>
-										</div>
-									<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-											{t('common.CATEGORY')}
-										</h2>
-									</div>
-									<span className="text-xs text-gray-500">
+							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
+								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6 flex items-center justify-between">
+									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+										{t('common.CATEGORY')}
+									</h2>
+									<span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
 										1 {t('common.ITEM')}
 									</span>
 								</div>
-								<div className="flex flex-wrap gap-2">
+								<div className="px-5 py-4">
 									<a
 										href={`/categories/${encodedCategory}`}
-										className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-white dark:bg-white/5 text-gray-700 dark:text-gray-500 border border-gray-200 dark:border-white/8 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/8 capitalize"
+										className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/8 transition-colors capitalize"
 									>
 										{toTitleCase(categoryName)}
 									</a>
@@ -387,41 +351,23 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
-						{/* Tags - Only show if tags exist and tags are enabled */}
+						{/* Tags */}
 						{tagsEnabled && tagNames.length > 0 && (
-							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
-								<div className="flex justify-between mb-4">
-									<div className="flex items-center gap-4">
-										<div className="p-1.5 bg-linear-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl">
-											<svg
-												className="w-4 h-4 text-cyan-600 dark:text-cyan-400"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth="2"
-													d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-												></path>
-											</svg>
-										</div>
-										<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-											{t('listing.TAGS')}
-										</h2>
-									</div>
-									<span className="text-xs text-gray-500">
+							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
+								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6 flex items-center justify-between">
+									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+										{t('listing.TAGS')}
+									</h2>
+									<span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
 										{tagNames.length} {tagNames.length === 1 ? t('common.ITEM') : t('common.ITEMS')}
 									</span>
 								</div>
-								<div className="flex flex-wrap gap-1">
+								<div className="px-5 py-4 flex flex-wrap gap-1.5">
 									{tagNames.map((tag, index) => (
 										<a
 											key={index}
 											href={`/tags/${tag}`}
-											className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-white/6 transition-all duration-300"
+											className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/8 transition-colors"
 										>
 											#{tag}
 										</a>
@@ -430,8 +376,9 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
+						{/* Similar items */}
 						{meta.allItems && meta.allItems.length > 0 && (
-							<div className="mt-10 border-t border-gray-200 dark:border-white/8 pt-6 border-dashed">
+							<div className="pt-2">
 								<SimilarItemsSection allItems={meta.allItems} />
 							</div>
 						)}
@@ -452,17 +399,15 @@ export function ItemDetail({ meta, renderedContent, categoryName }: ItemDetailPr
 
 function CompactVote({ itemId }: { itemId: string }) {
 	const { userVote, isLoading, handleVote } = useItemVote(itemId);
-	const [isAnimating, setIsAnimating] = useState(false);
 	const isVoted = userVote === 'up';
 
 	const onClick = async (e: React.MouseEvent) => {
 		e.preventDefault();
 		if (isLoading) return;
-		setIsAnimating(true);
 		try {
 			await handleVote('up');
 		} finally {
-			setTimeout(() => setIsAnimating(false), 400);
+			// animation handled by CSS transition
 		}
 	};
 
@@ -472,12 +417,14 @@ function CompactVote({ itemId }: { itemId: string }) {
 			disabled={isLoading}
 			title={isVoted ? 'Remove upvote' : 'Upvote'}
 			className={cn(
-				'w-9 h-9 inline-flex items-center justify-center rounded-md transition-colors duration-150',
-				'bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6',
-				isVoted && 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 text-white'
+				'w-9 h-9 inline-flex items-center justify-center rounded-lg transition-colors duration-150',
+				'bg-white dark:bg-white/3 border border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6',
+				isVoted
+					? 'bg-theme-primary-600 dark:bg-theme-primary-600 border-theme-primary-600 dark:border-theme-primary-500 text-white hover:bg-theme-primary-700 dark:hover:bg-theme-primary-700'
+					: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
 			)}
 		>
-			<ThumbsUp className={cn('w-4 h-4', isVoted ? 'text-white' : 'text-gray-600 dark:text-gray-400')} />
+			<ThumbsUp className="w-4 h-4" />
 		</button>
 	);
 }
