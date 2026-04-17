@@ -1,5 +1,6 @@
 @use '@/lib/editor/styles/_variables.scss';
 @use '@/lib/editor/styles/_keyframe-animations.scss';
+@reference '../tailwind.css';
 
 @layer base {
   *,
