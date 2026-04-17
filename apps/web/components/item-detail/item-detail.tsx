@@ -240,110 +240,143 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 						</div>
 					</div>
 
-					{/* ── Right / Sidebar column ──────────────────────────── */}
-					<div className={`${isFluid ? 'lg:w-[25%] lg:shrink-0' : 'lg:w-[320px] shrink-0'} space-y-4`}>
-
-						{/* Information card */}
-						<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
-							<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
-								<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+					{/* Right column */}
+					<div className={`${isFluid ? 'lg:w-[25%] lg:shrink-0' : 'lg:w-1/3'} space-y-6 relative`}>
+						<div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-gray-200 dark:border-white/6 shadow-sm">
+							<div className="flex items-center gap-4 mb-6">
+								<div className="p-1.5 bg-linear-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 rounded-xl">
+									<svg
+										className="w-4 h-4 text-emerald-600 dark:text-emerald-400"
+										fill="none"
+										stroke="currentColor"
+										viewBox="0 0 24 24"
+										xmlns="http://www.w3.org/2000/svg"
+									>
+										<path
+											strokeLinecap="round"
+											strokeLinejoin="round"
+											strokeWidth="2"
+											d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+										></path>
+									</svg>
+								</div>
+							<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
 									{t('itemDetail.INFORMATION')}
 								</h2>
 							</div>
-							<div className="px-5 py-3 divide-y divide-gray-100 dark:divide-white/6">
-								<div className="py-2">
-									<RatingDisplay itemId={meta.slug || meta.name} />
-								</div>
+							<div className="space-y-3">
+								<RatingDisplay itemId={meta.slug || meta.name} />
 
+								{/* Publisher - Only show if defined */}
 								{meta.publisher && (
-									<div className="flex justify-between items-center py-3">
-										<span className="text-xs text-gray-500 dark:text-gray-400">
+									<div className="flex justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
+										<span className="text-sm text-gray-600 dark:text-gray-400">
 											{t('itemDetail.PUBLISHER')}
 										</span>
-										<span className="text-xs font-medium text-gray-900 dark:text-white">{meta.publisher}</span>
+										<span className="text-sm font-medium text-gray-900 dark:text-white">{meta.publisher}</span>
 									</div>
 								)}
-
+								{/* Website - Only show if source_url exists */}
 								{meta.source_url && (
-									<div className="flex justify-between items-center py-3">
-										<span className="text-xs text-gray-500 dark:text-gray-400">
+									<div className="flex text-xs justify-between items-center py-3 border-b border-gray-100 dark:border-white/6">
+										<span className="text-xs text-gray-600 dark:text-gray-400">
 											{t('itemDetail.WEBSITE')}
 										</span>
 										<a
 											href={meta.source_url}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-400 dark:hover:text-theme-primary-300 transition-colors"
+											className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-500 dark:hover:text-theme-primary-400"
 										>
 											{(() => {
-												try { return new URL(meta.source_url).hostname; } catch { return 'N/A'; }
+												try {
+													return new URL(meta.source_url).hostname;
+												} catch {
+													return 'N/A';
+												}
 											})()}
 										</a>
 									</div>
 								)}
-
 								<div className="flex justify-between items-center py-3">
-									<span className="text-xs text-gray-500 dark:text-gray-400">
+									<span className="text-xs text-gray-600 dark:text-gray-400">
 										{t('itemDetail.PUBLISHED')}
 									</span>
 									<span className="text-xs font-medium text-gray-900 dark:text-white">
 										{meta.updated_at
-											? new Date(meta.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+											? new Date(meta.updated_at).toLocaleDateString('en-US', {
+												year: 'numeric',
+												month: 'short',
+												day: 'numeric'
+											})
 											: 'N/A'}
 									</span>
 								</div>
 							</div>
 						</div>
 
-						{/* Promo Code */}
+						{/* Promo Code Section */}
 						{meta.promo_code && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
-								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
-									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-										{t('itemDetail.PROMO_CODE')}
-									</h2>
-								</div>
-								<div className="px-5 py-4">
-									<PromoCodeComponent
-										promoCode={meta.promo_code}
-										variant="featured"
-										showDescription={true}
-										showTerms={true}
-										onCodeCopied={(code) => {
-											if (typeof window !== 'undefined' && (window as any).gtag) {
-												(window as any).gtag('event', 'promo_code_copied', {
-													event_category: 'engagement',
-													event_label: code,
-													item_name: meta.name,
-													page_location: window.location.href
-												});
-											}
-										}}
-									/>
-								</div>
+							<div className="bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-200 dark:border-white/6 shadow-sm">
+								<h2 className="text-sm font-semibold text-gray-900 dark:text-white mb-4">
+									{t('itemDetail.PROMO_CODE')}
+								</h2>
+								<PromoCodeComponent
+									promoCode={meta.promo_code}
+									variant="featured"
+									showDescription={true}
+									showTerms={true}
+									onCodeCopied={(code) => {
+										if (typeof window !== 'undefined' && (window as any).gtag) {
+											(window as any).gtag('event', 'promo_code_copied', {
+												event_category: 'engagement',
+												event_label: code,
+												item_name: meta.name,
+												page_location: window.location.href
+											});
+										}
+									}}
+								/>
 							</div>
 						)}
 
-						{/* Sponsor Ads */}
+						{/* Sponsor Ads Section */}
 						{sponsors.length > 0 && (
 							<SidebarSponsor sponsors={sponsors} rotationInterval={5000} />
 						)}
 
-						{/* Category */}
+						{/* Categories - Only show if categories enabled and category exists */}
 						{categoriesEnabled && categoryName && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
-								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6 flex items-center justify-between">
-									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-										{t('common.CATEGORY')}
-									</h2>
-									<span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
+								<div className="flex justify-between">
+									<div className="flex items-center gap-4 mb-6">
+										<div className="p-1.5 bg-linear-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl">
+											<svg
+												className="w-4 h-4 text-green-600 dark:text-green-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth="2"
+													d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+												/>
+											</svg>
+										</div>
+									<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+											{t('common.CATEGORY')}
+										</h2>
+									</div>
+									<span className="text-xs text-gray-500">
 										1 {t('common.ITEM')}
 									</span>
 								</div>
-								<div className="px-5 py-4">
+								<div className="flex flex-wrap gap-2">
 									<a
 										href={`/categories/${encodedCategory}`}
-										className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded-lg bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/8 transition-colors capitalize"
+										className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-white dark:bg-white/5 text-gray-700 dark:text-gray-500 border border-gray-200 dark:border-white/8 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/8 capitalize"
 									>
 										{toTitleCase(categoryName)}
 									</a>
@@ -351,23 +384,41 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
-						{/* Tags */}
+						{/* Tags - Only show if tags exist and tags are enabled */}
 						{tagsEnabled && tagNames.length > 0 && (
-							<div className="bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden">
-								<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6 flex items-center justify-between">
-									<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-										{t('listing.TAGS')}
-									</h2>
-									<span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
+								<div className="flex justify-between mb-4">
+									<div className="flex items-center gap-4">
+										<div className="p-1.5 bg-linear-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-xl">
+											<svg
+												className="w-4 h-4 text-cyan-600 dark:text-cyan-400"
+												fill="none"
+												stroke="currentColor"
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													strokeLinecap="round"
+													strokeLinejoin="round"
+													strokeWidth="2"
+													d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+												></path>
+											</svg>
+										</div>
+										<h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+											{t('listing.TAGS')}
+										</h2>
+									</div>
+									<span className="text-xs text-gray-500">
 										{tagNames.length} {tagNames.length === 1 ? t('common.ITEM') : t('common.ITEMS')}
 									</span>
 								</div>
-								<div className="px-5 py-4 flex flex-wrap gap-1.5">
+								<div className="flex flex-wrap gap-1">
 									{tagNames.map((tag, index) => (
 										<a
 											key={index}
 											href={`/tags/${tag}`}
-											className="inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100 rounded-lg bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/8 transition-colors"
+											className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-white/6 transition-all duration-300"
 										>
 											#{tag}
 										</a>
@@ -376,9 +427,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
-						{/* Similar items */}
 						{meta.allItems && meta.allItems.length > 0 && (
-							<div className="pt-2">
+							<div className="mt-10 border-t border-gray-200 dark:border-white/8 pt-6 border-dashed">
 								<SimilarItemsSection allItems={meta.allItems} />
 							</div>
 						)}

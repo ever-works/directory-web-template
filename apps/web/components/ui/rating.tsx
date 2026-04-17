@@ -45,7 +45,7 @@ export function Rating({
             }
           }}
           className={cn(
-            "focus:outline-hidden focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 transition-all duration-200 rounded-xs p-1",
+            "focus:outline-hidden focus:ring-none focus:ring-yellow-400 focus:ring-offset-2 transition-all duration-200 rounded-xs p-1",
             !readOnly && "hover:text-yellow-400 hover:scale-110 cursor-pointer active:scale-95",
             readOnly && "cursor-default"
           )}

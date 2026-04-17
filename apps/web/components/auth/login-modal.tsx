@@ -20,15 +20,13 @@ export function LoginModal({ isOpen, onClose, message = 'Welcome back', callback
 		<Modal
 			isOpen={isOpen}
 			onClose={onClose}
-			size="3xl"
+			size="4xl"
 			backdrop="blur"
 			isDismissable={true}
 			hideCloseButton={false}
 			className={cn(
-				'bg-linear-to-br from-white to-gray-50',
-				'dark:from-[#0a0a0a] dark:to-[#0a0a0a]',
-				'border border-gray-200/50 dark:border-white/4',
-				'dark:bg-opacity-95 dark:backdrop-blur-xl'
+				'bg-white dark:bg-[#0a0a0a]',
+				'border border-gray-200 dark:border-white/8'
 			)}
 		>
 			<LoginContent variant="modal" message={message} type="login" onSuccess={onClose} callbackUrl={callbackUrl} />

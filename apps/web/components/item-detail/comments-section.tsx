@@ -110,12 +110,12 @@ const CommentForm = memo(
 					src={userImage}
 					alt={userName || 'You'}
 					fallback={userName?.[0] || 'Y'}
-					size="md"
+					size="sm"
 					className="w-6 h-6 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5"
 				/>
 				{/* Chat bubble input */}
 				<form onSubmit={handleSubmit} className="flex-1 min-w-0">
-					<div className={`relative border rounded-2xl transition-all duration-200 bg-white dark:bg-white/[0.04] ${
+					<div className={`relative border rounded-lg transition-all duration-200 bg-white dark:bg-white/[0.04] ${
 						focused
 							? 'border-gray-300 dark:border-white/20 shadow-sm'
 							: 'border-gray-200 dark:border-white/10'
@@ -221,18 +221,18 @@ const Comment = memo(
 		const isFluid = containerWidth === 'fluid';
 
 		return (
-			<div className={`${isFluid ? 'max-w-[80%]' : 'w-full'} group flex gap-3 px-6 py-3.5 hover:bg-gray-50/70 dark:hover:bg-white/[0.015] transition-colors duration-150`}>
+			<div className={`${isFluid ? 'max-w-[80%]' : 'w-full'} group flex gap-3 px-6 py-3.5 transition-colors duration-150`}>
 				{/* Avatar — LinkedIn positions it top-left */}
 				<Avatar
 					src={comment.user.image}
 					alt={comment.user.name || 'Anonymous'}
 					fallback={comment.user.name?.[0] || 'A'}
-					size="md"
-					className="w-6 h-6 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5 rounded-full"
+					size="sm"
+					className="w-4 h-4 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5 rounded-full"
 				/>
 				<div className="flex-1 min-w-0">
 					{/* LinkedIn-style name card bubble */}
-					<div className="bg-gray-50 dark:bg-white/[0.04] rounded-2xl px-4 py-3 border border-gray-100 dark:border-white/[0.06]">
+					<div className="px-4">
 						{/* Name + time row */}
 						<div className="flex items-center justify-between gap-2 mb-1">
 							<div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
@@ -272,7 +272,7 @@ const Comment = memo(
 										type="button"
 										onClick={handleCancel}
 										disabled={isUpdating}
-										className="h-7 px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-full"
+										className="h-7 cursor-pointer px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-full"
 									>
 										Cancel
 									</button>
@@ -291,34 +291,33 @@ const Comment = memo(
 								</div>
 							</div>
 						) : (
-							<p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300 mt-0.5">{comment.content}</p>
+							<>
+								<p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400 mt-0.5">{comment.content}</p>
+								{/* Owner action buttons — appear on row hover */}
+								{isOwner && (
+									<div className="flex items-center gap-1 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+										<button
+											type="button"
+											onClick={() => setIsEditing(true)}
+											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
+										>
+											<Pencil className="w-2.5 h-2.5" />
+											Edit
+										</button>
+										<span className="text-gray-200 dark:text-white/10">·</span>
+										<button
+											type="button"
+											onClick={() => setIsDeleteDialogOpen(true)}
+											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+										>
+											<Trash2 className="w-2.5 h-2.5" />
+											Delete
+										</button>
+									</div>
+								)}
+							</>
 						)}
 					</div>
-
-					{/* LinkedIn-style action bar below the bubble */}
-					{!isEditing && isOwner && (
-						<div className="flex items-center gap-1 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-							<button
-								onClick={() => setIsEditing(true)}
-								disabled={isDeleting || isUpdating}
-								className="flex items-center gap-1 h-6 px-2 text-[11px] font-medium text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-white/8 transition-all"
-								aria-label="Edit comment"
-							>
-								<Pencil className="w-3 h-3" />
-								<span>Edit</span>
-							</button>
-							<span className="text-gray-200 dark:text-white/10 select-none">·</span>
-							<button
-								onClick={() => setIsDeleteDialogOpen(true)}
-								disabled={isDeleting || isUpdating}
-								className="flex items-center gap-1 h-6 px-2 text-[11px] font-medium text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-50 dark:hover:bg-red-950/20 transition-all"
-								aria-label="Delete comment"
-							>
-								<Trash2 className="w-3 h-3" />
-								<span>Delete</span>
-							</button>
-						</div>
-					)}
 				</div>
 
 			{/* Delete Confirmation Dialog */}
@@ -399,17 +398,20 @@ const EmptyState = memo(() => (
 ));
 EmptyState.displayName = 'EmptyState';
 
-// Login prompt component for non-authenticated users — inline chat-bar style
+// Login prompt — compact inline bar
 const LoginPrompt = memo(({ onLoginClick }: { onLoginClick: () => void }) => (
-	<div className="flex items-center gap-3">
-		<div className="w-8 h-8 shrink-0 rounded-full bg-gray-100 dark:bg-white/8 flex items-center justify-center">
-			<MessageCircle className="w-4 h-4 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+	<div className="flex items-center gap-2.5 py-1">
+		<div className="w-6 h-6 shrink-0 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
+			<MessageCircle className="w-3 h-3 text-gray-400 dark:text-gray-500" aria-hidden="true" />
 		</div>
+		<span className="text-[0.8125rem] text-gray-400 dark:text-gray-500 flex-1">
+			Have thoughts?
+		</span>
 		<button
 			onClick={onLoginClick}
-			className="flex-1 text-left px-4 py-2.5 rounded-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.04] text-sm text-gray-400 dark:text-gray-500 hover:border-gray-300 dark:hover:border-white/20 hover:bg-gray-50 dark:hover:bg-white/[0.07] transition-all cursor-pointer"
+			className="h-7 px-3 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
 		>
-			Sign in to comment...
+			Sign in
 		</button>
 	</div>
 ));

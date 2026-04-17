@@ -35,54 +35,36 @@ export function LoginContent({
 
 	return (
 		<div className="relative">
-			{/* Background Pattern - only for modal variant */}
-			{variant === 'modal' && (
-				<div
-					className="absolute inset-0 opacity-[0.02] dark:opacity-[0.05] pointer-events-none"
-					style={{
-						backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
-						backgroundSize: '20px 20px'
-					}}
-				/>
-			)}
-
 			<div className="flex flex-col md:flex-row">
 				{/* Left Side - Features */}
 				<div
 					className={cn(
-						'w-full p-6 flex flex-col justify-center relative',
-						variant === 'modal' ? 'md:w-[45%]' : 'md:w-1/2',
-						'bg-linear-to-br from-gray-50 to-white',
-						'dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]'
+						'w-full p-4 flex flex-col relative',
+						variant === 'modal' ? 'md:w-[45%]' : 'md:w-2/3',
+						'bg-gray-50 dark:bg-[#0a0a0a]',
+						'border-r border-gray-100 dark:border-white/6'
 					)}
 				>
 					<div className="relative z-10">
-						<div className="mb-6">
+						<div className="mb-3">
 							{/* Logo */}
-							<div className="flex items-center mb-6 space-x-2">
+							<div className="flex items-center mb-3 space-x-2">
 								<SiteLogo size="sm" showText={true} />
 							</div>
 
 							{/* Title */}
 							<div>
-								<h2
-									className={cn(
-										'text-2xl font-bold mb-3',
-										'bg-linear-to-r from-gray-900 to-gray-700',
-										'dark:from-white dark:to-gray-300',
-										'bg-clip-text text-transparent'
-									)}
-								>
+								<h2 className="text-base font-semibold mb-1 text-gray-900 dark:text-white">
 									Discover & Connect
 								</h2>
 
-								<p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
+								<p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-3">
 									Join our network of professionals and unlock new opportunities.
 								</p>
 							</div>
 
 							{/* Features List */}
-							<div className="space-y-4">
+							<div className="space-y-2.5">
 								{authFeatures.map((feature) => {
 									const colorVariant = feature.colorVariant;
 									const bgClasses =
@@ -110,7 +92,7 @@ export function LoginContent({
 										<div key={feature.titleKey} className="flex items-start group">
 											<div
 												className={cn(
-													'p-2 rounded-lg mr-3 transition-all duration-300 transform group-hover:scale-110',
+														'p-1.5 rounded-lg mr-2 transition-all duration-300 transform group-hover:scale-110',
 													bgClasses
 												)}
 											>
@@ -125,7 +107,7 @@ export function LoginContent({
 												>
 													{t(feature.titleKey as any)}
 												</h3>
-												<p className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed">
+													<p className="text-gray-500 dark:text-gray-400 text-[11px] leading-relaxed">
 													{t(feature.descriptionKey as any)}
 												</p>
 											</div>
@@ -136,39 +118,35 @@ export function LoginContent({
 						</div>
 					</div>
 
-					{/* Decorative gradient */}
-					<div className="absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
 				</div>
 
 				{/* Right Side - Auth Form */}
 				<div
 					className={cn(
-						'w-full p-6 flex items-center justify-center relative bg-white/40 dark:bg-white/3 backdrop-blur-xs',
+						'w-full p-4 flex items-center justify-center relative bg-white dark:bg-[#0a0a0a]',
 						variant === 'modal' ? 'md:w-[55%]' : 'md:w-1/2'
 					)}
 				>
 					<div className="w-full max-w-sm">
-						<div className="text-center mb-5">
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{message}</h3>
-							<p className="text-gray-600 dark:text-gray-400 text-xs">
+						<div className="text-center mb-3">
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-0.5">{message}</h3>
+							<p className="text-gray-500 dark:text-gray-400 text-xs">
 								Enter your credentials to continue
 							</p>
 						</div>
 
-						<div className="bg-white dark:bg-white/3 p-4 rounded-lg shadow-xs border border-gray-100 dark:border-white/6">
-							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
-								<div className="space-y-3">
-									<div className="relative">
-										<div className="absolute inset-0 flex items-center">
-											<div className="w-full border-t border-gray-200 dark:border-white/6" />
-										</div>
+						<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
+							<div className="space-y-3">
+								<div className="relative">
+									<div className="absolute inset-0 flex items-center">
+										<div className="w-full border-t border-gray-200 dark:border-white/6" />
 									</div>
-									<SocialLogin callbackUrl={callbackUrl} />
 								</div>
-							</CredentialsForm>
-						</div>
+								<SocialLogin callbackUrl={callbackUrl} />
+							</div>
+						</CredentialsForm>
 
-						<p className="text-center text-[11px] text-gray-500 dark:text-gray-400 mt-4">
+						<p className="text-center text-[11px] text-gray-500 dark:text-gray-400 mt-3">
 							By signing in, you agree to our{' '}
 							<a
 								href="#"
