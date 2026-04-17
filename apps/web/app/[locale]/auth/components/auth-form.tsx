@@ -23,7 +23,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
   const isLogin = form === "login";
 
   return (
-    <div className="flex items-center justify-center py-8 px-4 relative bg-gray-50 dark:bg-white/3">
+    <div className="flex items-center justify-center py-8 px-4 relative">
       {/* Animated background */}
       <AnimatedBackground />
       <GeometricDecoration />
@@ -55,10 +55,10 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                     {/* Admin-specific message */}
                     {showSocialLogin === false ? (
                       <>
-                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                        <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
                           {tAuth('ADMIN_WELCOME_TITLE')}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                           {tAuth('ADMIN_WELCOME_DESCRIPTION')}
                         </p>
                       </>
@@ -77,7 +77,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                             </>
                           )}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                           {isLogin
                             ? t("ACCESS_THOUSANDS")
                             : t("CREATE_ACCOUNT_DESC")}
@@ -93,39 +93,39 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                     <>
                       <div className="flex items-center">
                         <div className="bg-theme-primary/10 p-3 rounded-xl mr-4 group">
-                          <User className="h-5 w-5 text-theme-primary" />
+                          <User className="h-3 w-3 text-theme-primary" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("USER_MANAGEMENT")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("USER_MANAGEMENT_DESC")}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center">
                         <div className="bg-theme-accent/10 p-3 rounded-xl mr-4 group">
-                          <Building className="h-5 w-5 text-theme-accent" />
+                          <Building className="h-3 w-3 text-theme-accent" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("CONTENT_MODERATION")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("CONTENT_MODERATION_DESC")}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center">
                         <div className="bg-theme-secondary/10 p-3 rounded-xl mr-4 group">
-                          <Globe className="h-5 w-5 text-theme-secondary" />
+                          <Globe className="h-3 w-3 text-theme-secondary" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("ANALYTICS_DASHBOARD")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("ANALYTICS_DASHBOARD_DESC")}
                           </span>
                         </div>

@@ -286,11 +286,11 @@ export function CredentialsForm({
 	return (
 		<div className="w-full">
 			{/* Header */}
-			<div className="text-center mb-4">
-				<h1 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
+			<div className="mb-5">
+				<h1 className="text-lg font-semibold text-gray-900 dark:text-white">
 					{isLogin ? t('SIGN_IN') : t('CREATE_ACCOUNT')}
 				</h1>
-				<p className="text-gray-500 dark:text-gray-400 text-xs">
+				<p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
 					{isLogin ? tCred('WELCOME_BACK_MESSAGE') : tCred('CREATE_ACCOUNT_MESSAGE')}
 				</p>
 			</div>
@@ -298,7 +298,7 @@ export function CredentialsForm({
 			{auth.credentials && (
 				<form
 					{...(clientMode ? { onSubmit: handleClientSubmit } : { action: handleFormAction as any })}
-					className="space-y-3.5"
+					className="space-y-4"
 					aria-label={isLogin ? t('SIGN_IN') : t('CREATE_ACCOUNT')}
 				>
 					{/* Name field (signup only) */}
@@ -306,7 +306,7 @@ export function CredentialsForm({
 						<div className="space-y-1.5">
 							<label
 								htmlFor="name"
-								className="block text-xs font-medium text-gray-600 dark:text-gray-300"
+								className="block text-xs font-medium text-gray-600 dark:text-gray-400"
 							>
 								{t('FULL_NAME')}
 								<span className="text-red-500 ml-1">*</span>
@@ -318,7 +318,7 @@ export function CredentialsForm({
 								<input
 									id="name"
 									type="text"
-									className="pl-10 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-md bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+								className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 									placeholder={t('ENTER_YOUR_FULL_NAME')}
 									name="name"
 									defaultValue={state?.name}
@@ -333,17 +333,17 @@ export function CredentialsForm({
 					)}
 
 					{authSyncError && (
-						<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/50 rounded-md">
-							<svg className="w-4 h-4 shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-								<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-							</svg>
-							<p className="text-xs text-red-700 dark:text-red-300">{authSyncError}</p>
-						</div>
-					)}
+					<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
+						<svg className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+							<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+						</svg>
+						<p className="text-xs text-red-700 dark:text-red-300">{authSyncError}</p>
+					</div>
+				)}
 
 					{/* Email field */}
-					<div className="space-y-1.5">
-						<label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-300">
+				<div className="space-y-1.5">
+					<label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-400">
 							{t('EMAIL_ADDRESS')}
 							<span className="text-red-500 ml-1">*</span>
 						</label>
@@ -354,7 +354,7 @@ export function CredentialsForm({
 							<input
 								id="email"
 								type="email"
-									className="pl-10 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-md bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+							className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 								placeholder={t('ENTER_YOUR_EMAIL')}
 								name="email"
 								defaultValue={state?.email}
@@ -371,7 +371,7 @@ export function CredentialsForm({
 					<div className="space-y-1.5">
 						<label
 							htmlFor="password"
-							className="block text-xs font-medium text-gray-600 dark:text-gray-300"
+							className="block text-xs font-medium text-gray-600 dark:text-gray-400"
 						>
 							{t('PASSWORD')}
 							<span className="text-red-500 ml-1">*</span>
@@ -383,7 +383,7 @@ export function CredentialsForm({
 							<input
 								id="password"
 								type={showPassword ? 'text' : 'password'}
-									className="pl-10 pr-10 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-md bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+							className="pl-9 pr-9 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 								placeholder={t('ENTER_YOUR_PASSWORD')}
 								name="password"
 								required
@@ -409,20 +409,21 @@ export function CredentialsForm({
 								id="password-tips"
 								className="mt-2 p-3 bg-theme-primary/5 border border-theme-primary/15 rounded-lg"
 							>
-								<p className="text-xs font-medium text-gray-700 dark:text-gray-200 mb-1.5">
+								<p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5 flex items-center gap-1.5">
+									<Lock className="w-3 h-3 text-theme-primary" />
 									{tCred('SECURITY_REQUIREMENTS')}
 								</p>
-								<ul className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
-									<li className="flex items-center gap-1.5">
-										<div className="w-1 h-1 bg-theme-primary rounded-full"></div>
+								<ul className="space-y-1">
+									<li className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+										<div className="w-1 h-1 bg-theme-primary/60 rounded-full"></div>
 										<span>{tCred('AT_LEAST_8_CHARS')}</span>
 									</li>
-									<li className="flex items-center gap-1.5">
-										<div className="w-1 h-1 bg-theme-primary rounded-full"></div>
+									<li className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+										<div className="w-1 h-1 bg-theme-primary/60 rounded-full"></div>
 										<span>{tCred('UPPERCASE_LOWERCASE')}</span>
 									</li>
-									<li className="flex items-center gap-1.5">
-										<div className="w-1 h-1 bg-theme-primary rounded-full"></div>
+									<li className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+										<div className="w-1 h-1 bg-theme-primary/60 rounded-full"></div>
 										<span>{tCred('NUMBER_SPECIAL_CHAR')}</span>
 									</li>
 								</ul>
@@ -430,48 +431,50 @@ export function CredentialsForm({
 						)}
 					</div>
 
-					{/* Modern error and success messages */}
-					{(state?.error || clientError) && (
-						<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/50 rounded-md">
-							<svg className="w-4 h-4 shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-								<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-							</svg>
-							<p className="text-xs text-red-700 dark:text-red-300">
-								{getTranslatedErrorMessage(clientError || state?.error)}
-							</p>
+{/* Error message */}
+				{(state?.error || clientError) && (
+					<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
+						<svg className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+							<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+						</svg>
+						<p className="text-xs text-red-700 dark:text-red-300">
+							{getTranslatedErrorMessage(clientError || state?.error)}
+						</p>
 						</div>
 					)}
 
 					{/* Server-side success message */}
 					{state?.success && !clientMode && (
-						<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-950/30 border border-green-200/80 dark:border-green-900/50 rounded-md">
-							<svg className="w-4 h-4 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-								<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-							</svg>
-							<p className="text-xs text-green-700 dark:text-green-300">
-								{isLogin ? tCred('REDIRECTING') : tCred('WELCOME_SETTING_UP_ACCOUNT')}
-							</p>
-						</div>
-					)}
+					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
+						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+						</svg>
+						<p className="text-xs text-green-700 dark:text-green-300">
+							{isLogin ? tCred('LOGIN_SUCCESSFUL') : tCred('ACCOUNT_CREATED_SUCCESSFULLY')}
+							{' — '}
+							{isLogin ? tCred('REDIRECTING') : tCred('WELCOME_SETTING_UP_ACCOUNT')}
+						</p>
+					</div>
+				)}
 
 					{/* Client-side success message for admin login */}
 					{clientMode && clientSuccess && (
-						<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-950/30 border border-green-200/80 dark:border-green-900/50 rounded-md">
-							<svg className="w-4 h-4 shrink-0 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-								<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-							</svg>
-							<p className="text-xs text-green-700 dark:text-green-300">
-								{tCred('REDIRECTING_TO_ADMIN')}
-							</p>
-						</div>
-					)}
+					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
+						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+						</svg>
+						<p className="text-xs text-green-700 dark:text-green-300">
+							{tCred('ADMIN_LOGIN_SUCCESSFUL')} — {tCred('REDIRECTING_TO_ADMIN')}
+						</p>
+					</div>
+				)}
 
 					{/* Forgot password link (login only) */}
 					{isLogin && (
-						<div className="flex items-center justify-center">
-							<Link
-								href="/auth/forgot-password"
-								className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 transition-colors hover:underline"
+					<div className="flex justify-end">
+						<Link
+							href="/auth/forgot-password"
+							className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 transition-colors hover:underline"
 							>
 								{t('FORGOT_PASSWORD')}
 							</Link>
@@ -535,10 +538,10 @@ export function CredentialsForm({
 						}
 						type="submit"
 						className={cn(
-							'w-full h-10 bg-theme-primary text-white text-sm font-medium rounded-md',
-							'hover:opacity-90 focus:outline-hidden',
-							'focus:ring-2 focus:ring-theme-primary/20 focus:ring-offset-1 transition-all duration-150',
-							'disabled:opacity-50 disabled:cursor-not-allowed'
+						'w-full h-10 bg-theme-primary text-white text-sm font-medium rounded-lg',
+						'hover:bg-theme-primary/90 focus:outline-none',
+						'focus:ring-2 focus:ring-theme-primary/30 transition-colors duration-150',
+						'disabled:opacity-50 disabled:cursor-not-allowed'
 						)}
 						isLoading={
 							(pending && !state.success) || clientPending || clientSuccess || isPending || isVerifying
@@ -613,7 +616,7 @@ export function CredentialsForm({
 						className={cn(
 							'text-theme-primary hover:text-theme-primary/80 text-xs font-medium',
 							'hover:bg-theme-primary/5 px-3 py-1.5 rounded-md transition-colors duration-150',
-							'border border-theme-primary/20 hover:border-theme-primary/30'
+							'border border-theme-primary/20 hover:border-theme-primary/35'
 						)}
 						href={isLogin ? '/auth/register' : '/auth/signin'}
 						variant="flat"
