@@ -340,9 +340,15 @@ importers:
       mapbox-gl:
         specifier: ^3.18.0
         version: 3.19.1
+      next:
+        specifier: ^16.2.3
+        version: 16.2.3(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3)
       next-auth:
         specifier: 5.0.0-beta.30
         version: 5.0.0-beta.30(next@16.2.3(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)
+      next-intl:
+        specifier: ^4.9.1
+        version: 4.9.1(@swc/helpers@0.5.19)(next@16.2.3(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)(typescript@5.9.3)
       next-mdx-remote:
         specifier: ^6.0.0
         version: 6.0.0(@types/react@19.2.7)(react@19.2.5)
@@ -361,9 +367,15 @@ importers:
       posthog-js:
         specifier: ^1.255.1
         version: 1.359.1
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
       react-country-flag:
         specifier: ^3.1.0
         version: 3.1.0(react@19.2.5)
+      react-dom:
+        specifier: 19.2.5
+        version: 19.2.5(react@19.2.5)
       react-google-recaptcha:
         specifier: ^3.1.0
         version: 3.1.0(react@19.2.5)
@@ -524,24 +536,12 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.0.1
         version: 7.0.1(eslint@9.39.4(jiti@2.6.1))
-      next:
-        specifier: ^16.2.3
-        version: 16.2.3(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3)
-      next-intl:
-        specifier: ^4.9.1
-        version: 4.9.1(@swc/helpers@0.5.19)(next@16.2.3(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)(typescript@5.9.3)
       nodemon:
         specifier: ^3.1.10
         version: 3.1.14
       postcss:
         specifier: ^8
         version: 8.5.8
-      react:
-        specifier: 19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: 19.2.5
-        version: 19.2.5(react@19.2.5)
       sass:
         specifier: ^1.94.2
         version: 1.97.3
@@ -14357,7 +14357,7 @@ snapshots:
       '@babel/preset-env': 7.29.0(@babel/core@7.29.0)
       '@babel/preset-react': 7.28.5(@babel/core@7.29.0)
       '@babel/preset-typescript': 7.28.5(@babel/core@7.29.0)
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       '@babel/runtime-corejs3': 7.29.0
       '@babel/traverse': 7.29.0(supports-color@5.5.0)
       '@docusaurus/logger': 3.9.2
@@ -26242,7 +26242,7 @@ snapshots:
 
   react-loadable-ssr-addon-v5-slorber@1.0.1(@docusaurus/react-loadable@6.0.0(react@18.3.1))(webpack@5.105.4):
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       react-loadable: '@docusaurus/react-loadable@6.0.0(react@18.3.1)'
       webpack: 5.105.4
 
@@ -26331,13 +26331,13 @@ snapshots:
 
   react-router-config@5.1.1(react-router@5.3.4(react@18.3.1))(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       react: 18.3.1
       react-router: 5.3.4(react@18.3.1)
 
   react-router-dom@5.3.4(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       history: 4.10.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
@@ -26348,7 +26348,7 @@ snapshots:
 
   react-router@5.3.4(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       history: 4.10.1
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0

@@ -25,36 +25,30 @@ interface ExtendedUser {
 }
 
 function createDevelopmentAuthSecret(): string {
-	const fallbackSeed = [
-		process.env.VERCEL_PROJECT_PRODUCTION_URL,
-		process.env.VERCEL_URL,
-		process.env.NEXT_PUBLIC_APP_URL,
-		process.env.VERCEL_PROJECT_ID,
-		process.env.NEXT_PUBLIC_SITE_URL
-	]
-		.filter(Boolean)
-		.join('|');
-
-	if (fallbackSeed) {
-		return `ever-works-dev:${fallbackSeed}`;
+	const runtimeCrypto = globalThis.crypto;
+	if (runtimeCrypto?.getRandomValues) {
+		const buffer = new Uint8Array(32);
+		runtimeCrypto.getRandomValues(buffer);
+		return Array.from(buffer, (byte) => byte.toString(16).padStart(2, '0')).join('');
 	}
 
-	const runtimeCrypto = globalThis.crypto;
 	if (runtimeCrypto?.randomUUID) {
 		return `${runtimeCrypto.randomUUID()}${runtimeCrypto.randomUUID()}`;
 	}
 
-	return `ever-works-dev-${Math.random().toString(36).slice(2)}${Date.now()}`;
+	throw new Error('[auth] AUTH_SECRET is required because secure random generation is unavailable.');
 }
 
 const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
 
 if (!runtimeAuthSecret) {
+	if (coreConfig.NODE_ENV === 'production') {
+		throw new Error('[auth] AUTH_SECRET must be set in production.');
+	}
+
 	process.env.AUTH_SECRET = createDevelopmentAuthSecret();
 
-	if (coreConfig.NODE_ENV !== 'production') {
-		console.warn('[auth] AUTH_SECRET is not set. Using a temporary fallback secret.');
-	}
+	console.warn('[auth] AUTH_SECRET is not set. Using a temporary development-only fallback secret.');
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
