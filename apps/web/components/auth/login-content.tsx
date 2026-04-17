@@ -32,7 +32,6 @@ export function LoginContent({
 	const { currentTheme } = useTheme();
 	const _isDark = currentTheme.background === '#000000' || currentTheme.text === '#ffffff';
 	const t = useTranslations('common');
-	const tAuth = useTranslations('auth');
 
 	return (
 		<div className="relative">
@@ -55,11 +54,11 @@ export function LoginContent({
 							{/* Title */}
 							<div>
 								<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-									{tAuth('DISCOVER_AND_CONNECT')}
+									Discover & Connect
 								</h2>
 
 								<p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
-									{tAuth('JOIN_NETWORK_DESC')}
+									Join our network of professionals and unlock new opportunities.
 								</p>
 							</div>
 
@@ -99,7 +98,7 @@ export function LoginContent({
 						<div className="mb-5">
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{message}</h3>
 							<p className="text-gray-600 dark:text-gray-400 text-xs">
-								{tAuth('ENTER_CREDENTIALS')}
+								Enter your credentials to continue
 							</p>
 						</div>
 
@@ -117,19 +116,19 @@ export function LoginContent({
 						</div>
 
 						<p className="text-center text-[11px] text-gray-500 dark:text-gray-400 mt-4">
-							{tAuth('SIGN_IN_AGREEMENT')}{' '}
+							By signing in, you agree to our{' '}
 							<a
 								href="#"
 								className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
 							>
-								{t('TERMS')}
+								Terms
 							</a>{' '}
 							&{' '}
 							<a
 								href="#"
 								className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
 							>
-								{t('PRIVACY')}
+								Privacy
 							</a>
 						</p>
 					</div>

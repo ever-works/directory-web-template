@@ -375,7 +375,7 @@ const Comment = memo(
 								{isDeleting ? (
 									<div className="flex items-center gap-2">
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-										<span>{tItemDetail('COMMENTS_DELETING')}...</span>
+										<span>{tItemDetail('COMMENTS_POSTING')}...</span>
 									</div>
 								) : (
 									<>
@@ -437,8 +437,6 @@ interface CommentsSectionProps {
 
 export function CommentsSection({ itemId }: CommentsSectionProps) {
 	// All hooks must be called before any early returns
-	const tCommon = useTranslations('common');
-	const tItemDetail = useTranslations('itemDetail');
 	const { features, isPending: isFeaturesPending, isSimulationActive } = useFeatureFlagsWithSimulation();
 	const { comments, isPending: isCommentsPending, createComment, isCreating, updateComment, isUpdating, deleteComment, isDeleting } = useComments(itemId);
 	const { user } = useCurrentUser();
@@ -509,7 +507,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 				</div>
 				<div className="flex items-baseline gap-2">
 					<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-						{tCommon('COMMENTS')}
+						Comments
 					</h2>
 					<span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 tabular-nums">
 						{comments.length}
@@ -527,7 +525,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 						userName={user.name}
 					/>
 				) : (
-					<LoginPrompt onLoginClick={() => loginModal.onOpen(tItemDetail('COMMENTS_SIGN_IN_PROMPT'), window.location.pathname + window.location.search)} />
+					<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation', window.location.pathname + window.location.search)} />
 				)}
 			</div>
 
