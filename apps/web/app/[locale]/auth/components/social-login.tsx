@@ -98,7 +98,7 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
           <div className="w-full h-px bg-gray-200 dark:bg-white/8" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-white dark:bg-[#0a0a0a] px-3 text-xs text-gray-400 dark:text-gray-500">
+          <span className="bg-white dark:bg-[#0a0a0a] rounded-full px-3 text-xs text-gray-400 dark:text-gray-500">
             {t("OR_CONTINUE_WITH")}
           </span>
         </div>
@@ -124,7 +124,7 @@ export function SocialLogin({ callbackUrl: callbackUrlProp }: { callbackUrl?: st
                   provider.provider === 'x' ? 'X' :
                   provider.provider}`}
                 className={cn(
-                  "w-9 h-9 min-w-9 rounded-md border",
+                  "w-7 h-7 min-w-7 rounded-md border",
                   "bg-white dark:bg-white/5",
                   "border-gray-200 dark:border-white/8",
                   "hover:border-gray-300 dark:hover:border-white/12",

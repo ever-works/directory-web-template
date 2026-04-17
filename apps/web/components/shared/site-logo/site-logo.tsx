@@ -121,7 +121,7 @@ export function SiteLogo({ size = 'md', className = '', showText = true, linkToH
 		);
 	};
 
-	const containerClasses = `flex items-center group transition-transform duration-200 hover:scale-105 ${className}`;
+	const containerClasses = `flex items-center group ${className}`;
 
 	if (linkToHome) {
 		return (

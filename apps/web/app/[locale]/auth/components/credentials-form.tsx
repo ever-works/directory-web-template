@@ -318,7 +318,7 @@ export function CredentialsForm({
 								<input
 									id="name"
 									type="text"
-								className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+									className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-sm bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 									placeholder={t('ENTER_YOUR_FULL_NAME')}
 									name="name"
 									defaultValue={state?.name}
@@ -354,7 +354,7 @@ export function CredentialsForm({
 							<input
 								id="email"
 								type="email"
-							className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+								className="pl-9 pr-4 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-sm bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 								placeholder={t('ENTER_YOUR_EMAIL')}
 								name="email"
 								defaultValue={state?.email}
@@ -383,7 +383,7 @@ export function CredentialsForm({
 							<input
 								id="password"
 								type={showPassword ? 'text' : 'password'}
-							className="pl-9 pr-9 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
+								className="pl-9 pr-9 w-full py-2 text-sm border border-gray-200 dark:border-white/8 rounded-sm bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-theme-primary focus:ring-1 focus:ring-theme-primary/20 placeholder:text-gray-400 transition-colors"
 								placeholder={t('ENTER_YOUR_PASSWORD')}
 								name="password"
 								required
@@ -431,7 +431,7 @@ export function CredentialsForm({
 						)}
 					</div>
 
-{/* Error message */}
+				{/* Error message */}
 				{(state?.error || clientError) && (
 					<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
 						<svg className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
@@ -440,11 +440,11 @@ export function CredentialsForm({
 						<p className="text-xs text-red-700 dark:text-red-300">
 							{getTranslatedErrorMessage(clientError || state?.error)}
 						</p>
-						</div>
-					)}
+					</div>
+				)}
 
-					{/* Server-side success message */}
-					{state?.success && !clientMode && (
+				{/* Server-side success message */}
+				{state?.success && !clientMode && (
 					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
 						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
 							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -457,8 +457,8 @@ export function CredentialsForm({
 					</div>
 				)}
 
-					{/* Client-side success message for admin login */}
-					{clientMode && clientSuccess && (
+				{/* Client-side success message for admin login */}
+				{clientMode && clientSuccess && (
 					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
 						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
 							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -469,76 +469,70 @@ export function CredentialsForm({
 					</div>
 				)}
 
-					{/* Forgot password link (login only) */}
-					{isLogin && (
+				{/* Forgot password link (login only) */}
+				{isLogin && (
 					<div className="flex justify-end">
 						<Link
 							href="/auth/forgot-password"
 							className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 transition-colors hover:underline"
 							>
-								{t('FORGOT_PASSWORD')}
-							</Link>
-						</div>
-					)}
+							{t('FORGOT_PASSWORD')}
+						</Link>
+					</div>
+				)}
 
-					{/* ReCAPTCHA */}
-					{(RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && (
-						<div className="mb-4">
-							<div className="flex justify-center">
-								<div className="recaptcha-container">
-									<ReCAPTCHA
-										sitekey={
-											RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
-										}
-										onChange={(token: string | null) => {
-											setCaptchaToken(token);
-											setCaptchaError(null);
-										}}
-										onError={(error) => {
-											console.error('ReCAPTCHA error:', error);
-											setCaptchaError(tCred('FAILED_TO_LOAD_VERIFICATION'));
-										}}
-										onExpired={() => {
-											setCaptchaToken(null);
-											setCaptchaError(tCred('VERIFICATION_EXPIRED'));
-										}}
-										theme="light"
-										size="normal"
-										className="scale-90 transform-gpu w-[50px] flex justify-center"
-										tabindex={0}
-									/>
-								</div>
+				{/* ReCAPTCHA */}
+				{(RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && (
+					<div className="mb-4">
+						<div className="flex justify-center">
+							<div className="recaptcha-container">
+								<ReCAPTCHA
+									sitekey={
+									RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
+								}
+									onChange={(token: string | null) => {
+									setCaptchaToken(token);
+									setCaptchaError(null);
+									}}
+									onError={(error) => {
+									console.error('ReCAPTCHA error:', error);
+									setCaptchaError(tCred('FAILED_TO_LOAD_VERIFICATION'));
+									}}
+									onExpired={() => {
+									setCaptchaToken(null);
+									setCaptchaError(tCred('VERIFICATION_EXPIRED'));
+									}}
+									theme="light"
+									size="normal"
+									className="scale-90 transform-gpu w-[50px] flex justify-center"
+									tabindex={0}
+								/>
 							</div>
-
-							{/* Simple error message */}
-							{(captchaError || verificationError) && (
-								<div className="mt-2 text-sm text-red-600 dark:text-red-400">
-									{captchaError || verificationError?.message || 'ReCAPTCHA verification failed'}
-								</div>
-							)}
-
-							{/* Simple loading indicator */}
-							{isVerifying && (
-								<div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-									{tCred('VERIFYING')}
-								</div>
-							)}
-
-							{/* Simple blocking message */}
-							{isRecaptchaBlocking && (
-								<div className="mt-2 text-sm text-amber-600 dark:text-amber-400">
-									{tCred('PLEASE_COMPLETE_VERIFICATION')}
-								</div>
-							)}
 						</div>
-					)}
+						{(captchaError || verificationError) && (
+							<div className="mt-2 text-sm text-red-600 dark:text-red-400">
+								{captchaError || verificationError?.message || 'ReCAPTCHA verification failed'}
+							</div>
+						)}
+						{isVerifying && (
+							<div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+								{tCred('VERIFYING')}
+							</div>
+						)}
+						{isRecaptchaBlocking && (
+							<div className="mt-2 text-sm text-amber-600 dark:text-amber-400">
+								{tCred('PLEASE_COMPLETE_VERIFICATION')}
+							</div>
+						)}
+					</div>
+				)}
 					<Button
 						disabled={
 							clientPending || clientSuccess || pending || isPending || isVerifying || isRecaptchaBlocking
 						}
 						type="submit"
 						className={cn(
-						'w-full h-10 bg-theme-primary text-white text-sm font-medium rounded-lg',
+						'w-full h-10 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg',
 						'hover:bg-theme-primary/90 focus:outline-none',
 						'focus:ring-2 focus:ring-theme-primary/30 transition-colors duration-150',
 						'disabled:opacity-50 disabled:cursor-not-allowed'
@@ -615,7 +609,7 @@ export function CredentialsForm({
 						as={Link}
 						className={cn(
 							'text-theme-primary hover:text-theme-primary/80 text-xs font-medium',
-							'hover:bg-theme-primary/5 px-3 py-1.5 rounded-md transition-colors duration-150',
+							'hover:bg-theme-primary/5 px-3 py-1.5! rounded-md transition-colors duration-150',
 							'border border-theme-primary/20 hover:border-theme-primary/35'
 						)}
 						href={isLogin ? '/auth/register' : '/auth/signin'}

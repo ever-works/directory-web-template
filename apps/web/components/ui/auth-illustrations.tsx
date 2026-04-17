@@ -6,7 +6,7 @@ import { cn } from '@heroui/react';
 export function LoginIllustration({ className }: { className?: string }) {
   return (
     <div className={cn('relative flex items-center justify-center', className)}>
-      <svg viewBox="0 0 400 300" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 400 300" width={200} height={150} fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Soft ambient blobs */}
         <circle cx="340" cy="50" r="90" fill="var(--theme-primary)" opacity="0.04" />
         <circle cx="60" cy="260" r="75" fill="var(--theme-accent)" opacity="0.04" />
@@ -109,7 +109,7 @@ export function LoginIllustration({ className }: { className?: string }) {
 export function SignupIllustration({ className }: { className?: string }) {
   return (
     <div className={cn('relative flex items-center justify-center', className)}>
-      <svg viewBox="0 0 400 300" className="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 400 300" width={200} height={150} fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Soft ambient blobs */}
         <circle cx="70" cy="55" r="85" fill="var(--theme-accent)" opacity="0.04" />
         <circle cx="335" cy="255" r="70" fill="var(--theme-primary)" opacity="0.04" />
