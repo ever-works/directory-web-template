@@ -15,7 +15,11 @@
 		"ENTER_YOUR_CREDENTIALS_HEADER": "Nhập thông tin xác thực của bạn để truy cập vào tài khoản của bạn",
 		"FILL_IN_OUR_DIRECTORY": "Điền vào biểu mẫu để tham gia thư mục của chúng tôi",
 		"NEED_AN_ACCOUNT": "Cần một tài khoản? ",
-		"ALREADY_HAVE_AN_ACCOUNT": "Đã có tài khoản? "
+		"ALREADY_HAVE_AN_ACCOUNT": "Đã có tài khoản? ",
+		"ENTER_CREDENTIALS": "Enter your credentials to continue",
+		"DISCOVER_AND_CONNECT": "Discover & Connect",
+		"JOIN_NETWORK_DESC": "Join our network of professionals and unlock new opportunities.",
+		"SIGN_IN_AGREEMENT": "By signing in, you agree to our"
 	},
 	"header": {
 		"OPEN_USER_MENU": "Mở menu người dùng"
@@ -236,7 +240,9 @@
 		"PREVIOUS": "Trước",
 		"BACK_TO_PLANS": "Quay lại gói",
 		"NEXT_STEP": "Bước tiếp theo",
-		"SUBMIT_PRODUCT": "Gửi sản phẩm"
+		"SUBMIT_PRODUCT": "Gửi sản phẩm",
+		"PRIVACY": "Privacy",
+		"EDITED": "edited"
 	},
 	"survey": {
 		"SURVEYS": "Khảo sát",
@@ -442,7 +448,24 @@
 		"PUBLISHED": "Đã xuất bản",
 		"NO_TAGS_AVAILABLE": "Không có thẻ nào",
 		"RATING": "Đánh giá",
-		"PROMO_CODE": "Mã khuyến mại"
+		"PROMO_CODE": "Mã khuyến mại",
+		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
+		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
+		"COMMENTS_POSTING": "Posting",
+		"COMMENTS_DELETE_TITLE": "Delete Comment",
+		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
+		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
+		"COMMENTS_POST_FAILED": "Failed to post comment",
+		"COMMENTS_SAVING": "Saving",
+		"COMMENTS_DELETING": "Deleting",
+		"COMMENTS_POST": "Post",
+		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
+		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
+		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
+		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
+		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
+		"COMMENTS_PLACEHOLDER": "Add a comment..."
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "Đã đăng ký bản quyền",

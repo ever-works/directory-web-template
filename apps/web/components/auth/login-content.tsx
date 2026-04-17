@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { useTheme } from '@/hooks/use-theme';
 import { authFeatures } from '@/lib/config/auth-features';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { SiteLogo } from '../shared/site-logo';
 
 interface LoginContentProps {
@@ -32,6 +33,7 @@ export function LoginContent({
 	const { currentTheme } = useTheme();
 	const _isDark = currentTheme.background === '#000000' || currentTheme.text === '#ffffff';
 	const t = useTranslations('common');
+	const tAuth = useTranslations('auth');
 
 	return (
 		<div className="relative">
@@ -54,11 +56,11 @@ export function LoginContent({
 							{/* Title */}
 							<div>
 								<h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-									Discover & Connect
+									{tAuth('DISCOVER_AND_CONNECT')}
 								</h2>
 
 								<p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-8">
-									Join our network of professionals and unlock new opportunities.
+									{tAuth('JOIN_NETWORK_DESC')}
 								</p>
 							</div>
 
@@ -98,12 +100,12 @@ export function LoginContent({
 						<div className="mb-5">
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">{message}</h3>
 							<p className="text-gray-600 dark:text-gray-400 text-xs">
-								Enter your credentials to continue
+								{tAuth('ENTER_CREDENTIALS')}
 							</p>
 						</div>
 
 						<div>
-							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl}>
+							<CredentialsForm type={type} onSuccess={onSuccess} callbackUrl={callbackUrl} hideSwitchButton={true}>
 								<div className="space-y-3">
 									<div className="relative">
 										<div className="absolute inset-0 flex items-center">
@@ -115,20 +117,30 @@ export function LoginContent({
 							</CredentialsForm>
 						</div>
 
+						<div className="text-center mt-4 pt-3 border-t border-gray-100 dark:border-white/6">
+							<Link
+								href={type === 'login' ? '/auth/register' : '/auth/signin'}
+								onClick={() => onSuccess?.()}
+								className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+							>
+								{type === 'login' ? tAuth('NEED_AN_ACCOUNT') : tAuth('ALREADY_HAVE_AN_ACCOUNT')}
+							</Link>
+						</div>
+
 						<p className="text-center text-[11px] text-gray-500 dark:text-gray-400 mt-4">
-							By signing in, you agree to our{' '}
+							{tAuth('SIGN_IN_AGREEMENT')}{' '}
 							<a
 								href="#"
 								className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
 							>
-								Terms
+								{t('TERMS')}
 							</a>{' '}
 							&{' '}
 							<a
 								href="#"
 								className="text-primary-600 hover:text-primary-500 dark:text-primary-400 dark:hover:text-primary-300 hover:underline"
 							>
-								Privacy
+								{t('PRIVACY')}
 							</a>
 						</p>
 					</div>

@@ -15,7 +15,11 @@
 		"ENTER_YOUR_CREDENTIALS_HEADER": "Ingrese sus credenciales para acceder a su cuenta",
 		"FILL_IN_OUR_DIRECTORY": "Complete el formulario para unirse a nuestro directorio",
 		"NEED_AN_ACCOUNT": "¿Necesitas una cuenta? Regístrate",
-		"ALREADY_HAVE_AN_ACCOUNT": "¿Ya tienes una cuenta? Inicia sesión"
+		"ALREADY_HAVE_AN_ACCOUNT": "¿Ya tienes una cuenta? Inicia sesión",
+		"ENTER_CREDENTIALS": "Enter your credentials to continue",
+		"DISCOVER_AND_CONNECT": "Discover & Connect",
+		"JOIN_NETWORK_DESC": "Join our network of professionals and unlock new opportunities.",
+		"SIGN_IN_AGREEMENT": "By signing in, you agree to our"
 	},
 	"header": {
 		"OPEN_USER_MENU": "Abrir menú de usuario"
@@ -209,7 +213,9 @@
 		"PREVIOUS": "Anterior",
 		"BACK_TO_PLANS": "Volver a los planes",
 		"NEXT_STEP": "Siguiente paso",
-		"SUBMIT_PRODUCT": "Enviar producto"
+		"SUBMIT_PRODUCT": "Enviar producto",
+		"PRIVACY": "Privacy",
+		"EDITED": "edited"
 	},
 	"survey": {
 		"SURVEYS": "Encuestas",
@@ -416,7 +422,24 @@
 		"PUBLISHED": "Publicado",
 		"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
 		"RATING": "Rating",
-		"PROMO_CODE": "Promo Code"
+		"PROMO_CODE": "Promo Code",
+		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
+		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
+		"COMMENTS_POSTING": "Posting",
+		"COMMENTS_DELETE_TITLE": "Delete Comment",
+		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
+		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
+		"COMMENTS_POST_FAILED": "Failed to post comment",
+		"COMMENTS_SAVING": "Saving",
+		"COMMENTS_DELETING": "Deleting",
+		"COMMENTS_POST": "Post",
+		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
+		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
+		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
+		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
+		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
+		"COMMENTS_PLACEHOLDER": "Add a comment..."
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "Todos los derechos reservados",

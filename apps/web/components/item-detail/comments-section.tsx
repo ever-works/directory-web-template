@@ -364,7 +364,7 @@ const Comment = memo(
 								disabled={isDeleting}
 								className={DELETE_DIALOG_CLASSES.cancelButton}
 							>
-								Cancel
+								{tCommon('CANCEL')}
 							</Button>
 							<Button
 								variant="destructive"
@@ -375,7 +375,7 @@ const Comment = memo(
 								{isDeleting ? (
 									<div className="flex items-center gap-2">
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-										<span>{tItemDetail('COMMENTS_POSTING')}...</span>
+										<span>{tItemDetail('COMMENTS_DELETING')}...</span>
 									</div>
 								) : (
 									<>
@@ -441,6 +441,8 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 	const { comments, isPending: isCommentsPending, createComment, isCreating, updateComment, isUpdating, deleteComment, isDeleting } = useComments(itemId);
 	const { user } = useCurrentUser();
 	const loginModal = useLoginModal();
+	const tCommon = useTranslations('common');
+	const tItemDetail = useTranslations('itemDetail');
 
 	// Combine loading states to prevent race conditions
 	const isLoading = isFeaturesPending || isCommentsPending;
@@ -449,36 +451,36 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 		async (content: string, rating: number) => {
 			try {
 				await createComment({ content, itemId, rating });
-				toast.success('Comment posted successfully!');
+				toast.success(tItemDetail('COMMENTS_POSTED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to post comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_POST_FAILED'));
 			}
 		},
-		[createComment, itemId]
+		[createComment, itemId, tItemDetail]
 	);
 
 	const handleDelete = useCallback(
 		async (commentId: string) => {
 			try {
 				await deleteComment(commentId);
-				toast.success('Comment deleted successfully');
+				toast.success(tItemDetail('COMMENTS_DELETED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_DELETE_FAILED'));
 			}
 		},
-		[deleteComment]
+		[deleteComment, tItemDetail]
 	);
 
 	const handleUpdate = useCallback(
 		async (commentId: string, content: string, rating: number) => {
 			try {
 				await updateComment({ commentId, content, rating });
-				toast.success('Comment updated successfully!');
+				toast.success(tItemDetail('COMMENTS_UPDATED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to update comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_UPDATE_FAILED'));
 			}
 		},
-		[updateComment]
+		[updateComment, tItemDetail]
 	);
 
 	// Show skeleton during loading (single coordinated check)
@@ -507,7 +509,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 				</div>
 				<div className="flex items-baseline gap-2">
 					<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-						Comments
+						{tCommon('COMMENTS')}
 					</h2>
 					<span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 tabular-nums">
 						{comments.length}
@@ -525,7 +527,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 						userName={user.name}
 					/>
 				) : (
-					<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation', window.location.pathname + window.location.search)} />
+					<LoginPrompt onLoginClick={() => loginModal.onOpen(tItemDetail('COMMENTS_SIGN_IN_PROMPT'), window.location.pathname + window.location.search)} />
 				)}
 			</div>
 

@@ -22,7 +22,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
   const isLogin = form === "login";
 
   return (
-    <div className="flex items-center justify-center py-8 px-4 relative">
+    <div className="flex items-center justify-center py-8 px-4 relative min-h-[90dvh] max-h-[100dvh]">
       <GeometricDecoration />
       {/* Main container with modern design */}
       <AnimatedContainer type="scaleIn" duration="slow" easing="bounce">
