@@ -40,15 +40,19 @@ function createDevelopmentAuthSecret(): string {
 }
 
 const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
+const isCiBuild = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const isHostedDeployment = Boolean(process.env.VERCEL);
 
 if (!runtimeAuthSecret) {
-	if (coreConfig.NODE_ENV === 'production') {
+	if (coreConfig.NODE_ENV === 'production' && (!isCiBuild || isHostedDeployment)) {
 		throw new Error('[auth] AUTH_SECRET must be set in production.');
 	}
 
 	process.env.AUTH_SECRET = createDevelopmentAuthSecret();
 
-	console.warn('[auth] AUTH_SECRET is not set. Using a temporary development-only fallback secret.');
+	console.warn(
+		`[auth] AUTH_SECRET is not set. Using a temporary ${isCiBuild ? 'CI-only' : 'development-only'} fallback secret.`
+	);
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
