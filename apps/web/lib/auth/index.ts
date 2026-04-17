@@ -41,10 +41,10 @@ function createDevelopmentAuthSecret(): string {
 
 const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
 const isCiBuild = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
-const isHostedDeployment = Boolean(process.env.VERCEL);
+const isProductionBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
 if (!runtimeAuthSecret) {
-	if (coreConfig.NODE_ENV === 'production' && (!isCiBuild || isHostedDeployment)) {
+	if (coreConfig.NODE_ENV === 'production' && !isCiBuild && !isProductionBuildPhase) {
 		throw new Error('[auth] AUTH_SECRET must be set in production.');
 	}
 
