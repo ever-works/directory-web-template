@@ -1,0 +1,4 @@
+@import 'mapbox-gl/dist/mapbox-gl.css';
+@import "tailwindcss";
+
+@config '../tailwind.config.ts';

@@ -1,13 +1,6 @@
 @use '@/lib/editor/styles/_variables.scss';
 @use '@/lib/editor/styles/_keyframe-animations.scss';
 
-/* Mapbox GL JS styles - required for proper map rendering */
-@import 'mapbox-gl/dist/mapbox-gl.css';
-
-@import "tailwindcss";
-
-@config '../../tailwind.config.ts';
-
 @layer base {
   *,
   ::after,

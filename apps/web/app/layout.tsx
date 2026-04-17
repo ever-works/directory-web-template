@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import './tailwind.css';
 import './[locale]/globals.scss';
 import { LayoutProvider, ThemeProvider } from '@/components/providers';
 import { siteConfig } from '@/lib/config';
