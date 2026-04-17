@@ -1,5 +1,6 @@
 'use client';
 import { useState, memo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
@@ -78,11 +79,15 @@ const CommentForm = memo(
 		userImage,
 		userName
 	}: {
+		// types below
+		// types below
 		onSubmit: (content: string, rating: number) => Promise<void>;
 		isCreating: boolean;
 		userImage?: string | null;
 		userName?: string | null;
 	}) => {
+		const tCommon = useTranslations('common');
+		const tItemDetail = useTranslations('itemDetail');
 		const [content, setContent] = useState('');
 		const [rating, setRating] = useState(5);
 		const [focused, setFocused] = useState(false);
@@ -122,13 +127,13 @@ const CommentForm = memo(
 					}`}>
 						{focused && (
 							<div className="flex items-center gap-2 px-4 pt-3 pb-1">
-								<span className="text-xs text-gray-400 dark:text-gray-500">Rating:</span>
+						<span className="text-xs text-gray-400 dark:text-gray-500">{tItemDetail('RATING')}:</span>
 								<Rating value={rating} onChange={setRating} size="sm" />
 							</div>
 						)}
 						<textarea
 							id="comment"
-							placeholder="Add a comment..."
+							placeholder={tItemDetail('COMMENTS_PLACEHOLDER')}
 							value={content}
 							onChange={(e) => setContent(e.target.value)}
 							onFocus={() => setFocused(true)}
@@ -140,14 +145,14 @@ const CommentForm = memo(
 						/>
 						{focused && (
 							<div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-								<span className="text-[11px] text-gray-300 dark:text-gray-600 select-none">⌘↵ to post</span>
+								<span className="text-[11px] text-gray-300 dark:text-gray-600 select-none">{tItemDetail('COMMENTS_SHORTCUT')}</span>
 								<div className="flex items-center gap-2">
 									<button
 										type="button"
 										onClick={() => { setFocused(false); setContent(''); }}
 										className="h-7 cursort-pointer px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
 									>
-										Cancel
+										{tCommon('CANCEL')}
 									</button>
 									<button
 										type="submit"
@@ -157,9 +162,9 @@ const CommentForm = memo(
 										{isCreating ? (
 											<div className="flex items-center gap-1.5">
 												<div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
-												<span>Posting</span>
+												<span>{tItemDetail('COMMENTS_POSTING')}</span>
 											</div>
-										) : 'Post'}
+										) : tItemDetail('COMMENTS_POST')}
 									</button>
 								</div>
 							</div>
@@ -193,6 +198,8 @@ const Comment = memo(
 		const [editContent, setEditContent] = useState(comment.content);
 		const [editRating, setEditRating] = useState(comment.rating);
 		const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+		const tCommon = useTranslations('common');
+		const tItemDetail = useTranslations('itemDetail');
 
 		const handleDeleteConfirm = async () => {
 			try {
@@ -257,7 +264,7 @@ const Comment = memo(
 						{isEditing ? (
 							<div className="space-y-2.5 mt-2">
 								<div className="flex items-center gap-2">
-									<span className="text-xs text-gray-400">Rating:</span>
+									<span className="text-xs text-gray-400">{tItemDetail('RATING')}:</span>
 									<Rating value={editRating} onChange={setEditRating} size="sm" />
 								</div>
 								<textarea
@@ -274,7 +281,7 @@ const Comment = memo(
 										disabled={isUpdating}
 										className="h-7 cursor-pointer px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-full"
 									>
-										Cancel
+									{tCommon('CANCEL')}
 									</button>
 									<button
 										type="button"
@@ -283,9 +290,9 @@ const Comment = memo(
 										className="h-7 px-4 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-100 transition-all flex items-center gap-1.5"
 									>
 										{isUpdating ? (
-											<><div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" /><span>Saving</span></>
-										) : (
-											<><Check className="w-3 h-3" /><span>Save</span></>
+										<><div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" /><span>{tItemDetail('COMMENTS_SAVING')}</span></>
+									) : (
+										<><Check className="w-3 h-3" /><span>{tCommon('SAVE')}</span></>
 										)}
 									</button>
 								</div>
@@ -302,7 +309,7 @@ const Comment = memo(
 											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
 										>
 											<Pencil className="w-2.5 h-2.5" />
-											Edit
+										{tCommon('EDIT')}
 										</button>
 										<span className="text-gray-200 dark:text-white/10">·</span>
 										<button
@@ -311,7 +318,7 @@ const Comment = memo(
 											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
 										>
 											<Trash2 className="w-2.5 h-2.5" />
-											Delete
+										{tCommon('DELETE')}
 										</button>
 									</div>
 								)}
@@ -334,7 +341,7 @@ const Comment = memo(
 							<div className={DELETE_DIALOG_CLASSES.alertIcon}>
 								<AlertTriangle className="h-5 w-5 text-white" />
 							</div>
-							<h2 className={DELETE_DIALOG_CLASSES.headerText}>Delete Comment</h2>
+							<h2 className={DELETE_DIALOG_CLASSES.headerText}>{tItemDetail('COMMENTS_DELETE_TITLE')}</h2>
 						</div>
 					</ModalHeader>
 
@@ -343,7 +350,7 @@ const Comment = memo(
 							<div className={DELETE_DIALOG_CLASSES.warningContent}>
 								<AlertTriangle className={DELETE_DIALOG_CLASSES.warningIcon} />
 								<p className={DELETE_DIALOG_CLASSES.warningText}>
-									Are you sure you want to delete this comment? This action cannot be undone.
+								{tItemDetail('COMMENTS_DELETE_WARNING')}
 								</p>
 							</div>
 						</div>
@@ -368,12 +375,12 @@ const Comment = memo(
 								{isDeleting ? (
 									<div className="flex items-center gap-2">
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-										<span>Deleting...</span>
+										<span>{tItemDetail('COMMENTS_DELETING')}...</span>
 									</div>
 								) : (
 									<>
 										<Trash2 className="h-4 w-4 mr-2" />
-										Delete
+									{tCommon('DELETE')}
 									</>
 								)}
 							</Button>
@@ -388,33 +395,40 @@ const Comment = memo(
 Comment.displayName = 'Comment';
 
 // Empty state component
-const EmptyState = memo(() => (
-	<div className="px-6 py-10 text-center" role="status">
-		<div className="w-10 h-10 mx-auto mb-3 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center">
-			<MessageCircle className="w-5 h-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+const EmptyState = memo(() => {
+	const tItemDetail = useTranslations('itemDetail');
+	return (
+		<div className="px-6 py-10 text-center" role="status">
+			<div className="w-10 h-10 mx-auto mb-3 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center">
+				<MessageCircle className="w-5 h-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+			</div>
+			<p className="text-sm text-gray-400 dark:text-gray-500">{tItemDetail('COMMENTS_EMPTY')}</p>
 		</div>
-		<p className="text-sm text-gray-400 dark:text-gray-500">No comments yet. Be the first to share your thoughts!</p>
-	</div>
-));
+	);
+});
 EmptyState.displayName = 'EmptyState';
 
 // Login prompt — compact inline bar
-const LoginPrompt = memo(({ onLoginClick }: { onLoginClick: () => void }) => (
-	<div className="flex items-center gap-2.5 py-1">
-		<div className="w-6 h-6 shrink-0 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
-			<MessageCircle className="w-3 h-3 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+const LoginPrompt = memo(({ onLoginClick }: { onLoginClick: () => void }) => {
+	const tAuth = useTranslations('auth');
+	const tItemDetail = useTranslations('itemDetail');
+	return (
+		<div className="flex items-center gap-2.5 py-1">
+			<div className="w-6 h-6 shrink-0 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
+				<MessageCircle className="w-3 h-3 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+			</div>
+			<span className="text-[0.8125rem] text-gray-400 dark:text-gray-500 flex-1">
+				{tItemDetail('COMMENTS_HAVE_THOUGHTS')}
+			</span>
+			<button
+				onClick={onLoginClick}
+				className="h-7 px-3 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
+			>
+				{tAuth('SIGN_IN')}
+			</button>
 		</div>
-		<span className="text-[0.8125rem] text-gray-400 dark:text-gray-500 flex-1">
-			Have thoughts?
-		</span>
-		<button
-			onClick={onLoginClick}
-			className="h-7 px-3 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
-		>
-			Sign in
-		</button>
-	</div>
-));
+	);
+});
 LoginPrompt.displayName = 'LoginPrompt';
 
 interface CommentsSectionProps {
@@ -423,6 +437,8 @@ interface CommentsSectionProps {
 
 export function CommentsSection({ itemId }: CommentsSectionProps) {
 	// All hooks must be called before any early returns
+	const tCommon = useTranslations('common');
+	const tItemDetail = useTranslations('itemDetail');
 	const { features, isPending: isFeaturesPending, isSimulationActive } = useFeatureFlagsWithSimulation();
 	const { comments, isPending: isCommentsPending, createComment, isCreating, updateComment, isUpdating, deleteComment, isDeleting } = useComments(itemId);
 	const { user } = useCurrentUser();
@@ -493,7 +509,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 				</div>
 				<div className="flex items-baseline gap-2">
 					<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
-						Comments
+						{tCommon('COMMENTS')}
 					</h2>
 					<span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 tabular-nums">
 						{comments.length}
@@ -511,7 +527,7 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 						userName={user.name}
 					/>
 				) : (
-					<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation', window.location.pathname + window.location.search)} />
+					<LoginPrompt onLoginClick={() => loginModal.onOpen(tItemDetail('COMMENTS_SIGN_IN_PROMPT'), window.location.pathname + window.location.search)} />
 				)}
 			</div>
 

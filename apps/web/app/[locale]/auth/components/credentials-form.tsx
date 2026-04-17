@@ -532,7 +532,7 @@ export function CredentialsForm({
 						}
 						type="submit"
 						className={cn(
-						'w-full h-10 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-lg',
+						'w-full h-10 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-sm',
 						'hover:bg-theme-primary/90 focus:outline-none',
 						'focus:ring-2 focus:ring-theme-primary/30 transition-colors duration-150',
 						'disabled:opacity-50 disabled:cursor-not-allowed'
