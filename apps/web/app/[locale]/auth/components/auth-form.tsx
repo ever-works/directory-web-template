@@ -64,7 +64,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                       </>
                     ) : (
                       <>
-                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                        <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
                           {isLogin ? (
                             <>
                               {t("WELCOME_BACK")} <br />

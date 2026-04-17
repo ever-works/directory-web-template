@@ -48,18 +48,20 @@ function ShellProviders({ config, children }: Omit<ProvidersProps, 'dehydratedSt
 
 	return (
 		<SessionProvider>
-			<LayoutProvider configDefaults={configDefaults}>
-				<ErrorProvider>
-					<ConfigProvider config={config}>
-						<ThemeProvider>
-							<HeroUIProvider>
-								<LoginModalProvider />
-								{children}
-							</HeroUIProvider>
-						</ThemeProvider>
-					</ConfigProvider>
-				</ErrorProvider>
-			</LayoutProvider>
+			<TenantProvider>
+				<LayoutProvider configDefaults={configDefaults}>
+					<ErrorProvider>
+						<ConfigProvider config={config}>
+							<ThemeProvider>
+								<HeroUIProvider>
+									<LoginModalProvider />
+									{children}
+								</HeroUIProvider>
+							</ThemeProvider>
+						</ConfigProvider>
+					</ErrorProvider>
+				</LayoutProvider>
+			</TenantProvider>
 		</SessionProvider>
 	);
 }
@@ -78,13 +80,11 @@ function CommerceProviders(props: ProvidersProps) {
 
 function AppProviders(props: ProvidersProps) {
 	return (
-		<TenantProvider>
-			<CurrencyProvider>
-				<ConfirmProvider>
-					<ShellProviders {...props} />
-				</ConfirmProvider>
-			</CurrencyProvider>
-		</TenantProvider>
+		<CurrencyProvider>
+			<ConfirmProvider>
+				<ShellProviders {...props} />
+			</ConfirmProvider>
+		</CurrencyProvider>
 	);
 }
 
