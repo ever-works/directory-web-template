@@ -13,7 +13,7 @@ These platforms are managed through centralized environment variables and a dyna
 
 ## Supported Platforms & Environment Setup
 
-All integrations are disabled by default within `analytics.schema.ts`. To enable a platform, you must configure its respective environment variables in `apps/web/.env.local` and ensure its `enabled` property is set to `true` in your configuration load schema.
+Integrations are automatically managed based on the presence of their respective environment variables. To enable a platform, simply configure its environment variables in `apps/web/.env.local`.
 
 ### 1. Plausible Analytics (Privacy-first)
 
