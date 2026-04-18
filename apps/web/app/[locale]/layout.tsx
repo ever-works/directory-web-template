@@ -40,7 +40,8 @@ import {
 	getLocationSettings,
 	getFooterSubscribeEnabled,
 	getFooterVersionEnabled,
-	getFooterThemeSelectorEnabled
+	getFooterThemeSelectorEnabled,
+	getAnalyticsSettings
 } from '@/lib/utils/settings';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
@@ -203,7 +204,24 @@ export default async function RootLayout({
 			<Suspense fallback={null}>
 				<Analytics />
 			</Suspense>
-			<ThirdPartyAnalytics config={analyticsConfig} />
+			{/* Merge environment config with UI-based settings */}
+			{(() => {
+				const uiSettings = getAnalyticsSettings();
+				const mergedConfig = { ...analyticsConfig };
+				
+				// Deep merge known providers to preserve env vars (like IDs) if only toggled in UI
+				const providers = ['googleAnalytics', 'plausible', 'dataFast', 'jitsu', 'segment', 'posthog', 'sentry', 'recaptcha'];
+				providers.forEach(p => {
+					if ((uiSettings as any)[p]) {
+						(mergedConfig as any)[p] = { 
+							...((analyticsConfig as any)[p] || {}), 
+							...(uiSettings as any)[p] 
+						};
+					}
+				});
+
+				return <ThirdPartyAnalytics config={mergedConfig} />;
+			})()}
 		</>
 	);
 }

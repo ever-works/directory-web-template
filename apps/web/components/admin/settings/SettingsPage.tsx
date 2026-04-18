@@ -11,6 +11,7 @@ import { SettingSlider } from './SettingSlider';
 import { SettingApiStatus } from './SettingApiStatus';
 import { MapPreview } from './MapPreview';
 import { CustomNavigationManager } from './CustomNavigationManager';
+import { AnalyticsSettings } from './AnalyticsSettings';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import type { CustomNavigationItem } from '@/lib/content';
@@ -146,6 +147,7 @@ interface Settings {
 	footer?: FooterConfigSettings;
 	monetization?: MonetizationConfigSettings;
 	location?: LocationConfigSettings;
+	analytics?: any;
 	[key: string]: unknown;
 }
 
@@ -839,6 +841,23 @@ export function SettingsPage() {
 									</div>
 								</>
 							)}
+						</AccordionContent>
+					</AccordionItem>
+
+					{/* Analytics Section */}
+					<AccordionItem value="analytics" className={ACCORDION_ITEM_CLASSES}>
+						<AccordionTrigger>
+							<div className="text-left w-full">
+								<h3 className={ACCORDION_TITLE_CLASSES}>{t('ANALYTICS_TITLE')}</h3>
+								<p className={ACCORDION_DESC_CLASSES}>{t('ANALYTICS_DESC')}</p>
+							</div>
+						</AccordionTrigger>
+						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
+							<AnalyticsSettings 
+								settings={settings} 
+								updateSetting={updateSetting} 
+								saving={saving} 
+							/>
 						</AccordionContent>
 					</AccordionItem>
 
