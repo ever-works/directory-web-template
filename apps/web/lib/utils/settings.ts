@@ -363,3 +363,13 @@ export function getLocationSettings(): {
 		require_location_on_submit: getRequireLocationOnSubmit(),
 	};
 }
+
+// ===================== Analytics Settings =====================
+
+/**
+ * Server-side utility to get analytics settings from config.yml
+ * @returns any - the analytics configuration object
+ */
+export function getAnalyticsSettings(): any {
+	return configManager.getNestedValue('settings.analytics') || {};
+}

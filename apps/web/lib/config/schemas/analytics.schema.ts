@@ -69,11 +69,12 @@ export const exceptionTrackingProviderSchema = z
  */
 export const googleAnalyticsSchema = z
 	.object({
+		enabled: z.boolean().optional(),
 		measurementId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.measurementId)
+		enabled: data.enabled ?? Boolean(data.measurementId)
 	}));
 
 /**
@@ -81,12 +82,13 @@ export const googleAnalyticsSchema = z
  */
 export const plausibleSchema = z
 	.object({
+		enabled: z.boolean().optional(),
 		domain: z.string().optional(),
 		scriptId: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.domain || data.scriptId)
+		enabled: data.enabled ?? Boolean(data.domain || data.scriptId)
 	}));
 
 /**
@@ -94,12 +96,13 @@ export const plausibleSchema = z
  */
 export const dataFastSchema = z
 	.object({
+		enabled: z.boolean().optional(),
 		websiteId: z.string().optional(),
 		domain: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.websiteId)
+		enabled: data.enabled ?? Boolean(data.websiteId)
 	}));
 
 /**
@@ -107,13 +110,14 @@ export const dataFastSchema = z
  */
 export const jitsuSchema = z
 	.object({
+		enabled: z.boolean().optional(),
 		key: z.string().optional(),
 		domain: z.string().optional(),
 		host: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.key)
+		enabled: data.enabled ?? Boolean(data.key)
 	}));
 
 /**
@@ -121,11 +125,12 @@ export const jitsuSchema = z
  */
 export const segmentSchema = z
 	.object({
+		enabled: z.boolean().optional(),
 		writeKey: z.string().optional()
 	})
 	.transform((data) => ({
 		...data,
-		enabled: Boolean(data.writeKey)
+		enabled: data.enabled ?? Boolean(data.writeKey)
 	}));
 
 /**
