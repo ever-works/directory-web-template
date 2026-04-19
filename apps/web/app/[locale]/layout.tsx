@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Providers } from './providers';
-import './globals.scss';
 import { getCachedConfig } from '@/lib/content';
 import { getCachedContentSignals } from '@/lib/content-signals';
 import { notFound } from 'next/navigation';
