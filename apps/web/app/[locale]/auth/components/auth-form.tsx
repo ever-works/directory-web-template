@@ -9,7 +9,6 @@ import { useTranslations } from "next-intl";
 import {
   LoginIllustration,
   SignupIllustration,
-  AnimatedBackground,
   GeometricDecoration,
   TrustBadge
 } from "@/components/ui/auth-illustrations";
@@ -23,18 +22,16 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
   const isLogin = form === "login";
 
   return (
-    <div className="flex items-center justify-center py-8 px-4 relative bg-gray-50 dark:bg-white/3">
-      {/* Animated background */}
-      <AnimatedBackground />
+    <div className="flex items-center justify-center py-8 px-4 relative min-h-[90dvh] max-h-[100dvh]">
       <GeometricDecoration />
       {/* Main container with modern design */}
       <AnimatedContainer type="scaleIn" duration="slow" easing="bounce">
-        <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-white/3 backdrop-blur-xl border border-white/20 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="w-full max-w-5xl mx-auto rounded-2xl bg-white/80 dark:bg-white/3 border border-gray-200 dark:border-white/6 shadow-lg overflow-hidden">
           <div className="flex flex-col lg:flex-row min-h-[400px] lg:min-h-[500px]">
             {/* Illustration and branding side */}
-            <div className="w-full lg:w-1/2 relative bg-linear-to-br from-theme-primary/5 via-theme-accent/5 to-theme-secondary/5 p-6 lg:p-8 flex flex-col justify-center">
+            <div className="w-full lg:w-1/2 relative p-6 lg:p-8 flex flex-col justify-center">
               {/* Main illustration */}
-              <div className="flex-1 flex items-center justify-center mb-8 lg:mb-0">
+              <div className="flex-1 flex items-center mb-8 lg:mb-0">
                 <AnimatedContainer type="fadeIn" delay={300}>
                   {isLogin ? (
                     <LoginIllustration className="w-full max-w-sm" />
@@ -55,29 +52,29 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                     {/* Admin-specific message */}
                     {showSocialLogin === false ? (
                       <>
-                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                        <h2 className="text-xl lg:text-2xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
                           {tAuth('ADMIN_WELCOME_TITLE')}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
                           {tAuth('ADMIN_WELCOME_DESCRIPTION')}
                         </p>
                       </>
                     ) : (
                       <>
-                        <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3 leading-tight">
                           {isLogin ? (
                             <>
-                              {t("WELCOME_BACK")} <br />
+                              {t("WELCOME_BACK")} {" "}
                               <span className="text-theme-primary">{t("AMONG_US")}</span>
                             </>
                           ) : (
                             <>
-                              {t("JOIN_OUR")} <br />
+                              {t("JOIN_OUR")} {" "}
                               <span className="text-theme-primary">{t("COMMUNITY")}</span>
                             </>
                           )}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
+                        <p className="text-gray-600 dark:text-gray-300 text-xs leading-relaxed">
                           {isLogin
                             ? t("ACCESS_THOUSANDS")
                             : t("CREATE_ACCOUNT_DESC")}
@@ -92,40 +89,40 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                   {showSocialLogin === false ? (
                     <>
                       <div className="flex items-center">
-                        <div className="bg-theme-primary/10 p-3 rounded-xl mr-4 group">
-                          <User className="h-5 w-5 text-theme-primary" />
+                        <div className="bg-gray-100 dark:bg-white/5 p-3 rounded-xl mr-4 group">
+                          <User className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("USER_MANAGEMENT")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("USER_MANAGEMENT_DESC")}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center">
-                        <div className="bg-theme-accent/10 p-3 rounded-xl mr-4 group">
-                          <Building className="h-5 w-5 text-theme-accent" />
+                        <div className="bg-gray-100 dark:bg-white/5 p-3 rounded-xl mr-4 group">
+                          <Building className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("CONTENT_MODERATION")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("CONTENT_MODERATION_DESC")}
                           </span>
                         </div>
                       </div>
                       <div className="flex items-center">
-                        <div className="bg-theme-secondary/10 p-3 rounded-xl mr-4 group">
-                          <Globe className="h-5 w-5 text-theme-secondary" />
+                        <div className="bg-gray-100 dark:bg-white/5 p-3 rounded-xl mr-4 group">
+                          <Globe className="h-3 w-3 text-gray-400 dark:text-gray-500" />
                         </div>
                         <div>
                           <span className="font-semibold text-gray-900 dark:text-white block">
                             {tAuth("ANALYTICS_DASHBOARD")}
                           </span>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
+                          <span className="text-xs text-gray-600 dark:text-gray-400">
                             {tAuth("ANALYTICS_DASHBOARD_DESC")}
                           </span>
                         </div>
@@ -134,28 +131,16 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
                   ) : (
                     <>
                       {authFeatures.map((feature) => {
-                        const bgColorClass = feature.colorVariant === "primary"
-                          ? "bg-theme-primary/10 hover:bg-theme-primary/20"
-                          : feature.colorVariant === "accent"
-                          ? "bg-theme-accent/10 hover:bg-theme-accent/20"
-                          : "bg-theme-secondary/10 hover:bg-theme-secondary/20";
-
-                        const iconColorClass = feature.colorVariant === "primary"
-                          ? "text-theme-primary"
-                          : feature.colorVariant === "accent"
-                          ? "text-theme-accent"
-                          : "text-theme-secondary";
-
                         return (
                           <div key={feature.titleKey} className="flex items-center">
-                            <div className={`${bgColorClass} p-3 rounded-xl mr-4 group transition-colors`}>
-                              <feature.icon className={`h-5 w-5 ${iconColorClass} group-hover:scale-110 transition-transform`} />
+                            <div className={`bg-gray-100 dark:bg-white/5 p-3 rounded-xl mr-4 group transition-colors`}>
+                              <feature.icon className={`h-3 w-3 text-gray-400 dark:text-gray-500`} />
                             </div>
                             <div>
-                              <span className="font-semibold text-gray-900 dark:text-white block">
+                              <span className="font-semibold text-sm text-gray-900 dark:text-white block">
                                 {t(feature.titleKey as any)}
                               </span>
-                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                              <span className="text-xs text-gray-600 dark:text-gray-400">
                                 {t(feature.descriptionKey as any)}
                               </span>
                             </div>
@@ -176,7 +161,7 @@ export function AuthForm({ form, showSocialLogin = true, onSuccess, clientMode =
             </div>
 
             {/* Form side */}
-            <div className="w-full lg:w-1/2 p-4 lg:p-6 flex flex-col justify-center bg-white/50 dark:bg-white/3 backdrop-blur-xs">
+            <div className="w-full lg:w-1/2 p-4 lg:p-6 flex border-l dark:border-white/3 border-gray-200 flex-col justify-center bg-white/50 dark:bg-white/3 backdrop-blur-xs">
               <div className="max-w-sm mx-auto w-full">
                 <AnimatedContainer type="slideLeft" delay={400}>
                   <CredentialsForm

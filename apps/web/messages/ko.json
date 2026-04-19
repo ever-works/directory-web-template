@@ -15,7 +15,11 @@
 		"ENTER_YOUR_CREDENTIALS_HEADER": "계정에 접속하려면 로그인 정보를 입력하세요",
 		"FILL_IN_OUR_DIRECTORY": "디렉토리에 참여하려면 양식을 작성하세요",
 		"NEED_AN_ACCOUNT": "계정이 필요하신가요? 회원가입",
-		"ALREADY_HAVE_AN_ACCOUNT": "이미 계정이 있으신가요? 로그인"
+		"ALREADY_HAVE_AN_ACCOUNT": "이미 계정이 있으신가요? 로그인",
+		"ENTER_CREDENTIALS": "Enter your credentials to continue",
+		"DISCOVER_AND_CONNECT": "Discover & Connect",
+		"JOIN_NETWORK_DESC": "Join our network of professionals and unlock new opportunities.",
+		"SIGN_IN_AGREEMENT": "By signing in, you agree to our"
 	},
 	"header": {
 		"OPEN_USER_MENU": "사용자 메뉴 열기"
@@ -236,7 +240,9 @@
 		"PREVIOUS": "이전",
 		"BACK_TO_PLANS": "요금제로 돌아가기",
 		"NEXT_STEP": "다음 단계",
-		"SUBMIT_PRODUCT": "제품 제출"
+		"SUBMIT_PRODUCT": "제품 제출",
+		"PRIVACY": "Privacy",
+		"EDITED": "edited"
 	},
 	"survey": {
 		"SURVEYS": "설문조사",
@@ -442,7 +448,24 @@
 		"PUBLISHED": "게시일",
 		"NO_TAGS_AVAILABLE": "사용 가능한 태그 없음",
 		"RATING": "평점",
-		"PROMO_CODE": "프로모션 코드"
+		"PROMO_CODE": "프로모션 코드",
+		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
+		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
+		"COMMENTS_POSTING": "Posting",
+		"COMMENTS_DELETE_TITLE": "Delete Comment",
+		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
+		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
+		"COMMENTS_POST_FAILED": "Failed to post comment",
+		"COMMENTS_SAVING": "Saving",
+		"COMMENTS_DELETING": "Deleting",
+		"COMMENTS_POST": "Post",
+		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
+		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
+		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
+		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
+		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
+		"COMMENTS_PLACEHOLDER": "Add a comment..."
 	},
 	"footer": {
 		"ALL_RIGHTS_RESERVED": "모든 권리 보유",

@@ -1,10 +1,11 @@
 'use client';
 import { useState, memo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, Trash2, Pencil, Check, X, AlertTriangle } from 'lucide-react';
+import { MessageCircle, Trash2, Pencil, Check, AlertTriangle } from 'lucide-react';
 import { Rating } from '@/components/ui/rating';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import type { CommentWithUser } from '@/lib/types/comment';
@@ -20,12 +21,10 @@ import {
 	ModalFooter
 } from '@/components/ui/modal';
 
-// Design system class constants - Clean & Modern
-const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6 shadow-sm hover:shadow-md transition-all duration-300';
-const ICON_CONTAINER_CLASSES = 'p-3 bg-linear-to-br from-gray-200 to-gray-200 dark:from-white/4 dark:to-white/6 rounded-xl';
-const SECTION_HEADER_CLASSES = 'flex items-center gap-4 mb-8';
-const FORM_CONTAINER_CLASSES = 'p-6 rounded-lg bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/6';
-
+// Design system class constants
+const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden';
+const ICON_CONTAINER_CLASSES = 'p-1.5 bg-gray-100 dark:bg-white/8 rounded-lg flex items-center justify-center';
+const SECTION_HEADER_CLASSES = 'px-6 py-4 border-b border-gray-100 dark:border-white/6 flex items-center gap-3';
 // Delete confirmation dialog class constants
 const DELETE_DIALOG_CLASSES = {
 	headerContainer: 'flex items-center gap-3',
@@ -45,25 +44,25 @@ const CommentSkeleton = memo(() => (
 	<div className={CARD_WRAPPER_CLASSES}>
 		{/* Header Skeleton */}
 		<div className={SECTION_HEADER_CLASSES}>
-			<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-white/6 dark:to-white/8 rounded-lg animate-pulse" />
-			<div className="h-7 bg-gray-200 dark:bg-white/8 rounded-lg w-48 animate-pulse" />
+			<div className="w-7 h-7 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse" />
+			<div className="h-4 bg-gray-200 dark:bg-white/8 rounded w-28 animate-pulse" />
 		</div>
 
 		{/* Form Skeleton */}
-		<div className="mb-8 space-y-4">
-			<div className="h-32 bg-gray-100 dark:bg-white/5 rounded-lg animate-pulse" />
-			<div className="h-10 bg-gray-200 dark:bg-white/8 rounded-lg w-32 ml-auto animate-pulse" />
+		<div className="px-6 py-5 border-b border-gray-100 dark:border-white/6 space-y-3">
+			<div className="h-24 bg-gray-100 dark:bg-white/5 rounded-xl animate-pulse" />
+			<div className="h-9 bg-gray-200 dark:bg-white/8 rounded-lg w-24 ml-auto animate-pulse" />
 		</div>
 
 		{/* Comments List Skeleton */}
-		<div className="space-y-4">
+		<div className="px-6 py-4 space-y-4">
 			{[1, 2, 3].map((i) => (
-				<div key={i} className="flex gap-4 animate-pulse">
-					<div className="w-10 h-10 bg-linear-to-br from-gray-200 to-gray-300 dark:from-white/6 dark:to-white/8 rounded-full" />
+				<div key={i} className="flex gap-3 animate-pulse">
+					<div className="w-8 h-8 bg-gray-200 dark:bg-white/8 rounded-full shrink-0" />
 					<div className="flex-1 space-y-2">
-						<div className="h-4 bg-gray-200 dark:bg-white/8 rounded w-1/4" />
-						<div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-3/4" />
-						<div className="h-4 bg-gray-100 dark:bg-white/5 rounded w-2/3" />
+						<div className="h-3 bg-gray-200 dark:bg-white/8 rounded w-1/4" />
+						<div className="h-3 bg-gray-100 dark:bg-white/5 rounded w-3/4" />
+						<div className="h-3 bg-gray-100 dark:bg-white/5 rounded w-2/3" />
 					</div>
 				</div>
 			))}
@@ -72,61 +71,104 @@ const CommentSkeleton = memo(() => (
 ));
 CommentSkeleton.displayName = 'CommentSkeleton';
 
-// Extracted comment form component
+// AI chat-style comment form
 const CommentForm = memo(
 	({
 		onSubmit,
-		isCreating
+		isCreating,
+		userImage,
+		userName
 	}: {
+		// types below
+		// types below
 		onSubmit: (content: string, rating: number) => Promise<void>;
 		isCreating: boolean;
+		userImage?: string | null;
+		userName?: string | null;
 	}) => {
+		const tCommon = useTranslations('common');
+		const tItemDetail = useTranslations('itemDetail');
 		const [content, setContent] = useState('');
 		const [rating, setRating] = useState(5);
+		const [focused, setFocused] = useState(false);
 
 		const handleSubmit = async (e: React.FormEvent) => {
 			e.preventDefault();
 			if (!content.trim()) return;
-
 			await onSubmit(content, rating);
 			setContent('');
 			setRating(5);
+			setFocused(false);
+		};
+
+		const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+			if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && content.trim()) {
+				e.preventDefault();
+				void handleSubmit(e as unknown as React.FormEvent);
+			}
 		};
 
 		return (
-			<div className={FORM_CONTAINER_CLASSES}>
-				<form onSubmit={handleSubmit} className="space-y-4">
-					<div className="flex items-center gap-2">
-						<label htmlFor="rating" className="text-sm font-medium text-gray-600 dark:text-gray-400">
-							Your rating:
-						</label>
-						<Rating value={rating} onChange={setRating} size="md" />
-					</div>
-					<textarea
-						id="comment"
-						placeholder="Share your thoughts..."
-						value={content}
-						onChange={(e) => setContent(e.target.value)}
-						autoFocus
-						className="min-h-[100px] bg-white dark:bg-white/5 resize-none border border-gray-200 dark:border-white/8 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
-						maxLength={1000}
-						required
-					/>
-					<div className="flex justify-end">
-						<Button
-							type="submit"
-							disabled={isCreating || !content.trim()}
-							className="h-10 px-6 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-medium shadow-sm hover:shadow-md transition-all rounded-lg"
-						>
-							{isCreating ? (
+			<div className="flex gap-3 items-start">
+				{/* User avatar */}
+				<Avatar
+					src={userImage}
+					alt={userName || 'You'}
+					fallback={userName?.[0] || 'Y'}
+					size="sm"
+					className="w-6 h-6 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5"
+				/>
+				{/* Chat bubble input */}
+				<form onSubmit={handleSubmit} className="flex-1 min-w-0">
+					<div className={`relative border rounded-lg transition-all duration-200 bg-white dark:bg-white/[0.04] ${
+						focused
+							? 'border-gray-300 dark:border-white/20 shadow-sm'
+							: 'border-gray-200 dark:border-white/10'
+					}`}>
+						{focused && (
+							<div className="flex items-center gap-2 px-4 pt-3 pb-1">
+						<span className="text-xs text-gray-400 dark:text-gray-500">{tItemDetail('RATING')}:</span>
+								<Rating value={rating} onChange={setRating} size="sm" />
+							</div>
+						)}
+						<textarea
+							id="comment"
+							placeholder={tItemDetail('COMMENTS_PLACEHOLDER')}
+							value={content}
+							onChange={(e) => setContent(e.target.value)}
+							onFocus={() => setFocused(true)}
+							onKeyDown={handleKeyDown}
+							className={`w-full bg-transparent resize-none focus:outline-none text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 px-4 transition-all duration-200 ${
+								focused ? 'pt-2 pb-2 min-h-[80px]' : 'py-2.5 min-h-0'
+							}`}
+							maxLength={1000}
+						/>
+						{focused && (
+							<div className="flex items-center justify-between px-3 pb-2.5 pt-1">
+								<span className="text-[11px] text-gray-300 dark:text-gray-600 select-none">{tItemDetail('COMMENTS_SHORTCUT')}</span>
 								<div className="flex items-center gap-2">
-									<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-									<span>Posting...</span>
+									<button
+										type="button"
+										onClick={() => { setFocused(false); setContent(''); }}
+										className="h-7 cursort-pointer px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+									>
+										{tCommon('CANCEL')}
+									</button>
+									<button
+										type="submit"
+										disabled={isCreating || !content.trim()}
+										className="h-7 cursort-pointer px-4 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-100 transition-all"
+									>
+										{isCreating ? (
+											<div className="flex items-center gap-1.5">
+												<div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" />
+												<span>{tItemDetail('COMMENTS_POSTING')}</span>
+											</div>
+										) : tItemDetail('COMMENTS_POST')}
+									</button>
 								</div>
-							) : (
-								'Post Comment'
-							)}
-						</Button>
+							</div>
+						)}
 					</div>
 				</form>
 			</div>
@@ -156,6 +198,8 @@ const Comment = memo(
 		const [editContent, setEditContent] = useState(comment.content);
 		const [editRating, setEditRating] = useState(comment.rating);
 		const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+		const tCommon = useTranslations('common');
+		const tItemDetail = useTranslations('itemDetail');
 
 		const handleDeleteConfirm = async () => {
 			try {
@@ -184,112 +228,103 @@ const Comment = memo(
 		const isFluid = containerWidth === 'fluid';
 
 		return (
-			<div className={` ${isFluid ? 'w-4/5' : 'full'} group flex gap-4 p-4 rounded-lg hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-all duration-200`}>
+			<div className={`${isFluid ? 'max-w-[80%]' : 'w-full'} group flex gap-3 px-6 py-3.5 transition-colors duration-150`}>
+				{/* Avatar — LinkedIn positions it top-left */}
 				<Avatar
 					src={comment.user.image}
 					alt={comment.user.name || 'Anonymous'}
 					fallback={comment.user.name?.[0] || 'A'}
-					size="md"
-					className="w-10 h-10 ring-2 ring-gray-100 dark:ring-gray-800 shadow-sm"
+					size="sm"
+					className="w-4 h-4 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5 rounded-full"
 				/>
 				<div className="flex-1 min-w-0">
-					<div className="flex items-start justify-between gap-3 mb-2">
-						<div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
-							<span className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-								{comment.user.name || 'Anonymous'}
-							</span>
-							<time dateTime={comment.createdAt.toString()} className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
-								{formatDistanceToNow(new Date(comment.createdAt), {
-									addSuffix: true
-								})}
-							</time>
-							{wasEdited && !isEditing && (
-								<span className="text-xs text-gray-400 dark:text-gray-500 italic" title={`Edited ${formatDistanceToNow(new Date(comment.editedAt!), { addSuffix: true })}`}>
-									(edited)
+					{/* LinkedIn-style name card bubble */}
+					<div className="px-4">
+						{/* Name + time row */}
+						<div className="flex items-center justify-between gap-2 mb-1">
+							<div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
+								<span className="text-[13px] font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">
+									{comment.user.name || 'Anonymous'}
 								</span>
+								<time dateTime={comment.createdAt.toString()} className="text-[11px] text-gray-400 dark:text-gray-500 whitespace-nowrap">
+									{formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+								</time>
+								{wasEdited && !isEditing && (
+									<span className="text-[11px] text-gray-400 dark:text-gray-500 italic" title={`Edited ${formatDistanceToNow(new Date(comment.editedAt!), { addSuffix: true })}`}>
+										· edited
+									</span>
+								)}
+							</div>
+							{!isEditing && (
+								<Rating value={comment.rating} readOnly size="sm" />
 							)}
 						</div>
-						{!isEditing && (
-							<div className="flex items-center gap-2 shrink-0">
-								{isOwner && (
-									<>
-										<Button
-											variant="ghost"
-											size="sm"
-										className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-white/6 rounded-lg"
-										onClick={() => setIsEditing(true)}
-										disabled={isDeleting || isUpdating}
-										aria-label="Edit comment"
+
+						{/* Comment content / edit form */}
+						{isEditing ? (
+							<div className="space-y-2.5 mt-2">
+								<div className="flex items-center gap-2">
+									<span className="text-xs text-gray-400">{tItemDetail('RATING')}:</span>
+									<Rating value={editRating} onChange={setEditRating} size="sm" />
+								</div>
+								<textarea
+									value={editContent}
+									onChange={(e) => setEditContent(e.target.value)}
+									autoFocus
+									className="min-h-[72px] w-full bg-white dark:bg-white/5 resize-none border border-gray-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:focus:ring-white/20 px-3 py-2.5 rounded-xl text-sm text-gray-800 dark:text-gray-200 transition-all"
+									maxLength={1000}
+								/>
+								<div className="flex gap-2 justify-end">
+									<button
+										type="button"
+										onClick={handleCancel}
+										disabled={isUpdating}
+										className="h-7 cursor-pointer px-3 text-xs text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors rounded-full"
 									>
-										<Pencil className="h-4 w-4" />
-									</Button>
-									<Button
-										variant="ghost"
-										size="sm"
-										className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg"
-											onClick={() => setIsDeleteDialogOpen(true)}
-											disabled={isDeleting || isUpdating}
-											aria-label="Delete comment"
-										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</>
-								)}
-								<Rating value={comment.rating} readOnly size="sm" />
+									{tCommon('CANCEL')}
+									</button>
+									<button
+										type="button"
+										onClick={handleSave}
+										disabled={isUpdating || !editContent.trim()}
+										className="h-7 px-4 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 disabled:opacity-40 hover:bg-gray-700 dark:hover:bg-gray-100 transition-all flex items-center gap-1.5"
+									>
+										{isUpdating ? (
+										<><div className="w-3 h-3 border-2 border-current/30 border-t-current rounded-full animate-spin" /><span>{tItemDetail('COMMENTS_SAVING')}</span></>
+									) : (
+										<><Check className="w-3 h-3" /><span>{tCommon('SAVE')}</span></>
+										)}
+									</button>
+								</div>
 							</div>
+						) : (
+							<>
+								<p className="text-xs leading-relaxed text-gray-500 dark:text-gray-400 mt-0.5">{comment.content}</p>
+								{/* Owner action buttons — appear on row hover */}
+								{isOwner && (
+									<div className="flex items-center gap-1 mt-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+										<button
+											type="button"
+											onClick={() => setIsEditing(true)}
+											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
+										>
+											<Pencil className="w-2.5 h-2.5" />
+										{tCommon('EDIT')}
+										</button>
+										<span className="text-gray-200 dark:text-white/10">·</span>
+										<button
+											type="button"
+											onClick={() => setIsDeleteDialogOpen(true)}
+											className="inline-flex items-center gap-1 h-5 px-1.5 rounded text-[10px] font-medium text-gray-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+										>
+											<Trash2 className="w-2.5 h-2.5" />
+										{tCommon('DELETE')}
+										</button>
+									</div>
+								)}
+							</>
 						)}
 					</div>
-
-					{isEditing ? (
-						<div className="space-y-3">
-							<div className="flex items-center gap-2">
-								<label className="text-sm font-medium text-gray-600 dark:text-gray-400">
-									Rating:
-								</label>
-								<Rating value={editRating} onChange={setEditRating} size="sm" />
-							</div>
-							<textarea
-								value={editContent}
-								onChange={(e) => setEditContent(e.target.value)}
-								autoFocus
-								className="min-h-20 bg-white dark:bg-white/5 resize-none border border-gray-200 dark:border-white/8 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 w-full px-4 py-3 rounded-lg transition-all"
-								maxLength={1000}
-								required
-							/>
-							<div className="flex gap-2 justify-end">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={handleCancel}
-									disabled={isUpdating}
-									className="h-9 px-4 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-white/6 rounded-lg"
-								>
-									<X className="h-4 w-4 mr-2" />
-									Cancel
-								</Button>
-								<Button
-									size="sm"
-									onClick={handleSave}
-									disabled={isUpdating || !editContent.trim()}
-									className="h-9 px-5 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all"
-								>
-									{isUpdating ? (
-										<div className="flex items-center gap-2">
-											<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-											<span>Saving...</span>
-										</div>
-									) : (
-										<>
-											<Check className="h-4 w-4 mr-2" />
-											Save
-										</>
-									)}
-								</Button>
-							</div>
-						</div>
-					) : (
-						<p className="text-sm leading-relaxed text-gray-700 dark:text-gray-300">{comment.content}</p>
-					)}
 				</div>
 
 			{/* Delete Confirmation Dialog */}
@@ -306,7 +341,7 @@ const Comment = memo(
 							<div className={DELETE_DIALOG_CLASSES.alertIcon}>
 								<AlertTriangle className="h-5 w-5 text-white" />
 							</div>
-							<h2 className={DELETE_DIALOG_CLASSES.headerText}>Delete Comment</h2>
+							<h2 className={DELETE_DIALOG_CLASSES.headerText}>{tItemDetail('COMMENTS_DELETE_TITLE')}</h2>
 						</div>
 					</ModalHeader>
 
@@ -315,7 +350,7 @@ const Comment = memo(
 							<div className={DELETE_DIALOG_CLASSES.warningContent}>
 								<AlertTriangle className={DELETE_DIALOG_CLASSES.warningIcon} />
 								<p className={DELETE_DIALOG_CLASSES.warningText}>
-									Are you sure you want to delete this comment? This action cannot be undone.
+								{tItemDetail('COMMENTS_DELETE_WARNING')}
 								</p>
 							</div>
 						</div>
@@ -329,7 +364,7 @@ const Comment = memo(
 								disabled={isDeleting}
 								className={DELETE_DIALOG_CLASSES.cancelButton}
 							>
-								Cancel
+								{tCommon('CANCEL')}
 							</Button>
 							<Button
 								variant="destructive"
@@ -340,12 +375,12 @@ const Comment = memo(
 								{isDeleting ? (
 									<div className="flex items-center gap-2">
 										<div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-										<span>Deleting...</span>
+										<span>{tItemDetail('COMMENTS_DELETING')}...</span>
 									</div>
 								) : (
 									<>
 										<Trash2 className="h-4 w-4 mr-2" />
-										Delete
+									{tCommon('DELETE')}
 									</>
 								)}
 							</Button>
@@ -360,43 +395,40 @@ const Comment = memo(
 Comment.displayName = 'Comment';
 
 // Empty state component
-const EmptyState = memo(() => (
-	<div className="text-center py-10" role="status">
-		<div className="w-14 h-14 mx-auto mb-3 bg-linear-to-br from-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-lg flex items-center justify-center">
-			<MessageCircle className="w-7 h-7 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+const EmptyState = memo(() => {
+	const tItemDetail = useTranslations('itemDetail');
+	return (
+		<div className="px-6 py-10 text-center" role="status">
+			<div className="w-10 h-10 mx-auto mb-3 bg-gray-100 dark:bg-white/5 rounded-xl flex items-center justify-center">
+				<MessageCircle className="w-5 h-5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
+			</div>
+			<p className="text-sm text-gray-400 dark:text-gray-500">{tItemDetail('COMMENTS_EMPTY')}</p>
 		</div>
-		<p className="text-gray-500 dark:text-gray-400 font-medium">No comments yet. Be the first to share your thoughts!</p>
-	</div>
-));
+	);
+});
 EmptyState.displayName = 'EmptyState';
 
-// Login prompt component for non-authenticated users
-const LoginPrompt = memo(({ onLoginClick }: { onLoginClick: () => void }) => (
-	<div className={FORM_CONTAINER_CLASSES}>
-		<div className="text-center py-8 space-y-4">
-			<div className="w-12 h-12 mx-auto bg-linear-to-br from-theme-primary-500 to-theme-primary-600 rounded-lg flex items-center justify-center shadow-sm">
-				<MessageCircle className="w-6 h-6 text-white" aria-hidden="true" />
+// Login prompt — compact inline bar
+const LoginPrompt = memo(({ onLoginClick }: { onLoginClick: () => void }) => {
+	const tAuth = useTranslations('auth');
+	const tItemDetail = useTranslations('itemDetail');
+	return (
+		<div className="flex items-center gap-2.5 py-1">
+			<div className="w-6 h-6 shrink-0 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
+				<MessageCircle className="w-3 h-3 text-gray-400 dark:text-gray-500" aria-hidden="true" />
 			</div>
-			<div className="space-y-1">
-				<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-					Join the Conversation
-				</h3>
-				<p className="text-sm text-gray-600 dark:text-gray-400">
-					Sign in to share your thoughts and rate this item
-				</p>
-			</div>
-			<Button
+			<span className="text-[0.8125rem] text-gray-400 dark:text-gray-500 flex-1">
+				{tItemDetail('COMMENTS_HAVE_THOUGHTS')}
+			</span>
+			<button
 				onClick={onLoginClick}
-				className="h-10 px-6 bg-linear-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white font-medium shadow-sm hover:shadow-md transition-all rounded-lg"
+				className="h-7 px-3 rounded-full text-xs font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors cursor-pointer shrink-0"
 			>
-				Sign In to Comment
-			</Button>
-			<p className="text-xs text-gray-500 dark:text-gray-400">
-				Don&apos;t have an account? Sign up when you click above
-			</p>
+				{tAuth('SIGN_IN')}
+			</button>
 		</div>
-	</div>
-));
+	);
+});
 LoginPrompt.displayName = 'LoginPrompt';
 
 interface CommentsSectionProps {
@@ -409,6 +441,8 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 	const { comments, isPending: isCommentsPending, createComment, isCreating, updateComment, isUpdating, deleteComment, isDeleting } = useComments(itemId);
 	const { user } = useCurrentUser();
 	const loginModal = useLoginModal();
+	const tCommon = useTranslations('common');
+	const tItemDetail = useTranslations('itemDetail');
 
 	// Combine loading states to prevent race conditions
 	const isLoading = isFeaturesPending || isCommentsPending;
@@ -417,36 +451,36 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 		async (content: string, rating: number) => {
 			try {
 				await createComment({ content, itemId, rating });
-				toast.success('Comment posted successfully!');
+				toast.success(tItemDetail('COMMENTS_POSTED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to post comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_POST_FAILED'));
 			}
 		},
-		[createComment, itemId]
+		[createComment, itemId, tItemDetail]
 	);
 
 	const handleDelete = useCallback(
 		async (commentId: string) => {
 			try {
 				await deleteComment(commentId);
-				toast.success('Comment deleted successfully');
+				toast.success(tItemDetail('COMMENTS_DELETED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to delete comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_DELETE_FAILED'));
 			}
 		},
-		[deleteComment]
+		[deleteComment, tItemDetail]
 	);
 
 	const handleUpdate = useCallback(
 		async (commentId: string, content: string, rating: number) => {
 			try {
 				await updateComment({ commentId, content, rating });
-				toast.success('Comment updated successfully!');
+				toast.success(tItemDetail('COMMENTS_UPDATED_SUCCESS'));
 			} catch (error) {
-				toast.error(error instanceof Error ? error.message : 'Failed to update comment');
+				toast.error(error instanceof Error ? error.message : tItemDetail('COMMENTS_UPDATE_FAILED'));
 			}
 		},
-		[updateComment]
+		[updateComment, tItemDetail]
 	);
 
 	// Show skeleton during loading (single coordinated check)
@@ -468,32 +502,37 @@ export function CommentsSection({ itemId }: CommentsSectionProps) {
 
 	return (
 		<div className={CARD_WRAPPER_CLASSES}>
-			{/* Section Header with Icon */}
+			{/* Section Header */}
 			<div className={SECTION_HEADER_CLASSES}>
-				   <div className={ICON_CONTAINER_CLASSES}>
-					   <MessageCircle className="w-5 h-5 text-white" aria-hidden="true" />
-				   </div>
-				   <div>
-					   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-						   Comments
-					   </h2>
-					   <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-						   {comments.length} {comments.length === 1 ? 'comment' : 'comments'}
-					   </p>
-				   </div>
+				<div className={ICON_CONTAINER_CLASSES}>
+					<MessageCircle className="w-4 h-4 text-gray-600 dark:text-gray-300" aria-hidden="true" />
+				</div>
+				<div className="flex items-baseline gap-2">
+					<h2 className="text-xs font-semibold uppercase tracking-widest text-gray-500 dark:text-gray-400">
+						{tCommon('COMMENTS')}
+					</h2>
+					<span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 tabular-nums">
+						{comments.length}
+					</span>
+				</div>
 			</div>
 
 			{/* Comment Form */}
-			<div className="mb-8">
+			<div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
 				{user ? (
-				<CommentForm onSubmit={handleSubmit} isCreating={isCreating} />
-			) : (
-				<LoginPrompt onLoginClick={() => loginModal.onOpen('Sign in to join the conversation', window.location.pathname + window.location.search)} />
-			)}
+					<CommentForm
+						onSubmit={handleSubmit}
+						isCreating={isCreating}
+						userImage={user.image}
+						userName={user.name}
+					/>
+				) : (
+					<LoginPrompt onLoginClick={() => loginModal.onOpen(tItemDetail('COMMENTS_SIGN_IN_PROMPT'), window.location.pathname + window.location.search)} />
+				)}
 			</div>
 
 			{/* Comments List */}
-			<div className="space-y-2">
+			<div className="divide-y divide-gray-50 dark:divide-white/[0.04]">
 				{comments.length > 0 ? (
 					comments.map((comment: CommentWithUser) => (
 						<Comment
