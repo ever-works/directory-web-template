@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { useTranslations } from 'next-intl';
 import { PageContainer } from "@/components/ui/container";
 
@@ -59,8 +58,8 @@ export function HeroLanding() {
   // Show loading skeleton until mounted
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-        <PageContainer className="flex items-center justify-center min-h-screen">
+      <div>
+        <PageContainer className="flex items-center justify-center">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 dark:bg-white/8 rounded-sm w-96 mb-4"></div>
             <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm w-64"></div>
@@ -71,16 +70,9 @@ export function HeroLanding() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] overflow-hidden">
-      {/* Floating Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl animate-float"></div>
-        <div className="absolute top-40 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-float-delayed"></div>
-        <div className="absolute bottom-20 left-1/3 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl animate-float-slow"></div>
-      </div>
-
-      <PageContainer className="relative z-10">
-        <div className="grid lg:grid-cols-2 gap-12 items-center min-h-screen py-20">
+    <div>
+      <PageContainer>
+        <div className="grid lg:grid-cols-2 gap-12 items-center py-10">
           {/* Left Column - Content */}
           <div className="space-y-8">
             {/* Badge */}
@@ -110,12 +102,12 @@ export function HeroLanding() {
                   key={index}
                   className={`flex items-center gap-4 p-4 rounded-xl transition-all duration-500 cursor-pointer ${
                     activeFeature === index
-                      ? 'bg-white/80 dark:bg-white/3 shadow-lg scale-105'
-                      : 'bg-white/40 dark:bg-white/3 hover:bg-white/60 dark:hover:bg-white/4'
+                      ? 'bg-white dark:bg-white/6 border border-slate-200 dark:border-white/8'
+                      : 'hover:bg-slate-50 dark:hover:bg-white/4'
                   }`}
                   onClick={() => setActiveFeature(index)}
                 >
-                  <div className={`w-12 h-12 rounded-lg bg-linear-to-r ${feature.gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
+                  <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${feature.gradient} flex items-center justify-center text-white text-base`}>
                     {feature.icon}
                   </div>
                   <div className="flex-1">
@@ -134,21 +126,18 @@ export function HeroLanding() {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 transition-all duration-700 delay-600 opacity-100 translate-y-0">
-              <Button
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
                 onClick={handleGetStarted}
-                size="lg"
-                className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="h-10 px-5 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
               >
                 {t('HERO_CTA_PRIMARY')}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-4 rounded-xl transition-all duration-300"
+              </button>
+              <button
+                className="h-10 px-5 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
               >
                 {t('HERO_CTA_SECONDARY')}
-              </Button>
+              </button>
             </div>
 
             {/* Stats */}
@@ -169,7 +158,7 @@ export function HeroLanding() {
           {/* Right Column - Visual Demo */}
           <div className="relative transition-all duration-700 delay-1000 opacity-100 translate-y-0">
             {/* Main Demo Container */}
-            <div className="relative bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-white/6">
+            <div className="bg-white dark:bg-white/3 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-white/6">
                 {/* Browser Header */}
               <div className="flex items-center gap-3 mb-6">
                   <div className="flex gap-2">
@@ -217,28 +206,16 @@ export function HeroLanding() {
                 </div>
 
                 {/* Action Button */}
-                <Button className="w-full bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-3 rounded-lg transition-all duration-300">
+                <button className="w-full h-9 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                   {t('HERO_DEMO_CTA')}
-                </Button>
+                </button>
               </div>
             </div>
 
-            {/* Floating Elements */}
-            <div className="absolute -top-4 -right-4 w-24 h-24 bg-linear-to-r from-blue-500 to-purple-500 rounded-full opacity-20 blur-xl animate-pulse"></div>
-            <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-linear-to-r from-orange-500 to-red-500 rounded-full opacity-20 blur-xl animate-pulse delay-1000"></div>
+
           </div>
         </div>
       </PageContainer>
-
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 transition-all duration-700 delay-1200 opacity-100 translate-y-0">
-        <div className="flex flex-col items-center gap-2 text-slate-400 dark:text-slate-500">
-          <span className="text-xs font-medium">{t('HERO_SCROLL_TEXT')}</span>
-          <div className="w-6 h-10 border-2 border-slate-300 dark:border-white/8 rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-slate-400 dark:bg-white/[0.12] rounded-full mt-2 animate-bounce"></div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 } 

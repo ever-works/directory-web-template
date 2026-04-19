@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
 
 interface ProcessStep {
   id: number;
@@ -153,17 +152,14 @@ export const ProcessExplanation = () => {
   };
 
   return (
-    <div className="mt-12 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-3xl p-8 border border-slate-200 dark:border-white/6 shadow-2xl">
+    <div className="mt-8 rounded-xl p-6 border border-slate-200 dark:border-white/6 bg-white dark:bg-white/3">
       {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
-          <span>🔄</span>
-          {t('PROCESS_OVERVIEW_BADGE')}
-        </div>
-        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+      <div className="mb-8">
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2">{t('PROCESS_OVERVIEW_BADGE')}</p>
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
           {t('HOW_IT_WORKS_PROCESS_TITLE')}
-      </h3>
-        <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
+        </h3>
+        <p className="text-slate-600 dark:text-slate-400 text-sm">
           Follow our proven 4-step process to get your platform up and running quickly
         </p>
       </div>
@@ -178,9 +174,9 @@ export const ProcessExplanation = () => {
             {Math.round(progress)}%
           </span>
           </div>
-        <div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-3 overflow-hidden">
+        <div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-1.5 overflow-hidden">
           <div 
-            className="bg-linear-to-r from-blue-500 to-cyan-500 h-full rounded-full transition-all duration-1000 ease-out"
+            className="bg-theme-primary-500 h-full rounded-full transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
@@ -199,9 +195,7 @@ export const ProcessExplanation = () => {
             return (
               <div
                 key={step.id}
-                className={`relative group cursor-pointer transition-all duration-300 ${
-                  isActive ? 'transform scale-105' : 'hover:transform hover:scale-102'
-                }`}
+                className="relative group cursor-pointer"
                 onClick={() => handleStepClick(index)}
               >
                 {/* Timeline Node */}
@@ -214,15 +208,15 @@ export const ProcessExplanation = () => {
                 }`}></div>
 
                 {/* Step Card */}
-                <div className={`ml-16 bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border-2 transition-all duration-300 ${
+                <div className={`ml-16 bg-white dark:bg-white/3 rounded-xl p-5 border transition-colors duration-200 ${
                   isActive
-                    ? 'border-blue-500 shadow-xl shadow-blue-500/20'
+                    ? 'border-blue-500 dark:border-blue-500'
                     : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
                 }`}>
                   {/* Header */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${step.gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
+                      <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${step.gradient} flex items-center justify-center text-white text-base`}>
                         {step.icon}
           </div>
                       <div>
@@ -295,13 +289,13 @@ export const ProcessExplanation = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-3 mt-6">
-                        <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                      <div className="flex gap-2 mt-5">
+                        <button className="h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                           Start This Step
-                        </Button>
-                        <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-6 py-2 rounded-xl transition-all duration-300">
+                        </button>
+                        <button className="h-8 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                           View Documentation
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -314,20 +308,20 @@ export const ProcessExplanation = () => {
 
       {/* Bottom CTA */}
       <div className="mt-12 text-center">
-        <div className="bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-800">
-          <h4 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">
+        <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+          <h4 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
             Ready to Get Started?
           </h4>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 max-w-2xl mx-auto">
             Follow our step-by-step process and have your platform running in under 2 hours
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
               Begin Setup Process
-            </Button>
-            <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+            </button>
+            <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
               Download Guide PDF
-            </Button>
+            </button>
           </div>
         </div>
       </div>

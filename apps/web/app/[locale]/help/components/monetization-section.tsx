@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-
 interface MonetizationMethod {
   id: string;
   title: string;
@@ -119,18 +117,15 @@ const monetizationMethods: MonetizationMethod[] = [
 ];
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full text-green-700 dark:text-green-300 text-sm font-medium mb-6">
-            <span>💰</span>
-            {t('MONETIZATION_BADGE')}
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400 mb-2">{t('MONETIZATION_BADGE')}</p>
+          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
             {t('MONETIZATION_SECTION_TITLE')}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
             {t('MONETIZATION_SECTION_SUBTITLE')}
           </p>
         </div>
@@ -140,7 +135,7 @@ const monetizationMethods: MonetizationMethod[] = [
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105"
+              className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
@@ -167,23 +162,21 @@ const monetizationMethods: MonetizationMethod[] = [
           {monetizationMethods.map((method, index) => (
             <div
               key={method.id}
-              className={`relative group cursor-pointer transition-all duration-300 ${
-                activeMethod === index ? 'transform scale-105' : 'hover:transform hover:scale-102'
-              }`}
+              className="relative group cursor-pointer"
               onClick={() => setActiveMethod(index)}
             >
               {/* Method Card */}
-              <div className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 border-2 transition-all duration-300 h-full ${
+              <div className={`relative bg-white dark:bg-white/3 rounded-xl p-6 border transition-colors duration-200 h-full ${
                 activeMethod === index
-                  ? 'border-blue-500 shadow-xl shadow-blue-500/20'
+                  ? 'border-blue-500 dark:border-blue-500'
                   : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Header */}
                 <div className="text-center mb-6">
-                  <div className={`w-16 h-16 rounded-full bg-linear-to-r ${method.gradient} flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                  <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${method.gradient} flex items-center justify-center text-white text-lg mb-3`}>
                     {method.icon}
                   </div>
-                  <h3 className={`text-xl font-bold mb-2 ${method.color}`}>
+                  <h3 className={`text-base font-semibold mb-2 ${method.color}`}>
                     {method.title}
                   </h3>
                   <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
@@ -213,12 +206,7 @@ const monetizationMethods: MonetizationMethod[] = [
                   </div>
                 </div>
 
-                {/* Active Indicator */}
-                {activeMethod === index && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                  </div>
-                )}
+                {/* Active Indicator - removed */}
               </div>
             </div>
           ))}
@@ -226,7 +214,7 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Detailed View */}
         <div className="mb-16">
-          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
@@ -238,14 +226,12 @@ const monetizationMethods: MonetizationMethod[] = [
                     {monetizationMethods[activeMethod].title} - Detailed Analysis
                   </h3>
                 </div>
-                <Button
+                <button
                   onClick={() => setShowDetails(!showDetails)}
-                  variant="outline"
-                  size="sm"
-                  className="border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300"
+                  className="h-7 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
                 >
                   {showDetails ? t("HIDE_DETAILS") : t("SHOW_DETAILS")}
-                </Button>
+                </button>
               </div>
             </div>
 
@@ -341,20 +327,20 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-2xl p-8 border border-green-200 dark:border-green-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
               {t("START_MONETIZING_TODAY")}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
               {t("START_MONETIZING_DESC")}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 {t("GET_STARTED_NOW")}
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 {t("VIEW_CASE_STUDIES")}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

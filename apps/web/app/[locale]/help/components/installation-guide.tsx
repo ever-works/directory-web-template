@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-
 interface InstallationStep {
 	id: string;
 	number: string;
@@ -175,19 +173,14 @@ pnpm start`,
 	const progressPercentage = (completedSteps.length / installationSteps.length) * 100;
 
 	return (
-		<section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<div>
 				{/* Header */}
-				<div className="text-center mb-16">
-					<div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full text-green-700 dark:text-green-300 text-sm font-medium mb-6">
-						<span>⚡</span>
-						{t('INSTALLATION_GUIDE_TITLE')}
-					</div>
-					<h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
-						{t('INSTALLATION_GUIDE_SUBTITLE')}
-					</h2>
-					<p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
-						{t('INSTALLATION_GUIDE_DESC')}
+			<div className="mb-10">
+				<p className="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400 mb-2">{t('INSTALLATION_GUIDE_TITLE')}</p>
+				<h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
+					{t('INSTALLATION_GUIDE_SUBTITLE')}
+				</h2>
+				<p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
 					</p>
 				</div>
 
@@ -217,25 +210,23 @@ pnpm start`,
 							{installationSteps.map((step, index) => (
 								<div
 									key={step.id}
-									className={`relative group cursor-pointer transition-all duration-300 ${
-										activeStep === index ? 'transform scale-105' : 'hover:transform hover:scale-102'
+								className="relative group cursor-pointer"
+								onClick={() => setActiveStep(index)}
+							>
+								{/* Step Card */}
+								<div
+									className={`relative bg-white dark:bg-white/3 rounded-xl p-5 border transition-colors duration-200 ${
+										activeStep === index
+											? 'border-blue-500 dark:border-blue-500'
+											: completedSteps.includes(index)
+												? 'border-green-500 dark:border-green-500'
+												: 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
 									}`}
-									onClick={() => setActiveStep(index)}
-								>
-									{/* Step Card */}
-									<div
-										className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border-2 transition-all duration-300 ${
-											activeStep === index
-												? 'border-blue-500 shadow-xl shadow-blue-500/20'
-												: completedSteps.includes(index)
-													? 'border-green-500 shadow-lg shadow-green-500/20'
-													: 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
-										}`}
 									>
 										{/* Step Header */}
 										<div className="flex items-center gap-4 mb-4">
 											<div
-												className={`w-12 h-12 rounded-full bg-linear-to-r ${step.gradient} flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-300`}
+												className={`w-10 h-10 rounded-lg bg-linear-to-r ${step.gradient} flex items-center justify-center text-white font-bold text-sm`}
 											>
 												{completedSteps.includes(index) ? '✓' : step.number}
 											</div>
@@ -266,13 +257,7 @@ pnpm start`,
 											{step.description}
 										</p>
 
-										{/* Active Indicator */}
-										{activeStep === index && (
-											<div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-												<div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-											</div>
-										)}
-
+									{/* Active Indicator - removed */}
 										{/* Completed Indicator */}
 										{completedSteps.includes(index) && (
 											<div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
@@ -292,7 +277,7 @@ pnpm start`,
 
 					{/* Code Preview */}
 					<div className="lg:col-span-2">
-						<div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+						<div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
 							{/* Code Header */}
 							<div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
 								<div className="flex items-center justify-between">
@@ -403,7 +388,7 @@ pnpm start`,
 
 				{/* Tips Section */}
 				<div className="mt-16">
-					<h3 className="text-2xl font-bold text-center mb-12 text-slate-900 dark:text-white">
+				<h3 className="text-base font-semibold mb-6 text-slate-900 dark:text-white">
 						💡 Quick Tips for Success
 					</h3>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -426,27 +411,23 @@ pnpm start`,
 
 				{/* Call to Action */}
 				<div className="mt-16 text-center">
-					<div className="bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-2xl p-8 border border-green-200 dark:border-green-800">
-						<h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
-							Ready to Launch Your Platform?
-						</h3>
-						<p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
-							You&apos;re just a few steps away from having your web platform live and ready for users.
-						</p>
-						<div className="flex flex-col sm:flex-row gap-4 justify-center">
-							<Button className="bg-linear-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
-								Deploy to Production
-							</Button>
-							<Button
-								variant="outline"
-								className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300"
-							>
-								View Documentation
-							</Button>
-						</div>
+				<div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+					<h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+						Ready to Launch Your Platform?
+					</h3>
+					<p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
+						You&apos;re just a few steps away from having your web platform live and ready for users.
+					</p>
+					<div className="flex flex-col sm:flex-row gap-3 justify-center">
+						<button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
+							Deploy to Production
+						</button>
+						<button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
+							View Documentation
+						</button>
 					</div>
 				</div>
 			</div>
-		</section>
+		</div>
 	);
 }

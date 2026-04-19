@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-
 interface SupportChannel {
   id: string;
   name: string;
@@ -197,24 +195,21 @@ export function Support() {
   };
 
   return (
-    <div className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
+    <div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 rounded-full text-red-700 dark:text-red-300 text-sm font-medium mb-6">
-            <span>🆘</span>
-            Support Center
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-red-600 dark:text-red-400 mb-2">Support Center</p>
+          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
             {t("NEED_HELP")}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
             {t("NEED_HELP_DESC")}
           </p>
         </div>
 
         {/* Support Dashboard */}
-        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
           {/* Dashboard Header */}
           <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
@@ -259,12 +254,12 @@ export function Support() {
                   {supportChannels.map((channel) => (
                     <div
                       key={channel.id}
-                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300 hover:transform hover:scale-105"
+                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-colors duration-200"
                     >
                       {/* Header */}
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${channel.gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
+                          <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${channel.gradient} flex items-center justify-center text-white text-lg`}>
                             {channel.icon}
                           </div>
                           <div>
@@ -324,12 +319,12 @@ export function Support() {
                       </div>
 
                       {/* Action Button */}
-                      <Button
+                      <button
                         onClick={() => channel.id === 'live-chat' ? setChatOpen(true) : window.open(channel.link, '_blank')}
-                        className={`w-full bg-linear-to-r ${channel.gradient} hover:opacity-90 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300`}
+                        className="w-full h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
                       >
                         {channel.id === 'live-chat' ? 'Start Chat' : 'Get Help'}
-                      </Button>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -344,9 +339,9 @@ export function Support() {
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                         selectedCategory === category.id
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                          ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                           : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                       }`}
                     >
@@ -398,12 +393,12 @@ export function Support() {
                       <p className="text-xs text-slate-500 dark:text-slate-400">Online • Responds in 1-2 minutes</p>
                     </div>
                   </div>
-                  <Button
+                  <button
                     onClick={() => setChatOpen(!chatOpen)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                    className="h-8 px-3 text-xs font-medium bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                   >
                     {chatOpen ? 'Close Chat' : 'Start Chat'}
-                  </Button>
+                  </button>
                 </div>
 
                 {chatOpen ? (
@@ -438,12 +433,12 @@ export function Support() {
                           placeholder="Type your message..."
                           className="flex-1 px-3 py-2 bg-white dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                         />
-                        <Button
+                        <button
                           onClick={sendMessage}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                          className="h-9 px-3 text-sm font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors"
                         >
                           Send
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -457,12 +452,12 @@ export function Support() {
                       <p className="text-slate-600 dark:text-slate-400 mb-4">
                         Get instant help from our support team
                       </p>
-                      <Button
+                      <button
                         onClick={() => setChatOpen(true)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
+                        className="h-9 px-4 text-sm font-medium bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                       >
                         Start Chat
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -473,20 +468,20 @@ export function Support() {
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <div className="bg-linear-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl p-8 border border-red-200 dark:border-red-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
               Still Need Help?
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
               Our support team is here to help you succeed with your project
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 Contact Support
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 View Documentation
-              </Button>
+              </button>
             </div>
           </div>
         </div>

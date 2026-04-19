@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
 
 interface EnvVariable {
   name: string;
@@ -234,24 +233,21 @@ export function EnvConfiguration() {
   };
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
-            <span>⚙️</span>
-            {t("ENV_CONFIG_BADGE")}
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2">{t("ENV_CONFIG_BADGE")}</p>
+          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
             {t("ENV_CONFIG_TITLE")}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
             {t("ENV_CONFIG_DESC")}
           </p>
         </div>
 
         {/* Configuration Dashboard */}
-        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
           {/* Dashboard Header */}
           <div className="bg-linear-to-r from-slate-100 to-slate-200 dark:from-white/6 dark:to-white/5 px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
@@ -270,20 +266,19 @@ export function EnvConfiguration() {
               </div>
               
               {/* Controls */}
-              <div className="flex items-center gap-3">
-                <Button
+              <div className="flex items-center gap-2">
+                <button
                   onClick={() => setShowSecrets(!showSecrets)}
-                  variant="outline"
-                  className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6"
+                  className="h-8 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
                 >
                   {showSecrets ? "Hide" : "Show"} Secrets
-                </Button>
-                <Button
+                </button>
+                <button
                   onClick={generateEnvFile}
-                  className="bg-linear-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
                 >
                   {t("ENV_CONFIG_GENERATE")}
-                </Button>
+                </button>
               </div>
             </div>
           </div>
@@ -297,7 +292,7 @@ export function EnvConfiguration() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     selectedCategory === category.id
-                      ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
+                      ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                       : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                   }`}
                 >
@@ -351,14 +346,12 @@ export function EnvConfiguration() {
                       <span className="text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                         {t("ENV_CONFIG_EXAMPLE")}
                       </span>
-                      <Button
+                      <button
                         onClick={() => copyToClipboard(`${variable.name}=${variable.example}`)}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs px-2 py-1 h-auto"
+                        className="h-6 px-2 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
                       >
                         {copiedVar === `${variable.name}=${variable.example}` ? t("ENV_CONFIG_COPIED") : t("ENV_CONFIG_COPY")}
-                      </Button>
+                      </button>
                     </div>
                     <code className="text-sm font-mono text-slate-800 dark:text-slate-200 break-all">
                       {variable.name}={variable.example}
@@ -385,7 +378,7 @@ export function EnvConfiguration() {
         {/* Quick Setup Guide */}
         <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Local Development */}
-          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6 shadow-xl">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-linear-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-lg">💻</span>
@@ -403,7 +396,7 @@ export function EnvConfiguration() {
           </div>
 
           {/* Production Deployment */}
-          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6 shadow-xl">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-linear-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <span className="text-white text-lg">🚀</span>
@@ -423,20 +416,20 @@ export function EnvConfiguration() {
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <div className="bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
               {t("ENV_CONFIG_NEED_HELP")}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
               {t("ENV_CONFIG_NEED_HELP_DESC")}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 {t("ENV_CONFIG_GET_SUPPORT")}
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 {t("ENV_CONFIG_VIEW_DOCS")}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

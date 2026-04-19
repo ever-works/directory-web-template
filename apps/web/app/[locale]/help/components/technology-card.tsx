@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
 
 interface TechnologyCardProps {
   name: string;
@@ -126,7 +125,7 @@ export function TechnologyCard({
   };
 
   return (
-    <div className={`group relative bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border-2 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 ${colors.border} ${colors.hover} ${popularityData[popularity].ring}`}>
+    <div className={`group relative bg-white dark:bg-white/3 rounded-xl border transition-colors duration-200 ${colors.border} ${colors.hover}`}>
       {/* Popularity Badge */}
       <div className="absolute -top-3 -right-3 z-10">
         <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg transition-all duration-300 ${popularityData[popularity].color}`}>
@@ -138,13 +137,11 @@ export function TechnologyCard({
       <div className="p-6">
         {/* Header */}
         <div className="flex items-start gap-4 mb-4">
-        <div className="shrink-0 relative">
-            <div className={`w-16 h-16 rounded-xl bg-linear-to-br ${colors.bg} flex items-center justify-center text-white text-2xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}>
+          <div className="shrink-0 relative">
+            <div className={`w-10 h-10 rounded-lg bg-linear-to-br ${colors.bg} flex items-center justify-center text-white text-base`}>
             {icon}
           </div>
-            <div className="absolute -inset-1 rounded-xl bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </div>
-
+          </div>
         <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between">
             <div>
@@ -207,16 +204,14 @@ export function TechnologyCard({
         </div>
 
         {/* Expand/Collapse Button */}
-        <Button
+        <button
           onClick={() => setIsExpanded(!isExpanded)}
-          variant="outline"
-          size="sm"
-          className={`w-full border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 transition-all duration-300 ${
-            isExpanded ? 'bg-slate-50 dark:bg-white/5' : ''
+          className={`w-full h-8 text-xs font-medium border border-gray-200 dark:border-white/10 rounded-md transition-colors ${
+            isExpanded ? 'bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6'
           }`}
         >
           {isExpanded ? "Show Less" : "Show Details"}
-        </Button>
+        </button>
 
         {/* Expanded Content */}
         {isExpanded && (
@@ -339,13 +334,11 @@ export function TechnologyCard({
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                           {alternative}
                         </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+                        <button
+                          className="h-6 px-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors"
                         >
                           Compare
-                        </Button>
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -355,9 +348,6 @@ export function TechnologyCard({
         </div>
         )}
       </div>
-
-      {/* Glow Effect */}
-      <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-transparent via-white/20 dark:via-slate-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
     </div>
   );
 }

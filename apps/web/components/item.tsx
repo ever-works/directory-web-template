@@ -198,7 +198,7 @@ const Item = memo(function Item(props: ItemProps) {
 
 				{/* Loading overlay */}
 				{isNavigating && (
-					<div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xs rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
+					<div className="absolute inset-0 bg-white/80 dark:bg-[#161616]/80 backdrop-blur-xs rounded-2xl flex items-center justify-center z-50 transition-opacity duration-300">
 						<Spinner size="lg" color="primary" />
 					</div>
 				)}

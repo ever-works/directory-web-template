@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 
 interface UsageSection {
   id: string;
@@ -355,24 +354,21 @@ npm start`,
   const currentSection = usageSections.find(s => s.id === activeSection);
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-6">
-            <span>📚</span>
-            Developer Guide
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2">Developer Guide</p>
+          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
             {t("USAGE_GUIDE_TITLE")}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
             {t("USAGE_GUIDE_SUBTITLE")}
           </p>
         </div>
 
         {/* IDE-like Interface */}
-        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
           {/* IDE Header */}
           <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
@@ -392,13 +388,13 @@ npm start`,
               
               {/* Actions */}
               <div className="flex items-center gap-3">
-                <Button
+                <button
                   onClick={runCode}
                   disabled={isRunning}
-                  className="bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-100 disabled:opacity-50 transition-colors"
                 >
-                  {isRunning ? "Running..." : "▶️ Run Code"}
-                </Button>
+                  {isRunning ? "Running..." : "▶ Run Code"}
+                </button>
               </div>
             </div>
           </div>
@@ -610,16 +606,16 @@ npm start`,
         </div>
 
         {/* Best Practices */}
-        <div className="mt-16">
-          <div className="bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl p-8 border border-indigo-200 dark:border-indigo-800">
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">
+        <div className="mt-10">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
               {t("USAGE_BEST_PRACTICES_TITLE")}
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white/80 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
-                    <span className="text-white text-lg">✓</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm">✓</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -632,10 +628,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
-                    <span className="text-white text-lg">🔒</span>
+              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm">🔒</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -648,10 +644,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
-                    <span className="text-white text-lg">⚡</span>
+              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm">⚡</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -664,10 +660,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white/80 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 bg-orange-500 rounded-lg flex items-center justify-center shrink-0 shadow-lg">
-                    <span className="text-white text-lg">📊</span>
+              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
+                    <span className="text-white text-sm">📊</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
