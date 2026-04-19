@@ -99,14 +99,14 @@ export function SiteLogo({ size = 'md', className = '', showText = true, linkToH
 							alt={config.company_name || 'Site icon'}
 							width={40}
 							height={40}
-							className={`${sizeConfig.icon} transition-all duration-300 group-hover:scale-110`}
+							className={`${sizeConfig.icon}`}
 						/>
 					</div>
 				)}
 				{!logoSettings?.favicon && (
 					<div className={`relative ${sizeConfig.iconMargin}`}>
 						<IconEverworksSimple
-							className={`${sizeConfig.icon} transition-all duration-300 group-hover:scale-110`}
+							className={`${sizeConfig.icon}`}
 						/>
 					</div>
 				)}
@@ -121,7 +121,7 @@ export function SiteLogo({ size = 'md', className = '', showText = true, linkToH
 		);
 	};
 
-	const containerClasses = `flex items-center group transition-transform duration-200 hover:scale-105 ${className}`;
+	const containerClasses = `flex items-center group ${className}`;
 
 	if (linkToHome) {
 		return (

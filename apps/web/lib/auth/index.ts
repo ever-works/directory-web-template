@@ -4,7 +4,6 @@
  */
 
 import NextAuth from 'next-auth';
-import crypto from 'crypto';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { db, getDrizzleInstance } from '../db/drizzle';
 import { eq } from 'drizzle-orm';
@@ -25,26 +24,35 @@ interface ExtendedUser {
 	tenantId?: string;
 }
 
+function createDevelopmentAuthSecret(): string {
+	const runtimeCrypto = globalThis.crypto;
+	if (runtimeCrypto?.getRandomValues) {
+		const buffer = new Uint8Array(32);
+		runtimeCrypto.getRandomValues(buffer);
+		return Array.from(buffer, (byte) => byte.toString(16).padStart(2, '0')).join('');
+	}
+
+	if (runtimeCrypto?.randomUUID) {
+		return `${runtimeCrypto.randomUUID()}${runtimeCrypto.randomUUID()}`;
+	}
+
+	throw new Error('[auth] AUTH_SECRET is required because secure random generation is unavailable.');
+}
+
 const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
+const isCiBuild = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const isProductionBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
 if (!runtimeAuthSecret) {
-	const fallbackSeed = [
-		process.env.VERCEL_PROJECT_PRODUCTION_URL,
-		process.env.VERCEL_URL,
-		process.env.NEXT_PUBLIC_APP_URL,
-		process.env.VERCEL_PROJECT_ID,
-		process.env.NEXT_PUBLIC_SITE_URL
-	]
-		.filter(Boolean)
-		.join('|');
-
-	process.env.AUTH_SECRET = fallbackSeed
-		? crypto.createHash('sha256').update(fallbackSeed).digest('hex')
-		: crypto.randomBytes(32).toString('hex');
-
-	if (coreConfig.NODE_ENV !== 'production') {
-		console.warn('[auth] AUTH_SECRET is not set. Using a temporary fallback secret.');
+	if (coreConfig.NODE_ENV === 'production' && !isCiBuild && !isProductionBuildPhase) {
+		throw new Error('[auth] AUTH_SECRET must be set in production.');
 	}
+
+	process.env.AUTH_SECRET = createDevelopmentAuthSecret();
+
+	console.warn(
+		`[auth] AUTH_SECRET is not set. Using a temporary ${isCiBuild ? 'CI-only' : 'development-only'} fallback secret.`
+	);
 }
 
 // Check if DATABASE_URL is set and database is properly initialized
