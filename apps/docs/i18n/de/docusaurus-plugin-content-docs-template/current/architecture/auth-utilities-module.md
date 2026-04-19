@@ -1,0 +1,369 @@
+---
+id: auth-utilities-module
+title: Auth-Utilities-Modul
+sidebar_label: Auth-Utilities-Modul
+sidebar_position: 56
+---
+
+# Auth-Utilities-Modul
+
+Das Modul für Authentifizierungsdienstprogramme (`template/lib/auth/`) bietet eine umfassende Authentifizierungsschicht auf Basis von NextAuth.js (Auth.js) mit Unterstützung für mehrere Anbieter, Sitzungscaching, serverseitigen Wächtern, validierten Serveraktionen und Supabase als alternatives Authentifizierungs-Backend.
+
+## Architekturübersicht
+
+```mermaid
+graph TD
+    subgraph Core Auth
+        A[lib/auth/index.ts] -->|NextAuth| B[handlers / auth / signIn / signOut]
+        C[auth.config.ts] -->|Base Config| A
+        D[lib/auth/config.ts] -->|Provider Type| A
+    end
+
+    subgraph Providers
+        E[lib/auth/providers.ts] --> F[Google / GitHub / Facebook / Twitter]
+        G[lib/auth/credentials.ts] --> H[Email + Password]
+        E --> H
+    end
+
+    subgraph Guards
+        I[lib/auth/guards.ts] -->|requireAuth / requireAdmin| B
+        J[lib/auth/admin-guard.ts] -->|API Route Guard| B
+        K[lib/auth/middleware.ts] -->|Server Actions| B
+    end
+
+    subgraph Session Cache
+        L[lib/auth/cached-session.ts] --> M[In-Memory LRU Cache]
+        L -->|Fallback| B
+    end
+
+    subgraph Security
+        N[lib/auth/validate-callback-url.ts]
+        O[lib/auth/auth-error-codes.ts]
+    end
+```
+
+## Quelldateien
+
+|Datei|Beschreibung|
+|------|-------------|
+|`lib/auth/index.ts`|NextAuth.js-Konfiguration mit Drizzle-Adapter|
+|`lib/auth/config.ts`|Konfiguration des Authentifizierungsanbietertyps|
+|`lib/auth/credentials.ts`|Anbieter von E-Mail-/Passwort-Anmeldeinformationen|
+|`lib/auth/providers.ts`|OAuth-Anbieterfabrik|
+|`lib/auth/guards.ts`|Serverseitige Seitenwächter|
+|`lib/auth/admin-guard.ts`|API-Route-Administratorschutz|
+|`lib/auth/middleware.ts`|Validierte Server-Aktions-Middleware|
+|`lib/auth/cached-session.ts`|Sitzungs-Caching-Ebene|
+|`lib/auth/session-cache.ts`|Cache-Implementierung|
+|`lib/auth/validate-callback-url.ts`|URL-Validierung umleiten|
+|`lib/auth/auth-error-codes.ts`|Fehlercode-Aufzählung|
+|`lib/auth/supabase/`|Supabase-Authentifizierungs-Client/Server/Middleware|
+
+## NextAuth.js-Konfiguration (`index.ts`)
+
+Der Hauptexport stellt die Standard-NextAuth.js-Schnittstelle bereit:
+
+```typescript
+import { auth, signIn, signOut, handlers, unstable_update } from '@/lib/auth';
+```
+
+### Sitzungsstrategie
+
+- **Strategie:** JWT (keine Datenbanksitzungen)
+- **Maximales Alter:** 30 Tage
+- **Aktualisierungsalter:** 24 Stunden (Sitzungsaktualisierungsintervall)
+
+### JWT-Rückruf
+
+Der JWT-Rückruf reichert Token an mit:
+- `userId` – vom Benutzerobjekt oder Token `sub`
+- `clientProfileId` – wird für OAuth-Benutzer bei der ersten Anmeldung automatisch erstellt
+- `isAdmin` – bestimmt aus `isClient`/`isAdmin` Flags oder Standardeinstellung auf `false`
+- `provider` – der Name des Authentifizierungsanbieters
+
+### Sitzungsrückruf
+
+Der Sitzungsrückruf ordnet JWT-Felder dem Sitzungsobjekt zu:
+- `session.user.id`
+- `session.user.clientProfileId`
+- `session.user.provider`
+- `session.user.isAdmin`
+
+### Benutzerdefinierte Seiten
+
+```typescript
+pages: {
+  signIn: '/auth/signin',
+  signOut: '/auth/signout',
+  error: '/auth/error',
+  verifyRequest: '/auth/verify-request',
+  newUser: '/auth/register',
+}
+```
+
+### Veranstaltungen
+
+- **SignOut** – macht den Sitzungscache für den Benutzer ungültig
+- **updateUser** – macht den Sitzungscache ungültig, wenn sich Benutzerdaten ändern
+
+## Authentifizierungskonfiguration (`config.ts`)
+
+### `AuthProviderType`
+
+```typescript
+type AuthProviderType = 'supabase' | 'next-auth' | 'both';
+```
+
+### `AuthConfig`
+
+```typescript
+interface AuthConfig {
+  provider: AuthProviderType;
+  supabase?: {
+    url: string;
+    anonKey: string;
+    redirectUrl?: string;
+  };
+  nextAuth?: {
+    enableCredentials?: boolean;
+    enableOAuth?: boolean;
+    providers?: any[];
+  };
+}
+```
+
+### `getAuthConfig(): AuthConfig`
+
+Löst die Konfiguration mit dieser Priorität auf:
+1. Globale Überschreibung über `configureAuth()`
+2. Umgebungsbasierte Erkennung (Supabase-URL/Schlüsselpräsenz)
+3. Standard: `next-auth` mit Anmeldeinformationen und aktiviertem OAuth
+
+## Anmeldeinformationsanbieter (`credentials.ts`)
+
+### Passwortfunktionen
+
+```typescript
+async function hashPassword(password: string): Promise<string>;
+// Uses bcryptjs with 10 salt rounds, loaded via dynamic import
+
+async function comparePasswords(plainText: string, hashed: string | null): Promise<boolean>;
+// Returns false if hashed is null
+```
+
+### Authentifizierungsablauf
+
+```mermaid
+flowchart TD
+    A[Login Attempt] --> B{Check Admin User}
+    B -->|Found + isAdmin| C{Verify Password}
+    C -->|Valid| D[Return Admin User]
+    C -->|Invalid| E[INVALID_PASSWORD Error]
+
+    B -->|Not Admin| F{Check Client Account}
+    F -->|Found| G{Verify Client Password}
+    G -->|Valid| H{Get Client Profile}
+    H -->|Found| I[Return Client User]
+    H -->|Not Found| J[PROFILE_NOT_FOUND Error]
+    G -->|Invalid| E
+
+    F -->|Not Found| K[ACCOUNT_NOT_FOUND Error]
+```
+
+### `AuthProviders` Aufzählung
+
+```typescript
+enum AuthProviders {
+  CREDENTIALS = 'credentials',
+  GOOGLE = 'google',
+  FACEBOOK = 'facebook',
+  GITHUB = 'github',
+  TWITTER = 'twitter',
+  X = 'x',
+  MICROSOFT = 'microsoft',
+}
+```
+
+## OAuth-Anbieter (`providers.ts`)
+
+### `createNextAuthProviders(config?): Provider[]`
+
+Erstellt dynamisch NextAuth-Anbieterinstanzen basierend auf der Konfiguration:
+
+```typescript
+import { createNextAuthProviders } from '@/lib/auth/providers';
+
+const providers = createNextAuthProviders({
+  google: { enabled: true, clientId: '...', clientSecret: '...' },
+  github: { enabled: true, clientId: '...', clientSecret: '...' },
+  credentials: { enabled: true },
+});
+```
+
+Unterstützte Anbieter: **Google**, **GitHub**, **Facebook**, **Twitter**, **Anmeldeinformationen**.
+
+## Serverseitige Wachen (`guards.ts`)
+
+### `requireAuth(): Promise<Session>`
+
+Erfordert Authentifizierung. Leitet zu `/auth/signin` weiter, wenn keine Authentifizierung erfolgt.
+
+```typescript
+export default async function ProtectedPage() {
+  const session = await requireAuth();
+  return <div>Welcome {session.user.email}</div>;
+}
+```
+
+### `requireAdmin(): Promise<Session>`
+
+Erfordert die Rolle eines Administrators. Leitet zu `/admin/auth/signin` weiter, wenn nicht authentifiziert, `/unauthorized` wenn nicht admin.
+
+```typescript
+export default async function AdminPage() {
+  const session = await requireAdmin();
+  return <div>Admin Dashboard</div>;
+}
+```
+
+### `getSession(): Promise<Session | null>`
+
+Ruft die aktuelle Sitzung ohne Umleitung ab. Gibt `null` für nicht authentifizierte Benutzer zurück.
+
+### `checkIsAdmin(): Promise<boolean>`
+
+Überprüft den Administratorstatus ohne Umleitung.
+
+## API Route Guard (`admin-guard.ts`)
+
+### `checkAdminAuth(): Promise<NextResponse | null>`
+
+Gibt `null` zurück, wenn autorisiert, oder einen Fehler `NextResponse` (401/403/500), wenn nicht:
+
+```typescript
+export async function GET() {
+  const authError = await checkAdminAuth();
+  if (authError) return authError;
+  // ... handle authorized request
+}
+```
+
+### `withAdminAuth(handler): handler`
+
+Funktion höherer Ordnung, die API-Routenhandler umschließt:
+
+```typescript
+import { withAdminAuth } from '@/lib/auth/admin-guard';
+
+export const GET = withAdminAuth(async (request) => {
+  // Only reached if user is authenticated admin
+  return NextResponse.json({ data: await getAdminData() });
+});
+```
+
+## Validierte Serveraktionen (`middleware.ts`)
+
+### `validatedAction(schema, action)`
+
+Umschließt eine Serveraktion mit Zod-Validierung:
+
+```typescript
+import { validatedAction } from '@/lib/auth/middleware';
+import { z } from 'zod';
+
+const schema = z.object({ name: z.string().min(1), email: z.string().email() });
+
+export const updateProfile = validatedAction(schema, async (data, formData) => {
+  await db.update(users).set(data);
+  return { success: 'Profile updated' };
+});
+```
+
+### `validatedActionWithUser(schema, action)`
+
+Wie oben, überprüft jedoch zusätzlich die Authentifizierung und fügt dem Benutzer Folgendes ein:
+
+```typescript
+export const submitItem = validatedActionWithUser(schema, async (data, formData, user) => {
+  await db.insert(items).values({ ...data, userId: user.id });
+  return { success: 'Item submitted' };
+});
+```
+
+### `ActionState` Typ
+
+```typescript
+type ActionState = {
+  error?: string;
+  success?: string;
+  redirect?: string;
+  [key: string]: any;
+};
+```
+
+## Sitzungs-Caching (`cached-session.ts`)
+
+Reduziert den Authentifizierungsaufwand durch Zwischenspeichern dekodierter Sitzungen im Speicher.
+
+### `getCachedSession(request?): Promise<Session | null>`
+
+```typescript
+import { getCachedSession } from '@/lib/auth/cached-session';
+
+// In server components
+const session = await getCachedSession();
+
+// In API routes (pass request for token extraction)
+const session = await getCachedSession(request);
+```
+
+### `invalidateSessionCache(token?, userId?): Promise<void>`
+
+Macht zwischengespeicherte Sitzungen nach Token oder Benutzer-ID ungültig.
+
+### `clearSessionCache(): void`
+
+Löscht alle zwischengespeicherten Sitzungen (für Bereitstellungen oder kritische Updates).
+
+### Token-Extraktion
+
+Token werden in dieser Reihenfolge aus Anfragen extrahiert:
+1. `next-auth.session-token` oder `__Secure-next-auth.session-token` Cookie
+2. `Authorization: Bearer <token>` Header
+3. `X-Session-Token` benutzerdefinierter Header
+
+## Fehlercodes (`auth-error-codes.ts`)
+
+```typescript
+enum AuthErrorCode {
+  ACCOUNT_NOT_FOUND = 'ACCOUNT_NOT_FOUND',
+  INVALID_PASSWORD = 'INVALID_PASSWORD',
+  PROFILE_NOT_FOUND = 'PROFILE_NOT_FOUND',
+  GENERIC_ERROR = 'GENERIC_ERROR',
+  RATE_LIMITED = 'RATE_LIMITED',
+  USE_OAUTH_PROVIDER = 'USE_OAUTH_PROVIDER',
+  SESSION_REFRESH_FAILED = 'SESSION_REFRESH_FAILED',
+  PAGE_REFRESH_FAILED = 'PAGE_REFRESH_FAILED',
+}
+```
+
+## Rückruf-URL-Validierung (`validate-callback-url.ts`)
+
+### `isValidCallbackUrl(url: string | null): boolean`
+
+Verhindert offene Redirect-Schwachstellen:
+
+```typescript
+isValidCallbackUrl('/admin/items')       // true
+isValidCallbackUrl('/client/dashboard')  // true
+isValidCallbackUrl('https://evil.com')   // false
+isValidCallbackUrl('//evil.com')         // false
+```
+
+### `getSafeRedirectPath(callbackUrl, fallbackPath): string`
+
+Gibt die Rückruf-URL zurück, sofern gültig, andernfalls den Fallback-Pfad.
+
+### `createSafeCallbackUrl(pathname, search?): string`
+
+Erstellt eine auf 2048 Zeichen begrenzte Rückruf-URL, um Parameterverschmutzung zu verhindern.

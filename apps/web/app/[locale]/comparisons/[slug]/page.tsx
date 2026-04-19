@@ -137,7 +137,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 			/>
 
 			{/* Decorative backgrounds */}
-			<DecorativeBg reverse className='-mt-2'/>
+			<DecorativeBg reverse className='-mt-2' />
 			<DotBgsible />
 
 			{/* Floating section navigator */}
@@ -199,10 +199,10 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 
 				<div id="section-overview" className="mb-10 lg:mb-40 grid grid-cols-1 gap-4 md:grid-cols-2 scroll-mt-24">
 					{/* Item A */}
-				<div className="relative overflow-hidden rounded-lg border-0 ring-1 ring-theme-primary/20 p-7 shadow-xs backdrop-blur-xl dark:ring-theme-primary/25 flex flex-col">
-					<div className="absolute top-0 right-0 w-36 h-36 translate-x-1/2 -translate-y-1/2 rounded-full bg-theme-primary/8 blur-3xl pointer-events-none" />
-					<div className="mb-1 text-[10px] font-light uppercase tracking-widest text-theme-primary dark:text-theme-primary-400">
-						{t('OPTION_A')}
+					<div className="relative overflow-hidden rounded-lg border-0 ring-1 ring-theme-primary/20 p-7 shadow-xs backdrop-blur-xl dark:ring-theme-primary/25 flex flex-col">
+						<div className="absolute top-0 right-0 w-36 h-36 translate-x-1/2 -translate-y-1/2 rounded-full bg-theme-primary/8 blur-3xl pointer-events-none" />
+						<div className="mb-1 text-[10px] font-light uppercase tracking-widest text-theme-primary dark:text-theme-primary-400">
+							{t('OPTION_A')}
 						</div>
 						<h2 className="text-2xl font-bold text-gray-900 dark:text-white">{comparison.item_a_name}</h2>
 						<p className="mt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">
@@ -291,11 +291,10 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 									</div>
 								</div>
 								<div
-									className={`self-start rounded-2xl px-5 py-3 text-sm font-medium leading-snug ${
-										isTie
+									className={`self-start rounded-2xl px-5 py-3 text-sm font-medium leading-snug ${isTie
 											? 'border border-gray-200/60 bg-gray-50 text-gray-600 dark:border-white/10 dark:bg-white/4 dark:text-gray-300'
 											: 'border border-double border-theme-primary/20 bg-theme-primary/10 text-theme-primary dark:text-theme-primary-400'
-									}`}
+										}`}
 								>
 									{isTie
 										? t('TIE_DESCRIPTION')
@@ -324,17 +323,17 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 						{/* Sticky column headers */}
 						<div className="mb-3 hidden grid-cols-2 gap-4 px-1 md:grid">
 							<div className="text-xs flex items-start gap-3 font-semibold uppercase tracking-widest text-theme-primary dark:text-theme-primary-400 pl-1">
-                <div>
-                  <div className='w-4 h-4 rounded-full border border-theme-primary-400' />
-                  <div className='h-5 w-px bg-theme-primary-400 mx-auto' />
-                </div>
+								<div>
+									<div className='w-4 h-4 rounded-full border border-theme-primary-400' />
+									<div className='h-5 w-px bg-theme-primary-400 mx-auto' />
+								</div>
 								{comparison.item_a_name}
 							</div>
 							<div className="text-xs flex items-start gap-3 font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400 pl-1">
-                <div>
-                  <div className='w-4 h-4 rounded-full border border-purple-400' />
-                  <div className='h-5 w-px bg-purple-400 mx-auto' />
-                </div>
+								<div>
+									<div className='w-4 h-4 rounded-full border border-purple-400' />
+									<div className='h-5 w-px bg-purple-400 mx-auto' />
+								</div>
 								{comparison.item_b_name}
 							</div>
 						</div>
@@ -361,11 +360,10 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 												{dimension.name}
 											</h3>
 											<div
-												className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-light ${
-													dimension.winner === 'tie'
+												className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-light ${dimension.winner === 'tie'
 														? 'bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400'
 														: 'bg-theme-primary/10 border border-theme-primary/20 text-theme-primary dark:text-theme-primary-400'
-												}`}
+													}`}
 											>
 												{dimension.winner !== 'tie' && <Trophy className="w-3 h-3 text-amber-600" />}
 												<span>{winner}</span>
@@ -412,9 +410,9 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 						<div className="h-px flex-1 bg-gray-100 dark:bg-white/8" />
 					</div>
 					{markdown ? (
-            <div className='w-5/6 mx-auto'>
-						  <MDX source={markdown} />
-            </div>
+						<div className='w-5/6 mx-auto'>
+							<MDX source={markdown} />
+						</div>
 					) : (
 						<p className="text-gray-500 dark:text-gray-400">
 							{t('NO_ARTICLE')}

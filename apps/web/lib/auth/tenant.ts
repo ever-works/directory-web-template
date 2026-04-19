@@ -1,4 +1,3 @@
-import { auth } from '@/lib/auth';
 import { coreConfig } from '@/lib/config/config-service';
 
 // --- Configuration & Caching --- //
@@ -35,6 +34,7 @@ function getCachedDomainTenant(domain: string): string | null {
  */
 async function resolveFromSession(): Promise<string | null> {
 	try {
+		const { auth } = await import('@/lib/auth');
 		const session = await auth();
 		const tenantId = session?.user?.tenantId || null;
 		if (tenantId) {
@@ -209,4 +209,3 @@ export async function getTenantId(): Promise<string | null> {
 		(await resolveFromDatabase())
 	);
 }
-

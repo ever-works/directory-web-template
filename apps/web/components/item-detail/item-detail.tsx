@@ -1,5 +1,5 @@
 'use client';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
 import { getVideoEmbedUrl, toTitleCase, slugify, cn } from '@/lib/utils';
@@ -108,7 +108,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
 	return (
-		<div className="min-h-screen relative overflow-hidden">
+		<div className="min-h-screen bg-gray-50/40 dark:bg-transparent">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
@@ -119,128 +119,125 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 				type="application/ld+json"
 				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
 			/>
-			<Container maxWidth="7xl" padding="default" useGlobalWidth className="relative z-10 py-8">
-				<div className={`flex flex-col lg:flex-row mb-6 lg:mb-20 ${isFluid ? 'gap-4 lg:gap-20 lg:w-[90%] lg:mx-auto' : 'gap-8'}`}>
-					{/* Left column */}
-					<div className={isFluid ? 'lg:w-[65%]' : 'lg:w-2/3'}>
-						{/* Video Showcase */}
-						<div className="mb-8">
-							<div className="mb-6">
-								<ItemBreadcrumb name={meta.name} category={meta.category} categoryName={categoryName} />
+			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-8 lg:py-12">
+				{/* Breadcrumb row */}
+				<div className="mb-8">
+					<ItemBreadcrumb name={meta.name} category={meta.category} categoryName={categoryName} />
+				</div>
+
+				<div className={`flex flex-col lg:flex-row ${isFluid ? 'gap-8 lg:gap-16 lg:w-[92%] lg:mx-auto' : 'gap-10 lg:gap-14'}`}>
+					{/* ── Left column ─────────────────────────────────────── */}
+					<div className={isFluid ? 'lg:w-[65%] min-w-0' : 'lg:w-2/3 min-w-0'}>
+
+						{/* Hero header */}
+						<div className="flex items-start gap-5 mb-6">
+							<div className="shrink-0 mt-0.5">
+								<ItemIcon iconUrl={meta.icon_url} name={meta.name} />
 							</div>
-
-							<div className="flex items-center gap-6 my-8">
-								<div className="shrink-0">
-									<ItemIcon iconUrl={meta.icon_url} name={meta.name} />
-								</div>
-								<div className="flex-1 min-w-0">
-									<h1 className="text-lg sm:text-2xl font-bold bg-linear-to-r from-gray-900 via-theme-primary-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent tracking-tight leading-tight mb-2">
-										{meta.name}
-									</h1>
-								</div>
-							</div>
-
-							{/* Video Showcase - below title/meta, above description */}
-							{meta.video_url && (
-								<div className="mb-8">
-									<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl shadow-lg border border-gray-200 dark:border-white/8">
-										<iframe
-											src={getVideoEmbedUrl(meta.video_url)}
-											title={`Video Demo for ${meta.name}`}
-											frameBorder="0"
-											allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-											allowFullScreen
-											className="absolute top-0 left-0 w-full h-full"
-										></iframe>
-									</div>
-								</div>
-							)}
-
-							<p className={`${isFluid ? 'w-4/6' :"w-4/5"} text-sm text-gray-600 dark:text-gray-400 mb-8 leading-relaxed`}>
-								{meta.description}
-							</p>
-
-							<div className="flex items-center gap-2 mb-6">
-								{/* Visit (external) */}
-								<a
-									href={meta.source_url || '#'}
-									target="_blank"
-									rel="noreferrer"
-									title={t('common.VISIT_WEBSITE')}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
-								>
-									<Globe className="w-4 h-4" />
-								</a>
-
-								{/* Favorite (compact) */}
-								<FavoriteButton
-									itemSlug={meta.slug || ''}
-									itemName={meta.name}
-									itemIconUrl={meta.icon_url}
-									itemCategory={
-										Array.isArray(meta.category)
-											? typeof meta.category[0] === 'string'
-												? meta.category[0]
-												: meta.category[0]?.name
-											: typeof meta.category === 'string'
-												? meta.category
-												: meta.category?.name
-									}
-									variant="heart"
-									size="sm"
-									showText={false}
-									className="w-9 h-9 p-0"
-								/>
-
-								{/* Share (copy link) */}
-								<button
-									type="button"
-									title={t('common.SHARE')}
-									onClick={async (e) => {
-										e.preventDefault();
-										try {
-											await navigator.clipboard.writeText(meta.source_url || window.location.href);
-											toast.success(t('common.LINK_COPIED'));
-										} catch {
-											toast.error(t('common.SHARE_ERROR'));
-										}
-									}}
-									className="w-9 h-9 inline-flex items-center justify-center rounded-md bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-150"
-								>
-									<Share2 className="w-4 h-4" />
-								</button>
-
-								{/* Compact vote (icon-only) */}
-								<CompactVote itemId={meta.slug || meta.name} />
+							<div className="flex-1 min-w-0">
+								<h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight mb-2">
+									{meta.name}
+								</h1>
+								<p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
+									{meta.description}
+								</p>
 							</div>
 						</div>
 
-						<div className="">
-							<div className="">
-								<div>
-								{renderedContent}
-								</div>
-								<div className="flex justify-start mt-6">
-									<ReportButton contentType="item" contentId={meta.slug || meta.name} />
-								</div>
-							</div>
-						</div>
+						{/* Action bar */}
+						<div className="flex items-center gap-2 mb-8 pb-8 border-b border-gray-200 dark:border-white/8">
+							<a
+								href={meta.source_url || '#'}
+								target="_blank"
+								rel="noreferrer"
+								title={t('common.VISIT_WEBSITE')}
+								className="inline-flex items-center gap-2 h-9 px-4 text-xs font-semibold rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors duration-150 shadow-sm"
+							>
+								<Globe className="w-3.5 h-3.5" />
+								{t('common.VISIT_WEBSITE')}
+							</a>
 
-						{/* Location Section */}
-						<LocationSection location={meta.location} itemName={meta.name} itemSlug={meta.slug || ''} />
+							<div className="h-5 w-px bg-gray-200 dark:bg-white/10 mx-1" />
 
-						{/* Surveys Section - Only show if showSurveys is not false and surveys are enabled */}
-						{meta.showSurveys !== false && surveysEnabled && (
-							<UserSurveySection
-								item={meta}
+							<FavoriteButton
+								itemSlug={meta.slug || ''}
+								itemName={meta.name}
+								itemIconUrl={meta.icon_url}
+								itemCategory={
+									Array.isArray(meta.category)
+										? typeof meta.category[0] === 'string'
+											? meta.category[0]
+											: meta.category[0]?.name
+										: typeof meta.category === 'string'
+											? meta.category
+											: meta.category?.name
+								}
+								variant="heart"
+								size="sm"
+								showText={false}
+								className="w-9 h-9 p-0 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-white/3 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
 							/>
+
+							<button
+								type="button"
+								title={t('common.SHARE')}
+								onClick={async (e) => {
+									e.preventDefault();
+									try {
+										await navigator.clipboard.writeText(meta.source_url || window.location.href);
+										toast.success(t('common.LINK_COPIED'));
+									} catch {
+										toast.error(t('common.SHARE_ERROR'));
+									}
+								}}
+								className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-white dark:bg-white/3 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
+							>
+								<Share2 className="w-4 h-4" />
+							</button>
+
+							<CompactVote itemId={meta.slug || meta.name} />
+						</div>
+
+						{/* Video embed */}
+						{meta.video_url && (
+							<div className="mb-10">
+								<div className="relative pb-[56.25%] h-0 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/8 shadow-sm">
+									<iframe
+										src={getVideoEmbedUrl(meta.video_url)}
+										title={`Video Demo for ${meta.name}`}
+										frameBorder="0"
+										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+										allowFullScreen
+										className="absolute top-0 left-0 w-full h-full"
+									/>
+								</div>
+							</div>
 						)}
 
-						{/* Comments Section */}
-						<div className="mt-8">
-							<CommentsSection itemId={meta.slug || meta.name} />
+						{/* Main content body */}
+						<div className="prose-container">
+							{renderedContent}
+							<div className="flex justify-start mt-8 pt-6 border-t border-gray-100 dark:border-white/6">
+								<ReportButton contentType="item" contentId={meta.slug || meta.name} />
+							</div>
 						</div>
 
+						{/* Location */}
+						<div className="mt-10">
+							<LocationSection location={meta.location} itemName={meta.name} itemSlug={meta.slug || ''} />
+						</div>
+
+						{/* Surveys */}
+						{meta.showSurveys !== false && surveysEnabled && (
+							<div className="mt-10">
+								<UserSurveySection item={meta} />
+							</div>
+						)}
+
+						{/* Comments */}
+						<div className="mt-10">
+							<CommentsSection itemId={meta.slug || meta.name} />
+						</div>
 					</div>
 
 					{/* Right column */}
@@ -452,17 +449,15 @@ export function ItemDetail({ meta, renderedContent, categoryName }: ItemDetailPr
 
 function CompactVote({ itemId }: { itemId: string }) {
 	const { userVote, isLoading, handleVote } = useItemVote(itemId);
-	const [isAnimating, setIsAnimating] = useState(false);
 	const isVoted = userVote === 'up';
 
 	const onClick = async (e: React.MouseEvent) => {
 		e.preventDefault();
 		if (isLoading) return;
-		setIsAnimating(true);
 		try {
 			await handleVote('up');
 		} finally {
-			setTimeout(() => setIsAnimating(false), 400);
+			// animation handled by CSS transition
 		}
 	};
 
@@ -472,12 +467,14 @@ function CompactVote({ itemId }: { itemId: string }) {
 			disabled={isLoading}
 			title={isVoted ? 'Remove upvote' : 'Upvote'}
 			className={cn(
-				'w-9 h-9 inline-flex items-center justify-center rounded-md transition-colors duration-150',
-				'bg-white/80 dark:bg-white/3 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-white/6 hover:bg-gray-100 dark:hover:bg-white/6',
-				isVoted && 'bg-linear-to-r from-theme-primary-500 to-theme-primary-600 text-white'
+				'w-9 h-9 inline-flex items-center justify-center rounded-lg transition-colors duration-150',
+				'bg-white dark:bg-white/3 border border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6',
+				isVoted
+					? 'bg-theme-primary-600 dark:bg-theme-primary-600 border-theme-primary-600 dark:border-theme-primary-500 text-white hover:bg-theme-primary-700 dark:hover:bg-theme-primary-700'
+					: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
 			)}
 		>
-			<ThumbsUp className={cn('w-4 h-4', isVoted ? 'text-white' : 'text-gray-600 dark:text-gray-400')} />
+			<ThumbsUp className="w-4 h-4" />
 		</button>
 	);
 }
