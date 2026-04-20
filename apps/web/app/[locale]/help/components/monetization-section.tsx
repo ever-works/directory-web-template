@@ -31,8 +31,8 @@ const monetizationMethods: MonetizationMethod[] = [
       revenue: "$2K - $8K/month",
       setupTime: "30 minutes",
       difficulty: "Easy",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Commission tracking system",
         "Affiliate dashboard",
@@ -59,8 +59,8 @@ const monetizationMethods: MonetizationMethod[] = [
       revenue: "$5K - $15K/month",
       setupTime: "2 hours",
       difficulty: "Medium",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Premium listing tiers",
         "Payment processing",
@@ -87,8 +87,8 @@ const monetizationMethods: MonetizationMethod[] = [
       revenue: "$3K - $12K/month",
       setupTime: "1 hour",
       difficulty: "Easy",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Ad management system",
         "Targeting options",
@@ -120,32 +120,32 @@ const monetizationMethods: MonetizationMethod[] = [
     <section>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400 mb-2">{t('MONETIZATION_BADGE')}</p>
-          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
+        <div className="mb-6">
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('MONETIZATION_BADGE')}</p>
+          <h2 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t('MONETIZATION_SECTION_TITLE')}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
+          <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-2xl leading-relaxed">
             {t('MONETIZATION_SECTION_SUBTITLE')}
           </p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
+              className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
             >
               <div className="text-center">
-                <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">
                   {stat.value}
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                   {stat.label}
                 </div>
                 <div className="flex items-center justify-center gap-1">
-                  <span className="text-green-600 dark:text-green-400 text-xs font-medium">
+                  <span className="text-neutral-900 dark:text-white text-xs font-medium">
                     {stat.change}
                   </span>
                   <span className="text-slate-500 dark:text-slate-400 text-xs">
@@ -158,7 +158,7 @@ const monetizationMethods: MonetizationMethod[] = [
         </div>
 
         {/* Monetization Methods */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid lg:grid-cols-3 gap-4 mb-10">
           {monetizationMethods.map((method, index) => (
             <div
               key={method.id}
@@ -168,38 +168,38 @@ const monetizationMethods: MonetizationMethod[] = [
               {/* Method Card */}
               <div className={`relative bg-white dark:bg-white/3 rounded-xl p-6 border transition-colors duration-200 h-full ${
                 activeMethod === index
-                  ? 'border-blue-500 dark:border-blue-500'
+                  ? 'border-neutral-900/20 dark:border-white/20'
                   : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Header */}
-                <div className="text-center mb-6">
-                  <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${method.gradient} flex items-center justify-center text-white text-lg mb-3`}>
+                <div className="text-center mb-4">
+                  <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-sm mb-2`}>
                     {method.icon}
                   </div>
-                  <h3 className={`text-base font-semibold mb-2 ${method.color}`}>
+                  <h3 className={`text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white`}>
                     {method.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-relaxed">
                     {method.description}
                   </p>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("REVENUE_POTENTIAL")}:</span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">{method.revenue}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("REVENUE_POTENTIAL")}:</span>
+                    <span className="text-xs font-semibold text-neutral-900 dark:text-white">{method.revenue}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("SETUP_TIME")}:</span>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">{method.setupTime}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("SETUP_TIME")}:</span>
+                    <span className="text-xs font-semibold text-neutral-900 dark:text-white">{method.setupTime}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("DIFFICULTY")}:</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("DIFFICULTY")}:</span>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      method.difficulty === "Easy" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" :
-                      method.difficulty === "Medium" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" :
-                      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      method.difficulty === "Easy" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                      method.difficulty === "Medium" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                      "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300"
                     }`}>
                       {method.difficulty}
                     </span>
@@ -219,10 +219,10 @@ const monetizationMethods: MonetizationMethod[] = [
             <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg bg-linear-to-r ${monetizationMethods[activeMethod].gradient} flex items-center justify-center text-white`}>
+                  <div className={`w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white`}>
                     {monetizationMethods[activeMethod].icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     {monetizationMethods[activeMethod].title} - Detailed Analysis
                   </h3>
                 </div>
@@ -236,18 +236,18 @@ const monetizationMethods: MonetizationMethod[] = [
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <div className="grid lg:grid-cols-2 gap-8">
+            <div className="p-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 {/* Features */}
                 <div>
-                  <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <span className="text-blue-600">✨</span>
+                  <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <span className="">✨</span>
                     {t("KEY_FEATURES")}
                   </h4>
                   <div className="space-y-2">
                     {monetizationMethods[activeMethod].features.map((feature, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                         {feature}
                       </div>
                     ))}
@@ -257,28 +257,28 @@ const monetizationMethods: MonetizationMethod[] = [
                 {/* Pros & Cons */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                      <span className="text-green-600">✅</span>
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <span className="">✅</span>
                       {t("PROS")}
                     </h4>
                     <div className="space-y-2">
                       {monetizationMethods[activeMethod].pros.map((pro, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                           {pro}
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                      <span className="text-red-600">⚠️</span>
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <span className="">⚠️</span>
                       {t("CONS")}
                     </h4>
                     <div className="space-y-2">
                       {monetizationMethods[activeMethod].cons.map((con, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                           {con}
                         </div>
                       ))}
@@ -289,8 +289,8 @@ const monetizationMethods: MonetizationMethod[] = [
 
               {/* Expanded Details */}
               {showDetails && (
-                <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/6">
-                  <div className="grid md:grid-cols-3 gap-6">
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/6">
+                  <div className="grid md:grid-cols-3 gap-4">
                     <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
                       <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Implementation Steps</h5>
                       <ol className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -327,11 +327,11 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
-            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+            <h3 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
               {t("START_MONETIZING_TODAY")}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
               {t("START_MONETIZING_DESC")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

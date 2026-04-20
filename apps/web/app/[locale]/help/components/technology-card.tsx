@@ -44,49 +44,49 @@ export function TechnologyCard({
   const getColorClasses = (color: string) => {
     const colorMap = {
       blue: {
-        bg: "from-blue-500 to-cyan-500",
-        text: "text-blue-600 dark:text-blue-400",
-        border: "border-blue-200 dark:border-blue-800",
-        hover: "hover:border-blue-300 dark:hover:border-blue-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       green: {
-        bg: "from-green-500 to-emerald-500",
-        text: "text-green-600 dark:text-green-400",
-        border: "border-green-200 dark:border-green-800",
-        hover: "hover:border-green-300 dark:hover:border-green-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       purple: {
-        bg: "from-purple-500 to-pink-500",
-        text: "text-purple-600 dark:text-purple-400",
-        border: "border-purple-200 dark:border-purple-800",
-        hover: "hover:border-purple-300 dark:hover:border-purple-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       orange: {
-        bg: "from-orange-500 to-red-500",
-        text: "text-orange-600 dark:text-orange-400",
-        border: "border-orange-200 dark:border-orange-800",
-        hover: "hover:border-orange-300 dark:hover:border-orange-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       pink: {
-        bg: "from-pink-500 to-rose-500",
-        text: "text-pink-600 dark:text-pink-400",
-        border: "border-pink-200 dark:border-pink-800",
-        hover: "hover:border-pink-300 dark:hover:border-pink-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       yellow: {
-        bg: "from-yellow-500 to-amber-500",
-        text: "text-yellow-600 dark:text-yellow-400",
-        border: "border-yellow-200 dark:border-yellow-800",
-        hover: "hover:border-yellow-300 dark:hover:border-yellow-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       red: {
-        bg: "from-red-500 to-pink-500",
-        text: "text-red-600 dark:text-red-400",
-        border: "border-red-200 dark:border-red-800",
-        hover: "hover:border-red-300 dark:hover:border-red-700"
+        bg: "from-neutral-700 to-neutral-900",
+        text: "text-neutral-900 dark:text-white",
+        border: "border-neutral-200 dark:border-white/6",
+        hover: "hover:border-neutral-300 dark:hover:border-white/8"
       },
       gray: {
-        bg: "from-gray-500 to-slate-500",
+        bg: "from-neutral-700 to-neutral-900",
         text: "text-gray-600 dark:text-gray-400",
         border: "border-gray-200 dark:border-white/6",
         hover: "hover:border-gray-300 dark:hover:border-white/8"
@@ -100,13 +100,13 @@ export function TechnologyCard({
   const popularityData = {
     high: { 
       label: t('TECH_CARD_POPULAR'), 
-      color: "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-200",
-      ring: "ring-2 ring-yellow-400 dark:ring-yellow-500 ring-opacity-50",
+      color: "bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300",
+      ring: "",
       percentage: 95
     },
     medium: { 
       label: t('TECH_CARD_STABLE'), 
-      color: "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200",
+      color: "bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300",
       ring: "",
       percentage: 75
     },
@@ -119,9 +119,9 @@ export function TechnologyCard({
   };
 
   const getPerformanceColor = (score: number) => {
-    if (score >= 90) return "text-green-600 dark:text-green-400";
-    if (score >= 70) return "text-yellow-600 dark:text-yellow-400";
-    return "text-red-600 dark:text-red-400";
+    if (score >= 90) return "text-neutral-900 dark:text-white";
+    if (score >= 70) return "text-neutral-900 dark:text-white";
+    return "text-neutral-900 dark:text-white";
   };
 
   return (
@@ -134,18 +134,18 @@ export function TechnologyCard({
       </div>
 
       {/* Main Content */}
-      <div className="p-6">
+      <div className="p-4">
         {/* Header */}
-        <div className="flex items-start gap-4 mb-4">
+        <div className="flex items-start gap-3 mb-3">
           <div className="shrink-0 relative">
-            <div className={`w-10 h-10 rounded-lg bg-linear-to-br ${colors.bg} flex items-center justify-center text-white text-base`}>
+            <div className={`w-10 h-10 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-base`}>
             {icon}
           </div>
           </div>
         <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between">
             <div>
-                <h3 className="font-bold text-xl text-slate-900 dark:text-white mb-1 group-hover:text-opacity-80 transition-colors duration-300">
+                <h3 className="font-semibold text-sm tracking-tight text-slate-900 dark:text-white mb-1">
                 {name}
               </h3>
                 <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export function TechnologyCard({
           </div>
 
           {/* Description */}
-        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+        <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-relaxed mb-4">
             {description}
           </p>
 
@@ -180,7 +180,7 @@ export function TechnologyCard({
           </div>
           <div className="h-2 bg-slate-200 dark:bg-white/8 rounded-full overflow-hidden">
             <div 
-              className={`h-full bg-linear-to-r ${colors.bg} transition-all duration-1000 ease-out`}
+              className={`h-full bg-neutral-900 dark:bg-white transition-all duration-1000 ease-out`}
               style={{ width: `${popularityData[popularity].percentage}%` }}
             ></div>
           </div>
@@ -215,7 +215,7 @@ export function TechnologyCard({
 
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/6">
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/6">
             {/* Tabs */}
             <div className="flex gap-1 mb-4 bg-slate-100 dark:bg-white/8 rounded-lg p-1">
               {[
@@ -245,14 +245,14 @@ export function TechnologyCard({
                   {/* Use Cases */}
                   {useCases.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                        <span className="text-blue-600">🎯</span>
+                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span className="">🎯</span>
                         Use Cases
                       </h4>
                       <div className="space-y-1">
                         {useCases.map((useCase, index) => (
-                          <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                            <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                          <div key={index} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                            <div className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                             {useCase}
                           </div>
                         ))}
@@ -264,14 +264,14 @@ export function TechnologyCard({
                   <div className="grid grid-cols-2 gap-4">
                     {pros.length > 0 && (
                       <div>
-                        <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                          <span className="text-green-600">✅</span>
+                        <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                          <span className="">✅</span>
                           Pros
                         </h4>
                         <div className="space-y-1">
                           {pros.map((pro, index) => (
-                            <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                              <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+                            <div key={index} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                              <div className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                               {pro}
                             </div>
                           ))}
@@ -281,14 +281,14 @@ export function TechnologyCard({
 
                     {cons.length > 0 && (
                       <div>
-                        <h4 className="font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
-                          <span className="text-red-600">⚠️</span>
+                        <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                          <span className="">⚠️</span>
                           Cons
                         </h4>
                         <div className="space-y-1">
                           {cons.map((con, index) => (
-                            <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                              <div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div>
+                            <div key={index} className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                              <div className="w-1.5 h-1.5 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                               {con}
                             </div>
                           ))}
@@ -313,7 +313,7 @@ export function TechnologyCard({
                       </div>
                       <div className="h-2 bg-slate-200 dark:bg-white/8 rounded-full overflow-hidden">
                         <div 
-                          className={`h-full bg-linear-to-r ${colors.bg} transition-all duration-1000 ease-out`}
+                          className={`h-full bg-neutral-900 dark:bg-white transition-all duration-1000 ease-out`}
                           style={{ width: `${value}%` }}
           ></div>
         </div>
@@ -324,8 +324,8 @@ export function TechnologyCard({
 
               {activeTab === 'comparison' && alternatives.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                    <span className="text-purple-600">🔄</span>
+                  <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                    <span className="">🔄</span>
                     Alternatives
                   </h4>
                   <div className="space-y-2">

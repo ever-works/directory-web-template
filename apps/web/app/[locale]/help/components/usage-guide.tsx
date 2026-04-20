@@ -36,8 +36,8 @@ export function UsageGuide() {
       title: t("USAGE_CREATING_ITEMS_TITLE"),
       description: t("USAGE_CREATING_ITEMS_DESC"),
       icon: "📝",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       difficulty: "Beginner",
       estimatedTime: "10-15 minutes",
       prerequisites: [
@@ -102,8 +102,8 @@ curl -X POST /api/items \\
       title: t("USAGE_CUSTOMIZING_DESIGN_TITLE"),
       description: t("USAGE_CUSTOMIZING_DESIGN_DESC"),
       icon: "🎨",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       difficulty: "Intermediate",
       estimatedTime: "20-30 minutes",
       prerequisites: [
@@ -158,8 +158,8 @@ Accent: #8b5cf6
       title: t("USAGE_MANAGING_USERS_TITLE"),
       description: t("USAGE_MANAGING_USERS_DESC"),
       icon: "👥",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       difficulty: "Advanced",
       estimatedTime: "30-45 minutes",
       prerequisites: [
@@ -216,8 +216,8 @@ export async function middleware(request: NextRequest) {
       title: t("USAGE_PAYMENTS_SETUP_TITLE"),
       description: t("USAGE_PAYMENTS_SETUP_DESC"),
       icon: "💳",
-      color: "text-orange-600 dark:text-orange-400",
-      gradient: "from-orange-500 to-red-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       difficulty: "Intermediate",
       estimatedTime: "25-35 minutes",
       prerequisites: [
@@ -283,8 +283,8 @@ Status: requires_payment_method
       title: t("USAGE_DEPLOYMENT_TITLE"),
       description: t("USAGE_DEPLOYMENT_DESC"),
       icon: "🚀",
-      color: "text-indigo-600 dark:text-indigo-400",
-      gradient: "from-indigo-500 to-purple-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       difficulty: "Beginner",
       estimatedTime: "15-25 minutes",
       prerequisites: [
@@ -357,14 +357,10 @@ npm start`,
     <section>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2">Developer Guide</p>
-          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
-            {t("USAGE_GUIDE_TITLE")}
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
-            {t("USAGE_GUIDE_SUBTITLE")}
-          </p>
+           <div className="mb-6">
+             <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('USAGE_GUIDE_BADGE')}</p>
+             <h2 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">{t('USAGE_GUIDE_TITLE')}</h2>
+             <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-2xl leading-relaxed">{t('USAGE_GUIDE_SUBTITLE')}</p>
         </div>
 
         {/* IDE-like Interface */}
@@ -375,9 +371,9 @@ npm start`,
               <div className="flex items-center gap-4">
                 {/* Window Controls */}
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                  <div className="w-3 h-3 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-neutral-500 dark:bg-neutral-400 rounded-full"></div>
                 </div>
                 
                 {/* File Path */}
@@ -403,7 +399,7 @@ npm start`,
             {/* Sidebar - Section Navigation */}
             <div className="w-80 bg-slate-50 dark:bg-[#0a0a0a] border-r border-slate-200 dark:border-white/6">
               <div className="p-4">
-                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-4 uppercase tracking-wider">
+                <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-widest">
                   Sections
                 </h3>
                 <div className="space-y-2">
@@ -413,12 +409,12 @@ npm start`,
                       onClick={() => setActiveSection(section.id)}
                       className={`w-full text-left p-3 rounded-lg transition-all duration-300 ${
                         activeSection === section.id
-                          ? "bg-blue-100 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-800"
+                          ? "bg-neutral-100 dark:bg-white/8 border border-neutral-200 dark:border-white/10"
                           : "hover:bg-slate-100 dark:hover:bg-white/6"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg bg-linear-to-r ${section.gradient} flex items-center justify-center text-white text-sm`}>
+                        <div className={`w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-sm`}>
                           {section.icon}
                         </div>
                         <div className="flex-1">
@@ -447,7 +443,7 @@ npm start`,
                       onClick={() => setActiveTab(tab)}
                       className={`px-6 py-3 text-sm font-medium transition-all duration-300 ${
                         activeTab === tab
-                          ? "bg-white dark:bg-white/5 text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400"
+                          ? "bg-white dark:bg-white/5 text-neutral-900 dark:text-white border-b-2 border-neutral-900 dark:border-white"
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
@@ -460,9 +456,9 @@ npm start`,
               </div>
 
               {/* Tab Content */}
-              <div className="p-6">
+              <div className="p-4">
                 {activeTab === "code" && (
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     {currentSection?.content.map((content, index) => (
                       <div key={index}>
                         {content.type === "text" && (
@@ -471,8 +467,8 @@ npm start`,
                               {content.value}
                             </p>
                             {content.explanation && (
-                              <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                                <p className="text-sm text-blue-700 dark:text-blue-300">
+                              <div className="mt-3 p-3 bg-neutral-50 dark:bg-white/5 rounded-lg border border-neutral-200 dark:border-white/8">
+                                <p className="text-sm text-neutral-600 dark:text-neutral-400">
                                   <strong>💡 Note:</strong> {content.explanation}
                                 </p>
                               </div>
@@ -484,9 +480,9 @@ npm start`,
                           <div className="bg-slate-900 rounded-lg border border-slate-700 overflow-hidden shadow-xl">
                             <div className="bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-700">
                               <div className="flex items-center space-x-2">
-                                <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                                <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                                <div className="w-3 h-3 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
+                                <div className="w-3 h-3 bg-neutral-500 dark:bg-neutral-400 rounded-full"></div>
                               </div>
                               <div className="text-slate-400 text-sm font-mono">
                                 {content.language || "code"}
@@ -565,15 +561,15 @@ npm start`,
                   <div className="space-y-6">
                     {/* Prerequisites */}
                     <div>
-                      <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                        <span className="text-blue-600">📋</span>
+                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span>📋</span>
                         Prerequisites
                       </h4>
                       <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                         <ul className="space-y-2">
                           {currentSection?.prerequisites.map((prereq, index) => (
                             <li key={index} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                              <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                               {prereq}
                             </li>
                           ))}
@@ -583,15 +579,15 @@ npm start`,
 
                     {/* Next Steps */}
                     <div>
-                      <h4 className="text-lg font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                        <span className="text-green-600">🚀</span>
+                      <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                        <span className="">🚀</span>
                         Next Steps
                       </h4>
                       <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                         <ul className="space-y-2">
                           {currentSection?.nextSteps.map((step, index) => (
-                            <li key={index} className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
-                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <li key={index} className="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
+                              <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                               {step}
                             </li>
                           ))}
@@ -606,16 +602,16 @@ npm start`,
         </div>
 
         {/* Best Practices */}
-        <div className="mt-10">
+        <div className="mt-8">
           <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-5">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
               {t("USAGE_BEST_PRACTICES_TITLE")}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+              <div className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-white text-sm">✓</span>
+                  <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center shrink-0">
+                    <span className="text-white dark:text-neutral-400 text-xs">✓</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -628,10 +624,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+              <div className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-white text-sm">🔒</span>
+                  <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center shrink-0">
+                    <span className="text-white dark:text-neutral-400 text-xs">🔒</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -644,10 +640,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+              <div className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-purple-500 rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-white text-sm">⚡</span>
+                  <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center shrink-0">
+                    <span className="text-white dark:text-neutral-400 text-xs">⚡</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
@@ -660,10 +656,10 @@ npm start`,
                 </div>
               </div>
               
-              <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
+              <div className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
-                    <span className="text-white text-sm">📊</span>
+                  <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center shrink-0">
+                    <span className="text-white dark:text-neutral-400 text-xs">📊</span>
                   </div>
                   <div>
                     <h4 className="font-semibold text-slate-900 dark:text-white mb-2">

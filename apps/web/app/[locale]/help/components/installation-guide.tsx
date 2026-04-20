@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
 interface InstallationStep {
 	id: string;
 	number: string;
@@ -37,8 +38,8 @@ cd directory-web-template
 ls -la`,
 			codeLanguage: 'bash',
 			icon: '📥',
-			color: 'text-blue-600 dark:text-blue-400',
-			gradient: 'from-blue-500 to-cyan-500',
+			color: 'text-neutral-900 dark:text-white',
+			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '2 min',
 			difficulty: 'Easy'
 		},
@@ -54,8 +55,8 @@ pnpm install
 pnpm --version`,
 			codeLanguage: 'bash',
 			icon: '📦',
-			color: 'text-green-600 dark:text-green-400',
-			gradient: 'from-green-500 to-emerald-500',
+			color: 'text-neutral-900 dark:text-white',
+			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '3 min',
 			difficulty: 'Easy'
 		},
@@ -77,8 +78,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 AUTH_SECRET=your_nextauth_secret`,
 			codeLanguage: 'env',
 			icon: '⚙️',
-			color: 'text-purple-600 dark:text-purple-400',
-			gradient: 'from-purple-500 to-pink-500',
+			color: 'text-neutral-900 dark:text-white',
+			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '5 min',
 			difficulty: 'Medium'
 		},
@@ -100,8 +101,8 @@ pnpm db:studio
 pnpm db:seed`,
 			codeLanguage: 'bash',
 			icon: '🗄️',
-			color: 'text-orange-600 dark:text-orange-400',
-			gradient: 'from-orange-500 to-red-500',
+			color: 'text-neutral-900 dark:text-white',
+			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '4 min',
 			difficulty: 'Medium'
 		},
@@ -141,7 +142,7 @@ pnpm start`,
 			icon: '🔍',
 			title: 'Check Environment',
 			description: 'Verify your setup with pnpm check-env',
-			color: 'bg-blue-500'
+			color: 'bg-neutral-900 dark:bg-white/30'
 		},
 		{
 			icon: '🔄',
@@ -175,28 +176,29 @@ pnpm start`,
 	return (
 		<div>
 				{/* Header */}
-			<div className="mb-10">
-				<p className="text-xs font-semibold uppercase tracking-widest text-green-600 dark:text-green-400 mb-2">{t('INSTALLATION_GUIDE_TITLE')}</p>
-				<h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
+			<div className="mb-6">
+				<p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-1.5">{t('INSTALLATION_GUIDE_TITLE')}</p>
+				<h2 className="text-base font-semibold tracking-tight mb-1 text-neutral-900 dark:text-white">
 					{t('INSTALLATION_GUIDE_SUBTITLE')}
 				</h2>
-				<p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
-					</p>
+				<p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-2xl leading-relaxed">
+					{t('INSTALLATION_GUIDE_DESCRIPTION')}
+				</p>
 				</div>
 
 				{/* Progress Bar */}
-				<div className="mb-12">
-					<div className="flex items-center justify-between mb-4">
-						<span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+				<div className="mb-8">
+					<div className="flex items-center justify-between mb-2">
+						<span className="text-xs font-medium text-slate-600 dark:text-slate-400">
 							{t('INSTALLATION_PROGRESS')}
 						</span>
-						<span className="text-sm text-slate-600 dark:text-slate-400">
+						<span className="text-xs text-slate-500 dark:text-slate-400">
 							{completedSteps.length} of {installationSteps.length} completed
 						</span>
 					</div>
-					<div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-3">
+					<div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-1.5">
 						<div
-							className="bg-linear-to-r from-green-500 to-blue-500 h-3 rounded-full transition-all duration-500 ease-out"
+								className="bg-neutral-900 dark:bg-white h-1.5 rounded-full transition-all duration-500 ease-out"
 							style={{ width: `${progressPercentage}%` }}
 						></div>
 					</div>
@@ -217,33 +219,27 @@ pnpm start`,
 								<div
 									className={`relative bg-white dark:bg-white/3 rounded-xl p-5 border transition-colors duration-200 ${
 										activeStep === index
-											? 'border-blue-500 dark:border-blue-500'
+											? 'border-neutral-900/20 dark:border-white/20'
 											: completedSteps.includes(index)
-												? 'border-green-500 dark:border-green-500'
+												? 'border-neutral-400 dark:border-white/15'
 												: 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
 									}`}
 									>
 										{/* Step Header */}
 										<div className="flex items-center gap-4 mb-4">
 											<div
-												className={`w-10 h-10 rounded-lg bg-linear-to-r ${step.gradient} flex items-center justify-center text-white font-bold text-sm`}
+												className={`w-10 h-10 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white font-bold text-xs`}
 											>
 												{completedSteps.includes(index) ? '✓' : step.number}
 											</div>
 											<div className="flex-1">
-												<h3 className={`font-semibold ${step.color}`}>{step.title}</h3>
+												<h3 className="font-semibold text-neutral-900 dark:text-white">{step.title}</h3>
 												<div className="flex items-center gap-2 mt-1">
 													<span className="text-xs text-slate-500 dark:text-slate-400">
 														{step.estimatedTime}
 													</span>
 													<span
-														className={`text-xs px-2 py-1 rounded-full ${
-															step.difficulty === 'Easy'
-																? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-																: step.difficulty === 'Medium'
-																	? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-																	: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-														}`}
+														className="text-xs px-2 py-1 rounded-full bg-neutral-100 text-neutral-600 dark:bg-white/8 dark:text-neutral-400"
 													>
 														{step.difficulty}
 													</span>
@@ -253,15 +249,15 @@ pnpm start`,
 										</div>
 
 										{/* Step Description */}
-										<p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+										<p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
 											{step.description}
 										</p>
 
 									{/* Active Indicator - removed */}
 										{/* Completed Indicator */}
 										{completedSteps.includes(index) && (
-											<div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-												<span className="text-white text-xs">✓</span>
+											<div className="absolute -top-2 -right-2 w-6 h-6 bg-neutral-900 dark:bg-white rounded-full flex items-center justify-center">
+												<span className="text-white dark:text-neutral-900 text-xs">✓</span>
 											</div>
 										)}
 									</div>
@@ -283,11 +279,11 @@ pnpm start`,
 								<div className="flex items-center justify-between">
 									<div className="flex items-center gap-3">
 										<div className="flex gap-2">
-											<div className="w-3 h-3 bg-red-500 rounded-full"></div>
-											<div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-											<div className="w-3 h-3 bg-green-500 rounded-full"></div>
+											<div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+											<div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+											<div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
 										</div>
-										<span className="text-slate-600 dark:text-slate-400 text-sm font-medium">
+										<span className="text-slate-600 dark:text-slate-400 text-xs font-medium">
 											{installationSteps[activeStep].codeLanguage}
 										</span>
 									</div>
@@ -302,10 +298,10 @@ pnpm start`,
 											<span
 												className={`text-xs px-2 py-1 rounded-full ${
 													installationSteps[activeStep].difficulty === 'Easy'
-														? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+														? 'bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300'
 														: installationSteps[activeStep].difficulty === 'Medium'
-															? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
-															: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
+															? 'bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300'
+															: 'bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300'
 												}`}
 											>
 												{installationSteps[activeStep].difficulty}
@@ -317,7 +313,7 @@ pnpm start`,
 
 							{/* Code Content */}
 							<div className="p-6">
-								<pre className="text-sm text-slate-800 dark:text-slate-200 leading-relaxed overflow-x-auto">
+								<pre className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed overflow-x-auto">
 									<code>
 										{installationSteps[activeStep].code.split('\n').map((line, index) => (
 											<div key={index} className="flex">
@@ -325,23 +321,7 @@ pnpm start`,
 													{index + 1}
 												</span>
 												<span
-													className={
-														line.startsWith('#')
-															? 'text-slate-500 dark:text-slate-500'
-															: line.includes('pnpm') ||
-																  line.includes('npm') ||
-																  line.includes('yarn')
-																? 'text-green-600 dark:text-green-400'
-																: line.startsWith('git')
-																	? 'text-blue-600 dark:text-blue-400'
-																	: line.startsWith('cp')
-																		? 'text-yellow-600 dark:text-yellow-400'
-																		: line.includes('http://')
-																			? 'text-cyan-600 dark:text-cyan-400'
-																			: line.includes('=')
-																				? 'text-purple-600 dark:text-purple-400'
-																				: 'text-slate-800 dark:text-slate-200'
-													}
+														className="text-slate-800 dark:text-slate-200"
 												>
 													{line}
 												</span>
@@ -367,7 +347,7 @@ pnpm start`,
 										<Button
 											onClick={() => handleStepComplete(activeStep)}
 											disabled={completedSteps.includes(activeStep)}
-											className="bg-green-600 hover:bg-green-700 text-white"
+											className="bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900"
 										>
 											{completedSteps.includes(activeStep) ? '✓ Completed' : 'Mark Complete'}
 										</Button>
@@ -376,7 +356,7 @@ pnpm start`,
 									<Button
 										onClick={handleNextStep}
 										disabled={activeStep === installationSteps.length - 1}
-										className="bg-blue-600 hover:bg-blue-700 text-white"
+										className="bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900"
 									>
 										Next →
 									</Button>
@@ -387,42 +367,42 @@ pnpm start`,
 				</div>
 
 				{/* Tips Section */}
-				<div className="mt-16">
-				<h3 className="text-base font-semibold mb-6 text-slate-900 dark:text-white">
-						💡 Quick Tips for Success
+				<div className="mt-8">
+				<h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">
+						Quick Tips
 					</h3>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 						{tips.map((tip, index) => (
 							<div
 								key={index}
-								className="bg-white/60 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white/80 dark:hover:bg-white/5 transition-all duration-300 hover:transform hover:scale-105"
+								className="bg-neutral-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-colors"
 							>
 								<div
-									className={`w-12 h-12 ${tip.color} rounded-lg flex items-center justify-center text-white text-xl mb-4`}
+									className={`w-8 h-8 bg-neutral-100 dark:bg-white/8 rounded-md flex items-center justify-center text-base mb-3`}
 								>
 									{tip.icon}
 								</div>
-								<h4 className="font-semibold text-slate-900 dark:text-white mb-2">{tip.title}</h4>
-								<p className="text-slate-600 dark:text-slate-400 text-sm">{tip.description}</p>
+								<h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-1">{tip.title}</h4>
+								<p className="text-slate-500 dark:text-slate-400 text-xs">{tip.description}</p>
 							</div>
 						))}
 					</div>
 				</div>
 
 				{/* Call to Action */}
-				<div className="mt-16 text-center">
-				<div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
-					<h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+				<div className="mt-8 text-center">
+				<div className="bg-neutral-50 dark:bg-white/3 rounded-xl p-6 border border-neutral-100 dark:border-white/6">
+					<h3 className="text-sm font-semibold mb-1.5 text-slate-900 dark:text-white">
 						Ready to Launch Your Platform?
 					</h3>
-					<p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
+					<p className="text-slate-500 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
 						You&apos;re just a few steps away from having your web platform live and ready for users.
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
-						<button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
+						<button className="h-9 px-4 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
 							Deploy to Production
 						</button>
-						<button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
+						<button className="h-9 px-4 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
 							View Documentation
 						</button>
 					</div>

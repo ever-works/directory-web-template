@@ -132,14 +132,14 @@ vercel --prod`,
   return (
     <div>
           {/* Header */}
-          <div className="mb-10">
-            <p className="text-xs font-semibold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2">{t('HOW_IT_WORKS_TITLE')}</p>
-            <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
-              {t('HOW_IT_WORKS_SUBTITLE')}
-            </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
-              {t('HOW_IT_WORKS_DESCRIPTION')}
-            </p>
+          <div className="mb-8">
+            <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('HOW_IT_WORKS_TITLE')}</p>
+            <h2 className="text-2xl font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
+                {t('HOW_IT_WORKS_SUBTITLE')}
+              </h2>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
+                {t('HOW_IT_WORKS_DESCRIPTION')}
+              </p>
           </div>
 
         {/* Interactive Steps */}
@@ -153,11 +153,11 @@ vercel --prod`,
               {/* Step Card */}
               <div className={`relative bg-white dark:bg-white/3 rounded-xl p-6 border transition-colors duration-200 ${
                 activeStep === index
-                  ? 'border-blue-500 dark:border-blue-500'
+                  ? 'border-neutral-900/20 dark:border-white/20'
                   : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Step Number */}
-                <div className={`w-10 h-10 rounded-lg bg-linear-to-r ${step.gradient} flex items-center justify-center text-white font-bold text-sm mb-4`}>
+                <div className="w-10 h-10 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white dark:text-neutral-400 font-bold text-sm mb-4">
                   {step.number}
                 </div>
 
@@ -165,10 +165,10 @@ vercel --prod`,
                 <div className="text-2xl mb-3">{step.icon}</div>
 
                 {/* Step Content */}
-                <h3 className={`text-base font-semibold mb-2 ${step.color}`}>
+                <h3 className="text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white">
                   {step.title}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">
+                <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed mb-4">
                   {step.description}
                 </p>
 
@@ -176,7 +176,7 @@ vercel --prod`,
                 <div className="space-y-2">
                   {step.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                      <div className={`w-2 h-2 rounded-full bg-linear-to-r ${step.gradient}`}></div>
+                      <div className="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
                       {feature}
                     </div>
                   ))}
@@ -196,9 +196,9 @@ vercel --prod`,
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
                     </div>
                   <span className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                     {steps[activeStep].codeLanguage}
@@ -221,12 +221,7 @@ vercel --prod`,
                       <span className="text-slate-500 dark:text-slate-600 mr-4 select-none w-8 text-right">
                         {index + 1}
                             </span>
-                            <span className={
-                        line.startsWith('#') ? 'text-slate-500 dark:text-slate-500' :
-                        line.includes('=') ? 'text-blue-600 dark:text-blue-400' :
-                        line.includes('pnpm') || line.includes('git') ? 'text-green-600 dark:text-green-400' :
-                        'text-slate-800 dark:text-slate-200'
-                            }>
+                            <span className="text-slate-800 dark:text-slate-200">
                               {line}
                             </span>
                           </div>
@@ -239,7 +234,7 @@ vercel --prod`,
 
         {/* Benefits Grid */}
         <div className="mb-12">
-          <h3 className="text-base font-semibold mb-6 text-slate-900 dark:text-white">
+          <h3 className="text-sm font-semibold mb-4 text-neutral-900 dark:text-white">
             {t('WHY_CHOOSE_PLATFORM')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -249,10 +244,10 @@ vercel --prod`,
                 className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
               >
                 <div className="text-2xl mb-3">{benefit.icon}</div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">
                   {benefit.title}
                 </h4>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
@@ -263,10 +258,10 @@ vercel --prod`,
         {/* Call to Action */}
         <div className="text-center">
           <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
-            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
+            <h3 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
               {t('READY_TO_GET_STARTED')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-5 max-w-xl mx-auto">
               {t('JOIN_DEVELOPERS_DESC')}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">

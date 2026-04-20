@@ -328,11 +328,11 @@ export function TechStack() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-2">{t('TECH_STACK_BADGE')}</p>
-          <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white">
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('TECH_STACK_BADGE')}</p>
+          <h2 className="text-2xl font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t('TECH_STACK_TITLE')}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-sm max-w-2xl leading-relaxed">
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
             {t('TECH_STACK_SUBTITLE')}
           </p>
         </div>
@@ -351,7 +351,7 @@ export function TechStack() {
           </div>
           <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+              <div className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
                 {stats.highPopularity}
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
@@ -361,7 +361,7 @@ export function TechStack() {
           </div>
           <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+              <div className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
                 {stats.avgPerformance}%
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-400">

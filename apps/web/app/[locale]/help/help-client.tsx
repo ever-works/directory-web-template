@@ -43,8 +43,8 @@ export default function HelpPageClient() {
       title: t("QUICK_START"),
       description: t("QUICK_START_DESC"),
       icon: "🚀",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <HowItWorks />,
       completed: false,
       estimatedTime: "5 min",
@@ -55,8 +55,8 @@ export default function HelpPageClient() {
       title: t("ENV_SETUP"),
       description: t("ENV_SETUP_DESC"),
       icon: "⚙️",
-      color: "text-indigo-600 dark:text-indigo-400",
-      gradient: "from-indigo-500 to-purple-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <EnvConfiguration />,
       completed: false,
       estimatedTime: "8 min",
@@ -67,8 +67,8 @@ export default function HelpPageClient() {
       title: t("INSTALLATION"),
       description: t("INSTALLATION_DESC"),
       icon: "📚",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <InstallationGuide />,
       completed: false,
       estimatedTime: "10 min",
@@ -79,8 +79,8 @@ export default function HelpPageClient() {
       title: t("USAGE_GUIDE"),
       description: t("USAGE_GUIDE_DESC"),
       icon: "🎨",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <UsageGuide />,
       completed: false,
       estimatedTime: "15 min",
@@ -91,8 +91,8 @@ export default function HelpPageClient() {
       title: t("TECH_STACK"),
       description: t("TECH_STACK_DESC"),
       icon: "🔧",
-      color: "text-orange-600 dark:text-orange-400",
-      gradient: "from-orange-500 to-red-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <TechStack />,
       completed: false,
       estimatedTime: "8 min",
@@ -103,8 +103,8 @@ export default function HelpPageClient() {
       title: t("MONETIZATION"),
       description: t("MONETIZATION_DESC"),
       icon: "💰",
-      color: "text-yellow-600 dark:text-yellow-400",
-      gradient: "from-yellow-500 to-orange-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <MonetizationSection />,
       completed: false,
       estimatedTime: "12 min",
@@ -115,8 +115,8 @@ export default function HelpPageClient() {
       title: t("SUPPORT"),
       description: t("SUPPORT_DESC"),
       icon: "🆘",
-      color: "text-red-600 dark:text-red-400",
-      gradient: "from-red-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       component: <Support />,
       completed: false,
       estimatedTime: "3 min",
@@ -170,9 +170,9 @@ export default function HelpPageClient() {
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "beginner": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300";
-      case "intermediate": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300";
-      case "advanced": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+      case "beginner": return "bg-neutral-100 text-neutral-600 dark:bg-white/8 dark:text-neutral-400";
+      case "intermediate": return "bg-neutral-100 text-neutral-600 dark:bg-white/8 dark:text-neutral-400";
+      case "advanced": return "bg-neutral-100 text-neutral-600 dark:bg-white/8 dark:text-neutral-400";
       default: return "bg-gray-100 text-gray-700 dark:bg-[#0a0a0a]/30 dark:text-gray-300";
     }
   };
@@ -196,7 +196,7 @@ export default function HelpPageClient() {
                 </span>
                 <div className="w-28 h-1.5 bg-gray-200 dark:bg-white/8 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-theme-primary-500 transition-all duration-500 rounded-full"
+                    className="h-full bg-neutral-900 dark:bg-white transition-all duration-500 rounded-full"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
@@ -223,8 +223,8 @@ export default function HelpPageClient() {
             <div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3">
-                  <div className="p-1.5 bg-linear-to-br from-theme-primary-100 to-cyan-100 dark:from-theme-primary-900/30 dark:to-cyan-900/30 rounded-xl shrink-0">
-                    <svg className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="p-1.5 bg-neutral-100 dark:bg-white/8 rounded-xl shrink-0">
+                    <svg className="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                   </div>
@@ -248,7 +248,7 @@ export default function HelpPageClient() {
                     placeholder={t("SEARCH_GUIDES_PLACEHOLDER")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-56 pl-9 pr-3 py-2 text-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/50 focus:border-theme-primary-400"
+                    className="w-56 pl-9 pr-3 py-2 text-xs bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-neutral-300 dark:focus:ring-white/20 focus:border-neutral-400 dark:focus:border-white/20"
                   />
                 </div>
               </div>
@@ -263,15 +263,15 @@ export default function HelpPageClient() {
                     onClick={() => goToStep(index)}
                     className={`relative p-3.5 rounded-lg border cursor-pointer transition-colors duration-150 group ${
                       currentStep === index
-                        ? "border-theme-primary-400 dark:border-theme-primary-500 bg-theme-primary-50 dark:bg-theme-primary-500/8"
+                        ? "border-neutral-900/20 dark:border-white/20 bg-neutral-50 dark:bg-white/4"
                         : completedSteps.has(step.id)
-                        ? "border-green-300 dark:border-green-500/30 bg-green-50/60 dark:bg-green-500/5"
+                        ? "border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-white/3"
                         : "border-gray-200 dark:border-white/6 bg-white dark:bg-white/2 hover:border-gray-300 dark:hover:border-white/10 hover:bg-gray-50 dark:hover:bg-white/4"
                     }`}
                   >
                     {/* Completion badge */}
                     {completedSteps.has(step.id) && (
-                      <div className="absolute top-2.5 right-2.5 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+                      <div className="absolute top-2.5 right-2.5 w-4 h-4 bg-neutral-900 dark:bg-white rounded-full flex items-center justify-center shrink-0">
                         <svg className="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
                         </svg>
@@ -282,9 +282,9 @@ export default function HelpPageClient() {
                     <div className="flex items-center gap-2 mb-2.5">
                       <span className={`text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                         currentStep === index
-                          ? "bg-theme-primary-500 text-white"
+                          ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
                           : completedSteps.has(step.id)
-                          ? "bg-green-500 text-white"
+                          ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
                           : "bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400"
                       }`}>
                         {index + 1}
@@ -311,7 +311,7 @@ export default function HelpPageClient() {
                         </span>
                       </div>
                       {currentStep === index ? (
-                        <span className="text-[10px] text-theme-primary-600 dark:text-theme-primary-400 font-semibold">
+                        <span className="text-[10px] text-neutral-600 dark:text-neutral-400 font-semibold">
                           {t("CURRENT")}
                         </span>
                       ) : (
@@ -334,7 +334,7 @@ export default function HelpPageClient() {
             <div className="px-5 py-4 border-b border-gray-100 dark:border-white/6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`p-2 rounded-xl bg-linear-to-br ${navigationSteps[currentStep].gradient} shrink-0`}>
+                  <div className={`p-2 rounded-xl bg-neutral-900 dark:bg-white/10 shrink-0`}>
                     <span className="text-base leading-none text-white">{navigationSteps[currentStep].icon}</span>
                   </div>
                   <div className="min-w-0">
@@ -388,7 +388,7 @@ export default function HelpPageClient() {
                   currentStep === index
                     ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                     : completedSteps.has(step.id)
-                    ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-500/20"
+                    ? "bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-white/8"
                     : "bg-gray-100 dark:bg-white/6 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10 border border-transparent"
                 }`}
               >
