@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from 'next-intl';
+import { Monitor, Server } from "lucide-react";
 
 interface EnvVariable {
   name: string;
@@ -377,8 +378,8 @@ export function EnvConfiguration() {
           {/* Local Development */}
           <div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-slate-200 dark:border-white/6">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center text-sm">
-                💻
+              <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center">
+                <Monitor className="w-4 h-4 text-white dark:text-neutral-400" />
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {t("ENV_CONFIG_LOCAL_DEV")}
@@ -395,8 +396,8 @@ export function EnvConfiguration() {
           {/* Production Deployment */}
           <div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-slate-200 dark:border-white/6">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center text-sm">
-                🚀
+              <div className="w-7 h-7 bg-neutral-900 dark:bg-white/10 rounded-md flex items-center justify-center">
+                <Server className="w-4 h-4 text-white dark:text-neutral-400" />
               </div>
               <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                 {t("ENV_CONFIG_PRODUCTION")}

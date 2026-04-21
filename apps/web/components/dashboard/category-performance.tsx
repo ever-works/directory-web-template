@@ -32,8 +32,8 @@ export function CategoryPerformance({ data, isLoading = false }: CategoryPerform
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+                    <div className="h-4 bg-neutral-100 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-neutral-100 dark:bg-white/8 rounded-sm"></div>
                 </div>
             </div>
         );
@@ -75,21 +75,21 @@ export function CategoryPerformance({ data, isLoading = false }: CategoryPerform
                 >
                     <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="var(--tw-prose-hr, #e5e7eb)"
+                        stroke="rgba(163,163,163,0.15)"
                         horizontal={true}
                         vertical={false}
                     />
                     <XAxis
                         type="number"
-                        stroke="#6B7280"
-                        fontSize={12}
+                        stroke="#a3a3a3"
+                        fontSize={11}
                         tickFormatter={(value: number) => value.toFixed(1)}
                     />
                     <YAxis
                         type="category"
                         dataKey="displayCategory"
-                        stroke="#6B7280"
-                        fontSize={12}
+                        stroke="#a3a3a3"
+                        fontSize={11}
                         width={100}
                     />
                     <Tooltip
@@ -126,10 +126,10 @@ export function CategoryPerformance({ data, isLoading = false }: CategoryPerform
                                 backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
                             }}
                         />
-                        <span className="text-gray-600 dark:text-gray-400 truncate">
+                        <span className="text-neutral-600 dark:text-neutral-400 truncate">
                             {item.category}
                         </span>
-                        <span className="text-gray-900 dark:text-gray-100 font-medium shrink-0">
+                        <span className="text-neutral-900 dark:text-neutral-100 font-medium shrink-0">
                             {item.itemCount} {t("ITEMS").toLowerCase()}
                         </span>
                     </div>

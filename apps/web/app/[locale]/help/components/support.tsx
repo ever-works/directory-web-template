@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
+import { BookOpen, Users, Mail, MessageSquare, LifeBuoy, Phone, HelpCircle } from "lucide-react";
 interface SupportChannel {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   color: string;
   gradient: string;
   responseTime: string;
@@ -38,7 +39,7 @@ export function Support() {
       id: "documentation",
       name: t("DOCUMENTATION"),
       description: t("DOCUMENTATION_DESC"),
-      icon: "📚",
+      Icon: BookOpen,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       responseTime: "Instant",
@@ -56,7 +57,7 @@ export function Support() {
       id: "community",
       name: t("COMMUNITY"),
       description: t("COMMUNITY_DESC"),
-      icon: "👥",
+      Icon: Users,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       responseTime: "2-4 hours",
@@ -74,7 +75,7 @@ export function Support() {
       id: "email",
       name: t("CONTACT_SUPPORT"),
       description: t("CONTACT_SUPPORT_DESC"),
-      icon: "✉️",
+      Icon: Mail,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       responseTime: "4-8 hours",
@@ -92,7 +93,7 @@ export function Support() {
       id: "live-chat",
       name: "Live Chat",
       description: "Get instant help from our support team",
-      icon: "💬",
+      Icon: MessageSquare,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       responseTime: "1-2 minutes",
@@ -215,7 +216,7 @@ export function Support() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="w-8 h-8 bg-neutral-900 dark:bg-white/10 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-sm">🆘</span>
+                  <LifeBuoy className="w-4 h-4 text-white dark:text-neutral-400" />
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                   Support Dashboard
@@ -225,20 +226,20 @@ export function Support() {
               {/* Tabs */}
               <div className="flex bg-slate-200 dark:bg-white/8 rounded-lg p-1">
                 {[
-                  { id: 'channels', label: 'Support Channels', icon: '📞' },
-                  { id: 'faq', label: 'FAQ', icon: '❓' },
-                  { id: 'chat', label: 'Live Chat', icon: '💬' }
+                  { id: 'channels', label: 'Support Channels', Icon: Phone },
+                  { id: 'faq', label: 'FAQ', Icon: HelpCircle },
+                  { id: 'chat', label: 'Live Chat', Icon: MessageSquare }
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
+                    onClick={() => setActiveTab(tab.id as 'channels' | 'faq' | 'chat')}
                     className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
                       activeTab === tab.id
                         ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xs"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
-                    <span>{tab.icon}</span>
+                    <tab.Icon className="w-3.5 h-3.5" />
                     {tab.label}
                   </button>
                 ))}
@@ -259,8 +260,8 @@ export function Support() {
                       {/* Header */}
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-sm`}>
-                            {channel.icon}
+                          <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center`}>
+                            <channel.Icon className="w-4 h-4 text-white dark:text-neutral-400" />
                           </div>
                           <div>
                             <h4 className={`font-semibold text-sm text-neutral-900 dark:text-white`}>
@@ -386,7 +387,7 @@ export function Support() {
                 <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/8 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-neutral-900 dark:bg-white/10 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm">💬</span>
+                      <MessageSquare className="w-4 h-4 text-white dark:text-neutral-400" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-white">Live Chat</h4>

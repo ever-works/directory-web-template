@@ -15,43 +15,45 @@ interface SubmissionTimelineProps {
 export function SubmissionTimeline({ data, isLoading = false }: SubmissionTimelineProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-          <div className="h-[250px] bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+          <div className="h-62.5 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
+      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
         Submission Timeline
       </h3>
       <ResponsiveContainer width="100%" height={250}>
         <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="var(--tw-prose-hr, #e5e7eb)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(163,163,163,0.15)" />
           <XAxis 
             dataKey="month" 
-            stroke="#6B7280"
-            fontSize={12}
+            stroke="#a3a3a3"
+            fontSize={11}
           />
           <YAxis 
-            stroke="#6B7280"
-            fontSize={12}
+            stroke="#a3a3a3"
+            fontSize={11}
           />
           <Tooltip 
             contentStyle={{
-              backgroundColor: '#1F2937',
-              border: '1px solid #374151',
+              backgroundColor: '#141414',
+              border: '1px solid rgba(255,255,255,0.1)',
               borderRadius: '8px',
-              color: '#F9FAFB'
+              color: '#f5f5f5',
+              fontSize: '12px',
+              padding: '8px 12px',
             }}
           />
           <Bar 
             dataKey="submissions" 
-            fill="#3B82F6"
+            fill="#171717"
             radius={[4, 4, 0, 0]}
           />
         </BarChart>

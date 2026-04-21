@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ComponentType } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
+import { Download, Package, Settings, Database, Rocket, Zap, Search, RefreshCw } from 'lucide-react';
 interface InstallationStep {
 	id: string;
 	number: string;
@@ -10,7 +11,7 @@ interface InstallationStep {
 	description: string;
 	code: string;
 	codeLanguage: string;
-	icon: string;
+	Icon: ComponentType<{ className?: string }>;
 	color: string;
 	gradient: string;
 	estimatedTime: string;
@@ -37,7 +38,7 @@ cd directory-web-template
 # Verify the setup
 ls -la`,
 			codeLanguage: 'bash',
-			icon: '📥',
+			Icon: Download,
 			color: 'text-neutral-900 dark:text-white',
 			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '2 min',
@@ -54,7 +55,7 @@ pnpm install
 # Verify installation
 pnpm --version`,
 			codeLanguage: 'bash',
-			icon: '📦',
+			Icon: Package,
 			color: 'text-neutral-900 dark:text-white',
 			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '3 min',
@@ -77,7 +78,7 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 AUTH_SECRET=your_nextauth_secret`,
 			codeLanguage: 'env',
-			icon: '⚙️',
+			Icon: Settings,
 			color: 'text-neutral-900 dark:text-white',
 			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '5 min',
@@ -100,7 +101,7 @@ pnpm db:studio
 # Optional: Seed with sample data
 pnpm db:seed`,
 			codeLanguage: 'bash',
-			icon: '🗄️',
+			Icon: Database,
 			color: 'text-neutral-900 dark:text-white',
 			gradient: 'from-neutral-700 to-neutral-900',
 			estimatedTime: '4 min',
@@ -123,7 +124,7 @@ pnpm build
 # Start production server
 pnpm start`,
 			codeLanguage: 'bash',
-			icon: '🚀',
+			Icon: Rocket,
 			color: 'text-indigo-600 dark:text-indigo-400',
 			gradient: 'from-indigo-500 to-purple-500',
 			estimatedTime: '2 min',
@@ -133,19 +134,19 @@ pnpm start`,
 
 	const tips = [
 		{
-			icon: '⚡',
+			Icon: Zap,
 			title: 'Use pnpm',
 			description: 'Faster and more efficient than npm',
 			color: 'bg-green-500'
 		},
 		{
-			icon: '🔍',
+			Icon: Search,
 			title: 'Check Environment',
 			description: 'Verify your setup with pnpm check-env',
 			color: 'bg-neutral-900 dark:bg-white/30'
 		},
 		{
-			icon: '🔄',
+			Icon: RefreshCw,
 			title: 'Hot Reload',
 			description: 'Development mode with live updates',
 			color: 'bg-purple-500'
@@ -245,9 +246,10 @@ pnpm start`,
 													</span>
 												</div>
 											</div>
-											<div className="text-2xl">{step.icon}</div>
+											<div className="w-7 h-7 flex items-center justify-center">
+												<step.Icon className="w-4 h-4 text-neutral-700 dark:text-neutral-400" />
+											</div>
 										</div>
-
 										{/* Step Description */}
 										<p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
 											{step.description}
@@ -378,9 +380,9 @@ pnpm start`,
 								className="bg-neutral-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-colors"
 							>
 								<div
-									className={`w-8 h-8 bg-neutral-100 dark:bg-white/8 rounded-md flex items-center justify-center text-base mb-3`}
+									className={`w-8 h-8 bg-neutral-100 dark:bg-white/8 rounded-md flex items-center justify-center mb-3`}
 								>
-									{tip.icon}
+									<tip.Icon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
 								</div>
 								<h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-1">{tip.title}</h4>
 								<p className="text-slate-500 dark:text-slate-400 text-xs">{tip.description}</p>

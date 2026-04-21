@@ -1,51 +1,59 @@
 // Dashboard shared style constants
-// Centralized design system for dashboard chart components
+// Centralized design system - Vercel Analytics-inspired: clean, minimal, precise
 
 export const CARD_BASE_STYLES =
-    "bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6";
+    "bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8";
 
-export const TITLE_STYLES = "text-lg font-semibold text-gray-900 dark:text-gray-100";
+export const TITLE_STYLES = "text-sm font-semibold text-neutral-900 dark:text-white";
 
-export const SUBTITLE_STYLES = "text-sm text-gray-500 dark:text-gray-400";
+export const SUBTITLE_STYLES = "text-xs text-neutral-500 dark:text-neutral-400";
 
-export const VALUE_STYLES = "text-2xl font-bold text-gray-900 dark:text-gray-100";
+export const VALUE_STYLES = "text-xl font-semibold text-neutral-900 dark:text-white";
 
-export const METRIC_CARD_STYLES = "flex flex-col gap-2 p-4 bg-gray-50 dark:bg-white/4 rounded-lg";
+export const METRIC_CARD_STYLES =
+    "flex flex-col gap-1.5 p-4 bg-neutral-50 dark:bg-white/[0.04] rounded-lg border border-neutral-100 dark:border-white/[0.05]";
 
-export const METRIC_LABEL_STYLES = "text-sm font-medium text-gray-600 dark:text-gray-400";
+export const METRIC_LABEL_STYLES = "text-xs font-medium text-neutral-500 dark:text-neutral-400";
 
-export const METRIC_VALUE_STYLES = "text-2xl font-bold text-gray-900 dark:text-gray-100";
+export const METRIC_VALUE_STYLES = "text-xl font-semibold text-neutral-900 dark:text-white";
 
-export const METRIC_COMPARE_STYLES = "text-sm text-gray-500 dark:text-gray-400";
+export const METRIC_COMPARE_STYLES = "text-xs text-neutral-500 dark:text-neutral-400";
 
 export const TOOLTIP_STYLES = {
-    backgroundColor: "#1F2937",
-    border: "1px solid #374151",
+    backgroundColor: "#141414",
+    border: "1px solid rgba(255,255,255,0.1)",
     borderRadius: "8px",
-    color: "#F9FAFB",
+    color: "#f5f5f5",
+    fontSize: "12px",
+    padding: "8px 12px",
 } as const;
 
 export const CHART_COLORS = [
-    "#3B82F6", // Blue
-    "#10B981", // Green
-    "#F59E0B", // Amber
-    "#8B5CF6", // Purple
-    "#EF4444", // Red
-    "#06B6D4", // Cyan
-    "#EC4899", // Pink
-    "#84CC16", // Lime
-    "#F97316", // Orange
-    "#6366F1", // Indigo
+    "#171717", // neutral-900
+    "#525252", // neutral-600
+    "#0ea5e9", // sky-500
+    "#10b981", // emerald-500
+    "#f59e0b", // amber-500
+    "#8b5cf6", // violet-500
+    "#ef4444", // red-500
+    "#06b6d4", // cyan-500
+    "#ec4899", // pink-500
+    "#84cc16", // lime-500
 ] as const;
 
 // Semantic color mapping
 export const SEMANTIC_COLORS = {
-    votes: "#10B981",
-    comments: "#F59E0B",
-    submissions: "#3B82F6",
-    views: "#8B5CF6",
-    success: "#10B981",
-    warning: "#F59E0B",
-    error: "#EF4444",
-    primary: "#3B82F6",
+    votes: "#10b981",
+    comments: "#f59e0b",
+    submissions: "#0ea5e9",
+    views: "#8b5cf6",
+    success: "#10b981",
+    warning: "#f59e0b",
+    error: "#ef4444",
+    primary: "#171717",
 } as const;
+
+// Shared chart axis/grid helpers
+export const CHART_AXIS_STROKE = "#a3a3a3";
+export const CHART_AXIS_FONT_SIZE = 11;
+export const CHART_GRID_STROKE = "rgba(163,163,163,0.15)";

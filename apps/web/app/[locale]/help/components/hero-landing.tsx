@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from 'next-intl';
+import { Zap, Paintbrush, Rocket, Target } from "lucide-react";
 import { PageContainer } from "@/components/ui/container";
 
 export function HeroLanding() {
@@ -41,19 +42,19 @@ export function HeroLanding() {
 
   const features = [
     {
-      icon: "⚡",
+      icon: Zap,
       title: t('HERO_FEATURE_1_TITLE'),
       description: t('HERO_FEATURE_1_DESC'),
       color: "bg-neutral-900 dark:bg-white/10 text-white dark:text-neutral-400",
     },
     {
-      icon: "🎨",
+      icon: Paintbrush,
       title: t('HERO_FEATURE_2_TITLE'),
       description: t('HERO_FEATURE_2_DESC'),
       color: "bg-neutral-900 dark:bg-white/10 text-white dark:text-neutral-400",
     },
     {
-      icon: "🚀",
+      icon: Rocket,
       title: t('HERO_FEATURE_3_TITLE'),
       description: t('HERO_FEATURE_3_DESC'),
       color: "bg-neutral-900 dark:bg-white/10 text-white dark:text-neutral-400",
@@ -91,13 +92,13 @@ export function HeroLanding() {
 
           {/* Heading */}
           <div className="space-y-4">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight text-neutral-900 dark:text-white leading-[1.1]">
+            <h1 className="text-xl md:text-2xl lg:text-3xl font-semibold tracking-tight text-neutral-900 dark:text-white leading-[1.1]">
               {t('HERO_MAIN_TITLE')}
               <span className="block text-neutral-500 dark:text-neutral-400 mt-1">
                 {t('HERO_MAIN_TITLE_HIGHLIGHT')}
               </span>
             </h1>
-            <p className="text-sm md:text-base text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-lg">
+            <p className="text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-lg">
               {t('HERO_SUBTITLE')}
             </p>
           </div>
@@ -127,15 +128,18 @@ export function HeroLanding() {
                       )}
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium transition-colors ${isActive ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400'}`}>
-                      {feature.title}
-                    </p>
-                    <p className={`text-xs leading-relaxed mt-0.5 transition-all duration-300 overflow-hidden ${
-                      isActive ? 'text-neutral-500 dark:text-neutral-400 max-h-10 opacity-100' : 'max-h-0 opacity-0'
-                    }`}>
-                      {feature.description}
-                    </p>
+                  <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                    <div className={`shrink-0 w-5 h-5 flex items-center justify-center mt-0.5 transition-colors ${isActive ? 'text-neutral-900 dark:text-white' : 'text-neutral-400 dark:text-neutral-500'}`}>
+                      <feature.icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm font-medium transition-colors ${isActive ? 'text-neutral-900 dark:text-white' : 'text-neutral-500 dark:text-neutral-400'}`}>
+                        {feature.title}
+                      </p>
+                      <p className="text-xs leading-relaxed mt-0.5 transition-all duration-300 overflow-hidden text-neutral-500 dark:text-neutral-400 max-h-10 opacity-100">
+                        {feature.description}
+                      </p>
+                    </div>
                   </div>
                 </button>
               );
@@ -204,13 +208,13 @@ export function HeroLanding() {
               {/* Feature list */}
               <div className="space-y-2">
                 {[
-                  { icon: "🎯", title: t('HERO_DEMO_FEATURE_1'), accent: "bg-neutral-900 dark:bg-white/30" },
-                  { icon: "⚡", title: t('HERO_DEMO_FEATURE_2'), accent: "bg-neutral-700 dark:bg-white/20" },
-                  { icon: "🚀", title: t('HERO_DEMO_FEATURE_3'), accent: "bg-neutral-500 dark:bg-white/15" },
+                  { Icon: Target, title: t('HERO_DEMO_FEATURE_1'), accent: "bg-neutral-900 dark:bg-white/30" },
+                  { Icon: Zap, title: t('HERO_DEMO_FEATURE_2'), accent: "bg-neutral-700 dark:bg-white/20" },
+                  { Icon: Rocket, title: t('HERO_DEMO_FEATURE_3'), accent: "bg-neutral-500 dark:bg-white/15" },
                 ].map((item, i) => (
                   <div key={i} className="flex items-center gap-3 px-3 py-2.5 bg-neutral-50 dark:bg-white/3 rounded-lg border border-neutral-100 dark:border-white/5">
-                    <div className={`w-6 h-6 ${item.accent} rounded-md flex items-center justify-center text-white text-xs shrink-0`}>
-                      {item.icon}
+                    <div className={`w-6 h-6 ${item.accent} rounded-md flex items-center justify-center shrink-0`}>
+                      <item.Icon className="w-3.5 h-3.5 text-white" />
                     </div>
                     <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">{item.title}</span>
                   </div>

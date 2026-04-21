@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
+import { Settings, Target, Rocket, Zap, Lock, Smartphone, Palette } from "lucide-react";
 interface Step {
   id: string;
   number: string;
   title: string;
   description: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   color: string;
   gradient: string;
   code: string;
@@ -25,7 +26,7 @@ export function HowItWorks() {
       number: "01",
       title: t('HOW_IT_WORKS_STEP1_TITLE'),
       description: t('HOW_IT_WORKS_STEP1_DESC'),
-      icon: "⚙️",
+      Icon: Settings,
       color: "text-blue-600 dark:text-blue-400",
       gradient: "from-blue-500 to-cyan-500",
       codeLanguage: "bash",
@@ -52,7 +53,7 @@ cp .env.example .env`,
       number: "02", 
       title: t('HOW_IT_WORKS_STEP2_TITLE'),
       description: t('HOW_IT_WORKS_STEP2_DESC'),
-      icon: "🎯",
+      Icon: Target,
       color: "text-purple-600 dark:text-purple-400",
       gradient: "from-purple-500 to-pink-500",
       codeLanguage: "env",
@@ -84,7 +85,7 @@ STRIPE_SECRET_KEY=your_stripe_secret`,
       number: "03",
       title: t('HOW_IT_WORKS_STEP3_TITLE'),
       description: t('HOW_IT_WORKS_STEP3_DESC'),
-      icon: "🚀",
+      Icon: Rocket,
       color: "text-green-600 dark:text-green-400",
       gradient: "from-green-500 to-emerald-500",
       codeLanguage: "bash",
@@ -108,22 +109,22 @@ vercel --prod`,
 
   const benefits = [
     {
-      icon: "⚡",
+      Icon: Zap,
       title: t('BENEFITS_FAST_TITLE'),
       description: t('BENEFITS_FAST_DESC')
     },
     {
-      icon: "🔒",
+      Icon: Lock,
       title: t('BENEFITS_SECURE_TITLE'),
       description: t('BENEFITS_SECURE_DESC')
     },
     {
-      icon: "📱",
+      Icon: Smartphone,
       title: t('BENEFITS_MOBILE_TITLE'),
       description: t('BENEFITS_MOBILE_DESC')
     },
     {
-      icon: "🎨",
+      Icon: Palette,
       title: t('BENEFITS_CUSTOMIZABLE_TITLE'),
       description: t('BENEFITS_CUSTOMIZABLE_DESC')
     }
@@ -162,7 +163,9 @@ vercel --prod`,
                 </div>
 
                 {/* Step Icon */}
-                <div className="text-2xl mb-3">{step.icon}</div>
+                <div className="w-7 h-7 flex items-center justify-center mb-3">
+                  <step.Icon className="w-4 h-4 text-neutral-700 dark:text-neutral-400" />
+                </div>
 
                 {/* Step Content */}
                 <h3 className="text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white">
@@ -243,7 +246,9 @@ vercel --prod`,
                 key={index}
                 className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
               >
-                <div className="text-2xl mb-3">{benefit.icon}</div>
+                <div className="w-7 h-7 flex items-center justify-center mb-3">
+                  <benefit.Icon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                </div>
                 <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">
                   {benefit.title}
                 </h4>

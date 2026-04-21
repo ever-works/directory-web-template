@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
+import { Link2, Sparkles, Target, AlertTriangle } from "lucide-react";
 interface MonetizationMethod {
   id: string;
   title: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   description: string;
   revenue: string;
   setupTime: string;
@@ -26,7 +27,7 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "affiliation",
       title: t('MONETIZATION_AFFILIATION_TITLE'),
-      icon: "🤝",
+      Icon: Link2,
       description: t('MONETIZATION_AFFILIATION_DESC'),
       revenue: "$2K - $8K/month",
       setupTime: "30 minutes",
@@ -54,7 +55,7 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "paid-submissions",
       title: t('MONETIZATION_PAID_SUBMISSION_TITLE'),
-      icon: "💎",
+      Icon: Sparkles,
       description: t('MONETIZATION_PAID_SUBMISSION_DESC'),
       revenue: "$5K - $15K/month",
       setupTime: "2 hours",
@@ -82,7 +83,7 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "sponsored-ads",
       title: t('MONETIZATION_SPONSORED_ADS_TITLE'),
-    icon: "🎯",
+      Icon: Target,
       description: t('MONETIZATION_SPONSORED_ADS_DESC'),
       revenue: "$3K - $12K/month",
       setupTime: "1 hour",
@@ -115,6 +116,8 @@ const monetizationMethods: MonetizationMethod[] = [
     { label: t("STAT_CONVERSION_RATE"), value: "4.2%", change: "+8%", period: t("STAT_MONTHLY") },
     { label: t("STAT_PLATFORM_GROWTH"), value: "156%", change: "+34%", period: t("STAT_YEARLY") }
 ];
+
+  const ActiveMethodIcon = monetizationMethods[activeMethod].Icon;
 
   return (
     <section>
@@ -173,8 +176,8 @@ const monetizationMethods: MonetizationMethod[] = [
               }`}>
                 {/* Header */}
                 <div className="text-center mb-4">
-                  <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-sm mb-2`}>
-                    {method.icon}
+                  <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center mb-2`}>
+                    <method.Icon className="w-4 h-4 text-white dark:text-neutral-400" />
                   </div>
                   <h3 className={`text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white`}>
                     {method.title}
@@ -219,8 +222,8 @@ const monetizationMethods: MonetizationMethod[] = [
             <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white`}>
-                    {monetizationMethods[activeMethod].icon}
+                  <div className={`w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center`}>
+                    <ActiveMethodIcon className="w-4 h-4 text-white dark:text-neutral-400" />
                   </div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     {monetizationMethods[activeMethod].title} - Detailed Analysis
@@ -272,7 +275,7 @@ const monetizationMethods: MonetizationMethod[] = [
                   </div>
                   <div>
                     <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                      <span className="">⚠️</span>
+                      <AlertTriangle className="w-3.5 h-3.5 text-neutral-500" />
                       {t("CONS")}
                     </h4>
                     <div className="space-y-2">
