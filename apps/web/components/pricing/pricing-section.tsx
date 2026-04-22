@@ -172,7 +172,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							onSelect={handleSelectPlan}
 							className={cn(
 								selectedPlan === PaymentPlan.FREE &&
-									'ring-2 ring-theme-primary-500/50 dark:ring-theme-primary-400/50'
+									'ring-1 ring-theme-primary-500/50 dark:ring-theme-primary-400/50'
 							)}
 							actionText={
 								isReview
@@ -233,7 +233,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									onSelect={handleSelectPlan}
 									className={cn(
 										selectedPlan === PaymentPlan.STANDARD &&
-											'ring-2 ring-purple-500/50 dark:ring-purple-400/50'
+											'ring-1 ring-purple-500/10 dark:ring-purple-400/10'
 									)}
 									actionText={
 										isReview
@@ -292,7 +292,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									onSelect={handleSelectPlan}
 									className={cn(
 										selectedPlan === PaymentPlan.PREMIUM &&
-											'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50'
+											'ring-1 ring-cyan-500/50 dark:ring-cyan-400/50'
 									)}
 									actionText={
 										isReview

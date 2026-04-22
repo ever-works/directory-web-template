@@ -2,9 +2,8 @@
 
 import { useCallback, memo } from 'react';
 import { PaymentFlow } from '@/lib/payment/types/payment';
-import { Card } from '@/components/ui/card';
 import { Modal, ModalContent, ModalBody } from '@/components/ui/modal';
-import { CreditCard, Clock, CheckCircle } from 'lucide-react';
+import { CreditCard, Clock, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaymentFlowSelectorModalProps {
@@ -18,27 +17,23 @@ interface PaymentFlowSelectorModalProps {
 const FLOWS_DATA = [
 	{
 		flow: PaymentFlow.PAY_AT_START,
-		title: 'Pay Now',
-		description:
-			'Payment required before submission. Your payment will be processed immediately when you select this option.',
+		title: 'Pay now',
+		description: 'Payment processed immediately. Priority review queue.',
 		icon: CreditCard,
-		gradient: 'from-theme-primary-500 to-theme-primary-600',
 		benefits: ['Immediate processing', 'Priority review', 'Faster approval']
 	},
 	{
 		flow: PaymentFlow.PAY_AT_END,
-		title: 'Pay Later',
-		description:
-			"Payment after approval. You'll only be charged once your submission is approved and published.",
+		title: 'Pay later',
+		description: 'Charged only after your submission is approved.',
 		icon: Clock,
-		gradient: 'from-theme-primary-500 to-theme-primary-600',
-		benefits: ['No upfront cost', 'Review before payment', 'Risk-free trial']
+		benefits: ['No upfront cost', 'Review before payment', 'Risk-free']
 	}
 ] as const;
 
 export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 	selectedFlow,
-	title = 'Payment Flow Explanation', 
+	title = 'Payment timing',
 	isOpen,
 	onClose,
 	onSelect
@@ -55,52 +50,61 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 		const isSelected = selectedFlow === flowOption.flow;
 
 		return (
-			<Card
+			<button
 				key={flowOption.flow}
 				onClick={() => handleCardClick(flowOption.flow)}
+				type="button"
 				className={cn(
-					'transition-all duration-200 hover:shadow-md w-full',
-					onSelect && 'cursor-pointer hover:scale-[1.02]',
+					'group relative w-full text-left rounded-lg border px-4 py-3.5 transition-all duration-150 outline-none',
+					onSelect ? 'cursor-pointer' : 'cursor-default',
 					isSelected
-						? 'bg-blue-50/50 dark:bg-theme-primary-900/20 border-2 border-blue-400 dark:border-theme-primary-600 shadow-sm'
-						: 'border border-gray-200 dark:border-white/6 bg-white dark:bg-white/3 hover:border-gray-300 dark:hover:border-white/8'
+						? 'border-gray-900 dark:border-white bg-gray-50 dark:bg-white/5'
+						: 'border-gray-200 dark:border-white/8 bg-white dark:bg-transparent hover:border-gray-400 dark:hover:border-white/20 hover:bg-gray-50/60 dark:hover:bg-white/3'
 				)}
 			>
-				<div className="p-5 flex items-start gap-4">
-					<div
-						className={cn(
-							'w-12 h-12 rounded-xl bg-theme-primary-500 dark:bg-theme-primary-600 flex items-center justify-center shrink-0 transition-all duration-200',
-							isSelected && 'ring-2 ring-theme-primary-300 dark:ring-theme-primary-500 ring-offset-2 ring-offset-blue-50 dark:ring-offset-theme-primary-900/20'
-						)}
-					>
-						<IconComponent className="w-6 h-6 text-white" />
+				<div className="flex items-start gap-3">
+					{/* Icon */}
+					<div className={cn(
+						'mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border transition-colors duration-150',
+						isSelected
+							? 'border-gray-900 dark:border-white bg-gray-900 dark:bg-white text-white dark:text-gray-900'
+							: 'border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 text-gray-500 dark:text-gray-400 group-hover:border-gray-300 dark:group-hover:border-white/20'
+					)}>
+						<IconComponent className="w-3.5 h-3.5" />
 					</div>
+
+					{/* Content */}
 					<div className="flex-1 min-w-0">
-						<div className="flex items-center gap-2.5 mb-2">
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+						<div className="flex items-center justify-between gap-2 mb-0.5">
+							<span className={cn(
+								'text-[13px] font-medium leading-none',
+								isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
+							)}>
 								{flowOption.title}
-							</h3>
+							</span>
 							{isSelected && (
-								<CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 shrink-0" />
+								<span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-900 dark:bg-white shrink-0">
+									<Check className="w-2.5 h-2.5 text-white dark:text-gray-900" strokeWidth={3} />
+								</span>
 							)}
 						</div>
-						<p className="text-sm text-gray-600 dark:text-gray-400 mb-4 leading-relaxed">
+						<p className="text-xs leading-relaxed text-gray-500 dark:text-gray-500 mb-2.5">
 							{flowOption.description}
 						</p>
-						<div className="space-y-2">
+						<div className="flex flex-wrap gap-x-3 gap-y-1">
 							{flowOption.benefits.map((benefit, index) => (
-								<div
+								<span
 									key={`${flowOption.flow}-${index}`}
-									className="flex items-center gap-2.5 text-sm text-gray-700 dark:text-gray-300"
+									className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500"
 								>
-									<CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
-									<span>{benefit}</span>
-								</div>
+									<span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-white/20 shrink-0" />
+									{benefit}
+								</span>
 							))}
 						</div>
 					</div>
 				</div>
-			</Card>
+			</button>
 		);
 	};
 
@@ -112,16 +116,16 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 			onClose={onClose}
 			isDismissable={true}
 			title={title}
-			subtitle={onSelect ? 'Click on an option to select it' : 'Learn about payment options and choose what works best for you'}
-			size="lg"
+			subtitle="Choose when to be charged for your submission"
+			size="sm"
 			backdrop="opaque"
 			hideCloseButton={false}
-			className="bg-white dark:bg-white/3 p-4"
+			className="bg-white dark:bg-[#0a0a0a] p-0"
 		>
 			<ModalContent>
-					<ModalBody className="space-y-3">
-						{FLOWS_DATA.map(renderFlowCard)}
-					</ModalBody>
+				<ModalBody className="space-y-2 px-4 pb-4 pt-1">
+					{FLOWS_DATA.map(renderFlowCard)}
+				</ModalBody>
 			</ModalContent>
 		</Modal>
 	);
