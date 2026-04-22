@@ -67,6 +67,29 @@ async function hasUsableContent(contentPath: string): Promise<boolean> {
     }
 }
 
+function getBundledContentPath(): string {
+    return path.join(process.cwd(), '.content');
+}
+
+async function hydrateRuntimeContentFromBundle(runtimeContentPath: string): Promise<boolean> {
+    const bundledContentPath = getBundledContentPath();
+
+    if (!(await hasUsableContent(bundledContentPath))) {
+        return false;
+    }
+
+    try {
+        console.log('[CONTENT] Hydrating runtime content from bundled deployment artifact...');
+        await fs.rm(runtimeContentPath, { recursive: true, force: true });
+        await fs.mkdir(path.dirname(runtimeContentPath), { recursive: true });
+        await fs.cp(bundledContentPath, runtimeContentPath, { recursive: true });
+        return await hasUsableContent(runtimeContentPath);
+    } catch (error) {
+        console.error('[CONTENT] Failed to hydrate runtime content from bundled artifact:', error);
+        return false;
+    }
+}
+
 /**
  * Ensures content directory is available at runtime.
  * 
@@ -90,6 +113,8 @@ async function hasUsableContent(contentPath: string): Promise<boolean> {
 export async function ensureContentAvailable(): Promise<string> {
     const state = getContentInitState();
     const contentPath = getContentPath();
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    const isVercelRuntime = !!process.env.VERCEL && !isBuildPhase;
 
     // If already initialized and has content, return immediately
     if (state.initialized && (await hasUsableContent(contentPath))) {
@@ -111,11 +136,16 @@ export async function ensureContentAvailable(): Promise<string> {
         }
 
         // Check if content actually exists (not just empty directory)
-        const hasContent = await hasUsableContent(contentPath);
+        let hasContent = await hasUsableContent(contentPath);
+
+        if (!hasContent && isVercelRuntime) {
+            hasContent = await hydrateRuntimeContentFromBundle(contentPath);
+        }
         
         if (!hasContent) {
             // Content doesn't exist - need to clone from Git
-            // This happens on first request to a cold container
+            // This happens on first request to a cold container if the bundled
+            // deployment artifact is unavailable or stale.
             console.log('[CONTENT] No content found, triggering repository sync...');
             
             try {
