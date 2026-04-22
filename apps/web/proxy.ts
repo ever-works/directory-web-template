@@ -15,6 +15,7 @@ type CookieToSet = {
 };
 
 import { getAuthConfig } from '@/lib/auth/config';
+import { getRuntimeAuthSecret } from '@/lib/auth/auth-secret';
 import { updateSession as supabaseUpdate } from '@/lib/auth/supabase/middleware';
 import { getToken } from 'next-auth/jwt';
 import { createSafeCallbackUrl } from '@/lib/auth/validate-callback-url';
@@ -23,6 +24,7 @@ const intl = createIntlMiddleware(routing);
 
 const ADMIN_PREFIX = '/admin';
 const ADMIN_SIGNIN = '/admin/auth/signin';
+const authSecret = getRuntimeAuthSecret();
 
 /* ────────────────────────────── Locale helper ───────────────────────────────────── */
 
@@ -48,14 +50,14 @@ function resolveLocalePrefix(pathname: string): {
 
 async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse | null> {
 	try {
-		const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+		const token = await getToken({ req, secret: authSecret });
 
 		// DEBUG: Log to identify production authentication issues
 		console.log('[Client Guard Debug]', {
 			path: req.nextUrl.pathname,
 			hasToken: !!token,
 			tokenEmail: token?.email ? 'present' : 'missing',
-			authSecretExists: !!process.env.AUTH_SECRET,
+			authSecretExists: !!authSecret,
 			cookieHeader: req.headers.get('cookie')?.substring(0, 100) || 'no cookies'
 		});
 
@@ -122,7 +124,7 @@ async function supabaseClientGuard(req: NextRequest, baseRes: NextResponse): Pro
 async function nextAuthGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse> {
 	try {
 		// Use JWT token check (Edge-compatible)
-		const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+		const token = await getToken({ req, secret: authSecret });
 		if (token?.isAdmin === true) {
 			if (process.env.NODE_ENV === 'development') {
 				console.log('[Middleware] Admin access granted via token');
@@ -213,7 +215,7 @@ export default async function proxy(req: NextRequest) {
 				return authRedirect; // Not authenticated, redirect to signin
 			}
 			// User is authenticated - check if admin (redirect to /admin)
-			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			const token = await getToken({ req, secret: authSecret });
 			if (token?.isAdmin === true) {
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}/admin`;
@@ -292,7 +294,7 @@ export default async function proxy(req: NextRequest) {
 				return intlResponse;
 			}
 			// User is authenticated via NextAuth - check NextAuth admin status
-			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			const token = await getToken({ req, secret: authSecret });
 			if (token?.isAdmin === true) {
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}/admin`;
@@ -324,7 +326,7 @@ export default async function proxy(req: NextRequest) {
 	// Redirect authenticated users away from /auth/* pages (signin, register, etc.)
 	if (pathWithoutLocale.startsWith('/auth/')) {
 		if (cfg.provider === 'next-auth') {
-			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			const token = await getToken({ req, secret: authSecret });
 			if (token) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();
@@ -365,7 +367,7 @@ export default async function proxy(req: NextRequest) {
 			}
 		} else if (cfg.provider === 'both') {
 			// Check NextAuth first
-			const token = await getToken({ req, secret: process.env.AUTH_SECRET });
+			const token = await getToken({ req, secret: authSecret });
 			if (token) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();

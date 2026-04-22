@@ -50,6 +50,23 @@ async function hasContentFiles(contentPath: string): Promise<boolean> {
     }
 }
 
+async function hasUsableContent(contentPath: string): Promise<boolean> {
+    if (!(await hasContentFiles(contentPath))) {
+        return false;
+    }
+
+    if (!process.env.DATA_REPOSITORY) {
+        return true;
+    }
+
+    try {
+        await fs.access(path.join(contentPath, '.git'));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 /**
  * Ensures content directory is available at runtime.
  * 
@@ -72,10 +89,11 @@ async function hasContentFiles(contentPath: string): Promise<boolean> {
  */
 export async function ensureContentAvailable(): Promise<string> {
     const state = getContentInitState();
+    const contentPath = getContentPath();
 
     // If already initialized and has content, return immediately
-    if (state.initialized) {
-        return getContentPath();
+    if (state.initialized && (await hasUsableContent(contentPath))) {
+        return contentPath;
     }
 
     // If initialization is in progress, wait for it
@@ -85,8 +103,6 @@ export async function ensureContentAvailable(): Promise<string> {
 
     // Start initialization
     state.promise = (async () => {
-        const contentPath = getContentPath();
-
         // Ensure directory exists
         try {
             await fs.mkdir(contentPath, { recursive: true });
@@ -95,7 +111,7 @@ export async function ensureContentAvailable(): Promise<string> {
         }
 
         // Check if content actually exists (not just empty directory)
-        const hasContent = await hasContentFiles(contentPath);
+        const hasContent = await hasUsableContent(contentPath);
         
         if (!hasContent) {
             // Content doesn't exist - need to clone from Git
@@ -113,9 +129,17 @@ export async function ensureContentAvailable(): Promise<string> {
             }
         }
 
-        state.initialized = true;
+        const contentReady = await hasUsableContent(contentPath);
+        state.initialized = contentReady;
+
+        if (!contentReady) {
+            console.warn('[CONTENT] Content is still unavailable after initialization attempt; will retry on next request.');
+        }
+
         return contentPath;
-    })();
+    })().finally(() => {
+        state.promise = null;
+    });
 
     return state.promise;
 }
