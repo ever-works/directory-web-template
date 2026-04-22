@@ -33,12 +33,12 @@ export function DotBgsible({ className = '', reverse = false }: { className?: st
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 	const rootClasses =
-		`absolute h-[20dvh] -z-10 left-1/2 -translate-x-1/2 ${isFluid ? 'w-3/5' : 'w-5/6'} ${reverse ? 'rotate-180 -top-0' : 'bottom-0'} ${className}`.trim();
+		`absolute h-[20dvh] z-[1] left-1/2 -translate-x-1/2 ${isFluid ? 'w-3/5' : 'w-5/6'} ${reverse ? 'rotate-180 -top-0' : 'bottom-0'} ${className}`.trim();
 
 	return (
 		<div className={rootClasses}>
 			<div className="w-full h-full mx-auto relative flex items-end justify-center">
-				<Image src="/bg-pattern.png" alt="Decorative pattern" fill className="z-20" />
+				<Image src="/bg-pattern.png" alt="Decorative pattern" fill />
 			</div>
 		</div>
 	);

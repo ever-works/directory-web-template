@@ -108,7 +108,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
 
 	return (
-		<div className="min-h-screen bg-gray-50/40 dark:bg-transparent">
+		<div className="min-h-screen bg-gray-50/40 dark:bg-transparent pb-10 lg:pb-20">
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
@@ -282,20 +282,27 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 										<span className="text-xs text-gray-600 dark:text-gray-400">
 											{t('itemDetail.WEBSITE')}
 										</span>
-										<a
-											href={meta.source_url}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-500 dark:hover:text-theme-primary-400"
-										>
-											{(() => {
-												try {
-													return new URL(meta.source_url).hostname;
-												} catch {
-													return 'N/A';
-												}
-											})()}
-										</a>
+										{(() => {
+											try {
+												const hostname = new URL(meta.source_url).hostname;
+												return (
+													<a
+														href={meta.source_url}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-xs font-medium text-theme-primary-600 hover:text-theme-primary-700 dark:text-theme-primary-500 dark:hover:text-theme-primary-400"
+													>
+														{hostname}
+													</a>
+												);
+											} catch {
+												return (
+													<span className="text-xs font-medium text-gray-400 dark:text-gray-600 cursor-not-allowed">
+														N/A
+													</span>
+												);
+											}
+										})()}
 									</div>
 								)}
 								<div className="flex justify-between items-center py-3">
