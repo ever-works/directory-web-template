@@ -33,7 +33,7 @@ export function DotBgsible({ className = '', reverse = false }: { className?: st
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 	const rootClasses =
-		`absolute h-[20dvh] left-1/2 -translate-x-1/2 ${isFluid ? 'w-3/5' : 'w-5/6'} ${reverse ? 'rotate-180 -top-0' : 'bottom-0'} ${className}`.trim();
+		`absolute h-[20dvh] -z-10 left-1/2 -translate-x-1/2 ${isFluid ? 'w-3/5' : 'w-5/6'} ${reverse ? 'rotate-180 -top-0' : 'bottom-0'} ${className}`.trim();
 
 	return (
 		<div className={rootClasses}>

@@ -235,7 +235,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 						)}
 
 						{/* Comments */}
-						<div className="mt-10">
+						<div className="mt-10 relative z-40">
 							<CommentsSection itemId={meta.slug || meta.name} />
 						</div>
 					</div>
