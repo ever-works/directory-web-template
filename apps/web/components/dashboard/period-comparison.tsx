@@ -89,7 +89,7 @@ export function PeriodComparison({ data, isLoading = false }: PeriodComparisonPr
                         {[...Array(4)].map((_, i) => (
                             <div
                                 key={i}
-                                className="h-24 bg-gray-200 dark:bg-white/8 rounded-lg"
+                                className="h-20 bg-neutral-100 dark:bg-white/5 rounded-lg"
                             />
                         ))}
                     </div>
@@ -118,7 +118,7 @@ export function PeriodComparison({ data, isLoading = false }: PeriodComparisonPr
         <section className={CARD_BASE_STYLES} aria-labelledby="period-comparison-title">
             <div className="flex items-center justify-between mb-4">
                 <h3 id="period-comparison-title" className={TITLE_STYLES}>{t("TITLE")}</h3>
-                <span className="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-white/5 px-2 py-1 rounded-full">
+                <span className="text-xs text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-white/6 px-2 py-1 rounded-full">
                     {t("THIS_WEEK")} {vsLabel} {t("LAST_WEEK")}
                 </span>
             </div>

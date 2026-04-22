@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-
+import { Link2, Sparkles, Target, AlertTriangle } from "lucide-react";
 interface MonetizationMethod {
   id: string;
   title: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   description: string;
   revenue: string;
   setupTime: string;
@@ -28,13 +27,13 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "affiliation",
       title: t('MONETIZATION_AFFILIATION_TITLE'),
-      icon: "🤝",
+      Icon: Link2,
       description: t('MONETIZATION_AFFILIATION_DESC'),
       revenue: "$2K - $8K/month",
       setupTime: "30 minutes",
       difficulty: "Easy",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Commission tracking system",
         "Affiliate dashboard",
@@ -56,13 +55,13 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "paid-submissions",
       title: t('MONETIZATION_PAID_SUBMISSION_TITLE'),
-      icon: "💎",
+      Icon: Sparkles,
       description: t('MONETIZATION_PAID_SUBMISSION_DESC'),
       revenue: "$5K - $15K/month",
       setupTime: "2 hours",
       difficulty: "Medium",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Premium listing tiers",
         "Payment processing",
@@ -84,13 +83,13 @@ const monetizationMethods: MonetizationMethod[] = [
   {
       id: "sponsored-ads",
       title: t('MONETIZATION_SPONSORED_ADS_TITLE'),
-    icon: "🎯",
+      Icon: Target,
       description: t('MONETIZATION_SPONSORED_ADS_DESC'),
       revenue: "$3K - $12K/month",
       setupTime: "1 hour",
       difficulty: "Easy",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       features: [
         "Ad management system",
         "Targeting options",
@@ -118,39 +117,38 @@ const monetizationMethods: MonetizationMethod[] = [
     { label: t("STAT_PLATFORM_GROWTH"), value: "156%", change: "+34%", period: t("STAT_YEARLY") }
 ];
 
+  const ActiveMethodIcon = monetizationMethods[activeMethod].Icon;
+
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-full text-green-700 dark:text-green-300 text-sm font-medium mb-6">
-            <span>💰</span>
-            {t('MONETIZATION_BADGE')}
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-6">
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('MONETIZATION_BADGE')}</p>
+          <h2 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t('MONETIZATION_SECTION_TITLE')}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-2xl leading-relaxed">
             {t('MONETIZATION_SECTION_SUBTITLE')}
           </p>
         </div>
 
         {/* Stats Overview */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
           {stats.map((stat, index) => (
             <div
               key={index}
-              className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105"
+              className="bg-white dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
             >
               <div className="text-center">
-                <div className="text-2xl font-bold text-slate-900 dark:text-white mb-1">
+                <div className="text-lg font-bold text-slate-900 dark:text-white mb-1">
                   {stat.value}
                 </div>
                 <div className="text-sm text-slate-600 dark:text-slate-400 mb-2">
                   {stat.label}
                 </div>
                 <div className="flex items-center justify-center gap-1">
-                  <span className="text-green-600 dark:text-green-400 text-xs font-medium">
+                  <span className="text-neutral-900 dark:text-white text-xs font-medium">
                     {stat.change}
                   </span>
                   <span className="text-slate-500 dark:text-slate-400 text-xs">
@@ -163,62 +161,55 @@ const monetizationMethods: MonetizationMethod[] = [
         </div>
 
         {/* Monetization Methods */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid lg:grid-cols-3 gap-4 mb-10">
           {monetizationMethods.map((method, index) => (
             <div
               key={method.id}
-              className={`relative group cursor-pointer transition-all duration-300 ${
-                activeMethod === index ? 'transform scale-105' : 'hover:transform hover:scale-102'
-              }`}
+              className="relative group cursor-pointer"
               onClick={() => setActiveMethod(index)}
             >
               {/* Method Card */}
-              <div className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 border-2 transition-all duration-300 h-full ${
+              <div className={`relative bg-white dark:bg-white/3 rounded-xl p-6 border transition-colors duration-200 h-full ${
                 activeMethod === index
-                  ? 'border-blue-500 shadow-xl shadow-blue-500/20'
+                  ? 'border-neutral-900/20 dark:border-white/20'
                   : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Header */}
-                <div className="text-center mb-6">
-                  <div className={`w-16 h-16 rounded-full bg-linear-to-r ${method.gradient} flex items-center justify-center text-white text-2xl mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                    {method.icon}
+                <div className="text-center mb-4">
+                  <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center mb-2`}>
+                    <method.Icon className="w-4 h-4 text-white dark:text-neutral-400" />
                   </div>
-                  <h3 className={`text-xl font-bold mb-2 ${method.color}`}>
+                  <h3 className={`text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white`}>
                     {method.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                  <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-relaxed">
                     {method.description}
                   </p>
                 </div>
 
                 {/* Quick Stats */}
-                <div className="space-y-3 mb-6">
+                <div className="space-y-2 mb-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("REVENUE_POTENTIAL")}:</span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">{method.revenue}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("REVENUE_POTENTIAL")}:</span>
+                    <span className="text-xs font-semibold text-neutral-900 dark:text-white">{method.revenue}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("SETUP_TIME")}:</span>
-                    <span className="font-semibold text-blue-600 dark:text-blue-400">{method.setupTime}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("SETUP_TIME")}:</span>
+                    <span className="text-xs font-semibold text-neutral-900 dark:text-white">{method.setupTime}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-slate-500 dark:text-slate-400">{t("DIFFICULTY")}:</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">{t("DIFFICULTY")}:</span>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      method.difficulty === "Easy" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" :
-                      method.difficulty === "Medium" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" :
-                      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                      method.difficulty === "Easy" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                      method.difficulty === "Medium" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                      "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300"
                     }`}>
                       {method.difficulty}
                     </span>
                   </div>
                 </div>
 
-                {/* Active Indicator */}
-                {activeMethod === index && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                  </div>
-                )}
+                {/* Active Indicator - removed */}
               </div>
             </div>
           ))}
@@ -226,42 +217,40 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Detailed View */}
         <div className="mb-16">
-          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+          <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
             {/* Header */}
             <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg bg-linear-to-r ${monetizationMethods[activeMethod].gradient} flex items-center justify-center text-white`}>
-                    {monetizationMethods[activeMethod].icon}
+                  <div className={`w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center`}>
+                    <ActiveMethodIcon className="w-4 h-4 text-white dark:text-neutral-400" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                     {monetizationMethods[activeMethod].title} - Detailed Analysis
                   </h3>
                 </div>
-                <Button
+                <button
                   onClick={() => setShowDetails(!showDetails)}
-                  variant="outline"
-                  size="sm"
-                  className="border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300"
+                  className="h-7 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
                 >
                   {showDetails ? t("HIDE_DETAILS") : t("SHOW_DETAILS")}
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <div className="grid lg:grid-cols-2 gap-8">
+            <div className="p-4">
+              <div className="grid lg:grid-cols-2 gap-4">
                 {/* Features */}
                 <div>
-                  <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <span className="text-blue-600">✨</span>
+                  <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                    <span className="">✨</span>
                     {t("KEY_FEATURES")}
                   </h4>
                   <div className="space-y-2">
                     {monetizationMethods[activeMethod].features.map((feature, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                         {feature}
                       </div>
                     ))}
@@ -271,28 +260,28 @@ const monetizationMethods: MonetizationMethod[] = [
                 {/* Pros & Cons */}
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                      <span className="text-green-600">✅</span>
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <span className="">✅</span>
                       {t("PROS")}
                     </h4>
                     <div className="space-y-2">
                       {monetizationMethods[activeMethod].pros.map((pro, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                           {pro}
                         </div>
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                      <span className="text-red-600">⚠️</span>
+                    <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                      <AlertTriangle className="w-3.5 h-3.5 text-neutral-500" />
                       {t("CONS")}
                     </h4>
                     <div className="space-y-2">
                       {monetizationMethods[activeMethod].cons.map((con, index) => (
                         <div key={index} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                          <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                           {con}
                         </div>
                       ))}
@@ -303,8 +292,8 @@ const monetizationMethods: MonetizationMethod[] = [
 
               {/* Expanded Details */}
               {showDetails && (
-                <div className="mt-8 pt-8 border-t border-slate-200 dark:border-white/6">
-                  <div className="grid md:grid-cols-3 gap-6">
+                <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/6">
+                  <div className="grid md:grid-cols-3 gap-4">
                     <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
                       <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Implementation Steps</h5>
                       <ol className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
@@ -341,20 +330,20 @@ const monetizationMethods: MonetizationMethod[] = [
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="bg-linear-to-r from-green-50 to-blue-50 dark:from-green-900/30 dark:to-blue-900/30 rounded-2xl p-8 border border-green-200 dark:border-green-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+            <h3 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
               {t("START_MONETIZING_TODAY")}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
               {t("START_MONETIZING_DESC")}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 {t("GET_STARTED_NOW")}
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 {t("VIEW_CASE_STUDIES")}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

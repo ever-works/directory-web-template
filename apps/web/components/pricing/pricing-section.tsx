@@ -161,13 +161,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			>
 				<div className="relative transition duration-700 ease-in-out">
 				
-					<div
-						className={cn(
-							'relative transition-all duration-500',
-							selectedPlan === PaymentPlan.FREE &&
-								'ring-2 ring-theme-primary-500/50 dark:ring-theme-primary-400/50 rounded-lg'
-						)}
-					>
+					<div className="relative transition-all duration-500">
 						<PlanCard
 							plan={PaymentPlan.FREE}
 							title={getPlanConfig(PaymentPlan.FREE).name.toUpperCase()}
@@ -176,6 +170,10 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							features={freePlanFeatures}
 							isSelected={selectedPlan === PaymentPlan.FREE}
 							onSelect={handleSelectPlan}
+							className={cn(
+								selectedPlan === PaymentPlan.FREE &&
+									'ring-1 ring-theme-primary-500/50 dark:ring-theme-primary-400/50'
+							)}
 							actionText={
 								isReview
 									? t('SELECT_FREE')
@@ -223,13 +221,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							{/* Inner top-center spot glow - sharp highlight */}
 							<div className="absolute -z-1 -top-4 left-1/2 -translate-x-1/2 w-2/3 h-12 bg-linear-to-r from-theme-primary-400/20 via-purple-400/30 to-theme-primary-400/20 dark:from-theme-primary-400/35 dark:via-purple-400/45 dark:to-theme-primary-400/35 rounded-full blur-xl opacity-50 transition-all duration-500 ease-out pointer-events-none" />
 
-							<div
-								className={cn(
-									'relative transition-all',
-									selectedPlan === PaymentPlan.STANDARD &&
-										'scale-105 ring-purple-500/50 dark:ring-purple-400/50 rounded-lg'
-								)}
-							>
+							<div className={cn('relative transition-all', selectedPlan === PaymentPlan.STANDARD && 'scale-105')}>
 								<PlanCard
 									plan={PaymentPlan.STANDARD}
 									title={getPlanConfig(PaymentPlan.STANDARD).name.toUpperCase()}
@@ -239,6 +231,10 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									isPopular={true}
 									isSelected={selectedPlan === PaymentPlan.STANDARD}
 									onSelect={handleSelectPlan}
+									className={cn(
+										selectedPlan === PaymentPlan.STANDARD &&
+											'ring-1 ring-purple-500/10 dark:ring-purple-400/10'
+									)}
 									actionText={
 										isReview
 											? t('SELECT_STANDARD')
@@ -285,13 +281,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							{/* Card Glow Effect */}
 							{/* <div className="absolute inset-0 bg-linear-to-r from-blue-500/10 to-cyan-500/10 dark:from-blue-600/20 dark:to-cyan-600/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" /> */}
 
-							<div
-								className={cn(
-									'relative',
-									selectedPlan === PaymentPlan.PREMIUM &&
-										'ring-2 ring-cyan-500/50 dark:ring-cyan-400/50 rounded-lg'
-								)}
-							>
+							<div className="relative">
 								<PlanCard
 									plan={PaymentPlan.PREMIUM}
 									title={getPlanConfig(PaymentPlan.PREMIUM).name.toUpperCase()}
@@ -300,6 +290,10 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									features={premiumPlanFeatures}
 									isSelected={selectedPlan === PaymentPlan.PREMIUM}
 									onSelect={handleSelectPlan}
+									className={cn(
+										selectedPlan === PaymentPlan.PREMIUM &&
+											'ring-1 ring-cyan-500/50 dark:ring-cyan-400/50'
+									)}
 									actionText={
 										isReview
 											? t('SELECT_PREMIUM')

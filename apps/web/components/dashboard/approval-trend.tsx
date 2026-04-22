@@ -33,8 +33,8 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+                    <div className="h-4 bg-neutral-100 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-neutral-100 dark:bg-white/8 rounded-sm"></div>
                 </div>
             </div>
         );
@@ -96,25 +96,25 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                         >
                             <stop
                                 offset="5%"
-                                stopColor="#10B981"
-                                stopOpacity={0.3}
+                                stopColor="#171717"
+                                stopOpacity={0.15}
                             />
                             <stop
                                 offset="95%"
-                                stopColor="#10B981"
+                                stopColor="#171717"
                                 stopOpacity={0}
                             />
                         </linearGradient>
                     </defs>
                     <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="var(--tw-prose-hr, #e5e7eb)"
+                        stroke="rgba(163,163,163,0.15)"
                         vertical={false}
                     />
-                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                    <XAxis dataKey="month" stroke="#a3a3a3" fontSize={11} />
                     <YAxis
-                        stroke="#6B7280"
-                        fontSize={12}
+                        stroke="#a3a3a3"
+                        fontSize={11}
                         domain={[0, 100]}
                         tickFormatter={(value: number) => `${value}%`}
                     />
@@ -128,13 +128,13 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                     <Area
                         type="monotone"
                         dataKey="rate"
-                        stroke="#10B981"
+                        stroke="#171717"
                         strokeWidth={2}
                         fill={`url(#approvalGradient-${gradientId})`}
                     />
                 </AreaChart>
             </ResponsiveContainer>
-            <div className="mt-4 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-4 flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
                 <span>
                     {t("TOTAL")}: {totalSubmissions}
                 </span>

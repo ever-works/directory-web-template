@@ -18,12 +18,12 @@ interface TopItemsProps {
 export function TopItems({ items, isLoading = false }: TopItemsProps) {
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-          <div className="space-y-4">
+          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+          <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="bg-gray-200 dark:bg-white/8 h-16 rounded-lg"></div>
+              <div key={i} className="bg-neutral-100 dark:bg-white/5 h-14 rounded-lg"></div>
             ))}
           </div>
         </div>
@@ -32,22 +32,24 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
   }
 
   return (
-			<div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
-      <div className="flex items-center space-x-2 mb-4">
-        <TrendingUp className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+			<div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
+      <div className="flex items-center gap-2 mb-4">
+        <TrendingUp className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
+        <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
           Top Performing Items
         </h3>
       </div>
       
       <div className="space-y-4">
         {items.length === 0 ? (
-          <div className="text-center py-12">
-            <span role="img" aria-label="No items" className="text-4xl mb-4">📦</span>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+          <div className="text-center py-10">
+            <div className="w-10 h-10 bg-neutral-100 dark:bg-white/6 rounded-xl flex items-center justify-center mx-auto mb-3">
+              <TrendingUp className="h-5 w-5 text-neutral-400" aria-hidden="true" />
+            </div>
+            <h3 className="text-sm font-medium text-neutral-900 dark:text-white mb-1">
               No top items found
             </h3>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
               Once your content gets more engagement, your top items will appear here.
             </p>
           </div>
@@ -55,34 +57,34 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
           items.map((item, index) => (
             <div 
               key={item.id}
-              className="flex items-center justify-between p-4 bg-gray-50 dark:bg-white/4 rounded-lg border border-gray-200 dark:border-white/6"
+              className="flex items-center justify-between px-3 py-2.5 bg-neutral-50 dark:bg-white/3 rounded-lg border border-neutral-100 dark:border-white/5 hover:border-neutral-200 dark:hover:border-white/8 transition-colors"
             >
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-6 h-6 bg-neutral-200 dark:bg-white/10 text-neutral-600 dark:text-neutral-300 rounded-md text-xs font-semibold shrink-0">
                   {index + 1}
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                  <h4 className="text-xs font-medium text-neutral-900 dark:text-white">
                     {item.title}
                   </h4>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
                     ID: {item.id}
                   </p>
                 </div>
               </div>
               
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1 text-gray-600 dark:text-gray-400">
-                  <Eye className="h-4 w-4" />
-                  <span className="text-sm font-medium">{item.views}</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                  <Eye className="h-3.5 w-3.5" />
+                  <span className="text-xs font-medium">{item.views}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-green-600 dark:text-green-400">
-                  <ThumbsUp className="h-4 w-4" />
-                  <span className="text-sm font-medium">{item.votes}</span>
+                <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                  <ThumbsUp className="h-3.5 w-3.5" />
+                  <span className="text-xs font-medium">{item.votes}</span>
                 </div>
-                <div className="flex items-center space-x-1 text-orange-600 dark:text-orange-400">
-                  <MessageSquare className="h-4 w-4" />
-                  <span className="text-sm font-medium">{item.comments}</span>
+                <div className="flex items-center gap-1 text-neutral-500 dark:text-neutral-400">
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span className="text-xs font-medium">{item.comments}</span>
                 </div>
               </div>
             </div>

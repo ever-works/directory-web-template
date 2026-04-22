@@ -140,6 +140,7 @@ const SelectCheckoutProvider: React.FC<SelectCheckoutProviderProps> = ({ classNa
 								value={provider.value}
 								disabled={!provider.configured}
 								description={!provider.configured ? t('PROVIDER_NOT_CONFIGURED') : undefined}
+								className='bg-white dark:bg-[#161616] cursor-pointer text-xs'
 							>
 								{provider.name}
 							</SelectItem>

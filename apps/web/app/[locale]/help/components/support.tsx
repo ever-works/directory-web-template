@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-
+import { BookOpen, Users, Mail, MessageSquare, LifeBuoy, Phone, HelpCircle } from "lucide-react";
 interface SupportChannel {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   color: string;
   gradient: string;
   responseTime: string;
@@ -40,9 +39,9 @@ export function Support() {
       id: "documentation",
       name: t("DOCUMENTATION"),
       description: t("DOCUMENTATION_DESC"),
-      icon: "📚",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      Icon: BookOpen,
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       responseTime: "Instant",
       availability: "24/7",
       features: [
@@ -58,9 +57,9 @@ export function Support() {
       id: "community",
       name: t("COMMUNITY"),
       description: t("COMMUNITY_DESC"),
-      icon: "👥",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      Icon: Users,
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       responseTime: "2-4 hours",
       availability: "24/7",
       features: [
@@ -76,9 +75,9 @@ export function Support() {
       id: "email",
       name: t("CONTACT_SUPPORT"),
       description: t("CONTACT_SUPPORT_DESC"),
-      icon: "✉️",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      Icon: Mail,
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       responseTime: "4-8 hours",
       availability: "Business hours",
       features: [
@@ -94,9 +93,9 @@ export function Support() {
       id: "live-chat",
       name: "Live Chat",
       description: "Get instant help from our support team",
-      icon: "💬",
-      color: "text-orange-600 dark:text-orange-400",
-      gradient: "from-orange-500 to-red-500",
+      Icon: MessageSquare,
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       responseTime: "1-2 minutes",
       availability: "9 AM - 6 PM EST",
       features: [
@@ -189,40 +188,37 @@ export function Support() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "online": return "bg-green-500";
-      case "busy": return "bg-yellow-500";
-      case "offline": return "bg-red-500";
-      default: return "bg-gray-500";
+      case "online": return "bg-neutral-400 dark:bg-neutral-500";
+      case "busy": return "bg-neutral-400 dark:bg-neutral-500";
+      case "offline": return "bg-neutral-300 dark:bg-neutral-600";
+      default: return "bg-neutral-300 dark:bg-neutral-600";
     }
   };
 
   return (
-    <div className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
+    <div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-red-100 dark:bg-red-900/30 rounded-full text-red-700 dark:text-red-300 text-sm font-medium mb-6">
-            <span>🆘</span>
-            Support Center
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-6">
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">Support Center</p>
+          <h2 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t("NEED_HELP")}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-neutral-500 dark:text-neutral-400 text-xs max-w-2xl leading-relaxed">
             {t("NEED_HELP_DESC")}
           </p>
         </div>
 
         {/* Support Dashboard */}
-        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
           {/* Dashboard Header */}
           <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-red-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white text-sm">🆘</span>
+                <div className="w-8 h-8 bg-neutral-900 dark:bg-white/10 rounded-lg flex items-center justify-center">
+                  <LifeBuoy className="w-4 h-4 text-white dark:text-neutral-400" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
                   Support Dashboard
                 </h3>
               </div>
@@ -230,20 +226,20 @@ export function Support() {
               {/* Tabs */}
               <div className="flex bg-slate-200 dark:bg-white/8 rounded-lg p-1">
                 {[
-                  { id: 'channels', label: 'Support Channels', icon: '📞' },
-                  { id: 'faq', label: 'FAQ', icon: '❓' },
-                  { id: 'chat', label: 'Live Chat', icon: '💬' }
+                  { id: 'channels', label: 'Support Channels', Icon: Phone },
+                  { id: 'faq', label: 'FAQ', Icon: HelpCircle },
+                  { id: 'chat', label: 'Live Chat', Icon: MessageSquare }
                 ].map((tab) => (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all duration-300 ${
+                    onClick={() => setActiveTab(tab.id as 'channels' | 'faq' | 'chat')}
+                    className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
                       activeTab === tab.id
                         ? "bg-white dark:bg-white/5 text-slate-900 dark:text-white shadow-xs"
                         : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                     }`}
                   >
-                    <span>{tab.icon}</span>
+                    <tab.Icon className="w-3.5 h-3.5" />
                     {tab.label}
                   </button>
                 ))}
@@ -252,23 +248,23 @@ export function Support() {
           </div>
 
           {/* Tab Content */}
-          <div className="p-6">
+          <div className="p-4">
             {activeTab === 'channels' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {supportChannels.map((channel) => (
                     <div
                       key={channel.id}
-                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300 hover:transform hover:scale-105"
+                      className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-colors duration-200"
                     >
                       {/* Header */}
-                      <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
-                          <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${channel.gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
-                            {channel.icon}
+                          <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center`}>
+                            <channel.Icon className="w-4 h-4 text-white dark:text-neutral-400" />
                           </div>
                           <div>
-                            <h4 className={`font-bold text-lg ${channel.color}`}>
+                            <h4 className={`font-semibold text-sm text-neutral-900 dark:text-white`}>
                               {channel.name}
                             </h4>
                             <div className="flex items-center gap-2 mt-1">
@@ -282,12 +278,12 @@ export function Support() {
                       </div>
 
                       {/* Description */}
-                      <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                      <p className="text-slate-600 dark:text-slate-400 text-xs mb-3">
                         {channel.description}
                       </p>
 
                       {/* Stats */}
-                      <div className="grid grid-cols-2 gap-4 mb-4">
+                      <div className="grid grid-cols-2 gap-3 mb-3">
                         <div className="text-center">
                           <div className="text-sm font-semibold text-slate-900 dark:text-white">
                             {channel.responseTime}
@@ -307,7 +303,7 @@ export function Support() {
                       </div>
 
                       {/* Features */}
-                      <div className="mb-4">
+                      <div className="mb-3">
                         <h5 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
                           Features
                         </h5>
@@ -324,12 +320,12 @@ export function Support() {
                       </div>
 
                       {/* Action Button */}
-                      <Button
+                      <button
                         onClick={() => channel.id === 'live-chat' ? setChatOpen(true) : window.open(channel.link, '_blank')}
-                        className={`w-full bg-linear-to-r ${channel.gradient} hover:opacity-90 text-white font-semibold py-2 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300`}
+                        className="w-full h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
                       >
                         {channel.id === 'live-chat' ? 'Start Chat' : 'Get Help'}
-                      </Button>
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -344,9 +340,9 @@ export function Support() {
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                         selectedCategory === category.id
-                          ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                          ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                           : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                       }`}
                     >
@@ -357,13 +353,13 @@ export function Support() {
                 </div>
 
                 {/* FAQ Items */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {filteredFAQ.map((item, index) => (
                     <div
                       key={index}
-                      className="bg-slate-50 dark:bg-white/3 rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300"
+                      className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8 transition-all duration-300"
                     >
-                      <h4 className="font-semibold text-slate-900 dark:text-white mb-3">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
                         {item.question}
                       </h4>
                       <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">
@@ -373,7 +369,7 @@ export function Support() {
                         {item.tags.map((tag, tagIndex) => (
                           <span
                             key={tagIndex}
-                            className="px-2 py-1 text-xs bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-md"
+                            className="px-2 py-1 text-xs bg-neutral-100 dark:bg-white/8 text-neutral-600 dark:text-neutral-400 rounded-md"
                           >
                             {tag}
                           </span>
@@ -390,20 +386,20 @@ export function Support() {
                 {/* Chat Header */}
                 <div className="flex items-center justify-between mb-4 p-4 bg-slate-100 dark:bg-white/8 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm">💬</span>
+                    <div className="w-8 h-8 bg-neutral-900 dark:bg-white/10 rounded-full flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-white dark:text-neutral-400" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-slate-900 dark:text-white">Live Chat</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400">Online • Responds in 1-2 minutes</p>
                     </div>
                   </div>
-                  <Button
+                  <button
                     onClick={() => setChatOpen(!chatOpen)}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
+                    className="h-8 px-3 text-xs font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                   >
                     {chatOpen ? 'Close Chat' : 'Start Chat'}
-                  </Button>
+                  </button>
                 </div>
 
                 {chatOpen ? (
@@ -417,7 +413,7 @@ export function Support() {
                         >
                           <div className={`max-w-xs px-4 py-2 rounded-lg ${
                             message.type === 'user'
-                              ? 'bg-indigo-600 text-white'
+                              ? 'bg-neutral-900 dark:bg-white/80 text-white dark:text-neutral-900'
                               : 'bg-white dark:bg-white/8 text-slate-900 dark:text-white border border-slate-200 dark:border-white/8'
                           }`}>
                             <p className="text-sm">{message.message}</p>
@@ -436,33 +432,33 @@ export function Support() {
                           onChange={(e) => setInputMessage(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
                           placeholder="Type your message..."
-                          className="flex-1 px-3 py-2 bg-white dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+                          className="flex-1 px-3 py-2 bg-white dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white/40"
                         />
-                        <Button
+                        <button
                           onClick={sendMessage}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg"
+                          className="h-9 px-3 text-sm font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                         >
                           Send
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </div>
                 ) : (
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-6xl mb-4">💬</div>
-                      <h4 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                      <div className="text-4xl mb-3">💬</div>
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
                         Start a conversation
                       </h4>
                       <p className="text-slate-600 dark:text-slate-400 mb-4">
                         Get instant help from our support team
                       </p>
-                      <Button
+                      <button
                         onClick={() => setChatOpen(true)}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg"
+                        className="h-9 px-4 text-sm font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                       >
                         Start Chat
-                      </Button>
+                      </button>
                     </div>
                   </div>
                 )}
@@ -472,21 +468,21 @@ export function Support() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <div className="bg-linear-to-r from-red-50 to-orange-50 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl p-8 border border-red-200 dark:border-red-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+        <div className="mt-8 text-center">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+            <h3 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
               Still Need Help?
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
               Our support team is here to help you succeed with your project
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 Contact Support
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 View Documentation
-              </Button>
+              </button>
             </div>
           </div>
         </div>
