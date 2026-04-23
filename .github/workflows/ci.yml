@@ -57,8 +57,8 @@ jobs:
           mkdir -p apps/web/.content/data
           echo "Created content directories for build"
 
-      - name: Build project
-        run: pnpm run build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2 || true)
+      - name: Build web
+        run: pnpm --filter @ever-works/web build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2 || true)
         env:
           # Use GitHub secrets for sensitive environment variables
           # Auth related variables
@@ -90,6 +90,10 @@ jobs:
           # Email service variables (Resend)
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'info@ever.works' }}
+
+      - name: Build docs
+        run: pnpm --filter @ever-works/docs build
+        continue-on-error: true
 
       - name: Check for build success
         run: |
