@@ -58,7 +58,7 @@ jobs:
           echo "Created content directories for build"
 
       - name: Build project
-        run: pnpm run build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2)
+        run: pnpm run build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2 || true)
         env:
           # Use GitHub secrets for sensitive environment variables
           # Auth related variables
