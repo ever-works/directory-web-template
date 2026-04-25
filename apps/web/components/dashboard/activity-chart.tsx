@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from 'next-themes';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getTooltipStyles } from './styles';
 
 interface ActivityData {
   date: string;
@@ -15,6 +17,8 @@ interface ActivityChartProps {
 }
 
 export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
@@ -57,16 +61,7 @@ export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
             fontSize={11}
             tick={{ fill: '#a3a3a3' }}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#141414',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              color: '#f5f5f5',
-              fontSize: '12px',
-              padding: '8px 12px',
-            }}
-          />
+          <Tooltip contentStyle={getTooltipStyles(isDark)} />
           <Line 
             type="monotone" 
             dataKey="submissions" 

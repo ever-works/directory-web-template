@@ -1,9 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { EngagementDistributionData } from '@/hooks/use-dashboard-stats';
-import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES, VALUE_STYLES, TOOLTIP_STYLES, CHART_COLORS } from './styles';
+import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES, VALUE_STYLES, getTooltipStyles, CHART_COLORS } from './styles';
 
 interface EngagementDistributionProps {
 	data: EngagementDistributionData[];
@@ -11,6 +12,8 @@ interface EngagementDistributionProps {
 }
 
 export function EngagementDistribution({ data, isLoading = false }: EngagementDistributionProps) {
+	const { resolvedTheme } = useTheme();
+	const isDark = resolvedTheme === 'dark';
 	const t = useTranslations('client.dashboard.ENGAGEMENT_DISTRIBUTION');
 
 	if (isLoading) {
@@ -67,7 +70,7 @@ export function EngagementDistribution({ data, isLoading = false }: EngagementDi
 					<XAxis type="number" stroke="#6B7280" fontSize={12} />
 					<YAxis type="category" dataKey="displayTitle" stroke="#6B7280" fontSize={11} width={120} />
 					<Tooltip
-						contentStyle={TOOLTIP_STYLES}
+						contentStyle={getTooltipStyles(isDark)}
 						formatter={(value) => [value, t('ENGAGEMENT')]}
 						labelFormatter={(label) => {
 							// Find exact match in chartData using displayTitle (which matches the label from YAxis)

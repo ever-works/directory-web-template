@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import {
     BarChart,
     Bar,
@@ -16,7 +17,7 @@ import {
     CARD_BASE_STYLES,
     TITLE_STYLES,
     SUBTITLE_STYLES,
-    TOOLTIP_STYLES,
+    getTooltipStyles,
     CHART_COLORS,
 } from "./styles";
 
@@ -26,6 +27,8 @@ interface CategoryPerformanceProps {
 }
 
 export function CategoryPerformance({ data, isLoading = false }: CategoryPerformanceProps) {
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === 'dark';
     const t = useTranslations("client.dashboard.CATEGORY_PERFORMANCE");
 
     if (isLoading) {
@@ -93,7 +96,7 @@ export function CategoryPerformance({ data, isLoading = false }: CategoryPerform
                         width={100}
                     />
                     <Tooltip
-                        contentStyle={TOOLTIP_STYLES}
+                        contentStyle={getTooltipStyles(isDark)}
                         formatter={(value, name) => {
                             if (name === "avgEngagement") {
                                 return [Number(value).toFixed(2), t("AVG_ENGAGEMENT")];

@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from 'next-themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getTooltipStyles } from './styles';
 
 interface SubmissionTimelineData {
   month: string;
@@ -13,6 +15,8 @@ interface SubmissionTimelineProps {
 }
 
 export function SubmissionTimeline({ data, isLoading = false }: SubmissionTimelineProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
@@ -41,19 +45,10 @@ export function SubmissionTimeline({ data, isLoading = false }: SubmissionTimeli
             stroke="#a3a3a3"
             fontSize={11}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#141414',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              color: '#f5f5f5',
-              fontSize: '12px',
-              padding: '8px 12px',
-            }}
-          />
+          <Tooltip contentStyle={getTooltipStyles(isDark)} />
           <Bar 
             dataKey="submissions" 
-            fill="#171717"
+            fill={isDark ? '#e5e5e5' : '#171717'}
             radius={[4, 4, 0, 0]}
           />
         </BarChart>
