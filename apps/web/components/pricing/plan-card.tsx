@@ -121,6 +121,7 @@ const getCardStyles = (title: string, isPopular: boolean) => {
 };
 
 export function PlanCard({
+  plan,
   title,
   price,
   priceUnit,
@@ -166,14 +167,14 @@ export function PlanCard({
 
   const handleAction = useCallback(() => {
     track(AnalyticsEvent.PLAN_SELECTED, {
-      plan_id: title,
+      plan_id: plan || title,
       payment_flow: selectedFlow,
       price: price
     });
     if (actionHref) {
       router.push(actionHref);
     }
-  }, [actionHref, router, title, selectedFlow, price, track]);
+  }, [actionHref, router, plan, title, selectedFlow, price, track]);
 
   const handleFlowChange = useCallback((value: string) => {
     if (value !== selectedFlow) {

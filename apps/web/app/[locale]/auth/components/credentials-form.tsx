@@ -92,6 +92,22 @@ export function CredentialsForm({
 	useEffect(() => {
 		if (!state.success) return;
 
+		// Track success
+		track(isLogin ? AnalyticsEvent.USER_LOGGED_IN : AnalyticsEvent.USER_SIGNED_UP, {
+			method: 'credentials',
+			email: state.email || state.credentials?.email
+		});
+
+		if (state.email || state.credentials?.email) {
+			identify(state.userId || state.email || state.credentials?.email, {
+				email: state.email || state.credentials?.email,
+				name: state.name || state.credentials?.name,
+				avatar: config.logo,
+				app_name: config.company_name,
+				is_tester: isDemoMode()
+			});
+		}
+
 		// Auto-login flow for login/registration (client-side signIn to ensure cookies are set properly on Vercel)
 		// For login: use state.email (from server) + pendingPassword (from form state)
 		// For signup: use state.credentials (still returned from signUp action)
@@ -164,21 +180,6 @@ export function CredentialsForm({
 		const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
 		invalidateAllUserData();
 
-		// Track success
-		track(isLogin ? AnalyticsEvent.USER_LOGGED_IN : AnalyticsEvent.USER_SIGNED_UP, {
-			method: 'credentials',
-			email: state.email || state.credentials?.email
-		});
-
-		if (state.email || state.credentials?.email) {
-			identify(state.userId || state.email || state.credentials?.email, {
-				email: state.email || state.credentials?.email,
-				name: state.name || state.credentials?.name,
-				avatar: config.logo,
-				app_name: config.company_name,
-				is_tester: isDemoMode()
-			});
-		}
 		router.push(finalRedirectPath);
 	}, [
 		state.success,
@@ -275,6 +276,20 @@ export function CredentialsForm({
 
 			if (res && !res.error) {
 				setClientSuccess(true);
+
+				// Track success for client-side login
+				track(AnalyticsEvent.USER_LOGGED_IN, {
+					method: 'credentials',
+					email,
+					isAdmin: clientMode
+				});
+
+				identify(email, {
+					email,
+					app_name: config.company_name,
+					is_tester: isDemoMode(),
+					is_admin: clientMode
+				});
 
 				// Await session refresh to ensure cookies are properly set before navigation
 				await refreshSession();
