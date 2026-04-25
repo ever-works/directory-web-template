@@ -1,4 +1,4 @@
-name: CI
+name: Web CI
 permissions:
   contents: read
 on:
@@ -14,20 +14,16 @@ concurrency:
 
 jobs:
   lint-and-build:
-    name: Lint and Build
+    name: Lint and Build Web
     runs-on: ubuntu-latest
 
     env:
-      # Default environment variables for development
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
-      # Auth defaults to suppress warnings
-      AUTH_SECRET: "ci-test-secret-not-for-production"
-      # Content repository defaults
-      DATA_REPOSITORY: "ci-test-repo-not-used"
-      CONTENT_WARNINGS_SILENT: "true"
-      # Disable verbose warnings
-      CI: "true"
+      AUTH_SECRET: 'ci-test-secret-not-for-production'
+      DATA_REPOSITORY: 'ci-test-repo-not-used'
+      CONTENT_WARNINGS_SILENT: 'true'
+      CI: 'true'
 
     steps:
       - name: Checkout code
@@ -58,22 +54,14 @@ jobs:
           echo "Created content directories for build"
 
       - name: Build web
-        run: pnpm --filter @ever-works/web build 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2 || true)
+        run: pnpm run build:web 2> >(grep -v "DATA_REPOSITORY\|AUTH CONFIG WARNING" >&2 || true)
         env:
-          # Use GitHub secrets for sensitive environment variables
-          # Auth related variables
           NEXT_PUBLIC_APP_URL: ${{ env.NEXT_PUBLIC_APP_URL }}
           AUTH_SECRET: ${{ env.AUTH_SECRET }}
-
-          # Supabase related variables (if using Supabase)
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-
-          # Database related variables
           DATABASE_URL: ${{ secrets.DATABASE_URL || env.DATABASE_URL }}
-
-          # OAuth Provider variables
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID || '' }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET || '' }}
           GITHUB_CLIENT_ID: ${{ secrets.GITHUB_CLIENT_ID || '' }}
@@ -82,24 +70,16 @@ jobs:
           FB_CLIENT_SECRET: ${{ secrets.FACEBOOK_CLIENT_SECRET || '' }}
           TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID || '' }}
           TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET || '' }}
-
-          # Content repository variables
           DATA_REPOSITORY: ${{ secrets.DATA_REPOSITORY || '' }}
           GH_TOKEN: ${{ secrets.GH_TOKEN || '' }}
-
-          # Email service variables (Resend)
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY || '' }}
           EMAIL_FROM: ${{ secrets.EMAIL_FROM || 'info@ever.works' }}
 
-      - name: Build docs
-        run: pnpm --filter @ever-works/docs build
-        continue-on-error: true
-
-      - name: Check for build success
+      - name: Check for web build success
         run: |
           if [ -d "apps/web/.next" ]; then
-            echo "✅ Build successful"
+            echo "✅ Web build successful"
           else
-            echo "❌ Build failed"
+            echo "❌ Web build failed"
             exit 1
           fi
