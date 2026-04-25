@@ -26,6 +26,10 @@
 				"VERCEL_*"
 			]
 		},
+		"build:en": {
+			"dependsOn": ["^build"],
+			"outputs": ["build/**"]
+		},
 		"lint": {
 			"dependsOn": ["^build"]
 		},

@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   build-docs:
-    name: Build Docs
+    name: Build Docs (English)
     runs-on: ubuntu-latest
 
     env:
@@ -36,5 +36,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build docs
-        run: pnpm run build:docs
+      - name: Build docs (English only)
+        run: pnpm run build:docs:en
