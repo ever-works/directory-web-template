@@ -177,6 +177,7 @@
 		"DELETE_COLLECTION_CONFIRM": "Delete collection \"{name}\"? This will remove assignments from items.",
 		"YOUR_PROFILE": "Your Profile",
 		"YOUR_PROFILE_DESC": "View and edit your profile",
+		"CLIENT_DASHBOARD_DESC": "View your activity and stats",
 		"MANAGE_CATEGORIES_DESC": "Manage categories",
 		"MANAGE_TAGS_DESC": "Manage tags",
 		"MANAGE_ITEMS_DESC": "Manage items",
