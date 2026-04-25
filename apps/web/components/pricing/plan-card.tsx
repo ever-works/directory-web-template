@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import { Check, X, Info } from "lucide-react";
 import { PaymentPlan, PaymentFlow } from "@/lib/constants";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/types";
 
 export type PlanFeature = {
   readonly included: boolean;
@@ -137,6 +139,7 @@ export function PlanCard({
   onOpenModal,
 }: PlanCardProps) {
   const router = useRouter();
+  const { track } = useAnalytics();
   
   const isPaidPlan = title.toUpperCase() === PLAN_TYPES.STANDARD || title.toUpperCase() === PLAN_TYPES.PREMIUM;
 
@@ -162,10 +165,15 @@ export function PlanCard({
 
 
   const handleAction = useCallback(() => {
+    track(AnalyticsEvent.PLAN_SELECTED, {
+      plan_id: title,
+      payment_flow: selectedFlow,
+      price: price
+    });
     if (actionHref) {
       router.push(actionHref);
     }
-  }, [actionHref, router]);
+  }, [actionHref, router, title, selectedFlow, price, track]);
 
   const handleFlowChange = useCallback((value: string) => {
     if (value !== selectedFlow) {

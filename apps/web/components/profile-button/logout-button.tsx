@@ -1,5 +1,7 @@
 import { memo, useState } from "react";
 import { LogOut, Zap, Loader2 } from "lucide-react";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/types";
 
 interface LogoutButtonProps {
   onLogout: () => void | Promise<void>;
@@ -9,11 +11,14 @@ interface LogoutButtonProps {
 
 function LogoutButton({ onLogout, logoutText, logoutDescription }: LogoutButtonProps) {
   const [isLogging, setIsLogging] = useState(false);
+  const { track, reset } = useAnalytics();
 
   const handleLogout = async () => {
     setIsLogging(true);
     try {
+      track(AnalyticsEvent.USER_LOGGED_OUT);
       await onLogout();
+      reset(); // Clear analytics user ID
       // Intentionally keep loading when a redirect occurs.
       // If no redirect happens, the error handler will reset.
     } catch (err) {

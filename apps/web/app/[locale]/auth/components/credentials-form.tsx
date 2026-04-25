@@ -16,6 +16,9 @@ import { useUserCache } from '@/hooks/use-current-user';
 import { AuthErrorCode } from '@/lib/auth/auth-error-codes';
 import { isValidCallbackUrl } from '@/lib/auth/validate-callback-url';
 import { useSession } from 'next-auth/react';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
+import { isDemoMode } from '@/lib/utils';
 
 export function CredentialsForm({
 	type,
@@ -49,6 +52,7 @@ export function CredentialsForm({
 	const { invalidateAllUserData } = useUserCache();
 	const { update: refreshSession } = useSession();
 	const [isPending, startTransition] = useTransition();
+	const { track, identify } = useAnalytics();
 
 	const [state, formAction, pending] = useActionState<ActionState, FormData>(isLogin ? signInAction : signUp, {});
 
@@ -159,6 +163,22 @@ export function CredentialsForm({
 		const shouldPrefixLocale = state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
 		const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
 		invalidateAllUserData();
+
+		// Track success
+		track(isLogin ? AnalyticsEvent.USER_LOGGED_IN : AnalyticsEvent.USER_SIGNED_UP, {
+			method: 'credentials',
+			email: state.email || state.credentials?.email
+		});
+
+		if (state.email || state.credentials?.email) {
+			identify(state.userId || state.email || state.credentials?.email, {
+				email: state.email || state.credentials?.email,
+				name: state.name || state.credentials?.name,
+				avatar: config.logo,
+				app_name: config.company_name,
+				is_tester: isDemoMode()
+			});
+		}
 		router.push(finalRedirectPath);
 	}, [
 		state.success,
@@ -194,6 +214,7 @@ export function CredentialsForm({
 		if (isRecaptchaRequired) {
 			if (!captchaToken) {
 				setCaptchaError(tCred('PLEASE_COMPLETE_CAPTCHA'));
+
 				return;
 			}
 			try {
@@ -279,6 +300,10 @@ export function CredentialsForm({
 			const errorMessage =
 				error instanceof Error ? error.message : typeof error === 'string' ? error : 'Authentication failed';
 			setClientError(errorMessage);
+			track(AnalyticsEvent.API_ERROR, {
+				context: 'client_login',
+				error: errorMessage
+			});
 		} finally {
 			setClientPending(false);
 		}
@@ -333,17 +358,26 @@ export function CredentialsForm({
 					)}
 
 					{authSyncError && (
-					<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
-						<svg className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-							<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-						</svg>
-						<p className="text-xs text-red-700 dark:text-red-300">{authSyncError}</p>
-					</div>
-				)}
+						<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
+							<svg
+								className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								aria-hidden="true"
+							>
+								<path
+									fillRule="evenodd"
+									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+									clipRule="evenodd"
+								/>
+							</svg>
+							<p className="text-xs text-red-700 dark:text-red-300">{authSyncError}</p>
+						</div>
+					)}
 
 					{/* Email field */}
-				<div className="space-y-1.5">
-					<label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-400">
+					<div className="space-y-1.5">
+						<label htmlFor="email" className="block text-xs font-medium text-gray-600 dark:text-gray-400">
 							{t('EMAIL_ADDRESS')}
 							<span className="text-red-500 ml-1">*</span>
 						</label>
@@ -431,111 +465,138 @@ export function CredentialsForm({
 						)}
 					</div>
 
-				{/* Error message */}
-				{(state?.error || clientError) && (
-					<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
-						<svg className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-							<path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-						</svg>
-						<p className="text-xs text-red-700 dark:text-red-300">
-							{getTranslatedErrorMessage(clientError || state?.error)}
-						</p>
-					</div>
-				)}
-
-				{/* Server-side success message */}
-				{state?.success && !clientMode && (
-					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
-						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-						</svg>
-						<p className="text-xs text-green-700 dark:text-green-300">
-							{isLogin ? tCred('LOGIN_SUCCESSFUL') : tCred('ACCOUNT_CREATED_SUCCESSFULLY')}
-							{' — '}
-							{isLogin ? tCred('REDIRECTING') : tCred('WELCOME_SETTING_UP_ACCOUNT')}
-						</p>
-					</div>
-				)}
-
-				{/* Client-side success message for admin login */}
-				{clientMode && clientSuccess && (
-					<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
-						<svg className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-							<path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-						</svg>
-						<p className="text-xs text-green-700 dark:text-green-300">
-							{tCred('ADMIN_LOGIN_SUCCESSFUL')} — {tCred('REDIRECTING_TO_ADMIN')}
-						</p>
-					</div>
-				)}
-
-				{/* Forgot password link (login only) */}
-				{isLogin && (
-					<div className="flex justify-end">
-						<Link
-							href="/auth/forgot-password"
-							className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 transition-colors hover:underline"
+					{/* Error message */}
+					{(state?.error || clientError) && (
+						<div className="flex items-center gap-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50 rounded-lg">
+							<svg
+								className="shrink-0 w-4 h-4 text-red-500 dark:text-red-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								aria-hidden="true"
 							>
-							{t('FORGOT_PASSWORD')}
-						</Link>
-					</div>
-				)}
-
-				{/* ReCAPTCHA */}
-				{(RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && (
-					<div className="mb-4">
-						<div className="flex justify-center">
-							<div className="recaptcha-container">
-								<ReCAPTCHA
-									sitekey={
-									RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
-								}
-									onChange={(token: string | null) => {
-									setCaptchaToken(token);
-									setCaptchaError(null);
-									}}
-									onError={(error) => {
-									console.error('ReCAPTCHA error:', error);
-									setCaptchaError(tCred('FAILED_TO_LOAD_VERIFICATION'));
-									}}
-									onExpired={() => {
-									setCaptchaToken(null);
-									setCaptchaError(tCred('VERIFICATION_EXPIRED'));
-									}}
-									theme="light"
-									size="normal"
-									className="scale-90 transform-gpu w-[50px] flex justify-center"
-									tabindex={0}
+								<path
+									fillRule="evenodd"
+									d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+									clipRule="evenodd"
 								/>
-							</div>
+							</svg>
+							<p className="text-xs text-red-700 dark:text-red-300">
+								{getTranslatedErrorMessage(clientError || state?.error)}
+							</p>
 						</div>
-						{(captchaError || verificationError) && (
-							<div className="mt-2 text-sm text-red-600 dark:text-red-400">
-								{captchaError || verificationError?.message || 'ReCAPTCHA verification failed'}
+					)}
+
+					{/* Server-side success message */}
+					{state?.success && !clientMode && (
+						<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
+							<svg
+								className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								aria-hidden="true"
+							>
+								<path
+									fillRule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clipRule="evenodd"
+								/>
+							</svg>
+							<p className="text-xs text-green-700 dark:text-green-300">
+								{isLogin ? tCred('LOGIN_SUCCESSFUL') : tCred('ACCOUNT_CREATED_SUCCESSFULLY')}
+								{' — '}
+								{isLogin ? tCred('REDIRECTING') : tCred('WELCOME_SETTING_UP_ACCOUNT')}
+							</p>
+						</div>
+					)}
+
+					{/* Client-side success message for admin login */}
+					{clientMode && clientSuccess && (
+						<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
+							<svg
+								className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								aria-hidden="true"
+							>
+								<path
+									fillRule="evenodd"
+									d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+									clipRule="evenodd"
+								/>
+							</svg>
+							<p className="text-xs text-green-700 dark:text-green-300">
+								{tCred('ADMIN_LOGIN_SUCCESSFUL')} — {tCred('REDIRECTING_TO_ADMIN')}
+							</p>
+						</div>
+					)}
+
+					{/* Forgot password link (login only) */}
+					{isLogin && (
+						<div className="flex justify-end">
+							<Link
+								href="/auth/forgot-password"
+								className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 transition-colors hover:underline"
+							>
+								{t('FORGOT_PASSWORD')}
+							</Link>
+						</div>
+					)}
+
+					{/* ReCAPTCHA */}
+					{(RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && (
+						<div className="mb-4">
+							<div className="flex justify-center">
+								<div className="recaptcha-container">
+									<ReCAPTCHA
+										sitekey={
+											RECAPTCHA_SITE_KEY.value || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
+										}
+										onChange={(token: string | null) => {
+											setCaptchaToken(token);
+											setCaptchaError(null);
+										}}
+										onError={(error) => {
+											console.error('ReCAPTCHA error:', error);
+											setCaptchaError(tCred('FAILED_TO_LOAD_VERIFICATION'));
+										}}
+										onExpired={() => {
+											setCaptchaToken(null);
+											setCaptchaError(tCred('VERIFICATION_EXPIRED'));
+										}}
+										theme="light"
+										size="normal"
+										className="scale-90 transform-gpu w-[50px] flex justify-center"
+										tabindex={0}
+									/>
+								</div>
 							</div>
-						)}
-						{isVerifying && (
-							<div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
-								{tCred('VERIFYING')}
-							</div>
-						)}
-						{isRecaptchaBlocking && (
-							<div className="mt-2 text-sm text-amber-600 dark:text-amber-400">
-								{tCred('PLEASE_COMPLETE_VERIFICATION')}
-							</div>
-						)}
-					</div>
-				)}
+							{(captchaError || verificationError) && (
+								<div className="mt-2 text-sm text-red-600 dark:text-red-400">
+									{captchaError || verificationError?.message || 'ReCAPTCHA verification failed'}
+								</div>
+							)}
+							{isVerifying && (
+								<div className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+									{tCred('VERIFYING')}
+								</div>
+							)}
+							{isRecaptchaBlocking && (
+								<div className="mt-2 text-sm text-amber-600 dark:text-amber-400">
+									{tCred('PLEASE_COMPLETE_VERIFICATION')}
+								</div>
+							)}
+						</div>
+					)}
 					<Button
 						disabled={
 							clientPending || clientSuccess || pending || isPending || isVerifying || isRecaptchaBlocking
 						}
 						type="submit"
 						className={cn(
-						'w-full h-10 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-sm',
-						'hover:bg-theme-primary/90 focus:outline-none',
-						'focus:ring-2 focus:ring-theme-primary/30 transition-colors duration-150',
-						'disabled:opacity-50 disabled:cursor-not-allowed'
+							'w-full h-10 bg-gray-900 text-white dark:bg-white dark:text-gray-900 text-sm font-medium rounded-sm',
+							'hover:bg-theme-primary/90 focus:outline-none',
+							'focus:ring-2 focus:ring-theme-primary/30 transition-colors duration-150',
+							'disabled:opacity-50 disabled:cursor-not-allowed'
 						)}
 						isLoading={
 							(pending && !state.success) || clientPending || clientSuccess || isPending || isVerifying

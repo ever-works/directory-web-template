@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { useAnalytics } from "@/hooks/use-analytics";
+import { AnalyticsEvent } from "@/lib/analytics/types";
 
 export function Newsletter() {
   const t = useTranslations("newsletter");
@@ -9,6 +11,7 @@ export function Newsletter() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState("");
+  const { track } = useAnalytics();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,10 +20,17 @@ export function Newsletter() {
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      track(AnalyticsEvent.NEWSLETTER_SUBSCRIBED, {
+        email: email
+      });
       setIsSuccess(true);
       setEmail("");
     } catch (err) {
       console.error(err);
+      track(AnalyticsEvent.API_ERROR, {
+        context: 'newsletter_subscription',
+        error: err instanceof Error ? err.message : String(err)
+      });
     } finally {
       setIsSubmitting(false);
     }
