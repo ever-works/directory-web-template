@@ -12,6 +12,7 @@ import authConfig from '../../auth.config';
 import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
+import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
 export * from '../payment/config/payment-provider-manager';
 
 // Define proper interface for user objects with admin/client properties
@@ -39,7 +40,8 @@ function createDevelopmentAuthSecret(): string {
 	throw new Error('[auth] AUTH_SECRET is required because secure random generation is unavailable.');
 }
 
-const runtimeAuthSecret = process.env.AUTH_SECRET?.trim();
+const runtimeAuthSecret = getRuntimeAuthSecret();
+const runtimeAuthSecretSource = getRuntimeAuthSecretSource();
 const isCiBuild = process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true';
 const isProductionBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
 
@@ -53,6 +55,12 @@ if (!runtimeAuthSecret) {
 	console.warn(
 		`[auth] AUTH_SECRET is not set. Using a temporary ${isCiBuild ? 'CI-only' : 'development-only'} fallback secret.`
 	);
+} else if (!process.env.AUTH_SECRET) {
+	process.env.AUTH_SECRET = runtimeAuthSecret;
+
+	if (runtimeAuthSecretSource === 'COOKIE_SECRET') {
+		console.warn('[auth] AUTH_SECRET is not set. Falling back to COOKIE_SECRET.');
+	}
 }
 
 // Check if DATABASE_URL is set and database is properly initialized

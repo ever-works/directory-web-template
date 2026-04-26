@@ -4,6 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import { withSentryConfig } from '@sentry/nextjs';
 import { sentryWebpackPluginOptions } from './sentry.config';
 import { generateImageRemotePatterns } from './lib/utils/image-domains';
+const isDev = process.env.NODE_ENV === 'development';
 
 const nextConfig: NextConfig = {
 	turbopack: {
@@ -97,7 +98,9 @@ const nextConfig: NextConfig = {
 					},
 					{
 						key: 'Content-Security-Policy',
-						value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://assets.lemonsqueezy.com https://js.stripe.com https://www.googletagmanager.com https://plausible.io https://cdn.datafast.io https://datafa.st https://t.jitsu.com https://*.d.jitsu.com https://cdn.segment.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: https://www.google-analytics.com https://stats.g.doubleclick.net; font-src 'self'; connect-src 'self' https: https://www.google-analytics.com https://stats.g.doubleclick.net https://plausible.io https://datafa.st https://t.jitsu.com https://*.d.jitsu.com https://api.segment.io; frame-src 'self' https://assets.lemonsqueezy.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none';"
+						value: `default-src 'self'; script-src 'self' ${isDev ? "'unsafe-eval'" : ''} 'unsafe-inline' https://assets.lemonsqueezy.com https://js.stripe.com https://www.googletagmanager.com https://plausible.io https://cdn.datafast.io https://datafa.st https://t.jitsu.com https://*.d.jitsu.com https://cdn.segment.com https://us.i.posthog.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: https://www.google-analytics.com https://stats.g.doubleclick.net; font-src 'self'; connect-src 'self' https: https://www.google-analytics.com https://stats.g.doubleclick.net https://plausible.io https://datafa.st https://t.jitsu.com https://*.d.jitsu.com https://api.segment.io https://us.i.posthog.com https://*.i.posthog.com; frame-src 'self' https://assets.lemonsqueezy.com https://js.stripe.com https://hooks.stripe.com; frame-ancestors 'none';`
+							.replace(/\s+/g, ' ')
+							.trim()
 					}
 				]
 			}
