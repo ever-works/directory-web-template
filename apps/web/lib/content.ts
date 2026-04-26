@@ -490,7 +490,7 @@ export const getCachedConfig = unstable_cache(
 	{ revalidate: 60 }
 );
 
-async function parseItem(base: string, filename: string) {
+async function parseItem(base: string, filename: string): Promise<ItemData | null> {
 	try {
 		// Sanitize filename to prevent path traversal attacks
 		const sanitizedFilename = sanitizeFilename(filename);
@@ -506,18 +506,7 @@ async function parseItem(base: string, filename: string) {
 		return meta;
 	} catch (error) {
 		console.error(`Failed to parse item ${filename}:`, error);
-		// Return a fallback meta object so the page can still render
-		return {
-			name: filename.replace(/\.(yml|yaml)$/, ''),
-			description: 'Content temporarily unavailable',
-			category: 'unknown',
-			tags: [],
-			slug: filename.replace(/\.(yml|yaml)$/, ''),
-			source_url: '#', // Required field, using placeholder
-			updatedAt: new Date(),
-			updated_at: new Date().toISOString().split('T')[0] + ' 00:00',
-			markdown: undefined // Optional field
-		} as ItemData;
+		return null;
 	}
 }
 
@@ -964,6 +953,9 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 			validatePath(base, dest);
 
 			const item = await parseItem(base, `${sanitizedSlug}.yml`);
+			if (!item) {
+				return null;
+			}
 
 			if (options.lang && options.lang !== 'en') {
 				// Validate language code to prevent path traversal
@@ -1373,6 +1365,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 
 	try {
 		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`);
+		if (!meta) {
+			return null;
+		}
 		if (options.lang && options.lang !== 'en') {
 			// Validate language code to prevent path traversal
 			if (!validateLanguageCode(options.lang)) {
