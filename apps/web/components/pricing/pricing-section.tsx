@@ -14,6 +14,9 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { PaymentFormModal } from '@/components/payment/stripe-payment-modal';
 import DecorativeBg from '../shared/decorative-bg';
+import { useEffect } from 'react';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
 
 interface PricingSectionProps {
 	onSelectPlan?: (plan: PaymentPlan) => void;
@@ -26,6 +29,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 	const theme = resolvedTheme as 'light' | 'dark';
 	const { isOpen: isModalOpen, onOpen: onOpenSelectorModal, onClose: onCloseSelectorModal } = useDisclosure();
 	const { shouldShowPaidPlans } = usePaymentAvailability();
+	const { track } = useAnalytics();
 
 	const {
 		FREE,
@@ -68,6 +72,14 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 		initialSelectedPlan: initialSelectedPlan,
 		isReview
 	});
+
+	useEffect(() => {
+		if (!isReview) {
+			track(AnalyticsEvent.PRICING_VIEWED, {
+				source: 'pricing_page'
+			});
+		}
+	}, [isReview, track]);
 
 	return (
 		<div className="relative z-10 px-4">
