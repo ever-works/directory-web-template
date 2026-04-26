@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import {
     LineChart,
     Line,
@@ -17,7 +18,7 @@ import {
     TITLE_STYLES,
     SUBTITLE_STYLES,
     VALUE_STYLES,
-    TOOLTIP_STYLES,
+    getTooltipStyles,
 } from "./styles";
 
 interface EngagementOverviewData {
@@ -37,6 +38,8 @@ export function EngagementRateChart({
     totalSubmissions,
     isLoading = false,
 }: EngagementRateChartProps) {
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === 'dark';
     const t = useTranslations("client.dashboard.ENGAGEMENT_RATE");
     const tCommon = useTranslations("client.dashboard.COMMON");
 
@@ -124,7 +127,7 @@ export function EngagementRateChart({
                         tickFormatter={(value: number) => `${value.toFixed(0)}%`}
                     />
                     <Tooltip
-                        contentStyle={TOOLTIP_STYLES}
+                        contentStyle={getTooltipStyles(isDark)}
                         formatter={(value, name) => {
                             if (name === "rate") {
                                 return [`${Number(value).toFixed(2)}%`, t("RATE")];

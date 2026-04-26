@@ -157,6 +157,7 @@
 		"DELETE_COLLECTION_CONFIRM": "\"{name}\" koleksiyonunu sil? Bu, öğelerden atamaları kaldıracak.",
 		"YOUR_PROFILE": "Profiliniz",
 		"YOUR_PROFILE_DESC": "Profilinizi görüntüleyin ve düzenleyin",
+		"CLIENT_DASHBOARD_DESC": "Etkinliklerinizi ve istatistiklerinizi görüntüleyin",
 		"MANAGE_CATEGORIES_DESC": "Kategorileri yönetin",
 		"MANAGE_TAGS_DESC": "Etiketleri yönetin",
 		"MANAGE_ITEMS_DESC": "Öğeleri yönetin",

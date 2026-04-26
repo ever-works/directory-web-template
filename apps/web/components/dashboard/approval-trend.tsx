@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import {
     AreaChart,
     Area,
@@ -17,7 +18,7 @@ import {
     TITLE_STYLES,
     SUBTITLE_STYLES,
     VALUE_STYLES,
-    TOOLTIP_STYLES,
+    getTooltipStyles,
 } from "./styles";
 
 interface ApprovalTrendProps {
@@ -27,6 +28,9 @@ interface ApprovalTrendProps {
 
 export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
     const gradientId = useId();
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === 'dark';
+    const areaColor = isDark ? '#e5e5e5' : '#171717';
     const t = useTranslations("client.dashboard.APPROVAL_TREND");
 
     if (isLoading) {
@@ -96,12 +100,12 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                         >
                             <stop
                                 offset="5%"
-                                stopColor="#171717"
+                                stopColor={areaColor}
                                 stopOpacity={0.15}
                             />
                             <stop
                                 offset="95%"
-                                stopColor="#171717"
+                                stopColor={areaColor}
                                 stopOpacity={0}
                             />
                         </linearGradient>
@@ -119,7 +123,7 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                         tickFormatter={(value: number) => `${value}%`}
                     />
                     <Tooltip
-                        contentStyle={TOOLTIP_STYLES}
+                        contentStyle={getTooltipStyles(isDark)}
                         formatter={(value) => [
                             `${Number(value).toFixed(1)}%`,
                             t("APPROVAL_RATE"),
@@ -128,7 +132,7 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                     <Area
                         type="monotone"
                         dataKey="rate"
-                        stroke="#171717"
+                        stroke={areaColor}
                         strokeWidth={2}
                         fill={`url(#approvalGradient-${gradientId})`}
                     />

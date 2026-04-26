@@ -1,3 +1,4 @@
+
 import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import {
@@ -18,6 +19,7 @@ import {
   Flag,
   Layers,
   DollarSign,
+  LayoutDashboard,
   type LucideIcon
 } from "lucide-react";
 import type { ExtendedUser } from "@/types/profile-button.types";
@@ -101,7 +103,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
   if (isAdmin) {
     return (
-      <div className="max-h-96 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
+      <div className="max-h-100 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
       >
         <MenuItem
           href="/admin"
@@ -244,8 +246,18 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
 
   return (
-    <div className="max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
+    <div className="max-h-72 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
     >
+      <MenuItem
+        href="/client/dashboard"
+        icon={LayoutDashboard}
+        title={t("common.DASHBOARD")}
+        description={t("common.CLIENT_DASHBOARD_DESC")}
+        gradientFrom="from-blue-100"
+        gradientTo="to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30"
+        iconColor="text-theme-primary-600 dark:text-theme-primary-400"
+      />
+
       <MenuItem
         href={profilePath}
         icon={User}

@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from 'next-themes';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { getTooltipStyles } from './styles';
 
 interface EngagementOverviewData {
   week: string;
@@ -14,6 +16,8 @@ interface EngagementOverviewProps {
 }
 
 export function EngagementOverview({ data, isLoading = false }: EngagementOverviewProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
@@ -42,16 +46,7 @@ export function EngagementOverview({ data, isLoading = false }: EngagementOvervi
             stroke="#a3a3a3"
             fontSize={11}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#141414',
-              border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: '8px',
-              color: '#f5f5f5',
-              fontSize: '12px',
-              padding: '8px 12px',
-            }}
-          />
+          <Tooltip contentStyle={getTooltipStyles(isDark)} />
           <Legend />
           <Line 
             type="monotone" 

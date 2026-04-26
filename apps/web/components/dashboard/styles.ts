@@ -1,6 +1,8 @@
 // Dashboard shared style constants
 // Centralized design system - Vercel Analytics-inspired: clean, minimal, precise
 
+import type React from "react";
+
 export const CARD_BASE_STYLES =
     "bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8";
 
@@ -19,6 +21,27 @@ export const METRIC_VALUE_STYLES = "text-xl font-semibold text-neutral-900 dark:
 
 export const METRIC_COMPARE_STYLES = "text-xs text-neutral-500 dark:text-neutral-400";
 
+export function getTooltipStyles(isDark: boolean): React.CSSProperties {
+    return isDark
+        ? {
+              backgroundColor: "#141414",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              color: "#f5f5f5",
+              fontSize: "12px",
+              padding: "8px 12px",
+          }
+        : {
+              backgroundColor: "#ffffff",
+              border: "1px solid rgba(0,0,0,0.1)",
+              borderRadius: "8px",
+              color: "#171717",
+              fontSize: "12px",
+              padding: "8px 12px",
+          };
+}
+
+/** @deprecated Use getTooltipStyles(isDark) instead */
 export const TOOLTIP_STYLES = {
     backgroundColor: "#141414",
     border: "1px solid rgba(255,255,255,0.1)",
