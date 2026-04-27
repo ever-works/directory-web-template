@@ -60,7 +60,7 @@ export function SponsorshipFilters({
 	};
 
 	return (
-		<div className="flex flex-col sm:flex-row gap-3">
+		<div className="flex flex-col sm:flex-row gap-3 my-2">
 			{/* Status Filter */}
 			<div className="relative">
 				<DropdownMenu.Root modal={false}>
@@ -98,7 +98,7 @@ export function SponsorshipFilters({
 							className={cn(
 								"z-40 w-48",
 								"rounded-lg border border-gray-200 dark:border-white/6",
-								"bg-white dark:bg-white/3",
+								"bg-white dark:bg-[#1f1f1f]",
 								"shadow-lg shadow-black/10 dark:shadow-black/30",
 								"animate-in fade-in zoom-in-95"
 							)}
@@ -153,7 +153,7 @@ export function SponsorshipFilters({
 								"group inline-flex items-center justify-between",
 								"w-full sm:w-36",
 								"rounded-lg border border-gray-200 dark:border-white/6",
-								"bg-white dark:bg-white/5",
+								"bg-white dark:bg-[#1f1f1f]",
 								"px-3 py-2 text-sm font-medium",
 								"text-gray-900 dark:text-gray-100",
 								"transition-all duration-200",
@@ -176,7 +176,7 @@ export function SponsorshipFilters({
 							className={cn(
 								"z-40 min-w-36",
 								"rounded-lg border border-gray-200 dark:border-white/6",
-								"bg-white dark:bg-white/3",
+								"bg-white dark:bg-[#1f1f1f]",
 								"shadow-lg shadow-black/10 dark:shadow-black/30",
 								"animate-in fade-in zoom-in-95"
 							)}
@@ -233,8 +233,8 @@ export function SponsorshipFilters({
 					placeholder={t('SEARCH_PLACEHOLDER')}
 					disabled={disabled}
 					className={`
-						w-full pl-9 pr-9 py-2.5
-						bg-white dark:bg-white/5
+						w-full pl-9 pr-9 py-2
+						bg-white dark:bg-[#1f1f1f]
 						border border-gray-200 dark:border-white/6
 						rounded-lg
 						text-sm text-gray-900 dark:text-gray-100
