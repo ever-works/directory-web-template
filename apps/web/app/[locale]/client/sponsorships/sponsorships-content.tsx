@@ -188,37 +188,40 @@ export function SponsorshipsContent({ pricingConfig }: SponsorshipsContentProps)
 			<PageContainer maxWidth="7xl" padding="default">
 				<div className="space-y-6 py-8">
 					{/* Page Header */}
-					<div className="text-center space-y-3">
-						<div className="inline-flex items-center justify-center w-14 h-14 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-xl mb-2">
-							<FiDollarSign className="w-7 h-7 text-theme-primary-600 dark:text-theme-primary-400" />
+					<div className="space-y-3">
+						<div className='flex gap-4'>
+							<div className="inline-flex items-center justify-center w-14 h-14 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-xl mb-2">
+								<FiDollarSign className="w-7 h-7 text-theme-primary-600 dark:text-theme-primary-400" />
+							</div>
+							<div>
+								<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('PAGE_TITLE')}</h1>
+								<p className="text-gray-600 dark:text-gray-300 text-base max-w-xl mx-auto text-sm">
+									{t('PAGE_DESCRIPTION')}
+								</p>
+							</div>
 						</div>
-						<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('PAGE_TITLE')}</h1>
-						<p className="text-gray-600 dark:text-gray-300 text-base max-w-xl mx-auto">
-							{t('PAGE_DESCRIPTION')}
-						</p>
 					</div>
 
 					{/* Stats Cards */}
 					<SponsorshipStatsCards stats={stats} isLoading={isStatsLoading} />
 
 					{/* Sponsorships List */}
-					<Card className="hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
-						<CardHeader className="pb-4">
-							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-								<CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-									<FiDollarSign className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
+					<Card className="border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs">
+						<CardHeader className="pb-3 border-b border-gray-200 dark:border-white/6">
+							<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+								<CardTitle className="text-base font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
 									{t('YOUR_SPONSORSHIPS')}
 								</CardTitle>
 								<Link
 									href="/sponsor"
-									className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 text-white rounded-lg transition-all duration-300 font-medium shadow-xs hover:shadow-md text-sm"
+									className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 rounded-lg transition-all duration-300 font-medium text-xs"
 								>
-									<FiPlus className="w-4 h-4" />
+									<FiPlus className="w-3.5 h-3.5" />
 									{t('NEW_SPONSORSHIP')}
 								</Link>
 							</div>
 						</CardHeader>
-						<CardContent className="space-y-4">
+						<CardContent className="space-y-2">
 							{/* Filters */}
 							<SponsorshipFilters
 								status={statusValue}
