@@ -43,20 +43,20 @@ export function DashboardContent({ session }: DashboardContentProps) {
 	// Auth handled at route level - all dashboard pages require authentication
 
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-			<PageContainer className="py-8">
+		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
+			<PageContainer className="py-6">
 				{/* Error Handling */}
 				{statsError && (
-					<div className="mb-4 p-4 bg-red-100 text-red-800 rounded-sm">
+					<div className="mb-4 p-3 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-800/40">
 						{t('FAILED_TO_LOAD')}: {statsError.message}
 					</div>
 				)}
 				{/* Header */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<div className="flex items-center justify-between">
 						<div>
-							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('TITLE')}</h1>
-							<p className="mt-2 text-gray-600 dark:text-gray-400">
+							<h1 className="text-lg font-semibold text-neutral-900 dark:text-white tracking-tight">{t('TITLE')}</h1>
+							<p className="mt-0.5 text-xs text-neutral-500 dark:text-neutral-400">
 								{t('WELCOME_BACK', { name: session?.user?.name || 'User' })}
 							</p>
 						</div>
@@ -64,16 +64,16 @@ export function DashboardContent({ session }: DashboardContentProps) {
 							onClick={handleRefresh}
 							variant="outline"
 							size="sm"
-							className="flex items-center space-x-2"
+							className="flex items-center gap-1.5 h-8 px-3 text-xs border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6"
 						>
-							<RefreshCw className="h-4 w-4" />
+							<RefreshCw className="h-3.5 w-3.5" />
 							<span>{t('REFRESH')}</span>
 						</Button>
 					</div>
 				</div>
 
 				{/* Stats Grid */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 					<StatsCard
 						title={t('STATS.TOTAL_SUBMISSIONS')}
 						value={stats?.totalSubmissions || 0}
@@ -105,37 +105,37 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				</div>
 
 				{/* Period Comparison */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<PeriodComparison data={stats?.periodComparison} isLoading={!stats} />
 				</div>
 
 				{/* Submission Timeline & Status */}
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 					<SubmissionTimeline data={stats?.submissionTimeline || []} isLoading={!stats} />
 					<StatusBreakdown data={stats?.statusBreakdown || []} isLoading={!stats} />
 				</div>
 
 				{/* Engagement Overview */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<EngagementOverview data={stats?.engagementOverview || []} isLoading={!stats} />
 				</div>
 
 				{/* Location Cards */}
 				{locationSettings.enabled && (
-					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 						<ItemsMapCard />
 						<GeoStatsCard />
 					</div>
 				)}
 
 				{/* Category Performance & Approval Trend */}
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 					<CategoryPerformance data={stats?.categoryPerformance || []} isLoading={!stats} />
 					<ApprovalTrend data={stats?.approvalTrend || []} isLoading={!stats} />
 				</div>
 
 				{/* Top Items Section */}
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+				<div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
 					<div className="lg:col-span-2">
 						<TopItems items={stats?.topItems || []} isLoading={!stats} />
 					</div>
@@ -145,17 +145,17 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				</div>
 
 				{/* Submission Calendar - Full Width */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<SubmissionCalendar data={stats?.submissionCalendar || []} isLoading={!stats} />
 				</div>
 
 				{/* Engagement Distribution */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<EngagementDistribution data={stats?.engagementDistribution || []} isLoading={!stats} />
 				</div>
 
 				{/* Engagement Rate Chart */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<EngagementRateChart
 						engagementOverview={stats?.engagementOverview || []}
 						totalSubmissions={stats?.totalSubmissions || 0}
@@ -164,7 +164,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				</div>
 
 				{/* Weekly Activity Chart */}
-				<div className="mb-8">
+				<div className="mb-6">
 					<ActivityChart data={stats?.activityChartData || []} isLoading={!stats} />
 				</div>
 			</PageContainer>

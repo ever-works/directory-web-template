@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import {
     AreaChart,
     Area,
@@ -17,7 +18,7 @@ import {
     TITLE_STYLES,
     SUBTITLE_STYLES,
     VALUE_STYLES,
-    TOOLTIP_STYLES,
+    getTooltipStyles,
 } from "./styles";
 
 interface ApprovalTrendProps {
@@ -27,14 +28,17 @@ interface ApprovalTrendProps {
 
 export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
     const gradientId = useId();
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === 'dark';
+    const areaColor = isDark ? '#e5e5e5' : '#171717';
     const t = useTranslations("client.dashboard.APPROVAL_TREND");
 
     if (isLoading) {
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+                    <div className="h-4 bg-neutral-100 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-neutral-100 dark:bg-white/8 rounded-sm"></div>
                 </div>
             </div>
         );
@@ -96,30 +100,30 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                         >
                             <stop
                                 offset="5%"
-                                stopColor="#10B981"
-                                stopOpacity={0.3}
+                                stopColor={areaColor}
+                                stopOpacity={0.15}
                             />
                             <stop
                                 offset="95%"
-                                stopColor="#10B981"
+                                stopColor={areaColor}
                                 stopOpacity={0}
                             />
                         </linearGradient>
                     </defs>
                     <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="var(--tw-prose-hr, #e5e7eb)"
+                        stroke="rgba(163,163,163,0.15)"
                         vertical={false}
                     />
-                    <XAxis dataKey="month" stroke="#6B7280" fontSize={12} />
+                    <XAxis dataKey="month" stroke="#a3a3a3" fontSize={11} />
                     <YAxis
-                        stroke="#6B7280"
-                        fontSize={12}
+                        stroke="#a3a3a3"
+                        fontSize={11}
                         domain={[0, 100]}
                         tickFormatter={(value: number) => `${value}%`}
                     />
                     <Tooltip
-                        contentStyle={TOOLTIP_STYLES}
+                        contentStyle={getTooltipStyles(isDark)}
                         formatter={(value) => [
                             `${Number(value).toFixed(1)}%`,
                             t("APPROVAL_RATE"),
@@ -128,13 +132,13 @@ export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
                     <Area
                         type="monotone"
                         dataKey="rate"
-                        stroke="#10B981"
+                        stroke={areaColor}
                         strokeWidth={2}
                         fill={`url(#approvalGradient-${gradientId})`}
                     />
                 </AreaChart>
             </ResponsiveContainer>
-            <div className="mt-4 flex justify-between text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-4 flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
                 <span>
                     {t("TOTAL")}: {totalSubmissions}
                 </span>

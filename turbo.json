@@ -3,7 +3,32 @@
 	"tasks": {
 		"build": {
 			"dependsOn": ["^build"],
-			"outputs": [".next/**", "!.next/cache/**", "build/**", "dist/**"]
+			"outputs": [".next/**", "!.next/cache/**", "build/**", "dist/**"],
+			"env": [
+				"ANALYZE",
+				"AUTH_*",
+				"COOKIE_SECRET",
+				"CRON_SECRET",
+				"DATA_REPOSITORY",
+				"DATABASE_*",
+				"EMAIL_*",
+				"GH_*",
+				"GITHUB_*",
+				"NEXT_PUBLIC_*",
+				"PLATFORM_API_*",
+				"POLAR_*",
+				"POSTHOG_*",
+				"RESEND_*",
+				"SENTRY_*",
+				"SMTP_*",
+				"STRIPE_*",
+				"TRIGGER_DEV_*",
+				"VERCEL_*"
+			]
+		},
+		"build:en": {
+			"dependsOn": ["^build"],
+			"outputs": ["build/**"]
 		},
 		"lint": {
 			"dependsOn": ["^build"]

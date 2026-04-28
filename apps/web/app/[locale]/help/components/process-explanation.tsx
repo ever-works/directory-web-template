@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
 
 interface ProcessStep {
   id: number;
@@ -31,8 +30,8 @@ export const ProcessExplanation = () => {
       title: t('HOW_IT_WORKS_PROCESS_STEP1'),
       description: t('HOW_IT_WORKS_PROCESS_STEP1_DESC'),
       icon: "🚀",
-      color: "text-blue-600 dark:text-blue-400",
-      gradient: "from-blue-500 to-cyan-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       duration: "5-10 minutes",
       complexity: "Simple",
       requirements: [
@@ -52,8 +51,8 @@ export const ProcessExplanation = () => {
       title: t('HOW_IT_WORKS_PROCESS_STEP2'),
       description: t('HOW_IT_WORKS_PROCESS_STEP2_DESC'),
       icon: "⚙️",
-      color: "text-purple-600 dark:text-purple-400",
-      gradient: "from-purple-500 to-pink-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       duration: "15-30 minutes",
       complexity: "Moderate",
       requirements: [
@@ -73,8 +72,8 @@ export const ProcessExplanation = () => {
       title: t('HOW_IT_WORKS_PROCESS_STEP3'),
       description: t('HOW_IT_WORKS_PROCESS_STEP3_DESC'),
       icon: "🎨",
-      color: "text-green-600 dark:text-green-400",
-      gradient: "from-green-500 to-emerald-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       duration: "30-60 minutes",
       complexity: "Moderate",
       requirements: [
@@ -94,8 +93,8 @@ export const ProcessExplanation = () => {
       title: t('HOW_IT_WORKS_PROCESS_STEP4'),
       description: t('HOW_IT_WORKS_PROCESS_STEP4_DESC'),
       icon: "🚀",
-      color: "text-orange-600 dark:text-orange-400",
-      gradient: "from-orange-500 to-red-500",
+      color: "text-neutral-900 dark:text-white",
+      gradient: "from-neutral-700 to-neutral-900",
       duration: "10-20 minutes",
       complexity: "Simple",
       requirements: [
@@ -153,34 +152,31 @@ export const ProcessExplanation = () => {
   };
 
   return (
-    <div className="mt-12 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-3xl p-8 border border-slate-200 dark:border-white/6 shadow-2xl">
+    <div className="mt-8 rounded-xl p-6 border border-slate-200 dark:border-white/6 bg-white dark:bg-white/3">
       {/* Header */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
-          <span>🔄</span>
-          {t('PROCESS_OVERVIEW_BADGE')}
-        </div>
-        <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+      <div className="mb-8">
+        <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('PROCESS_OVERVIEW_BADGE')}</p>
+        <h3 className="text-base font-semibold tracking-tight text-neutral-900 dark:text-white mb-2">
           {t('HOW_IT_WORKS_PROCESS_TITLE')}
-      </h3>
-        <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
-          Follow our proven 4-step process to get your platform up and running quickly
+        </h3>
+        <p className="text-neutral-500 dark:text-neutral-400 text-sm">
+          {t('PROCESS_OVERVIEW_SUBTITLE') || 'Follow our proven 4-step process to get your platform up and running quickly'}
         </p>
       </div>
 
       {/* Progress Bar */}
-      <div className="mb-12">
+      <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
             Overall Progress
           </span>
-          <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+          <span className="text-xs font-semibold text-neutral-900 dark:text-white">
             {Math.round(progress)}%
           </span>
-          </div>
-        <div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-3 overflow-hidden">
+        </div>
+        <div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-1 overflow-hidden">
           <div 
-            className="bg-linear-to-r from-blue-500 to-cyan-500 h-full rounded-full transition-all duration-1000 ease-out"
+            className="bg-neutral-900 dark:bg-white h-full rounded-full transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
           ></div>
         </div>
@@ -191,7 +187,7 @@ export const ProcessExplanation = () => {
         {/* Timeline Line */}
         <div className="absolute left-8 top-0 bottom-0 w-1 bg-slate-200 dark:bg-white/8 rounded-full"></div>
         
-        <div className="space-y-8">
+        <div className="space-y-5">
           {processSteps.map((step, index) => {
             const status = getStepStatus(index);
             const isActive = index === activeStep;
@@ -199,34 +195,32 @@ export const ProcessExplanation = () => {
             return (
               <div
                 key={step.id}
-                className={`relative group cursor-pointer transition-all duration-300 ${
-                  isActive ? 'transform scale-105' : 'hover:transform hover:scale-102'
-                }`}
+                className="relative group cursor-pointer"
                 onClick={() => handleStepClick(index)}
               >
                 {/* Timeline Node */}
                 <div className={`absolute left-6 top-6 w-4 h-4 rounded-full border-4 transition-all duration-300 z-10 ${
                   status === "completed" 
-                    ? "bg-green-500 border-green-500 shadow-lg shadow-green-500/50" 
+                    ? "bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white" 
                     : status === "active"
-                    ? "bg-blue-500 border-blue-500 shadow-lg shadow-blue-500/50 animate-pulse"
+                    ? "bg-neutral-900 dark:bg-white border-neutral-900 dark:border-white"
                     : "bg-slate-300 dark:bg-white/1 border-slate-300 dark:border-white/8"
                 }`}></div>
 
                 {/* Step Card */}
-                <div className={`ml-16 bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border-2 transition-all duration-300 ${
+                <div className={`ml-16 bg-white dark:bg-white/3 rounded-lg p-4 border transition-colors duration-200 ${
                   isActive
-                    ? 'border-blue-500 shadow-xl shadow-blue-500/20'
+                    ? 'border-neutral-900/20 dark:border-white/20'
                     : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
                 }`}>
                   {/* Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl bg-linear-to-r ${step.gradient} flex items-center justify-center text-white text-xl shadow-lg`}>
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-md bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white text-sm`}>
                         {step.icon}
           </div>
                       <div>
-                        <h4 className={`text-lg font-bold mb-1 ${step.color}`}>
+                        <h4 className={`text-sm font-semibold mb-1 text-neutral-900 dark:text-white`}>
                           {step.title}
           </h4>
                         <div className="flex items-center gap-3">
@@ -234,9 +228,9 @@ export const ProcessExplanation = () => {
                             {step.duration}
                           </span>
                           <span className={`text-xs px-2 py-1 rounded-full ${
-                            step.complexity === "Simple" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" :
-                            step.complexity === "Moderate" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" :
-                            "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+                            step.complexity === "Simple" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                            step.complexity === "Moderate" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
+                            "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300"
                           }`}>
                             {step.complexity}
                           </span>
@@ -244,33 +238,33 @@ export const ProcessExplanation = () => {
                       </div>
                     </div>
                     {status === "completed" && (
-                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <div className="w-6 h-6 bg-neutral-900 dark:bg-white rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">✓</span>
                       </div>
                     )}
                   </div>
 
                   {/* Description */}
-                  <p className="text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
+                  <p className="text-slate-600 dark:text-slate-400 text-xs mb-3 leading-relaxed">
                     {step.description}
                   </p>
 
                   {/* Active Step Details */}
                   {isActive && (
-                    <div className={`mt-6 pt-6 border-t border-slate-200 dark:border-white/6 transition-all duration-300 ${
+                    <div className={`mt-4 pt-4 border-t border-slate-200 dark:border-white/6 transition-all duration-300 ${
                       isAnimating ? 'animate-fade-in' : ''
                     }`}>
-                      <div className="grid md:grid-cols-2 gap-6">
+                      <div className="grid md:grid-cols-2 gap-4">
                         {/* Requirements */}
                         <div>
                           <h5 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                            <span className="text-blue-600">📋</span>
+                            <span>📋</span>
                             Requirements
                           </h5>
                           <ul className="space-y-2">
                             {step.requirements.map((req, idx) => (
                               <li key={idx} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                                 {req}
                               </li>
                             ))}
@@ -280,13 +274,13 @@ export const ProcessExplanation = () => {
                         {/* Tips */}
                         <div>
                           <h5 className="font-semibold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
-                            <span className="text-green-600">💡</span>
+                            <span>💡</span>
                             Pro Tips
                           </h5>
                           <ul className="space-y-2">
                             {step.tips.map((tip, idx) => (
                               <li key={idx} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                <div className="w-2 h-2 bg-neutral-400 dark:bg-neutral-500 rounded-full"></div>
                                 {tip}
                               </li>
                             ))}
@@ -295,13 +289,13 @@ export const ProcessExplanation = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-3 mt-6">
-                        <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                      <div className="flex gap-2 mt-3">
+                        <button className="h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                           Start This Step
-                        </Button>
-                        <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-6 py-2 rounded-xl transition-all duration-300">
+                        </button>
+                        <button className="h-8 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                           View Documentation
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   )}
@@ -313,21 +307,21 @@ export const ProcessExplanation = () => {
           </div>
 
       {/* Bottom CTA */}
-      <div className="mt-12 text-center">
-        <div className="bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-800">
-          <h4 className="text-xl font-bold mb-4 text-slate-900 dark:text-white">
+      <div className="mt-8 text-center">
+        <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
+          <h4 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
             Ready to Get Started?
           </h4>
-          <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 max-w-2xl mx-auto">
             Follow our step-by-step process and have your platform running in under 2 hours
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-linear-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
               Begin Setup Process
-            </Button>
-            <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+            </button>
+            <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
               Download Guide PDF
-            </Button>
+            </button>
           </div>
         </div>
       </div>

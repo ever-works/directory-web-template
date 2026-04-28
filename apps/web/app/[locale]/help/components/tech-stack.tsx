@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
 import { TechnologyCard } from './technology-card';
 
 interface TechItem {
@@ -325,25 +324,22 @@ export function TechStack() {
   };
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section>
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-full text-indigo-700 dark:text-indigo-300 text-sm font-medium mb-6">
-            <span>⚡</span>
-            {t('TECH_STACK_BADGE')}
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
+        <div className="mb-10">
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('TECH_STACK_BADGE')}</p>
+          <h2 className="text-2xl font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t('TECH_STACK_TITLE')}
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
             {t('TECH_STACK_SUBTITLE')}
           </p>
         </div>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <div className="text-center">
               <div className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
                 {stats.total}
@@ -353,9 +349,9 @@ export function TechStack() {
               </div>
             </div>
           </div>
-          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+              <div className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
                 {stats.highPopularity}
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
@@ -363,20 +359,21 @@ export function TechStack() {
               </div>
             </div>
           </div>
-          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white dark:hover:bg-white/6 transition-all duration-300 hover:transform hover:scale-105">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+              <div className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
                 {stats.avgPerformance}%
               </div>
               <div className="text-sm text-slate-600 dark:text-slate-400">
                 {t('TECH_STACK_AVG_PERFORMANCE')}
               </div>
             </div>
-                  </div>
-                </div>
+          </div>
+
+        </div>
 
         {/* Controls */}
-        <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-xl p-6 mb-8">
+        <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm p-5 mb-6">
           <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
             {/* Category Filter */}
             <div className="flex flex-wrap gap-2">
@@ -386,7 +383,7 @@ export function TechStack() {
                   onClick={() => setSelectedCategory(category.id)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                     selectedCategory === category.id
-                      ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25"
+                      ? "bg-gray-900 dark:bg-white text-white dark:text-gray-900"
                       : "bg-slate-100 dark:bg-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/8"
                   }`}
                 >
@@ -465,8 +462,8 @@ export function TechStack() {
         </div>
 
         {/* Results Summary */}
-        <div className="mt-12 text-center">
-          <div className="bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-6 border border-slate-200 dark:border-white/6">
+        <div className="mt-8 text-center">
+          <div className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6">
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               {t("SHOWING_TECHNOLOGIES", { filtered: filteredTech.length, total: techStack.length })}
             </p>
@@ -481,25 +478,25 @@ export function TechStack() {
                 </p>
               </div>
             )}
-              </div>
-              </div>
+            </div>
+          </div>
 
         {/* Bottom CTA */}
         <div className="mt-16 text-center">
-          <div className="bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl p-8 border border-indigo-200 dark:border-indigo-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+            <h3 className="text-lg font-semibold mb-3 text-slate-900 dark:text-white">
               {t("READY_TO_BUILD_WITH_TECH")}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-5 max-w-2xl mx-auto">
               {t("ALL_TECH_PRECONFIGURED")}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 {t("GET_STARTED_NOW")}
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 {t("VIEW_DOCUMENTATION")}
-              </Button>
+              </button>
             </div>
           </div>
         </div>

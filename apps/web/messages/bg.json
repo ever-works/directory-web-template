@@ -157,6 +157,7 @@
 		"DELETE_COLLECTION_CONFIRM": "Изтриване на колекция \"{name}\"? Това ще премахне присвояванията от елементите.",
 		"YOUR_PROFILE": "Вашият профил",
 		"YOUR_PROFILE_DESC": "Преглед и редактиране на профила Ви",
+		"CLIENT_DASHBOARD_DESC": "Вижте вашата активност и статистики",
 		"MANAGE_CATEGORIES_DESC": "Управление на категории",
 		"MANAGE_TAGS_DESC": "Управление на етикети",
 		"MANAGE_ITEMS_DESC": "Управление на елементи",

@@ -1,9 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import type { EngagementDistributionData } from '@/hooks/use-dashboard-stats';
-import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES, VALUE_STYLES, TOOLTIP_STYLES, CHART_COLORS } from './styles';
+import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES, VALUE_STYLES, getTooltipStyles, CHART_COLORS } from './styles';
 
 interface EngagementDistributionProps {
 	data: EngagementDistributionData[];
@@ -11,6 +12,8 @@ interface EngagementDistributionProps {
 }
 
 export function EngagementDistribution({ data, isLoading = false }: EngagementDistributionProps) {
+	const { resolvedTheme } = useTheme();
+	const isDark = resolvedTheme === 'dark';
 	const t = useTranslations('client.dashboard.ENGAGEMENT_DISTRIBUTION');
 
 	if (isLoading) {
@@ -67,7 +70,7 @@ export function EngagementDistribution({ data, isLoading = false }: EngagementDi
 					<XAxis type="number" stroke="#6B7280" fontSize={12} />
 					<YAxis type="category" dataKey="displayTitle" stroke="#6B7280" fontSize={11} width={120} />
 					<Tooltip
-						contentStyle={TOOLTIP_STYLES}
+						contentStyle={getTooltipStyles(isDark)}
 						formatter={(value) => [value, t('ENGAGEMENT')]}
 						labelFormatter={(label) => {
 							// Find exact match in chartData using displayTitle (which matches the label from YAxis)
@@ -82,16 +85,16 @@ export function EngagementDistribution({ data, isLoading = false }: EngagementDi
 					</Bar>
 				</BarChart>
 			</ResponsiveContainer>
-			<div className="mt-4 p-3 bg-gray-50 dark:bg-white/4 rounded-lg">
-				<div className="flex items-center justify-between text-sm">
-					<span className="text-gray-600 dark:text-gray-400">#1 {t('OF_TOTAL')}</span>
-					<span className="font-medium text-gray-900 dark:text-gray-100">
+			<div className="mt-4 p-3 bg-neutral-50 dark:bg-white/3 rounded-lg border border-neutral-100 dark:border-white/5">
+				<div className="flex items-center justify-between text-xs">
+					<span className="text-neutral-500 dark:text-neutral-400">#1 {t('OF_TOTAL')}</span>
+					<span className="font-medium text-neutral-900 dark:text-white">
 						{topItemPercentage.toFixed(1)}%
 					</span>
 				</div>
-				<div className="mt-2 h-2 bg-gray-200 dark:bg-white/8 rounded-full overflow-hidden">
+				<div className="mt-2 h-1.5 bg-neutral-200 dark:bg-white/8 rounded-full overflow-hidden">
 					<div
-						className="h-full bg-blue-500 rounded-full transition-all duration-300"
+						className="h-full bg-neutral-900 dark:bg-white rounded-full transition-all duration-300"
 						style={{ width: `${topItemPercentage}%` }}
 					/>
 				</div>

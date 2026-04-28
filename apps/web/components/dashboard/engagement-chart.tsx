@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from 'next-themes';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import { getTooltipStyles } from './styles';
 
 interface EngagementData {
   name: string;
@@ -15,20 +17,22 @@ interface EngagementChartProps {
 }
 
 export function EngagementChart({ data, isLoading = false }: EngagementChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/2"></div>
-          <div className="h-[250px] bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/2"></div>
+          <div className="h-62.5 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
+      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
         Community Engagement
       </h3>
       <ResponsiveContainer width="100%" height={250}>
@@ -50,14 +54,7 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#1F2937',
-              border: '1px solid #374151',
-              borderRadius: '8px',
-              color: '#F9FAFB'
-            }}
-          />
+          <Tooltip contentStyle={getTooltipStyles(isDark)} />
           <Legend />
         </PieChart>
       </ResponsiveContainer>

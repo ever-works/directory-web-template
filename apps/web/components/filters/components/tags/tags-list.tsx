@@ -39,7 +39,7 @@ const STICKY_LEFT_STYLES = clsx(
 const NAV_BUTTON_STYLES = clsx(
   "h-8 w-8 rounded-full bg-white dark:bg-[#161616] flex items-center justify-center",
   "border border-gray-200 dark:border-white/6 shadow-md hover:shadow-lg",
-  "hover:bg-gray-50 dark:hover:bg-white/6 transition-[background-color,box-shadow] duration-200",
+  "hover:bg-gray-50 dark:hover:bg-[#161616] transition-[background-color,box-shadow] duration-200",
   "focus:outline-none focus:ring-0 focus:ring-offset-0",
   "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0",
   "active:outline-none active:ring-0",

@@ -1,6 +1,8 @@
 "use client";
 
+import { useTheme } from 'next-themes';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getTooltipStyles } from './styles';
 
 interface ActivityData {
   date: string;
@@ -15,12 +17,14 @@ interface ActivityChartProps {
 }
 
 export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
   if (isLoading) {
     return (
-      <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
+      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
         <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-          <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+          <div className="h-64 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
         </div>
       </div>
     );
@@ -36,8 +40,8 @@ export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
   );
 
   return (
-    <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 p-6">
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
+      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
         Weekly Activity
       </h3>
       <ResponsiveContainer width="100%" height={250}>
@@ -45,26 +49,19 @@ export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
           data={validData} 
           aria-label="Weekly activity chart showing submissions, views, and engagement over time"
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(163,163,163,0.15)" />
           <XAxis 
             dataKey="date" 
-            stroke="#6B7280"
-            fontSize={12}
-            tick={{ fill: '#6B7280' }}
+            stroke="#a3a3a3"
+            fontSize={11}
+            tick={{ fill: '#a3a3a3' }}
           />
           <YAxis 
-            stroke="#6B7280"
-            fontSize={12}
-            tick={{ fill: '#6B7280' }}
+            stroke="#a3a3a3"
+            fontSize={11}
+            tick={{ fill: '#a3a3a3' }}
           />
-          <Tooltip 
-            contentStyle={{
-              backgroundColor: '#1F2937',
-              border: '1px solid #374151',
-              borderRadius: '8px',
-              color: '#F9FAFB'
-            }}
-          />
+          <Tooltip contentStyle={getTooltipStyles(isDark)} />
           <Line 
             type="monotone" 
             dataKey="submissions" 

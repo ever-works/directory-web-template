@@ -157,6 +157,7 @@
 		"DELETE_COLLECTION_CONFIRM": "\"{name}\" 컬렉션을 삭제하시겠습니까? 항목에서 할당이 제거됩니다.",
 		"YOUR_PROFILE": "내 프로필",
 		"YOUR_PROFILE_DESC": "프로필 보기 및 편집",
+		"CLIENT_DASHBOARD_DESC": "활동 및 통계 보기",
 		"MANAGE_CATEGORIES_DESC": "카테고리 관리",
 		"MANAGE_TAGS_DESC": "태그 관리",
 		"MANAGE_ITEMS_DESC": "항목 관리",
