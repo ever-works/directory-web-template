@@ -154,6 +154,17 @@ const ENGAGEMENT_COLORS = {
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+// ===================== User Items Cache =====================
+
+const USER_ITEMS_CACHE_TTL = 5 * 60 * 1000; // 5 minutes — matches frontend stale time
+
+interface CachedUserItems {
+    items: ItemData[];
+    timestamp: number;
+}
+
+const userItemsCache = new Map<string, CachedUserItems>();
+
 // ===================== Repository =====================
 
 /**
@@ -181,11 +192,15 @@ export class ClientDashboardRepository {
             return this.getEmptyStats();
         }
 
-        // Fetch user's items from Git repository
-        const userItems = await this.itemRepository.findAll({
-            submittedBy: userId,
-            includeDeleted: false,
-        });
+        // Fetch user's items from Git repository (cache per-user for TTL duration)
+        const now = Date.now();
+        const cachedEntry = userItemsCache.get(userId);
+        const userItems: ItemData[] = (cachedEntry && now - cachedEntry.timestamp < USER_ITEMS_CACHE_TTL)
+            ? cachedEntry.items
+            : await this.itemRepository.findAll({ submittedBy: userId, includeDeleted: false }).then(items => {
+                userItemsCache.set(userId, { items, timestamp: Date.now() });
+                return items;
+            });
 
         // Extract item slugs for database queries
         const itemSlugs = userItems.map(item => item.slug);

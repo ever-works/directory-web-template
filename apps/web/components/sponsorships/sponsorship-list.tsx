@@ -56,21 +56,21 @@ export function SponsorshipList({
 	// Empty state
 	if (items.length === 0) {
 		return (
-			<div className="flex flex-col items-center justify-center py-12 px-4">
-				<div className="w-16 h-16 bg-linear-to-br from-gray-100 to-gray-200 dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl flex items-center justify-center mb-4">
-					<FiDollarSign className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+			<div className="flex flex-col items-center justify-center py-8 px-4">
+				<div className="w-8 h-8 bg-gray-100 dark:bg-white/5 rounded-lg flex items-center justify-center mb-3">
+					<FiDollarSign className="w-4 h-4 text-gray-400 dark:text-gray-500" />
 				</div>
-				<h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+				<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-1">
 					{emptyStateTitle || t('EMPTY_STATE_TITLE')}
 				</h3>
-				<p className="text-gray-500 dark:text-gray-400 text-center max-w-md mb-6">
+				<p className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-sm mb-4">
 					{emptyStateDescription || t('EMPTY_STATE_DESC')}
 				</p>
 				<Link
 					href="/sponsor"
-					className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 hover:from-theme-primary-700 hover:to-theme-primary-800 text-white rounded-lg transition-all duration-300 font-medium shadow-xs hover:shadow-md"
+					className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 rounded-lg transition-all duration-300 font-medium text-xs"
 				>
-					<FiDollarSign className="w-4 h-4" />
+					<FiDollarSign className="w-3.5 h-3.5" />
 					{t('CREATE_FIRST_SPONSORSHIP')}
 				</Link>
 			</div>

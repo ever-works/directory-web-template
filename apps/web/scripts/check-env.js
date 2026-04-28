@@ -74,10 +74,15 @@ try {
   print('yellow', `⚠️  Could not read .env.example: ${error.message}`);
 }
 
+function hasNonEmptyValue(varName) {
+  return typeof process.env[varName] === 'string' && process.env[varName].trim() !== '';
+}
+
+const hasRuntimeAuthSecret = () => hasNonEmptyValue('AUTH_SECRET') || hasNonEmptyValue('COOKIE_SECRET');
+
 // Define critical variable patterns
 const CRITICAL_PATTERNS = [
   /^DATA_REPOSITORY$/,
-  /^AUTH_SECRET$/,
   /^NEXT_PUBLIC_APP_URL$/
 ];
 
@@ -139,16 +144,22 @@ if (uncategorizedVars.length > 0) {
 }
 
 // Determine which variables are missing based on .env.example
-const missingVars = exampleEnvVars.filter(varName => !process.env[varName]);
+const missingVars = exampleEnvVars.filter(varName => {
+  if (varName === 'AUTH_SECRET') {
+    return !hasRuntimeAuthSecret();
+  }
+
+  return !hasNonEmptyValue(varName);
+});
 
 // Determine which variables are critical
-const criticalVars = allEnvVars.filter(varName => 
-  CRITICAL_PATTERNS.some(pattern => pattern.test(varName))
-);
-
 const missingCriticalVars = missingVars.filter(varName => 
   CRITICAL_PATTERNS.some(pattern => pattern.test(varName))
 );
+
+if (!hasRuntimeAuthSecret()) {
+  missingCriticalVars.push('AUTH_SECRET or COOKIE_SECRET');
+}
 
 // Process and display environment variable status
 const allWarnings = [];

@@ -24,33 +24,33 @@ const statCardsConfig: StatCardConfig[] = [
 		key: 'total',
 		labelKey: 'TOTAL_SPONSORSHIPS',
 		icon: FiDollarSign,
-		colorClass: 'text-blue-600 dark:text-blue-400',
-		hoverShadow: 'hover:shadow-blue-500/10',
-		iconBg: 'from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40',
+		colorClass: 'text-gray-600 dark:text-gray-300',
+		hoverShadow: 'hover:shadow-gray-500/5',
+		iconBg: 'from-gray-100 to-gray-100 dark:from-white/5 dark:to-white/5',
 	},
 	{
 		key: 'active',
 		labelKey: 'ACTIVE',
 		icon: FiCheck,
-		colorClass: 'text-green-600 dark:text-green-400',
-		hoverShadow: 'hover:shadow-green-500/10',
-		iconBg: 'from-green-100 to-green-200 dark:from-green-900/40 dark:to-green-800/40',
+		colorClass: 'text-gray-600 dark:text-gray-300',
+		hoverShadow: 'hover:shadow-gray-500/5',
+		iconBg: 'from-gray-100 to-gray-100 dark:from-white/5 dark:to-white/5',
 	},
 	{
 		key: 'pending',
 		labelKey: 'PENDING',
 		icon: FiClock,
-		colorClass: 'text-yellow-600 dark:text-yellow-400',
-		hoverShadow: 'hover:shadow-yellow-500/10',
-		iconBg: 'from-yellow-100 to-yellow-200 dark:from-yellow-900/40 dark:to-yellow-800/40',
+		colorClass: 'text-gray-600 dark:text-gray-300',
+		hoverShadow: 'hover:shadow-gray-500/5',
+		iconBg: 'from-gray-100 to-gray-100 dark:from-white/5 dark:to-white/5',
 	},
 	{
 		key: 'expired',
 		labelKey: 'EXPIRED',
 		icon: FiXCircle,
-		colorClass: 'text-gray-600 dark:text-gray-400',
-		hoverShadow: 'hover:shadow-gray-500/10',
-		iconBg: 'from-gray-100 to-gray-200 dark:from-[#0a0a0a]/40 dark:to-[#0a0a0a]/40',
+		colorClass: 'text-gray-600 dark:text-gray-300',
+		hoverShadow: 'hover:shadow-gray-500/5',
+		iconBg: 'from-gray-100 to-gray-100 dark:from-white/5 dark:to-white/5',
 	},
 ];
 
@@ -83,22 +83,22 @@ export function SponsorshipStatsCards({ stats, isLoading = false }: SponsorshipS
 				return (
 					<Card
 						key={config.key}
-						className={`hover:shadow-md ${config.hoverShadow} border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
+						className={`hover:shadow-md border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
 					>
 						<CardContent className="p-3">
 							<div className="flex items-center gap-3">
-								<div className={`flex items-center justify-center w-9 h-9 bg-linear-to-br ${config.iconBg} rounded-lg shrink-0`}>
+								<div className={`flex items-center justify-center w-10 h-10 bg-linear-to-br bg-white dark:bg-white/4 rounded-lg shrink-0`}>
 									<Icon className={`w-4 h-4 ${config.colorClass}`} />
 								</div>
 								<div className="min-w-0">
+									<div className="text-xs text-gray-600 dark:text-gray-400 truncate">{t(config.labelKey)}</div>
 									{isLoading ? (
 										<div className="h-6 w-8 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
 									) : (
-										<div className={`text-xl font-bold ${config.key === 'total' ? 'text-gray-900 dark:text-gray-100' : config.colorClass}`}>
+										<div className={`text-xl font-bold ${config.key === 'total' ? 'text-gray-900 dark:text-gray-100' : ""}`}>
 											{value}
 										</div>
 									)}
-									<div className="text-xs text-gray-600 dark:text-gray-400 truncate">{t(config.labelKey)}</div>
 								</div>
 							</div>
 						</CardContent>

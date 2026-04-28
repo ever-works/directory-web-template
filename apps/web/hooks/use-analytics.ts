@@ -1,56 +1,72 @@
-import { useCallback } from 'react';
+'use client';
+
+import { useMemo } from 'react';
 import { analytics } from '@/lib/analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
 
-type EventProperties = Record<string, any>;
-
+/**
+ * useAnalytics Hook
+ * 
+ * Provides a type-safe and consistent way to access analytics methods 
+ * from any Client Component.
+ * 
+ * @example
+ * ```tsx
+ * const { track, identify } = useAnalytics();
+ * 
+ * // Using standard events
+ * track(AnalyticsEvent.PURCHASE_COMPLETED, { amount: 99, currency: 'USD' });
+ * 
+ * // Using custom strings (if needed)
+ * track('custom_special_event', { foo: 'bar' });
+ * ```
+ */
 export function useAnalytics() {
-  const trackEvent = useCallback((eventName: string, properties?: EventProperties) => {
-    analytics.track(eventName, properties);
-  }, []);
+  const actions = useMemo(() => ({
+    /**
+     * Track a custom event.
+     * Prefers AnalyticsEvent enum for consistency.
+     */
+    track: (eventName: AnalyticsEvent | string, properties?: Record<string, any>) => {
+      analytics.track(eventName as string, properties);
+    },
 
-  const trackConversion = useCallback((conversionName: string, properties?: EventProperties) => {
-    analytics.track(`conversion_${conversionName}`, {
-      ...properties,
-      conversion_type: conversionName,
-      timestamp: new Date().toISOString(),
-    });
-  }, []);
+    /**
+     * Identify the current user.
+     * Call this after login or when user data is available.
+     */
+    identify: (userId: string, properties?: Record<string, any>) => {
+      analytics.identify(userId, properties);
+    },
 
-  const trackUserAction = useCallback((action: string, properties?: EventProperties) => {
-    analytics.track(`user_action_${action}`, {
-      ...properties,
-      action_type: action,
-      timestamp: new Date().toISOString(),
-    });
-  }, []);
+    /**
+     * Capture an exception and send it to enabled providers (PostHog/Sentry).
+     */
+    captureException: (error: Error | string, context?: Record<string, any>) => {
+      analytics.captureException(error, context);
+    },
 
-  const identifyUser = useCallback((userId: string, properties?: EventProperties) => {
-    analytics.identify(userId, properties);
-  }, []);
+    /**
+     * Reset user identity (call this at logout).
+     */
+    reset: () => {
+      analytics.reset();
+    },
 
-  const setUserProperties = useCallback((properties: EventProperties) => {
-    analytics.setUserProperties(properties);
-  }, []);
+    /**
+     * Set properties for the current user profile.
+     */
+    setUserProperties: (properties: Record<string, any>) => {
+      analytics.setUserProperties(properties);
+    },
 
-  return {
-    trackEvent,
-    trackConversion,
-    trackUserAction,
-    identifyUser,
-    setUserProperties,
-  };
+    /**
+     * Check if a PostHog feature flag is enabled.
+     */
+    isFeatureEnabled: (flagKey: string, defaultValue = false) => {
+      return analytics.isFeatureEnabled(flagKey, defaultValue);
+    }
+  }), []);
+
+  return actions;
 }
-
-// Example usage:
-/*
-const { trackEvent, trackConversion } = useAnalytics();
-
-// Track a general event
-trackEvent('button_clicked', { buttonId: 'submit' });
-
-// Track a conversion
-trackConversion('signup_completed', { plan: 'pro' });
-
-// Track a user action
-trackUserAction('profile_updated', { fields: ['name', 'email'] });
-*/ 

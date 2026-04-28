@@ -1,15 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentType } from "react";
 import { useTranslations } from 'next-intl';
-import { Button } from "@/components/ui/button";
-
+import { Settings, Target, Rocket, Zap, Lock, Smartphone, Palette } from "lucide-react";
 interface Step {
   id: string;
   number: string;
   title: string;
   description: string;
-  icon: string;
+  Icon: ComponentType<{ className?: string }>;
   color: string;
   gradient: string;
   code: string;
@@ -27,7 +26,7 @@ export function HowItWorks() {
       number: "01",
       title: t('HOW_IT_WORKS_STEP1_TITLE'),
       description: t('HOW_IT_WORKS_STEP1_DESC'),
-      icon: "⚙️",
+      Icon: Settings,
       color: "text-blue-600 dark:text-blue-400",
       gradient: "from-blue-500 to-cyan-500",
       codeLanguage: "bash",
@@ -54,7 +53,7 @@ cp .env.example .env`,
       number: "02", 
       title: t('HOW_IT_WORKS_STEP2_TITLE'),
       description: t('HOW_IT_WORKS_STEP2_DESC'),
-      icon: "🎯",
+      Icon: Target,
       color: "text-purple-600 dark:text-purple-400",
       gradient: "from-purple-500 to-pink-500",
       codeLanguage: "env",
@@ -86,7 +85,7 @@ STRIPE_SECRET_KEY=your_stripe_secret`,
       number: "03",
       title: t('HOW_IT_WORKS_STEP3_TITLE'),
       description: t('HOW_IT_WORKS_STEP3_DESC'),
-      icon: "🚀",
+      Icon: Rocket,
       color: "text-green-600 dark:text-green-400",
       gradient: "from-green-500 to-emerald-500",
       codeLanguage: "bash",
@@ -110,75 +109,69 @@ vercel --prod`,
 
   const benefits = [
     {
-      icon: "⚡",
+      Icon: Zap,
       title: t('BENEFITS_FAST_TITLE'),
       description: t('BENEFITS_FAST_DESC')
     },
     {
-      icon: "🔒",
+      Icon: Lock,
       title: t('BENEFITS_SECURE_TITLE'),
       description: t('BENEFITS_SECURE_DESC')
     },
     {
-      icon: "📱",
+      Icon: Smartphone,
       title: t('BENEFITS_MOBILE_TITLE'),
       description: t('BENEFITS_MOBILE_DESC')
     },
     {
-      icon: "🎨",
+      Icon: Palette,
       title: t('BENEFITS_CUSTOMIZABLE_TITLE'),
       description: t('BENEFITS_CUSTOMIZABLE_DESC')
     }
   ];
 
   return (
-    <section className="py-20 bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div>
           {/* Header */}
-          <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-700 dark:text-blue-300 text-sm font-medium mb-6">
-            <span>🎯</span>
-              {t('HOW_IT_WORKS_TITLE')}
-          </div>
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 dark:text-white">
-              {t('HOW_IT_WORKS_SUBTITLE')}
-            </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed">
-              {t('HOW_IT_WORKS_DESCRIPTION')}
-            </p>
+          <div className="mb-8">
+            <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t('HOW_IT_WORKS_TITLE')}</p>
+            <h2 className="text-2xl font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
+                {t('HOW_IT_WORKS_SUBTITLE')}
+              </h2>
+              <p className="text-neutral-500 dark:text-neutral-400 text-sm max-w-2xl leading-relaxed">
+                {t('HOW_IT_WORKS_DESCRIPTION')}
+              </p>
           </div>
 
         {/* Interactive Steps */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-16">
+        <div className="grid lg:grid-cols-3 gap-6 mb-12">
               {steps.map((step, index) => (
                 <div
               key={step.id}
-              className={`relative group cursor-pointer transition-all duration-300 ${
-                activeStep === index 
-                  ? 'transform scale-105' 
-                  : 'hover:transform hover:scale-102'
-              }`}
+              className="relative group cursor-pointer"
               onClick={() => setActiveStep(index)}
                 >
               {/* Step Card */}
-              <div className={`relative bg-white/80 dark:bg-white/3 backdrop-blur-xs rounded-2xl p-8 border-2 transition-all duration-300 ${
+              <div className={`relative bg-white dark:bg-white/3 rounded-xl p-6 border transition-colors duration-200 ${
                 activeStep === index
-                  ? 'border-blue-500 shadow-xl shadow-blue-500/20'
+                  ? 'border-neutral-900/20 dark:border-white/20'
                   : 'border-slate-200 dark:border-white/6 hover:border-slate-300 dark:hover:border-white/8'
               }`}>
                 {/* Step Number */}
-                <div className={`w-16 h-16 rounded-full bg-linear-to-r ${step.gradient} flex items-center justify-center text-white font-bold text-xl mb-6 group-hover:scale-110 transition-transform duration-300`}>
+                <div className="w-10 h-10 rounded-lg bg-neutral-900 dark:bg-white/10 flex items-center justify-center text-white dark:text-neutral-400 font-bold text-sm mb-4">
                   {step.number}
                 </div>
 
                 {/* Step Icon */}
-                <div className="text-4xl mb-4">{step.icon}</div>
+                <div className="w-7 h-7 flex items-center justify-center mb-3">
+                  <step.Icon className="w-4 h-4 text-neutral-700 dark:text-neutral-400" />
+                </div>
 
                 {/* Step Content */}
-                <h3 className={`text-xl font-bold mb-3 ${step.color}`}>
+                <h3 className="text-sm font-semibold mb-1.5 text-neutral-900 dark:text-white">
                   {step.title}
                 </h3>
-                <p className="text-slate-600 dark:text-slate-400 leading-relaxed mb-6">
+                <p className="text-neutral-500 dark:text-neutral-400 text-sm leading-relaxed mb-4">
                   {step.description}
                 </p>
 
@@ -186,34 +179,29 @@ vercel --prod`,
                 <div className="space-y-2">
                   {step.features.map((feature, featureIndex) => (
                     <div key={featureIndex} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                      <div className={`w-2 h-2 rounded-full bg-linear-to-r ${step.gradient}`}></div>
+                      <div className="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600"></div>
                       {feature}
                     </div>
                   ))}
                   </div>
 
-                {/* Active Indicator */}
-                {activeStep === index && (
-                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                  </div>
-                )}
+
                   </div>
                 </div>
               ))}
             </div>
 
         {/* Code Preview */}
-        <div className="mb-16">
-          <div className="bg-white/90 dark:bg-white/3 backdrop-blur-xs rounded-2xl border border-slate-200 dark:border-white/6 shadow-2xl overflow-hidden">
+        <div className="mb-12">
+          <div className="bg-white dark:bg-white/3 rounded-xl border border-slate-200 dark:border-white/6 shadow-sm overflow-hidden">
             {/* Code Header */}
             <div className="bg-slate-100 dark:bg-[#0a0a0a] px-6 py-4 border-b border-slate-200 dark:border-white/6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex gap-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
+                      <div className="w-3 h-3 bg-neutral-300 dark:bg-neutral-600 rounded-full"></div>
                     </div>
                   <span className="text-slate-600 dark:text-slate-400 text-sm font-medium">
                     {steps[activeStep].codeLanguage}
@@ -236,12 +224,7 @@ vercel --prod`,
                       <span className="text-slate-500 dark:text-slate-600 mr-4 select-none w-8 text-right">
                         {index + 1}
                             </span>
-                            <span className={
-                        line.startsWith('#') ? 'text-slate-500 dark:text-slate-500' :
-                        line.includes('=') ? 'text-blue-600 dark:text-blue-400' :
-                        line.includes('pnpm') || line.includes('git') ? 'text-green-600 dark:text-green-400' :
-                        'text-slate-800 dark:text-slate-200'
-                            }>
+                            <span className="text-slate-800 dark:text-slate-200">
                               {line}
                             </span>
                           </div>
@@ -253,21 +236,23 @@ vercel --prod`,
               </div>
 
         {/* Benefits Grid */}
-        <div className="mb-16">
-          <h3 className="text-2xl font-bold text-center mb-12 text-slate-900 dark:text-white">
+        <div className="mb-12">
+          <h3 className="text-sm font-semibold mb-4 text-neutral-900 dark:text-white">
             {t('WHY_CHOOSE_PLATFORM')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {benefits.map((benefit, index) => (
               <div
                 key={index}
-                className="bg-white/60 dark:bg-white/3 backdrop-blur-xs rounded-xl p-6 border border-slate-200 dark:border-white/6 hover:bg-white/80 dark:hover:bg-white/5 transition-all duration-300 hover:transform hover:scale-105"
+                className="bg-white dark:bg-white/3 rounded-xl p-5 border border-slate-200 dark:border-white/6 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-200"
               >
-                <div className="text-3xl mb-4">{benefit.icon}</div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-2">
+                <div className="w-7 h-7 flex items-center justify-center mb-3">
+                  <benefit.Icon className="w-4 h-4 text-neutral-600 dark:text-neutral-400" />
+                </div>
+                <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">
                   {benefit.title}
                 </h4>
-                <p className="text-slate-600 dark:text-slate-400 text-sm">
+                <p className="text-neutral-500 dark:text-neutral-400 text-xs leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
@@ -277,24 +262,23 @@ vercel --prod`,
 
         {/* Call to Action */}
         <div className="text-center">
-          <div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 rounded-2xl p-8 border border-blue-200 dark:border-blue-800">
-            <h3 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
+          <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-8 border border-gray-100 dark:border-white/6">
+            <h3 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
               {t('READY_TO_GET_STARTED')}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-2xl mx-auto">
+            <p className="text-neutral-500 dark:text-neutral-400 text-sm mb-5 max-w-xl mx-auto">
               {t('JOIN_DEVELOPERS_DESC')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button className="bg-linear-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
                 {t('START_BUILDING_NOW')}
-              </Button>
-              <Button variant="outline" className="border-2 border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6 font-semibold px-8 py-3 rounded-xl transition-all duration-300">
+              </button>
+              <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
                 {t('VIEW_DOCUMENTATION')}
-              </Button>
-              </div>
+              </button>
             </div>
           </div>
         </div>
-    </section>
+    </div>
   );
 } 

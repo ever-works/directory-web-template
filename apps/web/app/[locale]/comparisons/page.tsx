@@ -84,7 +84,7 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
 											<span className='font-extralight'>{formatComparisonDate(comparison.generated_at, locale)}</span>
 										</div>
 
-										<h2 className="text-sm mb-4 font-semibold md:mb-10 text-gray-900 leading-6 transition-colors group-hover:text-theme-primary dark:text-gray-200 text-start">
+										<h2 className="text-sm mb-4 font-normal md:mb-10 text-gray-900 leading-6 transition-colors group-hover:text-theme-primary dark:text-gray-200 text-start">
 											{comparison.title}
 										</h2>
 
@@ -94,11 +94,11 @@ export default async function ComparisonsPage({ params }: { params: Promise<{ lo
 											<span className="font-extralight">{comparison.item_b_name}</span>
 										</div>
 
-										<p className="mt-3 mb-8 text-start line-clamp-4 text-sm text-gray-600 dark:text-gray-500">
+										<p className="mt-3 mb-8 text-start line-clamp-4 text-sm text-gray-400 dark:text-gray-500">
 											{comparison.summary}
 										</p>
 
-										<div className="flex items-center justify-between text-xs border-t pt-6 border-gray-600 dark:border-gray-700/30">
+										<div className="flex items-center justify-between text-xs border-t pt-6 border-gray-300 dark:border-gray-700/30">
 											<span className="inline-flex items-center px-2 py-1 rounded-full bg-theme-primary/10 dark:bg-white/4 border border-theme-primary/20 dark:border-white/30 font-medium text-theme-primary dark:text-white/60 group-hover:dark:text-white/90 dark:group-hover:bg-white/6 transition-all duration-300">
 												{t('DIMENSIONS_COUNT', { count: comparison.dimensions.length })}
 											</span>

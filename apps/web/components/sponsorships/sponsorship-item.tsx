@@ -58,24 +58,24 @@ export function SponsorshipItem({
 	};
 
 	return (
-		<div className="p-4 bg-white dark:bg-white/3 rounded-lg border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/6 transition-colors">
-			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+		<div className="p-3 bg-white dark:bg-white/3 rounded-lg border border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/8 transition-colors">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
 				{/* Item Info */}
-				<div className="flex items-start gap-3 min-w-0 flex-1">
-					<div className="flex-shrink-0 w-10 h-10 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-lg flex items-center justify-center">
-						<FiPackage className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
+				<div className="flex items-center gap-2.5 min-w-0 flex-1">
+					<div className="flex-shrink-0 w-7 h-7 bg-gray-100 dark:bg-white/5 rounded flex items-center justify-center">
+						<FiPackage className="w-3.5 h-3.5 text-gray-600 dark:text-gray-300" />
 					</div>
 					<div className="min-w-0 flex-1">
-						<h3 className="text-base font-medium text-gray-900 dark:text-gray-100 truncate">
+						<h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
 							{formatSlugToTitle(sponsorAd.itemSlug)}
 						</h3>
-						<div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 text-sm text-gray-500 dark:text-gray-400">
-							<span className="inline-flex items-center gap-1">
-								<FiClock className="w-3.5 h-3.5" />
+						<div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+							<span className="inline-flex items-center gap-0.5">
+								<FiClock className="w-3 h-3" />
 								{t(`INTERVAL_${sponsorAd.interval?.toUpperCase()}`)}
 							</span>
-							<span className="inline-flex items-center gap-1">
-								<FiDollarSign className="w-3.5 h-3.5" />
+							<span className="inline-flex items-center gap-0.5">
+								<FiDollarSign className="w-3 h-3" />
 								{formatCurrencyAmount(price, pricingConfig.currency)}
 							</span>
 						</div>
@@ -83,11 +83,11 @@ export function SponsorshipItem({
 				</div>
 
 				{/* Status, Dates & View Details */}
-				<div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+				<div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
 					{/* Dates */}
-					<div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-						<FiCalendar className="w-4 h-4 flex-shrink-0" />
-						<span>
+					<div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+						<FiCalendar className="w-3.5 h-3.5 flex-shrink-0" />
+						<span className="whitespace-nowrap">
 							{formatDateShort(sponsorAd.startDate)} - {formatDateShort(sponsorAd.endDate)}
 						</span>
 					</div>
@@ -95,7 +95,7 @@ export function SponsorshipItem({
 					{/* Status Badge */}
 					<span
 						className={`
-							inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap
+							inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap
 							${statusConfig.bg} ${statusConfig.text}
 						`}
 					>
@@ -106,9 +106,9 @@ export function SponsorshipItem({
 					{onViewDetails && (
 						<button
 							onClick={handleViewDetails}
-							className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 hover:bg-theme-primary-50 dark:hover:bg-theme-primary-900/20 rounded-lg transition-colors"
+							className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-white/8 rounded-lg transition-colors"
 						>
-							<FiEye className="w-4 h-4" />
+							<FiEye className="w-3.5 h-3.5" />
 							{t('VIEW_DETAILS')}
 						</button>
 					)}
@@ -117,15 +117,16 @@ export function SponsorshipItem({
 
 			{/* Action Buttons */}
 			{hasActions && (
-				<div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/6 flex flex-wrap items-center gap-2">
+				<div className="mt-3 pt-2 border-t border-gray-100 dark:border-white/6 flex flex-wrap items-center gap-1.5">
 					{canPayNow && onPayNow && (
 						<Button
 							size="sm"
-							color="success"
+							color="default"
 							variant="flat"
 							onPress={() => onPayNow(sponsorAd)}
 							isDisabled={isActionDisabled}
-							startContent={<CreditCard className="w-4 h-4" />}
+							className="text-xs h-7 px-2.5"
+							startContent={<CreditCard className="w-3 h-3" />}
 						>
 							{t('PAY_NOW')}
 						</Button>
@@ -133,11 +134,12 @@ export function SponsorshipItem({
 					{canRenew && onRenew && (
 						<Button
 							size="sm"
-							color="primary"
+							color="default"
 							variant="flat"
 							onPress={() => onRenew(sponsorAd)}
 							isDisabled={isActionDisabled}
-							startContent={<RefreshCw className="w-4 h-4" />}
+							className="text-xs h-7 px-2.5"
+							startContent={<RefreshCw className="w-3 h-3" />}
 						>
 							{t('RENEW')}
 						</Button>
@@ -145,11 +147,12 @@ export function SponsorshipItem({
 					{canCancel && onCancel && (
 						<Button
 							size="sm"
-							color="danger"
+							color="default"
 							variant="light"
 							onPress={() => onCancel(sponsorAd)}
 							isDisabled={isActionDisabled}
-							startContent={<XCircle className="w-4 h-4" />}
+							className="text-xs h-7 px-2.5"
+							startContent={<XCircle className="w-3 h-3" />}
 						>
 							{t('CANCEL')}
 						</Button>

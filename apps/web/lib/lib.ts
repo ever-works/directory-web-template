@@ -50,6 +50,46 @@ async function hasContentFiles(contentPath: string): Promise<boolean> {
     }
 }
 
+async function hasUsableContent(contentPath: string): Promise<boolean> {
+    if (!(await hasContentFiles(contentPath))) {
+        return false;
+    }
+
+    if (!process.env.DATA_REPOSITORY) {
+        return true;
+    }
+
+    try {
+        await fs.access(path.join(contentPath, '.git'));
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function getBundledContentPath(): string {
+    return path.join(process.cwd(), '.content');
+}
+
+async function hydrateRuntimeContentFromBundle(runtimeContentPath: string): Promise<boolean> {
+    const bundledContentPath = getBundledContentPath();
+
+    if (!(await hasUsableContent(bundledContentPath))) {
+        return false;
+    }
+
+    try {
+        console.log('[CONTENT] Hydrating runtime content from bundled deployment artifact...');
+        await fs.rm(runtimeContentPath, { recursive: true, force: true });
+        await fs.mkdir(path.dirname(runtimeContentPath), { recursive: true });
+        await fs.cp(bundledContentPath, runtimeContentPath, { recursive: true });
+        return await hasUsableContent(runtimeContentPath);
+    } catch (error) {
+        console.error('[CONTENT] Failed to hydrate runtime content from bundled artifact:', error);
+        return false;
+    }
+}
+
 /**
  * Ensures content directory is available at runtime.
  * 
@@ -72,10 +112,13 @@ async function hasContentFiles(contentPath: string): Promise<boolean> {
  */
 export async function ensureContentAvailable(): Promise<string> {
     const state = getContentInitState();
+    const contentPath = getContentPath();
+    const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+    const isVercelRuntime = !!process.env.VERCEL && !isBuildPhase;
 
     // If already initialized and has content, return immediately
-    if (state.initialized) {
-        return getContentPath();
+    if (state.initialized && (await hasUsableContent(contentPath))) {
+        return contentPath;
     }
 
     // If initialization is in progress, wait for it
@@ -85,8 +128,6 @@ export async function ensureContentAvailable(): Promise<string> {
 
     // Start initialization
     state.promise = (async () => {
-        const contentPath = getContentPath();
-
         // Ensure directory exists
         try {
             await fs.mkdir(contentPath, { recursive: true });
@@ -95,11 +136,16 @@ export async function ensureContentAvailable(): Promise<string> {
         }
 
         // Check if content actually exists (not just empty directory)
-        const hasContent = await hasContentFiles(contentPath);
+        let hasContent = await hasUsableContent(contentPath);
+
+        if (!hasContent && isVercelRuntime) {
+            hasContent = await hydrateRuntimeContentFromBundle(contentPath);
+        }
         
         if (!hasContent) {
             // Content doesn't exist - need to clone from Git
-            // This happens on first request to a cold container
+            // This happens on first request to a cold container if the bundled
+            // deployment artifact is unavailable or stale.
             console.log('[CONTENT] No content found, triggering repository sync...');
             
             try {
@@ -113,9 +159,17 @@ export async function ensureContentAvailable(): Promise<string> {
             }
         }
 
-        state.initialized = true;
+        const contentReady = await hasUsableContent(contentPath);
+        state.initialized = contentReady;
+
+        if (!contentReady) {
+            console.warn('[CONTENT] Content is still unavailable after initialization attempt; will retry on next request.');
+        }
+
         return contentPath;
-    })();
+    })().finally(() => {
+        state.promise = null;
+    });
 
     return state.promise;
 }

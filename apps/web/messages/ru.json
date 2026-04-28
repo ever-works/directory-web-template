@@ -157,6 +157,7 @@
 		"DELETE_COLLECTION_CONFIRM": "Удалить коллекцию \"{name}\"? Это удалит назначения элементов.",
 		"YOUR_PROFILE": "Ваш профиль",
 		"YOUR_PROFILE_DESC": "Просмотр и редактирование вашего профиля",
+		"CLIENT_DASHBOARD_DESC": "Просмотр вашей активности и статистики",
 		"MANAGE_CATEGORIES_DESC": "Управление категориями",
 		"MANAGE_TAGS_DESC": "Управление тегами",
 		"MANAGE_ITEMS_DESC": "Управление элементами",

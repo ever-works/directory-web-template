@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useTheme } from "next-themes";
 import {
     LineChart,
     Line,
@@ -17,7 +18,7 @@ import {
     TITLE_STYLES,
     SUBTITLE_STYLES,
     VALUE_STYLES,
-    TOOLTIP_STYLES,
+    getTooltipStyles,
 } from "./styles";
 
 interface EngagementOverviewData {
@@ -37,6 +38,8 @@ export function EngagementRateChart({
     totalSubmissions,
     isLoading = false,
 }: EngagementRateChartProps) {
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === 'dark';
     const t = useTranslations("client.dashboard.ENGAGEMENT_RATE");
     const tCommon = useTranslations("client.dashboard.COMMON");
 
@@ -66,8 +69,8 @@ export function EngagementRateChart({
         return (
             <div className={CARD_BASE_STYLES}>
                 <div className="animate-pulse">
-                    <div className="h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-gray-200 dark:bg-white/8 rounded-sm"></div>
+                    <div className="h-4 bg-neutral-100 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
+                    <div className="h-64 bg-neutral-100 dark:bg-white/8 rounded-sm"></div>
                 </div>
             </div>
         );
@@ -115,16 +118,16 @@ export function EngagementRateChart({
                 >
                     <CartesianGrid
                         strokeDasharray="3 3"
-                        stroke="var(--tw-prose-hr, #e5e7eb)"
+                        stroke="rgba(163,163,163,0.15)"
                     />
-                    <XAxis dataKey="week" stroke="#6B7280" fontSize={12} />
+                    <XAxis dataKey="week" stroke="#a3a3a3" fontSize={11} />
                     <YAxis
-                        stroke="#6B7280"
-                        fontSize={12}
+                        stroke="#a3a3a3"
+                        fontSize={11}
                         tickFormatter={(value: number) => `${value.toFixed(0)}%`}
                     />
                     <Tooltip
-                        contentStyle={TOOLTIP_STYLES}
+                        contentStyle={getTooltipStyles(isDark)}
                         formatter={(value, name) => {
                             if (name === "rate") {
                                 return [`${Number(value).toFixed(2)}%`, t("RATE")];
@@ -146,23 +149,23 @@ export function EngagementRateChart({
                     <Line
                         type="monotone"
                         dataKey="rate"
-                        stroke="#3B82F6"
+                        stroke="#171717"
                         strokeWidth={2}
-                        dot={{ fill: "#3B82F6", strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, fill: "#3B82F6" }}
+                        dot={{ fill: "#171717", strokeWidth: 2, r: 4 }}
+                        activeDot={{ r: 6, fill: "#171717" }}
                     />
                 </LineChart>
             </ResponsiveContainer>
             <div className="mt-4 flex justify-between text-xs">
                 <div className="flex items-center gap-2">
-                    <div className="h-0.5 w-4 bg-blue-500" />
-                    <span className="text-gray-600 dark:text-gray-400">
+                    <div className="h-0.5 w-4 bg-neutral-900 dark:bg-neutral-300" />
+                    <span className="text-neutral-600 dark:text-neutral-400">
                         {t("RATE")}
                     </span>
                 </div>
                 <div className="flex items-center gap-2">
                     <div className="h-0.5 w-4 border-t-2 border-dashed border-purple-500" />
-                    <span className="text-gray-600 dark:text-gray-400">
+                    <span className="text-neutral-600 dark:text-neutral-400">
                         {tCommon("AVG")}: {avgRate.toFixed(1)}%
                     </span>
                 </div>

@@ -157,6 +157,7 @@
 		"DELETE_COLLECTION_CONFIRM": "Hapus koleksi \"{name}\"? Ini akan menghapus penugasan dari item.",
 		"YOUR_PROFILE": "Profil Anda",
 		"YOUR_PROFILE_DESC": "Lihat dan edit profil Anda",
+		"CLIENT_DASHBOARD_DESC": "Lihat aktivitas dan statistik Anda",
 		"MANAGE_CATEGORIES_DESC": "Kelola kategori",
 		"MANAGE_TAGS_DESC": "Kelola tag",
 		"MANAGE_ITEMS_DESC": "Kelola item",

@@ -165,12 +165,13 @@ function ProfileButton() {
   // Warn once when user data is incomplete (dev only)
   useEffect(() => {
     if (process.env.NODE_ENV !== 'development') return;
+    if (isLoading) return; // don't warn while data is still fetching
     if (warnedRef.current) return;
-    if (!user?.email || !user?.name) {
+    if (user && (!user.email || !user.name)) {
       console.warn('User data incomplete:', user);
       warnedRef.current = true;
     }
-  }, [user]);
+  }, [user, isLoading]);
 
   if (isLoading) {
     return (

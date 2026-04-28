@@ -1,4 +1,4 @@
-import { createAppError, ErrorType, validateEnvVariables, logError } from '../utils/error-handler';
+import { createAppError, ErrorType, logError } from '../utils/error-handler';
 import { coreConfig, authConfig } from '@/lib/config/config-service';
 export { logError } from '../utils/error-handler';
 
@@ -6,8 +6,17 @@ export { logError } from '../utils/error-handler';
  * Validates required environment variables for authentication providers
  */
 export function validateAuthConfig() {
-	// Base NextAuth environment variables
-	const baseNextAuthVars = ['AUTH_SECRET', 'NEXT_PUBLIC_APP_URL'];
+	const hasRuntimeAuthSecret =
+		!!process.env.AUTH_SECRET?.trim() || !!process.env.COOKIE_SECRET?.trim();
+	const baseWarnings: string[] = [];
+
+	if (!hasRuntimeAuthSecret) {
+		baseWarnings.push('AUTH_SECRET or COOKIE_SECRET');
+	}
+
+	if (!process.env.NEXT_PUBLIC_APP_URL?.trim()) {
+		baseWarnings.push('NEXT_PUBLIC_APP_URL');
+	}
 
 	// Provider-specific environment variables
 	const providerEnvVars = {
@@ -18,9 +27,8 @@ export function validateAuthConfig() {
 		supabase: ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY']
 	};
 
-	// Check base NextAuth variables but don't throw errors
-	const baseError = validateEnvVariables(baseNextAuthVars);
-	if (baseError) {
+	// Check base auth variables but don't throw errors
+	if (baseWarnings.length > 0) {
 		// Suppress warnings during CI/linting
 		// Check if process exists and has argv property (safe way for Edge compilation)
 		const argv = typeof process !== 'undefined' ? (process as any).argv : undefined;
@@ -33,7 +41,9 @@ export function validateAuthConfig() {
 
 		if (!shouldSuppress) {
 			// Just log a warning instead of throwing an error
-			console.warn(`[AUTH CONFIG WARNING] NextAuth base configuration incomplete: ${baseError.message}`);
+			console.warn(
+				`[AUTH CONFIG WARNING] NextAuth base configuration incomplete: missing ${baseWarnings.join(', ')}`
+			);
 			console.warn('Authentication features may be limited.');
 		}
 	}
