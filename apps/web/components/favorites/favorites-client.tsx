@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Category, ItemData, Tag } from '@/lib/content';
 import Item from '../item';
@@ -49,6 +49,24 @@ export function FavoritesClient(props: ListingProps) {
 		[setLayoutKey]
 	);
 
+	// Filter items to only show favorites
+	const favoriteItems = useMemo(
+		() => props.items.filter((item) => favorites.some((fav) => fav.itemSlug === item.slug)),
+		[props.items, favorites]
+	);
+
+	// Get favorited item slugs for exclusion
+	const favoritedSlugs = useMemo(
+		() => new Set(favorites.map((fav) => fav.itemSlug)),
+		[favorites]
+	);
+
+	// Carousel items should EXCLUDE favorited items
+	const carouselItems = useMemo(
+		() => props.items.filter((item) => !favoritedSlugs.has(item.slug)),
+		[props.items, favoritedSlugs]
+	);
+
 	// Pagination state for favorites
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 12;
@@ -61,11 +79,12 @@ export function FavoritesClient(props: ListingProps) {
 	const [popularPage, setPopularPage] = useState(1);
 	const popularItemsPerPage = 12;
 
-	// Filter items to only show favorites
-	const favoriteItems = useMemo(
-		() => props.items.filter((item) => favorites.some((fav) => fav.itemSlug === item.slug)),
-		[props.items, favorites]
-	);
+	// Carousel state for recommendations
+	const [carouselPosition, setCarouselPosition] = useState(0);
+	const carouselRef = useRef<HTMLDivElement>(null);
+	const carouselItemWidth = 344; // w-80 (320px) + gap-6 (24px) = 344px
+	const carouselItemsToShow = 4;
+	const carouselItemsTotal = Math.min(carouselItems.length, 12); // Max items to display in carousel
 
 	// Sort favorites
 	const sortedFavoriteItems = useMemo(
@@ -116,6 +135,24 @@ export function FavoritesClient(props: ListingProps) {
 	const handlePopularPageChange = (page: number) => {
 		clampAndScrollToTop(page, popularTotalPages, setPopularPage);
 	};
+
+	// Carousel functions - improved logic
+	const carouselMaxScroll = Math.max(0, (carouselItemsTotal - carouselItemsToShow) * carouselItemWidth);
+
+	const handleCarouselPrev = useCallback(() => {
+		setCarouselPosition((prev) => Math.max(prev - carouselItemWidth, 0));
+	}, []);
+
+	const handleCarouselNext = useCallback(() => {
+		setCarouselPosition((prev) => {
+			const newPosition = prev + carouselItemWidth;
+			return Math.min(newPosition, carouselMaxScroll);
+		});
+	}, [carouselMaxScroll]);
+
+	const canCarouselPrev = carouselPosition > 0;
+	const canCarouselNext = carouselPosition < carouselMaxScroll;
+	const isCarouselAtEnd = carouselPosition >= carouselMaxScroll;
 
 	if (!user?.id) {
 		return (
@@ -302,6 +339,115 @@ export function FavoritesClient(props: ListingProps) {
 			{totalPages > 1 && (
 				<div className="flex justify-center mt-8">
 					<UniversalPagination page={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+				</div>
+			)}
+
+			{/* Recommended Items Carousel - Excludes favorited items */}
+			{carouselItems.length > 0 && (
+				<div className="mt-16 pt-12 border-t border-gray-200 dark:border-white/10">
+					{/* Section Header with "See More" button */}
+					<div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						<div>
+							<h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+								<Star className="w-6 h-6 text-yellow-500" />
+								{t('FAVORITES', { defaultValue: 'More favorites' })}
+							</h3>
+							<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+								{t('EXPLORE_ITEMS', { defaultValue: 'Explore more items from our collection' })}
+							</p>
+						</div>
+						
+						{/* "See More" button moved to top right */}
+						{carouselItemsTotal > carouselItemsToShow && isCarouselAtEnd && (
+							<Link
+								href="/"
+								className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-primary-600 dark:bg-white text-white dark:text-taupe-900 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+							>
+								{t('SHOW_ALL', { defaultValue: 'See More' })}
+								<ArrowRight className="w-4 h-4" />
+							</Link>
+						)}
+					</div>
+
+					{/* Carousel Container */}
+					<div className="relative">
+						{/* Carousel Content */}
+						<div className="overflow-hidden rounded-lg py-3">
+							<div
+								ref={carouselRef}
+								className="flex gap-6 transition-transform duration-300 ease-out"
+								style={{ transform: `translateX(-${carouselPosition}px)` }}
+							>
+								{carouselItems.slice(0, carouselItemsTotal).map((item) => (
+									<div
+										key={item.slug}
+										className="flex-shrink-0 w-80"
+									>
+										<Item {...item} layout="grid" />
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Left Gradient Overlay */}
+						{carouselPosition > 0 && carouselItemsTotal > carouselItemsToShow && (
+							<div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
+						)}
+
+						{/* Right Gradient Overlay */}
+						{carouselItemsTotal > carouselItemsToShow && !isCarouselAtEnd && (
+							<div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
+						)}
+					</div>
+
+					{/* Navigation Controls - Scroll buttons and indicators together at the bottom */}
+					{carouselItemsTotal > carouselItemsToShow && (
+						<div className="flex flex-col items-center gap-4 mt-8">
+							{/* Scroll Buttons */}
+							<div className="flex items-center gap-3">
+								<button
+									onClick={handleCarouselPrev}
+									disabled={!canCarouselPrev}
+									className="p-2 rounded-full bg-white dark:bg-white/10 shadow-md hover:shadow-lg text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
+									aria-label={t('PREVIOUS', { defaultValue: 'Previous' })}
+								>
+									<ChevronLeft className="w-5 h-5" />
+								</button>
+								
+								{/* Carousel Indicators */}
+								<div className="flex justify-center gap-2">
+									{Array.from({
+										length: Math.ceil((carouselItemsTotal - carouselItemsToShow) / 1) + 1
+									}).map((_, index) => {
+										const indicatorPosition = index * carouselItemWidth;
+										const isActive = Math.round(carouselPosition / carouselItemWidth) === index;
+										return (
+											<button
+												key={index}
+												onClick={() => setCarouselPosition(indicatorPosition)}
+												className={`h-2 rounded-full transition-all duration-300 ${
+													isActive
+														? 'w-6 bg-theme-primary-600'
+														: 'w-2 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/30'
+												}`}
+												aria-label={`Go to carousel page ${index + 1}`}
+												aria-current={isActive ? 'page' : undefined}
+											/>
+										);
+									})}
+								</div>
+								
+								<button
+									onClick={handleCarouselNext}
+									disabled={!canCarouselNext}
+									className="p-2 rounded-full bg-white dark:bg-white/10 shadow-md hover:shadow-lg text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:translate-y-0.5 disabled:hover:translate-y-0"
+									aria-label={t('NEXT_STEP', { defaultValue: 'Next' })}
+								>
+									<ChevronRight className="w-5 h-5" />
+								</button>
+							</div>
+						</div>
+					)}
 				</div>
 			)}
 		</div>
