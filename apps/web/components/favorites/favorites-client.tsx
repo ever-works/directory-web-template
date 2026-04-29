@@ -344,24 +344,18 @@ export function FavoritesClient(props: ListingProps) {
 
 			{/* Recommended Items Carousel - Excludes favorited items */}
 			{carouselItems.length > 0 && (
-				<div className="mt-16 pt-12 border-t border-gray-200 dark:border-white/10">
+				<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
 					{/* Section Header with "See More" button */}
 					<div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-						<div>
-							<h3 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-								<Star className="w-6 h-6 text-yellow-500" />
-								{t('FAVORITES', { defaultValue: 'More favorites' })}
-							</h3>
-							<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-								{t('EXPLORE_ITEMS', { defaultValue: 'Explore more items from our collection' })}
-							</p>
-						</div>
+						<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 pl-8">
+							{t('EXPLORE_ITEMS', { defaultValue: 'Explore more items from our collection' })}
+						</p>
 						
-						{/* "See More" button moved to top right */}
-						{carouselItemsTotal > carouselItemsToShow && isCarouselAtEnd && (
+						{/* "See More" button at the top right */}
+						{carouselItemsTotal > carouselItemsToShow && (
 							<Link
 								href="/"
-								className="inline-flex items-center gap-2 px-4 py-2 text-sm bg-primary-600 dark:bg-white text-white dark:text-taupe-900 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
+								className="inline-flex items-center -mb-4 gap-2 px-4 py-1.5 text-xs bg-primary-600 dark:bg-white text-white dark:text-taupe-900 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap"
 							>
 								{t('SHOW_ALL', { defaultValue: 'See More' })}
 								<ArrowRight className="w-4 h-4" />
@@ -369,13 +363,26 @@ export function FavoritesClient(props: ListingProps) {
 						)}
 					</div>
 
-					{/* Carousel Container */}
+					{/* Carousel Container with side buttons */}
 					<div className="relative">
+						{/* Left Navigation Button - hidden instead of disabled */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<button
+								onClick={handleCarouselPrev}
+								className={`absolute -left-5 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-2 rounded-full bg-white dark:bg-white/10 shadow-lg hover:shadow-xl text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all duration-200 hover:-translate-x-1 pointer-events-auto ${
+									!canCarouselPrev ? 'hidden' : ''
+								}`}
+								aria-label={t('PREVIOUS', { defaultValue: 'Previous' })}
+							>
+								<ChevronLeft className="w-4 h-4" />
+							</button>
+						)}
+
 						{/* Carousel Content */}
-						<div className="overflow-hidden rounded-lg py-3">
+						<div className="overflow-hidden rounded-lg py-3 pl-8">
 							<div
 								ref={carouselRef}
-								className="flex gap-6 transition-transform duration-300 ease-out"
+								className="flex gap-3 transition-transform duration-300 ease-out"
 								style={{ transform: `translateX(-${carouselPosition}px)` }}
 							>
 								{carouselItems.slice(0, carouselItemsTotal).map((item) => (
@@ -389,63 +396,52 @@ export function FavoritesClient(props: ListingProps) {
 							</div>
 						</div>
 
+						{/* Right Navigation Button - hidden instead of disabled */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<button
+								onClick={handleCarouselNext}
+								className={`absolute -right-5 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-2 rounded-full bg-white dark:bg-white/10 shadow-lg hover:shadow-xl text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all duration-200 hover:translate-x-1 pointer-events-auto ${
+									!canCarouselNext ? 'hidden' : ''
+								}`}
+								aria-label={t('NEXT_STEP', { defaultValue: 'Next' })}
+							>
+								<ChevronRight className="w-4 h-4" />
+							</button>
+						)}
+
 						{/* Left Gradient Overlay */}
 						{carouselPosition > 0 && carouselItemsTotal > carouselItemsToShow && (
 							<div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
 						)}
 
 						{/* Right Gradient Overlay */}
-						{carouselItemsTotal > carouselItemsToShow && !isCarouselAtEnd && (
+						{carouselItemsTotal > carouselItemsToShow && (
 							<div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
 						)}
 					</div>
 
-					{/* Navigation Controls - Scroll buttons and indicators together at the bottom */}
+					{/* Carousel Indicators */}
 					{carouselItemsTotal > carouselItemsToShow && (
-						<div className="flex flex-col items-center gap-4 mt-8">
-							{/* Scroll Buttons */}
-							<div className="flex items-center gap-3">
-								<button
-									onClick={handleCarouselPrev}
-									disabled={!canCarouselPrev}
-									className="p-2 rounded-full bg-white dark:bg-white/10 shadow-md hover:shadow-lg text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:-translate-y-0.5 disabled:hover:translate-y-0"
-									aria-label={t('PREVIOUS', { defaultValue: 'Previous' })}
-								>
-									<ChevronLeft className="w-5 h-5" />
-								</button>
-								
-								{/* Carousel Indicators */}
-								<div className="flex justify-center gap-2">
-									{Array.from({
-										length: Math.ceil((carouselItemsTotal - carouselItemsToShow) / 1) + 1
-									}).map((_, index) => {
-										const indicatorPosition = index * carouselItemWidth;
-										const isActive = Math.round(carouselPosition / carouselItemWidth) === index;
-										return (
-											<button
-												key={index}
-												onClick={() => setCarouselPosition(indicatorPosition)}
-												className={`h-2 rounded-full transition-all duration-300 ${
-													isActive
-														? 'w-6 bg-theme-primary-600'
-														: 'w-2 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/30'
-												}`}
-												aria-label={`Go to carousel page ${index + 1}`}
-												aria-current={isActive ? 'page' : undefined}
-											/>
-										);
-									})}
-								</div>
-								
-								<button
-									onClick={handleCarouselNext}
-									disabled={!canCarouselNext}
-									className="p-2 rounded-full bg-white dark:bg-white/10 shadow-md hover:shadow-lg text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 hover:translate-y-0.5 disabled:hover:translate-y-0"
-									aria-label={t('NEXT_STEP', { defaultValue: 'Next' })}
-								>
-									<ChevronRight className="w-5 h-5" />
-								</button>
-							</div>
+						<div className="flex justify-center gap-2 mt-8">
+							{Array.from({
+								length: Math.ceil((carouselItemsTotal - carouselItemsToShow) / 1) + 1
+							}).map((_, index) => {
+								const indicatorPosition = index * carouselItemWidth;
+								const isActive = Math.round(carouselPosition / carouselItemWidth) === index;
+								return (
+									<button
+										key={index}
+										onClick={() => setCarouselPosition(indicatorPosition)}
+										className={`h-2 rounded-full transition-all duration-300 ${
+											isActive
+												? 'w-6 bg-theme-primary-600 dark:bg-white'
+												: 'w-2 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/30'
+										}`}
+										aria-label={`Go to carousel page ${index + 1}`}
+										aria-current={isActive ? 'page' : undefined}
+									/>
+								);
+							})}
 						</div>
 					)}
 				</div>
