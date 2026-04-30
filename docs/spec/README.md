@@ -21,7 +21,7 @@ or architectural change.
 
 | ID  | Slug                                                       | Status        | Summary                                                                                       |
 | --- | ---------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
-| 001 | [`monorepo-conversion`](001-monorepo-conversion/spec.md)   | shipped       | Move single Next.js app into a Turborepo + pnpm monorepo with `apps/` and `packages/`         |
+| 001 | [`monorepo-conversion`](001-monorepo-conversion/spec.md) ([plan](001-monorepo-conversion/plan.md), [tasks](001-monorepo-conversion/tasks.md))   | shipped       | Move single Next.js app into a Turborepo + pnpm monorepo with `apps/` and `packages/`         |
 | 002 | [`plugin-architecture`](002-plugin-architecture/spec.md)   | in-progress   | Introduce a first-class plugin/adapter system so almost every feature is an installable plugin |
 | 003 | [`auth-providers`](003-auth-providers/spec.md)             | shipped       | Auth.js v5 plus Supabase + OAuth providers (Google, GitHub, Facebook, Twitter, Microsoft)    |
 | 004 | [`payment-providers`](004-payment-providers/spec.md)       | shipped       | Stripe, LemonSqueezy, and Polar payment adapters with subscription management                |
@@ -52,7 +52,11 @@ or architectural change.
   implemented it also contains `plan.md` and `tasks.md`.
 - For shipped features that pre-date Spec Kit, `spec.md` may be a
   retroactive description and `plan.md`/`tasks.md` may be omitted with a
-  one-line note pointing to the relevant docs.
+  one-line note pointing to the relevant docs. Where the trio is
+  retroactively reconstructed for parity (as for Spec 001), the
+  reconstructed `plan.md` / `tasks.md` are marked as such in their
+  preamble and the original plan documents under `docs/plans/` remain
+  authoritative for historical sequencing.
 - Constitutional principles for every spec live in
   [`.specify/memory/constitution.md`](../../.specify/memory/constitution.md).
 

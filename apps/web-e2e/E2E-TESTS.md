@@ -4,7 +4,7 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
-separately and add ~270 additional tests across 40 spec files).
+separately and add ~272 additional tests across 41 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -66,6 +66,7 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/api/admin-by-id.spec.ts`                    | 47    | Admin per-`[id]` REST routes across categories, clients, collections (+ items helper), comments, companies, featured-items, items (+ history / review / import), notifications read, reports, roles (+ permissions), sponsor-ads (+ approve / cancel / reject), tags, users, plus settings POST. |
 | `tests/api/items-engagement-and-favorites.spec.ts` | 11    | Public `/api/items/engagement` (4) + auth-gated comment-by-id PUT/DELETE, vote toggle/clear, favorites GET/POST + favorites/[itemSlug] DELETE (7). |
 | `tests/public/admin-by-id-pages-protected.spec.ts` | 18    | Admin per-`[id]` and `/client/**` page routes (admin/clients/[id], admin/surveys/[slug]/edit/preview/responses, admin signin, client dashboard / profile / settings (+ profile/billing/location/portfolio/theme-colors / submissions/trash), client sponsorships, client submissions, client trash) — non-5xx contract for anonymous visitors. |
+| `tests/api/item-votes-public.spec.ts`              | 2     | Public `GET /api/items/[slug]/votes` non-existent-slug contract — no-5xx + non-error JSON envelope. Closes the last public per-item GET surface that was implicit rather than explicit. |
 
 ---
 

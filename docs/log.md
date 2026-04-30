@@ -33,6 +33,26 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added `api/item-votes-public.spec.ts` (2 — public
+  `GET /api/items/[slug]/votes` non-existent-slug contract: no-5xx
+  status plus a non-error JSON envelope when the body parses). This
+  closes the last public per-item GET surface that was implicit
+  rather than explicit (the `/votes/count` route is its sibling and
+  was already covered by `api/item-public.spec.ts`; the auth-gated
+  `/votes` POST/DELETE and `/votes/status` GET sit in
+  `items-engagement-and-favorites.spec.ts` and
+  `payment-protected.spec.ts` respectively). Same no-5xx contract as
+  the rest of the smoke layer. `E2E-TESTS.md` updated with the new
+  entry and the continual-improvement headline total annotation.
+- `spec-001` Added retroactive `plan.md` and `tasks.md` so the
+  monorepo-conversion spec now carries the full Spec Kit
+  spec → plan → tasks trio. Both files state up front that they are
+  retroactive and defer to the originals under
+  `docs/plans/2026-03-08-monorepo-conversion*` for historical
+  sequencing per Article VIII of the constitution. The spec index
+  (`docs/spec/README.md`) gained inline `(plan, tasks)` links on the
+  001 row and a clarifying line in *Conventions* explaining when a
+  retroactive trio is reconstructed for parity.
 - `apps/web-e2e` Added three more smoke spec files closing the
   remaining admin-by-id and client / page-by-id gaps not covered by
   the earlier collection-level specs:
