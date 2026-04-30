@@ -8,6 +8,11 @@ sidebar_label: '017 Map View Tasks'
 
 > **Spec:** [`spec.md`](./spec.md)
 > **Plan:** [`plan.md`](./plan.md)
+>
+> **Status:** All tasks T-001..T-009 shipped on `develop` in commit
+> `fe808cc3` (`feat: more on maps`, 2026-05-01). The spec index
+> reflects this. Follow-up work (virtualisation, item-detail mini-map
+> embed, MapLibre provider plugin) tracked as separate iterations.
 
 Conventions:
 

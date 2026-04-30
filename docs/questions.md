@@ -247,6 +247,39 @@ confirm, override, or refine.
 
 ---
 
+## Spec 018 — Performance Budget
+
+### Q-018a Run Lighthouse on every PR or only labelled ones?
+
+- **Context.** Lighthouse CI on every PR adds CI minutes and slows
+  down feedback loops. Running it only on PRs labelled `perf-check`
+  contains cost but means contributors must opt in.
+- **Options.**
+  - **Labelled-only (`perf-check`).** Maintainers opt in for
+    perf-sensitive PRs. Nightly run on `develop` catches drift.
+  - Every PR. Heavier CI bill; faster regression detection.
+  - Periodic only (nightly + manual). Relies on bisecting when a
+    regression is reported.
+- **Default.** **Labelled-only (`perf-check`)** plus the nightly
+  `develop` run. Re-evaluate once we have CI minute usage data.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-018b Where does the perf budget file live?
+
+- **Context.** A budget file shared across `apps/**` works at the
+  monorepo root; an app-specific file under `apps/web/` keeps the
+  blast radius small but assumes a single app.
+- **Options.**
+  - `performance/budgets.json` at the monorepo root.
+  - `apps/web/performance/budgets.json`.
+- **Default.** **Monorepo root (`performance/budgets.json`)** —
+  future apps under `apps/**` reuse the same script and config.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 015 — Spec Kit adoption
 
 ### Q-015a Automate spec coverage report

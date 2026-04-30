@@ -33,6 +33,26 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `spec-018` Added `018-performance-budget` (proposed): full
+  spec/plan/tasks trio that converts Article V of the constitution
+  into a measurable, CI-enforced contract — per-route gzip first-load
+  JS budget, a `pnpm perf:bundle` script, a Lighthouse CI workflow,
+  and a maintainer-facing dashboard page. Two PRs are scoped: PR 1
+  (bundle gate + docs) and PR 2 (Lighthouse CI). Two open questions
+  recorded in `docs/questions.md` (Q-018a Lighthouse trigger
+  surface; Q-018b budget file location). No code yet — this entry
+  only adds the docs/spec scaffolding so future work stops "Article
+  V is aspirational" being a true statement.
+- `spec-017` Status flipped from *in-progress* to **shipped** in
+  the spec index and in [`spec.md`](spec/017-map-view/spec.md). All
+  T-001..T-009 tasks landed in commit `fe808cc3` (`feat: more on
+  maps`) on the `develop` branch — sidebar + dedicated `/map`
+  route + header nav link + e2e coverage are live. Follow-up
+  enhancements (sidebar virtualisation, mini-map embed on
+  item-detail) tracked as separate iterations.
+- `questions` Added `Q-018a` (Lighthouse trigger surface) and
+  `Q-018b` (perf budget file location) under the new Spec 018
+  section.
 - `spec-017` Added `017-map-view` (proposed → implemented in this PR):
   spec/plan/tasks for the listing map view + dedicated `/map` route +
   header `Map` nav link gated on `settings.header.map_enabled`. Adds

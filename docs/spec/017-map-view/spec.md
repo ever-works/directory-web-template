@@ -6,7 +6,11 @@ sidebar_label: '017 Map View'
 
 # Feature spec — `017-map-view`
 
-> **Status:** Proposed.
+> **Status:** Shipped (2026-05-01) — Phase 1 (sidebar + dedicated `/map`
+> route + header nav link + e2e coverage) merged on the `develop` branch
+> in commit `fe808cc3` (`feat: more on maps`). Follow-up enhancements
+> (sidebar virtualisation, mini-map embed on item-detail) are tracked
+> as separate iterations.
 >
 > **Depends on:** [Spec 011 — Maps Providers](../011-maps-providers/spec.md)
 > for the underlying provider abstraction (Mapbox / Google Maps), the
