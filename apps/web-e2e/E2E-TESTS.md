@@ -4,7 +4,7 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
-separately and add ~57 additional tests across 16 spec files).
+separately and add ~94 additional tests across 22 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -41,6 +41,12 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/api/discovery.spec.ts`                      | 5     | Public sponsor / popularity / export.   |
 | `tests/api/protected.spec.ts`                      | 10    | Auth-required endpoints reject anon.    |
 | `tests/api/method-guards.spec.ts`                  | 6     | POST-only / dev-only / cron contracts.  |
+| `tests/api/feature-existence.spec.ts`              | 7     | `/api/{categories,collections,surveys,items/export/settings}/exists` no-5xx. |
+| `tests/api/location.spec.ts`                       | 7     | `/api/location/{countries,cities,search}` enabled / disabled contracts. |
+| `tests/api/item-public.spec.ts`                    | 5     | Public per-item GET surfaces with a fake slug + unauthenticated comment POST. |
+| `tests/api/cron-jobs.spec.ts`                      | 4     | Subscription expiration / reminders cron secret guards. |
+| `tests/api/stripe-public.spec.ts`                  | 1     | Public `/api/stripe/products` dynamic-pricing gate. |
+| `tests/api/payment-protected.spec.ts`              | 13    | Auth-required payment / subscription / sponsor-ad surfaces. |
 
 ---
 

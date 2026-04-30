@@ -33,6 +33,27 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added six more API smoke spec files closing
+  remaining coverage gaps in the public surface:
+  `api/feature-existence.spec.ts` (`/api/categories/exists`,
+  `/api/collections/exists`, `/api/surveys/exists` with
+  `type=item|global`, `/api/items/export/settings`),
+  `api/location.spec.ts` (`/api/location/countries`, `/cities`,
+  `/search` with no-params / city / country / valid-radius /
+  invalid-coords variants — covers both the location-enabled 200/400
+  and location-disabled 404 contracts), `api/item-public.spec.ts`
+  (public per-item GETs and POSTs against a non-existent slug —
+  votes/count, comments listing, comments/rating, views POST,
+  unauthenticated comments POST), `api/cron-jobs.spec.ts`
+  (`/api/cron/subscription-expiration` and
+  `/api/cron/subscription-reminders` with no secret and with a
+  wrong secret), `api/stripe-public.spec.ts` (`/api/stripe/products`
+  dynamic-pricing gate), and `api/payment-protected.spec.ts` (13
+  auth-required user / Stripe / LemonSqueezy / sponsor-ads / payment
+  account / per-item company / votes-status surfaces). Same
+  no-5xx contract as the rest of the API smoke layer. `E2E-TESTS.md`
+  updated with all six entries and the continual-improvement total
+  annotation.
 - `spec-002` Status moved from *proposed* to *in-progress* in the
   spec index now that Phase A (T-001/T-002/T-003 — SDK, runtime, and
   demo plugin scaffolds) has shipped. T-004..T-012 still remain.
