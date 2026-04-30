@@ -33,6 +33,28 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added three more smoke spec files closing the
+  remaining admin-by-id and client / page-by-id gaps not covered by
+  the earlier collection-level specs:
+  `api/admin-by-id.spec.ts` (47 — admin per-`[id]` REST routes
+  across categories, clients, collections (+ items helper), comments,
+  companies, featured-items, items (+ history / review / full
+  import), notifications read receipt, reports, roles (+ permissions
+  sub-route), sponsor-ads (+ approve / cancel / reject), tags, users
+  + settings POST), `api/items-engagement-and-favorites.spec.ts`
+  (11 — public `/api/items/engagement` 4 cases including
+  missing-slugs, empty-slugs, unknown-slugs, and >200-slugs guard +
+  auth-gated comment-by-id PUT / DELETE, vote toggle / clear, and
+  favorites GET / POST + `/favorites/[itemSlug]` DELETE),
+  `public/admin-by-id-pages-protected.spec.ts` (18 — admin per-id
+  page routes `/admin/clients/[id]`, `/admin/surveys/[slug]/{edit,
+  preview,responses}`, `/admin/auth/signin`, plus `/client/**`
+  authenticated owner pages: dashboard, profile/[username],
+  settings (basic-info / billing / location / portfolio /
+  theme-colors / submissions/trash), security, sponsorships,
+  submissions, submissions/trash). Same no-5xx contract as the rest
+  of the smoke layer. `E2E-TESTS.md` updated with all three entries
+  and the continual-improvement headline total annotation.
 - `apps/web-e2e` Added five more page-route smoke specs closing the
   remaining gaps in the public + protected page surface:
   `public/pricing-success.spec.ts` (2 — `/pricing/success` with and
