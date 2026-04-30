@@ -4,7 +4,7 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
-separately and add ~94 additional tests across 22 spec files).
+separately and add ~191 additional tests across 32 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -47,6 +47,17 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/api/cron-jobs.spec.ts`                      | 4     | Subscription expiration / reminders cron secret guards. |
 | `tests/api/stripe-public.spec.ts`                  | 1     | Public `/api/stripe/products` dynamic-pricing gate. |
 | `tests/api/payment-protected.spec.ts`              | 13    | Auth-required payment / subscription / sponsor-ad surfaces. |
+| `tests/api/admin-protected-extra.spec.ts`          | 36    | Admin-only endpoints across every slice (categories, clients, comments, companies, featured-items, geo-analytics, items helpers, location-index, navigation, notifications, reports, roles, settings, sponsor-ads, tags, twenty-crm, users). |
+| `tests/api/client-protected.spec.ts`               | 8     | `/api/client/**` (dashboard stats, geo-stats, items, items/coordinates, items/stats, import surfaces). |
+| `tests/api/surveys.spec.ts`                        | 8     | Auth-gated `/api/surveys` CRUD + per-survey responses + per-response detail. |
+| `tests/api/payment-checkouts.spec.ts`              | 28    | Auth-gated checkout / payment-method / setup-intent / subscription mutation routes for Stripe, LemonSqueezy, Polar, Solidgate + sponsor-ad lifecycle. |
+| `tests/api/auth-change-password.spec.ts`           | 2     | `/api/auth/change-password` no-session / empty-body contracts. |
+| `tests/api/location-coordinates.spec.ts`           | 3     | `/api/location/coordinates` enabled / disabled feature gate. |
+| `tests/api/user-profile-location.spec.ts`          | 2     | `/api/user/profile/location` GET + PUT no-session contracts. |
+| `tests/api/reports.spec.ts`                        | 2     | `/api/reports` no-session / empty-body contracts. |
+| `tests/public/newsletter-unsubscribe.spec.ts`      | 2     | `/newsletter/unsubscribe` with / without token. |
+| `tests/public/integration.spec.ts`                 | 3     | `/integration/{analytics,posthog,speed-insights}` showcase pages. |
+| `tests/public/admin-pages-protected.spec.ts`       | 18    | `/admin/**` and `/dashboard/**` page routes redirect anonymous visitors without 5xx. |
 
 ---
 

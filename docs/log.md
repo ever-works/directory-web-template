@@ -33,6 +33,36 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added eleven more smoke specs closing the largest
+  remaining coverage gaps: `api/admin-protected-extra.spec.ts` (36
+  admin-only endpoints across every slice — categories `all`/`git`/
+  `reorder`, clients `dashboard`/`stats`/`advanced-search`/`bulk`,
+  collections, comments, companies, featured-items, geo-analytics,
+  items `stats`/`bulk`/`export`/`export/sample`/`import/validate`,
+  location-index, navigation, notifications `mark-all-read`,
+  reports `list`/`stats`, roles `list`/`active`/`stats`, settings
+  `list`/`map-status`, sponsor-ads, tags `list`/`all`, twenty-crm
+  `config`/`test-connection`, users `check-email`/`check-username`/
+  `stats`), `api/client-protected.spec.ts` (8 `/api/client/**`
+  endpoints — dashboard `stats`, `geo-stats`, items list /
+  `coordinates` / `stats`, import `sample`/`validate`/POST),
+  `api/surveys.spec.ts` (8 auth-gated CRUD + per-survey responses
+  + per-response detail), `api/payment-checkouts.spec.ts` (28
+  auth-gated checkout / payment-method / setup-intent /
+  subscription mutation routes across Stripe, LemonSqueezy, Polar,
+  Solidgate + sponsor-ad lifecycle), `api/auth-change-password.spec.ts`
+  (2 no-session / empty-body cases), `api/location-coordinates.spec.ts`
+  (3 enabled / disabled feature-gate cases),
+  `api/user-profile-location.spec.ts` (2 GET + PUT no-session
+  cases), `api/reports.spec.ts` (2 no-session / empty-body cases),
+  `public/newsletter-unsubscribe.spec.ts` (2 with / without token),
+  `public/integration.spec.ts` (3 `/integration/{analytics,posthog,
+  speed-insights}` showcase pages), and
+  `public/admin-pages-protected.spec.ts` (18 `/admin/**` and
+  `/dashboard/**` page routes redirect anonymous visitors without
+  5xx). Same no-5xx contract as the rest of the smoke layer.
+  `E2E-TESTS.md` updated with all eleven entries and the
+  continual-improvement headline total annotation.
 - `apps/web-e2e` Added six more API smoke spec files closing
   remaining coverage gaps in the public surface:
   `api/feature-existence.spec.ts` (`/api/categories/exists`,
