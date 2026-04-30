@@ -33,6 +33,9 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `spec-002` Status moved from *proposed* to *in-progress* in the
+  spec index now that Phase A (T-001/T-002/T-003 — SDK, runtime, and
+  demo plugin scaffolds) has shipped. T-004..T-012 still remain.
 - `apps/web-e2e` Added API smoke specs for previously-uncovered
   endpoint surfaces: `api/version.spec.ts` (GET `/api/version`, GET
   and POST on `/api/version/sync`), `api/webhooks.spec.ts` (Stripe,

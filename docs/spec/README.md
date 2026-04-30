@@ -22,7 +22,7 @@ or architectural change.
 | ID  | Slug                                                       | Status        | Summary                                                                                       |
 | --- | ---------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------- |
 | 001 | [`monorepo-conversion`](001-monorepo-conversion/spec.md)   | shipped       | Move single Next.js app into a Turborepo + pnpm monorepo with `apps/` and `packages/`         |
-| 002 | [`plugin-architecture`](002-plugin-architecture/spec.md)   | proposed      | Introduce a first-class plugin/adapter system so almost every feature is an installable plugin |
+| 002 | [`plugin-architecture`](002-plugin-architecture/spec.md)   | in-progress   | Introduce a first-class plugin/adapter system so almost every feature is an installable plugin |
 | 003 | [`auth-providers`](003-auth-providers/spec.md)             | shipped       | Auth.js v5 plus Supabase + OAuth providers (Google, GitHub, Facebook, Twitter, Microsoft)    |
 | 004 | [`payment-providers`](004-payment-providers/spec.md)       | shipped       | Stripe, LemonSqueezy, and Polar payment adapters with subscription management                |
 | 005 | [`internationalisation`](005-internationalisation/spec.md) | shipped       | next-intl-based i18n with RTL support and Docusaurus i18n for the docs site                  |
