@@ -3,163 +3,126 @@ import { AdminStats } from "@/hooks/use-admin-stats";
 import { TrendingUp } from "lucide-react";
 import { AdminChartSkeleton } from "./admin-loading-skeleton";
 import { useTranslations } from 'next-intl';
-
-
-// Design system constants for accessibility
-const CHART_TITLE_STYLES = "flex items-center space-x-2";
-const LEGEND_CONTAINER_STYLES = "flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6";
-const LEGEND_ITEM_STYLES = "flex items-center space-x-2";
-const CHART_CONTAINER_STYLES = "h-40 sm:h-48 md:h-56 flex items-end space-x-1";
-const BAR_BASE_STYLES = "rounded-t opacity-80 hover:opacity-100 transition-opacity focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500";
-const EMPTY_STATE_STYLES = "text-center py-6 sm:py-8 text-gray-500 dark:text-gray-400";
+import { cn } from "@/lib/utils";
 
 interface AdminActivityChartProps {
   data: AdminStats['activityTrendData'];
   isLoading: boolean;
 }
 
+const SERIES = [
+  { key: 'views' as const, label: 'LEGEND.VIEWS', color: 'bg-blue-500', barClass: 'bg-blue-500 hover:bg-blue-400' },
+  { key: 'votes' as const, label: 'LEGEND.VOTES', color: 'bg-emerald-500', barClass: 'bg-emerald-500 hover:bg-emerald-400' },
+  { key: 'comments' as const, label: 'LEGEND.COMMENTS', color: 'bg-violet-500', barClass: 'bg-violet-500 hover:bg-violet-400' },
+] as const;
+
 export function AdminActivityChart({ data, isLoading }: AdminActivityChartProps) {
   const t = useTranslations('admin.ACTIVITY_CHART');
-  
-  if (isLoading) {
-    return <AdminChartSkeleton />;
-  }
 
-  if (data.length === 0) {
-    return (
-      <Card role="img" aria-label={t('ARIA_LABELS.CHART_NO_DATA')}>
-        <CardHeader>
-          <CardTitle className={CHART_TITLE_STYLES}>
-            <TrendingUp className="h-5 w-5 text-blue-600" aria-hidden="true" />
-            <span>{t('TITLE')}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className={EMPTY_STATE_STYLES} role="status">
-            {t('NO_DATA_AVAILABLE')}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  if (isLoading) return <AdminChartSkeleton />;
 
-  const computedMax = Math.max(...data.map(d => Math.max(d.views, d.votes, d.comments)));
-  
-  if (computedMax === 0) {
-    return (
-      <Card role="img" aria-label={t('ARIA_LABELS.CHART_NO_ACTIVITY')}>
-        <CardHeader>
-          <CardTitle className={CHART_TITLE_STYLES}>
-            <TrendingUp className="h-5 w-5 text-blue-600" aria-hidden="true" />
-            <span>{t('TITLE')}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className={EMPTY_STATE_STYLES} role="status">
-            {t('NO_DATA_AVAILABLE')}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  const maxValue = computedMax;
+  const computedMax = data.length > 0
+    ? Math.max(...data.map(d => Math.max(d.views, d.votes, d.comments)), 1)
+    : 1;
 
-  // Calculate data summary for screen readers
   const totalViews = data.reduce((sum, item) => sum + item.views, 0);
   const totalVotes = data.reduce((sum, item) => sum + item.votes, 0);
   const totalComments = data.reduce((sum, item) => sum + item.comments, 0);
-  const chartSummary = t('CHART_SUMMARY', { 
-    totalViews, 
-    totalVotes, 
-    totalComments, 
-    daysCount: data.length 
-  });
+
+  const isEmpty = data.length === 0 || computedMax === 0;
+
+  const chartSummary = isEmpty
+    ? t('ARIA_LABELS.CHART_NO_DATA')
+    : t('CHART_SUMMARY', { totalViews, totalVotes, totalComments, daysCount: data.length });
 
   return (
-    <Card 
-      role="img" 
-      aria-label={chartSummary}
-      aria-describedby="activity-chart-details"
-    >
-      <CardHeader>
-        <CardTitle className={CHART_TITLE_STYLES}>
-          <TrendingUp className="h-5 w-5 text-blue-600" aria-hidden="true" />
-          <span>{t('TITLE')}</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Screen reader summary */}
-          <div id="activity-chart-details" className="sr-only">
-            {chartSummary}.
-          </div>
+    <Card role="img" aria-label={chartSummary}  className="border-neutral-100 bg-white dark:border-white/8 dark:bg-white/3">
+      <CardHeader className="px-5 pt-5 pb-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <CardTitle className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+            <TrendingUp className="h-4 w-4 text-blue-500" aria-hidden="true" />
+            {t('TITLE')}
+          </CardTitle>
 
-          {/* Legend */}
-          <ul className={LEGEND_CONTAINER_STYLES} aria-label={t('ARIA_LABELS.CHART_LEGEND')}>
-            <li className={LEGEND_ITEM_STYLES}>
-              <div className="w-3 h-3 bg-blue-500 rounded-full" aria-hidden="true"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('LEGEND.VIEWS')}</span>
-            </li>
-            <li className={LEGEND_ITEM_STYLES}>
-              <div className="w-3 h-3 bg-green-500 rounded-full" aria-hidden="true"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('LEGEND.VOTES')}</span>
-            </li>
-            <li className={LEGEND_ITEM_STYLES}>
-              <div className="w-3 h-3 bg-purple-500 rounded-full" aria-hidden="true"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">{t('LEGEND.COMMENTS')}</span>
-            </li>
-          </ul>
-
-          {/* Chart */}
-          <ul className={CHART_CONTAINER_STYLES} aria-label={t('ARIA_LABELS.CHART_DATA_BY_DAY')}>
-            {data.map((item) => (
-              <li 
-                key={item.day}
-                className="flex-1 flex flex-col items-center space-y-1"
-                aria-label={t('DAY_SUMMARY', { 
-                  day: item.day, 
-                  views: item.views, 
-                  votes: item.votes, 
-                  comments: item.comments 
-                })}
-              >
-                {/* Bars */}
-                <div className="w-full flex items-end space-x-0.5 h-40" aria-hidden="true">
-                  <div 
-                    className={`bg-blue-500 ${BAR_BASE_STYLES}`}
-                    style={{ 
-                      height: `${(item.views / maxValue) * 100}%`,
-                      minHeight: '2px',
-                      width: '30%'
-                    }}
-                  />
-                  <div 
-                    className={`bg-green-500 ${BAR_BASE_STYLES}`}
-                    style={{ 
-                      height: `${(item.votes / maxValue) * 100}%`,
-                      minHeight: '2px',
-                      width: '30%'
-                    }}
-                  />
-                  <div 
-                    className={`bg-purple-500 ${BAR_BASE_STYLES}`}
-                    style={{ 
-                      height: `${(item.comments / maxValue) * 100}%`,
-                      minHeight: '2px',
-                      width: '30%'
-                    }}
-                  />
-                </div>
-                {/* Day label */}
-                <span className="text-xs text-gray-500 dark:text-gray-400" aria-hidden="true">
-                  {item.day}
-                </span>
+          <ul
+            className="flex items-center gap-4"
+            aria-label={t('ARIA_LABELS.CHART_LEGEND')}
+          >
+            {SERIES.map(s => (
+              <li key={s.key} className="flex items-center gap-1.5">
+                <span className={cn("w-2 h-2 rounded-sm shrink-0", s.color)} aria-hidden="true" />
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{t(s.label)}</span>
               </li>
             ))}
           </ul>
         </div>
+      </CardHeader>
+
+      <CardContent className="px-5 pb-5 pt-4">
+        {isEmpty ? (
+          <div className="flex flex-col items-center justify-center h-52 text-gray-400 dark:text-gray-500">
+            <TrendingUp className="h-10 w-10 mb-3 opacity-20" aria-hidden="true" />
+            <p className="text-sm font-medium">{t('NO_DATA_AVAILABLE')}</p>
+          </div>
+        ) : (
+          <>
+            <p id="activity-chart-details" className="sr-only">{chartSummary}</p>
+
+            <ul
+              className="flex items-end gap-1 h-48"
+              aria-label={t('ARIA_LABELS.CHART_DATA_BY_DAY')}
+              aria-describedby="activity-chart-details"
+            >
+              {data.map((item) => (
+                <li
+                  key={item.day}
+                  className="flex-1 flex flex-col items-center gap-1.5 min-w-0"
+                  aria-label={t('DAY_SUMMARY', {
+                    day: item.day,
+                    views: item.views,
+                    votes: item.votes,
+                    comments: item.comments,
+                  })}
+                >
+                  <div className="w-full flex items-end gap-px h-44" aria-hidden="true">
+                    {SERIES.map(s => (
+                      <div
+                        key={s.key}
+                        className={cn(
+                          "flex-1 rounded-t-sm transition-all duration-200 cursor-default",
+                          s.barClass
+                        )}
+                        style={{
+                          height: `${Math.max((item[s.key] / computedMax) * 100, item[s.key] > 0 ? 2 : 0)}%`,
+                          opacity: 0.85,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500 truncate w-full text-center" aria-hidden="true">
+                    {item.day}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/6 grid grid-cols-3 gap-4">
+              {[
+                { label: t('LEGEND.VIEWS'), value: totalViews, color: 'text-blue-600 dark:text-blue-400' },
+                { label: t('LEGEND.VOTES'), value: totalVotes, color: 'text-emerald-600 dark:text-emerald-400' },
+                { label: t('LEGEND.COMMENTS'), value: totalComments, color: 'text-violet-600 dark:text-violet-400' },
+              ].map(stat => (
+                <div key={stat.label} className="text-center">
+                  <p className={cn("text-lg font-bold tabular-nums tracking-tight", stat.color)}>
+                    {stat.value.toLocaleString()}
+                  </p>
+                  <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 mt-0.5">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
-} 
+}
