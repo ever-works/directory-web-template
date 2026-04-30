@@ -1,0 +1,253 @@
+---
+id: questions
+title: Open Questions & Chosen Defaults
+sidebar_label: Open Questions
+sidebar_position: 98
+---
+
+# Open Questions & Chosen Defaults
+
+This page collects **open questions** raised by docs, specs, plans, or
+agent runs that need maintainer review. Per Article IV of the
+[constitution](../.specify/memory/constitution.md), agents must not
+block on unresolved questions — they should pick a sensible default,
+record it here, and keep moving. Maintainers come back later to
+confirm, override, or refine.
+
+> **Format.**
+> Each question is a level-3 heading with a stable anchor id of the
+> form `q-NNN-short-slug`, e.g. `### Q-002a SDK package name`.
+> The body has these sections:
+>
+> - **Context** — what gave rise to the question.
+> - **Options** — bullet list of candidate answers.
+> - **Default** — which option the agent picked, in **bold**.
+> - **Owner** — who should review. Default: maintainers.
+> - **Status** — `open`, `confirmed`, `rejected`, `superseded`.
+
+---
+
+## Spec 002 — Plugin Architecture
+
+### Q-002a SDK package name
+
+- **Context.** We need a name for the canonical plugin SDK package that
+  every plugin will depend on.
+- **Options.**
+  - `@ever-works/plugin-sdk` — explicit; follows ecosystem
+    conventions (`@stripe/stripe-sdk`, `@aws-sdk/client-*`).
+  - `@ever-works/plugins` — shorter; matches the runtime package
+    `@ever-works/plugin-runtime` and the `packages/plugin-*` naming.
+  - `@ever-works/plugin-api` — describes the surface; less common
+    convention.
+- **Default.** **`@ever-works/plugin-sdk`**.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-002b Plugin-to-plugin extensions in v1
+
+- **Context.** Should a plugin be able to expose its own slots and
+  capability interfaces to other plugins, or is that v2 only?
+- **Options.**
+  - **Yes, minimal.** Allow re-exporting from
+    `@ever-works/plugin-sdk` so a plugin can add new capabilities,
+    but keep the API tiny.
+  - No. Plugins consume only the SDK-defined surface in v1.
+- **Default.** **Yes, minimal.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-002c Per-plugin config storage
+
+- **Context.** Where do per-plugin configs live? Some adopters want
+  source-of-truth in env vars; others want admin-editable configs.
+- **Options.**
+  - DB row + override via env vars (env wins).
+  - Env vars only (admins must redeploy to change anything).
+  - DB only (env vars ignored if a row exists).
+- **Default.** **DB row + override via env vars.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 003 — Auth providers
+
+### Q-003a Add Passkey / WebAuthn?
+
+- **Context.** Passkeys are increasingly expected.
+- **Options.**
+  - Add as a built-in Auth.js provider in v1.
+  - Defer to a separate spec when the Auth.js Passkey support is
+    GA-stable.
+- **Default.** **Defer.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 004 — Payment providers
+
+### Q-004a Allow multiple active providers per checkout?
+
+- **Context.** Some adopters want to A/B test providers or run them in
+  parallel (e.g. Stripe for cards, LemonSqueezy for VAT-handled
+  countries).
+- **Options.**
+  - **Single active provider per session.** Simpler.
+  - Routing rules per country / SKU.
+- **Default.** **Single active provider per session** in v1; routing
+  rules in a future spec.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 005 — Internationalisation
+
+### Q-005a Automated translation pipeline (DeepL / OpenAI)
+
+- **Context.** Translating docs and UI strings is currently manual
+  with PR-based review.
+- **Options.**
+  - Add a CI step that proposes machine translations on every English
+    update, with human review before merge.
+  - Stay manual, but maintain a translation status dashboard.
+- **Default.** **Stay manual** in v1; revisit once
+  `docs/internationalization/coverage.md` exists and shows real
+  drift.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 006 — Git-based CMS
+
+### Q-006a Hygraph adapter as built-in plugin?
+
+- **Context.** Several adopters use Hygraph; an adapter could ship in
+  the box.
+- **Options.**
+  - Ship a Hygraph plugin under `packages/plugin-content-hygraph/`
+    once SDK 002 stabilises.
+  - Leave as third-party.
+- **Default.** **Wait until plugin SDK is stable**, then ship.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 007 — Theming
+
+### Q-007a Logo upload from admin?
+
+- **Context.** Admins currently set the logo via env / static assets.
+- **Options.**
+  - Add an admin upload form using whatever object-store integration
+    is configured (S3 / Supabase Storage).
+  - Defer, keep static assets.
+- **Default.** **Future plugin.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 008 — Analytics
+
+### Q-008a Consent banner integration
+
+- **Context.** GDPR / CCPA compliance often requires a consent banner
+  before loading analytics scripts.
+- **Options.**
+  - Ship a built-in cookie banner with provider gating.
+  - Ship as a future plugin (`packages/plugin-consent-…/`).
+- **Default.** **Future plugin.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 010 — E2E test coverage
+
+### Q-010a Worker count in CI
+
+- **Context.** Playwright runs with `workers: 2` in CI today; suite
+  growth may push run-time too high.
+- **Options.**
+  - Keep `workers: 2`, add sharding when needed.
+  - Bump to `workers: 4` and accept higher CI cost.
+- **Default.** **Keep `workers: 2`** until measured wall time exceeds
+  20 minutes.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 012 — Newsletter
+
+### Q-012a Persist subscribers in our DB?
+
+- **Context.** Some providers (Resend, Mailchimp) own the subscriber
+  list; others (e.g. Loops) require us to mirror.
+- **Options.**
+  - Mirror via DB row for audit and offline reads.
+  - Provider as source of truth, no DB row.
+- **Default.** **Mirror in DB for audit.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 013 — Notifications
+
+### Q-013a Notifications source of truth
+
+- **Context.** Novu owns the notification list, but UI offline reads
+  benefit from a local mirror.
+- **Options.**
+  - Mirror in DB.
+  - Provider as source of truth.
+- **Default.** **Mirror in DB**.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 014 — Docs translation
+
+### Q-014a Translation hosting
+
+- **Context.** Translations currently live in repo; some teams prefer
+  Crowdin / Lokalise.
+- **Options.**
+  - Keep in repo with PR review.
+  - Move to Crowdin and sync via CI.
+- **Default.** **Keep in repo.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 015 — Spec Kit adoption
+
+### Q-015a Automate spec coverage report
+
+- **Context.** Each package / feature should have a spec; a script
+  could enforce that.
+- **Options.**
+  - Author `apps/web/scripts/lint-specs.ts` that fails CI when a
+    package lacks a spec.
+  - Manual review.
+- **Default.** **Manual for now**, automate later.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## How to add a question
+
+1. Pick the next available `Q-NNN…` id under the relevant spec.
+2. Use the format above.
+3. Always include a **Default**; never block on a question.
+4. Append a line to [`log.md`](log.md):
+   `YYYY-MM-DD questions: added Q-NNN — short summary`.

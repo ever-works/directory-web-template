@@ -2,6 +2,14 @@
 
 This file gives Claude Code (and other AI coding tools) project-specific instructions for working in this monorepo. The main web application lives at `apps/web/`.
 
+> **Read first.** This template uses **spec-driven development** following the [GitHub Spec Kit](https://github.com/github/spec-kit) convention. Before making non-trivial changes, read:
+>
+> - [`AGENTS.md`](AGENTS.md) — cross-cutting rules for any AI agent in this repo. Every directive in this CLAUDE.md is also there, plus the Spec Kit workflow, plugin-first architecture, performance budget, no-removal rule, and continual-improvement-run rules.
+> - [`.specify/memory/constitution.md`](.specify/memory/constitution.md) — ten durable principles every implementation plan must respect.
+> - [`.specify/README.md`](.specify/README.md) — the spec → plan → tasks workflow.
+> - [`docs/spec/README.md`](docs/spec/README.md) — index of every feature spec.
+> - [`docs/log.md`](docs/log.md) and [`docs/questions.md`](docs/questions.md) — running change log and open-questions register.
+
 ## 1. Environment & tooling
 
 - This project uses a **Turborepo monorepo** with **pnpm workspaces**. Run commands from the **monorepo root** (where `turbo.json` lives) unless noted otherwise. The web app source lives in `apps/web/`.
