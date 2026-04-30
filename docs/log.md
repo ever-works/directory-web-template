@@ -33,6 +33,16 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `spec-016` Added retroactive spec for the typed analytics events
+  layer shipped in PR #692, sitting on top of Spec 008.
+- `spec-010` Added implementation plan and task list for the e2e
+  test coverage spec, including engineering backlog (resilience and
+  speed passes).
+- `docs/plugins` Added `lifecycle.md` covering boot, validation,
+  registration, setup, runtime use, enable/disable/swap, teardown,
+  events, versioning, and anti-patterns.
+- `claude` Added a "Read first" block to `CLAUDE.md` pointing to
+  AGENTS.md, `.specify/`, `docs/spec/`, log, and questions.
 - `spec-002` Added Spec Kit feature spec, plan, and tasks for the
   plugin / adapter architecture.
 - `spec-001` Added retroactive spec for the monorepo conversion (the

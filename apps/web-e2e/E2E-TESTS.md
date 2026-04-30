@@ -4,6 +4,14 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files**
 
+> Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
+> The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
+> [task list](../../docs/spec/010-e2e-test-coverage/tasks.md) capture the
+> backlog (plugin registry, analytics emission, payments smoke, maps render,
+> newsletter validation, client notifications) plus engineering passes
+> (resilience and speed). New specs must be added to this file when they
+> land and the **Total** line updated.
+
 ---
 
 ## PR #621 — P0: Critical Business Flows (21 new tests)
