@@ -31,6 +31,27 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-01
+
+- `apps/web-e2e` Added two more smoke spec files closing the last
+  notable per-slug surfaces that were not yet explicitly covered:
+  `public/per-slug-public.spec.ts` (3 — `/comparisons/[slug]`,
+  `/categories/[category]`, `/tags/[tag]` per-slug detail pages with
+  an intentionally unknown slug; exercises each page's `notFound()`
+  / disabled-feature branch with the same non-5xx contract used
+  elsewhere in the smoke layer; complements the legacy `(listing)`
+  versions in `public/legacy-routing.spec.ts`) and
+  `api/item-comment-rating-by-id.spec.ts` (2 — `GET` and `PATCH` of
+  `/api/items/[slug]/comments/rating/[commentId]` for a non-existent
+  comment id; closes the last `/api/items/[slug]/**` per-comment
+  route that was not explicitly smoke-tested — sibling routes
+  `/api/items/[slug]/comments/rating` and `.../comments/[commentId]`
+  are already covered by `api/item-public.spec.ts` and
+  `api/items-engagement-and-favorites.spec.ts`). Same no-5xx contract
+  as the rest of the smoke layer. `E2E-TESTS.md` updated with both
+  entries and the continual-improvement headline total annotation
+  (now ~277 tests across 43 spec files).
+
 ## 2026-04-30
 
 - `apps/web-e2e` Added `api/item-votes-public.spec.ts` (2 — public
