@@ -11,34 +11,40 @@ sidebar_label: '002 Plugin Architecture Tasks'
 
 ## Phase A — Foundations (no user-visible change)
 
-### T-001 [P] — Scaffold `@ever-works/plugin-sdk`
+### T-001 [P] [done 2026-04-30] — Scaffold `@ever-works/plugin-sdk`
 
-- Files: `packages/plugin-sdk/{package.json,tsconfig.json,src/index.ts,README.md}`
+- Files: `packages/plugin-sdk/{package.json,tsconfig.json,README.md,src/{capabilities,slots,manifest,providers,plugin,index}.ts}`.
 - Steps:
   1. Create the package skeleton, `name: "@ever-works/plugin-sdk"`.
   2. Add `zod` as a dependency, `react` as a peer.
   3. Author the interfaces and `defineDirectoryPlugin` factory per
      `plan.md` §4.
   4. Export everything from `src/index.ts`.
-- Verification: `pnpm --filter @ever-works/plugin-sdk typecheck` passes.
+- Verification: `pnpm --filter @ever-works/plugin-sdk typecheck` passes
+  cleanly.
 
-### T-002 [P] — Scaffold `@ever-works/plugin-runtime`
+### T-002 [P] [done 2026-04-30] — Scaffold `@ever-works/plugin-runtime`
 
-- Files: `packages/plugin-runtime/{package.json,tsconfig.json,src/index.ts,src/registry.ts,src/SlotHost.tsx,README.md}`
+- Files: `packages/plugin-runtime/{package.json,tsconfig.json,README.md,src/{registry,loader,SlotHost,testing,index}.{ts,tsx}}`.
 - Steps:
   1. Add as a workspace package depending on `plugin-sdk`.
   2. Implement `PluginRegistry` with `register`, `enable`, `disable`,
      `isEnabled`, `get`, `list`, `slotsFor`.
-  3. Implement `<SlotHost slotId="…" />` React component.
-- Verification: `pnpm --filter @ever-works/plugin-runtime typecheck` passes.
+  3. Implement `<SlotHost slotId="…" registry={…} />` React component.
+  4. Add `loadPlugins(registry, [{ plugin, sources }])` with shallow
+     env+db+override merge and Zod validation.
+- Verification: `pnpm --filter @ever-works/plugin-runtime typecheck`
+  passes cleanly.
 
-### T-003 [seq T-001,T-002] — Demo plugin
+### T-003 [seq T-001,T-002] [done 2026-04-30] — Demo plugin
 
-- Files: `packages/plugin-demo/{package.json,src/index.tsx,src/Header.tsx}`
+- Files: `packages/plugin-demo/{package.json,tsconfig.json,README.md,src/{config.ts,Header.tsx,index.tsx}}`.
 - Steps:
   1. Author a small plugin that renders a "Demo plugin loaded" badge in
      the `header.right` slot, gated by config.
-- Verification: imported and registered without errors.
+- Verification: `pnpm --filter @ever-works/plugin-demo typecheck`
+  passes cleanly; the plugin is importable as
+  `import demoPlugin from '@ever-works/plugin-demo'`.
 
 ## Phase B — Wire-up in `apps/web`
 

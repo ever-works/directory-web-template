@@ -33,6 +33,13 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `spec-002` Phase A complete: scaffolded
+  [`@ever-works/plugin-sdk`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk),
+  [`@ever-works/plugin-runtime`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime),
+  and [`@ever-works/plugin-demo`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo)
+  per [Spec 002 / T-001..T-003](spec/002-plugin-architecture/tasks.md).
+  All three packages typecheck cleanly. No `apps/web` wire-up yet —
+  that lands in Phase B (T-004..T-006).
 - `spec-006`, `spec-007`, `spec-008`, `spec-009`, `spec-011`,
   `spec-012`, `spec-013`, `spec-014`, `spec-015`, `spec-016` Added
   implementation plans + task lists, completing the Spec Kit trio
