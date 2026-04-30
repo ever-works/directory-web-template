@@ -33,6 +33,21 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added API smoke specs for previously-uncovered
+  endpoint surfaces: `api/version.spec.ts` (GET `/api/version`, GET
+  and POST on `/api/version/sync`), `api/webhooks.spec.ts` (Stripe,
+  LemonSqueezy, Polar, Solidgate webhook GET / unsigned-POST
+  contracts — both must be 4xx, never 5xx),
+  `api/discovery.spec.ts` (public sponsor-ads, items
+  popularity-scores, items export, items/[slug] 404 contract),
+  `api/protected.spec.ts` (10 auth-required endpoints across tenant,
+  admin, user, client, current-user surfaces — must respond 4xx, not
+  5xx, when unauthenticated), and `api/method-guards.spec.ts`
+  (POST-only `/api/extract`, `/api/verify-recaptcha`, `/api/geocode`,
+  plus `/api/internal/db-init` dev-gate and `/api/cron/sync`
+  contract). Each spec only asserts "no 5xx" so it stays valid
+  across local / CI environments. `apps/web-e2e/E2E-TESTS.md`
+  updated with new entries and the headline total annotation.
 - `apps/web-e2e` Added smoke specs for previously-uncovered surfaces:
   `auth/new-verification.spec.ts`, `public/docs.spec.ts`,
   `public/cms-page.spec.ts` (the generic `/pages/[slug]` route),

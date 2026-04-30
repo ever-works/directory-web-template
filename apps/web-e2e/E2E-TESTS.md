@@ -2,7 +2,9 @@
 
 Complete listing of all E2E tests added across 4 PRs.
 
-**Total: 165 new test cases across 43 new spec files**
+**Total: 165 new test cases across 43 new spec files** (excluding
+continual-improvement smoke specs listed below — those are tracked
+separately and add ~57 additional tests across 16 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -34,6 +36,11 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/public/cms-page.spec.ts`                    | 2     | `/pages/[slug]` 404 + render contract.  |
 | `tests/client/billing.spec.ts`                     | 2     | Dashboard billing auth + redirect.      |
 | `tests/api/reference.spec.ts`                      | 2     | Scalar `/api/reference` + openapi.json. |
+| `tests/api/version.spec.ts`                        | 3     | `/api/version` + `/api/version/sync`.   |
+| `tests/api/webhooks.spec.ts`                       | 8     | Stripe / LS / Polar / Solidgate guards. |
+| `tests/api/discovery.spec.ts`                      | 5     | Public sponsor / popularity / export.   |
+| `tests/api/protected.spec.ts`                      | 10    | Auth-required endpoints reject anon.    |
+| `tests/api/method-guards.spec.ts`                  | 6     | POST-only / dev-only / cron contracts.  |
 
 ---
 
