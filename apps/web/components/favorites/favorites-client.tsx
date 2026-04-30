@@ -82,9 +82,13 @@ export function FavoritesClient(props: ListingProps) {
 	// Carousel state for recommendations
 	const [carouselPosition, setCarouselPosition] = useState(0);
 	const carouselRef = useRef<HTMLDivElement>(null);
-	const carouselItemWidth = 344; // w-80 (320px) + gap-6 (24px) = 344px
-	const carouselItemsToShow = 4;
+	const [carouselContainerEl, setCarouselContainerEl] = useState<HTMLDivElement | null>(null);
+	const [carouselContainerWidth, setCarouselContainerWidth] = useState(0);
+	const carouselItemWidth = 332; // w-80 (320px) + gap-3 (12px) = 332px
 	const carouselItemsTotal = Math.min(carouselItems.length, 12); // Max items to display in carousel
+	const carouselItemsToShow = carouselContainerWidth > 0
+		? Math.max(1, Math.floor(carouselContainerWidth / carouselItemWidth))
+		: 4;
 
 	// Sort favorites
 	const sortedFavoriteItems = useMemo(
@@ -112,6 +116,23 @@ export function FavoritesClient(props: ListingProps) {
 			setCurrentPage(totalPages);
 		}
 	}, [currentPage, totalPages]);
+
+	// Observe the carousel overflow container so carouselItemsToShow stays accurate on resize
+	useEffect(() => {
+		if (!carouselContainerEl) return;
+		const ro = new ResizeObserver(([entry]) => {
+			setCarouselContainerWidth(entry.contentRect.width);
+		});
+		ro.observe(carouselContainerEl);
+		setCarouselContainerWidth(carouselContainerEl.getBoundingClientRect().width);
+		return () => ro.disconnect();
+	}, [carouselContainerEl]);
+
+	// Clamp position when carouselMaxScroll shrinks (viewport widens → fewer cards to skip)
+	useEffect(() => {
+		const maxScroll = Math.max(0, (carouselItemsTotal - carouselItemsToShow) * carouselItemWidth);
+		setCarouselPosition((prev) => Math.min(prev, maxScroll));
+	}, [carouselItemsToShow, carouselItemsTotal, carouselItemWidth]);
 
 	// Sort and paginate all items for popular items section
 	const sortedPopularItems = useMemo(() => sortItems(props.items, popularSortBy), [props.items, popularSortBy]);
@@ -379,7 +400,7 @@ export function FavoritesClient(props: ListingProps) {
 						)}
 
 						{/* Carousel Content */}
-						<div className="overflow-hidden rounded-lg py-3 pl-8">
+						<div ref={setCarouselContainerEl} className="overflow-hidden rounded-lg py-3 pl-8">
 							<div
 								ref={carouselRef}
 								className="flex gap-3 transition-transform duration-300 ease-out"
