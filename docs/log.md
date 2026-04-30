@@ -33,6 +33,25 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `spec-006`, `spec-007`, `spec-008`, `spec-009`, `spec-011`,
+  `spec-012`, `spec-013`, `spec-014`, `spec-015`, `spec-016` Added
+  implementation plans + task lists, completing the Spec Kit trio
+  (`spec.md` + `plan.md` + `tasks.md`) for every retroactive feature
+  spec from this run. Each plan documents the existing topology and
+  the migration path to the plugin architecture (Spec 002).
+- `apps/web-e2e` Added smoke specs for previously-uncovered surfaces
+  to close gaps in [Spec 010](spec/010-e2e-test-coverage/spec.md):
+  `auth/forgot-password.spec.ts`, `auth/new-password.spec.ts`,
+  `public/help.spec.ts`, `public/about.spec.ts`,
+  `public/comparisons.spec.ts`, `public/sponsor.spec.ts`.
+- `spec-003` Added implementation plan + tasks for auth providers,
+  documenting the existing topology and the migration path to plugin
+  packages once Spec 002 stabilises.
+- `spec-004` Added implementation plan + tasks for payment providers
+  with the same pattern (current shape + plugin-migration target).
+- `spec-005` Added implementation plan + tasks for i18n covering
+  message catalogue management, locale switcher, RTL, and Docusaurus
+  i18n.
 - `spec-016` Added retroactive spec for the typed analytics events
   layer shipped in PR #692, sitting on top of Spec 008.
 - `spec-010` Added implementation plan and task list for the e2e

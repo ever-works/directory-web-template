@@ -14,6 +14,24 @@ Complete listing of all E2E tests added across 4 PRs.
 
 ---
 
+## Continual-improvement additions (2026-04-30)
+
+Smoke specs added by automated continual-improvement runs to fill
+coverage gaps that did not warrant a dedicated PR. They use only
+public selectors (roles / labels / `data-testid`) and accept multiple
+valid states (e.g. `/sponsor` may redirect or 404 depending on env).
+
+| Spec file                                          | Tests | Notes                                   |
+| -------------------------------------------------- | ----- | --------------------------------------- |
+| `tests/auth/forgot-password.spec.ts`               | 4     | Form + back link + empty-submit guard.  |
+| `tests/auth/new-password.spec.ts`                  | 2     | With and without `token` query.         |
+| `tests/public/help.spec.ts`                        | 2     | Help / interactive guide page renders.  |
+| `tests/public/about.spec.ts`                       | 2     | About page renders with a heading.      |
+| `tests/public/comparisons.spec.ts`                 | 2     | Comparisons listing renders.            |
+| `tests/public/sponsor.spec.ts`                     | 1     | `/sponsor` redirect-or-404 contract.    |
+
+---
+
 ## PR #621 — P0: Critical Business Flows (21 new tests)
 
 ### Admin Item CRUD (`tests/admin/items-crud.spec.ts`)
