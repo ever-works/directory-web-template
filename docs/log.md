@@ -33,6 +33,26 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/architecture` `plugin-system.md` status block updated from
+  *proposed* to *in-progress* (Phase A scaffolding shipped in commit
+  `8b68d29a`); the "two packages" section now reads "three packages"
+  to include the existing `@ever-works/plugin-demo` reference plugin
+  (with a note that it is not part of the runtime contract). The
+  Slots table was extended from 9 rows to the full 15 canonical slot
+  ids (`home.after-listing`, `item.detail.actions`,
+  `admin.layout.header.right`, `admin.items.row.actions`,
+  `admin.items.toolbar`, `client.settings.section`) and now points
+  readers at [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts)
+  as the authoritative source so the doc and the SDK can never drift
+  again.
+- `apps/web-e2e` Added `api/item-company-write.spec.ts` (2 — `POST`
+  and `DELETE` `/api/items/[slug]/company` for a non-existent slug;
+  the matching `GET` is already covered in
+  `payment-protected.spec.ts` line 37, but the **write** surfaces of
+  the per-item admin company-assignment route were not explicitly
+  smoke-tested. Same no-5xx contract as the rest of the smoke layer
+  — anonymous callers must receive a 4xx, never a 5xx).
+  `E2E-TESTS.md` updated with the new entry.
 - `spec-018` Added `018-performance-budget` (proposed): full
   spec/plan/tasks trio that converts Article V of the constitution
   into a measurable, CI-enforced contract — per-route gzip first-load

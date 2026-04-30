@@ -69,6 +69,7 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/api/item-votes-public.spec.ts`              | 2     | Public `GET /api/items/[slug]/votes` non-existent-slug contract — no-5xx + non-error JSON envelope. Closes the last public per-item GET surface that was implicit rather than explicit. |
 | `tests/public/per-slug-public.spec.ts`             | 3     | Per-slug public detail pages with unknown slugs: `/comparisons/[slug]`, `/categories/[category]`, `/tags/[tag]` — exercises the `notFound()` / disabled-feature branch with a non-5xx contract. Complements the legacy `(listing)` versions in `legacy-routing.spec.ts`. |
 | `tests/api/item-comment-rating-by-id.spec.ts`      | 2     | `/api/items/[slug]/comments/rating/[commentId]` GET + PATCH for a non-existent comment id — no-5xx contract. Closes the last `/api/items/[slug]/**` per-comment route that was not explicitly smoke-tested. |
+| `tests/api/item-company-write.spec.ts`             | 2     | `POST` and `DELETE` `/api/items/[slug]/company` (admin-only company assign / unassign) — no-5xx contract for anonymous callers. The matching `GET` is already covered in `payment-protected.spec.ts`; this closes the per-item company-assignment write surface. |
 
 ---
 
