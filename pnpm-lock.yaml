@@ -597,6 +597,69 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1(eslint@9.39.4(jiti@2.6.1))
 
+  packages/plugin-demo:
+    dependencies:
+      '@ever-works/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
+      zod:
+        specifier: ^4.0.5
+        version: 4.3.6
+    devDependencies:
+      '@ever-works/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: 19.2.7
+        version: 19.2.7
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/plugin-runtime:
+    dependencies:
+      '@ever-works/plugin-sdk':
+        specifier: workspace:*
+        version: link:../plugin-sdk
+      zod:
+        specifier: ^4.0.5
+        version: 4.3.6
+    devDependencies:
+      '@ever-works/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: 19.2.7
+        version: 19.2.7
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
+  packages/plugin-sdk:
+    dependencies:
+      zod:
+        specifier: ^4.0.5
+        version: 4.3.6
+    devDependencies:
+      '@ever-works/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@types/react':
+        specifier: 19.2.7
+        version: 19.2.7
+      react:
+        specifier: 19.2.5
+        version: 19.2.5
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/tsconfig: {}
 
 packages:
@@ -1284,10 +1347,6 @@ packages:
 
   '@babel/runtime-corejs3@7.29.0':
     resolution: {integrity: sha512-TgUkdp71C9pIbBcHudc+gXZnihEDOjUAmXO1VO4HHGES7QLZcShR0stfKIxLSNIYx2fqhmJChOjm/wkF8wv4gA==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/runtime@7.28.6':
-    resolution: {integrity: sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA==}
     engines: {node: '>=6.9.0'}
 
   '@babel/runtime@7.29.2':
@@ -13746,8 +13805,6 @@ snapshots:
   '@babel/runtime-corejs3@7.29.0':
     dependencies:
       core-js-pure: 3.48.0
-
-  '@babel/runtime@7.28.6': {}
 
   '@babel/runtime@7.29.2': {}
 
@@ -26386,7 +26443,7 @@ snapshots:
 
   react-textarea-autosize@8.5.9(@types/react@19.2.7)(react@19.2.5):
     dependencies:
-      '@babel/runtime': 7.28.6
+      '@babel/runtime': 7.29.2
       react: 19.2.5
       use-composed-ref: 1.4.0(@types/react@19.2.7)(react@19.2.5)
       use-latest: 1.3.0(@types/react@19.2.7)(react@19.2.5)

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
-import { Heart, Star } from 'lucide-react';
+import { Heart, Star, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Category, ItemData, Tag } from '@/lib/content';
 import Item from '../item';
@@ -49,6 +49,24 @@ export function FavoritesClient(props: ListingProps) {
 		[setLayoutKey]
 	);
 
+	// Filter items to only show favorites
+	const favoriteItems = useMemo(
+		() => props.items.filter((item) => favorites.some((fav) => fav.itemSlug === item.slug)),
+		[props.items, favorites]
+	);
+
+	// Get favorited item slugs for exclusion
+	const favoritedSlugs = useMemo(
+		() => new Set(favorites.map((fav) => fav.itemSlug)),
+		[favorites]
+	);
+
+	// Carousel items should EXCLUDE favorited items
+	const carouselItems = useMemo(
+		() => props.items.filter((item) => !favoritedSlugs.has(item.slug)),
+		[props.items, favoritedSlugs]
+	);
+
 	// Pagination state for favorites
 	const [currentPage, setCurrentPage] = useState(1);
 	const itemsPerPage = 12;
@@ -61,11 +79,16 @@ export function FavoritesClient(props: ListingProps) {
 	const [popularPage, setPopularPage] = useState(1);
 	const popularItemsPerPage = 12;
 
-	// Filter items to only show favorites
-	const favoriteItems = useMemo(
-		() => props.items.filter((item) => favorites.some((fav) => fav.itemSlug === item.slug)),
-		[props.items, favorites]
-	);
+	// Carousel state for recommendations
+	const [carouselPosition, setCarouselPosition] = useState(0);
+	const carouselRef = useRef<HTMLDivElement>(null);
+	const [carouselContainerEl, setCarouselContainerEl] = useState<HTMLDivElement | null>(null);
+	const [carouselContainerWidth, setCarouselContainerWidth] = useState(0);
+	const carouselItemWidth = 332; // w-80 (320px) + gap-3 (12px) = 332px
+	const carouselItemsTotal = Math.min(carouselItems.length, 12); // Max items to display in carousel
+	const carouselItemsToShow = carouselContainerWidth > 0
+		? Math.max(1, Math.floor(carouselContainerWidth / carouselItemWidth))
+		: 4;
 
 	// Sort favorites
 	const sortedFavoriteItems = useMemo(
@@ -94,6 +117,23 @@ export function FavoritesClient(props: ListingProps) {
 		}
 	}, [currentPage, totalPages]);
 
+	// Observe the carousel overflow container so carouselItemsToShow stays accurate on resize
+	useEffect(() => {
+		if (!carouselContainerEl) return;
+		const ro = new ResizeObserver(([entry]) => {
+			setCarouselContainerWidth(entry.contentRect.width);
+		});
+		ro.observe(carouselContainerEl);
+		setCarouselContainerWidth(carouselContainerEl.getBoundingClientRect().width);
+		return () => ro.disconnect();
+	}, [carouselContainerEl]);
+
+	// Clamp position when carouselMaxScroll shrinks (viewport widens → fewer cards to skip)
+	useEffect(() => {
+		const maxScroll = Math.max(0, (carouselItemsTotal - carouselItemsToShow) * carouselItemWidth);
+		setCarouselPosition((prev) => Math.min(prev, maxScroll));
+	}, [carouselItemsToShow, carouselItemsTotal, carouselItemWidth]);
+
 	// Sort and paginate all items for popular items section
 	const sortedPopularItems = useMemo(() => sortItems(props.items, popularSortBy), [props.items, popularSortBy]);
 	const popularTotalPages = Math.ceil(sortedPopularItems.length / popularItemsPerPage);
@@ -116,6 +156,24 @@ export function FavoritesClient(props: ListingProps) {
 	const handlePopularPageChange = (page: number) => {
 		clampAndScrollToTop(page, popularTotalPages, setPopularPage);
 	};
+
+	// Carousel functions - improved logic
+	const carouselMaxScroll = Math.max(0, (carouselItemsTotal - carouselItemsToShow) * carouselItemWidth);
+
+	const handleCarouselPrev = useCallback(() => {
+		setCarouselPosition((prev) => Math.max(prev - carouselItemWidth, 0));
+	}, []);
+
+	const handleCarouselNext = useCallback(() => {
+		setCarouselPosition((prev) => {
+			const newPosition = prev + carouselItemWidth;
+			return Math.min(newPosition, carouselMaxScroll);
+		});
+	}, [carouselMaxScroll]);
+
+	const canCarouselPrev = carouselPosition > 0;
+	const canCarouselNext = carouselPosition < carouselMaxScroll;
+	const isCarouselAtEnd = carouselPosition >= carouselMaxScroll;
 
 	if (!user?.id) {
 		return (
@@ -302,6 +360,111 @@ export function FavoritesClient(props: ListingProps) {
 			{totalPages > 1 && (
 				<div className="flex justify-center mt-8">
 					<UniversalPagination page={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
+				</div>
+			)}
+
+			{/* Recommended Items Carousel - Excludes favorited items */}
+			{carouselItems.length > 0 && (
+				<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
+					{/* Section Header with "See More" button */}
+					<div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+						<p className="text-sm text-gray-600 dark:text-gray-400 mt-1 pl-8">
+							{t('EXPLORE_ITEMS', { defaultValue: 'Explore more items from our collection' })}
+						</p>
+						
+						{/* "See More" button at the top right */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<Link
+								href="/"
+								className="inline-flex items-center -mb-4 gap-2 px-4 py-1.5 text-xs bg-primary-600 dark:bg-white text-white dark:text-taupe-900 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg whitespace-nowrap"
+							>
+								{t('SHOW_ALL', { defaultValue: 'See More' })}
+								<ArrowRight className="w-4 h-4" />
+							</Link>
+						)}
+					</div>
+
+					{/* Carousel Container with side buttons */}
+					<div className="relative">
+						{/* Left Navigation Button - hidden instead of disabled */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<button
+								onClick={handleCarouselPrev}
+								className={`absolute -left-5 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-2 rounded-full bg-white dark:bg-white/10 shadow-lg hover:shadow-xl text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all duration-200 hover:-translate-x-1 pointer-events-auto ${
+									!canCarouselPrev ? 'hidden' : ''
+								}`}
+								aria-label={t('PREVIOUS', { defaultValue: 'Previous' })}
+							>
+								<ChevronLeft className="w-4 h-4" />
+							</button>
+						)}
+
+						{/* Carousel Content */}
+						<div ref={setCarouselContainerEl} className="overflow-hidden rounded-lg py-3 pl-8">
+							<div
+								ref={carouselRef}
+								className="flex gap-3 transition-transform duration-300 ease-out"
+								style={{ transform: `translateX(-${carouselPosition}px)` }}
+							>
+								{carouselItems.slice(0, carouselItemsTotal).map((item) => (
+									<div
+										key={item.slug}
+										className="flex-shrink-0 w-80"
+									>
+										<Item {...item} layout="grid" />
+									</div>
+								))}
+							</div>
+						</div>
+
+						{/* Right Navigation Button - hidden instead of disabled */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<button
+								onClick={handleCarouselNext}
+								className={`absolute -right-5 top-1/2 -translate-y-1/2 cursor-pointer z-10 p-2 rounded-full bg-white dark:bg-white/10 shadow-lg hover:shadow-xl text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-white/20 transition-all duration-200 hover:translate-x-1 pointer-events-auto ${
+									!canCarouselNext ? 'hidden' : ''
+								}`}
+								aria-label={t('NEXT_STEP', { defaultValue: 'Next' })}
+							>
+								<ChevronRight className="w-4 h-4" />
+							</button>
+						)}
+
+						{/* Left Gradient Overlay */}
+						{carouselPosition > 0 && carouselItemsTotal > carouselItemsToShow && (
+							<div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
+						)}
+
+						{/* Right Gradient Overlay */}
+						{carouselItemsTotal > carouselItemsToShow && (
+							<div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white dark:from-[#0a0a0a] to-transparent pointer-events-none" />
+						)}
+					</div>
+
+					{/* Carousel Indicators */}
+					{carouselItemsTotal > carouselItemsToShow && (
+						<div className="flex justify-center gap-2 mt-8">
+							{Array.from({
+								length: Math.ceil((carouselItemsTotal - carouselItemsToShow) / 1) + 1
+							}).map((_, index) => {
+								const indicatorPosition = index * carouselItemWidth;
+								const isActive = Math.round(carouselPosition / carouselItemWidth) === index;
+								return (
+									<button
+										key={index}
+										onClick={() => setCarouselPosition(indicatorPosition)}
+										className={`h-2 rounded-full transition-all duration-300 ${
+											isActive
+												? 'w-6 bg-theme-primary-600 dark:bg-white'
+												: 'w-2 bg-gray-300 dark:bg-white/20 hover:bg-gray-400 dark:hover:bg-white/30'
+										}`}
+										aria-label={`Go to carousel page ${index + 1}`}
+										aria-current={isActive ? 'page' : undefined}
+									/>
+								);
+							})}
+						</div>
+					)}
 				</div>
 			)}
 		</div>

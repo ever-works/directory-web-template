@@ -2,7 +2,73 @@
 
 Complete listing of all E2E tests added across 4 PRs.
 
-**Total: 165 new test cases across 43 new spec files**
+**Total: 165 new test cases across 43 new spec files** (excluding
+continual-improvement smoke specs listed below — those are tracked
+separately and add ~277 additional tests across 43 spec files).
+
+> Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
+> The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
+> [task list](../../docs/spec/010-e2e-test-coverage/tasks.md) capture the
+> backlog (plugin registry, analytics emission, payments smoke, maps render,
+> newsletter validation, client notifications) plus engineering passes
+> (resilience and speed). New specs must be added to this file when they
+> land and the **Total** line updated.
+
+---
+
+## Continual-improvement additions (2026-04-30)
+
+Smoke specs added by automated continual-improvement runs to fill
+coverage gaps that did not warrant a dedicated PR. They use only
+public selectors (roles / labels / `data-testid`) and accept multiple
+valid states (e.g. `/sponsor` may redirect or 404 depending on env).
+
+| Spec file                                          | Tests | Notes                                   |
+| -------------------------------------------------- | ----- | --------------------------------------- |
+| `tests/auth/forgot-password.spec.ts`               | 4     | Form + back link + empty-submit guard.  |
+| `tests/auth/new-password.spec.ts`                  | 2     | With and without `token` query.         |
+| `tests/auth/new-verification.spec.ts`              | 2     | With and without `token` query.         |
+| `tests/public/help.spec.ts`                        | 2     | Help / interactive guide page renders.  |
+| `tests/public/about.spec.ts`                       | 2     | About page renders with a heading.      |
+| `tests/public/comparisons.spec.ts`                 | 2     | Comparisons listing renders.            |
+| `tests/public/sponsor.spec.ts`                     | 1     | `/sponsor` redirect-or-404 contract.    |
+| `tests/public/docs.spec.ts`                        | 2     | `/docs` landing page renders.           |
+| `tests/public/cms-page.spec.ts`                    | 2     | `/pages/[slug]` 404 + render contract.  |
+| `tests/client/billing.spec.ts`                     | 2     | Dashboard billing auth + redirect.      |
+| `tests/api/reference.spec.ts`                      | 2     | Scalar `/api/reference` + openapi.json. |
+| `tests/api/version.spec.ts`                        | 3     | `/api/version` + `/api/version/sync`.   |
+| `tests/api/webhooks.spec.ts`                       | 8     | Stripe / LS / Polar / Solidgate guards. |
+| `tests/api/discovery.spec.ts`                      | 5     | Public sponsor / popularity / export.   |
+| `tests/api/protected.spec.ts`                      | 10    | Auth-required endpoints reject anon.    |
+| `tests/api/method-guards.spec.ts`                  | 6     | POST-only / dev-only / cron contracts.  |
+| `tests/api/feature-existence.spec.ts`              | 7     | `/api/{categories,collections,surveys,items/export/settings}/exists` no-5xx. |
+| `tests/api/location.spec.ts`                       | 7     | `/api/location/{countries,cities,search}` enabled / disabled contracts. |
+| `tests/api/item-public.spec.ts`                    | 5     | Public per-item GET surfaces with a fake slug + unauthenticated comment POST. |
+| `tests/api/cron-jobs.spec.ts`                      | 4     | Subscription expiration / reminders cron secret guards. |
+| `tests/api/stripe-public.spec.ts`                  | 1     | Public `/api/stripe/products` dynamic-pricing gate. |
+| `tests/api/payment-protected.spec.ts`              | 13    | Auth-required payment / subscription / sponsor-ad surfaces. |
+| `tests/api/admin-protected-extra.spec.ts`          | 36    | Admin-only endpoints across every slice (categories, clients, comments, companies, featured-items, geo-analytics, items helpers, location-index, navigation, notifications, reports, roles, settings, sponsor-ads, tags, twenty-crm, users). |
+| `tests/api/client-protected.spec.ts`               | 8     | `/api/client/**` (dashboard stats, geo-stats, items, items/coordinates, items/stats, import surfaces). |
+| `tests/api/surveys.spec.ts`                        | 8     | Auth-gated `/api/surveys` CRUD + per-survey responses + per-response detail. |
+| `tests/api/payment-checkouts.spec.ts`              | 28    | Auth-gated checkout / payment-method / setup-intent / subscription mutation routes for Stripe, LemonSqueezy, Polar, Solidgate + sponsor-ad lifecycle. |
+| `tests/api/auth-change-password.spec.ts`           | 2     | `/api/auth/change-password` no-session / empty-body contracts. |
+| `tests/api/location-coordinates.spec.ts`           | 3     | `/api/location/coordinates` enabled / disabled feature gate. |
+| `tests/api/user-profile-location.spec.ts`          | 2     | `/api/user/profile/location` GET + PUT no-session contracts. |
+| `tests/api/reports.spec.ts`                        | 2     | `/api/reports` no-session / empty-body contracts. |
+| `tests/public/newsletter-unsubscribe.spec.ts`      | 2     | `/newsletter/unsubscribe` with / without token. |
+| `tests/public/integration.spec.ts`                 | 3     | `/integration/{analytics,posthog,speed-insights}` showcase pages. |
+| `tests/public/admin-pages-protected.spec.ts`       | 18    | `/admin/**` and `/dashboard/**` page routes redirect anonymous visitors without 5xx. |
+| `tests/public/pricing-success.spec.ts`             | 2     | `/pricing/success` post-checkout landing renders with and without query params. |
+| `tests/public/listing-paginated.spec.ts`           | 6     | Paginated listings: `/discover/[page]`, `/collections/paging[/page]`, `/tags/paging[/page]` no-5xx. |
+| `tests/public/legacy-routing.spec.ts`              | 5     | Legacy / nested catch-alls: `/categories/category/[...]`, `/tags/tag/[...]`, listing `/tags/[...tag]` no-5xx. |
+| `tests/public/item-survey-public.spec.ts`          | 2     | Public `/items/[slug]/surveys/[surveySlug]` survey-response page no-5xx for unknown slugs. |
+| `tests/public/dashboard-surveys-protected.spec.ts` | 3     | `/dashboard/items/[itemId]/surveys[/preview|/responses]` redirect-or-404 contract. |
+| `tests/api/admin-by-id.spec.ts`                    | 47    | Admin per-`[id]` REST routes across categories, clients, collections (+ items helper), comments, companies, featured-items, items (+ history / review / import), notifications read, reports, roles (+ permissions), sponsor-ads (+ approve / cancel / reject), tags, users, plus settings POST. |
+| `tests/api/items-engagement-and-favorites.spec.ts` | 11    | Public `/api/items/engagement` (4) + auth-gated comment-by-id PUT/DELETE, vote toggle/clear, favorites GET/POST + favorites/[itemSlug] DELETE (7). |
+| `tests/public/admin-by-id-pages-protected.spec.ts` | 18    | Admin per-`[id]` and `/client/**` page routes (admin/clients/[id], admin/surveys/[slug]/edit/preview/responses, admin signin, client dashboard / profile / settings (+ profile/billing/location/portfolio/theme-colors / submissions/trash), client sponsorships, client submissions, client trash) — non-5xx contract for anonymous visitors. |
+| `tests/api/item-votes-public.spec.ts`              | 2     | Public `GET /api/items/[slug]/votes` non-existent-slug contract — no-5xx + non-error JSON envelope. Closes the last public per-item GET surface that was implicit rather than explicit. |
+| `tests/public/per-slug-public.spec.ts`             | 3     | Per-slug public detail pages with unknown slugs: `/comparisons/[slug]`, `/categories/[category]`, `/tags/[tag]` — exercises the `notFound()` / disabled-feature branch with a non-5xx contract. Complements the legacy `(listing)` versions in `legacy-routing.spec.ts`. |
+| `tests/api/item-comment-rating-by-id.spec.ts`      | 2     | `/api/items/[slug]/comments/rating/[commentId]` GET + PATCH for a non-existent comment id — no-5xx contract. Closes the last `/api/items/[slug]/**` per-comment route that was not explicitly smoke-tested. |
 
 ---
 

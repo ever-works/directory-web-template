@@ -50,6 +50,25 @@ Visit [http://localhost:3000](http://localhost:3000) to see your site!
 - [Architecture Overview](/architecture/overview) -- Understand the system design
 - [Deployment Guide](/deployment/deployment-introduction) -- Deploy to production
 
+## For Contributors & AI Agents
+
+The template uses **spec-driven development** following the
+[GitHub Spec Kit](https://github.com/github/spec-kit) convention. Every
+non-trivial change goes through a spec → plan → tasks trio.
+
+- [`AGENTS.md`](https://github.com/ever-works/directory-web-template/blob/develop/AGENTS.md) -- Cross-cutting rules for any AI agent operating in this monorepo.
+- [`.specify/README.md`](https://github.com/ever-works/directory-web-template/blob/develop/.specify/README.md) -- Spec Kit workflow.
+- [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/blob/develop/.specify/memory/constitution.md) -- Ten durable principles every plan must respect.
+- [Spec Index](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec) -- Per-feature spec/plan/tasks documents under `docs/spec/`.
+- [Change Log](https://github.com/ever-works/directory-web-template/blob/develop/docs/log.md) -- Running log of doc and spec changes.
+- [Open Questions](https://github.com/ever-works/directory-web-template/blob/develop/docs/questions.md) -- Open questions with chosen defaults.
+- [Plugin System (Architecture)](https://github.com/ever-works/directory-web-template/blob/develop/docs/architecture/plugin-system.md) -- The pluggable, modular core (see [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)).
+- [Authoring a Plugin](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/authoring-a-plugin.md) -- Walk-through for authoring your first plugin.
+- [Plugin Packages](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/packages.md) -- SDK, runtime, and demo packages overview.
+- [`@ever-works/plugin-sdk`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk) -- Capability interfaces, slot ids, manifest types, and the `defineDirectoryPlugin` factory.
+- [`@ever-works/plugin-runtime`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime) -- `PluginRegistry`, config loader, and the `<SlotHost />` React component.
+- [`@ever-works/plugin-demo`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo) -- Reference plugin used by the test suite and as a teaching example.
+
 ## Use Cases
 
 This template project is perfect for:

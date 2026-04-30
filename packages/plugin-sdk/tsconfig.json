@@ -1,0 +1,9 @@
+{
+	"extends": "@ever-works/tsconfig/base.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"types": ["react"]
+	},
+	"include": ["src/**/*"],
+	"exclude": ["node_modules", "dist"]
+}
