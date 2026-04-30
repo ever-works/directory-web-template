@@ -69,6 +69,7 @@ monorepo/
 - **Form Validation**: [Zod](https://zod.dev)
 - **E2E Testing**: [Playwright](https://playwright.dev)
 - **Notifications/Emails**: [Novu](https://novu.co) / [Resend](https://resend.com)
+- **Maps**: [Mapbox GL JS](https://www.mapbox.com/) and [Google Maps JavaScript API](https://developers.google.com/maps) behind a provider abstraction
 - **Hosting**: [Vercel](https://vercel.com)
 - **Payment Processing**: [Stripe](https://stripe.com), [Lemon Squeezy](https://www.lemonsqueezy.com), [Polar](https://polar.sh), and [Solidgate](https://solidgate.com)
 - **Security**: [Google ReCAPTCHA v2](https://cloud.google.com/security/products/recaptcha)
@@ -457,6 +458,65 @@ payment:
 - ✅ **Multiple Plans**: Free, Pro, and Sponsor tiers
 - ✅ **Secure Processing**: PCI-compliant payment handling
 - ✅ **International Support**: Multiple currencies and payment methods
+
+## 🗺️ Maps & Location
+
+The template ships a full-featured map system with a provider abstraction —
+the same components work with either **Mapbox** or **Google Maps**, picked
+via `settings.location.provider` in `config.yml`. Items declare a
+`location:` block in YAML; addresses are geocoded automatically in the
+background, so authors don't have to look up latitudes and longitudes by
+hand.
+
+End users can flip listings into a **Map view** that renders markers next
+to a synchronised sidebar of cards (Zillow / Airbnb style). Clicking a
+marker highlights its card; clicking a card pans the map. The map also
+auto-fits its bounds to the visible markers on first load.
+
+The view appears in two places (both opt-in):
+
+- alongside Cards / Grid / Masonry in the existing **view toggle**, and
+- as a dedicated **Map** entry in the primary header navigation, gated by
+  `settings.header.map_enabled`.
+
+### Quick configuration
+
+```yaml
+# apps/web/.content/config.yml
+settings:
+    location:
+        enabled: true # turn on location features
+        provider: mapbox # or google
+        map_style: streets # or satellite
+        default_center: [37.7749, -122.4194] # optional
+
+    header:
+        map_enabled: true # show the Map link in the header
+```
+
+```bash
+# apps/web/.env.local — set whichever provider you chose
+NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.eyJ1...
+# or
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=AIza...
+```
+
+```yaml
+# .content/items/some-cafe.yml
+name: Some Café
+slug: some-cafe
+location:
+    address: '123 Market Street, San Francisco, CA'
+    # latitude / longitude are optional — geocoded automatically
+```
+
+See the docs for the full setup walkthrough:
+
+- [Map View feature page](docs/features/map-view.md)
+- [Map integration guide](docs/guides/map-integration-guide.md)
+- [Maps & Location features](docs/features/maps-location.md)
+- [Spec 011 — Maps Providers](docs/spec/011-maps-providers/spec.md)
+- [Spec 017 — Map View](docs/spec/017-map-view/spec.md)
 
 ## 🔒 Security & ReCAPTCHA
 

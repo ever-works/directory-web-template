@@ -220,6 +220,10 @@ export interface MapComponentProps {
 	enableClustering?: boolean;
 	/** Clustering configuration options */
 	clusterOptions?: ClusterOptions;
+	/** Auto-fit bounds to all markers on first load. Re-fits when the marker set first becomes non-empty. */
+	fitToMarkers?: boolean;
+	/** Padding (px) used by `fitToMarkers`. Defaults to 50. */
+	fitPadding?: number;
 	/** External loading state */
 	isLoading?: boolean;
 	/** Disable map interaction */

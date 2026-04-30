@@ -16,6 +16,7 @@ const DEFAULT_HEADER_SETTINGS: HeaderSettings = {
 	themeEnabled: true,
 	moreEnabled: true,
 	settingsEnabled: true,
+	mapEnabled: false,
 	layoutDefault: 'home1',
 	paginationDefault: 'standard',
 	themeDefault: 'light'

@@ -228,6 +228,25 @@ confirm, override, or refine.
 
 ---
 
+## Spec 017 — Map view
+
+### Q-017a Hero on `/map` route?
+
+- **Context.** The dedicated `/map` route shares the same composition
+  as the listing's map view-toggle, but the visitor's intent at `/map`
+  is "show me the map", not "explore the homepage". Reusing the
+  `(listing)` route group would inherit the homepage hero.
+- **Options.**
+  - Render `/map` full-bleed without a hero (current implementation).
+  - Reuse the `(listing)` route group and ship the hero too.
+- **Default.** **Full-bleed, no hero.** Visitors clicking the header
+  Map link want to see the map immediately; the hero would push the
+  map below the fold.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 015 — Spec Kit adoption
 
 ### Q-015a Automate spec coverage report

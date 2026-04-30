@@ -33,6 +33,19 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `spec-017` Added `017-map-view` (proposed → implemented in this PR):
+  spec/plan/tasks for the listing map view + dedicated `/map` route +
+  header `Map` nav link gated on `settings.header.map_enabled`. Adds
+  `MapSidebar`, extends `LayoutMap` with marker↔card sync and
+  auto-fit bounds, adds `apps/web-e2e/tests/public/map.spec.ts` and
+  `docs/features/map-view.md`. No new dependencies.
+- `index` Added a Maps & Location bullet to `docs/index.md` Key
+  Features that links to the new feature page.
+- `docs/features` `maps-location.md` and `guides/map-integration-guide.md`
+  now cross-link to the Map View feature page and Spec 017.
+- `README` Root `README.md` Tech Stack now mentions Mapbox GL JS /
+  Google Maps and a new "Maps & Location" section documents the
+  Map view config, env vars, and YAML location example.
 - `apps/web-e2e` Added two more smoke spec files closing the last
   notable per-slug surfaces that were not yet explicitly covered:
   `public/per-slug-public.spec.ts` (3 — `/comparisons/[slug]`,

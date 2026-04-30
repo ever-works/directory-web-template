@@ -37,6 +37,7 @@ or architectural change.
 | 014 | [`docs-translation`](014-docs-translation/spec.md)         | in-progress   | Per-locale Docusaurus docs translation pipeline                                               |
 | 015 | [`docs-spec-kit`](015-docs-spec-kit/spec.md)               | in-progress   | Adopt GitHub Spec Kit (`.specify/`, `docs/spec/`) as the project's SDD methodology           |
 | 016 | [`typed-analytics-events`](016-typed-analytics-events/spec.md) | shipped   | Typed, Zod-validated central event API on top of the multi-provider analytics plumbing       |
+| 017 | [`map-view`](017-map-view/spec.md) ([plan](017-map-view/plan.md), [tasks](017-map-view/tasks.md)) | in-progress   | Listing map view with synchronised sidebar + dedicated `/map` route + header nav link        |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.

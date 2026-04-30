@@ -28,6 +28,7 @@ import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useSurveysEnabled } from '@/hooks/use-surveys-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useHeaderSettings } from '@/hooks/use-header-settings';
+import { useLocationSettings } from '@/hooks/use-location-settings';
 import { useCategoriesExists } from '@/hooks/use-categories-exists';
 import { useCollectionsExists } from '@/hooks/use-collections-exists';
 import { useComparisonsExists } from '@/hooks/use-comparisons-exists';
@@ -126,6 +127,12 @@ const NAVIGATION_CONFIG: Array<{
 		translationNamespace: 'common'
 	},
 	{
+		key: 'map',
+		href: '/map',
+		translationKey: 'HEADER_MAP',
+		translationNamespace: 'common'
+	},
+	{
 		key: 'submit',
 		href: '/submit',
 		translationKey: 'SUBMIT',
@@ -185,6 +192,7 @@ export default function Header() {
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
 	const { settings: headerSettings } = useHeaderSettings();
+	const { settings: locationSettings } = useLocationSettings();
 	const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesExists();
 	const { data: collectionsData, isLoading: collectionsLoading } = useCollectionsExists();
 	const { data: comparisonsData, isLoading: comparisonsLoading } = useComparisonsExists();
@@ -249,6 +257,10 @@ export default function Header() {
 			if (item.key === 'pricing' && !headerSettings.pricingEnabled) {
 				return false;
 			}
+			// Hide map link unless both the feature toggle and location features are on
+			if (item.key === 'map' && (!headerSettings.mapEnabled || !locationSettings.enabled)) {
+				return false;
+			}
 			// Hide submit link when header submit is disabled
 			if (item.key === 'submit' && !headerSettings.submitEnabled) {
 				return false;
@@ -299,6 +311,8 @@ export default function Header() {
 		surveysEnabled,
 		headerSettings.pricingEnabled,
 		headerSettings.submitEnabled,
+		headerSettings.mapEnabled,
+		locationSettings.enabled,
 		hasCategories,
 		hasCollections,
 		hasComparisons,
