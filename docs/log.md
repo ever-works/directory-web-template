@@ -33,6 +33,22 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added five more page-route smoke specs closing the
+  remaining gaps in the public + protected page surface:
+  `public/pricing-success.spec.ts` (2 — `/pricing/success` with and
+  without checkout query params), `public/listing-paginated.spec.ts`
+  (6 — `/discover/[page]` with a high page number,
+  `/collections/paging[/page]`, `/tags/paging[/page]`),
+  `public/legacy-routing.spec.ts` (5 — legacy nested catch-alls
+  `/categories/category/[...categorie]`, `/tags/tag/[...tags]`, and
+  the `(listing)` group's `/tags/[...tag]`),
+  `public/item-survey-public.spec.ts` (2 — public per-item survey
+  response page `/items/[slug]/surveys/[surveySlug]` for unknown
+  slugs), `public/dashboard-surveys-protected.spec.ts` (3 — owner
+  flow `/dashboard/items/[itemId]/surveys[/preview|/responses]`
+  redirect-or-404 contract). Same no-5xx contract as the rest of the
+  smoke layer. `E2E-TESTS.md` updated with all five entries and the
+  continual-improvement headline total annotation.
 - `apps/web-e2e` Added eleven more smoke specs closing the largest
   remaining coverage gaps: `api/admin-protected-extra.spec.ts` (36
   admin-only endpoints across every slice — categories `all`/`git`/

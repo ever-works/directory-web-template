@@ -4,7 +4,7 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
-separately and add ~191 additional tests across 32 spec files).
+separately and add ~209 additional tests across 37 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -58,6 +58,11 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/public/newsletter-unsubscribe.spec.ts`      | 2     | `/newsletter/unsubscribe` with / without token. |
 | `tests/public/integration.spec.ts`                 | 3     | `/integration/{analytics,posthog,speed-insights}` showcase pages. |
 | `tests/public/admin-pages-protected.spec.ts`       | 18    | `/admin/**` and `/dashboard/**` page routes redirect anonymous visitors without 5xx. |
+| `tests/public/pricing-success.spec.ts`             | 2     | `/pricing/success` post-checkout landing renders with and without query params. |
+| `tests/public/listing-paginated.spec.ts`           | 6     | Paginated listings: `/discover/[page]`, `/collections/paging[/page]`, `/tags/paging[/page]` no-5xx. |
+| `tests/public/legacy-routing.spec.ts`              | 5     | Legacy / nested catch-alls: `/categories/category/[...]`, `/tags/tag/[...]`, listing `/tags/[...tag]` no-5xx. |
+| `tests/public/item-survey-public.spec.ts`          | 2     | Public `/items/[slug]/surveys/[surveySlug]` survey-response page no-5xx for unknown slugs. |
+| `tests/public/dashboard-surveys-protected.spec.ts` | 3     | `/dashboard/items/[itemId]/surveys[/preview|/responses]` redirect-or-404 contract. |
 
 ---
 
