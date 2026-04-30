@@ -6,7 +6,11 @@ sidebar_label: '002 Plugin Architecture'
 
 # Feature spec — `002-plugin-architecture`
 
-> **Status:** Proposed.
+> **Status:** Phase A shipped (2026-04-30) — `@ever-works/plugin-sdk`,
+> `@ever-works/plugin-runtime`, and `@ever-works/plugin-demo` are
+> scaffolded and type-check clean. Phases B–D (host wire-up, persisted
+> state, admin REST, migration of analytics) remain **Proposed**. See
+> [Tasks](./tasks.md) for the per-phase breakdown.
 > **Owner:** Template maintainers.
 > **Constitution articles invoked:** I (Plugin-First), II (TypeScript), III
 > (Spec Before Code), IV (Documentation), VII (Reuse Before Build), X

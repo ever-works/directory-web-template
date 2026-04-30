@@ -25,10 +25,15 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | -------------------------------------------------- | ----- | --------------------------------------- |
 | `tests/auth/forgot-password.spec.ts`               | 4     | Form + back link + empty-submit guard.  |
 | `tests/auth/new-password.spec.ts`                  | 2     | With and without `token` query.         |
+| `tests/auth/new-verification.spec.ts`              | 2     | With and without `token` query.         |
 | `tests/public/help.spec.ts`                        | 2     | Help / interactive guide page renders.  |
 | `tests/public/about.spec.ts`                       | 2     | About page renders with a heading.      |
 | `tests/public/comparisons.spec.ts`                 | 2     | Comparisons listing renders.            |
 | `tests/public/sponsor.spec.ts`                     | 1     | `/sponsor` redirect-or-404 contract.    |
+| `tests/public/docs.spec.ts`                        | 2     | `/docs` landing page renders.           |
+| `tests/public/cms-page.spec.ts`                    | 2     | `/pages/[slug]` 404 + render contract.  |
+| `tests/client/billing.spec.ts`                     | 2     | Dashboard billing auth + redirect.      |
+| `tests/api/reference.spec.ts`                      | 2     | Scalar `/api/reference` + openapi.json. |
 
 ---
 

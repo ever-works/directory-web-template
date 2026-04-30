@@ -33,6 +33,15 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-04-30
 
+- `apps/web-e2e` Added smoke specs for previously-uncovered surfaces:
+  `auth/new-verification.spec.ts`, `public/docs.spec.ts`,
+  `public/cms-page.spec.ts` (the generic `/pages/[slug]` route),
+  `client/billing.spec.ts` (dashboard billing auth + redirect), and
+  `api/reference.spec.ts` (Scalar API reference UI + `openapi.json`).
+  `apps/web-e2e/E2E-TESTS.md` updated to list each new spec.
+- `docs/plugins` Added `packages.md` — a per-package overview of
+  `@ever-works/plugin-sdk`, `@ever-works/plugin-runtime`,
+  `@ever-works/plugin-demo`. Linked from `docs/index.md`.
 - `spec-002` Phase A complete: scaffolded
   [`@ever-works/plugin-sdk`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk),
   [`@ever-works/plugin-runtime`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime),
