@@ -122,11 +122,12 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/testing-a-plugin.md`,
   `docs/plugins/capabilities.md`,
   `docs/plugins/slots.md`,
+  `docs/plugins/loader.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the six `docs/plugins/**` pages (authoring,
-     lifecycle, packages, testing, capabilities, slots).
+  1. Author the seven `docs/plugins/**` pages (authoring,
+     lifecycle, packages, testing, capabilities, slots, loader).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -138,7 +139,12 @@ sidebar_label: '002 Plugin Architecture Tasks'
   so the doc and the SDK cannot drift either; the slots reference
   cross-links each slot id to
   [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts)
-  with the same anti-drift guarantee.
+  with the same anti-drift guarantee; the loader reference
+  cross-links each export (`loadPlugins`, `mergeConfigSources`,
+  `PluginConfigSources`, `LoadPluginsResult`) to
+  [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
+  with the same anti-drift guarantee, including the env / DB /
+  override precedence and the failure matrix.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

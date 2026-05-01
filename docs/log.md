@@ -33,6 +33,34 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `loader.md` — the parallel **per-API loader
+  reference** that pairs with [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
+  exactly the way `capabilities.md` pairs with `providers.ts` and
+  `slots.md` pairs with `slots.ts`. One section per export
+  (`loadPlugins`, `mergeConfigSources`, `PluginConfigSources`,
+  `LoadPluginsResult`) with the full TypeScript signature, the
+  precedence rule (`env ⊆ db ⊆ override`), and an explicit
+  six-row failure matrix covering the five outcomes
+  ("config passes Zod", "config fails Zod", "setup throws",
+  "`enabled: false` + valid config", "duplicate plugin name", "empty
+  plugins array") that previously lived only in the source comments.
+  The page also includes a worked Vitest example that calls
+  `loadPlugins` directly to verify override precedence and the
+  validation-failure path, plus a five-step "how to add a new loader
+  feature" checklist that mirrors the patterns established in
+  `capabilities.md` and `slots.md`. Plugin authors and host-app
+  integrators previously had to read the loader source to discover
+  that a plugin whose `setup()` throws appears in **both**
+  `registered` and `rejected`, that the merge is intentionally
+  shallow (not deep), and that the loader does not abort on failure;
+  that information now lives in one place. Cross-links added in
+  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
+  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
+  `capabilities.md` *See also*, `slots.md` *See also*, and
+  `docs/index.md`. Spec 002 `T-010` task list grew from "six pages"
+  to "seven pages" and adds an explicit "doc and runtime cannot
+  drift" verification bullet for the new reference (matching the
+  wording added for `capabilities.md` and `slots.md`).
 - `docs/plugins` Added `slots.md` — the parallel **per-slot reference**
   that pairs with [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts)
   exactly the way `capabilities.md` pairs with `providers.ts`. One

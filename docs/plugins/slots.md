@@ -261,6 +261,8 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
 - [Testing a Plugin](./testing-a-plugin.md)
 - [Plugin Capabilities Reference](./capabilities.md) — the parallel
   reference for the capability surface (auth, payment, analytics, …).
+- [Plugin Loader Reference](./loader.md) — the per-API reference for
+  `loadPlugins` / `mergeConfigSources` paired with `loader.ts`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.

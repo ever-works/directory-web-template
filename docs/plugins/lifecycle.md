@@ -215,6 +215,7 @@ range:
 - [Testing a plugin](testing-a-plugin.md) — `createTestRegistry`, slot rendering, and Playwright specs.
 - [Plugin Capabilities Reference](capabilities.md) — interfaces and lookup-style for each capability touched by `setup` / `teardown` / `enable` / `disable`.
 - [Plugin Slots Reference](slots.md) — per-slot contract; slot contributions disappear immediately when a plugin is disabled at runtime.
+- [Plugin Loader Reference](loader.md) — per-API reference for the boot-time `loadPlugins` / `mergeConfigSources` surface implementing the config-resolution and validation phases above.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - Constitution Article I (Plugin-First) in
   [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/blob/develop/.specify/memory/constitution.md).
