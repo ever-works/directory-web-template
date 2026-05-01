@@ -33,6 +33,153 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `runtime-public-surface.md` — the
+  **per-source-file reference** for the runtime barrel that pairs
+  with [`packages/plugin-runtime/src/index.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/index.ts)
+  the same way `sdk-public-surface.md` pairs with
+  `packages/plugin-sdk/src/index.ts`, `manifest.md` pairs with
+  `manifest.ts`, `capabilities.md` pairs with `capabilities.ts`,
+  `slots.md` pairs with `slots.ts`, `providers.md` pairs with
+  `providers.ts`, `plugin.md` pairs with `plugin.ts`, `loader.md`
+  pairs with `loader.ts`, `registry.md` pairs with `registry.ts`,
+  `slot-host.md` pairs with `SlotHost.tsx`, `testing.md` pairs
+  with `testing.ts`, and `plugin-demo.md` pairs with the bundled
+  reference plugin under `packages/plugin-demo/src/`. The page is
+  organised as a per-line walkthrough of the 15-line barrel: the
+  JSDoc preamble's three pinned invariants (React-aware-only-in-`SlotHost`
+  so a server action that imports `PluginRegistry` does not drag
+  React into the server graph and the unit-test harness that
+  imports `createTestRegistry` does not need a JSDOM environment;
+  owns-registry-loader-host so anything beyond
+  **register / enable / disable / load / render** belongs in a
+  host-app module that wraps the registry rather than in this
+  package; cross-link to `docs/architecture/plugin-system.md` so
+  the architecture is the rationale and the barrel is the
+  contract); line 9 the `PluginRegistry` value re-export and why
+  it must cross the value boundary (an `export type` would erase
+  the class at compile time and `new PluginRegistry({…})` would
+  fail at runtime); line 10 the `loadPlugins` and
+  `mergeConfigSources` value re-exports plus the explicit reason
+  `mergeConfigSources` is a value re-export rather than a
+  runtime-only helper (so a host app that builds config sources
+  in a non-standard way like an admin REST handler that reads
+  from a key-vault rather than a Postgres row can call
+  `mergeConfigSources` directly to enforce the precedence
+  contract without going through `loadPlugins`, removing the
+  temptation to reimplement the merge in the host app and
+  accidentally reverse the precedence order); line 11 the
+  `PluginConfigSources` and `LoadPluginsResult` type-only
+  re-exports plus the never-throws-for-plugin-level-config-failures
+  invariant on `LoadPluginsResult` (every rejection lands in
+  `result.rejected` so a host app can render a per-plugin admin
+  UI that distinguishes "loaded successfully" from "loaded but
+  rejected" without wrapping the loader call in a try / catch);
+  line 12 the `SlotHost` value re-export and the Fragment-only
+  zero-DOM output; line 13 the `SlotHostProps` type-only
+  re-export with the `slotId` constraint that catches typos at
+  the call site; and line 14 the `createTestRegistry` value
+  re-export with the explicit no-`export type` companion line
+  because the helper's options object (`{ plugins: DirectoryPlugin[] }`)
+  is an inline anonymous type and test consumers that want to
+  refer to it by name should declare a local alias rather than
+  expand the public surface here. The page also documents the
+  `package.json#exports` sub-path map (`.`, `./registry`,
+  `./SlotHost`, `./loader`, `./testing`) and the rationale for
+  keeping the four narrowed sub-paths so a server action can
+  import `PluginRegistry` from `@ever-works/plugin-runtime/registry`
+  without dragging React into the server bundle, a test file
+  can import `createTestRegistry` from
+  `@ever-works/plugin-runtime/testing` without spinning up a
+  JSDOM environment, and a host layout can import `<SlotHost />`
+  from `@ever-works/plugin-runtime/SlotHost` to keep the React
+  boundary explicit in bundle reports; the value-vs-type contract
+  that locks moving a name across the `export { ... }` /
+  `export type { ... }` boundary as a breaking change and points
+  at `@typescript-eslint/consistent-type-exports` as the lint
+  rule the runtime turns on alongside the SDK; the failure matrix
+  that maps barrel-level mistakes (`Cannot find module '@ever-works/plugin-runtime/internal'`
+  from a non-public sub-path import,
+  `'LoadPluginsResult' is not exported` from a value-vs-type
+  mis-import, `PluginRegistry is not a constructor` from a
+  bundler tree-shaking the registry value re-export,
+  `<SlotHost />` rendering an empty Fragment when the host
+  layout passes a different registry instance than the one
+  `loadPlugins` populated, plugin admin UI showing the plugin
+  disabled when the host app stored `LoadPluginsResult.registered`
+  but ignored enable state from the registry, full-runtime-pulled-in
+  regression when the `sideEffects: false` flag is dropped from
+  `package.json`, React leaking into a server bundle when a host
+  action imports from the barrel instead of the narrowed
+  `./registry` sub-path) onto the layer that catches it (Node
+  module resolution, TypeScript with `verbatimModuleSyntax`, the
+  consumer call site, the `<SlotHost />` runtime, the admin
+  dashboard, the bundle analyzer, the public page bundle-size
+  budget under Spec 018, the server action bundle-size budget);
+  and the public-surface change checklist that ties any addition
+  / removal back to Spec Kit, the matching per-source reference
+  page, the `docs/log.md` entry, the `pnpm tsc --noEmit`
+  verification step, and Article VIII (No removal) for any name
+  that needs to leave the barrel. Cross-link from
+  [`docs/index.md`](./index.md) and from
+  [`docs/plugins/packages.md`](./plugins/packages.md) so the new
+  doc is discoverable from both the docs index and the package
+  overview alongside the SDK / runtime / demo source links.
+- `e2e/api` Added `items-engagement-query.spec.ts` — the
+  **public query-param surface** smoke for
+  [`GET /api/items/engagement`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/engagement/route.ts)
+  that pairs with the four obvious branches already in
+  [`items-engagement-and-favorites.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/items-engagement-and-favorites.spec.ts)
+  the same way `sponsor-ads-public.spec.ts` pairs with the
+  no-arg coverage already in `feature-existence.spec.ts`,
+  `featured-items-query.spec.ts` pairs with the
+  `featured-items` no-arg case in `items.spec.ts`,
+  `items-export-query.spec.ts` pairs with the `items-export`
+  no-arg case in `discovery.spec.ts`, and
+  `items-popularity-scores.spec.ts` pairs with the
+  `popularity-scores` no-arg case in `discovery.spec.ts`. The
+  spec parametrises the route's single `slugs` required
+  comma-separated query parameter (`split(',').map(s => s.trim()).filter(Boolean)`-parsed
+  with no upper limit beyond the 200-entry abuse-prevention
+  ceiling) across the missing-param branch (returns `400` +
+  `{ error: 'Missing required parameter: slugs' }` from the
+  `searchParams.get('slugs') === null` check), the present-but-empty /
+  whitespace-only / comma-only branches (`?slugs=`, `?slugs=%20`,
+  `?slugs=,,,` — all produce an empty parsed list and return
+  `200` + `{ metrics: {} }` via the `slugs.length === 0`
+  guard), the single-known-or-unknown-slug case, the
+  multi-slug happy path, the surrounding / interior whitespace
+  case (the route trims each entry and drops trimmed-empty
+  entries via `filter(Boolean)`), the URL-encoded slug-content
+  case (`%2F`, `%2B`, `%25`, `%26` are passed through verbatim
+  to the data layer), the at-the-ceiling 200-slug case, the
+  one-above-the-ceiling 201-slug case (the off-by-one boundary
+  on the `slugs.length > 200` guard that the existing 250-slug
+  case in `items-engagement-and-favorites.spec.ts` doesn't pin
+  explicitly), the extra-unknown-query-params case (the route
+  only reads `slugs` from `searchParams`), and the repeated
+  `slugs` keys case (`searchParams.get` returns the **first**
+  occurrence; the rest are silently ignored — the route does
+  not call `searchParams.getAll`). Status `< 500` is the only
+  asserted contract for the parametrised cases — the route has
+  three distinct success branches that all legitimately return
+  `200 OK` with different payloads (the
+  `checkDatabaseAvailability()` short-circuit returning
+  `{ metrics: {} }`, the happy-path
+  `getEngagementMetricsPerItem(slugs)` query with the
+  `Map`-to-plain-object conversion, and the `try / catch`
+  empty-fallback that handles internal errors by warning in dev
+  and still returning `{ metrics: {} }`), and asserting on the
+  body would pin the spec to a single branch and break under
+  the others. Two extra small assertions pin the deterministic
+  branches: the no-arg case must produce a 4xx with the
+  missing-param envelope (or the DB-fallback `{ metrics: {} }`
+  short-circuit if a future refactor swaps the order — the
+  assertion is permissive on which envelope but strict on the
+  4xx-or-200 bracket so the JSON shape stays valid), and the
+  two-slug happy path must always produce a 200 with a
+  `metrics` plain-object envelope (not array, not null) so a
+  future change that turned the route into a 4xx / 5xx response
+  on a well-formed request would be caught explicitly.
 - `docs/plugins` Added `sdk-public-surface.md` — the
   **per-source-file reference** for the SDK barrel that pairs with
   [`packages/plugin-sdk/src/index.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/index.ts)
