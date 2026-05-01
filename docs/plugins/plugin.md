@@ -586,6 +586,16 @@ by the per-source-file references — `capabilities.md`, `slots.md`,
 - [Plugin Capabilities Reference](./capabilities.md) — the
   capability ids and provider interfaces the
   [`providers`](#pluginproviders) field is keyed on.
+- [Plugin Providers Reference](./providers.md) — per-export reference
+  paired with `providers.ts`; documents the nine concrete provider
+  interfaces (`AuthProvider`, `PaymentProvider`, `AnalyticsProvider`,
+  `SearchProvider`, `ContentSource`, `MapsProvider`,
+  `NewsletterProvider`, `NotificationsProvider`, `AIProvider`) plus
+  the `CapabilityProviderMap` mapped type that
+  [`PluginProviders`](#pluginproviders) consumes through
+  `[K in Capability]?: K extends keyof CapabilityProviderMap ? CapabilityProviderMap[K] : never;`
+  to make the `'ui-slot'` lockout and the unknown-capability check
+  compile-time errors.
 - [Plugin Slots Reference](./slots.md) — the slot ids the
   [`slots`](#pluginslotstconfig) field is keyed on.
 - [Plugin Loader Reference](./loader.md) — the runtime that calls

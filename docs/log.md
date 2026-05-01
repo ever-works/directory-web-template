@@ -33,6 +33,126 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `providers.md` — the parallel **per-export
+  capability-provider reference** that pairs with [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
+  exactly the way `manifest.md` pairs with `manifest.ts`,
+  `capabilities.md` pairs with `capabilities.ts`, `slots.md` pairs
+  with `slots.ts`, `loader.md` pairs with `loader.ts`, `registry.md`
+  pairs with `registry.ts`, `slot-host.md` pairs with `SlotHost.tsx`,
+  `testing.md` pairs with `testing.ts`, and `plugin.md` pairs with
+  `plugin.ts`. The page is one section per public export of
+  `providers.ts`: each of the nine concrete provider interfaces
+  ([`AuthProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#authprovider),
+  [`PaymentProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#paymentprovider),
+  [`AnalyticsProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#analyticsprovider),
+  [`SearchProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#searchprovider),
+  [`ContentSource`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#contentsource),
+  [`MapsProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#mapsprovider),
+  [`NewsletterProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#newsletterprovider),
+  [`NotificationsProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#notificationsprovider),
+  [`AIProvider`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#aiprovider))
+  with one sub-section per member documenting its type, nullability,
+  and per-member type-system notes (the `(string & {})`
+  literal-with-fallback trick on `PaymentProvider.id` that keeps the
+  union open without giving up autocomplete on the three built-in
+  literals; the `Promise<unknown[]>` widening contract on
+  `SearchProvider.search` that defers `Item`-shape assertion to the
+  host; the `Promise<unknown | undefined>` absent-vs-error
+  distinction on `ContentSource.getItem` where `unknown` is success,
+  `undefined` is 404, and a thrown error is the third case; the
+  `void | Promise<void>` sync-or-async pattern on optional hooks
+  that lets a synchronous backend declare without an `async`
+  wrapper; the `{ ok; reason? }` result envelope on
+  `NewsletterProvider` that surfaces provider-specific failures as
+  data so the host renders them without a try/catch on the request
+  path; the `markRead(string[])` batch-baked-into-the-type contract
+  on `NotificationsProvider`; the deliberately-minimal v1
+  `AIProvider.complete` shape that a future
+  `AIProvider<TStream extends boolean = false>` extension can grow
+  without breaking), the [`CapabilityProviderMap`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/providers.md#capabilityprovidermap)
+  mapped type that binds every member of `Capability` to its
+  provider interface and types
+  [`PluginRegistry.get<C>`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md#getcapability--single-provider-lookup)
+  /
+  [`list<C>`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md#listcapability--enumerate-providers-by-capability)
+  / [`PluginProviders`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/plugin.md#pluginproviders)
+  generically including the `'ui-slot' = never` lockout that turns
+  any `providers: { 'ui-slot': anything }` attempt into a
+  TypeScript compile error and the `[K in Capability]?: K extends keyof CapabilityProviderMap ? CapabilityProviderMap[K] : never;`
+  mapped-type expression that catches an unknown-capability key the
+  same way; the read / write surface that maps every caller (plugin
+  author, [`defineDirectoryPlugin`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/plugin.md#definedirectoryplugin),
+  [`PluginRegistry.register`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md#registerplugin-validatedconfig-opts--add-a-plugin),
+  [`get<C>`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md#getcapability--single-provider-lookup),
+  [`list<C>`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md#listcapability--enumerate-providers-by-capability),
+  [`<SlotHost />`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/slot-host.md),
+  host code under `apps/web/lib/<capability>/**`) to the fields
+  they touch and which calls are async; and a nine-row **failure
+  matrix** that maps every observable failure mode (missing required
+  interface member, extra unknown member excess-property check,
+  `'ui-slot'` provider attempt as a TypeScript compile error,
+  provider attached for an undeclared capability as the same
+  compile-time category error via the `[K in Capability]?: …`
+  mapped type, `setup` throw routed to
+  `LoadPluginsResult.rejected[name].reason: 'setup'`, fan-out
+  `forward` throw swallowed by the host wrapper, single-lookup
+  throw propagated through normal `try/catch`, runtime malformed
+  shape caught by the host's per-call re-narrowing, two enabled
+  plugins on the same single-lookup capability resolved as
+  "first-registered wins") onto the layer that surfaces it. The
+  page bookends [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)'s
+  per-source-file SDK reference set so every public export of
+  every `packages/plugin-sdk/**` and `packages/plugin-runtime/**`
+  source file now has a paired `docs/plugins/<file>.md` page with
+  the same `> When the SDK adds, removes, or renames an export
+  update **this** page in the same change` anti-drift contract.
+  Cross-linked from [`docs/plugins/plugin.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/plugin.md),
+  [`docs/plugins/capabilities.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/capabilities.md),
+  [`docs/plugins/manifest.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/manifest.md),
+  [`docs/plugins/registry.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/registry.md),
+  [`docs/plugins/loader.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/loader.md),
+  [`docs/plugins/slots.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/slots.md),
+  [`docs/plugins/slot-host.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/slot-host.md),
+  [`docs/plugins/testing.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/testing.md),
+  [`docs/plugins/lifecycle.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/lifecycle.md),
+  [`docs/plugins/authoring-a-plugin.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/authoring-a-plugin.md),
+  [`docs/plugins/testing-a-plugin.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/testing-a-plugin.md),
+  [`docs/plugins/packages.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/packages.md),
+  and [`docs/index.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/index.md);
+  the parallel page [`docs/plugins/capabilities.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/capabilities.md)
+  retains the **runtime contract** angle (lookup style, fan-out vs.
+  single, dispatch order) while this new page owns the
+  **TypeScript shape** angle (per-member type-system notes, the
+  `CapabilityProviderMap` mapped-type expression, and the
+  compile-time failure modes), and the two pages cross-link to make
+  the split explicit so a reader implementing a provider knows to
+  read this one and a reader deciding which capability to declare
+  knows to read the other.
+- `spec-002` Updated [`docs/spec/002-plugin-architecture/tasks.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)'s
+  T-010 to enumerate `docs/plugins/providers.md` alongside the other
+  thirteen `docs/plugins/**` pages and to document the same
+  anti-drift / per-member / read-write / failure-matrix
+  cross-reference contract this new page satisfies — completing
+  the per-source-file SDK doc set so every `packages/plugin-sdk/**`
+  and `packages/plugin-runtime/**` source file is paired with
+  exactly one `docs/plugins/<file>.md` reference under Spec 002.
+- `apps/web-e2e` Added `tests/api/items-export-query.spec.ts` —
+  ten cases that exercise the **query-param surface** of
+  [`apps/web/app/api/items/export/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/export/route.ts)
+  (the Zod-validated `format` enum
+  [`exportQuerySchema`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/lib/validations/item-import.ts):
+  both valid values `csv` / `xlsx`, the empty-string rejection,
+  the unknown-value rejections, the case-sensitivity check, and
+  the unknown-extra-key passthrough). Complements the single
+  happy-path entry already smoked in `discovery.spec.ts` so a
+  regression in the schema, the default-on-omit fallback, the
+  rate-limit short-circuit, or the `getExportEnabled()`
+  feature-flag gate surfaces as a failing case rather than a
+  silent change in export behaviour. No-5xx contract; payload
+  shape and `Content-Type` are intentionally not asserted because
+  the response is either a 403 / 4xx JSON envelope or a binary
+  CSV / XLSX stream depending on whether the export feature flag
+  is on for the active config repository.
 - `docs/plugins` Added `plugin.md` — the parallel **per-export
   plugin definition reference** that pairs with [`packages/plugin-sdk/src/plugin.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/plugin.ts)
   exactly the way `manifest.md` pairs with `manifest.ts`,

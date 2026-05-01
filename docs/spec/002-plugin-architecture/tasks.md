@@ -128,12 +128,14 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/testing.md`,
   `docs/plugins/manifest.md`,
   `docs/plugins/plugin.md`,
+  `docs/plugins/providers.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the twelve `docs/plugins/**` pages (authoring,
+  1. Author the thirteen `docs/plugins/**` pages (authoring,
      lifecycle, packages, testing-a-plugin, capabilities, slots,
-     loader, registry, slot-host, testing, manifest, plugin).
+     loader, registry, slot-host, testing, manifest, plugin,
+     providers).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -219,7 +221,28 @@ sidebar_label: '002 Plugin Architecture Tasks'
   for adding a new plugin field that pairs the SDK source change
   with the `docs/log.md` entry — bookending the SDK with the same
   anti-drift contract every per-source-file SDK / runtime page now
-  satisfies.
+  satisfies; the providers reference cross-links every concrete
+  provider interface (`AuthProvider`, `PaymentProvider`,
+  `AnalyticsProvider`, `SearchProvider`, `ContentSource`,
+  `MapsProvider`, `NewsletterProvider`, `NotificationsProvider`,
+  `AIProvider`) and the `CapabilityProviderMap` mapped type to
+  [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
+  with the same anti-drift guarantee, including the per-member
+  type-system notes (the `(string & {})` literal-with-fallback
+  trick on `PaymentProvider.id`, the `Promise<unknown[]>` widening
+  contract on `SearchProvider.search`, the
+  `Promise<unknown | undefined>` absent-vs-error distinction on
+  `ContentSource.getItem`), the `'ui-slot' = never` lockout that
+  catches `providers: { 'ui-slot': anything }` at compile time, the
+  read / write surface that maps every caller (plugin author,
+  `defineDirectoryPlugin`, `PluginRegistry.register`, `get<C>`,
+  `list<C>`, `<SlotHost />`, host code) to the fields they touch,
+  and the failure matrix that maps every observable failure
+  (compile-time mis-typing, `setup` throw → `LoadPluginsResult.rejected`,
+  fan-out swallow vs. single-lookup propagation, runtime malformed
+  shape, two enabled plugins on the same single-lookup capability)
+  onto the layer that surfaces it — completing the
+  per-source-file SDK doc set.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

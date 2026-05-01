@@ -285,5 +285,6 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
   `<SlotHost />`.
 - [Plugin Packages](./packages.md)
 - [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `PluginSlots<TConfig>` map keyed on `SlotId`, the `SlotComponentProps<TConfig>` shape every slot component receives, and the `PluginContext` `ctx` field that gives slot components their typed `config`.
+- [Plugin Providers Reference](./providers.md) — the parallel **per-export** reference for the *capability* surface paired with `providers.ts`; explicitly excludes `ui-slot` (typed as `'ui-slot': never` in `CapabilityProviderMap` so any `providers: { 'ui-slot': … }` attempt is a TypeScript compile error). Read this page for slot ids, that page for capability provider interfaces.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.

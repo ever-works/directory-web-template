@@ -383,5 +383,6 @@ it only when no bundled plugin still uses it (Article VIII of the
 - [Plugin Packages](./packages.md) — the three workspace packages
   the manifest lives in (`@ever-works/plugin-sdk`).
 - [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents `defineDirectoryPlugin`, `DirectoryPlugin<C>`, `PluginContext<TConfig>`, `SlotComponentProps<TConfig>`, `PluginProviders`, and `PluginSlots<TConfig>` — the surface that consumes every manifest field documented on this page.
+- [Plugin Providers Reference](./providers.md) — per-export reference paired with `providers.ts`; documents every concrete provider interface (`AuthProvider` … `AIProvider`) and the `CapabilityProviderMap` mapped type that ties each member of `manifest.capabilities` to the implementation a plugin must attach through [`PluginProviders`](./plugin.md#pluginproviders).
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/manifest.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/manifest.ts) — the source of truth.

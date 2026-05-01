@@ -384,5 +384,6 @@ it only when no bundled plugin or host call site still uses it
   the registry depends on.
 - [Plugin Packages](./packages.md)
 - [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `DirectoryPlugin<C>` shape `register` accepts, the `PluginProviders` and `PluginSlots<TConfig>` maps the registry indexes, and the `setup` / `teardown` hooks `register` / `disable` orchestrate.
+- [Plugin Providers Reference](./providers.md) — per-export reference paired with `providers.ts`; documents the nine concrete provider interfaces `registry.get<C>` and `registry.list<C>` return, the `CapabilityProviderMap` mapped type that types both lookups generically (`get<C extends keyof CapabilityProviderMap>(c: C): CapabilityProviderMap[C] | undefined`), and the failure matrix that pairs every observable failure (compile-time mis-typing, throwing `setup`, fan-out swallow, single-lookup propagation) to the layer that surfaces it.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts) — the source of truth.

@@ -329,5 +329,6 @@ it only when no bundled plugin still uses it (Article VIII of the
   `LoadPluginsResult.rejected[name].reason`.
 - [Plugin Packages](./packages.md)
 - [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `DirectoryPlugin<C>` shape `loadPlugins` consumes, the `PluginContext` it builds for `setup`, and the `defineDirectoryPlugin` factory that gives `setup`'s `ctx.config` its inferred `z.infer<C>` type.
+- [Plugin Providers Reference](./providers.md) — per-export reference paired with `providers.ts`; documents the nine concrete provider interfaces a plugin's `setup` hook may throw inside (and how that throw routes to `LoadPluginsResult.rejected[name].reason: 'setup'`), and the `CapabilityProviderMap` mapped type that the loader passes through to the registry untouched.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts) — the source of truth.

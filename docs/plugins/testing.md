@@ -344,5 +344,6 @@ capabilities, slot ids, and `<SlotHost />` props:
   high-level diagram showing where the test seam sits relative to
   production boot.
 - [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `DirectoryPlugin[]` shape `createTestRegistry({ plugins })` accepts, the `PluginContext` and `SlotComponentProps` types worked-example slot components on this page rely on, and the `defineDirectoryPlugin` factory tests use to author fixture plugins.
+- [Plugin Providers Reference](./providers.md) — per-export reference paired with `providers.ts`; documents every concrete provider interface a fixture plugin's `providers` map can attach (so `registry.get<C>` / `list<C>` assertions in worked-example tests are statically typed), the `(string & {})` literal-with-fallback trick on `PaymentProvider.id`, and the `'ui-slot' = never` lockout that catches mis-typed fixture plugins at compile time before they reach `createTestRegistry`.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First), Article IX (Test Coverage Bar).

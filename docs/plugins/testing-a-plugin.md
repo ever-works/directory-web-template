@@ -314,6 +314,15 @@ plugin-spec section, depending on where the work lands.
   accepts, the `PluginContext<TConfig>` injected into `setup` and
   every slot component, and the `SlotComponentProps<TConfig>`
   contract slot-component render tests assert against.
+- [Plugin Providers Reference](./providers.md) — per-export reference
+  paired with `providers.ts`; documents every concrete provider
+  interface a fixture plugin's `providers` map can attach (so
+  `registry.get<C>` / `list<C>` assertions in capability tests are
+  statically typed against `CapabilityProviderMap[C]`), the read /
+  write surface that pairs every test caller with the field it
+  touches, and the failure matrix that distinguishes compile-time
+  failures (missing required member, mis-typed `'ui-slot'` provider)
+  from runtime failures (`setup` throw → `LoadPluginsResult.rejected`).
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
