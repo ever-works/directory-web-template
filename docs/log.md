@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `npmrc-config.md` — the
+  **per-source-file reference** for the monorepo's pnpm
+  install-time hoisting posture paired with
+  [`.npmrc`](https://github.com/ever-works/directory-web-template/tree/develop/.npmrc)
+  at the repo root, the fourth root-level config reference after
+  [`pnpm-workspace.md`](plugins/pnpm-workspace.md),
+  [`turbo-config.md`](plugins/turbo-config.md), and
+  [`workspace-root-manifest.md`](plugins/workspace-root-manifest.md).
+  Where `pnpm-workspace.md` documents **which folders become
+  workspace members**, `turbo-config.md` documents **what tasks
+  those members can run**, and `workspace-root-manifest.md`
+  documents **the version-pinning, native-build allow-list, and
+  Prettier baseline** for the entire repo, this page documents the
+  **install-time hoisting posture itself** — the two load-bearing
+  settings (`shamefully-hoist=true` that flattens every transitive
+  dependency into the workspace root's `node_modules/`, and
+  `public-hoist-pattern[]=*@heroui/*` that forces every `@heroui/*`
+  package into the workspace-root public-hoist directory so
+  HeroUI's internal-peer model resolves identically from every
+  workspace member), the rationale for each (Next.js / ESLint /
+  Tailwind / PostCSS plugin discovery from the project root for
+  the first; `@heroui/system` / `@heroui/shared-utils` /
+  per-component peer resolution for the second), the `.npmrc`
+  precedence chain (system → user → project → env-vars → CLI
+  flags), the failure matrix that pins each setting flip to a
+  concrete user-visible failure, the per-line walkthrough that
+  pairs each line with the documentation impact, and the
+  `.npmrc`-change checklist that ties any flip back to a
+  [`docs/log.md`](log.md) entry, a Spec 002 cross-link, and a
+  reviewer pass.
+- `apps/web-e2e` Added a query-param surface smoke spec for
+  `GET /api/user/profile/location`
+  ([`user-profile-location-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/user-profile-location-query.spec.ts))
+  — the auth-gated `clientProfileId`-derived location lookup served
+  by `apps/web/app/api/user/profile/location/route.ts`. The spec
+  enumerates every plausible query-param shape a future contributor
+  might add (`?userId=`, `?clientProfileId=`, `?id=`, `?include=`,
+  `?fields=` / `?select=`, `?expand=`, `?refresh=` / `?force=` /
+  `?fresh=`, `?format=`, `?locale=` / `?lang=`, `?privacy=`, plus
+  empty values, repeated keys, special-character payloads, long
+  payloads, and bogus typo'd keys) and asserts the bulk-loop
+  `< 500` contract and the canonical typed `{ error }` envelope
+  shape on the unauthenticated branch. The spec guards against
+  regressions that introduce a `request.nextUrl.searchParams.get(...)`
+  call (the handler signature is `export async function GET()` —
+  no `request` parameter, no query-key reads), and pairs with
+  `npmrc-config.md` in the same change so the per-source-file
+  documentation set and the e2e coverage advance together.
 - `docs/plugins` Added `workspace-root-manifest.md` — the
   **per-source-file reference** for the monorepo's
   workspace-coordination manifest paired with
