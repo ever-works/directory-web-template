@@ -164,5 +164,6 @@ test('mything plugin renders its banner above the home listing', async ({ page }
 - [`/docs/plugins/lifecycle`](/plugins/lifecycle) — boot, validation, enable/disable.
 - [`/docs/plugins/testing-a-plugin`](/plugins/testing-a-plugin) — manifest tests, `createTestRegistry`, slot rendering, and Playwright smoke specs.
 - [`/docs/plugins/capabilities`](/plugins/capabilities) — the complete capability surface (`auth`, `payment`, `analytics`, …) with provider-resolution rules.
+- [`/docs/plugins/slots`](/plugins/slots) — the complete slot surface (`header.right`, `home.before-listing`, `admin.dashboard.widgets`, …) with the per-slot component contract.
 - [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture/spec.md)
 - [`.specify/templates/spec-template.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/templates/spec-template.md)

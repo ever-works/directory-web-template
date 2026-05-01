@@ -336,6 +336,8 @@ up the new entry automatically.
 - [Authoring a Plugin](./authoring-a-plugin.md)
 - [Plugin Lifecycle](./lifecycle.md)
 - [Testing a Plugin](./testing-a-plugin.md)
+- [Plugin Slots Reference](./slots.md) — the parallel reference for
+  the slot surface (`header.right`, `home.before-listing`, …).
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/capabilities.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/capabilities.ts)

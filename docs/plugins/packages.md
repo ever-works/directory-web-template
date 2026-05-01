@@ -100,5 +100,6 @@ endpoints land in **Phase C** (`T-007`, `T-008`).
 - [Plugin Lifecycle](./lifecycle.md)
 - [Testing a Plugin](./testing-a-plugin.md) — covers `createTestRegistry`, slot rendering, and Playwright smoke specs.
 - [Plugin Capabilities Reference](./capabilities.md) — per-capability interfaces, single vs fan-out lookup, and the rules for adding a new capability.
+- [Plugin Slots Reference](./slots.md) — per-slot contract, where each slot renders, composition rules, and the checklist for adding a new slot id.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First).

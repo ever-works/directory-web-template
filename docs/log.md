@@ -33,6 +33,30 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `slots.md` — the parallel **per-slot reference**
+  that pairs with [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts)
+  exactly the way `capabilities.md` pairs with `providers.ts`. One
+  section per canonical slot id (`header.left`, `header.right`,
+  `footer.center`, `home.before-listing`, `home.after-listing`,
+  `item.detail.sidebar`, `item.detail.actions`,
+  `item.detail.afterFooter`, `admin.layout.header.right`,
+  `admin.settings.section`, `admin.dashboard.widgets`,
+  `admin.items.row.actions`, `admin.items.toolbar`,
+  `client.dashboard.widgets`, `client.settings.section`) with the
+  layout it renders into, the intended use case, and any composition
+  caveats. Top of the page documents the `{ ctx }` component contract
+  (props are fixed; render an accessible region; keep server-friendly;
+  localise via `next-intl`), the composition rules
+  (registration-order, multi-contributor support, immediate disable,
+  `fallback` semantics, fragment-only host), and a five-step "how to
+  add a new slot" checklist. Cross-links added in the architecture
+  page (Slots table now points at this reference as the source of
+  truth), `authoring-a-plugin.md`, `lifecycle.md`,
+  `testing-a-plugin.md`, `capabilities.md`, `packages.md`, and
+  `docs/index.md`. Spec 002 `T-010` task list grew from "five pages"
+  to "six pages" and adds an explicit "doc and SDK cannot drift"
+  verification bullet for the new reference (matching the wording
+  added for `capabilities.md`).
 - `docs/plugins` Added `capabilities.md` — the missing **per-capability
   reference** that pairs with [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts).
   One section per canonical capability (`auth`, `payment`, `analytics`,

@@ -277,6 +277,9 @@ plugin-spec section, depending on where the work lands.
 - [Plugin Capabilities Reference](./capabilities.md) — lookup style
   per capability (single vs fan-out) — useful when asserting on
   `registry.get(...)` versus `registry.list(...)`.
+- [Plugin Slots Reference](./slots.md) — per-slot contract — useful
+  when asserting on `registry.slotsFor(...)` results or when picking
+  the role / `data-testid` selector for a Playwright spec.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

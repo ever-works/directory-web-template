@@ -115,6 +115,14 @@ the page tree.
 > the runtime imports `SLOT_IDS` from there. Update both this table
 > and that file together when adding a new slot.
 
+For the **per-slot contract** — where each slot renders, the
+component contract (`{ ctx }` props, accessibility expectations,
+server-vs-client implications), composition rules, and the checklist
+for adding a new slot id — see the
+[Plugin Slots Reference](../plugins/slots.md). That page is the source
+of truth that pairs with [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts);
+this section only summarises the canonical id list.
+
 Slot ids are **stable identifiers**, owned by the template. Adding a
 new slot is a small spec under
 [`docs/spec/`](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec).
