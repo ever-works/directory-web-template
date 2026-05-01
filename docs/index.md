@@ -65,6 +65,8 @@ non-trivial change goes through a spec → plan → tasks trio.
 - [Open Questions](https://github.com/ever-works/directory-web-template/blob/develop/docs/questions.md) -- Open questions with chosen defaults.
 - [Plugin System (Architecture)](https://github.com/ever-works/directory-web-template/blob/develop/docs/architecture/plugin-system.md) -- The pluggable, modular core (see [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)).
 - [Authoring a Plugin](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/authoring-a-plugin.md) -- Walk-through for authoring your first plugin.
+- [Plugin Lifecycle](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/lifecycle.md) -- Boot, validation, enable/disable, and teardown semantics every plugin must cooperate with.
+- [Testing a Plugin](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/testing-a-plugin.md) -- Unit-test the manifest, register through `createTestRegistry`, render slots in isolation, and add a Playwright smoke spec.
 - [Plugin Packages](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/packages.md) -- SDK, runtime, and demo packages overview.
 - [`@ever-works/plugin-sdk`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk) -- Capability interfaces, slot ids, manifest types, and the `defineDirectoryPlugin` factory.
 - [`@ever-works/plugin-runtime`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime) -- `PluginRegistry`, config loader, and the `<SlotHost />` React component.

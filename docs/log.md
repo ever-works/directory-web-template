@@ -33,6 +33,34 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `testing-a-plugin.md` (~6 KB) — author-facing
+  guide that pairs with the existing `authoring-a-plugin.md`. It
+  documents the four-layer test pyramid for plugins
+  (manifest/Zod schema, registry round-trip via
+  `createTestRegistry`, slot rendering through `<SlotHost />`, and
+  Playwright smoke specs), an explicit *what not to do* list (don't
+  mock `PluginRegistry`, don't reach into `apps/web/**`, don't
+  assert on translatable copy), and an "override" recipe for
+  schemas with non-default required fields. Each example imports
+  from the published runtime exports
+  (`@ever-works/plugin-runtime/testing`,
+  `@ever-works/plugin-runtime/SlotHost`,
+  `@ever-works/plugin-runtime`), so the doc and
+  [`packages/plugin-runtime/src/testing.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/testing.ts)
+  / [`SlotHost.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/SlotHost.tsx)
+  cannot drift. Cross-links added in `authoring-a-plugin.md`
+  (replaces the inline "Add a Playwright spec" snippet with a
+  pointer to the dedicated guide and the original Playwright
+  example), `packages.md` *See also* section, and `lifecycle.md`
+  *See also* section. `docs/index.md` now lists three plugin
+  guides under the spec-driven pointers — `Authoring a Plugin`,
+  the previously-unlinked `Plugin Lifecycle`, and the new
+  `Testing a Plugin`. Spec 002 `tasks.md` `T-010` task list grew
+  from "three new pages" to the four canonical
+  `docs/plugins/**` pages and now includes
+  `docs/plugins/packages.md` + `docs/plugins/testing-a-plugin.md`,
+  with an explicit "doc and runtime cannot drift" verification
+  bullet.
 - `docs/architecture` `plugin-system.md` status block updated from
   *proposed* to *in-progress* (Phase A scaffolding shipped in commit
   `8b68d29a`); the "two packages" section now reads "three packages"

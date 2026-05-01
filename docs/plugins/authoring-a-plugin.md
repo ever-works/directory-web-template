@@ -127,7 +127,12 @@ export const bundledPlugins = [
 
 ## 6. Test it
 
-Add a Playwright spec:
+Three layers, cheapest first — see the dedicated
+[Testing a Plugin](./testing-a-plugin.md) guide for the full set of
+patterns, including how to use `createTestRegistry` to round-trip the
+manifest + Zod schema without booting Next.js.
+
+A minimal end-to-end smoke spec:
 
 ```ts
 // apps/web-e2e/tests/plugins/mything.spec.ts
@@ -157,5 +162,6 @@ test('mything plugin renders its banner above the home listing', async ({ page }
 
 - [`/docs/architecture/plugin-system`](/architecture/plugin-system) — architecture overview.
 - [`/docs/plugins/lifecycle`](/plugins/lifecycle) — boot, validation, enable/disable.
+- [`/docs/plugins/testing-a-plugin`](/plugins/testing-a-plugin) — manifest tests, `createTestRegistry`, slot rendering, and Playwright smoke specs.
 - [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture/spec.md)
 - [`.specify/templates/spec-template.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/templates/spec-template.md)

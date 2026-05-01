@@ -118,14 +118,19 @@ sidebar_label: '002 Plugin Architecture Tasks'
 - Files: `docs/architecture/plugin-system.md`,
   `docs/plugins/authoring-a-plugin.md`,
   `docs/plugins/lifecycle.md`,
+  `docs/plugins/packages.md`,
+  `docs/plugins/testing-a-plugin.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the three new pages.
+  1. Author the four `docs/plugins/**` pages (authoring,
+     lifecycle, packages, testing).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
-  Docusaurus sidebar.
+  Docusaurus sidebar; testing guide references
+  `@ever-works/plugin-runtime/testing` (`createTestRegistry`) so the
+  doc and `packages/plugin-runtime/src/testing.ts` cannot drift.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 
