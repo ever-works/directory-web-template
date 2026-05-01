@@ -33,6 +33,102 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `sdk-public-surface.md` — the
+  **per-source-file reference** for the SDK barrel that pairs with
+  [`packages/plugin-sdk/src/index.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/index.ts)
+  the same way `manifest.md` pairs with `manifest.ts`,
+  `capabilities.md` pairs with `capabilities.ts`, `slots.md` pairs
+  with `slots.ts`, `providers.md` pairs with `providers.ts`,
+  `plugin.md` pairs with `plugin.ts`, `loader.md` pairs with
+  `loader.ts`, `registry.md` pairs with `registry.ts`,
+  `slot-host.md` pairs with `SlotHost.tsx`, `testing.md` pairs with
+  `testing.ts`, and `plugin-demo.md` pairs with the bundled
+  reference plugin under `packages/plugin-demo/src/`. The page is
+  organised as a per-line walkthrough of the 40-line barrel: the
+  JSDoc preamble's three pinned invariants (framework-agnostic, the
+  `react` peer-dependency-not-direct-dep stance, and the
+  cross-link to `docs/architecture/plugin-system.md`); lines 11-12
+  the capability re-exports (`CAPABILITIES` and `isCapability` as
+  values, `Capability` as a type-only re-export with the
+  value-vs-type split that `isolatedModules` enforces); lines
+  14-15 the slot re-exports with the same shape; line 17 the
+  manifest type re-exports (`PluginManifest<C>` and
+  `PluginConfig<C>`); lines 19-30 the nine concrete capability
+  provider interfaces and the `CapabilityProviderMap` mapped type
+  re-exports; line 32 the **only** value re-export from `plugin.ts`
+  (`defineDirectoryPlugin`) and the inference path the factory's
+  `<C extends z.ZodTypeAny>` signature creates; lines 33-39 the
+  five plugin-shape type re-exports (`DirectoryPlugin<C>`,
+  `PluginContext<TConfig>`, `SlotComponentProps<TConfig>`,
+  `PluginProviders`, `PluginSlots<TConfig>`). The page also
+  documents the `package.json#exports` sub-path map (`.`,
+  `./capabilities`, `./slots`) and the deliberate decision to keep
+  `manifest`, `providers`, `plugin`, `loader`, `registry`, and
+  `SlotHost` reachable only through the barrel (so adding a new
+  capability or provider interface does not implicitly create a
+  public sub-path); the value-vs-type contract that locks moving a
+  name across the `export { ... }` / `export type { ... }`
+  boundary as a breaking change and points at
+  `@typescript-eslint/consistent-type-exports` as the lint rule
+  the SDK turns on once the surface is stable; the failure matrix
+  that maps barrel-level mistakes (`Cannot find module
+  '@ever-works/plugin-sdk/manifest'` from a non-public sub-path
+  import, `'Capability' is not exported` from a value-vs-type
+  mis-import, `defineDirectoryPlugin is not a function` from a
+  bundler tree-shaking a value re-export, `ctx.config` typing as
+  `unknown` when an author skips the factory, new capability not
+  appearing in admin UI when the id is missing from the
+  `CAPABILITIES` tuple, new manifest field silently ignored when
+  the barrel re-export is missing, full-SDK-pulled-in regression
+  when the `sideEffects: false` flag is dropped from
+  `package.json`) onto the layer that catches it (Node module
+  resolution, TypeScript with `verbatimModuleSyntax`, the consumer
+  call site, the admin dashboard, the bundle analyzer, the public
+  page bundle-size budget under Spec 018); and the public-surface
+  change checklist that ties any addition / removal back to Spec
+  Kit, the matching per-source reference page, the `docs/log.md`
+  entry, the `pnpm tsc --noEmit` verification step, and Article
+  VIII (No removal) for any name that needs to leave the barrel.
+  Cross-link from [`docs/index.md`](./index.md) and from
+  [`docs/plugins/packages.md`](./plugins/packages.md) so the new
+  doc is discoverable from both the docs index and the package
+  overview alongside the SDK / runtime / demo source links.
+- `e2e/api` Added `sponsor-ads-public.spec.ts` — the
+  **public query-param surface** smoke for
+  [`GET /api/sponsor-ads`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/sponsor-ads/route.ts)
+  that pairs with the no-arg coverage already in
+  [`feature-existence.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/feature-existence.spec.ts)
+  the same way `featured-items-query.spec.ts` pairs with the
+  `featured-items` no-arg case in `items.spec.ts`,
+  `items-export-query.spec.ts` pairs with the `items-export`
+  no-arg case in `discovery.spec.ts`, and
+  `items-popularity-scores.spec.ts` pairs with the
+  `popularity-scores` no-arg case in `discovery.spec.ts`. The spec
+  parametrises the route's single `limit` query parameter
+  (`Number(...)`-ed with default `10`,
+  `Number.isFinite ? Math.min(Math.max(1, Math.floor(value)), 50)
+  : 10`-clamped) across the [1, 50] valid range, beyond the upper
+  clamp (`51`, `999`, `10000`), below the lower clamp (`0`, `-5`,
+  `-1`), non-numeric / `NaN` / `Infinity` / `-Infinity` (which
+  exercise the `Number.isFinite` fallback path), float (truncated
+  via `Math.floor` before clamping), leading-whitespace / `+`
+  sign, extra unknown query params (silently ignored), and
+  repeated `limit` keys (only the first occurrence is read by
+  `searchParams.get`). Status `< 500` is the only asserted
+  contract — the route has three distinct success branches that
+  all legitimately return `200 OK` with different payloads (the
+  `checkDatabaseAvailability()` short-circuit returning
+  `{ success: true, data: [] }`, the happy-path
+  `sponsorAdService.getActiveSponsorAdsWithItems` query, and the
+  `try / catch` empty-list fallback that handles internal errors
+  by logging in development and still returning
+  `{ success: true, data: [] }`), and asserting on the body would
+  pin the spec to a single branch and break under the others. A
+  separate small assertion on the no-arg path verifies that the
+  JSON envelope shape (`{ success: true, data: [...] }` with
+  `data` an array) is preserved across all three branches so a
+  future change that turned the route into a 4xx / 5xx response
+  would be caught explicitly.
 - `docs/plugins` Added `plugin-demo.md` — the **per-source-file
   reference** for the bundled reference / demo plugin that pairs
   with [`packages/plugin-demo/src/index.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/src/index.tsx),
