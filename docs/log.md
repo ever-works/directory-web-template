@@ -33,6 +33,100 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `playwright-config.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  runner configuration paired with
+  [`apps/web-e2e/playwright.config.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/playwright.config.ts),
+  the runtime companion to
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) (where the tsconfig
+  locks the suite's type-checking posture, this file locks the
+  suite's runtime behaviour). Documents the at-a-glance summary of
+  every load-bearing field (`dotenv.config({ path: '../web/.env.local' })`
+  cross-app env loading, the `BASE_URL` override hatch with the
+  `'http://localhost:3000'` default, the `isCI` boolean gate, the
+  `testDir: './tests'` and `outputDir: './test-results'` artefact
+  boundaries, `fullyParallel: true`, `workers: isCI ? 2 : 1`,
+  `retries: isCI ? 2 : 0`, the per-environment reporter set with
+  `open: 'never'` on CI, the `60_000` per-test and `30_000`
+  `expect()` timeouts, the `globalSetup` / `globalTeardown` paths,
+  the `use`-block defaults — `baseURL`, `trace: isCI ?
+  'on-first-retry' : 'retain-on-failure'`, `screenshot:
+  'only-on-failure'`, `video: isCI ? 'on-first-retry' : 'off'`,
+  `navigationTimeout: 60_000`, `actionTimeout: 30_000`, `locale:
+  'en-US'`, `timezoneId: 'America/New_York'` — the three browser
+  projects (Chromium, Firefox, WebKit), and the `webServer` block
+  with the per-environment `command` (`build && start` on CI,
+  `dev` locally), `cwd: '../..'` monorepo-root anchor,
+  `reuseExistingServer: !isCI`, the per-environment timeouts
+  (`300_000` CI, `120_000` local), and the `stdout: 'pipe'` /
+  `stderr: 'pipe'` self-diagnosing posture); the full file
+  annotated line-by-line; the "Why
+  `dotenv.config({ path: '../web/.env.local' })`" walkthrough that
+  pins the single-source-of-truth posture against drift; the "Why
+  `BASE_URL` is the only env-var override surface" rationale; the
+  per-CI-vs-local branch matrix that maps each `isCI ? X : Y`
+  branch to its trade-off; the "Why the three browser projects"
+  cost / benefit matrix; the "Why `webServer.cwd` is the monorepo
+  root" rationale; the "Why `stdout: 'pipe'` and `stderr: 'pipe'`"
+  self-diagnosing rationale; the failure matrix that maps each
+  `playwright.config.ts` mistake (dropped `dotenv.config(...)` →
+  cryptic 500s, separate `apps/web-e2e/.env.local` → drift,
+  `BASE_URL` fallback dropped → cannot target deployed previews,
+  `fullyParallel: false` → ~3× wall-clock, `workers > 2` on CI →
+  resource contention flakes, `retries: 0` on CI → un-mergeable
+  flake amplification, `github` reporter dropped → no inline
+  annotations, `html` reporter dropped → unreproducible flakes,
+  `open: 'always'` on CI → CI hangs on no-display, `timeout`
+  reduction → cold-render flakes, `globalSetup` dropped →
+  unseeded specs, `use.trace: 'off'` on CI → un-diagnosable
+  CI-only flakes, `use.locale: 'en-GB'` → date-format breakage,
+  `use.timezoneId: 'UTC'` → timestamp-render breakage, project
+  drop → engine-specific regressions slip past CI, project add
+  without matrix bump → wall-clock blow-up, `next start` without
+  `build` step on CI → cold-checkout failure, `webServer.cwd:
+  __dirname` → `ERR_PNPM_NO_WORKSPACE_FOUND`,
+  `reuseExistingServer: false` locally → `EADDRINUSE`,
+  `stdout: 'ignore'` → silent host-app errors) onto the layer
+  that surfaces each one; the per-line walkthrough table; and
+  the `playwright.config.ts`-change checklist that ties any flip
+  back to a [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, a `pnpm tsc --noEmit` run, a smoke-subset run, the
+  per-CI-vs-local both-modes verification, a [`docs/log.md`](log.md)
+  entry, a Spec 010 cross-link, and a reviewer pass.
+- `apps/web-e2e` Added a query-param surface smoke spec for
+  `GET /api/items/[slug]/comments`
+  ([`item-comments-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/item-comments-query.spec.ts))
+  — the public per-item comments-list endpoint served by
+  `apps/web/app/api/items/[slug]/comments/route.ts`. The handler
+  signature is `GET(request: Request, { params }: ...)` —
+  `request` is declared but never read; the handler only awaits
+  `params.slug`, calls `checkDatabaseAvailability()` (which
+  short-circuits to an empty list when no DB is configured), and
+  otherwise calls `getCommentsByItemId(slug)`. The spec
+  enumerates every plausible query-param shape a future
+  contributor might add (`?limit=` / `?offset=` / `?page=` /
+  `?pageSize=` pagination keys, `?sort=` / `?order=` / `?orderBy=`
+  sort keys, `?rating=` / `?minRating=` / `?maxRating=` filter
+  keys, `?include=` / `?fields=` / `?select=` / `?expand=`
+  projection keys, `?userId=` / `?status=` / `?moderation=`
+  filter keys, `?refresh=` / `?force=` / `?fresh=` cache-busting
+  keys, `?format=`, `?locale=` / `?lang=`, `?since=` / `?from=` /
+  `?until=` time-window keys, plus empty values, repeated keys,
+  special-character payloads, long payloads, and bogus typo'd
+  keys) and asserts the bulk-loop `< 500` contract (the route
+  has three success branches — DB-unavailable short-circuit,
+  happy-path data-layer query, and catch-and-empty fallback —
+  that all legitimately return `200 OK`), the canonical
+  `{ success, comments }` envelope shape on the happy path, the
+  status-invariance between the no-arg and parameter-laden
+  branches, and a multi-permutation shape-stability assertion.
+  The spec guards against regressions that introduce a
+  `request.url`-based wiring (which a future "filter by rating",
+  "include only top-level", "sort by helpfulness", or
+  "paginate" feature might tempt a future contributor into
+  adding), and pairs with `playwright-config.md` in the same
+  change so the per-source-file documentation set and the e2e
+  coverage advance together.
 - `docs/plugins` Added `e2e-tsconfig.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   TypeScript configuration paired with
