@@ -301,6 +301,12 @@ plugin-spec section, depending on where the work lands.
   plugins, persistence-callback tests, and rejection inspection).
   Read **this** guide for the workflow; read the testing reference
   for the contract.
+- [Plugin Manifest Reference](./manifest.md) — per-field reference
+  paired with `manifest.ts`; documents every field a manifest test
+  asserts on (`name`, `version`, `templateRange`, `capabilities`,
+  `config`, `defaultEnabled`, `adminToggleable`, `homepage`) and
+  the failure-matrix entries that drive the manifest-level
+  rejection cases this guide demonstrates.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

@@ -321,6 +321,12 @@ it only when no bundled plugin still uses it (Article VIII of the
   cases (config-required plugins, persistence callbacks, rejection
   inspection) where tests must call `loadPlugins` directly so they
   can pass `sources` and inspect `LoadPluginsResult.rejected`.
+- [Plugin Manifest Reference](./manifest.md) — the per-field
+  reference paired with `manifest.ts`; documents every field this
+  loader reads (`name`, `version`, `templateRange`, `capabilities`,
+  `config`, `defaultEnabled`, `adminToggleable`, `homepage`) and
+  the failure-matrix entries that map straight onto
+  `LoadPluginsResult.rejected[name].reason`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts) — the source of truth.

@@ -328,6 +328,12 @@ capabilities, slot ids, and `<SlotHost />` props:
 - [Authoring a Plugin](./authoring-a-plugin.md) — how a plugin
   declares the manifest, config schema, and slot / capability
   contributions that this helper loads.
+- [Plugin Manifest Reference](./manifest.md) — per-field reference
+  paired with `manifest.ts`; documents the `name`, `templateRange`,
+  `capabilities`, `config`, and `defaultEnabled` fields that
+  `createTestRegistry` exercises through `loadPlugins`, and the
+  failure-matrix entries that map onto the helper's silent
+  Zod-drop vs propagated duplicate-name throw distinction.
 - [Plugin Lifecycle](./lifecycle.md) — the boot / setup / teardown
   phases the helper exercises through `loadPlugins`.
 - [Plugin Packages — SDK, Runtime, Demo](./packages.md) — the

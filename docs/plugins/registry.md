@@ -377,6 +377,11 @@ it only when no bundled plugin or host call site still uses it
   registry in unit tests, and the failure matrix that ties
   `createTestRegistry`'s **only** propagated throw (duplicate-name)
   back to the registry's `register` contract documented above.
+- [Plugin Manifest Reference](./manifest.md) — per-field reference
+  paired with `manifest.ts`; documents `manifest.name` (the key
+  this registry stores under), `manifest.capabilities` (the index
+  `list<C>` reads), and the duplicate-name / rename guarantees
+  the registry depends on.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts) — the source of truth.

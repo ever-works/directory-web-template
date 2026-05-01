@@ -325,6 +325,11 @@ rare and follows the same five-step pattern as new slot ids:
   matrix that distinguishes the helper's silent Zod-drop from the
   duplicate-name throw, and the explicit non-goals for the cases
   where a `<SlotHost />` test must build the registry by hand.
+- [Plugin Manifest Reference](./manifest.md) — per-field reference
+  paired with `manifest.ts`; documents `manifest.name` (the key
+  `<SlotHost />` uses for the React `key` of every contributed
+  Fragment) and the `ui-slot` capability that gates which plugins
+  this host accepts contributions from.
 - [Plugin Packages — SDK, Runtime, Demo](./packages.md) — package
   boundaries and which package exports `<SlotHost />`.
 - [Plugin System (Architecture)](../architecture/plugin-system.md) —

@@ -126,12 +126,13 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/registry.md`,
   `docs/plugins/slot-host.md`,
   `docs/plugins/testing.md`,
+  `docs/plugins/manifest.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the ten `docs/plugins/**` pages (authoring,
+  1. Author the eleven `docs/plugins/**` pages (authoring,
      lifecycle, packages, testing-a-plugin, capabilities, slots,
-     loader, registry, slot-host, testing).
+     loader, registry, slot-host, testing, manifest).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -179,7 +180,19 @@ sidebar_label: '002 Plugin Architecture Tasks'
   [`loadPlugins`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
   and
   [`new PluginRegistry()`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
-  as the right tool for those cases.
+  as the right tool for those cases; the manifest reference
+  cross-links every field of `PluginManifest<C>`
+  (`name`, `version`, `description`, `templateRange`,
+  `capabilities`, `config`, `defaultEnabled`, `adminToggleable`,
+  `homepage`) and the `PluginConfig<C>` type alias to
+  [`packages/plugin-sdk/src/manifest.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/manifest.ts)
+  with the same anti-drift guarantee, including the failure matrix
+  that maps `templateRange` and `config` failures onto
+  `LoadPluginsResult.rejected[name].reason`, the duplicate-name
+  failure path that surfaces as the only manifest-level
+  propagated throw, and the checklist for adding a new manifest
+  field that pairs the SDK source change with the `docs/log.md`
+  entry.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

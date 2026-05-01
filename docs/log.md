@@ -33,6 +33,46 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `manifest.md` — the parallel **per-field
+  manifest reference** that pairs with [`packages/plugin-sdk/src/manifest.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/manifest.ts)
+  exactly the way `registry.md` pairs with `registry.ts`,
+  `loader.md` pairs with `loader.ts`, `slot-host.md` pairs with
+  `SlotHost.tsx`, and `testing.md` pairs with `testing.ts`. The
+  page is one section per field (`name`, `version`, `description`,
+  `templateRange`, `capabilities`, `config`, `defaultEnabled`,
+  `adminToggleable`, `homepage`) plus an eight-row **failure
+  matrix** covering every observable manifest-level outcome
+  (duplicate `name` → the only propagated throw, invalid semver
+  in `templateRange` → silent rejection with reason
+  `templateRange`, mismatched `templateRange` → same, empty
+  `capabilities` → empty `list<C>` index, Zod-rejected `config`
+  → silent rejection with reason `config`, `defaultEnabled` vs
+  DB row → DB wins, `adminToggleable: false` vs programmatic
+  `disable` → mutation succeeds (UI hint, not authz),
+  non-URL `homepage` → not validated). It documents the
+  `PluginManifest<C>` interface, the `PluginConfig<C>` type alias
+  the SDK ships, the registry / loader / `<SlotHost />` reads
+  every field powers (`manifest.name` → React key, registry
+  primary key, `plugin_settings` row id; `manifest.capabilities`
+  → registry `list<C>` index; `manifest.config` →
+  `loadPlugins` Zod gate; `manifest.templateRange` → boot-time
+  semver compatibility check), and the **rename-is-a-breaking-change**
+  contract that previously lived only in source comments. The
+  page closes with a five-step "how to add a new manifest field"
+  checklist that mirrors the patterns established in
+  `capabilities.md`, `slots.md`, `loader.md`, `registry.md`,
+  `slot-host.md`, and `testing.md` — bookending the surface so
+  every per-source-file SDK / runtime page is now covered by a
+  matching anti-drift reference. Cross-links added in
+  `authoring-a-plugin.md`, `lifecycle.md`, `loader.md`,
+  `registry.md`, `slot-host.md`, `testing.md`, `testing-a-plugin.md`,
+  `capabilities.md`, `slots.md`, `packages.md`, and
+  `docs/index.md`. Spec 002 `T-010` task list grew from "ten
+  pages" to "eleven pages" and adds an explicit
+  "doc and SDK cannot drift" verification bullet for the new
+  reference (matching the wording added for `capabilities.md`,
+  `slots.md`, `loader.md`, `registry.md`, `slot-host.md`, and
+  `testing.md`).
 - `apps/web-e2e` Added `api/client-item-restore.spec.ts` (1 case)
   closing the last `/api/client/**` per-id surface that was
   previously implicit rather than explicit:

@@ -353,6 +353,12 @@ up the new entry automatically.
   tests, with the failure matrix that distinguishes Zod-rejected
   capability providers (silent drop) from duplicate-name conflicts
   (propagated throw).
+- [Plugin Manifest Reference](./manifest.md) — the per-field
+  reference paired with `manifest.ts`; documents
+  `manifest.capabilities` (the array every plugin signs to declare
+  the capabilities documented on this page) and the contract that a
+  plugin must ship a `providers[capability]` for every capability
+  it declares.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/capabilities.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/capabilities.ts)

@@ -277,6 +277,12 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
   three worked examples (happy path, config-required, disable
   round-trip) that mirror the Playwright slot specs in
   `apps/web-e2e/tests/plugins/slots.spec.ts`.
+- [Plugin Manifest Reference](./manifest.md) — the per-field
+  reference paired with `manifest.ts`; documents the `ui-slot`
+  capability that every slot-contributing plugin must declare in
+  `manifest.capabilities` and the `manifest.name` field used as
+  the React key for every contribution rendered through
+  `<SlotHost />`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.
