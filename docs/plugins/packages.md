@@ -103,5 +103,6 @@ endpoints land in **Phase C** (`T-007`, `T-008`).
 - [Plugin Slots Reference](./slots.md) — per-slot contract, where each slot renders, composition rules, and the checklist for adding a new slot id.
 - [Plugin Loader Reference](./loader.md) — per-API reference for `loadPlugins` / `mergeConfigSources`, the env / DB / override precedence, the failure matrix, and the checklist for adding a new loader feature.
 - [Plugin Registry Reference](./registry.md) — per-API reference for `PluginRegistry`, the read / write surface summary, the failure matrix (duplicate-name, unregistered, throwing teardown), and the checklist for adding a new method.
+- [Plugin SlotHost Reference](./slot-host.md) — per-component reference for `<SlotHost />` paired with `SlotHost.tsx`; documents the `slotId` / `registry` / `fallback` props, the Fragment-only output, server-friendliness, and the failure matrix that ties stable React keys to the registry's duplicate-name guarantee.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First).

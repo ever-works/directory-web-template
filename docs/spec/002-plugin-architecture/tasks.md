@@ -124,12 +124,13 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/slots.md`,
   `docs/plugins/loader.md`,
   `docs/plugins/registry.md`,
+  `docs/plugins/slot-host.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the eight `docs/plugins/**` pages (authoring,
+  1. Author the nine `docs/plugins/**` pages (authoring,
      lifecycle, packages, testing, capabilities, slots, loader,
-     registry).
+     registry, slot-host).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -153,7 +154,15 @@ sidebar_label: '002 Plugin Architecture Tasks'
   [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
   with the same anti-drift guarantee, including the read / write
   surface summary and the duplicate-name / unregistered /
-  throwing-teardown failure matrix.
+  throwing-teardown failure matrix; the slot-host reference
+  cross-links every prop (`slotId`, `registry`, `fallback?`) and
+  the surrounding component contract (Fragment-only output,
+  `pluginName`-keyed Fragments, server-friendliness, the
+  empty-vs-non-empty rules) to
+  [`packages/plugin-runtime/src/SlotHost.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/SlotHost.tsx)
+  with the same anti-drift guarantee, including the failure matrix
+  that anchors stable React keys on the registry's duplicate-name
+  guarantee.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

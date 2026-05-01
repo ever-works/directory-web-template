@@ -217,6 +217,7 @@ range:
 - [Plugin Slots Reference](slots.md) — per-slot contract; slot contributions disappear immediately when a plugin is disabled at runtime.
 - [Plugin Loader Reference](loader.md) — per-API reference for the boot-time `loadPlugins` / `mergeConfigSources` surface implementing the config-resolution and validation phases above.
 - [Plugin Registry Reference](registry.md) — per-API reference for the `PluginRegistry` class, including `enable` / `disable` semantics, the `teardown` failure mode, and the read / write surface summary that maps each lifecycle phase to the methods it calls.
+- [Plugin SlotHost Reference](slot-host.md) — per-component reference paired with `SlotHost.tsx`; documents the runtime-render phase that follows registration and the way disable / teardown propagate to layout output without touching layout code.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - Constitution Article I (Plugin-First) in
   [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/blob/develop/.specify/memory/constitution.md).

@@ -367,6 +367,11 @@ it only when no bundled plugin or host call site still uses it
 - [Plugin Slots Reference](./slots.md) — the per-slot reference
   paired with `slots.ts`; documents how `slotsFor` results are
   consumed by `<SlotHost />`.
+- [Plugin SlotHost Reference](./slot-host.md) — per-component
+  reference paired with `SlotHost.tsx`; the only caller in production
+  that invokes `slotsFor`, plus the `fallback` semantics, the
+  Fragment-only output, and the failure matrix that anchors React
+  keys on the registry's duplicate-name guarantee.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts) — the source of truth.

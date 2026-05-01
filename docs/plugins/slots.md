@@ -266,6 +266,10 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
 - [Plugin Registry Reference](./registry.md) — the per-API reference
   for `PluginRegistry` paired with `registry.ts`; documents the
   `slotsFor` return shape that `<SlotHost />` consumes.
+- [Plugin SlotHost Reference](./slot-host.md) — the per-component
+  reference paired with `SlotHost.tsx`; documents the `fallback`
+  semantics, the empty-vs-non-empty rules, and how the Fragment-only
+  output keeps layouts in control of surrounding markup.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.

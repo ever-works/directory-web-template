@@ -311,6 +311,9 @@ it only when no bundled plugin still uses it (Article VIII of the
   paired with `slots.ts`.
 - [Plugin Registry Reference](./registry.md) — the per-API
   reference for `PluginRegistry`, the class the loader populates.
+- [Plugin SlotHost Reference](./slot-host.md) — the per-component
+  reference paired with `SlotHost.tsx`; the host that ultimately
+  renders every plugin the loader registers.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts) — the source of truth.

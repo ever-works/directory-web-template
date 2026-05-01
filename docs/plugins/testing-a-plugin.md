@@ -287,6 +287,11 @@ plugin-spec section, depending on where the work lands.
   for `PluginRegistry`; covers the duplicate-name throw, the
   enable / disable idempotence rule, and the throwing-`teardown`
   failure semantics that direct registry tests rely on.
+- [Plugin SlotHost Reference](./slot-host.md) — per-component
+  reference paired with `SlotHost.tsx`; covers the worked
+  `createTestRegistry` + `render(<SlotHost ... />)` patterns this
+  guide builds on, including the empty-fallback and disable-then-empty
+  paths.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

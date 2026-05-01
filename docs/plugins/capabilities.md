@@ -343,6 +343,10 @@ up the new entry automatically.
 - [Plugin Registry Reference](./registry.md) — the per-API reference
   for `PluginRegistry` paired with `registry.ts`; covers `get` /
   `list` / `slotsFor` semantics in full.
+- [Plugin SlotHost Reference](./slot-host.md) — the per-component
+  reference paired with `SlotHost.tsx`; the production consumer of
+  `slotsFor` and the host that decides whether a `ui-slot` capability
+  contribution is rendered or replaced by a `fallback`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/capabilities.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/capabilities.ts)

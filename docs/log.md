@@ -33,6 +33,47 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `slot-host.md` — the parallel **per-component
+  SlotHost reference** that pairs with [`packages/plugin-runtime/src/SlotHost.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/SlotHost.tsx)
+  exactly the way `registry.md` pairs with `registry.ts` and
+  `loader.md` pairs with `loader.ts`. The page is one section per
+  prop (`slotId`, `registry`, `fallback?`) plus a six-row
+  **failure matrix** covering every observable outcome (no
+  contributors, all contributors disabled, one or more enabled
+  contributors, contributed component throws, duplicate plugin name
+  — already caught one level up by `PluginRegistry.register`,
+  unknown `slotId` typed through `any`). It documents the four
+  things `<SlotHost />` does in order (call `slotsFor`, fall back
+  to `fallback ?? null` on empty, wrap each contribution in a
+  Fragment keyed by `pluginName`, return with no extra DOM wrapper)
+  and the **server-friendliness contract** that previously lived
+  only in source comments — no `"use client"`, no client-only
+  hooks, no `react-dom` import, only a synchronous registry read —
+  which means a layout that uses `<SlotHost />` stays a server
+  component even when its contributed slot components opt into
+  client rendering. It also documents the **anti-patterns** (the
+  host is not a wrapper element, not a client component, not a
+  reactivity boundary, not an error-boundary, not a way to pass
+  extra props to slot components) so layout authors do not have to
+  read the source to rule them out. Three worked Vitest examples
+  cover the happy-path render, the empty-fallback path, and the
+  disable-then-empty round-trip — the same three paths that
+  `apps/web-e2e/tests/plugins/slots.spec.ts` covers at the
+  Playwright layer (per Spec 002 / T-009). The page also documents
+  the dual import surface (`from '@ever-works/plugin-runtime'`
+  versus `from '@ever-works/plugin-runtime/SlotHost'`) and a
+  five-step "how to add a new prop" checklist that mirrors the
+  patterns established in `capabilities.md`, `slots.md`,
+  `loader.md`, and `registry.md`. Cross-links added in
+  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
+  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
+  `capabilities.md` *See also*, `slots.md` *See also*,
+  `loader.md` *See also*, `registry.md` *See also*, and
+  `docs/index.md`. Spec 002 `T-010` task list grew from "eight
+  pages" to "nine pages" and adds an explicit "doc and runtime
+  cannot drift" verification bullet for the new reference
+  (matching the wording added for `capabilities.md`, `slots.md`,
+  `loader.md`, and `registry.md`).
 - `docs/plugins` Added `registry.md` — the parallel **per-API
   registry reference** that pairs with [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
   exactly the way `loader.md` pairs with `loader.ts`. One section
