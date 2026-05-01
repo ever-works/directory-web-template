@@ -33,6 +33,20 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `apps/web-e2e` Added `api/client-item-restore.spec.ts` (1 case)
+  closing the last `/api/client/**` per-id surface that was
+  previously implicit rather than explicit:
+  `POST /api/client/items/[id]/restore`, the soft-delete restore
+  action served by
+  [`apps/web/app/api/client/items/[id]/restore/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/client/items/%5Bid%5D/restore/route.ts).
+  The matching CRUD surface (`GET / PATCH / DELETE /api/client/items/[id]`)
+  is already smoked via `client-protected.spec.ts`; this spec closes
+  the per-id action sub-route. Same conservative no-5xx pattern as
+  the rest of the smoke layer — uses an intentionally non-existent
+  UUID so the spec never depends on data-repository content.
+  `E2E-TESTS.md` updated with the entry and the
+  continual-improvement total annotation (~291 → ~292 across
+  46 → 47 spec files).
 - `apps/web-e2e` Added `api/nextauth-discovery.spec.ts` (9 cases)
   closing the NextAuth catch-all (`/api/auth/[...nextauth]`) public
   discovery surface: GET `providers`, `csrf`, `session`, `signin`,
