@@ -22,12 +22,12 @@ interface ClientStatsProps {
 	stats: ClientStatsData;
 }
 
-// Primary card with gradient blue design (inspired by reference)
+// Primary card with gradient blue design
 const PRIMARY_CARD =
-	'bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 border-0 shadow-xl shadow-blue-500/20 ring-1 ring-blue-500/10';
+	'bg-linear-to-br from-blue-600 via-blue-700 to-indigo-700 border-0 rounded-2xl shadow-md shadow-blue-500/25 ring-1 ring-blue-400/20';
 const DEFAULT_CARD =
-	'bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 shadow-sm hover:shadow-md transition-shadow duration-300';
-const CARD_BODY = 'p-5';
+	'bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200';
+const CARD_BODY = 'p-6';
 
 /**
  * Client Statistics Component
@@ -49,7 +49,7 @@ export function ClientStats({ stats }: ClientStatsProps) {
 			<Card className={PRIMARY_CARD}>
 				<CardBody className={CARD_BODY}>
 					<div className="flex flex-col">
-						<p className="text-xs uppercase tracking-wider text-blue-100/80 font-medium mb-1">
+						<p className="text-[11px] uppercase tracking-widest text-blue-100/70 font-semibold mb-2">
 							{t('TOTAL_CLIENTS')}
 						</p>
 						<p className="text-3xl font-bold text-white mb-2">{stats.overview.total.toLocaleString()}</p>
@@ -71,7 +71,7 @@ export function ClientStats({ stats }: ClientStatsProps) {
 			<Card className={DEFAULT_CARD}>
 				<CardBody className={CARD_BODY}>
 					<div className="flex flex-col">
-						<p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+						<p className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-gray-500 font-semibold mb-2">
 							{t('ACTIVE_CLIENTS')}
 						</p>
 						<p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -89,7 +89,7 @@ export function ClientStats({ stats }: ClientStatsProps) {
 			<Card className={DEFAULT_CARD}>
 				<CardBody className={CARD_BODY}>
 					<div className="flex flex-col">
-						<p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+						<p className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-gray-500 font-semibold mb-2">
 							{t('TOP_PROVIDER')}
 						</p>
 						<p className="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate">
@@ -107,7 +107,7 @@ export function ClientStats({ stats }: ClientStatsProps) {
 			<Card className={DEFAULT_CARD}>
 				<CardBody className={CARD_BODY}>
 					<div className="flex flex-col">
-						<p className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium mb-1">
+						<p className="text-[11px] uppercase tracking-widest text-gray-400 dark:text-gray-500 font-semibold mb-2">
 							{t('MONTHLY_GROWTH')}
 						</p>
 						<p className="text-2xl font-bold text-gray-900 dark:text-white mb-2">

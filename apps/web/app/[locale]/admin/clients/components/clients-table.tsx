@@ -40,12 +40,12 @@ export function ClientsTable(props: ClientsTableProps) {
 	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
 
 	return (
-		<Card className="border-0 shadow-lg bg-white dark:bg-white/3 overflow-hidden">
+		<Card className="border border-gray-100 dark:border-white/5 shadow-sm bg-white dark:bg-white/[0.03] overflow-hidden rounded-2xl">
 			<CardBody className="p-0">
 				{/* Table Header with Filters */}
-				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/[0.02]">
+				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/40 dark:bg-white/[0.015]">
 					<div className="flex items-center justify-between gap-4 flex-wrap">
-						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('CLIENTS_TITLE')}</h3>
+						<h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('CLIENTS_TITLE')}</h3>
 						<div className="flex items-center gap-3 flex-wrap flex-1 justify-end">{props.filterBar}</div>
 					</div>
 					{/* Active Filters Section */}
@@ -53,7 +53,7 @@ export function ClientsTable(props: ClientsTableProps) {
 				</div>
 
 				{/* Column Headers */}
-				<div className="hidden md:flex items-center gap-4 px-6 py-3 bg-gray-50/80 dark:bg-white/3 border-b border-gray-100 dark:border-white/6">
+				<div className="hidden md:flex items-center gap-4 px-6 py-2.5 bg-gray-50/30 dark:bg-white/[0.01] border-b border-gray-100 dark:border-white/5">
 					{TABLE_COLUMNS.map((col) => (
 						<div key={col.key} className={col.width}>
 							<span className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -67,7 +67,7 @@ export function ClientsTable(props: ClientsTableProps) {
 				{props.clients.length === 0 ? (
 					<EmptyState hasActiveFilters={props.hasActiveFilters} onCreateFirst={props.onCreateFirst} />
 				) : (
-					<div className="divide-y divide-gray-50 dark:divide-white/4">
+					<div className="divide-y divide-gray-100/50 dark:divide-white/[0.03]">
 						{props.clients.map((client) => (
 							<ClientRow
 								key={client.id}
@@ -96,18 +96,18 @@ function EmptyState({ hasActiveFilters, onCreateFirst }: EmptyStateProps) {
 
 	return (
 		<div className="px-6 py-16 text-center">
-			<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-				<Building2 className="w-8 h-8 text-gray-400" />
+			<div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-100/60 dark:bg-white/5 flex items-center justify-center ring-1 ring-gray-200/60 dark:ring-white/5">
+				<Building2 className="w-7 h-7 text-gray-400 dark:text-gray-500" />
 			</div>
-			<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_CLIENTS_FOUND')}</h3>
-			<p className="text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto">
+			<h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1.5">{t('NO_CLIENTS_FOUND')}</h3>
+			<p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm mx-auto leading-relaxed">
 				{hasActiveFilters ? t('NO_CLIENTS_FILTER_DESCRIPTION') : t('NO_CLIENTS_DESCRIPTION')}
 			</p>
 			{!hasActiveFilters && (
 				<Button
 					color="primary"
 					onPress={onCreateFirst}
-					className="bg-gradient-to-r from-blue-600 to-indigo-600"
+					className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-xl"
 				>
 					{t('ADD_FIRST_CLIENT')}
 				</Button>
@@ -157,7 +157,7 @@ function ClientRow({ client, isNavigating, isDeleting, onView, onEdit, onDelete 
 
 	return (
 		<div
-			className={`group relative px-6 py-4 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all duration-200 ${
+			className={`group relative px-6 py-4 hover:bg-gray-50/60 dark:hover:bg-white/[0.025] transition-all duration-150 ${
 				isNavigating ? 'opacity-60' : ''
 			}`}
 		>
@@ -179,8 +179,8 @@ function ClientRow({ client, isNavigating, isDeleting, onView, onEdit, onDelete 
 					type="button"
 					aria-disabled={isNavigating}
 					aria-busy={isNavigating}
-					className={`flex items-center gap-3 flex-1 min-w-0 text-left rounded-lg p-1 -m-1 transition-colors ${
-						isNavigating ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-50 dark:hover:bg-white/3'
+					className={`flex items-center gap-3 flex-1 min-w-0 text-left rounded-lg p-1 -m-1 transition-all duration-150 ${
+						isNavigating ? 'cursor-wait' : 'cursor-pointer hover:bg-gray-50/60 dark:hover:bg-white/[0.03]'
 					}`}
 					onClick={() => !isNavigating && onView(client.id)}
 					onKeyDown={handleKeyDown}

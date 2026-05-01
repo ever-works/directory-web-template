@@ -119,19 +119,19 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
+		<div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+			<div className="w-full max-w-2xl bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 dark:border-neutral-800/80 max-h-[calc(100vh-4rem)] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-neutral-600/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 				{/* Header */}
-				<div className="bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4 flex items-center justify-between">
+				<div className="px-6 py-4 border-b border-gray-100 dark:border-neutral-800/80 bg-gray-50/40 dark:bg-neutral-950 flex items-center justify-between">
 					<div className="flex items-center space-x-3">
-						<div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-							<Building2 className="w-6 h-6 text-white" />
+						<div className="w-10 h-10 bg-theme-primary/10 dark:bg-theme-primary/15 rounded-xl flex items-center justify-center">
+							<Building2 className="w-6 h-6 text-theme-primary" />
 						</div>
 						<div>
-							<h2 className="text-xl font-bold text-white">
+							<h2 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight">
 								{mode === 'create' ? t('ADD_COMPANY') : t('EDIT_COMPANY')}
 							</h2>
-							<p className="text-white/80 text-sm">
+							<p className="text-sm text-gray-500 dark:text-neutral-400">
 								{mode === 'create' ? t('ADD_COMPANY_SUBTITLE') : t('EDIT_COMPANY_SUBTITLE')}
 							</p>
 						</div>
@@ -140,7 +140,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 						isIconOnly
 						variant="light"
 						onPress={handleClose}
-						className="text-white hover:bg-white/20"
+						className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-neutral-800/80 rounded-xl transition-all duration-150"
 						isDisabled={isSubmitting}
 					>
 						<X className="w-5 h-5" />
@@ -223,7 +223,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 
 					{/* Status */}
 					<div>
-						<label className="block text-sm font-medium mb-2">{t('COMPANY_STATUS')}</label>
+						<label className="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">{t('COMPANY_STATUS')}</label>
 						<Select.Root
 							value={statusValue}
 							onValueChange={(value) => setValue('status', value as 'active' | 'inactive')}
@@ -231,8 +231,8 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 						>
 							<Select.Trigger
 								className={cn(
-									"flex h-12 w-full items-center justify-between rounded-lg border border-gray-300 dark:border-white/8 bg-white dark:bg-white/5 px-3 py-2 text-sm",
-									"focus:outline-none focus:ring-2 focus:ring-theme-primary-500",
+									"flex h-10 w-full items-center justify-between rounded-lg border border-gray-200/80 dark:border-neutral-700/80 bg-white dark:bg-neutral-800 px-3 py-2 text-sm",
+									"focus:outline-none focus:ring-2 focus:ring-theme-primary/25 transition-all duration-150",
 									"disabled:cursor-not-allowed disabled:opacity-50"
 								)}
 							>
@@ -243,14 +243,14 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 							</Select.Trigger>
 							<Select.Portal>
 								<Select.Content
-									className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
+									className="overflow-hidden bg-white dark:bg-neutral-900 rounded-xl shadow-lg shadow-black/5 border border-gray-100 dark:border-neutral-700/80 z-50"
 									position="popper"
 									sideOffset={4}
 								>
 									<Select.Viewport className="p-1">
 										<Select.Item
 											value="active"
-											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+											className="relative flex items-center px-8 py-2 text-sm rounded-lg cursor-pointer hover:bg-gray-50/80 dark:hover:bg-neutral-800/80 outline-none data-highlighted:bg-gray-50/80 dark:data-highlighted:bg-neutral-800/80 transition-colors duration-100"
 										>
 											<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 												<Check className="h-4 w-4" />
@@ -259,7 +259,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 										</Select.Item>
 										<Select.Item
 											value="inactive"
-											className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+											className="relative flex items-center px-8 py-2 text-sm rounded-lg cursor-pointer hover:bg-gray-50/80 dark:hover:bg-neutral-800/80 outline-none data-highlighted:bg-gray-50/80 dark:data-highlighted:bg-neutral-800/80 transition-colors duration-100"
 										>
 											<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 												<Check className="h-4 w-4" />
@@ -273,7 +273,7 @@ export function CompanyModal({ isOpen, mode, company, isSubmitting, onSubmit, on
 					</div>
 
 					{/* Form Actions */}
-					<div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-white/6">
+					<div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-neutral-800/60">
 						<Button variant="bordered" onPress={handleClose} isDisabled={isSubmitting}>
 							{t('CANCEL')}
 						</Button>
@@ -316,14 +316,14 @@ export function DeleteConfirmationModal({
 	if (!isOpen) return null;
 
 	return (
-		<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-			<div className="w-full max-w-md bg-white dark:bg-white/3 rounded-xl shadow-xl p-6">
+		<div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center z-50 p-4">
+			<div className="w-full max-w-md bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 dark:border-neutral-800/80 p-6">
 				<div className="text-center">
-					<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 mb-4">
+					<div className="mx-auto flex items-center justify-center h-12 w-12 rounded-xl bg-red-50/80 dark:bg-red-500/15 ring-1 ring-red-100 dark:ring-red-500/20 mb-4">
 						<Trash2 className="h-6 w-6 text-red-600 dark:text-red-400" />
 					</div>
-					<h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('DELETE_COMPANY')}</h3>
-					<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{t('DELETE_CONFIRMATION')}</p>
+					<h3 className="text-lg font-bold text-gray-900 dark:text-white tracking-tight mb-2">{t('DELETE_COMPANY')}</h3>
+					<p className="text-sm text-gray-500 dark:text-gray-400 mb-2">{t('DELETE_CONFIRMATION')}</p>
 					{companyName && (
 						<p className="text-sm font-medium text-gray-900 dark:text-white mb-6">&ldquo;{companyName}&rdquo;</p>
 					)}

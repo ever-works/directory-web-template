@@ -17,36 +17,36 @@ const CLASSES = {
   // Header styles
   headerContainer: "flex items-center justify-between",
   headerLeft: "flex items-center gap-3",
-  alertIcon: "w-10 h-10 bg-linear-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg",
-  headerText: "text-xl font-bold text-gray-900 dark:text-white",
-  headerSubtext: "text-sm text-gray-600 dark:text-gray-400",
-  closeButton: "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1",
+  alertIcon: "w-10 h-10 bg-red-50/80 dark:bg-red-500/10 rounded-xl flex items-center justify-center ring-1 ring-red-100 dark:ring-red-500/20",
+  headerText: "text-xl font-bold text-gray-900 dark:text-white tracking-tight",
+  headerSubtext: "text-sm text-gray-500 dark:text-gray-400 mt-0.5",
+  closeButton: "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors",
   
   // Warning message styles
-  warningContainer: "bg-linear-to-r from-red-50 to-orange-50 dark:from-red-900/10 dark:to-orange-900/10 border border-red-200 dark:border-red-800 rounded-xl p-4",
+  warningContainer: "bg-red-50/80 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 rounded-xl p-4",
   warningContent: "flex items-start gap-3",
   warningIcon: "h-5 w-5 text-red-500 mt-0.5 shrink-0",
-  warningTitle: "font-medium text-red-800 dark:text-red-200 mb-1",
-  warningText: "text-sm text-red-700 dark:text-red-300",
-  
+  warningTitle: "font-semibold text-red-800 dark:text-red-200 mb-1",
+  warningText: "text-sm text-red-600 dark:text-red-300",
+
   // Comment preview styles
-  commentContainer: "bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-200 dark:border-white/6 p-6 shadow-xs",
+  commentContainer: "bg-gray-50/60 dark:bg-neutral-800/40 rounded-xl border border-gray-100 dark:border-neutral-700/60 p-5",
   commentHeader: "flex items-start gap-4",
-  userAvatar: "w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg shrink-0",
+  userAvatar: "w-10 h-10 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-gray-600 dark:text-neutral-300 font-semibold text-sm shrink-0",
   commentContent: "flex-1 min-w-0",
-  userInfo: "flex items-center gap-2 mb-2",
+  userInfo: "flex items-center gap-2 mb-1.5",
   userName: "font-semibold text-gray-900 dark:text-white",
-  ratingBadge: "px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200 text-xs font-medium rounded-full",
-  commentDate: "text-sm text-gray-500 dark:text-gray-400 mb-3",
-  commentText: "bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg p-4 shadow-xs",
-  commentBody: "text-gray-700 dark:text-gray-300 leading-relaxed",
-  commentMeta: "mt-3 flex items-center gap-4 text-xs text-gray-500 dark:text-gray-400",
+  ratingBadge: "px-2 py-0.5 bg-gray-100 dark:bg-neutral-800/80 text-gray-600 dark:text-neutral-300 text-xs font-medium rounded-full",
+  commentDate: "text-xs text-gray-400 dark:text-neutral-500 mb-3",
+  commentText: "bg-white dark:bg-neutral-900/70 border border-gray-100 dark:border-neutral-700/50 rounded-xl p-4",
+  commentBody: "text-gray-700 dark:text-gray-300 text-sm leading-relaxed",
+  commentMeta: "mt-3 flex items-center gap-4 text-xs text-gray-400 dark:text-neutral-500",
   metaItem: "flex items-center gap-1",
   
   // Footer styles
   footerContainer: "flex gap-3 w-full",
   cancelButton: "flex-1",
-  deleteButton: "flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200",
+  deleteButton: "flex-1 font-semibold transition-colors",
 } as const;
 
 interface AdminCommentUser {
@@ -105,7 +105,7 @@ export default function DeleteCommentDialog({
           <div className={CLASSES.headerContainer}>
             <div className={CLASSES.headerLeft}>
               <div className={CLASSES.alertIcon}>
-                <AlertTriangle className="h-5 w-5 text-white" />
+                <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400" />
               </div>
               <div>
                 <h2 className={CLASSES.headerText}>{t('TITLE')}</h2>

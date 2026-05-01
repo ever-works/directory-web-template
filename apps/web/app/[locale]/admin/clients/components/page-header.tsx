@@ -14,11 +14,12 @@ export function PageHeader({ onAddClient }: PageHeaderProps) {
 	const t = useTranslations('admin.ADMIN_CLIENTS_PAGE');
 
 	return (
-		<div className="mb-6">
-			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-				{/* Left: Title with navigation */}
-				<div className="flex items-center gap-3">
-					<h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('TITLE')}</h1>
+		<div className="mb-8">
+			<div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+				{/* Left: Title + subtitle */}
+				<div>
+					<h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">{t('TITLE')}</h1>
+					<p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5">{t('SUBTITLE')}</p>
 				</div>
 
 				{/* Right: Add button */}
@@ -27,12 +28,11 @@ export function PageHeader({ onAddClient }: PageHeaderProps) {
 					size="md"
 					onPress={onAddClient}
 					startContent={<Plus size={16} />}
-					className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 text-white font-medium"
+					className="bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-200 text-white font-medium rounded-xl shrink-0"
 				>
 					{t('ADD_CLIENT')}
 				</Button>
 			</div>
-			<p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('SUBTITLE')}</p>
 		</div>
 	);
 }

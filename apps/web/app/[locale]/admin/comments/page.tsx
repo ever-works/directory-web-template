@@ -81,98 +81,58 @@ export default function AdminCommentsPage() {
 
   if (shouldShowSkeleton) {
     return (
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Loading Header */}
+      <div className="p-6 max-w-7xl mx-auto" aria-busy="true">
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl animate-pulse"></div>
-                <div>
-                  <div className="h-8 w-48 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse mb-2"></div>
-                  <div className="h-4 w-64 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="h-8 w-40 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse mb-2" />
+          <div className="h-4 w-56 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
         </div>
-
-
-
-        {/* Loading Table */}
-        <Card className="border-0 shadow-lg">
+        <div className="h-11 w-full bg-gray-100 dark:bg-white/5 rounded-xl animate-pulse mb-6" />
+        <Card className="border border-gray-100 dark:border-white/5 shadow-sm rounded-2xl">
           <CardBody className="p-0">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
-              <div className="flex items-center justify-between">
-                <div className="h-6 w-24 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                <div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-              </div>
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/40 dark:bg-white/[0.015]">
+              <div className="h-5 w-28 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
             </div>
-            <div className="divide-y divide-gray-100 dark:divide-white/6">
+            <div className="divide-y divide-gray-100/50 dark:divide-white/[0.03]">
               {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-6 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse"></div>
-                        <div className="w-6 h-6 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        <div className="flex-1">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse mb-1"></div>
-                          <div className="h-3 w-24 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        </div>
-                      </div>
+                <div key={i} className="px-6 py-5">
+                  <div className="flex items-start gap-3 mb-3">
+                    <div className="w-8 h-8 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse shrink-0" />
+                    <div className="flex-1">
+                      <div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded animate-pulse mb-1.5" />
+                      <div className="h-3 w-24 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-6 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse"></div>
-                      <div className="flex space-x-1">
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                      </div>
-                    </div>
+                    <div className="h-7 w-20 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse shrink-0" />
+                  </div>
+                  <div className="ml-11 space-y-1.5">
+                    <div className="h-3.5 w-full bg-gray-100 dark:bg-white/5 rounded animate-pulse" />
+                    <div className="h-3.5 w-4/5 bg-gray-100 dark:bg-white/5 rounded animate-pulse" />
                   </div>
                 </div>
               ))}
             </div>
           </CardBody>
         </Card>
-
-        {/* Loading indicator with text */}
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-            <div className="w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm font-medium">{t('LOADING_COMMENTS')}</span>
-          </div>
-        </div>
       </div>
     );
   }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Enhanced Header */}
+      {/* Page Header */}
       <div className="mb-8">
-        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                  {t('TITLE')}
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2">
-                  <span>{t('SUBTITLE')}</span>
-                  <span className="hidden sm:inline">•</span>
-                  <span className="text-sm px-2 py-1 bg-theme-primary/10 text-theme-primary rounded-full font-medium">
-                    {totalComments} {t('TOTAL_COMMENTS')}
-                  </span>
-                </p>
-              </div>
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
+              {t('TITLE')}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1.5 flex items-center gap-2">
+              <span>{t('SUBTITLE')}</span>
+              {!isLoading && totalComments > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 dark:bg-white/8 text-gray-600 dark:text-gray-300 ring-1 ring-gray-200/60 dark:ring-white/8">
+                  {totalComments} {t('TOTAL_COMMENTS')}
+                </span>
+              )}
+            </p>
           </div>
         </div>
       </div>
@@ -223,112 +183,103 @@ export default function AdminCommentsPage() {
       </div>
 
       {/* Comments List */}
-      <Card className="border-0 shadow-lg">
+      <Card className="border border-gray-100 dark:border-white/5 shadow-sm bg-white dark:bg-white/[0.03] overflow-hidden rounded-2xl">
         <CardBody className="p-0">
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/40 dark:bg-white/[0.015]">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COMMENTS_TITLE')}</h3>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('COMMENTS_TITLE')}</h3>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 {totalComments} {t('COMMENTS_TOTAL_COUNT')}
-              </div>
+              </span>
             </div>
           </div>
-          
-          <div className="divide-y divide-gray-100 dark:divide-white/6">
+
+          <div className="divide-y divide-gray-100/50 dark:divide-white/[0.03]">
             {comments.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_COMMENTS_FOUND')}</h3>
-                <p className="text-gray-500 dark:text-gray-400">
+              <div className="px-6 py-16 text-center">
+                <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gray-100/60 dark:bg-white/5 flex items-center justify-center ring-1 ring-gray-200/60 dark:ring-white/5">
+                  <MessageSquare className="w-7 h-7 text-gray-400 dark:text-gray-500" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1.5">{t('NO_COMMENTS_FOUND')}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm mx-auto leading-relaxed">
                   {hasActiveFilters ? t('NO_COMMENTS_SEARCH_DESCRIPTION') : t('NO_COMMENTS_DESCRIPTION')}
                 </p>
               </div>
             ) : (
-              comments.map((comment) => (
-                <div key={comment.id} className="px-6 py-4 hover:bg-gray-50/50 dark:hover:bg-white/3 transition-colors">
-                  <div className="flex items-start justify-between">
+              comments.map((comment) => {
+                const avatarColors = [
+                  'bg-gradient-to-br from-blue-500 to-indigo-600',
+                  'bg-gradient-to-br from-emerald-500 to-teal-600',
+                  'bg-gradient-to-br from-violet-500 to-purple-600',
+                  'bg-gradient-to-br from-amber-500 to-orange-600',
+                  'bg-gradient-to-br from-pink-500 to-rose-600',
+                ];
+                const colorIndex = (comment.user.name || comment.user.email || 'U').charCodeAt(0) % avatarColors.length;
+                return (
+                <div key={comment.id} className="px-6 py-5 hover:bg-gray-50/60 dark:hover:bg-white/[0.025] transition-all duration-150">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <div className="flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-linear-to-br from-theme-primary to-theme-accent rounded-full flex items-center justify-center text-white text-sm font-medium">
-                            {(comment.user.name || comment.user.email || "U").charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {comment.user.name || comment.user.email || t('UNKNOWN_USER')}
-                            </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : t('UNKNOWN_DATE')}
-                            </p>
-                          </div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`w-8 h-8 ${avatarColors[colorIndex]} rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0`}>
+                          {(comment.user.name || comment.user.email || 'U').charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
+                            {comment.user.name || comment.user.email || t('UNKNOWN_USER')}
+                          </p>
+                          <p className="text-xs text-gray-400 dark:text-gray-500">
+                            {comment.createdAt ? new Date(comment.createdAt).toLocaleString() : t('UNKNOWN_DATE')}
+                          </p>
                         </div>
                         {comment.rating !== null && (
-                          <Chip size="sm" variant="flat" color="warning" className="ml-2">
+                          <Chip size="sm" variant="flat" color="warning" className="shrink-0">
                             {comment.rating}{t('RATING_LABEL')}
                           </Chip>
                         )}
                       </div>
-                      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap wrap-break-word mb-2">
+                      <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words leading-relaxed bg-gray-50/60 dark:bg-white/[0.03] rounded-xl px-4 py-3 border border-gray-100 dark:border-white/5 mb-2">
                         {comment.content}
                       </p>
-                      <div className="text-xs text-gray-400">
-                        {t('ITEM_ID_LABEL')} {comment.itemId}
+                      <div className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+                        <MessageSquare className="w-3 h-3" />
+                        <span>{t('ITEM_ID_LABEL')} {comment.itemId}</span>
                       </div>
                     </div>
-                    <div className="ml-4 shrink-0">
-                      <Button
-                        color="danger"
-                        variant="flat"
-                        size="sm"
-                        isDisabled={isDeleting === comment.id}
-                        onPress={() => openDeleteDialog(comment)}
-                        startContent={<Trash2 className="h-4 w-4" />}
-                        className="bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30"
-                      >
-                        {t('DELETE')}
-                      </Button>
-                    </div>
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      variant="light"
+                      size="sm"
+                      isDisabled={isDeleting === comment.id}
+                      onPress={() => openDeleteDialog(comment)}
+                      className="text-gray-400 hover:text-red-500 shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         </CardBody>
       </Card>
 
-      {/* Enhanced Pagination and Stats */}
-      {totalComments > 0 && (
-        <div className="mt-8 space-y-6">
-          {/* Results Info */}
-          <div className="bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-100 dark:border-white/6 px-6 py-4 shadow-xs">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-theme-primary rounded-full"></div>
-                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                  {t('SHOWING_RANGE', { 
-                    start: ((currentPage - 1) * 10) + 1, 
-                    end: Math.min(currentPage * 10, totalComments), 
-                    total: totalComments 
-                  })}
-                </span>
-              </div>
-              <div className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-500">
-                <span>{t('PAGE_OF', { current: currentPage, total: totalPages })}</span>
-                <span>•</span>
-                <span>{10} {t('PER_PAGE')}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Pagination Controls */}
-          <div className="flex justify-center">
-            <UniversalPagination
-              page={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              className="shadow-lg"
-            />
-          </div>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex flex-col items-center mt-8 gap-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {t('SHOWING_RANGE', {
+              start: ((currentPage - 1) * 10) + 1,
+              end: Math.min(currentPage * 10, totalComments),
+              total: totalComments,
+            })}
+          </p>
+          <UniversalPagination
+            page={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       )}
 

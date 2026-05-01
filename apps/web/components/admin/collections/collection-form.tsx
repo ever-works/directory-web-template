@@ -83,18 +83,18 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     await onSubmit(payload);
   };
 
-  const containerClasses = "bg-white dark:bg-white/3";
-  const headerClasses = "px-6 py-4 border-b border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]";
+  const containerClasses = "bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-100 dark:border-neutral-800/80 overflow-hidden";
+  const headerClasses = "px-6 py-5 border-b border-gray-100 dark:border-neutral-800/80 bg-gray-50/40 dark:bg-neutral-950";
   const formClasses = "p-6 space-y-6";
-  const actionsClasses = "flex justify-between items-center pt-6 border-t border-gray-200 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] -mx-6 -mb-6 px-6 pb-6";
+  const actionsClasses = "flex justify-between items-center pt-5 border-t border-gray-100 dark:border-neutral-800/60 -mx-6 -mb-6 px-6 py-5 bg-gray-50/40 dark:bg-neutral-950";
 
   return (
     <div className={containerClasses}>
       <div className={headerClasses}>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
           {mode === "create" ? "Create Collection" : "Edit Collection"}
         </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
           {mode === "create" 
             ? "Add a new collection to organize directory items" 
             : "Update collection details and visibility"}
