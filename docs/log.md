@@ -33,6 +33,120 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `global-setup.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  per-run pre-flight hook paired with
+  [`apps/web-e2e/global-setup.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/global-setup.ts),
+  the pre-flight companion to
+  [`playwright-config.md`](plugins/playwright-config.md) (where the
+  config locks the suite's runtime boundary, this file locks the
+  suite's pre-flight boundary — what the runner does once before
+  the first test, in what order, with what failure modes) and the
+  type-checking companion to [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  (which scopes the type-checker's walk to include this file). Documents
+  the ordered pre-flight sequence — `promptForMissingEnv()` first
+  (walks `REQUIRED_ENV_VARS = ['SEED_ADMIN_EMAIL',
+  'SEED_ADMIN_PASSWORD']`, throws on `process.env.CI` to prevent CI
+  hangs, prompts on a TTY using `readline/promises` with an empty-answer
+  guard and a `try / finally` close), `baseURL` resolution from
+  `config.projects[0]?.use?.baseURL ?? 'http://localhost:3000'`,
+  recursive `mkdirSync(auth-states/)` because Playwright's
+  `storageState({ path })` does not auto-create the parent directory,
+  the `__dirname`-anchored absolute path resolution that survives
+  `webServer.cwd: '../..'`, single shared `chromium.launch()` reused
+  by both auth flows for the boot-cost / memory-footprint win
+  (~500 ms × 1 vs ~500 ms × 2, ~150 MB × 1 vs ~150 MB × 2), the admin
+  sign-in flow (`/auth/signin` → `#email` / `#password` → click
+  `getByRole('button', { name: /sign in/i })` → `waitForURL(/\/(admin|client\/dashboard)/)`
+  → `storageState({ path: 'auth-states/admin.json' })` →
+  `[global-setup] Admin auth state saved`), the client sign-up flow
+  (per-run `TEST_DATA.generateClientEmail()` → `/auth/register` →
+  `#name` / `#email` / `#password` → `press('Enter')` instead of
+  click → `waitForURL(/\/client\/dashboard/, { timeout: 120_000,
+  waitUntil: 'domcontentloaded' })` → `storageState({ path:
+  'auth-states/client.json' })` → `[global-setup] Client auth state
+  saved`), the per-flow `try / catch` that closes the browser on
+  failure, the single `await browser.close()` that runs only on the
+  happy path, and the `export default globalSetup` Playwright
+  contract; the full file annotated chunk-by-chunk; the "Why
+  `promptForMissingEnv` is the first call" walkthrough that pins the
+  fail-fast posture against the `locator('#email').fill(undefined)`
+  failure mode 30 seconds in; the "Why one Chromium, two contexts"
+  cost / benefit rationale; the "Why `storageState({ path })` instead
+  of cookies-only" rationale; the "Why the admin flow accepts both
+  `/admin` and `/client/dashboard`" role-tolerance rationale; the
+  "Why the client flow uses `domcontentloaded` instead of `load`"
+  analytics-pixel rationale; the "Why the `auth-states/` directory
+  is per-suite, not per-worker" cost rationale; the failure matrix
+  that maps each `global-setup.ts` mistake (drop
+  `promptForMissingEnv()` → cryptic `fill(undefined)` 30 s in,
+  drop the `process.env.CI` branch → CI hangs forever, drop the
+  empty-answer guard → silent failure later, hard-code `baseURL` →
+  `BASE_URL=` override stops working, drop the `?? '...'` fallback
+  → `goto(undefined)` `TypeError`, drop `mkdir auth-states/` →
+  `ENOENT`, use `process.cwd()` → broken paths under
+  `webServer.cwd: '../..'`, two `chromium.launch()` calls →
+  doubled wall-clock and memory, drop `try / catch` → leaked
+  Chromium processes, hard-code admin email → suite breaks on seed
+  rotation, hard-code client email → parallel-worker collisions,
+  use real-world TLD on client email → accidental delivery risk,
+  use `.click()` instead of `press('Enter')` on register → button-text
+  dependency, use `waitUntil: 'load'` on client redirect → analytics
+  pixel wall-clock blow-up, use 30-s client timeout → cold-render
+  flakes, drop `storageState({ path })` → every authenticated test
+  re-runs sign-in, tighten admin redirect regex to `/admin` only →
+  breaks on demoted seeded admin, loosen admin redirect regex to
+  `/` → succeeds when sign-in fails, remove per-success
+  `console.log` → silent CI on success, drop `AUTH_STATE_DIR` /
+  `ADMIN_STATE_FILE` / `CLIENT_STATE_FILE` constants → path drift
+  across files) onto the layer that surfaces each one; the per-line
+  walkthrough table; and the `global-setup.ts`-change checklist that
+  ties any flip back to a [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, a [`apps/web-e2e/helpers/test-data.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/helpers/test-data.ts)
+  cross-check, dual `pnpm tsc --noEmit` runs (e2e + workspace root),
+  a smoke-subset run that proves both auth states land in
+  `apps/web-e2e/auth-states/`, the per-CI-vs-local both-modes
+  verification (set `CI=1` to exercise the no-prompt branch), a
+  [`docs/log.md`](log.md) entry, a Spec 010 cross-link, and a
+  reviewer pass.
+- `apps/web-e2e` Added a query-param surface smoke spec for
+  `GET /api/categories/exists`
+  ([`categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts))
+  — the public categories-existence probe served by
+  `apps/web/app/api/categories/exists/route.ts` that the navigation
+  shell hits on every render to decide whether the "Categories"
+  link belongs in the header. The handler reads exactly **one**
+  query param — `?locale=` — via
+  `request?.nextUrl?.searchParams?.get('locale') || 'en'` and
+  forwards it to `fetchItems({ lang: locale })`. The spec
+  enumerates every plausible query-param shape a future contributor
+  might add (`?locale=en/fr/es/de/ar/zh/pt/ja`, the obvious
+  `?lang=` alias, `?lang=` and `?locale=` together to confirm
+  `?locale=` continues to win, `?refresh=` / `?force=` / `?fresh=` /
+  `?nocache=` cache-busting keys that the route does not honour,
+  `?strict=` / `?validate=` keys that would tempt a future
+  throw-on-invalid-locale wiring, `?include=` / `?fields=` /
+  `?select=` / `?expand=` projection keys, `?format=`,
+  `?status=` / `?active=` filter-by-state keys, `?tenant=` /
+  `?tenantId=` multi-tenancy scoping keys, plus empty values
+  that exercise the `|| 'en'` fallback, repeated keys,
+  special-character payloads, long payloads, and bogus typo'd
+  keys) and asserts the bulk-loop `< 500` contract (the route
+  has two success branches — the happy `fetchItems` resolution and
+  the catch-and-empty fallback that maps every thrown error to
+  `{ exists: false, count: 0 }` with status 200), the canonical
+  `{ exists: boolean, count: number }` envelope shape on the happy
+  path, the status-invariance between the no-arg and parameter-laden
+  branches, a multi-permutation shape-stability assertion, and a
+  dedicated `?locale=en` / `?locale=` / no-arg three-way
+  status-equality assertion that pins the `|| 'en'` fallback
+  semantics. The spec guards against regressions that introduce a
+  `?fresh=` cache-busting wiring, a `?strict=` locale validation
+  that throws, or a per-locale 404 (which a future "treat unknown
+  locales as missing" feature might tempt a future contributor into
+  adding), and pairs with `global-setup.md` in the same change so
+  the per-source-file documentation set and the e2e coverage
+  advance together.
 - `docs/plugins` Added `playwright-config.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   runner configuration paired with
