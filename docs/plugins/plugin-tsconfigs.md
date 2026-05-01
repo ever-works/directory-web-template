@@ -406,6 +406,12 @@ When the `tsconfig.json` of any plugin package changes:
 - [Plugin Demo Package Manifest Reference](./plugin-demo-package-manifest.md)
   — the manifest reference for `@ever-works/plugin-demo`, which
   follows the same `tsconfig.json` shape as the SDK and runtime.
+- [Shared ESLint Config (`@ever-works/eslint-config`)](./eslint-config.md)
+  — the analogous reference for the workspace's shared ESLint
+  configuration. The two shared-tooling packages
+  (`@ever-works/tsconfig` + `@ever-works/eslint-config`) move in
+  lock-step on parser versions, target language features, and the
+  `.tsx` / `.ts` file-type split.
 - [Plugin Packages overview](./packages.md) — the table that lists
   all three plugin packages with the same field-by-field treatment
   in summary form.

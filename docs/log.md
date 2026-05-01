@@ -33,6 +33,87 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `eslint-config.md` — the **per-source-file
+  reference** for the workspace's shared ESLint flat config preset,
+  paired with
+  [`packages/eslint-config/nextjs.mjs`](https://github.com/ever-works/directory-web-template/tree/develop/packages/eslint-config/nextjs.mjs)
+  and
+  [`packages/eslint-config/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/eslint-config/package.json),
+  the same way `plugin-tsconfigs.md` pairs with the three plugin-package
+  `tsconfig.json` files. Where `plugin-tsconfigs.md` covers the
+  workspace's TypeScript posture, this page covers the workspace's
+  lint posture — the rules, the parser, the ignored globs, and the
+  `tsconfigPath` parameter every consumer threads through. The page
+  is organised as a per-block walkthrough of the three flat-config
+  blocks the factory returns (block 1: `ignores` for `**/node_modules/**`,
+  `**/.next/**`, `**/out/**`, `**/build/**`, `**/dist/**`, and
+  `**/*.config.{js,ts,mjs}` with each pattern's rationale; block 2:
+  JS/TS shared rules for `*.{js,jsx,ts,tsx}` with
+  `react-hooks/rules-of-hooks: 'error'` as the load-bearing rule,
+  `react-hooks/exhaustive-deps: 'warn'` as the hint level, the
+  deliberate `'no-unused-vars': 'off'` to defer to the TS-aware
+  variant, and `'no-console': 'off'` to allow the structured-logging
+  convention used by the API routes; block 3: TS-only typed rules
+  for `*.{ts,tsx}` with the typed `@typescript-eslint/parser`
+  threading `parserOptions.project: tsconfigPath`,
+  `@typescript-eslint/no-unused-vars: 'warn'` with the `^_` prefix
+  convention for `_request`, `catch (_) { ... }`, and head-discarded
+  destructuring); the `package.json` field-by-field walkthrough
+  (`name: '@ever-works/eslint-config'`, `version: '0.0.0'`,
+  `private: true`, `license: AGPL-3.0`, the single sub-path
+  `exports."./nextjs"` that forces consumers to import via the full
+  path, the four direct dependencies and their workspace-floor
+  ranges, the `eslint@^9` peer-dep that pins the flat-config
+  format); the consumer table that maps the four current consumers
+  (`apps/web`, `apps/docs`, `apps/web-e2e`, plugin packages) onto
+  how each calls `nextjsConfig(...)` and the Phase-D plan to wire
+  the per-package lint gate scheduled in Spec 002; the failure
+  matrix that maps each configuration mistake (`Cannot find module
+'@ever-works/eslint-config/nextjs'` from a lost sub-path entry,
+  `Parsing error: Cannot find module '@typescript-eslint/parser'`
+  from a stale ESLint-8 lockfile, `Configuration for rule
+"react-hooks/rules-of-hooks" is invalid` from a stale plugin pin,
+  `'_request' is defined but never used` from a re-enabled JS
+  `no-unused-vars`, `'console' is not defined` from a flipped
+  `no-console`, raised-to-error `react/jsx-key` from a consumer
+  override, invalid `tsconfigPath`, `.next/`-build-output linting
+  from a removed ignore, tooling-config linting from a removed
+  `*.config.*` ignore, eslintrc-syntax-mixed-with-flat-config from
+  a regression, `eslint@9.x not found` peer-dep refusal) onto the
+  layer that surfaces them; and the public-surface change checklist
+  that ties any rule or field change to a `plugin-tsconfigs.md`
+  cross-check, an `authoring-a-plugin.md` cross-check, an
+  `apps/web/eslint.config.mjs` propagation check, the workspace-root
+  `pnpm lint` run, the `pnpm install` lockfile run, a
+  `docs/log.md` entry, an open-questions register entry, and the
+  Constitution-Check note in the PR description for Article II
+  (TypeScript-Only) and Article IX (Test Coverage Bar). Cross-linked
+  from `plugin-tsconfigs.md` and from `docs/index.md`.
+- `apps/web-e2e` Added `tests/api/version-query.spec.ts` — a
+  **query-param surface smoke** for the public version endpoints
+  (`/api/version` GET, `/api/version/sync` GET, `/api/version/sync`
+  POST). The existing `version.spec.ts` covers the canonical
+  no-arg / no-body happy paths; this spec walks ~50 query-string
+  variations (`?branch=`, `?refresh=`, `?force=`, `?clone=`,
+  `?commit=`, `?sha=`, `?ref=`, `?repository=`, `?format=`,
+  `?short=`, `?long=`, `?locale=`, `?lang=`, empty values, repeated
+  keys, special-character values that would tempt a future
+  shell-quoting bug if a contributor ever swapped `isomorphic-git`
+  for a shell `git` invocation, 500-character values, and bogus /
+  typo'd unknown keys) and asserts each variation returns a non-5xx
+  response, plus per-endpoint envelope-shape assertions
+  (`/api/version`: `{commit, message, ...}` always at 200 with
+  `commit` always a non-empty string and `message` always a string
+  on both the success and the graceful-degrade branches;
+  `/api/version/sync` GET: `{syncInProgress, lastSyncTime,
+timeSinceLastSyncHuman, uptime, timestamp}` always at 200 with
+  `syncInProgress: boolean`, `lastSyncTime: string | null`,
+  `uptime: number >= 0`), an "identical with and without bogus
+  query parameters" status-code invariant for both GETs, and a
+  POST `/api/version/sync` "ignores query parameters" invariant
+  that proves the body-only handler does not regress to reading
+  the URL. Closes the query-surface gap for these three endpoints
+  in [Spec 010](spec/010-e2e-test-coverage/spec.md).
 - `docs/plugins` Added `plugin-tsconfigs.md` — the **per-source-file
   reference** for the three byte-identical `tsconfig.json` files in
   the plugin-system packages, paired with
