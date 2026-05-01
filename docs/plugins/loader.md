@@ -314,6 +314,13 @@ it only when no bundled plugin still uses it (Article VIII of the
 - [Plugin SlotHost Reference](./slot-host.md) — the per-component
   reference paired with `SlotHost.tsx`; the host that ultimately
   renders every plugin the loader registers.
+- [Plugin Testing Reference](./testing.md) — the per-helper
+  reference paired with `testing.ts`; documents `createTestRegistry`
+  as a thin wrapper that delegates to `loadPlugins` with empty
+  config sources, and points back at this reference for the explicit
+  cases (config-required plugins, persistence callbacks, rejection
+  inspection) where tests must call `loadPlugins` directly so they
+  can pass `sources` and inspect `LoadPluginsResult.rejected`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts) — the source of truth.

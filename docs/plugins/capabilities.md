@@ -347,6 +347,12 @@ up the new entry automatically.
   reference paired with `SlotHost.tsx`; the production consumer of
   `slotsFor` and the host that decides whether a `ui-slot` capability
   contribution is rendered or replaced by a `fallback`.
+- [Plugin Testing Reference](./testing.md) — the per-helper reference
+  paired with `testing.ts`; the canonical way to construct a
+  registry that exercises `get` / `list` capability lookups in unit
+  tests, with the failure matrix that distinguishes Zod-rejected
+  capability providers (silent drop) from duplicate-name conflicts
+  (propagated throw).
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/capabilities.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/capabilities.ts)

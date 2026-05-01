@@ -270,6 +270,13 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
   reference paired with `SlotHost.tsx`; documents the `fallback`
   semantics, the empty-vs-non-empty rules, and how the Fragment-only
   output keeps layouts in control of surrounding markup.
+- [Plugin Testing Reference](./testing.md) — the per-helper
+  reference paired with `testing.ts`; documents how
+  `createTestRegistry` produces the registry that
+  `registry.slotsFor("…")` reads in slot-composition tests, and the
+  three worked examples (happy path, config-required, disable
+  round-trip) that mirror the Playwright slot specs in
+  `apps/web-e2e/tests/plugins/slots.spec.ts`.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.

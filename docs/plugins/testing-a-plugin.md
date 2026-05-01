@@ -292,6 +292,15 @@ plugin-spec section, depending on where the work lands.
   `createTestRegistry` + `render(<SlotHost ... />)` patterns this
   guide builds on, including the empty-fallback and disable-then-empty
   paths.
+- [Plugin Testing Reference](./testing.md) — per-helper reference
+  paired with `testing.ts`; documents `createTestRegistry`'s exact
+  contract (the four-step internal flow, the
+  read / write surface summary, the failure matrix that distinguishes
+  silent drops from propagated throws, and the explicit non-goals
+  that point at [`loadPlugins`](./loader.md) for config-required
+  plugins, persistence-callback tests, and rejection inspection).
+  Read **this** guide for the workflow; read the testing reference
+  for the contract.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

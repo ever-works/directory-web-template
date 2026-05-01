@@ -218,6 +218,7 @@ range:
 - [Plugin Loader Reference](loader.md) — per-API reference for the boot-time `loadPlugins` / `mergeConfigSources` surface implementing the config-resolution and validation phases above.
 - [Plugin Registry Reference](registry.md) — per-API reference for the `PluginRegistry` class, including `enable` / `disable` semantics, the `teardown` failure mode, and the read / write surface summary that maps each lifecycle phase to the methods it calls.
 - [Plugin SlotHost Reference](slot-host.md) — per-component reference paired with `SlotHost.tsx`; documents the runtime-render phase that follows registration and the way disable / teardown propagate to layout output without touching layout code.
+- [Plugin Testing Reference](testing.md) — per-helper reference paired with `testing.ts`; documents `createTestRegistry`'s four-step flow over `new PluginRegistry()` + `loadPlugins`, the failure matrix that distinguishes silent Zod drops from propagated duplicate-name throws, and the disable / re-enable round-trip that exercises this lifecycle's enable / disable phases at the unit-test layer.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - Constitution Article I (Plugin-First) in
   [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/blob/develop/.specify/memory/constitution.md).

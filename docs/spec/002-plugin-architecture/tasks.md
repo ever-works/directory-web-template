@@ -125,12 +125,13 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/loader.md`,
   `docs/plugins/registry.md`,
   `docs/plugins/slot-host.md`,
+  `docs/plugins/testing.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the nine `docs/plugins/**` pages (authoring,
-     lifecycle, packages, testing, capabilities, slots, loader,
-     registry, slot-host).
+  1. Author the ten `docs/plugins/**` pages (authoring,
+     lifecycle, packages, testing-a-plugin, capabilities, slots,
+     loader, registry, slot-host, testing).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -162,7 +163,23 @@ sidebar_label: '002 Plugin Architecture Tasks'
   [`packages/plugin-runtime/src/SlotHost.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/SlotHost.tsx)
   with the same anti-drift guarantee, including the failure matrix
   that anchors stable React keys on the registry's duplicate-name
-  guarantee.
+  guarantee; the testing reference cross-links the
+  `createTestRegistry({ plugins })` helper to
+  [`packages/plugin-runtime/src/testing.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/testing.ts)
+  with the same anti-drift guarantee, including the four-step
+  internal flow over `new PluginRegistry()` + `loadPlugins`, the
+  read / write surface summary, the failure matrix that
+  distinguishes silent Zod drops from propagated duplicate-name
+  throws, the dual import surface
+  (`@ever-works/plugin-runtime` barrel and
+  `@ever-works/plugin-runtime/testing` sub-path) declared in the
+  runtime's `package.json` `exports` map, and the explicit
+  non-goals (config-required plugins, persistence-callback
+  assertions, rejection inspection) that point at
+  [`loadPlugins`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
+  and
+  [`new PluginRegistry()`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
+  as the right tool for those cases.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

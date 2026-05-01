@@ -33,6 +33,55 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `testing.md` — the parallel **per-helper
+  testing reference** that pairs with [`packages/plugin-runtime/src/testing.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/testing.ts)
+  exactly the way `registry.md` pairs with `registry.ts`,
+  `loader.md` pairs with `loader.ts`, and `slot-host.md` pairs with
+  `SlotHost.tsx`. The page is one section per helper
+  (`createTestRegistry({ plugins })` is the only one in v1) plus a
+  six-row **failure matrix** covering every observable outcome
+  (Zod-rejected schema → silent drop, throwing `setup` → loader
+  records as rejected but helper still resolves, duplicate-name →
+  the **only** propagated throw out of the helper, empty-array →
+  empty registry no-op, `defaultEnabled: false` → registered but
+  not enabled, slot component throws on render → bubbles through
+  React when `<SlotHost />` calls it). It documents the four
+  things `createTestRegistry` does in order
+  (`new PluginRegistry()` with `persistEnabled` undefined, map each
+  plugin to a `{ plugin }` envelope, `await loadPlugins(...)`,
+  return the loaded registry) and the **explicit non-goals** that
+  previously lived only in source comments — the helper is not a
+  registry constructor, not a config harness, not a rejection
+  inspector, not a persistence harness, not a render harness, not
+  async-cleanup-aware — so test authors can pick the right tool
+  the first time. It also documents the **dual import surface**
+  (`from '@ever-works/plugin-runtime'` versus `from '@ever-works/plugin-runtime/testing'`)
+  declared in the runtime's
+  [`package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/package.json)
+  `exports` map, the **read / write surface summary** that maps
+  callers (plugin package unit tests, capability composition tests,
+  slot composition tests, admin enable / disable tests,
+  config-required plugins, rejection-asserting tests,
+  persistence-callback tests) to the methods they're allowed to
+  invoke, three worked Vitest examples (happy-path register-and-slot,
+  config-required plugin via direct `loadPlugins`, disable-then-empty
+  round-trip) — the same three paths that
+  `apps/web-e2e/tests/plugins/admin-toggle.spec.ts` and
+  `apps/web-e2e/tests/plugins/slots.spec.ts` cover at the
+  Playwright layer (per Spec 002 / T-009), and a five-step
+  "how to add a new test seam" checklist that mirrors the patterns
+  established in `capabilities.md`, `slots.md`, `loader.md`,
+  `registry.md`, and `slot-host.md`. Cross-links added in
+  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
+  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
+  `capabilities.md` *See also*, `slots.md` *See also*,
+  `loader.md` *See also*, `registry.md` *See also*,
+  `slot-host.md` *See also*, and `docs/index.md`. Spec 002 `T-010`
+  task list grew from "nine pages" to "ten pages" and adds an
+  explicit "doc and runtime cannot drift" verification bullet for
+  the new reference (matching the wording added for
+  `capabilities.md`, `slots.md`, `loader.md`, `registry.md`, and
+  `slot-host.md`).
 - `docs/plugins` Added `slot-host.md` — the parallel **per-component
   SlotHost reference** that pairs with [`packages/plugin-runtime/src/SlotHost.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/SlotHost.tsx)
   exactly the way `registry.md` pairs with `registry.ts` and

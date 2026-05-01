@@ -317,6 +317,14 @@ rare and follows the same five-step pattern as new slot ids:
   attaches a component to a slot id in the first place.
 - [Testing a Plugin](./testing-a-plugin.md) — `createTestRegistry`,
   React Testing Library patterns, and Playwright smoke specs.
+- [Plugin Testing Reference](./testing.md) — per-helper reference
+  paired with `testing.ts`; documents the
+  `createTestRegistry({ plugins })` factory used inside the three
+  worked Vitest examples on this page (happy-path render,
+  empty-fallback path, disable-then-empty round-trip), the failure
+  matrix that distinguishes the helper's silent Zod-drop from the
+  duplicate-name throw, and the explicit non-goals for the cases
+  where a `<SlotHost />` test must build the registry by hand.
 - [Plugin Packages — SDK, Runtime, Demo](./packages.md) — package
   boundaries and which package exports `<SlotHost />`.
 - [Plugin System (Architecture)](../architecture/plugin-system.md) —

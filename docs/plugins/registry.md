@@ -372,6 +372,11 @@ it only when no bundled plugin or host call site still uses it
   that invokes `slotsFor`, plus the `fallback` semantics, the
   Fragment-only output, and the failure matrix that anchors React
   keys on the registry's duplicate-name guarantee.
+- [Plugin Testing Reference](./testing.md) — per-helper reference
+  paired with `testing.ts`; the canonical way to construct a
+  registry in unit tests, and the failure matrix that ties
+  `createTestRegistry`'s **only** propagated throw (duplicate-name)
+  back to the registry's `register` contract documented above.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts) — the source of truth.
