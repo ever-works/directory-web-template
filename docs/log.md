@@ -33,6 +33,73 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `tsconfig-presets.md` — the **per-source-file
+  reference** for the workspace's shared TypeScript preset package,
+  paired with
+  [`packages/tsconfig/base.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/tsconfig/base.json),
+  [`packages/tsconfig/nextjs.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/tsconfig/nextjs.json),
+  [`packages/tsconfig/playwright.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/tsconfig/playwright.json),
+  and
+  [`packages/tsconfig/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/tsconfig/package.json),
+  the same way `eslint-config.md` pairs with the two
+  `packages/eslint-config/*` files and `plugin-tsconfigs.md` pairs
+  with the three plugin-package `tsconfig.json` files. Where
+  `plugin-tsconfigs.md` covers the **downstream** plugin tsconfigs
+  that extend `base.json`, this page covers the **upstream** preset
+  package itself — the three preset files plus the manifest that
+  publishes them. The page documents the at-a-glance summary
+  (package name `@ever-works/tsconfig`, `private: true`,
+  `version: '0.0.0'` pinned because consumed via `workspace:*`
+  only, three preset files declared in `package.json#files`, six
+  current consumers across `apps/web`, `apps/web-e2e`, and the
+  three plugin packages, no `dependencies` / `devDependencies` /
+  `peerDependencies` / `scripts`); the file map; the per-field
+  walk-through of each preset file (twelve compiler options on
+  `base.json` plus an `exclude` entry, two-line override on
+  `nextjs.json`, two-line override on `playwright.json`); the
+  per-field walk-through of `package.json` plus the matrix of
+  deliberately-absent fields (`type`, `main`, `types`, `exports`,
+  `dependencies`, `devDependencies`, `peerDependencies`, `scripts`)
+  and what each absence implies; the inheritance ASCII diagram
+  showing the two leaves fanning out from `base.json` and the three
+  plugin packages bypassing the leaves; the consumer table mapping
+  each of the six current consumers to its `extends` target with
+  the rationale; the deliberate `apps/docs` out-of-scope note;
+  the cross-cutting concerns walkthrough (`target: 'ES2017'`,
+  `module` + `moduleResolution` pair semantics, `strict` sub-flags,
+  `incremental` cache mechanics); the "How the leaves diverge from
+  the base" matrix; the failure matrix that maps each preset-level
+  mistake onto the layer that surfaces it; and the public-surface
+  change checklist with the Constitution-Check note for Article II
+  (TypeScript-Only) and Article III (Public-Surface Stability).
+- `apps/web-e2e` Added
+  [`tests/api/health-database-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health-database-query.spec.ts)
+  — query-param surface smoke for the `/api/health/database`
+  endpoint, mirroring the pattern set by
+  [`tests/api/version-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/version-query.spec.ts),
+  [`tests/api/feature-existence-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/feature-existence-query.spec.ts),
+  and the other `*-query.spec.ts` files. The handler signature is
+  `export async function GET()` (no `request` parameter), so the
+  spec walks the obvious query-param keys a future contributor
+  might add (`refresh`, `force`, `schema`, `database`, `table`,
+  `timeout`, `check`, `probe`, `format`, `verbose`, `debug`,
+  `locale`, `lang`) plus empty values, repeated keys,
+  SQL-injection-shaped values (`%27`, `%22`, `%3B`, `%2D%2D`,
+  `'OR'1'='1`, `DROP+TABLE+users`), long values, and bogus typo'd
+  keys. Asserts a tighter contract than the other query-smoke
+  specs (`< 500`): the route's two valid branches are 200 (healthy)
+  and 500 (unhealthy on a missing-database CI environment), and
+  every parameterised URL must respond with the **same status as
+  the no-arg baseline** — any URL-driven status drift is a real
+  regression. Also pins the response envelope shape (`status`
+  one-of `'healthy'`/`'unhealthy'`, `database` one-of
+  `'connected'`/`'disconnected'`, `timestamp` an ISO-8601 string)
+  and the SQL-injection invariant (the route runs a hard-coded
+  `db.execute(sql\`SELECT 1 as test\`)` with no parameter binding,
+  so injection-shaped values cannot reach the SQL layer).
+- `docs/index.md` Added the [Shared TypeScript Presets](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/tsconfig-presets.md) entry under the
+  "For Contributors & AI Agents" section so the new plugin docs
+  page is reachable from the docs index.
 - `docs/plugins` Added `eslint-config.md` — the **per-source-file
   reference** for the workspace's shared ESLint flat config preset,
   paired with
