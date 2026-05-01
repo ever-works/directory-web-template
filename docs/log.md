@@ -33,6 +33,114 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `plugin-tsconfigs.md` — the **per-source-file
+  reference** for the three byte-identical `tsconfig.json` files in
+  the plugin-system packages, paired with
+  [`packages/plugin-sdk/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/tsconfig.json),
+  [`packages/plugin-runtime/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/tsconfig.json),
+  and
+  [`packages/plugin-demo/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/tsconfig.json),
+  the same way `sdk-package-manifest.md` pairs with
+  `packages/plugin-sdk/package.json`,
+  `runtime-package-manifest.md` pairs with
+  `packages/plugin-runtime/package.json`, and
+  `plugin-demo-package-manifest.md` pairs with
+  `packages/plugin-demo/package.json`. Where the package-manifest
+  references cover **how** each package is wired into Node's
+  resolution algorithm and `package.json#exports`, this page covers
+  **how** each package's TypeScript compiler is configured when
+  `pnpm tsc --noEmit` runs against its sources. The page is
+  organised as a field-by-field reference (`extends:
+"@ever-works/tsconfig/base.json"`, `compilerOptions.jsx:
+"react-jsx"`, `compilerOptions.types: ["react"]`, `include:
+["src/**/*"]`, `exclude: ["node_modules", "dist"]`) with each
+  field paired with its purpose, the practical consequence for
+  plugin authors, and the change-event-class it implies for any
+  third-party plugin author copying this configuration as a
+  starting point; the per-flag walkthrough of the inherited base
+  config (`target: "ES2017"`, `lib`, `allowJs`, `skipLibCheck`,
+  `strict`, `noEmit`, `esModuleInterop`, `module`,
+  `moduleResolution: "bundler"`, `resolveJsonModule`,
+  `isolatedModules`, `incremental`) that pins each one to a
+  documentation impact; the `react-jsx` automatic-runtime
+  rationale (the SDK's `plugin.ts` references `React.ComponentType`
+  types so the JSX scope must be open even where no JSX is
+  authored, runtime's `SlotHost.tsx` and demo's `Header.tsx`
+  author literal JSX, all three packages need the same JSX flag);
+  the `types: ["react"]` whitelist semantics (transitive
+  `@types/node` / `@types/jest` / DOM-polyfill packages cannot
+  leak ambient types into the plugin's compilation, plugin
+  authors who need `process.env` ambient typing must explicitly
+  add `"node"` to their own `types` array); the
+  `include`-and-`exclude` rationale that locks the package
+  boundary at `src/` and forward-guards against a future `dist/`
+  build step (a one-off script in `packages/plugin-demo/scripts/`
+  is intentionally outside the type-check guarantee, which is the
+  forcing function for "move under `src/`" or "stay outside the
+  package's public surface"); the "How the three packages diverge
+  from this baseline" matrix that lists every hypothetical
+  override (`types: ["react", "node"]` for a Node-aware demo,
+  `declaration: true` for IDE pre-warm, `outDir: "./dist"` for a
+  future build step, `composite: true` for project-references
+  parallelism, `lib: ["esnext"]` for a Node-only plugin, widened
+  `include` for a CLI-helper plugin, narrowed `exclude` for
+  co-located Vitest tests) with the reason it is and is not
+  warranted today; the failure matrix that maps each
+  `tsconfig.json` mistake (`JSX element implicitly has type
+'any'` from a dropped React-types entry, `Cannot use JSX unless
+the '--jsx' flag is provided` from a removed JSX flag,
+  `'process' is not defined` from a missing Node-types entry,
+  slow `pnpm tsc --noEmit` from an `incremental: false`
+  regression, stray `@types/jest` symbols leaking into
+  IntelliSense from a removed `types` whitelist,
+  `Output file 'dist/index.js' has not been built from source
+file 'src/index.ts'` from an accidental `noEmit: false`,
+  `Compiler option 'isolatedModules' may not be used with
+'composite'` from a `composite: true` override that didn't
+  drop `isolatedModules`, the demo's `Cannot find module
+'react/jsx-runtime'` symptom of a React-18 lockfile downgrade
+  while keeping `jsx: "react-jsx"`, and a downstream plugin's
+  silent-strict-mode regression from a missed `extends`
+  directive) onto the layer that surfaces them; and the
+  public-surface change checklist that ties any option change to
+  a matching package-manifest cross-check (changes to JSX runtime
+  / React peer-dep range / entry-file extension propagate to
+  [`sdk-package-manifest.md`](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/sdk-package-manifest.md),
+  [`runtime-package-manifest.md`](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/runtime-package-manifest.md),
+  and
+  [`plugin-demo-package-manifest.md`](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/plugin-demo-package-manifest.md)
+  in the same commit), an
+  [`Authoring a Plugin`](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/authoring-a-plugin.md)
+  cross-check, a `packages.md` cross-check, the dual
+  `pnpm tsc --noEmit` runs (workspace-root + per-package, because
+  Turborepo's cache may mask a regression that only shows up
+  in the per-package run), a `docs/log.md` entry, an
+  open-questions register entry, and the Constitution-Check note
+  in the PR description for Article II (TypeScript-Only) and
+  Article III (Public-Surface Stability). Cross-linked from the
+  three package-manifest references' Cross-references sections
+  and from `docs/index.md`.
+- `apps/web-e2e` Added `tests/api/feature-existence-query.spec.ts`
+  — a **query-param surface smoke** for the four public
+  feature-existence endpoints (`/api/categories/exists`,
+  `/api/collections/exists`, `/api/surveys/exists`, and
+  `/api/items/export/settings`). The existing
+  `feature-existence.spec.ts` covers the no-arg / single-canonical-arg
+  happy path; this spec walks ~80 query-string variations
+  (`?locale=`, `?type=`, `?limit=`, `?offset=`, `?page=`,
+  `?pageSize=`, `?q=`, `?search=`, `?filter=`, `?prefix=`,
+  `?sort=`, `?order=`, `?direction=`, `?lang=`, empty values,
+  repeated keys, special-character values, 500-character values,
+  and bogus / typo'd unknown keys across all four endpoints) and
+  asserts each variation returns a non-5xx response, plus a
+  per-endpoint envelope-shape assertion (categories: `{exists,
+count}` always at 200; collections: same envelope at 200 or 500
+  with the optional `error` string; surveys: `{exists}` always at
+  200; items/export/settings: `{export_enabled}` always at 200),
+  plus an "identical with and without bogus query parameters"
+  invariant for the three endpoints whose handlers do not read
+  the request URL. Closes the query-surface gap for these four
+  endpoints in [Spec 010](spec/010-e2e-test-coverage/spec.md).
 - `docs/plugins` Added `plugin-demo-package-manifest.md` — the
   **per-source-file reference** for the demo plugin package
   manifest that pairs with
@@ -78,7 +186,7 @@ why** at a higher level than per-commit diffs.
   `manifest.version`/`package.json#version` drift,
   `templateRange` widened beyond SDK `version`, downstream-author
   -keeps-`@ever-works`-scope, downstream-author-keeps-`private:
-  true`-while-publishing, downstream-author-keeps-required-React
+true`-while-publishing, downstream-author-keeps-required-React
   -peer-on-non-React-plugin) onto the layer that surfaces it;
   and a public-surface change checklist that ties any field
   change to a cross-check against `plugin-demo.md`,
@@ -123,12 +231,12 @@ why** at a higher level than per-commit diffs.
   contract is intentionally narrow — every URL must respond
   with a `<500` status, and the no-arg envelope must be
   either `{ success: false, error: 'Location features are
-  disabled' }` (404 branch when the feature gate is off,
+disabled' }` (404 branch when the feature gate is off,
   the most-likely branch in local dev) or `{ success: true,
-  data: string[] }` (200 branch when the feature is on
+data: string[] }` (200 branch when the feature is on
   and the data layer succeeds). The two
   `responds identically with and without bogus query
-  parameters` assertions pin the contract that the route
+parameters` assertions pin the contract that the route
   never reads the request URL, so the status code with any
   query string must match the no-arg status code exactly.
 - `docs/plugins` Added `runtime-package-manifest.md` — the
@@ -474,7 +582,7 @@ why** at a higher level than per-commit diffs.
   `@typescript-eslint/consistent-type-exports` as the lint rule
   the SDK turns on once the surface is stable; the failure matrix
   that maps barrel-level mistakes (`Cannot find module
-  '@ever-works/plugin-sdk/manifest'` from a non-public sub-path
+'@ever-works/plugin-sdk/manifest'` from a non-public sub-path
   import, `'Capability' is not exported` from a value-vs-type
   mis-import, `defineDirectoryPlugin is not a function` from a
   bundler tree-shaking a value re-export, `ctx.config` typing as
@@ -509,7 +617,7 @@ why** at a higher level than per-commit diffs.
   parametrises the route's single `limit` query parameter
   (`Number(...)`-ed with default `10`,
   `Number.isFinite ? Math.min(Math.max(1, Math.floor(value)), 50)
-  : 10`-clamped) across the [1, 50] valid range, beyond the upper
+: 10`-clamped) across the [1, 50] valid range, beyond the upper
   clamp (`51`, `999`, `10000`), below the lower clamp (`0`, `-5`,
   `-1`), non-numeric / `NaN` / `Infinity` / `-Infinity` (which
   exercise the `Number.isFinite` fallback path), float (truncated
@@ -545,7 +653,7 @@ why** at a higher level than per-commit diffs.
   with `testing.ts`. The page documents the at-a-glance manifest
   summary (name `'demo'`, `templateRange '>=0.1 <1.0'`,
   `'ui-slot'` capability, `'header.right'` slot, `defaultEnabled:
-  true`, `adminToggleable: true`); the file map that ties each of
+true`, `adminToggleable: true`); the file map that ties each of
   the three source files to the SDK surface they consume; the
   per-line walk-through of `ConfigSchema` and `DemoConfig` (the
   `.default(true)` / `.default('Demo plugin loaded')` calls that
@@ -679,7 +787,7 @@ why** at a higher level than per-commit diffs.
   every `packages/plugin-sdk/**` and `packages/plugin-runtime/**`
   source file now has a paired `docs/plugins/<file>.md` page with
   the same `> When the SDK adds, removes, or renames an export
-  update **this** page in the same change` anti-drift contract.
+update **this** page in the same change` anti-drift contract.
   Cross-linked from [`docs/plugins/plugin.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/plugin.md),
   [`docs/plugins/capabilities.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/capabilities.md),
   [`docs/plugins/manifest.md`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/manifest.md),
@@ -784,12 +892,12 @@ why** at a higher level than per-commit diffs.
   `slot-host.md`, `testing.md`, and `manifest.md` — bookending the
   SDK with the same anti-drift contract every per-source-file
   SDK / runtime page now satisfies. Cross-links added in
-  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
-  `loader.md` *See also*, `registry.md` *See also*,
-  `slot-host.md` *See also*, `testing.md` *See also*,
-  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
-  `capabilities.md` *See also*, `slots.md` *See also*,
-  `manifest.md` *See also*, and `docs/index.md`. Spec 002 `T-010`
+  `authoring-a-plugin.md`, `lifecycle.md` _See also_,
+  `loader.md` _See also_, `registry.md` _See also_,
+  `slot-host.md` _See also_, `testing.md` _See also_,
+  `testing-a-plugin.md` _See also_, `packages.md` _See also_,
+  `capabilities.md` _See also_, `slots.md` _See also_,
+  `manifest.md` _See also_, and `docs/index.md`. Spec 002 `T-010`
   task list grew from "eleven pages" to "twelve pages" and adds an
   explicit "doc and SDK cannot drift" verification bullet for the
   new reference (matching the wording added for `capabilities.md`,
@@ -925,11 +1033,11 @@ why** at a higher level than per-commit diffs.
   "how to add a new test seam" checklist that mirrors the patterns
   established in `capabilities.md`, `slots.md`, `loader.md`,
   `registry.md`, and `slot-host.md`. Cross-links added in
-  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
-  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
-  `capabilities.md` *See also*, `slots.md` *See also*,
-  `loader.md` *See also*, `registry.md` *See also*,
-  `slot-host.md` *See also*, and `docs/index.md`. Spec 002 `T-010`
+  `authoring-a-plugin.md`, `lifecycle.md` _See also_,
+  `testing-a-plugin.md` _See also_, `packages.md` _See also_,
+  `capabilities.md` _See also_, `slots.md` _See also_,
+  `loader.md` _See also_, `registry.md` _See also_,
+  `slot-host.md` _See also_, and `docs/index.md`. Spec 002 `T-010`
   task list grew from "nine pages" to "ten pages" and adds an
   explicit "doc and runtime cannot drift" verification bullet for
   the new reference (matching the wording added for
@@ -967,10 +1075,10 @@ why** at a higher level than per-commit diffs.
   five-step "how to add a new prop" checklist that mirrors the
   patterns established in `capabilities.md`, `slots.md`,
   `loader.md`, and `registry.md`. Cross-links added in
-  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
-  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
-  `capabilities.md` *See also*, `slots.md` *See also*,
-  `loader.md` *See also*, `registry.md` *See also*, and
+  `authoring-a-plugin.md`, `lifecycle.md` _See also_,
+  `testing-a-plugin.md` _See also_, `packages.md` _See also_,
+  `capabilities.md` _See also_, `slots.md` _See also_,
+  `loader.md` _See also_, `registry.md` _See also_, and
   `docs/index.md`. Spec 002 `T-010` task list grew from "eight
   pages" to "nine pages" and adds an explicit "doc and runtime
   cannot drift" verification bullet for the new reference
@@ -1003,9 +1111,9 @@ why** at a higher level than per-commit diffs.
   the rationale for the underscore-cased `list_all` name — both
   facts that previously lived only in the source comments.
   Cross-links added in `authoring-a-plugin.md`, `lifecycle.md`
-  *See also*, `testing-a-plugin.md` *See also*, `packages.md`
-  *See also*, `capabilities.md` *See also*, `slots.md` *See
-  also*, `loader.md` *See also*, and `docs/index.md`. Spec 002
+  _See also_, `testing-a-plugin.md` _See also_, `packages.md`
+  _See also_, `capabilities.md` _See also_, `slots.md` _See
+  also_, `loader.md` _See also_, and `docs/index.md`. Spec 002
   `T-010` task list grew from "seven pages" to "eight pages" and
   adds an explicit "doc and runtime cannot drift" verification
   bullet for the new reference (matching the wording added for
@@ -1031,9 +1139,9 @@ why** at a higher level than per-commit diffs.
   `registered` and `rejected`, that the merge is intentionally
   shallow (not deep), and that the loader does not abort on failure;
   that information now lives in one place. Cross-links added in
-  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
-  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
-  `capabilities.md` *See also*, `slots.md` *See also*, and
+  `authoring-a-plugin.md`, `lifecycle.md` _See also_,
+  `testing-a-plugin.md` _See also_, `packages.md` _See also_,
+  `capabilities.md` _See also_, `slots.md` _See also_, and
   `docs/index.md`. Spec 002 `T-010` task list grew from "six pages"
   to "seven pages" and adds an explicit "doc and runtime cannot
   drift" verification bullet for the new reference (matching the
@@ -1077,13 +1185,13 @@ why** at a higher level than per-commit diffs.
   are single-lookup; that information now lives in one place. Cross-links
   added in the architecture page (`Capabilities` table now points at
   this reference as the source of truth), `authoring-a-plugin.md`
-  *See also*, `lifecycle.md` *See also*, `testing-a-plugin.md`
-  *See also*, `packages.md` *See also*, and `docs/index.md`.
+  _See also_, `lifecycle.md` _See also_, `testing-a-plugin.md`
+  _See also_, `packages.md` _See also_, and `docs/index.md`.
   Spec 002 `T-010` task list grew from "four pages" to "five pages"
   and adds an explicit "doc and SDK cannot drift" verification
   bullet for the new reference.
 - `apps/web-e2e` Added `public/per-survey-public.spec.ts` (1 — `GET
-  /surveys/[slug]` with an unknown slug; exercises the
+/surveys/[slug]` with an unknown slug; exercises the
   `notFound()` / disabled-feature branch with the same non-5xx
   contract as the rest of the smoke layer. Closes the last
   public-survey page surface that was implicit rather than explicit;
@@ -1098,7 +1206,7 @@ why** at a higher level than per-commit diffs.
   documents the four-layer test pyramid for plugins
   (manifest/Zod schema, registry round-trip via
   `createTestRegistry`, slot rendering through `<SlotHost />`, and
-  Playwright smoke specs), an explicit *what not to do* list (don't
+  Playwright smoke specs), an explicit _what not to do_ list (don't
   mock `PluginRegistry`, don't reach into `apps/web/**`, don't
   assert on translatable copy), and an "override" recipe for
   schemas with non-default required fields. Each example imports
@@ -1111,8 +1219,8 @@ why** at a higher level than per-commit diffs.
   cannot drift. Cross-links added in `authoring-a-plugin.md`
   (replaces the inline "Add a Playwright spec" snippet with a
   pointer to the dedicated guide and the original Playwright
-  example), `packages.md` *See also* section, and `lifecycle.md`
-  *See also* section. `docs/index.md` now lists three plugin
+  example), `packages.md` _See also_ section, and `lifecycle.md`
+  _See also_ section. `docs/index.md` now lists three plugin
   guides under the spec-driven pointers — `Authoring a Plugin`,
   the previously-unlinked `Plugin Lifecycle`, and the new
   `Testing a Plugin`. Spec 002 `tasks.md` `T-010` task list grew
@@ -1122,7 +1230,7 @@ why** at a higher level than per-commit diffs.
   with an explicit "doc and runtime cannot drift" verification
   bullet.
 - `docs/architecture` `plugin-system.md` status block updated from
-  *proposed* to *in-progress* (Phase A scaffolding shipped in commit
+  _proposed_ to _in-progress_ (Phase A scaffolding shipped in commit
   `8b68d29a`); the "two packages" section now reads "three packages"
   to include the existing `@ever-works/plugin-demo` reference plugin
   (with a note that it is not part of the runtime contract). The
@@ -1151,10 +1259,10 @@ why** at a higher level than per-commit diffs.
   surface; Q-018b budget file location). No code yet — this entry
   only adds the docs/spec scaffolding so future work stops "Article
   V is aspirational" being a true statement.
-- `spec-017` Status flipped from *in-progress* to **shipped** in
+- `spec-017` Status flipped from _in-progress_ to **shipped** in
   the spec index and in [`spec.md`](spec/017-map-view/spec.md). All
   T-001..T-009 tasks landed in commit `fe808cc3` (`feat: more on
-  maps`) on the `develop` branch — sidebar + dedicated `/map`
+maps`) on the `develop` branch — sidebar + dedicated `/map`
   route + header nav link + e2e coverage are live. Follow-up
   enhancements (sidebar virtualisation, mini-map embed on
   item-detail) tracked as separate iterations.
@@ -1213,7 +1321,7 @@ why** at a higher level than per-commit diffs.
   `docs/plans/2026-03-08-monorepo-conversion*` for historical
   sequencing per Article VIII of the constitution. The spec index
   (`docs/spec/README.md`) gained inline `(plan, tasks)` links on the
-  001 row and a clarifying line in *Conventions* explaining when a
+  001 row and a clarifying line in _Conventions_ explaining when a
   retroactive trio is reconstructed for parity.
 - `apps/web-e2e` Added three more smoke spec files closing the
   remaining admin-by-id and client / page-by-id gaps not covered by
@@ -1222,15 +1330,14 @@ why** at a higher level than per-commit diffs.
   across categories, clients, collections (+ items helper), comments,
   companies, featured-items, items (+ history / review / full
   import), notifications read receipt, reports, roles (+ permissions
-  sub-route), sponsor-ads (+ approve / cancel / reject), tags, users
-  + settings POST), `api/items-engagement-and-favorites.spec.ts`
+  sub-route), sponsor-ads (+ approve / cancel / reject), tags, users - settings POST), `api/items-engagement-and-favorites.spec.ts`
   (11 — public `/api/items/engagement` 4 cases including
   missing-slugs, empty-slugs, unknown-slugs, and >200-slugs guard +
   auth-gated comment-by-id PUT / DELETE, vote toggle / clear, and
   favorites GET / POST + `/favorites/[itemSlug]` DELETE),
   `public/admin-by-id-pages-protected.spec.ts` (18 — admin per-id
   page routes `/admin/clients/[id]`, `/admin/surveys/[slug]/{edit,
-  preview,responses}`, `/admin/auth/signin`, plus `/client/**`
+preview,responses}`, `/admin/auth/signin`, plus `/client/**`
   authenticated owner pages: dashboard, profile/[username],
   settings (basic-info / billing / location / portfolio /
   theme-colors / submissions/trash), security, sponsorships,
@@ -1266,8 +1373,7 @@ why** at a higher level than per-commit diffs.
   `stats`), `api/client-protected.spec.ts` (8 `/api/client/**`
   endpoints — dashboard `stats`, `geo-stats`, items list /
   `coordinates` / `stats`, import `sample`/`validate`/POST),
-  `api/surveys.spec.ts` (8 auth-gated CRUD + per-survey responses
-  + per-response detail), `api/payment-checkouts.spec.ts` (28
+  `api/surveys.spec.ts` (8 auth-gated CRUD + per-survey responses - per-response detail), `api/payment-checkouts.spec.ts` (28
   auth-gated checkout / payment-method / setup-intent /
   subscription mutation routes across Stripe, LemonSqueezy, Polar,
   Solidgate + sponsor-ad lifecycle), `api/auth-change-password.spec.ts`
@@ -1277,7 +1383,7 @@ why** at a higher level than per-commit diffs.
   cases), `api/reports.spec.ts` (2 no-session / empty-body cases),
   `public/newsletter-unsubscribe.spec.ts` (2 with / without token),
   `public/integration.spec.ts` (3 `/integration/{analytics,posthog,
-  speed-insights}` showcase pages), and
+speed-insights}` showcase pages), and
   `public/admin-pages-protected.spec.ts` (18 `/admin/**` and
   `/dashboard/**` page routes redirect anonymous visitors without
   5xx). Same no-5xx contract as the rest of the smoke layer.
@@ -1304,7 +1410,7 @@ why** at a higher level than per-commit diffs.
   no-5xx contract as the rest of the API smoke layer. `E2E-TESTS.md`
   updated with all six entries and the continual-improvement total
   annotation.
-- `spec-002` Status moved from *proposed* to *in-progress* in the
+- `spec-002` Status moved from _proposed_ to _in-progress_ in the
   spec index now that Phase A (T-001/T-002/T-003 — SDK, runtime, and
   demo plugin scaffolds) has shipped. T-004..T-012 still remain.
 - `apps/web-e2e` Added API smoke specs for previously-uncovered

@@ -53,29 +53,29 @@ surface is changed.
 
 ## At a glance
 
-| Field                           | Value                              | Why it matters                                                                                                         |
-| ------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `name`                          | `@ever-works/plugin-sdk`           | The scoped name plugin authors put in `dependencies`. The scope locks the package to the workspace.                    |
-| `version`                       | `0.1.0`                            | The current SDK version. Plugins gate against it via `manifest.templateRange`.                                         |
-| `license`                       | `AGPL-3.0`                         | The project's license. Plugins linking against the SDK inherit AGPL obligations when distributed.                      |
-| `private`                       | `true`                             | Blocks accidental `pnpm publish`. The SDK is consumed via `workspace:*` only.                                           |
-| `type`                          | `"module"`                         | The package is a native ESM module. CommonJS hosts must `import()` it dynamically.                                     |
-| `sideEffects`                   | `false`                            | Opts the package into bundler tree-shaking. Type-only re-exports cost zero bytes at runtime.                           |
-| `main`                          | `./src/index.ts`                   | Node's legacy entry; resolves to the same TypeScript source as `exports."."`.                                          |
-| `types`                         | `./src/index.ts`                   | TypeScript reads types from the same file. There is **no** separate `.d.ts` build step — Turborepo skips it intentionally. |
-| `exports."."`                   | `./src/index.ts`                   | The barrel — every public name documented in [SDK Public Surface](./sdk-public-surface.md).                            |
-| `exports."./capabilities"`      | `./src/capabilities.ts`            | Narrowed sub-path for hot paths that only need `CAPABILITIES` / `isCapability` / `Capability`.                         |
-| `exports."./slots"`             | `./src/slots.ts`                   | Narrowed sub-path for hot paths that only need `SLOT_IDS` / `isSlotId` / `SlotId`.                                     |
-| `files`                         | `["src"]`                          | Even though `private: true` means the package never ships, this guards against accidental publishes including `node_modules`. |
-| `scripts.typecheck`             | `tsc --noEmit`                     | The single quality gate at the package level — type-checks the barrel and every per-source file.                       |
-| `scripts.lint`                  | `echo 'No lint configured for plugin-sdk'` | Intentional no-op so `turbo run lint` succeeds while the per-package ESLint config is still pending Phase D.   |
-| `dependencies.zod`              | `^4.0.5`                           | Zod is a **runtime** dependency because `manifest.config` schemas use it at validation time inside `loadPlugins`.     |
-| `peerDependencies.react`        | `>=19.0.0`                         | React is a **peer** dependency because the SDK only references React types (`SlotComponentProps<TConfig>`).            |
-| `peerDependenciesMeta.react.optional` | `true`                       | Plugins without slot components (e.g. analytics-only) don't need React installed; the host always installs it anyway.  |
-| `devDependencies.@ever-works/tsconfig` | `workspace:*`               | The shared TS base config that pins `target`, `module`, `moduleResolution`, and `strict` flags.                        |
-| `devDependencies.@types/react`  | `19.2.7`                           | React 19 typings, only used at type-check time. Hosted by the workspace; not bundled.                                  |
-| `devDependencies.react`         | `19.2.5`                           | React itself is dev-only because the SDK never imports a React runtime — it only references React types.               |
-| `devDependencies.typescript`    | `^5`                               | TypeScript is dev-only — the SDK ships TS sources directly via `exports`, no compile step.                              |
+| Field                                  | Value                                      | Why it matters                                                                                                                |
+| -------------------------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `name`                                 | `@ever-works/plugin-sdk`                   | The scoped name plugin authors put in `dependencies`. The scope locks the package to the workspace.                           |
+| `version`                              | `0.1.0`                                    | The current SDK version. Plugins gate against it via `manifest.templateRange`.                                                |
+| `license`                              | `AGPL-3.0`                                 | The project's license. Plugins linking against the SDK inherit AGPL obligations when distributed.                             |
+| `private`                              | `true`                                     | Blocks accidental `pnpm publish`. The SDK is consumed via `workspace:*` only.                                                 |
+| `type`                                 | `"module"`                                 | The package is a native ESM module. CommonJS hosts must `import()` it dynamically.                                            |
+| `sideEffects`                          | `false`                                    | Opts the package into bundler tree-shaking. Type-only re-exports cost zero bytes at runtime.                                  |
+| `main`                                 | `./src/index.ts`                           | Node's legacy entry; resolves to the same TypeScript source as `exports."."`.                                                 |
+| `types`                                | `./src/index.ts`                           | TypeScript reads types from the same file. There is **no** separate `.d.ts` build step — Turborepo skips it intentionally.    |
+| `exports."."`                          | `./src/index.ts`                           | The barrel — every public name documented in [SDK Public Surface](./sdk-public-surface.md).                                   |
+| `exports."./capabilities"`             | `./src/capabilities.ts`                    | Narrowed sub-path for hot paths that only need `CAPABILITIES` / `isCapability` / `Capability`.                                |
+| `exports."./slots"`                    | `./src/slots.ts`                           | Narrowed sub-path for hot paths that only need `SLOT_IDS` / `isSlotId` / `SlotId`.                                            |
+| `files`                                | `["src"]`                                  | Even though `private: true` means the package never ships, this guards against accidental publishes including `node_modules`. |
+| `scripts.typecheck`                    | `tsc --noEmit`                             | The single quality gate at the package level — type-checks the barrel and every per-source file.                              |
+| `scripts.lint`                         | `echo 'No lint configured for plugin-sdk'` | Intentional no-op so `turbo run lint` succeeds while the per-package ESLint config is still pending Phase D.                  |
+| `dependencies.zod`                     | `^4.0.5`                                   | Zod is a **runtime** dependency because `manifest.config` schemas use it at validation time inside `loadPlugins`.             |
+| `peerDependencies.react`               | `>=19.0.0`                                 | React is a **peer** dependency because the SDK only references React types (`SlotComponentProps<TConfig>`).                   |
+| `peerDependenciesMeta.react.optional`  | `true`                                     | Plugins without slot components (e.g. analytics-only) don't need React installed; the host always installs it anyway.         |
+| `devDependencies.@ever-works/tsconfig` | `workspace:*`                              | The shared TS base config that pins `target`, `module`, `moduleResolution`, and `strict` flags.                               |
+| `devDependencies.@types/react`         | `19.2.7`                                   | React 19 typings, only used at type-check time. Hosted by the workspace; not bundled.                                         |
+| `devDependencies.react`                | `19.2.5`                                   | React itself is dev-only because the SDK never imports a React runtime — it only references React types.                      |
+| `devDependencies.typescript`           | `^5`                                       | TypeScript is dev-only — the SDK ships TS sources directly via `exports`, no compile step.                                    |
 
 The package manifest is **deliberately small**: every field above is
 load-bearing. There is no `build` script, no compiled `dist/`
@@ -97,9 +97,9 @@ identify the SDK. Plugin authors put
 
 ```jsonc
 {
-  "dependencies": {
-    "@ever-works/plugin-sdk": "workspace:*"
-  }
+	"dependencies": {
+		"@ever-works/plugin-sdk": "workspace:*"
+	}
 }
 ```
 
@@ -442,17 +442,17 @@ files, the right move is to add a narrowed sub-path entry in
 
 ## Failure matrix
 
-| Mistake                                                                                                  | Where it surfaces                                                                                        | Why                                                                                                                                                                                  |
-| -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Plugin imports `@ever-works/plugin-sdk/manifest` (no `exports` entry).                                   | Module-resolution error at build time (`Cannot find module` from Node, bundler, or `tsc`).                | `package.json#exports` is exhaustive — only `.`, `./capabilities`, and `./slots` are reachable. Import the name from the barrel instead.                                            |
-| Plugin imports `@ever-works/plugin-sdk` from a CommonJS host without `import()`.                         | Runtime error: `ERR_REQUIRE_ESM`.                                                                        | The package is `"type": "module"`. CJS callers must use dynamic `import()`. The host's Next.js app is ESM-native, so this only bites isolated unit tests with a stale Jest config.   |
-| Workspace consumer drops `sideEffects: false`.                                                           | Silent bundle bloat — no error, but `CAPABILITIES` / `SLOT_IDS` ship to clients that never use them.     | Tree-shaking only happens when bundlers can prove the package is side-effect-free. The flag is the proof.                                                                            |
-| Plugin's `package.json` declares `@ever-works/plugin-sdk@0.1.0` instead of `workspace:*`.                | `pnpm install` fails with `ERR_PNPM_NO_MATCHING_VERSION_INSIDE_WORKSPACE`.                                | `private: true` plus the unscoped registry means the only valid resolution is `workspace:*`.                                                                                          |
-| Plugin's slot component uses React 18 hooks (`useId` from `react@18`).                                   | TypeScript error at the plugin's own `tsc --noEmit`.                                                      | The peer range is `>=19.0.0` — React 18 typings won't satisfy it.                                                                                                                     |
-| Plugin uses Zod 3 schemas (`z.string().nonempty()` removed in Zod 4).                                    | Runtime error inside `loadPlugins.safeParse` — schema construction throws.                                | `dependencies.zod` is `^4.0.5`; Zod 3 schemas are not interchangeable with Zod 4 ones. The plugin's own `package.json` should use the same range.                                     |
-| New public name added to `index.ts` but no entry in `exports`.                                           | Plugin-author build still works (the barrel covers it).                                                   | This is **not** a failure in the technical sense — but it leaves the [SDK Public Surface](./sdk-public-surface.md) doc stale. Use the [public-surface change checklist](#public-surface-change-checklist) below. |
-| New file added under `src/` and exposed via `exports` but not via the barrel.                            | Plugin-author build works, but the [SDK Public Surface](./sdk-public-surface.md) doesn't list the export. | Either add the re-export to the barrel (preferred) or document the new sub-path here and in [SDK Public Surface](./sdk-public-surface.md#sub-paths).                                  |
-| `version` bump that breaks every plugin's `templateRange`.                                               | Every plugin appears in `LoadPluginsResult.rejected` at host boot.                                        | This is the intended behaviour — but it must be paired with a Spec Kit change so plugin authors get advance notice. See the [public-surface change checklist](#public-surface-change-checklist). |
+| Mistake                                                                                   | Where it surfaces                                                                                         | Why                                                                                                                                                                                                              |
+| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plugin imports `@ever-works/plugin-sdk/manifest` (no `exports` entry).                    | Module-resolution error at build time (`Cannot find module` from Node, bundler, or `tsc`).                | `package.json#exports` is exhaustive — only `.`, `./capabilities`, and `./slots` are reachable. Import the name from the barrel instead.                                                                         |
+| Plugin imports `@ever-works/plugin-sdk` from a CommonJS host without `import()`.          | Runtime error: `ERR_REQUIRE_ESM`.                                                                         | The package is `"type": "module"`. CJS callers must use dynamic `import()`. The host's Next.js app is ESM-native, so this only bites isolated unit tests with a stale Jest config.                               |
+| Workspace consumer drops `sideEffects: false`.                                            | Silent bundle bloat — no error, but `CAPABILITIES` / `SLOT_IDS` ship to clients that never use them.      | Tree-shaking only happens when bundlers can prove the package is side-effect-free. The flag is the proof.                                                                                                        |
+| Plugin's `package.json` declares `@ever-works/plugin-sdk@0.1.0` instead of `workspace:*`. | `pnpm install` fails with `ERR_PNPM_NO_MATCHING_VERSION_INSIDE_WORKSPACE`.                                | `private: true` plus the unscoped registry means the only valid resolution is `workspace:*`.                                                                                                                     |
+| Plugin's slot component uses React 18 hooks (`useId` from `react@18`).                    | TypeScript error at the plugin's own `tsc --noEmit`.                                                      | The peer range is `>=19.0.0` — React 18 typings won't satisfy it.                                                                                                                                                |
+| Plugin uses Zod 3 schemas (`z.string().nonempty()` removed in Zod 4).                     | Runtime error inside `loadPlugins.safeParse` — schema construction throws.                                | `dependencies.zod` is `^4.0.5`; Zod 3 schemas are not interchangeable with Zod 4 ones. The plugin's own `package.json` should use the same range.                                                                |
+| New public name added to `index.ts` but no entry in `exports`.                            | Plugin-author build still works (the barrel covers it).                                                   | This is **not** a failure in the technical sense — but it leaves the [SDK Public Surface](./sdk-public-surface.md) doc stale. Use the [public-surface change checklist](#public-surface-change-checklist) below. |
+| New file added under `src/` and exposed via `exports` but not via the barrel.             | Plugin-author build works, but the [SDK Public Surface](./sdk-public-surface.md) doesn't list the export. | Either add the re-export to the barrel (preferred) or document the new sub-path here and in [SDK Public Surface](./sdk-public-surface.md#sub-paths).                                                             |
+| `version` bump that breaks every plugin's `templateRange`.                                | Every plugin appears in `LoadPluginsResult.rejected` at host boot.                                        | This is the intended behaviour — but it must be paired with a Spec Kit change so plugin authors get advance notice. See the [public-surface change checklist](#public-surface-change-checklist).                 |
 
 ## Public-surface change checklist
 
@@ -495,6 +495,11 @@ When changing **any** field in this `package.json`:
 - [SDK Public Surface Reference](./sdk-public-surface.md) — the
   TypeScript barrel exposed by `src/index.ts` that this manifest
   wires up.
+- [Plugin Package TypeScript Configurations](./plugin-tsconfigs.md)
+  — the per-package `tsconfig.json` files for the SDK, runtime, and
+  demo packages. The SDK's `tsconfig.json` extends the workspace's
+  shared `@ever-works/tsconfig` base and the JSX flag must stay in
+  lock-step with the React peer-dep range declared in this manifest.
 - [Plugin Packages overview](./packages.md) — the table that lists
   all three plugin packages (`plugin-sdk`, `plugin-runtime`,
   `plugin-demo`) with the same field-by-field treatment in summary
