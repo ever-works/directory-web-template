@@ -33,6 +33,112 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `workspace-root-manifest.md` — the
+  **per-source-file reference** for the monorepo's
+  workspace-coordination manifest paired with
+  [`package.json`](https://github.com/ever-works/directory-web-template/tree/develop/package.json)
+  at the repo root, the third root-level config reference after
+  [`pnpm-workspace.md`](plugins/pnpm-workspace.md) and
+  [`turbo-config.md`](plugins/turbo-config.md). Where
+  `pnpm-workspace.md` documents **which folders become workspace
+  members** and `turbo-config.md` documents **what tasks those
+  members can run**, this page documents the **workspace-coordination
+  posture itself** — the eleven top-level `scripts.*` entries every
+  contributor and CI runner invokes (`pnpm build`, `pnpm dev`,
+  `pnpm dev:web`, `pnpm dev:docs`, `pnpm lint`, `pnpm test:e2e`,
+  `pnpm clean`, `pnpm format`, `pnpm build:web`, `pnpm build:docs`,
+  `pnpm build:docs:en`), the runtime / package-manager floor
+  (`engines.node` `>=20.19.0`, `packageManager` exact pin
+  `pnpm@10.31.0` enforced by Corepack), the version-pinning posture
+  for transitive dependencies via `pnpm.overrides` (`@types/react`
+  `19.2.7`, `@types/react-dom` `19.2.3`, `esbuild` `0.27.0`,
+  `esbuild-register` `3.6.0`, `@opentelemetry/api` `1.9.0`), the
+  `pnpm.publicHoistPattern: ['@opentelemetry/*']` hoist rule that
+  protects OTel's global-registration model, the 11-entry
+  `pnpm.onlyBuiltDependencies` allow-list (`@vercel/speed-insights`,
+  `@heroui/shared-utils`, `@parcel/watcher`, `@scarf/scarf`,
+  `@sentry/cli`, `@swc/core`, `core-js`, `core-js-pure`, `esbuild`,
+  `protobufjs`, `sharp`) that gates `postinstall` hooks during
+  `pnpm install` under pnpm 10's deny-by-default hardening, and the
+  workspace-wide Prettier formatting baseline (`printWidth: 120`,
+  `singleQuote`, `semi`, `useTabs` with `tabWidth: 4`,
+  `arrowParens: 'always'`, `trailingComma: 'none'`, plus the two
+  language-specific overrides for `*.scss` and `*.yml` that switch
+  to 2-space indents because YAML cannot use tab characters at the
+  syntax level). Documents the at-a-glance summary table of every
+  load-bearing field with its value and why-it-matters note; the
+  file-contents walk-through (the full JSON file); the per-field
+  walkthrough — `name`, `version`, `private`, `license`,
+  `packageManager` with the Corepack-shim rationale, `engines.node`
+  with the Next.js 16 / `apps/web/scripts/check-env.js` ESM-API /
+  `node:test` parity rationale, the eleven `scripts.*` entries with
+  their `turbo run <task>` delegations and the
+  `--filter=@ever-works/<name>` shortcut rationale, the two
+  `devDependencies.turbo`/`prettier` ranges with their exact-version
+  rationales (Turborepo 2.x cache-key semantics + `$schema`
+  enforcement + `persistent: true` honouring `dependsOn`;
+  Prettier 3.x's `overrides` matcher syntax), the
+  `pnpm.publicHoistPattern` rule and why it must coexist with the
+  `@opentelemetry/api` override, the `pnpm.overrides` field with the
+  per-entry rationale for each pin (React typings to lock the
+  React 19 narrowed `ReactNode`, `esbuild` to align Next.js /
+  Drizzle Kit / Trigger.dev bundler output, `esbuild-register` to
+  keep TS syntax features parsing identically across the workspace,
+  `@opentelemetry/api` for OTel singleton enforcement), the
+  `pnpm.onlyBuiltDependencies` allow-list as pnpm 10's deny-by-default
+  `postinstall` hardening with a per-entry table of why each package
+  needs to run a build step, the `prettier` block as the
+  single-source-of-truth for formatting rules (no `.prettierrc` at
+  the repo root by intent), and the two language-specific overrides
+  for SCSS conventions and YAML's tab-disallow syntax constraint;
+  the deliberately-absent-fields matrix covering top-level
+  `dependencies`, `workspaces` (because pnpm reads
+  `pnpm-workspace.yaml`), `main` / `exports` / `types` / `module`,
+  `bin`, `type`, `repository` / `homepage` / `bugs`,
+  `peerDependencies`, `engineStrict` / `os` / `cpu` with the reason
+  each is omitted; the "Why this file lives at the repo root"
+  rationale (pnpm, Corepack, Turborepo, Vercel, GitHub Actions,
+  Renovate, and editors all walk upward and stop at the first
+  `package.json`); the consumer table mapping each reader (Corepack,
+  pnpm, Turborepo CLI, Prettier CLI, Vercel build runner, GitHub
+  Actions, editors, Renovate / Dependabot, contributors) to the
+  fields it consumes; the failure matrix that maps each
+  manifest-level mistake (`ERR_PNPM_UNSUPPORTED_ENGINE` from a
+  Node-floor regression, `Wrong package manager` from a Corepack
+  drift, OTel span loss from a hoist or override drop, `pnpm install`
+  `ignored build script` warnings from a missing allow-list entry,
+  React 19 typings clash from a missing override, YAML re-formatted
+  with tabs from a missing override, `--filter` shortcut breakage
+  from a renamed package `name`, `Couldn't find a turbo binary` from
+  a dropped `devDependency`, Vercel's `pnpm: command not found` from
+  disabled Corepack) onto the layer that surfaces each one; and the
+  public-surface change checklist that ties any field change to a
+  Spec 001 plan cross-check, a CI workflow Corepack-enable check, a
+  `.github/workflows/*.yml` propagation check, an
+  `apps/*/vercel.json` propagation check, a workspace-wide
+  `pnpm format` round-trip, a `docs/log.md` entry, and the
+  Constitution-Check note in the PR description for Article III
+  (Public-Surface Stability) and Article IX (Test Coverage Bar).
+- `apps/web-e2e` Added a Playwright smoke spec for the
+  **query-param surface** of the auth-gated current-tenant endpoint
+  served by
+  [`apps/web/app/api/tenant/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/tenant/route.ts)
+  at
+  [`apps/web-e2e/tests/api/tenant-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/tenant-query.spec.ts).
+  The handler signature is `export async function GET()` (no
+  `request` parameter) and it reads zero query keys; the spec walks
+  ~50 query strings — `?tenantId=`, `?id=`, `?slug=`, `?include=`,
+  `?fields=` / `?select=`, `?expand=`, `?refresh=` / `?force=` /
+  `?fresh=`, `?format=`, `?locale=` / `?lang=`, empty values,
+  repeated keys, SQL-injection-style escapes (`'`, `<script>`, `..`,
+  `%00`), and 500-character payloads — asserting `status < 500` for
+  each so a regression that introduces a `searchParams.get(...)`
+  call is caught immediately as a typed-envelope-shape failure
+  rather than as a session-bearing test flake. Pins the
+  unauthenticated branch's typed `{ tenant: null }` envelope on the
+  401 path against accidental drops to `null` or
+  `{ error: 'Unauthorized' }`, and asserts that the bogus-query
+  response and the no-arg response have identical envelope shapes.
 - `docs/plugins` Added `turbo-config.md` — the **per-source-file
   reference** for the monorepo's Turborepo task pipeline paired
   with
