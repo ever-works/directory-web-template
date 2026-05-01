@@ -33,6 +33,82 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `sdk-package-manifest.md` — the
+  **per-source-file reference** for the SDK package manifest that
+  pairs with
+  [`packages/plugin-sdk/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/package.json)
+  the same way `sdk-public-surface.md` pairs with
+  `packages/plugin-sdk/src/index.ts`,
+  `runtime-public-surface.md` pairs with
+  `packages/plugin-runtime/src/index.ts`, `manifest.md` pairs with
+  `manifest.ts`, `capabilities.md` pairs with `capabilities.ts`,
+  `slots.md` pairs with `slots.ts`, `providers.md` pairs with
+  `providers.ts`, `plugin.md` pairs with `plugin.ts`, `loader.md`
+  pairs with `loader.ts`, `registry.md` pairs with `registry.ts`,
+  `slot-host.md` pairs with `SlotHost.tsx`, `testing.md` pairs
+  with `testing.ts`, and `plugin-demo.md` pairs with the bundled
+  reference plugin under `packages/plugin-demo/src/`. Where the
+  SDK public-surface page documents the TypeScript barrel, this
+  page documents the **package-level contract** — the
+  `package.json` fields that decide which sub-paths are
+  importable, how React is reached (peer dependency, optional),
+  how Zod is reached (runtime dependency, required), and how
+  bundlers tree-shake the SDK's type-only exports down to nothing.
+  The page is organised as a field-by-field reference (`name`,
+  `version`, `license`, `private`, `type: "module"`,
+  `sideEffects: false`, `main`, `types`,
+  `exports."."` / `./capabilities` / `./slots`, `files`,
+  `scripts.typecheck` / `scripts.lint`, `dependencies.zod`,
+  `peerDependencies.react` with `peerDependenciesMeta.react.optional`,
+  and the `devDependencies` set) with each field paired with its
+  purpose, why-it-matters note, and the change-event-class it
+  implies for plugin authors; a sub-path map that locks the
+  barrel-vs-narrowed contract (the two narrowed sub-paths are a
+  strict subset of the barrel and resolve to the same module
+  instance via Node's path-keyed module cache, and `manifest.ts`
+  / `providers.ts` / `plugin.ts` / `index.ts` deliberately have
+  no narrowed sub-path because their exports are types-only or
+  single-author-facing-factory); a failure matrix that maps each
+  manifest-level mistake (non-public sub-path import,
+  CJS-without-`import()`, dropped `sideEffects` flag,
+  non-`workspace:*` specifier, React-18-typings, Zod-3-schema,
+  public-name-without-`exports`-entry, file-without-barrel-re-export,
+  breaking `version` bump) onto the layer that surfaces it; and a
+  public-surface change checklist that ties any field change to a
+  cross-check against `sdk-public-surface.md` and `packages.md`,
+  an `apps/web/package.json` peer-range / Zod-major propagation
+  check, a `docs/log.md` entry, an open-questions register entry,
+  the `pnpm tsc --noEmit` and Playwright smoke-spec verification
+  step, and the Constitution-Check note in the PR description for
+  Article I (Plugin-First) and Article III (Public-Surface
+  Stability). Cross-linked from `docs/index.md` Plugins section.
+- `apps/web-e2e` Added `tests/api/location-coordinates-query.spec.ts`
+  — a Playwright API smoke spec that closes a coverage gap for the
+  public `/api/location/coordinates` endpoint served by
+  [`apps/web/app/api/location/coordinates/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/location/coordinates/route.ts).
+  The existing `location-coordinates.spec.ts` covers the
+  no-query-param happy path and two basic filter cases; the new
+  spec walks the **query-param surface** (the `searchParams.get('city')`
+  / `searchParams.get('country')` reads, the
+  `city.trim().toLowerCase()` normalisation against
+  `entry.cityNormalized` / `entry.countryNormalized`, the
+  `if (city)` / `if (country)` truthy guards, the
+  `!entry.isRemote` filter, the `Number(entry.latitude)` /
+  `Number(entry.longitude)` coercion, the 404-on-feature-disabled
+  short-circuit, and the catch-and-500 fallback) so a regression
+  in any of those branches is caught explicitly. The spec
+  enumerates well-formed values (`Paris`, `paris`, `PARIS`,
+  `New%20York`, percent-encoded UTF-8 like `S%C3%A3o%20Paulo` and
+  `Bogot%C3%A1`), whitespace-only values that pass the truthy
+  check but normalise to an empty string (single space, double
+  space, `%09` tab, `%0A` newline), missing-key cases, and the
+  combined `city`+`country` shape. The assertion contract is
+  intentionally narrow — every URL must respond with a JSON body
+  matching `{ success: true, data: [] | array }` (200 branch,
+  feature enabled) or `{ success: false, error: string }` (404
+  branch, feature disabled). 4xx-other and 5xx are never allowed
+  because the route never validates the value and the
+  data-layer call must not crash before the response renderer.
 - `docs/plugins` Added `runtime-public-surface.md` — the
   **per-source-file reference** for the runtime barrel that pairs
   with [`packages/plugin-runtime/src/index.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/index.ts)
