@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
 
 const CHART_BAR_HEIGHTS = [55, 72, 48, 85, 60, 90, 45, 78, 65, 82, 50, 70];
 
