@@ -33,6 +33,76 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `e2e-tsconfig.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  TypeScript configuration paired with
+  [`apps/web-e2e/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tsconfig.json),
+  sitting one directory below the shared
+  [`@ever-works/tsconfig`](plugins/tsconfig-presets.md) presets the
+  same way [`web-app-tsconfig.md`](plugins/web-app-tsconfig.md) sits
+  one directory below those presets for the host web app and
+  [`plugin-tsconfigs.md`](plugins/plugin-tsconfigs.md) sits one
+  directory below them for the three plugin packages. Documents the
+  `extends: "@ever-works/tsconfig/playwright.json"` chain that
+  inherits the workspace's TypeScript posture (`target: ES2017`,
+  `module: esnext`, `moduleResolution: bundler`, `strict: true`,
+  `noEmit: true`, `esModuleInterop`, `resolveJsonModule`,
+  `isolatedModules`, `incremental`, the `dom`/`dom.iterable`/`esnext`
+  lib set) plus the Playwright leaf's `types: ["node"]` whitelist
+  that opens up `process.env.*`, `URL`, `Buffer`, and the rest of
+  the Node ambient surface; the single-entry `include` array
+  (`./**/*.ts`) that scopes the type-checker to the suite's own
+  source tree (the `tests/` tree under `tests/api/`, `tests/admin/`,
+  `tests/auth/`, `tests/client/`, `tests/i18n/`, `tests/public/`,
+  `tests/smoke/`, plus `fixtures/`, `helpers/`, `page-objects/`, and
+  the four top-level globals `global-setup.ts`, `global-teardown.ts`,
+  and `playwright.config.ts`); the `exclude: ["node_modules"]`
+  resilience rationale; the deliberate divergences from
+  [`apps/web/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/tsconfig.json)
+  (no `@/*` alias, no `**/*.tsx` glob, no `.next/types/**/*.ts` or
+  `.next/dev/types/**/*.ts` entries, no `scripts/generate-openapi.ts`
+  entry, the leading-`./` anchor on the include glob); the per-line
+  walkthrough that pins each line to a documentation impact; the
+  failure matrix that maps each `tsconfig.json` mistake (`extends`
+  dropped → mass type errors, `extends` switched to `nextjs.json` →
+  Node-ambient regression for `process.env.*`, `extends` switched to
+  `base.json` directly → loses both the Node whitelist and the
+  `noEmit` re-pin, `./**/*.ts` glob narrowed to `tests/**/*.ts` →
+  `global-setup.ts`/`global-teardown.ts`/`playwright.config.ts`/
+  `fixtures/`/`helpers/`/`page-objects/` fall out of scope,
+  `**/*.tsx` added → drift away from the suite's TS-only posture,
+  `node_modules` exclude dropped → orders of magnitude slower
+  type-check, `composite: true` added → `'isolatedModules' may not
+  be used with 'composite'` panic, `noEmit: false` flipped → `.js`
+  contamination next to every `.ts` file) onto the layer that
+  surfaces each one; and the `tsconfig.json`-change checklist that
+  ties any flip back to a [`tsconfig-presets.md`](plugins/tsconfig-presets.md)
+  cross-check, a [`docs/log.md`](log.md) entry, a Spec 010
+  cross-link, the dual `pnpm tsc --noEmit` runs (e2e + workspace
+  root), the Playwright smoke run, and a reviewer pass.
+- `apps/web-e2e` Added a query-param surface smoke spec for
+  `GET /api/reference`
+  ([`reference-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/reference-query.spec.ts))
+  — the public Scalar API reference UI served by
+  `apps/web/app/api/reference/route.ts`. The spec enumerates every
+  plausible query-param shape a future contributor might add
+  (`?theme=`, `?layout=` / `?sidebar=` / `?showSidebar=`, `?spec=` /
+  `?url=` / `?source=`, `?tag=` / `?operation=` / `?path=`,
+  `?format=`, `?locale=` / `?lang=`, `?refresh=` / `?force=` /
+  `?fresh=` / `?nocache=`, `?dark=` / `?darkMode=` / `?colorMode=`,
+  plus empty values, repeated keys, special-character payloads —
+  including SSRF-shaped `?spec=` URLs — long payloads, and bogus
+  typo'd keys) and asserts the bulk-loop `< 500` contract, the
+  status-invariance between the no-arg and parameter-laden branches,
+  a multi-permutation status-stability assertion, and a dedicated
+  guard against a future `?spec=` SSRF wiring (the handler today is
+  the library-provided constant `ApiReference(config)` from
+  `@scalar/nextjs-api-reference` closed over a static `config`
+  object, so any caller-supplied URL must be ignored). The spec
+  guards against regressions that swap the constant handler for a
+  `request.url`-based wiring, and pairs with `e2e-tsconfig.md` in
+  the same change so the per-source-file documentation set and the
+  e2e coverage advance together.
 - `docs/plugins` Added `web-app-tsconfig.md` — the
   **per-source-file reference** for the host web application's
   TypeScript configuration paired with
