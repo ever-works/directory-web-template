@@ -31,6 +31,65 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-02
+
+- `docs/plugins` Added `web-app-tsconfig.md` — the
+  **per-source-file reference** for the host web application's
+  TypeScript configuration paired with
+  [`apps/web/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/tsconfig.json),
+  sitting one directory below the shared
+  [`@ever-works/tsconfig`](plugins/tsconfig-presets.md) presets the
+  same way [`plugin-tsconfigs.md`](plugins/plugin-tsconfigs.md) sits
+  one directory below those presets for the three plugin packages.
+  Documents the `extends: "@ever-works/tsconfig/nextjs.json"` chain
+  that locks the workspace-wide TypeScript posture (`target: ES2017`,
+  `module: esnext`, `moduleResolution: bundler`, `strict: true`,
+  `noEmit: true`, `jsx: react-jsx`, the `next` LSP plugin, the
+  `dom`/`dom.iterable`/`esnext` lib set, `allowJs: true`,
+  `skipLibCheck: true`, `incremental: true`, `isolatedModules: true`)
+  in one place; the single `compilerOptions.paths` entry
+  `{ "@/*": ["./*"] }` that is the Next.js convention for an
+  internal-import alias rooted at the application's top-level
+  directory and powers every internal import in the App Router; the
+  six-entry `include` array (`next-env.d.ts`, `**/*.ts`, `**/*.tsx`,
+  `.next/types/**/*.ts` for `next build` typed-link declarations,
+  `scripts/generate-openapi.ts` for the OpenAPI-generation script,
+  and `.next/dev/types/**/*.ts` for the Next 16 dev-server variant);
+  the `exclude: ["node_modules"]` resilience rationale; the per-line
+  walkthrough that pins each line to a documentation impact; the
+  failure matrix that maps each `tsconfig.json` mistake (`extends`
+  dropped → mass type errors, `extends` switched to a non-Next preset
+  → JSX transform breaks, `@/*` alias dropped → every internal import
+  that uses the alias fails to resolve, `**/*.tsx` dropped → JSX
+  source files fall out of scope, `.next/types/**/*.ts` dropped →
+  typed routes regress, `node_modules` exclude dropped → orders of
+  magnitude slower type-check) onto the layer that surfaces each
+  one; and the `tsconfig.json`-change checklist that ties any flip
+  back to a [`tsconfig-presets.md`](plugins/tsconfig-presets.md)
+  cross-check, a [`docs/log.md`](log.md) entry, a Spec 002
+  cross-link, the dual `pnpm tsc --noEmit` runs, and a reviewer pass.
+- `apps/web-e2e` Added a query-param surface smoke spec for
+  `GET /api/items/[slug]/votes/count`
+  ([`item-vote-count-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/item-vote-count-query.spec.ts))
+  — the public per-item vote-count endpoint served by
+  `apps/web/app/api/items/[slug]/votes/count/route.ts`. The spec
+  enumerates every plausible query-param shape a future contributor
+  might add (`?userId=`, `?include=` / `?fields=` / `?select=`,
+  `?expand=`, `?refresh=` / `?force=` / `?fresh=`, `?format=`,
+  `?locale=` / `?lang=`, `?since=` / `?from=` / `?until=`,
+  `?direction=`, plus empty values, repeated keys, special-character
+  payloads, long payloads, and bogus typo'd keys) and asserts the
+  bulk-loop `< 500` contract, the canonical `{ success, count }`
+  envelope shape on the happy path, the status-invariance between
+  the no-arg and parameter-laden branches, and a multi-permutation
+  shape-stability assertion. The spec guards against regressions
+  that introduce a `request.url`-based wiring (the handler signature
+  is `GET(request, context)` — `request` is declared but never read;
+  the handler only awaits `context.params` and calls
+  `getVoteCountForItem(slug)`), and pairs with `web-app-tsconfig.md`
+  in the same change so the per-source-file documentation set and
+  the e2e coverage advance together.
+
 ## 2026-05-01
 
 - `docs/plugins` Added `npmrc-config.md` — the
