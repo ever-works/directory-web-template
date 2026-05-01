@@ -274,6 +274,9 @@ plugin-spec section, depending on where the work lands.
   `enable` / `disable` semantics that your tests rely on.
 - [Plugin Packages](./packages.md) — SDK / runtime / demo packages
   overview, including the `createTestRegistry` location.
+- [Plugin Capabilities Reference](./capabilities.md) — lookup style
+  per capability (single vs fan-out) — useful when asserting on
+  `registry.get(...)` versus `registry.list(...)`.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

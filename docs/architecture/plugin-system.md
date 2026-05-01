@@ -79,6 +79,13 @@ is:
 A single plugin can declare multiple capabilities (e.g. an auth plugin
 that also exposes an admin UI panel via `ui-slot`).
 
+For the **complete contract** of each interface — method signatures,
+single-vs-fan-out lookup style, and how the runtime resolves multiple
+providers — see the [Plugin Capabilities Reference](../plugins/capabilities.md).
+That page is the source of truth that pairs with
+[`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts);
+this table only summarises the canonical id list.
+
 ## Slots
 
 Every layout exposes named **slots**. Plugins register React components

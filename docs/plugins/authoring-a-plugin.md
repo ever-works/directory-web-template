@@ -163,5 +163,6 @@ test('mything plugin renders its banner above the home listing', async ({ page }
 - [`/docs/architecture/plugin-system`](/architecture/plugin-system) — architecture overview.
 - [`/docs/plugins/lifecycle`](/plugins/lifecycle) — boot, validation, enable/disable.
 - [`/docs/plugins/testing-a-plugin`](/plugins/testing-a-plugin) — manifest tests, `createTestRegistry`, slot rendering, and Playwright smoke specs.
+- [`/docs/plugins/capabilities`](/plugins/capabilities) — the complete capability surface (`auth`, `payment`, `analytics`, …) with provider-resolution rules.
 - [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture/spec.md)
 - [`.specify/templates/spec-template.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/templates/spec-template.md)

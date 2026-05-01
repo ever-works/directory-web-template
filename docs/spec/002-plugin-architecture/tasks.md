@@ -120,17 +120,21 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/lifecycle.md`,
   `docs/plugins/packages.md`,
   `docs/plugins/testing-a-plugin.md`,
+  `docs/plugins/capabilities.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the four `docs/plugins/**` pages (authoring,
-     lifecycle, packages, testing).
+  1. Author the five `docs/plugins/**` pages (authoring,
+     lifecycle, packages, testing, capabilities).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
   Docusaurus sidebar; testing guide references
   `@ever-works/plugin-runtime/testing` (`createTestRegistry`) so the
-  doc and `packages/plugin-runtime/src/testing.ts` cannot drift.
+  doc and `packages/plugin-runtime/src/testing.ts` cannot drift; the
+  capabilities reference cross-links each capability to
+  [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
+  so the doc and the SDK cannot drift either.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

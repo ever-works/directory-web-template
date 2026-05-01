@@ -33,6 +33,37 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `capabilities.md` — the missing **per-capability
+  reference** that pairs with [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts).
+  One section per canonical capability (`auth`, `payment`, `analytics`,
+  `search`, `content-source`, `maps`, `newsletter`, `notifications`,
+  `ai`, `ui-slot`) with the full TypeScript interface, the lookup
+  style (single-provider via `registry.get` vs fan-out via
+  `registry.list`), the rules the runtime applies when two enabled
+  plugins declare the same capability, and a five-step "how to add a
+  new capability" checklist that mirrors Spec 002. Plugin authors
+  previously had to read the SDK source to discover that
+  `analytics` / `newsletter` / `notifications` are fan-out and that
+  `auth` / `payment` / `search` / `content-source` / `maps` / `ai`
+  are single-lookup; that information now lives in one place. Cross-links
+  added in the architecture page (`Capabilities` table now points at
+  this reference as the source of truth), `authoring-a-plugin.md`
+  *See also*, `lifecycle.md` *See also*, `testing-a-plugin.md`
+  *See also*, `packages.md` *See also*, and `docs/index.md`.
+  Spec 002 `T-010` task list grew from "four pages" to "five pages"
+  and adds an explicit "doc and SDK cannot drift" verification
+  bullet for the new reference.
+- `apps/web-e2e` Added `public/per-survey-public.spec.ts` (1 — `GET
+  /surveys/[slug]` with an unknown slug; exercises the
+  `notFound()` / disabled-feature branch with the same non-5xx
+  contract as the rest of the smoke layer. Closes the last
+  public-survey page surface that was implicit rather than explicit;
+  the listing page is already covered by `public/surveys.spec.ts`,
+  the dashboard owner flow by `public/dashboard-surveys-protected.spec.ts`,
+  the admin per-slug pages by `public/admin-by-id-pages-protected.spec.ts`,
+  and the REST surface by `api/surveys.spec.ts`). `E2E-TESTS.md`
+  updated with the new entry and the continual-improvement headline
+  total annotation (now ~278 tests across 44 spec files).
 - `docs/plugins` Added `testing-a-plugin.md` (~6 KB) — author-facing
   guide that pairs with the existing `authoring-a-plugin.md`. It
   documents the four-layer test pyramid for plugins

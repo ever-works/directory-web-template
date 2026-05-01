@@ -4,7 +4,7 @@ Complete listing of all E2E tests added across 4 PRs.
 
 **Total: 165 new test cases across 43 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
-separately and add ~277 additional tests across 43 spec files).
+separately and add ~278 additional tests across 44 spec files).
 
 > Governed by [Spec 010 — End-to-End Test Coverage](../../docs/spec/010-e2e-test-coverage/spec.md).
 > The [implementation plan](../../docs/spec/010-e2e-test-coverage/plan.md) and
@@ -70,6 +70,7 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | `tests/public/per-slug-public.spec.ts`             | 3     | Per-slug public detail pages with unknown slugs: `/comparisons/[slug]`, `/categories/[category]`, `/tags/[tag]` — exercises the `notFound()` / disabled-feature branch with a non-5xx contract. Complements the legacy `(listing)` versions in `legacy-routing.spec.ts`. |
 | `tests/api/item-comment-rating-by-id.spec.ts`      | 2     | `/api/items/[slug]/comments/rating/[commentId]` GET + PATCH for a non-existent comment id — no-5xx contract. Closes the last `/api/items/[slug]/**` per-comment route that was not explicitly smoke-tested. |
 | `tests/api/item-company-write.spec.ts`             | 2     | `POST` and `DELETE` `/api/items/[slug]/company` (admin-only company assign / unassign) — no-5xx contract for anonymous callers. The matching `GET` is already covered in `payment-protected.spec.ts`; this closes the per-item company-assignment write surface. |
+| `tests/public/per-survey-public.spec.ts`           | 1     | Public per-survey detail page `/surveys/[slug]` with an unknown slug — exercises the `notFound()` / disabled-feature branch with the same non-5xx contract as the rest of the smoke layer. Closes the last public-survey page surface that was implicit rather than explicit (the listing page sits in `public/surveys.spec.ts`, dashboard owner flow in `public/dashboard-surveys-protected.spec.ts`, admin per-slug pages in `public/admin-by-id-pages-protected.spec.ts`, and the REST surface in `api/surveys.spec.ts`). |
 
 ---
 
