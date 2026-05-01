@@ -29,26 +29,26 @@ export function AdminTouchButton({
   const getVariantStyles = () => {
     switch (variant) {
       case 'primary':
-        return "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800";
+        return "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950 shadow-sm dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100";
       case 'secondary':
-        return "bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/6";
+        return "bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300 border border-gray-200 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12 dark:border-white/10";
       case 'ghost':
-        return "text-gray-600 hover:bg-gray-100 active:bg-gray-200 dark:text-gray-400 dark:hover:bg-white/6";
+        return "text-gray-600 hover:bg-gray-100 active:bg-gray-200 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/8 dark:hover:text-gray-100";
       case 'danger':
-        return "bg-red-600 text-white hover:bg-red-700 active:bg-red-800";
+        return "bg-red-600 text-white hover:bg-red-700 active:bg-red-800 shadow-sm";
       default:
-        return "bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800";
+        return "bg-gray-900 text-white hover:bg-gray-800 active:bg-gray-950 shadow-sm";
     }
   };
 
   const getSizeStyles = () => {
     switch (size) {
       case 'sm':
-        return "px-3 py-2 text-sm";
+        return "px-3 py-2 text-sm gap-1.5";
       case 'lg':
-        return "px-6 py-4 text-base";
+        return "px-6 py-4 text-base gap-2";
       default:
-        return "px-4 py-3 text-sm";
+        return "px-4 py-3 text-sm gap-2";
     }
   };
 
@@ -58,14 +58,14 @@ export function AdminTouchButton({
       disabled={disabled}
       type="button"
       className={cn(
-        "inline-flex items-center justify-center rounded-lg font-medium",
-        "transition-all duration-200 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2",
+        "inline-flex items-center justify-center rounded-xl font-medium",
+        "transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900/20 focus:ring-offset-2 dark:focus:ring-white/20",
         TOUCH_TARGET_SIZE,
         TOUCH_FEEDBACK_STYLES,
         getVariantStyles(),
         getSizeStyles(),
         fullWidth ? "w-full" : "",
-        disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer",
+        disabled ? "opacity-40 cursor-not-allowed" : "cursor-pointer",
         className
       )}
     >
@@ -209,14 +209,14 @@ export function AdminPullToRefresh({
     >
       {/* Pull indicator */}
       {pullDistance > 0 && (
-        <div 
-          className="flex items-center justify-center py-4 text-gray-500 dark:text-gray-400"
+        <div
+          className="flex items-center justify-center gap-2 text-gray-500 dark:text-gray-400 transition-all duration-200"
           style={{ height: pullDistance }}
         >
           {isRefreshing ? (
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+            <div className="animate-spin rounded-full h-5 w-5 border-2 border-gray-300 border-t-gray-600 dark:border-gray-600 dark:border-t-gray-300" />
           ) : (
-            <span className="text-sm">Pull to refresh</span>
+            <span className="text-xs font-medium tracking-wide">Pull to refresh</span>
           )}
         </div>
       )}
@@ -332,10 +332,11 @@ export function AdminTouchSearch({
         aria-busy={loading}
         className={cn(
           "w-full px-4 py-3 text-base",
-          "border border-gray-300 dark:border-white/8 rounded-lg",
+          "border border-gray-200 dark:border-white/8 rounded-xl",
           "bg-white dark:bg-white/5 text-gray-900 dark:text-gray-100",
-          "focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent",
-          "placeholder-gray-500 dark:placeholder-gray-400",
+          "focus:outline-none focus:ring-2 focus:ring-gray-900/15 focus:border-gray-400 dark:focus:ring-white/15 dark:focus:border-white/20",
+          "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+          "transition-all duration-200",
           TOUCH_TARGET_SIZE
         )}
       />

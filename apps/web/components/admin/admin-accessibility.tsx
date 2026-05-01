@@ -3,9 +3,9 @@ import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 // Design system constants for accessibility
-const SKIP_LINK_STYLES = "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-sm focus:shadow-lg";
-const FOCUS_RING_STYLES = "focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-blue-400 dark:focus:ring-offset-gray-900";
-const LANDMARK_STYLES = "scroll-mt-16";
+const SKIP_LINK_STYLES = "sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-gray-900 focus:text-white focus:rounded-lg focus:shadow-lg focus:text-sm focus:font-medium focus:ring-2 focus:ring-gray-900/20 dark:focus:bg-white dark:focus:text-gray-900";
+const FOCUS_RING_STYLES = "focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-900";
+const LANDMARK_STYLES = "scroll-mt-20";
 
 // Skip link component for keyboard navigation
 export function AdminSkipLink({ href, children }: { href: string; children: string }) {
@@ -71,12 +71,12 @@ AdminHeading.displayName = 'AdminHeading';
 // Visual heading classes following design system
 function getHeadingVisualClass(level: number): string {
   const headingClasses = {
-    1: "text-4xl font-bold text-gray-900 dark:text-white",
-    2: "text-3xl font-semibold text-gray-900 dark:text-white",
-    3: "text-2xl font-semibold text-gray-900 dark:text-white",
-    4: "text-xl font-semibold text-gray-900 dark:text-white",
-    5: "text-lg font-medium text-gray-900 dark:text-white",
-    6: "text-base font-medium text-gray-900 dark:text-white"
+    1: "text-3xl md:text-4xl font-bold tracking-tight text-gray-900 dark:text-white",
+    2: "text-2xl md:text-3xl font-semibold tracking-tight text-gray-900 dark:text-white",
+    3: "text-xl md:text-2xl font-semibold text-gray-900 dark:text-white",
+    4: "text-lg md:text-xl font-semibold text-gray-900 dark:text-white",
+    5: "text-base md:text-lg font-medium text-gray-900 dark:text-white",
+    6: "text-sm md:text-base font-medium text-gray-900 dark:text-white"
   };
   return headingClasses[level as keyof typeof headingClasses] || headingClasses[3];
 }
@@ -166,21 +166,21 @@ export const AdminAccessibleButton = forwardRef<HTMLButtonElement, AdminAccessib
   }, ref) => {
     const t = useTranslations('admin.ACCESSIBILITY');
     const baseStyles = cn(
-      "inline-flex items-center justify-center rounded-md font-medium transition-colors",
+      "inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200",
       FOCUS_RING_STYLES,
-      "disabled:pointer-events-none disabled:opacity-50"
+      "disabled:pointer-events-none disabled:opacity-40"
     );
-    
+
     const variantStyles = {
-      primary: "bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600",
-      secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/6",
-      ghost: "text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/6"
+      primary: "bg-gray-900 text-white hover:bg-gray-800 shadow-sm dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100",
+      secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 border border-gray-200 dark:bg-white/8 dark:text-gray-100 dark:hover:bg-white/12 dark:border-white/10",
+      ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-white/8 dark:hover:text-gray-100"
     };
-    
+
     const sizeStyles = {
-      sm: "px-3 py-1.5 text-sm",
-      md: "px-4 py-2 text-sm",
-      lg: "px-6 py-3 text-base"
+      sm: "px-3 py-1.5 text-xs gap-1.5",
+      md: "px-4 py-2 text-sm gap-2",
+      lg: "px-6 py-3 text-base gap-2"
     };
     
     return (

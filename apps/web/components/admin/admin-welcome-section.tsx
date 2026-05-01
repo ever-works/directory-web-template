@@ -1,58 +1,56 @@
-import { LayoutDashboard } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 
 interface AdminWelcomeSectionProps {
-  adminName: string;
+    adminName: string;
 }
 
 export interface AdminWelcomeGradientProps {
-  title: string;
-  subtitle?: string;
-  rightActions?: ReactNode;
+    title: string;
+    subtitle?: string;
+    rightActions?: ReactNode;
 }
 
 export function AdminWelcomeSection({ adminName }: AdminWelcomeSectionProps) {
-  const t = useTranslations('admin');
-  
-  return (
-    <div className="space-y-2">
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{t('DASHBOARD_TITLE')}</h1>
-      <p className="text-base text-gray-600 dark:text-gray-300">
-        {t('WELCOME_MESSAGE', { adminName }).split(adminName).map((part, index, array) => (
-          <span key={index}>
-            {part}
-            {index < array.length - 1 && (
-              <span className="font-semibold text-theme-primary">{adminName}</span>
-            )}
-          </span>
-        ))}
-      </p>
-    </div>
-  );
+    const t = useTranslations('admin');
+
+    return (
+        <div className="space-y-1">
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+                {t('DASHBOARD_TITLE')}
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-white/40">
+                {t('WELCOME_MESSAGE', { adminName })
+                    .split(adminName)
+                    .map((part, i, arr) => (
+                        <span key={i}>
+                            {part}
+                            {i < arr.length - 1 && (
+                                <span className="font-semibold text-gray-700 dark:text-white/70">
+                                    {adminName}
+                                </span>
+                            )}
+                        </span>
+                    ))}
+            </p>
+        </div>
+    );
 }
 
 export function AdminWelcomeGradient({ title, subtitle, rightActions }: AdminWelcomeGradientProps) {
-  return (
-    <div className="mb-8">
-      <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
-              <LayoutDashboard className="w-6 h-6 text-white" aria-hidden="true" focusable="false" />
-            </div>
+    return (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                {title}
-              </h1>
-              {subtitle && (
-                <p className="text-gray-600 dark:text-gray-400 mt-1">{subtitle}</p>
-              )}
+                <h1 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                    {title}
+                </h1>
+                {subtitle && (
+                    <p className="mt-0.5 text-sm text-gray-500 dark:text-white/40">{subtitle}</p>
+                )}
             </div>
-          </div>
-          {rightActions}
+            {rightActions && (
+                <div className="flex shrink-0 items-center gap-2">{rightActions}</div>
+            )}
         </div>
-      </div>
-    </div>
-  );
+    );
 }

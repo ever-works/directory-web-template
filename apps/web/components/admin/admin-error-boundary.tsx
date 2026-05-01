@@ -1,14 +1,8 @@
 import { Component, ReactNode, type ErrorInfo } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useTranslations } from 'next-intl';
-
-// Design system constants
-const ERROR_CARD_STYLES = "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950";
-const ERROR_TITLE_STYLES = "flex items-center space-x-2 text-red-800 dark:text-red-200";
-const ERROR_TEXT_STYLES = "text-sm text-red-700 dark:text-red-300";
-const ERROR_BUTTON_STYLES = "border-red-300 text-red-700 hover:bg-red-100 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/20";
 
 interface Props {
   children: ReactNode;
@@ -21,6 +15,34 @@ interface State {
   error?: Error;
 }
 
+function ErrorCard({ title, message, onRetry, retryLabel }: {
+  title: string;
+  message: string;
+  onRetry: () => void;
+  retryLabel: string;
+}) {
+  return (
+    <Card className="border-red-200/60 dark:border-red-800/40 bg-red-50/50 dark:bg-red-950/30">
+      <CardContent className="flex flex-col items-center text-center px-6 py-8">
+        <div className="w-12 h-12 rounded-2xl bg-red-100 dark:bg-red-900/40 flex items-center justify-center mb-4">
+          <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+        </div>
+        <h3 className="text-sm font-semibold text-red-800 dark:text-red-200 mb-1.5">{title}</h3>
+        <p className="text-sm text-red-600/80 dark:text-red-300/80 leading-relaxed max-w-xs">{message}</p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRetry}
+          className="mt-5 h-8 px-4 text-xs font-semibold rounded-xl border-red-200 text-red-700 hover:bg-red-100 hover:border-red-300 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/40 transition-all duration-200 gap-1.5"
+        >
+          <RefreshCw className="h-3.5 w-3.5" />
+          {retryLabel}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export class AdminErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -31,7 +53,7 @@ export class AdminErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('Admin component error:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
@@ -47,32 +69,12 @@ export class AdminErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <Card className={ERROR_CARD_STYLES}>
-          <CardHeader>
-            <CardTitle className={ERROR_TITLE_STYLES}>
-              <AlertTriangle className="h-5 w-5" />
-              <span>Something went wrong</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <p className={ERROR_TEXT_STYLES}>
-                {this.state.error?.message || 'An unexpected error occurred while loading this component.'}
-              </p>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={this.handleRetry}
-                  className={ERROR_BUTTON_STYLES}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ErrorCard
+          title="Something went wrong"
+          message={this.state.error?.message || 'An unexpected error occurred while loading this component.'}
+          onRetry={this.handleRetry}
+          retryLabel="Try Again"
+        />
       );
     }
 
@@ -80,90 +82,35 @@ export class AdminErrorBoundary extends Component<Props, State> {
   }
 }
 
-// Functional component wrapper for easier use
-// Can be used as a fallback prop: fallback={(e, r) => <AdminErrorFallback error={e} retry={r} />}
-export function AdminErrorFallback({ 
-  error, 
-  retry 
-}: { 
-  error?: Error; 
-  retry: () => void; 
-}) {
+export function AdminErrorFallback({ error, retry }: { error?: Error; retry: () => void }) {
   const t = useTranslations('admin.ERROR_BOUNDARY');
-  
+
   return (
-    <Card className={ERROR_CARD_STYLES}>
-      <CardHeader>
-        <CardTitle className={ERROR_TITLE_STYLES}>
-          <AlertTriangle className="h-5 w-5" />
-          <span>{t('FAILED_TO_LOAD_DATA')}</span>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <p className={ERROR_TEXT_STYLES}>
-            {error?.message || t('UNABLE_TO_LOAD')}
-          </p>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={retry}
-              className={ERROR_BUTTON_STYLES}
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              {t('RETRY')}
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+    <ErrorCard
+      title={t('FAILED_TO_LOAD_DATA')}
+      message={error?.message || t('UNABLE_TO_LOAD')}
+      onRetry={retry}
+      retryLabel={t('RETRY')}
+    />
   );
 }
 
-// Wrapper component that provides translations to the class component
-export function AdminErrorBoundaryWithTranslations({ 
-  children, 
-  fallback, 
-  onError 
-}: Props) {
+export function AdminErrorBoundaryWithTranslations({ children, fallback, onError }: Props) {
   const t = useTranslations('admin.ERROR_BOUNDARY');
-  
+
   const translatedFallback = (error: Error, retry: () => void) => {
-    if (fallback) {
-      return fallback(error, retry);
-    }
-    
+    if (fallback) return fallback(error, retry);
+
     return (
-      <Card className={ERROR_CARD_STYLES}>
-        <CardHeader>
-          <CardTitle className={ERROR_TITLE_STYLES}>
-            <AlertTriangle className="h-5 w-5" />
-            <span>{t('SOMETHING_WENT_WRONG')}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className={ERROR_TEXT_STYLES}>
-              {error?.message || t('UNEXPECTED_ERROR')}
-            </p>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={retry}
-                className={ERROR_BUTTON_STYLES}
-              >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                {t('TRY_AGAIN')}
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <ErrorCard
+        title={t('SOMETHING_WENT_WRONG')}
+        message={error?.message || t('UNEXPECTED_ERROR')}
+        onRetry={retry}
+        retryLabel={t('TRY_AGAIN')}
+      />
     );
   };
-  
+
   return (
     <AdminErrorBoundary fallback={translatedFallback} onError={onError}>
       {children}
