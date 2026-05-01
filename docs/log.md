@@ -33,6 +33,87 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `runtime-package-manifest.md` — the
+  **per-source-file reference** for the runtime package manifest
+  that pairs with
+  [`packages/plugin-runtime/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/package.json)
+  the same way `sdk-package-manifest.md` pairs with
+  `packages/plugin-sdk/package.json`,
+  `runtime-public-surface.md` pairs with
+  `packages/plugin-runtime/src/index.ts`, and the per-source-file
+  reference set under `docs/plugins/` already documents every
+  TypeScript file in `packages/plugin-sdk/src/` and
+  `packages/plugin-runtime/src/`. Where the
+  [Runtime Public Surface Reference](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/runtime-public-surface.md)
+  documents the TypeScript barrel, this page documents the
+  **package-level contract** — the `package.json` fields that
+  decide which sub-paths are importable, how React is reached
+  (peer dependency, **required** — unlike the SDK where it is
+  optional), how the SDK is reached (workspace dependency via
+  `workspace:*`), how Zod is reached (runtime dependency,
+  required), and how bundlers tree-shake the runtime's React-aware
+  `<SlotHost />` re-export off server bundles when the host imports
+  through the narrowed `./registry` / `./loader` / `./testing`
+  sub-paths. The page is organised as a field-by-field reference
+  (`name`, `version`, `description`, `license`, `private`,
+  `type: "module"`, `sideEffects: false`, `main`, `types`,
+  `exports."."` / `./registry` / `./SlotHost` / `./loader` /
+  `./testing`, `files`, `scripts.typecheck` / `scripts.lint`,
+  `dependencies.@ever-works/plugin-sdk` (workspace),
+  `dependencies.zod`, `peerDependencies.react` (required, **no**
+  `peerDependenciesMeta`), and the `devDependencies` set) with
+  each field paired with its purpose, why-it-matters note, and the
+  change-event-class it implies for host-app authors; a sub-path
+  map that locks the barrel-vs-narrowed contract (the four
+  narrowed sub-paths are a strict subset of the barrel and resolve
+  to the same module instance via Node's path-keyed module cache,
+  and each one isolates a different concern — `./registry` keeps
+  React out of server-only callers, `./loader` is the boot
+  pipeline, `./SlotHost` makes the React boundary explicit,
+  `./testing` keeps JSDOM out of server-side unit tests); a
+  failure matrix that maps each manifest-level mistake (non-public
+  sub-path import, server action importing `PluginRegistry` from
+  the barrel instead of `./registry`, lowercased `slothost`,
+  CJS-without-`import()`, dropped `sideEffects` flag,
+  non-`workspace:*` specifier, runtime-version-diverges-from-SDK-version,
+  host-installs-no-React, Zod-3-schema, public-name-without-`exports`-entry,
+  file-without-barrel-re-export) onto the layer that surfaces it;
+  and a public-surface change checklist that ties any field change
+  to a cross-check against `runtime-public-surface.md`,
+  `sdk-package-manifest.md`, `packages.md`, an
+  `apps/web/package.json` peer-range / Zod-major propagation
+  check, a `docs/log.md` entry, an open-questions register entry,
+  the `pnpm tsc --noEmit` and Playwright smoke-spec verification
+  step, and the Constitution-Check note in the PR description for
+  Article I (Plugin-First) and Article III (Public-Surface
+  Stability). Cross-linked from `docs/index.md` Plugins section.
+- `apps/web-e2e` Added `tests/api/location-search-query.spec.ts`
+  — a Playwright API smoke spec that closes the **query-param
+  surface detail** coverage gap for the public
+  `/api/location/search` endpoint served by
+  [`apps/web/app/api/location/search/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/location/search/route.ts).
+  The existing `location.spec.ts` covers the no-params 400, the
+  single-param `city` / `country` / radius branches, and an
+  invalid-coordinates 400; the new spec walks the full **query-
+  param surface detail** (the radius branch's `parseFloat`
+  finite-number checks, the `parseInt(radius, 10)` default-50
+  fallback, the `radius=0` / negative / `NaN` 400, the `near_lat=NaN`
+  / `near_lng=NaN` / `infinity` 400, the only-one-of-the-pair
+  fall-through to city / country, the `if (city)` / `if (country)`
+  truthy guards, the percent-encoded UTF-8 city / country values,
+  the whitespace-only city / country values that pass the truthy
+  check, the branch-priority order radius > city > country, the
+  unknown / typo'd parameter names that hit the no-params 400, and
+  the repeated query keys that take the first value via
+  `searchParams.get(name)`) so a regression in any of those
+  branches is caught explicitly. The assertion contract is
+  intentionally narrow — every URL must respond with a `<500`
+  status, the body must be valid JSON when present, and the JSON
+  envelope must contain at least one of `success` / `error` /
+  `data` keys; when `data` is present, `data.slugs` must be an
+  array and `data.distances` (when present) must be a non-array
+  object. 4xx-other and 5xx are never allowed because the route
+  never validates beyond what the matrix above describes.
 - `docs/plugins` Added `sdk-package-manifest.md` — the
   **per-source-file reference** for the SDK package manifest that
   pairs with
