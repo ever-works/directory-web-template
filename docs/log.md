@@ -33,6 +33,100 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `pnpm-workspace.md` — the **per-source-file
+  reference** for the monorepo's pnpm workspace declaration paired
+  with
+  [`pnpm-workspace.yaml`](https://github.com/ever-works/directory-web-template/tree/develop/pnpm-workspace.yaml)
+  at the repo root, the same way `tsconfig-presets.md` pairs with the
+  four files inside `packages/tsconfig/`, `eslint-config.md` pairs
+  with the two files inside `packages/eslint-config/`, and the
+  per-package manifest references each pair with one
+  `packages/*/package.json`. Where the package-level references
+  document **what each package contributes** to the workspace graph,
+  this page documents **how the graph is declared in the first
+  place** — the single YAML file that pnpm reads before any package
+  manifest is touched. The page documents the at-a-glance summary
+  (path `pnpm-workspace.yaml` at the repo root, YAML 1.2 format,
+  single `packages` top-level key, two globs `"apps/*"` and
+  `"packages/*"`, eight resolved members across `apps/web`,
+  `apps/docs`, `apps/web-e2e` and the five `packages/*`, micromatch
+  glob engine, pinned to `pnpm@10.31.0` via
+  `package.json#packageManager`, Prettier `*.yml` override that
+  pins YAML to spaces with `tabWidth: 2`); the file contents
+  walk-through (the three-line file with one row per field —
+  `packages` array, the `"apps/*"` glob and what it does and does
+  not match, the `"packages/*"` glob and what it does and does not
+  match); the "Why a glob, not an explicit list" rationale (new
+  packages auto-register, removed packages auto-unregister, the
+  convention scales to two roots without over-matching
+  `apps/web/.content/**`); the resolved-members table that maps
+  each of the eight current members to its path, glob, and matching
+  per-package reference page; the glob-semantics matrix that pins
+  what `"apps/*"` and `"packages/*"` match versus do not match (one
+  level deep, no `**` recursion); the `workspace:*` resolution
+  walk-through that traces the four-step chain pnpm performs at
+  install time; the "Deliberately absent fields" matrix covering
+  `catalog` / `catalogs`, `linkWorkspacePackages`,
+  `preferWorkspacePackages`, `sharedWorkspaceLockfile`,
+  `saveWorkspaceProtocol`, `injectWorkspacePackages`, `overrides`,
+  `peerDependencyRules`, `packageExtensions`, and
+  `onlyBuiltDependencies` with the default behaviour we accept and
+  why each one is not set today; the "Why this file lives at the
+  repo root" rationale (pnpm walks up the directory tree and uses
+  the first `pnpm-workspace.yaml` it finds as the workspace anchor;
+  same property as `turbo.json`); the consumer table that maps each
+  reader (`pnpm install`, `pnpm -r`, `pnpm --filter`, `turbo run`,
+  the script aliases like `pnpm dev:web`, and tooling that imports
+  `@pnpm/find-workspace-packages`) to how it consumes this file;
+  the failure matrix that maps each workspace-level mistake (file
+  deleted, file renamed `.yml`, file moved out of root, globs
+  narrowed, globs broadened to `**`, two members declared with the
+  same `name`, YAML indentation mistake, `packages` key renamed to
+  Yarn's `workspaces:`, package added without a `package.json`,
+  package's `name` changed without updating consumers, glob uses
+  Windows-style backslashes, `apps/web/.content/` accidental
+  inclusion) onto the layer that surfaces them; and the public-
+  surface change checklist that ties any glob change to a
+  `pnpm install` round-trip, a `turbo run --dry-run` discovery
+  check, a `packages.md` cross-check, an `apps/web/package.json`
+  lockfile cross-check, a `docs/log.md` entry, an open-questions
+  register entry, and the Constitution-Check note in the PR
+  description for Article I (Plugin-First) and Article III
+  (Public-Surface Stability).
+- `apps/web-e2e` Added
+  [`tests/api/current-user-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/current-user-query.spec.ts)
+  — query-param surface smoke for the `/api/current-user`
+  endpoint, mirroring the pattern set by
+  [`tests/api/health-database-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health-database-query.spec.ts),
+  [`tests/api/version-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/version-query.spec.ts),
+  [`tests/api/feature-existence-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/feature-existence-query.spec.ts),
+  and the other `*-query.spec.ts` files. The handler signature is
+  `export async function GET()` (no `request` parameter), so the
+  spec walks the obvious query-param keys a future contributor
+  might add (`refresh`, `force`, `provider`, `tenantId`, `locale`,
+  `lang`, `format`, `verbose`, `debug`, `fields`, `include`,
+  `exclude`) plus empty values, repeated keys, SQL-injection-shaped
+  values (`%27`, `%22`, `%3B`, `%2D%2D`, `'OR'1'='1`,
+  `DROP+TABLE+users`), an XSS-shaped value
+  (`<script>alert(1)</script>`), a path-traversal-shaped value
+  (`../../etc/passwd`), long values, and bogus typo'd keys.
+  Asserts a tighter contract than the other query-smoke specs: the
+  route is intentionally public (returns `null` rather than `401`
+  when unauthenticated) so the only valid status is `200`, and any
+  4xx — not just 5xx — is a regression. Also pins the
+  unauthenticated response envelope (the JSON literal `null`, not
+  `{}`, not `{ user: null }`, not the safe-user shape with `null`
+  fields), the authenticated envelope shape (`id` is a string,
+  `isAdmin` is a boolean — the only two `required` fields per the
+  route's swagger doc), the same-status invariant across baseline
+  and parameterised URLs, the SQL-injection invariant (the route
+  runs `auth()` only with no SQL interpolation, so injection-shaped
+  values cannot reach any downstream layer), and the
+  Authentication-spec sensitive-field-non-exposure contract that
+  forbids `password`, `passwordHash`, `hashedPassword`, `salt`,
+  `token`, `accessToken`, `refreshToken`, `idToken`, `jwt`,
+  `session`, `sessionToken`, `iat`, `exp`, `jti`, `sub`, and
+  `secret` from appearing in the safe-user shape.
 - `docs/plugins` Added `tsconfig-presets.md` — the **per-source-file
   reference** for the workspace's shared TypeScript preset package,
   paired with
