@@ -33,6 +33,127 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `turbo-config.md` — the **per-source-file
+  reference** for the monorepo's Turborepo task pipeline paired
+  with
+  [`turbo.json`](https://github.com/ever-works/directory-web-template/tree/develop/turbo.json)
+  at the repo root, the second root-level config reference after
+  [`pnpm-workspace.md`](plugins/pnpm-workspace.md). Where
+  `pnpm-workspace.md` documents **which folders become workspace
+  members**, this page documents **what tasks those members can
+  run, in what order, with what inputs**. Documents the at-a-glance
+  summary (path at the repo root, JSON-with-comments format,
+  `$schema: "https://turbo.build/schema.json"`, two top-level keys
+  `$schema` and `tasks`, six task entries `build`, `build:en`,
+  `lint`, `dev`, `test:e2e`, `clean`, four cached tasks vs. two
+  uncached, one persistent task `dev`, local `.turbo/` cache
+  backend, no remote-cache wired today, Prettier `*.json` override
+  pinning JSON to spaces with `tabWidth: 2`); the file-contents
+  walk-through (the full JSON file with one row per task entry);
+  the per-task field-by-field walkthrough (`build` with
+  `dependsOn: ["^build"]` upstream-first ordering, the
+  `outputs: [".next/**", "!.next/cache/**", "build/**", "dist/**"]`
+  artefact whitelist with the Next.js cache exclusion rationale,
+  the 19-entry `env` allow-list `ANALYZE`, `AUTH_*`, `COOKIE_SECRET`,
+  `CRON_SECRET`, `DATA_REPOSITORY`, `DATABASE_*`, `EMAIL_*`,
+  `GH_*`, `GITHUB_*`, `NEXT_PUBLIC_*`, `PLATFORM_API_*`,
+  `POLAR_*`, `POSTHOG_*`, `RESEND_*`, `SENTRY_*`, `SMTP_*`,
+  `STRIPE_*`, `TRIGGER_DEV_*`, `VERCEL_*` with the per-family
+  rationale for why each must be in the cache key; `build:en` with
+  the narrowed `outputs: ["build/**"]` Docusaurus-only artefact
+  set; `lint` with `dependsOn: ["^build"]` so generated typings
+  compile first; `dev` with `cache: false` + `persistent: true`
+  for the long-running watch process; `test:e2e` with
+  `dependsOn: ["build"]` (no `^` prefix so the local-package
+  build runs first) and `cache: false` because Playwright runs are
+  not deterministic functions of source content; `clean` with
+  `cache: false` because a delete operation is meaningless to
+  cache); the workspace-and-task-graph composition walk-through
+  showing how `pnpm-workspace.yaml` expands → workspace members
+  → `package.json#dependencies` DAG → Turborepo's `^build`
+  rule → the four-stage build chain
+  `plugin-sdk → plugin-runtime + plugin-demo (parallel) → web`;
+  the "Why some tasks declare `outputs` and others don't" matrix;
+  the `env` allow-list family-by-family table (Bundle analysis /
+  Auth / Cookies / Cron / Content repo / Database / Email
+  transport / GitHub integration / Public client vars / Platform
+  API / Polar / PostHog / Resend / Sentry / SMTP / Stripe /
+  Trigger.dev / Vercel) with the consumer file path and why each
+  family must contribute to the cache key; the "Deliberately
+  absent fields" matrix covering top-level `globalDependencies`,
+  `globalEnv`, `globalDotEnv`, `remoteCache`, `ui`, `daemon`,
+  `concurrency`, and per-task `inputs`, `passThroughEnv`,
+  `dotEnv`, `cache: false on build`, `interactive`, `extends`
+  with the default behaviour we accept and why each one is not
+  set today; the "Why this file lives at the repo root" rationale
+  (Turborepo walks up the directory tree and uses the first
+  `turbo.json` it finds as the workspace anchor; same property as
+  `pnpm-workspace.yaml`); the consumer table mapping each reader
+  (`pnpm run build`, `pnpm run lint`, `pnpm run dev`,
+  `pnpm run test:e2e`, the `dev:web` / `dev:docs` script aliases
+  using `--filter`, CI's `turbo run build lint --filter`, editor
+  tooling that reads `$schema`) to how each consumes this file;
+  the failure matrix mapping each pipeline-level mistake (file
+  deleted, file renamed, file moved out of root, dropping the `^`
+  from `dependsOn` on `build`, removing `dependsOn` from `build`,
+  widening `outputs` to `["**"]`, narrowing `outputs` to drop
+  `.next/**`, removing an `env` family entry like `NEXT_PUBLIC_*`,
+  adding a literal `MY_VAR=value` non-pattern entry, removing
+  `cache: false` from `dev` or `test:e2e`, removing
+  `persistent: true` from `dev`, adding a new task without
+  `cache` / `outputs` / `env` decisions, changing the `$schema`
+  URL, JSON syntax errors, task-name collisions with a future
+  per-package `turbo.json`) onto the layer that surfaces each
+  one; and the public-surface change checklist that ties any
+  pipeline change to a `turbo run --dry-run` round-trip, a
+  `--summarize` cache-key cross-check, a `pnpm-workspace.md`
+  cross-check, an `apps/web/.env.example` propagation check, a
+  `docs/log.md` entry, an open-questions register entry, and the
+  Constitution-Check note in the PR description for Article I
+  (Plugin-First), Article III (Public-Surface Stability), and
+  Article IX (Test Coverage Bar).
+- `apps/web-e2e` Added
+  [`tests/api/config-features-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/config-features-query.spec.ts)
+  — query-param surface smoke for the `/api/config/features`
+  endpoint, mirroring the pattern set by
+  [`tests/api/feature-existence-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/feature-existence-query.spec.ts).
+  The route's handler signature is
+  `export async function GET()` — no `request` parameter and zero
+  `searchParams.get(...)` calls — so any query string the caller
+  appends must be silently ignored. The spec walks ~70 query
+  variants (locale-style keys `?locale=`, `?lang=`; tenant-style
+  keys `?tenant=`, `?tenantId=`, `?org=`; filter keys `?feature=`,
+  `?features=`; caller-controlled flag overrides
+  `?ratings=`/`?comments=`/`?favorites=`/`?featuredItems=`/
+  `?surveys=`; pagination keys `?limit=`, `?offset=`, `?page=`,
+  `?pageSize=`; sort keys `?sort=`, `?order=`, `?direction=`;
+  type-ahead keys `?q=`, `?search=`, `?prefix=`, `?filter=`;
+  cache-bypass knobs `?cache=`, `?fresh=`, `?nocache=`,
+  `?bypass=`, `?_=<timestamp>`; empty values, repeated keys,
+  special-character percent-encoded values for `%`, `/`, `\`,
+  `'`, `"`, `<`, `>`, null byte, `;`, `--`, long values up to
+  2,000 chars, prototype-pollution attempts via `?__proto__=` and
+  `?constructor=`) and asserts each must respond with one of the
+  two documented status codes (200 success, 500 catch-and-degrade)
+  — anything else (502, 503, framework crash) indicates a
+  regression. Three dedicated tests pin the canonical envelope
+  shape (`{ ratings: boolean, comments: boolean, favorites:
+boolean, featuredItems: boolean, surveys: boolean }` on either
+  branch, with all five flags hard-coded to `false` on the catch
+  path), the per-branch `Cache-Control` header (`public,
+s-maxage=300, stale-while-revalidate=600` on success vs.
+  `no-cache` on the 500 path so a degraded response is not pinned
+  by a CDN for five minutes), the no-arg-vs-bogus-args status
+  invariance, and the caller-controlled-flag-override
+  ignorability (`?ratings=false` does not flip the envelope's
+  flag — the response reflects the server's view, not the
+  client's suggestion).
+- `docs/index.md` Added the
+  [`turbo-config.md`](plugins/turbo-config.md) entry to the
+  monorepo / packages section so the new pipeline reference is
+  discoverable from the top-level docs navigation, sitting
+  immediately after `pnpm-workspace.md` as the second of the two
+  root-level config references.
 - `docs/plugins` Added `pnpm-workspace.md` — the **per-source-file
   reference** for the monorepo's pnpm workspace declaration paired
   with
