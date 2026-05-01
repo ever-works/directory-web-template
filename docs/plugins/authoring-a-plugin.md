@@ -166,5 +166,6 @@ test('mything plugin renders its banner above the home listing', async ({ page }
 - [`/docs/plugins/capabilities`](/plugins/capabilities) — the complete capability surface (`auth`, `payment`, `analytics`, …) with provider-resolution rules.
 - [`/docs/plugins/slots`](/plugins/slots) — the complete slot surface (`header.right`, `home.before-listing`, `admin.dashboard.widgets`, …) with the per-slot component contract.
 - [`/docs/plugins/loader`](/plugins/loader) — per-API reference for `loadPlugins` / `mergeConfigSources`, the env / DB / override precedence, and the validation-failure matrix that runs at boot.
+- [`/docs/plugins/registry`](/plugins/registry) — per-API reference for `PluginRegistry`: `register`, `enable` / `disable`, `get` / `list`, `slotsFor`, `list_all`, and the throwing-`teardown` failure semantics.
 - [Spec 002](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture/spec.md)
 - [`.specify/templates/spec-template.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/templates/spec-template.md)

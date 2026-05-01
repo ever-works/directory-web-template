@@ -283,6 +283,10 @@ plugin-spec section, depending on where the work lands.
 - [Plugin Loader Reference](./loader.md) — per-API reference for
   `loadPlugins` / `mergeConfigSources`, including a worked test for
   override precedence and the validation-failure path.
+- [Plugin Registry Reference](./registry.md) — per-API reference
+  for `PluginRegistry`; covers the duplicate-name throw, the
+  enable / disable idempotence rule, and the throwing-`teardown`
+  failure semantics that direct registry tests rely on.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

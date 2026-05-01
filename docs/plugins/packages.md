@@ -102,5 +102,6 @@ endpoints land in **Phase C** (`T-007`, `T-008`).
 - [Plugin Capabilities Reference](./capabilities.md) — per-capability interfaces, single vs fan-out lookup, and the rules for adding a new capability.
 - [Plugin Slots Reference](./slots.md) — per-slot contract, where each slot renders, composition rules, and the checklist for adding a new slot id.
 - [Plugin Loader Reference](./loader.md) — per-API reference for `loadPlugins` / `mergeConfigSources`, the env / DB / override precedence, the failure matrix, and the checklist for adding a new loader feature.
+- [Plugin Registry Reference](./registry.md) — per-API reference for `PluginRegistry`, the read / write surface summary, the failure matrix (duplicate-name, unregistered, throwing teardown), and the checklist for adding a new method.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First).

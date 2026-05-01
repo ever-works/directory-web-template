@@ -123,11 +123,13 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/capabilities.md`,
   `docs/plugins/slots.md`,
   `docs/plugins/loader.md`,
+  `docs/plugins/registry.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the seven `docs/plugins/**` pages (authoring,
-     lifecycle, packages, testing, capabilities, slots, loader).
+  1. Author the eight `docs/plugins/**` pages (authoring,
+     lifecycle, packages, testing, capabilities, slots, loader,
+     registry).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -144,7 +146,14 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `PluginConfigSources`, `LoadPluginsResult`) to
   [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
   with the same anti-drift guarantee, including the env / DB /
-  override precedence and the failure matrix.
+  override precedence and the failure matrix; the registry
+  reference cross-links every public method
+  (`register`, `isEnabled`, `isRegistered`, `enable`, `disable`,
+  `get`, `list`, `slotsFor`, `list_all`) to
+  [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
+  with the same anti-drift guarantee, including the read / write
+  surface summary and the duplicate-name / unregistered /
+  throwing-teardown failure matrix.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

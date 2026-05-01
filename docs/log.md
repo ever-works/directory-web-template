@@ -33,6 +33,40 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `registry.md` — the parallel **per-API
+  registry reference** that pairs with [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts)
+  exactly the way `loader.md` pairs with `loader.ts`. One section
+  per public method (`new PluginRegistry({ persistEnabled? })`,
+  `register`, `isEnabled`, `isRegistered`, `enable`, `disable`,
+  `get<C>`, `list<C>`, `slotsFor`, `list_all`) with the full
+  TypeScript signature, the throws / no-throws contract, and the
+  precise idempotence rules (`enable` on an already-enabled plugin
+  is a no-op and **does not** invoke the persistence callback;
+  `disable` on an already-disabled plugin **does not** invoke
+  `teardown`). The page includes a **read / write surface
+  summary** that maps callers (layouts / capability code / admin
+  UI / boot / tests) to the methods they're allowed to invoke,
+  plus an explicit eight-row failure matrix covering the throwing
+  outcomes (duplicate-name on `register`, unregistered name on
+  `enable` / `disable`), the silent outcomes (already-enabled,
+  already-disabled, unknown capability returning
+  `undefined` / `[]`, empty `slotsFor`), and the propagating
+  outcomes (throwing `persistEnabled`, throwing `teardown` —
+  including the "stays disabled in memory" semantics that allow
+  safe retries). Two worked Vitest examples cover the
+  disable-then-`slotsFor`-empty round-trip and the duplicate-name
+  throw. The page also documents the `defaultEnabled` precedence
+  (`opts?.enabled ?? plugin.manifest.defaultEnabled ?? true`) and
+  the rationale for the underscore-cased `list_all` name — both
+  facts that previously lived only in the source comments.
+  Cross-links added in `authoring-a-plugin.md`, `lifecycle.md`
+  *See also*, `testing-a-plugin.md` *See also*, `packages.md`
+  *See also*, `capabilities.md` *See also*, `slots.md` *See
+  also*, `loader.md` *See also*, and `docs/index.md`. Spec 002
+  `T-010` task list grew from "seven pages" to "eight pages" and
+  adds an explicit "doc and runtime cannot drift" verification
+  bullet for the new reference (matching the wording added for
+  `capabilities.md`, `slots.md`, and `loader.md`).
 - `docs/plugins` Added `loader.md` — the parallel **per-API loader
   reference** that pairs with [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts)
   exactly the way `capabilities.md` pairs with `providers.ts` and

@@ -309,6 +309,8 @@ it only when no bundled plugin still uses it (Article VIII of the
   per-capability reference paired with `providers.ts`.
 - [Plugin Slots Reference](./slots.md) — the per-slot reference
   paired with `slots.ts`.
+- [Plugin Registry Reference](./registry.md) — the per-API
+  reference for `PluginRegistry`, the class the loader populates.
 - [Plugin Packages](./packages.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/loader.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/loader.ts) — the source of truth.
