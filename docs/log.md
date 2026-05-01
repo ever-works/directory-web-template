@@ -33,6 +33,104 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `plugin-demo-package-manifest.md` — the
+  **per-source-file reference** for the demo plugin package
+  manifest that pairs with
+  [`packages/plugin-demo/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/package.json)
+  the same way `sdk-package-manifest.md` pairs with
+  `packages/plugin-sdk/package.json`,
+  `runtime-package-manifest.md` pairs with
+  `packages/plugin-runtime/package.json`, and `plugin-demo.md`
+  pairs with the bundled reference plugin's TypeScript sources
+  under `packages/plugin-demo/src/`. Where the
+  [Reference Plugin](https://github.com/ever-works/directory-web-template/blob/develop/docs/plugins/plugin-demo.md)
+  page documents the three TypeScript files (`config.ts`,
+  `Header.tsx`, `index.tsx`), this page documents the
+  **package-level contract** — the `package.json` fields that
+  decide how the demo plugin is wired into the workspace and how
+  a downstream plugin author must wire their own package the
+  same way. The page is organised as a field-by-field reference
+  (`name`, `version`, `description`, `license`, `private`,
+  `type: "module"`, `sideEffects: false`, `main`, `types`,
+  `exports."."` (single entry pointing at `./src/index.tsx`
+  because the entry composes JSX), `files`, `scripts.typecheck`
+  / `scripts.lint`, `dependencies.@ever-works/plugin-sdk`
+  (workspace), `dependencies.zod`, `peerDependencies.react`
+  (required, **no** `peerDependenciesMeta` because the demo
+  always ships a slot component), and the `devDependencies`
+  set) with each field paired with its purpose, why-it-matters
+  note, and the change-event-class it implies for downstream
+  plugin authors who copy this manifest as a starting point;
+  the deliberately-empty sub-path map (no narrowed sub-paths
+  because the demo is a leaf consumer with a single `default`
+  export — narrowing would imply public structure inside
+  `Header.tsx` / `config.ts` which the demo intentionally
+  hides); the `manifest.version` vs. `package.json#version`
+  drift contract (the manifest version gates `templateRange`;
+  the package version is workspace-graph metadata only); the
+  `.tsx`-vs-`.ts`-extension-on-the-entry rationale (the entry
+  composes JSX through `Header.tsx`, so `.tsx` opens the JSX
+  scope under `jsx: "preserve"`); a failure matrix that maps
+  each demo-level manifestation (non-public sub-path import
+  like `@ever-works/plugin-demo/Header`, CJS-without-`import()`,
+  dropped `sideEffects` flag, non-`workspace:*` SDK specifier,
+  `.tsx`-flipped-to-`.ts`, React-18-typings, Zod-3-schemas,
+  `manifest.version`/`package.json#version` drift,
+  `templateRange` widened beyond SDK `version`, downstream-author
+  -keeps-`@ever-works`-scope, downstream-author-keeps-`private:
+  true`-while-publishing, downstream-author-keeps-required-React
+  -peer-on-non-React-plugin) onto the layer that surfaces it;
+  and a public-surface change checklist that ties any field
+  change to a cross-check against `plugin-demo.md`,
+  `sdk-package-manifest.md`, `runtime-package-manifest.md`
+  (the three manifests move in lock-step on `version`, Zod
+  range, React peer range, and `sideEffects` flag),
+  `packages.md`, an `apps/web/package.json` lockfile
+  cross-check, a `docs/log.md` entry, an open-questions
+  register entry, the `pnpm tsc --noEmit` and Playwright
+  smoke-spec verification step, and the Constitution-Check
+  note in the PR description for Article I (Plugin-First) and
+  Article III (Public-Surface Stability). Cross-linked from
+  `docs/index.md` Plugins section.
+- `apps/web-e2e` Added `tests/api/location-listing-query.spec.ts`
+  — a Playwright API smoke spec that closes the **query-param
+  surface** coverage gap for the public no-arg location-listing
+  endpoints
+  [`/api/location/cities`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/location/cities/route.ts)
+  and
+  [`/api/location/countries`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/location/countries/route.ts).
+  The existing `location.spec.ts` covers the no-arg happy
+  path for both endpoints; the new spec walks the
+  **query-param surface** so a regression that introduces a
+  typo'd `request.nextUrl.searchParams.get(...)` call (which
+  a future filter-by-country-prefix or filter-by-locale
+  change might tempt a future contributor into adding) is
+  caught immediately as a non-200 / non-404 / 5xx response.
+  Both routes are intentionally no-arg — the `GET()` function
+  signature is `export async function GET()` — so the route's
+  contract is that **any** query string is silently ignored,
+  and the spec enumerates every plausible-future-typed key
+  family (`?city=` / `?country=` typo'd from
+  `/api/location/coordinates`; `?prefix=` / `?q=` /
+  `?search=` / `?filter=` typed for type-ahead search;
+  `?limit=` / `?offset=` / `?page=` / `?pageSize=` typed
+  for pagination; `?sort=` / `?order=` / `?direction=` typed
+  for sort wiring; `?locale=` / `?lang=` typed for i18n;
+  empty-value forms; repeated keys; special-character
+  values like `%25`/`%2F`/`%5C`/`%27` that would tempt a
+  future regex / LIKE-prefix wiring; long values
+  `'x'.repeat(500)`; bogus / typo'd keys). The assertion
+  contract is intentionally narrow — every URL must respond
+  with a `<500` status, and the no-arg envelope must be
+  either `{ success: false, error: 'Location features are
+  disabled' }` (404 branch when the feature gate is off,
+  the most-likely branch in local dev) or `{ success: true,
+  data: string[] }` (200 branch when the feature is on
+  and the data layer succeeds). The two
+  `responds identically with and without bogus query
+  parameters` assertions pin the contract that the route
+  never reads the request URL, so the status code with any
+  query string must match the no-arg status code exactly.
 - `docs/plugins` Added `runtime-package-manifest.md` — the
   **per-source-file reference** for the runtime package manifest
   that pairs with
