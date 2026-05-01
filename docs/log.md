@@ -33,6 +33,82 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `plugin-demo.md` — the **per-source-file
+  reference** for the bundled reference / demo plugin that pairs
+  with [`packages/plugin-demo/src/index.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/src/index.tsx),
+  [`packages/plugin-demo/src/config.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/src/config.ts),
+  and [`packages/plugin-demo/src/Header.tsx`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo/src/Header.tsx)
+  the same way `manifest.md` pairs with `manifest.ts`,
+  `capabilities.md` pairs with `capabilities.ts`, `slots.md` pairs
+  with `slots.ts`, `providers.md` pairs with `providers.ts`,
+  `plugin.md` pairs with `plugin.ts`, `loader.md` pairs with
+  `loader.ts`, `registry.md` pairs with `registry.ts`,
+  `slot-host.md` pairs with `SlotHost.tsx`, and `testing.md` pairs
+  with `testing.ts`. The page documents the at-a-glance manifest
+  summary (name `'demo'`, `templateRange '>=0.1 <1.0'`,
+  `'ui-slot'` capability, `'header.right'` slot, `defaultEnabled:
+  true`, `adminToggleable: true`); the file map that ties each of
+  the three source files to the SDK surface they consume; the
+  per-line walk-through of `ConfigSchema` and `DemoConfig` (the
+  `.default(true)` / `.default('Demo plugin loaded')` calls that
+  make `z.infer<typeof ConfigSchema>` non-optional and let the
+  loader parse cleanly with **no** config sources at all); the
+  `DemoHeaderBadge` props / render contract / disabled-config
+  short-circuit (the `if (!ctx.config.enabled) return null;` line
+  the admin enable / disable flow exercises through merged config
+  sources rather than registry-level unregistration) and the
+  stable `data-plugin="demo"` / `data-testid="demo-plugin-badge"`
+  test hooks; the `defineDirectoryPlugin` invocation broken down
+  by manifest field and slot binding with the type-inference path
+  that ties `ConfigSchema` to `SlotComponentProps<DemoConfig>` so
+  the slot component cannot drift out of sync with the schema;
+  the three call sites the demo plugin participates in (loader
+  Zod parse + register, registry key under `'demo'`, slot host
+  render via `<SlotHost slotId="header.right" />`); the failure
+  matrix that maps demo-plugin manifestations onto the
+  loader / registry / slot-host failure surfaces (Zod-rejected
+  `enabled: 'yes'` / `greeting: 42`, `templateRange` mismatch,
+  admin override flipping `enabled` post-boot, duplicate-name
+  throw); the replace-the-demo-plugin recipe that exercises the
+  slot ordering guarantee, the admin toggle, and the
+  `defaultEnabled: false` lever without removing the reference
+  package from tree (per the no-removal rule); and the evolution
+  checklist that pairs every source-file change with the matching
+  SDK reference page and `docs/log.md` entry. Cross-link from
+  [`docs/index.md`](./index.md) so the new doc is discoverable
+  from the docs index alongside the SDK / runtime / demo package
+  links it complements.
+- `e2e/api` Added `featured-items-query.spec.ts` — the
+  **query-param surface** smoke for the public
+  [`GET /api/featured-items`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/featured-items/route.ts)
+  endpoint that pairs with the no-arg coverage already in
+  [`items.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/items.spec.ts)
+  the same way `items-export-query.spec.ts` pairs with the
+  `items-export` no-arg case in `discovery.spec.ts` and
+  `items-popularity-scores.spec.ts` pairs with the
+  `popularity-scores` no-arg case in `discovery.spec.ts`. The
+  spec parametrises the route's two query parameters: the
+  `limit` parameter (`Number.parseInt`-ed with default `6`,
+  `Math.min(Math.max(value, 1), 50)`-clamped, `Number.isFinite`
+  fallback to default for `NaN`) across the [1, 50] valid range,
+  beyond the upper clamp (`51`, `999`, `10000`), below the lower
+  clamp (`0`, `-5`), non-numeric / empty (`abc`, `NaN`, empty
+  string), float (`6.5`, `49.9`), and leading-whitespace / `+`
+  sign (`%2010`, `%2B10`) cases that exercise every branch of
+  `Number.parseInt` + clamp + finiteness fallback; and the
+  `includeExpired` parameter (strict `=== 'true'` check) across
+  the literal `'true'` flip and every other value that keeps the
+  default-on path (`'false'`, `'1'`, `'0'`, empty, `'TRUE'`).
+  Combined `limit` + `includeExpired` cases verify the two
+  parameters stay independent. Status `< 500` is the only
+  asserted contract — the route has two distinct success
+  branches (DB-available query vs.
+  `checkDatabaseAvailability()`-short-circuit /
+  `getTenantId() === null`-short-circuit, both legitimately
+  returning `200 OK` with different payloads) plus a
+  catch-and-empty fallback, and asserting on the body would
+  pin the spec to a single branch and break under the others.
+
 - `docs/plugins` Added `providers.md` — the parallel **per-export
   capability-provider reference** that pairs with [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
   exactly the way `manifest.md` pairs with `manifest.ts`,

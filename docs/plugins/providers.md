@@ -662,6 +662,15 @@ lookups pick up the new entry automatically through
   `setup` rejection rules.
 - [Plugin Packages](./packages.md) — overview of `@ever-works/plugin-sdk`,
   `@ever-works/plugin-runtime`, and `@ever-works/plugin-demo`.
+- [Reference Plugin (`@ever-works/plugin-demo`)](./plugin-demo.md) —
+  per-source-file reference paired with `packages/plugin-demo/src/`;
+  the demo plugin declares **only** the `'ui-slot'` capability, so it
+  attaches **no** member of any provider interface this page documents.
+  The demo plugin's failure matrix is therefore the canonical worked
+  example of the `'ui-slot' = never` lockout — any attempt to add
+  `providers: { 'ui-slot': … }` to the demo plugin's `defineDirectoryPlugin`
+  call is rejected at compile time by the same `CapabilityProviderMap`
+  mapping documented above.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First).

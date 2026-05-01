@@ -323,6 +323,18 @@ plugin-spec section, depending on where the work lands.
   touches, and the failure matrix that distinguishes compile-time
   failures (missing required member, mis-typed `'ui-slot'` provider)
   from runtime failures (`setup` throw → `LoadPluginsResult.rejected`).
+- [Reference Plugin (`@ever-works/plugin-demo`)](./plugin-demo.md) —
+  per-source-file reference paired with `packages/plugin-demo/src/`;
+  the demo plugin is the canonical fixture this guide's worked
+  examples can mimic. Documents the at-a-glance manifest
+  summary, the `data-plugin="demo"` / `data-testid="demo-plugin-badge"`
+  hooks that Playwright specs already use, the disabled-config
+  short-circuit (`if (!ctx.config.enabled) return null;`) that
+  drives the disable round-trip path, the failure matrix
+  (Zod-rejected config, `templateRange` mismatch, admin override
+  flipping `enabled`, duplicate-name throw), and the evolution
+  checklist that pairs every demo-plugin source change with the
+  matching SDK reference page and `docs/log.md` entry.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

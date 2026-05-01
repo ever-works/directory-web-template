@@ -612,3 +612,13 @@ by the per-source-file references — `capabilities.md`, `slots.md`,
 - [Plugin Packages](./packages.md) — overview of how
   `@ever-works/plugin-sdk`, `@ever-works/plugin-runtime`, and
   `@ever-works/plugin-demo` fit together.
+- [Reference Plugin (`@ever-works/plugin-demo`)](./plugin-demo.md) —
+  per-source-file reference paired with `packages/plugin-demo/src/`;
+  documents an in-tree, working
+  [`defineDirectoryPlugin`](#definedirectoryplugin) invocation
+  whose [`manifest`](#manifest), [`PluginSlots<TConfig>`](#pluginslotstconfig)
+  binding, [`SlotComponentProps<TConfig>`](#slotcomponentpropstconfig)
+  consumer, and [`PluginContext<TConfig>`](#plugincontexttconfig)
+  reads correspond exactly to the surface this page documents.
+  Use it as the worked, real-source-on-disk example for every
+  shape in this reference.
