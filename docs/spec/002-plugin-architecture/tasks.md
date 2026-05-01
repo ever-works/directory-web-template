@@ -127,12 +127,13 @@ sidebar_label: '002 Plugin Architecture Tasks'
   `docs/plugins/slot-host.md`,
   `docs/plugins/testing.md`,
   `docs/plugins/manifest.md`,
+  `docs/plugins/plugin.md`,
   `docs/index.md`,
   `docs/log.md`.
 - Steps:
-  1. Author the eleven `docs/plugins/**` pages (authoring,
+  1. Author the twelve `docs/plugins/**` pages (authoring,
      lifecycle, packages, testing-a-plugin, capabilities, slots,
-     loader, registry, slot-host, testing, manifest).
+     loader, registry, slot-host, testing, manifest, plugin).
   2. Add them to `docs/index.md`.
   3. Append a `YYYY-MM-DD plugin-architecture: …` line in `docs/log.md`.
 - Verification: links resolve; frontmatter present; included in
@@ -192,7 +193,33 @@ sidebar_label: '002 Plugin Architecture Tasks'
   failure path that surfaces as the only manifest-level
   propagated throw, and the checklist for adding a new manifest
   field that pairs the SDK source change with the `docs/log.md`
-  entry.
+  entry; the plugin reference cross-links the
+  `defineDirectoryPlugin` factory, the `DirectoryPlugin<C>` shape
+  (`manifest`, optional `setup` / `teardown` hooks, `slots`,
+  `providers`), the `PluginContext<TConfig>` runtime context
+  (`config`, `name`, `enabled`, optional `logger`), the
+  `SlotComponentProps<TConfig>` single-`ctx`-field slot-component
+  contract, and the `PluginProviders` (keyed on `Capability`,
+  `'ui-slot'` typed as `never`) / `PluginSlots<TConfig>` (keyed on
+  `SlotId`) typed maps to
+  [`packages/plugin-sdk/src/plugin.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/plugin.ts)
+  with the same anti-drift guarantee, including the read / write
+  surface summary that maps every caller (plugin author,
+  `loadPlugins`, `PluginRegistry.register`, `PluginRegistry.disable`,
+  `<SlotHost />`, `createTestRegistry`, slot components) to the
+  fields they touch, the failure matrix that surfaces every
+  observable failure in the loader / registry / `<SlotHost />`
+  layers the plugin returns into (hand-rolled plugin loses `C`
+  inference, duplicate `name` throws via `register`,
+  `manifest.config` / `templateRange` rejections route through
+  `LoadPluginsResult.rejected`, throwing `setup` is plugin-local,
+  throwing `teardown` is swallowed by `disable`, slot components
+  throw through React, TypeScript catches `'ui-slot'` provider
+  attempts and unknown slot ids at compile time), and the checklist
+  for adding a new plugin field that pairs the SDK source change
+  with the `docs/log.md` entry — bookending the SDK with the same
+  anti-drift contract every per-source-file SDK / runtime page now
+  satisfies.
 
 ### T-011 [seq T-010] — Migrate analytics as reference
 

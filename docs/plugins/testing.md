@@ -343,5 +343,6 @@ capabilities, slot ids, and `<SlotHost />` props:
 - [Plugin System (Architecture)](../architecture/plugin-system.md) —
   high-level diagram showing where the test seam sits relative to
   production boot.
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `DirectoryPlugin[]` shape `createTestRegistry({ plugins })` accepts, the `PluginContext` and `SlotComponentProps` types worked-example slot components on this page rely on, and the `defineDirectoryPlugin` factory tests use to author fixture plugins.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First), Article IX (Test Coverage Bar).

@@ -284,5 +284,6 @@ of the [constitution](https://github.com/ever-works/directory-web-template/tree/
   the React key for every contribution rendered through
   `<SlotHost />`.
 - [Plugin Packages](./packages.md)
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `PluginSlots<TConfig>` map keyed on `SlotId`, the `SlotComponentProps<TConfig>` shape every slot component receives, and the `PluginContext` `ctx` field that gives slot components their typed `config`.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts) — the source of truth.

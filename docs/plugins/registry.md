@@ -383,5 +383,6 @@ it only when no bundled plugin or host call site still uses it
   `list<C>` reads), and the duplicate-name / rename guarantees
   the registry depends on.
 - [Plugin Packages](./packages.md)
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `DirectoryPlugin<C>` shape `register` accepts, the `PluginProviders` and `PluginSlots<TConfig>` maps the registry indexes, and the `setup` / `teardown` hooks `register` / `disable` orchestrate.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-runtime/src/registry.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime/src/registry.ts) — the source of truth.

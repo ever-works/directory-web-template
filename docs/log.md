@@ -33,6 +33,94 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-01
 
+- `docs/plugins` Added `plugin.md` — the parallel **per-export
+  plugin definition reference** that pairs with [`packages/plugin-sdk/src/plugin.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/plugin.ts)
+  exactly the way `manifest.md` pairs with `manifest.ts`,
+  `capabilities.md` pairs with `capabilities.ts`, `slots.md` pairs
+  with `slots.ts`, `loader.md` pairs with `loader.ts`, `registry.md`
+  pairs with `registry.ts`, `slot-host.md` pairs with `SlotHost.tsx`,
+  and `testing.md` pairs with `testing.ts`. The page is one section
+  per public export of `plugin.ts`: the
+  [`defineDirectoryPlugin`](https://github.com/ever-works/directory-web-template/tree/develop/docs/plugins/plugin.md#definedirectoryplugin)
+  factory (and its **inference-only** semantics — the function
+  returns its argument unchanged and never validates / mutates
+  anything; validation is the loader's job and registration is the
+  registry's job), the `DirectoryPlugin<C>` interface (with
+  per-field sub-sections for `manifest`, `setup`, `teardown`,
+  `slots`, `providers` that document the runtime contract for each
+  hook including the silent-rejection / propagated-throw
+  distinctions, the "where it runs" / "use it for" / "do not use it
+  for" / "what happens if it throws" framing established by the
+  earlier per-source-file references), the `PluginContext<TConfig>`
+  runtime context (one sub-section per field — `config`, `name`,
+  `enabled`, optional `logger` — including the always-`true`
+  invariant for `enabled` inside `setup`, the explicit "where
+  `config` comes from" three-step trace through
+  `mergeConfigSources` → Zod parse → `ctx.config`, and the
+  `console`-vs-`ctx.logger` guidance), the `SlotComponentProps<TConfig>`
+  slot-component contract (single `ctx` field, no extra props from
+  `<SlotHost />`, request-scoped data via `headers()` /
+  `cookies()` / context providers above the host), and the
+  `PluginProviders` and `PluginSlots<TConfig>` typed maps (mapped-type
+  internals including the `'ui-slot' = never` lockout that catches
+  `providers: { 'ui-slot': anything }` at compile time and the
+  `Partial<Record<SlotId, ...>>` shape that catches unknown slot
+  ids the same way). The page also documents a nine-row **failure
+  matrix** that lists every observable failure mode in the loader /
+  registry / `<SlotHost />` layers a plugin returns into
+  (hand-rolled plugin loses `C` inference at the TypeScript layer,
+  duplicate `name` is the only manifest-level propagated throw via
+  `register`, `manifest.config` rejection routes through
+  `LoadPluginsResult.rejected[name].reason: 'config'` silently,
+  invalid / unmatched `templateRange` routes the same way with
+  `reason: 'templateRange'`, throwing `setup` is plugin-local with
+  `reason: 'setup'`, throwing `teardown` is swallowed by `disable`,
+  slot-component throw bubbles through React, and the two
+  TypeScript-only failures — `'ui-slot'` provider attempt and
+  unknown `SlotId` — are caught at compile time), a **read / write
+  surface summary** that mirrors the `manifest.md` and `registry.md`
+  tables and maps every caller (plugin author, `loadPlugins`,
+  `PluginRegistry.register`, `PluginRegistry.disable`, `<SlotHost />`,
+  `createTestRegistry`, slot components) to the fields they touch,
+  three worked examples (minimal `defineDirectoryPlugin` call, a
+  `setup` hook reading the typed `ctx.config`, a slot component
+  reading `props.ctx`), and a five-step "how to add a new plugin
+  field" checklist that mirrors the patterns established in
+  `capabilities.md`, `slots.md`, `loader.md`, `registry.md`,
+  `slot-host.md`, `testing.md`, and `manifest.md` — bookending the
+  SDK with the same anti-drift contract every per-source-file
+  SDK / runtime page now satisfies. Cross-links added in
+  `authoring-a-plugin.md`, `lifecycle.md` *See also*,
+  `loader.md` *See also*, `registry.md` *See also*,
+  `slot-host.md` *See also*, `testing.md` *See also*,
+  `testing-a-plugin.md` *See also*, `packages.md` *See also*,
+  `capabilities.md` *See also*, `slots.md` *See also*,
+  `manifest.md` *See also*, and `docs/index.md`. Spec 002 `T-010`
+  task list grew from "eleven pages" to "twelve pages" and adds an
+  explicit "doc and SDK cannot drift" verification bullet for the
+  new reference (matching the wording added for `capabilities.md`,
+  `slots.md`, `loader.md`, `registry.md`, `slot-host.md`,
+  `testing.md`, and `manifest.md`).
+- `apps/web-e2e` Added `api/items-popularity-scores.spec.ts`
+  (15 cases) closing the **query-param surface** of the public
+  `GET /api/items/popularity-scores` debug endpoint served by
+  [`apps/web/app/api/items/popularity-scores/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/popularity-scores/route.ts).
+  The single happy-path entry (`/api/items/popularity-scores` with
+  no query) was already smoked by `discovery.spec.ts`; this spec
+  exercises the route's `parseInt` + `Math.min(value, 100)` clamp
+  on `limit` (valid integers `5` / `20`, beyond-clamp values
+  `999` / `10000`, empty string falling back to the `'20'` default,
+  non-integer `abc`, negative `-5`, zero, plus combined
+  `limit=200&locale=de`) and the `locale` default / unknown-locale
+  fallback (`en`, `fr`, `zh`, `__no_such_locale__`) so a regression
+  in the route's parameter parsing surfaces as a failing case
+  rather than a silent change in scoring output. Same conservative
+  no-5xx contract as the rest of the smoke layer — payload shape
+  is intentionally not asserted because the score breakdown varies
+  with the active data repository / database state.
+  `E2E-TESTS.md` updated with the entry and the
+  continual-improvement total annotation (~292 → ~307 across
+  47 → 48 spec files).
 - `docs/plugins` Added `manifest.md` — the parallel **per-field
   manifest reference** that pairs with [`packages/plugin-sdk/src/manifest.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/manifest.ts)
   exactly the way `registry.md` pairs with `registry.ts`,

@@ -335,5 +335,6 @@ rare and follows the same five-step pattern as new slot ids:
 - [Plugin System (Architecture)](../architecture/plugin-system.md) —
   high-level diagram showing where `<SlotHost />` sits in the request
   pipeline.
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `SlotComponentProps<TConfig>` shape `<SlotHost />` passes to every contributed component, the `PluginSlots<TConfig>` map the registry's `slotsFor` reads from, and the `PluginContext` `ctx` field every slot component receives.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`.specify/memory/constitution.md`](https://github.com/ever-works/directory-web-template/tree/develop/.specify/memory/constitution.md) — Article I (Plugin-First).

@@ -307,6 +307,13 @@ plugin-spec section, depending on where the work lands.
   `config`, `defaultEnabled`, `adminToggleable`, `homepage`) and
   the failure-matrix entries that drive the manifest-level
   rejection cases this guide demonstrates.
+- [Plugin Definition Reference](./plugin.md) — per-export reference
+  paired with `plugin.ts`; documents the `defineDirectoryPlugin`
+  factory tests use to author fixture plugins, the
+  `DirectoryPlugin<C>` shape `createTestRegistry({ plugins })`
+  accepts, the `PluginContext<TConfig>` injected into `setup` and
+  every slot component, and the `SlotComponentProps<TConfig>`
+  contract slot-component render tests assert against.
 - [Plugin System (Architecture)](../architecture/plugin-system.md)
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [Spec 010 — End-to-End Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)

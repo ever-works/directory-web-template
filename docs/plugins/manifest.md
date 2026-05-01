@@ -382,5 +382,6 @@ it only when no bundled plugin still uses it (Article VIII of the
   capability tests, slot tests, and Playwright smoke specs.
 - [Plugin Packages](./packages.md) — the three workspace packages
   the manifest lives in (`@ever-works/plugin-sdk`).
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents `defineDirectoryPlugin`, `DirectoryPlugin<C>`, `PluginContext<TConfig>`, `SlotComponentProps<TConfig>`, `PluginProviders`, and `PluginSlots<TConfig>` — the surface that consumes every manifest field documented on this page.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/manifest.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/manifest.ts) — the source of truth.

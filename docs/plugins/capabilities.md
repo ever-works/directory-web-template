@@ -360,6 +360,7 @@ up the new entry automatically.
   plugin must ship a `providers[capability]` for every capability
   it declares.
 - [Plugin Packages](./packages.md)
+- [Plugin Definition Reference](./plugin.md) — per-export reference paired with `plugin.ts`; documents the `PluginProviders` map keyed on `Capability`, the `defineDirectoryPlugin` factory that types `providers` against the inferred `C extends z.ZodTypeAny`, and the `DirectoryPlugin<C>.providers` field on which the registry's `get` / `list` lookups depend.
 - [Spec 002 — Plugin Architecture](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
 - [`packages/plugin-sdk/src/capabilities.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/capabilities.ts)
 - [`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts)
