@@ -33,6 +33,206 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `item-detail-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's item-detail-page driver paired with
+  [`apps/web-e2e/page-objects/public/item-detail.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/item-detail.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class ItemDetailPage extends BasePage` single
+  named export with **the `extends BasePage` clause** —
+  the page-route driver posture; the eight `readonly Locator`
+  fields covering `heading` / `voteButton` / `voteCount` /
+  `favoriteButton` / `commentsSection` / `commentTextarea` /
+  `postCommentButton` / `signInToCommentButton`; the
+  synchronous constructor that calls `super(page)` first
+  then pre-binds every per-page Locator in a single pass;
+  the `navigateToItem(slug)` slug-driven primitive; the
+  `navigateToFirstItem()` slug-agnostic discovery primitive
+  with the **30 s seed-data tolerance**; the `clickVote()`
+  bare upvote primitive; the `getVoteCount(): Promise<string>`
+  polite-aria-live region read with the `?? '0'` fallback;
+  the `isVoted(): Promise<boolean>` strict-equality state
+  pin on `'Remove upvote'`; the `clickFavorite()` bare
+  favorite-toggle primitive; the `postComment(text)`
+  composite fill-then-click primitive; the
+  `getComment(text): Locator` per-comment factory; the
+  `editComment(text)` / `deleteComment(text)` hover-then-
+  click primitives; the `get deleteCommentDialog()` re-
+  evaluating Locator getter); the full file annotated
+  chunk-by-chunk; the spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming specs at
+  `apps/web-e2e/tests/public/item-detail.spec.ts` and
+  `apps/web-e2e/tests/public/votes-and-comments.spec.ts`;
+  the "Why the class extends `BasePage`" walkthrough; the
+  "Why the vote button uses an OR-of-two-aria-labels
+  selector" walkthrough; the "Why the favorite button
+  uses an `aria-label*="favorites"` substring selector"
+  walkthrough; the "Why `getVoteCount()` returns
+  `Promise<string>`" walkthrough; the "Why `isVoted()`
+  checks the exact `'Remove upvote'` label" walkthrough;
+  the failure matrix; the per-line walkthrough table; the
+  read / write surface summary; the read / write surface
+  failure modes table; and the `item-detail.page.ts`-change
+  checklist.
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/version-sync-query.spec.ts`
+  smoke spec for the **GET branch** of the public
+  `/api/version/sync` endpoint served by
+  [`apps/web/app/api/version/sync/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/version/sync/route.ts).
+  Pins the canonical six-key envelope
+  (`syncInProgress`, `lastSyncTime`, `timeSinceLastSync`,
+  `timeSinceLastSyncHuman`, `uptime`, `timestamp`) and
+  the `Cache-Control: no-cache, no-store, must-revalidate`
+  / `Content-Type: application/json` header contracts
+  across **40+ query-param permutations** (cache-busting,
+  per-tenant, per-user-impersonation, locale, format /
+  fields / select / include filters, special-character
+  payloads, repeated keys, long values, bogus keys), plus
+  three correlation invariants
+  (`syncInProgress`/`lastSyncTime`/`timeSinceLastSync` /
+  `timeSinceLastSyncHuman`) and Accept-header invariance.
+  Closes a gap in [Spec 010](spec/010-e2e-test-coverage/spec.md).
+- `docs/plugins` Added `language-switcher-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's header locale-switcher driver paired with
+  [`apps/web-e2e/page-objects/public/language-switcher.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/language-switcher.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class LanguageSwitcher` standalone class
+  with no `extends` clause, the `readonly page: Page`
+  field that the standalone class restates and is also
+  consumed inside `selectLanguage` to construct the
+  per-locale option Locator at call-time against
+  page-level scope because the dropdown may be portal-
+  rendered, the `readonly button: Locator` pinned to the
+  exact English `aria-label="Select language"` literal
+  with `.first()` for strict-mode safety AND the
+  deliberate non-localization that lets a user landing on
+  a page in a language they cannot read still find the
+  switcher, the constructor that pre-binds the trigger
+  Locator in a single pass without a `super(page)` call,
+  the `open()` minimal "open the dropdown" primitive, the
+  `selectLanguage(fullName: string)` composite primitive
+  with the load-bearing **full localized native display
+  name** parameter (`"Français"` not `"French"` and not
+  `"fr"`) reflecting the canonical "language picker shows
+  each language in its own language" UX convention so a
+  non-English speaker can find their language, the
+  `getCurrentLocaleCode(): Promise<string>` accessor
+  with the `textContent()?.trim().toUpperCase() ?? ''`
+  chain whose `.toUpperCase()` casing-fold tolerates
+  future production-source casing drift and whose `?? ''`
+  pins the public return type to `Promise<string>`, the
+  `isOpen(): Promise<boolean>` accessor that reads
+  `aria-expanded` and returns the strict-equality
+  comparison `expanded === 'true'`); the full file
+  annotated chunk-by-chunk; the spec context cross-link
+  to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/language-switcher.spec.ts`
+  (trigger visibility on `/`, dropdown opens via
+  `aria-expanded === 'true'`, French selection navigates
+  to `/fr`, Spanish selection navigates to `/es`); the
+  "Why the class does not extend `BasePage`" walkthrough;
+  the "Why the trigger pins the English `aria-label="Select language"`"
+  walkthrough that pins the three reasons (the host app
+  deliberately does not translate this label, strict-
+  equality survives a future `aria-label="Choose region"`
+  related-control regression, no production-source change
+  required); the "Why per-locale options pin
+  `aria-label="Switch to ${fullName}"`" walkthrough that
+  pins the localized-display-name UX convention,
+  consuming-spec mental model, and no-production-source-
+  change rationale; the "Why the option Locator does
+  **not** carry `.first()`" walkthrough that pins the
+  intentional asymmetry against the trigger's `.first()`
+  pin; the "Why `.first()` on the trigger button"
+  walkthrough that pins the three failure modes of
+  dropping it; the "Why the constructor uses
+  `this.page.locator(…)` and not the inherited `header`
+  scope" walkthrough; the "Why `getCurrentLocaleCode()`
+  upper-cases the result" walkthrough; the "Why `isOpen()`
+  checks `aria-expanded === 'true'`" walkthrough; the
+  failure matrix covering every language-switcher-page-
+  level mistake; the per-line walkthrough table; the
+  read / write surface summary; the read / write surface
+  failure modes table; and the `language-switcher.page.ts`-
+  change checklist with the spec audit + `BasePage`
+  cross-check + production-source cross-check +
+  `next-intl` configuration cross-check + `e2e-tsconfig.md`
+  cross-check + `playwright-config.md` cross-check +
+  `fixtures-index.md` cross-check + dual
+  `pnpm tsc --noEmit` + smoke-subset Playwright run +
+  `docs/log.md` + Spec 010 cross-link + reviewer pass.
+- `apps/web-e2e/tests/api` Added
+  `items-export-settings-query.spec.ts` query-parameter
+  smoke spec for the public items-export-settings
+  endpoint served by
+  [`apps/web/app/api/items/export/settings/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/export/settings/route.ts).
+  Pins the route's "public, zero-argument, single-key
+  envelope, byte-identical body across query
+  permutations" invariant by walking the public GET
+  surface across every plausible query-key shape: the
+  no-arg baseline, the obvious `?format=` / `?type=`
+  keys that the **adjacent** `/api/items/export` route
+  reads (a regression that confused the two routes is
+  the obvious bypass shape), the `?userId=` / `?asUser=`
+  / `?impersonate=` per-user-override keys, the
+  `?tenant=` / `?tenantId=` / `?org=` per-tenant-
+  override keys, the `?token=` / `?secret=` / `?api_key=`
+  magic-token keys, the `?refresh=` / `?force=` /
+  `?fresh=` / `?cache=` / `?nocache=` cache-busting
+  keys, the `?locale=` / `?lang=` i18n keys, the
+  `?fields=` / `?select=` / `?include=` selection
+  keys, the `?env=` / `?stage=` environment-override
+  keys, empty values, repeated keys, special-character
+  values, long values (500-character repeats), and bogus
+  / typo'd keys. Adds seven explicit assertion tests on
+  top of the parameterised loop: the canonical
+  `{ export_enabled: boolean }` single-key envelope shape
+  with `Object.keys(body)` exact-equality check that
+  catches body-shape drift (rename to `enabled`, wrap in
+  `{ success: true, data: {...} }`, sibling
+  `export_format` key), the byte-identical-body
+  invariant across query permutations using
+  `await response.text()` exact-string equality (a
+  stronger contract than status-only assertions because
+  it catches a regression that branches on a query
+  param to gate the boolean), the no-`?token=`-override
+  assertion (no per-user feature-flag override exists
+  today), the no-`?tenant=`-override assertion (the
+  flag is host-wide today, sourced from `config.yml`
+  via `getExportEnabled()`), the response-shape
+  stability assertion across permuted parameter sets,
+  and the no-`Accept`-header-branching assertion that
+  pins the route's content-type to `application/json`
+  regardless of the request's Accept header (a
+  regression that adds content negotiation mirroring
+  the adjacent `/api/items/export` route's actual
+  `?format=` key would change the body type on the
+  per-Accept branch). Mirrors the sibling
+  `client-dashboard-stats-query.spec.ts`,
+  `client-geo-stats-query.spec.ts`,
+  `stripe-payment-methods-list-query.spec.ts`,
+  `lemonsqueezy-list-query.spec.ts`,
+  `subscription-query.spec.ts`,
+  `payments-query.spec.ts`,
+  `plan-status-query.spec.ts`, and other zero-argument
+  query smoke specs — but the items-export-settings
+  route is the **only** one whose response payload is a
+  single-key boolean feature-flag envelope today,
+  making the invariant-shape assertion doubly load-
+  bearing because the frontend's conditional-render
+  logic reads the boolean directly without a deeper
+  schema validation step.
+
 - `docs/plugins` Added `star-rating-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's five-star rating-picker driver paired with
