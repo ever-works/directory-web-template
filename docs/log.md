@@ -33,6 +33,93 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `admin-clients-page-object.md` —
+  the **second per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/clients.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/clients.page.ts)
+  and continuing the rollout the
+  [`admin-bulk-actions-page-object.md`](plugins/admin-bulk-actions-page-object.md)
+  template established. Documents the full surface for the
+  `AdminClientsPage` driver — the two `readonly` Locator
+  fields (`heading`, `addClientButton`), the four per-page
+  modal getters (`clientFormModal`, `deleteConfirmModal`,
+  `confirmDeleteButton`, `cancelDeleteButton`), and the
+  single `navigate()` shortcut that closes over the
+  inherited `goto('/admin/clients')`. Pinned to
+  [`apps/web-e2e/tests/admin/clients.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/clients.spec.ts)
+  (four flows over the admin clients-management surface);
+  the "Why `AdminClientsPage` extends `BasePage`" three-
+  reason analysis (page-route navigation via the inherited
+  `goto`, global header / footer / nav-link chrome surfaced
+  for free, post-navigation `waitForPageReady` stabiliser);
+  the "Why `getByRole('button', { name: /add client/i })` for
+  `addClientButton`" three-reason analysis (accessibility-
+  tree-canonical posture, locale-tolerant via the
+  case-insensitive regex, strict-mode safety via `.first()`
+  against multi-button surfaces); the "Why `clientFormModal`
+  and `deleteConfirmModal` are getters and not `readonly`
+  fields" three-reason analysis (late-binding against the
+  modal mount/unmount lifecycle, symmetry with the
+  bulk-actions driver, per-call `filter()` invocation on
+  `deleteConfirmModal`); the "Why `.fixed.inset-0.z-50` for
+  both modal surfaces" three-reason analysis (production-source
+  posture without `role="dialog"`, substring filter for
+  disambiguation, host-app's CSS-utility convention); the
+  "Why `^delete$` anchored regex for `confirmDeleteButton`"
+  three-reason analysis (defends against the modal heading
+  collision, defends against future "Cannot delete" warning
+  button, symmetric with bulk-actions driver but
+  smaller-blast-radius for the more crowded modal scope);
+  the "Why nested `deleteConfirmModal.getByRole(...)` and
+  not `page.getByRole(...)`" three-reason analysis
+  (defends against per-row Delete/Cancel button collision
+  on the underlying clients table, re-uses the late-binding
+  lifecycle of the modal getter, symmetric with public-tree
+  modal drivers); the failure matrix; the per-line
+  walkthrough; and the read / write surface table mapping
+  every caller to the fields they touch.
+- `apps/web-e2e/tests/api` Added `admin-users-query.spec.ts`
+  — the **deep query-param surface smoke** for the
+  admin-gated user-listing endpoint at
+  [`apps/web/app/api/admin/users/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/users/route.ts).
+  Mirrors the `admin-dashboard-stats-query.spec.ts` /
+  `admin-geo-analytics-query.spec.ts` /
+  `admin-items-stats-query.spec.ts` /
+  `client-dashboard-stats-query.spec.ts` shape; pins the
+  "session+admin gate fires before any `searchParams.get(...)`,
+  validator, or `userRepository.findAll(...)` call"
+  invariant by walking the route's eight documented query
+  params (`page`, `limit`, `search`, `role`, `status`,
+  `sortBy`, `sortOrder`, `includeInactive`) plus standard
+  admin-impersonation / magic-token / admin-override /
+  field-projection / cache-busting / format-negotiation /
+  locale / multi-tenancy / time-range / aggregation /
+  repeated / bogus-key / NextRequest-cookie probe sets
+  (~80 deep paths). Adds 19 deep tests on top of the
+  per-path 4xx baseline: the deterministic 401 with the
+  canonical `{ success: false, error: "Unauthorized" }`
+  envelope assertion (note: this route is
+  **two-step gated** — session 401 then admin 403, unlike
+  `admin/items/stats`'s single 401 envelope); a
+  stable-status-across-permutations assertion; eight "does
+  NOT bypass the admin gate" assertions for `?search=…`,
+  `?role=…`, `?status=…`, `?sortBy=…`, `?sortOrder=…`,
+  `?includeInactive=…`, `?page=…&limit=…`, `?userId=…`;
+  two "does NOT bypass the gate, and the length validator
+  does NOT fire on the unauth branch" assertions for
+  oversize `?search=…` (>100 chars trips a 400 on auth)
+  and oversize `?role=…` (>50 chars trips a 400 on auth);
+  three "does NOT introduce a query-token / admin-override
+  / content-negotiation / field-projection bypass"
+  assertions; a "stable status across param permutations"
+  assertion sweeping three orthogonal parameter sets; a
+  "does NOT branch on Accept header" assertion; a
+  "repeated query keys do NOT bypass the gate" assertion;
+  and a "NextRequest-typed handler signature stable"
+  assertion that sweeps fabricated session-cookie /
+  forwarded-IP headers to defend against any future
+  cookie-or-IP-driven auth bypass.
 - `docs/plugins` Added `admin-bulk-actions-page-object.md` —
   the **first per-source-file reference** the docs tree
   publishes for any file under
