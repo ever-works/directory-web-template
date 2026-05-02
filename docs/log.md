@@ -33,6 +33,135 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-featured-items-page-object.md`
+  — the **seventh per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/featured-items.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/featured-items.page.ts)
+  and the **first** admin-tree driver in the rollout that
+  documents an **`#active-only` id-selector toggle** (a
+  positional `<input id="active-only">` checkbox surface,
+  distinct from every other admin-tree driver's
+  `getByRole('button')` or `getByRole('heading')` posture)
+  **plus** a pair of **search-input helpers**
+  (`search(term)` / `clearSearch()` — composable mutators
+  on the same underlying `getByRole('textbox').first()`
+  Locator, distinct from the form-modal-bound input
+  mutators every other admin-tree driver documents)
+  **plus** a **`statsCards` Locator getter** that pins to
+  the positional `.grid` selector (a CSS-utility-class
+  anchor, distinct from the `[role="dialog"]` /
+  `.fixed.inset-0.z-50` overlay primitives every other
+  admin-tree driver's modal-Locator getters use).
+  Documents the full surface for the
+  `AdminFeaturedItemsPage` driver — the four `readonly`
+  Locator fields (`heading`, `addButton`, `searchInput`,
+  `activeOnlyToggle`), the `navigate()` shortcut that
+  closes over the inherited `goto('/admin/featured-items')`,
+  the `search(term)` / `clearSearch()` async mutator
+  helpers, and the `featuredItemModal` / `statsCards`
+  late-binding getters. Pinned to
+  [`apps/web-e2e/tests/admin/featured-items.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/featured-items.spec.ts)
+  (five flows over the admin featured-items management
+  surface — admin can access featured items page, featured
+  items page displays stats cards, admin can open add
+  featured item modal, search input filters featured
+  items, active-only toggle filters items); the "Why
+  `AdminFeaturedItemsPage` extends `BasePage`" three-
+  reason analysis (page-route navigation via the inherited
+  `goto`, global header / footer / nav-link chrome
+  surfaced for free, post-navigation `waitForPageReady`
+  stabiliser); the "Why `searchInput` uses
+  `getByRole('textbox').first()`" three-reason analysis
+  (the page renders a single `<textbox>` today, `.first()`
+  defends against future per-section textboxes, the
+  `data-testid` posture would force a production-source
+  change); the "Why `activeOnlyToggle` uses the
+  `#active-only` id-selector" three-reason analysis
+  (production-source-stable id-binding, `getByRole(
+  'checkbox')` would resolve too broadly, `getByLabel(
+  'Active only')` would lock to the English locale); the
+  "Why `featuredItemModal` and `statsCards` are getters"
+  three-reason analysis (late-binding against modal
+  mount/unmount lifecycle, symmetric with the modal-
+  getter posture across the admin-tree page-object
+  directory, the stats-grid Locator participates in the
+  same late-binding contract); the "Why `search(term)`
+  and `clearSearch()` are async methods" three-reason
+  analysis (consuming specs always type into / clear the
+  input, the pair of helpers documents the canonical
+  search-flow contract, the underlying `Locator.clear()`
+  posture is the platform-canonical reset);
+  cross-references to all six prior admin-tree page-
+  object docs and to the public-tree drivers; and a
+  "What it does not contain" five-bullet enumeration of
+  the deliberate omissions (no `getByTestId` selectors,
+  no per-row Locator getters, no `addFeaturedItem(...)`
+  / `editFeaturedItem(...)` / `deleteFeaturedItem(...)`
+  flow helpers, no `assertActiveOnly` / `assertActiveAll`
+  invariant helper, no `getStatsValue(label)` helper)
+  that future contributors must respect when they add
+  new helpers to keep the driver minimal. Continues the
+  rollout of the per-source-file admin page-object
+  references — ten admin-tree page objects remain
+  (data-export, item-form, items, notifications, reports,
+  roles, settings, sponsorships, surveys, tags). Updates
+  [`docs/index.md`](./index.md) with the standard one-
+  paragraph entry that lists all prior admin-tree page-
+  object docs as cross-references and pins the consuming
+  spec, the five-flow envelope, the change protocol
+  (update the doc in the same PR, update this log,
+  cross-check `e2e-tsconfig.md`, `playwright-config.md`,
+  `fixtures-index.md`, run `pnpm tsc --noEmit`, run a
+  smoke-subset Playwright run targeting the featured-
+  items spec subset, a Spec 010 cross-link if the change
+  introduces a new shared concept, and a reviewer pass),
+  and follows the same posture as the six prior admin-
+  tree page-object index entries.
+- `apps/web-e2e/tests/api` Added
+  `admin-featured-items-query.spec.ts` — the **ninth per-
+  route admin-API query-surface smoke spec** (after
+  `admin-by-id`, `admin-categories-query`,
+  `admin-collections-query`, `admin-comments-query`,
+  `admin-companies-query`, `admin-dashboard-stats-query`,
+  `admin-geo-analytics-query`, `admin-items-stats-query`,
+  and `admin-users-query`), pinned to the
+  [`apps/web/app/api/admin/featured-items/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/featured-items/route.ts)
+  handler. The first per-route admin-API smoke spec the
+  suite publishes that targets a **session-gated**
+  admin-tree route (gated by `session?.user?.id` rather
+  than `session?.user?.isAdmin` — distinct from every
+  prior admin-tree query-surface spec the suite
+  publishes, which all target admin-isAdmin-gated
+  routes). Pins the unauth-branch contract (always 401
+  with the canonical
+  `{ success: false, error: 'Unauthorized' }`
+  envelope, distinct from the
+  `{ success: false, error: 'Unauthorized. Admin access required.' }`
+  envelope the `admin/categories` route emits and from
+  the `{ success: false, error: 'Forbidden' }` envelope
+  the `admin/comments` route emits) across a sweep of
+  the three documented query keys (`page`, `limit`,
+  `active`) and a speculative-bypass sweep (`?userId=`,
+  `?token=`, `?bypass=`, `?fields=`, `?itemSlug=`, `?q=`,
+  `?from=…`, `?to=…`, `?deleted=…`, `?orderBy=`,
+  `?category=`) that catches any future regression that
+  reads a query param before the session gate. Includes
+  the standard 18 invariant assertions (`< 500` per
+  parametrised path, exact-401-envelope for the no-arg
+  baseline, status-stable across permutations,
+  pagination-validators-do-not-fire-on-unauth,
+  `?active=` does not bypass, `?userId=` does not
+  bypass, `?token=` does not bypass, `?bypass=` does not
+  bypass, `?fields=` does not bypass, `?itemSlug=` does
+  not bypass, `?q=` does not bypass, `?from=…&to=…` does
+  not bypass, `?deleted=…` does not bypass, `?orderBy=`
+  does not bypass, `?category=` does not bypass, status
+  stable across three permutations, Accept header does
+  not branch, repeated query keys do not bypass,
+  NextRequest-typed signature stable across cookie / IP
+  side channels) that mirror the sibling admin-API
+  query-surface specs.
 - `docs/plugins` Added `admin-dashboard-page-object.md` —
   the **sixth per-source-file reference** the docs tree
   publishes for any file under
