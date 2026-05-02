@@ -33,6 +33,130 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `theme-toggle-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's header theme-switch driver paired with
+  [`apps/web-e2e/page-objects/public/theme-toggle.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/theme-toggle.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the fourteen other public-surface page objects.
+  Where [`base-page-object.md`](plugins/base-page-object.md)
+  documents the **page-object inheritance root** and
+  [`signin-page-object.md`](plugins/signin-page-object.md)
+  documents the **suite's sign-in surface boundary** under
+  `apps/web-e2e/page-objects/auth/`, this page documents
+  the **suite's theme-switch driver boundary** — the
+  smallest possible page object that lets a spec drive the
+  header theme-switch dropdown end-to-end (open the
+  dropdown, select the **light** or **dark** option,
+  observe the canonical `aria-label` shape, observe the
+  `dark` class flip on the `<html>` element). Documents
+  the at-a-glance summary table of every load-bearing
+  element (the `import type` Playwright type-only import
+  that mirrors the base-class discipline; the
+  `export class ThemeToggle` single named export with **no
+  `extends` clause** — the public-tree widget-driver
+  posture; the `readonly page: Page` field that the
+  standalone class restates because it does not inherit
+  from `BasePage`; the `readonly toggleButton: Locator`
+  `page.locator('button[aria-label*="Current theme"]').first()`
+  substring-selector pinning to the first match; the
+  `constructor(page: Page)` that stores the `page` and
+  pre-binds `toggleButton` without a `super(page)` call;
+  the `getCurrentTheme()` method that reads the toggle
+  button's `aria-label` and returns `'light'` / `'dark'`
+  / `'unknown'`; the `open()` minimal "open the dropdown"
+  primitive every other method composes against; the
+  `selectLight()` and `selectDark()` methods that compose
+  `open()` + role+regex-name resolution + click; the
+  `isDarkMode()` method that reads the `<html>` class
+  list and returns whether the `dark` substring is
+  present); the full file annotated chunk-by-chunk; the
+  spec context cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/theme-toggle.spec.ts`; the
+  six "Why X" walkthroughs (the class does not extend
+  `BasePage` because composition over inheritance against
+  the header surface, reusability on non-page surfaces,
+  and constructor parity with non-page widgets;
+  `aria-label*="Current theme"` and not a `data-testid`
+  because no production-source change required, theme-label
+  invariance, and strict-mode resilience against a future
+  second theme switch with `.first()`; `.first()` on the
+  toggle button against future admin-shell / per-option /
+  portal-rendered duplicates; parsing the `aria-label`
+  substring instead of querying state because of black-box
+  discipline, storage drift survival, and theme-set
+  extensibility; role+regex name for the option buttons
+  for locale invariance and strict-mode resilience;
+  `isDarkMode()` reads `<html>`'s class because of
+  Tailwind `darkMode: 'class'`, server-render parity, and
+  the no-flicker guarantee); the failure matrix covering
+  every theme-toggle-page-level mistake (type-only import
+  drop, accidental `extends BasePage` add, `readonly`
+  drop, exact `aria-label` match instead of substring,
+  `.first()` drop on the toggle button, `aria-label*=` →
+  `data-testid` swap, CSS attribute selector swap on the
+  option-button locator, text-only locator swap on the
+  option button, `.first()` drop on the option button,
+  React state / `localStorage` reach-in for
+  `getCurrentTheme()`, `<body>` / `<main>` swap on
+  `isDarkMode()`, `'unknown'` branch drop on
+  `getCurrentTheme()`, file move, rename, `.tsx`
+  extension, CRLF line endings); the per-line walkthrough
+  table that pins each line of the file to its purpose;
+  the read / write surface summary that maps every caller
+  to the fields they touch; the read / write surface
+  failure modes table that maps production-source /
+  middleware / config drift onto `Locator not found` and
+  `isDarkMode()`-returns-false-in-dark-mode failures; and
+  the `theme-toggle.page.ts`-change checklist that ties
+  any change to a spec audit, a [`base-page-object.md`](plugins/base-page-object.md)
+  cross-check, a production-source cross-check, an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) cross-check,
+  a [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, a [`fixtures-index.md`](plugins/fixtures-index.md)
+  cross-check, dual `pnpm tsc --noEmit` runs, a smoke-subset
+  Playwright run, a [`docs/log.md`](log.md) entry, a Spec
+  010 cross-link, and a reviewer pass.
+- `e2e` Added `apps/web-e2e/tests/api/user-currency-query.spec.ts`
+  — the **query-param surface smoke** for the unauthenticated
+  user-currency detection endpoint served by
+  [`apps/web/app/api/user/currency/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/user/currency/route.ts).
+  Pins the route's **always-200 graceful-degradation**
+  contract: the handler reads exactly one query parameter
+  (`provider`), runs it through `validateProvider()` which
+  lowercases / trims / falls back to `'smart'` for any value
+  not in the canonical seven-element allowlist
+  (`'cloudflare' | 'vercel' | 'cloudfront' | 'fastly' |
+  'generic' | 'auto' | 'smart'`), and otherwise reads CDN
+  country headers (`Cf-IPCountry`, `X-Vercel-IP-Country`,
+  …) to derive the currency. Without those headers — the
+  default e2e-runner shape — the response is always
+  `{ currency: 'USD', country: null, detected: false }` with
+  status 200. The spec parametrises across 60+ query strings
+  (the seven canonical providers; case-insensitive variants;
+  whitespace-padded variants; out-of-allowlist providers;
+  empty / null providers; repeated providers; `country=`,
+  `countryCode=`, `currency=` overrides that the route reads
+  zero of today; user-id and auth-token bypass keys; cache
+  busting / format / locale / tenant keys; special-character
+  / long-value / bogus combinations) plus seven targeted
+  invariant tests (canonical 200 fallback envelope shape;
+  invariance across all seven canonical providers;
+  invariance across invalid providers; the
+  `?country=…`-does-NOT-bypass-detection invariant; the
+  `?currency=…`-does-NOT-bypass-derivation invariant; the
+  ISO 4217 supported-currency-set invariant; param-permutation
+  shape stability). Mirrors the sibling `current-user-query`
+  / `payments-query` / `subscription-query` smoke shape but
+  inverted to the always-200 contract because the currency
+  route is the only GET handler in the user tree that is
+  not session-gated.
+- `index` Inserted the `theme-toggle-page-object.md` entry at
+  the head of the plugins section (above `signin-page-object`)
+  with the same exhaustive single-line summary shape every
+  recent index entry uses.
+
 - `docs/plugins` Added `signin-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's sole `auth/`-tree page object paired with
