@@ -33,6 +33,79 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `admin-bulk-actions-page-object.md` —
+  the **first per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/bulk-actions.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/bulk-actions.page.ts)
+  and establishing the template the remaining sixteen
+  admin-tree page-object docs (one per source file) will
+  mirror. Documents the full surface for the
+  `AdminBulkActionsPage` driver — the eight `readonly`
+  Locators (`heading`, `selectAllCheckbox`,
+  `bulkActionBar`, `approveButton`, `rejectButton`,
+  `deleteButton`, `clearSelectionButton`, `confirmDialog`),
+  the `itemCheckboxes` getter, and the single
+  `navigate()` shortcut that closes over the inherited
+  `goto('/admin/items')`. Pinned to
+  [`apps/web-e2e/tests/admin/bulk-actions.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/bulk-actions.spec.ts)
+  (five flows over the items-listing bulk surface); the
+  "Why `AdminBulkActionsPage` extends `BasePage`" three-
+  reason analysis (page-route navigation via the inherited
+  `goto`, global header / footer / nav-link chrome
+  surfaced for free, post-navigation `waitForPageReady`
+  stabiliser); the "Why the bilingual `aria-label`
+  OR-of-two-paths on `selectAllCheckbox`" three-reason
+  analysis (production source bilingualism between the
+  canonical `"Select all"` English-locale phrase and the
+  i18n-key fallback `"SELECT_ALL"` for catalogue-incomplete
+  tenants, substring tolerance via the `i` flag, `.first()`
+  pin against per-row select-all duplicates); the "Why
+  `[role="toolbar"]` for `bulkActionBar`" three-reason
+  analysis; the "Why `getByRole('button', { name: /…/i })`
+  for the four action buttons" three-reason analysis; the
+  "Why `[role="dialog"][aria-modal="true"]` for
+  `confirmDialog`" three-reason analysis (modal vs
+  non-modal disambiguation, strict-mode safety against
+  tooltip / toast libraries, `.first()` pin against
+  parallel modals); the "Why `itemCheckboxes` is a getter
+  and not a `readonly` field" three-reason analysis;
+  the "Why `aria-label*=\"Select\" i` and not
+  `getByRole('checkbox', { name: /select/i })` for
+  `itemCheckboxes`" three-reason analysis; the failure
+  matrix; the per-line walkthrough; and the read / write
+  surface table mapping every caller to the fields they
+  touch.
+- `apps/web-e2e/tests/api` Added `admin-items-stats-query.spec.ts`
+  — the **deep query-param surface smoke** for the
+  admin-gated item-stats endpoint at
+  [`apps/web/app/api/admin/items/stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/items/stats/route.ts).
+  Mirrors the `admin-dashboard-stats-query.spec.ts` /
+  `admin-geo-analytics-query.spec.ts` /
+  `client-dashboard-stats-query.spec.ts` shape; pins the
+  "admin gate fires before any `searchParams.get(...)` /
+  `itemRepository.getStats(...)` call" invariant by
+  walking the route's three documented query params
+  (`search`, `categories`, `tags`) plus standard
+  admin-impersonation / magic-token / admin-override /
+  status-filter / time-range / fields-projection /
+  cache-busting / format-negotiation / locale /
+  multi-tenancy / aggregation / repeated / long /
+  bogus-key probe sets. Adds 13 deep tests on top of the
+  per-path 4xx baseline: a deterministic 401 with the
+  canonical `{ success: false, error: "Unauthorized. Admin access required." }`
+  envelope assertion; a stable-status-across-permutations
+  assertion; six "does NOT bypass the admin gate"
+  assertions for `?search=…`, `?categories=…`, `?tags=…`,
+  `?userId=…`, `?token=…`, `?bypass=…`; four "does NOT
+  change the unauth branch" assertions for `?status=…`,
+  `?from=…&to=…`, `?format=…`, `?categories=,,,`
+  empty-only comma payloads; and two "does NOT branch on
+  Accept header" / "keeps the response status stable
+  across param permutations" assertions. Stays under the
+  `<500` ceiling on every probe so the spec is green
+  whether the route returns the canonical 401 or a future
+  hardened 403.
 - `docs/plugins` Added `public-pages-page-object.md` —
   the **per-source-file reference** for the Playwright e2e
   suite's generic public content-page + error-page drivers
