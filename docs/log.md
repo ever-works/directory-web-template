@@ -33,6 +33,110 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `admin-collections-page-object.md` —
+  the **third per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/collections.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/collections.page.ts)
+  and the **first** admin-tree driver in the rollout that
+  documents a **named-row helper API**
+  (`getCollectionByName(name)`, `editCollection(name)`,
+  `deleteCollection(name)`) on top of the per-page Locator
+  fields, plus a **per-form fill helper**
+  (`fillCollectionForm({ id?, name, description? })`) that
+  encodes the multi-input form-fill convention every future
+  admin-form driver in the suite mirrors. Documents the
+  full surface for the `AdminCollectionsPage` driver — the
+  two `readonly` Locator fields (`heading`,
+  `addCollectionButton`), the nine per-form modal getters
+  (`collectionFormModal`, `collectionIdInput`,
+  `collectionNameInput`, `collectionIconInput`,
+  `collectionDescriptionInput`, `activeToggle`,
+  `cancelButton`, `createButton`, `saveButton`), the three
+  named-row helpers (`getCollectionByName`,
+  `editCollection`, `deleteCollection`), the per-form fill
+  helper (`fillCollectionForm`), and the single
+  `navigate()` shortcut that closes over the inherited
+  `goto('/admin/collections')`. Pinned to
+  [`apps/web-e2e/tests/admin/collections.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/collections.spec.ts)
+  (five flows over the admin collections-management
+  surface); the "Why `AdminCollectionsPage` extends
+  `BasePage`" three-reason analysis (page-route navigation
+  via the inherited `goto`, global header / footer /
+  nav-link chrome surfaced for free, post-navigation
+  `waitForPageReady` stabiliser); the "Why
+  `getByPlaceholder(...)` for every form-input field"
+  three-reason analysis (HeroUI's `<Input>` does not pair
+  with a visible `<label>`, `getByRole('textbox', { name:
+  … })` would resolve via the same accessible-name
+  computation but with an extra hop, the `data-testid`
+  posture would force a production-source change purely
+  for the e2e suite); the "Why `collectionFormModal` is a
+  getter and not a `readonly` field" three-reason analysis
+  (late-binding against modal mount/unmount lifecycle,
+  symmetric with `clientFormModal` /
+  `deleteConfirmModal` on the clients driver, used as the
+  scope-anchor for nine downstream per-form-element
+  getters); the "Why three named-row helpers" three-
+  reason analysis (the collections page is the first
+  admin-tree surface with per-row edit/delete buttons in
+  the rollout, the helpers compose with the underlying
+  Locator API rather than replacing it, the helpers are
+  documentation-by-default for new contributors); the
+  "Why `fillCollectionForm` accepts an object and not
+  positional args" three-reason analysis; the "Why
+  placeholder-only inputs (no per-input `aria-label` or
+  `data-testid`)" three-reason analysis; the failure
+  matrix; the per-line walkthrough; and the read / write
+  surface table mapping every caller to the fields they
+  touch.
+- `apps/web-e2e/tests/api` Added `admin-collections-query.spec.ts`
+  — the **deep query-param surface smoke** for the
+  admin-gated collections-listing endpoint at
+  [`apps/web/app/api/admin/collections/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/collections/route.ts).
+  Mirrors the `admin-dashboard-stats-query.spec.ts` /
+  `admin-geo-analytics-query.spec.ts` /
+  `admin-items-stats-query.spec.ts` /
+  `admin-users-query.spec.ts` /
+  `client-dashboard-stats-query.spec.ts` shape; pins the
+  "admin gate fires before any `searchParams.get(...)` /
+  `collectionRepository.findAllPaginated(...)` call"
+  invariant by walking the route's six documented query
+  params (`page`, `limit`, `includeInactive`, `search`,
+  `sortBy`, `sortOrder`) plus standard
+  admin-impersonation / magic-token / admin-override /
+  field-projection / cache-busting / format-negotiation /
+  locale / multi-tenancy / time-range / aggregation /
+  repeated / bogus-key / NextRequest-cookie probe sets
+  (~80 deep paths). Adds 17 deep tests on top of the
+  per-path 4xx baseline: the deterministic 401 with the
+  canonical `{ success: false, error: "Unauthorized.
+  Admin access required." }` envelope assertion (the
+  single-step gate collapses unauthenticated and
+  authenticated-non-admin into the same 401, distinct
+  from the `admin/users` route's two-step 401-then-403
+  split); a stable-status-across-permutations assertion;
+  six "does NOT bypass the admin gate" assertions for
+  `?search=…`, `?sortBy=…`, `?sortOrder=…`,
+  `?includeInactive=…`, `?page=…&limit=…`, `?userId=…`;
+  a "does NOT bypass the admin gate" assertion for
+  the higher-than-usual `?limit=` 1000 ceiling sweep
+  (this route is unique in allowing per-page limit up
+  to 1000 because collections are loaded from Git); two
+  "does NOT introduce a magic-token / admin-override
+  bypass" assertions; two "does NOT introduce a
+  content-negotiation / field-projection bypass"
+  assertions; one "does NOT introduce a single-collection-
+  targeting bypass" assertion (the route's listing
+  surface vs the `[id]` per-collection endpoint); a
+  "stable status across param permutations" assertion
+  sweeping three orthogonal parameter sets; a "does NOT
+  branch on Accept header" assertion; a "repeated query
+  keys do NOT bypass the gate" assertion; and a
+  "NextRequest-typed handler signature stable" assertion
+  that sweeps fabricated session-cookie / forwarded-IP
+  headers to defend against any future cookie-or-IP-
+  driven auth bypass.
 - `docs/plugins` Added `admin-clients-page-object.md` —
   the **second per-source-file reference** the docs tree
   publishes for any file under
