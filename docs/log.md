@@ -33,6 +33,83 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `newsletter-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's footer newsletter signup form driver paired with
+  [`apps/web-e2e/page-objects/public/newsletter.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/newsletter.page.ts),
+  sitting inside the `public/` page-object subtree alongside
+  the thirteen other public-surface page objects. Documents
+  the at-a-glance summary table of every load-bearing
+  element (the type-only Playwright import with **no
+  `BasePage` value import** — the standalone-class widget
+  posture; the `export class Newsletter` single named export
+  with **no `extends` clause** — the load-bearing standalone-
+  class widget convention; the four `readonly` fields
+  covering `page` / `emailInput` / `submitButton` /
+  `errorMessage`; the synchronous constructor that pre-binds
+  every per-page Locator in a single pass via the compound
+  `input[type="email"][name="email"]` + `.first()` selector
+  for the email input, the `..` parent-traversal step +
+  `button[type="submit"]` selector for the submit button,
+  and the comma-separated `p.text-red-600, p.text-red-400`
+  selector + `.first()` for the inline error paragraph; the
+  `subscribe(email)` two-step composite that fills the email
+  then clicks the submit button via two sequential
+  `await`s; the `hasSuccessToast(): Promise<boolean>`
+  graceful-degradation accessor with the
+  `[data-sonner-toast]` Sonner-canonical data-attribute
+  selector + `.first()` + `.catch(() => false)` error
+  collapse); the full file annotated chunk-by-chunk; the
+  spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and
+  [Spec 012 — Newsletter Providers](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/012-newsletter-providers);
+  the "Why the class does not extend `BasePage`" three-
+  reason analysis; the "Why the email input uses
+  `.first()`" three-reason analysis; the "Why the submit
+  button uses `..` traversal" three-reason analysis; the
+  "Why the error message uses `text-red-600,
+  text-red-400`" three-reason analysis; the "Why
+  `hasSuccessToast()` collapses errors to `false`" three-
+  reason analysis; the failure matrix of 21 mistakes; the
+  per-line walkthrough table; the read / write surface
+  summary; the read / write surface failure modes table;
+  and the 12-step `newsletter.page.ts`-change checklist.
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/polar-subscription-portal-body.spec.ts`
+  smoke spec for the **unauth POST branch** of the
+  session-gated `/api/polar/subscription/portal` endpoint
+  served by
+  [`apps/web/app/api/polar/subscription/portal/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/polar/subscription/portal/route.ts).
+  Pins the deterministic 401 status and the
+  `{ error: 'Unauthorized' }` envelope across **40+ body
+  permutations** (`{ userId }`, `{ user_id }`, `{ uid }`,
+  `{ id }`, `{ customerId }`, `{ customer_id }`,
+  `{ polarCustomerId }`, `{ customer }`,
+  `{ subscriptionId }`, `{ planId }`, `{ priceId }`,
+  `{ token }`, `{ secret }`, `{ api_key }`,
+  `{ authorization }`, `{ session }`, `{ sessionToken }`,
+  `{ admin }`, `{ asAdmin }`, `{ bypass }`,
+  `{ impersonate }`, `{ returnUrl }`, `{ return_url }`,
+  `{ successUrl }`, `{ cancelUrl }`, `{ email }`,
+  `{ tenant }`, `{ tenantId }`, `{ org }`, XSS / path-
+  traversal / null-byte / SQL-injection-style values, empty
+  values, falsy values, long values, combined-keys
+  permutation), plus seven bypass-resistance invariants
+  (POST without explicit body responds without server
+  error, POST returns 401 with stable `{ error: string }`
+  envelope, POST is invariant to bogus body keys, `{ userId }`
+  does not bypass the session gate, `{ customerId }` does
+  not bypass the per-session customer resolution, `{ token }`
+  does not introduce a body-token auth bypass, `{ admin }`
+  does not introduce a body-admin-override) and an open-
+  redirect-leak guard (`{ returnUrl: '<attacker.example>' }`
+  must NOT echo the attacker URL in the unauth response
+  body) and Accept-header invariance. Closes a gap in
+  [Spec 010](spec/010-e2e-test-coverage/spec.md) and
+  complements
+  [`payment-checkouts.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/payment-checkouts.spec.ts)'s
+  broad-coverage `< 500` smoke against the same route.
 - `docs/plugins` Added `map-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's Map View page driver paired with
