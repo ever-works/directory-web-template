@@ -31,6 +31,124 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-03
+
+- `docs/plugins` Added `admin-dashboard-page-object.md` —
+  the **sixth per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/dashboard.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/dashboard.page.ts)
+  and the **first** admin-tree driver in the rollout that
+  documents a **`getByRole('tablist')`-anchored multi-tab
+  navigation surface** with a per-tab `selectTab(tabName)`
+  helper that closes over a case-insensitive substring-
+  match accessible-name regex (distinct from the form-
+  modal / row-action postures the five prior admin-tree
+  drivers — bulk-actions, clients, collections, comments,
+  companies — document, and distinct from every public-
+  tree driver in the suite which has no tab-based
+  navigation surface today). Documents the full surface
+  for the `AdminDashboardPage` driver — the three
+  `readonly` Locator fields (`mainContent`, `tabList`,
+  `refreshButton`), the `navigate()` shortcut that closes
+  over the inherited `goto('/admin')`, and the
+  `selectTab(tabName)` async method that closes over a
+  `tabList`-scoped `getByRole('tab', { name: tabName,
+  exact: false }).click()` chain. Pinned to
+  [`apps/web-e2e/tests/admin/dashboard.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/dashboard.spec.ts)
+  (four flows over the admin-shell dashboard-landing
+  surface — authenticated admin can access admin panel,
+  admin dashboard displays tab navigation, non-admin
+  client is redirected from admin, unauthenticated user
+  cannot access admin); the "Why `AdminDashboardPage`
+  extends `BasePage`" three-reason analysis (page-route
+  navigation via the inherited `goto`, global header /
+  footer / nav-link chrome surfaced for free, post-
+  navigation `waitForPageReady` stabiliser); the "Why
+  `mainContent` uses `#main-content`" three-reason
+  analysis (production-source-stable id-binding for the
+  skip-link target, `getByRole('main')` would resolve too
+  broadly, the `data-testid` posture would force a
+  production-source change); the "Why `tabList` uses
+  `getByRole('tablist')`" three-reason analysis
+  (accessibility-tree-canonical posture, production-
+  source consistency with the per-tab `getByRole('tab')`
+  posture, the `data-testid` posture would force a
+  production-source change); the "Why `refreshButton`
+  uses `getByRole('button', { name: /refresh/i }).first()`"
+  three-reason analysis (case-insensitive substring-match
+  tolerates production-source rephrasing, `.first()`
+  defends against multi-button pages, the `data-testid`
+  posture would force a production-source change); the
+  "Why `selectTab` is an async method" three-reason
+  analysis (consuming specs always click the resolved
+  tab, the `tabList`-scoped selector is the load-bearing
+  invariant, the `exact: false` posture is the canonical
+  Playwright shortcut for case-insensitive substring-
+  match); cross-references to all five prior admin-tree
+  page-object docs and to the public-tree drivers; and
+  a "What it does not contain" five-bullet enumeration
+  of the deliberate omissions (no `getByTestId` selectors,
+  no per-tab Locator getters, no per-stat Locators, no
+  `clickRefresh()` helper, no `assertTabSelected(tabName)`
+  helper) that future contributors must respect when they
+  add new helpers to keep the driver minimal. Continues
+  the rollout of the per-source-file admin page-object
+  references — eleven admin-tree page objects remain
+  (data-export, featured-items, item-form, items,
+  notifications, reports, roles, settings, sponsorships,
+  surveys, tags). Updates [`docs/index.md`](./index.md)
+  with the standard one-paragraph entry that lists all
+  prior admin-tree page-object docs as cross-references
+  and pins the consuming spec, the four-flow envelope,
+  the change protocol (update the doc in the same PR,
+  update this log, cross-check `e2e-tsconfig.md`,
+  `playwright-config.md`, `fixtures-index.md`, run
+  `pnpm tsc --noEmit`, run a smoke-subset Playwright run
+  targeting the dashboard spec subset, a Spec 010 cross-
+  link if the change introduces a new shared concept,
+  and a reviewer pass), and follows the same posture as
+  the five prior admin-tree page-object index entries.
+- `apps/web-e2e/tests/api` Added
+  `admin-categories-query.spec.ts` — the **eighth per-
+  route admin-API query-surface smoke spec** (after
+  `admin-by-id`, `admin-collections-query`,
+  `admin-comments-query`, `admin-companies-query`,
+  `admin-dashboard-stats-query`,
+  `admin-geo-analytics-query`,
+  `admin-items-stats-query`, and `admin-users-query`),
+  pinned to the
+  [`apps/web/app/api/admin/categories/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/categories/route.ts)
+  handler. Pins the unauth-branch contract (always 401
+  with the canonical
+  `{ success: false, error: 'Unauthorized. Admin access required.' }`
+  envelope, distinct from the bare
+  `{ error: 'Unauthorized' }` envelope the
+  `admin/companies` route emits and from the
+  `{ success: false, error: 'Forbidden' }` envelope the
+  `admin/comments` route emits) across a sweep of the
+  five documented query keys (`page`, `limit`,
+  `includeInactive`, `sortBy`, `sortOrder`) and a
+  speculative-bypass sweep (`?userId=`, `?token=`,
+  `?bypass=`, `?fields=`, `?categoryId=`, `?q=`,
+  `?from=…`, `?to=…`, `?deleted=…`) that catches any
+  future regression that reads a query param before the
+  admin gate. Includes the standard 18 invariant
+  assertions (`< 500` per parametrised path, exact-401-
+  envelope for the no-arg baseline, status-stable across
+  permutations, pagination-validators-do-not-fire-on-
+  unauth, `?includeInactive=` does not bypass,
+  `?sortBy=` does not bypass, `?sortOrder=` does not
+  bypass, `?userId=` does not bypass, `?token=` does not
+  bypass, `?bypass=` does not bypass, `?fields=` does
+  not bypass, `?categoryId=` does not bypass, `?q=` does
+  not bypass, `?from=…&to=…` does not bypass,
+  `?deleted=…` does not bypass, status stable across
+  three permutations, Accept header does not branch,
+  repeated query keys do not bypass, NextRequest-typed
+  signature stable across cookie / IP side channels)
+  that mirror the sibling admin-API query-surface specs.
+
 ## 2026-05-02
 
 - `docs/plugins` Added `admin-companies-page-object.md` —
