@@ -33,6 +33,165 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `scroll-to-top-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's scroll-to-top floating-button driver paired with
+  [`apps/web-e2e/page-objects/public/scroll-to-top.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/scroll-to-top.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class ScrollToTop` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  the standalone class restates because it does not
+  inherit from `BasePage`, the single `readonly button:
+  Locator` pinned via the `page.locator('button[aria-label="Scroll to top"]')`
+  exact-match selector with no `.first()` because the
+  floating button is a single-instance fixed-position
+  widget on every page, the constructor that pre-binds
+  the single button Locator without a `super(page)` call,
+  the `scrollDown(pixels = 500)` primitive that runs
+  `window.scrollBy(0, pixels)` inside the page context
+  with a default that comfortably clears the production
+  source's ~300-pixel threshold, the `click()` primitive
+  that clicks the floating button, and the `getScrollY():
+  Promise<number>` accessor that returns `window.scrollY`
+  for both precondition and postcondition assertions);
+  the full file annotated chunk-by-chunk; the spec
+  context cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/scroll-to-top.spec.ts`
+  (button hidden at the top of `/`, button appears after
+  `scrollDown(500)`, page returns to the top after
+  `click()`); the seven "Why X" walkthroughs (the class
+  does not extend `BasePage` because the scroll-to-top
+  button is a global floating widget rendered on every
+  page in every role tree and a future admin-shell or
+  client-shell consumer would reuse it, exact `aria-label`
+  selector over substring because the label is the
+  canonical accessibility primitive a screen reader
+  announces and there is no plausible label variant
+  requiring substring-tolerance, no `.first()` on the
+  Locator because the single-instance invariant means
+  future regressions should surface as strict-mode
+  violations, `page.evaluate(() => window.scrollBy(0, px), pixels)`
+  over `page.mouse.wheel` or `page.keyboard.press('PageDown')`
+  for deterministic scroll distance and threshold-test
+  ergonomics, `pixels = 500` default for comfortable
+  threshold clearance and documentation-by-default,
+  `getScrollY` reads `window.scrollY` instead of React
+  state for production-source-first signal and no reach-in
+  to React internals); the failure matrix covering every
+  scroll-to-top-page-level mistake (type-only import drop,
+  accidental `extends BasePage` add, `readonly` drop,
+  substring `aria-label*=` swap, `data-testid` swap,
+  accidental `.first()` add, `page.mouse.wheel` swap with
+  wheel-acceleration flake, `page.keyboard.press('PageDown')`
+  swap with viewport-dependence, `pixels = 500` default
+  drop, React-state read on `getScrollY`, `Promise<number>`
+  annotation drop, file move, rename, `.tsx` extension,
+  CRLF line endings); the per-line walkthrough table;
+  the read / write surface summary that maps every
+  caller (the consuming spec, future smoke / a11y specs
+  that count `button.count() === 1` and audit `aria-label`,
+  the listing-page / item-detail-page production-source
+  components for the DOM contract,
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) for the
+  `include` glob, [`playwright-config.md`](plugins/playwright-config.md)
+  for the `baseURL`) to the fields they touch; the read /
+  write surface failure modes table that maps
+  production-source / middleware / config drift onto
+  `Locator not found`, threshold-clearance failure, and
+  JavaScript-disabled-route failures; and the
+  `scroll-to-top.page.ts`-change checklist that ties any
+  change to a spec audit (every spec under
+  `apps/web-e2e/tests/public/scroll-to-top.spec.ts`), a
+  [`base-page-object.md`](plugins/base-page-object.md)
+  cross-check, a production-source cross-check (the exact
+  `aria-label="Scroll to top"` attribute, the
+  fixed-position floating shape, the ~300-pixel scroll
+  threshold, the React-state-driven visibility flip), an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) cross-check
+  (the `include: ["./**/*.ts"]` glob), a
+  [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check (the `baseURL` posture), a
+  [`fixtures-index.md`](plugins/fixtures-index.md)
+  cross-check (a future fixture-bound scroll-to-top
+  would surface there), dual `pnpm tsc --noEmit` runs
+  (e2e + workspace root), a smoke-subset Playwright
+  run targeting the scroll-to-top spec subset
+  (`pnpm --filter @ever-works/web-e2e test:e2e:chromium --grep "scroll-to-top"`),
+  a [`docs/log.md`](log.md) entry, a [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link if the change introduces a new shared
+  concept that affects test authoring, and a reviewer
+  pass. Cross-linked from
+  [`docs/index.md`](index.md) and adjacent to the existing
+  `view-toggle-page-object.md` /
+  `theme-toggle-page-object.md` /
+  `signin-page-object.md` /
+  `search-bar-page-object.md` /
+  `discover-page-object.md` /
+  `base-page-object.md` per-source-file references.
+
+- `apps/web-e2e/tests/api` Added
+  `stripe-payment-methods-list-query.spec.ts` — the
+  **query-param surface smoke** for the
+  authenticated Stripe-payment-methods-list endpoint
+  served by [`apps/web/app/api/stripe/payment-methods/list/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/stripe/payment-methods/list/route.ts),
+  the **fifth** query-smoke spec in the
+  `subscription-query.spec.ts` /
+  `payments-query.spec.ts` /
+  `plan-status-query.spec.ts` /
+  `lemonsqueezy-list-query.spec.ts` family. The route
+  is unique among the five because its handler signature
+  is **zero-argument** today (`export async function GET()`,
+  reading no `searchParams` at all). The spec exhaustively
+  exercises every plausible query key a regression might
+  introduce — `?type=` (filter by payment-method type),
+  `?limit=` (pagination limit), `?starting_after=` /
+  `?ending_before=` (Stripe's canonical cursor keys),
+  `?customer=` / `?customerId=` / `?stripeCustomerId=`
+  (admin-impersonation candidates), `?userId=` / `?user_id=`
+  / `?uid=` / `?id=` (per-user override candidates),
+  `?token=` / `?secret=` / `?api_key=` / `?authorization=`
+  / `?session=` (magic-token bypass candidates), `?stripeKey=`
+  / `?stripe_key=` / `?sk=` / `?apiKey=` / `?secretKey=`
+  (dangerous Stripe-key passthrough candidates),
+  `?provider=` (cross-provider bypass candidates),
+  `?refresh=` / `?force=` / `?fresh=` / `?cache=` /
+  `?nocache=` (cache-busting), `?expand=` / `?include=`
+  (Stripe SDK expansion forwarding candidates), `?format=`
+  (content-negotiation), `?currency=` / `?locale=` /
+  `?lang=` (response-transformation candidates), `?sort=`
+  / `?order=` / `?direction=` (sort-override candidates),
+  `?fields=` / `?select=` (column-projection candidates),
+  `?tenant=` / `?tenantId=` / `?org=` (multi-tenancy
+  candidates), `?account=` / `?stripeAccount=` /
+  `?connect=` (Stripe Connect account-override
+  candidates), empty-value variants for each of the
+  load-bearing keys, repeated keys, special-character
+  values (URL-encoded `<script>`, `' OR 1=1`, path
+  traversal, `%00`), 500-character long values, and
+  bogus typo'd keys — pinning that every parameter
+  permutation round-trips to the same canonical 401
+  envelope `{ success: false, error: 'Unauthorized' }`
+  on the unauthenticated GET branch because the auth
+  gate fires before any potential `searchParams` parsing
+  or Stripe SDK call. Includes nine targeted assertions
+  (the no-arg 401-with-canonical-envelope shape, the
+  identity assertion across with/without bogus params,
+  the `customer=` no-bypass assertion that pins the
+  "the customer id is gated by the session" invariant
+  that prevents arbitrary-customer payment-method
+  enumeration, the `stripeKey=` no-forwarding assertion
+  that pins the "the Stripe key is server-side only"
+  invariant, the `token=` no-bypass assertion, the
+  `provider=` no-switching assertion, the `account=`
+  no-Connect-override assertion that pins the
+  "platform Stripe account exclusively" invariant, the
+  `type=` no-filter-change assertion, and the response
+  shape stability assertion across permutations).
+
 - `docs/plugins` Added `view-toggle-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's public-listing view-toggle driver paired with
