@@ -33,6 +33,112 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `admin-companies-page-object.md` —
+  the **fifth per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/companies.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/companies.page.ts)
+  and the **first** admin-tree driver in the rollout that
+  documents both a **bare `.fixed.inset-0.z-50` Tailwind-
+  overlay form modal** (matching the clients driver's
+  posture for the create / edit form) **and** a separate
+  **text-filtered Tailwind-overlay delete-confirmation
+  modal** (`.fixed.inset-0.z-50` overlay primitive scoped
+  by a `hasText: /delete company/i` filter — distinct from
+  the clients driver's named-class `deleteConfirmModal`
+  selector and from the comments driver's
+  `[role="dialog"]` selector). Documents the full surface
+  for the `AdminCompaniesPage` driver — the two `readonly`
+  Locator fields (`heading`, `addCompanyButton`), the
+  seven per-element getters (`companyFormModal`,
+  `companyNameInput`, `cancelButton`,
+  `createCompanyButton`, `updateCompanyButton`,
+  `deleteConfirmModal`, `confirmDeleteButton`), and the
+  single `navigate()` shortcut that closes over the
+  inherited `goto('/admin/companies')`. Pinned to
+  [`apps/web-e2e/tests/admin/companies.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/companies.spec.ts)
+  (four flows over the admin companies-management
+  surface — admin can access companies management page,
+  admin can open create company modal, admin can create
+  a new company, admin can open delete company
+  confirmation); the "Why `AdminCompaniesPage` extends
+  `BasePage`" three-reason analysis (page-route
+  navigation via the inherited `goto`, global header /
+  footer / nav-link chrome surfaced for free, post-
+  navigation `waitForPageReady` stabiliser); the "Why
+  `.fixed.inset-0.z-50` for the form modal" three-reason
+  analysis (production-source consistency with the
+  clients / collections form-modal posture, no
+  `[role="dialog"]` on the production source today, the
+  `data-testid` posture would force a production-source
+  change); the "Why `.first()` on `companyFormModal` (and
+  not on `deleteConfirmModal`)" three-reason analysis
+  (multi-instance selector, text-filter disambiguation,
+  modal-mount lifecycle differences); the "Why
+  `companyNameInput` uses `locator('input').first()`"
+  three-reason analysis (no production-source-stable
+  placeholder, no accessible-name binding, single-input
+  form contract); the "Why `confirmDeleteButton` uses an
+  exact-match `/^delete$/i` regex" three-reason analysis
+  (HeroUI Modal title is the modal's accessible name,
+  case-insensitive flag tolerates capitalisation drift,
+  modal-scope second-line defence); the "Why two distinct
+  submit-button getters" three-reason analysis (per-mode
+  accessible names, per-mode test assertions, future-
+  proof against per-mode loading states); the "Why
+  `companyFormModal` is a getter" three-reason analysis;
+  the failure matrix; the per-line walkthrough; and the
+  read / write surface table mapping every caller to the
+  fields they touch.
+- `apps/web-e2e/tests/api` Added `admin-companies-query.spec.ts`
+  — the **deep query-param surface smoke** for the
+  admin-gated companies-listing endpoint at
+  [`apps/web/app/api/admin/companies/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/companies/route.ts).
+  Mirrors the `admin-collections-query.spec.ts` /
+  `admin-comments-query.spec.ts` /
+  `admin-dashboard-stats-query.spec.ts` /
+  `admin-geo-analytics-query.spec.ts` /
+  `admin-items-stats-query.spec.ts` /
+  `admin-users-query.spec.ts` /
+  `client-dashboard-stats-query.spec.ts` shape; pins the
+  "admin gate fires before any `searchParams.get(...)` /
+  repository call" invariant by walking the route's four
+  documented query params (`page`, `limit`, `q`, `status`)
+  plus standard admin-impersonation / magic-token /
+  admin-override / field-projection / cache-busting /
+  format-negotiation / locale / multi-tenancy / time-
+  range / sort / soft-delete-filter / company-targeting
+  (by id / slug / domain) / repeated / bogus-key /
+  Cookie-header probe sets (~95 deep paths). Adds 16
+  deep tests on top of the per-path 4xx baseline: the
+  deterministic 401 with the bare-error envelope
+  `{ error: 'Unauthorized' }` assertion (the route uses
+  the legacy bare-error envelope rather than the
+  unified `{ success: false, error }` envelope the
+  `admin/comments` route uses; the 401 status is the
+  same posture as the `admin/collections` and
+  `admin/users` routes for the unauth case); a stable-
+  status-across-permutations assertion; eight "does NOT
+  bypass the admin gate" assertions for `?q=…`,
+  `?page=…&limit=…`, `?status=…`, `?userId=…`,
+  `?token=…`, `?bypass=…`, `?fields=…`, `?companyId=…`;
+  three "introduces no specific bypass" assertions for
+  `?from=…&to=…`, `?sortBy=…`, `?deleted=…`; a stable-
+  status-across-param-permutations assertion; an Accept-
+  header invariance assertion; a repeated-keys
+  invariance assertion; a NextRequest-typed handler
+  signature stability assertion sweeping known-bogus
+  Cookie / X-Forwarded-For / X-Real-IP headers. Closes
+  the "deep query-surface walk" gap on the admin
+  companies-listing route under
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and adds the **first** deep-query-surface smoke for
+  the `q`-keyed search-input convention (where every
+  other admin-route smoke pinned to date uses the
+  `search`-keyed convention) — locking the
+  production-source naming divergence into the test
+  suite as a regression guard.
+
 - `docs/plugins` Added `admin-comments-page-object.md` —
   the **fourth per-source-file reference** the docs tree
   publishes for any file under
