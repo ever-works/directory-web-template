@@ -33,6 +33,160 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `auth-fixture.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  authenticated-context fixture paired with
+  [`apps/web-e2e/fixtures/auth.fixture.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/fixtures/auth.fixture.ts),
+  the authenticated-fixture companion to
+  [`global-setup.md`](plugins/global-setup.md) (which mints the
+  persisted authentication storage states),
+  [`global-teardown.md`](plugins/global-teardown.md) (today a
+  no-op placeholder), and
+  [`e2e-test-data.md`](plugins/e2e-test-data.md) (which
+  exports `ADMIN_STATE_FILE` and `CLIENT_STATE_FILE`). Where
+  `global-setup.md` documents the **suite's pre-flight
+  boundary**, `global-teardown.md` documents the **suite's
+  post-flight boundary**, and `e2e-test-data.md` documents the
+  **suite's shared-data boundary**, this page documents the
+  **suite's authenticated-fixture boundary** — how the
+  persisted storage states minted at pre-flight become per-test
+  isolated browser contexts, with what failure modes, and what
+  guarantees a spec can rely on when it imports `test` from
+  this file instead of from `@playwright/test`. Documents the
+  at-a-glance summary table of every load-bearing element (the
+  file-scoped `eslint-disable react-hooks/rules-of-hooks`
+  directive that suppresses the false-positive flag on
+  Playwright's `use` parameter name; `import { test as base,
+  type Page, type BrowserContext } from '@playwright/test'`
+  with the mandatory `as base` rename to free up `test` for the
+  local export and the type-only imports that stay out of the
+  runtime bundle; `fs` / `path` Node imports for the
+  `requireAuthState()` `existsSync` check and the
+  `path.resolve(__dirname, '..', ...)` absolute-path
+  computation; the `import { ADMIN_STATE_FILE, CLIENT_STATE_FILE
+  } from '../helpers/test-data'` so the fixture never types the
+  literal `'auth-states/admin.json'`; the `ADMIN_STATE_PATH` /
+  `CLIENT_STATE_PATH` resolved-once-at-module-load absolute
+  paths with the `__dirname`-anchored shape that survives
+  `webServer.cwd: '../..'`; the `requireAuthState(filePath)`
+  fail-fast guard that throws with a contributor-actionable
+  message naming the file path AND the most likely cause
+  `SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD`; the `AuthFixtures`
+  type with the four fixture names; the four
+  `base.extend<AuthFixtures>(...)` factories with `adminContext`
+  depending on `browser` and `adminPage` depending on
+  `adminContext` — the only shapes that load the storage state
+  at context creation; the per-test `await close()` teardown
+  that prevents memory leaks under high-parallelism workers;
+  and the `export { expect } from '@playwright/test'` re-export
+  that saves every spec one import line and prevents the
+  imported-`test`-but-not-`expect` anti-pattern that breaks
+  Playwright's test-soft-failure aggregation); the full file
+  annotated chunk-by-chunk; the "How a spec uses the fixture"
+  walkthrough showing the canonical
+  `import { test, expect } from '../../fixtures/auth.fixture'`
+  shape; the "Why a fixture instead of a `test.beforeEach()`
+  hook" walkthrough that pins the three failure modes of the
+  hook approach against the lazy-composition fixture model; the
+  "Why `BrowserContext` per fixture, not a shared one"
+  walkthrough that pins the three failure modes of the
+  shared-context optimisation against the fresh-context-per-test
+  isolation; the failure matrix that maps each `auth.fixture.ts`
+  mistake (drop the `requireAuthState` guard → cryptic 30-s
+  timeout instead of fail-fast, switch to `fs.statSync` →
+  low-level `ENOENT` instead of contributor-actionable message,
+  drop the `path.resolve(__dirname, '..', ...)` shape →
+  relative paths resolve against the wrong `webServer.cwd`,
+  hard-code the literal `'auth-states/admin.json'` → drift on a
+  future directory rename, drop the `as base` rename →
+  TypeScript redeclaration error, drop the `AuthFixtures` type
+  parameter → loss of IntelliSense and typo-driven runtime
+  errors, reuse a shared `BrowserContext` → cross-test
+  pollution and races, drop the `await close()` teardown → OOM
+  under high parallelism, drop the `re-export { expect }` →
+  spec drift back to dual imports breaking soft-failure
+  aggregation, switch the `adminContext` factory's dependency
+  from `browser` to `context` → silent breakage of the
+  "pre-loaded with admin auth" guarantee, switch the
+  `adminPage` factory's dependency from `adminContext` to
+  `page` → silent breakage of the "authenticated page"
+  guarantee, move the file from `apps/web-e2e/fixtures/` →
+  `Cannot find module` on every consumer import, add a third
+  fixture pair without updating the `AuthFixtures` type → new
+  fixture not destructurable from spec, remove the
+  `eslint-disable` directive → CI lint failure on the
+  false-positive flag) onto the layer that surfaces each one;
+  the per-line walkthrough table; and the `auth.fixture.ts`-change
+  checklist that ties any fixture change to a
+  [`global-setup.md`](plugins/global-setup.md) cross-check, a
+  [`global-teardown.md`](plugins/global-teardown.md)
+  cross-check, an [`e2e-test-data.md`](plugins/e2e-test-data.md)
+  cross-check, a [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, an [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, every authenticated spec under
+  `apps/web-e2e/tests/admin/` and `apps/web-e2e/tests/client/`
+  (they all import `{ test, expect }` from this file), dual
+  `pnpm tsc --noEmit` runs (e2e + workspace root), a
+  smoke-subset Playwright run of the admin / client spec set, a
+  [`docs/log.md`](log.md) entry, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link if a new auth role or fixture pair is added, and
+  a reviewer pass.
+
+- `apps/web-e2e/tests/api` Added
+  `internal-db-init-query.spec.ts` — a query-param surface
+  smoke spec for `GET /api/internal/db-init` (the
+  development-only database-initialization endpoint served by
+  [`apps/web/app/api/internal/db-init/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/internal/db-init/route.ts)
+  that triggers `initializeDatabase()` — auto-migration plus
+  seeding — when the host app is in `NODE_ENV=development` and
+  hard-blocks with `403` and `{ error: 'Not available in
+  production' }` otherwise). Pins the route's status surface
+  against future regressions that might introduce a `?force=`
+  bypass for the production guard (which a future "allow init
+  in staging" feature might tempt a contributor into adding by
+  flipping the hard-coded `NODE_ENV !== 'development'` check),
+  a `?env=` query-string spoof for the server-side
+  `process.env.NODE_ENV`, a `?seed=` / `?reset=` / `?drop=`
+  destructive toggle, a `?token=` / `?secret=` / `?api_key=`
+  query-token authentication bypass, or any other
+  caller-controlled flag that would change the production-mode
+  behaviour. Walks the route's three-branch contract (`200` on
+  the dev happy path, `403` on the production guard, `500` on
+  a thrown `initializeDatabase()` error mapped through
+  `safeErrorResponse`) and asserts `< 600 && >= 200` on every
+  parameterised path because all three branches are part of
+  the route's contract; pins the more precise allowed-set
+  `[200, 403, 500]` on the no-arg path; asserts status-equality
+  between the no-arg case and a parameter-laden case to pin
+  the "every unknown query key is silently ignored"
+  invariant; and asserts three load-bearing security
+  invariants explicitly: `?force=true` does NOT bypass the
+  production guard, `?env=development` / `?env=production` do
+  NOT spoof `NODE_ENV`, and `?token=anything` / `?secret=anything`
+  / `?authorization=Bearer+anything` do NOT introduce a
+  query-token auth bypass. The matrix covers the obvious
+  bypass keys (`?force=`, `?bypass=`, `?override=`), env-spoof
+  keys (`?env=`, `?NODE_ENV=`), destructive toggles
+  (`?seed=`, `?reset=`, `?drop=`, `?recreate=`), migration
+  toggles (`?migrate=`, `?skip-migration=`), dry-run toggles
+  (`?dryRun=`, `?dry-run=`), logging toggles (`?verbose=`,
+  `?debug=`, `?logLevel=`), cache-busting keys (`?refresh=`,
+  `?nocache=`), content-negotiation keys (`?format=`),
+  multi-tenancy keys (`?tenant=`, `?tenantId=`), magic-token
+  keys (`?token=`, `?secret=`, `?api_key=`,
+  `?authorization=`), the empty-value case for each, repeated
+  keys, special characters that would tempt regex / LIKE /
+  SQL-injection wiring (including a `?token=' OR 1=1`
+  classic), long values to guard against future regex-based
+  indexing bugs, and bogus / typo'd keys. Cross-references
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage),
+  the
+  [`method-guards.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/method-guards.spec.ts)
+  spec that already covers the route indirectly, and the
+  [`apps/web/app/api/internal/db-init/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/internal/db-init/route.ts)
+  source file the spec is paired with.
+
 - `docs/plugins` Added `e2e-test-data.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   central test-data and constants module paired with
