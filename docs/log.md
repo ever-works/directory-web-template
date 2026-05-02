@@ -33,6 +33,146 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `search-bar-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's public-listing search-input driver paired with
+  [`apps/web-e2e/page-objects/public/search-bar.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/search-bar.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the fourteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class SearchBar` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  the standalone class restates, the
+  `readonly input: Locator`
+  `page.locator('input[placeholder*="Search" i]').first()`
+  case-insensitive substring selector, the
+  `readonly clearButton: Locator`
+  `page.locator('button', { hasText: '×' }).first()`
+  multiplication-sign-glyph selector, the constructor
+  that pre-binds both Locators without a `super(page)`
+  call, the `search(term)` method that calls Playwright's
+  `fill()` for debounce-deterministic single-round-trip
+  semantics, the `clear()` method that calls Playwright's
+  `clear()` to handle empty-input safety regardless of
+  the clear button's visibility, the `getValue()` accessor
+  with the `?? ''` nullish coalesce that future-proofs
+  against a Playwright API change to `string | null`); the
+  full file annotated chunk-by-chunk; the spec context
+  cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/search.spec.ts` (three
+  flows: visibility on `/`, fill+read after debounce,
+  clear+read after debounce); the seven "Why X"
+  walkthroughs (the class does not extend `BasePage`
+  because the search input is page-mounted not
+  page-shaped and a future admin-search would reuse it,
+  `placeholder*="Search" i` over `data-testid` because
+  it tolerates placeholder evolution and case drift,
+  `hasText: '×'` over a CSS class because the
+  multiplication-sign glyph U+00D7 survives every
+  translation pass while the lower-case Latin x `x`
+  U+0078 would silently miss, `.first()` on both Locators
+  for strict-mode safety against future stacked inputs /
+  clear buttons, `fill()` over `pressSequentially()`
+  because the production-source debounces on the React
+  value not per-keystroke events, `clear()` over a
+  `clearButton.click()` because the clear button is
+  hidden when the input is empty so clicking it would
+  flake, `?? ''` on `getValue()` to keep the public
+  return type pinned to `string` against any future
+  Playwright API change); the failure matrix that maps
+  each search-bar mistake (drop `import type`, add an
+  `extends BasePage` clause, drop `readonly` from any
+  field, switch `input` to a `placeholder="Search"` exact
+  match, drop the `i` flag from the `placeholder`
+  substring, drop `.first()` on `input`, swap the
+  placeholder substring for a `data-testid`, switch
+  `clearButton` to `hasText: 'x'` Latin lower-case x,
+  switch `clearButton` to a CSS class selector, drop
+  `.first()` on `clearButton`, switch `search()` from
+  `fill()` to `pressSequentially()`, switch `clear()` to
+  a `clearButton.click()`, drop the `?? ''` on
+  `getValue()`, file move, rename, `.tsx` extension,
+  CRLF line endings) onto the layer that surfaces each
+  one; the per-line walkthrough table; the read / write
+  surface summary that maps every caller (the consuming
+  spec at `apps/web-e2e/tests/public/search.spec.ts`,
+  future smoke / a11y specs that read `getValue()`, the
+  production source for the listing's search input,
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) for the
+  `include` glob,
+  [`playwright-config.md`](plugins/playwright-config.md)
+  for the `baseURL`) to the fields they touch; the
+  read / write surface failure modes table that maps
+  production-source / middleware / config drift onto
+  `Locator not found`, `inputValue()`-returns-empty,
+  and `clear-button-glyph-misses` failures; and the
+  `search-bar.page.ts`-change checklist that ties any
+  change to a spec audit, a
+  [`base-page-object.md`](plugins/base-page-object.md)
+  cross-check (if the new shape inherits, document why),
+  a production-source cross-check (placeholder substring,
+  `×` glyph, React-controlled value), an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, a
+  [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, a [`fixtures-index.md`](plugins/fixtures-index.md)
+  cross-check (a future fixture-bound search bar would
+  surface there), dual `pnpm tsc --noEmit` runs (e2e +
+  workspace root), a smoke-subset Playwright run
+  targeting the search-bar spec subset
+  (`pnpm --filter @ever-works/web-e2e test:e2e:chromium --grep search`),
+  a [`docs/log.md`](log.md) entry, a Spec 010 cross-link
+  if a new shared concept is introduced, and a reviewer
+  pass.
+
+- `apps/web-e2e/tests/api` Added
+  `location-cities-query.spec.ts` — the **first** smoke
+  spec for the public `/api/location/cities` endpoint's
+  query-param surface served by
+  `apps/web/app/api/location/cities/route.ts`. The route
+  is a **zero-query-param** GET handler — it reads zero
+  `searchParams` and exposes exactly two well-formed
+  branches: `404` + `{ success: false, error: 'Location
+  features are disabled' }` when `getLocationEnabled()`
+  returns `false` (the most-likely branch on a clean
+  local-dev baseline), and `200` + `{ success: true,
+  data: string[] }` when the feature is on. The spec
+  pins this contract via a 75-entry parametrised matrix
+  spanning every "the route does not read this" category
+  (`?city=` / `?country=` / `?countryCode=` / `?region=`
+  / `?state=` / `?province=` / `?q=` / `?search=` /
+  `?term=` / `?prefix=` / `?limit=` / `?offset=` /
+  `?page=` / `?perPage=` / `?cursor=` / `?sort=` /
+  `?order=` / `?direction=` / `?locale=` / `?lang=` /
+  `?format=` / `?fields=` / `?include=` / `?expand=` /
+  `?tenant=` / `?tenantId=` / `?org=` / `?refresh=` /
+  `?cache=` / `?force=` / `?fresh=` / `?nocache=` /
+  `?token=` / `?secret=` / `?api_key=` /
+  `?authorization=` / special-character values for
+  XSS / SQL-injection / path-traversal / null bytes /
+  500-character long values / typo'd keys / repeated
+  keys), each asserting `< 500`; one per-call envelope
+  test that asserts the status is exactly `200` or `404`
+  and the body shape matches the success envelope
+  (`success: true, data: string[]` with every entry a
+  `string`) or the feature-disabled envelope
+  (`success: false, error: string`); one invariance test
+  that compares 14 representative parametrised responses
+  to the no-arg baseline so a regression that begins
+  reading `?city=…` / `?q=…` / `?limit=…` surfaces
+  immediately; one filter-override test that asserts a
+  nonsensical `?city=__definitely-not-a-real-city__`
+  filter does not change the response so a future
+  filtering wire-up that grants caller-controlled
+  override of `getDistinctCities()` is caught; and one
+  parallel sweep test that confirms every parametrised
+  query in the matrix is below 500. Mirrors the shape
+  of `location-countries-query.spec.ts` (its sibling in
+  the `apps/web/app/api/location/` subtree) and rounds
+  out the location-API smoke matrix.
+
 - `docs/plugins` Added `discover-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's public directory-listing driver paired with
