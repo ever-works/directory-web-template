@@ -62,7 +62,7 @@ jobs:
               "framework": "nextjs",
               "rootDirectory": "apps/web",
               "sourceFilesOutsideRootDirectory": true,
-              "buildCommand": "pnpm run build:ci",
+              "buildCommand": "pnpm -w run build:web",
               "outputDirectory": null
             }')
 
@@ -72,8 +72,33 @@ jobs:
           echo "Response: $BODY"
 
           if [ "$HTTP_CODE" = "404" ]; then
-            echo "Project '${{ github.event.repository.name }}' was not found while syncing settings."
-            echo "Continuing; the Vercel CLI link/build steps will validate project access."
+            echo "Project '${{ github.event.repository.name }}' was not found; creating it with remote build settings."
+            CREATE_API_URL="https://api.vercel.com/v9/projects"
+            [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && CREATE_API_URL="${CREATE_API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+
+            CREATE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$CREATE_API_URL" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "name": "${{ github.event.repository.name }}",
+                "framework": "nextjs",
+                "rootDirectory": "apps/web",
+                "sourceFilesOutsideRootDirectory": true,
+                "buildCommand": "pnpm -w run build:web",
+                "outputDirectory": null
+              }')
+
+            CREATE_HTTP_CODE=$(echo "$CREATE_RESPONSE" | tail -n1)
+            CREATE_BODY=$(echo "$CREATE_RESPONSE" | sed '$d')
+            echo "Create HTTP Status: $CREATE_HTTP_CODE"
+            echo "Create Response: $CREATE_BODY"
+
+            if [ "$CREATE_HTTP_CODE" -lt 200 ] || [ "$CREATE_HTTP_CODE" -ge 300 ]; then
+              echo "Failed to create Vercel project"
+              echo "Error: $(echo "$CREATE_BODY" | jq -r '.error.message // "Unknown error"')"
+              exit 1
+            fi
+
             exit 0
           fi
 
