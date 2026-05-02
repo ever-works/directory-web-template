@@ -33,6 +33,73 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `base-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's foundational page-object class paired with
+  [`apps/web-e2e/page-objects/base.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/base.page.ts),
+  the page-object inheritance root sitting at
+  `apps/web-e2e/page-objects/base.page.ts` the same way
+  [`fixtures-index.md`](plugins/fixtures-index.md) sits at
+  the root of the fixtures tree and
+  [`e2e-test-data.md`](plugins/e2e-test-data.md) sits at the
+  root of the helpers tree. Where `fixtures-index.md`
+  documents the **directory-level fixture-export boundary**
+  and `e2e-test-data.md` documents the **suite's
+  shared-data boundary**, this page documents the
+  **page-object inheritance root** — the smallest possible
+  class every concrete page object under the four role trees
+  (`apps/web-e2e/page-objects/admin/`,
+  `apps/web-e2e/page-objects/auth/`,
+  `apps/web-e2e/page-objects/client/`, and
+  `apps/web-e2e/page-objects/public/`) extends. Documents the
+  at-a-glance summary table of every load-bearing element
+  (the `import type` Playwright type-only import that stays
+  out of the runtime bundle, the `BasePage` single named
+  export inherited by 30+ subclasses today, the four
+  pre-bound Locators `page` / `header` / `footer` /
+  `navLinks` with the `first()` posture on `header` and
+  `footer` against Next 16 stacked-layout headers, the
+  `goto()` suite-wide navigation primitive with the
+  `waitUntil: 'domcontentloaded'` override, the
+  `gotoLocalized()` locale-aware variant that special-cases
+  `'en'` to bare paths, the `waitForPageReady()` re-await
+  primitive, the `getTitle()` shortcut); the full file
+  annotated chunk-by-chunk; the four "Why X" walkthroughs
+  for the load-bearing choices (type-only import vs runtime
+  import, `first()` vs unscoped header / footer selection,
+  header-scoped vs page-scoped link enumeration,
+  `domcontentloaded` vs `load` / `networkidle`); the
+  `'en'`-special-case rationale for `gotoLocalized()`; the
+  failure matrix covering every base-class-level mistake;
+  the per-line walkthrough table; and the `base.page.ts`-change
+  checklist with cross-checks against
+  [`fixtures-index.md`](plugins/fixtures-index.md),
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md),
+  [`e2e-package-manifest.md`](plugins/e2e-package-manifest.md),
+  [`playwright-config.md`](plugins/playwright-config.md),
+  and [`auth-fixture.md`](plugins/auth-fixture.md). Linked
+  from `docs/index.md`. Spec 010 cross-link.
+- `apps/web-e2e` Added `tests/api/plan-status-query.spec.ts` —
+  a smoke spec covering the **query-param surface** of the
+  authenticated user-plan-status endpoint at
+  [`apps/web/app/api/user/plan-status/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/user/plan-status/route.ts).
+  The handler is session-gated (`auth()` early-returns 401
+  for unauthenticated callers) and declares its parameter as
+  `_request: NextRequest` — underscored to mark it
+  deliberately unused. The spec walks 60+ query-string
+  permutations (impersonation keys `?userId=` / `?user_id=`
+  / `?uid=` / `?id=`, plan-spoof keys `?planId=` /
+  `?effectivePlan=` / `?plan=`, magic-token keys `?token=`
+  / `?secret=` / `?api_key=` / `?authorization=` /
+  `?session=`, cache-bust keys, content-negotiation keys,
+  field-selection keys, point-in-time-query keys,
+  warning-window keys, multi-tenancy keys, localisation keys,
+  empty / repeated / special-character / long values) and
+  asserts status invariance plus the three load-bearing "no
+  bypass" contracts (`?userId=` does not impersonate,
+  `?token=` does not introduce a query-token auth bypass,
+  `?plan=` does not spoof the effective plan). Spec 010
+  cross-link.
 - `docs/plugins` Added `fixtures-index.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's fixtures-directory barrel module paired with
