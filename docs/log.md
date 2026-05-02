@@ -33,6 +33,137 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `share-button-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's share-button dropdown driver paired with
+  [`apps/web-e2e/page-objects/public/share-button.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/share-button.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class ShareButton` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  the standalone class restates because it does not
+  inherit from `BasePage`, the `readonly trigger: Locator`
+  pinned via `page.locator('button').filter({ hasText:
+  /share/i }).first()` because the host app's button has
+  no `aria-label` today, the four `readonly` menu-item
+  Locators pinned via `[role="menuitem"]` with per-item
+  case-insensitive regex filters — `/copy link/i`,
+  `/twitter|x \(/i` with the dual-substring posture that
+  survives the X rebrand by matching either legacy
+  `"Twitter"` or post-rebrand `"X (formerly Twitter)"`
+  via the `x \(` disambiguator, `/facebook/i`,
+  `/linkedin/i` — the constructor that pre-binds the five
+  Locators in a single pass without a `super(page)` call,
+  the `open()` minimal "open the dropdown" primitive,
+  the `copyLink()` composite "open then click Copy Link"
+  primitive that is the only deterministic per-platform
+  action method today because the per-platform entries
+  open external `window.open(...)` URLs that require a
+  popup-verification harness); the full file annotated
+  chunk-by-chunk; the spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/share-button.spec.ts` (both
+  tests soft-skip with `test.skip(true, …)` when the
+  trigger is not visible so the spec degrades gracefully
+  on environments / CMS-content combinations where the
+  item-detail page does not surface a share button); the
+  "Why the class does not extend `BasePage`" walkthrough
+  that pins the three load-bearing reasons (composition
+  over inheritance, reusability on non-item-detail
+  surfaces like a future profile / collection / per-tag
+  share button, constructor parity with non-page widget
+  drivers); the "Why `filter({ hasText: /share/i })` and
+  not an `aria-label`" walkthrough; the "Why
+  `[role="menuitem"]` and not a `data-testid`"
+  walkthrough; the "Why the Twitter regex uses
+  `/twitter|x \(/i`" walkthrough; the "Why `.first()` on
+  every Locator" walkthrough; the "Why the `i` flag on
+  every regex" walkthrough; the "Why only `open()` and
+  `copyLink()` action methods" walkthrough; the failure
+  matrix covering every share-button-page-level mistake;
+  the per-line walkthrough table; the read / write
+  surface summary; the read / write surface failure
+  modes table; and the change checklist that ties any
+  change to a spec audit, a base-page-object cross-check,
+  a production-source cross-check, a discover-page-object
+  cross-check, an e2e-tsconfig cross-check, a
+  playwright-config cross-check, a fixtures-index
+  cross-check, a per-platform popup-verification harness
+  cross-check if a future per-platform action method is
+  added, dual `pnpm tsc --noEmit` runs, a smoke-subset
+  Playwright run, a docs/log.md entry, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link, and a reviewer pass.
+
+- `docs/index` Added a new entry for
+  `share-button-page-object.md` to the docs index.
+
+- `apps/web-e2e/tests/api` Added
+  `stripe-products-query.spec.ts` — the **query-param
+  surface smoke** for the public Stripe-products endpoint
+  served by `apps/web/app/api/stripe/products/route.ts`,
+  pinning the `NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING`
+  flag-gate response invariant: the disabled-flag GET
+  surface returns 400 with the canonical
+  `{ error: 'Dynamic pricing is not enabled', message: …}`
+  envelope deterministically, regardless of which query
+  keys the caller appends to the URL. The spec walks the
+  disabled-flag branch with 80+ parametrised query-string
+  permutations covering the obvious bypass shapes — the
+  `?dynamic=` / `?dynamicPricing=` / `?force=` /
+  `?override=` flag-flip keys that a regression might
+  wire as fallbacks for `isStripeDynamicPricingEnabled()`,
+  the `?productId=` / `?priceId=` / `?id=` filter keys
+  that a regression might wire as before-the-gate
+  filters, the `?stripeKey=` / `?sk=` / `?apiKey=`
+  dangerous-passthrough keys that a regression might
+  forward to the Stripe SDK, the `?token=` / `?secret=`
+  / `?api_key=` / `?authorization=` magic-token keys
+  that a regression might wire as auth-bypass paths, the
+  `?provider=` switch that the wider repo's
+  LemonSqueezy / Polar / Solidgate providers might tempt
+  a future contributor to wire here, the `?account=` /
+  `?stripeAccount=` / `?connect=` Stripe-Connect
+  account-override keys that a regression might forward
+  to the SDK as the `stripeAccount` option, the
+  `?currency=` / `?locale=` / `?lang=` i18n keys, the
+  `?refresh=` / `?cache=` / `?fresh=` cache-busting
+  keys, the `?expand=` / `?include=` Stripe SDK
+  expansion keys, the `?format=` content-negotiation
+  keys, the `?sort=` / `?order=` / `?direction=`
+  sort-override keys, the `?fields=` / `?select=` shape
+  keys, the `?tenant=` / `?tenantId=` / `?org=`
+  multi-tenancy keys, the `?active=` / `?archived=`
+  product-state filter keys, the `?sponsorAds=`
+  response-shape gate, and the empty / repeated /
+  special-character / long / typo'd combinations. Each
+  parametrised path is asserted to return a status in
+  the canonical 200/400/500 set so the spec coexists on
+  every CI runner regardless of which gate fires first
+  (disabled-flag 400 vs enabled-without-key 500 vs
+  enabled-and-configured 200). Six dedicated
+  no-bypass assertions then pin specific bypass shapes:
+  the `?dynamic=…` flag-bypass invariant, the
+  `?stripeKey=…` no-passthrough invariant, the
+  `?token=…` no-magic-auth invariant, the `?provider=…`
+  no-provider-switch invariant, the `?account=…`
+  no-Connect-override invariant, the `?productId=…`
+  no-shape-change invariant. A response-shape stability
+  check across three different parameter sets confirms
+  the route's gate fires before any branching on
+  potential future query schemas. Mirrors the sibling
+  `stripe-payment-methods-list-query.spec.ts`,
+  `lemonsqueezy-list-query.spec.ts`,
+  `subscription-query.spec.ts`,
+  `payments-query.spec.ts`, and
+  `plan-status-query.spec.ts` posture — the Stripe
+  products route is the only one of the six whose gate
+  is **flag-driven** (not session-driven) and whose
+  handler signature is **zero-argument** today.
+
 - `docs/plugins` Added `scroll-to-top-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's scroll-to-top floating-button driver paired with
