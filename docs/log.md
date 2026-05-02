@@ -33,6 +33,187 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `view-toggle-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's public-listing view-toggle driver paired with
+  [`apps/web-e2e/page-objects/public/view-toggle.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/view-toggle.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class ViewToggle` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  the standalone class restates because it does not
+  inherit from `BasePage`, the four button Locators
+  `readonly listButton` / `gridButton` / `masonryButton`
+  / `mapButton` each pinned via the
+  `page.locator('button[aria-label*="…" i]').first()`
+  case-insensitive substring selector, the constructor
+  that pre-binds the four button Locators in a single
+  pass without a `super(page)` call, the three
+  symmetric-shape `selectList()` / `selectGrid()` /
+  `selectMasonry()` click primitives, the `isActive(button:
+  Locator)` predicate that reads the supplied button's
+  `class` attribute and returns whether the `scale-105`
+  Tailwind utility-class substring is present with a `??
+  false` nullish-coalesce that pins the public return
+  type to `Promise<boolean>` and mirrors the sibling
+  `theme-toggle-page-object.md`'s `isDarkMode()` posture);
+  the full file annotated chunk-by-chunk; the spec
+  context cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/view-toggle.spec.ts`
+  (visibility on `/discover/1`, grid-active flip after
+  `selectGrid()`, list-active flip after `selectList()`);
+  the seven "Why X" walkthroughs (the class does not
+  extend `BasePage` because the view toggle is a
+  listing-mounted control row not a page-shaped surface
+  and a future admin-shell list/grid switch would reuse
+  it, `aria-label*="…" i` over `data-testid` because it
+  tolerates view-label phrasing variants like `"View as
+  list"` / `"List view"` / `"Show as a list"` and the
+  `i` flag tolerates casing drift, `.first()` on every
+  button Locator for strict-mode safety against future
+  stacked toggles, the `i` flag on every substring
+  selector for locale-style / production-source / per-
+  tenant casing drift survival, no `selectMap()` method
+  today because the map-view is feature-gated behind
+  [`features/map-view.md`](features/map-view.md) and
+  symmetric posture preserves a future addition the day
+  the map mode becomes always-on while the exposed
+  `mapButton` field permits direct-Locator interaction,
+  `isActive()` reads the `scale-105` substring because
+  it is the production-source-first visual signal that
+  tolerates future class-list expansion and future-proofs
+  against additive `aria-pressed` adoption, `?? false`
+  on the class-list scan to type-narrow to
+  `Promise<boolean>` and mirror the sibling
+  `theme-toggle-page-object.md`'s `isDarkMode()`); the
+  failure matrix that maps each view-toggle mistake
+  (drop `import type`, add an `extends BasePage`
+  clause, drop `readonly` from any of the five fields,
+  switch any button to an `aria-label="…"` exact match,
+  drop the `i` flag from any substring selector, drop
+  `.first()` on any button, swap any `aria-label*=` for
+  a `data-testid`, add a `selectMap()` method that
+  unconditionally clicks, drop the `mapButton` field,
+  read the active-state from React state or
+  `aria-pressed`, replace `scale-105` substring with a
+  `bg-primary` substring that false-positives on hover,
+  drop the `?? false` from `isActive()`, file move,
+  rename, `.tsx` extension, CRLF line endings) onto the
+  layer that surfaces each one; the per-line walkthrough
+  table; the read / write surface summary that maps
+  every caller (the consuming spec at
+  `apps/web-e2e/tests/public/view-toggle.spec.ts`,
+  future smoke / a11y specs that need the `mapButton`
+  field for a feature-gated map-view spec, the
+  listing-page production-source component for the DOM
+  contract, [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  for the `include` glob,
+  [`playwright-config.md`](plugins/playwright-config.md)
+  for the `baseURL`, [`features/map-view.md`](features/map-view.md)
+  for the map-view feature gate) to the fields they
+  touch; the read / write surface failure modes table
+  that maps production-source / middleware / config
+  drift onto `Locator not found`,
+  `isActive()`-returns-`false`-on-active-button, and
+  `mapButton` half-rendered failures; and the
+  `view-toggle.page.ts`-change checklist that ties any
+  change to a spec audit, a
+  [`base-page-object.md`](plugins/base-page-object.md)
+  cross-check (if the new shape inherits, document why),
+  a production-source cross-check (the `aria-label`
+  shape on every button, the `scale-105` Tailwind
+  utility-class hook on the active button, the four
+  button positions in the toggle row), a
+  [`discover-page-object.md`](plugins/discover-page-object.md)
+  cross-check (the `/discover/[N]` listing-route
+  contract the consuming spec relies on), an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, a
+  [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, a [`fixtures-index.md`](plugins/fixtures-index.md)
+  cross-check (a future fixture-bound view-toggle would
+  surface there), a [`features/map-view.md`](features/map-view.md)
+  cross-check (if a future `selectMap()` method is
+  added), dual `pnpm tsc --noEmit` runs (e2e + workspace
+  root), a smoke-subset Playwright run targeting the
+  view-toggle spec subset
+  (`pnpm --filter @ever-works/web-e2e test:e2e:chromium --grep "view-toggle"`),
+  a [`docs/log.md`](log.md) entry, a Spec 010 cross-link
+  if a new shared concept is introduced, and a reviewer
+  pass.
+
+- `apps/web-e2e/tests/api` Added
+  `lemonsqueezy-list-query.spec.ts` — the **first**
+  smoke spec for the authenticated
+  `/api/lemonsqueezy/list` endpoint's query-param
+  surface served by
+  `apps/web/app/api/lemonsqueezy/list/route.ts`. The
+  route is a **session-gated** GET handler — it returns
+  the caller's paginated LemonSqueezy checkouts (with
+  admin-impersonation via `?customerEmail=…` permitted
+  once the caller is authenticated). The auth gate
+  fires **before** any `searchParams` parsing or
+  LemonSqueezy provider call; on the unauth branch the
+  route returns 401 + `{ error: 'Unauthorized', message:
+  'Authentication required', code: 'AUTH_REQUIRED' }`
+  deterministically. The spec pins this contract via a
+  ~110-entry parametrised matrix spanning every "the
+  route reads this only after the gate" category
+  (`?status=` allowlist + invalid + empty,
+  `?limit=` in-range + above-cap + below-floor +
+  non-finite, `?page=` valid + invalid, `?customerEmail=`
+  admin-impersonation attempts + invalid emails,
+  `?dateFrom=` / `?dateTo=` ISO 8601 + invalid +
+  reversed range, `?storeId=` arbitrary-store-id
+  attempts, every `?userId=` / `?user_id=` / `?uid=`
+  identity-override attempt, every `?token=` /
+  `?secret=` / `?api_key=` / `?authorization=` magic-
+  token attempt, every `?lemonsqueezyKey=` /
+  `?lemon_squeezy_key=` / `?lsk=` / `?apiKey=`
+  caller-supplied-key attempt, every `?provider=stripe`
+  / `?provider=polar` / `?provider=solidgate` provider-
+  switch attempt, every cache-busting key, every
+  expansion key, every pagination cursor key, every
+  format / currency / locale / sort / fields key, every
+  multi-tenancy key, every empty value, every repeated-
+  key permutation, every special-character payload
+  (`<script>`, SQL injection, path traversal, null
+  bytes), every long-input string (500-character
+  `customerEmail` / `storeId` / `token`), and every
+  bogus / typo'd combination), each asserting `< 500`;
+  one canonical-envelope test that asserts the unauth
+  GET surface returns exactly 401 with a `string`
+  `error` field and a `string` `code` field; one
+  no-bypass invariance test that pins
+  `?customerEmail=…` against the baseline 401; one
+  no-bypass invariance test that pins `?storeId=…`
+  against the baseline 401; one no-bypass invariance
+  test that pins `?lemonsqueezyKey=…` /
+  `?lemon_squeezy_key=…` / `?lsk=…` / `?apiKey=…`
+  against the baseline 401 to catch any future
+  caller-supplied-key forwarding; one no-bypass
+  invariance test that pins `?token=…` / `?secret=…`
+  / `?api_key=…` / `?authorization=…` against the
+  baseline 401; one provider-switch invariance test
+  that pins `?provider=stripe` / `?provider=polar` /
+  `?provider=solidgate` against the baseline 401; one
+  validator-order test that asserts the auth gate
+  fires before the Zod validator (so an
+  out-of-allowlist `?status=…` value still produces
+  401 instead of 400 on the unauth branch); and one
+  param-permutation envelope-shape test that asserts
+  every parametrised path returns the `{ error: string }`
+  envelope. Mirrors the shape of
+  `subscription-query.spec.ts`,
+  `payments-query.spec.ts`, and `plan-status-query.spec.ts`
+  (the three sibling session-gated route smokes) but is
+  the first smoke spec to pin the "auth gate fires
+  before the Zod validator" invariant on a route whose
+  query schema is `safeParse`-validated.
+
 - `docs/plugins` Added `search-bar-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's public-listing search-input driver paired with
