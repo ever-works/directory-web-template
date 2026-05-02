@@ -9,6 +9,8 @@ sidebar_position: 6
 
 The Ever Works template supports interactive maps with a provider abstraction layer for both **Google Maps** and **Mapbox**. The system includes geocoding, location picking, marker clustering, and geolocation.
 
+> **See also:** [Map View](map-view.md) — the listing-level map experience (sidebar + map, header link, dedicated `/map` route) built on top of these primitives. Spec: [`017-map-view`](../spec/017-map-view/spec.md). Provider abstraction spec: [`011-maps-providers`](../spec/011-maps-providers/spec.md).
+
 ## Architecture
 
 ```mermaid

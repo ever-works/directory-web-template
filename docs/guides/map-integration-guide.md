@@ -9,6 +9,8 @@ sidebar_position: 36
 
 The template ships a full-featured map system with components in `components/maps/`. Maps are provider-agnostic -- the same components work with either Mapbox GL JS or Google Maps depending on your configuration.
 
+> **Looking to enable the listing Map view?** This guide is for developers integrating individual map components. If you just want to flip the directory listing into a map (with a synchronised sidebar of cards and a dedicated `/map` route), see the [Map View feature page](../features/map-view.md) and [Spec 017 — Map View](../spec/017-map-view/spec.md).
+
 ## Component Inventory
 
 | Export | File | Description |

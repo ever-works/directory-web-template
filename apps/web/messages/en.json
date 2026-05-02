@@ -100,6 +100,7 @@
 		"EXPLORE_BY_COLLECTIONS": "Explore by Collections",
 		"COLLECTION_ITEMS": "{count, plural, one {# item} other {# items}}",
 		"PRICING": "Pricing",
+		"HEADER_MAP": "Map",
 		"BLOG": "Blog",
 		"HELP": "Help",
 		"DOCS": "Docs",
@@ -451,7 +452,12 @@
 		"VIEW_SWITCH_TO_LIST": "Switch to list view",
 		"VIEW_SWITCH_TO_GRID": "Switch to grid view",
 		"VIEW_SWITCH_TO_MASONRY": "Switch to masonry view",
-		"VIEW_SWITCH_TO_MAP": "Switch to map view"
+		"VIEW_SWITCH_TO_MAP": "Switch to map view",
+		"MAP_PAGE_TITLE": "{name} on the map",
+		"MAP_PAGE_DESCRIPTION": "Browse listings on an interactive map",
+		"MAP_SIDEBAR_LABEL": "Listings",
+		"MAP_SHOW_MAP": "Show map",
+		"MAP_SHOW_LIST": "Show list"
 	},
 	"tagsModal": {
 		"SELECTED_TAGS": "Selected Tags",

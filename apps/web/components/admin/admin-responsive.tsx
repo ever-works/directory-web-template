@@ -44,10 +44,10 @@ interface AdminResponsiveCardProps {
   className?: string;
 }
 
-export function AdminResponsiveCard({ 
-  children, 
+export function AdminResponsiveCard({
+  children,
   variant = 'comfortable',
-  className = '' 
+  className = ''
 }: AdminResponsiveCardProps) {
   const getVariantStyles = () => {
     switch (variant) {
@@ -56,13 +56,13 @@ export function AdminResponsiveCard({
       case 'spacious':
         return "p-6 md:p-8 lg:p-10";
       default:
-        return "p-4 md:p-6 lg:p-8";
+        return "p-4 md:p-5 lg:p-6";
     }
   };
 
   return (
     <div className={cn(
-      "bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6",
+      "bg-white dark:bg-white/3 rounded-xl shadow-sm border border-gray-100 dark:border-white/6 transition-shadow duration-200 hover:shadow-md",
       getVariantStyles(),
       className
     )}>
@@ -90,18 +90,18 @@ export function AdminResponsiveTable({
       {/* Desktop table */}
       <table className="hidden md:table w-full">
         <thead>
-          <tr className="border-b border-gray-200 dark:border-white/6">
+          <tr className="border-b border-gray-100 dark:border-white/6">
             {headers.map((header, index) => (
-              <th 
+              <th
                 key={index}
-                className="text-left py-3 px-4 font-medium text-gray-900 dark:text-gray-100"
+                className="text-left py-2.5 px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider"
               >
                 {header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-50 dark:divide-white/4">
           {children}
         </tbody>
       </table>
@@ -134,8 +134,8 @@ export function AdminResponsiveNav({
   return (
     <nav className={cn("relative", className)}>
       {/* Mobile header */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <div className="md:hidden flex items-center justify-between px-4 py-3.5 border-b border-gray-100 dark:border-white/6">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
           {title}
         </h2>
         <Button

@@ -80,7 +80,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="min-h-screen bg-gray-100 dark:bg-white/3">
-			<header className="p-4 bg-gray-800 text-white font-bold text-xl">Admin Panel</header>
+			<header className="p-3 bg-white dark:bg-white/4 dark:text-white text-gray-600 text-sm">Admin Panel</header>
 			<main className="p-8">{children}</main>
 		</div>
 	);

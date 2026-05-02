@@ -108,6 +108,20 @@ export function getHeaderSettingsEnabled(): boolean {
 }
 
 /**
+ * Server-side utility to check if the dedicated Map nav link is enabled.
+ * Off by default so existing forks see no UI change after upgrade.
+ *
+ * The Map link is also implicitly hidden when location features
+ * (`settings.location.enabled`) are disabled — see the Header component.
+ *
+ * @returns boolean - true if the Map link should appear in the header
+ */
+export function getHeaderMapEnabled(): boolean {
+	const enabled = configManager.getNestedValue('settings.header.map_enabled');
+	return enabled ?? false;
+}
+
+/**
  * Server-side utility to get the default layout
  * @returns string - 'home1' or 'home2'
  */
