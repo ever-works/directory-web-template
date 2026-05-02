@@ -33,6 +33,67 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `map-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's Map View page driver paired with
+  [`apps/web-e2e/page-objects/public/map.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/map.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class MapPage extends BasePage` single named
+  export with **the `extends BasePage` clause** — the
+  page-route driver posture; the eight `readonly Locator`
+  fields covering `mapView` / `mapEmptyState` /
+  `mapSidebar` / `sidebarCards` / `mapHeaderLink` /
+  `viewToggleMapButton` / `showMapButton` /
+  `showListButton`; the synchronous constructor that calls
+  `super(page)` first then pre-binds every per-page
+  Locator in a single pass via four `getByTestId`
+  selectors / one inherited-`header`-scoped
+  `getByRole('link', …)` exact-match / one
+  `aria-label*="map" i` substring-with-case-insensitive-
+  flag plus `.first()` / two case-insensitive accessible-
+  name-matched buttons; the `navigate()` dedicated `/map`
+  route navigation primitive via inherited `goto()`; the
+  `isPageRendered(): Promise<boolean>` graceful-degradation
+  accessor with the OR-of-two-paths over `mapView` and
+  `mapEmptyState` and the `.catch(() => false)` error
+  shields on both `isVisible()` calls); the full file
+  annotated chunk-by-chunk; the spec context cross-link to
+  [Spec 017 — Map View for Listings](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/017-map-view-for-listings)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/map.spec.ts`; the "Why the
+  class extends `BasePage`" walkthrough; the "Why the
+  view-toggle uses `aria-label*="map" i`" walkthrough; the
+  "Why `isPageRendered()` accepts the empty-state path"
+  walkthrough; the failure matrix; the per-line walkthrough
+  table; the read / write surface summary; the read /
+  write surface failure modes table; and the
+  `map.page.ts`-change checklist.
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts`
+  smoke spec for the **unauth GET branch** of the
+  session-gated `/api/client/items/coordinates` endpoint
+  served by
+  [`apps/web/app/api/client/items/coordinates/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/client/items/coordinates/route.ts).
+  Pins the deterministic 401 status and the
+  `{ success: false, error }` envelope across **70+ query-
+  param permutations** (`?userId=`, `?clientId=`,
+  `?token=`, `?country=`, `?lat=`, `?lng=`, `?bbox=`,
+  `?radius=`, `?slug=`, `?itemId=`, `?format=`,
+  `?fields=`, cache-busting, per-tenant, admin-override,
+  special-character payloads, repeated keys, long values,
+  bogus keys), plus six bypass-resistance invariants (the
+  unauth branch is invariant to bogus query parameters,
+  `?userId=…` does not bypass the session gate, `?token=…`
+  does not introduce a query-token auth bypass, `?admin=…`
+  does not introduce a query-admin-override, spatial-
+  filter params do not change the unauth branch, single-
+  item-lookup `?slug=…` / `?itemId=…` keys do not change
+  the unauth branch, `?format=geojson` does not introduce
+  a content-negotiation bypass) and Accept-header
+  invariance. Closes a gap in [Spec 010](spec/010-e2e-test-coverage/spec.md).
 - `docs/plugins` Added `item-detail-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's item-detail-page driver paired with
