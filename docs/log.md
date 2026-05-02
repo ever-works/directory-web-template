@@ -33,6 +33,151 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `discover-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's public directory-listing driver paired with
+  [`apps/web-e2e/page-objects/public/discover.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/discover.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the fourteen other public-surface page objects.
+  Where [`base-page-object.md`](plugins/base-page-object.md)
+  documents the **page-object inheritance root** and
+  [`theme-toggle-page-object.md`](plugins/theme-toggle-page-object.md)
+  documents the **suite's theme-switch driver boundary**
+  under `apps/web-e2e/page-objects/public/`, this page
+  documents the **suite's directory-listing driver
+  boundary** — the smallest possible page object that
+  lets a spec drive `/discover/[N]` end-to-end (navigate
+  to a page in the directory, count the items rendered,
+  click into the first item, observe the pagination
+  control). Documents the at-a-glance summary table of
+  every load-bearing element (the `import type` Playwright
+  type-only import that mirrors the base-class discipline;
+  the `import { BasePage } from '../base.page'` runtime
+  import — the only runtime import in the file; the
+  `export class DiscoverPage extends BasePage` single
+  named export with the inherited `(page: Page)`
+  constructor signature; the `readonly itemLinks: Locator`
+  `page.locator('a[href*="/items/"]')` substring-selector
+  matching every directory-card link; the `readonly
+  pagination: Locator` dual-substring selector tolerating
+  production-source case drift; the `readonly heading:
+  Locator` `page.getByRole('heading', { level: 1 })`
+  role+level resolution that survives translation churn;
+  the `constructor(page: Page)` that calls `super(page)`
+  and pre-binds the three Locators above; the
+  `navigate(pageNum = 1)` method that wraps the inherited
+  `goto` with the canonical `/discover/[N]` route; the
+  `getItemCount()` method; the `clickFirstItem()` method
+  with `.first()` for strict-mode safety); the full file
+  annotated chunk-by-chunk; the spec context cross-link
+  to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming specs at
+  `apps/web-e2e/tests/public/discover.spec.ts` (three
+  flows) and `apps/web-e2e/tests/public/map.spec.ts`
+  (precondition seeding); the six "Why X" walkthroughs
+  (the class extends `BasePage` because `/discover/[N]`
+  is a navigable page in the URL sense so `goto` /
+  `waitForPageReady` are useful for free, shared
+  page-shell Locators are useful, constructor parity
+  with sibling page-shaped page objects;
+  `a[href*="/items/"]` and not a `data-testid` because
+  no production-source change required, locale
+  invariance against the six locale prefixes, slug
+  invariance; dual-substring `aria-label*` for
+  pagination because production-source case drift
+  tolerance, strict-mode safety from the unique
+  landmark, zero-false-positive substring narrowness;
+  `getByRole('heading', { level: 1 })` for heading
+  because locale invariance, single accessible-name
+  source of truth, production-source-first discipline;
+  `pageNum = 1` default because most-common call site
+  shortest, explicit-page-number documentation for
+  pagination tests, type-narrowed `Promise<void>`
+  posture; `.first()` on `clickFirstItem` because
+  strict-mode collision avoidance, render-order
+  independence with URL-substring assertions, future
+  highlighted-item-at-position-0 support); the failure
+  matrix covering every discover-page-level mistake
+  (type-only import drop, `extends BasePage` drop,
+  `readonly` drop, `a[href^="/items/"]` prefix-only
+  swap, `data-testid` swap, dual-substring drop on
+  pagination, `data-testid` swap on pagination, `h1`
+  tag-selector swap on heading, `pageNum = 1` default
+  drop, template-literal-to-concat swap, `.first()`
+  drop on `clickFirstItem`, hard-coded slug, file
+  move, rename, `.tsx` extension, CRLF line endings);
+  the per-line walkthrough table that pins each line
+  of the file to its purpose; the read / write surface
+  summary that maps every caller to the fields they
+  touch; the read / write surface failure modes table
+  that maps production-source / middleware / config
+  drift onto `getItemCount() returns 0`, `Locator not
+  found`, and `navigate timeout` failures; and the
+  `discover.page.ts`-change checklist that ties any
+  change to a spec audit, a
+  [`base-page-object.md`](plugins/base-page-object.md)
+  cross-check, a production-source cross-check, an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, a [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, a [`fixtures-index.md`](plugins/fixtures-index.md)
+  cross-check, dual `pnpm tsc --noEmit` runs, a
+  smoke-subset Playwright run, a [`docs/log.md`](log.md)
+  entry, a Spec 010 cross-link, and a reviewer pass.
+- `e2e` Added
+  `apps/web-e2e/tests/api/location-countries-query.spec.ts`
+  — the **query-param surface smoke** for the public
+  unauthenticated `/api/location/countries` endpoint
+  served by
+  [`apps/web/app/api/location/countries/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/location/countries/route.ts).
+  Pins the route's **zero-query-param contract**: the
+  handler reads zero `searchParams` keys today and
+  returns one of two well-formed envelopes — `200` +
+  `{ success: true, data: string[] }` when the
+  location feature is enabled and
+  `getDistinctCountries()` resolves the distinct-country
+  list; `404` + `{ success: false, error: 'Location
+  features are disabled' }` when `getLocationEnabled()`
+  is false. The catch-and-500 fallback (`'Failed to
+  fetch countries'`) must never fire on a clean
+  baseline. The spec parametrises across 50+ query
+  strings (`?country=…` filter overrides, `?countryCode=`
+  / `?code=` / `?iso=` ISO-code keys, `?city=` /
+  `?q=` / `?search=` / `?term=` / `?prefix=` search
+  keys, `?limit=` / `?offset=` / `?page=` / `?perPage=`
+  / `?cursor=` pagination keys, `?sort=` / `?order=`
+  / `?direction=` sort keys, `?locale=` / `?lang=`
+  i18n keys, `?format=` content-negotiation keys,
+  `?fields=` / `?include=` / `?expand=` sparse-fieldset
+  keys, `?tenant=` / `?tenantId=` / `?org=`
+  multi-tenancy keys, `?refresh=` / `?cache=` /
+  `?force=` cache-busting keys, `?token=` / `?secret=`
+  / `?api_key=` auth-bypass keys, `<script>` /
+  `' OR 1=1` / `/etc/passwd` / NUL-byte
+  special-character values, 500-character long values,
+  bogus-key combinations, repeated keys) plus four
+  targeted invariant tests (canonical 200/404 envelope
+  shape with the success-branch `data` array of
+  strings; the response is invariant across every
+  parametrised query string compared to the baseline;
+  caller-supplied filter overrides do NOT bypass the
+  data-layer call; final 5xx-free sweep across the
+  matrix). A regression that begins reading `?country=…`
+  / `?q=…` / `?limit=…` would produce a divergent
+  response and surface immediately as a status / body
+  divergence. The route's siblings `apps/web/app/api/location/cities/route.ts`,
+  `apps/web/app/api/location/coordinates/route.ts`
+  (already smoked by `location-coordinates-query.spec.ts`),
+  and `apps/web/app/api/location/search/route.ts`
+  (already smoked by `location-search-query.spec.ts`)
+  share the same `apps/web/app/api/location/` subtree;
+  this spec is the **first** smoke for the
+  `/api/location/countries` surface.
+- `docs/index.md` Insert the new
+  `discover-page-object` entry above the
+  `theme-toggle-page-object` entry in the plugins
+  section. Maintains alphabetical-then-recency
+  ordering inside the plugins block.
+
 - `docs/plugins` Added `theme-toggle-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's header theme-switch driver paired with
