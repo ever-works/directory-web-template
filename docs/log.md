@@ -33,6 +33,120 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `signin-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's sole `auth/`-tree page object paired with
+  [`apps/web-e2e/page-objects/auth/signin.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/auth/signin.page.ts),
+  sitting at the root of the `auth/` page-object subtree
+  the same way [`base-page-object.md`](plugins/base-page-object.md)
+  sits at the root of the page-objects tree as a whole,
+  [`fixtures-index.md`](plugins/fixtures-index.md) sits at
+  the root of the fixtures tree, and
+  [`e2e-test-data.md`](plugins/e2e-test-data.md) sits at the
+  root of the helpers tree. Where `base-page-object.md`
+  documents the **page-object inheritance root** and
+  [`auth-fixture.md`](plugins/auth-fixture.md) documents
+  the **suite's authenticated-fixture boundary** that turns
+  the persisted storage states minted at pre-flight into
+  per-test isolated contexts, this page documents the
+  **suite's sign-in surface boundary** — the smallest
+  possible page object that lets a spec drive `/auth/signin`
+  end-to-end (fill the email, fill the password, submit,
+  optionally wait for the post-sign-in redirect, observe
+  the success / error alerts). Documents the at-a-glance
+  summary table of every load-bearing element (the
+  `import type` Playwright type-only import that mirrors
+  the base-class discipline; the `import { BasePage }` runtime
+  import — the only runtime import in the file; the
+  `export class SignInPage extends BasePage` named export;
+  the seven pre-bound Locator fields with the form-scoping
+  posture for `emailInput` / `passwordInput` /
+  `forgotPasswordLink`, the unscoped role+regex-name
+  `submitButton`, and the `.first()`-pinned
+  `errorAlert` / `successAlert`; the constructor that uses
+  a local `authForm = page.locator('form').filter({ has: page.locator('#email') })`
+  to scope every form-relative Locator to the sign-in form;
+  the `navigate()` method that wraps `goto('/auth/signin')`;
+  the `signIn(email, password)` form-fill kernel that
+  submits via `passwordInput.press('Enter')` instead of
+  clicking the button; the `signInAndWaitForRedirect(...)`
+  happy-path wrapper that delegates to `signIn()` and
+  awaits `page.waitForURL(expectedUrl, { timeout: 60_000 })`);
+  the full file annotated chunk-by-chunk; the spec context
+  cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the auth-flow spec set under
+  `apps/web-e2e/tests/auth/`; the four "Why X" walkthroughs
+  (form-scoping every form Locator vs unscoped against
+  newsletter / sign-up form `#email` collisions, role+regex
+  name `submitButton` vs CSS attribute / form-scoped role /
+  text selector alternatives that fail on locale-coverage
+  or button-floats-outside-form refactors, Enter-key
+  submission vs button click against real-user semantics
+  and button-state flakes, `.bg-red-50.first()` /
+  `.bg-green-50.first()` vs unscoped against stacked-banner
+  strict-mode collisions); the kernel-vs-wrapper rationale
+  for `signIn` / `signInAndWaitForRedirect` (failure-path
+  specs need the kernel without an awaited redirect; happy-path
+  specs need the wrapper with a 60-second cold-start-tolerant
+  timeout); the failure matrix covering every
+  signin-page-level mistake (type-only import drop,
+  inheritance drop, `readonly` drop, form-scoping drop,
+  CSS / text submitButton swap, `href*=` → `href=`
+  forgotPasswordLink swap, `.first()` drop, Enter → click
+  swap, timeout tightening below 30s or raising above 60s,
+  global-state field, file move, rename, `.tsx` extension,
+  CRLF line endings); the per-line walkthrough table that
+  pins each line of the 37-line file to its purpose; the
+  read / write surface summary that maps every caller to
+  the fields they touch; and the `signin.page.ts`-change
+  checklist with cross-checks against
+  [`base-page-object.md`](plugins/base-page-object.md), the
+  production sign-in form components under
+  `apps/web/components/auth/**` and the route under
+  `apps/web/app/[locale]/auth/signin/`,
+  [`auth-fixture.md`](plugins/auth-fixture.md),
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md),
+  [`e2e-package-manifest.md`](plugins/e2e-package-manifest.md),
+  [`playwright-config.md`](plugins/playwright-config.md),
+  and [`global-setup.md`](plugins/global-setup.md). Linked
+  from `docs/index.md`. Spec 010 cross-link.
+- `apps/web-e2e` Added `tests/api/payments-query.spec.ts` —
+  a smoke spec covering the **query-param surface** of the
+  authenticated user-payments endpoint at
+  [`apps/web/app/api/user/payments/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/user/payments/route.ts).
+  The handler is session-gated (`auth()` early-returns 401
+  for unauthenticated callers, then resolves a Stripe
+  customer id from the session-bound user record before
+  listing invoices and subscriptions) and declares **no
+  parameters at all** — not `_request`, not `request: NextRequest`,
+  not a `context` object — so the route reads zero query
+  params. Mirrors the sibling
+  [`subscription-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/subscription-query.spec.ts)
+  shape because both routes share the same `auth() →
+  getCustomerId() → stripe.list()` chain and the same
+  zero-query-param contract. The spec walks 70+
+  query-string permutations (impersonation keys `?userId=` /
+  `?user_id=` / `?uid=` / `?id=`, customer-bypass keys
+  `?customerId=` / `?customer=` / `?stripeCustomerId=`,
+  invoice-id / subscription-id filters, status filters
+  `?status=paid|pending|draft|open|void|uncollectible`,
+  magic-token keys `?token=` / `?secret=` / `?api_key=` /
+  `?authorization=` / `?session=`, dangerous Stripe-key
+  passthrough keys `?stripeKey=` / `?stripe_key=` / `?sk=`
+  that must NEVER be honoured, cache-bust, expand /
+  pagination keys mirroring Stripe's own shape,
+  content-negotiation keys, currency / locale keys,
+  multi-provider switch keys
+  `?provider=stripe|polar|lemonsqueezy|solidgate`,
+  date-range filters, multi-tenancy, empty / repeated /
+  special-character / long values) and asserts status
+  invariance plus the five load-bearing "no bypass"
+  contracts (`?userId=` does not impersonate, `?customerId=`
+  does not bypass the session-bound customer-resolution
+  step, `?stripeKey=` does not forward a caller-supplied
+  Stripe key, `?token=` does not introduce a query-token
+  auth bypass, parameterised vs no-arg calls produce
+  identical 401 envelopes). Spec 010 cross-link.
 - `docs/plugins` Added `gitignore.md` — the
   **per-source-file reference** for the monorepo's
   workspace-root git-ignore manifest paired with
