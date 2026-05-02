@@ -33,6 +33,69 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `item-detail-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's item-detail-page driver paired with
+  [`apps/web-e2e/page-objects/public/item-detail.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/item-detail.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class ItemDetailPage extends BasePage` single
+  named export with **the `extends BasePage` clause** —
+  the page-route driver posture; the eight `readonly Locator`
+  fields covering `heading` / `voteButton` / `voteCount` /
+  `favoriteButton` / `commentsSection` / `commentTextarea` /
+  `postCommentButton` / `signInToCommentButton`; the
+  synchronous constructor that calls `super(page)` first
+  then pre-binds every per-page Locator in a single pass;
+  the `navigateToItem(slug)` slug-driven primitive; the
+  `navigateToFirstItem()` slug-agnostic discovery primitive
+  with the **30 s seed-data tolerance**; the `clickVote()`
+  bare upvote primitive; the `getVoteCount(): Promise<string>`
+  polite-aria-live region read with the `?? '0'` fallback;
+  the `isVoted(): Promise<boolean>` strict-equality state
+  pin on `'Remove upvote'`; the `clickFavorite()` bare
+  favorite-toggle primitive; the `postComment(text)`
+  composite fill-then-click primitive; the
+  `getComment(text): Locator` per-comment factory; the
+  `editComment(text)` / `deleteComment(text)` hover-then-
+  click primitives; the `get deleteCommentDialog()` re-
+  evaluating Locator getter); the full file annotated
+  chunk-by-chunk; the spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming specs at
+  `apps/web-e2e/tests/public/item-detail.spec.ts` and
+  `apps/web-e2e/tests/public/votes-and-comments.spec.ts`;
+  the "Why the class extends `BasePage`" walkthrough; the
+  "Why the vote button uses an OR-of-two-aria-labels
+  selector" walkthrough; the "Why the favorite button
+  uses an `aria-label*="favorites"` substring selector"
+  walkthrough; the "Why `getVoteCount()` returns
+  `Promise<string>`" walkthrough; the "Why `isVoted()`
+  checks the exact `'Remove upvote'` label" walkthrough;
+  the failure matrix; the per-line walkthrough table; the
+  read / write surface summary; the read / write surface
+  failure modes table; and the `item-detail.page.ts`-change
+  checklist.
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/version-sync-query.spec.ts`
+  smoke spec for the **GET branch** of the public
+  `/api/version/sync` endpoint served by
+  [`apps/web/app/api/version/sync/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/version/sync/route.ts).
+  Pins the canonical six-key envelope
+  (`syncInProgress`, `lastSyncTime`, `timeSinceLastSync`,
+  `timeSinceLastSyncHuman`, `uptime`, `timestamp`) and
+  the `Cache-Control: no-cache, no-store, must-revalidate`
+  / `Content-Type: application/json` header contracts
+  across **40+ query-param permutations** (cache-busting,
+  per-tenant, per-user-impersonation, locale, format /
+  fields / select / include filters, special-character
+  payloads, repeated keys, long values, bogus keys), plus
+  three correlation invariants
+  (`syncInProgress`/`lastSyncTime`/`timeSinceLastSync` /
+  `timeSinceLastSyncHuman`) and Accept-header invariance.
+  Closes a gap in [Spec 010](spec/010-e2e-test-coverage/spec.md).
 - `docs/plugins` Added `language-switcher-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's header locale-switcher driver paired with
