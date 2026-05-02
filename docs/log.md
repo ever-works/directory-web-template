@@ -33,6 +33,124 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `e2e-package-manifest.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's package manifest paired with
+  [`apps/web-e2e/package.json`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/package.json),
+  the test-only manifest companion to the four runtime-manifest
+  references ([`workspace-root-manifest.md`](plugins/workspace-root-manifest.md),
+  [`runtime-package-manifest.md`](plugins/runtime-package-manifest.md),
+  [`sdk-package-manifest.md`](plugins/sdk-package-manifest.md),
+  [`plugin-demo-package-manifest.md`](plugins/plugin-demo-package-manifest.md)).
+  Where those four document the manifest of a host-app or
+  library workspace member, this one documents the manifest of
+  a **test-only** workspace member that ships no runtime
+  exports, no `main` / `types` / `exports` map, declares
+  everything in `devDependencies` because the package is
+  consumed only by the workspace itself, and deliberately omits
+  a `dependencies` block. Documents the at-a-glance summary
+  table of every load-bearing field (the `name:
+  '@ever-works/web-e2e'` workspace identifier the
+  `pnpm --filter` glob and Turborepo's `test:e2e` task resolve
+  through; the `version: '0.0.0'` symbolic-only pin justified
+  by `private: true`; the `private: true` hard-block on
+  `pnpm publish`; the `license: 'AGPL-3.0'` workspace-wide
+  inheritance; the five Playwright `scripts.*` entries
+  `test:e2e` / `test:e2e:ui` / `test:e2e:chromium` /
+  `test:e2e:headed` / `test:e2e:debug` plus the no-op
+  `scripts.lint` echo that lets workspace-wide `pnpm -r lint`
+  walk this member without a per-package opt-out; the four
+  `devDependencies` `@ever-works/tsconfig` `workspace:*`,
+  `@playwright/test` `^1.58.2`, `@faker-js/faker` `^10.1.0`,
+  `dotenv` `^16.4.7`, `typescript` `^5`); the file-contents
+  walkthrough; the per-field walkthrough that pins each field
+  to a concrete responsibility; the deliberately-absent fields
+  matrix (no `description` / `homepage` / `repository` /
+  `bugs` / `author` / `keywords` / `engines` / `packageManager`
+  / `type` / `main` / `types` / `exports` / `bin` /
+  `peerDependencies` / `files` / `dependencies` /
+  `scripts.dev` / `scripts.build` / `scripts.start` / `pnpm.*`
+  / `prettier`); the consumer table mapping each reader
+  (`pnpm install`, `pnpm --filter @ever-works/web-e2e
+  <script>`, Turborepo's `test:e2e` task, CI workflows, the
+  Playwright runner's CLI walk-up, TypeScript's `tsc --noEmit`
+  gate, Renovate / Dependabot, editors) to the fields it
+  consumes; the failure matrix that maps each manifest-level
+  mistake (drop `name`, rename off `@ever-works/*`, drop
+  `private: true`, drop `license`, drop `scripts.test:e2e` /
+  `scripts.lint`, switch the no-op `scripts.lint` to a real
+  lint without wiring `eslint.config.mjs`, drop any of the four
+  `devDependencies`, tighten / loosen the Playwright range,
+  move the file, add a `dependencies` block, add
+  `"type": "module"`, bump `version` away from `0.0.0`) onto
+  the layer that surfaces it; the per-line walkthrough table;
+  and the `package.json`-change checklist that ties any field
+  change to the appropriate cross-check
+  ([`pnpm-workspace.md`](plugins/pnpm-workspace.md) on `name`
+  change, [`playwright-config.md`](plugins/playwright-config.md)
+  on Playwright or dotenv change,
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) on tsconfig or
+  typescript change,
+  [`auth-fixture.md`](plugins/auth-fixture.md) on Playwright
+  major bump, [`e2e-test-data.md`](plugins/e2e-test-data.md)
+  on Faker major bump,
+  [`turbo-config.md`](plugins/turbo-config.md) on new
+  workspace-spanning script,
+  [`workspace-root-manifest.md`](plugins/workspace-root-manifest.md)
+  on inherited posture divergence), a `pnpm install`
+  round-trip, a dual `pnpm tsc --noEmit` gate run, a
+  smoke-subset Playwright run, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link if the change introduces a new shared concept,
+  and a reviewer pass. Indexed in
+  [`docs/index.md`](index.md).
+- `apps/web-e2e/tests/api` Added
+  [`item-votes-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/item-votes-query.spec.ts) —
+  the **query-param surface** smoke for `GET
+  /api/items/[slug]/votes` defined by
+  [`apps/web/app/api/items/[slug]/votes/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/%5Bslug%5D/votes/route.ts).
+  The route's `GET` handler signature is
+  `GET(request: Request, context: { params: Promise<{ slug:
+  string }> })` — `request` is **declared** but **never read**
+  inside the body (no `request.url`, no `request.headers`, no
+  `searchParams.get(...)`); the handler awaits `context.params`
+  and `auth()` together, then calls `getVoteCountForItem(slug)`
+  and (when signed in) `getClientProfileByUserId(...)` /
+  `getVoteByUserIdAndItemId(...)`. The route therefore must be
+  invariant to **any** query parameter the caller appends —
+  present, absent, empty, repeated, special-character, or
+  long. The existing
+  [`item-votes-public.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/item-votes-public.spec.ts)
+  covers the no-arg unknown-slug 5xx-resilience contract; this
+  new spec walks the **query-param surface** so a regression
+  that introduces a `request.url`-based wiring (which a future
+  "filter votes by date range" or "include per-vote breakdown"
+  feature might tempt a future contributor into adding) is
+  caught immediately as a status divergence between the
+  no-arg and parameter-laden branches. The route contract is
+  deliberately permissive on the catch path: success is
+  `{ success: true, count: number, userVote: 'up' | 'down' |
+  null }` with status 200; the `try / catch` block degrades to
+  the same `{ success: true, count: 0, userVote: null }`
+  envelope with status 200 (logging the error in development
+  only), so there is **no** 5xx branch on this route. The
+  matrix accepts `< 500` as the dominant happy path and pins
+  the 200-only contract in the dedicated tests at the bottom.
+  The query enumeration covers the `?userId=` /  `?include=`
+  / `?fields=` / `?select=` / `?expand=` / `?refresh=` /
+  `?force=` / `?fresh=` / `?format=` / `?locale=` / `?lang=`
+  / `?since=` / `?from=` / `?until=` / `?direction=` / `?type=`
+  obvious-future-wiring keys, the empty-value / repeated-key /
+  special-character / long-value / bogus-key edge variants,
+  and the deliberate `?type=up` overlap with the POST body's
+  `type: 'up' | 'down'` field that proves URL params do not
+  influence the GET response. Three dedicated tests at the
+  bottom pin the canonical envelope shape, the
+  status-invariance across no-arg and parameter-laden
+  branches, and the response-shape stability across param
+  permutations — anchoring the bulk-loop's `< 500` matrix to
+  the stricter 200-with-`{ success, count, userVote }` shape
+  on the happy path.
 - `docs/plugins` Added `auth-fixture.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   authenticated-context fixture paired with
