@@ -33,6 +33,144 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `global-teardown.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  per-run global teardown paired with
+  [`apps/web-e2e/global-teardown.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/global-teardown.ts),
+  the post-flight companion to
+  [`global-setup.md`](plugins/global-setup.md) (where the setup
+  mints the two persisted authentication storage states by
+  driving a real Chromium browser against the host web app's
+  `/auth/signin` and `/auth/register` screens, this file
+  documents the **post-flight boundary** — what the runner does
+  once after the last test, in what order, with what failure
+  modes — even when, today, the answer is *nothing*) and wired
+  into [`playwright-config.md`](plugins/playwright-config.md)
+  via the always-resolved `globalTeardown: path.resolve(__dirname,
+  './global-teardown.ts')` field. Documents the at-a-glance
+  summary table of every load-bearing element (`async function
+  globalTeardown()` with the empty parameter list because the
+  no-op does not use Playwright's `FullConfig`, the single
+  `// Placeholder for future cleanup (e.g., test database reset)`
+  marker comment that prevents the file from being deleted as
+  dead code, the `export default globalTeardown;` shape
+  Playwright's runner imports as `(await
+  import('./global-teardown.ts')).default`, and the absence of
+  imports because there is nothing to clean up today); the full
+  file annotated chunk-by-chunk; the "Why a no-op placeholder
+  instead of dropping the file" walkthrough that pins the
+  lowest-coupling rationale against the three rejected
+  alternatives (drop both the file and the config field, point
+  the field at a real `noop.ts` that does not communicate intent,
+  or keep both with a self-descriptive empty stub); the five
+  concrete cleanup buckets the placeholder reserves the slot for
+  (per-run `auth-states/` directory cleanup, per-run client
+  account deletion via `TEST_DATA.generateClientEmail()`, per-run
+  Stripe / Polar / LemonSqueezy sandbox fixture cleanup,
+  `apps/web-e2e/test-results/` directory cleanup on success, and
+  test-database snapshot reset); the "Why the parameter list is
+  empty today" rationale that pins the `(config: FullConfig) =>
+  Promise<void> | void` Playwright contract against the
+  future-friendly addition of `(config: FullConfig)`; the "Why
+  `globalTeardown` is not allowed to throw" rationale that pins
+  the recommended per-bucket `try / catch` + `console.error`
+  pattern; the "Why `globalTeardown` runs once, not per-worker"
+  rationale that pins the global-shared cleanup buckets against
+  the race-condition cost of pushing cleanup down to project /
+  file / test level; the failure matrix that maps each
+  `global-teardown.ts` mistake (drop the file → `ENOENT` on every
+  run before `globalSetup`, drop the `globalTeardown` field →
+  silent skip with no error, switch to a named export →
+  `TypeError: undefined is not a function` at run end, make the
+  function synchronous and throw → "tests passed but the run
+  failed" log noise, leave the body empty without the marker
+  comment → contributor deletes the file as dead code, move the
+  file to `apps/web-e2e/setup/global-teardown.ts` → `ENOENT` from
+  the hard-coded `path.resolve(__dirname, './global-teardown.ts')`,
+  add `process.exit(0)` → empty `playwright-report/` directory,
+  hard-code an `await` on a database client → failure on minimal
+  local-dev configurations, add a `setTimeout` / long-running
+  async wait → 60-s end-of-run blocker that produces false
+  "run timed out" results) onto the layer that surfaces each one;
+  the per-line walkthrough table; and the `global-teardown.ts`-change
+  checklist that ties any flip back to a
+  [`global-setup.md`](plugins/global-setup.md) cross-check, a
+  [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check, an
+  [`apps/web-e2e/helpers/test-data.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/helpers/test-data.ts)
+  cross-check, an [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md)
+  cross-check, dual `pnpm tsc --noEmit` runs (e2e + workspace root),
+  a smoke-subset Playwright run that confirms the runner starts
+  (no `ENOENT`), exits cleanly (teardown returns within timeout),
+  and writes the HTML report (`playwright-report/index.html`
+  exists), a [`docs/log.md`](log.md) entry, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link if the teardown gains a real cleanup bucket, and a
+  reviewer pass. Added per-source-file reference link to
+  [`docs/index.md`](index.md) under the plugin-package
+  per-source-file section right above the matched `global-setup.md`
+  entry. Cross-references
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage),
+  the [`apps/web-e2e/playwright.config.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/playwright.config.ts)
+  `globalTeardown:` field, the
+  [`apps/web-e2e/global-setup.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/global-setup.ts)
+  matched pre-flight file,
+  [`apps/web-e2e/helpers/test-data.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/helpers/test-data.ts)
+  for the constants a future teardown will use,
+  [`apps/web-e2e/tsconfig.json`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tsconfig.json)
+  for the `include: ["./**/*.ts"]` glob that picks up this file,
+  and the [`docs/log.md`](log.md) running change log itself.
+
+- `apps/web-e2e/tests/api` Added
+  `collections-exists-query.spec.ts` — a query-param surface
+  smoke spec for `GET /api/collections/exists` (the
+  navigation-shell existence-probe served by
+  [`apps/web/app/api/collections/exists/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/collections/exists/route.ts)
+  that decides whether the "Collections" link belongs in the
+  header, the same way the sibling `categories/exists` probe
+  decides whether the "Categories" link belongs there). Pins the
+  route's status surface against future regressions that might
+  introduce a `?fresh=` cache-busting wiring, a `?strict=`
+  validation that throws, an `?include=inactive` toggle (which a
+  future "show archived collections" feature might tempt a future
+  contributor into adding by flipping the hard-coded
+  `includeInactive: false` argument), or a per-locale 404 (which
+  a hypothetical i18n-aware variant might add). Walks the
+  route's two-branch contract (happy path returns
+  `{ exists, count }` with `200`; the catch branch — which today
+  is the only legitimate non-200 path — returns
+  `{ exists: false, count: 0, error: 'Failed to check collections
+  existence' }` with `500`). Asserts on `< 600 && >= 200` for
+  every parameterised path because both `200` and `500` are
+  legitimate route branches; asserts the canonical
+  `{ exists: boolean, count: number }` shape on the no-arg path;
+  asserts status-equality between the no-arg case and a
+  parameter-laden case to pin the "every unknown query key is
+  silently ignored" invariant; asserts that
+  `?includeInactive=true` does not flip the repository's
+  `includeInactive` flag (the route hard-codes `false` today);
+  and asserts that the `?locale=en` and `?locale=` empty-string
+  cases round-trip to the same status as the no-arg case (the
+  route reads zero query input, so all three must land in the
+  same branch). The matrix covers the obvious i18n keys
+  (`?locale=`, `?lang=`), cache-busting keys (`?refresh=`,
+  `?force=`, `?fresh=`, `?nocache=`), validation keys
+  (`?strict=`, `?validate=`), projection keys (`?include=`,
+  `?fields=`, `?select=`, `?expand=`, `?includeInactive=`),
+  content-negotiation keys (`?format=`), filter-by-state keys
+  (`?status=`, `?active=`), multi-tenancy keys (`?tenant=`,
+  `?tenantId=`), the empty-value case for each, repeated keys,
+  special-character values that would tempt a future regex /
+  LIKE / path-injection wiring, long values to guard against
+  future regex-based indexing bugs, and bogus / typo'd keys.
+  Cross-references
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage),
+  the
+  [`categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+  sibling spec for the categories-existence probe, and the
+  [`apps/web/app/api/collections/exists/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/collections/exists/route.ts)
+  source file the spec is paired with.
+
 - `docs/plugins` Added `global-setup.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   per-run pre-flight hook paired with
