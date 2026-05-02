@@ -33,6 +33,59 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `fixtures-index.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's fixtures-directory barrel module paired with
+  [`apps/web-e2e/fixtures/index.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/fixtures/index.ts),
+  the directory-level public-surface companion to
+  [`auth-fixture.md`](plugins/auth-fixture.md) (which the
+  barrel re-exports from). Documents the single
+  `export { test, expect } from './auth.fixture'`
+  re-export statement that turns the `fixtures/` directory
+  into a single addressable import target so a future spec
+  can write `import { test, expect } from '../../fixtures'`
+  instead of `'../../fixtures/auth.fixture'`; the three
+  load-bearing properties of the re-export (forwarding both
+  `test` AND `expect` to prevent the soft-failure
+  aggregation anti-pattern, the relative `./auth.fixture`
+  source path that resolves through `moduleResolution: "bundler"`
+  without going through any `paths` mapping, the bare names
+  without renaming because Playwright's runner contract
+  requires the test function be named `test`); the "Why a
+  barrel module instead of importing the file directly"
+  walkthrough that pins the three failure modes of
+  file-direct imports (composition with future fixture
+  modules, internal-restructuring absorption, JavaScript
+  ecosystem lingua franca) against the lowest-cost
+  composable barrel shape; the "Why a single re-export and
+  not `export *`" walkthrough that pins the three failure
+  modes of `export *` (type-only exports drop, intent
+  becomes opaque, accidental additions surface) against the
+  lowest-coupling named-re-export shape; the failure matrix
+  covering every barrel-level mistake; the per-line
+  walkthrough table; and the `index.ts`-change checklist
+  with cross-checks against [`auth-fixture.md`](plugins/auth-fixture.md),
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md), and
+  [`e2e-package-manifest.md`](plugins/e2e-package-manifest.md).
+  Linked from `docs/index.md`. Spec 010 cross-link.
+- `apps/web-e2e` Added `tests/api/geocode-query.spec.ts` —
+  a smoke spec covering the **query-param surface** and the
+  **POST body-resilience surface** of the admin-only
+  geocoding endpoint at
+  [`apps/web/app/api/geocode/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/geocode/route.ts).
+  The handler is admin-gated (`auth()` early-returns 401
+  for unauthenticated callers, then 403 for non-admin), so
+  every assertion in the spec pins the unauthenticated
+  branch's 401 contract: the GET handler declares no
+  parameters at all and reads zero query keys, so the
+  matrix walks 30+ query-string permutations (cache-bust
+  keys, content-negotiation keys, localisation keys,
+  provider-pinning keys, geocode-as-query attempts,
+  empty/repeated/special-character/long values) and asserts
+  status invariance; the POST suite pins the
+  gate-then-parse order — a regression that flipped to
+  parse-then-gate would surface as a 400 instead of a 401
+  on malformed bodies. Spec 010 cross-link.
 - `docs/plugins` Added `e2e-package-manifest.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's package manifest paired with
