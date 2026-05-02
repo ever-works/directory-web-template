@@ -216,7 +216,8 @@
 		"NEXT_STEP": "次のステップ",
 		"SUBMIT_PRODUCT": "製品を送信",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

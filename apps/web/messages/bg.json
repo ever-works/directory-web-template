@@ -243,7 +243,8 @@
 		"NEXT_STEP": "Следваща стъпка",
 		"SUBMIT_PRODUCT": "Изпрати продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Анкети",

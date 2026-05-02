@@ -243,7 +243,8 @@
 		"NEXT_STEP": "Следующий шаг",
 		"SUBMIT_PRODUCT": "Отправить продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Опросы",

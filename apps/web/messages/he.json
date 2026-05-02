@@ -215,7 +215,8 @@
 		"NEXT_STEP": "השלב הבא",
 		"SUBMIT_PRODUCT": "שלח מוצר",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

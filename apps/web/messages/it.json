@@ -216,7 +216,8 @@
 		"NEXT_STEP": "Passaggio successivo",
 		"SUBMIT_PRODUCT": "Invia prodotto",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

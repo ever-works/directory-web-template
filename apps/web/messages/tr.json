@@ -243,7 +243,8 @@
 		"NEXT_STEP": "Sonraki adım",
 		"SUBMIT_PRODUCT": "Ürün gönder",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Anketler",

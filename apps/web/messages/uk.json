@@ -216,7 +216,8 @@
 		"NEXT_STEP": "Наступний крок",
 		"SUBMIT_PRODUCT": "Надіслати продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

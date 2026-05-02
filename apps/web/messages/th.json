@@ -216,7 +216,8 @@
 		"NEXT_STEP": "ขั้นตอนถัดไป",
 		"SUBMIT_PRODUCT": "ส่งผลิตภัณฑ์",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

@@ -215,7 +215,8 @@
 		"NEXT_STEP": "下一步",
 		"SUBMIT_PRODUCT": "提交产品",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "调查问卷",

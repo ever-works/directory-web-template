@@ -243,7 +243,8 @@
 		"NEXT_STEP": "다음 단계",
 		"SUBMIT_PRODUCT": "제품 제출",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "설문조사",

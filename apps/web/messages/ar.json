@@ -215,7 +215,8 @@
 		"NEXT_STEP": "الخطوة التالية",
 		"SUBMIT_PRODUCT": "إرسال المنتج",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"SORT_FAVORITES": "Sort favorites"
 	},
 	"survey": {
 		"SURVEYS": "الاستطلاعات",
