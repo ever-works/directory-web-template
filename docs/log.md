@@ -33,6 +33,142 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `star-rating-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's five-star rating-picker driver paired with
+  [`apps/web-e2e/page-objects/public/star-rating.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/star-rating.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class StarRating` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  the standalone class restates because it does not inherit
+  from `BasePage`, the `readonly container: Locator` pinned
+  to the dual `[role="radiogroup"][aria-label="Rating"]`
+  exact-match selector with `.first()` for strict-mode
+  safety against future sibling radio groups, the
+  constructor that pre-binds the single container Locator
+  in a single pass without a `super(page)` call, the
+  `star(n: number): Locator` locator-factory that
+  interpolates the numeric `n` into the
+  `aria-label*="${n} star"` substring match scoped through
+  `this.container.locator(…)` rather than
+  `this.page.locator(…)` to survive a future "1 star = bad,
+  5 stars = great" legend in the page footer with the
+  substring match accommodating both singular `"1 star"`
+  and plural `"2 stars"`/.../`"5 stars"` shapes and the
+  Locator-return shape preserving composability with
+  `expect(...).toBeVisible()` chains, the
+  `rate(n: number)` composite "click the nth star"
+  primitive, the `getValue(): Promise<number>` accessor
+  with the load-bearing reverse iteration `i = 5..1` that
+  returns the **highest** checked star to handle the host
+  app's HeroUI fill-up-to-N pattern correctly and the
+  `return 0` no-rating sentinel that pins the public return
+  type to `Promise<number>`); the full file annotated
+  chunk-by-chunk; the spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/star-rating.spec.ts` (picker
+  visibility on the item-detail page reachable from the
+  first `a[href*="/items/"]` link on `/discover/1`,
+  fourth-star click via `rate(4)` with a 500 ms settle
+  delay before reading `getValue()` returns 4, all five
+  star buttons present via per-star visibility loop — all
+  three tests soft-skip when ratings are disabled or the
+  comment form does not surface); the "Why the class does
+  not extend `BasePage`" walkthrough; the "Why
+  `[role="radiogroup"][aria-label="Rating"]` exact match"
+  walkthrough; the "Why `.first()` on the container
+  Locator" walkthrough; the "Why `star(n)` returns a
+  `Locator` instead of clicking" walkthrough; the "Why
+  `aria-label*="N star"` substring match (and not exact)"
+  walkthrough that pins plural-form variance, future locale
+  variance, and future a11y-label expansion as the three
+  reasons; the "Why reverse iteration in `getValue()`"
+  walkthrough that pins the highest-checked-wins semantics
+  for the fill-up-to-N pattern, short-circuit on the
+  most-likely-rating common case, and symmetric-to-visual
+  rendering; the "Why `return 0` as the no-rating
+  sentinel" rationale; the failure matrix covering every
+  star-rating-page-level mistake; the per-line walkthrough
+  table; the read / write surface summary; the read /
+  write surface failure modes table; and the
+  `star-rating.page.ts`-change checklist with the spec
+  audit + `BasePage` cross-check + production-source
+  cross-check + `discover-page-object.md` cross-check +
+  `fixtures-index.md` cross-check + `e2e-tsconfig.md`
+  cross-check + `playwright-config.md` cross-check + dual
+  `pnpm tsc --noEmit` + smoke-subset Playwright run +
+  `docs/log.md` + Spec 010 cross-link + reviewer pass.
+- `apps/web-e2e/tests/api` Added
+  `client-geo-stats-query.spec.ts` query-parameter smoke
+  spec for the authenticated client geo-stats endpoint
+  served by
+  [`apps/web/app/api/client/geo-stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/client/geo-stats/route.ts).
+  Pins the route's "session-gated, 401 before any
+  service-layer call" invariant by walking the
+  unauthenticated GET surface across every plausible
+  query-key shape: the no-arg baseline, the obvious
+  `?userId=` / `?user_id=` / `?uid=` / `?id=` /
+  `?clientId=` admin-impersonation key shapes that a
+  future "admin-views-other-user's-geo-stats" feature
+  might add, the `?token=` / `?secret=` / `?api_key=` /
+  `?authorization=` magic-token bypass keys, the
+  `?country=` / `?city=` / `?region=` / `?area=` /
+  `?serviceArea=` / `?coverage=` geographic-filter keys
+  that a future per-region scoping feature might add, the
+  `?lat=` / `?lng=` / `?bbox=` / `?radius=` spatial-filter
+  keys that a future "items near a point" feature might
+  add, the `?period=` / `?range=` / `?window=` time-window
+  keys, the `?limit=` / `?offset=` / `?page=` / `?topN=`
+  pagination keys for the `top_cities` / `top_countries`
+  arrays, the `?fields=` / `?select=` / `?include=`
+  selection keys, the `?refresh=` / `?force=` / `?fresh=`
+  / `?cache=` / `?nocache=` cache-busting keys, the
+  `?format=` content-negotiation keys (`json` / `xml` /
+  `csv` / `geojson` / `kml`), the `?locale=` / `?lang=`
+  / `?currency=` i18n keys, the `?status=` / `?type=` /
+  `?sort=` / `?order=` / `?direction=` filter and sort
+  keys, the `?tenant=` / `?tenantId=` / `?org=`
+  multi-tenancy keys, the `?admin=` / `?asAdmin=` /
+  `?bypass=` / `?impersonate=` admin-override keys, empty
+  values, repeated keys, special-character values, long
+  values (500-character repeats), and bogus / typo'd
+  keys. Adds three explicit assertion tests on top of the
+  parameterised loop: the canonical 401 envelope shape
+  (`{ success: false, error: '<string>' }`), the
+  parameter-invariance assertion (no query-string
+  permutation produces a non-401 status), the
+  no-`?userId=`-bypass assertion (anonymous callers
+  cannot impersonate other users), the
+  no-`?token=`-bypass assertion (no magic-token auth
+  exists today), the no-`?admin=`-override assertion
+  (admin status is read from the session, never from the
+  query string), the geographic-filter no-effect
+  assertion (the route returns the full per-user payload
+  today), and the response-shape stability assertion
+  across permuted parameter sets. Mirrors the sibling
+  `client-dashboard-stats-query.spec.ts`,
+  `stripe-payment-methods-list-query.spec.ts`,
+  `lemonsqueezy-list-query.spec.ts`,
+  `subscription-query.spec.ts`,
+  `payments-query.spec.ts`, and
+  `plan-status-query.spec.ts` smoke specs — all seven
+  routes share the same "session-gated, 401 before any
+  service-layer call" posture, but the client geo-stats
+  route shares with the client dashboard-stats route the
+  property that the handler signature is **zero-argument**
+  AND uses the `requireClientAuth()` helper, making the
+  unauth-branch 401 invariant doubly load-bearing because
+  a regression that adds a `request: NextRequest`
+  argument and reads any `searchParams` value before the
+  gate is the obvious shape of a future bypass —
+  particularly tempting on a geo-stats endpoint where
+  future contributors might add `?country=…` or `?city=…`
+  filter keys to scope the payload to a sub-region.
+
 - `docs/plugins` Added `sort-menu-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's listing-sort dropdown driver paired with
