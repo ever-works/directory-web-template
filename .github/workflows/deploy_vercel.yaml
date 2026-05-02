@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Vercel environment to deploy to (e.g., production, staging, preview)'
+        description: "Vercel environment to deploy to (e.g., production, staging, preview)"
         required: true
         type: string
   workflow_call:
@@ -22,9 +22,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  DATA_REPOSITORY: 'https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}'
+  DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  NODE_OPTIONS: '--max-old-space-size=4096'
+  NODE_OPTIONS: "--max-old-space-size=4096"
 
 jobs:
   deploy:
@@ -41,7 +41,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: "24"
           cache: pnpm
 
       - name: Install dependencies
@@ -62,7 +62,7 @@ jobs:
               "framework": "nextjs",
               "rootDirectory": "apps/web",
               "sourceFilesOutsideRootDirectory": true,
-              "buildCommand": "pnpm -w run build:web",
+              "buildCommand": "cd ../.. && pnpm run build:web",
               "outputDirectory": null
             }')
 
@@ -83,8 +83,7 @@ jobs:
                 "name": "${{ github.event.repository.name }}",
                 "framework": "nextjs",
                 "rootDirectory": "apps/web",
-                "sourceFilesOutsideRootDirectory": true,
-                "buildCommand": "pnpm -w run build:web",
+                "buildCommand": "cd ../.. && pnpm run build:web",
                 "outputDirectory": null
               }')
 
@@ -96,6 +95,28 @@ jobs:
             if [ "$CREATE_HTTP_CODE" -lt 200 ] || [ "$CREATE_HTTP_CODE" -ge 300 ]; then
               echo "Failed to create Vercel project"
               echo "Error: $(echo "$CREATE_BODY" | jq -r '.error.message // "Unknown error"')"
+              exit 1
+            fi
+
+            RESPONSE=$(curl -s -w "\n%{http_code}" -X PATCH "$API_URL" \
+              -H "Authorization: Bearer $VERCEL_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d '{
+                "framework": "nextjs",
+                "rootDirectory": "apps/web",
+                "sourceFilesOutsideRootDirectory": true,
+                "buildCommand": "cd ../.. && pnpm run build:web",
+                "outputDirectory": null
+              }')
+
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | sed '$d')
+            echo "Post-create sync HTTP Status: $HTTP_CODE"
+            echo "Post-create sync Response: $BODY"
+
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              echo "Failed to sync Vercel project settings after creation"
+              echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
               exit 1
             fi
 
