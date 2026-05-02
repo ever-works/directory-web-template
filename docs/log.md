@@ -33,6 +33,106 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `admin-comments-page-object.md` —
+  the **fourth per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/comments.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/comments.page.ts)
+  and the **first** admin-tree driver in the rollout that
+  documents a **HeroUI-Modal-based delete confirmation
+  surface** (a `[role="dialog"]` overlay rather than the
+  browser-native `confirm()` dialog the collections driver
+  documents, and rather than the custom-React
+  `deleteConfirmModal` overlay the clients driver
+  documents). Documents the full surface for the
+  `AdminCommentsPage` driver — the two `readonly` Locator
+  fields (`heading`, `searchInput`), the two per-action
+  methods (`searchComments(term)`, `clearSearch()`), the
+  two per-element getters (`deleteCommentDialog`,
+  `deleteButtons`), and the single `navigate()` shortcut
+  that closes over the inherited `goto('/admin/comments')`.
+  Pinned to
+  [`apps/web-e2e/tests/admin/comments.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/comments.spec.ts)
+  (four flows over the admin comments-management
+  surface); the "Why `AdminCommentsPage` extends `BasePage`"
+  three-reason analysis (page-route navigation via the
+  inherited `goto`, global header / footer / nav-link
+  chrome surfaced for free, post-navigation
+  `waitForPageReady` stabiliser); the "Why
+  `getByRole('searchbox')` for the search input" three-
+  reason analysis (HeroUI's `<Input type="search">` lights
+  up the canonical role automatically, independent of
+  placeholder text, the `data-testid` posture would force
+  a production-source change); the "Why `searchComments` /
+  `clearSearch` and not direct Locator drives" three-
+  reason analysis (documentation-by-default, forward-
+  compatible with debouncing / IME composition / multi-
+  step interactions, symmetric with future per-input
+  drivers); the "Why `deleteCommentDialog` and
+  `deleteButtons` are getters and not `readonly` fields"
+  three-reason analysis; the "Why a HeroUI Modal (and not
+  `confirm()` or a custom-React overlay) for the delete
+  confirmation" three-reason analysis (production-source
+  consistency with HeroUI Modal use elsewhere in the
+  admin shell, per-page contract divergence from
+  collections / clients postures, `[role="dialog"]` lights
+  up the screen-reader path); the "Why `deleteButtons`
+  uses a dual-selector" three-reason analysis (HeroUI
+  `color="danger"` prop + Tailwind utility-class fallback,
+  future-proof against HeroUI prop reshuffling, the
+  consuming spec uses an inline svg-children selector);
+  the failure matrix; the per-line walkthrough; and the
+  read / write surface table mapping every caller to the
+  fields they touch.
+- `apps/web-e2e/tests/api` Added `admin-comments-query.spec.ts`
+  — the **deep query-param surface smoke** for the
+  admin-gated comments-listing endpoint at
+  [`apps/web/app/api/admin/comments/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/comments/route.ts).
+  Mirrors the `admin-collections-query.spec.ts` /
+  `admin-dashboard-stats-query.spec.ts` /
+  `admin-geo-analytics-query.spec.ts` /
+  `admin-items-stats-query.spec.ts` /
+  `admin-users-query.spec.ts` /
+  `client-dashboard-stats-query.spec.ts` shape; pins the
+  "admin gate fires before any `searchParams.get(...)` /
+  drizzle query" invariant by walking the route's three
+  documented query params (`page`, `limit`, `search`)
+  plus standard admin-impersonation / magic-token /
+  admin-override / field-projection / cache-busting /
+  format-negotiation / locale / multi-tenancy / time-
+  range / rating-filter / soft-delete-filter / sort /
+  comment-targeting / item-targeting / repeated / bogus-
+  key / Cookie-header probe sets (~85 deep paths). Adds
+  16 deep tests on top of the per-path 4xx baseline: the
+  deterministic 403 with the canonical `{ success:
+  false, error: 'Forbidden' }` envelope assertion (the
+  single-step gate collapses unauthenticated and
+  authenticated-non-admin into the same 403, distinct
+  from the `admin/users` route's two-step 401-then-403
+  split AND distinct from the `admin/collections`
+  route's single-step 401 gate); a stable-status-across-
+  permutations assertion; eight "does NOT bypass the
+  admin gate" assertions for `?search=…`, `?page=…
+  &limit=…`, `?userId=…`, `?token=…`, `?bypass=…`,
+  `?format=…`, `?fields=…`, `?commentId=…`; two
+  "introduces no specific bypass" assertions for
+  `?rating=…` and `?status=…`; a stable-status-across-
+  param-permutations assertion; an Accept-header
+  invariance assertion; a repeated-keys invariance
+  assertion; a bare-Request-typed handler signature
+  stability assertion (this route uses bare `Request`,
+  distinct from the `admin/collections` route's
+  `NextRequest`-typed handler) sweeping known-bogus
+  Cookie / X-Forwarded-For / X-Real-IP headers. Closes
+  the "deep query-surface walk" gap on the admin
+  comments-listing route under
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and adds the **first** deep-query-surface smoke for any
+  bare-`Request`-typed handler in the suite — every other
+  query-surface smoke pinned to date is for either a
+  `NextRequest`-typed admin handler or a session-gated
+  client / payment / public route.
+
 - `docs/plugins` Added `admin-collections-page-object.md` —
   the **third per-source-file reference** the docs tree
   publishes for any file under
