@@ -33,6 +33,121 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `public-pages-page-object.md` —
+  the **per-source-file reference** for the Playwright e2e
+  suite's generic public content-page + error-page drivers
+  paired with
+  [`apps/web-e2e/page-objects/public/public-pages.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/public-pages.page.ts),
+  sitting inside the `public/` page-object subtree alongside
+  the thirteen other public-surface page objects and
+  closing the gap that left the `public-pages.page.ts`
+  source as the only public-tree page-object source file
+  without a per-source-file doc reference. Documents the
+  full surface across both `PublicPagesPage` (the route-
+  driver class with the `heading` / `mainContent` /
+  `breadcrumb` Locators and the six route shortcuts to
+  `/collections`, `/categories`, `/tags`, `/cookies`,
+  `/pricing`, `/sponsor`) and `ErrorPage` (the error-
+  surface class with the `heading` / `errorCode` /
+  `goHomeButton` / `goBackButton` Locators); the
+  spec-context cross-links to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming specs at
+  [`apps/web-e2e/tests/public/collections.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/public/collections.spec.ts),
+  [`apps/web-e2e/tests/public/sponsor.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/public/sponsor.spec.ts),
+  and
+  [`apps/web-e2e/tests/public/error-pages.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/public/error-pages.spec.ts);
+  the "Why `PublicPagesPage` extends `BasePage`" three-
+  reason analysis (page-route navigation via the inherited
+  `goto` method, global `header` / `footer` / `navLinks`
+  chrome surfaced for free, `waitForPageReady` post-
+  navigation stabiliser); the "Why `PublicPagesPage` and
+  `ErrorPage` co-habit a single file" three-reason analysis
+  (an error page is structurally a content page that
+  happens to be a 404 / 403, the two classes share the
+  same `BasePage` import and `Page, Locator` type-only
+  import, the two classes are consumed together by every
+  spec that drives a feature-flag-gated route like
+  `/sponsor`); the "Why `heading` uses
+  `getByRole('heading').first()`" three-reason analysis
+  (accessibility-tree-canonical posture, strict-mode-
+  correctness against `<h2>` / `<h3>` siblings, locale-
+  stable selector); the "Why `breadcrumb` uses an
+  OR-of-two-paths" three-reason analysis (canonical
+  `aria-label="breadcrumb"` with case-insensitive flag,
+  structural fallback `<nav><ol>`, `.first()` strict-mode-
+  correctness); the "Why `errorCode` uses
+  `getByText(/404\|403/)`" three-reason analysis (error
+  code as primary user-facing discriminator, regex form
+  vs. string form, no `.first()` required); the "Why
+  `goHomeButton` uses `role="link"`" three-reason analysis
+  (`<a href="/">` canonical, `.first()` strict-mode-
+  correctness, case-insensitive substring); the "Why
+  `goBackButton` uses `role="button"`" three-reason
+  analysis (`<button onClick={() => history.back()}>`
+  canonical, two-word safety lock, `.first()` strict-mode-
+  correctness); the failure matrix of 27 mistakes; the
+  per-line walkthrough table; the read / write surface
+  tables; and the 13-step `public-pages.page.ts`-change
+  checklist tying any change to a spec audit, a
+  `base-page-object.md` cross-check, a production-source
+  cross-check on each of the six routes and the error
+  template, a `e2e-tsconfig.md` / `playwright-config.md` /
+  `fixtures-index.md` cross-check, dual `pnpm tsc --noEmit`
+  runs, a smoke-subset Playwright run targeting
+  `--grep "Collections\|Categories\|Tags\|Cookies\|Pricing\|Sponsor\|Error"`,
+  a `docs/log.md` entry, a [Spec 010](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link, and a reviewer pass.
+- `apps/web-e2e/tests/api` Added
+  `admin-geo-analytics-query.spec.ts` — the **deep
+  query-param surface smoke** for the admin-gated
+  geo-analytics endpoint at
+  [`apps/web/app/api/admin/geo-analytics/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/geo-analytics/route.ts).
+  Walks ~80 query-string permutations across the
+  admin-impersonation key family
+  (`?userId=` / `?user_id=` / `?adminId=` / `?as=admin` /
+  `?asAdmin=true` / `?impersonate=admin`), the magic-token
+  bypass family (`?token=` / `?secret=` / `?api_key=` /
+  `?authorization=` / `?session=` / `?adminToken=`), the
+  admin-override key family (`?bypass=` / `?admin=` /
+  `?override=` / `?force=`), the geo-filter family
+  (`?country=` / `?city=` / `?serviceArea=`), the
+  distribution-tuning override family
+  (`?topCitiesLimit=` / `?topCountriesLimit=`), the
+  heatmap-density family (`?heatmapResolution=` /
+  `?heatmapBuckets=` / `?gridSize=`), the remote-filter
+  family (`?includeRemote=` / `?excludeRemote=` /
+  `?onlyRemote=`), the time-range family (`?from=` /
+  `?to=` / `?since=` / `?until=`), the content-projection
+  family (`?fields=` / `?select=` / `?include=` /
+  `?exclude=`), the cache-busting family (`?refresh=` /
+  `?force=` / `?fresh=` / `?cache=` / `?nocache=`), the
+  content-negotiation family (`?format=json` / `geojson` /
+  `csv` / `xml`), the i18n family (`?locale=` / `?lang=`),
+  the multi-tenancy family (`?tenant=` / `?tenantId=` /
+  `?org=`), the bounding-box family (`?bbox=` / `?bounds=`
+  / `?viewport=`), and the empty-value / repeated-key /
+  injection-style / long-value / bogus-key permutations.
+  Pins the **zero-argument-handler / always-401-on-the-
+  unauth-branch** invariant via the same shape as the
+  sibling
+  [`admin-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-dashboard-stats-query.spec.ts),
+  [`client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts),
+  [`client-geo-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-geo-stats-query.spec.ts),
+  [`client-items-coordinates-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts),
+  and other query-surface smoke specs. Adds 14 dedicated
+  invariant tests on top of the loop: status-stable
+  across permutations, 4xx with stable success-
+  discriminator on the unauth branch, no
+  query-userId-bypass / no query-token-bypass / no
+  query-admin-override, geo-filter / distribution-tuning /
+  heatmap-density / remote-filter / time-range / viewport-
+  filter / format-negotiation params do NOT change the
+  unauth branch, status stability across param
+  permutations, and Accept-header invariance. The deeper
+  `admin-protected-extra.spec.ts` smoke also covers this
+  route at the broad `< 500` level; this spec adds the
+  deep query-surface walk on top of that.
 - `docs/plugins` Added `profile-dropdown-page-object.md` —
   the **per-source-file reference** for the Playwright e2e
   suite's header profile-dropdown menu driver paired with
