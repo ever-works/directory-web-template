@@ -33,6 +33,7 @@ import {
 	getHeaderThemeEnabled,
 	getHeaderMoreEnabled,
 	getHeaderSettingsEnabled,
+	getHeaderMapEnabled,
 	getHeaderLayoutDefault,
 	getHeaderPaginationDefault,
 	getHeaderThemeDefault,
@@ -116,6 +117,7 @@ export default async function RootLayout({
 		themeEnabled: getHeaderThemeEnabled(),
 		moreEnabled: getHeaderMoreEnabled(),
 		settingsEnabled: getHeaderSettingsEnabled(),
+		mapEnabled: getHeaderMapEnabled(),
 		layoutDefault: getHeaderLayoutDefault(),
 		paginationDefault: getHeaderPaginationDefault(),
 		themeDefault: getHeaderThemeDefault()

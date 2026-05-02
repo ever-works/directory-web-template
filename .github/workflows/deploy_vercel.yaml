@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Vercel environment to deploy to (e.g., production, staging, preview)"
+        description: 'Vercel environment to deploy to (e.g., production, staging, preview)'
         required: true
         type: string
   workflow_call:
@@ -18,13 +18,13 @@ permissions:
   deployments: write
 
 concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
+  group: vercel-deployment-${{ github.ref }}-${{ inputs.environment }}
   cancel-in-progress: true
 
 env:
-  DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
+  DATA_REPOSITORY: 'https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}'
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-  NODE_OPTIONS: "--max-old-space-size=4096"
+  NODE_OPTIONS: '--max-old-space-size=4096'
 
 jobs:
   deploy:
@@ -45,12 +45,12 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Install Vercel CLI
         run: pnpm add --global vercel@latest
 
-      - name: Sync Vercel project settings
+      - name: Sync Vercel project settings for remote build
         run: |
           API_URL="https://api.vercel.com/v9/projects/${{ github.event.repository.name }}"
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
@@ -59,9 +59,11 @@ jobs:
             -H "Authorization: Bearer $VERCEL_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{
+              "framework": "nextjs",
               "rootDirectory": "apps/web",
               "sourceFilesOutsideRootDirectory": true,
-              "buildCommand": "pnpm run build:ci"
+              "buildCommand": "pnpm run build:ci",
+              "outputDirectory": null
             }')
 
           HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
@@ -69,8 +71,14 @@ jobs:
           echo "HTTP Status: $HTTP_CODE"
           echo "Response: $BODY"
 
+          if [ "$HTTP_CODE" = "404" ]; then
+            echo "Project '${{ github.event.repository.name }}' was not found while syncing settings."
+            echo "Continuing; the Vercel CLI link/build steps will validate project access."
+            exit 0
+          fi
+
           if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
-            echo "❌ Failed to sync Vercel project settings"
+            echo "Failed to sync Vercel project settings"
             echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
             exit 1
           fi
@@ -79,21 +87,21 @@ jobs:
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token=$VERCEL_TOKEN
+          vercel link --yes $SCOPE_FLAG --project ${{ github.event.repository.name }} --token="$VERCEL_TOKEN"
 
       - name: Set DATA_REPOSITORY env variable
         continue-on-error: true
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+          echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set GH_TOKEN env variable
         continue-on-error: true
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set CRON_SECRET env variable
         continue-on-error: true
@@ -103,84 +111,69 @@ jobs:
           if [ -n "$CRON_SECRET" ]; then
             SCOPE_FLAG=""
             [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token $VERCEL_TOKEN
+            echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
       - name: Pull Vercel settings
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token=$VERCEL_TOKEN
+          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
 
-      - name: Trigger deployment via API
-        id: trigger_deployment
+      - name: Deploy with remote Vercel build
+        id: deploy_remote
         continue-on-error: true
         run: |
-          API_URL="https://api.vercel.com/v13/deployments"
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && API_URL="${API_URL}?slug=${{ secrets.VERCEL_TEAM_SCOPE }}"
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel deploy --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
 
-          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL" \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "name": "${{ github.event.repository.name }}",
-              "projectSettings": {
-                "rootDirectory": "apps/web",
-                "sourceFilesOutsideRootDirectory": true,
-                "buildCommand": "pnpm run build:ci"
-              },
-              "gitSource": {
-                "type": "github",
-                "ref": "${{ github.ref_name }}",
-                "repoId": "${{ github.repository_id }}",
-                "sha": "${{ github.sha }}"
-              },
-              "target": "${{ inputs.environment }}"
-            }')
+      - name: Pull Vercel settings for prebuilt fallback
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          vercel pull --yes $SCOPE_FLAG --environment=${{ inputs.environment }} --token="$VERCEL_TOKEN"
+          cat .vercel/project.json
 
-          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
-          BODY=$(echo "$RESPONSE" | sed '$d')
-          echo "HTTP Status: $HTTP_CODE"
-          echo "Response: $BODY"
+      - name: Build project artifacts
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          SCOPE_FLAG=""
+          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
+          PROD_FLAG=""
+          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
+          vercel build $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
 
-          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-            DEPLOYMENT_URL=$(echo "$BODY" | jq -r '.url // empty')
-            DEPLOYMENT_ID=$(echo "$BODY"  | jq -r '.id  // empty')
-            [ -n "$DEPLOYMENT_URL" ] && echo "🚀 Deployment URL: https://$DEPLOYMENT_URL"
-            [ -n "$DEPLOYMENT_ID"  ] && echo "📋 Deployment ID:  $DEPLOYMENT_ID"
-            echo "deployment_id=$DEPLOYMENT_ID" >> $GITHUB_OUTPUT
+      - name: Verify prebuilt output
+        if: steps.deploy_remote.outcome == 'failure'
+        run: |
+          if [ -f .vercel/output/config.json ]; then
+            du -sh .vercel/output
           else
-            echo "❌ API deployment failed (HTTP $HTTP_CODE) — falling back to CLI"
-            echo "Error: $(echo "$BODY" | jq -r '.error.message // "Unknown error"')"
+            echo "Missing Vercel prebuilt output"
             exit 1
           fi
+          OUTPUT_SIZE_KB=$(du -sk .vercel/output | cut -f1)
+          if [ "$OUTPUT_SIZE_KB" -lt 10000 ]; then
+            echo "Prebuilt output is suspiciously small: ${OUTPUT_SIZE_KB}KB"
+            find .vercel/output -maxdepth 3 -type f | sort | sed -n '1,200p'
+            exit 1
+          fi
+          cat .vercel/output/config.json
+          find .vercel/output -maxdepth 3 -type f | sort | sed -n '1,200p'
 
-      - name: Build project artifacts (CLI fallback)
-        if: steps.trigger_deployment.outcome == 'failure'
+      - name: Deploy prebuilt project artifacts
+        if: steps.deploy_remote.outcome == 'failure'
         run: |
           SCOPE_FLAG=""
           [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
           PROD_FLAG=""
           [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
-          vercel build $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
-
-      - name: Deploy project artifacts (CLI fallback)
-        if: steps.trigger_deployment.outcome == 'failure'
-        run: |
-          SCOPE_FLAG=""
-          [ -n "${{ secrets.VERCEL_TEAM_SCOPE }}" ] && SCOPE_FLAG="--scope ${{ secrets.VERCEL_TEAM_SCOPE }}"
-          PROD_FLAG=""
-          [ "${{ inputs.environment }}" = "production" ] && PROD_FLAG="--prod"
-          vercel deploy --prebuilt $SCOPE_FLAG $PROD_FLAG --token=$VERCEL_TOKEN
-
-      - name: Update cron schedule
-        if: success() && steps.trigger_deployment.outputs.deployment_id != ''
-        env:
-          VERCEL_PROJECT_ID: ${{ github.event.repository.name }}
-          VERCEL_DEPLOYMENT_ID: ${{ steps.trigger_deployment.outputs.deployment_id }}
-          VERCEL_PLAN: ${{ secrets.VERCEL_PLAN }}
-        run: npx tsx apps/web/scripts/update-cron.ts
+          vercel deploy --prebuilt --archive=tgz $SCOPE_FLAG $PROD_FLAG --token="$VERCEL_TOKEN"
 
       - name: Deployment summary
         if: success()
-        run: echo "✅ Deployment to ${{ inputs.environment }} completed successfully"
+        run: echo "Deployment to ${{ inputs.environment }} completed successfully"

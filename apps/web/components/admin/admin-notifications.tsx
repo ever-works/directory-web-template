@@ -128,10 +128,10 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
         variant="ghost"
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative transition-all duration-200 ${
+        className={`relative transition-all duration-200 border-none ${
           isOpen 
-            ? "bg-primary/10 text-primary hover:bg-primary/20" 
-            : "hover:bg-muted/50"
+            ? "bg-primary/10 text-primary hover:bg-primary/2" 
+            : "hover:bg-muted/2"
         }`}
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
         aria-haspopup="menu"
@@ -156,49 +156,49 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
         <div
           id="admin-notifications-dropdown"
           role="menu"
-          className="absolute right-0 top-12 w-[420px] z-50 animate-in slide-in-from-top-2 duration-200"
+          className="absolute right-0 top-12 w-[420px] z-50 animate-in slide-in-from-top-2 fade-in duration-200"
         >
-          <Card className="shadow-xl border bg-background/95 backdrop-blur-xs">
-            <CardHeader className="pb-3 border-b">
+          <Card className="shadow-2xl border border-gray-200/80 dark:border-white/8 bg-background/98 backdrop-blur-sm overflow-hidden">
+            <CardHeader className="pb-3 border-b border-gray-100 dark:border-white/8 bg-gray-50/50 dark:bg-white/2">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg font-semibold">{t('TITLE')}</CardTitle>
+                <div className="flex items-center gap-2.5">
+                  <CardTitle className="text-base font-semibold">{t('TITLE')}</CardTitle>
                   {unreadCount > 0 && (
-                    <Badge variant="secondary" className="px-2 py-0.5 text-xs">
+                    <Badge variant="secondary" className="px-2 py-0 h-5 text-xs font-medium rounded-md">
                       {unreadCount} {t('NEW')}
                     </Badge>
                   )}
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => fetchNotifications()}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0 rounded-md"
                     disabled={isLoading || isFetching}
                     aria-label="Refresh notifications"
                   >
-                    <RefreshCw className={`h-4 w-4 ${(isLoading || isFetching) ? "animate-spin" : ""}`} />
+                    <RefreshCw className={`h-3.5 w-3.5 ${(isLoading || isFetching) ? "animate-spin" : ""}`} />
                   </Button>
                   {unreadCount > 0 && (
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => markAllAsRead()}
-                      className="text-xs h-8 px-3"
+                      className="text-xs h-7 px-2.5 rounded-md font-medium"
                       disabled={isMarkingAllAsRead}
                     >
-                      {isMarkingAllAsRead ?t( "LOADING") : t( "MARK_ALL_READ")}
+                      {isMarkingAllAsRead ? t("LOADING") : t("MARK_ALL_READ")}
                     </Button>
                   )}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setIsOpen(false)}
-                    className="h-8 w-8 p-0"
+                    className="h-7 w-7 p-0 rounded-md"
                     aria-label="Close notifications panel"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               </div>
@@ -244,12 +244,12 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                         aria-label={`${notification.type} notification: ${notification.title || notification.message}`}
                         tabIndex={0}
                         key={notification.id}
-                        className={`relative p-4 hover:bg-muted/30 cursor-pointer transition-all duration-200 border-l-4 ${
+                        className={`relative px-4 py-3.5 cursor-pointer transition-all duration-150 border-l-[3px] ${
                           getNotificationPriorityColor(notification.type)
                         } ${
-                          !notification.isRead 
-                            ? "bg-primary/5 hover:bg-primary/10" 
-                            : "hover:bg-muted/50"
+                          !notification.isRead
+                            ? "bg-primary/4 hover:bg-primary/8"
+                            : "hover:bg-muted/40"
                         }`}
                         onClick={() => handleNotificationClick(notification)}
                         onKeyDown={(e) => {
@@ -354,12 +354,11 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
               {notifications.length > 0 && (
                 <>
                   <div className="border-t border-border/50" />
-                  <div className="p-3 bg-muted/20">
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-center text-sm h-8"
+                  <div className="px-3 py-2.5 bg-gray-50/50 dark:bg-white/2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-center text-sm h-8 font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-lg"
                       onClick={() => {
-                        // Navigate to full notifications page
                         router.push("/admin/notifications");
                       }}
                     >

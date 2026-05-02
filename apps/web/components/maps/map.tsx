@@ -53,6 +53,8 @@ export function Map({
 	},
 	enableClustering = true,
 	clusterOptions,
+	fitToMarkers = false,
+	fitPadding = 50,
 	isLoading: externalLoading = false,
 	isDisabled = false,
 	error: externalError = null,
@@ -237,6 +239,33 @@ export function Map({
 		if (!mapInstanceRef.current) return;
 		mapInstanceRef.current.setZoom(zoom);
 	}, [zoom]);
+
+	// Auto-fit bounds to markers on first load (Spec 017 — Map View AC-4).
+	const hasFitRef = useRef(false);
+	useEffect(() => {
+		if (!fitToMarkers || hasFitRef.current) return;
+		const map = mapInstanceRef.current;
+		if (!map || markers.length === 0 || isMapLoading) return;
+
+		if (markers.length === 1) {
+			map.setCenter(markers[0].coordinates);
+			map.setZoom(13);
+		} else {
+			let north = -90;
+			let south = 90;
+			let east = -180;
+			let west = 180;
+			for (const marker of markers) {
+				const { latitude, longitude } = marker.coordinates;
+				if (latitude > north) north = latitude;
+				if (latitude < south) south = latitude;
+				if (longitude > east) east = longitude;
+				if (longitude < west) west = longitude;
+			}
+			map.fitBounds({ north, south, east, west }, fitPadding);
+		}
+		hasFitRef.current = true;
+	}, [fitToMarkers, markers, isMapLoading, fitPadding]);
 
 	// Handle fullscreen toggle
 	const toggleFullscreen = useCallback(async () => {

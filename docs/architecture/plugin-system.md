@@ -7,9 +7,16 @@ sidebar_label: Plugin System
 # Plugin System (Architecture)
 
 > **Status.** Spec [`002-plugin-architecture`](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/002-plugin-architecture)
-> is in **proposed** state. This page describes the **target
-> architecture** that every shipped feature is being migrated toward.
-> Where existing code still pre-dates this design (for example
+> is **in-progress**. Phase A — package scaffolding for
+> [`@ever-works/plugin-sdk`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk),
+> [`@ever-works/plugin-runtime`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-runtime),
+> and [`@ever-works/plugin-demo`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-demo)
+> — landed in commit `8b68d29a` (`feat(plugins): scaffold plugin-sdk,
+> plugin-runtime, plugin-demo`). The packages type-check cleanly and
+> are wired into the workspace; Phase B (host-app boot, admin UI,
+> per-feature migrations) is the active track. This page describes the
+> **target architecture** every shipped feature is being migrated
+> toward. Where existing code still pre-dates this design (for example
 > `apps/web/lib/payment/`, `apps/web/lib/analytics/`), it is kept as
 > the source of truth until its dedicated migration spec lands.
 
@@ -30,13 +37,19 @@ surface that:
 - makes the codebase friendly to **AI agents**: every contract is one
   TypeScript interface, declared once.
 
-## The two packages
+## The three packages
 
 ```
 packages/
 ├── plugin-sdk/        ← types, interfaces, defineDirectoryPlugin()
-└── plugin-runtime/    ← registry, slot host, config loader (React-aware)
+├── plugin-runtime/    ← registry, slot host, config loader (React-aware)
+└── plugin-demo/       ← reference plugin (header-right badge slot)
 ```
+
+The third package (`plugin-demo`) is **not** required for the runtime
+to operate. It is a teaching example that the docs and tests can
+import as a stable, real plugin without coupling them to a future
+production plugin's surface.
 
 - `@ever-works/plugin-sdk` is **framework-agnostic**. Any plugin —
   even one written in another framework — can implement the
@@ -66,6 +79,13 @@ is:
 A single plugin can declare multiple capabilities (e.g. an auth plugin
 that also exposes an admin UI panel via `ui-slot`).
 
+For the **complete contract** of each interface — method signatures,
+single-vs-fan-out lookup style, and how the runtime resolves multiple
+providers — see the [Plugin Capabilities Reference](../plugins/capabilities.md).
+That page is the source of truth that pairs with
+[`packages/plugin-sdk/src/providers.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/providers.ts);
+this table only summarises the canonical id list.
+
 ## Slots
 
 Every layout exposes named **slots**. Plugins register React components
@@ -74,15 +94,34 @@ the page tree.
 
 | Slot id                       | Where it renders                       |
 | ----------------------------- | -------------------------------------- |
-| `header.right`                | Public header, right side              |
 | `header.left`                 | Public header, left side               |
+| `header.right`                | Public header, right side              |
+| `footer.center`               | Public footer middle column            |
 | `home.before-listing`         | Above the home page item grid          |
+| `home.after-listing`          | Below the home page item grid          |
 | `item.detail.sidebar`         | Right-hand sidebar on item detail      |
 | `item.detail.afterFooter`     | Below the item detail content footer   |
+| `item.detail.actions`         | Action row on the item detail page     |
+| `admin.layout.header.right`   | Right side of the admin app header     |
 | `admin.settings.section`      | Inside the admin Settings accordion    |
 | `admin.dashboard.widgets`     | Admin dashboard widget grid            |
+| `admin.items.row.actions`     | Per-row action menu in admin items table |
+| `admin.items.toolbar`         | Toolbar above the admin items table    |
 | `client.dashboard.widgets`    | Client dashboard widget grid           |
-| `footer.center`               | Public footer middle column            |
+| `client.settings.section`     | Inside the client Settings accordion   |
+
+> The canonical, authoritative list lives in
+> [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts);
+> the runtime imports `SLOT_IDS` from there. Update both this table
+> and that file together when adding a new slot.
+
+For the **per-slot contract** — where each slot renders, the
+component contract (`{ ctx }` props, accessibility expectations,
+server-vs-client implications), composition rules, and the checklist
+for adding a new slot id — see the
+[Plugin Slots Reference](../plugins/slots.md). That page is the source
+of truth that pairs with [`packages/plugin-sdk/src/slots.ts`](https://github.com/ever-works/directory-web-template/tree/develop/packages/plugin-sdk/src/slots.ts);
+this section only summarises the canonical id list.
 
 Slot ids are **stable identifiers**, owned by the template. Adding a
 new slot is a small spec under

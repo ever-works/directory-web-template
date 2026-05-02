@@ -345,6 +345,7 @@ export interface HeaderSettings {
 	themeEnabled: boolean;
 	moreEnabled: boolean;
 	settingsEnabled: boolean;
+	mapEnabled: boolean;
 	layoutDefault: string;
 	paginationDefault: string;
 	themeDefault: string;
@@ -374,6 +375,7 @@ export interface HeaderConfigSettings {
 	language_enabled?: boolean;
 	theme_enabled?: boolean;
 	more_enabled?: boolean;
+	map_enabled?: boolean;
 	layout_default?: string;
 	pagination_default?: string;
 	theme_default?: string;

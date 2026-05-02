@@ -9,21 +9,19 @@ import { useTranslations } from 'next-intl';
 
 // Constants for className strings
 const EXPORT_CONTAINER_STYLES = "space-y-6";
-const EXPORT_GRID_STYLES = "grid grid-cols-1 lg:grid-cols-2 gap-6";
-const EXPORT_CARD_STYLES = "h-full";
-const EXPORT_HEADER_STYLES = "flex items-center space-x-2";
-const EXPORT_ICON_STYLES = "h-5 w-5 text-blue-600";
-const EXPORT_BUTTON_STYLES = "w-full justify-start";
+const EXPORT_GRID_STYLES = "grid grid-cols-1 lg:grid-cols-2 gap-5";
+const EXPORT_HEADER_STYLES = "flex items-center gap-2.5";
+const EXPORT_ICON_STYLES = "h-4.5 w-4.5 text-blue-600 shrink-0";
 const EXPORT_OPTIONS_STYLES = "space-y-3";
-const EXPORT_OPTION_STYLES = "flex items-center justify-between p-3 rounded-lg border bg-gray-50 dark:bg-white/5";
-const EXPORT_OPTION_LEFT_STYLES = "flex items-center space-x-3";
-const EXPORT_OPTION_RIGHT_STYLES = "flex items-center space-x-2";
+const EXPORT_OPTION_STYLES = "flex items-center justify-between gap-3 p-3 rounded-xl border border-gray-100 dark:border-white/8 bg-gray-50/70 dark:bg-transparent hover:bg-gray-100/50 dark:hover:bg-white/6 transition-colors duration-150";
+const EXPORT_OPTION_LEFT_STYLES = "flex items-center gap-3 min-w-0";
+const EXPORT_OPTION_RIGHT_STYLES = "flex items-center gap-2 shrink-0";
 const SCHEDULED_REPORTS_STYLES = "space-y-3";
-const REPORT_ITEM_STYLES = "flex items-center justify-between p-3 rounded-lg border";
-const REPORT_STATUS_STYLES = "px-2 py-1 rounded-full text-xs font-medium";
-const REPORT_STATUS_SUCCESS_STYLES = "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-const REPORT_STATUS_FAILED_STYLES = "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-const REPORT_STATUS_PENDING_STYLES = "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+const REPORT_ITEM_STYLES = "flex items-center justify-between gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-white/8";
+const REPORT_STATUS_STYLES = "px-2.5 py-1 rounded-full text-xs font-medium";
+const REPORT_STATUS_SUCCESS_STYLES = "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300";
+const REPORT_STATUS_FAILED_STYLES = "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300";
+const REPORT_STATUS_PENDING_STYLES = "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300";
 
 interface ExportOption {
   id: string;
@@ -148,26 +146,24 @@ export function AdminDataExport() {
   return (
     <div className={EXPORT_CONTAINER_STYLES}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4">
         <div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             {t('SUBTITLE')}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
+        <button
           onClick={() => window.location.reload()}
-          className="flex items-center space-x-2"
+          className="flex cursor-pointer items-center dark:text-gray-300 hover:bg-gray-100/50 dark:hover:bg-white/3 gap-1.5 shrink-0 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8"
         >
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className="h-3.5 w-3.5" />
           <span>{t('REFRESH')}</span>
-        </Button>
+        </button>
       </div>
 
       {/* Export Options */}
-      <Card>
+      <Card className="border-neutral-100 bg-white dark:border-white/8 dark:bg-white/3">
         <CardHeader>
           <CardTitle className={EXPORT_HEADER_STYLES}>
             <Download className={EXPORT_ICON_STYLES} />
@@ -211,14 +207,14 @@ export function AdminDataExport() {
 
           {/* Export Progress */}
           {isExporting && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-sm mb-2">
-                <span>{t('EXPORTING')}</span>
-                <span>{exportProgress}%</span>
+            <div className="mt-4 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/40">
+              <div className="flex items-center justify-between text-sm mb-2.5">
+                <span className="font-medium text-blue-700 dark:text-blue-300">{t('EXPORTING')}</span>
+                <span className="font-semibold text-blue-700 dark:text-blue-300 tabular-nums">{exportProgress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-blue-200/60 dark:bg-blue-800/40 rounded-full h-0.5 overflow-hidden">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-blue-600 dark:bg-blue-400 h-0.5 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${exportProgress}%` }}
                 />
               </div>
@@ -230,7 +226,7 @@ export function AdminDataExport() {
       {/* Export Options Grid */}
       <div className={EXPORT_GRID_STYLES}>
         {/* Manual Export Options */}
-        <Card className={EXPORT_CARD_STYLES}>
+        <Card className="border-neutral-100 bg-white dark:border-white/8 dark:bg-white/3">
           <CardHeader>
             <CardTitle className={EXPORT_HEADER_STYLES}>
               <Download className={EXPORT_ICON_STYLES} />
@@ -244,21 +240,19 @@ export function AdminDataExport() {
                   <div className={EXPORT_OPTION_LEFT_STYLES}>
                     {option.icon}
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{option.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{option.description}</p>
+                      <p className="font-medium text-sm text-gray-900 dark:text-white">{option.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">{option.description}</p>
                     </div>
                   </div>
                   <div className={EXPORT_OPTION_RIGHT_STYLES}>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
                       onClick={option.action}
                       disabled={isExporting}
-                      className={EXPORT_BUTTON_STYLES}
+                      className='flex cursor-pointer justify-between items-center bg-white dark:bg-white/4 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8'
                     >
                       <Download className="h-4 w-4 mr-2" />
                       {t('EXPORT')} {selectedFormat.toUpperCase()}
-                    </Button>
+                    </button>
                   </div>
                 </div>
               ))}
@@ -267,7 +261,7 @@ export function AdminDataExport() {
         </Card>
 
         {/* Scheduled Reports */}
-        <Card className={EXPORT_CARD_STYLES}>
+        <Card className="border-neutral-100 bg-white dark:border-white/8 dark:bg-white/3">
           <CardHeader>
             <CardTitle className={EXPORT_HEADER_STYLES}>
               <Calendar className={EXPORT_ICON_STYLES} />
@@ -324,7 +318,7 @@ export function AdminDataExport() {
       </div>
 
       {/* Report Management */}
-      <Card>
+      <Card className="border-neutral-100 bg-white dark:border-white/8 dark:bg-white/3">
         <CardHeader>
           <CardTitle className={EXPORT_HEADER_STYLES}>
             <Settings className={EXPORT_ICON_STYLES} />
@@ -333,22 +327,22 @@ export function AdminDataExport() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-4">
-            <Button variant="outline">
-              <Calendar className="h-4 w-4 mr-2" />
+            <button className='flex cursor-pointer justify-between items-center dark:bg-white/4 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8'>
+              <Calendar className="h-3 w-3 mr-2" />
               {t('CREATE_NEW_TEMPLATE')}
-            </Button>
-            <Button variant="outline">
+            </button>
+            <button className='flex cursor-pointer justify-between items-center dark:bg-white/4 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8'>
               <Settings className="h-4 w-4 mr-2" />
               {t('MANAGE_TEMPLATES')}
-            </Button>
-            <Button variant="outline">
+            </button>
+            <button className='flex cursor-pointer justify-between items-center dark:bg-white/4 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8'>
               <Clock className="h-4 w-4 mr-2" />
               {t('VIEW_HISTORY')}
-            </Button>
-            <Button variant="outline">
+            </button>
+            <button className='flex cursor-pointer justify-between items-center dark:bg-white/4 text-xs rounded-full px-3 py-1 border border-gray-300 dark:border-white/8'>
               <FileText className="h-4 w-4 mr-2" />
               {t('EXPORT_SETTINGS')}
-            </Button>
+            </button>
           </div>
         </CardContent>
       </Card>

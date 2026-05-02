@@ -1,50 +1,59 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
-// Design system constants
-const SHIMMER_STYLES = "animate-pulse bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 dark:from-white/6 dark:via-white/4 dark:to-white/6";
-const STATS_CARD_STYLES = "bg-white dark:bg-white/3 rounded-xl shadow-xs p-6 border border-gray-200 dark:border-white/6";
-const SKELETON_CONTAINER_STYLES = "flex items-center space-x-2";
-const SKELETON_ICON_CONTAINER_STYLES = "p-2 bg-gray-200 dark:bg-white/8 rounded-lg";
-const SKELETON_CONTENT_STYLES = "flex-1";
+const CHART_BAR_HEIGHTS = [55, 72, 48, 85, 60, 90, 45, 78, 65, 82, 50, 70];
 
-// Stats Card Skeleton
+// Stats Card Skeleton — matches real StatsCard layout exactly
 export function AdminStatsCardSkeleton() {
   return (
-    <div role="status" aria-live="polite" aria-label="Loading" className={STATS_CARD_STYLES}>
-      <div className={SKELETON_CONTAINER_STYLES}>
-        <div className={`${SKELETON_ICON_CONTAINER_STYLES} ${SHIMMER_STYLES}`}>
-          <div className="h-5 w-5 bg-gray-300 dark:bg-white/1 rounded-sm"></div>
+    <Card role="status" aria-live="polite" aria-label="Loading">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <Skeleton className="h-9 w-9 rounded-xl" />
         </div>
-        <div className={SKELETON_CONTENT_STYLES}>
-          <div className={`h-4 bg-gray-200 dark:bg-white/8 rounded-sm mb-2 ${SHIMMER_STYLES}`}></div>
-          <div className={`h-8 bg-gray-200 dark:bg-white/8 rounded-sm ${SHIMMER_STYLES}`}></div>
+        <div className="space-y-2">
+          <Skeleton className="h-7 w-16" />
+          <Skeleton className="h-3.5 w-24" />
+          <Skeleton className="h-3 w-20" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
 
-// Chart Skeleton
+// Chart Skeleton — bar chart shape
 export function AdminChartSkeleton() {
   return (
     <Card role="status" aria-live="polite" aria-label="Loading chart">
-      <CardHeader>
-        <div className="flex items-center space-x-2">
-          <Skeleton className="h-5 w-5" />
-          <Skeleton className="h-6 w-32" />
+      <CardHeader className="px-5 pt-5 pb-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-md" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="flex items-center gap-3">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <Skeleton className="h-2.5 w-2.5 rounded-sm" />
+                <Skeleton className="h-3 w-10" />
+              </div>
+            ))}
+          </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="h-64 space-y-3">
-          {Array.from({ length: 7 }, (_, i) => (
-            <div key={i} className="flex items-end space-x-2">
-              <Skeleton className="h-8 w-12" />
-              <Skeleton 
-                className="w-full" 
-                style={{ height: `${((i % 4) + 1) * 16 + 16}px` }} 
-              />
-            </div>
+      <CardContent className="px-5 pb-5 pt-4">
+        <div className="flex items-end gap-1.5 h-48">
+          {CHART_BAR_HEIGHTS.map((h, i) => (
+            <Skeleton
+              key={i}
+              className="flex-1 rounded-t-sm"
+              style={{ height: `${h}%` }}
+            />
+          ))}
+        </div>
+        <div className="flex justify-between mt-3">
+          {[...Array(6)].map((_, i) => (
+            <Skeleton key={i} className="h-3 w-6" />
           ))}
         </div>
       </CardContent>
@@ -52,81 +61,127 @@ export function AdminChartSkeleton() {
   );
 }
 
-// Activity List Skeleton
-export function AdminActivityListSkeleton({ itemCount = 4 }: { itemCount?: number }) {
+// Activity List Skeleton — matches timeline layout
+export function AdminActivityListSkeleton({ itemCount = 5 }: { itemCount?: number }) {
   return (
     <Card role="status" aria-live="polite" aria-label="Loading activity">
-      <CardHeader>
-        <Skeleton className="h-6 w-32" />
+      <CardHeader className="px-5 pt-5 pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-md" />
+            <Skeleton className="h-4 w-28" />
+          </div>
+          <Skeleton className="h-3 w-16" />
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
+      <CardContent className="px-5 pb-5 pt-3">
+        <div className="relative space-y-0">
+          <div className="absolute left-4 top-4 bottom-4 w-px bg-gray-100 dark:bg-white/6" />
           {Array.from({ length: itemCount }, (_, i) => (
-            <div key={i} className="flex items-center space-x-3">
-              <Skeleton className="h-8 w-8 rounded-full" />
-              <div className="flex-1 space-y-1">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-3 w-20" />
+            <div key={i} className="relative flex gap-4 pb-4 last:pb-0">
+              <Skeleton className="relative z-10 h-8 w-8 rounded-xl shrink-0" />
+              <div className="flex-1 pt-0.5 space-y-2">
+                <div className="flex items-start justify-between gap-4">
+                  <Skeleton className="h-3.5 flex-1 max-w-[200px]" />
+                  <Skeleton className="h-3 w-12 shrink-0" />
+                </div>
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-4 w-16 rounded-md" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
               </div>
             </div>
           ))}
         </div>
+        <div className="mt-5 pt-4 border-t border-gray-100 dark:border-white/6">
+          <Skeleton className="h-3.5 w-24" />
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-// Table Skeleton
+// Table Skeleton — matches top-items ranked list layout
 export function AdminTableSkeleton({ rows = 5, columns = 3 }: { rows?: number; columns?: number }) {
   return (
     <Card role="status" aria-live="polite" aria-label="Loading table">
-      <CardHeader>
-        <Skeleton className="h-6 w-32" />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {/* Header */}
-          <div className="flex space-x-4 pb-2 border-b border-gray-200 dark:border-white/6">
-            {Array.from({ length: columns }, (_, i) => (
-              <Skeleton key={i} className="h-4 w-20" />
-            ))}
+      <CardHeader className="px-5 pt-5 pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-4 w-4 rounded-md" />
+            <Skeleton className="h-4 w-28" />
           </div>
-          {/* Rows */}
+          <Skeleton className="h-3 w-14" />
+        </div>
+      </CardHeader>
+      <CardContent className="px-5 pb-5 pt-3">
+        <div className="space-y-1">
           {Array.from({ length: rows }, (_, i) => (
-            <div key={i} className="flex space-x-4 py-2">
-              {Array.from({ length: columns }, (_, j) => (
-                <Skeleton key={j} className="h-4 w-24" />
-              ))}
+            <div key={i} className="rounded-xl px-3 py-2.5">
+              <div className="flex items-center gap-3 mb-2">
+                <Skeleton className="h-6 w-6 rounded-lg shrink-0" />
+                <Skeleton className="h-3.5 flex-1" />
+                <div className="flex items-center gap-3 shrink-0">
+                  <Skeleton className="h-3 w-12" />
+                  <Skeleton className="h-3 w-8" />
+                </div>
+              </div>
+              <div className="ml-9">
+                <Skeleton
+                  className="h-1 rounded-full"
+                  style={{ width: `${Math.max(30, 100 - i * 15)}%` }}
+                />
+              </div>
             </div>
           ))}
         </div>
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/6">
+          <Skeleton className="h-3.5 w-20" />
+        </div>
       </CardContent>
     </Card>
   );
 }
 
-// Pie Chart Skeleton
+// Pie Chart Skeleton — matches submission status layout
 export function AdminPieChartSkeleton() {
   return (
     <Card role="status" aria-live="polite" aria-label="Loading chart">
-      <CardHeader>
-        <Skeleton className="h-6 w-40" />
+      <CardHeader className="px-5 pt-5 pb-2">
+        <div className="flex items-center gap-2">
+          <Skeleton className="h-4 w-4 rounded-md" />
+          <Skeleton className="h-4 w-36" />
+        </div>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            <Skeleton className="h-32 w-32 rounded-full" />
+      <CardContent className="px-5 pb-5 pt-3">
+        <div className="space-y-5">
+          <div className="flex justify-center py-3">
+            <div className="relative">
+              <Skeleton className="h-40 w-40 rounded-full" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Skeleton className="h-16 w-16 rounded-full" />
+              </div>
+            </div>
           </div>
-          <div className="space-y-2">
-            {Array.from({ length: 3 }, (_, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Skeleton className="h-3 w-3 rounded-full" />
-                  <Skeleton className="h-4 w-16" />
+          <div className="space-y-2.5">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between px-1">
+                <div className="flex items-center gap-2.5">
+                  <Skeleton className="h-2.5 w-2.5 rounded-sm shrink-0" />
+                  <Skeleton className="h-3.5 w-20" />
                 </div>
-                <Skeleton className="h-4 w-8" />
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-3.5 w-8 tabular-nums" />
+                  <Skeleton className="h-3 w-10" />
+                </div>
               </div>
             ))}
+          </div>
+          <div className="pt-3 border-t border-gray-100 dark:border-white/6">
+            <div className="flex items-center justify-between">
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-5 w-10" />
+            </div>
           </div>
         </div>
       </CardContent>
@@ -134,13 +189,13 @@ export function AdminPieChartSkeleton() {
   );
 }
 
-// Grid Skeleton for multiple items
-export function AdminGridSkeleton({ 
-  items = 4, 
-  className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" 
-}: { 
-  items?: number; 
-  className?: string; 
+// Grid Skeleton — stats overview layout
+export function AdminGridSkeleton({
+  items = 4,
+  className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+}: {
+  items?: number;
+  className?: string;
 }) {
   return (
     <div role="status" aria-live="polite" aria-label="Loading overview" className={className}>
