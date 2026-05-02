@@ -33,6 +33,79 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `profile-dropdown-page-object.md` —
+  the **per-source-file reference** for the Playwright e2e
+  suite's header profile-dropdown menu driver paired with
+  [`apps/web-e2e/page-objects/public/profile-dropdown.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/profile-dropdown.page.ts),
+  sitting inside the `public/` page-object subtree alongside
+  the thirteen other public-surface page objects. Documents
+  the at-a-glance summary table of every load-bearing
+  element (the type-only Playwright import with **no
+  `BasePage` value import** — the standalone-class widget
+  posture; the `export class ProfileDropdown` single named
+  export with **no `extends` clause** — the standalone-class
+  widget convention; the five `readonly` fields covering
+  `page` / `triggerButton` / `menu` / `menuItems` /
+  `logoutButton`; the synchronous constructor that pre-binds
+  every per-page Locator in a single pass via the HTML-
+  `id`-based `#user-menu-button` / `#profile-menu` selectors
+  and the `this.menu`-scoped `[role="menuitem"]` collection
+  plus `.last()` for the bottom-most logout item; the
+  `open()` single-step click primitive; the
+  `isOpen(): Promise<boolean>` strict-equality
+  `aria-expanded === 'true'` accessor; the `clickMenuItem(name: RegExp)`
+  arbitrary-menu-item composite with `hasText` filter +
+  `.first()`; the `logout()` shortcut bound to the last
+  menu item); the full file annotated chunk-by-chunk; the
+  spec context cross-links to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and
+  [Spec 003 — Auth Providers](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/003-auth-providers);
+  the "Why the class does not extend `BasePage`" three-
+  reason analysis; the "Why the trigger button uses
+  `#user-menu-button`" three-reason analysis; the "Why the
+  logout button uses `.last()`" three-reason analysis; the
+  "Why `isOpen()` checks the exact `'true'` string" three-
+  reason analysis; the "Why `clickMenuItem` takes a `RegExp`
+  not a `string`" three-reason analysis; the failure matrix
+  of 22 mistakes; the per-line walkthrough table; the read /
+  write surface summary; the read / write surface failure
+  modes table; and the 12-step `profile-dropdown.page.ts`-
+  change checklist.
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/admin-dashboard-stats-query.spec.ts`
+  smoke spec for the **unauth GET branch** of the admin-
+  gated `/api/admin/dashboard/stats` endpoint served by
+  [`apps/web/app/api/admin/dashboard/stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/dashboard/stats/route.ts).
+  Pins the deterministic 4xx (typically 401) status across
+  **60+ query-param permutations** (admin-impersonation
+  keys `?userId=` / `?adminId=` / `?as=` / `?asAdmin=` /
+  `?impersonate=`, magic-token bypass keys `?token=` /
+  `?secret=` / `?api_key=` / `?authorization=` /
+  `?adminToken=`, admin-override keys `?bypass=` /
+  `?admin=` / `?override=` / `?force=`, analytics-tuning
+  override keys `?userGrowthMonths=` / `?activityTrendDays=`
+  / `?topItemsLimit=` / `?recentActivityLimit=` for
+  edge-cases like `0` / `-1` / `999999` / `NaN` /
+  `Infinity`, time-range filter keys `?from=` / `?to=` /
+  `?since=` / `?until=`, content-projection keys `?fields=`
+  / `?select=` / `?include=`, cache-busting keys, format-
+  negotiation keys, locale / tenant keys, empty values,
+  repeated keys, special-character / injection-style values,
+  long values, bogus keys, combined permutations), plus six
+  bypass-resistance invariants (the unauth branch is
+  invariant to bogus query parameters, `?userId=…` does not
+  bypass the admin gate, `?token=…` does not introduce a
+  query-token auth bypass, `?bypass=…` does not introduce a
+  query-admin-override, analytics-tuning params do not
+  change the unauth branch, time-range params do not change
+  the unauth branch, `?format=csv` does not introduce a
+  content-negotiation bypass) and Accept-header invariance.
+  Closes a gap in [Spec 009](spec/009-admin-dashboard/spec.md)
+  and [Spec 010](spec/010-e2e-test-coverage/spec.md), and
+  complements
+  [`protected.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/protected.spec.ts)'s
+  broad-coverage `< 500` smoke against the same route.
 - `docs/plugins` Added `newsletter-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's footer newsletter signup form driver paired with
