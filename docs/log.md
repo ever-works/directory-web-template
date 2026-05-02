@@ -33,6 +33,124 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `sort-menu-page-object.md` — the
+  **per-source-file reference** for the Playwright e2e
+  suite's listing-sort dropdown driver paired with
+  [`apps/web-e2e/page-objects/public/sort-menu.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/public/sort-menu.page.ts),
+  sitting inside the `public/` page-object subtree
+  alongside the thirteen other public-surface page objects.
+  Documents the at-a-glance summary table of every
+  load-bearing element (the type-only Playwright import,
+  the `export class SortMenu` standalone class with no
+  `extends` clause, the `readonly page: Page` field that
+  is also used inside `selectOption` to construct the
+  option Locator at call-time rather than constructor-time
+  because the option set materialises only after `open()`
+  has been called, the `readonly trigger: Locator` pinned
+  to the canonical ARIA-spec value `aria-haspopup="menu"`
+  via exact match for strict-mode-correctness against
+  `[role="menu"]` popups, the `readonly menuContent:
+  Locator` deliberately-exposed dropdown Locator pinned to
+  `[role="menu"]`, the constructor that pre-binds the two
+  Locators in a single pass without a `super(page)` call,
+  the `open()` minimal "open the dropdown" primitive, the
+  `selectOption(text: RegExp)` composite primitive with
+  the load-bearing `RegExp` parameter type and the
+  dual-role `[role="menuitemradio"], [role="menuitem"]`
+  selector that accommodates both single-select and
+  free-action option shapes, the `getCurrentLabel():
+  Promise<string>` accessor with the
+  `textContent()?.trim() ?? ''` chain that pins the public
+  return type to `Promise<string>`); the full file
+  annotated chunk-by-chunk; the spec context cross-link to
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  and the consuming spec at
+  `apps/web-e2e/tests/public/sort-menu.spec.ts`; the "Why
+  the class does not extend `BasePage`" walkthrough; the
+  "Why `aria-haspopup="menu"` exact match and not a
+  substring" walkthrough; the "Why `[role="menu"]` exact
+  match for `menuContent`" walkthrough; the "Why
+  `.first()` on every Locator" walkthrough; the "Why the
+  dual-role selector in `selectOption`" walkthrough that
+  pins the three reasons for the comma-separated
+  `[role="menuitemradio"], [role="menuitem"]` selector;
+  the "Why `text: RegExp` and not `text: string`"
+  walkthrough that pins the locale-invariance posture; the
+  "Why `?.trim() ?? ''` on `getCurrentLabel`" rationale;
+  the failure matrix covering every sort-menu-page-level
+  mistake; the per-line walkthrough table; the read /
+  write surface summary; the read / write surface failure
+  modes table; and the change checklist that ties any
+  change to a spec audit, a base-page-object cross-check,
+  a production-source cross-check, a discover-page-object
+  cross-check, an e2e-tsconfig cross-check, a
+  playwright-config cross-check, a fixtures-index
+  cross-check, dual `pnpm tsc --noEmit` runs, a
+  smoke-subset Playwright run, a docs/log.md entry, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link, and a reviewer pass.
+
+- `docs/index` Added a new entry for
+  `sort-menu-page-object.md` to the docs index.
+
+- `apps/web-e2e/tests/api` Added
+  `client-dashboard-stats-query.spec.ts` — the
+  **query-param surface smoke** for the authenticated
+  client dashboard-stats endpoint served by
+  `apps/web/app/api/client/dashboard/stats/route.ts`,
+  pinning the `requireClientAuth()` session-gate response
+  invariant: the unauth GET surface returns 401 with the
+  canonical `{ success: false, error: 'Unauthorized.
+  Please sign in to continue.' }` envelope
+  deterministically, regardless of which query keys the
+  caller appends to the URL. The spec walks the unauth
+  branch with 80+ parametrised query-string permutations
+  covering the obvious bypass shapes — the `?userId=` /
+  `?user_id=` / `?uid=` / `?id=` / `?clientId=` user-
+  identity-override keys that a regression might wire as
+  fallbacks for `requireClientAuth()`'s `session.user.id`
+  resolution, the `?token=` / `?secret=` / `?api_key=` /
+  `?authorization=` magic-token keys that a regression
+  might wire as auth-bypass paths, the `?from=` / `?to=`
+  / `?startDate=` / `?endDate=` / `?period=` / `?range=`
+  / `?window=` date-range filter keys that the route
+  ignores today, the `?limit=` / `?offset=` / `?page=`
+  pagination keys for the `topItems` array, the
+  `?fields=` / `?select=` / `?include=` shape keys, the
+  `?refresh=` / `?force=` / `?fresh=` / `?cache=`
+  cache-busting keys, the `?format=` content-negotiation
+  keys, the `?locale=` / `?lang=` / `?currency=` i18n
+  keys, the `?status=` / `?type=` filter keys for the
+  `statusBreakdown` array, the `?sort=` / `?order=` /
+  `?direction=` sort-override keys, the `?tenant=` /
+  `?tenantId=` / `?org=` multi-tenancy keys, the
+  `?admin=` / `?asAdmin=` / `?bypass=` / `?impersonate=`
+  admin-override keys that would be the obvious shape of
+  a future "view another user's dashboard as admin"
+  feature, and the empty / repeated / special-character
+  / long / typo'd combinations. Each parametrised path
+  is asserted to return a status `< 500` so the unauth
+  branch's 401 is the only reachable response. Six
+  dedicated no-bypass assertions then pin specific bypass
+  shapes: the `?userId=…` no-impersonation invariant, the
+  `?token=…` no-magic-auth invariant, the `?admin=…`
+  no-query-admin-override invariant (especially load-
+  bearing because `requireClientAuth()`'s comment notes
+  admins are allowed to use client endpoints), the date-
+  range-params no-shape-change invariant, the response-
+  shape stability across three different parameter sets.
+  Mirrors the sibling `stripe-payment-methods-list-query.spec.ts`,
+  `stripe-products-query.spec.ts`,
+  `lemonsqueezy-list-query.spec.ts`,
+  `subscription-query.spec.ts`,
+  `payments-query.spec.ts`, and
+  `plan-status-query.spec.ts` posture — the client
+  dashboard-stats route is the only one whose handler
+  signature is **zero-argument** AND which uses the
+  `requireClientAuth()` helper rather than the bare
+  `auth()` call, so the unauth-branch 401 invariant is
+  doubly load-bearing.
+
 - `docs/plugins` Added `share-button-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's share-button dropdown driver paired with
