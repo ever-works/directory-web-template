@@ -33,6 +33,157 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `e2e-test-data.md` — the
+  **per-source-file reference** for the Playwright e2e suite's
+  central test-data and constants module paired with
+  [`apps/web-e2e/helpers/test-data.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/helpers/test-data.ts),
+  the shared-data companion to
+  [`global-setup.md`](plugins/global-setup.md) (which destructures
+  `TEST_DATA`, `ADMIN_STATE_FILE`, `CLIENT_STATE_FILE`,
+  `AUTH_STATE_DIR`, and `REQUIRED_ENV_VARS` from this module) and
+  to [`global-teardown.md`](plugins/global-teardown.md) (which
+  will consume the same constants when the no-op placeholder
+  grows into a real cleanup sequence). Where `global-setup.md`
+  documents the **suite's pre-flight boundary** and
+  `global-teardown.md` documents the **suite's post-flight
+  boundary**, this page documents the **suite's shared-data
+  boundary** — every constant, generator, env-var name, route
+  path, auth-state file path, and seeded credential the rest of
+  the suite reads through. Documents the at-a-glance summary
+  table of every export (`requireEnv(name)` private fail-fast
+  helper that throws on missing OR empty env-vars with a
+  contributor-actionable message naming the missing key and the
+  file `.env.local` it must be set in; `TEST_DATA.ADMIN_EMAIL` /
+  `TEST_DATA.ADMIN_PASSWORD` lazy getters calling `requireEnv(...)`
+  so the env-var read happens at access time, not module load —
+  specs that never touch admin credentials never trigger the
+  throw; `TEST_DATA.CLIENT_PASSWORD` static `'TestClient123!'`
+  because per-run uniqueness comes from the email so the
+  password is irrelevant to identity and a static value makes
+  failed sign-ups immediately reproducible from the trace;
+  `TEST_DATA.generateClientEmail()` returning
+  `e2e-client-${Date.now()}-${randomSuffix}@test.local` with a
+  6-char base-36 random suffix and the RFC 6761 reserved
+  `@test.local` TLD; `TEST_DATA.generateItemName()` and
+  `TEST_DATA.generateItemUrl()` (the latter using the IANA
+  RFC 2606 reserved `example.com` apex); `REQUIRED_ENV_VARS`
+  `as const` whitelist consumed by `promptForMissingEnv()`;
+  `PUBLIC_ROUTES` 13-row `as const` table of every public route
+  the navigation shell links to; `AUTH_STATE_DIR`,
+  `ADMIN_STATE_FILE`, `CLIENT_STATE_FILE` template-composed
+  path constants); the full file annotated chunk-by-chunk; the
+  "Why the lazy-getter pattern for the admin credentials"
+  walkthrough that pins the three failure modes of property
+  assignment (`process.env` read at module load punishes specs
+  that do not need credentials, `?? ''` fallback turns the error
+  into silent `''` propagation 30 seconds in, `??` removes the
+  type-check safety net) against the lazy-getter shape
+  (access-time read, fail-fast throw with contributor-actionable
+  message, narrow `string` return type); the "Why the generators
+  use `Date.now()` + base-36 random" walkthrough with the three
+  rejected alternatives (`crypto.randomUUID()`, Faker's real-world
+  TLDs, per-worker static emails); the "Why `PUBLIC_ROUTES` is
+  a `readonly` array of objects" rationale (the `name` field is
+  the test description, survives a route rename, and the
+  `as const` posture lets specs type-check against literal
+  values); the failure matrix that maps each `test-data.ts`
+  mistake (drop the empty-string check → 30-second timeout
+  instead of fail-fast, switch getters to property assignments
+  → punishes credential-free specs, add `?? ''` → silent `''`
+  propagation, switch client TLD from `@test.local` to
+  `@example.com` → real-MX-records risk, switch URL apex from
+  `example.com` to a real domain → accidental traffic, drop
+  the `Date.now()` prefix → suite-lifetime collision risk,
+  add a required env-var without updating `REQUIRED_ENV_VARS`
+  → pre-flight prompt skips it, drop `as const` → typos
+  become silent test failures, public-route drift between the
+  navigation and `PUBLIC_ROUTES` in either direction, hard-code
+  `'auth-states'` instead of importing → multi-file rename
+  becomes lossy, switch `CLIENT_PASSWORD` to a generator →
+  failed sign-ups become harder to reproduce, move the file
+  out of `helpers/` → `Cannot find module`, export
+  `requireEnv` → multiple opinions of "missing env-var"
+  drift) onto the layer that surfaces each one; the per-line
+  walkthrough table; and the `test-data.ts`-change checklist
+  that ties any export change to a
+  [`global-setup.md`](plugins/global-setup.md) cross-check, a
+  [`global-teardown.md`](plugins/global-teardown.md)
+  cross-check, a
+  [`playwright-config.md`](plugins/playwright-config.md)
+  cross-check (the `webServer.cwd` resolves the relative paths
+  in `ADMIN_STATE_FILE` / `CLIENT_STATE_FILE`), an
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) cross-check, the
+  `.gitignore` cross-check (`AUTH_STATE_DIR` must match the
+  gitignore entry), the public-routes smoke spec cross-check
+  under `apps/web-e2e/tests/public/`, the
+  `apps/web/.env.example` and workspace README propagation for
+  new required env-vars, dual `pnpm tsc --noEmit` runs (e2e +
+  workspace root), a smoke-subset Playwright run, a
+  [`docs/log.md`](log.md) entry, a
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
+  cross-link if the change introduces a new shared concept, and
+  a reviewer pass.
+
+- `apps/web-e2e/tests/api` Added
+  `surveys-exists-query.spec.ts` — a query-param surface smoke
+  spec for `GET /api/surveys/exists` (the navigation-shell
+  surveys-existence-probe served by
+  [`apps/web/app/api/surveys/exists/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/surveys/exists/route.ts)
+  that decides whether the "Surveys" link belongs in the header,
+  the same way the sibling `categories/exists` and
+  `collections/exists` probes decide whether the "Categories" /
+  "Collections" links belong there). Pins the route's status
+  surface against future regressions that might introduce a
+  `?status=` filter (which a future "show draft surveys"
+  feature might tempt a contributor into adding by flipping the
+  hard-coded `SurveyStatusEnum.PUBLISHED`), a `?lang=` filter,
+  a `?refresh=` cache-bust, a `?limit=` override (which a
+  contributor might wire to flip the hard-coded `limit: 1`), or
+  a non-200 status on an unknown `?type=` value (which a future
+  "throw on unknown survey type" change might add). Walks the
+  route's coercion contract (`typeParam === SurveyTypeEnum.ITEM
+  ? ITEM : GLOBAL` byte-for-byte ternary so every non-`'item'`
+  value — including `'ITEM'`, `'global'`, `''`, `null`, typos —
+  falls through to the GLOBAL branch). Asserts `< 500` on every
+  parameterised path; asserts the canonical `{ exists: boolean
+  }` shape on the no-arg path; asserts status-equality between
+  the no-arg case and a parameter-laden case to pin the
+  "every unknown query key is silently ignored" invariant;
+  asserts the GLOBAL-branch invariance across no-arg /
+  `?type=global` / `?type=unknown` / `?type=ITEM` (case variant
+  must NOT match) / `?type=` (empty); and asserts that the
+  ITEM and GLOBAL branches both return the same canonical
+  envelope shape. The matrix covers every `?type=` case variant
+  (`item` / `ITEM` / `Item` / `iTeM` / `GLOBAL` / `Global`),
+  unknown `?type=` values (`location`, `tag`, `category`,
+  `unknown`, `null`), empty / whitespace `?type=` values, the
+  obvious filter-by-state keys (`?status=`, `?published=`),
+  pagination keys (`?limit=`), i18n keys (`?locale=`, `?lang=`),
+  cache-busting keys (`?refresh=`, `?force=`, `?fresh=`,
+  `?nocache=`), validation keys (`?strict=`, `?validate=`),
+  projection keys (`?include=`, `?fields=`, `?select=`,
+  `?expand=`), content-negotiation keys (`?format=`),
+  multi-tenancy keys (`?tenant=`, `?tenantId=`), valid keys
+  combined with unknown keys, repeated `?type=` keys (the
+  `searchParams.get('type')` first-value semantics), special
+  characters in `?type=` and `?include=` (would tempt regex /
+  LIKE / SQL-injection wiring), long values to guard against
+  future regex-based indexing bugs, and bogus / typo'd keys.
+  Cross-references
+  [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage),
+  the
+  [`categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+  and
+  [`collections-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/collections-exists-query.spec.ts)
+  sibling specs, the
+  [`feature-existence.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/feature-existence.spec.ts)
+  spec that already covers the surveys-exists endpoint
+  indirectly, the
+  [`apps/web/lib/types/survey.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/lib/types/survey.ts)
+  enum source, and the
+  [`apps/web/app/api/surveys/exists/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/surveys/exists/route.ts)
+  source file the spec is paired with.
+
 - `docs/plugins` Added `global-teardown.md` — the
   **per-source-file reference** for the Playwright e2e suite's
   per-run global teardown paired with
