@@ -33,6 +33,127 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-data-export-page-object.md`
+  — the **eighth per-source-file reference** the docs tree
+  publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/data-export.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/data-export.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **`/admin` co-tenant widget**
+  posture (the data-export widget is composed into the
+  admin dashboard landing page rather than mounted at a
+  dedicated route — distinct from every prior admin-tree
+  driver's per-feature route posture), (b) a
+  **format-button pair** (`csvButton` / `jsonButton`)
+  pinned to case-insensitive `^CSV$` / `^JSON$` exact-
+  match accessible-name regexes (the `^…$` anchors are
+  required because the format-button accessible names
+  are short three- to four-character tokens and a
+  substring regex would match accidentally on other
+  buttons), (c) a **`#include-metadata` id-selector
+  checkbox** symmetric with the featured-items driver's
+  `#active-only` posture, (d) a **broad-name
+  `exportButtons` Locator** that intentionally resolves
+  to a multi-element match via the case-insensitive
+  `/export|download/i` alternation regex (distinct from
+  every other admin-tree driver's `.first()`-pinned
+  Locator postures because the data-export widget
+  intentionally renders multiple export trigger
+  buttons), and (e) a **`progressBar` Locator with
+  composite-or selectors**
+  (`[role="progressbar"], .bg-blue-600.rounded-full`)
+  — the **first** admin-tree driver to document a
+  fallback chain between an accessibility-tree-canonical
+  posture and a positional Tailwind-utility posture, so
+  Playwright resolves the first matching half and a
+  future production-source change that adds the
+  `role="progressbar"` ARIA attribute lights up the
+  accessibility-tree-canonical posture without breaking
+  the existing positional fallback. Documents the full
+  surface for the `AdminDataExportPage` driver — the
+  six `readonly` Locator fields (`heading`,
+  `csvButton`, `jsonButton`,
+  `includeMetadataCheckbox`, `exportButtons`,
+  `progressBar`) and the `navigate()` shortcut that
+  closes over the inherited `goto('/admin')`. Pinned
+  to
+  [`apps/web-e2e/tests/admin/data-export.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/data-export.spec.ts)
+  (three flows over the admin data-export widget
+  surface — admin dashboard has export format buttons,
+  include metadata checkbox is available, export/
+  download buttons are available — each guarded by a
+  `test.skip(true, …)` defensive posture so the test
+  remains green when the widget is hidden behind a
+  feature-flag); the "Why `AdminDataExportPage` extends
+  `BasePage`" three-reason analysis (page-route
+  navigation via the inherited `goto`, global header /
+  footer / nav-link chrome surfaced for free, post-
+  navigation `waitForPageReady` stabiliser); the "Why
+  `csvButton` / `jsonButton` use `^CSV$` / `^JSON$`
+  exact-match regexes" three-reason analysis (the
+  format-trigger accessible names are short three- to
+  four-character tokens, the `/i` case-insensitivity
+  flag is preserved, symmetric with the public-tree
+  view-toggle driver's exact-match posture); the "Why
+  `includeMetadataCheckbox` uses the `#include-metadata`
+  id-selector" three-reason analysis (production-
+  source-stable id-binding,
+  `getByRole('checkbox')` would resolve too broadly,
+  `getByLabel('Include metadata')` would lock to the
+  English locale); the "Why `exportButtons` is a multi-
+  resolution Locator" three-reason analysis (multiple
+  export triggers, count-and-iterate in the consuming
+  spec, composable filtering); the "Why `progressBar`
+  uses a composite-or selector chain" three-reason
+  analysis (current production source not ARIA-tagged,
+  future-state production source should be ARIA-
+  tagged, Playwright resolves the first matching half);
+  cross-references to all seven prior admin-tree
+  page-object docs and to the public-tree drivers; and
+  a "What it does not contain" five-bullet enumeration
+  of the deliberate omissions (no `getByTestId`
+  selectors, no per-format download flow helper, no
+  `enableMetadata()` / `disableMetadata()` setter
+  helpers, no `assertProgress(percent)` invariant
+  helper, no format-equivalence helper that switches
+  between CSV and JSON).
+- `apps/web-e2e/tests/api` Added
+  `admin-items-export-sample-query.spec.ts` — a
+  query-param surface smoke for the admin-only
+  sample-template-export endpoint at
+  [`apps/web/app/api/admin/items/export/sample/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/items/export/sample/route.ts).
+  The route is **admin-gated** via `auth()` +
+  `session.user.isAdmin` (NOT the session-only gate
+  the sibling `admin/featured-items` route uses) and
+  reads a single Zod-validated query param after the
+  gate (`format`, an enum of `'csv' | 'xlsx'` with a
+  `'csv'` default). The spec walks the unauthenticated
+  branch and pins the canonical
+  `{ success: false, error: 'Unauthorized. Admin access required.' }`
+  401 envelope, then sweeps `?format=` /
+  `?userId=` / `?token=` / `?bypass=` /
+  `?filename=` (with path-traversal +
+  null-byte-injection variants) / `?metadata=` /
+  Accept-header / repeated-key / cookie-header
+  permutations against the no-arg baseline so any
+  future contributor who introduces query-string-based
+  admin bypass — `?asUser=true`, `?token=…`,
+  `?as=admin`, `?bypass=1`, or any other dangerous-
+  passthrough — surfaces immediately as a status
+  divergence between the no-arg 401 and a
+  parameter-laden non-401. The sweep mirrors the
+  shape of the sibling
+  `admin-categories-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-users-query.spec.ts`,
+  `items-export-query.spec.ts`,
+  `items-export-settings-query.spec.ts` smoke specs.
 - `docs/plugins` Added `admin-featured-items-page-object.md`
   — the **seventh per-source-file reference** the docs tree
   publishes for any file under
