@@ -33,6 +33,93 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-02
 
+- `docs/plugins` Added `gitignore.md` — the
+  **per-source-file reference** for the monorepo's
+  workspace-root git-ignore manifest paired with
+  [`.gitignore`](https://github.com/ever-works/directory-web-template/tree/develop/.gitignore),
+  the **single git-ignore boundary** that gates every file
+  the workspace-root `git status`, every `pnpm install`,
+  every `pnpm tsc --noEmit`, every `pnpm build`, every
+  `pnpm test:e2e` run, and every CI `actions/checkout`
+  step decide whether to track. Sits at the workspace root
+  the same way [`pnpm-workspace.md`](plugins/pnpm-workspace.md)
+  sits at the root for workspace membership and
+  [`turbo-config.md`](plugins/turbo-config.md) sits at the
+  root for task orchestration. Where `pnpm-workspace.md`
+  documents the **workspace-membership boundary** and
+  `turbo-config.md` documents the **task-graph boundary**,
+  this page documents the **tracked-file boundary** —
+  which artefacts the workspace deliberately keeps out of
+  source control, why each pattern is in the file, what
+  the consumers expect, and what the failure modes look
+  like when an entry drifts. Documents the at-a-glance
+  summary table of every section (`# dependencies`,
+  `# turbo`, `# testing` (covering the security-critical
+  `**/auth-states/` pattern protecting the persisted
+  NextAuth session cookies documented in
+  [`auth-fixture.md`](plugins/auth-fixture.md) and
+  [`global-setup.md`](plugins/global-setup.md)),
+  `# next.js`, `# docusaurus`, `# production`, `# misc`,
+  `# debug`, `# env files` (covering the security-critical
+  `.env*` glob plus `!.env.example` re-include — the
+  single most important block for the workspace's secret
+  posture), `# vercel`, `# typescript`, `# content` (the
+  `.content` Git-CMS directory cloned at runtime from
+  `DATA_REPOSITORY` plus the `analyze/` bundle-analyzer
+  output), `# vscode AI rules`, `# cache`, `# OpenAPI
+  backups` (three patterns exhaustively covering the
+  generate-openapi script's backup output), and
+  `# claude` (the per-checkout Claude Code state
+  directory)); the full file annotated section-by-section;
+  the five "Why X" walkthroughs (single workspace-root
+  file vs per-package files, `**/auth-states/` security
+  posture vs bare `auth-states/`, `.env*` plus
+  `!.env.example` defence-in-depth vs positive include
+  list, `.content` per-deployment customisation chokepoint,
+  `.claude` per-developer state); the OpenAPI backup
+  multi-pattern rationale; the failure matrix that maps
+  every gitignore-level mistake to the workflow that
+  surfaces it (`pnpm install`, `pnpm dev`, `pnpm build`,
+  `pnpm test:e2e`, contributor sign-up, security
+  regression on the `.env*` and `**/auth-states/` blocks);
+  the per-section walkthrough table; and the
+  `.gitignore`-change checklist with cross-checks against
+  [`auth-fixture.md`](plugins/auth-fixture.md),
+  [`global-setup.md`](plugins/global-setup.md),
+  [`e2e-test-data.md`](plugins/e2e-test-data.md),
+  [`playwright-config.md`](plugins/playwright-config.md),
+  [`workspace-root-manifest.md`](plugins/workspace-root-manifest.md),
+  and [`turbo-config.md`](plugins/turbo-config.md). Linked
+  from `docs/index.md`. Spec 010 cross-link.
+- `apps/web-e2e` Added `tests/api/subscription-query.spec.ts` —
+  a smoke spec covering the **query-param surface** of the
+  authenticated user-subscription endpoint at
+  [`apps/web/app/api/user/subscription/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/user/subscription/route.ts).
+  The handler is session-gated (`auth()` early-returns 401
+  for unauthenticated callers, then resolves a Stripe
+  customer id from the session-bound user record before
+  listing subscriptions) and declares **no parameters at
+  all** — not `_request`, not `request: NextRequest`, not
+  a `context` object — so the route reads zero query
+  params. The spec walks 70+ query-string permutations
+  (impersonation keys `?userId=` / `?user_id=` / `?uid=`
+  / `?id=`, customer-bypass keys `?customerId=` /
+  `?customer=` / `?stripeCustomerId=`, dangerous Stripe-key
+  passthrough keys `?stripeKey=` / `?stripe_key=` /
+  `?sk=` that must NEVER be honoured, magic-token keys,
+  status filters, expand / pagination keys mirroring
+  Stripe's own shape, cache-bust, content-negotiation,
+  currency / locale, multi-provider switch keys
+  `?provider=stripe|polar|lemonsqueezy|solidgate`,
+  multi-tenancy, empty / repeated / special-character /
+  long values) and asserts status invariance plus the
+  five load-bearing "no bypass" contracts (`?userId=`
+  does not impersonate, `?customerId=` does not bypass
+  the session-bound customer-resolution step, `?stripeKey=`
+  does not forward a caller-supplied Stripe key,
+  `?token=` does not introduce a query-token auth bypass,
+  parameterised vs no-arg calls produce identical 401
+  envelopes). Spec 010 cross-link.
 - `docs/plugins` Added `base-page-object.md` — the
   **per-source-file reference** for the Playwright e2e
   suite's foundational page-object class paired with
