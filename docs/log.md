@@ -33,6 +33,86 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-items-export-query-spec.md` —
+  the **eighth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-export-query.spec.ts`
+  spec covering the admin items-export endpoint at
+  `apps/web/app/api/admin/items/export/route.ts` —
+  the **per-tenant items dump** counterpart to the
+  sample-template route already covered by
+  `apps/web-e2e/tests/api/admin-items-export-sample-query.spec.ts`.
+  The two routes share an identical authorization
+  shell (same admin gate `session?.user?.isAdmin`,
+  same canonical 401 message
+  `'Unauthorized. Admin access required.'`, same
+  `exportQuerySchema` Zod parse with the
+  `'csv' | 'xlsx'` enum and `'csv'` default, same
+  `safeErrorResponse(...)` catch envelope, same
+  `Content-Disposition: attachment; filename="…"`
+  binary-stream return shape on the happy path),
+  differing **only** in the post-gate service call:
+  the sample route calls
+  `exportService.generateSampleCSV / XLSX()` (a
+  static schema-documentation template), whereas
+  the route under test here calls
+  `exportService.exportToCSV / XLSX()` (the
+  per-tenant items dump, i.e. every item in the
+  directory's CMS / DB) — and in the catch
+  message (`'Failed to export items'` vs
+  `'Failed to generate sample template'`). The
+  unauth branch is INVARIANT to that distinction
+  (both routes return the same canonical 401
+  envelope), so the smoke walk pins the same
+  load-bearing "401-before-any-service-call"
+  contract; the per-spec separation surfaces three
+  regression classes a shared spec would mask:
+  (1) sample-route-only catch-message regression,
+  (2) items-export-route-only service-call
+  regression that swaps `exportToCSV()` for
+  `generateSampleCSV()` (or vice versa), and (3)
+  one-route-only auth-gate-removal regression that
+  removes the admin gate from one route but not the
+  other. Documents the at-a-glance scenario tree
+  (a ~85-path bulk-loop walk asserting `< 500`; a
+  canonical 401-envelope assertion; a parameterised-
+  vs-baseline status-stability comparison; per-key
+  isolation walks for `?format=` covering the
+  case-sensitive `CSV` / `XLSX` rejections,
+  `?userId=` / `?token=` / `?bypass=` covering
+  impersonation / magic-token / admin-override
+  keys, `?filename=` covering the path-traversal
+  `../../etc/passwd` / null-byte `%00malicious`
+  attack-vector pins, `?metadata=` covering the
+  `#include-metadata` checkbox in the
+  `AdminDataExportPage` driver; an `Accept` header
+  walk including the
+  `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`
+  XLSX MIME type; a side-channel cookie / `X-*`
+  header walk; a repeated-key walk). Cross-
+  references to `smoke-health-spec.md`,
+  `smoke-navigation-spec.md`,
+  `admin-settings-map-status-query-spec.md`,
+  `admin-twenty-crm-config-query-spec.md`,
+  `admin-sponsor-ads-query-spec.md`,
+  `admin-roles-query-spec.md`,
+  `admin-roles-active-query-spec.md`,
+  `admin-data-export-page-object.md`,
+  `admin-item-form-page-object.md`,
+  `admin-items-page-object.md`, and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md)
+  for the governing specs. With this entry the
+  **per-spec-file docs rollout extends to 8-of-N**
+  and the **`tests/api/` per-spec-file sub-rollout
+  extends to 6-of-many**, and the sample-template /
+  items-dump pair of admin-export routes both pick
+  up per-source-file references documenting their
+  identical authorization shell and divergent
+  post-gate service calls.
+
 - `docs/plugins` Added `admin-roles-active-query-spec.md` —
   the **seventh** per-source-file reference the docs
   tree publishes for any file under
