@@ -33,6 +33,94 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-users-id-method-spec.md` —
+  the **twenty-sixth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-fourth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-users-id-method.spec.ts`
+  spec covering the admin single-user CRUD endpoint at
+  `apps/web/app/api/admin/users/[id]/route.ts` — the
+  **third triple-method admin-tree smoke** the docs
+  tree publishes (after `admin-items-id-method-spec.md`
+  and `admin-clients-clientid-method-spec.md`) but the
+  **first** that combines a **two-step gate**
+  (`!session?.user` → 401 `'Unauthorized'`, then
+  `!session.user.isAdmin` → 403 `'Forbidden'`), a
+  **hybrid 401 envelope**
+  `{ success: false, error: 'Unauthorized' }` (bare
+  message PLUS `success: false` key — distinct from
+  both the canonical-longer envelope of
+  `admin/items/[id]` AND the no-`success`-key bare
+  envelope of `admin/clients/[clientId]`), an
+  **eight-step PUT body-validation chain** with
+  handler-specific error messages for each branch
+  (a-h: object-shape / email / username / name /
+  title / avatar / role-DB-lookup / status-enum), a
+  **DELETE self-deletion guard**
+  (`session.user.id === id` → 400 `'Cannot delete your
+  own account'` — a unique safety check no other
+  admin-tree route enforces), and an
+  **`error.message`-pass-through catch posture** on
+  PUT and DELETE that returns 400 with the raw error
+  message instead of a fixed 500 string when the
+  error is an `Error` instance. Documents the unique
+  combination of (1) **`[id]` dynamic-segment param
+  name with two-step gate**;
+  (2) **two-step gate** with bare-message +
+  `success: false` envelope key;
+  (3) **hybrid 401 envelope**
+  `{ success: false, error: 'Unauthorized' }` matching
+  the `admin/roles/[id]/permissions` envelope;
+  (4) **eight-step PUT body-validation chain** AFTER
+  the gate AND AFTER params resolution AND AFTER the
+  body parse, with the role-validation step issuing
+  a `roleRepository.findById(body.role)` DB lookup
+  that returns 400 `'Invalid role'` if not found —
+  the **first DB-lookup body-validation step admin-
+  tree smoke** the docs tree publishes;
+  (5) **DELETE self-deletion guard** — a unique
+  safety check no other admin-tree route enforces;
+  (6) **`error.message`-pass-through catch** on PUT
+  and DELETE — distinct from every prior smoke's
+  fixed-message catch;
+  (7) **GET success payload**
+  `{ success: true, data: <user> }`;
+  (8) **PUT success payload**
+  `{ success: true, data: <updatedUser> }` (NO
+  `message` key);
+  (9) **DELETE success payload**
+  `{ success: true, message: 'User deleted
+  successfully' }` (NO `data` key);
+  (10) **method-resolution surface** with `GET` /
+  `PUT` / `DELETE`-only export. The smoke spec pins
+  per-method hybrid 401-envelope assertions across
+  GET / PUT / DELETE, a strict envelope-shape
+  assertion, a cross-method envelope-equality
+  assertion, an unauth-lands-on-401-not-403
+  invariant pinning that the response must NEVER be
+  403 and must NEVER echo `'Forbidden'`, a success-
+  branch-key non-disclosure assertion across all
+  three methods, a gate-before-post-auth invariant
+  pinning that NONE of the twelve post-auth messages
+  must appear in any unauth response, a per-id-shape
+  status-stability comparison, a PUT body-
+  permutation status-stability comparison, a cross-
+  method side-channel cookie / `X-*` header walk, a
+  cross-method probe asserting POST / PATCH round-
+  trip to `< 500`, a malformed-JSON-body invariance
+  walk for PUT, a service-not-entered invariance walk
+  across all three repository calls, a gate-before-
+  eight-step-validation invariance walk pinning that
+  EVERY step-(a)–(h) probe round-trips to the same
+  401 status, and a DELETE self-deletion-guard
+  invariance walk pinning that every id shape —
+  including session-shaped ids that would trigger
+  the guard on the auth branch — round-trips to the
+  same 401 status — the **first hybrid-envelope two-
+  step-gated triple-method admin-tree smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-clients-clientid-method-spec.md` —
   the **twenty-fifth** per-source-file reference the docs
   tree publishes for any file under
