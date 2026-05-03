@@ -33,6 +33,36 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-sponsor-ads-query-spec.md` —
+  the **fifth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **third** under
+  `apps/web-e2e/tests/api/`. Pairs with the existing
+  `apps/web-e2e/tests/api/admin-sponsor-ads-query.spec.ts`
+  spec covering the admin-only sponsor-ads listing
+  endpoint at
+  `apps/web/app/api/admin/sponsor-ads/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that documents the route-specific
+  `'Unauthorized. Admin access required.'` error
+  string paired with a request-bearing
+  `GET(request: NextRequest)` handler signature and
+  the widest documented query-param surface in the
+  admin tree (pagination + enum filters + free-text
+  search + order-targeting keys, all read AFTER the
+  auth gate). The spec also pins the **auth-gate-
+  before-Zod-validation** order via a deliberate
+  `'Unauthorized. Admin access required.' !=
+  'Invalid query parameters'` assertion that
+  surfaces any future re-ordering as a 400 instead
+  of a 401 on the unauth branch, plus a
+  side-channel walk asserting that fabricated
+  `next-auth.session-token` / `authjs.session-token`
+  cookies and `X-Forwarded-For` / `X-Real-IP`
+  headers do NOT bypass `auth()`. With this entry
+  the per-spec-file docs rollout extends to 5-of-N
+  and the `tests/api/` per-spec-file sub-rollout
+  extends to 3-of-many.
 - `docs/plugins` Added `admin-twenty-crm-config-query-spec.md` —
   the **fourth** per-source-file reference the docs
   tree publishes for any file under
