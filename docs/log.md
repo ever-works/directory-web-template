@@ -33,6 +33,95 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `client-profile-page-object.md`
+  — the **second per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/client/`, paired with
+  [`apps/web-e2e/page-objects/client/profile.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/profile.page.ts)
+  and the **first** client-tree driver in the rollout
+  that documents (a) a **multi-route navigation pair**
+  (`navigateToSettings()` / `navigateToBasicInfo()`)
+  — the **first** client-tree driver to expose more
+  than one navigation shortcut, distinct from every
+  prior page-object driver in the suite which exposes
+  a single `navigate()` method; (b) an **eight-input
+  form-field cluster** (`displayNameInput`,
+  `usernameInput`, `bioInput`, `locationInput`,
+  `companyInput`, `jobTitleInput`, `websiteInput`,
+  `saveButton`) — the largest per-page form-field
+  inventory of any non-modal page-object driver in
+  the suite; (c) a **camelCase id-selector input
+  field cluster** (`#displayName`, `#bio`,
+  `#jobTitle`) matching the HeroUI `<Input>`
+  component's default `id` emission for camelCase
+  `name` props (distinct from the tags driver's
+  hyphenated kebab-case `#tag-id` posture and from
+  the item-form driver's snake_case `#icon_url`
+  posture); (d) a **`.grid` Tailwind-utility-anchored
+  settings-cards getter** (`settingsCards`); and (e)
+  a **page-level form posture** — distinct from every
+  admin-tree driver's modal-bound form posture (the
+  basic-info form is rendered page-level on a
+  dedicated route at
+  `/client/settings/profile/basic-info`, not inside a
+  modal overlay). Documents the full surface for the
+  `ClientProfilePage` driver — the nine `readonly`
+  Locator fields and the two navigation methods.
+  Pinned to
+  [`apps/web-e2e/tests/client/profile.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/profile.spec.ts)
+  (five flows over the client profile / settings
+  surface — client can access settings page, settings
+  page shows settings cards grid, client can access
+  basic info form, basic info form has save button,
+  display name field accepts input). Includes the
+  "Why `ClientProfilePage` extends `BasePage`" three-
+  reason analysis; the "Why two navigation methods
+  (and not one with a parameter)" three-reason
+  analysis; the "Why all input fields use camelCase
+  id selectors" three-reason analysis; the "Why the
+  form is page-level (and not modal-scoped)" three-
+  reason analysis; cross-references to the
+  `client-dashboard-page-object.md` rollout-template
+  precedent and to the related admin-tree id-
+  selector-posture variants; and a "What it does not
+  contain" six-bullet enumeration of the deliberate
+  omissions.
+- `apps/web-e2e/tests/api` Added
+  `admin-clients-dashboard-query.spec.ts` — a query-
+  param surface smoke for the admin-only clients-
+  dashboard endpoint at
+  [`apps/web/app/api/admin/clients/dashboard/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/clients/dashboard/route.ts).
+  The route is the **first** admin-tree route the
+  smoke layer covers that documents the
+  **`checkAdminAuth()` three-step guard** (from
+  `@/lib/auth/admin-guard.ts`) — distinct from every
+  other admin-tree route's inline gate posture. The
+  helper folds three branches into one helper call:
+  no session → 401 `'Unauthorized'`, missing user.id
+  → 401 `'User ID not found'`, not admin → 403
+  `'Insufficient permissions'`. The route reads
+  ELEVEN documented post-gate query params (`page`,
+  `limit`, `search`, `status`, `plan`,
+  `accountType`, `provider`, `createdAfter`,
+  `createdBefore`, `updatedAfter`, `updatedBefore`)
+  — the largest documented post-gate query surface
+  of any admin-tree route the smoke layer covers,
+  exceeding the reports route's six query params and
+  the items / featured-items routes' three. The four
+  date-bound parameters use a per-bound
+  `parseDateBound(value, bound)` helper that
+  supports both YYYY-MM-DD and ISO 8601 formats. The
+  spec walks the unauthenticated branch and pins the
+  canonical 401 envelope plus a negative-shape
+  assertion that the body must NOT echo the second-
+  step `'User ID not found'` or third-step
+  `'Insufficient permissions'` messages, then sweeps
+  pagination / status / plan / accountType /
+  provider / date-bound / impersonation / token /
+  bypass / per-row-targeting / SQL-injection-themed
+  search payload / Accept-header / cookie-header
+  permutations. The sweep mirrors the shape of the
+  sibling admin-gated query-smoke specs.
 - `docs/plugins` Added
   [`client-dashboard-page-object.md`](plugins/client-dashboard-page-object.md) —
   per-source-file reference for the Playwright e2e
