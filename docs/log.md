@@ -33,6 +33,30 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-twenty-crm-config-query-spec.md` —
+  the **fourth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **second** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-twenty-crm-config-query.spec.ts`
+  spec that covers the admin-only Twenty CRM
+  configuration endpoint at
+  `apps/web/app/api/admin/twenty-crm/config/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that documents the route-specific
+  `'Unauthorized. Admin access required.'` error
+  string combined with a bare `GET()` handler
+  signature and the canonical
+  `{ success: false, error }` envelope, plus a per-
+  tenant CRM-credential non-disclosure contract
+  pinned via a deliberate negative-string assertion
+  that the unauth response body does NOT contain the
+  masked-API-key regex (`/\*{4}[A-Za-z0-9]{4}/`),
+  the `TWENTY_CRM_API_KEY` / `TWENTY_CRM_BASE_URL`
+  env-var names, or any of the config sub-field
+  names. With this entry the per-spec-file docs
+  rollout extends to 4-of-N and the `tests/api/`
+  per-spec-file sub-rollout extends to 2-of-many.
 - `docs/plugins` Added `admin-settings-map-status-query-spec.md` —
   the **third** per-source-file reference the docs
   tree publishes for any file under
