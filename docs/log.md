@@ -33,6 +33,78 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-roles-active-query-spec.md` —
+  the **seventh** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-roles-active-query.spec.ts`
+  spec covering the admin active-roles endpoint at
+  `apps/web/app/api/admin/roles/active/route.ts` —
+  the **second** admin-tree route the smoke layer
+  covers that documents the **auth-gate-divergence
+  finding** opened by the immediately-preceding sibling
+  `admin-roles-query-spec.md`: the handler does NOT
+  call `auth()` and does NOT check
+  `session?.user?.isAdmin` before delegating to
+  `roleRepository.findActive()`, so the route is
+  effectively **public** today (the e2e harness hits
+  it without an authenticated session and receives the
+  same 200-with-roles payload an authenticated admin
+  would). The same Q-010b migration-path note in
+  `docs/questions.md` applies (recommended default
+  "yes, add the same two-step gate as the sibling
+  `/api/admin/roles/stats` route"). Documents three
+  postures distinct from the sibling listing route:
+  (a) the **bare zero-argument `GET()` Next 16
+  handler signature** (the handler does NOT take a
+  `request` parameter at all, so every `?…=…`
+  permutation is silently discarded by the Next.js
+  routing layer before the handler body runs — the
+  route is INVARIANT to its query string and every
+  permutation rounds-trips to the same status as the
+  no-arg baseline; a regression that switches the
+  signature to `GET(request)` and starts reading
+  `searchParams.get(...)` would change the observable
+  behavior on at least one of the permutations the
+  spec walks); (b) the **zero-argument
+  `roleRepository.findActive()` repository call** (the
+  repository is invoked with NO `options` bag at all
+  — distinct from the sibling
+  `roleRepository.findAllPaginated(options)` call; a
+  regression that threads any of the query keys into
+  a new options bag would change the auth-branch
+  payload); (c) the **active-roles-specific
+  `?includeInactive=…` per-key isolation walk** (the
+  route's whole purpose is to return only active
+  roles; a regression that wires
+  `?includeInactive=true` into a new options bag
+  would defeat that purpose — the per-key isolation
+  walk pins the baseline-equality envelope so any
+  such regression surfaces via the auth-branch
+  behavioral test out of scope for this spec). The
+  spec emits one bulk-loop walk over ~85 paths
+  asserting `< 500` plus 13 hand-written scenarios
+  (status-stability comparison; per-key isolation
+  walks for `?status=` / `?isAdmin=` / `?sortBy=` /
+  `?sortOrder=` / `?page=` / `?userId=` / `?token=` /
+  `?bypass=` / `?includeInactive=`; an `Accept`
+  header walk; a side-channel cookie / `X-*` header
+  walk; a repeated-key walk). Cross-references to
+  `smoke-health-spec.md`, `smoke-navigation-spec.md`,
+  `admin-settings-map-status-query-spec.md`,
+  `admin-twenty-crm-config-query-spec.md`,
+  `admin-sponsor-ads-query-spec.md`,
+  `admin-roles-query-spec.md`,
+  `admin-roles-page-object.md`, and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md).
+  With this entry the per-spec-file docs rollout
+  extends to 7-of-N and the `tests/api/` per-spec-
+  file sub-rollout extends to 5-of-many, and the
+  second admin-tree route flagged by Q-010b picks up
+  its own per-source-file reference (the first being
+  `admin-roles-query-spec.md`).
 - `docs/plugins` Added `admin-roles-query-spec.md` —
   the **sixth** per-source-file reference the docs
   tree publishes for any file under
