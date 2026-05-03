@@ -33,6 +33,148 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added
+  [`client-dashboard-page-object.md`](plugins/client-dashboard-page-object.md) —
+  per-source-file reference for the Playwright e2e
+  suite's authenticated-client dashboard driver paired
+  with
+  [`apps/web-e2e/page-objects/client/dashboard.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/dashboard.page.ts).
+  Opens the **client-tree page-object docs rollout
+  (1-of-6)** mirroring the seventeen-file admin-tree
+  rollout that completed at
+  [`admin-tags-page-object.md`](plugins/admin-tags-page-object.md).
+  Documents the smallest-possible-surface posture
+  (only a `navigate()` method plus three pre-bound
+  `Locator` fields — `heading` / `statsGrid` /
+  `welcomeText`), the
+  `getByRole('heading', { name: /dashboard/i })`
+  locale-tolerant case-insensitive substring resolver
+  for the dashboard heading, the
+  `.grid.grid-cols-1.md\\:grid-cols-2.lg\\:grid-cols-4`
+  Tailwind responsive class chain anchor for the
+  stats grid, the `getByText(/welcome back/i)`
+  greeting-string-tolerant resolver, the `.first()`
+  strict-mode-correctness append on every Locator
+  field, and the cross-references to
+  [`base-page-object.md`](plugins/base-page-object.md),
+  [`auth-fixture.md`](plugins/auth-fixture.md) (the
+  `clientPage` authenticated-page fixture consuming
+  specs use), [`signin-page-object.md`](plugins/signin-page-object.md)
+  (the auth-tree driver consuming specs depend on for
+  the authenticated `clientPage` fixture's setup
+  precondition), [`admin-dashboard-page-object.md`](plugins/admin-dashboard-page-object.md)
+  (the admin-area dashboard sibling concept),
+  [`discover-page-object.md`](plugins/discover-page-object.md)
+  (another smallest-possible-surface page-object
+  posture this driver mirrors),
+  [`e2e-tsconfig.md`](plugins/e2e-tsconfig.md) (the
+  `include` glob), [`playwright-config.md`](plugins/playwright-config.md)
+  (the `baseURL` posture), and
+  [`fixtures-index.md`](plugins/fixtures-index.md).
+  Pinned to the consuming spec at
+  [`apps/web-e2e/tests/client/dashboard.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/dashboard.spec.ts)
+  (three flows: authenticated client can access
+  dashboard, unauthenticated user is redirected to
+  `/auth/signin`, dashboard heading visible) and the
+  co-tenant API smoke spec at
+  [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts).
+  Linked from [`docs/index.md`](index.md) under the
+  E2E references section. Subsequent rollouts in this
+  client/ subtree will turn to `profile.page.ts`,
+  `settings.page.ts`, `submissions.page.ts`,
+  `submit.page.ts`, and `trash.page.ts`.
+- `apps/web-e2e/tests/api` Added
+  `admin-users-stats-query.spec.ts` — query-param
+  surface smoke for the admin-only user-statistics
+  endpoint at
+  [`apps/web/app/api/admin/users/stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/users/stats/route.ts).
+  Pins the route's **`checkAdminAuth()` shared
+  three-step gate** (the same gate the
+  `admin/dashboard/stats`, `admin/geo-analytics`,
+  `admin/clients/dashboard`, `admin/location-index`,
+  and `admin/roles/[id]/permissions` siblings use)
+  with the unauthenticated branch returning 401 and
+  the bare `'Unauthorized'` message — distinct from
+  the second-step gate's `'User ID not found'`
+  message (reachable only by an authenticated session
+  without `user.id`), the third-step gate's
+  `'Insufficient permissions'` message (reachable
+  only by an authenticated non-admin), the
+  `'Forbidden'` message the `admin/roles/stats`
+  route's two-step `auth()` chain emits on its third
+  step, and the
+  `'Unauthorized. Admin access required.'` message
+  the sponsor-ads route's purpose-built guard emits.
+  The handler signature is the bare `GET()` (no
+  `request` parameter) — symmetric with the
+  `admin/dashboard/stats`, `admin/geo-analytics`,
+  `admin/clients/dashboard`, `admin/location-index`,
+  and `admin/roles/[id]/permissions` siblings that
+  route through `checkAdminAuth()` — narrowing the
+  request surface to zero. Walks 90+ defensive query-
+  key permutations covering pagination keys
+  (`?page=…`, `?limit=…`), per-role drill-down keys
+  (`?role=…`, `?roleId=…` — the success response
+  includes `roleDistribution` so a future contributor
+  might add a per-role drill-down), `?status=…`
+  active/inactive enum filter (the sibling
+  `admin/users` route accepts this), GDPR-consent
+  filter (`?gdprConsentGiven=…` — also sibling
+  `admin/users`), per-plan filter
+  (`?subscriptionPlanId=…` — also sibling
+  `admin/users`), `?isAdmin=…` boolean filter,
+  `?sortBy=…` / `?sortOrder=…` order-targeting keys,
+  `?search=…` free-text filter with XSS-shaped /
+  SQL-shaped values, time-window filters (`?from=…`,
+  `?to=…`, `?since=…`, `?until=…`, `?days=…` — the
+  success response includes `recentRegistrations`
+  hard-coded to "last 30 days" today),
+  `?topActiveUsersLimit=…` tuning override (the
+  `topActiveUsers` array length is `maxItems: 10`
+  today), admin-impersonation keys (`?userId=…`,
+  `?asUser=…`, `?impersonate=…`), magic-token bypass
+  keys (`?token=…`, `?secret=…`, `?api_key=…`,
+  `?authorization=…`, `?session=…`, `?adminToken=…`),
+  admin-override keys (`?bypass=…`, `?admin=…`,
+  `?override=…`, `?force=…`), cache-busting keys
+  (`?refresh=…`, `?cache=…`, `?nocache=…`),
+  `?locale=…` / `?lang=…` i18n keys, content-
+  projection keys (`?fields=…`, `?select=…`,
+  `?include=…`, `?exclude=…`), repeated keys, and
+  bogus / typo'd keys. Asserts every permutation
+  round-trips to a status `< 500` (the route's
+  three-step gate fires before any
+  `userRepository.getStats()` call), the canonical
+  401 / `{ success: false, error: 'Unauthorized' }`
+  envelope on the no-arg unauth branch, status
+  invariance across query permutations, status
+  invariance under cookie / `X-*` header injection,
+  and the route's unique combination of the bare
+  `'Unauthorized'` first-step-gate message AND the
+  bare-`GET()` handler signature (distinct from
+  every other admin-tree route's envelope-and-
+  signature combination). Sits alongside the
+  nineteen prior admin-tree query-smoke specs
+  (`admin-categories-query.spec.ts`,
+  `admin-clients-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-navigation-query.spec.ts`,
+  `admin-notifications-query.spec.ts`,
+  `admin-reports-query.spec.ts`,
+  `admin-roles-stats-query.spec.ts`,
+  `admin-settings-query.spec.ts`,
+  `admin-sponsor-ads-query.spec.ts`,
+  `admin-tags-all-query.spec.ts`,
+  `admin-tags-query.spec.ts`,
+  `admin-users-query.spec.ts`).
 - `apps/web-e2e/tests/api` Added
   `admin-navigation-query.spec.ts` — query-param
   surface smoke for the admin-only navigation-config
