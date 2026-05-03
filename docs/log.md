@@ -33,6 +33,72 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-notifications-id-read-method-spec.md` —
+  the **nineteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventeenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-notifications-id-read-method.spec.ts`
+  spec covering the admin single-notification mark-as-
+  read endpoint at
+  `apps/web/app/api/admin/notifications/[id]/read/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a **dynamic-segment `[id]`
+  `PATCH` handler** with the **two-step
+  `!session?.user?.id` → `!tenantId` gate** envelope.
+  Documents the unique combination of:
+  (1) **dynamic-segment `[id]` `PATCH` handler** — the
+  **first** dynamic-segment `PATCH` handler the admin-
+  tree smoke layer pins, distinct from the static-path
+  PATCH of `admin/notifications/mark-all-read`, the
+  dynamic-segment `POST` of `admin/items/[id]/review`,
+  and the dynamic-segment `GET` of
+  `admin/items/[id]/history`;
+  (2) **two-step gate** (`!session?.user?.id` → 401
+  `'Unauthorized'`, then AFTER params and AFTER 400
+  missing-id branch: `!tenantId` → 403
+  `'Tenant not found'`) — SAME envelope as the sibling
+  `admin/notifications/mark-all-read`;
+  (3) **bare `'Unauthorized'` 401 message** — matching
+  the sibling `admin/notifications/mark-all-read`,
+  distinct from the canonical longer
+  `'Unauthorized. Admin access required.'` of the
+  single-step-gated routes;
+  (4) **bare `{ error: ... }` envelope** with NO
+  `success` key — matching the sibling
+  `admin/notifications/mark-all-read`;
+  (5) **path-id surface** — the handler reads `id`
+  from `await params` AFTER the auth gate;
+  (6) **tenant-resolution surface** AFTER params and
+  AFTER the 400 missing-id branch;
+  (7) **DB-update surface** AFTER both gates — the
+  handler issues a Drizzle `db.update(notifications)`
+  with `set({ isRead: true, readAt: ..., updatedAt: ... })`
+  and a three-clause `where` (id + userId + tenantId),
+  then `.returning()`, with success-branch payload
+  `{ success: true, notification: <row> }`;
+  (8) **`console.error` + bare `'Internal server error'`
+  catch** — matching the
+  `admin/users/check-email` /
+  `admin/users/check-username` catch family;
+  (9) **method-resolution surface** with `PATCH`-only
+  export. The smoke spec pins the gate-before-post-
+  auth invariant that NONE of the four post-auth
+  messages (`'Notification ID is required'`,
+  `'Tenant not found'`, `'Notification not found'`,
+  `'Internal server error'`) must appear in the unauth
+  response body, the gate-before-params-resolution
+  invariant pinning that every id shape (short slug,
+  dashed slug, uuid, encoded slug, long padded slug)
+  round-trips to the same 401 status, the gate-before-
+  body-parse invariant pinning that malformed JSON
+  bodies do NOT 400 with a JSON-parse error before the
+  gate fires, and the gate-before-DB-update invariant
+  pinning that the `db.update(notifications)
+  ...returning()` call is NOT entered on the unauth
+  branch — the **first dynamic-segment `[id]` `PATCH`
+  admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-items-import-validate-body-spec.md` —
   the **eighteenth** per-source-file reference the docs
   tree publishes for any file under
