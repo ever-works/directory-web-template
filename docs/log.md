@@ -33,6 +33,146 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-reports-page-object.md`
+  — the **twelfth per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/reports.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/reports.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **`<button>`-anchored status-tab
+  navigation surface** rather than the
+  `getByRole('tab')`-anchored navigation surface every
+  prior status-tab driver uses (the reports page emits
+  the status filter as `<button>` elements, not
+  `[role="tab"]` / `[role="tablist"]`); (b) a five-
+  element status-tab TypeScript union
+  (`'All' | 'Pending' | 'Reviewed' | 'Resolved' | 'Dismissed'`)
+  reflecting the report lifecycle's distinct state
+  machine (Pending → Reviewed → Resolved / Dismissed)
+  rather than the items lifecycle (Draft → Pending →
+  Approved / Rejected); (c) a **`.border-l-4`
+  Tailwind-utility-anchored card-list selector**
+  (`reportCards`) — the **first** admin-tree driver to
+  pin per-row resolution to a Tailwind border-utility
+  class rather than a semantic role; (d) a **broad
+  `/review/i` substring `reviewButtons` Locator** that
+  intentionally resolves to a multi-element match
+  (symmetric with the data-export driver's
+  `exportButtons` posture); and (e) a **bare
+  `[role="dialog"]` review-dialog getter** without the
+  `[aria-modal="true"]` composite attribute the items
+  driver's `rejectModal` getter uses (the bare role
+  posture tolerates HeroUI's per-version `aria-modal`
+  drift). Documents the full surface for the
+  `AdminReportsPage` driver — the two `readonly`
+  Locator fields (`heading`, `searchInput`), the three
+  methods (`navigate()`, `selectStatusTab(status)`,
+  `searchReports(term)`), and the three getters
+  (`reviewDialog`, `reviewButtons`, `reportCards`).
+  Pinned to
+  [`apps/web-e2e/tests/admin/reports.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/reports.spec.ts)
+  (five flows over the admin reports management
+  surface — admin can access reports management page,
+  reports page displays stats cards, status tabs filter
+  reports, admin can open review dialog for a report,
+  reports page shows empty state for non-matching
+  search). Includes the "Why `AdminReportsPage`
+  extends `BasePage`" three-reason analysis; the "Why
+  `selectStatusTab(status)` uses `getByRole('button')`"
+  three-reason analysis (the reports page emits the
+  status filter as `<button>` elements, symmetric with
+  the bulk-action toolbar's button posture, a future
+  migration to `[role="tab"]` would be a production-
+  source change); the "Why `selectStatusTab(status)`
+  uses a prefix-match `^${status}` regex" three-reason
+  analysis (the status-tab labels include per-tab
+  counts like `Pending (12)`, disambiguation against
+  future per-action buttons, symmetric with the items
+  driver's posture); the "Why `reviewDialog` uses a
+  bare `[role="dialog"]` selector" three-reason
+  analysis (HeroUI's per-version `aria-modal` drift,
+  `.first()` is the strict-mode-correctness defence,
+  no production-source change required); the "Why
+  `reviewButtons` is a multi-resolution Locator" three-
+  reason analysis; the "Why `reportCards` uses a
+  `.border-l-4` Tailwind-utility selector" three-
+  reason analysis (production source does not emit
+  ARIA roles on report cards, the `border-l-4` utility
+  is the per-card visual anchor, future migration to
+  `[role="article"]` is a production-source change);
+  cross-references to all eleven prior admin-tree
+  page-object docs; and a "What it does not contain"
+  five-bullet enumeration of the deliberate omissions
+  (no `getByTestId` selectors, no per-card Locator-
+  factory beyond the `reviewButtons` multi-resolution
+  Locator, no `clickReview(reportId)` /
+  `dismissReport(reportId)` /
+  `resolveReport(reportId, notes)` flow helpers, no
+  `assertCardCount(n)` / `assertEmptyState()`
+  invariant helpers, no `clearSearch()` reset helper).
+- `apps/web-e2e/tests/api` Added
+  `admin-reports-query.spec.ts` — a query-param
+  surface smoke for the admin-only reports-listing
+  endpoint at
+  [`apps/web/app/api/admin/reports/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/reports/route.ts).
+  The route is **admin-gated** via `auth()` +
+  `session.user.isAdmin` but with a unique
+  **403-on-missing-session contract** — distinct from
+  every other admin-gated route in the smoke layer.
+  The single-step gate `!session?.user?.isAdmin`
+  folds the missing-session and missing-admin-bit
+  branches into a single 403 response with the bare
+  `'Forbidden'` message — distinct from the
+  notifications route's two-step gate (which emits
+  401 'Unauthorized' for missing session and 403
+  'Forbidden' for missing admin bit). The handler
+  signature is `GET(request: Request)` (the bare
+  `Request` type, not the Next-specific `NextRequest`
+  type) and reads SIX documented query params after
+  the gate (`page`, `limit`, `search`, `status`,
+  `contentType`, `reason`) — the largest documented
+  post-gate query surface of any admin-tree route the
+  smoke layer covers. The route uses inline `Number()`
+  parsing + `Math.max()` / `Math.min()` clamps for
+  the `page` / `limit` params (distinct from the
+  `validatePaginationParams(...)` utility the sibling
+  routes use) and inline `VALID_*.includes(...)`
+  checks against the schema's enum constants for
+  the `status` / `contentType` / `reason` params
+  (distinct from the Zod-schema posture). The route
+  runs `checkDatabaseAvailability()` BEFORE the auth
+  gate and emits an explicit `runtime = 'nodejs'`
+  Next.js export. The spec walks the unauthenticated
+  branch and pins the canonical
+  `{ success: false, error: 'Forbidden' }` 403
+  envelope (NOT 401, NOT
+  `'Unauthorized. Admin access required.'`), then
+  sweeps `?page=` / `?limit=` / `?search=` (with
+  SQL-injection-themed payloads) / `?status=` /
+  `?contentType=` / `?reason=` / `?userId=` /
+  `?token=` / `?bypass=` / Accept-header /
+  repeated-key / cookie-header permutations against
+  the no-arg baseline. The spec is unique in that it
+  pins **403 (NOT 401)** plus the bare `'Forbidden'`
+  (NOT `'Unauthorized'` / NOT
+  `'Unauthorized. Admin access required.'`) error
+  message — a regression that switches the gate to
+  the two-step `session?.user?.id` then
+  `session.user.isAdmin` pair would surface here as
+  a status divergence between the expected 403 and
+  the unexpected 401. The sweep mirrors the shape of
+  the sibling `admin-categories-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-notifications-query.spec.ts`,
+  `admin-users-query.spec.ts` smoke specs.
 - `docs/plugins` Added `admin-notifications-page-object.md`
   — the **eleventh per-source-file reference** the
   docs tree publishes for any file under
