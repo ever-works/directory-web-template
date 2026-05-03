@@ -33,6 +33,138 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `client-submit-page-object.md`
+  — the **fifth per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/client/` (continuing the
+  client-tree page-object docs rollout, **5-of-6**),
+  paired with
+  [`apps/web-e2e/page-objects/client/submit.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/submit.page.ts)
+  and the **first** client-tree driver in the rollout
+  that documents (a) a **multi-step wizard surface**
+  with three documented steps (Basic Info → Payment /
+  Plan Selection → Review & Submit) driven by the
+  `nextStepButton` / `previousButton` / `submitButton`
+  triplet — distinct from every prior client-tree
+  driver (all single-page surfaces) and distinct from
+  the admin item-form driver's modal-bound four-step
+  wizard (which lives inside a `[role="dialog"]`
+  overlay rather than a per-route page); (b) a
+  **`/submit` public-tree route boundary** — the only
+  client-tree page object the docs rollout covers
+  that targets a route OUTSIDE `/client/**`; (c) a
+  **mixed selector-anchor posture** combining id-
+  selectors (`#name`, `#description`, `#categories`)
+  for production-source-stable form fields, bare HTML
+  element type-selectors (`input[type="url"]`) for
+  the LinkInput component which has no stable id
+  today, and accessible-name regex-anchored buttons
+  for wizard navigation triggers — the **first**
+  client-tree driver to combine all three anchor
+  styles in a single class; (d) a **per-step
+  `fillBasicInfo({ name, url, description })`
+  composite helper** with a load-bearing fill order
+  (URL first, then name, then description — to let
+  the LinkInput's OG-metadata fetch fire before the
+  explicit name / description fills override the
+  pre-filled values); (e) a **per-step
+  `selectCategory(categoryName)` /
+  `selectTag(tagName)` autocomplete commit helper
+  pair** — the **first** client-tree driver to
+  document combobox / tag-selection autocomplete
+  helpers; and (f) a **`selectFreePlan()` plan-
+  selection helper with an OR-of-two-substring
+  regex** matching either `Get Started Free` or
+  `Select Free` button labels — the **first**
+  client-tree driver to document a plan-selection
+  mutator and the **first** to use a multi-substring
+  alternation regex for label-drift tolerance.
+  Documents the full surface for the
+  `ClientSubmitPage` driver — the seven `readonly`
+  Locator fields, the navigation method, and the
+  four composite helpers. Pinned to
+  [`apps/web-e2e/tests/client/submit-and-manage.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/submit-and-manage.spec.ts)
+  (the full three-step submit flow runs in `serial`
+  mode because the subsequent flows depend on the
+  just-submitted item being visible in the
+  submissions list). Includes the "Why
+  `ClientSubmitPage` extends `BasePage`" three-reason
+  analysis; the "Why `fillBasicInfo` fills URL first
+  (and not name / description first)" three-reason
+  analysis (the LinkInput component fetches metadata
+  on blur, subsequent fills override the OG-prefilled
+  values, the terminal Step 3 form-state validation
+  expects all three fields filled); the "Why
+  `linkUrlInput` uses a bare `input[type="url"]`
+  element-selector" three-reason analysis (LinkInput
+  does not bind to a stable id, the `[type="url"]`
+  attribute is the production-source-stable hook,
+  `.first()` defends against multi-URL forms); the
+  "Why `selectTag(tagName)` uses `exact: true`"
+  three-reason analysis (tag names are short and may
+  collide, exact preserves case-insensitivity by
+  default, future tag rename surfaces as a clear
+  test failure); the "Why `selectFreePlan()` uses
+  the OR-of-two-substring regex" three-reason
+  analysis; cross-references to all four prior
+  client-tree page-object docs and to the admin
+  item-form driver as the modal-bound counterpart;
+  and a "What it does not contain" five-bullet
+  enumeration of the deliberate omissions (no
+  `getByTestId` selectors, no `submitFullFlow(data)`
+  composite, no paid-plan selection helpers, no
+  `assertStep(step)` invariant, no
+  `getCurrentStep(): Promise<number>` accessor).
+- `apps/web-e2e/tests/api` Added
+  `admin-categories-git-query.spec.ts` — a query-
+  param surface smoke for the admin-only Git-
+  repository-status / categories endpoint at
+  [`apps/web/app/api/admin/categories/git/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/categories/git/route.ts).
+  The route is the **first** admin-tree route the
+  smoke layer covers that documents a unique
+  combination of FOUR distinct contracts: (1) a
+  zero-argument `GET()` handler signature (same
+  posture as the notifications route, distinct from
+  every other admin-tree route's
+  `GET(request: NextRequest)` posture); (2) the
+  **bare `{ error: '...' }` envelope** (NOT the
+  `{ success: false, error: '...' }` shape every
+  other admin-gated route emits) — the ONLY admin-
+  tree GET route that combines the bare-envelope
+  shape with a role-context-specific
+  `'Unauthorized. Admin access required.'` message
+  (the settings route uses the bare envelope with
+  a bare `'Unauthorized'` message; the admin-
+  categories route uses the canonical envelope with
+  the role-context-specific message); (3) a
+  **GitHub-API-backed service** via
+  `createCategoryGitService(gitConfig)` that makes
+  live HTTPS calls to the GitHub API using the
+  configured `GITHUB_TOKEN` / `DATA_REPOSITORY`
+  environment variables — distinct from every other
+  admin-tree route's drizzle / DB posture and from
+  the tags/all / categories/all routes' Git-CMS
+  file-system reader posture; and (4) THREE distinct
+  configuration-error 500 envelopes after the gate
+  (one per configuration prerequisite —
+  `DATA_REPOSITORY` not set / invalid format /
+  `GITHUB_TOKEN` not set), each emitting the
+  canonical `{ success: false, error: '...' }`
+  envelope (NOT the bare envelope) — a deliberate
+  inconsistency between the unauth-branch and the
+  post-auth configuration-error branches that the
+  route's handler structure makes invariant. The
+  spec walks the unauthenticated branch and pins
+  the canonical 401 + bare envelope contract plus
+  negative-shape assertions that the body must NOT
+  include a `success` key, must NOT use the bare
+  `'Unauthorized'` message, and must NOT use the
+  `'Forbidden'` message. Sweeps Git-service-
+  configuration override / impersonation / token /
+  bypass / Git-ref-targeting / path-traversal /
+  cache-bust / Accept-header / cookie-header (with
+  `X-GitHub-Token` variant) / repeated-key
+  permutations.
 - `docs/plugins` Added
   [`client-submissions-page-object.md`](plugins/client-submissions-page-object.md)
   — the **fourth per-source-file reference** the docs
