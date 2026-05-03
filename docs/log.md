@@ -33,6 +33,124 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-surveys-page-object.md`
+  — the **sixteenth per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/surveys.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/surveys.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **bare `page.locator('h1').first()`
+  heading resolver** — distinct from every other
+  admin-tree driver's `page.getByRole('heading').first()`
+  posture (the surveys page emits its top-level
+  heading as a literal `<h1>` element today, so the
+  bare-tag-name selector is the production-source-
+  stable hook); (b) a **literal-union-typed
+  `selectFilter(filter)` flow helper** that takes a
+  `'all' | 'global' | 'item'` literal-union argument
+  and dispatches on a `Record<string, RegExp>`
+  filterMap to a
+  `getByRole('button', { name: filterMap[filter] }).first().click()`
+  call — with three case-insensitive regexes
+  (`/all surveys/i`, `/global/i`, `/items/i`) — the
+  literal-union typing is load-bearing because it
+  enforces the filterMap domain at compile-time (a
+  regression that drops the union type would let
+  consumers pass an arbitrary filter name resolving
+  to `undefined` via the `filterMap` index, surfacing
+  as a runtime
+  `Cannot read properties of undefined (reading '…')`
+  failure rather than a compile-time type error);
+  (c) a **dual index-based per-row Locator-factory
+  posture** (`getEditButton(index)` /
+  `getDeleteButton(index)`) that returns
+  `this.page.locator('button[title*="Edit"]').nth(index)`
+  and `this.page.locator('button[title*="Delete"]').nth(index)`
+  — the **first** title-attribute substring posture
+  in the admin-tree page-object subtree (the per-row
+  buttons are icon-only buttons with no visible text
+  label, so the `title` attribute substring-match is
+  the next-best production-source-stable hook); and
+  (d) a **`getByRole('button', { name: /create survey/i }).first()`
+  CTA-button resolver** that pins to the case-
+  insensitive accessible-name regex match for the
+  page's primary CTA with `.first()` defence against
+  the empty-state illustration's duplicate CTA.
+
+- `apps/web-e2e/tests/api` Added
+  `admin-tags-query.spec.ts` — query-param surface
+  smoke for the admin-only tag-listing endpoint at
+  [`apps/web/app/api/admin/tags/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/tags/route.ts).
+  Pins the route's single-step
+  `!session?.user?.isAdmin` → 401
+  `{ success: false, error: 'Unauthorized' }` gate
+  (the **bare-message-with-success-key** envelope
+  variant — the only admin-tree route that combines
+  both the bare `'Unauthorized'` message AND the
+  `success: false` discriminator key, distinct from
+  the longer-message variant
+  `'Unauthorized. Admin access required.'` that the
+  `admin/categories` / `admin/sponsor-ads` routes
+  emit and distinct from the bare-key envelope
+  `{ error: 'Unauthorized' }` (no `success: false`
+  discriminator) that the `admin/clients` /
+  `admin/comments` / `admin/companies` /
+  `admin/users` routes emit). Pins the AFTER-the-
+  auth-gate ordering of
+  `validatePaginationParams(searchParams)` (a
+  regression that swaps the order would surface as a
+  400 `'Invalid page parameter. …'` instead of a 401
+  on the unauth branch when the query is malformed).
+  Walks 60+ query permutations covering pagination
+  (`?page=…`, `?limit=…`), admin-impersonation keys
+  (`?asAdmin=…`, `?as=…`, `?asUser=…`,
+  `?impersonate=…`), magic-token bypass keys
+  (`?token=…`, `?secret=…`, `?api_key=…`,
+  `?authorization=…`, `?session=…`, `?adminToken=…`),
+  admin-override keys (`?bypass=…`, `?admin=…`,
+  `?override=…`, `?force=…`), status-filter keys
+  (`?isActive=…`, `?includeInactive=…`), free-text
+  filter keys (`?search=…`, `?q=…`), order-targeting
+  keys (`?orderBy=…`, `?sortBy=…`, `?sortOrder=…`),
+  per-row-targeting keys (`?tagId=…`, `?id=…`),
+  content-projection keys (`?fields=…`, `?select=…`,
+  `?include=…`), cache-busting keys (`?refresh=…`,
+  `?cache=…`, `?nocache=…`), i18n keys
+  (`?locale=…`, `?lang=…`), repeated keys, and
+  bogus / typo'd keys. Asserts every permutation
+  round-trips to a status `< 500` (the route's
+  single-step gate fires before any service-layer
+  call), the canonical 401 /
+  `{ success: false, error: 'Unauthorized' }`
+  envelope on the no-arg unauth branch, status
+  invariance across query permutations, status
+  invariance under cookie / `X-*` header injection,
+  and the route's unique combination of the bare
+  `'Unauthorized'` message AND the `success: false`
+  discriminator key (distinct from every other
+  admin-tree route's envelope). Pinned to the co-
+  tenant page-object reference at
+  [`docs/plugins/admin-surveys-page-object.md`](./plugins/admin-surveys-page-object.md)
+  via the `index.md` cross-reference. Sits alongside
+  the seventeen prior admin-tree query-smoke specs
+  (`admin-categories-query.spec.ts`,
+  `admin-clients-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-notifications-query.spec.ts`,
+  `admin-reports-query.spec.ts`,
+  `admin-roles-stats-query.spec.ts`,
+  `admin-settings-query.spec.ts`,
+  `admin-sponsor-ads-query.spec.ts`,
+  `admin-users-query.spec.ts`).
+
 - `docs/plugins` Added `admin-sponsorships-page-object.md`
   — the **fifteenth per-source-file reference** the
   docs tree publishes for any file under
@@ -281,8 +399,7 @@ why** at a higher level than per-commit diffs.
   The route is **admin-gated** via `auth()` + a
   **two-step** check that resolves the
   unauthenticated and authenticated-non-admin
-  branches into **distinct** status codes (401 vs
-  403) — distinct from the sibling `admin/clients` /
+  branches into **distinct** status codes (401 vs 403) — distinct from the sibling `admin/clients` /
   `admin/comments` / `admin/companies` /
   `admin/users` routes' single-step
   `!session?.user?.isAdmin` → 401 'Unauthorized'
@@ -910,8 +1027,8 @@ why** at a higher level than per-commit diffs.
   change); the "Why `activeOnlyToggle` uses the
   `#active-only` id-selector" three-reason analysis
   (production-source-stable id-binding, `getByRole(
-  'checkbox')` would resolve too broadly, `getByLabel(
-  'Active only')` would lock to the English locale); the
+'checkbox')` would resolve too broadly, `getByLabel(
+'Active only')` would lock to the English locale); the
   "Why `featuredItemModal` and `statsCards` are getters"
   three-reason analysis (late-binding against modal
   mount/unmount lifecycle, symmetric with the modal-
@@ -1014,7 +1131,7 @@ why** at a higher level than per-commit diffs.
   over the inherited `goto('/admin')`, and the
   `selectTab(tabName)` async method that closes over a
   `tabList`-scoped `getByRole('tab', { name: tabName,
-  exact: false }).click()` chain. Pinned to
+exact: false }).click()` chain. Pinned to
   [`apps/web-e2e/tests/admin/dashboard.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/dashboard.spec.ts)
   (four flows over the admin-shell dashboard-landing
   surface — authenticated admin can access admin panel,
@@ -1289,7 +1406,7 @@ why** at a higher level than per-commit diffs.
   key / Cookie-header probe sets (~85 deep paths). Adds
   16 deep tests on top of the per-path 4xx baseline: the
   deterministic 403 with the canonical `{ success:
-  false, error: 'Forbidden' }` envelope assertion (the
+false, error: 'Forbidden' }` envelope assertion (the
   single-step gate collapses unauthenticated and
   authenticated-non-admin into the same 403, distinct
   from the `admin/users` route's two-step 401-then-403
@@ -1297,7 +1414,7 @@ why** at a higher level than per-commit diffs.
   route's single-step 401 gate); a stable-status-across-
   permutations assertion; eight "does NOT bypass the
   admin gate" assertions for `?search=…`, `?page=…
-  &limit=…`, `?userId=…`, `?token=…`, `?bypass=…`,
+&limit=…`, `?userId=…`, `?token=…`, `?bypass=…`,
   `?format=…`, `?fields=…`, `?commentId=…`; two
   "introduces no specific bypass" assertions for
   `?rating=…` and `?status=…`; a stable-status-across-
@@ -1352,7 +1469,7 @@ why** at a higher level than per-commit diffs.
   `getByPlaceholder(...)` for every form-input field"
   three-reason analysis (HeroUI's `<Input>` does not pair
   with a visible `<label>`, `getByRole('textbox', { name:
-  … })` would resolve via the same accessible-name
+… })` would resolve via the same accessible-name
   computation but with an extra hop, the `data-testid`
   posture would force a production-source change purely
   for the e2e suite); the "Why `collectionFormModal` is a
@@ -1395,7 +1512,7 @@ why** at a higher level than per-commit diffs.
   (~80 deep paths). Adds 17 deep tests on top of the
   per-path 4xx baseline: the deterministic 401 with the
   canonical `{ success: false, error: "Unauthorized.
-  Admin access required." }` envelope assertion (the
+Admin access required." }` envelope assertion (the
   single-step gate collapses unauthenticated and
   authenticated-non-admin into the same 401, distinct
   from the `admin/users` route's two-step 401-then-403
@@ -1805,7 +1922,7 @@ why** at a higher level than per-commit diffs.
   `.first()`" three-reason analysis; the "Why the submit
   button uses `..` traversal" three-reason analysis; the
   "Why the error message uses `text-red-600,
-  text-red-400`" three-reason analysis; the "Why
+text-red-400`" three-reason analysis; the "Why
   `hasSuccessToast()` collapses errors to `false`" three-
   reason analysis; the failure matrix of 21 mistakes; the
   per-line walkthrough table; the read / write surface
@@ -2260,7 +2377,7 @@ why** at a higher level than per-commit diffs.
   to the canonical ARIA-spec value `aria-haspopup="menu"`
   via exact match for strict-mode-correctness against
   `[role="menu"]` popups, the `readonly menuContent:
-  Locator` deliberately-exposed dropdown Locator pinned to
+Locator` deliberately-exposed dropdown Locator pinned to
   `[role="menu"]`, the constructor that pre-binds the two
   Locators in a single pass without a `super(page)` call,
   the `open()` minimal "open the dropdown" primitive, the
@@ -2269,7 +2386,7 @@ why** at a higher level than per-commit diffs.
   dual-role `[role="menuitemradio"], [role="menuitem"]`
   selector that accommodates both single-select and
   free-action option shapes, the `getCurrentLabel():
-  Promise<string>` accessor with the
+Promise<string>` accessor with the
   `textContent()?.trim() ?? ''` chain that pins the public
   return type to `Promise<string>`); the full file
   annotated chunk-by-chunk; the spec context cross-link to
@@ -2311,7 +2428,7 @@ why** at a higher level than per-commit diffs.
   pinning the `requireClientAuth()` session-gate response
   invariant: the unauth GET surface returns 401 with the
   canonical `{ success: false, error: 'Unauthorized.
-  Please sign in to continue.' }` envelope
+Please sign in to continue.' }` envelope
   deterministically, regardless of which query keys the
   caller appends to the URL. The spec walks the unauth
   branch with 80+ parametrised query-string permutations
@@ -2374,7 +2491,7 @@ why** at a higher level than per-commit diffs.
   the standalone class restates because it does not
   inherit from `BasePage`, the `readonly trigger: Locator`
   pinned via `page.locator('button').filter({ hasText:
-  /share/i }).first()` because the host app's button has
+/share/i }).first()` because the host app's button has
   no `aria-label` today, the four `readonly` menu-item
   Locators pinned via `[role="menuitem"]` with per-item
   case-insensitive regex filters — `/copy link/i`,
@@ -2504,7 +2621,7 @@ why** at a higher level than per-commit diffs.
   `extends` clause, the `readonly page: Page` field that
   the standalone class restates because it does not
   inherit from `BasePage`, the single `readonly button:
-  Locator` pinned via the `page.locator('button[aria-label="Scroll to top"]')`
+Locator` pinned via the `page.locator('button[aria-label="Scroll to top"]')`
   exact-match selector with no `.first()` because the
   floating button is a single-instance fixed-position
   widget on every page, the constructor that pre-binds
@@ -2514,7 +2631,7 @@ why** at a higher level than per-commit diffs.
   with a default that comfortably clears the production
   source's ~300-pixel threshold, the `click()` primitive
   that clicks the floating button, and the `getScrollY():
-  Promise<number>` accessor that returns `window.scrollY`
+Promise<number>` accessor that returns `window.scrollY`
   for both precondition and postcondition assertions);
   the full file annotated chunk-by-chunk; the spec
   context cross-link to [Spec 010 — E2E Test Coverage](https://github.com/ever-works/directory-web-template/tree/develop/docs/spec/010-e2e-test-coverage)
@@ -2671,10 +2788,10 @@ why** at a higher level than per-commit diffs.
   pass without a `super(page)` call, the three
   symmetric-shape `selectList()` / `selectGrid()` /
   `selectMasonry()` click primitives, the `isActive(button:
-  Locator)` predicate that reads the supplied button's
+Locator)` predicate that reads the supplied button's
   `class` attribute and returns whether the `scale-105`
   Tailwind utility-class substring is present with a `??
-  false` nullish-coalesce that pins the public return
+false` nullish-coalesce that pins the public return
   type to `Promise<boolean>` and mirrors the sibling
   `theme-toggle-page-object.md`'s `isDarkMode()` posture);
   the full file annotated chunk-by-chunk; the spec
@@ -2689,7 +2806,7 @@ why** at a higher level than per-commit diffs.
   and a future admin-shell list/grid switch would reuse
   it, `aria-label*="…" i` over `data-testid` because it
   tolerates view-label phrasing variants like `"View as
-  list"` / `"List view"` / `"Show as a list"` and the
+list"` / `"List view"` / `"Show as a list"` and the
   `i` flag tolerates casing drift, `.first()` on every
   button Locator for strict-mode safety against future
   stacked toggles, the `i` flag on every substring
@@ -2776,7 +2893,7 @@ why** at a higher level than per-commit diffs.
   fires **before** any `searchParams` parsing or
   LemonSqueezy provider call; on the unauth branch the
   route returns 401 + `{ error: 'Unauthorized', message:
-  'Authentication required', code: 'AUTH_REQUIRED' }`
+'Authentication required', code: 'AUTH_REQUIRED' }`
   deterministically. The spec pins this contract via a
   ~110-entry parametrised matrix spanning every "the
   route reads this only after the gate" category
@@ -2934,10 +3051,10 @@ why** at a higher level than per-commit diffs.
   is a **zero-query-param** GET handler — it reads zero
   `searchParams` and exposes exactly two well-formed
   branches: `404` + `{ success: false, error: 'Location
-  features are disabled' }` when `getLocationEnabled()`
+features are disabled' }` when `getLocationEnabled()`
   returns `false` (the most-likely branch on a clean
   local-dev baseline), and `200` + `{ success: true,
-  data: string[] }` when the feature is on. The spec
+data: string[] }` when the feature is on. The spec
   pins this contract via a 75-entry parametrised matrix
   spanning every "the route does not read this" category
   (`?city=` / `?country=` / `?countryCode=` / `?region=`
@@ -2998,9 +3115,9 @@ why** at a higher level than per-commit diffs.
   constructor signature; the `readonly itemLinks: Locator`
   `page.locator('a[href*="/items/"]')` substring-selector
   matching every directory-card link; the `readonly
-  pagination: Locator` dual-substring selector tolerating
+pagination: Locator` dual-substring selector tolerating
   production-source case drift; the `readonly heading:
-  Locator` `page.getByRole('heading', { level: 1 })`
+Locator` `page.getByRole('heading', { level: 1 })`
   role+level resolution that survives translation churn;
   the `constructor(page: Page)` that calls `super(page)`
   and pre-binds the three Locators above; the
@@ -3051,7 +3168,7 @@ why** at a higher level than per-commit diffs.
   touch; the read / write surface failure modes table
   that maps production-source / middleware / config
   drift onto `getItemCount() returns 0`, `Locator not
-  found`, and `navigate timeout` failures; and the
+found`, and `navigate timeout` failures; and the
   `discover.page.ts`-change checklist that ties any
   change to a spec audit, a
   [`base-page-object.md`](plugins/base-page-object.md)
@@ -3075,9 +3192,9 @@ why** at a higher level than per-commit diffs.
   location feature is enabled and
   `getDistinctCountries()` resolves the distinct-country
   list; `404` + `{ success: false, error: 'Location
-  features are disabled' }` when `getLocationEnabled()`
+features are disabled' }` when `getLocationEnabled()`
   is false. The catch-and-500 fallback (`'Failed to
-  fetch countries'`) must never fire on a clean
+fetch countries'`) must never fire on a clean
   baseline. The spec parametrises across 50+ query
   strings (`?country=…` filter overrides, `?countryCode=`
   / `?code=` / `?iso=` ISO-code keys, `?city=` /
@@ -3212,7 +3329,7 @@ why** at a higher level than per-commit diffs.
   lowercases / trims / falls back to `'smart'` for any value
   not in the canonical seven-element allowlist
   (`'cloudflare' | 'vercel' | 'cloudfront' | 'fastly' |
-  'generic' | 'auto' | 'smart'`), and otherwise reads CDN
+'generic' | 'auto' | 'smart'`), and otherwise reads CDN
   country headers (`Cf-IPCountry`, `X-Vercel-IP-Country`,
   …) to derive the currency. Without those headers — the
   default e2e-runner shape — the response is always
@@ -3331,7 +3448,7 @@ why** at a higher level than per-commit diffs.
   params. Mirrors the sibling
   [`subscription-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/subscription-query.spec.ts)
   shape because both routes share the same `auth() →
-  getCustomerId() → stripe.list()` chain and the same
+getCustomerId() → stripe.list()` chain and the same
   zero-query-param contract. The spec walks 70+
   query-string permutations (impersonation keys `?userId=` /
   `?user_id=` / `?uid=` / `?id=`, customer-bypass keys
@@ -3389,7 +3506,7 @@ why** at a higher level than per-commit diffs.
   `.content` Git-CMS directory cloned at runtime from
   `DATA_REPOSITORY` plus the `analyze/` bundle-analyzer
   output), `# vscode AI rules`, `# cache`, `# OpenAPI
-  backups` (three patterns exhaustively covering the
+backups` (three patterns exhaustively covering the
   generate-openapi script's backup output), and
   `# claude` (the per-checkout Claude Code state
   directory)); the full file annotated section-by-section;
@@ -3579,7 +3696,7 @@ why** at a higher level than per-commit diffs.
   consumed only by the workspace itself, and deliberately omits
   a `dependencies` block. Documents the at-a-glance summary
   table of every load-bearing field (the `name:
-  '@ever-works/web-e2e'` workspace identifier the
+'@ever-works/web-e2e'` workspace identifier the
   `pnpm --filter` glob and Turborepo's `test:e2e` task resolve
   through; the `version: '0.0.0'` symbolic-only pin justified
   by `private: true`; the `private: true` hard-block on
@@ -3601,7 +3718,7 @@ why** at a higher level than per-commit diffs.
   `scripts.dev` / `scripts.build` / `scripts.start` / `pnpm.*`
   / `prettier`); the consumer table mapping each reader
   (`pnpm install`, `pnpm --filter @ever-works/web-e2e
-  <script>`, Turborepo's `test:e2e` task, CI workflows, the
+    <script>`, Turborepo's `test:e2e` task, CI workflows, the
   Playwright runner's CLI walk-up, TypeScript's `tsc --noEmit`
   gate, Renovate / Dependabot, editors) to the fields it
   consumes; the failure matrix that maps each manifest-level
@@ -3636,11 +3753,11 @@ why** at a higher level than per-commit diffs.
 - `apps/web-e2e/tests/api` Added
   [`item-votes-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/item-votes-query.spec.ts) —
   the **query-param surface** smoke for `GET
-  /api/items/[slug]/votes` defined by
+/api/items/[slug]/votes` defined by
   [`apps/web/app/api/items/[slug]/votes/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/items/%5Bslug%5D/votes/route.ts).
   The route's `GET` handler signature is
   `GET(request: Request, context: { params: Promise<{ slug:
-  string }> })` — `request` is **declared** but **never read**
+string }> })` — `request` is **declared** but **never read**
   inside the body (no `request.url`, no `request.headers`, no
   `searchParams.get(...)`); the handler awaits `context.params`
   and `auth()` together, then calls `getVoteCountForItem(slug)`
@@ -3659,13 +3776,13 @@ why** at a higher level than per-commit diffs.
   no-arg and parameter-laden branches. The route contract is
   deliberately permissive on the catch path: success is
   `{ success: true, count: number, userVote: 'up' | 'down' |
-  null }` with status 200; the `try / catch` block degrades to
+null }` with status 200; the `try / catch` block degrades to
   the same `{ success: true, count: 0, userVote: null }`
   envelope with status 200 (logging the error in development
   only), so there is **no** 5xx branch on this route. The
   matrix accepts `< 500` as the dominant happy path and pins
   the 200-only contract in the dedicated tests at the bottom.
-  The query enumeration covers the `?userId=` /  `?include=`
+  The query enumeration covers the `?userId=` / `?include=`
   / `?fields=` / `?select=` / `?expand=` / `?refresh=` /
   `?force=` / `?fresh=` / `?format=` / `?locale=` / `?lang=`
   / `?since=` / `?from=` / `?until=` / `?direction=` / `?type=`
@@ -3704,14 +3821,14 @@ why** at a higher level than per-commit diffs.
   file-scoped `eslint-disable react-hooks/rules-of-hooks`
   directive that suppresses the false-positive flag on
   Playwright's `use` parameter name; `import { test as base,
-  type Page, type BrowserContext } from '@playwright/test'`
+type Page, type BrowserContext } from '@playwright/test'`
   with the mandatory `as base` rename to free up `test` for the
   local export and the type-only imports that stay out of the
   runtime bundle; `fs` / `path` Node imports for the
   `requireAuthState()` `existsSync` check and the
   `path.resolve(__dirname, '..', ...)` absolute-path
   computation; the `import { ADMIN_STATE_FILE, CLIENT_STATE_FILE
-  } from '../helpers/test-data'` so the fixture never types the
+} from '../helpers/test-data'` so the fixture never types the
   literal `'auth-states/admin.json'`; the `ADMIN_STATE_PATH` /
   `CLIENT_STATE_PATH` resolved-once-at-module-load absolute
   paths with the `__dirname`-anchored shape that survives
@@ -3788,7 +3905,7 @@ why** at a higher level than per-commit diffs.
   that triggers `initializeDatabase()` — auto-migration plus
   seeding — when the host app is in `NODE_ENV=development` and
   hard-blocks with `403` and `{ error: 'Not available in
-  production' }` otherwise). Pins the route's status surface
+production' }` otherwise). Pins the route's status surface
   against future regressions that might introduce a `?force=`
   bypass for the production guard (which a future "allow init
   in staging" feature might tempt a contributor into adding by
@@ -3943,11 +4060,11 @@ why** at a higher level than per-commit diffs.
   a non-200 status on an unknown `?type=` value (which a future
   "throw on unknown survey type" change might add). Walks the
   route's coercion contract (`typeParam === SurveyTypeEnum.ITEM
-  ? ITEM : GLOBAL` byte-for-byte ternary so every non-`'item'`
+? ITEM : GLOBAL` byte-for-byte ternary so every non-`'item'`
   value — including `'ITEM'`, `'global'`, `''`, `null`, typos —
   falls through to the GLOBAL branch). Asserts `< 500` on every
   parameterised path; asserts the canonical `{ exists: boolean
-  }` shape on the no-arg path; asserts status-equality between
+}` shape on the no-arg path; asserts status-equality between
   the no-arg case and a parameter-laden case to pin the
   "every unknown query key is silently ignored" invariant;
   asserts the GLOBAL-branch invariance across no-arg /
@@ -3996,18 +4113,18 @@ why** at a higher level than per-commit diffs.
   `/auth/signin` and `/auth/register` screens, this file
   documents the **post-flight boundary** — what the runner does
   once after the last test, in what order, with what failure
-  modes — even when, today, the answer is *nothing*) and wired
+  modes — even when, today, the answer is _nothing_) and wired
   into [`playwright-config.md`](plugins/playwright-config.md)
   via the always-resolved `globalTeardown: path.resolve(__dirname,
-  './global-teardown.ts')` field. Documents the at-a-glance
+'./global-teardown.ts')` field. Documents the at-a-glance
   summary table of every load-bearing element (`async function
-  globalTeardown()` with the empty parameter list because the
+globalTeardown()` with the empty parameter list because the
   no-op does not use Playwright's `FullConfig`, the single
   `// Placeholder for future cleanup (e.g., test database reset)`
   marker comment that prevents the file from being deleted as
   dead code, the `export default globalTeardown;` shape
   Playwright's runner imports as `(await
-  import('./global-teardown.ts')).default`, and the absence of
+import('./global-teardown.ts')).default`, and the absence of
   imports because there is nothing to clean up today); the full
   file annotated chunk-by-chunk; the "Why a no-op placeholder
   instead of dropping the file" walkthrough that pins the
@@ -4022,7 +4139,7 @@ why** at a higher level than per-commit diffs.
   `apps/web-e2e/test-results/` directory cleanup on success, and
   test-database snapshot reset); the "Why the parameter list is
   empty today" rationale that pins the `(config: FullConfig) =>
-  Promise<void> | void` Playwright contract against the
+Promise<void> | void` Playwright contract against the
   future-friendly addition of `(config: FullConfig)`; the "Why
   `globalTeardown` is not allowed to throw" rationale that pins
   the recommended per-bucket `try / catch` + `console.error`
@@ -4092,7 +4209,7 @@ why** at a higher level than per-commit diffs.
   `{ exists, count }` with `200`; the catch branch — which today
   is the only legitimate non-200 path — returns
   `{ exists: false, count: 0, error: 'Failed to check collections
-  existence' }` with `500`). Asserts on `< 600 && >= 200` for
+existence' }` with `500`). Asserts on `< 600 && >= 200` for
   every parameterised path because both `200` and `500` are
   legitimate route branches; asserts the canonical
   `{ exists: boolean, count: number }` shape on the no-arg path;
@@ -4136,7 +4253,7 @@ why** at a higher level than per-commit diffs.
   (which scopes the type-checker's walk to include this file). Documents
   the ordered pre-flight sequence — `promptForMissingEnv()` first
   (walks `REQUIRED_ENV_VARS = ['SEED_ADMIN_EMAIL',
-  'SEED_ADMIN_PASSWORD']`, throws on `process.env.CI` to prevent CI
+'SEED_ADMIN_PASSWORD']`, throws on `process.env.CI` to prevent CI
   hangs, prompts on a TTY using `readline/promises` with an empty-answer
   guard and a `try / finally` close), `baseURL` resolution from
   `config.projects[0]?.use?.baseURL ?? 'http://localhost:3000'`,
@@ -4153,9 +4270,9 @@ why** at a higher level than per-commit diffs.
   (per-run `TEST_DATA.generateClientEmail()` → `/auth/register` →
   `#name` / `#email` / `#password` → `press('Enter')` instead of
   click → `waitForURL(/\/client\/dashboard/, { timeout: 120_000,
-  waitUntil: 'domcontentloaded' })` → `storageState({ path:
-  'auth-states/client.json' })` → `[global-setup] Client auth state
-  saved`), the per-flow `try / catch` that closes the browser on
+waitUntil: 'domcontentloaded' })` → `storageState({ path:
+'auth-states/client.json' })` → `[global-setup] Client auth state
+saved`), the per-flow `try / catch` that closes the browser on
   failure, the single `await browser.close()` that runs only on the
   happy path, and the `export default globalSetup` Playwright
   contract; the full file annotated chunk-by-chunk; the "Why
@@ -4254,10 +4371,10 @@ why** at a higher level than per-commit diffs.
   `open: 'never'` on CI, the `60_000` per-test and `30_000`
   `expect()` timeouts, the `globalSetup` / `globalTeardown` paths,
   the `use`-block defaults — `baseURL`, `trace: isCI ?
-  'on-first-retry' : 'retain-on-failure'`, `screenshot:
-  'only-on-failure'`, `video: isCI ? 'on-first-retry' : 'off'`,
+'on-first-retry' : 'retain-on-failure'`, `screenshot:
+'only-on-failure'`, `video: isCI ? 'on-first-retry' : 'off'`,
   `navigationTimeout: 60_000`, `actionTimeout: 30_000`, `locale:
-  'en-US'`, `timezoneId: 'America/New_York'` — the three browser
+'en-US'`, `timezoneId: 'America/New_York'` — the three browser
   projects (Chromium, Firefox, WebKit), and the `webServer` block
   with the per-environment `command` (`build && start` on CI,
   `dev` locally), `cwd: '../..'` monorepo-root anchor,
@@ -4288,7 +4405,7 @@ why** at a higher level than per-commit diffs.
   drop → engine-specific regressions slip past CI, project add
   without matrix bump → wall-clock blow-up, `next start` without
   `build` step on CI → cold-checkout failure, `webServer.cwd:
-  __dirname` → `ERR_PNPM_NO_WORKSPACE_FOUND`,
+__dirname` → `ERR_PNPM_NO_WORKSPACE_FOUND`,
   `reuseExistingServer: false` locally → `EADDRINUSE`,
   `stdout: 'ignore'` → silent host-app errors) onto the layer
   that surfaces each one; the per-line walkthrough table; and
@@ -4371,7 +4488,7 @@ why** at a higher level than per-commit diffs.
   `**/*.tsx` added → drift away from the suite's TS-only posture,
   `node_modules` exclude dropped → orders of magnitude slower
   type-check, `composite: true` added → `'isolatedModules' may not
-  be used with 'composite'` panic, `noEmit: false` flipped → `.js`
+be used with 'composite'` panic, `noEmit: false` flipped → `.js`
   contamination next to every `.ts` file) onto the layer that
   surfaces each one; and the `tsconfig.json`-change checklist that
   ties any flip back to a [`tsconfig-presets.md`](plugins/tsconfig-presets.md)
