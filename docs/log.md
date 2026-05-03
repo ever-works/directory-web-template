@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-roles-query-spec.md` —
+  the **sixth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fourth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-roles-query.spec.ts`
+  spec covering the admin-only roles listing endpoint
+  at `apps/web/app/api/admin/roles/route.ts` — the
+  **first** admin-tree route the smoke layer covers
+  that documents an **auth-gate-divergence finding**:
+  unlike every other admin-tree GET route smoke-
+  covered by the sibling `admin/sponsor-ads`,
+  `admin/twenty-crm/config`, `admin/settings/map-status`,
+  `admin/categories`, `admin/clients`,
+  `admin/comments`, `admin/companies`,
+  `admin/dashboard/stats`, `admin/featured-items`,
+  `admin/geo-analytics`, `admin/items`,
+  `admin/items/stats`, `admin/location-index`,
+  `admin/navigation`, `admin/notifications`,
+  `admin/reports`, `admin/reports/stats`,
+  `admin/roles/stats`, `admin/settings`,
+  `admin/tags`, `admin/tags/all`,
+  `admin/twenty-crm/test-connection`,
+  `admin/users`, and `admin/users/stats` smoke specs,
+  the `apps/web/app/api/admin/roles/route.ts` GET
+  handler does NOT call `auth()` and does NOT check
+  `session?.user?.isAdmin` before delegating to
+  `roleRepository.findAllPaginated(...)`; the same
+  absence holds for the sibling
+  `apps/web/app/api/admin/roles/active/route.ts` GET
+  handler. The spec is INVARIANT to the resolution
+  of the matching auth-gate question — every
+  assertion uses either the `< 500` envelope or the
+  baseline-equality envelope so the spec stays green
+  whether the route remains unauthenticated OR a
+  future contributor adds an `auth()` gate. With
+  this entry the per-spec-file docs rollout extends
+  to 6-of-N, the `tests/api/` per-spec-file sub-
+  rollout extends to 4-of-many, and the docs tree
+  surfaces its **first auth-gate-divergence finding**
+  via the question register.
+- `docs/questions` Added Q-010b
+  (`Should /api/admin/roles and /api/admin/roles/active
+  carry an explicit auth() gate?`) — surfaces the
+  auth-gate-divergence finding for human review with
+  the recommended default of "yes, add the same two-
+  step gate as the sibling /api/admin/roles/stats
+  route" and four migration-path options.
 - `docs/plugins` Added `admin-sponsor-ads-query-spec.md` —
   the **fifth** per-source-file reference the docs
   tree publishes for any file under

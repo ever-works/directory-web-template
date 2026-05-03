@@ -181,6 +181,60 @@ confirm, override, or refine.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
+### Q-010b Should `/api/admin/roles` and `/api/admin/roles/active` carry an explicit `auth()` gate?
+
+- **Context.** Surfaced while writing
+  [`apps/web-e2e/tests/api/admin-roles-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-roles-query.spec.ts)
+  (per-source-file reference:
+  [`docs/plugins/admin-roles-query-spec.md`](plugins/admin-roles-query-spec.md)).
+  Every other admin-tree GET route covered by a sibling
+  smoke spec calls `auth()` and short-circuits with 401
+  / 403 before any repository call. The
+  `apps/web/app/api/admin/roles/route.ts` GET handler
+  does **not** call `auth()` and does **not** check
+  `session?.user?.isAdmin` before delegating to
+  `roleRepository.findAllPaginated(...)`. The same
+  absence holds for the sibling
+  `apps/web/app/api/admin/roles/active/route.ts` GET
+  handler, which delegates to
+  `roleRepository.findActive()` with no auth check at
+  all. Roles include their `permissions[]` array (which
+  enumerates the security boundary of the admin tree),
+  so leaking this list to anonymous callers narrows the
+  surface a future attacker has to enumerate. A regression
+  here is "open" rather than "broken" — the existing
+  `admin-protected-extra.spec.ts` smoke asserts only the
+  loose `< 500` envelope, which passes both for a 200
+  response (current behaviour) AND for a 401 (post-fix
+  behaviour).
+- **Options.**
+  - **Add the same two-step gate as the sibling
+    `/api/admin/roles/stats` route** —
+    `if (!session?.user) return 401` followed by
+    `if (!session.user.isAdmin) return 403`. The
+    matching `admin-roles-query.spec.ts` smoke spec
+    is invariant to this fix and stays green.
+  - Add a single-step gate that returns 401 for both
+    branches (matches the
+    `/api/admin/clients` / `/api/admin/comments` /
+    `/api/admin/companies` / `/api/admin/users` shape).
+  - Add the longer-message
+    `'Unauthorized. Admin access required.'` envelope
+    (matches the
+    `/api/admin/sponsor-ads` /
+    `/api/admin/twenty-crm/config` shape).
+  - Leave the route open and document the
+    intentionally-public posture in a follow-up
+    `apps/web/app/api/admin/roles/route.ts` JSDoc
+    block.
+- **Default.** **Add the two-step gate matching
+  `/api/admin/roles/stats`** — uniform with the closest
+  sibling route and minimal risk of widening or
+  narrowing the existing client-side error-handling
+  contract.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
 ---
 
 ## Spec 012 — Newsletter
