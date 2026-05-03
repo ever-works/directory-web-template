@@ -33,6 +33,80 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-items-id-method-spec.md` —
+  the **twenty-fourth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-second** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-id-method.spec.ts`
+  spec covering the admin single-item CRUD endpoint at
+  `apps/web/app/api/admin/items/[id]/route.ts` — the
+  **first triple-method admin-tree smoke** the docs
+  tree publishes (every prior dynamic-segment admin-id
+  smoke pins a single-method export; the
+  `admin-roles-id-permissions-method-spec.md` smoke
+  pins a dual-method `GET` + `PUT` export; this route
+  ships THREE distinct HTTP-verb handlers `GET` +
+  `PUT` + `DELETE` from a single file). All three
+  handlers share the SAME inline
+  `!session?.user?.isAdmin` gate, the SAME canonical
+  longer 401 envelope, and the SAME
+  `{ success: false, error: ... }` envelope shape, but
+  each has its own divergent post-gate surface:
+  (a) **GET** — no body parse, calls
+  `itemRepository.findById(id)` with a 404 `'Item not
+  found'` branch, returns `{ success: true, data:
+  <item> }`, catches with `safeErrorResponse(error,
+  'Failed to fetch item')`;
+  (b) **PUT** — parses JSON via `await request.json()`
+  (NOT wrapped in a per-call try/catch — a malformed
+  body would 500 via the outer catch on the auth
+  branch), spreads body into an `UpdateItemRequest`,
+  builds an audit-user from
+  `session.user.id` / `name` / `email`, calls
+  `itemRepository.update(id, updateData, auditUser)`,
+  optionally syncs to Twenty CRM (gated by
+  `process.env.TWENTY_CRM_ENABLED !== 'false'` and a
+  body `brand` field) and to the Location Index
+  (gated by `getLocationEnabled()`), returns
+  `{ success: true, data: <item>, message: 'Item
+  updated successfully' }`, catches with
+  `safeErrorResponse(error, 'Failed to update
+  item')`;
+  (c) **DELETE** — no body parse, builds the same
+  audit-user, calls `itemRepository.delete(id,
+  auditUser)`, optionally removes from the Location
+  Index, returns `{ success: true, message: 'Item
+  deleted successfully' }` (NOTE: NO `data` key —
+  distinct from GET / PUT success payloads), catches
+  with `safeErrorResponse(error, 'Failed to delete
+  item')`. The smoke spec pins per-method canonical-
+  longer 401-envelope assertions across GET / PUT /
+  DELETE, a cross-method envelope-equality assertion
+  pinning that all three handlers emit byte-identical
+  401 envelopes, a strict envelope-shape assertion
+  `Object.keys(body).sort() === ['error', 'success']`,
+  a success-branch-key non-disclosure assertion
+  across all three methods, a gate-before-post-auth
+  invariant pinning that NONE of the six post-auth
+  messages (`'Item not found'`, `'Failed to fetch
+  item'`, `'Failed to update item'`, `'Failed to
+  delete item'`, `'Item updated successfully'`,
+  `'Item deleted successfully'`) must appear in any
+  unauth response, a per-id-shape status-stability
+  comparison across all three methods, a PUT body-
+  permutation status-stability comparison, a cross-
+  method side-channel cookie / `X-*` header walk, a
+  cross-method probe asserting POST / PATCH round-
+  trip to `< 500`, a malformed-JSON-body invariance
+  walk for PUT, a service-not-entered invariance walk
+  across all three repository calls, and a per-
+  handler catch-message-divergence walk pinning that
+  NONE of the three distinct catch messages must
+  appear in any unauth response — the **first
+  triple-method admin-tree smoke** the docs tree
+  publishes.
+
 - `docs/plugins` Added `admin-roles-id-permissions-method-spec.md` —
   the **twenty-third** per-source-file reference the docs
   tree publishes for any file under
