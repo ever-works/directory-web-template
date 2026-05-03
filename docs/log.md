@@ -33,6 +33,134 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-tags-page-object.md`
+  — the **seventeenth and final per-source-file
+  reference** the docs tree publishes for any file
+  under `apps/web-e2e/page-objects/admin/`,
+  **completing the admin-tree page-object docs
+  rollout (17-of-17)**. With this page landed, every
+  concrete page-object source file under
+  `apps/web-e2e/page-objects/admin/` has a paired
+  per-source-file docs anchor that explains the
+  load-bearing reasons each Locator pins to its
+  current selector and the cross-references that any
+  new helper must respect. Paired with
+  [`apps/web-e2e/page-objects/admin/tags.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/tags.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **named-row-resolved CRUD
+  helper trio** (`getTagByName(name)`, `editTag(name)`,
+  `deleteTag(name)`) — the most direct named-row-
+  driven CRUD posture in the admin tree (distinct
+  from the items driver's `getItemByName(name)`
+  resolver-only posture and from the collections
+  driver's `editCollection(name)` /
+  `deleteCollection(name)` which uses a single-
+  parent walk); (b) a **`<div>`-anchored named-row
+  resolver with a `^${name}` start-anchor regex** —
+  the broadest possible row-anchor in the admin tree
+  (compared to the items driver's `<h4>` heading-
+  anchor and the collections driver's named-cell
+  heading-anchor) plus the **first** admin-tree
+  driver posture to document a regex-based hasText
+  filter that pins to the row's text content
+  STARTING with the tag name; (c) a **`#tag-id` and
+  `#tag-name` hyphenated-kebab-case id-selector
+  input field pair** — production-source-stable
+  hooks following the production source's HTML form
+  convention rather than HeroUI's camelCase default;
+  (d) a **modal-scoped `[role="switch"]` status
+  toggle getter** scoped through the
+  `tagFormModal` (distinct from the settings
+  driver's page-level `switches` multi-resolution
+  Locator); (e) a **`.fixed.inset-0.z-50` Tailwind-
+  overlay form modal** (matching the companies and
+  roles drivers); (f) a **per-mode submit-button-
+  pair posture** (`createTagButton` /
+  `updateTagButton`) mirroring the companies driver;
+  and (g) a **two-key
+  `data: { id?: string; name: string }` optional-id
+  form-fill helper** — the **first** admin-tree
+  driver helper to document a conditional-fill
+  posture driven by an optional TypeScript object
+  key (reflecting the production source's contract
+  where the tag's stable id is auto-derived from the
+  name in create mode but can be explicitly
+  overridden). Documents the full surface for the
+  `AdminTagsPage` driver — the two `readonly`
+  Locator fields (`heading`, `addTagButton`), the
+  four methods (`navigate()`, `getTagByName(name)`,
+  `editTag(name)`, `deleteTag(name)`), the one
+  composite helper (`fillTagForm(data)`), and the
+  seven getters (`tagFormModal`, `tagIdInput`,
+  `tagNameInput`, `statusToggle`, `cancelButton`,
+  `createTagButton`, `updateTagButton`). Pinned to
+  [`apps/web-e2e/tests/admin/tags.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/tags.spec.ts)
+  (five flows over the admin tags management
+  surface — admin can access tags management page,
+  admin can create a new tag, admin can edit an
+  existing tag, admin can delete a tag using native
+  confirm dialog, tags page shows tag count in
+  stats). Includes the "Why `AdminTagsPage` extends
+  `BasePage`" three-reason analysis; the "Why
+  `getTagByName(name)` uses a `^${name}` start-
+  anchor regex" three-reason analysis (the tags
+  page renders rows where the tag name is the first
+  text content, the bare `<div>` element-selector
+  is the broadest row-anchor, the runtime-built
+  RegExp does NOT include the `i` flag because tag
+  names are case-sensitive in storage); the "Why
+  `tagFormModal` uses a `.fixed.inset-0.z-50`
+  Tailwind-overlay selector" three-reason analysis;
+  the "Why `tagIdInput` / `tagNameInput` use
+  kebab-case id selectors" three-reason analysis;
+  the "Why `statusToggle` is modal-scoped" three-
+  reason analysis; the "Why `fillTagForm(data)`
+  uses an optional `id` parameter" three-reason
+  analysis; and a "What it does not contain" five-
+  bullet enumeration of the deliberate omissions.
+  This entry completes the admin-tree page-object
+  docs rollout; subsequent rollouts should turn to
+  the `apps/web-e2e/page-objects/auth/` and
+  remaining `apps/web-e2e/page-objects/client/`
+  subtrees.
+- `apps/web-e2e/tests/api` Added
+  `admin-tags-all-query.spec.ts` — a query-param
+  surface smoke for the admin-only Git-CMS
+  tags-listing endpoint at
+  [`apps/web/app/api/admin/tags/all/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/tags/all/route.ts).
+  The route is the **first** admin-tree route the
+  smoke layer covers that documents (1) the
+  **`getCachedItems({ lang })` Git-based CMS
+  reader** — distinct from every other admin-tree
+  route's database-backed posture (the helper reads
+  from the per-locale tag list stored in the
+  Git-based content repository cloned from
+  `DATA_REPOSITORY` into `.content/`); (2) a
+  **`?locale=` query param with type-coercion
+  validation** — the only documented query key, with
+  a defensive `typeof locale !== 'string'` narrowing
+  that can never fire today (since
+  `searchParams.get(...)` always returns `string |
+  null` and the `|| 'en'` default coerces null to a
+  string before the typeof check); and (3) the
+  **paired tags-data-route posture** — this route is
+  the read-only Git-CMS variant of the database-
+  backed `/api/admin/tags` listing route. The spec
+  walks the unauthenticated branch and pins the
+  canonical `{ success: false, error: 'Unauthorized' }`
+  401 envelope (the bare `'Unauthorized'` message,
+  NOT `'Unauthorized. Admin access required.'` /
+  `'Forbidden'`), then sweeps `?locale=` (with
+  English / French / Spanish / German / Arabic /
+  Chinese variants) / `?lang=` / `?language=` /
+  `?l=` / `?page=` / `?limit=` / `?status=` /
+  `?active=` / `?fields=` / `?refresh=` / `?userId=` /
+  `?token=` / `?bypass=` / `?repo=` / `?branch=` /
+  `?commit=` (a Git-CMS-source bypass vector
+  category) / Accept-header / repeated-key /
+  cookie-header permutations against the no-arg
+  baseline. The sweep mirrors the shape of the
+  sibling admin-gated query-smoke specs.
 - `docs/plugins` Added `admin-surveys-page-object.md`
   — the **sixteenth per-source-file reference** the
   docs tree publishes for any file under
