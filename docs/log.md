@@ -33,6 +33,74 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-sponsor-ads-id-approve-method-spec.md` —
+  the **twentieth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-sponsor-ads-id-approve-method.spec.ts`
+  spec covering the admin sponsor-ad approval endpoint
+  at
+  `apps/web/app/api/admin/sponsor-ads/[id]/approve/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a dynamic-segment `[id]` `POST`
+  handler with a **forgiving body parse inside its own
+  try/catch** AFTER the gate AND AFTER params
+  resolution, AND a **multi-error-code catch chain**
+  that maps three distinct service-thrown
+  `Error.message` values to three distinct HTTP
+  envelopes. Documents the unique combination of
+  (1) **dynamic-segment `[id]` `POST` handler**
+  (sibling of `admin/items/[id]/review`);
+  (2) **compound single-`if` gate**
+  `!session?.user?.isAdmin || !session.user.id`,
+  observably equivalent to the single-step gate from
+  the unauth client's perspective;
+  (3) **canonical longer 401 message**
+  `'Unauthorized. Admin access required.'`;
+  (4) **`success: false` envelope key** on the 401
+  branch with strict envelope-shape assertion
+  `Object.keys(body).sort() === ['error', 'success']`;
+  (5) **params resolution AFTER the gate**;
+  (6) **body parse inside its own try/catch** AFTER
+  params AND AFTER the gate — `forceApprove` defaults
+  to `false` if the body is missing, malformed, or
+  omits the key;
+  (7) **service-call surface** AFTER both the gate AND
+  the body parse with
+  `sponsorAdService.approveSponsorAd(id,
+  session.user.id, forceApprove)`, success-branch
+  payload
+  `{ success: true, data: <ad>, message: 'Sponsor ad
+  approved and activated successfully' }`;
+  (8) **multi-error-code catch chain** mapping
+  `'Sponsor ad not found'` → 404,
+  `'PAYMENT_NOT_RECEIVED'` → 400,
+  `error.message.includes('Cannot approve')` → 400,
+  with `safeErrorResponse(error, 'Failed to approve
+  sponsor ad')` fallback — the **first multi-error-
+  code catch chain admin-tree smoke** the docs tree
+  publishes;
+  (9) **service-zero-rows fallback** returning 500
+  `{ success: false, error: 'Failed to approve
+  sponsor ad' }`;
+  (10) **method-resolution surface** with `POST`-only
+  export. The smoke spec pins the gate-before-post-
+  auth invariant that NONE of the four post-gate
+  messages must appear in the unauth response body,
+  the gate-before-params-resolution invariant pinning
+  that every id shape round-trips to the same 401
+  status, the gate-before-body-parse invariant pinning
+  that malformed JSON bodies do NOT surface a 400, the
+  gate-before-service invariant pinning that the
+  unauth response does NOT echo a `data` key from the
+  service payload, and the gate-before-flag-evaluation
+  invariant pinning that every `forceApprove` shape
+  (true/false/string/numeric/null/missing) round-trips
+  to the same 401 status — the **first multi-error-
+  code catch chain admin-tree smoke** the docs tree
+  publishes.
+
 - `docs/plugins` Added `admin-notifications-id-read-method-spec.md` —
   the **nineteenth** per-source-file reference the docs
   tree publishes for any file under
