@@ -33,6 +33,84 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-items-bulk-body-spec.md` —
+  the **fourteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twelfth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-bulk-body.spec.ts`
+  spec covering the admin items-bulk-action endpoint
+  at `apps/web/app/api/admin/items/bulk/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that pairs the static-path single-step-gate
+  posture of the `admin/categories/reorder` and
+  `admin/twenty-crm/test-connection` family with the
+  **most-validation-step** body validation chain in
+  the admin tree (six distinct 400 messages),
+  distinct from the **immediately-preceding** dynamic-
+  segment `admin-items-id-review-body-spec.md`.
+  Documents the unique combination of (1) **`POST`
+  handler with a static path** distinct from the
+  dynamic `[id]` of `admin/items/[id]/review`;
+  (2) **single-step `auth()` chain** matching the
+  canonical longer message family
+  (`if (!session?.user?.isAdmin)`); (3) **canonical
+  longer `'Unauthorized. Admin access required.'`
+  401 message** matching the
+  `admin/categories/reorder`,
+  `admin/items/[id]/review`, and `admin/twenty-crm/*`
+  family; (4) **`success: false` envelope key**
+  matching the same family, distinct from the bare
+  `{ error: 'Unauthorized' }` envelope of the
+  two-step-gated routes; (5) **body parse via
+  `await request.json()` AFTER the gate** — the
+  gate-then-parse-then-validate-then-loop order is
+  the load-bearing invariant; (6) **six-step body
+  validation chain** with six distinct 400 messages
+  (`"Action must be 'approve', 'reject', or 'delete'"`,
+  `'At least one item ID is required'`,
+  `'Maximum 100 items per bulk action'`,
+  `'All item IDs must be non-empty strings'`,
+  `'Duplicate item IDs are not allowed'`,
+  `'Rejection reason is required (minimum 10 characters)'`)
+  — the **most validation messages** of any admin-
+  tree route the smoke layer covers; (7) **per-id
+  try/catch loop** — the **first** admin-tree route
+  the smoke layer covers where individual id failures
+  are collected into a `results: BulkActionResult[]`
+  array rather than failing the whole request, with
+  the per-id catch using
+  `safeErrorMessage(error, 'Unknown error')` to
+  extract the per-id error string; (8) **conditional
+  repository routing on `action`** routing each id to
+  one of `itemRepository.review(id, { status: 'approved' }, auditUser)`
+  (with fire-and-forget
+  `sendReviewNotification(item, 'approved')`),
+  `itemRepository.review(id, { status: 'rejected', review_notes: trimmedReason }, auditUser)`
+  (with fire-and-forget
+  `sendReviewNotification(item, 'rejected', trimmedReason)`),
+  or `itemRepository.delete(id, auditUser)` (no
+  email side-effect), with success-branch payload
+  `{ success: true, message: 'Bulk <action> completed: <successful> <past-tense>, <failed> failed', results, summary }`;
+  (9) **`safeErrorResponse(error, 'Failed to process bulk action')`
+  catch**; (10) **`safeErrorMessage` +
+  `safeErrorResponse` twin-import surface** — the
+  **only** admin route the smoke layer covers that
+  imports BOTH helpers; (11) **method-resolution
+  surface** with `POST`-only export. Pins the
+  at-a-glance scenario tree (header / body bulk-loop
+  walks asserting `< 500`; canonical-longer 401-
+  envelope assertion; negative-property assertion on
+  the success-branch `results` / `summary` keys;
+  gate-before-body-validation invariant covering ALL
+  six 400 messages; gate-before-catch, gate-before-
+  body-parse, gate-before-bound-check, and gate-
+  before-loop invariants; parameterised-vs-baseline
+  status-stability; side-channel cookie / `X-*`
+  header walk; cross-method probe; strict envelope-
+  shape assertion). Cross-references the prior
+  per-spec-file siblings and Spec 010 / Spec 009.
+
 - `docs/plugins` Added `admin-items-id-review-body-spec.md` —
   the **thirteenth** per-source-file reference the docs
   tree publishes for any file under
