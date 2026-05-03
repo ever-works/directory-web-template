@@ -33,6 +33,86 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-categories-reorder-method-spec.md` —
+  the **twelfth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **tenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-categories-reorder-method.spec.ts`
+  spec covering the admin categories-reorder endpoint
+  at `apps/web/app/api/admin/categories/reorder/route.ts`
+  — the **first** `PUT`-method admin-tree route the
+  smoke layer covers, distinct from the prior `PATCH`-
+  method spec for `admin/notifications/mark-all-read`.
+  Documents the unique combination of (1) **`PUT`
+  handler with `request: NextRequest` body-reading
+  signature** distinct from the bare `PATCH()` of
+  `admin/notifications/mark-all-read`; (2) **single-
+  step `auth()` chain** that collapses unauthenticated
+  and authenticated-non-admin into the same 401
+  envelope, distinct from the two-step gates of
+  `admin/notifications/mark-all-read`,
+  `admin/users/check-email`, and
+  `admin/users/check-username`; (3) **canonical
+  longer `'Unauthorized. Admin access required.'`
+  message** matching the `admin/twenty-crm/*` family,
+  distinct from the bare `'Unauthorized'` message of
+  the two-step-gated routes; (4) **`success: false`
+  envelope key** matching the `admin/twenty-crm/test-connection`
+  envelope, distinct from the bare
+  `{ error: 'Unauthorized' }` envelope of
+  `admin/notifications/mark-all-read` (no `success`
+  key); (5) **body parse via `await request.json()`
+  AFTER the gate** distinct from the bare
+  `PATCH()` / `POST()` of the bare-handler routes
+  which never read the body; (6) **three-step body
+  validation** AFTER the gate AND AFTER the body
+  parse with three distinct 400 messages
+  (`'categoryIds must be an array'`,
+  `'categoryIds array cannot be empty'`,
+  `'All category IDs must be strings'`); (7)
+  **`categoryRepository.reorder(categoryIds)` call**
+  followed by `invalidateContentCaches()`, with
+  success-branch payload
+  `{ success: true, message: 'Categories reordered successfully' }`;
+  (8) **`safeErrorResponse(error, 'Failed to reorder categories')`
+  catch** distinct from the
+  `console.error` + `'Internal server error'` catch
+  of the sibling check-email / check-username routes;
+  (9) **method-resolution surface** with `PUT`-only
+  export, so every other method (`GET` / `POST` /
+  `PATCH` / `DELETE`) must round-trip to 405. Documents
+  the at-a-glance scenario tree (a ~18-header bulk-
+  loop walk + a ~15-body bulk-loop walk both asserting
+  `< 500`; a canonical-longer 401-envelope assertion;
+  a negative-property assertion that the unauth
+  response does NOT echo the success-branch
+  `'Categories reordered successfully'` message; a
+  gate-before-body-validation invariant pinning that
+  the three 400 messages must NEVER appear in the
+  unauth response body; a gate-before-catch invariant
+  pinning that the `'Failed to reorder categories'`
+  message must NEVER appear in the unauth response
+  body; a parameterised-vs-baseline status-stability
+  comparison; a side-channel cookie / `X-*` header
+  walk; a cross-method probe asserting GET / POST /
+  PATCH / DELETE round-trip to `< 500`; a strict
+  envelope-shape assertion `Object.keys(body).sort() === ['error', 'success']`;
+  a malformed-JSON-body invariance walk pinning the
+  gate-before-body-parse order). Cross-references to
+  the sibling per-spec-file references and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md)
+  for the governing specs. With this entry the
+  **per-spec-file docs rollout extends to
+  12-of-N** and the **`tests/api/` per-spec-file
+  sub-rollout extends to 10-of-many**, and the
+  **first PUT-method admin-tree smoke** lands as
+  the fourth HTTP-method-distinct posture the docs
+  tree publishes (after the GET-tree query smokes,
+  the POST-tree body smokes, and the PATCH-tree
+  method smoke).
+
 - `docs/plugins` Added `admin-notifications-mark-all-read-method-spec.md` —
   the **eleventh** per-source-file reference the docs
   tree publishes for any file under
