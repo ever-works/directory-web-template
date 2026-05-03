@@ -33,6 +33,47 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-items-id-review-body-spec.md` —
+  the **thirteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eleventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-id-review-body.spec.ts`
+  spec covering the admin item-review endpoint at
+  `apps/web/app/api/admin/items/[id]/review/route.ts`
+  — the **first dynamic-segment** admin-tree route the
+  smoke layer covers, distinct from the prior static-
+  path specs. Documents the unique combination of (1)
+  **`POST` handler with a dynamic `[id]` path
+  parameter** with `{ params: Promise<{ id: string }> }`
+  resolved AFTER the gate AND AFTER the body validation;
+  (2) **single-step `auth()` chain** matching the
+  `admin/categories/reorder` gate shape; (3) **canonical
+  longer `'Unauthorized. Admin access required.'` 401
+  message**; (4) **`success: false` envelope key**;
+  (5) **body parse via `await request.json()` AFTER
+  the gate**; (6) **single-step body validation** with
+  the 400 message
+  `"Review status must be either 'approved' or 'rejected'"`;
+  (7) **`itemRepository.review(id, { status, review_notes }, auditUser)`
+  call** followed by a fire-and-forget
+  `EmailNotificationService.sendSubmissionDecisionEmail`
+  side-effect with success-branch payload
+  `{ success: true, data: <item>, message: 'Item <status> successfully' }`;
+  (8) **`safeErrorResponse(error, 'Failed to review item')`
+  catch**; (9) **method-resolution surface** with
+  `POST`-only export. Pins the at-a-glance scenario
+  tree (header / body bulk-loop walks asserting
+  `< 500`; canonical-longer 401-envelope assertion;
+  negative-property assertion on the success-branch
+  keys; gate-before-body-validation, gate-before-
+  catch, gate-before-body-parse, and gate-before-
+  params-resolve invariants; parameterised-vs-baseline
+  status-stability; side-channel cookie / `X-*`
+  header walk; cross-method probe; strict envelope-
+  shape assertion). Cross-references the prior
+  per-spec-file siblings and Spec 010 / Spec 009.
+
 - `docs/plugins` Added `admin-categories-reorder-method-spec.md` —
   the **twelfth** per-source-file reference the docs
   tree publishes for any file under
