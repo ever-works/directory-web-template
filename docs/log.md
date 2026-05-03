@@ -33,6 +33,85 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `apps/web-e2e/tests/api` Added
+  `admin-navigation-query.spec.ts` — query-param
+  surface smoke for the admin-only navigation-config
+  endpoint at
+  [`apps/web/app/api/admin/navigation/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/navigation/route.ts).
+  Pins the route's single-step
+  `!session?.user?.isAdmin` → 401
+  `{ error: 'Unauthorized' }` gate (the **bare-key**
+  envelope variant — without the `success: false`
+  discriminator key, distinct from the bare-message-
+  with-success-key envelope
+  `{ success: false, error: 'Unauthorized' }` the
+  `admin/tags` route emits) and the route's use of
+  `getCachedApiSession(req)` (the cached-session
+  helper that caches the session lookup per-request,
+  symmetric with the `admin/settings` route — distinct
+  from the `auth()` chain every other admin-tree
+  route uses). Walks 60+ defensive query-key
+  permutations covering `?type=…` / `?placement=…`
+  filter keys (the route does NOT read them today
+  but a future contributor might add them as filters
+  to scope the response to only `custom_header` or
+  only `custom_footer`), admin-impersonation keys
+  (`?asAdmin=…`, `?as=…`, `?asUser=…`,
+  `?impersonate=…`), magic-token bypass keys
+  (`?token=…`, `?secret=…`, `?api_key=…`,
+  `?authorization=…`, `?session=…`, `?adminToken=…`),
+  admin-override keys (`?bypass=…`, `?admin=…`,
+  `?override=…`, `?force=…`), `?locale=…` /
+  `?lang=…` i18n keys (a future contributor might
+  add localized navigation responses), cache-busting
+  keys (especially relevant given the route reads
+  `configManager.getConfig()` which may be cached —
+  `?refresh=…`, `?cache=…`, `?nocache=…`, `?ttl=0`),
+  `?path=…` XSS-shaped values (the PATCH handler
+  validates each item's path via
+  `isValidNavigationPath(path)` to defend against
+  `javascript:` / `data:` / `vbscript:` /
+  protocol-relative `//evil.com` schemes — the
+  unauth-branch contract must stay invariant under
+  XSS-shaped query values when applied to the GET
+  branch), content-projection keys (`?fields=…`,
+  `?select=…`, `?include=…`), pagination keys
+  (`?page=…`, `?limit=…` — the route returns the
+  full config arrays today, but a future contributor
+  might add pagination for very long navigation
+  lists), repeated keys, and bogus / typo'd keys.
+  Asserts every permutation round-trips to a status
+  `< 500` (the route's single-step gate fires before
+  any `configManager.getConfig()` call), the
+  canonical 401 / `{ error: 'Unauthorized' }`
+  envelope on the no-arg unauth branch, status
+  invariance across query permutations, status
+  invariance under cookie / `X-*` header injection,
+  and the route's unique combination of the bare
+  `'Unauthorized'` message AND the absence of a
+  `success` discriminator key (distinct from every
+  other admin-tree route's envelope). Sits alongside
+  the eighteen prior admin-tree query-smoke specs
+  (`admin-categories-query.spec.ts`,
+  `admin-clients-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-notifications-query.spec.ts`,
+  `admin-reports-query.spec.ts`,
+  `admin-roles-stats-query.spec.ts`,
+  `admin-settings-query.spec.ts`,
+  `admin-sponsor-ads-query.spec.ts`,
+  `admin-tags-all-query.spec.ts`,
+  `admin-tags-query.spec.ts`,
+  `admin-users-query.spec.ts`).
+
 - `docs/plugins` Added `admin-tags-page-object.md`
   — the **seventeenth and final per-source-file
   reference** the docs tree publishes for any file
@@ -141,7 +220,7 @@ why** at a higher level than per-commit diffs.
   a defensive `typeof locale !== 'string'` narrowing
   that can never fire today (since
   `searchParams.get(...)` always returns `string |
-  null` and the `|| 'en'` default coerces null to a
+null` and the `|| 'en'` default coerces null to a
   string before the typeof check); and (3) the
   **paired tags-data-route posture** — this route is
   the read-only Git-CMS variant of the database-
