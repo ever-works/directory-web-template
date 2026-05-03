@@ -33,6 +33,121 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added
+  [`client-submissions-page-object.md`](plugins/client-submissions-page-object.md)
+  — the **fourth per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/client/`, paired with
+  [`apps/web-e2e/page-objects/client/submissions.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/submissions.page.ts).
+  Continues the **client-tree page-object docs
+  rollout (4-of-6)**. Documents the **first** client-
+  tree driver in the rollout that exposes (a) a
+  named-row-resolved CRUD helper trio
+  (`viewSubmission(title)` / `editSubmission(title)` /
+  `deleteSubmission(title)`) mirroring the admin-tree
+  tags / collections drivers' postures; (b) a named-
+  row resolver via two-parent-walk
+  (`getSubmissionByTitle(title)` walks
+  `page.locator('h3').filter({ hasText: title }).first().locator('..').locator('..')`)
+  — the **deepest** parent-walk in the page-object
+  suite, encoding the production source's card-with-
+  header-and-actions layout pattern; (c) a
+  `button[title*="…"]` substring-attribute-selector
+  triplet (`button[title*="iew"]` /
+  `button[title*="dit"]` / `button[title*="elete"]`)
+  intentionally dropping the leading capital so that
+  "View" / "view" / "VIEW" all match — the **first**
+  client-tree driver to document an HTML-attribute-
+  substring selector posture distinct from the admin-
+  tree drivers' `aria-label` / `getByRole` postures;
+  (d) a status-filter tab navigator
+  (`selectStatusFilter(status: 'all' | 'pending' | 'approved' | 'rejected')`)
+  with a literal-union TypeScript parameter and
+  start-anchor regex pattern; (e) a three-modal
+  getter triplet (`detailModal` bare-`.first()`,
+  `editModal` `.filter({ has: this.page.locator('#name') })`
+  form-field-presence-scoped, `deleteDialog`
+  `.filter({ hasText: /delete/i })` body-text-scoped)
+  — the **first** client-tree driver to document
+  multiple `[role="dialog"]` re-evaluating Locator
+  getters with distinct scoping strategies; (f) a
+  navigation-shelf header pair (`heading`,
+  `newSubmissionLink`, `trashLink`); and (g) a search-
+  input field (`searchInput`) pinned via
+  `input[type="text"][placeholder*="earch"]` —
+  substring-on-`placeholder` selector dropping the
+  leading capital. Pinned to the consuming specs at
+  [`apps/web-e2e/tests/client/submissions.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/submissions.spec.ts)
+  (three flows) AND
+  [`apps/web-e2e/tests/client/submit-and-manage.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/submit-and-manage.spec.ts)
+  (the **only** client-tree driver consumed by a P0
+  critical-business-flow spec from PR #621). Pinned
+  to the co-tenant API smoke spec at
+  [`apps/web-e2e/tests/api/admin-clients-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-stats-query.spec.ts).
+  Linked from [`docs/index.md`](index.md) under the
+  E2E references section. Subsequent rollouts in this
+  client/ subtree will turn to `submit.page.ts` and
+  `trash.page.ts`.
+- `apps/web-e2e/tests/api` Added
+  `admin-clients-stats-query.spec.ts` — query-param
+  surface smoke for the admin-only enhanced-client-
+  statistics endpoint at
+  [`apps/web/app/api/admin/clients/stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/clients/stats/route.ts).
+  Pins the route's **inline two-step `auth()` chain**
+  with the **uniquely shaped `if (!session)` first-
+  step gate** (checking the **whole session object**
+  rather than the more common `if (!session?.user)`
+  pattern the sibling `admin/roles/stats` route uses)
+  — distinct from the `checkAdminAuth()` three-step
+  gate the `admin/dashboard/stats`, `admin/users/stats`,
+  `admin/clients/dashboard`, `admin/geo-analytics`,
+  `admin/location-index`, and
+  `admin/roles/[id]/permissions` siblings use, the
+  two-step `if (!session?.user)` gate the
+  `admin/roles/stats` sibling uses, and the single-
+  step `if (!session?.user?.isAdmin)` 401-collapsed
+  gate the `admin/items/stats` sibling uses. The
+  unauthenticated branch returns 401 with the bare
+  `'Unauthorized'` envelope; the catch returns
+  `'Failed to fetch client stats'` (a route-specific
+  message distinct from every other admin-tree stats
+  route's catch). The handler signature is the bare
+  `GET()` (no `request` parameter) — symmetric with
+  `admin/roles/stats` and `admin/users/stats`.
+  Walks 80+ defensive query-key permutations covering
+  pagination keys, `?status=…` per-status drill-down
+  (the success response includes per-status counts —
+  `activeClients` / `inactiveClients` /
+  `suspendedClients` / `trialClients`), per-client
+  drill-down (`?clientId=…`, `?client_id=…`), time-
+  window filters for the `growth` section's
+  `newClientsToday` / `newClientsThisWeek` /
+  `newClientsThisMonth` fields (`?from=…`, `?to=…`,
+  `?since=…`, `?until=…`, `?days=…`), content-
+  projection keys for the `overview` / `growth` /
+  `distribution` sub-objects (`?include=…`,
+  `?fields=…`, `?select=…`, `?exclude=…`),
+  `?isAdmin=…` boolean filter, `?sortBy=…` /
+  `?sortOrder=…` order-targeting keys, `?search=…`
+  free-text filter with XSS-shaped / SQL-shaped
+  values, admin-impersonation keys, magic-token
+  bypass keys, admin-override keys, cache-busting
+  keys, `?locale=…` / `?lang=…` i18n keys, repeated
+  keys, and bogus / typo'd keys. Asserts every
+  permutation round-trips to a status `< 500` (the
+  route's two-step gate fires before any
+  `getEnhancedClientStats()` call), the canonical
+  401 / `{ success: false, error: 'Unauthorized' }`
+  envelope on the no-arg unauth branch, status
+  invariance across query permutations, status
+  invariance under cookie / `X-*` header injection,
+  and the route's unique combination of the bare
+  `'Unauthorized'` first-step-gate message AND the
+  catch's `'Failed to fetch client stats'` route-
+  specific message (distinct from every other admin-
+  tree stats route's envelope). Sits alongside the
+  twenty prior admin-tree query-smoke specs (now 24
+  total).
 - `docs/plugins` Added `client-settings-page-object.md`
   — the **third per-source-file reference** the docs
   tree publishes for any file under
