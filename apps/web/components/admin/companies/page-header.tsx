@@ -1,44 +1,42 @@
-import { Button } from '@heroui/react';
-import { Plus } from 'lucide-react';
+import { Plus, Building2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface PageHeaderProps {
 	onAddCompany: () => void;
 }
 
-const _HEADER_WRAPPER =
-	'bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6';
-const _ICON_WRAPPER =
-	'w-12 h-12 bg-linear-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg';
-const _ADD_BUTTON_CLASSES =
-	'bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90 shadow-lg shadow-theme-primary/25 hover:shadow-xl hover:shadow-theme-primary/40 transition-all duration-300 text-white font-medium';
-
-/**
- * Page Header Component
- * Displays page title and add company button
- */
 export function PageHeader({ onAddCompany }: PageHeaderProps) {
 	const t = useTranslations('admin.ADMIN_COMPANIES_PAGE');
 
 	return (
-		<div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-			<div>
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{t('TITLE')}</h1>
-				<div className="flex items-center gap-2 mt-1">
-					<span className="w-8 h-1 bg-blue-600 rounded-full inline-block" />
-					<p className="text-gray-500 dark:text-gray-400 font-medium">{t('SUBTITLE')}</p>
+		<div className="mb-8">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				{/* Left: icon + title + subtitle */}
+				<div className="flex items-center gap-4">
+					<div className="w-11 h-11 rounded-xl bg-linear-to-br from-cyan-500 to-blue-600 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/25 dark:shadow-cyan-500/15">
+						<Building2 className="w-5 h-5 text-white" />
+					</div>
+					<div>
+						<h1 className="text-xl font-semibold text-gray-900 dark:text-white leading-tight tracking-tight">
+							{t('TITLE')}
+						</h1>
+						<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('SUBTITLE')}</p>
+					</div>
 				</div>
+
+				{/* Right: Add button */}
+				<button
+					type="button"
+					onClick={onAddCompany}
+					className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950 shrink-0"
+				>
+					<Plus className="w-4 h-4" />
+					{t('ADD_COMPANY')}
+				</button>
 			</div>
 
-			<Button
-				color="primary"
-				size="lg"
-				onPress={onAddCompany}
-				startContent={<Plus size={20} />}
-				className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-500/30 transition-all rounded-xl px-6"
-			>
-				{t('ADD_COMPANY')}
-			</Button>
+			{/* Gradient divider */}
+			<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
 		</div>
 	);
 }

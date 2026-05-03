@@ -4,75 +4,26 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface StatusTabOption<T extends string = string> {
-	/** Status value (empty string for "All") */
 	value: T | '';
-	/** Display label */
 	label: string;
-	/** Optional count to display */
 	count?: number;
-	/** Optional icon */
 	icon?: ReactNode;
 }
 
 export interface AdminStatusTabsProps<T extends string = string> {
-	/** Available status options */
 	options: StatusTabOption<T>[];
-	/** Currently selected status */
 	value: T | '';
-	/** Callback when status changes */
 	onChange: (status: T | '') => void;
-	/** Additional CSS classes */
 	className?: string;
-	/** Tab size variant */
 	size?: 'sm' | 'md';
-	/** Whether to show counts (default: true) */
 	showCounts?: boolean;
 }
 
-// Tab styles matching Items page pattern
-const TAB_BASE_CLASSES = cn(
-	'px-2.5 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer',
-	'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/50'
-);
-
-const TAB_INACTIVE_CLASSES = cn(
-	TAB_BASE_CLASSES,
-	'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
-);
-
-const TAB_ACTIVE_CLASSES = cn(
-	TAB_BASE_CLASSES,
-	'bg-white dark:bg-white/8 text-gray-900 dark:text-white shadow-sm'
-);
-
 const SIZE_CLASSES = {
-	sm: 'text-xs px-2 py-0.5',
-	md: 'text-xs px-2.5 py-1',
+	sm: 'px-2 py-1 text-[11px]',
+	md: 'px-2.5 py-1.5 text-xs',
 } as const;
 
-const CONTAINER_CLASSES = cn(
-	'flex items-center gap-0.5 bg-gray-100/80 dark:bg-white/5 rounded-lg p-0.5'
-);
-
-/**
- * Inline tab-style status filter component for admin pages.
- * Supports configurable status options with counts and keyboard navigation.
- *
- * @example
- * ```tsx
- * type ItemStatus = 'draft' | 'pending' | 'approved' | 'rejected';
- *
- * <AdminStatusTabs<ItemStatus>
- *   options={[
- *     { value: '', label: 'All', count: 100 },
- *     { value: 'approved', label: 'Approved', count: 50 },
- *     { value: 'pending', label: 'Pending', count: 30 },
- *   ]}
- *   value={statusFilter}
- *   onChange={setStatusFilter}
- * />
- * ```
- */
 export function AdminStatusTabs<T extends string = string>({
 	options,
 	value,
@@ -92,7 +43,15 @@ export function AdminStatusTabs<T extends string = string>({
 	};
 
 	return (
-		<div role="tablist" className={cn(CONTAINER_CLASSES, className)}>
+		<div
+			role="tablist"
+			className={cn(
+				'flex items-center gap-0.5 rounded-lg p-0.5',
+				'bg-gray-100 dark:bg-white/3',
+				'border border-gray-200/60 dark:border-white/6',
+				className
+			)}
+		>
 			{options.map((option, index) => {
 				const isActive = value === option.value;
 				return (
@@ -105,14 +64,34 @@ export function AdminStatusTabs<T extends string = string>({
 						onClick={() => onChange(option.value)}
 						onKeyDown={(e) => handleKeyDown(e, index)}
 						className={cn(
-							isActive ? TAB_ACTIVE_CLASSES : TAB_INACTIVE_CLASSES,
-							SIZE_CLASSES[size]
+							'inline-flex items-center gap-1 rounded-md font-medium transition-all duration-150',
+							'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/40',
+							SIZE_CLASSES[size],
+							isActive
+								? [
+										'bg-white dark:bg-white/5 text-gray-900 dark:text-white',
+										'shadow-sm border border-gray-200/80 dark:border-white/10',
+									]
+								: [
+										'text-gray-500 dark:text-gray-400',
+										'hover:text-gray-700 dark:hover:text-gray-200',
+										'hover:bg-white/60 dark:hover:bg-white/6',
+									]
 						)}
 					>
-						{option.icon && <span className="mr-1">{option.icon}</span>}
-						{option.label}
+						{option.icon && <span className="shrink-0">{option.icon}</span>}
+						<span>{option.label}</span>
 						{showCounts && option.count !== undefined && (
-							<span className="ml-1.5 text-xs text-gray-400">{option.count}</span>
+							<span
+								className={cn(
+									'tabular-nums text-[10px] font-medium leading-none rounded-full px-1.5 py-0.5',
+									isActive
+										? 'bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400'
+										: 'text-gray-400 dark:text-gray-500'
+								)}
+							>
+								{option.count}
+							</span>
 						)}
 					</button>
 				);
