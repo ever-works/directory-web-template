@@ -33,6 +33,38 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-notifications-page-object.md`
+  — the **eleventh per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/notifications.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/notifications.page.ts).
+  The notifications driver is the **first** admin-tree
+  driver that does NOT extend
+  [`BasePage`](plugins/base-page-object.md) — by design,
+  because header-chrome dropdowns do not need the
+  page-navigation helpers `BasePage` provides. Documents
+  the four-`readonly`-Locator-field core surface
+  (`bellButton`, `dropdown`, `refreshButton`,
+  `closeButton`), the two-action surface (`open()` /
+  `close()`), and the five-getter dropdown-content
+  surface (`markAllReadButton`, `unreadBadge`,
+  `notificationItems`, `viewAllButton`, `emptyState`).
+  Pinned to the consuming spec at
+  [`apps/web-e2e/tests/admin/notifications.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/notifications.spec.ts)
+  and the co-tenant smoke at
+  [`apps/web-e2e/tests/api/admin-notifications-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-notifications-query.spec.ts).
+- `apps/web-e2e` Added
+  `apps/web-e2e/tests/api/admin-clients-query.spec.ts`
+  — query-param surface smoke spec for the admin-only
+  client-profiles-listing endpoint at
+  [`apps/web/app/api/admin/clients/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/clients/route.ts).
+  Pins the single-step `session?.user?.isAdmin` gate's
+  401 + bare `{ error: 'Unauthorized' }` envelope on the
+  unauth branch across pagination, search, status,
+  plan, accountType, and provider param permutations,
+  plus the per-bypass-key invariants (`?asAdmin=…`,
+  `?token=…`, `?bypass=…`, `?override=…`) for future
+  contributors.
 - `docs/plugins` Added `admin-items-page-object.md`
   — the **tenth per-source-file reference** the docs
   tree publishes for any file under
