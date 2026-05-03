@@ -33,6 +33,32 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-settings-map-status-query-spec.md` —
+  the **third** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` (and the **first** under
+  `apps/web-e2e/tests/api/`), continuing the per-
+  spec-file docs rollout after the now-closed
+  (2-of-2) `tests/smoke/` rollout. Pairs with a new
+  `apps/web-e2e/tests/api/admin-settings-map-status-query.spec.ts`
+  spec that covers the admin-only map-provider
+  configuration-status endpoint at
+  `apps/web/app/api/admin/settings/map-status/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that uses the `getCachedApiSession(req)`
+  wrapper (rather than the bare `auth()` call), the
+  bare `{ error }` envelope (rather than the
+  canonical `{ success: false, error }` envelope),
+  and a per-env publishable-key non-disclosure
+  contract pinned via a deliberate negative-string
+  assertion that the unauth response body does NOT
+  contain a Mapbox public access token (`pk.*`),
+  Google Maps API key (`AIza*`), or either env-var
+  name (`NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN` /
+  `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`). With this
+  entry the per-spec-file docs rollout extends to
+  3-of-N and opens the `tests/api/` per-spec-file
+  sub-rollout at 1-of-many.
 - `docs/plugins` Added `smoke-navigation-spec.md` —
   the **second** per-source-file reference the docs
   tree publishes for any file under
