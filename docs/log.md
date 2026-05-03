@@ -33,6 +33,109 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `client-settings-page-object.md`
+  — the **third per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/client/`, paired with
+  [`apps/web-e2e/page-objects/client/settings.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/settings.page.ts)
+  and the **first** client-tree driver in the rollout
+  that documents (a) a **three-link navigation-shelf
+  cluster** (`basicInfoLink`, `securityLink`,
+  `billingLink`) — the **first** client-tree driver
+  to expose pre-bound Locators for in-page
+  navigation links, anchored to
+  `getByRole('link', { name: /…/i })` substring
+  resolvers, distinct from the profile driver's
+  multi-route navigation **method** posture which
+  routes via `goto()`; (b) a
+  **`.grid.grid-cols-1.md\\:grid-cols-2`
+  Tailwind-class-chain settings-grid getter**
+  (`settingsGrid`) — pinned to the responsive
+  1-column-mobile / 2-column-tablet+ Tailwind class
+  chain (distinct from the profile driver's bare
+  `.grid` posture and the client-dashboard driver's
+  wider four-column-desktop chain); (c) a **single
+  `navigate()` method** (`goto('/client/settings')`)
+  symmetric with every prior page-object driver in
+  the suite that exposes a single navigation
+  shortcut, distinct from the profile driver's
+  multi-route navigation pair because the settings
+  index is a single route whose only purpose is to
+  render the navigation shelf of cards; (d) a
+  **`level: 1` heading getter**
+  (`getByRole('heading', { level: 1 }).first()`) —
+  the **first** client-tree driver that pins the
+  heading Locator to the per-page H1 specifically
+  (distinct from the dashboard driver's
+  `name: /dashboard/i` substring pin and from the
+  profile driver's bare
+  `getByRole('heading').first()` pin); and (e) a
+  **navigation-shelf-only posture** — the driver
+  exposes Locators for the shelf of navigation
+  cards (heading + grid + three links) but no form-
+  field Locators because the `/client/settings`
+  index is the per-tenant navigation shelf for the
+  per-tab forms. Documents the full surface for the
+  `ClientSettingsPage` driver — the five `readonly`
+  Locator fields and the single `navigate()` method.
+  Pinned to
+  [`apps/web-e2e/tests/client/settings.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/client/settings.spec.ts)
+  (three flows — authenticated client can access
+  settings page, settings page displays settings
+  cards via a `getByRole('link')` count assertion,
+  unauthenticated user is redirected from settings
+  via the `[locale]/client/**` middleware redirect
+  to `/auth/signin`). Includes the "Why
+  `ClientSettingsPage` extends `BasePage`" three-
+  reason analysis; the "Why a single `navigate()`
+  (and not multiple)" three-reason analysis; the
+  "Why three pre-bound link Locators" three-reason
+  analysis; the "Why the heading is pinned to
+  `level: 1`" three-reason analysis; cross-
+  references to the `client-dashboard-page-object.md`
+  and `client-profile-page-object.md` rollout
+  precedents and to the related auth-tree
+  `signin-page-object.md` / `auth-fixture.md`
+  references; and a "What it does not contain"
+  six-bullet enumeration of the deliberate
+  omissions. With this entry the **client-tree page-
+  object docs rollout reaches 3-of-6**; subsequent
+  rollouts in this subtree will turn to
+  `submissions.page.ts`, `submit.page.ts`, and
+  `trash.page.ts`.
+- `apps/web-e2e/tests/api` Added
+  `admin-location-index-query.spec.ts` — a query-
+  param + method surface smoke for the admin-only
+  location-index endpoint at
+  [`apps/web/app/api/admin/location-index/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/location-index/route.ts).
+  The route is the **second** admin-tree route the
+  smoke layer covers that documents the
+  `checkAdminAuth()` three-step guard from
+  `@/lib/auth/admin-guard.ts` AND the **first**
+  admin-tree route covered by the smoke layer that
+  exposes BOTH a `GET` AND a `POST` handler. The
+  GET handler reads NO documented post-gate query
+  params (the smallest documented post-gate query
+  surface of any admin-tree route the smoke layer
+  covers, contrasting `/api/admin/clients/dashboard`'s
+  eleven). The POST handler reads exactly one body
+  field (`action`) with two valid destructive
+  values (`'rebuild'` re-indexes every item,
+  `'clear'` truncates the index table); both action
+  paths fire AFTER the gate. The spec walks the
+  unauthenticated branches of BOTH handlers and
+  pins the canonical 401 envelope plus a negative-
+  shape assertion that the body must NOT echo the
+  second-step `'User ID not found'` / third-step
+  `'Insufficient permissions'` / post-gate
+  `'Invalid action.'` messages. Sweeps GET
+  permutations (impersonation / token / bypass /
+  override / `?action=`-leak / Accept-header /
+  cookie-header), POST permutations (every action
+  value, missing action, body keys for impersonation
+  / token / bypass), Content-Type fallback
+  (text/plain, urlencoded), and the GET-vs-POST
+  envelope-equivalence invariant.
 - `docs/plugins` Added `client-profile-page-object.md`
   — the **second per-source-file reference** the docs
   tree publishes for any file under
