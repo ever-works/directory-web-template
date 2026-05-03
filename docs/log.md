@@ -33,6 +33,74 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-clients-bulk-method-spec.md` —
+  the **fifteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-clients-bulk-method.spec.ts`
+  spec covering the admin clients-bulk-action endpoint
+  at `apps/web/app/api/admin/clients/bulk/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that exports **two HTTP methods on the same
+  path** (`PUT` for bulk update **and** `DELETE` for
+  bulk deletion), distinct from every prior admin-tree
+  smoke spec which covers a single-method route.
+  Documents the unique combination of (1) **dual-method
+  export (`PUT` + `DELETE`)** with the cross-method
+  probe walking exactly three remaining methods (`GET`
+  / `POST` / `PATCH`); (2) **bare `'Unauthorized'` 401
+  message** with bare `{ error: 'Unauthorized' }`
+  envelope (no `success: false` key) — distinct from
+  the canonical longer family of `admin/items/bulk`,
+  `admin/categories/reorder`, and
+  `admin/items/[id]/review`, and the same bare-message
+  family as `admin/users/check-email`,
+  `admin/users/check-username`, and
+  `admin/notifications/mark-all-read`; (3) **single-step
+  `auth()` chain with bare-message envelope** filling
+  the previously-empty "single-step gate × bare
+  envelope" quadrant in the admin-tree smoke matrix;
+  (4) **body parse via `await request.json()` AFTER
+  the gate AND inside the per-method `try` block** —
+  the gate-then-parse-then-validate-then-loop order is
+  the load-bearing invariant of both methods;
+  (5) **single-step body validation** with one 400
+  message `'Invalid request: clients array is required'`
+  on `!Array.isArray(body.clients) || body.clients.length === 0`;
+  (6) **per-client try/catch loop** collecting
+  successes into a
+  `results: { index, success: true, data | clientId }[]`
+  array and failures into a
+  `errors: { index, error, clientData }[]` array,
+  distinct from the single-array `results: BulkActionResult[]`
+  shape of `admin/items/bulk`; (7) **direct DB-helper
+  call without a repository abstraction** —
+  `updateClientProfile` / `deleteClientProfile`
+  imported directly from `@/lib/db/queries`;
+  (8) **per-method success-branch payload divergence**
+  on the `message` template (`'Bulk update completed: ...'`
+  vs `'Bulk deletion completed: ...'`) and the
+  per-result inner key (`data: <clientProfile>` for
+  `PUT` vs `clientId: <id>` for `DELETE`);
+  (9) **per-method catch-branch envelope divergence**
+  with each method's `try/catch` returning its own
+  `safeErrorResponse(error, '<msg>')` envelope
+  (`'Failed to process bulk update'` for `PUT`,
+  `'Failed to process bulk deletion'` for `DELETE`)
+  — the **first** admin-tree route the smoke layer
+  covers with two distinct catch envelopes on the same
+  path; (10) **`safeErrorMessage` + `safeErrorResponse`
+  twin-import surface** matching the `admin/items/bulk`
+  twin-import posture (the **second** admin-tree route
+  the smoke layer covers that imports BOTH helpers);
+  (11) **method-resolution surface** with `PUT` AND
+  `DELETE` exports. The smoke spec asserts the
+  cross-method response-parity invariant (the `PUT`
+  and `DELETE` 401 envelopes must be byte-identical),
+  the load-bearing invariant of the dual-method smoke
+  layer.
+
 - `docs/plugins` Added `admin-items-bulk-body-spec.md` —
   the **fourteenth** per-source-file reference the docs
   tree publishes for any file under
