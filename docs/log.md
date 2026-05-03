@@ -33,6 +33,96 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-item-form-page-object.md`
+  — the **ninth per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/item-form.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/item-form.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **standalone (no `BasePage`
+  extension) modal driver** posture (the
+  `AdminItemFormPage` class is the **first** admin-tree
+  driver that does **not** extend `BasePage` because the
+  modal owns no route — it is composed into whichever
+  admin route opens it, conventionally `/admin/items`),
+  (b) a **multi-step wizard surface** with four
+  documented steps (Basic Info, Media & Links,
+  Classification, Review & Submit) driven by
+  `goToNextStep()` / `goToPreviousStep()` mutator
+  helpers and three submit buttons (`createButton`,
+  `updateButton`, `cancelButton`), (c) a
+  **`[role="dialog"][aria-modal="true"]` accessibility-
+  tree-canonical modal selector** scoped via
+  `this.modal.locator(...)` for every per-step input
+  field — the **first** admin-tree driver to document
+  the explicit `aria-modal="true"` focus-trapping
+  selector pair (distinct from the comments driver's
+  bare `[role="dialog"]` posture and the companies
+  driver's positional `.fixed.inset-0.z-50` Tailwind-
+  overlay posture), (d) a **per-step id-selector input
+  field** posture (`#id`, `#name`, `#slug`,
+  `#description`, `#icon_url`, `#source_url`) for every
+  step that emits HeroUI form inputs with a stable `id`,
+  (e) a **placeholder-regex input field** posture
+  (`getByPlaceholder(/enter categories/i)` /
+  `getByPlaceholder(/enter tags/i)`) for the
+  Classification step's autocomplete inputs that the
+  production source does not bind to a stable `id`,
+  (f) a **bare `select` HTML-element selector** for the
+  status field plus a **`[role="switch"]` accessibility-
+  tree-canonical selector** for the featured toggle
+  (distinct from the `[role="checkbox"]` posture the
+  data-export / featured-items drivers' toggles use
+  because HeroUI's `Switch` is a binary on/off toggle
+  without an indeterminate state), (g) a **stratified
+  helper API** across three categories (per-step fill
+  helpers `fillBasicInfo({...})` /
+  `fillMediaLinks({...})` / `addCategory(name)` /
+  `addTag(name)`, per-step navigation helpers
+  `goToNextStep()` / `goToPreviousStep()`, per-submit
+  helpers `submitCreate()` / `submitUpdate()` /
+  `cancel()`), and (h) a **per-modal lifecycle helper**
+  API (`waitForOpen()` / `waitForClosed()`) that wraps
+  the `this.modal.waitFor(...)` Playwright primitives
+  in named, intent-revealing methods. Documents the
+  full surface for the `AdminItemFormPage` driver —
+  the nineteen per-modal `readonly` Locator fields and
+  the nine `async` helper methods. Pinned to
+  [`apps/web-e2e/tests/admin/items-crud.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/items-crud.spec.ts)
+  (a full create-then-edit-then-delete flow over the
+  admin items management surface).
+- `apps/web-e2e/tests/api` Added
+  `admin-items-query.spec.ts` — query-param surface
+  smoke for the admin-gated items list endpoint at
+  `apps/web/app/api/admin/items/route.ts`. The route
+  reads seven documented query params (`page`, `limit`,
+  `status`, `search`, `categories`, `tags`, `sortBy`,
+  `sortOrder`) **after** the
+  `session?.user?.isAdmin` admin gate fires, so every
+  call from the spec's unauthenticated context
+  round-trips to a 401 with the canonical
+  `{ success: false, error: 'Unauthorized. Admin access required.' }`
+  envelope regardless of the query string. The spec
+  pins (1) a 401 baseline assertion, (2) a "stable
+  status across query permutations" assertion, (3)
+  per-param "does NOT bypass the admin gate"
+  assertions for each of the seven documented params
+  plus the impersonation / token / bypass / format /
+  Accept-header / repeated-key / NextRequest cookie
+  side channels, and (4) a `< 500` no-server-error
+  sweep across the full path table. Mirrors the shape
+  of the sibling admin-gated query smokes
+  (`admin-categories-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-users-query.spec.ts`).
+
 - `docs/plugins` Added `admin-data-export-page-object.md`
   — the **eighth per-source-file reference** the docs tree
   publishes for any file under
