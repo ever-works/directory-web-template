@@ -33,6 +33,72 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-sponsor-ads-id-cancel-method-spec.md` —
+  the **twenty-second** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twentieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-sponsor-ads-id-cancel-method.spec.ts`
+  spec covering the admin sponsor-ad cancellation
+  endpoint at
+  `apps/web/app/api/admin/sponsor-ads/[id]/cancel/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a dynamic-segment `[id]` `POST`
+  handler with a **pure single-step
+  `!session?.user?.isAdmin` gate** (NOT the compound
+  `!isAdmin || !id` gate of the sibling `approve` /
+  `reject` routes), AND a Zod-`safeParse(...)` body
+  validation against an **optional-only** schema
+  (`cancelReason` has only `maxLength: 500` and is NOT
+  required), AND a **reverse-ordered two-branch catch
+  chain** that puts the not-found 404 branch BEFORE
+  the `'Cannot cancel'` 400 branch — distinct from the
+  sibling `reject` route which puts `'Cannot reject'`
+  400 BEFORE `'Sponsor ad not found'` 404.
+  Documents the unique combination of
+  (1) **dynamic-segment `[id]` `POST` handler**;
+  (2) **pure single-step `!session?.user?.isAdmin`
+  gate**;
+  (3) **canonical longer 401 message** and
+  **`success: false` envelope key**;
+  (4) **body parse via `.catch(() => ({}))`**;
+  (5) **Zod-`safeParse(...)` body validation** AFTER
+  the gate;
+  (6) **optional-only `cancelReason`** with
+  `maxLength: 500` constraint — a missing / undefined
+  / null `cancelReason` would pass validation on the
+  auth branch — the **first optional-Zod-field admin-
+  tree smoke** the docs tree publishes;
+  (7) **service-call surface** with
+  `sponsorAdService.cancelSponsorAd(id,
+  validationResult.data.cancelReason)` (NOTE: no
+  `session.user.id` audit-user threaded through,
+  distinct from the sibling `approve` / `reject`
+  routes);
+  (8) **reverse-ordered two-branch catch chain**
+  mapping `'Sponsor ad not found'` → 404 FIRST, then
+  `error.message.includes('Cannot cancel')` → 400,
+  with `safeErrorResponse(error, 'Failed to cancel
+  sponsor ad')` fallback — distinct from the sibling
+  `reject` route's order;
+  (9) **service-zero-rows fallback** returning 500;
+  (10) **method-resolution surface** with `POST`-only
+  export. The smoke spec pins the gate-before-post-
+  auth invariant that NONE of the four post-gate
+  messages must appear in the unauth response body,
+  the gate-before-params-resolution invariant pinning
+  that every id shape round-trips to the same 401
+  status, the gate-before-body-parse invariant pinning
+  that malformed JSON bodies do NOT surface a 400, the
+  gate-before-service invariant pinning that the
+  unauth response does NOT echo a `data` key from the
+  service payload, and the gate-before-Zod-validation
+  invariant pinning that every `cancelReason` shape
+  (missing + empty + null + valid + 500-char-boundary
+  + 501-char-too-long + numeric) round-trips to the
+  same 401 status — the **first optional-Zod-field
+  admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-sponsor-ads-id-reject-method-spec.md` —
   the **twenty-first** per-source-file reference the docs
   tree publishes for any file under
