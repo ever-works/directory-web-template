@@ -33,6 +33,146 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `smoke-health-spec.md` —
+  the **first per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/`, **opening the per-spec-
+  file docs rollout** that complements the now-
+  closed page-object docs rollout (the admin-tree
+  at 17-of-17, the public-tree at 14-of-14, the
+  client-tree at 6-of-6, plus the `auth/signin`
+  and `base.page.ts` roots — see
+  [`base-page-object.md`](plugins/base-page-object.md)
+  and [`signin-page-object.md`](plugins/signin-page-object.md)).
+  Where the page-object docs rollout documented
+  the **driver layer** (the `*.page.ts` files that
+  encapsulate per-page Locator and helper APIs),
+  the per-spec-file docs rollout documents the
+  **consumer layer** — the `*.spec.ts` files that
+  import drivers / fixtures / helpers and turn
+  them into assertion-bearing scenarios. Paired
+  with
+  [`apps/web-e2e/tests/smoke/health.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/smoke/health.spec.ts)
+  and the **first** consumer-layer reference in
+  the rollout that documents (a) a **session-
+  agnostic posture** — the spec imports the
+  runtime test directly from `@playwright/test`
+  rather than the project's auth-aware fixture
+  from [`fixtures-index.md`](plugins/fixtures-index.md),
+  with three load-bearing reasons (session
+  agnosticism, independence from
+  [`global-setup.md`](plugins/global-setup.md),
+  and a smaller import graph); (b) a **data-
+  driven test generation posture** — a single
+  `for (const route of PUBLIC_ROUTES)` loop
+  generates one Playwright `test()` per route in
+  the shared `PUBLIC_ROUTES` constant from
+  [`e2e-test-data.md`](plugins/e2e-test-data.md);
+  (c) a **`waitUntil: 'domcontentloaded'` trade-
+  off** — the second-earliest of Playwright's
+  four wait conditions, trading full-page-load
+  wait time for smoke-suite speed while still
+  letting the body-visibility assertion succeed;
+  (d) a **`< 400` HTTP status threshold** that
+  deliberately includes the 3xx redirect class to
+  accept locale-prefix injection 307s (the
+  [`apps/web/middleware.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/middleware.ts)
+  middleware), trailing-slash normalisation 308s,
+  auth-redirect 302s, and `Cache-Control: max-age`
+  304s; and (e) a **most-universal `body` Locator
+  pin** for the rendered-DOM assertion, distinct
+  from a `main` / `[role="main"]` / `header` /
+  `page.title()` alternative. Pinned to the co-
+  tenant smoke spec at
+  [`apps/web-e2e/tests/api/admin-clients-advanced-search-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-advanced-search-query.spec.ts)
+  which covers the admin-only advanced-client-
+  search endpoint at
+  `apps/web/app/api/admin/clients/advanced-search/route.ts` —
+  the **first** admin-tree route the smoke layer
+  covers that documents the unique combination of
+  FOUR distinct contracts (the **bare**
+  `{ error: 'Unauthorized' }` envelope on the
+  unauth 401 branch with NO `success` key, the
+  largest documented query-param surface in the
+  admin tree at 13+ keys plus pagination, the
+  inline pagination clamp distinct from the
+  shared `validatePaginationParams()` helper, and
+  four distinct date-range filters via the shared
+  `parseDate(v)` helper that silently ignores
+  NaN-valued Date objects).
+- `apps/web-e2e/tests/api` Added
+  `admin-clients-advanced-search-query.spec.ts` —
+  a query-param surface smoke for the admin-only
+  advanced-client-search endpoint at
+  [`apps/web/app/api/admin/clients/advanced-search/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/clients/advanced-search/route.ts).
+  The route is the **first** admin-tree route
+  the smoke layer covers that documents a unique
+  combination of FOUR distinct contracts: (1)
+  the **bare** `{ error: 'Unauthorized' }`
+  envelope on the unauthenticated 401 branch
+  (NOT the canonical
+  `{ success: false, error: 'Unauthorized' }`
+  shape every other admin-tree route's gate
+  emits, and NOT the role-context-specific
+  `'Unauthorized. Admin access required.'`
+  message the categories-git / items-import /
+  items-import-validate routes emit) — the bare-
+  envelope posture mirrors the categories-git
+  route but with a bare `'Unauthorized'` message
+  rather than the role-context suffix; (2) a
+  **richer-than-most query-param surface** of
+  13+ documented keys (`?page=` / `?limit=` /
+  `?search=` / `?status=` / `?plan=` /
+  `?accountType=` / `?provider=` / `?sortBy=` /
+  `?sortOrder=` / `?createdAfter=` /
+  `?createdBefore=` / `?updatedAfter=` /
+  `?updatedBefore=`) — every key parsed AFTER
+  the gate so the unauth branch is invariant to
+  the entire combinatorial surface; (3) the
+  **inline pagination clamp posture** (`Number()`
+  → `Number.isFinite()` → `Math.floor()` →
+  `Math.min(Math.max(…, 1), 100)`), distinct
+  from the admin-roles route's
+  `validatePaginationParams(searchParams)`
+  helper and the admin-categories route's Zod-
+  schema-validated pagination posture, accepting
+  every parseable integer (including negative /
+  zero / non-integer values via the floor +
+  clamp pipeline) and defaulting silently rather
+  than emitting a 400; and (4) a **`parseDate(v)`
+  helper** that normalises four distinct date-
+  range filters (`createdAfter` / `createdBefore`
+  / `updatedAfter` / `updatedBefore`) via
+  `new Date(v)` + `Number.isNaN(d.getTime())`
+  pinning, silently returning `undefined` for
+  NaN-valued `Date` objects rather than emitting
+  a 400. The spec walks the unauthenticated
+  branch and pins (a) the canonical 401 + bare
+  envelope contract, (b) the negative-shape
+  assertion that the body must NOT include a
+  `success` key (`expect(body).not.toHaveProperty('success')`),
+  (c) the negative-shape assertion that the
+  body's only key is `error`
+  (`expect(Object.keys(body)).toEqual(['error'])`),
+  (d) the message-divergence assertion that the
+  error must be the bare `'Unauthorized'` (NOT
+  `'Forbidden'`, NOT `'Unauthorized. Admin access required.'`),
+  and (e) the status-invariance assertion that
+  every documented and undocumented query-param
+  permutation hits the same baseline status.
+  Sweeps every documented query-param value
+  permutation including pagination clamp targets
+  (`-1` / `0` / `999` / `999999` / `abc` / `1.5`),
+  status / plan / sortBy enum values plus
+  invalid sentinels, OAuth provider values
+  (google / github / facebook / twitter /
+  microsoft), date-range filters with valid /
+  invalid / empty values, SQL-injection-shaped
+  search payloads, long search payloads, and
+  the standard impersonation / token / bypass /
+  cookie / IP / Accept-header / repeated-key
+  side-channel sweeps that every admin-tree
+  smoke spec runs.
 - `docs/plugins` Added `client-trash-page-object.md`
   — the **sixth and final per-source-file reference**
   the docs tree publishes for any file under
