@@ -33,6 +33,76 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `smoke-navigation-spec.md` —
+  the **second** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/`, **continuing the per-spec-
+  file docs rollout** opened by
+  [`smoke-health-spec.md`](plugins/smoke-health-spec.md)
+  and **closing the smoke tree at 2-of-2** (the
+  `tests/smoke/` directory has exactly two `*.spec.ts`
+  files; both now have docs anchors). Where the
+  sibling [`smoke-health-spec.md`](plugins/smoke-health-spec.md)
+  documents a **data-driven, breadth-first** smoke
+  posture (one `test()` per route in a shared
+  `PUBLIC_ROUTES` constant from
+  [`e2e-test-data.md`](plugins/e2e-test-data.md),
+  body-visibility-only assertions), this page
+  documents the **hand-crafted, depth-first**
+  smoke posture — four hand-written `test()`
+  blocks that exercise specific user-flow
+  primitives (home → item-detail click-through,
+  home → sign-in click-through, an item-grid
+  count assertion, a categories-page heading
+  pin) the per-route health spec cannot
+  exercise. Paired with
+  [`apps/web-e2e/tests/smoke/navigation.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/smoke/navigation.spec.ts)
+  and the **second** consumer-layer reference in
+  the rollout that documents (a) the **four
+  hand-written `test()` blocks** that pin
+  distinct user-flow primitives, with the
+  per-scenario assertion divergence rationale
+  (each scenario pins a structurally different
+  invariant: count > 0 / `h1` visibility / URL
+  match / link-click); (b) the **why
+  `a[href*="/items/"]` substring-CSS selector**
+  rationale (resilience to the page-object
+  refactor surface, cross-route coverage matching
+  every list / grid / card variant, selector
+  simplicity); (c) the **why
+  `getByRole('link', { name: /sign in/i })`**
+  accessibility-first locator rationale (tests
+  the user-visible primitive via the
+  accessibility tree, resilience to URL refactor,
+  cross-locale coverage with the `locale: 'en-US'`
+  use-flag from
+  [`playwright-config.md`](plugins/playwright-config.md));
+  (d) the **why 30-second `expect.toBeVisible({
+  timeout: 30_000 })` override** rationale
+  (deliberate self-documenting pin against future
+  contributors who lower the global default,
+  cold-cache resilience for the home-page render,
+  distinct from the navigation timeout); and (e)
+  a "What it does not contain" six-bullet
+  enumeration of the deliberate omissions.
+  Pinned to the co-tenant smoke spec at
+  [`apps/web-e2e/tests/api/admin-reports-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-reports-stats-query.spec.ts)
+  which covers the admin-only report-statistics
+  endpoint at
+  `apps/web/app/api/admin/reports/stats/route.ts`
+  — the **first** admin-tree route the smoke
+  layer covers that documents the **single-step
+  403 'Forbidden' gate combined with the bare
+  `GET()` handler signature**, an intersection no
+  other admin-tree route documents (the sibling
+  [`admin-reports-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-reports-query.spec.ts)
+  documents the 403 gate with a
+  `GET(request: Request)` signature; the
+  [`admin-roles-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-roles-stats-query.spec.ts)
+  documents the bare `GET()` signature with a
+  two-step 401/403 gate; this spec documents the
+  intersection — the single-step 403 gate with
+  no request parameter at all).
 - `docs/plugins` Added `smoke-health-spec.md` —
   the **first per-source-file reference** the docs
   tree publishes for any file under
