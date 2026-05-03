@@ -33,6 +33,66 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-collections-id-items-method-spec.md` —
+  the **twenty-seventh** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-collections-id-items-method.spec.ts`
+  spec covering the admin collection-items endpoint at
+  `apps/web/app/api/admin/collections/[id]/items/route.ts`
+  — the **first nested-`[id]/<sub-resource>` dual-
+  method admin smoke** the docs tree publishes (every
+  prior dynamic-segment admin smoke covers a
+  `[id]/<sub-resource>` route as a SINGLE-method
+  export; this is the first that combines `GET` +
+  `POST` on a nested path). Both handlers share the
+  SAME single-step inline `!session?.user?.isAdmin`
+  gate and the SAME canonical longer 401 envelope,
+  but each has its own divergent post-gate surface:
+  (a) **GET** — no body parse, calls
+  `collectionRepository.getAssignedItems(id)`, returns
+  `{ success: true, items: [...] }` (success key is
+  `items`, NOT `data` — distinct from every prior
+  admin GET smoke), catches with
+  `safeErrorResponse(error, 'Failed to fetch
+  collection items')`;
+  (b) **POST** — parses JSON via
+  `await request.json()`, validates
+  `Array.isArray(body.itemIds)` → 400
+  `'itemIds array is required'`, calls
+  `collectionRepository.assignItems(id, body.itemIds)`,
+  then runs `invalidateContentCaches()` + two
+  `revalidatePath(...)` calls (`/collections` and
+  `/collections/<slug>`), returns
+  `{ success: true, collection, updatedItems,
+  message: 'Collection items updated successfully' }`
+  (FOUR success-branch keys distinct from every prior
+  admin POST smoke which uses at most three), catches
+  with `safeErrorResponse(error, 'Failed to assign
+  collection items')`. The smoke spec pins per-method
+  canonical-longer 401-envelope assertions, a cross-
+  method envelope-equality assertion, a success-
+  branch-key non-disclosure assertion that NONE of
+  the route-specific `items`, `collection`,
+  `updatedItems` keys plus `message` and
+  `success: true` must appear in any unauth response,
+  a gate-before-post-auth invariant pinning that
+  NONE of the four post-auth messages must appear in
+  any unauth response, a per-nested-id-shape status-
+  stability comparison, a POST body-permutation
+  status-stability comparison, a cross-method side-
+  channel cookie / `X-*` header walk, a cross-method
+  probe asserting PUT / PATCH / DELETE round-trip to
+  `< 500`, a malformed-JSON-body invariance walk for
+  POST, a service-not-entered invariance walk, and a
+  side-effects-not-entered invariance walk pinning
+  that the `invalidateContentCaches()` +
+  `revalidatePath(...)` chain is unreachable on the
+  unauth branch — the **first nested-
+  `[id]/<sub-resource>` dual-method admin smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-users-id-method-spec.md` —
   the **twenty-sixth** per-source-file reference the docs
   tree publishes for any file under
