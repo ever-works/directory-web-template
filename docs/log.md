@@ -33,6 +33,85 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `client-trash-page-object.md`
+  — the **sixth and final per-source-file reference**
+  the docs tree publishes for any file under
+  `apps/web-e2e/page-objects/client/`, **closing the
+  client-tree page-object docs rollout at 6-of-6**,
+  paired with
+  [`apps/web-e2e/page-objects/client/trash.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/client/trash.page.ts)
+  and the **first** client-tree driver in the rollout
+  that documents (a) a **soft-deleted-row recovery
+  surface** at `/client/submissions/trash` — the only
+  client-tree page object the docs rollout covers
+  that targets a **derived sub-route** of an existing
+  client-tree page (the `/client/submissions/trash`
+  route is a child of the `/client/submissions` route
+  the [`client-submissions-page-object.md`](./plugins/client-submissions-page-object.md)
+  driver covers); (b) a **breadcrumb back-navigation
+  Locator** (`backLink`) pinned via the
+  `a[href*="/client/submissions"]` substring-attribute
+  selector — the **first** client-tree driver to
+  document an `href*=` substring-attribute selector
+  for back-link navigation, where the `*=` substring
+  posture defends against future production-source
+  `href` drift between `/client/submissions` (the
+  bare-ancestor route) and
+  `/client/submissions?status=…` (a query-param-
+  augmented variant) and a future locale-prefixed
+  `/en/client/submissions` shape that Next.js's
+  middleware-based i18n posture sometimes emits
+  server-side; (c) a **filter-by-text-content row
+  collection Locator** (`trashItems`) pinned via
+  `page.locator('button').filter({ hasText: /restore/i })`
+  — the **first** client-tree driver to document a
+  text-content filter on a bare HTML element-type
+  Locator that resolves to **every restore button**
+  on the trash page (one per soft-deleted row); (d)
+  an **empty-state-affordance Locator** (`emptyState`)
+  pinned via
+  `page.getByText(/trash.*empty|no.*deleted/i).first()`
+  — the **first** client-tree driver to document an
+  **OR-of-two-substring regex** on a `getByText`
+  Locator with `.*` between the two substrings to
+  allow arbitrary intermediate words; and (e) a
+  **bare imperative `restoreFirst()` mutator** — the
+  **first** client-tree driver to document a named-
+  action helper that does NOT take a row-key
+  parameter (in contrast to the submissions driver's
+  `viewSubmission(title)` / `editSubmission(title)` /
+  `deleteSubmission(title)` trio) acting on the first
+  matching restore button in DOM order, reflecting
+  the trash bin's intentionally minimal surface where
+  the consuming spec only needs to prove that **at
+  least one** soft-deleted item can be restored, not
+  that a specific named item can be restored. Pinned
+  to the co-tenant smoke spec at
+  [`apps/web-e2e/tests/api/admin-categories-all-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-categories-all-query.spec.ts)
+  which covers the admin-only Git-CMS categories-
+  listing endpoint at
+  `apps/web/app/api/admin/categories/all/route.ts` —
+  the **first** admin-tree route the smoke layer
+  covers that documents the unique combination of
+  THREE distinct contracts
+  (`getCachedItems({ lang })` Git-based CMS reader
+  for categories, a `?locale=` query param read AFTER
+  the gate WITHOUT any defensive
+  `typeof locale !== 'string'` narrowing distinct
+  from the sibling tags-all route's dead-branch
+  narrow, and the paired categories-data-route
+  posture as the read-only Git-CMS variant of the
+  database-backed `/api/admin/categories` listing
+  route distinct from both the database-backed
+  listing posture and the `/api/admin/categories/git`
+  GitHub-API-backed sibling route). With this entry
+  the **client-tree page-object docs rollout reaches
+  6-of-6 — closing the rollout**; subsequent rollouts
+  will turn to the public-tree page objects (e.g.
+  `home.page.ts`, `browse.page.ts`) or to per-spec
+  docs covering the client / admin / api / public /
+  smoke / i18n / auth test trees.
+
 - `docs/plugins` Added `client-submit-page-object.md`
   — the **fifth per-source-file reference** the docs
   tree publishes for any file under
