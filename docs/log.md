@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-users-check-username-body-spec.md` —
+  the **tenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-users-check-username-body.spec.ts`
+  spec covering the admin check-username endpoint
+  at `apps/web/app/api/admin/users/check-username/route.ts`
+  — the **sibling** of `apps/web/app/api/admin/users/check-email/route.ts`
+  (already covered by `admin-users-check-email-body-spec.md`).
+  The two routes share an **identical authorization
+  shell** (same two-step `auth()` chain 401 + 403,
+  same bare `'Unauthorized'` / `'Forbidden'`
+  envelopes, same `await request.json()`-after-gate
+  body parse, same `if (!field)`-after-body-parse
+  400 validation, same `console.error` +
+  `'Internal server error'` catch, same
+  `{ available, exists }` success-branch payload
+  shape), differing in **exactly four** respects:
+  documented field (`username` vs `email`), body-
+  validation message (`'Username is required'` vs
+  `'Email is required'`), repository call
+  (`userRepository.usernameExists` vs
+  `userRepository.emailExists`), and catch-log
+  prefix (the route path). The unauth branch is
+  INVARIANT to all four divergences — both routes
+  return the same bare 401 envelope on the first
+  gate step. The per-spec separation surfaces
+  three regression classes a shared spec would
+  mask (cross-route field-validation regression,
+  one-route-only auth-gate-removal regression,
+  username-shape boundary fuzzing on the unauth
+  branch). Documents the at-a-glance scenario tree
+  including the **first cross-route response-
+  parity assertion** the docs tree publishes (the
+  bare-401 envelope of `admin/users/check-username`
+  must be byte-identical to the bare-401 envelope
+  of `admin/users/check-email`). Includes
+  username-shape boundary fuzzing (Unicode / RTL-
+  override / null-byte / SQL injection / XSS /
+  Cyrillic-homoglyph / zero-width-character /
+  collation-sensitivity / leading-trailing-space).
+  Cross-references to the sibling per-spec-file
+  references and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md)
+  for the governing specs. With this entry the
+  **per-spec-file docs rollout extends to
+  10-of-N** and the **`tests/api/` per-spec-file
+  sub-rollout extends to 8-of-many**, and the
+  **first cross-route response-parity assertion**
+  the docs tree publishes lands as the load-
+  bearing invariant of the cross-route smoke layer.
+
 - `docs/plugins` Added `admin-users-check-email-body-spec.md` —
   the **ninth** per-source-file reference the docs
   tree publishes for any file under
