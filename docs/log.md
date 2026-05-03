@@ -33,6 +33,83 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-clients-clientid-method-spec.md` —
+  the **twenty-fifth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-third** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-clients-clientid-method.spec.ts`
+  spec covering the admin single-client profile CRUD
+  endpoint at
+  `apps/web/app/api/admin/clients/[clientId]/route.ts`
+  — the **second triple-method admin-tree smoke** the
+  docs tree publishes (after
+  `admin-items-id-method-spec.md`) but the **first**
+  that exposes the bare `{ error: 'Unauthorized' }`
+  envelope (NO `success: false` key) AND uses a non-
+  canonical `[clientId]` dynamic-segment param name
+  (every prior dynamic-segment admin smoke uses
+  `[id]`). All three handlers share the SAME single-
+  step inline `!session?.user?.isAdmin` gate but the
+  401 envelope is the **bare**
+  `{ error: 'Unauthorized' }` (NO `success: false`
+  key) — distinct from every prior dynamic-segment-
+  `[id]` admin smoke. Documents the unique combination
+  of (1) **`[clientId]` dynamic-segment param name**;
+  (2) **bare `{ error: 'Unauthorized' }` envelope**
+  with NO `success` key on the 401 branch — distinct
+  from the canonical-longer envelope of the sibling
+  triple-method `admin/items/[id]` route;
+  (3) **direct query-function calls**
+  (`getClientProfileById` / `updateClientProfile` /
+  `deleteClientProfile` from `@/lib/db/queries`)
+  instead of a repository class;
+  (4) **`console.error` + bare `{ error: '<msg>' }`
+  500 catch** with handler-specific messages
+  (`'Failed to fetch client'` /
+  `'Failed to update client'` /
+  `'Failed to delete client'`) — distinct from the
+  `safeErrorResponse(...)` catch of the sibling
+  route;
+  (5) **GET success payload**
+  `{ success: true, data: <client> }`;
+  (6) **PUT success payload**
+  `{ success: true, data: <client> }` (NO `message`
+  key — distinct from the sibling `admin/items/[id]`
+  PUT which includes `'Item updated successfully'`);
+  (7) **DELETE success payload**
+  `{ success: true, message: 'Client deleted
+  successfully' }` (NO `data` key);
+  (8) **PUT CRM-sync side effect** — two-step
+  (company → person) chain wrapped in its own try/
+  catch, gated by `process.env.TWENTY_CRM_ENABLED
+  !== 'false'`, distinct from the sibling route's
+  single-step (company-only) sync;
+  (9) **method-resolution surface** with `GET` /
+  `PUT` / `DELETE`-only export. The smoke spec pins
+  per-method bare 401-envelope assertions across
+  GET / PUT / DELETE pinning the divergence vs the
+  canonical longer envelope, a strict envelope-shape
+  assertion `Object.keys(body) === ['error']` with
+  `body.success` undefined, a cross-method envelope-
+  equality assertion pinning that all three handlers
+  emit byte-identical 401 envelopes, a success-
+  branch-key non-disclosure assertion across all
+  three methods, a gate-before-post-auth invariant
+  pinning that NONE of the five post-auth messages
+  must appear in any unauth response, a per-
+  clientId-shape status-stability comparison across
+  all three methods, a PUT body-permutation status-
+  stability comparison, a cross-method side-channel
+  cookie / `X-*` header walk, a cross-method probe
+  asserting POST / PATCH round-trip to `< 500`, a
+  malformed-JSON-body invariance walk for PUT, a
+  service-not-entered invariance walk across all
+  three query-function calls, and a per-handler
+  catch-message-divergence walk — the **first bare-
+  envelope-no-success-key triple-method admin-tree
+  smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-items-id-method-spec.md` —
   the **twenty-fourth** per-source-file reference the docs
   tree publishes for any file under
