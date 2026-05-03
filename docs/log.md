@@ -33,6 +33,85 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-sponsor-ads-id-reject-method-spec.md` —
+  the **twenty-first** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **nineteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-sponsor-ads-id-reject-method.spec.ts`
+  spec covering the admin sponsor-ad rejection endpoint
+  at
+  `apps/web/app/api/admin/sponsor-ads/[id]/reject/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a dynamic-segment `[id]` `POST`
+  handler with a **Zod-`safeParse(...)` body
+  validation** AFTER the gate AND AFTER params
+  resolution AND AFTER the body parse, AND a
+  **two-branch catch chain** that maps two distinct
+  service-thrown `Error.message` values to two distinct
+  HTTP envelopes. Sibling of
+  `admin-sponsor-ads-id-approve-method-spec.md` sharing
+  the SAME compound single-`if` gate, the SAME
+  canonical longer 401 envelope, and the SAME
+  `{ success: false, error: ... }` envelope shape.
+  Documents the unique combination of
+  (1) **dynamic-segment `[id]` `POST` handler**;
+  (2) **compound single-`if` gate**
+  `!session?.user?.isAdmin || !session.user.id`;
+  (3) **canonical longer 401 message**
+  `'Unauthorized. Admin access required.'` and
+  **`success: false` envelope key** with strict
+  envelope-shape assertion;
+  (4) **body parse via `.catch(() => ({}))`** Promise-
+  chain catch — a single-expression catch that returns
+  an empty object on parse failure, distinct from the
+  inner try/catch block of the `approve` route;
+  (5) **Zod-`safeParse(...)` body validation** AFTER
+  the gate and AFTER params resolution and AFTER the
+  body parse, with a 400 response that echoes
+  `validationResult.error.issues[0]?.message ||
+  'Invalid request body'` — a **dynamic** error
+  message drawn from the Zod schema, distinct from the
+  hand-rolled string literals of every prior admin-
+  tree smoke — the **first Zod-`safeParse(...)`
+  admin-tree smoke** the docs tree publishes;
+  (6) **schema constraints** — `rejectionReason` is
+  required with `minLength: 10` and `maxLength: 500`,
+  with `id` from `params` co-validated through the
+  schema;
+  (7) **service-call surface** AFTER both the gate AND
+  the Zod validation with
+  `sponsorAdService.rejectSponsorAd(id,
+  session.user.id, validationResult.data.rejectionReason)`,
+  success-branch payload
+  `{ success: true, data: <ad>, message: 'Sponsor ad
+  rejected successfully' }`;
+  (8) **two-branch catch chain** mapping
+  `error.message.includes('Cannot reject')` → 400,
+  `'Sponsor ad not found'` → 404, with
+  `safeErrorResponse(error, 'Failed to reject sponsor
+  ad')` fallback — a complementary surface to the
+  three-branch catch chain of the sibling `approve`
+  route;
+  (9) **service-zero-rows fallback** returning 500;
+  (10) **method-resolution surface** with `POST`-only
+  export. The smoke spec pins the gate-before-post-
+  auth invariant that NONE of the four post-gate
+  messages must appear in the unauth response body,
+  the gate-before-params-resolution invariant pinning
+  that every id shape round-trips to the same 401
+  status, the gate-before-body-parse invariant pinning
+  that malformed JSON bodies do NOT surface a 400, the
+  gate-before-service invariant pinning that the
+  unauth response does NOT echo a `data` key from the
+  service payload, and the gate-before-Zod-validation
+  invariant pinning that every `rejectionReason`
+  shape (valid 70-char + 10-char-min boundary + 5-
+  char-too-short + empty + null + numeric + 501-char-
+  too-long + missing) round-trips to the same 401
+  status — the **first Zod-`safeParse(...)` admin-
+  tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-sponsor-ads-id-approve-method-spec.md` —
   the **twentieth** per-source-file reference the docs
   tree publishes for any file under
