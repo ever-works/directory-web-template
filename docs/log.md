@@ -33,6 +33,79 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-items-import-validate-body-spec.md` —
+  the **eighteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-import-validate-body.spec.ts`
+  spec covering the admin items-import-validate (dry-run)
+  endpoint at
+  `apps/web/app/api/admin/items/import/validate/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a static-path `POST` handler with
+  a **multipart/form-data body** parsed via
+  `await request.formData()` AFTER the gate, distinct
+  from every prior admin-tree smoke (which all parse
+  JSON via `await request.json()`). Documents the
+  unique combination of (1) **static-path `POST`
+  handler** (sibling of the JSON-body
+  `admin/items/import` route);
+  (2) **single-step `auth()` chain** matching the
+  canonical longer message family;
+  (3) **canonical longer 401 message**
+  `'Unauthorized. Admin access required.'`;
+  (4) **`success: false` envelope key** on the 401
+  branch with a strict envelope-shape assertion
+  `Object.keys(body).sort() === ['error', 'success']`;
+  (5) **body parse via `await request.formData()`
+  AFTER the gate** — the **first** admin-tree smoke
+  spec that documents a `formData()`-based body parse;
+  (6) **five-step file / mapping validation chain**
+  with five distinct 400 messages (`'No file
+  provided.'`, `'Invalid file type. Only CSV and XLSX
+  files are supported.'`, `'File too large. Maximum
+  size is 10 MB.'`, `'Invalid column mapping JSON.'`,
+  `'File contains no data rows.'`) — the **first
+  five-step file/mapping-validation admin-tree smoke**
+  the docs tree publishes;
+  (7) **service-call surface** AFTER the gate AND
+  AFTER every validation step — the handler
+  instantiates `new ItemImportService()` and calls
+  `parseCSV(...)` / `parseXLSX(...)` followed by
+  `validateRows(...)`, with success-branch payload
+  `{ success: true, headers, suggestedMapping,
+  validationResults, summary }` (four success-branch
+  keys plus the `success: true` flag);
+  (8) **`safeErrorResponse(error, 'Failed to validate
+  import file')` catch** matching the
+  `admin/items/import`, `admin/items/bulk`, and
+  `admin/items/[id]/history` catch family;
+  (9) **method-resolution surface** with `POST`-only
+  export. The smoke spec pins the gate-before-formData-
+  parse invariant that malformed multipart bodies do
+  NOT 400 with a parse error before the gate fires,
+  the gate-before-validation invariant pinning that
+  ALL FIVE 400 messages must NEVER appear in the
+  unauth response body, the gate-before-service
+  invariant pinning that none of the four success-
+  branch keys (`headers`, `suggestedMapping`,
+  `validationResults`, `summary`) must appear in the
+  unauth response body, the gate-before-extension-
+  whitelist invariant pinning that every extension
+  shape (whitelisted `.csv` / `.xlsx` / `.xls` plus
+  non-whitelisted `.txt` / `.json` / `.pdf` /
+  extensionless) round-trips to the same 401 status,
+  the gate-before-mapping-parse invariant pinning that
+  every `mapping` shape (valid + invalid + broken +
+  empty + missing) round-trips to the same 401 status,
+  and the gate-before-default-fallback invariant
+  pinning that every `duplicateStrategy` /
+  `defaultStatus` shape (valid + invalid + falsy)
+  round-trips to the same 401 status — the **first
+  multipart/form-data admin-tree smoke** the docs
+  tree publishes.
+
 - `docs/plugins` Added `admin-items-import-body-spec.md` —
   the **seventeenth** per-source-file reference the docs
   tree publishes for any file under
