@@ -33,6 +33,63 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-notifications-mark-all-read-method-spec.md` —
+  the **eleventh** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-notifications-mark-all-read-method.spec.ts`
+  spec covering the admin mark-all-notifications-read
+  endpoint at
+  `apps/web/app/api/admin/notifications/mark-all-read/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that documents the unique combination of
+  (1) **`PATCH` handler** (the first `PATCH`-only
+  route the e2e suite exercises, distinct from
+  every other admin-tree smoke spec which targets
+  `GET` / `POST`); (2) **bare `PATCH()` handler
+  signature** (no `request` parameter) narrowing
+  the request surface to zero; (3) **two-step
+  `auth()` chain that splits 401 vs 403 on the
+  `tenantId` boundary** distinct from the sibling
+  `admin/users/check-email` and `admin/users/check-username`
+  routes' two-step gates that split on `isAdmin`;
+  (4) **`'Tenant not found'` 403 envelope** distinct
+  from the sibling routes' bare `'Forbidden'`
+  message; (5) **direct Drizzle DB call without a
+  repository abstraction** distinct from the
+  sibling routes' repository abstractions; (6)
+  **per-tenant scope on the success branch**; (7)
+  **method-resolution surface** with `PATCH`-only
+  export. Documents the at-a-glance scenario tree
+  (a ~18-header bulk-loop walk + a ~8-body bulk-
+  loop walk both asserting `< 500`; a bare 401-
+  envelope assertion; a negative-property
+  assertion that the unauth response does NOT
+  echo the success-branch `success: true` /
+  `updatedCount` keys; a gate-step-ordering
+  invariant pinning that the 403 `'Tenant not
+  found'` envelope must NEVER appear in the unauth
+  response body; a parameterised-vs-baseline
+  status-stability comparison; a side-channel
+  cookie / `X-*` header walk including fabricated
+  `X-Tenant-Id` / `X-User-Id` / `Authorization:
+  Bearer` / `X-Api-Key` / `X-Admin-Token` headers;
+  a cross-method probe asserting GET / POST / PUT
+  / DELETE round-trip to `< 500`; a strict
+  envelope-shape assertion). Cross-references to
+  the sibling per-spec-file references and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md)
+  for the governing specs. With this entry the
+  **per-spec-file docs rollout extends to
+  11-of-N** and the **`tests/api/` per-spec-file
+  sub-rollout extends to 9-of-many**, and the
+  **first PATCH-method admin-tree smoke** lands
+  as the third HTTP-method-distinct posture the
+  docs tree publishes (after the GET-tree query
+  smokes and the POST-tree body smokes).
+
 - `docs/plugins` Added `admin-users-check-username-body-spec.md` —
   the **tenth** per-source-file reference the docs
   tree publishes for any file under
