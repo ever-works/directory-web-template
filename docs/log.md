@@ -33,6 +33,68 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-items-id-history-query-spec.md` —
+  the **sixteenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fourteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-id-history-query.spec.ts`
+  spec covering the admin item-audit-history endpoint
+  at `apps/web/app/api/admin/items/[id]/history/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a **dynamic-segment `[id]` `GET`
+  handler** with **all four** of (a) an `auth()` gate,
+  (b) a 404 item-existence branch, (c) a query-param
+  surface, and (d) a per-key enum-validation 400
+  branch. Documents the unique combination of
+  (1) **dynamic-segment `GET` handler** distinct from
+  the dynamic-segment `POST` route covered by
+  `admin-items-id-review-body-spec.md`;
+  (2) **single-step `auth()` chain** with the canonical
+  longer envelope; (3) **canonical longer 401 message**
+  matching the canonical-envelope family; (4) **`success: false`
+  envelope key** on the 401 branch; (5) **item-existence
+  check via `itemRepository.findById(itemId, true)`
+  AFTER the gate AND AFTER `await params`** -- the
+  **first** admin-tree route the smoke layer covers
+  that has a 404 item-existence branch between the
+  gate and the query-param parse, with the boolean
+  second argument `true` to `findById` opting the
+  lookup into including soft-deleted items;
+  (6) **query params parsed AFTER the existence check** —
+  `searchParams.get('page')` / `searchParams.get('limit')` /
+  `searchParams.get('action')` are all read AFTER
+  the 404 branch; (7) **`page` clamping** via
+  `Number.isNaN(rawPage) ? 1 : Math.max(1, rawPage)`
+  (NaN-safe, defaults to 1, clamps to >= 1);
+  (8) **`limit` clamping** via
+  `Math.min(100, Math.max(1, Number.isNaN(rawLimit) ? 20 : rawLimit))`
+  (NaN-safe, defaults to 20, clamps to 1..100);
+  (9) **`action` enum-validation 400 branch** with a
+  **dynamically-interpolated** message
+  `Invalid action filter(s): <bad>. Valid actions are: <list>` —
+  the **first** admin-tree route the smoke layer
+  covers that emits a dynamic 400 message constructed
+  from user-supplied bad-action strings;
+  (10) **`itemAuditService.getHistory(...)` call** AFTER
+  all four gates with success-branch payload
+  `{ success: true, data: { logs, total, page, limit, totalPages } }`;
+  (11) **`safeErrorResponse(error, 'Failed to fetch item history')`
+  catch** matching the `admin/items/[id]/review` catch
+  family; (12) **method-resolution surface** with
+  `GET`-only export. The smoke spec asserts the
+  gate-before-existence-check invariant pinning that
+  the `'Item not found'` 404 message must NEVER appear
+  in the unauth response body, the gate-before-query-parse
+  invariant pinning that the dynamic 400 message must
+  NEVER appear in the unauth response body, and the
+  action-enum non-disclosure assertion that the six
+  valid action names (`created`, `updated`,
+  `status_changed`, `reviewed`, `deleted`, `restored`)
+  must NEVER appear in the unauth response body via
+  word-boundary regexes — the **first dynamic-segment-GET-with-404
+  admin smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-clients-bulk-method-spec.md` —
   the **fifteenth** per-source-file reference the docs
   tree publishes for any file under
