@@ -33,6 +33,100 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-roles-page-object.md`
+  — the **thirteenth per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/roles.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/roles.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **`<select>`-anchored dual-
+  filter surface** for status and role-type — distinct
+  from every prior admin-tree driver in the rollout
+  which pin status filters via either
+  `getByRole('tab')` (items, clients, comments,
+  companies, collections) or `getByRole('button')`
+  (reports). The roles page emits each filter as a
+  native HTML `<select>` element, and the driver
+  locates them positionally via
+  `page.locator('select').first()` and
+  `page.locator('select').nth(1)`; (b) a **modal-
+  overlay-getter triplet** (`roleFormModal`,
+  `deleteRoleDialog`, `permissionsModal`) pinned to
+  the **`.fixed.inset-0.z-50` Tailwind-utility-stack
+  selector** rather than the `[role="dialog"]` /
+  `[aria-modal="true"]` accessibility-tree-canonical
+  selectors every prior admin-tree driver uses
+  (the roles page renders modals as bare Tailwind-
+  utility-stacked `<div>` elements, NOT
+  `[role="dialog"]` / `[aria-modal="true"]` ARIA-
+  tree-canonical surfaces); (c) a
+  **`Locator.filter({ hasText })` chained Locator
+  posture** for the two specialised modal getters —
+  the **first** admin-tree driver in the rollout to
+  use `Locator.filter({ hasText })` for modal
+  disambiguation; (d) a **`searchRoles(term)` flow
+  helper that does NOT trigger search submission**
+  (consumer must wait the debounce window
+  explicitly); (e) a bare `getByRole('heading').first()`
+  heading resolver and a bare
+  `getByRole('button', { name: /add role/i }).first()`
+  add-button resolver; and (f) a
+  `<input type="text">` first-element search
+  resolver (the roles page emits the search input
+  as a bare `<input type="text">`, NOT a
+  `<input type="search">` resolvable via
+  `getByRole('searchbox')`). Pinned to
+  [`apps/web-e2e/tests/admin/roles.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/roles.spec.ts)
+  (four flows over the admin roles management
+  surface — admin can access roles management page,
+  roles page displays stats cards, admin can search
+  roles, admin can open add role form modal).
+  Cross-references to all twelve prior admin-tree
+  page-object docs and to the consuming spec.
+- `apps/web-e2e/tests/api` Added
+  `admin-roles-stats-query.spec.ts` — a query-param
+  surface smoke for the admin-only role-statistics
+  endpoint at
+  [`apps/web/app/api/admin/roles/stats/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/roles/stats/route.ts).
+  The route is **admin-gated** via `auth()` + a
+  **two-step** check that resolves the
+  unauthenticated and authenticated-non-admin
+  branches into **distinct** status codes (401 vs
+  403) — distinct from the sibling `admin/clients` /
+  `admin/comments` / `admin/companies` /
+  `admin/users` routes' single-step
+  `!session?.user?.isAdmin` → 401 'Unauthorized'
+  gate AND from the `admin/reports` route's
+  single-step `!session?.user?.isAdmin` → 403
+  'Forbidden' gate. The handler signature is the
+  **bare `GET()` (no `request` parameter)** —
+  distinct from every other admin-tree route's
+  signed handler signature; this is the strongest
+  possible protection against query-param-driven
+  bypass regressions because a contributor who
+  wants to add a query-param-driven bypass must
+  first widen the handler signature. The 401
+  envelope carries the bare `'Unauthorized'`
+  message (NOT
+  `'Unauthorized. Admin access required.'` like
+  the sponsor-ads route, NOT the bare `'Forbidden'`
+  like the reports route). The spec walks the
+  unauthenticated branch with 60+ query
+  permutations covering pagination keys, status /
+  isAdmin / role-targeting filters, impersonation
+  keys (`?as=`, `?asUser=`, `?impersonate=`),
+  magic-token bypass keys (`?token=`, `?secret=`,
+  `?api_key=`, `?authorization=`),
+  admin-override keys (`?bypass=`, `?admin=`,
+  `?override=`, `?force=`), per-role-targeting keys
+  (`?roleId=`, `?roleName=`), time-range filters,
+  cache-busting keys (`?refresh=`, `?fresh=`,
+  `?cache=`), i18n keys (`?locale=`, `?lang=`),
+  repeated-key permutations, and bogus / typo'd
+  keys, then pins the canonical
+  `{ success: false, error: 'Unauthorized' }` 401
+  envelope and verifies that the message does NOT
+  echo any other admin-tree route signature.
 - `docs/plugins` Added `admin-reports-page-object.md`
   — the **twelfth per-source-file reference** the
   docs tree publishes for any file under
