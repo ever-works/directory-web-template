@@ -33,6 +33,84 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-roles-id-permissions-method-spec.md` —
+  the **twenty-third** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-roles-id-permissions-method.spec.ts`
+  spec covering the admin role-permissions endpoint at
+  `apps/web/app/api/admin/roles/[id]/permissions/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines (1) a dynamic-segment `[id]`
+  handler exporting BOTH a `GET` and a `PUT` (a true
+  **dual-method** surface, distinct from every prior
+  single-method admin-id smoke), AND (2) an auth gate
+  that delegates to the **`checkAdminAuth()` helper**
+  at `apps/web/lib/auth/admin-guard.ts` (NOT inline
+  `!session?.user?.isAdmin`), AND (3) a **shorter
+  `'Unauthorized'` 401 envelope** (NOT the canonical
+  longer `'Unauthorized. Admin access required.'`
+  envelope that every prior admin-id smoke pins),
+  AND (4) an **imperative permissions-array
+  validation** against `isValidPermission(permission)`
+  from `apps/web/lib/permissions/definitions.ts` (NOT
+  a Zod `safeParse(...)` schema, NOT a manual
+  `['approved', 'rejected'].includes(...)` allowlist).
+  Documents the unique combination of
+  (1) **dual-method GET + PUT exports**;
+  (2) **`checkAdminAuth()` helper-driven envelope**
+  with three distinct branches: 401 `'Unauthorized'`
+  (no session), 401 `'User ID not found'` (session but
+  no id), 403 `'Insufficient permissions'` (session +
+  id but `!isAdmin`) — distinct from every prior admin-
+  tree route which returns 401 for both unauth AND
+  non-admin-auth;
+  (3) **shorter `'Unauthorized'` 401 envelope** —
+  distinct from the canonical longer
+  `'Unauthorized. Admin access required.'` envelope
+  every prior admin-id smoke pins;
+  (4) **`success: false` envelope key**;
+  (5) **imperative `isValidPermission(permission)`
+  validation** AFTER the gate, with **side-channel
+  `invalidPermissions` array** echoed in the 400
+  envelope — a UNIQUE envelope key no prior admin-tree
+  smoke pins;
+  (6) **service-call surface** with
+  `roleService.findById(id)` (GET) and
+  `roleService.updateRole(id, ...)` (PUT) both
+  delegating to `RoleDbService`;
+  (7) **method-resolution surface** with `GET + PUT`
+  exports (POST / PATCH / DELETE NOT exported). The
+  smoke spec pins the gate-before-post-auth invariant
+  that NONE of the eight post-gate messages must
+  appear in the unauth response body, the gate-before-
+  params-resolution invariant pinning that every id
+  shape round-trips to the same 401 status across
+  BOTH methods, the gate-before-body-parse invariant
+  pinning that malformed JSON bodies do NOT surface a
+  400 on PUT, the gate-before-service invariant
+  pinning that the unauth response does NOT echo a
+  `data` key from the service payload, the gate-
+  before-validation invariant pinning that every
+  `permissions` shape (missing + valid + empty +
+  single-invalid + non-array string / null / numeric
+  / object / numeric-array) round-trips to the same
+  401 status on PUT, the cross-method envelope-
+  equality invariant pinning that GET / PUT return
+  observably the same body on the unauth branch
+  (shared `checkAdminAuth()` helper), the side-channel
+  `invalidPermissions` non-disclosure invariant
+  pinning that the auth-branch validation echo NEVER
+  appears on the unauth branch, and the first-branch
+  landing invariant pinning that every probe from the
+  cookie-less smoke harness lands on the FIRST
+  `checkAdminAuth()` branch (the 401 `'Unauthorized'`
+  no-session envelope) — NOT the SECOND (`'User ID
+  not found'`) and NOT the THIRD (`'Insufficient
+  permissions'` 403) — the **first dual-method
+  `checkAdminAuth()`-helper admin-tree smoke** the
+  docs tree publishes.
 - `docs/plugins` Added `admin-sponsor-ads-id-cancel-method-spec.md` —
   the **twenty-second** per-source-file reference the docs
   tree publishes for any file under
