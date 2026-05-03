@@ -33,6 +33,75 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-users-check-email-body-spec.md` —
+  the **ninth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-users-check-email-body.spec.ts`
+  spec covering the admin check-email endpoint at
+  `apps/web/app/api/admin/users/check-email/route.ts`
+  — the **first** admin-tree route the docs tree
+  publishes a per-source-file body-surface reference
+  for that documents the full **two-step `auth()`
+  chain** posture splitting 401 (no session) from 403
+  (session without `isAdmin`). Where the sibling
+  `admin-twenty-crm-test-connection-body.spec.ts`
+  walks the body surface of a `POST` route with a
+  single-step gate that collapses both branches into
+  401 with the canonical longer message
+  (`'Unauthorized. Admin access required.'`), this
+  spec is its complement — documenting the unique
+  combination of (a) **two-step gate** that splits
+  401 vs 403 with the **bare shorter messages**
+  (`'Unauthorized'` / `'Forbidden'`) and lacks the
+  `success: false` envelope key; (b) **body parse via
+  `await request.json()`** AFTER the gate (distinct
+  from the bare `POST()` of the test-connection route
+  which never reads the body); (c) **body-validation
+  step `if (!email)`** AFTER the gate AND AFTER the
+  body parse (the gate-then-parse-then-validate-then-
+  call order is the load-bearing invariant); (d)
+  **internal-error catch with `console.error`** (a
+  side-channel observable via the server log) before
+  returning the bare `'Internal server error'`
+  envelope (out of scope for the unauth branch); (e)
+  **per-user PII non-disclosure on the unauth branch**
+  (the success-branch `{ available, exists }` keys
+  must NEVER appear in the unauth response, which
+  would indicate the gate was bypassed and
+  `userRepository.emailExists(email, excludeId)` was
+  reached). Documents the at-a-glance scenario tree
+  (a ~45-body bulk-loop walk asserting `< 500`; a
+  bare 401-envelope assertion pinning
+  `{ error: 'Unauthorized' }` exactly; a negative-
+  property assertion that the unauth response does
+  NOT echo the success-branch `available` / `exists`
+  keys; a parameterised-vs-baseline status-stability
+  comparison; a malformed-JSON-body invariance walk
+  pinning the body-parse-after-gate order; a side-
+  channel cookie / `X-*` header walk; a cross-method
+  probe asserting GET / PUT / DELETE / PATCH round-
+  trip to `< 500`; a strict envelope-shape assertion
+  `Object.keys(body).sort() === ['error']`). Includes
+  email-shape boundary fuzzing on the unauth branch
+  (null-byte injection, CRLF email-header injection,
+  XSS-shape email, SQL-shape email) — a regression
+  that runs the email validation before the gate
+  would surface here. Cross-references to the
+  sibling per-spec-file references and to
+  [Spec 010 — E2E Test Coverage](spec/010-e2e-test-coverage/spec.md)
+  and [Spec 009 — Admin Dashboard](spec/009-admin-dashboard/spec.md)
+  for the governing specs. With this entry the
+  **per-spec-file docs rollout extends to 9-of-N**
+  and the **`tests/api/` per-spec-file sub-rollout
+  extends to 7-of-many**, and the **first two-step
+  `auth()` chain `POST` route** in the admin tree
+  picks up its per-source-file body-surface
+  reference (the second body-surface reference
+  overall, after the single-step
+  `admin-twenty-crm-test-connection-body.spec.ts`).
+
 - `docs/plugins` Added `admin-items-export-query-spec.md` —
   the **eighth** per-source-file reference the docs
   tree publishes for any file under
