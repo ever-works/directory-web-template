@@ -33,6 +33,123 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-settings-page-object.md`
+  — the **fourteenth per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/settings.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/settings.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **minimal-fields, accordion-
+  section-driven driver posture** — the smallest admin-
+  tree page object surface to date with only ONE
+  `readonly` Locator field (`heading`), one method
+  (`navigate()`), one helper (`openSection(sectionName)`),
+  and two getters (`switches`, `selects`); (b) a
+  **`getByRole('button', { name: ... }).first()`
+  accordion trigger resolver** that uses a runtime-
+  built `RegExp` (`new RegExp(sectionName, 'i')`)
+  rather than a static regex literal — letting the
+  consuming spec drive any accordion section by name
+  via a string parameter; (c) a **broad multi-
+  resolution `switches` Locator**
+  (`page.locator('[role="switch"]')`) that exposes
+  every toggle switch on the page (the **first**
+  admin-tree driver to do so); (d) a **broad multi-
+  resolution `selects` Locator**
+  (`page.locator('select')`) using the bare HTML
+  element-selector to pin to native `<select>`
+  elements (distinct from the WAI-ARIA
+  `[role="listbox"]` posture HeroUI's React `Select`
+  component emits); and (e) a **per-section accordion
+  lifecycle posture** with seven canonical sections
+  (General, Homepage, Header, Footer, Monetization,
+  Location, Navigation) — distinct from every prior
+  admin-tree driver where the page is a flat surface
+  or a single-modal composite. Documents the full
+  surface for the `AdminSettingsPage` driver. Pinned
+  to
+  [`apps/web-e2e/tests/admin/settings.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/settings.spec.ts)
+  (six flows over the admin settings management
+  surface — admin can access settings page, settings
+  page has accordion sections, admin can expand
+  General Settings section, admin can expand Homepage
+  Settings section, admin can expand Header Settings
+  section, admin can expand Monetization Settings
+  section). Includes the "Why `AdminSettingsPage`
+  extends `BasePage`" three-reason analysis; the "Why
+  `openSection(sectionName)` uses a runtime-built
+  `RegExp`" three-reason analysis (the helper accepts
+  any section name as a string parameter, the `i` flag
+  is preserved, no per-section TypeScript union
+  because the section list is more fluid than items /
+  reports status lists); the "Why `switches` uses the
+  `[role="switch"]` ARIA-role selector" three-reason
+  analysis (HeroUI's `Switch` emits `role="switch"`,
+  the WAI-ARIA `switch` role is screen-reader-
+  canonical, future migration to native checkbox
+  would be a production-source change); the "Why
+  `selects` uses the bare `select` element selector"
+  three-reason analysis (native `<select>` elements
+  in Header / Footer sections, HeroUI `Select` opens
+  to `[role="listbox"]` popup that's not the
+  trigger, two-Locator pair documents the canonical
+  settings-form contract); the "Why no
+  `closeSection(sectionName)` helper" three-reason
+  analysis (no consuming spec closes a section,
+  HeroUI accordion uses the same trigger button for
+  open/close, future state-aware helpers can compose
+  on top); cross-references to all thirteen prior
+  admin-tree page-object docs; and a "What it does
+  not contain" six-bullet enumeration of the
+  deliberate omissions.
+- `apps/web-e2e/tests/api` Added
+  `admin-settings-query.spec.ts` — a query-param
+  surface smoke for the admin-only settings-fetching
+  endpoint at
+  [`apps/web/app/api/admin/settings/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/settings/route.ts).
+  The route is the **first** admin-tree route the
+  smoke layer covers that documents (1) the
+  **`getCachedApiSession(req)` cached-session helper**
+  — a custom variant of `auth()` that caches the
+  session lookup per-request (distinct from every
+  other admin-tree route's bare `auth()` posture); and
+  (2) a **bare `{ error: '...' }` envelope** (NOT the
+  `{ success: false, error: '...' }` shape every
+  other admin-tree route emits) — a single-key
+  envelope without the `success` discriminant. The
+  spec walks the unauthenticated branch and pins the
+  canonical `{ error: 'Unauthorized' }` 401 envelope
+  PLUS a negative-shape assertion that the body must
+  NOT include a `success` key, then sweeps `?section=`
+  / `?key=` / `?expand=` / `?refresh=` / `?userId=` /
+  `?token=` / `?bypass=` / Accept-header / repeated-
+  key / cookie-header / `X-Forwarded-User`-header
+  permutations against the no-arg baseline. The route
+  reads from `configManager.getConfig()` (a YAML-
+  config-file-backed singleton) rather than from a
+  database — distinct from every other admin-tree
+  route's async DB query posture. The spec is unique
+  in that it pins **both** the 401 status AND the
+  bare-envelope shape (rejecting both
+  `'Unauthorized. Admin access required.'` and
+  `'Forbidden'` alternatives, plus the
+  `{ success: false, error }` envelope shape every
+  sibling admin-tree route emits). The sweep mirrors
+  the shape of the sibling
+  `admin-categories-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-notifications-query.spec.ts`,
+  `admin-reports-query.spec.ts`,
+  `admin-roles-stats-query.spec.ts`,
+  `admin-users-query.spec.ts` smoke specs.
 - `docs/plugins` Added `admin-roles-page-object.md`
   — the **thirteenth per-source-file reference** the
   docs tree publishes for any file under
