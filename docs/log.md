@@ -31,6 +31,73 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-04
+
+- `docs/plugins` Added `admin-items-import-body-spec.md` —
+  the **seventeenth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-import-body.spec.ts`
+  spec covering the admin items-import-execute endpoint
+  at `apps/web/app/api/admin/items/import/route.ts`
+  — the **first** admin-tree route the smoke layer
+  covers that combines a static-path `POST` handler with
+  a **two-step body validation chain** AFTER the gate
+  AND AFTER the body parse, distinct from the
+  **single-step** body validation of
+  `admin/items/[id]/review`, the **three-step** body
+  validation of `admin/categories/reorder`, and the
+  **six-step** body validation of `admin/items/bulk`.
+  Documents the unique combination of
+  (1) **static-path `POST` handler** distinct from the
+  dynamic-segment `[id]` routes covered by
+  `admin-items-id-review-body-spec.md` and
+  `admin-items-id-history-query-spec.md`;
+  (2) **single-step `auth()` chain** matching the
+  canonical longer message family;
+  (3) **canonical longer 401 message**
+  `'Unauthorized. Admin access required.'`;
+  (4) **`success: false` envelope key** on the 401
+  branch with a strict envelope-shape assertion
+  `Object.keys(body).sort() === ['error', 'success']`;
+  (5) **body parse via `await request.json()` AFTER
+  the gate**;
+  (6) **two-step body validation chain** with two
+  distinct 400 messages (`'Missing or invalid rows
+  array.'` on `!body.rows || !Array.isArray(body.rows)`,
+  `'Missing import options.'` on `!body.options`) —
+  the **first two-step body-validation admin-tree
+  smoke** the docs tree publishes;
+  (7) **service-call surface** AFTER the gate AND
+  AFTER both validation steps — the handler
+  instantiates `new ItemImportService()` and calls
+  `executeImport(rows, options)` with the body's
+  `rows` and the body's `options` merged with three
+  defaults (`duplicateStrategy ||= 'skip'`,
+  `defaultStatus ||= 'draft'`,
+  `submittedBy = session.user.email || 'admin'`),
+  with success-branch payload
+  `{ success: true, result }` where `result` is the
+  `ImportExecutionResult`;
+  (8) **`safeErrorResponse(error, 'Failed to execute import')`
+  catch** matching the `admin/items/bulk` and
+  `admin/items/[id]/history` catch family;
+  (9) **method-resolution surface** with `POST`-only
+  export. The smoke spec pins the gate-before-body-
+  validation invariant that BOTH 400 messages must
+  NEVER appear in the unauth response body, the gate-
+  before-service invariant that the `result` key
+  must NEVER appear in the unauth response body, the
+  gate-before-default-fallback invariant pinning that
+  every `duplicateStrategy` / `defaultStatus` shape
+  (valid + invalid + falsy) round-trips to the same
+  401 status, and the gate-before-streaming invariant
+  pinning that 10-row and 100-row bodies round-trip
+  to the same status as the empty-rows baseline —
+  the **first two-step-body-validation admin-tree
+  smoke** the docs tree publishes.
+
 ## 2026-05-03
 
 - `docs/plugins` Added `admin-items-id-history-query-spec.md` —
