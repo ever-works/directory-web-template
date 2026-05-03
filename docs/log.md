@@ -33,6 +33,170 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-items-page-object.md`
+  — the **tenth per-source-file reference** the docs
+  tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/items.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/items.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) an **eleven-`readonly`-Locator-
+  field surface** — the largest per-page Locator
+  inventory of any admin-tree driver to date, covering
+  the page chrome, per-row selection, and the bulk-
+  action toolbar; (b) a **nine-method helper API** —
+  the largest per-driver method count of any admin-tree
+  driver to date, covering navigation, per-status-tab
+  filtering with a five-element TypeScript union
+  parameter, search-flow mutators, per-row resolution,
+  per-row action-menu interactions, and per-row
+  selection; (c) a **two-modal-getter posture** —
+  `rejectModal` and `bulkConfirmDialog`, both pinned to
+  the `[role="dialog"][aria-modal="true"]` composite-
+  attribute selector with `hasText` text filters; (d) a
+  **`<input>`-id-bound modal-scoped input getter** —
+  `rejectionReasonInput` resolves via
+  `this.rejectModal.locator('#rejectionReason')`, the
+  **first** admin-tree driver to scope an `id`-selector
+  through a parent modal-Locator getter; (e) a
+  **`<h4>`-tag-anchored named-row resolver
+  (`getItemByName(name)`)** that uses a double-`..`
+  parent walk to lift the resolution from the per-
+  item heading up to the row container — the **first**
+  admin-tree driver posture to document a multi-level
+  DOM-traversal resolution; (f) a **multi-attribute
+  composite OR-selector for the pagination Locator**
+  (`nav[aria-label*="pagination"], nav[aria-label*="Pagination"]`)
+  defending against the production-source's
+  inconsistent capitalisation between the lowercase
+  HeroUI default and the capitalised English
+  translation; (g) a **partial-`aria-label`-substring-
+  anchored toolbar selector** (`[role="toolbar"][aria-label*="ulk"]`)
+  using a case-sensitive sub-word substring `ulk` that
+  survives both `Bulk` and `bulk` capitalisation drift
+  while remaining strict enough to disambiguate
+  against any other toolbar; and (h) **exact-match
+  `^approve$` / `^reject$` / `^delete$` regexes** for
+  the per-action bulk triggers (distinct from the
+  `bulkDeselectButton`'s substring `/deselect/i`
+  posture which tolerates the current `Deselect all`
+  label and a future `Deselect` label). Documents the
+  full surface for the `AdminItemsPage` driver —
+  the eleven `readonly` Locator fields (`heading`,
+  `addItemButton`, `searchBar`, `itemsList`,
+  `pagination`, `selectAllCheckbox`, `bulkActionBar`,
+  `bulkApproveButton`, `bulkRejectButton`,
+  `bulkDeleteButton`, `bulkDeselectButton`), the nine
+  methods (`navigate()`, `selectStatusTab(status)`,
+  `searchItems(term)`, `clearSearch()`,
+  `getItemByName(name)`, `openActionsMenu(itemName)`,
+  `clickAction(actionName)`, `selectItem(itemName)`,
+  plus the inherited `goto()` / `gotoLocalized()` /
+  `waitForPageReady()` / `getTitle()`), and the three
+  getters (`rejectModal`, `rejectionReasonInput`,
+  `bulkConfirmDialog`). Pinned to the four consuming
+  spec files — the largest spec-fan-out of any admin-
+  tree driver to date:
+  [`apps/web-e2e/tests/admin/items.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/items.spec.ts),
+  [`apps/web-e2e/tests/admin/items-crud.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/items-crud.spec.ts),
+  [`apps/web-e2e/tests/admin/items-filter.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/items-filter.spec.ts),
+  and
+  [`apps/web-e2e/tests/admin/items-review.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/admin/items-review.spec.ts).
+  Includes the "Why `AdminItemsPage` extends
+  `BasePage`" three-reason analysis; the "Why
+  `searchBar` uses `getByRole('searchbox')`" three-
+  reason analysis (the items page emits
+  `<input type="search">`, the featured-items driver
+  emits `<input type="text">`, the `searchbox` role
+  surfaces a screen-reader-accessible "search"
+  announcement); the "Why `getItemByName(name)` uses
+  a double-`..` parent walk" three-reason analysis
+  (the items list is not `<table>`-rendered, the
+  per-row container is two parents up from the per-
+  item `<h4>` heading, the double-`..` walk is robust
+  against future production-source changes); the "Why
+  `selectStatusTab(status)` uses a five-element
+  TypeScript union" three-reason analysis (the five
+  status-tab labels are the only canonical values,
+  type-narrowing surfaces typos at compile time,
+  future status additions are explicit); the "Why
+  `pagination` uses a multi-attribute OR-selector"
+  three-reason analysis (HeroUI emits lowercase
+  `aria-label="pagination"`, localised translation
+  may capitalise, OR-selector tolerates both); the
+  "Why `bulkActionBar` uses a `[aria-label*="ulk"]`
+  partial substring" three-reason analysis
+  (capitalisation drift tolerance, disambiguation
+  against other toolbars, no production-source
+  change required); the "Why `bulkApprove` /
+  `bulkReject` / `bulkDelete` use exact-match `^…$`
+  regexes" three-reason analysis; the "Why
+  `bulkDeselectButton` uses a substring (not exact-
+  match) regex" three-reason analysis (production-
+  source label is `Deselect all`, future shortened
+  label is plausible, toolbar-scope is the second-
+  line defence); the "Why `rejectModal` and
+  `bulkConfirmDialog` are getters" three-reason
+  analysis; cross-references to all nine prior
+  admin-tree page-object docs and to the public-tree
+  drivers; and a "What it does not contain" five-
+  bullet enumeration of the deliberate omissions
+  (no `getByTestId` selectors, no per-row Locator-
+  factory beyond `getItemByName(name)`, no
+  `clickReject(itemName, reason)` composite flow
+  helper, no `assertItemPresent(name)` /
+  `assertItemAbsent(name)` invariant helpers, no
+  `clickPaginationPage(page)` / `nextPage()` /
+  `prevPage()` pagination helpers).
+- `apps/web-e2e/tests/api` Added
+  `admin-notifications-query.spec.ts` — a query-param
+  surface smoke for the admin-only notifications-
+  listing endpoint at
+  [`apps/web/app/api/admin/notifications/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/notifications/route.ts).
+  The route is the **first** admin-tree route the
+  smoke layer covers that documents a **two-step
+  session gate** — distinct from every other admin-
+  tree route's single-step gate. The handler signature
+  is the **zero-argument** Next 16 form (the route
+  does not take a `NextRequest` argument and reads no
+  `searchParams` at all today). The route applies
+  two distinct checks in order — first
+  `session?.user?.id` (401 with the bare
+  `'Unauthorized'` message if missing), then
+  `session.user.isAdmin` (403 with the bare
+  `'Forbidden'` message if missing) — distinct from
+  every other admin-tree route's single-step gate.
+  The spec walks the unauthenticated branch and pins
+  the canonical `{ success: false, error: 'Unauthorized' }`
+  401 envelope (NOT 403), then sweeps `?page=` /
+  `?limit=` / `?unreadOnly=` / `?status=` / `?type=`
+  / `?since=`/`?until=` / `?userId=` / `?token=` /
+  `?bypass=` / Accept-header / repeated-key /
+  cookie-header permutations against the no-arg
+  baseline. The spec is unique among the admin-tree
+  query-smoke specs in that it pins **both** the 401
+  status AND the `'Unauthorized'` (not `'Forbidden'`,
+  not `'Unauthorized. Admin access required.'`)
+  error message — the two-step gate emits distinct
+  messages depending on which gate fired. A
+  regression that switches the gate order (e.g.
+  checks `isAdmin` before `id`, which would silently
+  bypass the 401 status because `session?.user?.isAdmin`
+  on a `null` session resolves to `undefined` and
+  the negation catches it as "not admin", returning
+  403 instead of 401) would surface here as a status
+  divergence between the expected 401 and the
+  unexpected 403. The sweep mirrors the shape of the
+  sibling `admin-categories-query.spec.ts`,
+  `admin-collections-query.spec.ts`,
+  `admin-comments-query.spec.ts`,
+  `admin-companies-query.spec.ts`,
+  `admin-dashboard-stats-query.spec.ts`,
+  `admin-featured-items-query.spec.ts`,
+  `admin-geo-analytics-query.spec.ts`,
+  `admin-items-export-sample-query.spec.ts`,
+  `admin-items-query.spec.ts`,
+  `admin-items-stats-query.spec.ts`,
+  `admin-users-query.spec.ts` smoke specs.
 - `docs/plugins` Added `admin-item-form-page-object.md`
   — the **ninth per-source-file reference** the docs
   tree publishes for any file under
