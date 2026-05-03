@@ -33,6 +33,79 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-03
 
+- `docs/plugins` Added `admin-sponsorships-page-object.md`
+  — the **fifteenth per-source-file reference** the
+  docs tree publishes for any file under
+  `apps/web-e2e/page-objects/admin/`, paired with
+  [`apps/web-e2e/page-objects/admin/sponsorships.page.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/page-objects/admin/sponsorships.page.ts)
+  and the **first** admin-tree driver in the rollout
+  that documents (a) a **dual-modal-getter posture**
+  that uses **two different selector strategies** for
+  two semantically distinct modals on the same page —
+  `rejectModal` pinned to the WAI-ARIA-canonical
+  `[role="dialog"][aria-modal="true"]` selector with
+  `.first()` (cheapest resolver because the rejection
+  modal is positionally first), `forceApproveModal`
+  pinned to the less-strict `[role="dialog"]` selector
+  chained with
+  `Locator.filter({ hasText: /force approve/i })`
+  (no positional guarantee because confirmation,
+  error, or info modals may mount between them);
+  (b) a **fire-and-forget `searchSponsorships(term)`
+  flow helper** that does NOT trigger search
+  submission — symmetric with the roles driver's
+  `searchRoles(term)` posture (consumer must wait
+  the debounce window explicitly via
+  `page.waitForTimeout(…)`); (c) a **`<input>`-id-
+  bound modal-scoped input getter**
+  (`rejectionReasonInput`) that resolves at the
+  **page-scope** via
+  `this.page.locator('#rejectionReason')` rather
+  than the modal-scope
+  (`this.rejectModal.locator('#rejectionReason')`)
+  — defensive against future portal-render
+  refactors that mount the textarea outside the
+  modal subtree; (d) a **`getByRole('searchbox').first()`
+  search input resolver** symmetric with the items /
+  clients / comments / companies / collections drivers'
+  search posture (the sponsorships page emits the
+  search input as a native `<input type="search">`
+  resolvable via `getByRole('searchbox')` — distinct
+  from the roles driver's bare `<input type="text">`
+  first-element posture); and (e) a bare
+  `getByRole('heading').first()` heading resolver.
+
+- `apps/web-e2e/tests/api` Added
+  `admin-sponsor-ads-query.spec.ts` — query-param
+  surface smoke for the admin-only sponsor-ads
+  listing endpoint at
+  [`apps/web/app/api/admin/sponsor-ads/route.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web/app/api/admin/sponsor-ads/route.ts).
+  Pins the route's single-step
+  `!session?.user?.isAdmin` → 401
+  `'Unauthorized. Admin access required.'` gate (the
+  **longer-message** variant — distinct from the bare
+  `'Unauthorized'` message every other admin-tree
+  route emits and distinct from the bare `'Forbidden'`
+  message the reports route's single-step gate
+  emits). Pins the AFTER-the-auth-gate ordering of
+  `validatePaginationParams(searchParams)` (a
+  regression that swaps the order would surface as
+  400 instead of 401 on the unauth branch for invalid
+  pagination) AND
+  `querySponsorAdsSchema.safeParse(queryParams)` (a
+  regression that swaps the order would surface as
+  400 'Invalid query parameters' instead of 401 on
+  the unauth branch when the query is malformed).
+  Pins the `?status=` enum filter (valid values:
+  pending_payment, pending, rejected, active,
+  expired, cancelled), the `?interval=` enum filter
+  (valid values: weekly, monthly), the `?sortBy=`
+  enum (valid values: createdAt, updatedAt,
+  startDate, endDate, status), the `?sortOrder=`
+  enum (valid values: asc, desc), and the
+  `?search=` free-text filter — all of which are
+  read AFTER the auth gate.
+
 - `docs/plugins` Added `admin-settings-page-object.md`
   — the **fourteenth per-source-file reference** the
   docs tree publishes for any file under
