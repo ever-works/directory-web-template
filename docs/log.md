@@ -33,6 +33,47 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-featured-items-create-body-spec.md` —
+  the **forty-sixth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-featured-items-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/featured-items/route.ts` —
+  documenting the **seventh Q-010b-style auth-gate-
+  divergence finding** in the admin-tree smoke layer.
+  The route's POST handler does NOT call `!isAdmin`
+  at any point; it requires an authenticated user
+  with a tenant. Two-step gate with **tenant-first
+  ordering** (BEFORE body parse — distinct from
+  `admin/notifications` POST which runs
+  `getTenantId()` AFTER body parse). The POST handler
+  runs a two-field required check, an already-
+  featured check via inline Drizzle `select` (with
+  tenant scoping) returning **400 (NOT 409)**
+  `'Item is already featured'` if a row exists (the
+  first POST smoke that uses a 400, not 409, for an
+  already-exists check), then an inline Drizzle
+  insert. Returns `{ success: true, data:
+  <featuredItem>, message: 'Item featured
+  successfully' }` with status 200. Outer catch is
+  `console.error` + 500 `'Failed to create featured
+  item'`. The smoke spec pins a hybrid 401-envelope
+  assertion, a strict envelope-shape assertion, an
+  unauth-lands-on-401-not-403 invariant, a success-
+  branch-key non-disclosure assertion, a gate-before-
+  post-auth invariant, a parameterised-vs-baseline
+  status-stability comparison, a side-channel walk,
+  a cross-method probe, a malformed-JSON-body
+  invariance walk, a required-fields-check-not-
+  entered invariance walk, an already-featured-
+  check-not-entered invariance walk pinning that the
+  unauth response must NEVER echo `'Item is already
+  featured'`, and a Drizzle-insert-not-entered
+  invariance walk — the **seventh Q-010b auth-gate-
+  divergence finding** the docs tree publishes.
+
 - `docs/plugins` Added `admin-notifications-create-body-spec.md` —
   the **forty-fifth** per-source-file reference the docs
   tree publishes for any file under
