@@ -34,6 +34,52 @@ why** at a higher level than per-commit diffs.
 ## 2026-05-04
 
 - `docs/plugins` Added
+  `surveys-responses-id-query-spec.md` — the
+  **one-hundred-and-thirteenth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-eleventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/surveys-responses-id-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/surveys/responses/[responseId]/route.ts`
+  — the **first per-source-file GET smoke** the
+  docs tree publishes that pins an **admin-gated
+  survey-response-by-id lookup** delegating to
+  `surveyService.getResponseById(responseId)` with a
+  `404 'Response not found'` non-existence guard
+  AFTER the auth gate. UNIQUE: pins a `'Failed to
+  fetch response'` (singular) 500-catch helper that
+  is distinct from the plural-collection sibling's
+  `'Failed to fetch responses'`. Pairs with a new
+  per-source-file docs reference at
+  [`docs/plugins/surveys-responses-id-query-spec.md`](plugins/surveys-responses-id-query-spec.md).
+- `docs/plugins` Added
+  `surveys-id-responses-method-spec.md` — the
+  **one-hundred-and-twelfth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-tenth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/surveys-id-responses-method.spec.ts`
+  spec covering the `GET` AND `POST` exports of
+  `apps/web/app/api/surveys/[surveyId]/responses/route.ts`
+  — the **first per-source-file dual-method
+  smoke** the docs tree publishes that pins a
+  **SPLIT-auth gate contract** on a single per-
+  source-file route (admin-gated `GET` + PUBLIC
+  `POST` with a 404-survey-existence guard,
+  distinct from the sibling
+  `surveys/[surveyId]` MIXED-auth gate). UNIQUE:
+  pins a `body.data` JSON-object guard (manual
+  `typeof === 'object' && != null`, NOT Zod), an
+  IP / user-agent header capture (`x-forwarded-for`
+  → `x-real-ip` → `'unknown'`), a survey-derived
+  `itemId` contract (handler IGNORES caller-supplied
+  `itemId`), and a `201 Created` success status.
+  Pairs with a new per-source-file docs reference at
+  [`docs/plugins/surveys-id-responses-method-spec.md`](plugins/surveys-id-responses-method-spec.md).
+- `docs/plugins` Added
   `client-items-import-validate-method-spec.md` —
   the **one-hundred-and-eleventh** per-source-file
   reference the docs tree publishes for any file
