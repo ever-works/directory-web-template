@@ -33,6 +33,48 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-settings-update-method-spec.md` —
+  the **forty-eighth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-settings-update-method.spec.ts`
+  spec covering the `PATCH` export of
+  `apps/web/app/api/admin/settings/route.ts` — the
+  **first PATCH-only collection-level config-write
+  admin-tree smoke** the docs tree publishes. It is
+  also the **first** admin-tree smoke that uses
+  `getCachedApiSession(req)` instead of `auth()` — a
+  cached-session-lookup variant. The PATCH handler
+  combines a single-step `!session?.user?.isAdmin`
+  gate returning 401 `{ error: 'Unauthorized' }`
+  (BARE envelope, NO `success` key, SHORT message),
+  a single-field required check (`if (!key)` → 400
+  `'Key is required'`),
+  `configManager.updateNestedKey('settings.${key}',
+  value)` for the load-bearing config.yml write,
+  an update-failed branch (500 `'Failed to update
+  setting'` if falsy), success payload
+  `{ success: true, key, value }` with status 200
+  (UNIQUE: echoes the input key and value), and
+  outer catch `console.error` + 500 `'Failed to
+  update settings'`. The companion
+  `admin-settings-query.spec.ts` covers the GET
+  surface of the same route. The smoke spec pins a
+  bare 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion, a gate-before-post-auth
+  invariant, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a
+  cross-method probe, a malformed-JSON-body
+  invariance walk, a required-key-check-not-entered
+  invariance walk, and a configManager-update-not-
+  entered invariance walk pinning that the unauth
+  response must NEVER echo a `key` or `value` from
+  the input — the **first cached-session-lookup
+  config-write PATCH admin-tree smoke** the docs
+  tree publishes.
+
 - `docs/plugins` Added `admin-categories-git-create-body-spec.md` —
   the **forty-seventh** per-source-file reference the docs
   tree publishes for any file under
