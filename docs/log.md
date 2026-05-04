@@ -33,6 +33,62 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `extract-body-spec.md` —
+  the **fifty-fourth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/extract-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/extract/route.ts` — the
+  **first non-admin-tree per-source-file
+  reference** the docs tree publishes (every prior
+  per-source-file e2e reference covers an
+  `apps/web/app/api/admin/**` route; this spec
+  covers the extraction-proxy at
+  `apps/web/app/api/extract/route.ts` -- a non-
+  admin proxy that forwards to the Ever Works
+  Platform API), the **first non-admin-gated POST
+  smoke** that pins a **"feature disabled"
+  graceful-degradation branch** (when
+  `process.env.PLATFORM_API_URL` is missing, the
+  handler returns a 200 -- NOT 401, NOT 503 --
+  with the envelope `{ success: false,
+  featureDisabled: true, message: 'URL extraction
+  feature is not available. This feature requires
+  PLATFORM_API_URL to be configured.' }` -- no
+  prior smoke spec covers a `featureDisabled:
+  true` envelope shape), and the **first POST
+  smoke** that uses **Zod `safeParse` + `result.
+  error.issues[0].message`** (NOT `flatten()`
+  like admin/items/import) to surface the FIRST
+  validation issue as the 400 envelope's `error`
+  field. In the e2e test environment
+  `PLATFORM_API_URL` is NOT configured, so EVERY
+  POST request lands on the feature-disabled
+  branch -- making the spec a pinning of the
+  feature-disabled envelope as the load-bearing
+  invariant. The smoke spec pins a 200-with-
+  feature-disabled-envelope assertion, a strict
+  envelope-shape assertion, a no-`error`-key
+  assertion on the feature-disabled branch, a
+  feature-disabled-before-post-feature-disabled
+  invariant, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a
+  cross-method probe (POST is the only exported
+  method, so all four other HTTP verbs are
+  probed), a malformed-JSON-body invariance walk,
+  a Zod-validation-chain-not-entered invariance
+  walk pinning that the response must NEVER echo
+  `'Invalid URL format'`, and an external-fetch-
+  proxy-not-entered invariance walk pinning that
+  the response must always include
+  `featureDisabled: true` in the test environment
+  — the **first non-admin-tree per-source-file
+  reference** the docs tree publishes,
+  expanding the rollout beyond the `admin/**`
+  route family for the first time.
+
 - `docs/plugins` Added `admin-location-index-manage-body-spec.md` —
   the **fifty-third** per-source-file reference the
   docs tree publishes for any file under
