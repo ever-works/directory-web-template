@@ -26,9 +26,9 @@ import { cn } from '@/lib/utils';
 
 // ===================== Constants =====================
 
-const MODAL_OVERLAY = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-white/3 rounded-xl shadow-xl overflow-hidden max-h-[90vh] flex flex-col';
-const MODAL_HEADER = 'bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4 shrink-0';
+const MODAL_OVERLAY = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4';
+const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-[#121212] rounded-xl shadow-2xl border border-gray-200 dark:border-white/[0.06] overflow-hidden max-h-[90vh] flex flex-col';
+const MODAL_HEADER = 'px-6 py-4 border-b border-gray-200 dark:border-white/[0.06] shrink-0';
 const MODAL_BODY = 'p-6 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 flex-1';
 
 const ACTION_CONFIG: Record<
@@ -242,7 +242,7 @@ function HistoryEntry({ entry }: { entry: ItemAuditLogEntry }) {
 
 				{/* Expanded changes */}
 				{expanded && hasChanges && (
-					<div className="mt-2 pl-2 border-l-2 border-gray-200 dark:border-white/6 space-y-1">
+					<div className="mt-2 pl-2 border-l-2 border-gray-200 dark:border-white/[0.06] space-y-1">
 						{changes.map(([field, { old, new: newVal }]) => (
 							<ChangeItem key={field} field={field} old={old} newValue={newVal} />
 						))}
@@ -306,8 +306,8 @@ function ActionFilterSelect({
 			>
 				<Select.Trigger
 					className={cn(
-						'flex h-9 w-[200px] items-center justify-between rounded-md border border-gray-200 dark:border-white/6 bg-white dark:bg-white/5 px-3 py-2 text-sm',
-						'focus:outline-none focus:ring-2 focus:ring-blue-500',
+						'flex h-9 w-[200px] items-center justify-between rounded-lg border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.05] px-3 py-2 text-sm text-gray-900 dark:text-white',
+						'focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white',
 						'disabled:cursor-not-allowed disabled:opacity-50'
 					)}
 				>
@@ -321,14 +321,14 @@ function ActionFilterSelect({
 				</Select.Trigger>
 				<Select.Portal>
 					<Select.Content
-						className="overflow-hidden bg-white dark:bg-white/5 rounded-lg shadow-lg border border-gray-200 dark:border-white/6 z-50"
+						className="overflow-hidden bg-white dark:bg-[#121212] rounded-lg shadow-xl border border-gray-200 dark:border-white/[0.06] z-50"
 						position="popper"
 						sideOffset={4}
 					>
 						<Select.Viewport className="p-1">
 							<Select.Item
 								value="all"
-								className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+								className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/[0.06] outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-white/[0.06]"
 							>
 								<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 									<Check className="h-4 w-4" />
@@ -339,7 +339,7 @@ function ActionFilterSelect({
 								<Select.Item
 									key={action}
 									value={action}
-									className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/6 outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-gray-700"
+									className="relative flex items-center px-8 py-2 text-sm rounded-md cursor-pointer hover:bg-gray-100 dark:hover:bg-white/[0.06] outline-none data-[highlighted]:bg-gray-100 dark:data-[highlighted]:bg-white/[0.06]"
 								>
 									<Select.ItemIndicator className="absolute left-2 inline-flex items-center">
 										<Check className="h-4 w-4" />
@@ -414,19 +414,19 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 				{/* Header */}
 				<div className={MODAL_HEADER}>
 					<div className="flex items-center justify-between">
-						<div className="flex items-center space-x-3">
-							<div className="flex items-center justify-center h-10 w-10 rounded-full bg-white/20">
-								<Clock className="h-6 w-6 text-white" />
+						<div className="flex items-center gap-3">
+							<div className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+								<Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div>
-								<h2 className="text-xl font-semibold text-white">{t('TITLE')}</h2>
-								<p className="text-sm text-white/80 truncate max-w-xs">{itemName}</p>
+								<h2 className="text-base font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h2>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-xs">{itemName}</p>
 							</div>
 						</div>
 						<button
 							type="button"
 							onClick={onClose}
-							className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-colors"
+							className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
 							aria-label="Close"
 						>
 							<X className="w-5 h-5" />
@@ -464,7 +464,7 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 
 					{/* History List */}
 					{!isLoading && !isError && data && data.logs.length > 0 && (
-						<div className="divide-y divide-gray-100 dark:divide-white/6">
+						<div className="divide-y divide-gray-100 dark:divide-white/[0.06]">
 							{data.logs.map((entry) => (
 								<HistoryEntry key={entry.id} entry={entry} />
 							))}
@@ -474,7 +474,7 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 
 				{/* Pagination Footer */}
 				{data && data.totalPages > 1 && (
-					<div className="px-6 py-4 border-t border-gray-100 dark:border-white/6 bg-gray-50 dark:bg-white/3 shrink-0">
+					<div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.06] bg-gray-50/60 dark:bg-white/[0.02] shrink-0">
 						<UniversalPagination
 							page={page}
 							totalPages={data.totalPages}

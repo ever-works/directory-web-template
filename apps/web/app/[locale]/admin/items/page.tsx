@@ -530,7 +530,7 @@ export default function AdminItemsPage() {
     const color = ITEM_STATUS_COLORS[status as keyof typeof ITEM_STATUS_COLORS] || 'gray';
     
     const statusClasses = {
-      gray: {
+      gray: { 
         bg: 'bg-gray-100 dark:bg-white/[0.02]',
         text: 'text-gray-800 dark:text-gray-400',
         border: 'border-gray-200 dark:border-white/6',
@@ -560,7 +560,6 @@ export default function AdminItemsPage() {
       <div className="p-6 max-w-7xl mx-auto">
         {/* Header Skeleton */}
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
                 <Skeleton className="w-12 h-12 rounded-xl" />
@@ -571,7 +570,6 @@ export default function AdminItemsPage() {
               </div>
               <Skeleton className="h-12 w-32" />
             </div>
-          </div>
         </div>
 
         {/* Stats Skeleton */}
@@ -744,10 +742,10 @@ export default function AdminItemsPage() {
       </div>
 
       {/* Items Table */}
-      <Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
-        <CardContent className="p-0">
+      <div className="bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/6 rounded-2xl shadow-sm overflow-hidden">
+        <div className="p-0">
           {/* Table Header with Filters and Sorting */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
+          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50 dark:bg-white/3">
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div className="flex items-center gap-4">
                 {/* Select All Checkbox */}
@@ -995,8 +993,8 @@ export default function AdminItemsPage() {
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -1016,7 +1014,7 @@ export default function AdminItemsPage() {
           aria-modal="true"
           aria-labelledby="item-form-modal-title"
           tabIndex={-1}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
+          className="fixed inset-0 bg-black/50 z-50 overflow-y-auto focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
           onClick={(e) => {
             // Close modal when clicking backdrop
             if (e.target === e.currentTarget) {
@@ -1025,7 +1023,7 @@ export default function AdminItemsPage() {
           }}
         >
           <div className="flex min-h-full items-center justify-center p-4">
-            <div className="max-w-4xl w-full" onClick={(e) => e.stopPropagation()}>
+            <div className="max-w-4xl w-full bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl" onClick={(e) => e.stopPropagation()}>
               <MultiStepItemForm
                 item={selectedItem}
                 mode={formMode}

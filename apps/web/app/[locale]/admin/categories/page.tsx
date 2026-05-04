@@ -329,10 +329,10 @@ export default function AdminCategoriesPage() {
 			</div>
 
 			{/* Categories Table */}
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
-				<CardBody className="p-0">
+			<div className="bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/6 rounded-2xl shadow-sm overflow-hidden">
+				<div className="p-0">
 					{/* Table Header */}
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
+					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50 dark:bg-white/3">
 						<div className="flex items-center justify-between">
 							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{t('CATEGORIES_TITLE')}
@@ -450,8 +450,8 @@ export default function AdminCategoriesPage() {
 							</div>
 						</div>
 					)}
-				</CardBody>
-			</Card>
+				</div>
+			</div>
 
 			{/* Enhanced Pagination and Stats */}
 			{totalCategories > 0 && (
@@ -502,15 +502,15 @@ export default function AdminCategoriesPage() {
 							}
 						}}
 					/>
-					<div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-						<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
+					<div className="relative bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+						<div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/6">
 							<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
 								{formMode === 'create' ? t('CREATE_CATEGORY') : t('EDIT_CATEGORY')}
 							</h2>
 							{!isSubmitting && (
 								<button
 									onClick={onClose}
-									className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
+									className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
 								>
 									<svg
 										className="w-5 h-5 text-gray-500 dark:text-gray-400"

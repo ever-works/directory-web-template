@@ -296,8 +296,8 @@ export default function AdminTagsPage() {
 			</div>
 
 			{/* Tags Table */}
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
-				<CardContent className="p-0">
+		<div className="bg-white dark:bg-white/[0.03] border border-gray-100 dark:border-white/6 rounded-2xl shadow-sm overflow-hidden">
+			<div className="p-0">
 					{/* Table Header */}
 					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
 						<div className="flex items-center justify-between">
@@ -410,8 +410,8 @@ export default function AdminTagsPage() {
 							</div>
 						</div>
 					)}
-				</CardContent>
-			</Card>
+				</div>
+			</div>
 
 			{/* Pagination */}
 			{tagsData && tagsData.totalPages > 1 && (
@@ -426,8 +426,8 @@ export default function AdminTagsPage() {
 
 			{/* Modal */}
 			{isModalOpen && (
-				<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-					<div className="max-w-md w-full mx-4">
+			<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+				<div className="max-w-md w-full mx-4 bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/10 rounded-2xl shadow-xl">
 						<TagForm
 							tag={selectedTag}
 							mode={formMode}

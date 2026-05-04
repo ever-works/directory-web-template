@@ -11,8 +11,8 @@ import { ItemImportModal } from "./import/item-import-modal";
 const menuItemClass = cn(
 	"flex items-center gap-2 px-3 py-2 text-sm cursor-pointer outline-none rounded-md mx-1",
 	"text-gray-700 dark:text-gray-200",
-	"hover:bg-gray-100 dark:hover:bg-white/6",
-	"focus:bg-gray-100 dark:focus:bg-white/5",
+	"hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+	"focus:bg-gray-100 dark:focus:bg-white/[0.05]",
 	"transition-colors duration-150"
 );
 
@@ -36,10 +36,10 @@ export function ItemImportExport() {
 					<button
 						className={cn(
 							"inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium",
-							"bg-white dark:bg-white/5",
-							"border border-gray-200 dark:border-white/6",
+							"bg-white dark:bg-white/[0.05]",
+							"border border-gray-200 dark:border-white/[0.06]",
 							"text-gray-700 dark:text-gray-200",
-							"hover:bg-gray-50 dark:hover:bg-white/6",
+							"hover:bg-gray-50 dark:hover:bg-white/[0.06]",
 							"shadow-sm hover:shadow-md",
 							"transition-all duration-200",
 							isExporting && "opacity-70 cursor-wait"
@@ -58,8 +58,8 @@ export function ItemImportExport() {
 				<DropdownMenu.Portal>
 					<DropdownMenu.Content
 						className={cn(
-						"min-w-[200px] bg-white dark:bg-white/5 rounded-xl shadow-lg",
-						"border border-gray-200 dark:border-white/6",
+						"min-w-[200px] bg-white dark:bg-[#121212] rounded-xl shadow-xl",
+						"border border-gray-200 dark:border-white/[0.06]",
 							"py-1 z-50",
 							"animate-in fade-in-0 zoom-in-95 duration-200"
 						)}
@@ -89,7 +89,7 @@ export function ItemImportExport() {
 							{t("EXPORT_EXCEL")}
 						</DropdownMenu.Item>
 
-						<DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/8 my-1" />
+						<DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/[0.08] my-1" />
 
 						{/* Template Section */}
 						<DropdownMenu.Label className={sectionLabelClass}>
@@ -114,7 +114,7 @@ export function ItemImportExport() {
 							{t("DOWNLOAD_EXCEL_TEMPLATE")}
 						</DropdownMenu.Item>
 
-						<DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/8 my-1" />
+						<DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/[0.08] my-1" />
 
 						{/* Import Section */}
 						<DropdownMenu.Label className={sectionLabelClass}>
