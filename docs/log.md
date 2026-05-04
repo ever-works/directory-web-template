@@ -33,6 +33,66 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-roles-id-method-spec.md` —
+  the **thirty-sixth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-fourth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-roles-id-method.spec.ts`
+  spec covering the admin single-role CRUD endpoint at
+  `apps/web/app/api/admin/roles/[id]/route.ts` — the
+  **first triple-method admin-tree smoke** the docs
+  tree publishes that combines the **two-step
+  `!session?.user` → `!session.user.isAdmin` gate**
+  with a **DELETE `?hard=true` query-parameter
+  branch** AND a **three-step manual PUT body
+  validation chain** with FIXED error messages.
+  Distinct from `admin/categories/[id]` which has the
+  DELETE-`?hard=true` branch but a single-step gate;
+  distinct from `admin/users/[id]` which has the two-
+  step gate but NO DELETE-`?hard=true` branch and
+  uses an eight-step PUT validation chain. All three
+  handlers share the SAME hybrid 401 envelope
+  (`{ success: false, error: 'Unauthorized' }` —
+  matching `admin/users/[id]` and `admin/featured-
+  items/[id]`) and the SAME `console.error` + 500
+  catch posture. Each handler diverges on its post-
+  gate surface: GET calls `roleRepository.findById`
+  returning 404 / 200; PUT parses body AFTER both
+  gate steps, runs an existence check AFTER body
+  parse (NOT before, distinct from
+  `admin/reports/[id]` and `admin/companies/[id]`),
+  runs the three-step validation chain ((a) name-
+  empty / (b) name-length / (c) description-length),
+  calls `roleRepository.update(id, ...)`, returns
+  `{ success: true, data: <role>, message: 'Role
+  updated successfully' }`; DELETE parses
+  `searchParams.get('hard') === 'true'`, runs an
+  existence check, branches on `hardDelete` boolean
+  (`hardDelete === true` →
+  `roleRepository.hardDelete(id)`; else
+  `roleRepository.delete(id)`), returns the soft-
+  delete `'Role deleted (marked as inactive)'` or
+  hard-delete `'Role permanently deleted'` message.
+  The smoke spec pins per-method hybrid 401-envelope
+  assertions, a NEVER-403 invariant, gate-before-
+  post-auth across eleven candidate messages
+  (including the three PUT validation messages and
+  both DELETE success messages), a per-id-shape
+  status-stability comparison, a PUT body-permutation
+  status-stability comparison, a DELETE `?hard=...`
+  query-shape invariance walk, a cross-method side-
+  channel walk, a service-not-entered invariance walk
+  across all four repository calls, a three-step-
+  validation invariance walk pinning that EVERY
+  step-(a)/(b)/(c) probe round-trips to the same 401
+  status, and a hard-delete-branch-not-entered
+  invariance walk pinning that the unauth response
+  must NEVER echo `'Role deleted (marked as
+  inactive)'` or `'Role permanently deleted'` — the
+  **first two-step-gate-with-DELETE-?hard-query
+  admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-tags-id-method-spec.md` —
   the **thirty-fifth** per-source-file reference the docs
   tree publishes for any file under
