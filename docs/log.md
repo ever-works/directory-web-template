@@ -33,6 +33,61 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `cron-subscription-reminders-method-spec.md` —
+  the **ninety-seventh** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-fifth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/cron-subscription-reminders-method.spec.ts`
+  spec covering the `GET` AND `POST` exports of
+  `apps/web/app/api/cron/subscription-reminders/route.ts`
+  — the **first per-source-file smoke** the docs
+  tree publishes that pins a **207 Multi-Status
+  partial-success response** (the handler returns
+  207 when `result.success === false`). The
+  existing multi-cron sibling `cron-jobs.spec.ts`
+  covers OTHER cron routes; this spec drills into
+  the subscription-reminders handler specifically.
+  Distinct from EVERY prior cron smoke: timing-
+  safe comparison on the FULL `Authorization`
+  header (UNIQUE — every other cron handler
+  compares ONLY the secret portion after stripping
+  `Bearer `); BARE ONE-key 401 envelope `{ error:
+  'Unauthorized' }` (NO `success` key, NO
+  `message` field — DIFFERENT from the cron-
+  subscription-expiration sibling's TWO-key
+  envelope); 207 Multi-Status response (UNIQUE —
+  FIRST per-source-file smoke pinning a 207
+  partial-success status code); spread-result
+  success / error pattern (both branches spread
+  the entire result object into the response —
+  UNIQUE, distinct from subscription-expiration
+  which constructs an explicit `data` envelope);
+  GET + POST dual-method-delegate exports (POST
+  simply does `return GET(request)`); outer catch
+  via `safeErrorResponse(error, 'Cron job failed')`
+  (distinct message vs subscription-expiration's
+  `'Failed to process expired subscriptions'`).
+  The smoke spec pins two header bulk-loop walks
+  (~9 headers × 2 methods asserting `< 500`), a
+  BARE ONE-key 401 envelope assertion, a strict
+  envelope-shape assertion, a no-Bearer-secret-
+  echo invariant, a timing-safe length-mismatch
+  handling assertion on the FULL header, a POST-
+  delegates-to-GET assertion, a cross-method
+  probe (PUT / PATCH / DELETE), a side-channel
+  walk, a subscriptionRenewalReminderJob-not-
+  entered invariance walk (CRITICAL — the load-
+  bearing reminder-job call NEVER runs on unauth
+  and no spread-result key is leaked), a gate-
+  before-post-auth invariant, and a no-207-on-
+  unauth invariant. With this addition the per-
+  spec-file docs rollout extends to 97-of-N and
+  the `tests/api/` per-spec-file sub-rollout
+  extends to 95-of-many; the cron triplet (sync +
+  expiration + reminders) is now complete on
+  per-source-file coverage.
+
 - `docs/plugins` Added `cron-subscription-expiration-method-spec.md` —
   the **ninety-sixth** per-source-file reference
   the docs tree publishes for any file under
