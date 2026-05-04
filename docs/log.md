@@ -33,6 +33,38 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-setup-intent-id-query-spec.md` —
+  the **eighty-seventh** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-fifth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-setup-intent-id-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/stripe/setup-intent/[id]/route.ts`
+  — the **first per-source-file GET smoke** for a
+  Stripe per-id primitive route AND the **first
+  per-source-file GET smoke** pinning a
+  `error.code === 'resource_missing'` substring
+  detection in the catch (UNIQUE Stripe enum-typed
+  code-based dispatcher). Distinct from setup-
+  intent POST root: GET method; `success: false`
+  + `error: 'Unauthorized'` 2-key envelope (vs
+  root's bare 1-key); customer-metadata IDOR
+  check; filtered SetupIntent fields in success
+  (vs root's raw provider object); Stripe-`error.
+  code` substring detection. The smoke spec pins
+  a canonical 401-envelope assertion, a strict
+  envelope-shape assertion, a no-`client_secret`-
+  leak CRITICAL security invariant, a gate-before-
+  post-auth invariant, a side-channel walk, a
+  cross-method probe, a setupIntents-retrieve-
+  and-customers-retrieve-and-IDOR-check-not-
+  entered invariance walk (CRITICAL), a catch-
+  branch-dispatcher-not-entered invariance walk, a
+  no-stripe-error-message-leak invariant, and a
+  cross-id-invariance walk pinning identical 401
+  envelopes across different setup-intent IDs.
+
 - `docs/plugins` Added `stripe-payment-methods-update-method-spec.md` —
   the **eighty-sixth** per-source-file reference
   the docs tree publishes for any file under
