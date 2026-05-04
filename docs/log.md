@@ -33,6 +33,142 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `polar-webhook-body-spec.md` —
+  the **fifty-sixth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/polar-webhook-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/polar/webhook/route.ts` —
+  the **first per-source-file webhook POST smoke**
+  the docs tree publishes (the existing multi-
+  provider `webhooks.spec.ts` covers Stripe /
+  LemonSqueezy / Polar / Solidgate with two
+  assertions each -- GET-not-5xx and POST-
+  unauthenticated-rejected; this spec drills into
+  the Polar webhook handler specifically), the
+  **first POST smoke** that uses **`await
+  request.text()` (raw body)** instead of `await
+  request.json()` (because Polar calculates
+  signatures on the raw body, not the parsed JSON;
+  the handler manually parses the raw text via
+  `JSON.parse(bodyText)` inside a try/catch), and
+  the **first POST smoke** that uses
+  **`safeErrorResponse(..., 400)`** in the outer
+  catch (defaulting to **400 NOT 500** for unhandled
+  webhook errors -- preventing a 5xx crash on
+  signature/parsing errors that would otherwise
+  trip Polar's webhook-retry logic). The POST
+  handler combines a raw-body read, a manual JSON
+  parse (failure → 400 `'Invalid JSON payload'`),
+  a `validateWebhookPayload(body)` structure check
+  (failure → 400 `'Invalid webhook payload'`), a
+  `webhook-signature` header presence check
+  (missing → 400 `'No signature provided'`), the
+  load-bearing `polarProvider.handleWebhook(...)`
+  signature-verification call, a `!webhookResult.
+  received` check (400 `'Webhook not processed'`),
+  the load-bearing `routeWebhookEvent(...)` event-
+  routing call on the success branch, success
+  payload `{ received: true }` with status 200,
+  and outer catch `safeErrorResponse(error,
+  'Webhook processing failed', 400)`. The smoke
+  spec pins a first-gate JSON-parse-rejection
+  assertion, a second-gate validate-payload-
+  rejection assertion, a third-gate signature-
+  header-presence-rejection assertion, a strict
+  envelope-shape assertion across all three pre-
+  delivery branches, a success-branch-received-
+  key non-disclosure assertion, a catch-branch-
+  defaults-to-400 invariant pinning that NO
+  unhandled error escapes as 5xx, an allowed-pre-
+  delivery-error static-string allow-list assertion,
+  a side-channel walk, a cross-method probe, and a
+  signature-verification-call-gated-by-header-
+  check invariant pinning that a valid payload
+  without the `webhook-signature` header must
+  produce `'No signature provided'`, not a 200
+  `{ received: true }` — the **first per-source-
+  file webhook POST smoke** the docs tree
+  publishes, expanding the rollout into the
+  payment-provider webhook layer for the first
+  time.
+
+- `docs/plugins` Added `item-views-record-body-spec.md` —
+  the **fifty-fifth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-third** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-views-record-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/items/[slug]/views/route.ts` —
+  the **first non-admin POST smoke** the docs tree
+  publishes that pins a **bot-detection
+  graceful-degradation branch** AS the load-bearing
+  test invariant: the route imports `isBot()` from
+  `apps/web/lib/utils/bot-detection.ts` whose
+  `BOT_PATTERNS` regex array contains `/bot/i`,
+  `/crawl/i`, `/spider/i`, `/playwright/i`,
+  `/puppeteer/i`, `/headless/i`, `/curl/i`,
+  `/python-requests/i`, `/axios/i`, `/node-fetch/i`
+  AND treats an empty UA as a bot. The smoke spec
+  EXPLICITLY sets a known-bot User-Agent
+  (`Googlebot/2.1`) on the deterministic-assertion
+  tests so the bot gate fires regardless of the
+  Playwright runtime's default UA, BEFORE the route
+  ever calls `itemRepository.findBySlug(...)`, the
+  `auth()` owner check, the `cookies()` viewer-id
+  read, OR the `recordItemView(...)` write — making
+  the canonical envelope `{ success: true, counted:
+  false, reason: 'bot' }` (status 200) the
+  load-bearing invariant for the spec. It is also
+  the **first POST smoke** the docs tree publishes
+  that pins a **synthetic-User-Agent override
+  branch** — the same endpoint, called with a
+  non-bot Chrome UA against an intentionally
+  non-existent slug, progresses past the bot gate,
+  reaches `itemRepository.findBySlug(slug)`, and
+  lands on the `if (!item) return 404 { success:
+  false, error: 'Item not found' }` branch. The two
+  branches together pin the gate-before-find order
+  as a load-bearing invariant: a regression that
+  re-orders the `findBySlug(...)` call before the
+  bot gate would surface here as a `data`-key
+  disclosure on the bot branch OR as a status-code
+  change. The smoke spec pins a canonical bot
+  envelope assertion `{ success: true, counted:
+  false, reason: 'bot' }`, a strict envelope-shape
+  assertion (`Object.keys(body).sort() ===
+  ['counted', 'reason', 'success']`), a
+  post-bot-gate-key non-disclosure assertion that
+  NONE of `error`, `data`, `code` keys must appear
+  in any bot response, a gate-before-post-bot
+  invariant pinning that NONE of the three candidate
+  static messages (`'Item not found'`, `'Failed to
+  record view'`, `'Database not configured'`) must
+  appear in any bot response, a parameterised-vs-
+  baseline status-stability comparison, a
+  side-channel walk, a cross-method probe, a
+  malformed-JSON-body invariance walk pinning the
+  gate-before-body-read order, an
+  item-not-found-not-entered invariance walk pinning
+  the gate-before-find order, a database-unavailable-
+  not-entered invariance walk pinning the post-
+  DATABASE_URL-configuration invariant, a
+  non-bot-UA-override-progresses-to-404 assertion
+  pinning the gate-before-find order from the
+  non-bot side, a bot-branch-non-disclosure-on-the-
+  non-bot-branch assertion, and an owner-exclusion-
+  not-entered invariance walk pinning that
+  anonymous requests can NEVER receive `reason:
+  'owner'` regardless of UA OR `submitted_by`
+  body-field bypass attempts — the **first
+  bot-detection-graceful-degradation POST smoke**
+  the docs tree publishes that pins the bot gate as
+  the load-bearing invariant on a public,
+  non-auth-gated endpoint.
+
 - `docs/plugins` Added `extract-body-spec.md` —
   the **fifty-fourth** per-source-file reference the
   docs tree publishes for any file under
