@@ -33,6 +33,37 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-payment-methods-update-method-spec.md` —
+  the **eighty-sixth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-payment-methods-update-method.spec.ts`
+  spec covering the `PUT` + `PATCH` exports of
+  `apps/web/app/api/stripe/payment-methods/update/route.ts`
+  — the **first per-source-file PUT + PATCH
+  smoke** for a non-admin payment-method route.
+  Sibling to the delete DELETE route. Distinct:
+  TWO mutation methods exported on same path (PUT
+  full update + PATCH set-default-only; FIRST per-
+  source-file mutating smoke pinning PUT + PATCH
+  dual-method export); shared helper-function-
+  extraction design with delete sibling; PUT
+  preserves existing metadata via spread (FIRST
+  PUT smoke pinning metadata-merge contract);
+  `userId` always present in metadata (caller
+  cannot override). The smoke spec pins canonical
+  401-envelope assertions on PUT AND PATCH, cross-
+  method envelope-equality assertion pinning byte-
+  identical 401 envelopes, gate-before-post-auth
+  invariant, no-`metadata.userId`-leak invariant,
+  cross-method probe, ownership-check-helper-and-
+  paymentMethods-update-and-customers-update-not-
+  entered invariance walk (CRITICAL), and no-
+  `payment_method_id`-leak invariant — completing
+  the Stripe payment-methods CRUD trio (create
+  POST + update PUT/PATCH + delete DELETE).
+
 - `docs/plugins` Added `stripe-payment-methods-delete-body-spec.md` —
   the **eighty-fifth** per-source-file reference
   the docs tree publishes for any file under
