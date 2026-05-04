@@ -33,6 +33,46 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `solidgate-webhook-body-spec.md` —
+  the **sixty-second** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixtieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/solidgate-webhook-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/solidgate/webhook/route.ts` —
+  the **third per-source-file webhook POST smoke**
+  (after polar + lemonsqueezy). Distinct from BOTH:
+  two-header signature fallback (`x-signature ||
+  solidgate-signature` -- UNIQUE to Solidgate);
+  manual JSON parse like polar but NO
+  `validateWebhookPayload` check; in-memory
+  idempotency Set with 24-hour TTL (FIRST webhook
+  smoke pinning an idempotency contract; duplicates
+  return 200 `{ received: true }` -- FIRST webhook
+  smoke with TWO 200-success branches); switch
+  dispatcher accepting BOTH enum AND string values
+  for 9 event types; GET export with informative
+  message (UNIQUE: polar and lemonsqueezy export
+  only POST); same 400-default catch. The smoke
+  spec pins a first-gate two-header-fallback
+  rejection assertion, a fallback-header-acceptance
+  assertion, a strict envelope-shape assertion, a
+  success-branch-received-key non-disclosure
+  assertion, a catch-branch-defaults-to-400
+  invariant, an allowed-pre-delivery-error static-
+  string allow-list assertion, a polar-shape-
+  headers-ignored assertion, a side-channel walk, a
+  GET-200-with-informative-message assertion, a
+  cross-method probe, a signature-verification-
+  call-gated-by-header-check invariant, and a
+  switch-statement-dispatcher-gated-by-signature-
+  verification invariant — the **third per-
+  source-file webhook POST smoke** the docs tree
+  publishes, expanding payment-provider webhook
+  coverage from two providers to three (Polar +
+  LemonSqueezy + Solidgate).
+
 - `docs/plugins` Added `item-comments-rating-query-spec.md`
   — the **sixty-first** per-source-file reference
   the docs tree publishes for any file under
