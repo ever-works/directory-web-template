@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `sponsor-ads-user-id-renew-body-spec.md` —
+  the **seventy-third** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-first**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-user-id-renew-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/sponsor-ads/user/[id]/renew/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **swallow-and-continue body-parse
+  contract** (`try { const body = await request.json();
+  successUrl = body.successUrl; cancelUrl =
+  body.cancelUrl; } catch { /* Body is optional */ }`
+  — malformed JSON OR missing body silently leaves
+  `successUrl` / `cancelUrl` as `undefined`; FIRST
+  swallow-and-continue contract in the rollout, distinct
+  from the sibling cancel route's silent-coalesce-to-{}
+  pattern). Also the **first per-source-file POST
+  smoke** pinning **TWO open-redirect-validated URLs
+  in the SAME body** (`successUrl` AND `cancelUrl`,
+  each through `validateRedirectUrl` comparing
+  `protocol`, `hostname`, AND `port` against
+  `appUrl`) AND a **multi-provider `switch` dispatch
+  with default-case 400** (Stripe / LemonSqueezy /
+  Polar / default → 400 `'Payment configuration is
+  incomplete. Please contact support.'`) AND a
+  **state-machine 400 branch with status
+  interpolation** (`Cannot renew sponsor ad with
+  status: ${sponsorAd.status}. Only active or expired
+  ads can be renewed.`; whitelist gate
+  `renewableStatuses = [ACTIVE, EXPIRED]`). The smoke
+  spec pins a canonical 401 `{ success: false, error:
+  'Unauthorized' }` two-key envelope, a strict
+  envelope-shape assertion, gate-before-post-auth /
+  -ownership / -state-machine / -provider-switch /
+  -outer-catch invariants, swallow-and-continue
+  body-parse fault-tolerance, a CRITICAL no-attacker-
+  URL-leak invariant pinning that caller-supplied
+  `successUrl` / `cancelUrl` open-redirect attacker
+  URLs are NEVER echoed in the unauth response or in
+  any redirect-style header, a no-dangerous-URL-
+  pseudo-protocol-leak invariant pinning that
+  `javascript:` / `data:` / `file:` / protocol-relative
+  `//host` URLs are NEVER echoed, a status-
+  interpolation walk pinning that XSS-shaped
+  caller-supplied `status` values are NEVER reflected,
+  a side-channel walk, and a cross-method probe —
+  pinning the swallow-and-continue + TWO-URL open-
+  redirect-prevention sponsor-ad renew contract and
+  CRITICAL no-attacker-URL-leak security invariant.
+  Completes the user-owned sponsor-ad action POST
+  pair with the sibling cancel route covered by
+  `sponsor-ads-user-id-cancel-body-spec.md`.
+
 - `docs/plugins` Added `stripe-setup-intent-body-spec.md` —
   the **seventy-second** per-source-file reference
   the docs tree publishes for any file under
