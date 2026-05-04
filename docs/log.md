@@ -33,6 +33,42 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-reactivate-body-spec.md` —
+  the **seventy-ninth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-seventh**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-reactivate-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/reactivate/route.ts`
+  — the **complement** to the lemonsqueezy-cancel-
+  body-spec sibling: both routes share the same
+  email-gated auth contract, THREE-key 401
+  envelope with `code: 'AUTH_REQUIRED'`, Zod
+  `safeParse` validation, and `timestamp` field
+  in success envelope. The reactivate route
+  differs in: (a) **Reactivation-specific
+  metadata** -- the handler writes
+  `session.user.email` to provider-side metadata
+  as `reactivatedBy`; FIRST per-source-file POST
+  smoke pinning a session.user.email-in-metadata
+  contract; (b) `safeErrorResponse(...)` direct in
+  catch (single line); (c) static success message
+  (no conditional branch). The smoke spec pins a
+  THREE-key 401-envelope assertion, a strict
+  envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-
+  auth invariant, a no-`VALIDATION_ERROR`-code
+  invariant, a no-`reactivatedBy`-leak invariant,
+  a parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a malformed-JSON-body invariance walk, a
+  validation-chain-not-entered invariance walk,
+  and an updateSubscription-call-with-metadata-
+  write-not-entered invariance walk — pinning the
+  user's email being written to provider-side
+  metadata as a contract.
+
 - `docs/plugins` Added `polar-subscription-id-reactivate-body-spec.md` —
   the **seventy-eighth** per-source-file reference
   the docs tree publishes for any file under
