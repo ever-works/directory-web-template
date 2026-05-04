@@ -33,6 +33,25 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `apps/web` `apps/web-e2e` `docs/plugins`
+  Fixed Web CI build failure where the new `/items.json`
+  and `/llms.txt` agent-discovery routes treated the
+  `getCachedItems()` return value as a bare array
+  instead of the actual `FetchItemsResult` envelope
+  (`{ items, categories, tags, total, collections }`).
+  Both routes now read `.items` off the result and
+  fall back to an empty array on failure. Added the
+  paired e2e smoke
+  [`apps/web-e2e/tests/public/agent-discovery.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/public/agent-discovery.spec.ts)
+  and per-source-file plugin reference
+  `agent-discovery-spec.md` — the **first
+  per-source-file public-route smoke** the docs tree
+  publishes that pins the **agent-targeted**
+  discovery surface (`/llms.txt` per the
+  [llms.txt convention](https://llmstxt.org) +
+  paired canonical-data `/items.json` JSON dump).
+  Distinct from the neighbouring `seo-manifests.spec.ts`
+  (crawler-targeted SEO surface).
 - `docs/plugins` Added
   `items-popularity-scores-query-spec.md` — the
   **one-hundred-and-fifteenth** per-source-file
