@@ -33,6 +33,64 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `cron-subscription-expiration-method-spec.md` —
+  the **ninety-sixth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/cron-subscription-expiration-method.spec.ts`
+  spec covering the `GET` AND `POST` exports of
+  `apps/web/app/api/cron/subscription-expiration/route.ts`
+  — the **first per-source-file smoke** the docs
+  tree publishes that pins a **timing-safe Bearer-
+  token comparison** via `crypto.timingSafeEqual`.
+  The existing multi-cron sibling
+  `cron-jobs.spec.ts` covers the OTHER cron routes;
+  this spec drills into the subscription-
+  expiration handler specifically AND its **GET +
+  POST dual-method-delegate** export pattern.
+  Distinct from EVERY prior cron smoke: timing-
+  safe Bearer-token comparison via
+  `crypto.timingSafeEqual` (FIRST per-source-file
+  smoke pinning a constant-time comparison
+  contract); length-equality short-circuit
+  (avoids the `timingSafeEqual` length-mismatch
+  throw); `authHeader.replace('Bearer ', '')`
+  parsing (vs exact-match comparison like cron/
+  sync); TWO-key 401 envelope `{ success: false,
+  message: 'Unauthorized - Invalid or missing
+  cron secret' }` (UNIQUE — longer specific
+  message naming the failure mode, vs cron/sync's
+  `'Unauthorized'` — uses `message` not `error`);
+  GET + POST dual-method-delegate exports (POST
+  simply does `return GET(request)` — UNIQUE,
+  FIRST per-source-file smoke pinning a method-
+  delegate POST that re-routes to GET verbatim);
+  email-service best-effort side-effect (does NOT
+  fail the cron if email service unavailable);
+  PII-stripped `affectedUsers` (no `email` field
+  — intentional PII protection). The smoke spec
+  pins two header bulk-loop walks (~9 headers ×
+  2 methods including various Authorization
+  probes plus side-channels asserting `< 500`),
+  a TWO-key 401 envelope assertion, a strict
+  envelope-shape assertion, a no-Bearer-secret-
+  echo invariant, a timing-safe length-mismatch
+  handling assertion pinning that BOTH too-short
+  AND too-long tokens produce `< 500`, a POST-
+  delegates-to-GET assertion pinning byte-
+  identical envelopes on POST and GET unauth
+  branches, a cross-method probe (PUT / PATCH /
+  DELETE), a side-channel walk, a
+  processExpiredSubscriptions-not-entered
+  invariance walk (CRITICAL — the DB-write call
+  NEVER runs on unauth and no `affectedUsers` /
+  `processed` / `subscriptionId` is leaked), and
+  a gate-before-post-auth invariant. With this
+  addition the per-spec-file docs rollout extends
+  to 96-of-N and the `tests/api/` per-spec-file
+  sub-rollout extends to 94-of-many.
+
 - `docs/plugins` Added `subscription-query-spec.md` —
   the **ninety-fifth** per-source-file reference
   the docs tree publishes for any file under
