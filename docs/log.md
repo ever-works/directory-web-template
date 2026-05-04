@@ -33,6 +33,64 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-categories-create-body-spec.md` —
+  the **thirty-ninth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-seventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-categories-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/categories/route.ts` (the
+  collection-level category-create endpoint) — the
+  **first POST-only collection-level admin-tree
+  smoke** the docs tree publishes that combines a
+  **single-step inline `!session?.user?.isAdmin` gate**
+  with a **single required-field validation**
+  (`if (!createData.name)` → 400 `'Category name is
+  required'`) AND a **three-branch outer-catch chain**
+  (`error.message.includes('already exists')` → 409
+  echoing raw message, `error.message.includes('must
+  be')` → 400 echoing raw message, `safeErrorResponse(
+  error, 'Failed to create category')` fallback) AND a
+  **`category` success-payload key (NOT `data`)** —
+  `{ success: true, category: <category>, message:
+  'Category created successfully' }` with status 201.
+  Distinct from `admin/items` POST which uses a five-
+  field guard with TWO 409 pre-create duplicate checks
+  AND a `data` success-key; distinct from `admin/users`
+  POST which uses an eight-step body validation chain
+  AND a `data` success-key AND an `error.message`-pass-
+  through outer catch; distinct from `admin/collections`
+  POST which uses a two-field guard AND a `collection`
+  success-key. The companion `admin-categories-query.
+  spec.ts` covers the GET (paginated list) surface of
+  the same route. The smoke spec pins a canonical-
+  longer 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-disclosure
+  assertion that NONE of `data`, `category`, `message`,
+  `success: true` keys plus the 201 status must
+  appear in any unauth response, a gate-before-post-
+  auth invariant pinning that NONE of the three static
+  post-auth messages (`'Category name is required'`,
+  `'Failed to create category'`, `'Category created
+  successfully'`) must appear in any unauth response, a
+  parameterised-vs-baseline status-stability comparison,
+  a side-channel cookie / `X-*` header walk, a cross-
+  method probe asserting PUT / PATCH / DELETE round-
+  trip to `< 500`, a malformed-JSON-body invariance
+  walk, a required-field-validation-not-entered
+  invariance walk pinning that EVERY missing-name probe
+  round-trips to the same 401 status, a create-call-+-
+  cache-invalidation-not-entered invariance walk
+  pinning that the unauth response status must NOT be
+  201 and must NEVER echo `'Category created
+  successfully'`, and a two-branch-catch-not-entered
+  invariance walk pinning that the unauth response
+  must equal the canonical 401 envelope rather than any
+  catch-branch shape — the **first `category`-success-
+  key collection-level admin-tree smoke** the docs
+  tree publishes.
+
 - `docs/plugins` Added `admin-users-create-body-spec.md` —
   the **thirty-eighth** per-source-file reference the docs
   tree publishes for any file under
