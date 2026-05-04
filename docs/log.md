@@ -33,6 +33,41 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-comments-rating-id-update-method-spec.md` —
+  the **eighty-ninth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-seventh**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-comments-rating-id-update-method.spec.ts`
+  spec covering the `PATCH` export of
+  `apps/web/app/api/items/[slug]/comments/rating/[commentId]/route.ts`
+  — the **first per-source-file PATCH smoke**
+  documenting a **Q-010-style NO-AUTH-GATE
+  finding for a non-admin mutating route** (NO
+  `auth()` call, NO ownership check, NO rating
+  validation; ANY caller can update ANY comment's
+  rating to ANY value). Pins this finding as the
+  CURRENT contract -- a future PR that adds auth
+  would explicitly break the spec. Distinct from
+  EVERY prior mutating smoke: NO auth gate; NO
+  ownership check; NO rating validation;
+  production-leftover console.log debug arrow
+  (`'============rating=============>'`); returns
+  raw comment row verbatim (no wrapper envelope);
+  `checkDatabaseAvailability()` as the SOLE gate.
+  The smoke spec pins a NO-401 contract assertion,
+  an auth-signal-ignored contract walk pinning
+  that fabricated auth headers produce SAME status
+  as bare requests, a no-validation contract walk
+  pinning that invalid rating values produce SAME
+  status as valid values, a cross-method probe, a
+  no-catch-on-valid-body assertion, and a no-
+  wrapper-envelope assertion pinning the UNUSUAL
+  raw-comment-row response shape. Also spawned a
+  separate task to audit the Q-010 finding and
+  add auth + ownership + Zod validation, and
+  remove the production-leftover console.log.
+
 - `docs/plugins` Added `stripe-payment-methods-id-method-spec.md` —
   the **eighty-eighth** per-source-file reference
   the docs tree publishes for any file under
