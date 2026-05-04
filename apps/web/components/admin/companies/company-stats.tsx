@@ -22,7 +22,6 @@ interface StatCardProps {
 function StatCard({ label, value, icon, iconClass, accentClass, children }: StatCardProps) {
 	return (
 		<div className={CARD}>
-			<div className={cn('absolute top-0 inset-x-0 h-0.5 rounded-t-2xl', accentClass)} />
 			<div className="flex items-start justify-between mb-4 pt-0.5">
 				<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
 					{label}
@@ -67,7 +66,6 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 
 			{/* Active Companies — with progress bar */}
 			<div className={CARD}>
-				<div className="absolute top-0 inset-x-0 h-0.5 rounded-t-2xl bg-linear-to-r from-emerald-500 to-emerald-400" />
 				<div className="flex items-start justify-between mb-4 pt-0.5">
 					<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
 						{t('ACTIVE_COMPANIES')}
@@ -80,7 +78,7 @@ export function CompanyStats({ stats }: CompanyStatsProps) {
 					{Number(stats.active ?? 0).toLocaleString()}
 				</p>
 				{/* Gradient progress bar */}
-				<div className="h-1.5 w-full bg-gray-100 dark:bg-white/6 rounded-full mb-2.5 overflow-hidden">
+				<div className="h-1 w-full bg-gray-100 dark:bg-white/6 rounded-full mb-2.5 overflow-hidden">
 					<div
 						className="h-full bg-linear-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-700"
 						style={{ width: `${activePercent}%` }}

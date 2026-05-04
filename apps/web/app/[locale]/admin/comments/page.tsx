@@ -244,7 +244,7 @@ function CommentPreviewPopup({ comment, onClose, onDelete, isDeleting, unknownUs
 
 				{/* Comment body */}
 				<div className="px-5 py-4">
-					<p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words max-h-64 overflow-y-auto">
+					<p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap break-words max-h-64 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
 						{comment.content}
 					</p>
 				</div>

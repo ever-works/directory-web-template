@@ -284,7 +284,7 @@ export function AdminFilterPopover<T extends string = string>({
 					</div>
 
 					{/* ── Scrollable sections ── */}
-					<div className="flex-1 overflow-y-auto overscroll-contain min-h-0">
+					<div className="flex-1 overflow-y-auto overscroll-contain min-h-0 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 						{sections.map((section) => (
 							<FilterSectionContent
 								key={section.id}

@@ -260,7 +260,7 @@ export function TagsItemsColumn(props: { total: number; tag: Tag[] }) {
           </div>
         </Tooltip>
   
-        <div className="overflow-y-auto scrollbar-none max-h-[650px]">
+        <div className="overflow-y-auto scrollbar-none max-h-[650px] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
           {tag.map((tag) => {
             if (!tag.count) return null;
             const href = `/tags/${tag.id}`;
