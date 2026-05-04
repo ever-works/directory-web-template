@@ -33,6 +33,64 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-collections-create-body-spec.md` —
+  the **forty-third** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-collections-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/collections/route.ts` (the
+  collection-level collection-create endpoint) — the
+  **first POST-only collection-level admin-tree smoke**
+  the docs tree publishes that combines a **per-call
+  inline `try { body = await request.json() } catch
+  (jsonError) { ... }`** wrapper emitting an
+  `'Invalid JSON in request body'` 400 envelope (the
+  FIRST collection-level admin POST route the smoke
+  layer covers that wraps the `request.json()` call in
+  its own try/catch — every prior collection-level POST
+  smoke uses the bare `await request.json()` form) with
+  a **manual TWO-field required check**
+  (`!createData.id || !createData.name` → 400
+  `'Collection ID and name are required'`) plus a
+  **two-`revalidatePath` cache-invalidation chain** on
+  the success branch (`revalidatePath('/collections')`
+  PLUS `revalidatePath(\`/collections/\${slug}\`)`
+  slug-aware, in addition to
+  `await invalidateContentCaches()`). Sibling of
+  `admin-categories-create-body-spec.md` — they share the
+  SAME canonical-longer 401 envelope, the SAME three-
+  branch outer catch chain (`'already exists'` /
+  `'must'` / `safeErrorResponse(...)` fallback), and the
+  SAME non-`data` success-payload key (`collection`
+  here, `category` there). Returns
+  `{ success: true, collection: <collection>, message:
+  'Collection created successfully' }` with status 201.
+  The companion `admin-collections-query.spec.ts` covers
+  the GET (paginated list) surface of the same route.
+  The smoke spec pins a canonical-longer 401-envelope
+  assertion (vs the bare-envelope sibling routes), a
+  strict envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-auth
+  invariant pinning that the four static post-auth
+  messages must NEVER appear in any unauth response, a
+  parameterised-vs-baseline status-stability comparison,
+  a side-channel walk, a cross-method probe, a
+  per-call-`request.json`-try/catch-not-entered
+  invariance walk pinning that the `'Invalid JSON in
+  request body'` 400 envelope must NEVER appear on the
+  unauth branch (distinct from prior POST smokes which
+  use the bare `await request.json()` form), a required-
+  field-check-not-entered invariance walk, a create-call-
+  + cache-invalidation-not-entered invariance walk
+  pinning that the unauth response status must NOT be
+  201, must NOT contain a `collection` key, and the
+  `revalidatePath` side-effects must NEVER fire, and a
+  three-branch-outer-catch-not-entered invariance walk
+  pinning that the unauth response must echo the
+  canonical 401 envelope, not any branch of the outer
+  catch chain.
 - `docs/plugins` Added `admin-companies-create-body-spec.md` —
   the **forty-second** per-source-file reference the docs
   tree publishes for any file under
