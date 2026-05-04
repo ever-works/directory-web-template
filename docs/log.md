@@ -33,6 +33,76 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-companies-id-method-spec.md` —
+  the **thirty-second** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirtieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-companies-id-method.spec.ts`
+  spec covering the admin single-company CRUD endpoint
+  at `apps/web/app/api/admin/companies/[id]/route.ts` —
+  the **first triple-method admin-tree smoke** the
+  docs tree publishes that combines the bare
+  `{ error: 'Unauthorized' }` 401 envelope (NO
+  `success` key — matching `admin/clients/[clientId]`)
+  with a **Zod `parse()` (NOT `safeParse()`) body-
+  validation step** that emits a `details: [{field,
+  message}]` 400 envelope (a UNIQUE envelope key no
+  prior admin-tree smoke pins) AND **two 409 Conflict
+  pre-update uniqueness checks**
+  (`getCompanyByDomain(...)` and
+  `getCompanyBySlug(...)`) with dynamically-
+  interpolated messages AND an **outer-catch unique-
+  constraint translation chain** that maps
+  `error.message.includes('unique constraint' |
+  'duplicate key')` to one of three 409 envelope
+  variants based on `domain` / `slug` substring
+  detection. All three handlers share the SAME
+  single-step inline `!session?.user?.isAdmin` gate
+  that returns 401 `{ error: 'Unauthorized' }`, the
+  SAME bare envelope shape, and the SAME
+  `console.error` + bare `{ error: '<msg>' }` 500
+  catch posture. PUT is the **first PUT smoke** that
+  pairs the existence-check-FIRST ordering with Zod
+  `parse()` instead of `safeParse()`, the
+  `details: [...]` 400-validation-envelope key, two
+  pre-update uniqueness checks, and an outer-catch
+  unique-constraint translation chain. The smoke
+  spec pins per-method bare 401-envelope assertions,
+  a strict envelope-shape assertion with no `success`
+  key, a cross-method envelope-equality assertion, a
+  success-branch-key non-disclosure assertion that
+  NONE of the route-specific `data`, `details`,
+  `message` keys plus `success: true` must appear in
+  any unauth response, a gate-before-post-auth
+  invariant pinning that NONE of the nine static
+  post-auth messages plus none of the dynamic
+  `'Company with domain|slug '<...>' already exists'`
+  409 messages (matched via regex prefix) must appear
+  in any unauth response, a per-id-shape status-
+  stability comparison, a PUT body-permutation
+  status-stability comparison, a cross-method side-
+  channel walk, a cross-method probe asserting POST /
+  PATCH round-trip to `< 500`, a malformed-JSON-body
+  invariance walk for PUT, a service-not-entered
+  invariance walk across all five DB-query calls
+  (`getCompanyById` / `getCompanyByDomain` /
+  `getCompanyBySlug` / `updateCompany` /
+  `deleteCompany`), a Zod-validation-not-entered
+  invariance walk pinning that every Zod-invalid
+  body shape round-trips to the same 401 status with
+  NO `details` key in the response, a uniqueness-
+  check-409-not-entered invariance walk pinning that
+  the unauth response must NEVER match the dynamic
+  `/^Company with (domain|slug) '/` regex prefixes,
+  a unique-constraint-outer-catch-not-entered
+  invariance walk pinning that the unauth response
+  must NEVER echo any of the three static unique-
+  constraint translation messages, and a per-handler
+  catch-message-divergence walk — the **first
+  Zod-`parse()`-with-`details`-envelope admin-tree
+  smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-comments-id-method-spec.md` —
   the **thirty-first** per-source-file reference the docs
   tree publishes for any file under
