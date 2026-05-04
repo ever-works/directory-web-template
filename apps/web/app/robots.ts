@@ -14,7 +14,9 @@ export default function robots(): MetadataRoute.Robots {
 					'/tags/*',
 					'/pricing',
 					'/help',
-					'/about'
+					'/about',
+					'/llms.txt',
+					'/items.json'
 				],
 				disallow: ['/admin/*', '/api/*', '/client/settings/*', '/dashboard/*']
 			}
