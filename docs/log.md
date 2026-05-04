@@ -33,6 +33,99 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-collections-id-method-spec.md` —
+  the **thirty-fourth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-second** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-collections-id-method.spec.ts`
+  spec covering the admin single-collection CRUD endpoint
+  at `apps/web/app/api/admin/collections/[id]/route.ts`
+  — the **first triple-method admin-tree smoke** the
+  docs tree publishes that combines a canonical longer
+  `'Unauthorized. Admin access required.'` 401 envelope
+  with a **Zod `safeParse(...).error.flatten()` 400
+  envelope** posture (distinct from every prior triple-
+  method admin smoke which use either an inline-untyped
+  destructure with no Zod, an inline-untyped destructure
+  with a DELETE-only `?hard=true` query branch, a Zod
+  `parse()` (THROWS) with `details: ZodError.errors`-
+  style catch envelope, or a validation-less PUT with
+  seven body fields shoved straight into
+  `db.update(...)`). All three handlers share the SAME
+  inline `!session?.user?.isAdmin` gate (NOT delegated
+  to a `checkAdminAuth(...)` helper), the SAME canonical
+  longer 401 envelope, the SAME `safeErrorResponse(...)`
+  outer-catch fallback (with handler-specific messages
+  `'Failed to fetch|update|delete collection'`), the
+  SAME `findById` pre-action 404 check on PUT + DELETE
+  (distinct from `admin/categories/[id]` PUT which lets
+  the service throw, and distinct from
+  `admin/featured-items/[id]` PUT which uses the
+  `.returning()` length-zero check), and the SAME
+  `revalidatePath(...)` cache invalidation pattern AFTER
+  the repository call (with `invalidateContentCaches()`
+  called in addition). Each handler diverges on its
+  post-gate surface: (a) **GET** calls
+  `collectionRepository.findById(id)` returning 404
+  `'Collection not found'` if missing or `{ success:
+  true, data: <collection> }`; (b) **PUT** parses JSON
+  body AFTER the gate, runs **Zod
+  `safeParse(updateCollectionSchema)`** → 400 `{
+  success: false, error: 'Invalid collection payload',
+  details: parsed.error.flatten() }` (UNIQUE
+  `flatten()`-shaped `details: { formErrors:
+  string[], fieldErrors: Record<string, string[]> }`
+  envelope — DIFFERENT from the `error.errors` array a
+  `parse()`-then-catch route would emit), then runs the
+  pre-update `findById`, then
+  `collectionRepository.update(updateData)`, has THREE
+  distinct catch branches (`already exists` → 409 with
+  bare-message echo, `must` → 400 with bare-message
+  echo, `safeErrorResponse(...)` fallback), then runs
+  the conditional slug-revalidation branch plus the
+  always-emitted new-slug + index revalidation,
+  returning `{ success: true, data: <updated>, message:
+  'Collection updated successfully' }`; (c) **DELETE**
+  runs the pre-delete `findById`, calls
+  `collectionRepository.delete(id)`, has TWO distinct
+  catch branches (`not found` → 404 with bare-message
+  echo, `safeErrorResponse(...)` fallback), then runs
+  `invalidateContentCaches()` + two `revalidatePath(...)`
+  calls, returning `{ success: true, message:
+  'Collection deleted successfully' }` (NO `data` key).
+  The smoke spec pins per-method canonical-401-envelope
+  assertions, a strict envelope-shape assertion, a
+  cross-method envelope-equality assertion, a success-
+  branch-key non-disclosure assertion, a gate-before-
+  post-auth invariant pinning that NONE of the seven
+  post-auth messages must appear in any unauth response
+  (including the Zod safeParse 400 envelope's fixed
+  `'Invalid collection payload'` error string), a gate-
+  before-Zod-`safeParse` invariant pinning that the
+  unauth response NEVER carries the `details` /
+  `formErrors` / `fieldErrors` keys even when the body
+  would have failed Zod validation, a per-id-shape
+  status-stability comparison, a PUT body-permutation
+  status-stability comparison, a cross-method side-
+  channel walk, a cross-method probe asserting POST /
+  PATCH round-trip to `< 500`, a malformed-JSON-body
+  invariance walk for PUT, a repository-call-not-
+  entered invariance walk across all three handlers, a
+  cache-invalidation-side-effect-not-entered invariance
+  walk across PUT + DELETE, a per-handler-catch-
+  message-non-disclosure walk, and a gate-before-
+  409-/-`'must'`-400-catch invariance walk pinning that
+  the unauth status MUST be 401 (NOT 400 / 409) — the
+  **first Zod-`safeParse(...)`-with-`flatten()`-envelope
+  admin-tree smoke** the docs tree publishes (joining
+  the prior Zod-`parse()` `admin-companies-id-method-
+  spec.md`, the validation-less `admin-featured-items-
+  id-method-spec.md`, and the inline-untyped `admin-
+  items-id-method-spec.md` and `admin-categories-id-
+  method-spec.md` triple-method smokes the sub-rollout
+  previously published).
+
 - `docs/plugins` Added `admin-featured-items-id-method-spec.md` —
   the **thirty-third** per-source-file reference the docs
   tree publishes for any file under
