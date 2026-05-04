@@ -33,6 +33,62 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `sponsor-ads-user-method-spec.md` —
+  the **one-hundred-and-fifth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-third** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-user-method.spec.ts`
+  spec covering the `GET` AND `POST` exports of
+  `apps/web/app/api/sponsor-ads/user/route.ts` —
+  the **first per-source-file dual-method smoke**
+  the docs tree publishes that pins **Zod-
+  `safeParse` validation on BOTH a query-parameter
+  surface AND a body surface** (GET validates
+  query via `querySponsorAdsSchema.safeParse`;
+  POST validates body via
+  `createSponsorAdSchema.safeParse`). UNIQUE: the
+  FIRST per-source-file dual-method smoke pinning
+  Zod schema validation across both query and
+  body. Distinct from EVERY prior dual-method
+  smoke: Zod-safeParse on BOTH query AND body
+  (UNIQUE); dynamic environment-based payment
+  provider (UNIQUE — module-level constant);
+  POST returns 201 status (UNIQUE among sponsor-
+  ads POST smokes); POST 400 for invalid JSON
+  with distinct message (FIRST per-source-file
+  POST smoke pinning a try/catch around `await
+  request.json()` with distinct message);
+  conditional already-exists 400 catch branch
+  via `'already have'` message substring (UNIQUE
+  — FIRST per-source-file POST smoke pinning a
+  message-substring catch dispatcher with status
+  override); pagination success payload on GET
+  with `hasNext`/`hasPrev` computed booleans
+  (UNIQUE — FIRST per-source-file GET smoke
+  pinning a hasNext/hasPrev computed-pagination
+  contract); approval-workflow success message
+  on POST (UNIQUE); TWO-key 401 envelope on
+  both methods. The smoke spec pins three
+  bulk-loop walks (~6 headers × 2 methods +
+  ~8 POST bodies all asserting `< 500`),
+  canonical TWO-key 401-envelope assertions on
+  GET AND POST, a cross-method 401-envelope-
+  equality assertion, a strict TWO-key
+  envelope-shape assertion, a gate-before-post-
+  auth invariant, a createSponsorAd-not-
+  entered invariance walk on POST (CRITICAL),
+  a gate-before-Zod-query-validation
+  invariance walk on GET, a gate-before-body-
+  parse-and-Zod-body-validation invariance
+  walk on POST, a cross-method probe (PUT /
+  PATCH / DELETE), and a side-channel walk on
+  POST. With this addition the per-spec-file
+  docs rollout extends to 105-of-N and the
+  `tests/api/` per-spec-file sub-rollout
+  extends to 103-of-many.
+
 - `docs/plugins` Added `stripe-subscriptions-method-spec.md` —
   the **one-hundred-and-fourth** per-source-file
   reference the docs tree publishes for any file
