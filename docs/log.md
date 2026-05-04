@@ -33,6 +33,130 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `payment-id-method-spec.md` —
+  the **ninety-ninth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-seventh**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/payment-id-method.spec.ts`
+  spec covering the `GET` AND `PATCH` exports of
+  `apps/web/app/api/payment/[subscriptionId]/route.ts`
+  — the **first per-source-file dual-method smoke**
+  the docs tree publishes that pins a **provider-
+  agnostic** auto-renewal toggle (the handler
+  accepts `provider` / `paymentProvider` values
+  from the `PaymentProvider` enum and routes the
+  sync via `getOrCreateProvider(provider)` --
+  works with Stripe, LemonSqueezy, Polar,
+  Solidgate). Distinct from EVERY prior dual-
+  method smoke: provider-agnostic dual-method;
+  provider-source split (GET reads `provider`
+  from QUERY STRING, PATCH reads `paymentProvider`
+  from BODY — UNIQUE: FIRST per-source-file dual-
+  method smoke pinning a SAME-NAMED-FIELD-from-
+  DIFFERENT-SOURCES contract); dynamic enum-
+  validation 400 message that lists the valid
+  enum values; TWO distinct body-validation 400
+  messages on PATCH (FIRST per-source-file PATCH
+  smoke pinning a two-tier body-validation
+  chain); explicit `typeof enabled !== 'boolean'`
+  type-check (UNIQUE pre-Zod boolean type-
+  validation); user-scoped IDOR with explicit
+  `'Forbidden: You do not own this subscription'`
+  message; best-effort provider sync (UNIQUE —
+  FIRST per-source-file PATCH smoke pinning a
+  best-effort provider sync after a successful
+  local DB write); dynamic success message based
+  on the `enabled` toggle. The smoke spec pins
+  three bulk-loop walks (~6 headers × 2 methods
+  + ~13 PATCH bodies), canonical bare ONE-key
+  401-envelope assertions on GET AND PATCH, a
+  cross-method 401-envelope-equality assertion,
+  a strict envelope-shape assertion, a gate-
+  before-post-auth invariant, a setAutoRenewal-
+  not-entered invariance walk (CRITICAL —
+  pinning that XSS markers in the body are
+  NEVER echoed back), a gate-before-enum-
+  validation invariance walk on GET, a cross-
+  method probe (POST / PUT / DELETE), a side-
+  channel walk, a gate-before-body-validation
+  invariance walk pinning that malformed JSON /
+  array body / non-bool enabled all produce 401
+  NOT 400, and a cross-subscription-ID
+  invariance walk. With this addition the per-
+  spec-file docs rollout extends to 99-of-N and
+  the `tests/api/` per-spec-file sub-rollout
+  extends to 97-of-many.
+
+- `docs/plugins` Added `verify-recaptcha-body-spec.md` —
+  the **ninety-eighth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-sixth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/verify-recaptcha-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/verify-recaptcha/route.ts` — the
+  **first per-source-file smoke** the docs tree
+  publishes that pins a **dev-mode bypass envelope**
+  with status 200 `{ success: true, score: 1.0,
+  action: 'bypass' }` (when `RECAPTCHA_SECRET_KEY`
+  is missing AND `NODE_ENV === 'development'`). It
+  is also the **first** smoke the docs tree
+  publishes that pins a route built on top of the
+  `externalClient.postForm<T>(url, body)` helper
+  (form-encoded outbound POST to Google's
+  `https://www.google.com/recaptcha/api/siteverify`
+  endpoint) AND the **first** smoke that pins the
+  **`error_codes` underscore-rename invariant**
+  (Google returns `error-codes` with a hyphen; the
+  handler renames it to `error_codes` with an
+  underscore in the response envelope). The cross-
+  cutting `method-guards.spec.ts` ALSO probes
+  `POST /api/verify-recaptcha` BUT only checks that
+  an empty-object body produces a non-5xx response;
+  this per-source-file spec drills into the four-
+  branch dispatcher (token-required-400 / dev-
+  bypass-200 / not-configured-500 / Google-proxy-
+  pass-through). Distinct from EVERY prior POST
+  smoke: form-encoded outbound POST via
+  `externalClient.postForm` (UNIQUE — every other
+  proxy POST in the docs tree uses `fetch` /
+  `externalClient.post` JSON body); `error_codes`
+  underscore-rename invariant (UNIQUE — no other
+  proxy in the docs tree performs this hyphen-to-
+  underscore rename); score / action surface
+  (UNIQUE — no other smoke exercises ReCAPTCHA
+  scoring fields); dev-mode bypass branch (UNIQUE
+  — NO other smoke pins a 200 dev-bypass envelope
+  with `action: 'bypass'`); not-configured 500
+  branch (status 500 with NO stack trace /
+  sensitive content). The smoke spec pins a
+  ~12-header bulk-loop walk, a ~16-body bulk-loop
+  walk, the load-bearing 400 token-required
+  envelope assertion, a strict envelope-shape
+  assertion (NO `featureDisabled` key — DIFFERENT
+  from extract-body sibling), a falsy-token
+  uniformity assertion (empty-string / null /
+  numeric-zero / boolean-false ALL hit the same
+  envelope), a no-token-echo invariant, a side-
+  channel walk, a cross-method probe, a bypass-
+  attempt-body-keys invariance assertion (user-
+  supplied `RECAPTCHA_SECRET_KEY` / `secret` /
+  `NODE_ENV` body fields are IGNORED), an env-
+  driven dispatch invariant assertion (dev-bypass
+  / not-configured / Google-proxy), the HYPHEN →
+  UNDERSCORE rename invariant assertion, a 500-
+  envelope no-leak assertion (CRITICAL — NEVER
+  leaks `stack` / `cause` / `RECAPTCHA_SECRET_KEY`
+  / `secretKey` / `siteverify` / `google.com`
+  fragments), an outer-catch malformed-JSON
+  fallback assertion, a truthy non-string token
+  gate-semantics assertion, and a gate-before-
+  post-validation order assertion. With this
+  addition the per-spec-file docs rollout extends
+  to 98-of-N and the `tests/api/` per-spec-file
+  sub-rollout extends to 96-of-many.
+
 - `docs/plugins` Added `cron-subscription-reminders-method-spec.md` —
   the **ninety-seventh** per-source-file reference
   the docs tree publishes for any file under
