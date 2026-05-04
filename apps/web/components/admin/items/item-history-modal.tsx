@@ -27,8 +27,8 @@ import { cn } from '@/lib/utils';
 // ===================== Constants =====================
 
 const MODAL_OVERLAY = 'fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4';
-const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-[#121212] rounded-xl shadow-2xl border border-gray-200 dark:border-white/[0.06] overflow-hidden max-h-[90vh] flex flex-col';
-const MODAL_HEADER = 'px-6 py-4 border-b border-gray-200 dark:border-white/[0.06] shrink-0';
+const MODAL_CONTAINER = 'w-full max-w-2xl bg-white dark:bg-[#121212] rounded-2xl shadow-2xl border border-gray-100 dark:border-white/8 overflow-hidden max-h-[90vh] flex flex-col';
+const MODAL_HEADER = 'px-5 py-3.5 border-b border-gray-100 dark:border-white/8 shrink-0 bg-gray-50/60 dark:bg-white/1.5';
 const MODAL_BODY = 'p-6 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1 flex-1';
 
 const ACTION_CONFIG: Record<
@@ -415,8 +415,8 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 				<div className={MODAL_HEADER}>
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<div className="flex items-center justify-center w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-900/20">
-								<Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+							<div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
+								<Clock className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 							</div>
 							<div>
 								<h2 className="text-base font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h2>
@@ -474,7 +474,7 @@ export function ItemHistoryModal({ isOpen, itemId, itemName, onClose }: ItemHist
 
 				{/* Pagination Footer */}
 				{data && data.totalPages > 1 && (
-					<div className="px-6 py-4 border-t border-gray-200 dark:border-white/[0.06] bg-gray-50/60 dark:bg-white/[0.02] shrink-0">
+					<div className="px-5 py-3.5 border-t border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5 shrink-0">
 						<UniversalPagination
 							page={page}
 							totalPages={data.totalPages}

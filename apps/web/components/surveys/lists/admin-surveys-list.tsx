@@ -5,7 +5,7 @@ import { Link, useRouter } from '@/i18n/navigation';
 import { surveyApiClient } from '@/lib/api/survey-api.client';
 import type { Survey } from '@/lib/db/schema';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, AlertTriangle, Settings } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertTriangle, Settings, ClipboardList } from 'lucide-react';
 import { SurveysListClient } from './surveys-list-client';
 import { useConfirm } from '@/components/providers';
 import { SurveyTypeEnum } from '@/lib/types/survey';
@@ -113,29 +113,31 @@ export function AdminSurveysClient() {
 			)}
 
 			{/* Page Header */}
-			<div className="flex items-start justify-between gap-4">
-				<div>
-					<h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-						{t('SURVEYS_MANAGEMENT')}
-					</h1>
-					<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-						{t('SURVEYS_MANAGEMENT_DESC')}
-					</p>
+			<div>
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="w-11 h-11 rounded-xl bg-gray-900 dark:bg-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+							<ClipboardList className="w-5 h-5 text-white" />
+						</div>
+						<div>
+							<h1 className="text-xl font-semibold text-gray-900 dark:text-white leading-tight tracking-tight">
+								{t('SURVEYS_MANAGEMENT')}
+							</h1>
+							<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+								{t('SURVEYS_MANAGEMENT_DESC')}
+							</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						onClick={handleCreateSurvey}
+						className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950 shrink-0"
+					>
+						<Plus className="w-4 h-4" />
+						{t('CREATE_SURVEY')}
+					</button>
 				</div>
-				<button
-					type="button"
-					onClick={handleCreateSurvey}
-					className={cn(
-						"inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium shrink-0",
-						"bg-gray-900 dark:bg-white text-white dark:text-gray-900",
-						"hover:bg-gray-800 dark:hover:bg-gray-100",
-						"shadow-sm hover:shadow-md transition-all duration-200",
-						"focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:ring-offset-2"
-					)}
-				>
-					<Plus className="w-4 h-4" />
-					{t('CREATE_SURVEY')}
-				</button>
+				<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
 			</div>
 
 			{/* Filter Tabs */}
@@ -157,36 +159,38 @@ export function AdminSurveysClient() {
 				))}
 			</div>
 
-			{/* Surveys Table */}
-			<SurveysListClient
-				surveys={surveys}
-				loading={loading}
-				showTypeColumn={true}
-				showResponsesColumn={true}
-				showUpdatedColumn={true}
-				getResponsesLink={(survey) => `/admin/surveys/${survey.slug}/responses`}
-				getPreviewLink={(survey) => `/admin/surveys/${survey.slug}/preview`}
-				additionalActions={(survey) => (
-					<>
-						<button
-							type="button"
-							onClick={() => handleEditSurvey(survey.slug)}
-							className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
-							title={t('EDIT_SURVEY')}
-						>
-							<Edit className="w-4 h-4" />
-						</button>
-						<button
-							type="button"
-							onClick={() => handleDeleteSurvey(survey.id, survey.title)}
-							className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-							title={t('DELETE_SURVEY')}
-						>
-							<Trash2 className="w-4 h-4" />
-						</button>
-					</>
-				)}
-			/>
+			{/* Surveys List */}
+			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+				<SurveysListClient
+					surveys={surveys}
+					loading={loading}
+					showTypeColumn={true}
+					showResponsesColumn={true}
+					showUpdatedColumn={true}
+					getResponsesLink={(survey) => `/admin/surveys/${survey.slug}/responses`}
+					getPreviewLink={(survey) => `/admin/surveys/${survey.slug}/preview`}
+					additionalActions={(survey) => (
+						<>
+							<button
+								type="button"
+								onClick={() => handleEditSurvey(survey.slug)}
+								className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
+								title={t('EDIT_SURVEY')}
+							>
+								<Edit className="w-4 h-4" />
+							</button>
+							<button
+								type="button"
+								onClick={() => handleDeleteSurvey(survey.id, survey.title)}
+								className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+								title={t('DELETE_SURVEY')}
+							>
+								<Trash2 className="w-4 h-4" />
+							</button>
+						</>
+					)}
+				/>
+			</div>
 		</div>
 	);
 }
