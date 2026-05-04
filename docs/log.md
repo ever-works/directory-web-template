@@ -33,6 +33,62 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-subscriptions-method-spec.md` —
+  the **one-hundred-and-fourth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-second** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscriptions-method.spec.ts`
+  spec covering the `GET`, `POST`, `PUT`, AND
+  `DELETE` exports of
+  `apps/web/app/api/stripe/subscriptions/route.ts`
+  — the **first per-source-file QUAD-method
+  smoke** the docs tree publishes (every prior
+  smoke covers 1, 2, or 3 methods). Distinct from
+  the *singular* sibling at
+  `/api/stripe/subscription`: PROPER USER-SCOPED
+  IDOR on PUT AND DELETE (CONTRAST with the
+  singular sibling which has NO IDOR — Q-010
+  finding — this plural sibling does it
+  correctly). Distinct from EVERY prior method-
+  method smoke: FOUR-method export (UNIQUE);
+  GET conditional response shape based on
+  `?active=` query (UNIQUE); POST returns 201
+  status (UNIQUE among Stripe POST smokes);
+  POST 409 Conflict for existing active
+  subscription (UNIQUE — FIRST per-source-file
+  POST smoke pinning a 409 Conflict status code);
+  query-string DELETE — DELETE uses query
+  parameters NOT body (UNIQUE — FIRST per-
+  source-file DELETE smoke pinning a query-
+  driven mutating DELETE); dynamic success
+  message on DELETE; bare ONE-key 401 envelope
+  consistent across ALL FOUR methods; three-
+  field required-check on POST with comma-
+  joined-field-list 400 message (UNIQUE — FIRST
+  per-source-file POST smoke pinning a comma-
+  joined-field-list 400 message). The smoke
+  spec pins four header bulk-loop walks (~6
+  headers × 4 methods asserting `< 500`),
+  canonical bare ONE-key 401-envelope
+  assertions, a cross-method 401-envelope-
+  equality assertion across all four methods,
+  a strict ONE-key envelope-shape assertion, a
+  gate-before-post-auth invariant, an
+  updateSubscription-not-entered invariance
+  walk on PUT (CRITICAL), a
+  cancelSubscription-not-entered invariance
+  walk on DELETE with query-string ID
+  (CRITICAL), a cross-query invariance walk on
+  GET, a cross-method probe (PATCH), a side-
+  channel walk on POST, and a required-field-
+  check-not-entered invariance walk on POST.
+  With this addition the per-spec-file docs
+  rollout extends to 104-of-N and the
+  `tests/api/` per-spec-file sub-rollout
+  extends to 102-of-many.
+
 - `docs/plugins` Added `stripe-subscription-method-spec.md` —
   the **one-hundred-and-third** per-source-file
   reference the docs tree publishes for any file
