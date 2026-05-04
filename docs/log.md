@@ -33,6 +33,56 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-comments-id-method-spec.md` —
+  the **sixty-ninth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-seventh**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-comments-id-method.spec.ts`
+  spec covering the `PUT` and `DELETE` exports of
+  `apps/web/app/api/items/[slug]/comments/[commentId]/route.ts`
+  — the **first per-source-file PUT + DELETE
+  smoke** the docs tree publishes for a public
+  per-comment edit / delete route, and the **first
+  per-source-file PUT or DELETE smoke** that pins a
+  **plain-text 401 envelope** instead of a JSON one
+  (the unauth branches return `new NextResponse
+  ('Unauthorized', { status: 401 })` -- plain-text
+  body, NOT JSON; FIRST plain-text 401 contract in
+  the rollout). Distinct from the comment-create POST
+  sibling: plain-text 401 envelope (NOT JSON);
+  plain-text 404 / 403 envelopes for client-profile
+  / tenant errors; MIXED-envelope contract (auth /
+  profile / tenant errors return plain-text, body-
+  validation errors PUT-only return JSON; FIRST
+  per-source-file smoke pinning a mixed plain-text
+  + JSON envelope contract on the same handler);
+  three-step ownership chain via Drizzle query with
+  embedded `userId` + `tenantId` + `deletedAt IS
+  NULL` filters; DELETE returns 204 No Content; PUT
+  body validation pins a partial-update validation
+  contract (FIRST per-source-file PUT smoke). The
+  smoke spec pins a doubled header walk (~10 ×
+  PUT/DELETE) + PUT body walk (~12 bodies); a
+  canonical plain-text 401 envelope assertion on
+  both methods; a no-JSON-prefix invariant for
+  unauth bodies; a gate-before-post-auth invariant
+  with mixed plain + JSON message-set non-
+  disclosure; a parameterised-vs-baseline status-
+  stability comparison; a cross-method probe (POST
+  / PATCH); a malformed-JSON-body invariance walk
+  for PUT; a body-validation-chain-not-entered
+  invariance walk for PUT; a Drizzle-ownership-
+  query-not-entered invariance walk for both
+  methods; and an updateComment-and-deleteComment-
+  not-entered invariance walk pinning that DELETE
+  must NEVER return 204 and PUT must NEVER return a
+  comment payload — the **first per-source-file
+  PUT + DELETE smoke pinning a plain-text 401
+  envelope**, expanding the rollout's mutating-
+  method coverage beyond the JSON-envelope family
+  for the first time.
+
 - `docs/plugins` Added `sponsor-ads-checkout-body-spec.md`
   — the **sixty-eighth** per-source-file reference the
   docs tree publishes for any file under
