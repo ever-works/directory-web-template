@@ -33,6 +33,104 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-update-plan-body-spec.md` —
+  the **eighty-first** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-ninth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-update-plan-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/update-plan/route.ts`
+  — the **third sibling** in the LemonSqueezy
+  subscription-management trio (cancel +
+  reactivate + update-plan). Distinct from
+  siblings: multi-field Zod schema with defaults
+  (FIRST per-source-file POST smoke pinning a
+  multi-field-with-defaults Zod schema);
+  `z.coerce.number().positive()` (FIRST Zod
+  coerce-number contract); `z.enum` with default
+  (FIRST Zod enum-with-default contract);
+  `z.number().min(1).max(31)` for billingAnchor
+  range constraint; plan-update-specific metadata
+  (7 fields including session.user.email as
+  updatedBy). The smoke spec pins THREE-key 401
+  envelope, strict envelope-shape, success-branch
+  non-disclosure, gate-before-post-auth, no-
+  validation-codes invariant, no-updatedBy-leak,
+  status stability, side-channel walk, cross-
+  method probe, malformed-JSON invariance, multi-
+  field-validation-chain-not-entered invariance
+  (5 shapes), and updateSubscription-call-not-
+  entered invariance — completing the LemonSqueezy
+  subscription-management trio and pinning four
+  FIRST Zod-schema-pattern contracts.
+
+- `docs/plugins` Added `stripe-subscription-id-reactivate-body-spec.md` —
+  the **eighty-second** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eightieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscription-id-reactivate-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/subscription/[subscriptionId]/reactivate/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **TENANT-SCOPED-but-NOT-USER-SCOPED
+  partial-IDOR finding** (the handler authenticates
+  the user via `auth()` and then looks up the
+  subscription via
+  `getSubscriptionByProviderSubscriptionId('stripe',
+  subscriptionId)`, which scopes the query by
+  `tenantId` but NOT by `userId`; sits between the
+  stripe/cancel sibling which has NO IDOR check at
+  all and the polar/cancel sibling which enforces
+  full user-scoped IDOR; FIRST per-source-file POST
+  smoke pinning a tenant-scoped-but-NOT-user-scoped
+  IDOR contract) AND the **first per-source-file
+  POST smoke** pinning a **STATE-MACHINE PRE-CHECK
+  400 contract** (the handler reads
+  `subscription.cancelAtPeriodEnd` from the DB row
+  and returns 400 `'Subscription is not scheduled
+  for cancellation'` BEFORE calling the provider;
+  distinct from the polar/subscription/[id]/
+  reactivate sibling which surfaces the same 400
+  via a catch-substring detection on the upstream
+  Polar error message; this Stripe variant has the
+  400 baked into the handler's own state-machine
+  pre-check from a DB-row column read). Distinct
+  from EVERY prior POST smoke: tenant-scoped DB-
+  IDOR check (partial-IDOR finding); state-machine
+  pre-check 400 minted from a DB-row column read;
+  no body parsing (matches polar/reactivate
+  sibling); multi-step write (`updateSubscription`
+  + `updateSubscriptionBySubscriptionId` DB sync +
+  async email side-effect with try/catch fault
+  tolerance); generic 500 catch (single static
+  string, NO substring detection); static success
+  message; raw `reactivatedSubscription` provider
+  object in `data` field. The smoke spec pins a
+  bare 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion, a gate-before-post-auth
+  invariant across four candidate messages, a
+  parameterised-vs-baseline status-stability
+  comparison (six permutations + tenant-scope
+  probe), a side-channel walk including
+  `X-Tenant-Id`, a cross-method probe, a no-body-
+  parse contract walk on malformed JSON, a tenant-
+  scoped-DB-IDOR-check-not-entered invariance
+  walk, a state-machine-400-pre-check-not-entered
+  invariance walk, a multi-step-write-chain-not-
+  entered invariance walk, a catch-branch-generic-
+  500-not-echoed invariance walk, a body-completely-
+  ignored invariance walk, and a cross-subscription-
+  ID invariance walk pinning that distinct sub IDs
+  produce IDENTICAL unauth responses (proving the
+  tenant-scoped DB read is NOT entered upstream of
+  the auth gate) — pinning two FIRST contracts no
+  prior smoke covers and completing the
+  stripe/subscription/[id]/* POST pair (cancel +
+  reactivate).
+
 - `docs/plugins` Added `stripe-subscription-id-cancel-body-spec.md` —
   the **eightieth** per-source-file reference the
   docs tree publishes for any file under
