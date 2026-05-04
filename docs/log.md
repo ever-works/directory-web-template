@@ -33,6 +33,66 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `sponsor-ads-checkout-body-spec.md`
+  — the **sixty-eighth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-checkout-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/sponsor-ads/checkout/route.ts` —
+  the **first per-source-file POST smoke for an auth-
+  gated MULTI-PROVIDER dispatching checkout
+  endpoint**, extending the auth-gated checkout
+  quartet (Solidgate + Polar + LemonSqueezy + Stripe)
+  into a quintet by adding a checkout endpoint that is
+  NOT tied to a single provider but instead `switch`-
+  dispatches to all three providers based on
+  `process.env.NEXT_PUBLIC_PAYMENT_PROVIDER`. Distinct
+  from ALL FOUR siblings: multi-provider switch
+  dispatch (FIRST per-source-file POST smoke pinning a
+  three-way provider dispatch via env var); `success:
+  false` envelope on every error branch (distinct from
+  the quartet's two-key `{ error, message }`
+  envelopes); open-redirect validation via
+  `validateRedirectUrl(successUrl)` + `validateRedirect
+  Url(cancelUrl)` (FIRST per-source-file POST smoke
+  pinning an open-redirect-prevention contract);
+  three-stage post-auth gate stack 404 → 403 → 400
+  (UNIQUE forbidden branch -- no other checkout has
+  one); 2×3 `getPriceId(interval, provider)` matrix
+  lookup (FIRST per-source-file POST smoke pinning a
+  price-matrix lookup); `!session?.user?.id` gate
+  (matches lemonsqueezy; distinct from polar +
+  solidgate + stripe's `!session?.user`); generic 500
+  on outer catch with no detail leak (distinct from
+  stripe's three-key envelope and solidgate's
+  `safeErrorMessage` extraction); POST-only export
+  (distinct from the quartet which all export `GET` +
+  `POST`). The smoke spec pins a canonical success-
+  false 401-envelope assertion `{ success: false,
+  error: 'Unauthorized' }`, a strict envelope-shape
+  assertion (exactly `success` + `error` keys), a
+  success-branch-key non-disclosure assertion, a gate-
+  before-post-auth invariant across SEVEN candidate
+  static messages, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a cross-
+  method probe (`GET` joins `PUT`/`PATCH`/`DELETE`
+  because the route is POST-only), a malformed-JSON-
+  body invariance walk, a sponsorAdId-required-
+  validation-not-entered invariance walk, an
+  ownership/status/not-found-checks-not-entered
+  invariance walk, a provider-switch-dispatch-not-
+  entered invariance walk (no `data.checkoutUrl` on
+  the unauth branch), a catch-branch-not-entered
+  invariance walk, a no-redirect-leak assertion
+  pinning XSS-shaped `successUrl` / `cancelUrl` values
+  must NEVER be echoed (open-redirect prevention
+  contract), and a provider-name non-disclosure
+  assertion pinning that `data.provider` and the
+  literal strings `'stripe'`/`'lemonsqueezy'`/`'polar'`
+  must NEVER appear in the unauth response.
+
 - `docs/plugins` Added `stripe-checkout-body-spec.md` —
   the **sixty-seventh** per-source-file reference the
   docs tree publishes for any file under
