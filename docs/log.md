@@ -33,6 +33,59 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `polar-subscription-id-reactivate-body-spec.md` —
+  the **seventy-eighth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-sixth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/polar-subscription-id-reactivate-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/polar/subscription/[subscriptionId]/reactivate/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **NO-BODY POST handler** (the handler
+  does NOT call `request.json()` at all; the body
+  is COMPLETELY ignored upstream of the auth gate;
+  EVERY prior POST smoke either parses the body
+  (lemonsqueezy, polar/cancel, stripe/checkout) OR
+  explicitly extracts a header (sponsor-ads); FIRST
+  per-source-file POST smoke pinning a body-less
+  POST contract) AND the **first per-source-file
+  POST smoke** pinning a **THREE-string error-
+  message-detection catch** with a **400 minted
+  from the catch dispatcher** (not from a schema
+  validation step; EVERY prior POST smoke that
+  pins a 400 does so via Zod `safeParse`; this is
+  the FIRST 400 minted from the catch's
+  substring-detection on a business-rule
+  violation: `'not scheduled for cancellation'` →
+  400 `'Subscription is not scheduled for
+  cancellation'`). Distinct from EVERY prior POST
+  smoke: no body parsing; no Content-Length 413
+  pre-check (distinct from polar/cancel sibling);
+  THREE-string catch dispatcher (404 / 401 / 400);
+  400-from-catch contract; static success message
+  (NOT conditional based on a body flag); same
+  IDOR-protection chain as polar/cancel sibling
+  (`getCustomerId` → 403, private property
+  extraction → 500, `getPolarSubscription`
+  ownership check → merged 404). The smoke spec
+  pins a bare 401-envelope assertion, a strict
+  envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-
+  auth invariant across seven candidate messages,
+  a parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a no-body-parse contract walk on
+  malformed JSON, an IDOR-protection-chain-not-
+  entered invariance walk, a reactivateSubscription-
+  call-not-entered invariance walk, a catch-branch-
+  THREE-string-dispatcher-not-entered invariance
+  walk, a 400-catch-dispatcher-contract-not-entered
+  invariance walk, and a body-completely-ignored
+  invariance walk (the strongest no-body-parse
+  contract in the rollout) — pinning two FIRST
+  contracts no prior smoke covers.
+
 - `docs/plugins` Added `polar-subscription-id-cancel-body-spec.md` —
   the **seventy-seventh** per-source-file reference
   the docs tree publishes for any file under
