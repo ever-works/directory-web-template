@@ -33,6 +33,48 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-tags-create-body-spec.md` —
+  the **fortieth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-tags-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/tags/route.ts` (the
+  collection-level tag-create endpoint) — the **first
+  POST-only collection-level admin-tree smoke** the
+  docs tree publishes that combines the **hybrid
+  bare-`Unauthorized` + `success: false` 401
+  envelope** with a **`tag` success-payload key** (NOT
+  `data`) — distinct from the canonical-longer-
+  envelope `admin/categories` and `admin/collections`
+  POST smokes. The POST handler runs a two-field
+  required check, calls `tagRepository.create({ id,
+  name, isActive: isActive ?? true })` (defaults
+  `isActive` to `true` if not provided), runs
+  `await invalidateContentCaches()`, and returns
+  `{ success: true, tag: <tag> }` with status 201 (NO
+  `message` key — distinct from `admin/categories`
+  POST and `admin/collections` POST). The outer catch
+  uses a three-branch chain (`'already exists'` → 409,
+  `'required' | 'must be'` → 400, else fixed-message
+  500 `'Failed to create tag'` fallback — NOT
+  `safeErrorResponse(...)`). The companion
+  `admin-tags-query.spec.ts` covers the GET surface
+  of the same route. The smoke spec pins a hybrid
+  401-envelope assertion, a strict envelope-shape
+  assertion, a success-branch-key non-disclosure
+  assertion, a gate-before-post-auth invariant, a
+  parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a malformed-JSON-body invariance walk, a
+  required-field-check-not-entered invariance walk, a
+  create-call-not-entered invariance walk, and a
+  three-branch-outer-catch-not-entered invariance
+  walk — the **first hybrid-envelope `tag`-key
+  collection-level POST admin-tree smoke** the docs
+  tree publishes.
+
 - `docs/plugins` Added `admin-categories-create-body-spec.md` —
   the **thirty-ninth** per-source-file reference the docs
   tree publishes for any file under
