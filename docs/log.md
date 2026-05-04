@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-sponsor-ads-id-method-spec.md` —
+  the **thirtieth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-eighth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-sponsor-ads-id-method.spec.ts`
+  spec covering the admin single-sponsor-ad endpoint
+  at `apps/web/app/api/admin/sponsor-ads/[id]/route.ts`
+  — the **first GET + DELETE-only dual-method admin-
+  tree smoke** the docs tree publishes (the sponsor-ad
+  write path is split across the three sibling
+  `[id]/approve` / `[id]/reject` / `[id]/cancel`
+  POST-only action routes which the smoke layer
+  already covers separately; with this entry the
+  sponsor-ad area smoke coverage is complete at four
+  routes). Both handlers share the SAME single-step
+  inline `!session?.user?.isAdmin` gate, the SAME
+  canonical longer 401 envelope, and the SAME
+  `{ success: false, error: ... }` envelope shape,
+  but each diverges on its catch posture — the load-
+  bearing divergence: GET uses a `console.error` + 500
+  `'Failed to fetch sponsor ad'` catch, while DELETE
+  uses a **narrow-match `error.message === 'Sponsor
+  ad not found'`** → 404 catch followed by a
+  `safeErrorResponse(error, 'Failed to delete sponsor
+  ad')` fallback. The DELETE handler is the **first
+  admin DELETE smoke** where the catch chain begins
+  with a narrow-match equality check on a service-
+  thrown sentinel string (rather than a
+  `.includes(...)` substring match or a fixed
+  fallback). The smoke spec pins per-method canonical-
+  longer 401-envelope assertions, a strict envelope-
+  shape assertion, a cross-method envelope-equality
+  assertion, a success-branch-key non-disclosure
+  assertion, a gate-before-post-auth invariant
+  pinning that NONE of the four post-auth messages
+  must appear in any unauth response, a per-id-shape
+  status-stability comparison, a side-channel cookie
+  / `X-*` header walk, a cross-method probe asserting
+  POST / PUT / PATCH round-trip to `< 500`, a service-
+  not-entered invariance walk, a DELETE narrow-match-
+  catch-not-entered invariance walk pinning that the
+  unauth response must NEVER echo the service-thrown
+  sentinel `'Sponsor ad not found'`, and a per-
+  handler catch-message-divergence walk — the
+  **first GET + DELETE-only dual-method admin-tree
+  smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-reports-id-method-spec.md` —
   the **twenty-ninth** per-source-file reference the docs
   tree publishes for any file under
