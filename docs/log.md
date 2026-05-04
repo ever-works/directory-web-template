@@ -33,6 +33,52 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-categories-git-create-body-spec.md` —
+  the **forty-seventh** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-categories-git-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/categories/git/route.ts` —
+  the **first POST-only Git-CMS-write admin-tree
+  smoke** the docs tree publishes (distinct from the
+  regular `admin/categories` POST which writes to the
+  DB; this Git POST commits a new category file to
+  the configured `DATA_REPOSITORY` GitHub repository
+  via `createCategoryGitService`). The POST handler
+  combines a single-step inline `!session?.user?.
+  isAdmin` gate that returns 401 `{ error:
+  'Unauthorized. Admin access required.' }` — NOTE:
+  canonical longer message but WITHOUT `success:
+  false` envelope key, a UNIQUE envelope shape that
+  mixes the canonical longer message of
+  `admin/items/[id]` etc. WITH the bare envelope of
+  `admin/clients/[clientId]`/`admin/companies/[id]`
+  etc. (no other admin-tree route combines these
+  two). Two-field required check, DATA_REPOSITORY
+  env-var validation chain (missing / malformed),
+  GH_TOKEN env-var validation, then the Git-service
+  call. Returns `{ success: true, category:
+  <newCategory>, message: 'Category created and
+  committed to Git repository' }` with status 200
+  (NOT 201). Outer catch is two-branch
+  (`'already exists'` → 409 echoing raw error.message,
+  else `safeErrorResponse(error, 'Failed to create
+  category via Git')`). The smoke spec pins a
+  canonical-longer-bare-envelope 401 assertion, a
+  strict envelope-shape assertion (no `success` key),
+  a success-branch-key non-disclosure assertion, a
+  gate-before-post-auth invariant, a parameterised-
+  vs-baseline status-stability comparison, a side-
+  channel walk, a cross-method probe, a malformed-
+  JSON-body invariance walk, a required-field-check-
+  not-entered invariance walk, an env-var-validation-
+  chain-not-entered invariance walk, and a Git-
+  service-call-not-entered invariance walk — the
+  **first Git-CMS-write POST admin-tree smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-featured-items-create-body-spec.md` —
   the **forty-sixth** per-source-file reference the docs
   tree publishes for any file under
