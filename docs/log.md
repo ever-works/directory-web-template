@@ -33,6 +33,55 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-payment-intent-body-spec.md` —
+  the **seventy-fourth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-payment-intent-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/payment-intent/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **NO-body-validation contract** (the
+  handler destructures `{ amount, currency = 'usd',
+  metadata, planId }` and passes them straight to
+  `stripeProvider.createPaymentIntent(...)` with NO
+  validation; EVERY prior POST smoke has at least
+  one body-validation gate -- FIRST trust-the-body
+  POST contract in the rollout) AND the **second
+  per-source-file POST smoke** pinning a **raw
+  payment-provider object as the success payload**
+  (after stripe-setup-intent-body-spec). Distinct
+  from setup-intent: body destructure with
+  `currency = 'usd'` default; caller-controlled
+  `metadata: { userId, planId, ...metadata }`
+  spread (caller's `metadata.userId` OVERRIDES
+  session userId because spread is AFTER); GET
+  sibling with `?payment_intent_id=` query-param-
+  required check. Distinct from every prior POST
+  smoke: NO-body-validation; bare 401 envelope;
+  raw PaymentIntent object payload; caller-
+  controlled metadata spread. The smoke spec pins
+  a bare 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion, a gate-before-post-auth
+  invariant, a no-PaymentIntent-`client_secret`-
+  leak CRITICAL security invariant, a no-
+  PaymentIntent-fields-leak invariant pinning the
+  full set, a no-metadata-userId-spread-leak
+  invariant pinning that caller-supplied
+  `metadata.userId` (`'attacker_user_id'`) is
+  NEVER echoed, a parameterised-vs-baseline
+  status-stability comparison, a side-channel
+  walk, a cross-method probe, a malformed-JSON-
+  body invariance walk, a createPaymentIntent-and-
+  getCustomerId-not-entered invariance walk, and a
+  catch-branch-not-entered invariance walk —
+  pinning the trust-the-body contract no prior
+  smoke covers and the CRITICAL `client_secret`-
+  leak security invariant as applied to
+  PaymentIntent.
+
 - `docs/plugins` Added `sponsor-ads-user-id-renew-body-spec.md` —
   the **seventy-third** per-source-file reference
   the docs tree publishes for any file under
