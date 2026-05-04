@@ -33,6 +33,62 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-votes-cast-body-spec.md` —
+  the **fifty-seventh** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-votes-cast-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/items/[slug]/votes/route.ts` —
+  the **first non-admin per-source-file POST smoke**
+  that pins a **moderation-status gate**: after the
+  auth + body-validation + client-profile gates, the
+  handler runs `isUserBlocked(clientProfile.status)`
+  from `apps/web/lib/db/queries/moderation.queries.ts`
+  and returns 403 with a **dynamic message** from
+  `getBlockReasonMessage(clientProfile.status)` if
+  the client is suspended or banned -- no prior POST
+  smoke covers a moderation-status gate of this
+  shape. The companion public GET smoke is
+  `item-votes-public.spec.ts` (zero-vote fallback for
+  unknown slugs); the mutating POST and DELETE
+  surfaces have only generic `< 500` coverage in
+  `items-engagement-and-favorites.spec.ts`, so this
+  spec drills into the POST surface specifically.
+  The POST handler combines `auth()` + slug param
+  resolution, a `!session?.user?.id` gate (→ 401
+  `{ success: false, error: 'Unauthorized' }`), JSON
+  body parse, vote-type enum validation, `getClient
+  ProfileByUserId(...)` lookup (not found → 404
+  `'Client profile not found'`), the
+  `isUserBlocked(...)` moderation-status gate (if
+  true → 403 with the dynamic `getBlockReasonMessage`
+  message), existing-votes lookup + replace logic,
+  the load-bearing `createVote({ userId, itemId,
+  voteType })` write, `getVoteCountForItem(slug)`,
+  success payload `{ success: true, count, userVote:
+  type }` with status 200, and outer catch
+  `console.error` + 500 `'Internal server error'`.
+  The smoke spec pins a canonical-envelope bare-
+  message 401 assertion, a strict envelope-shape
+  assertion, a success-branch-key non-disclosure
+  assertion, a gate-before-post-auth invariant, an
+  allowed-pre-delivery-error static-string allow-
+  list assertion, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a
+  cross-method probe walking only PUT and PATCH, a
+  malformed-JSON-body invariance walk, a vote-type-
+  validation-not-entered invariance walk, a client-
+  profile-lookup-and-moderation-gate-not-entered
+  invariance walk pinning that the unauth response is
+  401 (NOT 403), and a createVote-and-
+  getVoteCountForItem-not-entered invariance walk —
+  the **first moderation-status-gated POST smoke**
+  the docs tree publishes that pins the load-bearing
+  moderation invariant on a public, auth-gated vote-
+  casting endpoint.
+
 - `docs/plugins` Added `polar-webhook-body-spec.md` —
   the **fifty-sixth** per-source-file reference the
   docs tree publishes for any file under
