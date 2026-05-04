@@ -33,6 +33,50 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-payment-methods-create-body-spec.md` —
+  the **seventy-fifth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-third**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-payment-methods-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/payment-methods/create/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **Zod `parse` (NOT `safeParse`)
+  contract** (`createPaymentMethodSchema.parse(body)`
+  THROWS on validation failure and the outer catch
+  detects `error instanceof z.ZodError`; EVERY prior
+  POST smoke uses `safeParse`; FIRST throw-on-
+  invalid Zod contract) AND the **first per-
+  source-file POST smoke** pinning a **Stripe-
+  error-echo contract** (`error instanceof Stripe.
+  errors.StripeError` → 400 with raw stripe error
+  message echoed; EVERY prior catch uses static-
+  string messages). Distinct from every prior POST
+  smoke: Zod `.parse(body)` throwing; stripe-error-
+  echo catch; multi-step Stripe SDK orchestration
+  (six SDK calls -- the most complex orchestration
+  in any per-source-file POST smoke); formatted
+  response payload (extracts subset of fields with
+  card sub-object, NOT raw provider object). The
+  smoke spec pins a canonical 401-envelope
+  assertion, a strict envelope-shape assertion, a
+  success-branch-key non-disclosure assertion, a
+  gate-before-post-auth invariant, a Zod-throw-
+  catch-not-entered invariance walk, a stripe-
+  error-echo-catch-not-entered invariance walk, a
+  no-card-details-leak CRITICAL security invariant
+  pinning that `card.last4` / `card.brand` / etc.
+  are NEVER exposed, a no-metadata-userId-spread-
+  leak invariant, a parameterised-vs-baseline
+  status-stability comparison, a side-channel walk,
+  a cross-method probe, a multi-step-Stripe-
+  orchestration-not-entered invariance walk, and a
+  catch-branch-generic-500-not-echoed invariance
+  walk — pinning two FIRST contracts no prior
+  smoke covers and the most complex Stripe SDK
+  orchestration in the rollout.
+
 - `docs/plugins` Added `stripe-payment-intent-body-spec.md` —
   the **seventy-fourth** per-source-file reference
   the docs tree publishes for any file under
