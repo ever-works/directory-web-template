@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-comments-rating-query-spec.md`
+  — the **sixty-first** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-ninth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-comments-rating-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/items/[slug]/comments/rating/route.ts`
+  — the **first per-source-file query smoke** for a
+  public item-detail endpoint that uses
+  **`checkDatabaseAvailability()` as a *graceful-
+  fallback* gate** (NOT as a 503-returning gate like
+  the sibling `item-comments-create-body` POST). When
+  `process.env.DATABASE_URL` is missing OR the tenant
+  resolution returns null OR the Drizzle aggregate
+  query throws, the handler returns the SAME success-
+  shaped envelope `{ averageRating: 0,
+  totalRatings: 0 }` with status 200 — NEVER a 4xx or
+  5xx. It is also the **first per-source-file query
+  smoke** that pins a **two-key envelope shape**
+  (`{ averageRating, totalRatings }`) with NO
+  `success` discriminant key — distinct from every
+  prior per-source-file query spec which uses either
+  the canonical `{ success: true, data: ... }`
+  envelope OR the bare `{ error }` envelope. The GET
+  handler is a zero-`request`-read signature: it only
+  awaits `params`, calls `checkDatabaseAvailability()`,
+  `getItemIdFromSlug(slug)`, `getTenantId()`, and a
+  single Drizzle `select({ avg, count })` aggregate.
+  The spec emits a ~57-path bulk-loop walk asserting
+  `< 500` plus eleven hand-written scenarios: a
+  canonical-envelope 200 zero-rating assertion, a
+  strict envelope-shape assertion (no `success` /
+  `data` / `error` keys), a Number-cast invariant
+  pinning that `averageRating` and `totalRatings` are
+  both `number` (NOT raw Drizzle `avg(...)` strings),
+  a graceful-degrade non-disclosure walk pinning that
+  the response must NEVER echo `error` or `success`
+  keys, a parameterised-vs-baseline status-stability
+  comparison across five paths, an envelope-shape
+  invariance walk pinning that all five parameterised
+  paths return the same `{ averageRating: 0,
+  totalRatings: 0 }` envelope, an `Accept` header
+  isolation walk, a side-channel walk, a cross-method
+  probe (POST / PUT / PATCH / DELETE), and a
+  graceful-degrade catch-branch invariance walk
+  pinning that no error path surfaces a 5xx.
+
 - `docs/plugins` Added `lemonsqueezy-webhook-body-spec.md` —
   the **sixtieth** per-source-file reference the
   docs tree publishes for any file under
