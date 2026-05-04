@@ -33,6 +33,56 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `polar-checkout-body-spec.md` —
+  the **sixty-fifth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-third** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/polar-checkout-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/polar/checkout/route.ts` —
+  the **second per-source-file POST smoke for an
+  auth-gated payment-provider checkout endpoint**
+  (after solidgate-checkout-body). Distinct from
+  solidgate-checkout: branching mode dispatch
+  (subscription / one_time -- FIRST per-source-file
+  POST smoke pinning a mode-dispatched two-branch
+  POST contract); NO Zod validation (uses simple
+  `if (!productId)` check); NO try/catch around
+  `request.json()` (malformed JSON cascades to
+  outer catch); 503 error-message detection (outer
+  catch scans `error.message` for three payment-
+  setup-incomplete strings, downgrades 500 → 503
+  with custom message -- FIRST per-source-file POST
+  smoke pinning a 503-via-error-message-scan
+  contract); private property access via `as any`
+  (`one_time` branch reaches into
+  `(polarProvider as any).polar` -- FIRST per-
+  source-file POST smoke pinning a private-property-
+  bypass contract); GET export companion (with
+  ONE-key 401 envelope, distinct from POST's TWO-
+  key). The smoke spec pins a canonical two-key
+  401-envelope assertion, a strict envelope-shape
+  assertion, a success-branch-key non-disclosure
+  assertion, a gate-before-post-auth invariant, an
+  allowed-pre-delivery-error static-string allow-
+  list assertion, a parameterised-vs-baseline
+  status-stability comparison, a side-channel walk,
+  a cross-method probe, a malformed-JSON-body
+  invariance walk, a productId-required-check-not-
+  entered invariance walk, a mode-dispatch-not-
+  entered invariance walk pinning that the unauth
+  response must NEVER echo `data.url` or `data.id`,
+  a 503-payment-setup-incomplete-not-triggered-on-
+  unauth invariance walk, and a no-redirect-leak
+  assertion pinning that XSS-shaped
+  `successUrl` / `cancelUrl` values must NEVER be
+  echoed — the **second per-source-file POST smoke
+  for an auth-gated payment-provider checkout
+  endpoint**, expanding payment-provider checkout
+  coverage from one provider to two (Solidgate +
+  Polar).
+
 - `docs/plugins` Added `stripe-webhook-body-spec.md` —
   the **sixty-fourth** per-source-file reference the
   docs tree publishes for any file under
