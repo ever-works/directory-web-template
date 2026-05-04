@@ -33,6 +33,61 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-items-create-body-spec.md` —
+  the **thirty-seventh** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-items-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/items/route.ts` (the
+  collection-level item-create endpoint) — the
+  **first POST-only collection-level admin-tree
+  smoke** the docs tree publishes that combines a
+  **five-field required-validation chain** with **TWO
+  409 Conflict pre-create duplicate checks** using
+  dynamically-interpolated messages AND an **audit-
+  user-threading + CRM-company-link + Location-Index
+  side-effect chain** on the success branch. The
+  companion `admin-items-query.spec.ts` covers the
+  GET (paginated list) surface of the same route.
+  The POST handler shares the same single-step
+  `!isAdmin` gate / canonical longer 401 envelope as
+  its GET sibling. CRM sync is gated by
+  `process.env.TWENTY_CRM_ENABLED === 'true'` (NOTE:
+  strict-equals comparison, distinct from
+  `admin/items/[id]/route.ts` PUT which uses
+  `!== 'false'`). The smoke spec pins a canonical-
+  longer 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion that NONE of `data`, `item`,
+  `id`, `slug`, `success: true` keys plus the 201
+  status must appear in any unauth response, a gate-
+  before-post-auth invariant pinning that the two
+  static post-auth messages plus the dynamic `'Item
+  with (ID|slug) '<...>' already exists'` 409
+  messages (matched via regex prefix) must NEVER
+  appear in any unauth response, a parameterised-vs-
+  baseline status-stability comparison, a side-channel
+  walk, a cross-method probe asserting PUT / PATCH /
+  DELETE round-trip to `< 500`, a malformed-JSON-body
+  invariance walk, a required-field-validation-not-
+  entered invariance walk, a duplicate-id-/-
+  duplicate-slug-409-not-entered invariance walk
+  pinning that the unauth response must NEVER match
+  the dynamic `/^Item with (ID|slug) '/` regex
+  prefixes, a create-call-not-entered invariance walk
+  pinning that the unauth response status must NOT be
+  201, a CRM-sync-side-effect-not-entered invariance
+  walk pinning that a body with `brand` does NOT
+  change the unauth status, and a Location-Index-
+  side-effect-not-entered invariance walk pinning
+  that a body with `location` does NOT change the
+  unauth status — the **first POST-only collection-
+  level admin-tree smoke** the docs tree publishes
+  (complementing the existing query-surface coverage
+  of the same items-collection route).
+
 - `docs/plugins` Added `admin-roles-id-method-spec.md` —
   the **thirty-sixth** per-source-file reference the docs
   tree publishes for any file under
