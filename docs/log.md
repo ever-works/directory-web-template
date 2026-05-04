@@ -33,6 +33,101 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-categories-id-method-spec.md` —
+  the **twenty-eighth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-categories-id-method.spec.ts`
+  spec covering the admin single-category CRUD endpoint at
+  `apps/web/app/api/admin/categories/[id]/route.ts`
+  — the **second triple-method admin-tree smoke**
+  the docs tree publishes (after the first triple-
+  method `admin/items/[id]` smoke), and the **first
+  triple-method admin smoke with a DELETE-only
+  `?hard=true` query-parameter branch** that flips
+  the service call from `categoryRepository.delete(id)`
+  (soft delete / deactivation) to
+  `categoryRepository.hardDelete(id)` (permanent
+  removal), AND the **first DELETE smoke with a
+  query-flag-driven success-message dichotomy**
+  (`'Category deactivated successfully'` vs
+  `'Category permanently deleted'`). All three
+  handlers share the SAME single-step inline
+  `!session?.user?.isAdmin` gate and the SAME
+  canonical longer 401 envelope, but each has its
+  own divergent post-gate surface:
+  (a) **GET** — no body parse, no query parse,
+  calls `categoryRepository.findById(id)` with a
+  404 `'Category not found'` branch, returns
+  `{ success: true, data: <category> }`, catches
+  with `safeErrorResponse(error, 'Failed to fetch
+  category')`;
+  (b) **PUT** — JSON body parse via
+  `await request.json()` AFTER the gate (NOT
+  wrapped in a per-call try/catch — a malformed
+  body would 500 via the outer catch on the auth
+  branch), spreads `body.name` into an
+  `UpdateCategoryRequest` with `id` from params,
+  calls `categoryRepository.update(updateData)`,
+  runs `await invalidateContentCaches()` on the
+  success branch, returns `{ success: true,
+  data: <category>, message: 'Category updated
+  successfully' }`, has THREE message-pattern
+  catch branches BEFORE the outer
+  `safeErrorResponse(error, 'Failed to update
+  category')` catch (`'not found'` → 404,
+  `'already exists'` → 409, `'must be'` → 400,
+  each echoing the raw `error.message`);
+  (c) **DELETE** — no body parse, parses
+  `searchParams.get('hard') === 'true'` AFTER
+  the gate, calls `categoryRepository.hardDelete(id)`
+  if `hard === true` else
+  `categoryRepository.delete(id)`, runs
+  `await invalidateContentCaches()` on the
+  success branch, returns `{ success: true,
+  message: 'Category permanently deleted' }`
+  for `hard === true` or `{ success: true,
+  message: 'Category deactivated successfully' }`
+  otherwise (NO `data` key — distinct from
+  GET / PUT), has ONE message-pattern catch
+  branch (`'not found'` → 404 echoing
+  `error.message`) BEFORE the outer
+  `safeErrorResponse(error, 'Failed to delete
+  category')` catch. The smoke spec pins per-
+  method canonical-longer 401-envelope assertions,
+  a cross-method envelope-equality assertion, a
+  DELETE-query envelope-invariance assertion
+  pinning that all `?hard=…` permutations round-
+  trip to the SAME 401 envelope as the no-query
+  baseline, a success-branch-key non-disclosure
+  assertion across all three methods (and across
+  both DELETE query branches), a gate-before-post-
+  auth invariant pinning that NONE of the seven
+  post-auth messages — including BOTH DELETE
+  success messages — must appear in any unauth
+  response, a per-id-shape status-stability
+  comparison across all three methods, a PUT
+  body-permutation status-stability comparison,
+  a cross-method side-channel cookie / `X-*`
+  header walk, a cross-method probe asserting
+  POST / PATCH round-trip to `< 500`, a malformed-
+  JSON-body invariance walk for PUT, a service-
+  not-entered invariance walk pinning that NONE
+  of the four repository calls (`findById` /
+  `update` / `delete` / `hardDelete`) is entered
+  on the unauth branch, a side-effects-not-
+  entered invariance walk pinning that the
+  `invalidateContentCaches()` call is unreachable
+  on the unauth branch for both PUT and DELETE,
+  and a per-handler catch-message-divergence walk
+  pinning that NONE of the three distinct catch
+  messages must appear in any unauth response —
+  the **first triple-method admin smoke with a
+  DELETE-only query-parameter branch and a
+  query-flag-driven success-message dichotomy**
+  the docs tree publishes.
+
 - `docs/plugins` Added `admin-collections-id-items-method-spec.md` —
   the **twenty-seventh** per-source-file reference the docs
   tree publishes for any file under
