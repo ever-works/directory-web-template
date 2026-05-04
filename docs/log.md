@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `user-payments-query-spec.md` —
+  the **ninety-second** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninetieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/user-payments-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/user/payments/route.ts` — the
+  **first per-source-file GET smoke** the docs tree
+  publishes that pins a **top-level-ARRAY success
+  response** (NOT an object wrapper). The handler
+  returns either `[]` (when the caller has no
+  Stripe customer) OR a top-level payment-history
+  array (transformed Stripe invoice data). UNIQUE —
+  every prior per-source-file GET smoke pins an
+  object-shaped response; this is the FIRST that
+  pins a bare-array shape. Sibling
+  `subscription-query.spec.ts` covers
+  `apps/web/app/api/user/subscription/route.ts`
+  with the SAME `auth()` gate + Stripe customer
+  lookup + two-tier catch dispatcher pattern but
+  returns an OBJECT-wrapped response. Distinct from
+  EVERY prior session-gated GET smoke: top-level-
+  ARRAY success response (UNIQUE); no-customer-
+  found 200 EMPTY ARRAY `[]` (distinct from
+  `subscription` sibling); bare ONE-key
+  `{ error: 'Unauthorized' }` 401 envelope; two-
+  tier 500 catch dispatcher with TWO different 500
+  messages on the SAME ONE-key envelope shape
+  (UNIQUE — `'Failed to fetch payment data from
+  Stripe'` vs `'Failed to fetch payment data'`);
+  zero-arg GET signature; Stripe Invoices +
+  Subscriptions DUAL-list load-bearing chain (FIRST
+  per-source-file GET smoke pinning a dual-Stripe-
+  list invariant); filtered status whitelist
+  (`paid || open` only). The smoke spec pins a
+  ~7-header bulk-loop walk, a canonical ONE-key
+  401-envelope assertion, a strict ONE-key envelope-
+  shape assertion, a no-array-leak CRITICAL
+  invariant, a gate-before-post-auth invariant
+  pinning that NEITHER 500 message appears on
+  unauth, a side-channel walk, a cross-method probe
+  (POST / PUT / PATCH / DELETE), a Stripe-SDK-
+  calls-not-entered invariance walk (CRITICAL: no
+  `hosted_invoice_url` / `invoice_pdf` /
+  `amount_paid` / `paymentProvider` /
+  `subscriptionId` / `billingInterval` leak), a
+  two-tier-catch-dispatcher-not-entered invariance
+  walk, a no-stripe-error-message-leak invariant,
+  and a cross-permutation status invariance walk.
+  With this addition the per-spec-file docs rollout
+  extends to 92-of-N and the `tests/api/` per-spec-
+  file sub-rollout extends to 90-of-many.
+
 - `docs/plugins` Added `cron-sync-query-spec.md` —
   the **ninety-first** per-source-file reference
   the docs tree publishes for any file under
