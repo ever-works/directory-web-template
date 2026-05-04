@@ -33,6 +33,56 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-webhook-body-spec.md` —
+  the **sixtieth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-webhook-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/webhook/route.ts`
+  — the **second per-source-file webhook POST
+  smoke** the docs tree publishes (after
+  `polar-webhook-body-spec.md`). Distinct from the
+  polar sibling: different signature header
+  (`x-signature` -- lowercase, single field, vs
+  polar's `webhook-signature` + `webhook-timestamp`
+  + `webhook-id`); NO manual JSON parse (the
+  handler reads the raw body via `await
+  request.text()` and passes it as a STRING to
+  `lemonSqueezyProvider.handleWebhook(body,
+  signature)`); simpler 2-tier rejection chain
+  (only `'No signature provided'` and `'Webhook
+  not processed'` -- vs polar's 4-tier chain);
+  switch-statement event dispatcher (8 mapped
+  handlers + default `console.log`); same
+  400-default catch as polar but via raw
+  `NextResponse.json` call (NOT
+  `safeErrorResponse(...)`). The smoke spec pins
+  a first-gate signature-header-presence-
+  rejection assertion `{ error: 'No signature
+  provided' }`, a strict envelope-shape assertion
+  across all rejection branches, a success-
+  branch-received-key non-disclosure assertion,
+  a catch-branch-defaults-to-400 invariant
+  pinning that NO unhandled error escapes as 5xx,
+  an allowed-pre-delivery-error static-string
+  allow-list assertion (3-message set), a
+  polar-shape-headers-ignored assertion pinning
+  that polar's `webhook-signature` does NOT
+  satisfy LemonSqueezy's `x-signature` gate, a
+  side-channel walk, a cross-method probe, a
+  signature-verification-call-gated-by-header-
+  check invariant, and a switch-statement-
+  dispatcher-gated-by-signature-verification
+  invariant pinning that invalid signatures must
+  NEVER trigger any of the 8 event handlers —
+  the **second per-source-file webhook POST
+  smoke** the docs tree publishes, expanding
+  payment-provider webhook coverage from one
+  provider (Polar) to two (LemonSqueezy +
+  Polar).
+
 - `docs/plugins` Added `item-votes-status-query-spec.md` —
   the **fifty-ninth** per-source-file reference the
   docs tree publishes for any file under
