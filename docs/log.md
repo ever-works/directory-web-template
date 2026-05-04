@@ -33,6 +33,58 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `favorites-id-method-spec.md` —
+  the **ninety-fourth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/favorites-id-method.spec.ts`
+  spec covering the `DELETE` export of
+  `apps/web/app/api/favorites/[itemSlug]/route.ts`
+  — the **first per-source-file DELETE smoke** the
+  docs tree publishes that pins a **THREE-field
+  tenant-scoped IDOR check + SELECT-then-DELETE
+  pattern** on a non-admin per-item DELETE route.
+  Distinct from EVERY prior DELETE smoke:
+  `checkDatabaseAvailability()` as the FIRST gate
+  (auth check fires AFTER DB-availability); TWO-
+  key 401 envelope + TWO-key 403 envelope (UNIQUE
+  — FIRST per-source-file DELETE smoke pinning a
+  401 → 403 → 404 cascade with three distinct
+  messages on the same TWO-key envelope shape);
+  THREE-field tenant-scoped IDOR check (UNIQUE —
+  FIRST per-source-file DELETE smoke pinning a
+  three-field IDOR via `userId === session.user.id`
+  AND `itemSlug === path.itemSlug` AND `tenantId
+  === currentTenantId`); SELECT-then-DELETE
+  pattern (the handler runs an inline SELECT
+  pre-check BEFORE the DELETE to surface 404 if
+  not found, distinct from single-step DELETE
+  WHERE); TWO-key success payload `{ success:
+  true, message: 'Favorite removed successfully' }`
+  with NO `data` field (UNIQUE — most DELETE
+  handlers return `data: { ... }` with deletion
+  details). The smoke spec pins a ~7-header bulk-
+  loop walk including `X-Tenant-Id` and `X-User-Id`
+  side-channel probes, a canonical TWO-key 401-
+  envelope assertion accepting either 401 OR 503
+  (both pre-IDOR), a strict envelope-shape
+  assertion, a gate-before-post-auth invariant
+  pinning that NONE of four candidate messages
+  must appear, a side-channel walk including
+  X-Tenant-Id, a cross-method probe (GET / POST /
+  PUT / PATCH), a SELECT-pre-check-and-DELETE-
+  WHERE-not-entered invariance walk (CRITICAL —
+  pinning that an XSS marker in the itemSlug URL
+  is NEVER echoed back), a catch-branch-
+  dispatcher-not-entered invariance walk, a cross-
+  permutation status invariance walk, and a cross-
+  itemSlug invariance walk pinning that the auth
+  gate fires BEFORE any per-item-slug branch.
+  With this addition the per-spec-file docs
+  rollout extends to 94-of-N and the `tests/api/`
+  per-spec-file sub-rollout extends to 92-of-many.
+
 - `docs/plugins` Added `surveys-id-method-spec.md` —
   the **ninety-third** per-source-file reference
   the docs tree publishes for any file under
