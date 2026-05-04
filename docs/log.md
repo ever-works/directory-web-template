@@ -33,6 +33,76 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `client-items-id-method-spec.md` —
+  the **one-hundred-and-ninth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-seventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/client-items-id-method.spec.ts`
+  spec covering the `GET`, `PUT`, AND `DELETE`
+  exports of `apps/web/app/api/client/items/[id]/route.ts`
+  — the **first per-source-file triple-method
+  smoke** the docs tree publishes that pins **FIVE
+  distinct helper imports** from the
+  `@/lib/utils/client-auth` utility module
+  (`requireClientAuth` + `serverErrorResponse` +
+  `notFoundResponse` + `forbiddenResponse` +
+  `badRequestResponse`) on a single source file.
+  UNIQUE: every prior per-source-file smoke imports
+  between 1 and 3 helpers from this utility; this
+  is the FIRST to pin a 5-helper-import contract
+  from a single utility module. Extends the
+  `client-items-method-spec.md` sibling (which pins
+  the `requireClientAuth` helper on the
+  COLLECTION-level GET + POST surface) into the
+  PER-ID GET + PUT + DELETE dynamic-segment
+  surface. Distinct contracts: 5-helper-import
+  contract (UNIQUE); `itemIdParamSchema.safeParse`
+  Zod validation on a path param (UNIQUE — FIRST
+  per-source-file triple-method smoke pinning Zod
+  validation on a dynamic-segment parameter); GET
+  success payload with `engagement: { views, likes
+  }` nested sub-object (UNIQUE — FIRST per-source-
+  file GET smoke pinning a nested engagement-
+  metrics sub-object); PUT empty-update guard
+  (`Object.keys(updateData).length === 0` → 400
+  `'No fields to update'` — UNIQUE FIRST); PUT
+  `statusChanged` dynamic success message (UNIQUE
+  FIRST); PUT FOUR-branch nested catch dispatcher
+  (UNIQUE FIRST — `'Item not found'` → 404,
+  `'permission'` → 403, `'deleted'` → 400, default
+  → outer); DELETE THREE-branch nested catch
+  dispatcher (UNIQUE FIRST); longer-message TWO-
+  key 401 envelope; dedicated `notFoundResponse(message)`
+  404-helper + `forbiddenResponse(message)` 403-
+  helper (UNIQUE FIRST — vs raw `NextResponse.json`).
+  The smoke spec pins four bulk-loop walks (~6
+  headers × 3 methods + ~7 PUT bodies all
+  asserting `< 500`), longer-message TWO-key 401-
+  envelope assertions on GET / PUT / DELETE, a
+  cross-method 401-envelope-equality assertion
+  across all three methods, a strict TWO-key
+  envelope-shape assertion (no `item` /
+  `engagement` leak), a gate-before-post-auth
+  invariant pinning EIGHT post-auth messages must
+  not leak, an updateAsClient-not-entered
+  invariance walk on PUT (CRITICAL — XSS markers
+  never echoed), a softDeleteForUser-not-entered
+  invariance walk on DELETE (CRITICAL — URL
+  itemId marker never echoed), a gate-before-
+  FOUR-branch-catch invariance walk on PUT, a
+  gate-before-Zod-body-validation invariance walk
+  on PUT, a cross-method probe (POST / PATCH), a
+  side-channel walk on PUT, and a cross-id
+  invariance walk pinning that the auth gate
+  fires BEFORE any per-id branch (the
+  `notFoundResponse` / `forbiddenResponse` paths
+  are unreachable on unauth). With this addition
+  the per-spec-file docs rollout extends to
+  109-of-N and the `tests/api/` per-spec-file
+  sub-rollout extends to 107-of-many.
+
 - `docs/plugins` Added `client-items-method-spec.md` —
   the **one-hundred-and-eighth** per-source-file
   reference the docs tree publishes for any file
