@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `surveys-id-method-spec.md` —
+  the **ninety-third** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-first**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/surveys-id-method.spec.ts`
+  spec covering the `GET`, `PUT`, AND `DELETE`
+  exports of `apps/web/app/api/surveys/[surveyId]/route.ts`
+  — the **first per-source-file triple-method
+  smoke** the docs tree publishes that pins a
+  **MIXED-auth gate contract**: GET is publicly
+  accessible for **published** surveys but admin-
+  gated for unpublished surveys (with a UNIQUE
+  **404-mask**: non-admin callers see `404 'Survey
+  not found'` INSTEAD of `403 'Forbidden'`); PUT
+  and DELETE are admin-only. Distinct from EVERY
+  prior triple-method smoke: MIXED-auth gate (FIRST
+  per-source-file triple-method smoke pinning a
+  public-GET + admin-PUT + admin-DELETE pattern,
+  vs admin-collections-[id] which is admin-gated
+  on ALL three methods); 404-mask on GET for non-
+  published surveys (UNIQUE — FIRST per-source-
+  file GET smoke pinning a 404-mask security
+  pattern); ID-or-slug fallback lookup (UNIQUE —
+  FIRST per-source-file dynamic-segment GET smoke
+  pinning a dual-lookup-by-id-or-slug contract);
+  `error.message === 'Survey not found'` catch-
+  branch dispatch on PUT and DELETE (UNIQUE —
+  FIRST per-source-file PUT/DELETE smoke pinning
+  an `Error.message` equality-match catch-
+  dispatcher); TWO-key `{ success: false, error:
+  'Unauthorized' }` 401 envelope on PUT and DELETE;
+  `data: null` in DELETE success payload (UNUSUAL).
+  The smoke spec pins four bulk-loop walks (~6
+  headers × 3 methods + ~9 PUT bodies all
+  asserting `< 500`), a canonical 404 envelope
+  assertion for non-existent surveys on GET,
+  canonical 401-envelope assertions on PUT and
+  DELETE, a cross-method 401-envelope-equality
+  assertion, a strict envelope-shape assertion, a
+  gate-before-post-auth invariant pinning that
+  NONE of five candidate messages must appear on
+  PUT unauth, a surveyService-update-not-entered
+  invariance walk on PUT (CRITICAL — pinning that
+  XSS markers are NEVER echoed back), a
+  surveyService-delete-not-entered invariance walk
+  on DELETE (CRITICAL), a cross-method probe (POST
+  / PATCH), side-channel walks on PUT and DELETE,
+  and a catch-branch-dispatcher-not-entered
+  invariance walk. With this addition the per-
+  spec-file docs rollout extends to 93-of-N and
+  the `tests/api/` per-spec-file sub-rollout
+  extends to 91-of-many.
+
 - `docs/plugins` Added `user-payments-query-spec.md` —
   the **ninety-second** per-source-file reference
   the docs tree publishes for any file under
