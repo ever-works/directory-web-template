@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `payment-account-method-spec.md` —
+  the **one-hundredth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/payment-account-method.spec.ts`
+  spec covering the `POST` AND `PUT` exports of
+  `apps/web/app/api/payment/account/route.ts` —
+  the **first per-source-file dual-method smoke**
+  the docs tree publishes that documents a **Q-010-
+  style NO-AUTH-GATE finding for a non-admin
+  mutating route on BOTH POST AND PUT exports**.
+  The handler has NO `auth()` call, NO ownership
+  check; ANY caller can create a payment account
+  for ANY `userId` + `customerId` (POST) OR
+  update any payment account by `id` (PUT). The
+  smoke spec pins this finding as the CURRENT
+  contract -- a future PR that adds auth would
+  explicitly break this spec, prompting an
+  update. Distinct from EVERY prior dual-method
+  smoke: NO `auth()` gate on EITHER method;
+  NO ownership check; `setupUserPaymentAccount`
+  runs UNCONDITIONALLY on both POST and PUT (PUT
+  does NOT check that `id` matches an existing
+  record -- it just calls
+  `setupUserPaymentAccount` with the body
+  fields, effectively the same logic as POST
+  plus an `id` gate); THREE-required-field
+  cascade on POST and FOUR-required-field
+  cascade on PUT (each emitting a distinct 400
+  message via individual `if (!field)` checks —
+  UNIQUE: FIRST per-source-file dual-method
+  smoke pinning a per-field individual-required-
+  check chain); bare ONE-key 400 envelope; bare
+  ONE-key 500 envelope; returns raw
+  paymentAccount fields in success payload
+  (UNIQUE: most success responses use `{
+  success: true, data: {...} }`). The smoke
+  spec pins four bulk-loop walks (~6 headers ×
+  2 methods + ~7 POST bodies + ~6 PUT bodies),
+  a NO-401 contract assertion on BOTH POST and
+  PUT, an auth-signal-ignored contract walk, a
+  required-field cascade canonical-messages
+  assertion (POST emits three distinct 400
+  messages, PUT emits a fourth `'Account ID is
+  required'`), a strict ONE-key 400 envelope-
+  shape assertion, a cross-method probe (GET /
+  PATCH / DELETE), and a no-catch-on-valid-body
+  contract. With this addition the per-spec-
+  file docs rollout extends to 100-of-N (a
+  centennial milestone) and the `tests/api/`
+  per-spec-file sub-rollout extends to 98-of-
+  many.
+
 - `docs/plugins` Added `payment-id-method-spec.md` —
   the **ninety-ninth** per-source-file reference
   the docs tree publishes for any file under
