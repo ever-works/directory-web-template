@@ -33,6 +33,70 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `solidgate-checkout-body-spec.md` —
+  the **sixty-third** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/solidgate-checkout-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/solidgate/checkout/route.ts` —
+  the **first per-source-file POST smoke for an
+  auth-gated payment-provider checkout endpoint**
+  the docs tree publishes. The existing multi-
+  provider `payment-checkouts.spec.ts` covers
+  Stripe / LemonSqueezy / Polar / Solidgate
+  checkout endpoints with a single `< 500`
+  assertion each; this spec drills into the
+  Solidgate handler specifically. Distinct from the
+  closest analogue (`polar-subscription-portal-body
+  -spec.md`) in five ways: (a) **TWO-key 401
+  envelope** -- Solidgate returns `{ error:
+  'Unauthorized', message: 'Authentication
+  required' }` (TWO keys); polar-portal returns
+  `{ error: 'Unauthorized' }` (ONE key) -- UNIQUE;
+  (b) **Zod `safeParse` AFTER the auth gate** --
+  the `checkoutSchema.safeParse(json)` and the
+  surrounding `try/catch` around `request.json()`
+  fire only AFTER `auth()`; (c) **FIVE-key success
+  envelope** -- success returns `{ data: { id, url
+  }, status, message }` with a literal `status: 200`
+  field embedded in the body, separate from the HTTP
+  status -- UNIQUE; (d) **500 catch (NOT 400)** --
+  outer catch returns 500 with `{ error, message,
+  details }` (dev-only stack); polar-webhook uses
+  `safeErrorResponse(..., 400)` -- UNIQUE; (e) **POST
+  -only export** -- GET / PUT / PATCH / DELETE are
+  NOT exported; method-resolution returns 405. The
+  spec pins a canonical two-key 401-envelope
+  assertion, a strict envelope-shape invariance walk
+  pinning `Object.keys(body).sort() === ['error',
+  'message']`, a no-Zod-issue-leak invariance walk
+  pinning that schema details (`amount`,
+  `successUrl`, `cancelUrl`, `mode`, `'Invalid
+  request body'`, `'Invalid JSON'`) must NEVER
+  appear in the unauth response, a no-success-key-
+  leak invariance walk pinning that `data` / `id` /
+  `url` / literal `status: 200` must NEVER appear, a
+  no-redirect-leak assertion pinning that caller-
+  supplied `successUrl` / `cancelUrl` values must
+  NEVER be echoed, a malformed-JSON-pre-gate-non-
+  downgrade assertion, a catch-branch-non-entry walk
+  pinning that the unauth branch must NEVER reach
+  the 500 outer catch, a 1-message static-string
+  allow-list assertion (only `'Unauthorized'` is
+  reachable), a side-channel walk, a cross-method
+  probe (GET / PUT / PATCH / DELETE), and a 401-
+  status-invariance walk pinning that every
+  documented bypass-key shape rounds-trips to the
+  same 401 as the empty-body baseline — the **first
+  per-source-file POST smoke for an auth-gated
+  payment-provider checkout endpoint** the docs
+  tree publishes, expanding the rollout's payment-
+  provider checkout coverage from a single `< 500`
+  smoke to a deep body-surface walk on the
+  Solidgate handler.
+
 - `docs/plugins` Added `solidgate-webhook-body-spec.md` —
   the **sixty-second** per-source-file reference the
   docs tree publishes for any file under
