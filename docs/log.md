@@ -34,6 +34,77 @@ why** at a higher level than per-commit diffs.
 ## 2026-05-05
 
 - `docs/plugins` Added
+  `items-popularity-scores-query-spec.md` — the
+  **one-hundred-and-fifteenth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-thirteenth** under
+  `apps/web-e2e/tests/api/`. Pairs with the existing
+  `apps/web-e2e/tests/api/items-popularity-scores.spec.ts`
+  smoke covering the `GET` export of
+  `apps/web/app/api/items/popularity-scores/route.ts`
+  — the **first per-source-file GET smoke** the docs
+  tree publishes that pins a **public (no-auth-gate)
+  debug endpoint** combining a `Math.min(parseInt(
+  limit), 100)` admit-clamp invariant, a `locale`
+  default-`'en'` fallback, a `getCachedItems({ lang })`
+  cache-aware fetch path, an empty-items short-
+  circuit envelope `{ items: [], message: 'No items
+  found' }`, a logarithmic-scaling score formula
+  `Math.log10(value + 1) * weight`, a featured-boost
+  score cap (`+10000`), a three-tier recency-decay
+  schedule (`<30d` → `1000`, `<90d` → `500`, `<180d`
+  → `250`), and a stable rank-after-sort mutation
+  (sort by `score` desc + `name.localeCompare` asc,
+  then mutate `rank` to the 1-based sort index).
+  UNIQUE: every prior per-source-file `items*` GET
+  smoke (`items-engagement-query`,
+  `items-export-query`, `items-export-settings-query`)
+  gates either with `auth()` or a feature-flag
+  check; this is the FIRST per-source-file GET
+  smoke that pins a route that is **intentionally
+  public** — exposing a debug-only sort breakdown
+  for any caller that hits the URL. Distinct
+  contracts: public (no-auth-gate) route (UNIQUE
+  FIRST — every prior `items*` GET smoke gates the
+  handler); `Math.min(parseInt(limit), 100)` admit-
+  clamp (UNIQUE FIRST — silent integer-clamp on a
+  query parameter; the route NEVER 4xxs on a
+  malformed `limit`); logarithmic-scaling score
+  formula (UNIQUE FIRST — `Math.log10(value + 1) *
+  weight` engagement-scoring formula); featured
+  boost (+10000) (UNIQUE FIRST — featured-item flat
+  score boost as the load-bearing tie-breaker
+  between featured and non-featured items); three-
+  tier recency-decay schedule (UNIQUE FIRST —
+  piecewise-linear recency-decay schedule); empty-
+  items short-circuit envelope (UNIQUE FIRST — non-
+  error early-return envelope on a `getCachedItems(
+  { lang })` cache miss); stable rank-after-sort
+  mutation (UNIQUE FIRST — sort-then-mutate-`rank`
+  pattern); score-breakdown surface (UNIQUE FIRST —
+  `scoreBreakdown` sub-object with seven labeled
+  components: `featured`, `views`, `votes`, `rating`,
+  `favorites`, `comments`, `recency`); locale-
+  fallback semantics — `locale` defaults to `'en'`;
+  unknown locales return an empty items list (NOT
+  an error). The smoke spec pins a single query-
+  string bulk-loop walk (15 permutations: no-arg
+  baseline, valid `limit` 5/20, out-of-range `limit`
+  999/10000 admit-clamped, empty / `abc` / negative
+  / zero `limit` `parseInt`-default fallback, known
+  `locale` en/fr/zh, unknown `locale` empty-items
+  short-circuit, combined `limit + locale`, combined
+  out-of-range + locale clamp-then-locale order)
+  asserting `< 500`. Cross-references the cross-
+  cutting `discovery.spec.ts` (also probes the no-
+  arg baseline), the neighbouring engagement
+  endpoint sibling `items-engagement-query-spec.md`
+  (when published), the neighbouring item-detail
+  public spec `item-public.spec.ts`, and to
+  `docs/spec/010-e2e-test-coverage/` for the
+  governing spec.
+- `docs/plugins` Added
   `client-items-import-sample-query-spec.md` — the
   **one-hundred-and-fourteenth** per-source-file
   reference the docs tree publishes for any file
