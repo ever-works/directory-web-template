@@ -33,6 +33,57 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `auth-change-password-body-spec.md` —
+  the **seventieth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/auth-change-password-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/auth/change-password/route.ts`
+  — the **first per-source-file POST smoke** that
+  pins a **rate-limit-FIRST gate posture** -- the
+  rate-limit check fires BEFORE the auth gate.
+  EVERY prior per-source-file POST smoke pins auth
+  as the first gate; this is the FIRST rate-limit-
+  before-auth contract in the rollout. Distinct
+  from EVERY prior POST smoke: rate-limit-FIRST
+  gate posture (returns 429 with `retryAfter`
+  field; FIRST per-source-file POST smoke pinning
+  a `retryAfter` field); `'Unauthorized. Please
+  sign in.'` 401 message (UNIQUE imperative-
+  phrased); OAuth-account check (FIRST per-
+  source-file POST smoke pinning OAuth-account-
+  restriction); dual bcrypt.compare gates (current-
+  password verification AND duplicate-password
+  prevention; FIRST per-source-file POST smoke
+  pinning a dual bcrypt.compare contract); cross-
+  field Zod `.refine` validation (FIRST per-
+  source-file POST smoke pinning a cross-field
+  validation contract); email-send fault tolerance
+  (sendPasswordChangeConfirmationEmail wrapped in
+  try/catch, does NOT fail the password change).
+  The companion minimal spec
+  `auth-change-password.spec.ts` pins only the
+  `< 500` no-server-error contract; this spec
+  drills into the body / header surface with
+  detailed invariants. The smoke spec pins an
+  imperative-phrased 401-envelope assertion, a
+  strict envelope-shape assertion, a success-
+  branch-key non-disclosure assertion, a gate-
+  before-post-auth invariant (8-message non-
+  disclosure set), a 429-envelope-includes-
+  retryAfter assertion, a parameterised-vs-
+  baseline status-stability comparison, a side-
+  channel walk, a cross-method probe, a malformed-
+  JSON-body invariance walk, a Zod-validation-
+  chain-not-entered invariance walk, a bcrypt-
+  compare-gates-not-entered invariance walk, and
+  an OAuth-account-check-and-db-update-and-email-
+  send-not-entered invariance walk — the **first
+  rate-limit-FIRST POST smoke** the docs tree
+  publishes.
+
 - `docs/plugins` Added `item-comments-id-method-spec.md` —
   the **sixty-ninth** per-source-file reference the
   docs tree publishes for any file under
