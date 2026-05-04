@@ -33,6 +33,45 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `sponsor-ads-user-id-cancel-body-spec.md` —
+  the **seventy-first** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-ninth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-user-id-cancel-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/sponsor-ads/user/[id]/cancel/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **body-parse-fault-tolerant contract**
+  (`await request.json().catch(() => ({})) ?? {}`
+  -- malformed JSON OR `null` OR empty body
+  silently coalesces to `{}`; FIRST silent-coalesce
+  contract in the rollout) AND a **conditional Zod
+  validation contract** (`.omit({ id: true })
+  .safeParse(body)` with `if (!parsed.success &&
+  body.cancelReason !== undefined)` gate). Distinct
+  from EVERY prior POST smoke: silent-coalesce
+  body-parse contract; conditional Zod validation
+  with `.omit`; default-fallback string for
+  `cancelReason` (`'Cancelled by user'`); three-
+  branch outer catch with mixed exact-string +
+  substring detection (`error.message === 'Sponsor
+  ad not found'` → 404, `error.message.includes
+  ('Cannot cancel')` → 400, default → 500). The
+  smoke spec pins a canonical one-key 401-envelope
+  assertion, a strict envelope-shape assertion, a
+  success-branch-key non-disclosure assertion, a
+  gate-before-post-auth invariant, a silent-
+  coalesce-body-parse-without-400 invariance walk,
+  a parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a conditional-Zod-validation-not-entered
+  invariance walk, an ownership-and-cancelSponsorAd-
+  not-entered invariance walk, a three-branch-outer-
+  catch-not-entered invariance walk, and a no-
+  cancelReason-leak assertion — pinning four FIRST
+  contracts no prior smoke covers.
+
 - `docs/plugins` Added `auth-change-password-body-spec.md` —
   the **seventieth** per-source-file reference the
   docs tree publishes for any file under
