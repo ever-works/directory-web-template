@@ -33,6 +33,60 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-clients-create-body-spec.md` —
+  the **forty-first** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-ninth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-clients-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/clients/route.ts` (the
+  collection-level client-create endpoint) — the
+  **first POST-only collection-level admin-tree
+  smoke** the docs tree publishes that combines the
+  **bare `{ error: 'Unauthorized' }` envelope** (NO
+  `success` key — matching the
+  `admin/clients/[clientId]` smoke and
+  `admin/companies/[id]`) with a **get-or-create user
+  side-effect chain** that uses `crypto.randomBytes(6)`
+  to generate a temporary password for newly-created
+  users (`Temp<hex>!`) AND a **status-200 success
+  branch** (NOT 201, distinct from every prior
+  collection-level POST smoke). The POST handler runs
+  an email-or-userId fallback (`raw.email ?? raw.userId`,
+  distinct from prior POST smokes), a single-field
+  required check, `getUserByEmail(email)` lookup, an
+  inner-try/catch user-create branch that returns 400
+  with dynamically-interpolated `'Failed to create
+  user: <err.message>'` message on failure, a get-or-
+  create fallback validation, then
+  `createClientProfile(clientData)` with defaults, an
+  optional CRM sync side-effect, and returns
+  `{ success: true, data: <client>, message: 'Client
+  created successfully' }` with status 200 (NOT 201).
+  The outer catch returns 500 `{ error: 'Failed to
+  create client' }` (BARE envelope). The companion
+  `admin-clients-query.spec.ts` covers the GET surface
+  of the same route. The smoke spec pins a bare 401-
+  envelope assertion, a strict envelope-shape
+  assertion (no `success` key), a success-branch-key
+  non-disclosure assertion that NONE of `data`,
+  `success`, `message` keys must appear in any unauth
+  response and the unauth response status must NOT be
+  200, a gate-before-post-auth invariant pinning that
+  the four static post-auth messages plus the dynamic
+  `'Failed to create user: ...'` regex prefix must NOT
+  appear in any unauth response, a parameterised-vs-
+  baseline status-stability comparison, a side-channel
+  walk, a cross-method probe, a malformed-JSON-body
+  invariance walk, a required-email-check-not-entered
+  invariance walk, a get-or-create-user-side-effect-
+  not-entered invariance walk, and a
+  createClientProfile-call-not-entered invariance walk
+  — the **first bare-envelope-with-get-or-create-user-
+  side-effect collection-level POST admin-tree smoke**
+  the docs tree publishes.
+
 - `docs/plugins` Added `admin-tags-create-body-spec.md` —
   the **fortieth** per-source-file reference the docs
   tree publishes for any file under
