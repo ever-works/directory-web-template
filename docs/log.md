@@ -33,6 +33,46 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-payment-methods-delete-body-spec.md` —
+  the **eighty-fifth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-third**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-payment-methods-delete-body.spec.ts`
+  spec covering the `DELETE` export of
+  `apps/web/app/api/stripe/payment-methods/delete/route.ts`
+  — the **first per-source-file DELETE smoke**
+  for a non-admin payment-method route (mutation
+  method is DELETE, NOT POST) AND the **first per-
+  source-file mutating smoke** pinning a **multi-
+  helper-function-extraction handler design** (5
+  helpers: validateSession,
+  validatePaymentMethodOwnership,
+  handleDefaultPaymentMethodReassignment,
+  checkAffectedSubscriptions, handleApiError) AND
+  the **first per-source-file mutating smoke**
+  pinning a **customer-metadata-driven IDOR
+  check** (`customer.metadata?.userId === userId`
+  → 403 if mismatch). Distinct from create sibling:
+  DELETE method; ONE-key 401 envelope `'Authentication
+  required'`; helper-function-extraction; customer-
+  metadata IDOR; Stripe-error-echo with `'Stripe
+  error: '` prefix; default-payment-method
+  reassignment side-effect; affected-subscriptions
+  count. The smoke spec pins canonical 401-envelope,
+  strict envelope-shape, success-branch non-
+  disclosure, gate-before-post-auth, no-Stripe-
+  error-prefix invariant, status stability, side-
+  channel walk, cross-method probe, Zod-throw-catch-
+  not-entered invariance walk, ownership-check-
+  helper-and-detach-and-reassignment-and-sub-count-
+  not-entered invariance walk (CRITICAL --
+  paymentMethods.detach must NEVER run on unauth),
+  and no-paymentMethodId-leak invariant pinning
+  XSS-shaped paymentMethodId NEVER echoed —
+  pinning three FIRST contracts no prior mutating
+  smoke covers.
+
 - `docs/plugins` Added `stripe-subscription-id-update-body-spec.md` —
   the **eighty-fourth** per-source-file reference
   the docs tree publishes for any file under
