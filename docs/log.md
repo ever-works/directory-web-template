@@ -33,6 +33,57 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-users-create-body-spec.md` —
+  the **thirty-eighth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-users-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/users/route.ts` (the
+  collection-level user-create endpoint) — the
+  **first POST-only collection-level admin-tree
+  smoke** the docs tree publishes that combines the
+  **two-step `!session?.user` →
+  `!session.user.isAdmin` gate** with an **eight-step
+  body validation chain** (object-shape / 5-required-
+  fields / email-format / username-regex / name-
+  length / password-Zod-`safeParse` / title-length /
+  avatar-length / role-DB-lookup) AND **Zod
+  `passwordSchema.safeParse(body.password)` for
+  password-only validation** (returning a dynamically-
+  interpolated message on failure — distinct from
+  prior smokes that use Zod for the body-as-a-whole)
+  AND a **username regex validation**
+  (`/^[a-zA-Z0-9_-]{3,30}$/` — the first regex-based
+  username validation in admin smoke) AND the
+  **`error.message`-pass-through outer catch**. The
+  companion `admin-users-query.spec.ts` covers the
+  GET (paginated list) surface of the same route.
+  The smoke spec pins a hybrid 401-envelope
+  assertion, an unauth-lands-on-401-not-403
+  invariant, a success-branch-key non-disclosure
+  assertion that NONE of `data`, `user`, `id`,
+  `success: true` keys plus the 201 status must
+  appear in any unauth response, a gate-before-post-
+  auth invariant pinning that NONE of the thirteen
+  post-auth messages must appear in any unauth
+  response, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a cross-
+  method probe asserting PUT / PATCH / DELETE round-
+  trip to `< 500`, a malformed-JSON-body invariance
+  walk, an eight-step-validation invariance walk
+  pinning that EVERY step-(a)-(i) probe round-trips
+  to the same 401 status, a role-DB-lookup-not-
+  entered invariance walk pinning that the unauth
+  response must NEVER echo `'Invalid role'`, and a
+  create-call-not-entered invariance walk pinning
+  that the unauth response status must NOT be 201 —
+  the **first eight-step-validation collection-level
+  POST admin-tree smoke** the docs tree publishes
+  (complementing the existing query-surface coverage
+  of the same users-collection route).
+
 - `docs/plugins` Added `admin-items-create-body-spec.md` —
   the **thirty-seventh** per-source-file reference the docs
   tree publishes for any file under
