@@ -33,6 +33,47 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-update-body-spec.md` —
+  the **eighty-third** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-first**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-update-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/update/route.ts`
+  — the **richest per-source-file POST smoke**
+  the docs tree publishes, pinning SIX FIRST
+  contracts: (1) `success: false`-AND-`code`-typed
+  FIVE-key 401 envelope with `requestId` +
+  `timestamp`; (2) per-request UUID via
+  `crypto.randomUUID?.()` with browser-fallback;
+  (3) performance tracking via `Date.now() -
+  startTime`; (4) development-mode short-circuit;
+  (5) custom response headers (`Cache-Control` /
+  `X-Request-ID` / `X-Response-Time`); (6) five-
+  tier catch dispatcher (`VALIDATION_ERROR` → 400,
+  `UNAUTHORIZED` → 401, `SUBSCRIPTION_NOT_FOUND`
+  → 404, `PROVIDER_UNAVAILABLE` → 503, default →
+  500). Distinct from cancel + reactivate +
+  update-plan siblings: `!session?.user` gate
+  (NOT email-gated); `code: 'UNAUTHORIZED'` (NOT
+  `'AUTH_REQUIRED'`); 5-key 401 envelope; dev-mode
+  short-circuit. The smoke spec pins a FIVE-key
+  401-envelope assertion, a strict envelope-shape
+  assertion, a per-request-UUID-uniqueness
+  assertion, a request-id-forgery-prevention
+  assertion (caller-supplied `X-Request-ID` is
+  NEVER echoed), a success-branch-key non-
+  disclosure assertion, a gate-before-post-auth
+  invariant, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a
+  cross-method probe, a validation-chain-not-
+  entered invariance walk, a dev-mode-short-
+  circuit-and-provider-call-and-5-tier-catch-not-
+  entered invariance walk, and a no-custom-header
+  invariant on the unauth branch — pinning the
+  richest envelope contract no prior smoke covers.
+
 - `docs/plugins` Added `lemonsqueezy-update-plan-body-spec.md` —
   the **eighty-first** per-source-file reference
   the docs tree publishes for any file under
