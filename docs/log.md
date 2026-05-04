@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-categories-git-query-spec.md` —
+  the **fiftieth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-eighth** under
+  `apps/web-e2e/tests/api/`. Pairs with the existing
+  `apps/web-e2e/tests/api/admin-categories-git-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/admin/categories/git/route.ts` —
+  the **GET-companion** of the recently-landed
+  `admin-categories-git-create-body-spec.md` (POST).
+  Where the POST handler commits a new category file
+  to the configured `DATA_REPOSITORY` GitHub
+  repository, the GET handler reads Git repository
+  status and categories via the GitHub API. The route
+  combines a unique combination of FOUR distinct
+  contracts: (1) a **zero-argument `GET()` handler
+  signature** that does not take a `NextRequest`
+  argument and reads no `searchParams` at all (same
+  posture as the notifications route), (2) a **bare
+  `{ error: 'Unauthorized. Admin access required.' }`
+  envelope** without the `success` discriminant key —
+  the ONLY admin-tree GET route that combines the
+  bare-envelope shape with the canonical longer
+  role-context-specific message, (3) a
+  **GitHub-API-backed service** via
+  `createCategoryGitService(gitConfig)` that makes
+  live HTTPS calls to the GitHub API using the
+  configured `GITHUB_TOKEN` / `DATA_REPOSITORY`
+  environment variables — distinct from every other
+  admin-tree route's drizzle / DB posture and from
+  the file-system Git-CMS reader of the
+  `categories/all` and `tags/all` routes, and (4)
+  three distinct configuration-error 500 envelopes
+  after the gate (canonical envelope, NOT bare —
+  a deliberate inconsistency between the unauth and
+  post-auth configuration-error branches). The
+  spec walks one bulk loop (~50 query permutations)
+  and eleven hand-written scenarios pinning the bare
+  401 envelope, status invariance across query
+  permutations, per-key isolation walks for
+  `?userId=` / `?token=` / `?bypass=` /
+  `?repo=&branch=&owner=` / `?path=` key families,
+  side-channel isolation for `Accept` / cookie / IP
+  headers, and gate-before-config-validation /
+  gate-before-Git-service invariants — the **first
+  GitHub-API-backed admin-tree GET smoke** the docs
+  tree publishes.
+
 - `docs/plugins` Added `admin-tags-all-query-spec.md` —
   the **forty-ninth** per-source-file reference the docs
   tree publishes for any file under
