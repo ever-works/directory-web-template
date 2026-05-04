@@ -33,6 +33,53 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-roles-create-body-spec.md` —
+  the **forty-fourth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-roles-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/roles/route.ts` —
+  documenting the **fifth Q-010b-style auth-gate-
+  divergence finding** in the admin-tree smoke layer:
+  the route's `POST` handler **does NOT call
+  `auth()` at all**, so any unauthenticated client can
+  create roles (including admin-flagged roles by
+  sending `{ name: 'X', description: 'Y',
+  isAdmin: true }`). The companion
+  `admin-roles-query.spec.ts` already documents the
+  same Q-010b finding for the GET surface. With no
+  gate, the unauth client receives the same response
+  an authenticated client would: 400 on no body /
+  empty name / out-of-range lengths, 409 on duplicate
+  ID, or 201 on valid bodies. The POST handler
+  additionally has a stable-ID-derivation step
+  (`name` normalized via `.normalize('NFKD')`,
+  diacritic stripping, lowercasing, slug-style hyphen
+  collapsing — the first POST smoke that walks a
+  slug-derivation step), a soft-delete-aware
+  uniqueness check (`roleRepository.exists(id,
+  { includeDeleted: true })`), and an outer-catch
+  translation that maps
+  `'already exists' | 'unique constraint' | 'duplicate
+  key'` to a single fixed 409 message. The smoke spec
+  pins a NEVER-401-or-403 invariant pinning the auth-
+  gate-divergence finding, a `success`-key envelope-
+  shape assertion, a per-header-permutation status-
+  stability comparison for the same body, a side-
+  channel walk pinning that fabricated session cookies
+  and `X-*` headers do NOT escalate privilege, a cross-
+  method probe, a malformed-JSON-body invariance walk,
+  a required-field-check-first-validation-fires
+  invariant pinning the route's only "protection",
+  and a length-validation deterministic-fire invariant
+  — the **fifth Q-010b auth-gate-divergence finding**
+  the docs tree publishes (joining `admin-roles-query-
+  spec.md`, `admin-roles-active-query-spec.md`,
+  `admin-featured-items-id-method-spec.md`, and the
+  broader `admin-by-id.spec.ts` coverage).
+
 - `docs/plugins` Added `admin-collections-create-body-spec.md` —
   the **forty-third** per-source-file reference the docs
   tree publishes for any file under
