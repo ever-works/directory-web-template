@@ -33,6 +33,94 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-subscription-portal-body-spec.md` —
+  the **ninetieth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscription-portal-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/subscription/portal/route.ts`
+  — the **first per-source-file POST smoke** the
+  docs tree publishes for a Stripe billing-portal
+  session-creation endpoint. Distinct from EVERY
+  prior Stripe per-source-file POST smoke AND the
+  polar-subscription-portal-body sibling: zero-arg
+  POST signature (UNIQUE — the FIRST per-source-
+  file POST smoke pinning a zero-arg POST contract
+  with NO `request` / `context` arguments); ONE-key
+  `{ error: 'Unauthorized' }` envelope (NO
+  `success` key, NO `message` key — distinct from
+  stripe-checkout's TWO-key shape and stripe-setup-
+  intent-id's `{ success: false, error }` shape);
+  `getCustomerId(...)` returns null → 404 ONE-key
+  `{ error: 'Stripe customer ID not found' }`;
+  `buildUrl('/settings/billing')` + `new URL(...)`
+  URL-validation contract (UNIQUE — the FIRST per-
+  source-file smoke pinning a `new URL()`
+  validation contract on a constructed return URL,
+  with TWO-key 500 envelope `{ error: 'Invalid
+  return URL configuration', message: 'The
+  application URL is not properly configured' }`);
+  FOUR-key Stripe-error catch envelope (UNIQUE —
+  the FIRST per-source-file POST smoke pinning a
+  FOUR-key envelope with both `code` AND `type`
+  fields surfaced from the Stripe error object,
+  vs payment-methods-create's THREE-key shape and
+  other handlers' TWO-key shapes); structured
+  `Logger.create('StripePortal')` call in the
+  inner catch (FIRST per-source-file POST smoke
+  pinning a structured-logger contract on the
+  inner Stripe-error branch); `safeErrorMessage`
+  helper in BOTH the inner-stripe-error catch AND
+  the outer catch; TWO-key outer-catch 500
+  envelope `{ error: 'Failed to create billing
+  portal session', message }`. The POST handler
+  combines `auth()` session lookup
+  (`!session?.user` → 401 ONE-key),
+  `initializeStripeProvider()` +
+  `getStripeInstance()` AFTER auth gate,
+  `stripe.getCustomerId(session.user as any)`
+  load-bearing customer-id lookup (null → 404),
+  `buildUrl('/settings/billing')` + `new URL(...)`
+  URL-validation (invalid → 500 TWO-key),
+  `stripeInstance.billingPortal.sessions.create(...)`
+  load-bearing Stripe SDK call wrapped in INNER
+  try/catch, inner-stripe-error catch (400 FOUR-
+  key), success payload 200
+  `{ success: true, data, message: 'Billing
+  portal session created' }`, outer catch 500
+  TWO-key. Documents the at-a-glance scenario
+  tree (a ~9-header bulk-loop walk + a ~9-body
+  bulk-loop walk all asserting `< 500`; a
+  canonical 401-envelope assertion; a strict
+  ONE-key envelope-shape assertion; a no-portal-
+  url-leak CRITICAL security invariant; a gate-
+  before-post-auth invariant pinning that NONE
+  of six candidate messages must appear; a
+  side-channel walk; a cross-method probe
+  (GET / PUT / PATCH / DELETE); an
+  initializeStripeProvider-and-getCustomerId-and-
+  billingPortal-sessions-create-not-entered
+  invariance walk — CRITICAL; a URL-validation-
+  catch-not-entered invariance walk; an inner-
+  stripe-error-catch-FOUR-key-envelope-not-
+  entered invariance walk — CRITICAL; an outer-
+  catch-not-entered invariance walk; a no-stripe-
+  error-message-leak invariant; a body-shape
+  invariance walk; a cross-permutation status-
+  invariance assertion; a no-XSS / open-redirect
+  leak invariant). Cross-references the polar-
+  subscription-portal-body sibling (different
+  provider's portal pattern), the stripe-checkout
+  POST root sibling (TWO-key Unauthorized
+  envelope vs ONE-key here), the stripe-setup-
+  intent-id GET sibling (different
+  `{ success: false, error }` TWO-key shape),
+  the stripe-payment-methods-create POST sibling
+  (different envelope shape on Stripe-error
+  catch), and to Spec 010.
+
 - `docs/plugins` Added `item-comments-rating-id-update-method-spec.md` —
   the **eighty-ninth** per-source-file reference
   the docs tree publishes for any file under
