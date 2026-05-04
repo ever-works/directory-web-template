@@ -21,7 +21,7 @@ checkout endpoint that is NOT tied to a single provider
 but instead `switch`-dispatches to all three providers
 based on `process.env.NEXT_PUBLIC_PAYMENT_PROVIDER`. Pairs
 with the existing
-[`sponsor-ads-public-spec`](sponsor-ads-public-spec.md)
+[`sponsor-ads-public.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/sponsor-ads-public.spec.ts)
 for the public read-side counterpart and the four admin
 sponsor-ad specs (
 [`admin-sponsor-ads-query`](admin-sponsor-ads-query-spec.md),
@@ -212,7 +212,7 @@ bodies) and **fourteen hand-written scenarios**.
   [`stripe-checkout-body-spec.md`](stripe-checkout-body-spec.md)
   (three-way mode + trial-config + helper-pipeline).
 - The public read-side counterpart
-  [`sponsor-ads-public-spec.md`](sponsor-ads-public-spec.md)
+  [`sponsor-ads-public.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/sponsor-ads-public.spec.ts)
   covers the `GET /api/sponsor-ads` listing.
 - The five admin write-side counterparts —
   [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
