@@ -33,6 +33,55 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-checkout-body-spec.md` —
+  the **sixty-sixth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-checkout-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/checkout/route.ts`
+  — the **third per-source-file POST smoke for an
+  auth-gated payment-provider checkout endpoint**
+  (after solidgate-checkout-body and polar-checkout-
+  body). Distinct from BOTH siblings:
+  `!session?.user?.id` gate (NOT `!session?.user`);
+  custom validator returning `{ isValid, errors[] }`
+  via `validateCheckoutRequestBody(body)` (NOT Zod
+  like solidgate; NOT simple `if (!field)` like
+  polar); per-call try/catch around
+  `request.json()` like solidgate; dev-only PII-
+  sanitized `console.log` (FIRST per-source-file
+  POST smoke pinning this contract); FOUR-string-
+  scan catch with THREE different status codes (400
+  / 500 / 503); `ERROR_TYPES` enum-typed error field
+  (`VALIDATION_ERROR`, `CONFIGURATION_ERROR`,
+  `PAYMENT_SERVICE_ERROR`, `INTERNAL_ERROR`); GET
+  export with NO auth gate (Q-010-style finding;
+  cross-method probe pins this divergence from
+  POST); `success: true` discriminant in success
+  payload (distinct from polar + solidgate's literal
+  `status: 200`). The smoke spec pins a canonical
+  two-key 401-envelope assertion, a strict
+  envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-auth
+  invariant, an allowed-pre-delivery-error static-
+  string allow-list assertion (5-code set), a
+  parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a JSON-parse-failure-AFTER-auth-gate
+  invariance walk, a validation-chain-not-entered
+  invariance walk, a createCustomCheckout-not-
+  entered invariance walk, and a four-string-scan-
+  catch-not-entered invariance walk pinning that
+  NONE of the three enum-typed error codes from the
+  catch may appear on the unauth branch — the
+  **third per-source-file POST smoke for an auth-
+  gated payment-provider checkout endpoint**,
+  expanding payment-provider checkout coverage from
+  two providers to three (Solidgate + Polar +
+  LemonSqueezy).
+
 - `docs/plugins` Added `polar-checkout-body-spec.md` —
   the **sixty-fifth** per-source-file reference the
   docs tree publishes for any file under
