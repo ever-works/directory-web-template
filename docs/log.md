@@ -33,6 +33,50 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-tags-all-query-spec.md` —
+  the **forty-ninth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-seventh** under
+  `apps/web-e2e/tests/api/`. Pairs with the existing
+  `apps/web-e2e/tests/api/admin-tags-all-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/admin/tags/all/route.ts` — the
+  **second Git-CMS-backed admin-tree query smoke** the
+  docs tree references (the first was the sibling
+  `admin-categories-all-query.spec.ts` covered
+  indirectly via the `client-trash-page-object.md`
+  co-tenant cross-link). The route reads from the
+  per-locale tag list stored in the Git-based content
+  repository (cloned from `DATA_REPOSITORY` into
+  `.content/`) via `getCachedItems({ lang })` —
+  distinct from every other admin-tree route's drizzle
+  / Postgres posture EXCEPT the sibling categories-all
+  route. The handler combines `auth()` session lookup,
+  a single-step `!session?.user?.isAdmin` gate
+  returning 401 `{ success: false, error: 'Unauthorized' }`
+  (canonical envelope, bare message), a `?locale=` query
+  param read AFTER the gate with `searchParams.get('locale') || 'en'`
+  default coercion, a **dead-branch `typeof locale !== 'string'`
+  defensive narrowing** that emits 400
+  `{ success: false, error: 'Invalid locale parameter' }`
+  but can never fire today (because
+  `searchParams.get(name)` always returns
+  `string | null` and the `|| 'en'` default coerces
+  null to a string before the typeof check), then
+  `getCachedItems({ lang: locale })`, success payload
+  `{ success: true, data: tags }` with status 200, and
+  outer catch `console.error` + 500
+  `'Failed to fetch tags'`. The spec walks one bulk
+  loop (~50 query permutations) and eight hand-written
+  scenarios pinning the bare 401 envelope, status
+  invariance across query permutations, per-key
+  isolation walks for `?locale=` / `?userId=` /
+  `?token=` / `?bypass=` / `?repo=&branch=&commit=`
+  key families, and gate-before-locale-narrowing /
+  gate-before-Git-CMS-read invariants — the **first
+  dead-branch type-narrowing Git-CMS query smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-settings-update-method-spec.md` —
   the **forty-eighth** per-source-file reference the docs
   tree publishes for any file under
