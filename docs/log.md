@@ -33,6 +33,73 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `client-items-import-method-spec.md` —
+  the **one-hundred-and-tenth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-eighth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/client-items-import-method.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/client/items/import/route.ts`
+  — the **first per-source-file POST smoke** the
+  docs tree publishes that pins a
+  **`requireClientAuth()`-gated batch-import
+  handler** that delegates to an
+  `ItemImportService.executeImport` service
+  entry point. UNIQUE: every prior per-source-
+  file `client-items*` smoke pins a CRUD-style
+  handler (collection GET + POST list, per-id
+  GET + PUT + DELETE, stats GET); this is the
+  FIRST that pins a batch-import handler that
+  fans out to a service layer. Distinct
+  contracts: `requireClientAuth()` + service-
+  layer delegation pair (UNIQUE FIRST); nested
+  `body.rows` `Array.isArray` guard (UNIQUE
+  FIRST — manual guard, NOT Zod `safeParse`);
+  `'Missing or invalid rows array.'` Zod-free
+  400 message (UNIQUE FIRST);
+  `safeErrorResponse(error, 'Failed to execute
+  import')` outer-catch helper (UNIQUE FIRST —
+  sourced from `@/lib/utils/api-error`, NOT
+  `client-auth.serverErrorResponse`);
+  `{ success, result }` success payload with
+  the service-derived `{ total, created,
+  updated, skipped, errors }` result aggregate
+  (UNIQUE FIRST — `result`-keyed vs `item` /
+  `subscription` / `data` / `stats` priors);
+  longer-message TWO-key 401 envelope; hard-
+  coded `{ duplicateStrategy: 'skip',
+  defaultStatus: 'pending', submittedBy:
+  userId }` import options that client requests
+  CANNOT override. The smoke spec pins two
+  bulk-loop walks (~6 headers + ~10 POST
+  bodies all asserting `< 500`), a longer-
+  message TWO-key 401-envelope assertion, a
+  strict TWO-key envelope-shape assertion (no
+  `result` / `total` / `created` / `updated` /
+  `skipped` / `errors` leak), a gate-before-
+  post-auth invariance walk, an executeImport-
+  not-entered invariance walk (CRITICAL — XSS
+  markers in the rows array body are NEVER
+  echoed AND the load-bearing service call
+  NEVER executes), a gate-before-Array.isArray-
+  guard invariance walk (every non-array
+  `rows` shape collapses to 401 NOT 400), a
+  cross-method probe (GET / PUT / PATCH /
+  DELETE), a side-channel walk on POST, and
+  a cross-permutation status invariance walk
+  pinning byte-identical 401 envelopes across
+  every body permutation. Cross-references the
+  companion client-items collection +
+  per-id + stats siblings, the
+  client-protected sibling, the admin-tree
+  import counterpart, the companion
+  client-items-import-validate sibling
+  (validates rows pre-execute — covered
+  separately), and the companion
+  client-items-import-sample sibling (emits a
+  sample CSV — covered separately).
 - `docs/plugins` Added `client-items-id-method-spec.md` —
   the **one-hundred-and-ninth** per-source-file
   reference the docs tree publishes for any file
