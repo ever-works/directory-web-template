@@ -33,6 +33,65 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-votes-status-query-spec.md` —
+  the **fifty-ninth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-seventh**
+  under `apps/web-e2e/tests/api/`, and the **tenth**
+  per-source-file query-spec the docs tree publishes
+  (the **first nine** are all admin-tree). Pairs with
+  a new
+  `apps/web-e2e/tests/api/item-votes-status-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/items/[slug]/votes/status/route.ts`
+  — the **first non-admin per-source-file query smoke**
+  for an **auth-gated** GET that returns the current
+  user's vote record (or `null`) for a specific item
+  (distinct from the public `/api/items/[slug]/votes`
+  GET that `item-votes-query.spec.ts` covers and from
+  the public count-only sibling
+  `item-vote-count-query.spec.ts`). It is also the
+  **first per-source-file query smoke** that pairs the
+  **`'Authentication required'`** 401 message
+  (matching the sibling `item-comments-create-body`
+  POST) with the **bare `{ error }` envelope** (no
+  `success: false` wrapper) — distinct from the
+  canonical `{ success: false, error: 'Unauthorized' }`
+  envelope used by the sibling `item-votes-cast-body`
+  POST. The GET handler is a zero-`request`-read
+  signature: it awaits `auth()` first, then
+  `context.params`, then calls
+  `getClientProfileByUserId(...)` and
+  `getVoteByUserIdAndItemId(...)`. There is NO
+  `request.url`, `request.headers`, or
+  `searchParams.get(...)` access anywhere — the
+  route is invariant to **any** query-string the
+  caller appends. The spec emits a ~57-path bulk-loop
+  walk asserting `< 500` plus eleven hand-written
+  scenarios: a canonical-envelope 401 assertion
+  pinning `{ error: 'Authentication required' }`, a
+  strict envelope-shape assertion (`Object.keys(body)
+  === ['error']`, no `success` key), a gate-before-
+  post-auth invariance walk pinning none of the three
+  candidate post-auth static messages may surface, a
+  vote-record non-disclosure walk pinning that none
+  of the six record keys (`id`, `userId`, `itemId`,
+  `voteType`, `createdAt`, `updatedAt`) may surface,
+  a null-payload non-disclosure pinning that the
+  unauth response is NOT the literal `null` payload,
+  a parameterised-vs-baseline status-stability
+  comparison across five paths, an `Accept` header
+  isolation walk, a side-channel walk (fabricated
+  session-token cookies + `X-Forwarded-For` /
+  `X-Real-IP` / `Authorization` / `X-User-Id`
+  headers), a cross-method probe (POST / PUT / PATCH
+  / DELETE), a client-profile-lookup-not-entered
+  invariance walk, and a vote-record-read-not-entered
+  invariance walk — the **first auth-gated non-admin
+  per-source-file query smoke** the docs tree
+  publishes that pins a `null`-or-record success
+  payload contract.
+
 - `docs/plugins` Added `item-comments-create-body-spec.md` —
   the **fifty-eighth** per-source-file reference the
   docs tree publishes for any file under
