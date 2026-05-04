@@ -6,9 +6,9 @@ interface ClientTableSkeletonProps {
 
 export function ClientTableSkeleton({ rows = 10 }: ClientTableSkeletonProps) {
   return (
-    <div className="bg-white dark:bg-white/3 rounded-xl shadow-xs border border-gray-200 dark:border-white/6 overflow-hidden" aria-hidden="true">
+    <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-sm border border-gray-100 dark:border-neutral-800/80 overflow-hidden" aria-hidden="true">
       {/* Table Header */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-white/6 bg-gray-50 dark:bg-white/[0.02]">
+      <div className="px-6 py-4 border-b border-gray-100 dark:border-neutral-800/80 bg-gray-50/40 dark:bg-neutral-950">
         <div className="grid grid-cols-12 gap-4 items-center">
           <div className="col-span-3">
             <Skeleton className="h-4 w-20" />
@@ -32,7 +32,7 @@ export function ClientTableSkeleton({ rows = 10 }: ClientTableSkeletonProps) {
       </div>
 
       {/* Table Body */}
-      <div className="divide-y divide-gray-200 dark:divide-white/6">
+      <div className="divide-y divide-gray-100/60 dark:divide-neutral-800/60">
         {Array.from({ length: rows }).map((_, index) => (
           <div key={`client-row-${index}`} className="px-6 py-4">
             <div className="grid grid-cols-12 gap-4 items-center">
@@ -69,9 +69,9 @@ export function ClientTableSkeleton({ rows = 10 }: ClientTableSkeletonProps) {
               {/* Actions */}
               <div className="col-span-1">
                 <div className="flex space-x-1">
-                  <Skeleton className="h-8 w-8 rounded-sm" />
-                  <Skeleton className="h-8 w-8 rounded-sm" />
-                  <Skeleton className="h-8 w-8 rounded-sm" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
                 </div>
               </div>
             </div>

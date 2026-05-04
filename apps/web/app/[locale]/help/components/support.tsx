@@ -405,7 +405,7 @@ export function Support() {
                 {chatOpen ? (
                   <div className="flex-1 flex flex-col bg-slate-50 dark:bg-white/3 rounded-lg border border-slate-200 dark:border-white/6">
                     {/* Messages */}
-                    <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <div className="flex-1 p-4 space-y-4 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
                       {chatMessages.map((message) => (
                         <div
                           key={message.id}

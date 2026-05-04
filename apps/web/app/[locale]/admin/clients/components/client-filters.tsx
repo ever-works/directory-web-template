@@ -148,91 +148,93 @@ export function ClientFilterBar(props: ClientFilterBarProps) {
 	);
 
 	// Filter sections for popover
-	const filterSections: FilterSection<string>[] = useMemo(
-		() => [
-			{
-				id: 'plan',
-				label: t('PLAN'),
-				type: 'radio',
-				options: [
-					{ id: '', label: t('ALL_PLANS') },
-					{ id: 'free', label: t('FREE') },
-					{ id: 'standard', label: t('STANDARD') },
-					{ id: 'premium', label: t('PREMIUM') }
-				],
-				selectedValues: planFilter ? [planFilter] : [''],
-				onChange: (values) => onPlanChange(values[0] || '')
-			},
-			{
-				id: 'accountType',
-				label: t('ACCOUNT_TYPE'),
-				type: 'radio',
-				options: [
-					{ id: '', label: t('ALL_TYPES') },
-					{ id: 'individual', label: t('INDIVIDUAL') },
-					{ id: 'business', label: t('BUSINESS') },
-					{ id: 'enterprise', label: t('ENTERPRISE') }
-				],
-				selectedValues: accountTypeFilter ? [accountTypeFilter] : [''],
-				onChange: (values) => onAccountTypeChange(values[0] || '')
-			},
-			{
-				id: 'provider',
-				label: t('PROVIDER'),
-				type: 'radio',
-				options: [
-					{ id: '', label: t('ALL_PROVIDERS') },
-					{ id: 'credentials', label: t('EMAIL_PASSWORD') },
-					{ id: 'google', label: t('GOOGLE') },
-					{ id: 'github', label: t('GITHUB') },
-					{ id: 'facebook', label: t('FACEBOOK') },
-					{ id: 'twitter', label: t('TWITTER') },
-					{ id: 'linkedin', label: t('LINKEDIN') }
-				],
-				selectedValues: providerFilter ? [providerFilter] : [''],
-				onChange: (values) => onProviderChange(values[0] || '')
-			},
-			{
-				id: 'datePreset',
-				label: t('DATE_RANGE'),
-				type: 'radio',
-				options: [
-					{ id: 'all', label: t('ALL_TIME') },
-					{ id: 'last7', label: t('LAST_7_DAYS') },
-					{ id: 'last30', label: t('LAST_30_DAYS') },
-					{ id: 'last90', label: t('LAST_90_DAYS') },
-					{ id: 'thisMonth', label: t('THIS_MONTH') },
-					{ id: 'custom', label: t('CUSTOM_RANGE') }
-				],
-				selectedValues: [datePreset],
-				onChange: (values) => onDatePresetChange((values[0] as DatePreset) || 'all')
-			},
-			{
-				id: 'dateFilterType',
-				label: t('APPLY_DATE_FILTER_TO'),
-				type: 'radio',
-				options: [
-					{ id: 'created', label: t('CREATED_DATE') },
-					{ id: 'updated', label: t('UPDATED_DATE') }
-				],
-				selectedValues: [dateFilterType],
-				onChange: (values) => onDateFilterTypeChange((values[0] as DateFilterType) || 'created')
-			}
-		],
-		[
-			t,
-			planFilter,
-			accountTypeFilter,
-			providerFilter,
-			datePreset,
-			dateFilterType,
-			onPlanChange,
-			onAccountTypeChange,
-			onProviderChange,
-			onDatePresetChange,
-			onDateFilterTypeChange
-		]
-	);
+	// In your ClientFilterBar component, simplify the filterSections:
+const filterSections: FilterSection<string>[] = useMemo(
+	() => [
+		{
+			id: 'plan',
+			label: t('PLAN'),
+			type: 'radio',
+			options: [
+				{ id: '', label: t('ALL_PLANS') },
+				{ id: 'free', label: t('FREE') },
+				{ id: 'standard', label: t('STANDARD') },
+				{ id: 'premium', label: t('PREMIUM') }
+			],
+			selectedValues: planFilter ? [planFilter] : [''],
+			onChange: (values) => onPlanChange(values[0] || '')
+			// className removed - will use default 2-column grid
+		},
+		{
+			id: 'accountType',
+			label: t('ACCOUNT_TYPE'),
+			type: 'radio',
+			options: [
+				{ id: '', label: t('ALL_TYPES') },
+				{ id: 'individual', label: t('INDIVIDUAL') },
+				{ id: 'business', label: t('BUSINESS') },
+				{ id: 'enterprise', label: t('ENTERPRISE') }
+			],
+			selectedValues: accountTypeFilter ? [accountTypeFilter] : [''],
+			onChange: (values) => onAccountTypeChange(values[0] || '')
+		},
+		{
+			id: 'provider',
+			label: t('PROVIDER'),
+			type: 'radio',
+			options: [
+				{ id: '', label: t('ALL_PROVIDERS') },
+				{ id: 'credentials', label: t('EMAIL_PASSWORD') },
+				{ id: 'google', label: t('GOOGLE') },
+				{ id: 'github', label: t('GITHUB') },
+				{ id: 'facebook', label: t('FACEBOOK') },
+				{ id: 'twitter', label: t('TWITTER') },
+				{ id: 'linkedin', label: t('LINKEDIN') }
+			],
+			selectedValues: providerFilter ? [providerFilter] : [''],
+			onChange: (values) => onProviderChange(values[0] || '')
+		},
+		{
+			id: 'datePreset',
+			label: t('DATE_RANGE'),
+			type: 'radio',
+			options: [
+				{ id: 'all', label: t('ALL_TIME') },
+				{ id: 'last7', label: t('LAST_7_DAYS') },
+				{ id: 'last30', label: t('LAST_30_DAYS') },
+				{ id: 'last90', label: t('LAST_90_DAYS') },
+				{ id: 'thisMonth', label: t('THIS_MONTH') },
+				{ id: 'custom', label: t('CUSTOM_RANGE') }
+			],
+			selectedValues: [datePreset],
+			onChange: (values) => onDatePresetChange((values[0] as DatePreset) || 'all')
+		},
+		{
+			id: 'dateFilterType',
+			label: t('APPLY_DATE_FILTER_TO'),
+			type: 'radio',
+			options: [
+				{ id: 'created', label: t('CREATED_DATE') },
+				{ id: 'updated', label: t('UPDATED_DATE') }
+			],
+			selectedValues: [dateFilterType],
+			onChange: (values) => onDateFilterTypeChange((values[0] as DateFilterType) || 'created')
+		}
+	],
+	[
+		t,
+		planFilter,
+		accountTypeFilter,
+		providerFilter,
+		datePreset,
+		dateFilterType,
+		onPlanChange,
+		onAccountTypeChange,
+		onProviderChange,
+		onDatePresetChange,
+		onDateFilterTypeChange
+	]
+);
 
 	// Calculate popover filter count (excluding search and status)
 	const popoverFilterCount = useMemo(() => {
@@ -470,24 +472,24 @@ export function ClientActiveFilters(props: ClientActiveFiltersProps) {
 		<div className="space-y-3">
 			{/* Custom Date Range (when datePreset === 'custom') */}
 			{datePreset === 'custom' && (
-				<div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/3 rounded-lg">
-					<Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-					<span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+				<div className="flex items-center gap-3 px-4 py-3 bg-gray-50/60 dark:bg-white/3 rounded-xl border border-gray-100 dark:border-white/5">
+					<Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0" />
+					<span className="text-sm font-medium text-gray-600 dark:text-gray-300">
 						{t('CUSTOM_DATE_RANGE')}:
 					</span>
 					<input
 						type="date"
 						value={customDateFrom}
 						onChange={(e) => onCustomDateFromChange(e.target.value)}
-						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-white/6 rounded-md bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
+						className="px-3 py-1.5 text-sm border border-gray-200/70 dark:border-white/5 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-colors"
 						aria-label={t('FROM_DATE')}
 					/>
-					<span className="text-gray-400">-</span>
+					<span className="text-gray-300 dark:text-gray-600">—</span>
 					<input
 						type="date"
 						value={customDateTo}
 						onChange={(e) => onCustomDateToChange(e.target.value)}
-						className="px-3 py-1.5 text-sm border border-gray-200 dark:border-white/6 rounded-md bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary"
+						className="px-3 py-1.5 text-sm border border-gray-200/70 dark:border-white/5 rounded-lg bg-white dark:bg-white/5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-colors"
 						aria-label={t('TO_DATE')}
 					/>
 				</div>

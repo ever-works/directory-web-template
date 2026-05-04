@@ -171,7 +171,7 @@ export default function SubmissionSuccessPage() {
                   <Gift className="w-5 h-5 text-theme-primary-600" />
                   {t("YOUR_PLAN_INCLUDES")}
                 </h3>
-                <div className="space-y-3 max-h-80 overflow-y-auto">
+                <div className="space-y-3 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
                   {getPlanFeatures(transactionDetails?.planType || "free").map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <feature.icon className={cn("w-4 h-4", feature.color)} />

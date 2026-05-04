@@ -77,7 +77,7 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
           startContent={<Filter className="w-4 h-4" />}
           onPress={onOpen}
         >
-{t('ADVANCED_SEARCH')}
+          {t('ADVANCED_SEARCH')}
         </Button>
         
         {hasActiveFilters && (
@@ -93,15 +93,27 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
       </div>
 
       {/* Advanced Search Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} size="4xl" scrollBehavior="inside" onOpenChange={(open) => !open && onClose()}>
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        size="4xl"
+        scrollBehavior="inside"
+        onOpenChange={(open) => !open && onClose()}
+        classNames={{
+          base: "bg-white dark:bg-neutral-900 border border-gray-100 dark:border-neutral-800/80 rounded-2xl",
+          header: "bg-gray-50/50 dark:bg-neutral-950 border-b border-gray-100 dark:border-neutral-800/80 text-gray-900 dark:text-white",
+          body: "bg-white dark:bg-neutral-900",
+          footer: "bg-gray-50/50 dark:bg-neutral-950 border-t border-gray-100 dark:border-neutral-800/80",
+        }}
+      >
         <ModalContent>
-          <ModalHeader>{t('ADVANCED_SEARCH_FILTERS')}</ModalHeader>
+          <ModalHeader className="text-gray-900 dark:text-white">{t('ADVANCED_SEARCH_FILTERS')}</ModalHeader>
           <ModalBody>
-            <div className="space-y-6">
+            <div className="space-y-6 py-2">
               {/* Basic Search */}
               <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Search className="w-4 h-4" />
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   {t('BASIC_SEARCH')}
                 </h4>
                 <Input
@@ -208,9 +220,9 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
               </div>
 
               {/* Date Range Filters */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+              <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-neutral-800/60">
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   {t('DATE_FILTERS')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -242,9 +254,9 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
               </div>
 
               {/* Field-Specific Searches */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Search className="w-4 h-4" />
+              <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-neutral-800/60">
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <Search className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   {t('FIELD_SPECIFIC_SEARCH')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -280,9 +292,9 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
               </div>
 
               {/* Numeric Filters */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Hash className="w-4 h-4" />
+              <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-neutral-800/60">
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <Hash className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                   {t('NUMERIC_FILTERS')}
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,14 +316,14 @@ export function AdvancedSearchPanel({ filters, onFiltersChange, onClearFilters }
               </div>
 
               {/* Boolean Filters */}
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                  <Shield className="w-4 h-4" />
-{t('PROFILE_FEATURES')}
+              <div className="space-y-3 pt-2 border-t border-gray-100 dark:border-neutral-800/60">
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  {t('PROFILE_FEATURES')}
                 </h4>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                   <Select
-label={t('HAS_AVATAR')}
+                    label={t('HAS_AVATAR')}
                     selectedKeys={
                       typeof localFilters.hasAvatar === 'boolean'
                         ? [String(localFilters.hasAvatar)]
