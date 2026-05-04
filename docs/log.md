@@ -33,6 +33,55 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `client-items-stats-query-spec.md` —
+  the **one-hundred-and-second** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundredth** under `apps/web-e2e/tests/api/`
+  (a centennial milestone for the `tests/api/`
+  sub-rollout). Pairs with a new
+  `apps/web-e2e/tests/api/client-items-stats-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/client/items/stats/route.ts`
+  — the **first per-source-file GET smoke** the
+  docs tree publishes that pins the
+  **`requireClientAuth()` helper-based auth
+  gate** with the **`'Unauthorized. Please sign
+  in to continue.'`** longer-message TWO-key
+  envelope. UNIQUE: a different auth-helper
+  abstraction than the bare `auth()` session
+  lookup used in every other per-source-file
+  smoke; uses the explicit `client-auth` utility
+  helpers (`requireClientAuth`,
+  `serverErrorResponse`). Distinct from EVERY
+  prior GET smoke: `requireClientAuth()` helper-
+  based auth gate (UNIQUE — returns a
+  discriminated union on failure/success,
+  FIRST per-source-file GET smoke pinning a
+  discriminated-union auth-helper return
+  contract); longer-message 401 envelope
+  `'Unauthorized. Please sign in to continue.'`
+  (UNIQUE); TWO-key success payload `{ success:
+  true, stats: <statsObject> }` (UNIQUE — uses
+  `stats` key NOT `data`); `serverErrorResponse`
+  outer-catch helper (UNIQUE distinct from
+  `safeErrorResponse`); zero-arg GET signature.
+  The smoke spec pins a ~6-header bulk-loop
+  walk asserting `< 500`, a longer-message
+  TWO-key 401-envelope assertion, a strict
+  envelope-shape assertion, a gate-before-post-
+  auth invariant, a side-channel walk, a cross-
+  method probe (POST / PUT / PATCH / DELETE), a
+  clientItemRepository-getStatsByUser-not-
+  entered invariance walk (CRITICAL — pinning
+  that the load-bearing DB read NEVER runs on
+  unauth), and a cross-permutation status
+  invariance walk. With this addition the per-
+  spec-file docs rollout extends to 102-of-N
+  and the `tests/api/` per-spec-file sub-rollout
+  extends to 100-of-many — a centennial
+  milestone for the `tests/api/` sub-rollout.
+
 - `docs/plugins` Added `payment-account-id-query-spec.md` —
   the **one-hundred-and-first** per-source-file
   reference the docs tree publishes for any file
