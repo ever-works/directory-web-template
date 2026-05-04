@@ -33,6 +33,49 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-webhook-body-spec.md` —
+  the **sixty-fourth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-webhook-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/webhook/route.ts` —
+  the **fourth and final per-source-file webhook
+  POST smoke** the docs tree publishes, completing
+  the four-provider webhook quartet (Polar +
+  LemonSqueezy + Solidgate + Stripe). The simplest
+  of the four handlers: single-header signature
+  check via `stripe-signature` (unique header
+  name); NO JSON parse (matches lemonsqueezy);
+  NO `validateWebhookPayload` check (distinct from
+  polar); NO idempotency check (distinct from
+  solidgate); NO event-type-string-fallback in the
+  switch dispatcher (matches ONLY the
+  `WebhookEventType` enum values, including the
+  UNIQUE `BILLING_PORTAL_SESSION_UPDATED` Stripe-
+  specific case); POST-only export; same 400-default
+  catch. The smoke spec pins a first-gate
+  signature-header-presence-rejection assertion, a
+  strict envelope-shape assertion, a success-
+  branch-received-key non-disclosure assertion, a
+  catch-branch-defaults-to-400 invariant, an
+  allowed-pre-delivery-error static-string allow-
+  list assertion (3-message set), a sibling-
+  provider-headers-ignored assertion pinning that
+  polar / lemonsqueezy / solidgate signature
+  headers do NOT satisfy the Stripe gate, a side-
+  channel walk, a cross-method probe, a signature-
+  verification-call-gated-by-header-check
+  invariant, and a switch-statement-dispatcher-
+  gated-by-signature-verification invariant pinning
+  that invalid signatures must NEVER trigger any of
+  the 9 event handlers including the Stripe-unique
+  `BILLING_PORTAL_SESSION_UPDATED` case — the
+  **fourth and final per-source-file webhook POST
+  smoke** the docs tree publishes, completing the
+  four-provider webhook quartet.
+
 - `docs/plugins` Added `solidgate-checkout-body-spec.md` —
   the **sixty-third** per-source-file reference the
   docs tree publishes for any file under
