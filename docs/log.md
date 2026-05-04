@@ -33,6 +33,71 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `item-comments-create-body-spec.md` —
+  the **fifty-eighth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/item-comments-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/items/[slug]/comments/route.ts` —
+  the **first non-admin per-source-file POST smoke**
+  that uses **`checkDatabaseAvailability()`** from
+  `apps/web/lib/utils/database-check.ts` as the
+  **load-bearing FIRST gate** (BEFORE `auth()`) --
+  when `DATABASE_URL` is missing, the helper returns
+  a **503** `{ error: 'Database not configured',
+  code: 'DATABASE_UNAVAILABLE', message: '...' }`
+  envelope (first POST smoke pinning this helper-
+  emitted shape with a 503 status), the **first**
+  non-admin POST smoke that uses the
+  **`'Authentication required'`** 401 message
+  (distinct from `'Unauthorized'` used by the
+  sibling votes-cast POST), and the **second**
+  non-admin POST smoke that pins the
+  **`isUserBlocked(clientProfile.status)`
+  moderation-status gate**. In the e2e test
+  environment `DATABASE_URL` IS configured so the
+  db-availability gate passes through and the auth
+  gate fires for unauthenticated requests. The POST
+  handler combines a `checkDatabaseAvailability()`
+  gate (load-bearing FIRST gate), `auth()` lookup, a
+  `!session?.user` gate (→ 401 `'Authentication
+  required'`), JSON body parse, content validation
+  (`!content?.trim()` → 400 `'Content is required'`),
+  rating range validation (`typeof rating !==
+  'number' || rating < 1 || rating > 5` → 400
+  `'Rating must be between 1 and 5'`),
+  `getClientProfileByUserId(...)` lookup (not found
+  → 404 `'Client profile not found'`), the
+  `isUserBlocked(...)` moderation-status gate (if
+  true → 403 with dynamic block-reason message), the
+  load-bearing `createComment(...)` write, a
+  `getCommentWithUserById(comment.id)` post-write
+  lookup (if null → 500 `'Failed to retrieve
+  comment'` -- the first POST smoke pinning a post-
+  write null-check 500 envelope), success payload
+  `{ success: true, comment }` with status 200, and
+  outer catch 500 `'Failed to create comment'`. The
+  smoke spec pins a canonical-envelope
+  authentication-required 401 assertion, a strict
+  envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-auth
+  invariant, an allowed-pre-delivery-error static-
+  string allow-list assertion that includes
+  `'Database not configured'` for the 503 branch, a
+  parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a malformed-JSON-body invariance walk, a
+  content-and-rating-validation-chain-not-entered
+  invariance walk, a client-profile-lookup-and-
+  moderation-gate-not-entered invariance walk
+  pinning that the unauth response is 401 (NOT 403),
+  and a createComment-and-post-write-lookup-not-
+  entered invariance walk — the **first
+  checkDatabaseAvailability-helper-gated POST
+  smoke** the docs tree publishes.
+
 - `docs/plugins` Added `item-votes-cast-body-spec.md` —
   the **fifty-seventh** per-source-file reference the
   docs tree publishes for any file under
