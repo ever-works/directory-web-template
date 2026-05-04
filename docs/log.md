@@ -33,6 +33,52 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `lemonsqueezy-cancel-body-spec.md` —
+  the **seventy-sixth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-fourth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/lemonsqueezy-cancel-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/lemonsqueezy/cancel/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning an **email-gated auth contract**
+  (`!session?.user?.email` -- FIRST per-source-file
+  POST smoke gating on session email) AND the
+  **first per-source-file POST smoke** pinning a
+  **`code` field in the 401 envelope** (THREE-key
+  envelope `{ error, message, code:
+  'AUTH_REQUIRED' }`; FIRST per-source-file POST
+  smoke pinning enum-typed code in 401) AND the
+  **first per-source-file POST smoke** pinning a
+  **`timestamp` field in success AND catch
+  envelopes**. Distinct from EVERY prior POST
+  smoke: email-gated auth; THREE-key 401 envelope
+  with `code: 'AUTH_REQUIRED'`; `code` field in
+  400 validation envelope (`code: 'VALIDATION_
+  ERROR'`); FOUR-key catch envelope with `code:
+  'CANCEL_FAILED'` AND `timestamp` (FIRST per-
+  source-file POST smoke pinning a 4-key catch
+  envelope); conditional success message based on
+  `cancelAtPeriodEnd` flag; `timestamp` field in
+  success AND catch envelopes; `safeErrorMessage`
+  extracted into catch envelope's `message` field
+  (NOT into `error` field). The smoke spec pins a
+  THREE-key 401-envelope assertion, a strict
+  envelope-shape assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-
+  auth invariant, a no-`VALIDATION_ERROR`-or-
+  `CANCEL_FAILED`-codes invariant, a no-
+  `timestamp`-leak invariant, a parameterised-vs-
+  baseline status-stability comparison, a side-
+  channel walk, a cross-method probe, a malformed-
+  JSON-body invariance walk, a validation-chain-
+  not-entered invariance walk, a cancelSubscription-
+  call-not-entered invariance walk, and a catch-
+  branch-four-key-envelope-not-echoed invariance
+  walk — pinning three FIRST contracts no prior
+  smoke covers.
+
 - `docs/plugins` Added `stripe-payment-methods-create-body-spec.md` —
   the **seventy-fifth** per-source-file reference
   the docs tree publishes for any file under
