@@ -33,6 +33,84 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-featured-items-id-method-spec.md` —
+  the **thirty-third** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-featured-items-id-method.spec.ts`
+  spec covering the admin single-featured-item CRUD
+  endpoint at
+  `apps/web/app/api/admin/featured-items/[id]/route.ts`
+  — the **first triple-method admin-tree smoke** the
+  docs tree publishes that combines a **non-admin
+  gate** (the route gates on `!session?.user?.id`
+  rather than `!session?.user?.isAdmin`, so any
+  authenticated user with a tenant can hit it — a
+  Q-010b-style auth-gate-divergence finding, the
+  fourth admin route the smoke layer documents as
+  effectively non-admin-restricted today) with a
+  **soft-delete DELETE** (sets `isActive: false`
+  rather than removing the row), a **validation-less
+  PUT** (seven body fields shoved straight into
+  `db.update(...)`), and a **two-step
+  `!session?.user?.id` → `!tenantId` gate** envelope.
+  All three handlers share a hybrid bare-message +
+  `success: false` 401 envelope
+  (`{ success: false, error: 'Unauthorized' }` —
+  matching `admin/users/[id]` and
+  `admin/roles/[id]/permissions`), inline Drizzle
+  queries with tenant scoping, and a `console.error` +
+  500 catch with handler-specific messages
+  (`'Failed to fetch|update|remove featured item'`).
+  Each handler diverges on its post-gate surface:
+  (a) **GET** runs an inline Drizzle `select()` with
+  tenant scoping returning 404 `'Featured item not
+  found'` if `result.length === 0` or
+  `{ success: true, data: <featured-item> }`;
+  (b) **PUT** parses JSON body AFTER tenant resolution
+  and runs **NO body validation** (seven fields
+  destructured: `itemName`, `itemIconUrl`,
+  `itemCategory`, `itemDescription`, `featuredOrder`,
+  `featuredUntil`, `isActive` — shoved straight into
+  `db.update(...).set({...}).returning()`), returns
+  404 if `updatedItem.length === 0` or
+  `{ success: true, data: <updatedItem>, message:
+  'Featured item updated successfully' }`;
+  (c) **DELETE** runs **soft delete** via
+  `db.update(...).set({ isActive: false, updatedAt:
+  new Date() }).returning()` — distinct from every
+  prior admin DELETE smoke that actually removes the
+  row — returns 404 if `updatedItem.length === 0` or
+  `{ success: true, message: 'Featured item removed
+  successfully' }` (NO `data` key). The smoke spec
+  pins per-method hybrid 401-envelope assertions, a
+  strict envelope-shape assertion, a cross-method
+  envelope-equality assertion, a success-branch-key
+  non-disclosure assertion, a gate-before-post-auth
+  invariant pinning that NONE of the seven post-auth
+  messages must appear in any unauth response, an
+  unauth-lands-on-401-not-403 invariant pinning that
+  the FIRST gate step fires for unauth clients (the
+  response is 401 not 403, and must NEVER echo
+  `'Tenant not found'`), a per-id-shape status-
+  stability comparison, a PUT body-permutation
+  status-stability comparison, a cross-method side-
+  channel walk, a cross-method probe asserting POST /
+  PATCH round-trip to `< 500`, a malformed-JSON-body
+  invariance walk for PUT, a Drizzle-query-not-
+  entered invariance walk across all three handlers,
+  and a soft-delete-update-not-entered invariance
+  walk pinning that the unauth response must NEVER
+  echo `'Featured item removed successfully'` — the
+  **first non-admin-gated triple-method admin-tree
+  smoke** the docs tree publishes (joining
+  `admin-roles-query-spec.md`,
+  `admin-roles-active-query-spec.md`, and the broader
+  `admin-by-id.spec.ts` coverage of similar tenant-
+  only-gated routes as the **fourth** admin route
+  flagged by Q-010b).
+
 - `docs/plugins` Added `admin-companies-id-method-spec.md` —
   the **thirty-second** per-source-file reference the docs
   tree publishes for any file under
