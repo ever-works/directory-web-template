@@ -33,6 +33,85 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-subscription-id-update-body-spec.md` —
+  the **eighty-fourth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-second**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscription-id-update-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/subscription/[subscriptionId]/update/route.ts`
+  — the **third sibling** in the Stripe
+  subscription-management trio (cancel +
+  reactivate + update), completing the Stripe POST
+  trio that mirrors the LemonSqueezy
+  subscription-management trio (cancel +
+  reactivate + update-plan) and the Polar pair
+  (cancel + reactivate). Distinct from EVERY prior
+  POST smoke: USER-scoped IDOR check
+  (`userSubscription.userId !== session.user.id` →
+  merged 404 `'Subscription not found or access
+  denied'`; FIRST per-source-file POST smoke
+  pinning a USER-scoped IDOR on a Stripe
+  subscription endpoint, sitting at the user-
+  scoped end of the IDOR spectrum that began with
+  stripe/cancel (no IDOR) and stripe/reactivate
+  (tenant-only)); THREE-state allow-list pre-check
+  400 (`subscription.status !== 'active' &&
+  subscription.status !== 'pending' &&
+  subscription.status !== 'paused'` → 400
+  `'Subscription is not active'`; FIRST per-
+  source-file POST smoke pinning a THREE-state
+  allow-list pre-check 400, distinct from the
+  reactivate sibling's SINGLE-flag pre-check on
+  `cancelAtPeriodEnd`); PaymentPlan-enum-from-
+  `@/lib/constants` includes-validation
+  (`Object.values(PaymentPlan).includes(newPlanId)`
+  → 400 `'Invalid plan ID'`; FIRST per-source-file
+  POST smoke pinning an enum-from-constants
+  membership-check validation, distinct from the
+  LemonSqueezy update-plan sibling which uses Zod
+  `safeParse`); conditional tenant-filter on a
+  Drizzle UPDATE WHERE clause (`...(tenantId ?
+  [eq(subscriptions.tenantId, tenantId)] : [])`;
+  FIRST per-source-file POST smoke pinning a
+  conditional tenant filter spread into a DB UPDATE);
+  plan-changed email payload with BOTH old + new
+  plan names (`oldPlanName: subscription.planId,
+  newPlanName: newPlanId`; FIRST per-source-file
+  POST smoke pinning an email with both old + new
+  plan names); dynamic success message (`Plan
+  updated to ${newPlanId} successfully`; template
+  literal with `newPlanId` interpolation, distinct
+  from reactivate sibling's static message). The
+  smoke spec pins a bare 401-envelope assertion, a
+  strict envelope-shape assertion, a success-
+  branch-key non-disclosure assertion, a gate-
+  before-post-auth invariant, a no-dynamic-success-
+  message-leak invariant via regex, a no-input-
+  echo invariant (caller-supplied `newPlanId` /
+  `newPriceId` markers must NEVER appear in the
+  unauth response body), a parameterised-vs-
+  baseline status-stability comparison, a side-
+  channel walk including `X-User-Id` AND
+  `X-Tenant-Id` probes, a cross-method probe, a
+  malformed-JSON-body invariance walk, a no-500-
+  from-body-parse-error invariant, a PaymentPlan-
+  enum-includes-validation-not-entered invariance
+  walk (4 shapes), a user-scoped-IDOR-check-not-
+  entered invariance walk, a THREE-state-pre-check-
+  400-not-entered invariance walk (3 shapes), an
+  updateSubscription-DB-update-email-send-chain-
+  not-entered invariance walk, a no-`'Failed to
+  update subscription'`-leak invariant, a body-
+  completely-ignored invariance walk, and a cross-
+  subscription-ID invariance walk pinning that
+  the tenant-scoped DB read AND the user-id
+  equality check are NOT entered upstream of the
+  auth gate — completing the Stripe subscription-
+  management POST trio and pinning FOUR FIRST
+  contracts no prior POST smoke covers.
+
 - `docs/plugins` Added `lemonsqueezy-update-body-spec.md` —
   the **eighty-third** per-source-file reference
   the docs tree publishes for any file under
