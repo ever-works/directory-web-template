@@ -33,6 +33,68 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-payment-methods-id-method-spec.md` —
+  the **eighty-eighth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-sixth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-payment-methods-id-method.spec.ts`
+  spec covering the `GET` AND `DELETE` exports of
+  `apps/web/app/api/stripe/payment-methods/[id]/route.ts`
+  — the **first per-source-file GET + DELETE
+  dual-method smoke** for any Stripe per-id
+  primitive route. Distinct from EVERY prior per-id
+  Stripe smoke: TWO methods exported on the same
+  dynamic-segment path (GET retrieves filtered
+  fields AND DELETE detaches with default-
+  reassignment cascade — FIRST per-source-file
+  GET + DELETE dual-method smoke pinning both
+  methods on the same `[id]` route); customer-
+  metadata-driven IDOR check on BOTH methods via
+  `customer.metadata?.userId !== session.user.id`
+  → 403; `!paymentMethod.customer` check distinct
+  for each method (GET → 400 `'Payment method not
+  associated with any customer'` with `any`;
+  DELETE → 400 `'Payment method not associated
+  with a customer'` with `a` — UNIQUE: only known
+  per-source-file smoke pinning a one-word
+  article-shift `any` vs `a` between two methods
+  on the same handler); DELETE default-
+  reassignment cascade — FIRST per-source-file
+  DELETE smoke pinning a default-reassignment
+  cascade (if deleted method was the customer's
+  default and there are other methods, re-assign
+  default to first remaining; if none, set
+  default to undefined); THREE-branch StripeError
+  catch on BOTH methods with distinct 500 messages
+  per method (`'Failed to retrieve payment
+  method'` for GET, `'Failed to delete payment
+  method'` for DELETE). The smoke spec pins TWO
+  header bulk-loops (~7 headers × 2 methods);
+  canonical 401-envelope assertions on GET AND
+  DELETE; cross-method envelope-equality
+  assertion pinning byte-identical 401 envelopes;
+  strict envelope-shape assertions on both methods;
+  gate-before-post-auth invariant across nine
+  candidate messages; gate-before-success-build
+  invariant on GET (CRITICAL — no leak of `card`
+  / `billing_details` / `is_default` /
+  `customer_id`); gate-before-success-build
+  invariant on DELETE (CRITICAL — no leak of
+  `was_default`); side-channel walk; cross-
+  method probe (POST / PUT / PATCH); a
+  paymentMethods-retrieve-and-customers-retrieve-
+  and-IDOR-and-detach-and-default-reassignment-
+  not-entered invariance walk (CRITICAL); catch-
+  branch-dispatcher-not-entered invariance walk;
+  no-stripe-error-message-leak invariant; cross-
+  id invariance walk on BOTH methods; no-XSS-id-
+  substring leak invariant; and a default-
+  reassignment-cascade-not-entered invariance
+  walk on DELETE (CRITICAL — pins that the
+  customer-default mutation cascade NEVER runs on
+  unauth).
+
 - `docs/plugins` Added `stripe-setup-intent-id-query-spec.md` —
   the **eighty-seventh** per-source-file reference
   the docs tree publishes for any file under
