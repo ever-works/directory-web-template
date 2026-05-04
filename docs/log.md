@@ -33,6 +33,75 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-comments-id-method-spec.md` —
+  the **thirty-first** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-ninth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-comments-id-method.spec.ts`
+  spec covering the admin single-comment CRUD endpoint
+  at `apps/web/app/api/admin/comments/[id]/route.ts` —
+  the **first 403-on-unauth triple-method admin-tree
+  smoke** the docs tree publishes (every prior triple-
+  method admin smoke returns 401 on the unauth branch;
+  the sibling `admin-reports-id-method-spec.md` 403-on-
+  unauth route is dual-method `GET` + `PUT`; this is
+  the first triple-method 403 admin smoke). All three
+  handlers share the SAME single-step inline
+  `!session?.user?.isAdmin` gate that returns **403
+  `{ success: false, error: 'Forbidden' }`**, the SAME
+  envelope shape, and the SAME `console.error` + 500
+  `'Internal Server Error'` catch posture. Each
+  handler diverges on its post-gate surface:
+  (a) **GET** runs `getTenantId()` AFTER
+  `await params` → 403 `'Tenant not found'` if
+  missing, then issues an inline Drizzle query with
+  `leftJoin` to `clientProfiles` and tenant scoping,
+  returning 404 `'Comment not found'` or
+  `{ success: true, data: <comment-with-user> }`;
+  (b) **PUT** runs `getTenantId()` BEFORE
+  `await params` (NOTE: ordering distinct from GET)
+  → 403 `'Tenant not found'`, parses JSON body,
+  validates `content?.trim()` → 400 `'Content is
+  required'` if falsy, runs a soft-delete-aware
+  `getCommentById(id)` existence check
+  (`existingComment.deletedAt` → 404 `'Comment not
+  found'`), then issues an **inline Drizzle re-query**
+  (NOTE: the actual `updateComment` call is
+  **commented out** in the source — the route
+  currently re-fetches the comment without updating
+  it; a regression-sensitive note), returning
+  `{ success: true, data: <comment-with-user>,
+  message: 'Comment updated successfully' }`;
+  (c) **DELETE** has **NO `getTenantId()` call**
+  (distinct from GET / PUT), runs a soft-delete-aware
+  `getCommentById(id)` existence check, calls
+  `deleteComment(id)` (soft delete via setting
+  `deletedAt`), and returns
+  `{ success: true, message: 'Comment deleted
+  successfully' }` (NO `data` key). The smoke spec
+  pins per-method 403-envelope assertions across
+  GET / PUT / DELETE, a NEVER-401 invariant across
+  all three methods, a strict envelope-shape
+  assertion, a cross-method envelope-equality
+  assertion, a success-branch-key non-disclosure
+  assertion, a gate-before-post-auth invariant
+  pinning that NONE of the six post-auth messages
+  must appear in any unauth response, a per-id-shape
+  status-stability comparison across all three
+  methods, a PUT body-permutation status-stability
+  comparison, a cross-method side-channel walk, a
+  cross-method probe asserting POST / PATCH round-
+  trip to `< 500`, a malformed-JSON-body invariance
+  walk for PUT, a service-not-entered invariance walk
+  across the inline Drizzle queries plus
+  `getCommentById(...)` / `deleteComment(...)` /
+  `getTenantId()` calls, and a tenant-resolution-not-
+  entered invariance walk pinning that the unauth
+  response must NEVER echo `'Tenant not found'` for
+  GET / PUT — the **first 403-on-unauth triple-
+  method admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-sponsor-ads-id-method-spec.md` —
   the **thirtieth** per-source-file reference the docs
   tree publishes for any file under
