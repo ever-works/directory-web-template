@@ -33,6 +33,50 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-tags-id-method-spec.md` —
+  the **thirty-fifth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **thirty-third** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-tags-id-method.spec.ts`
+  spec covering the admin single-tag CRUD endpoint at
+  `apps/web/app/api/admin/tags/[id]/route.ts` — the
+  **first triple-method admin-tree smoke** the docs
+  tree publishes that combines the **hybrid bare-
+  `Unauthorized` + `success: false` 401 envelope** with
+  a **single-step inline `!session?.user?.isAdmin`
+  gate** AND a **PUT outer-catch three-branch
+  `error.message.includes(...)` chain** that maps
+  `'not found'` → 404, `'already exists'` → 409,
+  `'required' | 'must be'` → 400 (each echoing the
+  raw `error.message`). All three handlers share the
+  hybrid envelope shape and a `console.error` + 500
+  catch posture. Each handler diverges on its post-
+  gate surface: GET calls `tagRepository.findById`
+  returning 404 or 200; PUT runs name validation →
+  400 `'Tag name is required'`, calls
+  `tagRepository.update(id, ...)`, runs
+  `await invalidateContentCaches()`, returns
+  `{ success: true, data, message: 'Tag updated
+  successfully' }`, with three catch branches plus
+  500 fallback; DELETE calls `tagRepository.delete`,
+  runs cache invalidation, returns `{ success: true,
+  message: 'Tag deleted successfully' }`, with one
+  catch branch plus 500 fallback. The smoke spec
+  pins per-method hybrid 401-envelope assertions,
+  gate-before-post-auth across seven candidate
+  messages, a per-id-shape status-stability
+  comparison, a PUT body-permutation status-stability
+  comparison, a cross-method side-channel walk, a
+  malformed-JSON-body invariance walk for PUT, a
+  service-not-entered invariance walk, a cache-
+  invalidation-side-effect-not-entered invariance
+  walk, and a three-branch-catch-chain-not-entered
+  invariance walk — the **first
+  hybrid-envelope-with-3-branch-error.message.
+  includes-catch admin-tree smoke** the docs tree
+  publishes.
+
 - `docs/plugins` Added `admin-collections-id-method-spec.md` —
   the **thirty-fourth** per-source-file reference the docs
   tree publishes for any file under
