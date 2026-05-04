@@ -33,6 +33,57 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-companies-create-body-spec.md` —
+  the **forty-second** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fortieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-companies-create-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/companies/route.ts` (the
+  collection-level company-create endpoint) — the
+  **first POST-only collection-level admin-tree
+  smoke** the docs tree publishes that combines the
+  **bare `{ error: 'Unauthorized' }` envelope** (NO
+  `success` key) with a **Zod `parse()` (NOT
+  `safeParse()`) body validation emitting a
+  `details: [{field, message}]` 400 envelope** AND
+  **two dynamically-interpolated 409 pre-create
+  uniqueness checks** (`getCompanyByDomain` /
+  `getCompanyBySlug`) AND an **outer-catch unique-
+  constraint translation chain** that maps DB errors
+  to one of three 409 envelope variants. Sibling of
+  `admin-companies-id-method-spec.md` PUT — they
+  share the SAME bare envelope, the SAME Zod-
+  `parse()`-with-`details`-envelope validation chain,
+  the SAME TWO 409 pre-create/-update uniqueness
+  checks (with dynamically-interpolated messages),
+  and the SAME outer-catch unique-constraint
+  translation chain. The POST diverges on: NO
+  existence check, `createCompany(validatedData)`
+  call, and status-201 success branch with
+  `{ success: true, data: <company> }`. The companion
+  `admin-companies-query.spec.ts` covers the GET
+  surface of the same route. The smoke spec pins a
+  bare 401-envelope assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion, a gate-before-post-auth
+  invariant pinning that the five static post-auth
+  messages plus the dynamic
+  `'Company with (domain|slug) '<...>' already
+  exists'` 409 messages (matched via regex prefix)
+  must NEVER appear in any unauth response, a
+  parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a malformed-JSON-body invariance walk, a
+  Zod-validation-not-entered invariance walk, a
+  uniqueness-check-409-not-entered invariance walk,
+  a createCompany-call-not-entered invariance walk,
+  and a unique-constraint-outer-catch-not-entered
+  invariance walk — the **first bare-envelope-Zod-
+  `parse()`-with-`details`-envelope collection-level
+  POST admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-clients-create-body-spec.md` —
   the **forty-first** per-source-file reference the docs
   tree publishes for any file under
