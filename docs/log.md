@@ -33,6 +33,45 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-reports-id-method-spec.md` —
+  the **twenty-ninth** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **twenty-seventh** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-reports-id-method.spec.ts`
+  spec covering the admin single-report CRUD endpoint
+  at `apps/web/app/api/admin/reports/[id]/route.ts` —
+  the **first 403-on-unauth admin-tree smoke** the
+  docs tree publishes (every prior admin-tree route
+  returns 401 on the unauth branch with one of three
+  envelope shapes; this route returns **403
+  `'Forbidden'`** on the unauth branch instead). Both
+  handlers share a `checkDatabaseAvailability()` pre-
+  gate that runs BEFORE the auth gate, a single-step
+  `!session?.user?.isAdmin` gate that returns 403
+  `{ success: false, error: 'Forbidden' }`, a strict
+  envelope shape, a dynamic `[id]` segment, and a
+  dev-gated `console.error` catch. PUT is the **first
+  PUT smoke** where the existence check runs BEFORE
+  the body parse, then validates `status` /
+  `resolution` against the `ReportStatus` /
+  `ReportResolution` enums (with dynamically-
+  interpolated 400 messages), then runs a conditional
+  moderation-action chain (`removeContent` /
+  `warnUser` / `suspendUser` / `banUser`) based on
+  `resolution`, then a final `getReportById(id)`,
+  returning a four-key
+  `{ success: true, message, data, moderationResult }`
+  payload. The smoke spec pins per-method 403-
+  envelope assertions, a NEVER-401 invariant, the
+  cross-method envelope-equality assertion, gate-
+  before-post-auth across five static plus regex-
+  prefix dynamic 400 messages, gate-before-service
+  across the entire moderation chain, gate-before-
+  enum-validation, and gate-before-moderation-chain —
+  the **first 403-on-unauth admin-tree smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-categories-id-method-spec.md` —
   the **twenty-eighth** per-source-file reference the docs
   tree publishes for any file under
