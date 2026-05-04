@@ -33,6 +33,80 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added
+  `client-items-import-validate-method-spec.md` —
+  the **one-hundred-and-eleventh** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-ninth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/client-items-import-validate-method.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/client/items/import/validate/route.ts`
+  — the **first per-source-file POST smoke** the
+  docs tree publishes that pins a
+  **`requireClientAuth()`-gated multipart/form-data
+  validate-only handler** that delegates to
+  `ItemImportService.validateRows` (a dry-run
+  service entry point — distinct from the sibling
+  `client/items/import` route which calls
+  `executeImport`). UNIQUE: every prior per-source-
+  file `client-items*` smoke parses JSON via
+  `await request.json()`; this is the FIRST that
+  pins a `requireClientAuth()`-gated handler that
+  parses `multipart/form-data` via
+  `await request.formData()`. Distinct contracts:
+  `requireClientAuth()` + multipart/form-data pair
+  (UNIQUE FIRST — JSON priors only); 5-step file /
+  mapping validation chain after the gate (matches
+  admin sibling chain); `validateRows`-not-
+  `executeImport` service call (UNIQUE FIRST —
+  dry-run vs commit-mode); FOUR-key
+  `{ success, headers, suggestedMapping,
+  validationResults, summary }` success payload
+  (UNIQUE FIRST vs prior `result`-keyed two-key
+  payload); `safeErrorResponse(error, 'Failed to
+  validate import file')` outer-catch helper that
+  BYTE-IDENTICALLY matches the admin sibling 500-
+  message; hard-coded `duplicateStrategy: 'skip'`
+  + `defaultStatus: 'pending'` validation options
+  (UNIQUE FIRST — client requests CANNOT override
+  either via form data, distinct from admin
+  sibling which DOES accept these as form fields);
+  longer-message TWO-key 401 envelope
+  `{ success: false, error: 'Unauthorized.
+  Please sign in to continue.' }`. The smoke spec
+  pins two bulk-loop walks (~9 headers + ~12
+  multipart bodies all asserting `< 500`), a
+  longer-message TWO-key 401-envelope assertion,
+  a strict TWO-key envelope-shape assertion
+  (no `headers` / `suggestedMapping` /
+  `validationResults` / `summary` leak), a gate-
+  before-validation-chain invariant pinning the
+  five 400-branch messages must NEVER appear, a
+  gate-before-catch invariant, a validateRows-
+  not-entered CRITICAL invariance walk (XSS
+  markers in the multipart body are NEVER echoed
+  AND the load-bearing service call NEVER
+  executes), a success-branch-key non-disclosure
+  walk, a malformed-multipart invariance walk, a
+  file-extension invariance walk, a cross-method
+  probe (GET / PUT / PATCH / DELETE), a side-
+  channel walk on POST (Cookie / Authorization /
+  X-User-Id), and a cross-permutation status
+  invariance walk pinning byte-identical 401
+  envelopes across every multipart permutation.
+  Cross-references the companion
+  `client-items-import-method-spec` (commit-mode
+  JSON sibling), the `client-items-method-spec` /
+  `client-items-id-method-spec` /
+  `client-items-stats-query-spec` siblings, the
+  admin-tree validate counterpart at
+  `admin/items/import/validate`, and the companion
+  client-items-import-sample sibling.
+- `docs/index` Added an entry for
+  `client-items-import-validate-method-spec.md`.
+- `docs/log` This entry.
 - `docs/plugins` Added `client-items-import-method-spec.md` —
   the **one-hundred-and-tenth** per-source-file
   reference the docs tree publishes for any file
