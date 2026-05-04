@@ -33,6 +33,49 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `polar-subscription-id-cancel-body-spec.md` —
+  the **seventy-seventh** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-fifth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/polar-subscription-id-cancel-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/polar/subscription/[subscriptionId]/cancel/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **Content-Length 413 pre-check** (the
+  handler reads `request.headers.get('content-
+  length')` BEFORE the body parse and returns 413
+  if declared length > 1KB; FIRST 413 contract in
+  the rollout) AND the **first per-source-file
+  POST smoke** pinning an **IDOR-protection
+  chain** (after `getCustomerId` → 403, retrieves
+  subscription and explicitly checks ownership;
+  merged 404 message `'Subscription not found or
+  access denied'` for both not-found AND ownership-
+  mismatch). Distinct from EVERY prior POST smoke:
+  Content-Length 413 pre-check; IDOR-protection
+  chain; private property access via
+  `(polarProvider as any).polar`; helper-function
+  injection (`getPolarSubscription` takes
+  `formatErrorMessage` AND `logger`); TWO-string
+  error-message-detection catch dispatching to 404
+  / 401 / 500; conditional success message; body-
+  parse fault tolerance with size-error detection.
+  The smoke spec pins a bare 401-envelope
+  assertion, a strict envelope-shape assertion, a
+  success-branch-key non-disclosure assertion, a
+  gate-before-post-auth invariant, a 413-pre-
+  check-not-triggered-on-unauth invariance walk, a
+  parameterised-vs-baseline status-stability
+  comparison, a side-channel walk, a cross-method
+  probe, a malformed-JSON-body invariance walk, an
+  IDOR-protection-chain-not-entered invariance
+  walk, a cancelSubscription-call-not-entered
+  invariance walk, and a catch-branch-error-
+  message-detection-not-entered invariance walk —
+  pinning two FIRST contracts no prior smoke
+  covers.
+
 - `docs/plugins` Added `lemonsqueezy-cancel-body-spec.md` —
   the **seventy-sixth** per-source-file reference
   the docs tree publishes for any file under
