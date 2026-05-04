@@ -145,7 +145,6 @@ export default function AdminCollectionsPage() {
 
 				{/* Total */}
 				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
-					<div className="absolute top-0 inset-x-0 h-0.5 rounded-t-2xl bg-linear-to-r from-blue-500 to-blue-400" />
 					<div className="flex items-start justify-between mb-4 pt-0.5">
 						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
 							{t('TOTAL')}
@@ -160,7 +159,6 @@ export default function AdminCollectionsPage() {
 
 				{/* Active — with progress bar */}
 				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
-					<div className="absolute top-0 inset-x-0 h-0.5 rounded-t-2xl bg-linear-to-r from-emerald-500 to-emerald-400" />
 					<div className="flex items-start justify-between mb-4 pt-0.5">
 						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
 							{t('ACTIVE')}
@@ -184,7 +182,6 @@ export default function AdminCollectionsPage() {
 
 				{/* Items Assigned */}
 				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
-					<div className="absolute top-0 inset-x-0 h-0.5 rounded-t-2xl bg-linear-to-r from-violet-500 to-violet-400" />
 					<div className="flex items-start justify-between mb-4 pt-0.5">
 						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
 							{t('ITEMS_ASSIGNED')}
