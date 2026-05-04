@@ -33,6 +33,54 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-location-index-manage-body-spec.md` —
+  the **fifty-third** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fifty-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-location-index-manage-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/location-index/route.ts` —
+  the **first POST smoke** the docs tree publishes
+  that uses the **`checkAdminAuth()` helper** from
+  `@/lib/auth/admin-guard.ts` (the GET-sibling
+  `admin-location-index-query.spec.ts` already covers
+  the helper for the query endpoint; this is the
+  first POST smoke that does the same), and the
+  **first action-enum-dispatched POST smoke** that
+  branches on a `body.action === 'rebuild' | 'clear'`
+  enum into TWO distinct destructive operations:
+  `'rebuild'` calls `itemRepository.findAll()` +
+  `service.rebuildIndex(items)` -- the heaviest
+  service call across the entire admin tree
+  (re-indexes EVERY item with location data);
+  `'clear'` calls `clearLocationIndex()` -- a
+  destructive table-wipe that drops every row from
+  the location_index table. For an unauthenticated
+  request the FIRST branch of the helper fires
+  returning 401 `{ success: false, error:
+  'Unauthorized' }` (canonical envelope with
+  `success: false` AND short `'Unauthorized'`
+  message). The smoke spec pins a canonical-envelope
+  bare-message 401 assertion, a strict envelope-
+  shape assertion, a success-branch-key non-
+  disclosure assertion that NONE of `data` or
+  `cleared` keys must appear in any unauth response
+  and `success` must be `false`, a gate-before-post-
+  auth invariant pinning that NONE of the four
+  candidate static messages must appear in any
+  unauth response, a parameterised-vs-baseline
+  status-stability comparison, a side-channel walk,
+  a cross-method probe, a malformed-JSON-body
+  invariance walk, an action-enum-dispatch-not-
+  entered invariance walk, and a rebuild-and-clear-
+  destructive-paths-not-entered invariance walk
+  pinning that the unauth response must NEVER echo
+  a `data` key from the rebuild result or the
+  `cleared` count from the destructive table-wipe —
+  the **first destructive-action-enum-dispatch POST
+  admin-tree smoke** the docs tree publishes.
+
 - `docs/plugins` Added `admin-navigation-update-method-spec.md` —
   the **fifty-second** per-source-file reference the
   docs tree publishes for any file under
