@@ -31,6 +31,104 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-05
+
+- `docs/plugins` Added
+  `client-items-import-sample-query-spec.md` — the
+  **one-hundred-and-fourteenth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-twelfth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/client-items-import-sample-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/client/items/import/sample/route.ts`
+  — the **first per-source-file GET smoke** the
+  docs tree publishes that pins a
+  **`requireClientAuth()`-gated binary-stream
+  sample-template handler** that delegates to
+  `ItemExportService.generateSampleCSV()` /
+  `generateSampleXLSX()`. UNIQUE: every prior per-
+  source-file `client-items*` GET smoke
+  (`client-items-method`, `client-items-id-method`,
+  `client-items-stats-query`) returns a JSON
+  envelope; this is the FIRST
+  `requireClientAuth()`-gated GET smoke that returns
+  a **binary stream** with a `Content-Disposition:
+  attachment; filename="..."` header on the happy
+  path. Distinct contracts:
+  `requireClientAuth()` + `exportQuerySchema` pair
+  (UNIQUE FIRST — Zod-enum `format` parse gated by
+  `requireClientAuth()`, distinct from prior
+  `client-items*` siblings which parse no query
+  schema and from the admin sibling
+  `admin-items-export-sample-query` which uses bare
+  `auth()` + `isAdmin`); binary-stream success
+  contract (UNIQUE FIRST — `Content-Type` /
+  `Content-Disposition: attachment; filename="..."`
+  pair, distinct from JSON envelopes of every prior
+  `client-items*` GET smoke);
+  `safeErrorResponse(error, 'Failed to generate
+  sample template')` outer-catch helper that BYTE-
+  IDENTICALLY matches the admin sibling 500-message
+  (UNIQUE FIRST `requireClientAuth()`-gated GET
+  smoke pinning `safeErrorResponse` cross-utility
+  helper, NOT `serverErrorResponse` like the
+  `client-items-stats-query` sibling);
+  `ItemExportService` direct service-class
+  instantiation (UNIQUE FIRST — distinct from
+  repository-factory pattern of
+  `client-items-stats-query` sibling and from
+  `ItemImportService` of `client-items-import-method`
+  / `client-items-import-validate-method`
+  siblings); longer-message TWO-key 401 envelope
+  `{ success: false, error: 'Unauthorized.
+  Please sign in to continue.' }`; `format=` Zod-
+  enum case-sensitivity (Zod enums match exactly,
+  uppercase variants rejected on auth branch);
+  `format=` enum default (`.default('csv')`,
+  invariant on unauth branch). The smoke spec pins
+  two bulk-loop walks (~50 query permutations + ~11
+  headers all asserting `< 500`), a longer-message
+  TWO-key 401-envelope assertion, a strict TWO-key
+  envelope-shape assertion (no `data` / `format` /
+  `filename` leak), a gate-before-catch invariance
+  walk, a gate-before-binary-stream-header
+  invariance walk (CRITICAL — `Content-
+  Disposition: attachment; …` NEVER appears on the
+  unauth branch), a gate-before-binary-stream-
+  content-type invariance walk (CRITICAL — unauth
+  branch emits `application/json`, NOT `text/csv` or
+  XLSX spreadsheetml), a gate-before-Zod-parse
+  invariance walk pinning every `format=` value
+  collapses to the no-arg baseline status, an
+  impersonation / token / bypass /
+  filename-traversal invariance walk, an Accept-
+  header invariance walk, a side-channel walk
+  (Cookie / Authorization / X-User-Id /
+  X-Forwarded-For / X-Real-IP), a repeated-key
+  invariance walk pinning
+  `searchParams.get(name)`'s first-value semantics,
+  a cross-method probe (POST / PUT / PATCH /
+  DELETE), and a cross-permutation status
+  invariance walk pinning byte-identical 401
+  envelopes across every parameter combination.
+  Cross-references the companion
+  `client-items-import-method-spec` (commit-mode
+  JSON sibling), the
+  `client-items-import-validate-method-spec`
+  (validate-mode multipart sibling), the
+  `client-items-method-spec` /
+  `client-items-id-method-spec` /
+  `client-items-stats-query-spec` siblings, the
+  `client-protected` sibling, and the admin-tree
+  counterpart at `admin/items/export/sample`
+  (covered separately by
+  `admin-items-export-sample-query.spec.ts`).
+- `docs/index` Added an entry for
+  `client-items-import-sample-query-spec.md`.
+- `docs/log` This entry.
+
 ## 2026-05-04
 
 - `docs/plugins` Added
