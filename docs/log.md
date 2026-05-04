@@ -33,6 +33,58 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-checkout-body-spec.md` —
+  the **sixty-seventh** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **sixty-fifth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-checkout-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/checkout/route.ts` —
+  the **fourth and final per-source-file POST smoke
+  for an auth-gated payment-provider checkout
+  endpoint**, completing the auth-gated checkout
+  quartet (Solidgate + Polar + LemonSqueezy +
+  Stripe). Distinct from ALL three siblings:
+  three-way mode ternary mapping (`'one_time' →
+  'payment'`, `'subscription' → 'subscription'`,
+  unknown → `'setup'` -- UNIQUE setup fallback);
+  trial-amount validation (FIRST per-source-file
+  POST smoke pinning trial-config validation);
+  helper-function pipeline (`buildCheckoutLineItems`
+  + `createBaseCheckoutParams` +
+  `applySubscriptionConfig` from co-located
+  `./helpers` -- FIRST per-source-file POST smoke
+  pinning a multi-helper assembly pipeline);
+  `safeErrorMessage` (NOT `safeErrorResponse`) in
+  catch, returns THREE keys (`error`, `message`,
+  `details: <dev-only-stack>`); Stripe SDK direct
+  call via public `getStripeInstance()` method
+  (FIRST per-source-file POST smoke pinning a
+  direct-SDK-instance contract via a public method,
+  NOT private property `as any` like polar's
+  one_time branch); `!session?.user` gate (matches
+  polar + solidgate; distinct from lemonsqueezy's
+  `!session?.user?.id`). The smoke spec pins a
+  canonical two-key 401-envelope assertion, a
+  strict envelope-shape assertion, a success-
+  branch-key non-disclosure assertion, a gate-
+  before-post-auth invariant, a parameterised-vs-
+  baseline status-stability comparison, a side-
+  channel walk, a cross-method probe, a malformed-
+  JSON-body invariance walk, a trial-config-
+  validation-not-entered invariance walk, a mode-
+  ternary-not-entered invariance walk, a helper-
+  pipeline-and-stripe-SDK-not-entered invariance
+  walk, a catch-branch-not-entered invariance walk
+  pinning that `details` (dev-only stack) must
+  NEVER appear on the unauth branch, and a no-
+  redirect-leak assertion pinning that XSS-shaped
+  `successUrl` / `cancelUrl` values must NEVER be
+  echoed — completing the auth-gated checkout
+  quartet (Solidgate + Polar + LemonSqueezy +
+  Stripe).
+
 - `docs/plugins` Added `lemonsqueezy-checkout-body-spec.md` —
   the **sixty-sixth** per-source-file reference the
   docs tree publishes for any file under
