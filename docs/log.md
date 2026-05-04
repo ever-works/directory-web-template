@@ -33,6 +33,103 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `sponsor-ads-user-id-query-spec.md` —
+  the **one-hundred-and-seventh** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-fifth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-user-id-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/sponsor-ads/user/[id]/route.ts`
+  — the **first per-source-file dynamic-segment
+  GET smoke** the docs tree publishes that pins a
+  **404-mask user-scoped IDOR** -- when
+  `sponsorAd.userId !== session.user.id`, the
+  handler returns 404 `'Sponsor ad not found'`
+  (NOT 403 'Forbidden') with the SAME envelope as
+  the genuine not-found branch. UNIQUE: the FIRST
+  per-source-file dynamic-segment GET smoke
+  pinning a 404-mask security pattern on a USER-
+  OWNED resource (the surveys-id sibling pins a
+  404-mask on STATUS-gated admin resources; this
+  sponsor-ads-user-id sibling pins the pattern on
+  a per-user-ownership resource). Distinct
+  contracts: 404-mask user-scoped IDOR (UNIQUE);
+  TWO-key 401 envelope; TWO-key 404 envelope used
+  for BOTH not-found AND IDOR violations; TWO-key
+  success payload; TWO-key 500 envelope. The
+  smoke spec pins a ~6-header bulk-loop walk
+  asserting `< 500`, a canonical TWO-key 401-
+  envelope assertion, a strict TWO-key envelope-
+  shape assertion, a gate-before-post-auth
+  invariant, a side-channel walk, a cross-method
+  probe (POST / PUT / PATCH / DELETE), a
+  getSponsorAdById-not-entered invariance walk
+  (CRITICAL — pinning that no sponsor-ad fields
+  are leaked), a cross-id invariance walk
+  pinning that the auth gate fires BEFORE any
+  per-id branch (the 404-mask is unreachable on
+  unauth), and a catch-branch-not-entered
+  invariance walk. With this addition the per-
+  spec-file docs rollout extends to 107-of-N and
+  the `tests/api/` per-spec-file sub-rollout
+  extends to 105-of-many.
+
+- `docs/plugins` Added `sponsor-ads-user-stats-query-spec.md` —
+  the **one-hundred-and-sixth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-fourth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/sponsor-ads-user-stats-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/sponsor-ads/user/stats/route.ts`
+  — the **first per-source-file GET smoke** the
+  docs tree publishes that pins a **THREE-bucket
+  nested-stats success payload** (`{ success: true,
+  stats: { overview, byInterval, revenue } }` where
+  each bucket has its own required-keys contract).
+  UNIQUE: every prior per-source-file GET stats
+  smoke pins a flat shallow stats key set; this is
+  the FIRST that pins a THREE-bucket nested-stats
+  invariant where the `stats` object is a triple-
+  nested aggregate. Distinct from EVERY prior
+  session-gated GET smoke: THREE-bucket nested-
+  stats success payload (UNIQUE — `overview` has
+  SEVEN status counts `total`/`pendingPayment`/
+  `pending`/`active`/`rejected`/`expired`/
+  `cancelled`; `byInterval` has TWO interval
+  counts `weekly`/`monthly`; `revenue` has THREE
+  rollups `totalRevenue`/`weeklyRevenue`/
+  `monthlyRevenue`); bare `auth()` session lookup
+  (distinct from `requireClientAuth()`
+  discriminated-union helper); TWO-key 401
+  envelope (same shape as parent `/sponsor-ads/
+  user` route, distinct from bare ONE-key
+  envelope); TWO-key success payload using `stats`
+  key (NOT `data`); service-call delegation
+  (`sponsorAdService.getSponsorAdStatsByUser` is
+  the ONLY post-auth load-bearing call); TWO-key
+  500 catch envelope `'Failed to fetch sponsor ad
+  stats'` (distinct from parent route's `'Failed
+  to fetch sponsor ads'` and `'Failed to create
+  sponsor ad'` — NO 's' on `stat`); zero-arg GET
+  signature. The smoke spec pins one bulk-loop
+  walk (~6 headers all asserting `< 500`), a
+  canonical TWO-key 401-envelope assertion, a
+  strict TWO-key envelope-shape assertion, a
+  gate-before-post-auth invariant, a
+  sponsorAdService-not-entered CRITICAL invariance
+  walk (NEITHER bucket names NOR inner keys leak),
+  a side-channel walk, a cross-method probe (POST
+  / PUT / PATCH / DELETE), a catch-branch
+  isolation walk, and a cross-permutation status
+  invariance walk. With this addition the per-
+  spec-file docs rollout extends to 106-of-N and
+  the `tests/api/` per-spec-file sub-rollout
+  extends to 104-of-many.
+
 - `docs/plugins` Added `sponsor-ads-user-method-spec.md` —
   the **one-hundred-and-fifth** per-source-file
   reference the docs tree publishes for any file
