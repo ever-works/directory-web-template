@@ -33,6 +33,48 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-setup-intent-body-spec.md` —
+  the **seventy-second** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-setup-intent-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/setup-intent/route.ts`
+  — the **first per-source-file POST smoke**
+  pinning a **zero-argument `POST()` handler
+  signature** (no `request` parameter at all; FIRST
+  zero-arg POST contract in the rollout) AND the
+  **first per-source-file POST smoke** pinning a
+  **raw payment-provider object as the success
+  payload** (returns the Stripe SetupIntent object
+  verbatim, NO wrapper envelope -- making the
+  no-`client_secret`-leak assertion a CRITICAL
+  security invariant). Distinct from EVERY prior
+  POST smoke: zero-argument `POST()` signature;
+  bare 401 envelope `{ error: 'Unauthorized' }`
+  (UNIQUE); `!session?.user` gate (matches stripe-
+  checkout); raw provider-object success payload
+  (no wrapper envelope); single-line catch (the
+  simplest catch in any per-source-file POST
+  smoke); only one load-bearing call. The smoke
+  spec pins a bare 401-envelope assertion, a
+  strict envelope-shape assertion (exactly `error`
+  key, no other keys), a gate-before-post-auth
+  invariant, a no-SetupIntent-`client_secret`-leak
+  CRITICAL security invariant, a no-SetupIntent-
+  fields-leak invariant pinning the full set of
+  fields (`id`, `client_secret`, `status`, `usage`,
+  `customer`, `created`), a body-IGNORED invariance
+  walk pinning that the zero-arg handler ignores
+  body content, a side-channel walk, a cross-
+  method probe, a createSetupIntent-and-provider-
+  not-entered invariance walk, and a catch-
+  branch-not-entered invariance walk — pinning the
+  simplest auth-gated POST contract in the rollout
+  and a CRITICAL no-`client_secret`-leak security
+  invariant.
+
 - `docs/plugins` Added `sponsor-ads-user-id-cancel-body-spec.md` —
   the **seventy-first** per-source-file reference
   the docs tree publishes for any file under
