@@ -18,7 +18,12 @@ import { getCachedConfig, getCachedItems } from '@/lib/content';
  */
 export async function GET(): Promise<NextResponse> {
 	const config = await getCachedConfig();
-	const items = await getCachedItems().catch(() => [] as Array<{ slug: string; name: string; description?: string }>);
+	const fetchResult = await getCachedItems().catch(
+		() => ({ items: [] as Array<{ slug: string; name: string; description?: string }> })
+	);
+	const items: ReadonlyArray<{ slug?: string; name?: string; description?: string }> =
+		(fetchResult as { items?: ReadonlyArray<{ slug?: string; name?: string; description?: string }> })
+			.items ?? [];
 
 	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const name = config.company_name || 'Ever Works Directory';

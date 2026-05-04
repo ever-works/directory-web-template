@@ -42,10 +42,13 @@ export async function GET(): Promise<NextResponse> {
 		};
 	}
 
-	const [config, items] = await Promise.all([
+	const [config, fetchResult] = await Promise.all([
 		getCachedConfig(),
-		getCachedItems().catch(() => [] as ReadonlyArray<ItemShape>)
+		getCachedItems().catch(() => ({ items: [] as ReadonlyArray<ItemShape> }))
 	]);
+
+	const items: ReadonlyArray<ItemShape> = ((fetchResult as { items?: ReadonlyArray<ItemShape> })
+		.items ?? []) as ReadonlyArray<ItemShape>;
 
 	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const description =
@@ -60,7 +63,7 @@ export async function GET(): Promise<NextResponse> {
 		},
 		generatedAt: new Date().toISOString(),
 		count: items.length,
-		items: (items as ReadonlyArray<ItemShape>).map((item) => ({
+		items: items.map((item) => ({
 			slug: item.slug ?? item.id,
 			name: item.name ?? item.title,
 			url:
