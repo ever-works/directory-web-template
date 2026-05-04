@@ -33,6 +33,64 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `cron-sync-query-spec.md` —
+  the **ninety-first** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **eighty-ninth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/cron-sync-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/cron/sync/route.ts` — the
+  **first per-source-file GET smoke** the docs tree
+  publishes for a **Bearer-token-secret-gated cron
+  endpoint**. The existing multi-cron sibling
+  `cron-jobs.spec.ts` covers the OTHER cron routes
+  (subscription-expiration, subscription-reminders);
+  this spec drills into the cron/sync handler
+  specifically. Distinct from EVERY prior GET
+  smoke: Bearer-token-secret auth (the FIRST
+  per-source-file GET smoke pinning a Bearer-token-
+  only auth contract — the handler accepts ONLY
+  `Authorization: Bearer ${CRON_SECRET}` and NOT
+  session-based auth); dev-mode short-circuit (if
+  `CRON_SECRET` is NOT configured AND env is
+  `development`, the handler allows access without
+  auth — same pattern as lemonsqueezy/update's
+  dev-mode short-circuit); FOUR-key 401 envelope
+  `{ success: false, timestamp: <ISO>, duration:
+  <ms>, message: 'Unauthorized' }` (UNIQUE — NO
+  `error` field; uses `message` not `error` for the
+  auth failure — the FIRST per-source-file smoke
+  pinning a 401 envelope WITHOUT an `error` field);
+  performance tracking via `startTime = Date.now()`
+  and `duration: Date.now() - startTime` in BOTH
+  the unauth response AND the success/catch
+  responses (matches lemonsqueezy/update's richest-
+  envelope spec but with a `message`-only
+  envelope); custom `Cache-Control: no-cache,
+  no-store, must-revalidate` header on success;
+  conditional success status (`{ status: result.
+  success ? 200 : 500 }` based on the sync result).
+  The smoke spec pins a ~9-header bulk-loop walk
+  (including various Authorization probes — wrong
+  Bearer, empty Bearer, non-Bearer scheme, Basic
+  auth — plus side-channels), a 4-key 401 envelope
+  shape assertion via `Object.keys(body).sort()`,
+  ISO timestamp + numeric duration assertions, a
+  no-Bearer-secret-echo invariant pinning that the
+  caller-supplied secret marker is NEVER echoed
+  back, a cross-method probe (POST / PUT / PATCH /
+  DELETE), a side-channel walk pinning that
+  fabricated session cookies / X-User-Id /
+  X-Forwarded-For do NOT bypass the Bearer-token
+  auth, and a triggerManualSync-not-entered
+  invariance walk pinning that the load-bearing
+  sync call NEVER runs on unauth and no `details`
+  from a sync result is leaked. With this addition
+  the per-spec-file docs rollout extends to
+  91-of-N and the `tests/api/` per-spec-file
+  sub-rollout extends to 89-of-many.
+
 - `docs/plugins` Added `stripe-subscription-portal-body-spec.md` —
   the **ninetieth** per-source-file reference
   the docs tree publishes for any file under
