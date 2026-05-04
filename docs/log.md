@@ -33,6 +33,66 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-subscription-method-spec.md` —
+  the **one-hundred-and-third** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-first** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscription-method.spec.ts`
+  spec covering the `POST`, `PUT`, AND `DELETE`
+  exports of `apps/web/app/api/stripe/subscription/route.ts`
+  — the **first per-source-file triple-method
+  smoke** the docs tree publishes for a Stripe
+  subscription-management endpoint that documents
+  a **Q-010-style NO-IDOR finding on PUT AND
+  DELETE**. The handlers authenticate the session
+  but DO NOT verify that the `subscriptionId` from
+  the body actually belongs to the calling user;
+  ANY authenticated user can update or cancel ANY
+  Stripe subscription by ID, bypassing the IDOR
+  checks of the per-id siblings
+  (`[subscriptionId]/update`,
+  `[subscriptionId]/cancel`). Distinct from EVERY
+  prior triple-method smoke: NO IDOR check on PUT
+  or DELETE (UNIQUE — FIRST per-source-file
+  triple-method smoke pinning a Q-010-style
+  NO-IDOR finding on mutating subscriptionId-
+  keyed methods); different body-required field
+  on POST vs PUT/DELETE (UNIQUE — FIRST per-
+  source-file triple-method smoke pinning three
+  DIFFERENT required-field shapes); POST 400
+  `'Failed to create customer'` branch (UNIQUE —
+  only POST has the `!customerId` check); returns
+  RAW Stripe subscription object verbatim on ALL
+  THREE methods (UNIQUE — no wrapper envelope);
+  `metadata: { userId: session.user.id }`
+  OVERWRITE on PUT (UNIQUE — compounds the Q-010
+  finding by enabling ownership-record
+  laundering); bare ONE-key 401 envelope
+  consistent across all three methods. The smoke
+  spec pins three header bulk-loop walks (~6
+  headers × 3 methods asserting `< 500`),
+  canonical bare ONE-key 401-envelope assertions
+  on POST/PUT/DELETE, a cross-method 401-
+  envelope-equality assertion, a strict ONE-key
+  envelope-shape assertion, a gate-before-post-
+  auth invariant, an updateSubscription-not-
+  entered invariance walk on PUT (CRITICAL —
+  even though PUT has NO IDOR check post-auth,
+  the auth gate itself must fire BEFORE
+  updateSubscription), a cancelSubscription-not-
+  entered invariance walk on DELETE (CRITICAL —
+  same gate-before invariant), a cross-method
+  probe (GET / PATCH), and a side-channel walk
+  on POST. With this addition the per-spec-file
+  docs rollout extends to 103-of-N and the
+  `tests/api/` per-spec-file sub-rollout
+  extends to 101-of-many; spawned a security
+  task to add IDOR check to the PUT/DELETE
+  handlers (the per-id sibling has the right
+  pattern -- copy it).
+
 - `docs/plugins` Added `client-items-stats-query-spec.md` —
   the **one-hundred-and-second** per-source-file
   reference the docs tree publishes for any file
