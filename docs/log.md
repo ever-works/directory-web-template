@@ -33,6 +33,55 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-navigation-update-method-spec.md` —
+  the **fifty-second** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **fiftieth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-navigation-update-method.spec.ts`
+  spec covering the `PATCH` export of
+  `apps/web/app/api/admin/navigation/route.ts` —
+  the **second admin-tree smoke** the docs tree
+  publishes that uses `getCachedApiSession(req)`
+  instead of `auth()` (after `admin/settings`
+  PATCH), and the **first PATCH-only admin-tree
+  smoke** that pins a **per-item path-format XSS-
+  prevention validation loop** via
+  `isValidNavigationPath(item.path)`. The PATCH
+  handler combines a single-step
+  `!session?.user?.isAdmin` gate that returns 401
+  `{ error: 'Unauthorized' }` (bare envelope, no
+  `success` key, short message), a JSON body
+  parse, a `type` enum check (`'header' |
+  'footer'`), an `items` array check, a per-item
+  structure validation loop (label / path
+  required), a per-item path-format XSS-prevention
+  validation, then `configManager.updateNestedKey
+  ('custom_header'|'custom_footer', items)` for
+  the load-bearing config.yml write. Returns
+  `{ success: true, type, items }` on success
+  (echoing both `type` and `items` from the
+  input). The smoke spec pins a bare 401-envelope
+  assertion, a strict envelope-shape assertion, a
+  success-branch-key non-disclosure assertion, a
+  gate-before-post-auth invariant pinning that
+  NONE of the five candidate static messages must
+  appear in any unauth response, a parameterised-
+  vs-baseline status-stability comparison, a side-
+  channel walk, a cross-method probe (POST / PUT
+  / DELETE), a malformed-JSON-body invariance
+  walk, a type-enum-and-items-array-validation-
+  not-entered invariance walk, a per-item-XSS-
+  prevention-loop-not-entered invariance walk
+  pinning that the unauth response must NEVER
+  echo `'Invalid path format.'`, and a
+  configManager-update-not-entered invariance
+  walk pinning that the unauth response must
+  NEVER echo a `type` or `items` key from the
+  input — the **first per-item-XSS-prevention
+  navigation-update PATCH admin-tree smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-twenty-crm-config-save-body-spec.md` —
   the **fifty-first** per-source-file reference the docs
   tree publishes for any file under
