@@ -33,6 +33,45 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `admin-twenty-crm-config-save-body-spec.md` —
+  the **fifty-first** per-source-file reference the docs
+  tree publishes for any file under
+  `apps/web-e2e/tests/` and the **forty-ninth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/admin-twenty-crm-config-save-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/admin/twenty-crm/config/route.ts`
+  — the **first admin-tree POST smoke** the docs
+  tree publishes that combines the compound single-
+  `if` gate (`!session?.user?.isAdmin ||
+  !session.user.id`), a Zod-`safeParse`-like
+  validation via `validateTwentyCrmConfig(body)` that
+  returns a custom `{ success, data | error }` shape
+  and is translated to a `details: [{field, message}]`
+  400 envelope, AND a `logActivity(...)` side-effect
+  that captures `request.headers.get('x-forwarded-
+  for')` for the audit log — the first POST smoke
+  that reads a request header for an audit side-
+  effect. Returns `{ success: true, message:
+  'Configuration saved successfully', data:
+  <savedConfig> }` on success. The companion
+  `admin-twenty-crm-config-query.spec.ts` covers the
+  GET surface of the same route. The smoke spec pins
+  a canonical-longer 401-envelope assertion, a
+  strict envelope-shape assertion, a success-branch-
+  key non-disclosure assertion, a gate-before-post-
+  auth invariant, a parameterised-vs-baseline status-
+  stability comparison, a side-channel walk, a
+  cross-method probe, a malformed-JSON-body
+  invariance walk, a validation-chain-not-entered
+  invariance walk, and a configRepository-saveConfig-
+  and-logActivity-not-entered invariance walk
+  pinning that the unauth response must NEVER echo
+  `'Configuration saved successfully'` or a `data`
+  key from the saved config — the **first audit-
+  logged CRM-config-save POST admin-tree smoke** the
+  docs tree publishes.
+
 - `docs/plugins` Added `admin-categories-git-query-spec.md` —
   the **fiftieth** per-source-file reference the docs
   tree publishes for any file under
