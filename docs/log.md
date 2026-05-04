@@ -33,6 +33,51 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `stripe-subscription-id-cancel-body-spec.md` —
+  the **eightieth** per-source-file reference the
+  docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **seventy-eighth**
+  under `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/stripe-subscription-id-cancel-body.spec.ts`
+  spec covering the `POST` export of
+  `apps/web/app/api/stripe/subscription/[subscriptionId]/cancel/route.ts`
+  — the **first per-source-file POST smoke**
+  documenting a **Q-010-style IDOR finding for a
+  Stripe subscription endpoint** (the handler
+  authenticates via `auth()` but does NOT verify
+  ownership of `subscriptionId`; compare to the
+  polar/subscription/[id]/cancel sibling which DOES
+  enforce ownership) AND the **first per-source-
+  file POST smoke** pinning a **DB-sync-after-
+  provider-call contract** (after `stripeProvider.
+  cancelSubscription(...)` succeeds, the handler
+  ALSO calls `updateSubscriptionBySubscriptionId
+  ({...})` to sync the cancellation state back to
+  the local DB). Distinct from polar/subscription/
+  [id]/cancel sibling: NO IDOR-protection; NO
+  Content-Length 413 pre-check; DB sync side-
+  effect; email-send with fault-tolerance; NO
+  try/catch around `request.json()`. The smoke
+  spec pins a bare 401-envelope assertion, a
+  strict envelope-shape assertion, a success-
+  branch-key non-disclosure assertion, a gate-
+  before-post-auth invariant, a parameterised-vs-
+  baseline status-stability comparison, a side-
+  channel walk, a cross-method probe, a malformed-
+  JSON-body invariance walk, a cancelSubscription-
+  DB-sync-email-send-not-entered invariance walk,
+  a catch-branch-generic-500-not-echoed invariance
+  walk, and a **NO-IDOR-protection contract walk
+  pinning that the unauth 401 envelope is IDENTICAL
+  across different subscription IDs** -- pinning
+  the CURRENT contract until a future PR adds
+  ownership verification (which would explicitly
+  break this spec, prompting an update). Also
+  spawned a separate task to audit the Stripe
+  IDOR finding and fix by mirroring the Polar
+  pattern (`getCustomerId` → ownership verify →
+  cancel).
+
 - `docs/plugins` Added `lemonsqueezy-reactivate-body-spec.md` —
   the **seventy-ninth** per-source-file reference
   the docs tree publishes for any file under
