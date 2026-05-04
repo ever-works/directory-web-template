@@ -33,6 +33,64 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `payment-account-id-query-spec.md` —
+  the **one-hundred-and-first** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **ninety-
+  ninth** under `apps/web-e2e/tests/api/`. Pairs
+  with a new
+  `apps/web-e2e/tests/api/payment-account-id-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/payment/account/[userId]/route.ts`
+  — the **first per-source-file dynamic-segment
+  GET smoke** the docs tree publishes that pins a
+  **strict user-id-IDOR check** (`session.user.id
+  !== params.userId` → 403 bare `{ error:
+  'Forbidden' }` with NO message specifying
+  ownership) on a per-user resource lookup
+  endpoint. CRITICAL: provides the auth-gated
+  counterpart to the
+  `payment-account-method-spec.md` sibling which
+  has NO auth gate (Q-010 finding) — documenting a
+  security-asymmetry where the GET on `[userId]`
+  IS auth-gated while the POST/PUT on the parent
+  route are NOT. Distinct from EVERY prior
+  dynamic-segment GET smoke: strict user-id-IDOR
+  check with bare `'Forbidden'` message (UNIQUE);
+  userId-then-IDOR-then-provider validation order
+  (UNIQUE — the IDOR check is INTERLEAVED between
+  two validation checks, the FIRST per-source-
+  file GET smoke pinning an IDOR check placed
+  mid-validation-cascade); `?provider=` query
+  parameter required (consistent with the POST/
+  PUT siblings' body-required check); 404 with
+  bare envelope `{ error: 'Payment account not
+  found' }` (UNIQUE); returns raw paymentAccount
+  fields in success (matches POST/PUT siblings);
+  DOES have `auth()` gate (CONTRAST with the no-
+  auth-gate POST/PUT siblings — security-
+  asymmetry finding). The smoke spec pins a ~6-
+  header bulk-loop walk + a ~8-query bulk-loop
+  walk all asserting `< 500`, a canonical bare
+  ONE-key 401-envelope assertion, a strict ONE-
+  key envelope-shape assertion, a gate-before-
+  post-auth invariant, a side-channel walk, a
+  cross-method probe (POST / PUT / PATCH /
+  DELETE), a getUserPaymentAccountByProvider-not-
+  entered invariance walk (CRITICAL — pinning
+  that no `providerId` / `customerId` /
+  `createdAt` is leaked), a cross-userId
+  invariance walk pinning that different user
+  IDs produce IDENTICAL unauth envelopes (the
+  auth gate fires BEFORE the IDOR check), and a
+  cross-provider invariance walk. With this
+  addition the per-spec-file docs rollout
+  extends to 101-of-N and the `tests/api/` per-
+  spec-file sub-rollout extends to 99-of-many;
+  the `payment/account` triplet (POST + PUT no-
+  auth + GET-by-userId auth-gated) is now
+  complete on per-source-file coverage.
+
 - `docs/plugins` Added `payment-account-method-spec.md` —
   the **one-hundredth** per-source-file reference
   the docs tree publishes for any file under
