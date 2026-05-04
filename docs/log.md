@@ -33,6 +33,59 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `client-items-method-spec.md` —
+  the **one-hundred-and-eighth** per-source-file
+  reference the docs tree publishes for any file
+  under `apps/web-e2e/tests/` and the **one-
+  hundred-and-sixth** under
+  `apps/web-e2e/tests/api/`. Pairs with a new
+  `apps/web-e2e/tests/api/client-items-method.spec.ts`
+  spec covering the `GET` AND `POST` exports of
+  `apps/web/app/api/client/items/route.ts` — the
+  **first per-source-file dual-method smoke** the
+  docs tree publishes that pins the
+  **`requireClientAuth()` helper-based auth gate**
+  on BOTH GET AND POST (the
+  `client-items-stats-query-spec.md` sibling pins
+  the helper on a single GET surface; this spec
+  extends to the dual-method usage). Also pins
+  the **`badRequestResponse(message)` 400-helper**
+  and the **issues-joined Zod error message**
+  contract. Distinct contracts: `requireClientAuth`
+  helper on BOTH methods (FIRST per-source-file
+  dual-method smoke pinning the discriminated-
+  union auth-helper return contract on both GET
+  AND POST exports); `badRequestResponse(message)`
+  400-helper (UNIQUE — FIRST per-source-file
+  smoke pinning a dedicated 400-builder helper);
+  issues-joined Zod error message (UNIQUE);
+  GET success payload with FLAT keys at top
+  level (UNIQUE — FIRST per-source-file GET
+  smoke pinning a flat-pagination success
+  payload); POST returns 201 with review-
+  workflow success message; `?deleted=true`
+  query branches to a different repo method
+  (UNIQUE — FIRST per-source-file GET smoke
+  pinning a query-driven repo-method dispatch
+  contract); longer-message TWO-key 401
+  envelope. The smoke spec pins three bulk-loop
+  walks (~6 headers × 2 methods + ~9 POST
+  bodies all asserting `< 500`), longer-message
+  TWO-key 401-envelope assertions on GET AND
+  POST, a cross-method 401-envelope-equality
+  assertion, a strict TWO-key envelope-shape
+  assertion, a gate-before-post-auth invariant,
+  a createAsClient-not-entered invariance walk
+  on POST (CRITICAL), a gate-before-Zod-query-
+  validation invariance walk on GET, a gate-
+  before-Zod-body-validation invariance walk on
+  POST, a cross-method probe (PUT / PATCH /
+  DELETE), and a side-channel walk on POST.
+  With this addition the per-spec-file docs
+  rollout extends to 108-of-N and the
+  `tests/api/` per-spec-file sub-rollout
+  extends to 106-of-many.
+
 - `docs/plugins` Added `sponsor-ads-user-id-query-spec.md` —
   the **one-hundred-and-seventh** per-source-file
   reference the docs tree publishes for any file
