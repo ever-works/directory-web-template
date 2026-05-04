@@ -33,6 +33,62 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-04
 
+- `docs/plugins` Added `subscription-query-spec.md` —
+  the **ninety-fifth** per-source-file reference
+  the docs tree publishes for any file under
+  `apps/web-e2e/tests/` and the **ninety-third**
+  under `apps/web-e2e/tests/api/`. Pairs with the
+  existing `apps/web-e2e/tests/api/subscription-query.spec.ts`
+  spec covering the `GET` export of
+  `apps/web/app/api/user/subscription/route.ts` —
+  the **first per-source-file GET smoke** the docs
+  tree publishes that pins an **OBJECT-wrapped
+  success response** for a Stripe-customer-session
+  endpoint where the no-customer-found branch ALSO
+  returns an OBJECT (with `hasActiveSubscription:
+  false` + a `message` field). UNIQUE — the direct
+  sibling `user-payments-query.spec.ts` returns a
+  top-level **ARRAY** for the same Stripe-customer-
+  session pattern; together the two specs pin the
+  divergence between the two response shapes that
+  share an identical auth-gate + customer-
+  resolution prologue. Distinct from EVERY prior
+  session-gated GET smoke: OBJECT-wrapped success
+  response (UNIQUE); no-customer-found 200 OBJECT
+  `{ hasActiveSubscription: false, message: 'No
+  Stripe customer found' }` (distinct from the
+  user-payments sibling's `[]` empty-array
+  fallback); bare ONE-key `{ error: 'Unauthorized' }`
+  401 envelope; two-tier 500 catch dispatcher with
+  TWO different 500 messages on the SAME ONE-key
+  envelope shape (`'Failed to fetch subscription
+  data from Stripe'` vs `'Failed to fetch
+  subscription data'`); zero-arg GET signature;
+  Stripe Subscriptions list with `expand:
+  ['data.default_payment_method']` (UNIQUE — the
+  FIRST per-source-file GET smoke pinning a Stripe
+  expansion-list invariant); active-subscription
+  discriminator (`sub.status === 'active' ||
+  sub.status === 'trialing'`); cents-to-major-
+  units transform; currency uppercase invariant;
+  caller-supplied-Stripe-key bypass attempt walked
+  via `?stripeKey=` / `?stripe_key=` query
+  parameters. The smoke spec pins a query-string
+  bulk-loop walk over many parameter permutations,
+  a canonical ONE-key 401-envelope assertion, a
+  cross-query envelope-byte-equality assertion, a
+  `?userId=` / `?customerId=` walk (CRITICAL),
+  a `?stripeKey=` walk (CRITICAL), a `?token=`
+  walk (CRITICAL), and a cross-permutation
+  status-and-shape invariance assertion. With this
+  addition the per-spec-file docs rollout extends
+  to 95-of-N and the `tests/api/` per-spec-file
+  sub-rollout extends to 93-of-many. (Docs-only
+  commit — the spec test file
+  `apps/web-e2e/tests/api/subscription-query.spec.ts`
+  was already present in the repo; this commit
+  publishes its per-source-file reference doc.)
+
 - `docs/plugins` Added `favorites-id-method-spec.md` —
   the **ninety-fourth** per-source-file reference
   the docs tree publishes for any file under
