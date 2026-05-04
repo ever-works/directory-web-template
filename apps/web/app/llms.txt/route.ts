@@ -22,7 +22,9 @@ export async function GET(): Promise<NextResponse> {
 
 	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const name = config.company_name || 'Ever Works Directory';
-	const description = config.company_description || `A curated directory of ${items.length} items.`;
+	const fallbackDescription =
+		(config as { description?: string; tagline?: string }).description || (config as { tagline?: string }).tagline;
+	const description = fallbackDescription || `A curated directory of ${items.length} items.`;
 
 	const lines: string[] = [
 		`# ${name}`,
