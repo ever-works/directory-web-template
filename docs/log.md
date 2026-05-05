@@ -35,6 +35,68 @@ why** at a higher level than per-commit diffs.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
+  `docs/plugins/collections-exists-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/collections-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/collections-exists-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/collections/exists/route.ts` --
+  the **second member of the public-existence-probe
+  trio** to receive a per-source-file landing page
+  (after the previously-landed
+  `categories-exists-query-spec.md` Git-CMS
+  catch-and-200 sibling and the previously-landed
+  `surveys-exists-query-spec.md` DB-service
+  catch-and-200 sibling -- both still in flight on
+  open PRs). With this entry the **three-member
+  existence-probe trio is now fully documented
+  per-source-file**. UNIQUE within the trio: this is
+  the **catch-and-500** member -- every thrown error
+  inside `collectionRepository.findAll` is caught and
+  the route returns a `500` status with the extra
+  `error: 'Failed to check collections existence'`
+  field (distinct from both siblings whose catch
+  branches return `200 OK`). Also UNIQUE within the
+  trio in three other dimensions: (1) the route reads
+  **zero** query parameters today (the `_request`
+  parameter is underscored to mark it deliberately
+  unused -- vs `?locale=` on categories and `?type=`
+  on surveys); (2) the route runs above the
+  **DB-repository** backing store via
+  `collectionRepository.findAll` directly (NOT a
+  Git-CMS reader like categories and NOT a service-
+  layer wrapper like surveys); (3) the catch branch
+  fires `console.error` **unconditionally** on every
+  environment (NOT only in development mode like
+  categories and NOT silently like surveys). The
+  hard-coded `{ includeInactive: false }` repository
+  flag is also load-bearing: a future contributor who
+  wires `?includeInactive=true` into the call would
+  also need to flip the response envelope shape or
+  add a separate `inactiveCount` field; the new spec
+  pins this with a per-flag invariance walk that no
+  other existence-probe spec has. The new page
+  documents the cross-route exists-probe matrix (this
+  route vs `/api/categories/exists` vs
+  `/api/surveys/exists` -- now with backing store +
+  query-param + catch-status + catch-envelope +
+  catch-logging columns), the at-a-glance scenario
+  tree (~50-path bulk-loop walk + five hand-written
+  invariants including the UNIQUE zero-query-input
+  contract walk and the UNIQUE `?includeInactive=`
+  invariance walk), the cross-references to the
+  catch-and-200 Git-CMS-backed sibling, the
+  catch-and-200 DB-service-backed sibling, the
+  cross-cutting `feature-existence.spec.ts` no-arg-
+  baseline sibling, the DB-backed admin sibling at
+  `/api/admin/collections`, the collection-detail
+  GET / PUT / DELETE sibling, the collection-create
+  POST sibling, and the Spec 010 governance anchor.
+  Matching `docs/index.md` entry added at the surveys
+  cluster (just above the
+  `surveys-id-responses-method-spec` entry) of the
+  per-source-file rollout list. The corresponding
+  e2e spec file is unchanged -- this run lands the
+  docs landing page that was missing.
   `docs/plugins/health-database-query-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/health-database-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health-database-query.spec.ts)
