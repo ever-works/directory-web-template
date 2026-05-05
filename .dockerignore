@@ -1,0 +1,41 @@
+# Build artefacts and caches
+**/.next
+**/.turbo
+**/dist
+**/build
+**/coverage
+**/.cache
+
+# Dependency directories (we install fresh inside the image)
+**/node_modules
+
+# VCS, IDE
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Environment files (secrets must come from Kubernetes Secrets, not the image)
+**/.env
+**/.env.*
+!**/.env.example
+
+# Test fixtures and reports
+**/playwright-report
+**/test-results
+
+# Local content cache (cloned at runtime / build time, not baked in)
+apps/web/.content
+
+# Docs site build output
+apps/docs/build
+
+# Local logs
+**/*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata
+Thumbs.db
