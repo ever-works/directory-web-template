@@ -73,7 +73,7 @@ NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN=pk.eyJ1...votre-token
 
 ## Style de carte
 
-Configuré via `settings.location.map_style` dans votre `config.yml` :
+Configuré via `settings.location.map_style` dans votre `works.yml` :
 
 | Valeur | Description |
 |--------|-------------|

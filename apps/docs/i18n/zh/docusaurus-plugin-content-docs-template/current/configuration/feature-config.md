@@ -169,7 +169,7 @@ const isValid = validateSiteConfig();
 
 ## ConfigManager（YAML 配置）
 
-`lib/config-manager.ts` 中的 `ConfigManager` 类管理来自基于 Git 的 CMS 仓库的 `config.yml` 文件。它处理配置更改的读取、写入和提交。
+`lib/config-manager.ts` 中的 `ConfigManager` 类管理来自基于 Git 的 CMS 仓库的 `works.yml` 文件。它处理配置更改的读取、写入和提交。
 
 ### 读取配置
 

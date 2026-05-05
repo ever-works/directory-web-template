@@ -7,7 +7,7 @@ sidebar_position: 23
 
 # Admin Settings Endpoints
 
-The admin settings API provides endpoints for reading and modifying site configuration stored in `config.yml`. This includes general settings and map provider status. All endpoints require admin authentication.
+The admin settings API provides endpoints for reading and modifying site configuration stored in `works.yml`. This includes general settings and map provider status. All endpoints require admin authentication.
 
 ## Overview
 
@@ -23,7 +23,7 @@ The admin settings API provides endpoints for reading and modifying site configu
 GET /api/admin/settings
 ```
 
-Retrieves the complete `settings` section from the site's `config.yml` file.
+Retrieves the complete `settings` section from the site's `works.yml` file.
 
 **Authentication:** Admin required (via `getCachedApiSession`)
 
@@ -43,7 +43,7 @@ Retrieves the complete `settings` section from the site's `config.yml` file.
 }
 ```
 
-The exact shape of the `settings` object depends on the site's `config.yml` configuration. The endpoint returns whatever is stored under the `settings` key.
+The exact shape of the `settings` object depends on the site's `works.yml` configuration. The endpoint returns whatever is stored under the `settings` key.
 
 | Status | Condition |
 |---|---|
@@ -58,7 +58,7 @@ The exact shape of the `settings` object depends on the site's `config.yml` conf
 PATCH /api/admin/settings
 ```
 
-Updates a single setting value within the `settings` section of `config.yml`. The key is automatically scoped to the `settings` namespace (e.g., providing key `"theme"` updates `settings.theme` in the configuration file).
+Updates a single setting value within the `settings` section of `works.yml`. The key is automatically scoped to the `settings` namespace (e.g., providing key `"theme"` updates `settings.theme` in the configuration file).
 
 **Authentication:** Admin required
 
@@ -86,7 +86,7 @@ Updates a single setting value within the `settings` section of `config.yml`. Th
 }
 ```
 
-The update is persisted via `configManager.updateNestedKey()`, which modifies the underlying `config.yml` file. The key is automatically prefixed with `settings.` before being passed to the config manager.
+The update is persisted via `configManager.updateNestedKey()`, which modifies the underlying `works.yml` file. The key is automatically prefixed with `settings.` before being passed to the config manager.
 
 **Error Responses:**
 
@@ -154,7 +154,7 @@ No actual key values are exposed in the response.
 
 The settings system is built on the `configManager` singleton from `lib/config-manager`:
 
-- **Storage:** Settings are stored in a YAML configuration file (`config.yml`)
+- **Storage:** Settings are stored in a YAML configuration file (`works.yml`)
 - **Access:** The `configManager.getConfig()` method reads the full configuration
 - **Updates:** The `configManager.updateNestedKey()` method modifies specific nested keys
 - **Caching:** Sessions are cached via `getCachedApiSession()` for performance

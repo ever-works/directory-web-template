@@ -6,7 +6,7 @@ Mettez votre site d'annuaire en ligne en moins de 10 minutes ! Ce guide suppose 
 
 ### Configurer les paramètres du site
 
-Éditez `apps/web/.content/config.yml` (ce fichier sera créé après la première synchronisation) :
+Éditez `apps/web/.content/works.yml` (ce fichier sera créé après la première synchronisation) :
 
 ```yaml
 # Paramètres de base du site
@@ -101,7 +101,7 @@ tags: ['productivité', 'automatisation']
 Mettez à jour votre configuration pour sélectionner un thème :
 
 ```yaml
-# Dans .content/config.yml
+# Dans .content/works.yml
 theme: 'moderne'  # Options : 'classique', 'moderne', 'minimal', 'sombre'
 ```
 

@@ -11,7 +11,7 @@ sidebar_position: 13
 
 ## مصدر التكوين
 
-تُعرَّف إعدادات الموقع في القسم `settings.location` من `config.yml` في مستودع المحتوى:
+تُعرَّف إعدادات الموقع في القسم `settings.location` من `works.yml` في مستودع المحتوى:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-الشكل الخام المقروء من `config.yml`، مُعرَّف في `lib/types/location.ts`:
+الشكل الخام المقروء من `works.yml`، مُعرَّف في `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

@@ -170,14 +170,14 @@ NEWSLETTER_CONFIG.DEFAULT_COMPANY_NAME = "Ever Works"
 
 ### ספקי דוא"ל
 
-המערכת תומכת בשני ספקי דוא"ל המוגדרים באמצעות `config.yml` ומשתני סביבה:
+המערכת תומכת בשני ספקי דוא"ל המוגדרים באמצעות `works.yml` ומשתני סביבה:
 
 |ספק|משתנה סביבתי|תיאור|
 |---|---|---|
 |שלח שוב|`RESEND_API_KEY`|ספק דוא"ל ברירת מחדל|
 |נובו|`NOVU_API_KEY`|ספק חלופי עם תמיכה בתבניות|
 
-הספק נבחר על סמך השדה `mail.provider` ב-`config.yml`. תצורת דוא"ל נבנית באופן דינמי מתצורת האפליקציה באמצעות `createEmailConfig()`.
+הספק נבחר על סמך השדה `mail.provider` ב-`works.yml`. תצורת דוא"ל נבנית באופן דינמי מתצורת האפליקציה באמצעות `createEmailConfig()`.
 
 **מקור:** `template/lib/newsletter/config.ts`
 

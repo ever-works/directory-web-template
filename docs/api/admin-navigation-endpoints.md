@@ -7,7 +7,7 @@ sidebar_position: 29
 
 # Admin Navigation & Location Index Endpoints
 
-These admin endpoints manage custom site navigation links and the geographic location index. Navigation endpoints allow configuring custom header and footer links stored in `config.yml`. Location index endpoints manage the spatial index used for geographic analytics and map features.
+These admin endpoints manage custom site navigation links and the geographic location index. Navigation endpoints allow configuring custom header and footer links stored in `works.yml`. Location index endpoints manage the spatial index used for geographic analytics and map features.
 
 ## Overview
 
@@ -26,7 +26,7 @@ These admin endpoints manage custom site navigation links and the geographic loc
 GET /api/admin/navigation
 ```
 
-Retrieves the `custom_header` and `custom_footer` navigation items from the site's `config.yml` file. Returns empty arrays if no custom navigation is configured.
+Retrieves the `custom_header` and `custom_footer` navigation items from the site's `works.yml` file. Returns empty arrays if no custom navigation is configured.
 
 **Authentication:** Admin required (via `getCachedApiSession`)
 
@@ -77,7 +77,7 @@ Each navigation item has two fields:
 PATCH /api/admin/navigation
 ```
 
-Updates the custom header or footer navigation items in `config.yml`. Validates each item's path format to prevent XSS attacks via dangerous URL schemes.
+Updates the custom header or footer navigation items in `works.yml`. Validates each item's path format to prevent XSS attacks via dangerous URL schemes.
 
 **Authentication:** Admin required
 
@@ -253,7 +253,7 @@ Performs management actions on the location index. Supports rebuilding the index
 ## Key Implementation Details
 
 - **XSS Prevention:** Navigation path validation rejects all URL schemes except `/`, `http://`, and `https://`. This blocks `javascript:`, `data:`, `vbscript:`, and protocol-relative URLs (`//evil.com`) that could be used for cross-site scripting.
-- **Config Storage:** Navigation items are stored in `config.yml` under `custom_header` and `custom_footer` keys, persisted via `configManager.updateNestedKey()`.
+- **Config Storage:** Navigation items are stored in `works.yml` under `custom_header` and `custom_footer` keys, persisted via `configManager.updateNestedKey()`.
 - **i18n Labels:** Navigation labels can be either plain text or translation keys (e.g., `"footer.PRIVACY_POLICY"`). The frontend is responsible for resolving translation keys.
 - **Location Index Rebuild:** The rebuild operation loads all items from the `ItemRepository` and passes them to the location index service. This can be a resource-intensive operation for large datasets.
 - **Cache Busting:** Location index endpoints explicitly disable all caching to ensure the admin dashboard always displays current data.

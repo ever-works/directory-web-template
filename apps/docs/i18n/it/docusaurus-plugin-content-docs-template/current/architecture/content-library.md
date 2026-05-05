@@ -123,7 +123,7 @@ La configurazione del sito viene memorizzata nella cache utilizzando Next.js `un
 import { CACHE_TAGS, CACHE_TTL } from './cache-config';
 
 const getCachedConfig = unstable_cache(
-  async () => { /* read and parse config.yml */ },
+  async () => { /* read and parse works.yml */ },
   [CACHE_TAGS.CONFIG],
   { revalidate: CACHE_TTL }
 );
@@ -214,7 +214,7 @@ Ciò garantisce che le operazioni sui contenuti con accesso al filesystem non si
 
 |Funzione|Descrizione|
 |----------|-------------|
-|`getCachedConfig()`|Restituisce la configurazione del sito memorizzata nella cache da `config.yml`|
+|`getCachedConfig()`|Restituisce la configurazione del sito memorizzata nella cache da `works.yml`|
 |`trySyncRepository()`|Clona o estrae contenuti dal repository Git remoto|
 |`pullChanges()`|Estrae le ultime modifiche con la risoluzione dei conflitti|
 |`validateLanguageCode()`|Convalida il formato del codice della lingua i18n|

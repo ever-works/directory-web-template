@@ -124,7 +124,7 @@ Para probar el sistema multidivisa:
 ## Notas importantes
 
 - Los ID de precios se resuelven **al momento de pagar**, no al momento de mostrarlos
-- La configuración de precios en `content/config.yml` tiene prioridad sobre la configuración predeterminada
+- La configuración de precios en `content/works.yml` tiene prioridad sobre la configuración predeterminada
 - Las configuraciones multidivisa solo se utilizan si se configuran variables de entorno
 
 ## Integración con proveedores de pago

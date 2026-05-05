@@ -55,7 +55,7 @@ Primary users:
 
 - **End users** of a directory (local-business / travel / event
   verticals especially).
-- **Directory operators** who toggle the feature on through `config.yml`.
+- **Directory operators** who toggle the feature on through `works.yml`.
 - **Fork maintainers** who want the same UI to work with whichever
   maps provider they prefer.
 
@@ -65,7 +65,7 @@ Primary users:
   sidebar of cards, in a 70/30 split on desktop and a stacked layout
   on mobile.
 - G-2: Add a **Map** entry to the primary header navigation. The entry
-  is gated by a single boolean in `config.yml` and is hidden when
+  is gated by a single boolean in `works.yml` and is hidden when
   location features are not enabled.
 - G-3: Add a `/map` route (and per-locale variants) that renders the
   same view full-bleed without a hero, so it can be linked, shared,
@@ -109,7 +109,7 @@ that listing's location, so that I do not lose my place when I switch
 between scanning and looking on the map.
 
 As a directory operator, I want to enable the map view by toggling one
-flag in config.yml so that I can ship it without writing code.
+flag in works.yml so that I can ship it without writing code.
 
 As a directory operator, I want addresses I enter in YAML to be
 geocoded automatically, so that I do not have to look up latitudes and
