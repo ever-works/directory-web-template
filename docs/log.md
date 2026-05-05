@@ -94,6 +94,108 @@ why** at a higher level than per-commit diffs.
   entry) of the per-source-file rollout list. The
   corresponding e2e spec file is unchanged -- this run
   lands the docs landing page that was missing.
+  `docs/plugins/categories-exists-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/categories/exists/route.ts` --
+  the **first per-source-file GET smoke** the docs tree
+  publishes that pins a **fully public Git-CMS-backed
+  existence probe whose catch branch ALSO returns
+  `200 OK`** (NOT `500`). Distinct from every other
+  public-route per-source-file GET smoke: the
+  companion `collections-exists-query.spec.ts` (sibling
+  existence probe served from
+  `apps/web/app/api/collections/exists/route.ts`) has a
+  **catch-and-500** posture; the
+  `items-popularity-scores-query-spec.md` sibling is
+  also no-auth-gate but does NOT surface a navigation-
+  shell-degradation contract. The categories-exists
+  route is the **catch-and-200 sibling** of the
+  collections-exists route — same `{ exists, count }`
+  envelope, but the catch branch maps every thrown
+  error to a `200` with `{ exists: false, count: 0 }`
+  rather than a `500`. The distinction is load-
+  bearing: the navigation shell hits both probes on
+  every render and must degrade quietly when the
+  content layer is unavailable rather than blocking
+  the whole page. The new page documents the cross-
+  route exists-probe matrix (this route vs
+  `/api/collections/exists` vs `/api/surveys/exists`),
+  the at-a-glance scenario tree (~50-path bulk-loop
+  walk + four hand-written invariants including the
+  UNIQUE `searchParams.get('locale') || 'en'` fallback-
+  semantics walk pinning that the no-arg, the empty-
+  string `?locale=`, and the explicit-`?locale=en`
+  paths all land in the same branch and return the
+  same status), the cross-references to the catch-and-
+  500 DB-backed sibling, the surveys existence probe,
+  the Git-CMS-backed admin sibling, the DB-backed
+  admin sibling, the public-route per-source-file
+  popularity-scores spec, and the Spec 010 / Spec 005
+  governance anchors. Matching `docs/index.md` entry
+  added at the top of the per-source-file rollout list
+  (above the `admin-categories-all-query-spec` entry
+  from the previous run). The corresponding e2e spec
+  file is unchanged -- this run lands the docs landing
+  page that was missing.
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/admin-categories-all-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/admin-categories-all-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-categories-all-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/admin/categories/all/route.ts` --
+  the **first Git-CMS-backed admin-tree query smoke**
+  the docs tree ever published, previously covered
+  indirectly via the `client-trash-page-object.md`
+  co-tenant cross-link and called out repeatedly from
+  the sibling `admin-tags-all-query-spec.md` without
+  a dedicated landing page of its own. The
+  categories-all route is the **no-defensive-narrowing
+  Git-CMS sibling** of the tags-all route: same
+  `auth()` + `!isAdmin` admin gate, same
+  `getCachedItems({ lang })` Git-CMS reader, same bare
+  `{ success: false, error: 'Unauthorized' }` 401
+  envelope, but **NO defensive
+  `typeof locale !== 'string'` narrowing** (the only
+  Git-CMS-backed admin-tree route that omits the
+  dead-branch validator). New page documents the
+  cross-route Git-CMS-vs-DB matrix (this route vs
+  `/api/admin/tags/all` vs `/api/admin/categories/git`
+  vs `/api/admin/categories` vs `/api/admin/tags`),
+  the at-a-glance scenario tree (~50-path bulk-loop
+  walk + 11 hand-written invariants including
+  path-traversal-resistance and cache-bust-resistance
+  invariants distinct from the tags-all sibling), the
+  cross-references to the two Git-CMS siblings + two
+  DB-backed siblings + GitHub-API-backed sibling +
+  page-object driver + co-tenant page-object driver,
+  and the Spec 010 / Spec 009 governance anchors.
+  Matching `docs/index.md` entry added at the top of
+  the per-source-file rollout list (above the
+  `client-items-id-restore-method-spec` entry from
+  the previous run). The corresponding e2e spec file
+  is unchanged -- this run lands the docs landing
+  page that was missing.
+- `apps/web-e2e` `docs/plugins` `docs/index`
+  Added a per-source-file e2e spec
+  [`apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts)
+  for the `POST` export of
+  `apps/web/app/api/client/items/[id]/restore/route.ts`
+  -- the **first per-source-file POST smoke** the docs
+  tree publishes that pins a **`requireClientAuth()`-
+  gated soft-delete restore action** delegating to
+  `clientItemRepository.restoreForUser(id, userId)`
+  with a THREE-branch nested catch dispatcher
+  (`'Item not found'` exact -> 404, `'permission'`
+  substring -> 403, `'not deleted'` substring -> 400)
+  and a `'Failed to restore item'` outer-catch
+  default. Companion `docs/plugins/client-items-id-restore-method-spec.md`
+  reference plus the matching `docs/index.md` entry
+  added. The pre-existing minimal smoke
+  [`client-item-restore.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-item-restore.spec.ts)
+  is preserved unchanged as the single-test canary.
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
