@@ -35,6 +35,59 @@ why** at a higher level than per-commit diffs.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
+  `docs/plugins/auth-change-password-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
+  paired with the `POST` export of
+  `apps/web/app/api/auth/change-password/route.ts` --
+  the **bare-baseline companion** to the already-
+  documented
+  [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
+  landing page (paired with the rich-permutation
+  `auth-change-password-body.spec.ts`). The body
+  sibling pins the rate-limit-FIRST gate posture, the
+  canonical 401 / 400 / 429 envelopes, the bulk-loop
+  header / body walks, and the gate-before-Zod /
+  gate-before-tenant / gate-before-user-DB /
+  gate-before-OAuth-guard / gate-before-bcrypt-
+  current / gate-before-bcrypt-duplicate / gate-
+  before-DB-update invariants; this sibling pins
+  ONLY the bare two-test `< 500` no-server-error
+  contract on the bare two-test smoke companion --
+  the `POST /api/auth/change-password without a
+  session does not 5xx` test on a fully-shaped
+  body and the `POST /api/auth/change-password with
+  empty body does not 5xx` test on `{}` -- both
+  asserting `expect(response.status()).toBeLessThan(500)`.
+  UNIQUE within the auth-change-password spec pair:
+  this is the **bare-baseline** member of the pair.
+  Every prior per-source-file landing page in the
+  docs tree pairs to a SINGLE source spec; this is
+  the **first per-source-file landing page that
+  documents one HALF of a two-spec pair covering
+  the same route**. The new page documents the
+  body-sibling-vs-bare-baseline matrix (this spec
+  vs the body sibling at `auth-change-password-body
+  -spec.md` -- now with bulk-loop column +
+  envelope-shape column + gate-ordering column +
+  cross-method column + side-channel column),
+  the at-a-glance scenario tree (two hand-written
+  tests covering the well-shaped-body and empty-
+  body shapes -- both asserting `< 500` and both
+  expected to land on the unauth 401 branch under
+  the rate-limit-not-tripped-yet posture), the
+  cross-references to the rich-permutation body
+  sibling, the page-level forgot / reset password
+  smokes (`auth/forgot-password.spec.ts` +
+  `auth/new-password.spec.ts`), the Spec 003 (Auth
+  Providers) governance anchor, and the Spec 010
+  (E2E Test Coverage) governance anchor. Matching
+  `docs/index.md` entry added at the agent-
+  discovery cluster (just above the `agent-
+  discovery-spec` entry) of the per-source-file
+  rollout list. The corresponding e2e spec file
+  is unchanged -- this run lands the docs landing
+  page that was missing.
   `docs/plugins/surveys-exists-query-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
