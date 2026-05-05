@@ -351,7 +351,7 @@ export default function SearchBar(): JSX.Element {
             </div>
 
             {/* Body */}
-            <div className="max-h-[60vh] overflow-y-auto scrollbar-soft">
+            <div className="max-h-[60vh] overflow-y-auto scrollbar-soft scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
 
               {/* Error */}
               {error && (

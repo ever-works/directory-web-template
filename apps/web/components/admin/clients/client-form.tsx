@@ -37,9 +37,9 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
   const totalSteps = 4;
 
   // Extract long className strings into constants for better maintainability
-  const containerClasses = "bg-white dark:bg-white/3 rounded-2xl shadow-2xl border border-gray-200 dark:border-white/6 overflow-hidden";
-  const headerClasses = "bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4";
-  const formClasses = "p-6 space-y-6";
+  const containerClasses = "bg-white dark:bg-white/3 rounded-2xl border border-gray-200 dark:border-white/6 overflow-hidden";
+  const headerClasses = "px-6 py-4 border-b border-gray-200 dark:border-white/6";
+  const formClasses = "p-5 space-y-5";
   const actionsClasses = "flex items-center justify-between pt-6 border-t border-gray-200 dark:border-white/6";
 
   // Helper function to construct form defaults based on client data and mode
@@ -277,23 +277,23 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
     <div className={containerClasses}>
       {/* Header */}
       <div className={headerClasses}>
-        <h2 className="text-xl font-bold text-white">
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
           {mode === 'create' ? t('TITLE_CREATE') : t('TITLE_EDIT')}
         </h2>
-        <p className="text-white/80 text-sm mt-1">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
           {mode === 'create' ? t('SUBTITLE_CREATE') : t('SUBTITLE_EDIT')}
         </p>
       </div>
 
       {/* Step Indicator */}
-      <div className="px-6 py-4 bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/6">
+      <div className="px-6 py-3 bg-white dark:bg-white/3 border-b border-gray-200 dark:border-white/6">
         <div className="flex items-center justify-between">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex items-center flex-col md:flex-row md:space-x-2 flex-1">
                 <div
                   className={clsx(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
+                    "w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-colors",
                     currentStep === step
                       ? "bg-theme-primary text-white"
                       : currentStep > step
@@ -370,7 +370,7 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
                 type="button"
                 onClick={handleNext}
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90 text-white"
+                className="flex items-center gap-2 bg-theme-primary hover:bg-theme-primary/90 text-white"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -380,7 +380,7 @@ export function ClientForm({ client, onSubmit, onCancel, isLoading = false, mode
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="flex items-center gap-2 bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90 text-white"
+                className="flex items-center gap-2 bg-theme-primary hover:bg-theme-primary/90 text-white"
               >
                 <Save className="w-4 h-4" />
                 {mode === 'create' ? t('CREATE_CLIENT') : t('UPDATE_CLIENT')}

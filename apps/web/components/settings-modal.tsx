@@ -128,7 +128,7 @@ export function SettingsModal() {
 				<div
 					className={cn(
 						'px-4 md:px-6 py-4 space-y-5',
-						'overflow-y-auto overscroll-contain',
+						'overflow-y-auto overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1',
 						'max-h-[calc(90vh-96px)]',
 						'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1'
 					)}

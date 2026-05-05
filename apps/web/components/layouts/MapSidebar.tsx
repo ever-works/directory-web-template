@@ -66,7 +66,7 @@ export function MapSidebar({ items, selectedSlug, onSelect, className }: MapSide
 			aria-label={t('MAP_SIDEBAR_LABEL')}
 			data-testid="map-sidebar"
 			className={cn(
-				'h-full overflow-y-auto bg-white dark:bg-[#0a0a0a]',
+				'h-full overflow-y-auto bg-white dark:bg-[#0a0a0a] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1',
 				'border-r border-gray-200/50 dark:border-white/6',
 				className
 			)}

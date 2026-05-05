@@ -609,7 +609,7 @@ export default function RolesPage() {
 								</button>
 							)}
 						</div>
-						<div className="overflow-y-auto max-h-[calc(90vh-4rem)]">
+						<div className="overflow-y-auto max-h-[calc(90vh-4rem)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
 							<RoleForm
 								role={selectedRole || undefined}
 								onSubmit={handleFormSubmit}
