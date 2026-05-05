@@ -33,6 +33,24 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `apps/web-e2e` `docs/plugins` `docs/index`
+  Added a per-source-file e2e spec
+  [`apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts)
+  for the `POST` export of
+  `apps/web/app/api/client/items/[id]/restore/route.ts`
+  -- the **first per-source-file POST smoke** the docs
+  tree publishes that pins a **`requireClientAuth()`-
+  gated soft-delete restore action** delegating to
+  `clientItemRepository.restoreForUser(id, userId)`
+  with a THREE-branch nested catch dispatcher
+  (`'Item not found'` exact -> 404, `'permission'`
+  substring -> 403, `'not deleted'` substring -> 400)
+  and a `'Failed to restore item'` outer-catch
+  default. Companion `docs/plugins/client-items-id-restore-method-spec.md`
+  reference plus the matching `docs/index.md` entry
+  added. The pre-existing minimal smoke
+  [`client-item-restore.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-item-restore.spec.ts)
+  is preserved unchanged as the single-test canary.
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
