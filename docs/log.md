@@ -33,6 +33,128 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/admin-clients-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/admin/clients/route.ts` --
+  the **first per-source-file admin-tree GET smoke
+  pinning the bare-message single-step-collapse
+  `{ error: 'Unauthorized' }` 401 envelope** posture
+  (matches the sibling `admin/comments` /
+  `admin/companies` / `admin/users` routes; distinct
+  from the canonical-longer-message family of
+  `admin/categories` / `admin/items` /
+  `admin/items/import` / `admin/items/import/validate`
+  AND from the two-step-split-401-vs-403 family of
+  `admin/notifications/[id]/read` /
+  `admin/notifications/mark-all-read` /
+  `admin/users/check-email` /
+  `admin/users/check-username` /
+  `admin/clients/bulk` AND from the auth-gate-
+  divergence-finding posture of the un-gated
+  `admin/roles` / `admin/roles/active` family).
+  UNIQUE: every prior admin-tree query smoke pins
+  one of three different gate postures; this is
+  the FIRST per-source-file admin-tree GET smoke
+  pinning the bare-message single-step-collapse
+  envelope. The new page documents the
+  **single-step `session?.user?.isAdmin` gate
+  ahead of the shared
+  `validatePaginationParams(searchParams)`
+  helper** (the helper short-circuits with its
+  `{ error, status }` 400 envelope on
+  `?page=invalid` / `?limit=invalid` /
+  `?page=-1` / `?limit=0` / `?limit=200`, but
+  only on the AUTH branch -- the unauth branch
+  hits 401 BEFORE the helper runs), the **six
+  optional query-param reads, all AFTER the
+  gate** (`?search=`, `?status=`, `?plan=`,
+  `?accountType=`, `?provider=` -- parsed via
+  raw `searchParams.get('…') || undefined`
+  calls, NO inline enum coercion or Zod schema
+  validation, distinct from the `admin/roles`
+  route's narrow inline ternary enum coercion),
+  the **legacy `getClientProfiles({…})` query
+  helper** (distinct from the `admin/categories`
+  route's `categoryRepository.findAllPaginated(...)`
+  repository-pattern posture; the spec stays green
+  if a future contributor refactors the route to
+  a `clientRepository` abstraction), the
+  **three-key `{ success, data: { clients }, meta }`
+  success envelope** (the `data` key carries a
+  single `clients: []` sub-key, distinct from the
+  `admin/users` route's bare `{ success, data: [...],
+  pagination: {…} }` shape), the **`POST` branch
+  with environment-flag-gated CRM sync** (out of
+  scope for this GET-only spec but documented so
+  future contributors who add a `POST` smoke must
+  defend against the synchronous
+  `createTwentyCrmSyncServiceFromEnv()` upsert via
+  `TWENTY_CRM_ENABLED=false` environment override),
+  the at-a-glance scenario tree (one bulk-loop
+  walk over ~60 paths + eleven hand-written
+  scenarios pinning: the strict 401-on-no-arg-
+  baseline + bare `{ error: 'Unauthorized' }`
+  envelope; status invariance across stacked-key
+  permutations; per-key isolation walks for
+  `?asAdmin=` / `?as=` / `?asUser=` /
+  `?impersonate=` admin-impersonation, `?token=` /
+  `?secret=` / `?api_key=` / `?authorization=` /
+  `?session=` / `?adminToken=` magic-token,
+  `?bypass=` / `?admin=` / `?override=` /
+  `?force=` admin-override, `?status=` and
+  `?provider=` filter-bypass; `Accept` header
+  isolation; repeated-key walk; the bare-message
+  envelope assertion pinning `body.error ===
+  'Unauthorized'` AND `body.error !==
+  'Unauthorized. Admin access required.'` AND
+  `body.error !== 'Forbidden'`), the cross-
+  references to the neighbouring per-id sibling
+  [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
+  the neighbouring bulk sibling
+  [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
+  the neighbouring create sibling
+  [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
+  (the two per-source-file specs together pin
+  both the `POST` body surface and the `GET`
+  query surface on the SAME route file), the
+  shared admin-clients page-object driver
+  [`admin-clients-page-object.md`](admin-clients-page-object.md),
+  the prior per-source-file admin-tree GET
+  smokes
+  [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
+  [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
+  [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
+  [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
+  [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
+  [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
+  the admin-protected coverage spec
+  [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
+  (covers this route at the broad `< 500` level;
+  this per-source-file spec adds the deep query-
+  surface walk on top), and the change protocol
+  (update this page in the same PR that touches
+  the source spec, update `docs/log.md`, run
+  `pnpm tsc --noEmit` in `apps/web-e2e`). With
+  this entry the **per-spec-file docs rollout
+  extends to 118-of-N** and the **`tests/api/`
+  per-spec-file sub-rollout extends to
+  115-of-many**, and the **first per-source-file
+  admin-tree GET smoke pinning the bare-message
+  single-step-collapse `{ error: 'Unauthorized' }`
+  401 envelope** lands -- pinning a single-step
+  `session?.user?.isAdmin` gate ahead of the
+  `validatePaginationParams(...)` helper, six
+  gate-protected optional query-param reads with
+  no inline enum coercion or Zod validation, the
+  legacy `getClientProfiles({…})` query helper
+  posture, and the bare 401 envelope shape
+  distinct from both the canonical-longer-message
+  family and the two-step-split family.
+
 - `apps/docs` `apps/web`
   Added Vercel build-cost controls to both Vercel-deployed
   apps in this monorepo (`directory-web-template-docs` rooted
