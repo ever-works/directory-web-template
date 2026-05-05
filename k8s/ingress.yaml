@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: ${WORK_SLUG}
+    namespace: ${NAMESPACE}
+    labels:
+        ever-works.io/managed: "true"
+        ever-works.io/work-id: "${WORK_ID}"
+        app.kubernetes.io/name: ${WORK_SLUG}
+        app.kubernetes.io/managed-by: ever-works-k8s-plugin
+    annotations:
+        ${INGRESS_ANNOTATIONS}
+spec:
+    ingressClassName: ${INGRESS_CLASS}
+    rules:
+        - host: ${INGRESS_HOST}
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: ${WORK_SLUG}
+                            port:
+                                number: 80
+    ${INGRESS_TLS_BLOCK}
