@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: web
+    namespace: ever-works
+    labels:
+        app.kubernetes.io/name: web
+        app.kubernetes.io/managed-by: kubectl
+    annotations:
+        # Example annotations for ingress-nginx + cert-manager.
+        # Adjust or remove for your controller (Traefik, HAProxy, etc.).
+        nginx.ingress.kubernetes.io/proxy-body-size: 10m
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+    # Match your cluster's IngressClass. Common values: nginx, traefik.
+    ingressClassName: nginx
+    rules:
+        - host: example.com
+          http:
+              paths:
+                  - path: /
+                    pathType: Prefix
+                    backend:
+                        service:
+                            name: web
+                            port:
+                                number: 80
+    # Remove the tls block if you're not using cert-manager / TLS.
+    tls:
+        - hosts:
+              - example.com
+          secretName: example-com-tls

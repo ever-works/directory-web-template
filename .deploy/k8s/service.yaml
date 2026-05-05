@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: web
+    namespace: ever-works
+    labels:
+        app.kubernetes.io/name: web
+        app.kubernetes.io/managed-by: kubectl
+spec:
+    type: ClusterIP
+    selector:
+        app.kubernetes.io/name: web
+    ports:
+        - name: http
+          port: 80
+          targetPort: 3000
+          protocol: TCP

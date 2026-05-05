@@ -135,9 +135,15 @@ jobs:
                   file: Dockerfile
                   push: true
                   tags: ${{ steps.image.outputs.image }}
+                  # DATA_REPOSITORY is a URL — fine to ship as a build-arg
+                  # (it ends up in the resulting image as an env var anyway
+                  # if the Dockerfile picks it up). GH_TOKEN, however, is a
+                  # credential and MUST go through BuildKit secrets so it's
+                  # not embedded in build cache layers / image metadata.
                   build-args: |
                       DATA_REPOSITORY=https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}
-                      GH_TOKEN=${{ secrets.GH_TOKEN }}
+                  secrets: |
+                      gh_token=${{ secrets.GH_TOKEN }}
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
@@ -202,58 +208,88 @@ jobs:
                       export PULL_SECRET_BLOCK=""
                   fi
 
-                  envsubst < k8s/deployment.yaml | kubectl apply -f -
-                  envsubst < k8s/service.yaml | kubectl apply -f -
+                  envsubst < .deploy/k8s-platform/deployment.yaml | kubectl apply -f -
+                  envsubst < .deploy/k8s-platform/service.yaml | kubectl apply -f -
 
                   # Ingress only when a host is configured.
                   if [[ -n "$INGRESS_HOST" ]]; then
-                      # Pick controller-specific annotations + TLS block.
+                      # Build the controller-specific annotation lines as
+                      # individual `key: value` strings. We render the full
+                      # Ingress YAML below via a heredoc rather than
+                      # envsubst-substituting a multi-line block — that
+                      # approach broke YAML indent because only the first
+                      # line inherited the template's column position and
+                      # subsequent lines were emitted at column 0.
+                      ANNOTATION_LINES=()
                       case "${INGRESS_CLASS:-}" in
                           nginx|*nginx*)
+                              ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/proxy-body-size: 10m")
                               if [[ -n "$TLS_ISSUER" ]]; then
-                                  ANNOTATIONS=$(printf '%s\n' \
-                                      'nginx.ingress.kubernetes.io/proxy-body-size: 10m' \
-                                      'nginx.ingress.kubernetes.io/ssl-redirect: "true"' \
-                                      "cert-manager.io/cluster-issuer: $TLS_ISSUER")
+                                  ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/ssl-redirect: \"true\"")
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
                               else
-                                  ANNOTATIONS=$(printf '%s\n' \
-                                      'nginx.ingress.kubernetes.io/proxy-body-size: 10m' \
-                                      'nginx.ingress.kubernetes.io/ssl-redirect: "false"')
+                                  ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/ssl-redirect: \"false\"")
                               fi
                               ;;
                           traefik|*traefik*)
                               if [[ -n "$TLS_ISSUER" ]]; then
-                                  ANNOTATIONS=$(printf '%s\n' \
-                                      'traefik.ingress.kubernetes.io/router.entrypoints: websecure' \
-                                      'traefik.ingress.kubernetes.io/router.tls: "true"' \
-                                      "cert-manager.io/cluster-issuer: $TLS_ISSUER")
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.entrypoints: websecure")
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.tls: \"true\"")
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
                               else
-                                  ANNOTATIONS='traefik.ingress.kubernetes.io/router.entrypoints: web'
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.entrypoints: web")
                               fi
                               ;;
                           *)
                               if [[ -n "$TLS_ISSUER" ]]; then
-                                  ANNOTATIONS="cert-manager.io/cluster-issuer: $TLS_ISSUER"
-                              else
-                                  ANNOTATIONS='# generic ingress, no controller-specific annotations'
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
                               fi
                               ;;
                       esac
 
-                      if [[ -n "$TLS_ISSUER" ]]; then
-                          TLS_SECRET_NAME="$(echo "$INGRESS_HOST" | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//')-tls"
-                          TLS_BLOCK="tls:
-                            - hosts:
-                                - $INGRESS_HOST
-                              secretName: $TLS_SECRET_NAME"
-                      else
-                          TLS_BLOCK=""
-                      fi
-
-                      # `envsubst` walks the placeholders in ingress.yaml.
-                      INGRESS_ANNOTATIONS="$ANNOTATIONS" \
-                      INGRESS_TLS_BLOCK="$TLS_BLOCK" \
-                          envsubst < k8s/ingress.yaml | kubectl apply -f -
+                      # Render Ingress YAML with proper indentation. Each
+                      # annotation gets exactly 8 spaces, matching the
+                      # `metadata.annotations:` parent indent.
+                      {
+                          echo "apiVersion: networking.k8s.io/v1"
+                          echo "kind: Ingress"
+                          echo "metadata:"
+                          echo "    name: ${WORK_SLUG}"
+                          echo "    namespace: ${NAMESPACE}"
+                          echo "    labels:"
+                          echo "        ever-works.io/managed: \"true\""
+                          echo "        ever-works.io/work-id: \"${WORK_ID}\""
+                          echo "        app.kubernetes.io/name: ${WORK_SLUG}"
+                          echo "        app.kubernetes.io/managed-by: ever-works-k8s-plugin"
+                          if [[ ${#ANNOTATION_LINES[@]} -gt 0 ]]; then
+                              echo "    annotations:"
+                              for line in "${ANNOTATION_LINES[@]}"; do
+                                  echo "        $line"
+                              done
+                          fi
+                          echo "spec:"
+                          if [[ -n "${INGRESS_CLASS:-}" ]]; then
+                              echo "    ingressClassName: ${INGRESS_CLASS}"
+                          fi
+                          echo "    rules:"
+                          echo "        - host: ${INGRESS_HOST}"
+                          echo "          http:"
+                          echo "              paths:"
+                          echo "                  - path: /"
+                          echo "                    pathType: Prefix"
+                          echo "                    backend:"
+                          echo "                        service:"
+                          echo "                            name: ${WORK_SLUG}"
+                          echo "                            port:"
+                          echo "                                number: 80"
+                          if [[ -n "$TLS_ISSUER" ]]; then
+                              TLS_SECRET_NAME="$(echo "$INGRESS_HOST" | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//')-tls"
+                              echo "    tls:"
+                              echo "        - hosts:"
+                              echo "              - ${INGRESS_HOST}"
+                              echo "          secretName: ${TLS_SECRET_NAME}"
+                          fi
+                      } | kubectl apply -f -
                   fi
 
             - name: Wait for rollout

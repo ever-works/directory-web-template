@@ -53,14 +53,20 @@ COPY . .
 # build can statically render content pages. The clone script is a no-op
 # when DATA_REPOSITORY is unset — in that case the deploy will rely on
 # runtime cloning instead.
+#
+# DATA_REPOSITORY is a URL (no credentials) so it's safe as a build-arg.
+# GH_TOKEN is a credential — it's mounted as a BuildKit secret only for
+# the duration of the build step that needs it, so it never lands in the
+# image, the build cache, or the Buildx export. The build script reads
+# the secret from /run/secrets/gh_token at build time.
 ARG DATA_REPOSITORY=""
-ARG GH_TOKEN=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
-ENV GH_TOKEN=${GH_TOKEN}
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN pnpm --filter @ever-works/web run build
+RUN --mount=type=secret,id=gh_token \
+    sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           pnpm --filter @ever-works/web run build'
 
 # ---- runner ----------------------------------------------------------------
 
