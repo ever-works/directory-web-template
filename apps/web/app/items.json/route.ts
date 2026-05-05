@@ -24,6 +24,9 @@ import { getCachedConfig, getCachedItems } from '@/lib/content';
  * agents, and this route returns the data they actually need.
  */
 export async function GET(): Promise<NextResponse> {
+	interface NamedRef {
+		name?: string;
+	}
 	interface ItemShape {
 		slug?: string;
 		id?: string;
@@ -31,15 +34,44 @@ export async function GET(): Promise<NextResponse> {
 		title?: string;
 		url?: string;
 		description?: string;
-		categories?: ReadonlyArray<string>;
-		tags?: ReadonlyArray<string>;
+		// Canonical content shape (lib/content.ts ItemData) carries the
+		// SINGULAR polymorphic `category` field (string | object | array)
+		// plus a polymorphic `tags` field (string[] | Tag[]). Older
+		// callers sometimes also pass a pre-flattened `categories`
+		// string[] or a `meta.category` array; we tolerate both shapes
+		// and normalize to a plain `string[]` so downstream JSON
+		// consumers always see canonical `categories: string[]` /
+		// `tags: string[]`.
+		category?: string | NamedRef | ReadonlyArray<string | NamedRef>;
+		categories?: ReadonlyArray<string | NamedRef>;
+		tags?: ReadonlyArray<string | NamedRef>;
+		source_url?: string;
 		meta?: {
 			source_url?: string;
 			url?: string;
 			description?: string;
-			category?: ReadonlyArray<string>;
-			tags?: ReadonlyArray<string>;
+			category?: string | NamedRef | ReadonlyArray<string | NamedRef>;
+			categories?: ReadonlyArray<string | NamedRef>;
+			tags?: ReadonlyArray<string | NamedRef>;
 		};
+	}
+
+	function toNameArray(
+		value: string | NamedRef | ReadonlyArray<string | NamedRef> | undefined | null
+	): string[] {
+		if (value == null) return [];
+		const list = Array.isArray(value) ? value : [value];
+		const out: string[] = [];
+		for (const entry of list) {
+			if (typeof entry === 'string') {
+				const trimmed = entry.trim();
+				if (trimmed) out.push(trimmed);
+			} else if (entry && typeof entry.name === 'string') {
+				const trimmed = entry.name.trim();
+				if (trimmed) out.push(trimmed);
+			}
+		}
+		return out;
 	}
 
 	const [config, fetchResult] = await Promise.all([
@@ -63,18 +95,25 @@ export async function GET(): Promise<NextResponse> {
 		},
 		generatedAt: new Date().toISOString(),
 		count: items.length,
-		items: items.map((item) => ({
-			slug: item.slug ?? item.id,
-			name: item.name ?? item.title,
-			url:
-				item.meta?.source_url ||
-				item.meta?.url ||
-				item.url ||
-				(siteUrl ? `${siteUrl}/items/${item.slug ?? item.id}` : undefined),
-			description: item.meta?.description || item.description,
-			categories: item.meta?.category ?? item.categories ?? [],
-			tags: item.meta?.tags ?? item.tags ?? []
-		}))
+		items: items.map((item) => {
+			const categories = toNameArray(
+				item.meta?.categories ?? item.meta?.category ?? item.categories ?? item.category
+			);
+			const tags = toNameArray(item.meta?.tags ?? item.tags);
+			return {
+				slug: item.slug ?? item.id,
+				name: item.name ?? item.title,
+				url:
+					item.meta?.source_url ||
+					item.meta?.url ||
+					item.source_url ||
+					item.url ||
+					(siteUrl ? `${siteUrl}/items/${item.slug ?? item.id}` : undefined),
+				description: item.meta?.description || item.description,
+				categories,
+				tags
+			};
+		})
 	};
 
 	return NextResponse.json(payload, {
