@@ -33,7 +33,7 @@ type MapStyle = 'streets' | 'satellite';
 
 ### `LocationConfigSettings`
 
-Definições de configuração armazenadas em `works.yaml` usando a nomenclatura `snake_case`. Usado ao analisar a seção `settings.location` do arquivo de configuração.
+Definições de configuração armazenadas em `works.yml` usando a nomenclatura `snake_case`. Usado ao analisar a seção `settings.location` do arquivo de configuração.
 
 ```typescript
 interface LocationConfigSettings {
@@ -210,7 +210,7 @@ function mapLocationConfigToRuntime(
 ```typescript
 import { mapLocationConfigToRuntime } from '@/lib/types/location';
 
-// From works.yaml
+// From works.yml
 const yamlConfig = {
   enabled: true,
   provider: 'mapbox' as const,

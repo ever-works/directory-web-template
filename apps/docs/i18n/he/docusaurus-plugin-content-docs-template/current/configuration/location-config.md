@@ -11,7 +11,7 @@ sidebar_position: 13
 
 ## מקור ההגדרה
 
-הגדרות מיקום מוגדרות בסעיף `settings.location` של `works.yaml` במאגר התוכן:
+הגדרות מיקום מוגדרות בסעיף `settings.location` של `works.yml` במאגר התוכן:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-הצורה הגולמית הנקראת מ-`works.yaml`, מוגדרת ב-`lib/types/location.ts`:
+הצורה הגולמית הנקראת מ-`works.yml`, מוגדרת ב-`lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

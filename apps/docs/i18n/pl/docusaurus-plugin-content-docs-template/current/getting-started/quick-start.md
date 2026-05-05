@@ -7,7 +7,7 @@ sidebar_position: 2
 # Szybki start
 
 ## Krok 1: Konfiguracja
-Edytuj apps/web/.content/works.yaml po pierwszej synchronizacji.
+Edytuj apps/web/.content/works.yml po pierwszej synchronizacji.
 
 ## Krok 2: Skonfiguruj repozytorium danych
 1. Utwórz fork https://github.com/ever-works/awesome-data

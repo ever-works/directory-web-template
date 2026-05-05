@@ -123,7 +123,7 @@ Konfiguracja witryny jest buforowana przy użyciu Next.js `unstable_cache` ze zd
 import { CACHE_TAGS, CACHE_TTL } from './cache-config';
 
 const getCachedConfig = unstable_cache(
-  async () => { /* read and parse works.yaml */ },
+  async () => { /* read and parse works.yml */ },
   [CACHE_TAGS.CONFIG],
   { revalidate: CACHE_TTL }
 );
@@ -214,7 +214,7 @@ Dzięki temu operacje na treści z dostępem do systemu plików nigdy nie przedo
 
 |Funkcja|Opis|
 |----------|-------------|
-|`getCachedConfig()`|Zwraca konfigurację witryny w pamięci podręcznej z `works.yaml`|
+|`getCachedConfig()`|Zwraca konfigurację witryny w pamięci podręcznej z `works.yml`|
 |`trySyncRepository()`|Klonuje lub pobiera zawartość ze zdalnego repozytorium Git|
 |`pullChanges()`|Pobiera najnowsze zmiany z rozwiązywaniem konfliktów|
 |`validateLanguageCode()`|Sprawdza format kodu języka i18n|

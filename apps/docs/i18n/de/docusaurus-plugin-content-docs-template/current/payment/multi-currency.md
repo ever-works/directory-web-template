@@ -128,7 +128,7 @@ Um das Multi-Währung-System zu testen:
 ## Wichtige Hinweise
 
 - Preis-IDs werden **zur Checkout-Zeit** aufgelöst, nicht zur Anzeigezeit
-- Die Preiskonfiguration in `content/works.yaml` hat Vorrang vor der Standardkonfiguration
+- Die Preiskonfiguration in `content/works.yml` hat Vorrang vor der Standardkonfiguration
 - Multi-Währung-Konfigurationen werden nur verwendet, wenn Umgebungsvariablen konfiguriert sind
 
 ## Integration mit Zahlungsanbietern

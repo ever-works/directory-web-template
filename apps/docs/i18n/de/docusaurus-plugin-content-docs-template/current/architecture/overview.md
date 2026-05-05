@@ -100,7 +100,7 @@ app/api/
 **Struktur**:
 ```
 .content/
-├── works.yaml      # Site configuration
+├── works.yml      # Site configuration
 ├── items/          # Item definitions
 ├── categories/     # Category definitions
 └── tags/           # Tag definitions

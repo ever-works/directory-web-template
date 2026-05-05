@@ -166,7 +166,7 @@ const isValid = validateSiteConfig();
 
 ## ConfigManager (הגדרת YAML)
 
-מחלקת `ConfigManager` ב-`lib/config-manager.ts` מנהלת את קובץ `works.yaml` ממאגר CMS מבוסס-Git. היא מטפלת בקריאה, כתיבה וקומיט של שינויי הגדרות.
+מחלקת `ConfigManager` ב-`lib/config-manager.ts` מנהלת את קובץ `works.yml` ממאגר CMS מבוסס-Git. היא מטפלת בקריאה, כתיבה וקומיט של שינויי הגדרות.
 
 ### קריאת הגדרות
 

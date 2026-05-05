@@ -73,7 +73,7 @@ Enregistrez une application dans [Microsoft Azure](https://portal.azure.com/). A
 Activé par défaut lorsqu'aucun OAuth n'est configuré. Pour activer l'authentification par identifiants :
 
 ```bash
-# Dans apps/web/.content/works.yaml
+# Dans apps/web/.content/works.yml
 auth:
   credentials: true
 ```

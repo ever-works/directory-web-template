@@ -110,7 +110,7 @@ directory-web-template/           # Raíz del monorepo
 | Archivo | Descripción |
 | ------- | ----------- |
 | `apps/web/.env.local` | Variables de entorno locales |
-| `apps/web/.content/works.yaml` | Configuración del sitio |
+| `apps/web/.content/works.yml` | Configuración del sitio |
 | `apps/web/drizzle.config.ts` | Configuración de Drizzle ORM |
 | `apps/web/next.config.ts` | Configuración de Next.js |
 | `apps/web/tailwind.config.ts` | Configuración de Tailwind CSS |

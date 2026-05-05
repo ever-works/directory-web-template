@@ -132,7 +132,7 @@ const ITEMS_EXPORT_SETTINGS_QUERIES = [
 
 	// `?env=` / `?stage=` — the obvious environment-override
 	// keys. The route reads from `getExportEnabled()` which
-	// is anchored on the host app's `works.yaml` today.
+	// is anchored on the host app's `works.yml` today.
 	'/api/items/export/settings?env=production',
 	'/api/items/export/settings?env=staging',
 	'/api/items/export/settings?stage=preview',
@@ -244,7 +244,7 @@ test.describe('API: /api/items/export/settings query-param surface', () => {
 		// `searchParams.get('token')` as a per-user override
 		// for `getExportEnabled()` would change the body
 		// shape on the per-token branch. This assertion pins
-		// the "feature flag is read from `works.yaml`, never
+		// the "feature flag is read from `works.yml`, never
 		// from the query string" invariant.
 		const baseline = await request.get('/api/items/export/settings');
 		const baselineBody = await baseline.text();
@@ -268,7 +268,7 @@ test.describe('API: /api/items/export/settings query-param surface', () => {
 	}) => {
 		// The route returns a single host-wide flag today
 		// from `getExportEnabled()` (which reads
-		// `works.yaml`). A regression that wires
+		// `works.yml`). A regression that wires
 		// `searchParams.get('tenant')` as a per-tenant
 		// override would change the body on the per-tenant
 		// branch. The unauth body must be invariant to the

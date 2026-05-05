@@ -12,7 +12,7 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 /**
  * GET /api/items/export?format=csv|xlsx
  * Public endpoint to export approved items.
- * Only available when export_enabled is true in works.yaml.
+ * Only available when export_enabled is true in works.yml.
  */
 export async function GET(request: NextRequest) {
 	try {

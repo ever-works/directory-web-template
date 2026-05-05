@@ -11,7 +11,7 @@ sidebar_position: 13
 
 ## Източник на конфигурацията
 
-Настройките за местоположение се дефинират в раздела `settings.location` на `works.yaml` в хранилището за съдържание:
+Настройките за местоположение се дефинират в раздела `settings.location` на `works.yml` в хранилището за съдържание:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-Суровата форма, прочетена от `works.yaml`, дефинирана в `lib/types/location.ts`:
+Суровата форма, прочетена от `works.yml`, дефинирана в `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

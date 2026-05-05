@@ -39,7 +39,7 @@ exports `GET` and `PATCH`. The PATCH handler combines:
    400 `{ error: 'Key is required' }`.
 5. **`configManager.updateNestedKey('settings.${key}',
    value)`** — the load-bearing config-write. Updates
-   a nested key under `settings.*` in the works.yaml
+   a nested key under `settings.*` in the works.yml
    file.
 6. **Update-failed branch** — if `success` is falsy,
    returns 500 `{ error: 'Failed to update setting' }`.

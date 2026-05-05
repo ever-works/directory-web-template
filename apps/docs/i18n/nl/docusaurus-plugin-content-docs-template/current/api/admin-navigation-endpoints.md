@@ -6,7 +6,7 @@ sidebar_label: "Admin Navigation & Location Index Endpoints"
 
 # Admin Navigatie & Locatie-index Eindpunten
 
-Deze admin-eindpunten beheren aangepaste sitenavigatie-koppelingen en de geografische locatie-index. Navigatie-eindpunten maken het mogelijk aangepaste koptekst- en voettekstkoppelingen te configureren die zijn opgeslagen in `works.yaml`. Locatie-index-eindpunten beheren de ruimtelijke index die wordt gebruikt voor geografische analyses en kaartfuncties.
+Deze admin-eindpunten beheren aangepaste sitenavigatie-koppelingen en de geografische locatie-index. Navigatie-eindpunten maken het mogelijk aangepaste koptekst- en voettekstkoppelingen te configureren die zijn opgeslagen in `works.yml`. Locatie-index-eindpunten beheren de ruimtelijke index die wordt gebruikt voor geografische analyses en kaartfuncties.
 
 ## Overzicht
 
@@ -25,7 +25,7 @@ Deze admin-eindpunten beheren aangepaste sitenavigatie-koppelingen en de geograf
 GET /api/admin/navigation
 ```
 
-Haalt de navigatie-items `custom_header` en `custom_footer` op uit het bestand `works.yaml` van de site. Geeft lege arrays terug als er geen aangepaste navigatie is geconfigureerd.
+Haalt de navigatie-items `custom_header` en `custom_footer` op uit het bestand `works.yml` van de site. Geeft lege arrays terug als er geen aangepaste navigatie is geconfigureerd.
 
 **Authenticatie:** Beheerder vereist (via `getCachedApiSession`)
 
@@ -76,7 +76,7 @@ Elk navigatie-item heeft twee velden:
 PATCH /api/admin/navigation
 ```
 
-Werkt de aangepaste koptekst- of voettekstnavigatie-items bij in `works.yaml`. Valideert het padformaat van elk item om XSS-aanvallen via gevaarlijke URL-schema's te voorkomen.
+Werkt de aangepaste koptekst- of voettekstnavigatie-items bij in `works.yml`. Valideert het padformaat van elk item om XSS-aanvallen via gevaarlijke URL-schema's te voorkomen.
 
 **Authenticatie:** Beheerder vereist
 
@@ -252,7 +252,7 @@ Voert beheeracties uit op de locatie-index. Ondersteunt het opnieuw opbouwen van
 ## Belangrijke Implementatiedetails
 
 - **XSS-preventie:** Navigatiepadvalidatie wijst alle URL-schema's af behalve `/`, `http://` en `https://`. Dit blokkeert `javascript:`, `data:`, `vbscript:` en protocol-relatieve URL's (`//evil.com`) die kunnen worden gebruikt voor cross-site scripting.
-- **Configuratieopslag:** Navigatie-items worden opgeslagen in `works.yaml` onder de sleutels `custom_header` en `custom_footer`, bewaard via `configManager.updateNestedKey()`.
+- **Configuratieopslag:** Navigatie-items worden opgeslagen in `works.yml` onder de sleutels `custom_header` en `custom_footer`, bewaard via `configManager.updateNestedKey()`.
 - **i18n-labels:** Navigatielabels kunnen platte tekst of vertaalsleutels zijn (bijv. `"footer.PRIVACY_POLICY"`). De frontend is verantwoordelijk voor het omzetten van vertaalsleutels.
 - **Herbouwen locatie-index:** De herbouwbewerking laadt alle items uit de `ItemRepository` en geeft ze door aan de locatie-indexservice. Dit kan een resource-intensieve bewerking zijn voor grote datasets.
 - **Cache-invalidatie:** Locatie-index-eindpunten schakelen alle caching expliciet uit om ervoor te zorgen dat het beheerdashboard altijd actuele gegevens weergeeft.

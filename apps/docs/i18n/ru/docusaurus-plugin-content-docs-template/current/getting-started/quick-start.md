@@ -7,7 +7,7 @@ sidebar_position: 2
 # Быстрый старт
 
 ## Шаг 1: Настройка
-Отредактируйте apps/web/.content/works.yaml после первой синхронизации.
+Отредактируйте apps/web/.content/works.yml после первой синхронизации.
 
 ## Шаг 2: Настройте репозиторий данных
 1. Сделайте форк https://github.com/ever-works/awesome-data

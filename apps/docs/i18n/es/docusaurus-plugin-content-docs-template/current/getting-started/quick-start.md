@@ -13,7 +13,7 @@ sidebar_position: 3
 
 ### Configurar los ajustes del sitio
 
-Edita `apps/web/.content/works.yaml` (este archivo se creará después de la primera sincronización):
+Edita `apps/web/.content/works.yml` (este archivo se creará después de la primera sincronización):
 
 ```yaml
 # Configuración básica del sitio

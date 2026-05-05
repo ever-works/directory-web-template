@@ -7,7 +7,7 @@ sidebar_position: 23
 
 # Points de terminaison Admin – Paramètres
 
-L'API des paramètres admin fournit des points de terminaison pour lire et modifier la configuration du site stockée dans `works.yaml`. Cela inclut les paramètres généraux et l'état du fournisseur de carte. Tous les points de terminaison requièrent une authentification administrateur.
+L'API des paramètres admin fournit des points de terminaison pour lire et modifier la configuration du site stockée dans `works.yml`. Cela inclut les paramètres généraux et l'état du fournisseur de carte. Tous les points de terminaison requièrent une authentification administrateur.
 
 ## Aperçu
 
@@ -23,7 +23,7 @@ L'API des paramètres admin fournit des points de terminaison pour lire et modif
 GET /api/admin/settings
 ```
 
-Récupère la section complète `settings` du fichier `works.yaml` du site.
+Récupère la section complète `settings` du fichier `works.yml` du site.
 
 **Authentification :** Admin requis (via `getCachedApiSession`)
 
@@ -43,7 +43,7 @@ Récupère la section complète `settings` du fichier `works.yaml` du site.
 }
 ```
 
-La forme exacte de l'objet `settings` dépend de la configuration `works.yaml` du site. Le point de terminaison retourne ce qui est stocké sous la clé `settings`.
+La forme exacte de l'objet `settings` dépend de la configuration `works.yml` du site. Le point de terminaison retourne ce qui est stocké sous la clé `settings`.
 
 | Statut | Condition                               |
 | ------ | --------------------------------------- |
@@ -58,7 +58,7 @@ La forme exacte de l'objet `settings` dépend de la configuration `works.yaml` d
 PATCH /api/admin/settings
 ```
 
-Met à jour une seule valeur de paramètre dans la section `settings` de `works.yaml`. La clé est automatiquement ciblée dans l'espace de noms `settings` (ex. fournir la clé `"theme"` met à jour `settings.theme` dans le fichier de configuration).
+Met à jour une seule valeur de paramètre dans la section `settings` de `works.yml`. La clé est automatiquement ciblée dans l'espace de noms `settings` (ex. fournir la clé `"theme"` met à jour `settings.theme` dans le fichier de configuration).
 
 **Authentification :** Admin requis
 
@@ -86,7 +86,7 @@ Met à jour une seule valeur de paramètre dans la section `settings` de `works.
 }
 ```
 
-La mise à jour est persistée via `configManager.updateNestedKey()`, qui modifie le fichier `works.yaml` sous-jacent. La clé est automatiquement préfixée avec `settings.` avant d'être transmise au gestionnaire de configuration.
+La mise à jour est persistée via `configManager.updateNestedKey()`, qui modifie le fichier `works.yml` sous-jacent. La clé est automatiquement préfixée avec `settings.` avant d'être transmise au gestionnaire de configuration.
 
 **Réponses d'erreur :**
 
@@ -154,7 +154,7 @@ Aucune valeur de clé réelle n'est exposée dans la réponse.
 
 Le système de paramètres est construit sur le singleton `configManager` de `lib/config-manager` :
 
-- **Stockage :** Les paramètres sont stockés dans un fichier de configuration YAML (`works.yaml`)
+- **Stockage :** Les paramètres sont stockés dans un fichier de configuration YAML (`works.yml`)
 - **Accès :** La méthode `configManager.getConfig()` lit la configuration complète
 - **Mises à jour :** La méthode `configManager.updateNestedKey()` modifie des clés imbriquées spécifiques
 - **Mise en cache :** Les sessions sont mises en cache via `getCachedApiSession()` pour les performances

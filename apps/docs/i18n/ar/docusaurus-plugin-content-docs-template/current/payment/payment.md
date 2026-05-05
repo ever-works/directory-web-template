@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### الخطوة الثانية: تكوين خطط التسعير
 
-يتم تحديد خطط التسعير في `.content/works.yaml` :
+يتم تحديد خطط التسعير في `.content/works.yml` :
 
 ```yaml
 pricing:

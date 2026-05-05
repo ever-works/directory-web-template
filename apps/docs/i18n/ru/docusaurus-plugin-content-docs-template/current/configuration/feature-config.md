@@ -173,7 +173,7 @@ const isValid = validateSiteConfig();
 
 ## ConfigManager (Конфигурация YAML)
 
-Класс `ConfigManager` в `lib/config-manager.ts` управляет файлом `works.yaml` из Git-based CMS репозитория. Он обрабатывает чтение, запись и фиксацию изменений конфигурации.
+Класс `ConfigManager` в `lib/config-manager.ts` управляет файлом `works.yml` из Git-based CMS репозитория. Он обрабатывает чтение, запись и фиксацию изменений конфигурации.
 
 ### Чтение конфигурации
 

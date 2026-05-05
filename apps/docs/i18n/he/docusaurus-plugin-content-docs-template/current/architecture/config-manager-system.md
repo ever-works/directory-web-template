@@ -9,7 +9,7 @@ sidebar_position: 41
 
 ## סקירה כללית
 
-מערכת Config Manager מספקת שתי שכבות תצורה משלימות: המחלקה **ConfigManager** (`lib/config-manager.ts`) לניהול קובץ תצורת התוכן מבוסס YAML (`works.yaml`) עם התמדה מגובת Git, ו-**ConfigService** (@@@TOK002-based) סביבת גישה ל-@@@TOK002. תצורה עם סכימות Zod. יחד הם מכסים גם הגדרות הניתנות לעריכה בזמן ריצה וגם תצורת סביבת בזמן הפריסה.
+מערכת Config Manager מספקת שתי שכבות תצורה משלימות: המחלקה **ConfigManager** (`lib/config-manager.ts`) לניהול קובץ תצורת התוכן מבוסס YAML (`works.yml`) עם התמדה מגובת Git, ו-**ConfigService** (@@@TOK002-based) סביבת גישה ל-@@@TOK002. תצורה עם סכימות Zod. יחד הם מכסים גם הגדרות הניתנות לעריכה בזמן ריצה וגם תצורת סביבת בזמן הפריסה.
 
 ## אדריכלות
 
@@ -17,14 +17,14 @@ sidebar_position: 41
 
 ### ConfigManager (מבוסס YAML, ניתן לעריכה בזמן ריצה)
 
-`lib/config-manager.ts` מנהל את הקובץ `works.yaml` בתוך הספרייה `.content/` (משובט ממאגר הנתונים). הוא קורא וכותב את תצורת YAML, ואוטומטי מתחייב ודוחף שינויים למאגר Git באמצעות `isomorphic-git`. זה משמש להגדרות שמנהלי מערכת יכולים לשנות בזמן ריצה (דפיון, ניווט, כותרת עליונה/תחתונה).
+`lib/config-manager.ts` מנהל את הקובץ `works.yml` בתוך הספרייה `.content/` (משובט ממאגר הנתונים). הוא קורא וכותב את תצורת YAML, ואוטומטי מתחייב ודוחף שינויים למאגר Git באמצעות `isomorphic-git`. זה משמש להגדרות שמנהלי מערכת יכולים לשנות בזמן ריצה (דפיון, ניווט, כותרת עליונה/תחתונה).
 
 ### ConfigService (מבוסס סביבה, מאומת אתחול)
 
 `lib/config/` מספק יחידה מאומתת של Zod הקוראת את כל משתני הסביבה בעת ההפעלה ומארגן אותם לקטעים מוקלדים: ליבה, אישור, דואר אלקטרוני, תשלום, ניתוח ואינטגרציות. זה כולל דגלי תכונה, כלי עזר לזיהוי סביבה ויצוא שניתן לטלטל עצים.
 
 ```
-config-manager.ts       --> Runtime YAML config (works.yaml)
+config-manager.ts       --> Runtime YAML config (works.yml)
 lib/config/
   index.ts              --> Barrel exports
   config-service.ts     --> Singleton ConfigService class

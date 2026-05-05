@@ -123,7 +123,7 @@ Die Site-Konfiguration wird mithilfe von Next.js `unstable_cache` mit definierte
 import { CACHE_TAGS, CACHE_TTL } from './cache-config';
 
 const getCachedConfig = unstable_cache(
-  async () => { /* read and parse works.yaml */ },
+  async () => { /* read and parse works.yml */ },
   [CACHE_TAGS.CONFIG],
   { revalidate: CACHE_TTL }
 );
@@ -214,7 +214,7 @@ Dadurch wird sichergestellt, dass Inhaltsvorgänge mit Dateisystemzugriff niemal
 
 |Funktion|Beschreibung|
 |----------|-------------|
-|`getCachedConfig()`|Gibt die zwischengespeicherte Site-Konfiguration von `works.yaml` zurück|
+|`getCachedConfig()`|Gibt die zwischengespeicherte Site-Konfiguration von `works.yml` zurück|
 |`trySyncRepository()`|Klont oder ruft Inhalte aus dem Remote-Git-Repository ab|
 |`pullChanges()`|Ruft die neuesten Änderungen mit Konfliktlösung ab|
 |`validateLanguageCode()`|Validiert das i18n-Sprachcodeformat|

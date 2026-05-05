@@ -84,7 +84,7 @@ TWITTER_CLIENT_SECRET=votre_twitter_client_secret
 
 ## Mode identifiants (e-mail/mot de passe)
 
-L'authentification par identifiants est activée par défaut. Configurez-la dans `apps/web/.content/works.yaml` :
+L'authentification par identifiants est activée par défaut. Configurez-la dans `apps/web/.content/works.yml` :
 
 ```yaml
 auth:

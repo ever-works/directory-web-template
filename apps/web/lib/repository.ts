@@ -214,7 +214,7 @@ copyright_year: ${new Date().getFullYear()}
     // Create data directory for items (prevents ENOENT errors)
     await fs.promises.mkdir(path.join(dest, 'data'), { recursive: true });
 
-    // Create a minimal works.yaml file if no supported config file exists
+    // Create a minimal works.yml file if no supported config file exists
     const configPath = getPrimaryContentConfigPath(dest);
     if (!(await hasContentConfigFile(dest))) {
       await fs.promises.writeFile(configPath, DEFAULT_CONFIG);

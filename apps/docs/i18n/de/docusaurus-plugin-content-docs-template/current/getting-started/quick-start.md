@@ -10,7 +10,7 @@ Bringen Sie Ihre Verzeichniswebsite in unter 10 Minuten zum Laufen.
 
 ## Schritt 1: Einstellungen konfigurieren
 
-Bearbeiten Sie apps/web/.content/works.yaml:
+Bearbeiten Sie apps/web/.content/works.yml:
 ```yaml
 company_name: 'Your Company'
 item_name: 'Tool'

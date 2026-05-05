@@ -97,7 +97,7 @@ import { test, expect } from '@playwright/test';
  *   4. The route exports `GET` (this spec) AND `PATCH`
  *      (out of scope here — `PATCH` updates the
  *      `custom_header` / `custom_footer` arrays in
- *      `works.yaml` with the same admin-gate posture,
+ *      `works.yml` with the same admin-gate posture,
  *      validates each item's `path` via the
  *      `isValidNavigationPath(path)` XSS-defending
  *      helper that rejects `javascript:` / `data:` /

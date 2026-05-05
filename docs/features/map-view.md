@@ -56,7 +56,7 @@ the background and writes them to the location index for fast lookup.
 
 ## Configuration
 
-Two flags drive the feature, both in your `works.yaml`:
+Two flags drive the feature, both in your `works.yml`:
 
 ```yaml
 settings:

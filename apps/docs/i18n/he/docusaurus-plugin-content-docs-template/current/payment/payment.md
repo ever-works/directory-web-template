@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### שלב 2: הגדר תוכניות תמחור
 
-תוכניות התמחור מוגדרות ב- `.content/works.yaml` שלך:
+תוכניות התמחור מוגדרות ב- `.content/works.yml` שלך:
 
 ```yaml
 pricing:

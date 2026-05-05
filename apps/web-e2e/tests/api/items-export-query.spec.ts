@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
  * surface** served by `apps/web/app/api/items/export/route.ts`.
  *
  * `GET /api/items/export` is conditionally public (gated by
- * `export_enabled` in `works.yaml` — when disabled the route returns
+ * `export_enabled` in `works.yml` — when disabled the route returns
  * `403`). When enabled it accepts a single query parameter:
  *
  *   - `format` — Zod-validated enum (`'csv' | 'xlsx'`) with `'csv'`

@@ -84,7 +84,7 @@ export interface AppConfig {
 
 /**
  * Configuration manager for the data repository config file.
- * Reads works.yaml with legacy fallbacks and writes canonical works.yaml.
+ * Reads and writes canonical works.yml.
  */
 export class ConfigManager {
 	private configPath: string;
@@ -263,7 +263,7 @@ export class ConfigManager {
 	}
 
 	/**
-	 * Commit and push works.yaml changes to Git
+	 * Commit and push works.yml changes to Git
 	 * Similar to how other git services handle commits
 	 * This method is called serially via queueGitOperation to prevent concurrent writes
 	 */
@@ -321,7 +321,7 @@ export class ConfigManager {
 				}
 			}
 
-			// Add works.yaml to git
+			// Add works.yml to git
 			await git.add({
 				fs: gitFs,
 				dir: contentPath,

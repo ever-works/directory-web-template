@@ -188,7 +188,7 @@ Warnungen werden bei fehlendem `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SITE_URL` und
 
 ## ConfigManager (YAML-Konfiguration)
 
-Die Klasse `ConfigManager` in `lib/config-manager.ts` verwaltet die Datei `works.yaml` aus dem Git-basierten CMS-Repository. Sie übernimmt das Lesen, Schreiben und Committen von Konfigurationsänderungen.
+Die Klasse `ConfigManager` in `lib/config-manager.ts` verwaltet die Datei `works.yml` aus dem Git-basierten CMS-Repository. Sie übernimmt das Lesen, Schreiben und Committen von Konfigurationsänderungen.
 
 ### Konfiguration lesen
 
@@ -239,7 +239,7 @@ Commit-Nachrichten sind kontextabhängig:
 "Update custom header navigation (5 items) - 2024-01-20T..."
 
 // Für generische Keys:
-"Update works.yaml: myKey - 2024-01-20T..."
+"Update works.yml: myKey - 2024-01-20T..."
 ```
 
 ### Sicherheit

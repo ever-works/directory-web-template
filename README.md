@@ -269,14 +269,10 @@ SEED_ADMIN_PASSWORD="a-strong-password"   # required in production
 
 > ⚠️ Security: Never commit `.env.local`. Keep your secrets safe.
 
-### Site Configuration (`apps/web/.content/works.yaml`)
+### Site Configuration (`apps/web/.content/works.yml`)
 
-The `.content/works.yaml` file controls main site settings:
-
-`works.yaml` is the canonical data repository config filename. Existing
-repositories that still have `works.yml`, `config.yaml`, or `config.yml` are
-read as fallbacks, with `works.yaml` taking precedence when multiple files
-exist.
+The `.content/works.yml` file controls main site settings. `works.yml` is the
+only supported data repository config filename.
 
 ```yaml
 company_name: Acme
@@ -329,7 +325,7 @@ custom_footer:
     - Supports internal routes, markdown pages, and external URLs
     - Supports i18n translation keys
 
-> 💡 Note: Changes in works.yaml are applied after syncing content or restarting the server.
+> 💡 Note: Changes in works.yml are applied after syncing content or restarting the server.
 
 ## Content Management System
 
@@ -366,7 +362,7 @@ This template supports different payment providers: [Stripe](https://stripe.com)
 
 ### Payment Provider Configuration
 
-The payment provider is configured in your site's config file (`apps/web/.content/works.yaml`):
+The payment provider is configured in your site's config file (`apps/web/.content/works.yml`):
 
 ```yaml
 # Payment configuration
@@ -445,7 +441,7 @@ NEXT_PUBLIC_LEMONSQUEEZY_SPONSOR_PRODUCT_ID="your-sponsor-product-id"
 
 To switch between payment providers:
 
-1. **Update works.yaml**
+1. **Update works.yml**
 
 ```yaml
 payment:
@@ -468,7 +464,7 @@ payment:
 
 The template ships a full-featured map system with a provider abstraction —
 the same components work with either **Mapbox** or **Google Maps**, picked
-via `settings.location.provider` in `works.yaml`. Items declare a
+via `settings.location.provider` in `works.yml`. Items declare a
 `location:` block in YAML; addresses are geocoded automatically in the
 background, so authors don't have to look up latitudes and longitudes by
 hand.
@@ -487,7 +483,7 @@ The view appears in two places (both opt-in):
 ### Quick configuration
 
 ```yaml
-# apps/web/.content/works.yaml
+# apps/web/.content/works.yml
 settings:
     location:
         enabled: true # turn on location features

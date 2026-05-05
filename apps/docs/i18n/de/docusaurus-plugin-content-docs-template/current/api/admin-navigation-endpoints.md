@@ -6,7 +6,7 @@ sidebar_label: "Admin Navigation & Location Index Endpoints"
 
 # Admin Navigation & Standortindex Endpunkte
 
-Diese Admin-Endpunkte verwalten benutzerdefinierte Website-Navigationslinks und den geografischen Standortindex. Navigationsendpunkte ermöglichen die Konfiguration von benutzerdefinierten Header- und Footer-Links, die in `works.yaml` gespeichert sind. Standortindex-Endpunkte verwalten den räumlichen Index, der für geografische Analysen und Kartenfunktionen verwendet wird.
+Diese Admin-Endpunkte verwalten benutzerdefinierte Website-Navigationslinks und den geografischen Standortindex. Navigationsendpunkte ermöglichen die Konfiguration von benutzerdefinierten Header- und Footer-Links, die in `works.yml` gespeichert sind. Standortindex-Endpunkte verwalten den räumlichen Index, der für geografische Analysen und Kartenfunktionen verwendet wird.
 
 ## Übersicht
 
@@ -25,7 +25,7 @@ Diese Admin-Endpunkte verwalten benutzerdefinierte Website-Navigationslinks und 
 GET /api/admin/navigation
 ```
 
-Ruft die `custom_header`- und `custom_footer`-Navigationselemente aus der `works.yaml`-Datei der Website ab. Gibt leere Arrays zurück, wenn keine benutzerdefinierte Navigation konfiguriert ist.
+Ruft die `custom_header`- und `custom_footer`-Navigationselemente aus der `works.yml`-Datei der Website ab. Gibt leere Arrays zurück, wenn keine benutzerdefinierte Navigation konfiguriert ist.
 
 **Authentifizierung:** Admin erforderlich (via `getCachedApiSession`)
 
@@ -76,7 +76,7 @@ Jedes Navigationselement hat zwei Felder:
 PATCH /api/admin/navigation
 ```
 
-Aktualisiert die benutzerdefinierten Header- oder Footer-Navigationselemente in `works.yaml`. Validiert das Pfadformat jedes Elements, um XSS-Angriffe über gefährliche URL-Schemata zu verhindern.
+Aktualisiert die benutzerdefinierten Header- oder Footer-Navigationselemente in `works.yml`. Validiert das Pfadformat jedes Elements, um XSS-Angriffe über gefährliche URL-Schemata zu verhindern.
 
 **Authentifizierung:** Admin erforderlich
 
@@ -252,7 +252,7 @@ Führt Verwaltungsaktionen am Standortindex durch. Unterstützt den Neuaufbau de
 ## Wichtige Implementierungsdetails
 
 - **XSS-Prävention:** Die Navigations-Pfadvalidierung lehnt alle URL-Schemata außer `/`, `http://` und `https://` ab. Dies blockiert `javascript:`, `data:`, `vbscript:` und protokoll-relative URLs (`//evil.com`), die für Cross-Site-Scripting verwendet werden könnten.
-- **Config-Speicherung:** Navigationselemente werden in `works.yaml` unter den Schlüsseln `custom_header` und `custom_footer` gespeichert, persistiert über `configManager.updateNestedKey()`.
+- **Config-Speicherung:** Navigationselemente werden in `works.yml` unter den Schlüsseln `custom_header` und `custom_footer` gespeichert, persistiert über `configManager.updateNestedKey()`.
 - **i18n-Labels:** Navigationslabels können entweder einfacher Text oder Übersetzungsschlüssel sein (z.B. `"footer.PRIVACY_POLICY"`). Das Frontend ist für die Auflösung der Übersetzungsschlüssel verantwortlich.
 - **Standortindex-Rebuild:** Die Rebuild-Operation lädt alle Elemente aus dem `ItemRepository` und übergibt sie an den Standortindexdienst. Dies kann eine ressourcenintensive Operation für große Datensätze sein.
 - **Cache-Busting:** Standortindex-Endpunkte deaktivieren explizit das gesamte Caching, um sicherzustellen, dass das Admin-Dashboard immer aktuelle Daten anzeigt.

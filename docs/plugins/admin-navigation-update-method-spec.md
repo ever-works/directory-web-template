@@ -50,7 +50,7 @@ exports `GET` and `PATCH`. The PATCH handler combines:
    The first PATCH smoke with a per-item XSS-
    prevention validation in a loop.
 8. **`configManager.updateNestedKey(key, items)`**
-   — the load-bearing works.yaml write. `key` is
+   — the load-bearing works.yml write. `key` is
    `'custom_header'` or `'custom_footer'` based on
    `type`.
 9. **Update-failed branch** — if `success` is

@@ -9,7 +9,7 @@ sidebar_position: 41
 
 ## 概述
 
-Config Manager 系统提供两个互补的配置层：**ConfigManager** 类 (`lib/config-manager.ts`)，用于通过 Git 支持的持久性管理基于 YAML 的内容配置文件 (`works.yaml`)，以及 **ConfigService** (`lib/config/`)，用于使用 Zod 模式验证和访问基于环境变量的应用程序配置。它们一起涵盖了运行时可编辑设置和部署时环境配置。
+Config Manager 系统提供两个互补的配置层：**ConfigManager** 类 (`lib/config-manager.ts`)，用于通过 Git 支持的持久性管理基于 YAML 的内容配置文件 (`works.yml`)，以及 **ConfigService** (`lib/config/`)，用于使用 Zod 模式验证和访问基于环境变量的应用程序配置。它们一起涵盖了运行时可编辑设置和部署时环境配置。
 
 ## 建筑
 
@@ -17,14 +17,14 @@ Config Manager 系统提供两个互补的配置层：**ConfigManager** 类 (`li
 
 ### ConfigManager（基于 YAML，运行时可编辑）
 
-`lib/config-manager.ts` 管理`.content/` 目录（从数据存储库克隆）内的`works.yaml` 文件。它读取和写入 YAML 配置，并使用 `isomorphic-git` 自动提交更改并将更改推送到 Git 存储库。这用于管理员可以在运行时更改的设置（分页、导航、页眉/页脚）。
+`lib/config-manager.ts` 管理`.content/` 目录（从数据存储库克隆）内的`works.yml` 文件。它读取和写入 YAML 配置，并使用 `isomorphic-git` 自动提交更改并将更改推送到 Git 存储库。这用于管理员可以在运行时更改的设置（分页、导航、页眉/页脚）。
 
 ### ConfigService（基于环境，启动验证）
 
 `lib/config/` 提供了一个经过 Zod 验证的单例，它在启动时读取所有环境变量并将它们组织成类型部分：核心、身份验证、电子邮件、支付、分析和集成。它包括功能标志、环境检测实用程序和可摇树导出。
 
 ```
-config-manager.ts       --> Runtime YAML config (works.yaml)
+config-manager.ts       --> Runtime YAML config (works.yml)
 lib/config/
   index.ts              --> Barrel exports
   config-service.ts     --> Singleton ConfigService class
