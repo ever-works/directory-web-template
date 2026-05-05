@@ -36,7 +36,7 @@ import { test, expect } from '@playwright/test';
  *   5. **`configManager.updateNestedKey(\`settings.
  *      ${key}\`, value)`** — the load-bearing config-
  *      write. Updates a nested key under `settings.*`
- *      in the config.yml file.
+ *      in the works.yml file.
  *   6. **Update-failed branch** — if `success` is
  *      falsy, returns 500 `{ error: 'Failed to update
  *      setting' }`.
@@ -52,7 +52,7 @@ import { test, expect } from '@playwright/test';
  *
  * Where the immediately-preceding `admin-categories-
  * git-create-body.spec.ts` walks a Git-CMS-write POST,
- * this spec walks a config.yml-write PATCH — a
+ * this spec walks a works.yml-write PATCH — a
  * complementary surface that no prior admin-tree
  * smoke spec covers.
  */
@@ -90,7 +90,7 @@ const ADMIN_SETTINGS_UPDATE_BODIES = [
 	{ data: { key: '' }, label: 'empty key (would 400 (req-key) if reachable)' },
 	{ data: { key: null }, label: 'null key (would 400 (req-key) if reachable)' },
 
-	// Valid bodies (would commit to config.yml if reachable).
+	// Valid bodies (would commit to works.yml if reachable).
 	{ data: { key: 'maxItemsPerPage', value: 50 }, label: 'numeric value' },
 	{ data: { key: 'siteName', value: 'New Site Name' }, label: 'string value' },
 	{ data: { key: 'enableComments', value: true }, label: 'boolean true value' },
@@ -254,7 +254,7 @@ test.describe('API: /api/admin/settings PATCH body / header surface', () => {
 	test(`PATCH ${SETTINGS_PATH} configManager update is NOT entered on the unauth branch`, async ({ request }) => {
 		// On the auth branch with valid body,
 		// `configManager.updateNestedKey('settings.${key}',
-		// value)` writes to config.yml. The unauth branch
+		// value)` writes to works.yml. The unauth branch
 		// must NEVER reach this call. The success branch's
 		// `key` and `value` echoes must NEVER appear in
 		// the unauth response.

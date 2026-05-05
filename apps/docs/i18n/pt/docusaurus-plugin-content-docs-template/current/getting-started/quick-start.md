@@ -7,7 +7,7 @@ sidebar_position: 2
 # Início Rápido
 
 ## Passo 1: Configurar
-Edite apps/web/.content/config.yml após o primeiro sync.
+Edite apps/web/.content/works.yml após o primeiro sync.
 
 ## Passo 2: Configurar o Repositório de Dados
 1. Faça um fork de https://github.com/ever-works/awesome-data

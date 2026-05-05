@@ -6,7 +6,7 @@ sidebar_label: "Admin Settings Endpoints"
 
 # Admin Instellingen Eindpunten
 
-De admin-instellingen API biedt eindpunten voor het lezen en wijzigen van siteconfiguratie opgeslagen in `config.yml`. Dit omvat algemene instellingen en de status van kaartproviders. Alle eindpunten vereisen beheerdersauthenticatie.
+De admin-instellingen API biedt eindpunten voor het lezen en wijzigen van siteconfiguratie opgeslagen in `works.yml`. Dit omvat algemene instellingen en de status van kaartproviders. Alle eindpunten vereisen beheerdersauthenticatie.
 
 ## Overzicht
 
@@ -22,7 +22,7 @@ De admin-instellingen API biedt eindpunten voor het lezen en wijzigen van siteco
 GET /api/admin/settings
 ```
 
-Haalt de volledige `settings`-sectie op uit het bestand `config.yml` van de site.
+Haalt de volledige `settings`-sectie op uit het bestand `works.yml` van de site.
 
 **Authenticatie:** Beheerder vereist (via `getCachedApiSession`)
 
@@ -42,7 +42,7 @@ Haalt de volledige `settings`-sectie op uit het bestand `config.yml` van de site
 }
 ```
 
-De exacte vorm van het `settings`-object is afhankelijk van de configuratie in `config.yml`. Het eindpunt geeft alles terug wat is opgeslagen onder de sleutel `settings`.
+De exacte vorm van het `settings`-object is afhankelijk van de configuratie in `works.yml`. Het eindpunt geeft alles terug wat is opgeslagen onder de sleutel `settings`.
 
 | Status | Voorwaarde |
 |---|---|
@@ -57,7 +57,7 @@ De exacte vorm van het `settings`-object is afhankelijk van de configuratie in `
 PATCH /api/admin/settings
 ```
 
-Werkt een enkele instellingswaarde bij binnen de sectie `settings` van `config.yml`. De sleutel wordt automatisch beperkt tot de naamruimte `settings` (bijv. sleutel `"theme"` opgeven werkt `settings.theme` bij in het configuratiebestand).
+Werkt een enkele instellingswaarde bij binnen de sectie `settings` van `works.yml`. De sleutel wordt automatisch beperkt tot de naamruimte `settings` (bijv. sleutel `"theme"` opgeven werkt `settings.theme` bij in het configuratiebestand).
 
 **Authenticatie:** Beheerder vereist
 
@@ -85,7 +85,7 @@ Werkt een enkele instellingswaarde bij binnen de sectie `settings` van `config.y
 }
 ```
 
-De update wordt bewaard via `configManager.updateNestedKey()`, dat het onderliggende bestand `config.yml` wijzigt. De sleutel wordt automatisch voorafgegaan door `settings.` voordat het wordt doorgegeven aan de configuratiebeheerder.
+De update wordt bewaard via `configManager.updateNestedKey()`, dat het onderliggende bestand `works.yml` wijzigt. De sleutel wordt automatisch voorafgegaan door `settings.` voordat het wordt doorgegeven aan de configuratiebeheerder.
 
 **Foutantwoorden:**
 

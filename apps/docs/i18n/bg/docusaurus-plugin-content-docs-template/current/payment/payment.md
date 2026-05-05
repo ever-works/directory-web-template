@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### Стъпка 2: Конфигурирайте ценови планове
 
-Ценовите планове са определени във вашия `.content/config.yml` :
+Ценовите планове са определени във вашия `.content/works.yml` :
 
 ```yaml
 pricing:

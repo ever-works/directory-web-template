@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### Paso 2: Configurar planes de precios
 
-Los planes de precios están definidos en tu `.content/config.yml` :
+Los planes de precios están definidos en tu `.content/works.yml` :
 
 ```yaml
 pricing:

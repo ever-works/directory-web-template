@@ -7,6 +7,7 @@ import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import { parse } from 'date-fns';
 import { dirExists, fsExists, getContentPath } from './lib';
+import { getContentConfigPaths, mergeConfigObjects } from './content-config-file';
 import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
@@ -473,9 +474,27 @@ async function getConfig() {
 		await ensureContentAvailable();
 
 		const contentPath = getContentPath();
-		const configPath = path.join(contentPath, 'config.yml');
-		const raw = await safeReadFile(configPath, contentPath);
-		return yaml.parse(raw) as Config;
+		let mergedConfig: Record<string, unknown> | null = null;
+
+		for (const configPath of getContentConfigPaths(contentPath).reverse()) {
+			try {
+				const raw = await safeReadFile(configPath, contentPath);
+				const parsed = yaml.parse(raw);
+
+				if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+					throw new Error(`${path.basename(configPath)} must contain a YAML object at the root`);
+				}
+
+				mergedConfig = mergeConfigObjects(mergedConfig ?? {}, parsed as Record<string, unknown>);
+			} catch (err) {
+				if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+					continue;
+				}
+				throw err;
+			}
+		}
+
+		return (mergedConfig ?? {}) as Config;
 	} catch (err) {
 		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
 			return {};

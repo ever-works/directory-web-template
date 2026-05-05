@@ -92,11 +92,11 @@ When location settings are not configured, the following defaults are used:
 
 ### No Loading State
 
-Unlike hooks that fetch data from an API, `useLocationSettings` reads directly from the `SettingsProvider` React context. This context is populated during server-side rendering from the application's `config.yml` file, so the data is available on first render. The `loading: false` and `error: null` return values exist for API parity with other settings hooks (e.g., `useHeaderSettings`, `useFooterSettings`), allowing consumers to use a consistent pattern.
+Unlike hooks that fetch data from an API, `useLocationSettings` reads directly from the `SettingsProvider` React context. This context is populated during server-side rendering from the application's `works.yml` file, so the data is available on first render. The `loading: false` and `error: null` return values exist for API parity with other settings hooks (e.g., `useHeaderSettings`, `useFooterSettings`), allowing consumers to use a consistent pattern.
 
 ### Settings Source
 
-The settings originate from the `settings.location` section of `config.yml`, which is parsed from snake_case YAML keys (e.g., `distance_filter_enabled`) into camelCase runtime properties (e.g., `distanceFilterEnabled`) by the `mapLocationConfigToRuntime` utility.
+The settings originate from the `settings.location` section of `works.yml`, which is parsed from snake_case YAML keys (e.g., `distance_filter_enabled`) into camelCase runtime properties (e.g., `distanceFilterEnabled`) by the `mapLocationConfigToRuntime` utility.
 
 ## Usage Examples
 

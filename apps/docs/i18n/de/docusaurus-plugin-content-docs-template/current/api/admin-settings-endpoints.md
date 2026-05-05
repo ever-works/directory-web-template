@@ -30,7 +30,7 @@ Die Einstellungs-API ermöglicht Administratoren das Lesen und Aktualisieren der
 GET /api/admin/settings
 ```
 
-Gibt das gesamte Einstellungsobjekt aus `config.yml` zurück. Sensible Schlüssel werden maskiert oder ausgeschlossen.
+Gibt das gesamte Einstellungsobjekt aus `works.yml` zurück. Sensible Schlüssel werden maskiert oder ausgeschlossen.
 
 **Antwort (200):**
 
@@ -71,7 +71,7 @@ Gibt das gesamte Einstellungsobjekt aus `config.yml` zurück. Sensible Schlüsse
 PATCH /api/admin/settings
 ```
 
-Aktualisiert einen einzelnen verschachtelten Konfigurationsschlüssel unter Verwendung von Punkt-Notation. Intern wird `configManager.updateNestedKey(key, value)` aufgerufen, das die Änderung in `config.yml` schreibt und den In-Memory-Konfigurationscache neu lädt.
+Aktualisiert einen einzelnen verschachtelten Konfigurationsschlüssel unter Verwendung von Punkt-Notation. Intern wird `configManager.updateNestedKey(key, value)` aufgerufen, das die Änderung in `works.yml` schreibt und den In-Memory-Konfigurationscache neu lädt.
 
 **Anfragekörper:**
 
@@ -151,7 +151,7 @@ GET /api/admin/settings/map-status
 | `401` | Authentifizierung erforderlich |
 | `403` | Admin-Rechte erforderlich |
 | `404` | Einstellungsschlüssel nicht gefunden |
-| `500` | Fehler beim Schreiben in `config.yml` |
+| `500` | Fehler beim Schreiben in `works.yml` |
 
 ## Verwandte Dokumentation
 
