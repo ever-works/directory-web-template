@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { Button } from "@heroui/react";
 import { CheckCircle, XCircle, Trash2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -81,67 +80,66 @@ export function BulkActionBar({
 			{/* Action buttons */}
 			<div className="flex items-center gap-1.5">
 				{/* Approve button */}
-				<Button
-					size="sm"
-					color="success"
-					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
-					onPress={onApprove}
-					isDisabled={!canApproveOrReject || isProcessing}
+				<button
+					type="button"
+					onClick={onApprove}
+					disabled={!canApproveOrReject || isProcessing}
 					className={cn(
-						"text-xs font-medium",
-						!canApproveOrReject && "opacity-40 cursor-not-allowed"
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"focus:outline-none focus:ring-2 focus:ring-offset-1",
+						canApproveOrReject && !isProcessing
+							? "bg-green-600 hover:bg-green-700 text-white shadow-sm shadow-green-500/20 focus:ring-green-500"
+							: "bg-gray-100 dark:bg-white/6 text-gray-400 dark:text-gray-500 opacity-50 cursor-not-allowed"
 					)}
-					startContent={
-						processingAction === "approve" ? (
-							<Loader2 className="w-3.5 h-3.5 animate-spin" />
-						) : (
-							<CheckCircle className="w-3.5 h-3.5" />
-						)
-					}
 				>
+					{processingAction === "approve" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<CheckCircle className="w-3.5 h-3.5" />
+					)}
 					{t("BULK_APPROVE")}
-				</Button>
+				</button>
 
 				{/* Reject button */}
-				<Button
-					size="sm"
-					color="warning"
-					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
-					onPress={onReject}
-					isDisabled={!canApproveOrReject || isProcessing}
+				<button
+					type="button"
+					onClick={onReject}
+					disabled={!canApproveOrReject || isProcessing}
 					className={cn(
-						"text-xs font-medium",
-						!canApproveOrReject && "opacity-40 cursor-not-allowed"
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"focus:outline-none focus:ring-2 focus:ring-offset-1",
+						canApproveOrReject && !isProcessing
+							? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20 focus:ring-orange-500"
+							: "bg-gray-100 dark:bg-white/6 text-gray-400 dark:text-gray-500 opacity-50 cursor-not-allowed"
 					)}
-					startContent={
-						processingAction === "reject" ? (
-							<Loader2 className="w-3.5 h-3.5 animate-spin" />
-						) : (
-							<XCircle className="w-3.5 h-3.5" />
-						)
-					}
 				>
+					{processingAction === "reject" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<XCircle className="w-3.5 h-3.5" />
+					)}
 					{t("BULK_REJECT")}
-				</Button>
+				</button>
 
 				{/* Delete button */}
-				<Button
-					size="sm"
-					color="danger"
-					variant="solid"
-					onPress={onDelete}
-					isDisabled={isProcessing}
-					className="text-xs font-medium"
-					startContent={
-						processingAction === "delete" ? (
-							<Loader2 className="w-3.5 h-3.5 animate-spin" />
-						) : (
-							<Trash2 className="w-3.5 h-3.5" />
-						)
-					}
+				<button
+					type="button"
+					onClick={onDelete}
+					disabled={isProcessing}
+					className={cn(
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-500/20",
+						"focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1",
+						"disabled:opacity-50 disabled:cursor-not-allowed"
+					)}
 				>
+					{processingAction === "delete" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<Trash2 className="w-3.5 h-3.5" />
+					)}
 					{t("BULK_DELETE")}
-				</Button>
+				</button>
 			</div>
 
 			{/* Divider */}

@@ -270,11 +270,11 @@ export function MultiStepItemForm({
   return (
     <div className="bg-white dark:bg-[#0a0a0a] rounded-2xl shadow-2xl border border-gray-200 dark:border-white/6 overflow-hidden">
       {/* Header */}
-      <div className="bg-linear-to-r from-theme-primary to-theme-accent px-6 py-4">
-        <h2 className="text-xl font-bold text-white">
+      <div className="dark:bg-white/6 bg-white px-6 py-4">
+        <h2 className="text-base font-bold text-white">
           {mode === 'create' ? t('TITLE_CREATE') : t('TITLE_EDIT')}
         </h2>
-        <p className="text-white/80 text-sm mt-1">
+        <p className="text-white/80 text-xs mt-1">
           {mode === 'create' ? t('SUBTITLE_CREATE') : t('SUBTITLE_EDIT')}
         </p>
       </div>

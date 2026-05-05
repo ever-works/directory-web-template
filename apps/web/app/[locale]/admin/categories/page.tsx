@@ -343,11 +343,11 @@ export default function AdminCategoriesPage() {
 										{t('ID_LABEL')} {category.id}
 									</p>
 								</div>
-								<div className="flex items-center gap-1.5 pt-1 border-t border-gray-50 dark:border-white/4">
+								<div className="flex items-center gap-4 pt-1 border-t border-gray-50 dark:border-white/4">
 									<button
 										type="button"
 										onClick={() => openEditForm(category)}
-										className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+										className="flex cursor-pointer items-center gap-1.5 px-0 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
 									>
 										<Edit className="w-3.5 h-3.5" />
 										{t('EDIT_CATEGORY')}
@@ -356,7 +356,7 @@ export default function AdminCategoriesPage() {
 										type="button"
 										disabled={isSubmitting}
 										onClick={() => handleDelete(category.id)}
-										className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
+										className="flex cursor-pointer items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
 									>
 										<Trash2 className="w-3.5 h-3.5" />
 										{t('DELETE')}
