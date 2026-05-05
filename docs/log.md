@@ -33,6 +33,45 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/admin-categories-all-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/admin-categories-all-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-categories-all-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/admin/categories/all/route.ts` --
+  the **first Git-CMS-backed admin-tree query smoke**
+  the docs tree ever published, previously covered
+  indirectly via the `client-trash-page-object.md`
+  co-tenant cross-link and called out repeatedly from
+  the sibling `admin-tags-all-query-spec.md` without
+  a dedicated landing page of its own. The
+  categories-all route is the **no-defensive-narrowing
+  Git-CMS sibling** of the tags-all route: same
+  `auth()` + `!isAdmin` admin gate, same
+  `getCachedItems({ lang })` Git-CMS reader, same bare
+  `{ success: false, error: 'Unauthorized' }` 401
+  envelope, but **NO defensive
+  `typeof locale !== 'string'` narrowing** (the only
+  Git-CMS-backed admin-tree route that omits the
+  dead-branch validator). New page documents the
+  cross-route Git-CMS-vs-DB matrix (this route vs
+  `/api/admin/tags/all` vs `/api/admin/categories/git`
+  vs `/api/admin/categories` vs `/api/admin/tags`),
+  the at-a-glance scenario tree (~50-path bulk-loop
+  walk + 11 hand-written invariants including
+  path-traversal-resistance and cache-bust-resistance
+  invariants distinct from the tags-all sibling), the
+  cross-references to the two Git-CMS siblings + two
+  DB-backed siblings + GitHub-API-backed sibling +
+  page-object driver + co-tenant page-object driver,
+  and the Spec 010 / Spec 009 governance anchors.
+  Matching `docs/index.md` entry added at the top of
+  the per-source-file rollout list (above the
+  `client-items-id-restore-method-spec` entry from
+  the previous run). The corresponding e2e spec file
+  is unchanged -- this run lands the docs landing
+  page that was missing.
 - `apps/web-e2e` `docs/plugins` `docs/index`
   Added a per-source-file e2e spec
   [`apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-id-restore-method.spec.ts)
