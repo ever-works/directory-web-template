@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Tag, Eye, AlertTriangle, Settings } from 'lucide-react';
+import { Plus, Edit, Trash2, Tag, Eye, AlertTriangle, Settings, LayoutGrid, List } from 'lucide-react';
 import { TagForm } from '@/components/admin/tags/tag-form';
 import { TagData } from '@/lib/types/tag';
 import { UniversalPagination } from '@/components/universal-pagination';
@@ -20,6 +20,7 @@ export default function AdminTagsPage() {
 	const { isInitialLoad } = useNavigation();
 	const [currentPage, setCurrentPage] = useState(1);
 
+	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
 	const [selectedTag, setSelectedTag] = useState<TagData | undefined>();
@@ -278,34 +279,115 @@ export default function AdminTagsPage() {
 			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
 				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
 					<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('TAGS_TABLE_TITLE')}</h3>
-					<span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-						{t('TAGS_TOTAL_COUNT', { total: totalTags })}
-					</span>
-				</div>
-
-				<div className="divide-y divide-gray-50 dark:divide-white/4">
-					{!tagsData?.tags?.length ? (
-						<div className="flex flex-col items-center justify-center px-6 py-20 text-center">
-							<div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
-								<Tag className="w-6 h-6 text-gray-400 dark:text-gray-500" />
-							</div>
-							<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">
-								{t('NO_TAGS_FOUND')}
-							</h3>
-							<p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-6">
-								{t('NO_TAGS_DESCRIPTION')}
-							</p>
+					<div className="flex items-center gap-3">
+						<span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+							{t('TAGS_TOTAL_COUNT', { total: totalTags })}
+						</span>
+						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
 							<button
 								type="button"
-								onClick={openCreateModal}
-								className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
+								onClick={() => setViewMode('grid')}
+								className={cn(
+									'p-1.5 rounded-md transition-colors',
+									viewMode === 'grid'
+										? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+										: 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+								)}
+								title="Grid view"
 							>
-								<Plus className="w-4 h-4" />
-								{t('CREATE_TAG')}
+								<LayoutGrid className="w-3.5 h-3.5" />
+							</button>
+							<button
+								type="button"
+								onClick={() => setViewMode('list')}
+								className={cn(
+									'p-1.5 rounded-md transition-colors',
+									viewMode === 'list'
+										? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+										: 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+								)}
+								title="List view"
+							>
+								<List className="w-3.5 h-3.5" />
 							</button>
 						</div>
-					) : (
-						tagsData.tags.map((tag) => (
+					</div>
+				</div>
+
+				{!tagsData?.tags?.length ? (
+					<div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+						<div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
+							<Tag className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+						</div>
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">
+							{t('NO_TAGS_FOUND')}
+						</h3>
+						<p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-6">
+							{t('NO_TAGS_DESCRIPTION')}
+						</p>
+						<button
+							type="button"
+							onClick={openCreateModal}
+							className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
+						>
+							<Plus className="w-4 h-4" />
+							{t('CREATE_TAG')}
+						</button>
+					</div>
+				) : viewMode === 'grid' ? (
+					<div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+						{tagsData.tags.map((tag) => (
+							<div
+								key={tag.id}
+								className="group relative flex flex-col gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/6 bg-white dark:bg-white/2 hover:border-gray-200 dark:hover:border-white/10 hover:shadow-sm transition-all duration-200"
+							>
+								<div className="flex items-start justify-between">
+									<div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/8 flex items-center justify-center text-gray-500 dark:text-gray-400 shrink-0">
+										<Tag className="w-4 h-4" />
+									</div>
+									<span className={cn(
+										'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset',
+										tag.isActive
+											? 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
+											: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
+									)}>
+										<span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
+										{tag.isActive ? t('ACTIVE') : t('INACTIVE')}
+									</span>
+								</div>
+								<div className="flex-1 min-w-0">
+									<h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1">
+										{tag.name}
+									</h4>
+									<p className="text-[11px] text-gray-400 dark:text-gray-500 font-mono truncate">
+										ID: {tag.id}
+									</p>
+								</div>
+								<div className="flex items-center gap-1.5 pt-1 border-t border-gray-50 dark:border-white/4">
+									<button
+										type="button"
+										onClick={() => openEditModal(tag)}
+										className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+									>
+										<Edit className="w-3.5 h-3.5" />
+										Edit
+									</button>
+									<button
+										type="button"
+										disabled={deletingTagId === tag.id}
+										onClick={() => handleDeleteTag(tag.id)}
+										className="flex-1 inline-flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors disabled:opacity-50"
+									>
+										<Trash2 className="w-3.5 h-3.5" />
+										Delete
+									</button>
+								</div>
+							</div>
+						))}
+					</div>
+				) : (
+					<div className="divide-y divide-gray-50 dark:divide-white/4">
+						{tagsData.tags.map((tag) => (
 							<div
 								key={tag.id}
 								className="group flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-white/2.5 transition-colors duration-150"
@@ -355,9 +437,9 @@ export default function AdminTagsPage() {
 									</button>
 								</div>
 							</div>
-						))
-					)}
-				</div>
+						))}
+					</div>
+				)}
 
 				{tagsData && tagsData.totalPages > 1 && (
 					<div className="p-4 border-t border-gray-100 dark:border-white/6">

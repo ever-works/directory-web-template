@@ -12,7 +12,7 @@ import { ItemListSorting, SortField, SortOrder } from "@/components/admin/items/
 import { ItemActionsMenu } from "@/components/admin/items/item-actions-menu";
 import { ItemData, CreateItemRequest, UpdateItemRequest, ITEM_STATUS_COLORS } from "@/lib/types/item";
 import { UniversalPagination } from "@/components/universal-pagination";
-import { Plus, Package, Clock, CheckCircle, XCircle, Star, Loader2, Folder, Tag as TagIcon, Hash, Link2, Calendar } from "lucide-react";
+import { Plus, Package, Clock, CheckCircle, XCircle, Star, Loader2, Folder, Tag as TagIcon, Hash, Link2, Calendar, LayoutGrid, List, X, ExternalLink, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/utils/slug";
 import { useAdminItems } from "@/hooks/use-admin-items";
@@ -196,6 +196,9 @@ export default function AdminItemsPage() {
   }, [isLoading]);
 
   const showSkeleton = isLoading && !hasLoadedOnce.current;
+
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [previewItem, setPreviewItem] = useState<ItemData | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
@@ -410,7 +413,7 @@ export default function AdminItemsPage() {
   const getStatusColor = (status: string) => {
     const color = ITEM_STATUS_COLORS[status as keyof typeof ITEM_STATUS_COLORS] || 'gray';
     const statusClasses = {
-      gray: { bg: 'bg-gray-100 dark:bg-white/[0.02]', text: 'text-gray-800 dark:text-gray-400', border: 'border-gray-200 dark:border-white/6' },
+      gray: { bg: 'bg-gray-100 dark:bg-white/2', text: 'text-gray-800 dark:text-gray-400', border: 'border-gray-200 dark:border-white/6' },
       yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/20', text: 'text-yellow-800 dark:text-yellow-400', border: 'border-yellow-200 dark:border-yellow-700' },
       green: { bg: 'bg-green-100 dark:bg-green-900/20', text: 'text-green-800 dark:text-green-400', border: 'border-green-200 dark:border-green-700' },
       red: { bg: 'bg-red-100 dark:bg-red-900/20', text: 'text-red-800 dark:text-red-400', border: 'border-red-200 dark:border-red-700' },
@@ -587,6 +590,34 @@ export default function AdminItemsPage() {
                 onSortOrderChange={handleSortOrderChange}
                 isLoading={isFetching}
               />
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('grid')}
+                  className={cn(
+                    'p-1.5 rounded-md transition-colors',
+                    viewMode === 'grid'
+                      ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  )}
+                  title="Grid view"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={cn(
+                    'p-1.5 rounded-md transition-colors',
+                    viewMode === 'list'
+                      ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+                      : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                  )}
+                  title="List view"
+                >
+                  <List className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -602,10 +633,11 @@ export default function AdminItemsPage() {
           </div>
         )}
 
-        {/* Items List */}
+        {/* Items List / Grid */}
         <div className={cn(
-          "p-5 space-y-3 relative transition-opacity duration-200",
-          isFetching && !isLoading && "opacity-60"
+          "relative transition-opacity duration-200",
+          isFetching && !isLoading && "opacity-60",
+          viewMode === 'list' ? "p-5 space-y-3" : "p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"
         )}>
           {isFetching && !isLoading && (
             <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
@@ -623,6 +655,115 @@ export default function AdminItemsPage() {
             const isProcessingThisItem = (pendingItemId === item.id && (isApproving || isRejecting || isDeleting)) || isDuplicatingThisItem;
             const isSelected = selectedIds.has(item.id);
 
+            if (viewMode === 'grid') {
+              return (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "group relative flex flex-col rounded-xl border transition-all duration-200 overflow-hidden cursor-pointer",
+                    isSelected
+                      ? "bg-blue-50/50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30"
+                      : "bg-white dark:bg-white/2 border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/10 hover:shadow-sm"
+                  )}
+                  onClick={() => setPreviewItem(item)}
+                >
+                  {isProcessingThisItem && (
+                    <div className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm rounded-xl flex items-center justify-center z-20">
+                      <div className="flex flex-col items-center gap-2">
+                        <Spinner size="lg" color="primary" />
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {isApproving ? t('APPROVING') : isRejecting ? t('REJECTING') : isDuplicatingThisItem ? t('DUPLICATING') : t('DELETING')}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="p-4 flex-1 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div
+                          className="shrink-0"
+                          onClick={(e) => { e.stopPropagation(); toggleSelection(item.id); }}
+                        >
+                          <Checkbox
+                            isSelected={isSelected}
+                            onValueChange={() => toggleSelection(item.id)}
+                            aria-label={t('SELECT_ITEM', { name: item.name })}
+                            color="primary"
+                          />
+                        </div>
+                        {item.featured && <Star className="w-3.5 h-3.5 text-yellow-500 fill-current shrink-0" />}
+                      </div>
+                      <span className={cn(
+                        'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset shrink-0',
+                        statusColors.bg, statusColors.text
+                      )}>
+                        <span className={cn('w-1 h-1 rounded-full shrink-0', getStatusDotColor(item.status))} />
+                        {getStatusLabel(item.status)}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1">
+                        {item.name || t('UNTITLED')}
+                      </h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+
+                    {(categories.length > 0 || item.tags.length > 0) && (
+                      <div className="flex flex-wrap gap-1">
+                        {categories.slice(0, 2).map((cat, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400">
+                            <Folder className="w-2.5 h-2.5" />
+                            {cat}
+                          </span>
+                        ))}
+                        {item.tags.slice(0, 2).map((tag, i) => (
+                          <span key={i} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-600 dark:bg-white/6 dark:text-gray-400">
+                            <TagIcon className="w-2.5 h-2.5" />
+                            {tag}
+                          </span>
+                        ))}
+                        {(categories.length + item.tags.length) > 4 && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-100 text-gray-500 dark:bg-white/6 dark:text-gray-500">
+                            +{(categories.length + item.tags.length) - 4}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    <div className="mt-auto text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {formatDate(item.updated_at)}
+                    </div>
+                  </div>
+
+                  <div
+                    className="px-4 py-2.5 border-t border-gray-50 dark:border-white/4 flex items-center justify-end"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ItemActionsMenu
+                      item={item}
+                      onViewSource={() => handleOpenExternal(item.source_url)}
+                      onEdit={() => openEditModal(item)}
+                      onDuplicate={() => handleDuplicateItem(item)}
+                      onViewHistory={() => openHistoryModal(item)}
+                      onCreateSurvey={() => router.push(`/${params.locale}/admin/surveys/create?itemId=${encodeURIComponent(item.id)}`)}
+                      onApprove={() => handleApproveItem(item.id)}
+                      onReject={() => openRejectModal(item)}
+                      onDelete={() => handleDeleteItem(item.id)}
+                      isProcessing={isProcessingThisItem}
+                      isApproving={isApproving && pendingItemId === item.id}
+                      isRejecting={isRejecting && pendingItemId === item.id}
+                      isDeleting={isDeleting && pendingItemId === item.id}
+                      isDuplicating={isDuplicatingThisItem}
+                    />
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div
                 key={item.id}
@@ -630,7 +771,7 @@ export default function AdminItemsPage() {
                   "group relative rounded-xl border transition-all duration-200 overflow-hidden",
                   isSelected
                     ? "bg-blue-50/50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30"
-                    : "bg-white dark:bg-white/[0.02] border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/10 hover:shadow-sm"
+                    : "bg-white dark:bg-white/2 border-gray-200 dark:border-white/6 hover:border-gray-300 dark:hover:border-white/10 hover:shadow-sm"
                 )}
               >
                 {isProcessingThisItem && (
@@ -862,6 +1003,137 @@ export default function AdminItemsPage() {
         }}
         onClose={() => setBulkAction(null)}
       />
+
+      {/* Item Quick-View Popup */}
+      {previewItem && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          onClick={() => setPreviewItem(null)}
+        >
+          <div
+            className="w-full max-w-lg bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl shadow-2xl shadow-black/30 overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between p-5 border-b border-gray-100 dark:border-white/6">
+              <div className="flex items-start gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
+                  <Package className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h2 className="text-base font-semibold text-gray-900 dark:text-white truncate">
+                      {previewItem.name || t('UNTITLED')}
+                    </h2>
+                    {previewItem.featured && <Star className="w-4 h-4 text-yellow-500 fill-current shrink-0" />}
+                  </div>
+                  <span className={cn(
+                    'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset',
+                    getStatusColor(previewItem.status).bg,
+                    getStatusColor(previewItem.status).text
+                  )}>
+                    <span className={cn('w-1 h-1 rounded-full shrink-0', getStatusDotColor(previewItem.status))} />
+                    {getStatusLabel(previewItem.status)}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPreviewItem(null)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors shrink-0 ml-2"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+              {previewItem.description && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {previewItem.description}
+                </p>
+              )}
+
+              {/* Categories & Tags */}
+              {((Array.isArray(previewItem.category) ? previewItem.category : [previewItem.category]).filter(Boolean).length > 0 || previewItem.tags.length > 0) && (
+                <div className="space-y-2">
+                  {(Array.isArray(previewItem.category) ? previewItem.category : [previewItem.category]).filter(Boolean).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {(Array.isArray(previewItem.category) ? previewItem.category : [previewItem.category]).map((cat, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 ring-1 ring-inset ring-blue-100 dark:ring-blue-500/20">
+                          <Folder className="w-2.5 h-2.5" />
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {previewItem.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {previewItem.tags.map((tag, i) => (
+                        <span key={i} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-gray-100 text-gray-700 dark:bg-white/6 dark:text-gray-300 ring-1 ring-inset ring-gray-200 dark:ring-white/8">
+                          <TagIcon className="w-2.5 h-2.5" />
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Meta */}
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="space-y-0.5">
+                  <p className="text-gray-400 dark:text-gray-500 uppercase tracking-wide text-[10px] font-semibold">ID</p>
+                  <p className="text-gray-700 dark:text-gray-300 font-mono truncate">{previewItem.id}</p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-gray-400 dark:text-gray-500 uppercase tracking-wide text-[10px] font-semibold">Slug</p>
+                  <p className="text-gray-700 dark:text-gray-300 font-mono truncate">{previewItem.slug}</p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-gray-400 dark:text-gray-500 uppercase tracking-wide text-[10px] font-semibold">Updated</p>
+                  <p className="text-gray-700 dark:text-gray-300">{formatDate(previewItem.updated_at)}</p>
+                </div>
+                <div className="space-y-0.5">
+                  <p className="text-gray-400 dark:text-gray-500 uppercase tracking-wide text-[10px] font-semibold">Submitted</p>
+                  <p className="text-gray-700 dark:text-gray-300">{formatDate(previewItem.submitted_at)}</p>
+                </div>
+              </div>
+
+              {previewItem.source_url && (
+                <a
+                  href={previewItem.source_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-blue-600 dark:text-blue-400 hover:underline truncate"
+                >
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                  {previewItem.source_url}
+                </a>
+              )}
+            </div>
+
+            {/* Footer actions */}
+            <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5">
+              <button
+                type="button"
+                onClick={() => { setPreviewItem(null); openEditModal(previewItem); }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors"
+              >
+                <Edit className="w-3.5 h-3.5" />
+                Edit
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewItem(null)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Container>
   );
 }
