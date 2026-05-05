@@ -35,6 +35,53 @@ why** at a higher level than per-commit diffs.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
+  `docs/plugins/categories-exists-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/categories/exists/route.ts` --
+  the **first per-source-file GET smoke** the docs tree
+  publishes that pins a **fully public Git-CMS-backed
+  existence probe whose catch branch ALSO returns
+  `200 OK`** (NOT `500`). Distinct from every other
+  public-route per-source-file GET smoke: the
+  companion `collections-exists-query.spec.ts` (sibling
+  existence probe served from
+  `apps/web/app/api/collections/exists/route.ts`) has a
+  **catch-and-500** posture; the
+  `items-popularity-scores-query-spec.md` sibling is
+  also no-auth-gate but does NOT surface a navigation-
+  shell-degradation contract. The categories-exists
+  route is the **catch-and-200 sibling** of the
+  collections-exists route — same `{ exists, count }`
+  envelope, but the catch branch maps every thrown
+  error to a `200` with `{ exists: false, count: 0 }`
+  rather than a `500`. The distinction is load-
+  bearing: the navigation shell hits both probes on
+  every render and must degrade quietly when the
+  content layer is unavailable rather than blocking
+  the whole page. The new page documents the cross-
+  route exists-probe matrix (this route vs
+  `/api/collections/exists` vs `/api/surveys/exists`),
+  the at-a-glance scenario tree (~50-path bulk-loop
+  walk + four hand-written invariants including the
+  UNIQUE `searchParams.get('locale') || 'en'` fallback-
+  semantics walk pinning that the no-arg, the empty-
+  string `?locale=`, and the explicit-`?locale=en`
+  paths all land in the same branch and return the
+  same status), the cross-references to the catch-and-
+  500 DB-backed sibling, the surveys existence probe,
+  the Git-CMS-backed admin sibling, the DB-backed
+  admin sibling, the public-route per-source-file
+  popularity-scores spec, and the Spec 010 / Spec 005
+  governance anchors. Matching `docs/index.md` entry
+  added at the top of the per-source-file rollout list
+  (above the `admin-categories-all-query-spec` entry
+  from the previous run). The corresponding e2e spec
+  file is unchanged -- this run lands the docs landing
+  page that was missing.
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
   `docs/plugins/admin-categories-all-query-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/admin-categories-all-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-categories-all-query.spec.ts)
