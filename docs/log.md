@@ -35,6 +35,141 @@ why** at a higher level than per-commit diffs.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
+  `docs/plugins/featured-items-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/featured-items-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/featured-items-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/featured-items/route.ts` --
+  the **first per-source-file GET smoke pinning a
+  public (no-auth-gate) tenant-resolving listing
+  endpoint** combining a
+  **`Number.parseInt(searchParams.get('limit') ??
+  '6', 10)` default-`6` parse path** with explicit
+  radix-`10` (load-bearing for any caller submitting
+  a leading-`0` value that some `parseInt`
+  implementations would treat as octal), a
+  **`Math.min(Math.max(rawLimit, 1), 50)` two-sided
+  silent clamp** (the FIRST per-source-file GET
+  smoke pinning a clamp that covers BOTH endpoints
+  of a `[1, 50]` range -- distinct from
+  `items-popularity-scores`'s one-sided
+  `Math.min(parseInt(limit), 100)` upper-clamp-only,
+  AND `sponsor-ads-public`'s
+  `Math.min(Math.max(1, Math.floor(rawLimit)), 50)`
+  clamp that uses `Math.floor` instead of
+  `Number.parseInt`-based truncation), a
+  **`Number.isFinite(rawLimit)` non-finite
+  fallback** (NaN / empty / `abc` collapse to the
+  default `6`), a **strict-string
+  `searchParams.get('includeExpired') === 'true'`
+  boolean-from-string parse** (the FIRST per-
+  source-file GET smoke pinning a strict-string
+  boolean parser on a query parameter -- only the
+  literal lowercase `'true'` flips the default;
+  `?includeExpired=TRUE`, `?includeExpired=1`,
+  `?includeExpired=false`, `?includeExpired=` all
+  keep `false`), an **`await getTenantId()` tenant-
+  resolution null-short-circuit** (the FIRST per-
+  source-file GET smoke pinning a route whose null-
+  tenant branch returns the SAME `{ success: true,
+  data: [], count: 0 }` envelope as the success
+  branch and the `checkDatabaseAvailability()`
+  short-circuit -- the route does NOT 401 or 403
+  on a null tenant), an **`isActive: true` +
+  `tenantId` two-condition WHERE clause** (the
+  FIRST per-source-file GET smoke pinning a public
+  listing route that combines an `isActive` flag
+  check with a tenant-scoping check inside the
+  same `and(...)` clause; the `includeExpired`
+  parameter only affects whether the optional
+  `or(isNull(featuredItems.featuredUntil),
+  gte(featuredItems.featuredUntil, currentDate))`
+  expiration filter is appended), a **multi-key
+  composite ORDER BY** (the FIRST per-source-file
+  GET smoke pinning a Drizzle two-key composite
+  ordering `desc(featuredItems.featuredOrder),
+  desc(featuredItems.featuredAt)`), a **`{ success,
+  data, count }` three-key envelope** (the FIRST
+  per-source-file GET smoke pinning a public-
+  route success envelope that adds a `count:
+  number` cardinality key alongside `success` /
+  `data`), and a **try / catch empty-list
+  fallback (NOT 500)** (the FIRST per-source-file
+  GET smoke pinning a route that catches every
+  internal error and returns the same empty-list
+  envelope as the null-tenant branch and the
+  `checkDatabaseAvailability()` short-circuit --
+  three distinct branches all collapse onto the
+  same observable success envelope). UNIQUE: every
+  prior per-source-file public-route GET smoke
+  (`sponsor-ads-public`, `items-popularity-scores`,
+  `agent-discovery`) pins a route whose error /
+  null-state branch returns either a distinct
+  envelope or NO envelope (a 4xx); this is the
+  FIRST per-source-file GET smoke that pins a
+  route whose null-tenant branch, DB-unavailable
+  branch, AND outer-catch branch ALL collapse onto
+  the SAME `{ success: true, data: [], count: 0 }`
+  empty-list envelope. The new page documents the
+  `Number.parseInt(value ?? '6', 10)` default-`6`
+  parse path with explicit radix-`10`, the
+  `Math.min(Math.max(rawLimit, 1), 50)` two-sided
+  silent clamp, the `Number.isFinite(rawLimit)`
+  non-finite fallback, the strict-string `=== 'true'`
+  boolean-from-string parse, the `getTenantId()`
+  tenant-resolution null-short-circuit, the
+  `isActive: true` + `tenantId` two-condition
+  WHERE clause, the
+  `desc(featuredItems.featuredOrder),
+  desc(featuredItems.featuredAt)` multi-key
+  composite ORDER BY, the `{ success, data, count }`
+  three-key envelope, the try / catch empty-list
+  fallback, the at-a-glance scenario tree (one
+  query-string bulk-loop walk covering ~30
+  permutations -- no-arg baseline, valid `limit`
+  1/6/10/50, out-of-range upper `limit` 51/999/10000
+  admit-clamped to 50, out-of-range lower `limit`
+  0/-5 admit-clamped to 1, empty / `abc` / `NaN`
+  `limit` `Number.parseInt`-default fallback to
+  `'6'` and `Number.isFinite(NaN) === false`
+  non-finite branch, float `limit` 6.5/49.9
+  `Number.parseInt` integer-truncation, whitespace /
+  `+` `limit` `%2010` / `%2B10` `Number.parseInt`
+  tolerance, strict-string `includeExpired`
+  true/false/1/0/empty/TRUE pinning the
+  `=== 'true'` strict-equality check, combined
+  `limit + includeExpired`, unknown query keys
+  silently ignored, all asserting `< 500`), the
+  cross-references to the cross-cutting
+  [`items.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/items.spec.ts)
+  (also probes `GET /api/featured-items` BUT only
+  the no-arg baseline; this per-source-file spec
+  adds the **query-param surface**), the
+  neighbouring auth-gated admin sibling
+  [`admin-featured-items-id-method-spec.md`](admin-featured-items-id-method-spec.md),
+  the neighbouring admin listing sibling
+  [`admin-featured-items-create-body-spec.md`](admin-featured-items-create-body-spec.md),
+  the neighbouring popularity-scores sibling
+  [`items-popularity-scores-query-spec.md`](items-popularity-scores-query-spec.md),
+  the neighbouring sponsor-ads sibling
+  [`sponsor-ads-checkout-body-spec.md`](sponsor-ads-checkout-body-spec.md),
+  and the change protocol (update this page in the
+  same PR that touches the source spec, update
+  `docs/log.md`, run `pnpm tsc --noEmit` in
+  `apps/web-e2e`). With this entry the **per-
+  spec-file docs rollout extends to 117-of-N** and
+  the **`tests/api/` per-spec-file sub-rollout
+  extends to 114-of-many**, and the **first per-
+  source-file GET smoke pinning a public (no-auth-
+  gate) tenant-resolving featured-items listing
+  handler** lands -- pinning a tenant-resolution
+  null-short-circuit envelope shape, a two-sided
+  silent clamp, an explicit-radix `Number.parseInt`
+  parse path, a strict-string boolean parser, a
+  multi-key composite ORDER BY, a three-key
+  `{ success, data, count }` envelope, and a try /
+  catch empty-list fallback that no prior per-
+  source-file public-route GET smoke covers.
   `docs/plugins/collections-exists-query-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/collections-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/collections-exists-query.spec.ts)
