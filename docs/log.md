@@ -33,6 +33,131 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/client-geo-stats-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-geo-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-geo-stats-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/geo-stats/route.ts` --
+  the **second per-source-file GET smoke** the
+  docs tree publishes that pins a
+  **`requireClientAuth()`-gated zero-argument
+  handler** (the FIRST being the sibling
+  `client-dashboard-stats-query` spec) combining
+  a **`getClientItemRepository().
+  getGeoStatsByUser(userId)` repository-delegation
+  pattern** (NOT `getClientDashboardRepository().
+  getStats(userId)` like the sibling
+  `client-dashboard-stats-query` spec, NOT
+  `getClientItemRepository().getStatsByUser(userId)`
+  like the sibling `client-items-stats-query`
+  spec), a **spread-geo-stats success envelope
+  `{ success: true, ...geoStats }`** (matches the
+  spread-into-envelope shape pinned by
+  `client-dashboard-stats-query`), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  geographic statistics')` outer catch**, and a
+  **six-bypass-prevention assertion battery**
+  (`?userId=…` admin-impersonation, `?token=…`
+  magic-token bypass, `?admin=…` query-admin-
+  override, `?country=…` / `?city=…` / `?lat=…`
+  geographic-filter bypass, multi-permutation
+  shape stability) on top of the standard query-
+  string bulk-loop walk. UNIQUE: this is the
+  THIRD `requireClientAuth()`-gated GET smoke
+  after `client-items-stats-query` and
+  `client-dashboard-stats-query`, and the SECOND
+  zero-argument handler in the
+  `requireClientAuth()` family. The new page
+  documents the discriminated-union auth-gate
+  contract, the spread-geo-stats success envelope,
+  the `getClientItemRepository().
+  getGeoStatsByUser(userId)` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch geographic statistics')`
+  outer-catch, the six-bypass-prevention
+  assertion battery (extending the five-test
+  battery of `client-dashboard-stats-query` with
+  a geographic-filter bypass-prevention contract
+  that no prior per-source-file GET smoke covers
+  -- `?country=` / `?city=` / `?lat=` / `?lng=` /
+  `?bbox=` / `?radius=` invariance), the at-a-
+  glance scenario tree (a single query-string
+  bulk-loop walk covering ~95 permutations -- no-
+  arg baseline, admin-impersonation keys, client-
+  terminology variants, magic-auth keys,
+  geographic-filter keys (`?country=` / `?city=` /
+  `?region=` / `?area=` / `?countryCode=`),
+  service-area filter keys (`?serviceArea=` /
+  `?service_area=` / `?coverage=`), spatial-
+  filter keys (`?lat=` / `?lng=` / `?bbox=` /
+  `?radius=`), time-window keys, pagination keys
+  (including `?topN=` per-bucket pagination),
+  projection keys (including `?fields=top_cities`
+  / `?fields=top_countries,service_area_breakdown`
+  per-bucket projection), cache-busting keys,
+  content-negotiation (including `?format=geojson`
+  / `?format=kml` geographic format keys), i18n
+  keys, filter keys, sort-override keys, multi-
+  tenancy keys, admin-override keys, empty
+  values, repeated keys, special-character
+  values, 500-character long values, bogus /
+  typo'd query keys, all asserting `< 500`, plus
+  EIGHT hand-written tests pinning the canonical
+  401 envelope shape, the bogus-parameter status
+  invariance, the `?userId=…` session-gate-bypass-
+  prevention, the `?token=…` query-token-auth-
+  bypass-prevention, the `?admin=…` query-admin-
+  override-prevention, the `?country=…` /
+  `?city=…` / `?lat=…` geographic-filter-bypass-
+  prevention, and the multi-permutation shape
+  stability across three different parameter
+  sets), the cross-references to the neighbouring
+  `requireClientAuth()`-gated GET sibling
+  `client-dashboard-stats-query-spec.md` (pairs
+  with `client-dashboard-stats-query.spec.ts` and
+  pins the spread-stats `{ success: true,
+  ...stats }` shape this spec mirrors -- both
+  specs share the same `requireClientAuth()`
+  discriminated-union auth-helper return
+  contract, the same `'Unauthorized. Please sign
+  in to continue.'` longer-message TWO-key 401
+  envelope, the same zero-argument handler
+  signature, and the same spread-into-envelope
+  success-payload shape -- but diverge on which
+  repository they delegate to and on which
+  bypass-prevention assertions they pin) and the
+  neighbouring `requireClientAuth()`-gated GET
+  sibling `client-items-stats-query-spec.md`
+  (shares the `getClientItemRepository()`
+  singleton-factory with this route, but diverges
+  on which repository method it invokes
+  `getStatsByUser` vs `getGeoStatsByUser`), and
+  the change protocol (update this page in the
+  same PR that touches the source spec, update
+  `docs/log.md`, run `pnpm tsc --noEmit` in
+  `apps/web-e2e`). With this entry the **per-
+  spec-file docs rollout extends to 118-of-N**
+  and the **`tests/api/` per-spec-file sub-
+  rollout extends to 115-of-many**, and the
+  **first per-source-file GET smoke pinning a
+  `requireClientAuth()`-gated zero-argument
+  geo-stats handler** lands -- pinning a
+  discriminated-union auth-gate contract, a
+  spread-geo-stats success envelope, a
+  `getClientItemRepository().getGeoStatsByUser
+  (userId)` singleton-factory repository-
+  delegation, a `serverErrorResponse('Failed to
+  fetch geographic statistics')` outer-catch,
+  and a six-bypass-prevention assertion battery
+  that no prior per-source-file GET smoke
+  covers. NOTE: cross-references to
+  `client-dashboard-stats-query-spec.md` may
+  resolve as broken links until the parallel PR
+  #723 lands that adds the dashboard-stats
+  per-source-file landing page on develop.
+
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
