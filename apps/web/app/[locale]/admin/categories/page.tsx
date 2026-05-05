@@ -17,12 +17,12 @@ export default function AdminCategoriesPage() {
 	const t = useTranslations('admin.ADMIN_CATEGORIES_PAGE');
 	const { categoriesEnabled } = useCategoriesEnabled();
 
+	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const [currentPage, setCurrentPage] = useState(1);
-	const [limit] = useState(10);
+	const limit = viewMode === 'grid' ? 12 : 10;
 	const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
 	const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
 	const [isOpen, setIsOpen] = useState(false);
-	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
 	const {
 		categories,
@@ -266,7 +266,7 @@ export default function AdminCategoriesPage() {
 						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
 							<button
 								type="button"
-								onClick={() => setViewMode('grid')}
+								onClick={() => { setViewMode('grid'); setCurrentPage(1); }}
 								className={cn(
 									'p-1.5 rounded-md transition-colors',
 									viewMode === 'grid'
@@ -279,7 +279,7 @@ export default function AdminCategoriesPage() {
 							</button>
 							<button
 								type="button"
-								onClick={() => setViewMode('list')}
+								onClick={() => { setViewMode('list'); setCurrentPage(1); }}
 								className={cn(
 									'p-1.5 rounded-md transition-colors',
 									viewMode === 'list'
@@ -397,7 +397,7 @@ export default function AdminCategoriesPage() {
 									</div>
 								</div>
 
-								<div className="flex items-center gap-1.5 ml-14 md:ml-0 md:opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+								<div className="flex items-center gap-1.5 ml-14 md:ml-0 transition-opacity duration-150">
 									<button
 										type="button"
 										onClick={() => openEditForm(category)}

@@ -37,7 +37,8 @@ export default function AdminItemsPage() {
   const t = useTranslations('admin.ADMIN_ITEMS_PAGE');
   const router = useRouter();
   const params = useParams<{ locale: string }>();
-  const PageSize = 10;
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const PageSize = viewMode === 'grid' ? 12 : 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState<SortField>("updated_at");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -197,7 +198,6 @@ export default function AdminItemsPage() {
 
   const showSkeleton = isLoading && !hasLoadedOnce.current;
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [previewItem, setPreviewItem] = useState<ItemData | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -593,7 +593,7 @@ export default function AdminItemsPage() {
               <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
                 <button
                   type="button"
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => { setViewMode('grid'); setCurrentPage(1); }}
                   className={cn(
                     'p-1.5 rounded-md transition-colors',
                     viewMode === 'grid'
@@ -606,7 +606,7 @@ export default function AdminItemsPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setViewMode('list')}
+                  onClick={() => { setViewMode('list'); setCurrentPage(1); }}
                   className={cn(
                     'p-1.5 rounded-md transition-colors',
                     viewMode === 'list'

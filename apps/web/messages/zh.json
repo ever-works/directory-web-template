@@ -2708,6 +2708,7 @@
 			"DELETE_CONFIRMATION": "您确定要{action}此分类吗？",
 			"PERMANENTLY_DELETE": "永久删除",
 			"DEACTIVATE": "停用",
+			"DELETE": "删除",
 			"WARNING_DISABLED_TITLE": "Categories are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Categories are hidden from the public site including navigation, filters, and item pages. You can still manage categories here, but they won't be visible to users until re-enabled.",
 			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"

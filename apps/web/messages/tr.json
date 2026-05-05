@@ -2790,6 +2790,7 @@
 			"DELETE_CONFIRMATION": "Bu kategoriyi {action} istediğinizden emin misiniz?",
 			"PERMANENTLY_DELETE": "kalıcı olarak silmek",
 			"DEACTIVATE": "devre dışı bırakmak",
+			"DELETE": "Sil",
 			"WARNING_DISABLED_TITLE": "Kategoriler şu anda site genelinde devre dışı",
 			"WARNING_DISABLED_MESSAGE": "Kategoriler, gezinti, filtreler ve öğe sayfaları dahil kamuya açık siteden gizlenmiştir. Burada kategorileri yönetmeye devam edebilirsiniz, ancak yeniden etkinleştirilene kadar kullanıcılar tarafından görülemeyecektir.",
 			"WARNING_DISABLED_ACTION": "Etkinleştirmek için Ayarlara Git"

@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import type { Survey } from '@/lib/db/schema';
 import { toast } from 'sonner';
 import { ItemSelector } from './item-selector';
-import { Eye, Download } from 'lucide-react';
+import { Eye, Download, Braces, Minimize2, Loader2, Save, X, Info, ChevronDown } from 'lucide-react';
 import { ImportSurveyJsDialog } from './import-surveyjs-dialog';
 import { SurveyPreviewDialog } from './survey-preview-dialog';
-import { Button } from '@/components/ui/button';
 import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 interface SurveyFormProps {
 	survey?: Survey;
@@ -30,9 +30,51 @@ export interface SurveyFormData {
 	surveyJson: any;
 }
 
+const INPUT_BASE = cn(
+	'w-full px-3 text-sm rounded-xl',
+	'bg-white dark:bg-white/3',
+	'border border-gray-200 dark:border-white/8',
+	'text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500',
+	'focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20',
+	'transition-all duration-150',
+	'disabled:opacity-50 disabled:cursor-not-allowed'
+);
+
+function Field({
+	label,
+	required,
+	hint,
+	error,
+	children,
+}: {
+	label: string;
+	required?: boolean;
+	hint?: string;
+	error?: string;
+	children: React.ReactNode;
+}) {
+	return (
+		<div>
+			<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+				{label}
+				{required && <span className="ml-0.5 text-red-500">*</span>}
+			</label>
+			{children}
+			{error && (
+				<p className="mt-1.5 text-xs text-red-600 dark:text-red-400 flex items-center gap-1">
+					<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
+					{error}
+				</p>
+			)}
+			{!error && hint && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{hint}</p>}
+		</div>
+	);
+}
+
 export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, defaultType, defaultItemId }: SurveyFormProps) {
 	const t = useTranslations('survey');
 	const tCommon = useTranslations('common');
+
 	const [formData, setFormData] = useState<SurveyFormData>({
 		title: survey?.title || '',
 		description: survey?.description || '',
@@ -41,18 +83,11 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 		status: (survey?.status || SurveyStatusEnum.DRAFT) as SurveyStatusEnum,
 		surveyJson: survey?.surveyJson || {
 			title: '',
-			pages: [
-				{
-					name: 'page1',
-					elements: []
-				}
-			]
+			pages: [{ name: 'page1', elements: [] }]
 		}
 	});
 
-	const [jsonInput, setJsonInput] = useState(
-		JSON.stringify(formData.surveyJson, null, 2)
-	);
+	const [jsonInput, setJsonInput] = useState(JSON.stringify(formData.surveyJson, null, 2));
 	const [jsonError, setJsonError] = useState('');
 	const [showPreview, setShowPreview] = useState(false);
 	const [previewJson, setPreviewJson] = useState(formData.surveyJson);
@@ -75,11 +110,10 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 	const handleJsonChange = (value: string) => {
 		setJsonInput(value);
 		setJsonError('');
-
 		try {
 			const parsed = JSON.parse(value);
 			setFormData(prev => ({ ...prev, surveyJson: parsed }));
-			setPreviewJson(parsed); // Update preview
+			setPreviewJson(parsed);
 		} catch {
 			setJsonError(tCommon('INVALID_JSON_FORMAT'));
 		}
@@ -87,31 +121,24 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 
 	const handleFormatJson = () => {
 		try {
-			const parsed = JSON.parse(jsonInput);
-			const formatted = JSON.stringify(parsed, null, 2);
-			setJsonInput(formatted);
+			setJsonInput(JSON.stringify(JSON.parse(jsonInput), null, 2));
 			setJsonError('');
 		} catch {
-			// Silent error
+			// silent
 		}
 	};
 
 	const handleMinifyJson = () => {
 		try {
-			const parsed = JSON.parse(jsonInput);
-			const minified = JSON.stringify(parsed);
-			setJsonInput(minified);
+			setJsonInput(JSON.stringify(JSON.parse(jsonInput)));
 			setJsonError('');
 		} catch {
-			// Silent error
+			// silent
 		}
 	};
 
 	const handlePreview = () => {
-		if (jsonError) {
-			toast.error(t('FIX_JSON_ERRORS_PREVIEW'));
-			return;
-		}
+		if (jsonError) { toast.error(t('FIX_JSON_ERRORS_PREVIEW')); return; }
 		setShowPreview(true);
 	};
 
@@ -124,22 +151,9 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-
-		if (!formData.title.trim()) {
-			toast.error(t('TITLE_REQUIRED'));
-			return;
-		}
-
-		if (jsonError) {
-			toast.error(t('FIX_JSON_ERRORS'));
-			return;
-		}
-
-		if (formData.type === SurveyTypeEnum.ITEM && !formData.itemId) {
-			toast.error(t('ITEM_ID_REQUIRED'));
-			return;
-		}
-
+		if (!formData.title.trim()) { toast.error(t('TITLE_REQUIRED')); return; }
+		if (jsonError) { toast.error(t('FIX_JSON_ERRORS')); return; }
+		if (formData.type === SurveyTypeEnum.ITEM && !formData.itemId) { toast.error(t('ITEM_ID_REQUIRED')); return; }
 		try {
 			await onSubmit(formData);
 		} catch (err) {
@@ -149,221 +163,258 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 	};
 
 	return (
-		<form onSubmit={handleSubmit} className="p-6 space-y-6">
-			{/* Title */}
-			<div>
-				<label htmlFor="survey-title" className="block text-sm font-medium mb-2">
-					{tCommon('TITLE')} <span className="text-red-500">*</span>
-				</label>
-				<input
-					id="survey-title"
-					type="text"
-					value={formData.title}
-					onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
-					className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-					placeholder={t('ENTER_SURVEY_TITLE')}
-					disabled={isLoading}
-					required
-				/>
+		<form onSubmit={handleSubmit} className="divide-y divide-gray-100 dark:divide-white/6">
+			{/* ── Basic Info ─────────────────────────────────────────── */}
+			<div className="p-5 space-y-4">
+				<p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+					{tCommon('BASIC_INFO') || 'Basic Info'}
+				</p>
+
+				{/* Title */}
+				<Field label={tCommon('TITLE')} required>
+					<input
+						id="survey-title"
+						type="text"
+						value={formData.title}
+						onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+						className={cn(INPUT_BASE, 'h-10')}
+						placeholder={t('ENTER_SURVEY_TITLE')}
+						disabled={isLoading}
+						required
+					/>
+				</Field>
+
+				{/* Description */}
+				<Field label={tCommon('DESCRIPTION')}>
+					<textarea
+						id="survey-description"
+						value={formData.description}
+						onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+						className={cn(INPUT_BASE, 'py-2.5 resize-none')}
+						rows={3}
+						placeholder={t('ENTER_SURVEY_DESCRIPTION')}
+						disabled={isLoading}
+					/>
+				</Field>
 			</div>
 
-			{/* Description */}
-			<div>
-				<label htmlFor="survey-description" className="block text-sm font-medium mb-2">
-					{tCommon('DESCRIPTION')}
-				</label>
-				<textarea
-					id="survey-description"
-					value={formData.description}
-					onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-					className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-					rows={3}
-					placeholder={t('ENTER_SURVEY_DESCRIPTION')}
-					disabled={isLoading}
-				/>
-			</div>
+			{/* ── Configuration ──────────────────────────────────────── */}
+			<div className="p-5 space-y-4">
+				<p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+					{t('CONFIGURATION') || 'Configuration'}
+				</p>
 
-			{/* Type and Status Row */}
-			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				{/* Type */}
-				<div>
-					<label htmlFor="survey-type" className="block text-sm font-medium mb-2">
-						{t('SURVEY_TYPE')} <span className="text-red-500">*</span>
-					</label>
-					<select
-						id="survey-type"
-						value={formData.type}
-						onChange={(e) => {
-							const newType = e.target.value as SurveyTypeEnum;
-							setFormData(prev => ({
-								...prev,
-								type: newType,
-								itemId: newType === SurveyTypeEnum.GLOBAL ? '' : prev.itemId
-							}));
-						}}
-						className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-						disabled={isLoading || mode === 'edit'}
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					{/* Type */}
+					<Field
+						label={t('SURVEY_TYPE')}
+						required
+						hint={mode === 'edit' ? t('SURVEY_TYPE_CANNOT_BE_CHANGED') : undefined}
 					>
-						<option value={SurveyTypeEnum.GLOBAL}>{t('GLOBAL_SURVEY')}</option>
-						<option value={SurveyTypeEnum.ITEM}>{t('ITEM_SURVEY')}</option>
-					</select>
-					{mode === 'edit' && (
-						<p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-							{t('SURVEY_TYPE_CANNOT_BE_CHANGED')}
+						<div className="relative">
+							<select
+								id="survey-type"
+								value={formData.type}
+								onChange={(e) => {
+									const newType = e.target.value as SurveyTypeEnum;
+									setFormData(prev => ({
+										...prev,
+										type: newType,
+										itemId: newType === SurveyTypeEnum.GLOBAL ? '' : prev.itemId
+									}));
+								}}
+								className={cn(INPUT_BASE, 'h-10 appearance-none pr-8')}
+								disabled={isLoading || mode === 'edit'}
+							>
+								<option value={SurveyTypeEnum.GLOBAL}>{t('GLOBAL_SURVEY')}</option>
+								<option value={SurveyTypeEnum.ITEM}>{t('ITEM_SURVEY')}</option>
+							</select>
+							<ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+						</div>
+					</Field>
+
+					{/* Status */}
+					<Field label={t('STATUS')} required>
+						<div className="relative">
+							<select
+								id="survey-status"
+								value={formData.status}
+								onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as SurveyStatusEnum }))}
+								className={cn(INPUT_BASE, 'h-10 appearance-none pr-8')}
+								disabled={isLoading}
+							>
+								<option value={SurveyStatusEnum.DRAFT}>{tCommon('DRAFT')}</option>
+								<option value={SurveyStatusEnum.PUBLISHED}>{tCommon('PUBLISHED')}</option>
+								<option value={SurveyStatusEnum.CLOSED}>{tCommon('CLOSED')}</option>
+							</select>
+							<ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
+						</div>
+					</Field>
+				</div>
+
+				{/* Item Selector — only for item surveys */}
+				{formData.type === SurveyTypeEnum.ITEM && (
+					<ItemSelector
+						selectedItemId={formData.itemId}
+						onItemSelect={(itemId) => setFormData(prev => ({ ...prev, itemId }))}
+						disabled={isLoading}
+						required
+						label={tCommon('SELECT_ITEM')}
+						placeholder={t('CHOOSE_ITEM_FOR_SURVEY')}
+					/>
+				)}
+			</div>
+
+			{/* ── Survey JSON ────────────────────────────────────────── */}
+			<div className="p-5 space-y-3">
+				<div className="flex items-center justify-between">
+					<p className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+						{t('SURVEY_DEFINITION_JSON')}
+						<span className="ml-0.5 text-red-500">*</span>
+					</p>
+					{/* Toolbar */}
+					<div className="flex items-center gap-1.5">
+						<button
+							type="button"
+							onClick={handleFormatJson}
+							disabled={isLoading}
+							className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
+						>
+							<Braces className="w-3 h-3" />
+							{tCommon('FORMAT_JSON')}
+						</button>
+						<button
+							type="button"
+							onClick={handleMinifyJson}
+							disabled={isLoading}
+							className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
+						>
+							<Minimize2 className="w-3 h-3" />
+							{tCommon('MINIFY_JSON')}
+						</button>
+						<button
+							type="button"
+							onClick={() => setShowImportDialog(true)}
+							disabled={isLoading}
+							className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
+						>
+							<Download className="w-3 h-3" />
+							{t('IMPORT_FROM_SURVEYJS')}
+						</button>
+						<button
+							type="button"
+							onClick={handlePreview}
+							disabled={isLoading || !!jsonError}
+							className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors disabled:opacity-50"
+						>
+							<Eye className="w-3 h-3" />
+							{t('PREVIEW_SURVEY')}
+						</button>
+					</div>
+				</div>
+
+				{/* JSON Textarea */}
+				<div className="relative">
+					<textarea
+						id="survey-json"
+						value={jsonInput}
+						onChange={(e) => handleJsonChange(e.target.value)}
+						className={cn(
+							'w-full px-4 py-3 text-xs font-mono leading-relaxed resize-none rounded-xl',
+							'bg-gray-50 dark:bg-white/2',
+							'border transition-all duration-150',
+							'text-gray-800 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-600',
+							'focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20',
+							'disabled:opacity-50 disabled:cursor-not-allowed',
+							jsonError
+								? 'border-red-400 dark:border-red-500/60 focus:ring-red-500/20'
+								: 'border-gray-200 dark:border-white/8'
+						)}
+						rows={14}
+						placeholder={'{\n  "title": "My Survey",\n  "pages": [...]\n}'}
+						disabled={isLoading}
+						required
+						aria-invalid={!!jsonError}
+						aria-describedby={jsonError ? 'survey-json-error' : undefined}
+					/>
+					{jsonError && (
+						<p id="survey-json-error" className="mt-1.5 text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+							<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
+							{jsonError}
 						</p>
 					)}
 				</div>
 
-				{/* Status */}
-				<div>
-					<label htmlFor="survey-status" className="block text-sm font-medium mb-2">
-						{t('STATUS')} <span className="text-red-500">*</span>
-					</label>
-					<select
-						id="survey-status"
-						value={formData.status}
-						onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value as SurveyStatusEnum }))}
-						className="w-full px-4 py-2 border border-gray-300 dark:border-white/8 rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-						disabled={isLoading}
-					>
-						<option value={SurveyStatusEnum.DRAFT}> {tCommon('DRAFT')}</option>
-						<option value={SurveyStatusEnum.PUBLISHED}> {tCommon('PUBLISHED')}</option>
-						<option value={SurveyStatusEnum.CLOSED}> {tCommon('CLOSED')}</option>
-					</select>
-				</div>
-			</div>
-
-			{/* Item Selector - Only show when type is 'item' */}
-			{formData.type === SurveyTypeEnum.ITEM && (
-				<ItemSelector
-					selectedItemId={formData.itemId}
-					onItemSelect={(itemId) => setFormData(prev => ({ ...prev, itemId }))}
-					disabled={isLoading}
-					required
-					label={tCommon('SELECT_ITEM')}
-					placeholder={t('CHOOSE_ITEM_FOR_SURVEY')}
-				/>
-			)}
-
-
-			{/* Survey JSON */}
-			<div>
-				<div className="flex items-center justify-between mb-2">
-					<label htmlFor="survey-json" className="block text-sm font-medium">
-						{t('SURVEY_DEFINITION_JSON')} <span className="text-red-500">*</span>
-					</label>
-				</div>
-
-				<div className="flex items-center gap-2 mb-2">
-					<Button
-						type="button"
-						variant="outline"
-						onClick={handleFormatJson}
-						size="xs"
-						disabled={isLoading}
-					>
-						{tCommon('FORMAT_JSON')}
-					</Button>
-					<Button
-						type="button"
-						variant="outline"
-						onClick={handleMinifyJson}
-						size="xs"
-						disabled={isLoading}
-					>
-						{tCommon('MINIFY_JSON')}
-					</Button>
-					<Button
-						type="button"
-						onClick={() => setShowImportDialog(true)}
-						size="xs"
-						disabled={isLoading}
-					>
-						<Download className="w-3 h-3 mr-1" />
-						{t('IMPORT_FROM_SURVEYJS')}
-					</Button>
-					<Button
-						type="button"
-						onClick={handlePreview}
-						size="xs"
-						disabled={isLoading || !!jsonError}
-					>
-						<Eye className="w-3 h-3 mr-1" />
-						{t('PREVIEW_SURVEY')}
-					</Button>
-				</div>
-
-				<textarea
-					id="survey-json"
-					value={jsonInput}
-					onChange={(e) => handleJsonChange(e.target.value)}
-					className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-white/5 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-mono text-sm ${jsonError ? 'border-red-500' : 'border-gray-300 dark:border-white/8'
-						}`}
-					rows={12}
-					placeholder='{"title": "My Survey", "pages": [...]}'
-					disabled={isLoading}
-					required
-					aria-invalid={!!jsonError}
-					aria-describedby={jsonError ? 'survey-json-error' : undefined}
-				/>
-				{jsonError && (
-					<p id="survey-json-error" className="mt-1 text-sm text-red-500">{jsonError}</p>
-				)}
-
-				<div className="mb-3 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg space-y-2">
-					<p className="text-sm font-medium text-blue-900 dark:text-blue-100">
-						How to create your survey JSON:
-					</p>
-					<div className="space-y-3">
-						<div>
-							<p className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">Option 1: Import from SurveyJS (Recommended)</p>
-							<ol className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside ml-2">
-								<li>Click &quot;Import from SurveyJS&quot; button above</li>
-								<li>Enter your SurveyJS survey ID</li>
-							</ol>
-						</div>
-						<div>
-							<p className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">Option 2: Manual Copy/Paste</p>
-							<ol className="text-xs text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside ml-2">
-								<li>
-									Visit <a href="https://surveyjs.io/create-free-survey" target="_blank" rel="noopener noreferrer" className="underline font-medium">SurveyJS Creator</a>
-								</li>
-								<li>Design your survey using the drag-and-drop interface</li>
-								<li>Click the &quot;JSON Editor&quot; tab at the top</li>
-								<li>Copy the entire JSON and paste it here</li>
-							</ol>
+				{/* Help hint */}
+				<div className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50 dark:bg-white/2 border border-gray-100 dark:border-white/6">
+					<div className="w-7 h-7 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0 mt-0.5">
+						<Info className="w-3.5 h-3.5 text-gray-500 dark:text-gray-400" />
+					</div>
+					<div className="space-y-2 text-xs text-gray-600 dark:text-gray-400 min-w-0">
+						<p className="font-semibold text-gray-700 dark:text-gray-300">How to create your survey JSON</p>
+						<div className="grid sm:grid-cols-2 gap-3">
+							<div>
+								<p className="font-medium text-gray-600 dark:text-gray-300 mb-1">Option 1 — Import (Recommended)</p>
+								<ol className="space-y-0.5 list-decimal list-inside text-gray-500 dark:text-gray-400">
+									<li>Click &ldquo;Import from SurveyJS&rdquo; above</li>
+									<li>Enter your SurveyJS survey ID</li>
+								</ol>
+							</div>
+							<div>
+								<p className="font-medium text-gray-600 dark:text-gray-300 mb-1">Option 2 — Manual</p>
+								<ol className="space-y-0.5 list-decimal list-inside text-gray-500 dark:text-gray-400">
+									<li>
+										Visit{' '}
+										<a
+											href="https://surveyjs.io/create-free-survey"
+											target="_blank"
+											rel="noopener noreferrer"
+											className="underline font-medium hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+										>
+											SurveyJS Creator
+										</a>
+									</li>
+									<li>Design your survey</li>
+									<li>Open &ldquo;JSON Editor&rdquo; tab, copy &amp; paste</li>
+								</ol>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 
-			{/* Actions */}
-			<div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-white/6">
-				<Button
+			{/* ── Actions ────────────────────────────────────────────── */}
+			<div className="px-5 py-4 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-end gap-3">
+				<button
 					type="button"
-					variant="outline"
 					onClick={onCancel}
 					disabled={isLoading}
+					className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1"
 				>
+					<X className="w-3.5 h-3.5" />
 					{tCommon('CANCEL')}
-				</Button>
-				<Button
+				</button>
+				<button
 					type="submit"
 					disabled={isLoading || !!jsonError}
+					className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-colors disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
 				>
+					{isLoading ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<Save className="w-3.5 h-3.5" />
+					)}
 					{isLoading ? tCommon('SAVING') : mode === 'create' ? t('CREATE_SURVEY_BTN') : t('UPDATE_SURVEY_BTN')}
-				</Button>
+				</button>
 			</div>
 
-			{/* Preview Dialog */}
+			{/* Dialogs */}
 			<SurveyPreviewDialog
 				surveyJson={previewJson}
 				title={t('SURVEY_PREVIEW')}
 				isOpen={showPreview}
 				onClose={() => setShowPreview(false)}
 			/>
-
-			{/* Import from SurveyJS Dialog */}
 			<ImportSurveyJsDialog
 				isOpen={showImportDialog}
 				onClose={() => setShowImportDialog(false)}
@@ -372,4 +423,3 @@ export function AdminSurveyForm({ survey, onSubmit, onCancel, isLoading, mode, d
 		</form>
 	);
 }
-

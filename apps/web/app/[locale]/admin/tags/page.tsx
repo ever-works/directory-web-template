@@ -26,7 +26,7 @@ export default function AdminTagsPage() {
 	const [selectedTag, setSelectedTag] = useState<TagData | undefined>();
 	const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
 
-	const { data: tagsData, isLoading, error } = useTags(currentPage, 10);
+	const { data: tagsData, isLoading, error } = useTags(currentPage, viewMode === 'grid' ? 12 : 10);
 	const { createTag, updateTag, deleteTag, isCreating, isUpdating } = useTagManagement();
 
 	const handlePageChange = (newPage: number) => {
@@ -286,7 +286,7 @@ export default function AdminTagsPage() {
 						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
 							<button
 								type="button"
-								onClick={() => setViewMode('grid')}
+								onClick={() => { setViewMode('grid'); setCurrentPage(1); }}
 								className={cn(
 									'p-1.5 rounded-md transition-colors',
 									viewMode === 'grid'
@@ -299,7 +299,7 @@ export default function AdminTagsPage() {
 							</button>
 							<button
 								type="button"
-								onClick={() => setViewMode('list')}
+								onClick={() => { setViewMode('list'); setCurrentPage(1); }}
 								className={cn(
 									'p-1.5 rounded-md transition-colors',
 									viewMode === 'list'
