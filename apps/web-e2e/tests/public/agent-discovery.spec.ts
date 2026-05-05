@@ -151,6 +151,42 @@ test.describe('Public: Agent-discovery surface (/llms.txt + /items.json)', () =>
 		// `categories` / `tags` MUST be arrays (possibly empty).
 		expect(Array.isArray(firstItem.categories)).toBeTruthy();
 		expect(Array.isArray(firstItem.tags)).toBeTruthy();
+
+		// Every element of `categories` / `tags` MUST be a `string`.
+		// The upstream `ItemData.category` field is polymorphic
+		// (`string | Category | Category[] | string[]`) and the route
+		// is responsible for flattening it to display names. A
+		// regression that forwards a `{ id, name }` object verbatim
+		// (e.g. by reading `item.categories` instead of
+		// `item.category`, or by skipping the polymorphic
+		// normalization) would surface here.
+		for (const cat of firstItem.categories) {
+			expect(typeof cat).toBe('string');
+		}
+		for (const tag of firstItem.tags) {
+			expect(typeof tag).toBe('string');
+		}
+
+		// Cross-item consistency: if AT LEAST one item carries a
+		// non-empty `categories` array, the route's category
+		// normalization is exercised. We don't require all items
+		// to have categories (the upstream Markdown frontmatter
+		// may omit them on individual items), but we do require
+		// that the array shape is consistent across the listing —
+		// i.e., we never see `{ id: ..., name: ... }` objects
+		// mixed with strings.
+		const allCats = body.items
+			.flatMap((it: { categories?: unknown[] }) => it.categories ?? [])
+			.filter(Boolean);
+		for (const cat of allCats) {
+			expect(typeof cat).toBe('string');
+		}
+		const allTags = body.items
+			.flatMap((it: { tags?: unknown[] }) => it.tags ?? [])
+			.filter(Boolean);
+		for (const tag of allTags) {
+			expect(typeof tag).toBe('string');
+		}
 	});
 
 	test('GET /items.json + /llms.txt do NOT branch on side-channel cookies / headers', async ({ request }) => {
