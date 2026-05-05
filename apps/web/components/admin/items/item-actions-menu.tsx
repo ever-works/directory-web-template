@@ -46,8 +46,8 @@ export function ItemActionsMenu({
   const menuItemClass = cn(
     "flex items-center gap-2 px-3 py-2 text-sm cursor-pointer outline-none rounded-md mx-1",
     "text-gray-700 dark:text-gray-200",
-    "hover:bg-gray-100 dark:hover:bg-white/6",
-    "focus:bg-gray-100 dark:focus:bg-white/5",
+    "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
+    "focus:bg-gray-100 dark:focus:bg-white/[0.06]",
     "transition-colors duration-150"
   );
 
@@ -70,7 +70,7 @@ export function ItemActionsMenu({
   const disabledItemClass = cn(
     "flex items-center gap-2 px-3 py-2 text-sm cursor-not-allowed outline-none rounded-md mx-1",
     "text-gray-400 dark:text-gray-500",
-    "opacity-50"
+    "opacity-40"
   );
 
   return (
@@ -79,12 +79,13 @@ export function ItemActionsMenu({
         <button
           className={cn(
             "inline-flex items-center justify-center",
-            "w-9 h-9 rounded-lg",
+            "w-8 h-8 rounded-lg",
             "text-gray-500 dark:text-gray-400",
-            "hover:bg-gray-100 dark:hover:bg-white/6",
+            "hover:bg-gray-100 dark:hover:bg-white/[0.06]",
             "hover:text-gray-700 dark:hover:text-gray-200",
-            "focus:outline-none focus:ring-2 focus:ring-theme-primary focus:ring-offset-2 dark:focus:ring-offset-gray-800",
-            "transition-colors duration-200",
+            "border border-transparent hover:border-gray-200 dark:hover:border-white/[0.06]",
+            "focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:ring-offset-1",
+            "transition-all duration-150",
             isProcessing && "opacity-50 cursor-not-allowed"
           )}
           disabled={isProcessing}
@@ -101,12 +102,12 @@ export function ItemActionsMenu({
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           className={cn(
-            "min-w-45 bg-white dark:bg-white/5 rounded-xl shadow-lg",
-            "border border-gray-200 dark:border-white/6",
-            "py-1 z-50",
-            "animate-in fade-in-0 zoom-in-95 duration-200"
+            "min-w-[176px] bg-white dark:bg-[#121212] rounded-xl shadow-2xl",
+            "border border-gray-200 dark:border-white/[0.06]",
+            "py-1.5 z-50",
+            "animate-in fade-in-0 zoom-in-95 duration-150"
           )}
-          sideOffset={5}
+          sideOffset={6}
           align="end"
         >
           {/* View Source */}
@@ -164,7 +165,7 @@ export function ItemActionsMenu({
           {/* Separator + Review Actions (only for pending items) */}
           {isPending && (
             <>
-              <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/8 my-1" />
+              <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/[0.08] my-1" />
 
               {/* Approve */}
               <DropdownMenu.Item
@@ -197,7 +198,7 @@ export function ItemActionsMenu({
           )}
 
           {/* Separator + Delete */}
-          <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/8 my-1" />
+          <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-white/[0.08] my-1" />
 
           <DropdownMenu.Item
             className={isProcessing ? disabledItemClass : dangerItemClass}

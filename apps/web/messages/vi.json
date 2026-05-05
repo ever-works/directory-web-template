@@ -2772,6 +2772,7 @@
 			"DELETE_CONFIRMATION": "Bạn có chắc chắn muốn {action} danh mục này không?",
 			"PERMANENTLY_DELETE": "xóa vĩnh viễn",
 			"DEACTIVATE": "vô hiệu hóa",
+			"DELETE": "Xóa",
 			"WARNING_DISABLED_TITLE": "Danh mục hiện bị vô hiệu hóa trên toàn trang web",
 			"WARNING_DISABLED_MESSAGE": "Các danh mục bị ẩn khỏi trang web công cộng bao gồm điều hướng, bộ lọc và trang mục. ",
 			"WARNING_DISABLED_ACTION": "Đi tới Cài đặt để bật"

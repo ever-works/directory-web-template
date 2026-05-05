@@ -2699,6 +2699,7 @@
 			"DELETE_CONFIRMATION": "¿Estás seguro de que quieres {action} esta categoría?",
 			"PERMANENTLY_DELETE": "eliminar permanentemente",
 			"DEACTIVATE": "desactivar",
+			"DELETE": "Eliminar",
 			"WARNING_DISABLED_TITLE": "Categories are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Categories are hidden from the public site including navigation, filters, and item pages. You can still manage categories here, but they won't be visible to users until re-enabled.",
 			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"

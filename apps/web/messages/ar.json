@@ -2696,6 +2696,7 @@
 			"DELETE_CONFIRMATION": "هل أنت متأكد من أنك تريد {action} هذه الفئة؟",
 			"PERMANENTLY_DELETE": "حذف نهائياً",
 			"DEACTIVATE": "إلغاء تفعيل",
+			"DELETE": "حذف",
 			"WARNING_DISABLED_TITLE": "Categories are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Categories are hidden from the public site including navigation, filters, and item pages. You can still manage categories here, but they won't be visible to users until re-enabled.",
 			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"
