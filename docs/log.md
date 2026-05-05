@@ -33,6 +33,117 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/client-items-coordinates-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/items/coordinates/route.ts` --
+  the **third per-source-file
+  `requireClientAuth()`-gated zero-argument GET
+  handler** (after the sibling
+  `client-dashboard-stats-query` and
+  `client-geo-stats-query` specs) combining a
+  **`getClientItemRepository().
+  getCoordinatesByUser(userId)` repository-
+  delegation pattern**, a
+  **nested-`coordinates`-keyed success envelope
+  `{ success: true, coordinates: Array<{ slug, name,
+  latitude, longitude }> }`** (the FIRST per-source-
+  file GET smoke pinning a `coordinates`-keyed
+  nested-array success envelope -- distinct from
+  BOTH the spread-into-envelope shape pinned by
+  `client-dashboard-stats-query` and
+  `client-geo-stats-query`, AND the `stats`-keyed
+  nested-object shape pinned by
+  `client-items-stats-query`), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  item coordinates')` outer catch**, and a
+  **nine-bypass-prevention assertion battery**
+  extending the six-test battery of the sibling
+  `client-geo-stats-query` spec with three
+  additional contracts: a single-item-lookup
+  bypass-prevention contract (`?slug=…` /
+  `?itemId=…` / `?itemSlug=…` invariance), a
+  content-negotiation bypass-prevention contract
+  (`?format=geojson` / `?format=kml` / `?format=xml`
+  / `?format=csv` invariance), and an
+  Accept-header invariance contract (`Accept:
+  application/geo+json` / `application/xml` /
+  `text/html` / `*/*` round-trip to the same 401
+  as `Accept: application/json`). UNIQUE: this is
+  the THIRD `requireClientAuth()`-gated GET smoke
+  and the THIRD zero-argument handler in the
+  `requireClientAuth()` family. The new page
+  documents the discriminated-union auth-gate
+  contract, the nested-`coordinates`-keyed
+  success envelope, the
+  `getClientItemRepository().
+  getCoordinatesByUser(userId)` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch item coordinates')` outer-
+  catch, the nine-bypass-prevention assertion
+  battery (extending the six-test battery of
+  `client-geo-stats-query` with single-item-
+  lookup, content-negotiation, and Accept-header
+  invariance contracts that no prior per-source-
+  file GET smoke covers; ALSO covering the
+  defensive `?lat=NaN` / `?lat=Infinity` spatial-
+  filter values that no prior per-source-file
+  GET smoke pins, AND the `?zoom=…` /
+  `?center=lat,lng` map-control bypass-prevention
+  keys that no prior per-source-file GET smoke
+  pins), the at-a-glance scenario tree (a single
+  query-string bulk-loop walk covering ~110
+  permutations -- no-arg baseline, admin-
+  impersonation keys, client-terminology variants,
+  single-item-lookup keys, magic-auth keys,
+  geographic-filter keys, spatial / map-control
+  filter keys including defensive `NaN` /
+  `Infinity` values, item-status filter keys,
+  pagination keys, projection keys, cache-
+  busting keys, content-negotiation keys
+  including geographic formats, i18n keys, sort-
+  override keys, multi-tenancy keys, admin-
+  override keys, empty values, repeated keys,
+  special-character values, 500-character long
+  values, bogus / typo'd query keys, all
+  asserting `< 500`, plus NINE hand-written
+  tests), the cross-references to the
+  neighbouring `requireClientAuth()`-gated GET
+  siblings (`client-geo-stats-query-spec.md`
+  shares the `getClientItemRepository()`
+  singleton-factory with this route but diverges
+  on which repository method it invokes
+  `getGeoStatsByUser` vs `getCoordinatesByUser`;
+  `client-items-stats-query-spec.md` ALSO shares
+  the `getClientItemRepository()` singleton-
+  factory but invokes `getStatsByUser`;
+  `client-dashboard-stats-query-spec.md` uses a
+  different repository singleton entirely
+  -- `getClientDashboardRepository()`), the
+  cross-references to the broader
+  `requireClientAuth()`-gated client family, the
+  cross-cutting `client-protected.spec.ts`, and
+  the change protocol (update this page in the
+  same PR that touches the source spec, update
+  `docs/log.md`, run `pnpm tsc --noEmit` in
+  `apps/web-e2e`). With this entry the **per-
+  spec-file docs rollout extends to 119-of-N**
+  and the **`tests/api/` per-spec-file sub-
+  rollout extends to 116-of-many**, and the
+  **third per-source-file `requireClientAuth()`-
+  gated zero-argument GET smoke** lands --
+  pinning a nested-`coordinates`-keyed success
+  envelope shape that no prior per-source-file
+  GET smoke covers. NOTE: cross-references to
+  `client-geo-stats-query-spec.md` and
+  `client-dashboard-stats-query-spec.md` may
+  resolve as broken links until parallel PRs
+  #723 and #724 land that add those per-source-
+  file landing pages on develop.
+
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
