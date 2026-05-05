@@ -188,7 +188,7 @@ Waarschuwingen worden geregistreerd voor ontbrekende `NEXT_PUBLIC_APP_URL`, `NEX
 
 ## ConfigManager (YAML-configuratie)
 
-De klasse `ConfigManager` in `lib/config-manager.ts` beheert het bestand `config.yml` uit de Git-gebaseerde CMS-repository. Het verwerkt het lezen, schrijven en committen van configuratiewijzigingen.
+De klasse `ConfigManager` in `lib/config-manager.ts` beheert het bestand `works.yaml` uit de Git-gebaseerde CMS-repository. Het verwerkt het lezen, schrijven en committen van configuratiewijzigingen.
 
 ### Configuratie lezen
 
@@ -239,7 +239,7 @@ Commit-berichten zijn contextbewust:
 "Update custom header navigation (5 items) - 2024-01-20T..."
 
 // Voor generieke sleutels:
-"Update config.yml: myKey - 2024-01-20T..."
+"Update works.yaml: myKey - 2024-01-20T..."
 ```
 
 ### Beveiliging

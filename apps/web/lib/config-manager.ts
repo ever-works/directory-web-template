@@ -2,6 +2,12 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { getContentPath, ensureContentAvailable } from '@/lib/lib';
+import {
+	PRIMARY_CONTENT_CONFIG_FILENAME,
+	getContentConfigPaths,
+	getPrimaryContentConfigPath,
+	mergeConfigObjects
+} from '@/lib/content-config-file';
 
 /**
  * Git module dependencies with lazy loading
@@ -77,8 +83,8 @@ export interface AppConfig {
 }
 
 /**
- * Configuration manager for config.yml file
- * Provides type-safe methods to read and write configuration
+ * Configuration manager for the data repository config file.
+ * Reads works.yaml with legacy fallbacks and writes canonical works.yaml.
  */
 export class ConfigManager {
 	private configPath: string;
@@ -88,7 +94,7 @@ export class ConfigManager {
 
 	constructor() {
 		// Use dynamic content path (local: .content, Vercel: /tmp/.content)
-		this.configPath = path.join(getContentPath(), 'config.yml');
+		this.configPath = getPrimaryContentConfigPath(getContentPath());
 	}
 
 	private isPrototypePollutingKey(key: string): boolean {
@@ -128,21 +134,37 @@ export class ConfigManager {
 	private readConfig(): AppConfig {
 		try {
 			// Always recalculate path to avoid stale singleton issues
-			const currentPath = path.join(getContentPath(), 'config.yml');
+			const contentPath = getContentPath();
+			const currentPath = getPrimaryContentConfigPath(contentPath);
 			this.configPath = currentPath;
 
-			if (!fs.existsSync(currentPath)) {
+			const configPaths = getContentConfigPaths(contentPath);
+			if (!configPaths.some((configPath) => fs.existsSync(configPath))) {
 				// Only warn in development when DATA_REPOSITORY is configured
 				// Suppress warnings during CI/linting since the code handles missing files gracefully
 				if (!this.shouldSuppressWarnings()) {
-					console.warn('Config file not found at:', currentPath);
+					console.warn('Config file not found at:', configPaths.join(', '));
 				}
 				return this.getDefaultConfig();
 			}
 
-			const fileContents = fs.readFileSync(currentPath, 'utf8');
-			const config = yaml.load(fileContents) as AppConfig;
-			return { ...this.getDefaultConfig(), ...config };
+			let mergedConfig: AppConfig | null = null;
+			for (const configPath of configPaths.reverse()) {
+				if (!fs.existsSync(configPath)) {
+					continue;
+				}
+
+				const fileContents = fs.readFileSync(configPath, 'utf8');
+				const config = yaml.load(fileContents);
+
+				if (!config || typeof config !== 'object' || Array.isArray(config)) {
+					throw new Error(`${path.basename(configPath)} must contain a YAML object at the root`);
+				}
+
+				mergedConfig = mergeConfigObjects<AppConfig>(mergedConfig ?? {}, config as Record<string, unknown>);
+			}
+
+			return mergeConfigObjects<AppConfig>(this.getDefaultConfig(), mergedConfig ?? {});
 		} catch (error) {
 			// Always log errors - they indicate real problems (read failures, parse errors, etc.)
 			console.error('Error reading config file:', error);
@@ -159,7 +181,7 @@ export class ConfigManager {
 			await ensureContentAvailable();
 
 			// Always recalculate path to avoid stale singleton issues
-			const currentPath = path.join(getContentPath(), 'config.yml');
+			const currentPath = getPrimaryContentConfigPath(getContentPath());
 			this.configPath = currentPath;
 
 			const yamlString = yaml.dump(config, {
@@ -174,7 +196,7 @@ export class ConfigManager {
 			// Queue Git operation to prevent concurrent writes
 			// Operations are serialized to avoid conflicts
 			this.queueGitOperation(commitMessage).catch((error) => {
-				console.error('⚠️ Git operations failed for config.yml, but file was saved:', error);
+				console.error(`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`, error);
 			});
 
 			return true;
@@ -241,7 +263,7 @@ export class ConfigManager {
 	}
 
 	/**
-	 * Commit and push config.yml changes to Git
+	 * Commit and push works.yaml changes to Git
 	 * Similar to how other git services handle commits
 	 * This method is called serially via queueGitOperation to prevent concurrent writes
 	 */
@@ -299,15 +321,15 @@ export class ConfigManager {
 				}
 			}
 
-			// Add config.yml to git
+			// Add works.yaml to git
 			await git.add({
 				fs: gitFs,
 				dir: contentPath,
-				filepath: 'config.yml'
+				filepath: PRIMARY_CONTENT_CONFIG_FILENAME
 			});
 
 			// Create commit message
-			const commitMessage = customMessage || `Update config.yml - ${new Date().toISOString()}`;
+			const commitMessage = customMessage || `Update ${PRIMARY_CONTENT_CONFIG_FILENAME} - ${new Date().toISOString()}`;
 
 			// Commit changes (now on the correct branch)
 			await git.commit({
@@ -326,11 +348,11 @@ export class ConfigManager {
 				dir: contentPath
 			});
 
-			console.log(`✅ config.yml committed and pushed to GitHub successfully (branch: ${branch})`);
+			console.log(`✅ ${PRIMARY_CONTENT_CONFIG_FILENAME} committed and pushed to GitHub successfully (branch: ${branch})`);
 		} catch (error) {
 			// Log error but don't throw - file was already saved successfully
 			// This allows the writeConfig to succeed even if Git operations fail
-			console.error('⚠️ Git operations failed for config.yml, but file was saved:', error);
+			console.error(`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`, error);
 		}
 	}
 
@@ -433,7 +455,7 @@ export class ConfigManager {
 		}
 
 		// Generic message for other keys
-		return `Update config.yml: ${keyPath} - ${timestamp}`;
+		return `Update ${PRIMARY_CONTENT_CONFIG_FILENAME}: ${keyPath} - ${timestamp}`;
 	}
 
 	/**

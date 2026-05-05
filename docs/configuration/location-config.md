@@ -11,7 +11,7 @@ This page documents every location and map setting available in the template. Co
 
 ## Configuration Source
 
-Location settings are defined in the `settings.location` section of your content repository's `config.yml`:
+Location settings are defined in the `settings.location` section of your content repository's `works.yaml`:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-The raw shape read from `config.yml`, defined in `lib/types/location.ts`:
+The raw shape read from `works.yaml`, defined in `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

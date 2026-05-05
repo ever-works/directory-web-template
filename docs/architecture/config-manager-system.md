@@ -9,7 +9,7 @@ sidebar_position: 41
 
 ## Overview
 
-The Config Manager System provides two complementary configuration layers: the **ConfigManager** class (`lib/config-manager.ts`) for managing the YAML-based content configuration file (`config.yml`) with Git-backed persistence, and the **ConfigService** (`lib/config/`) for validating and accessing environment-variable-based application configuration with Zod schemas. Together they cover both runtime-editable settings and deployment-time environment configuration.
+The Config Manager System provides two complementary configuration layers: the **ConfigManager** class (`lib/config-manager.ts`) for managing the YAML-based content configuration file (`works.yaml`) with Git-backed persistence, and the **ConfigService** (`lib/config/`) for validating and accessing environment-variable-based application configuration with Zod schemas. Together they cover both runtime-editable settings and deployment-time environment configuration.
 
 ## Architecture
 
@@ -17,14 +17,14 @@ The system is divided into two distinct subsystems:
 
 ### ConfigManager (YAML-based, runtime-editable)
 
-`lib/config-manager.ts` manages the `config.yml` file inside the `.content/` directory (cloned from the data repository). It reads and writes YAML configuration, and automatically commits and pushes changes to the Git repository using `isomorphic-git`. This is used for settings that administrators can change at runtime (pagination, navigation, header/footer).
+`lib/config-manager.ts` manages the `works.yaml` file inside the `.content/` directory (cloned from the data repository). It reads `works.yaml` first and supports legacy fallbacks (`works.yml`, `config.yaml`, `config.yml`) for older data repositories. Writes are persisted to canonical `works.yaml`, and the manager automatically commits and pushes changes to the Git repository using `isomorphic-git`. This is used for settings that administrators can change at runtime (pagination, navigation, header/footer).
 
 ### ConfigService (Environment-based, startup-validated)
 
 `lib/config/` provides a Zod-validated singleton that reads all environment variables at startup and organizes them into typed sections: core, auth, email, payment, analytics, and integrations. It includes feature flags, environment detection utilities, and tree-shakeable exports.
 
 ```
-config-manager.ts       --> Runtime YAML config (config.yml)
+config-manager.ts       --> Runtime YAML config (works.yaml)
 lib/config/
   index.ts              --> Barrel exports
   config-service.ts     --> Singleton ConfigService class

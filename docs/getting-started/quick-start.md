@@ -6,7 +6,7 @@ Get your directory website up and running in under 10 minutes! This guide assume
 
 ### Configure Site Settings
 
-Edit `apps/web/.content/config.yml` (this file will be created after first sync):
+Edit `apps/web/.content/works.yaml` (this file will be created after first sync):
 
 ```yaml
 # Basic site settings
@@ -100,7 +100,7 @@ updated_at: '2024-01-15 10:30'
 ### Update Branding
 
 1. **Logo**: Replace files in `apps/web/public/` folder
-2. **Colors**: Edit theme in `apps/web/.content/config.yml`:
+2. **Colors**: Edit theme in `apps/web/.content/works.yaml`:
 
 ```yaml
 theme:
@@ -195,7 +195,7 @@ For a quick deployment to Vercel:
 Instead of "tools", you might want "services" or "products":
 
 ```yaml
-# In apps/web/.content/config.yml
+# In apps/web/.content/works.yaml
 item_name: 'Service'
 items_name: 'Services'
 ```

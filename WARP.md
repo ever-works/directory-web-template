@@ -189,7 +189,7 @@ Content lives in a separate Git repository (defined by `DATA_REPOSITORY` env var
     - `data/` - Item data (markdown files)
     - `posts/` - Blog posts (MDX)
     - `categories/` - Category definitions (YAML)
-    - `config.yml` - Site configuration
+    - `works.yaml` - Site configuration
 - **Sync mechanism**:
     - `scripts/clone.cjs` - Initial clone during prebuild/predev
     - `lib/repository.ts` - Pull/sync logic with conflict resolution
@@ -207,7 +207,7 @@ Unified payment abstraction supporting three providers:
     - Stripe (via `@stripe/stripe-js`)
     - LemonSqueezy (via `@lemonsqueezy/lemonsqueezy.js`)
     - Polar (via `@polar-sh/sdk`)
-- Configuration in `.content/config.yml` determines active provider
+- Configuration in `.content/works.yaml` determines active provider
 - Webhooks handled in `app/api/stripe/`, `app/api/lemonsqueezy/`, `app/api/polar/`
 
 #### Authentication Architecture
@@ -216,7 +216,7 @@ Unified payment abstraction supporting three providers:
 - Multiple auth strategies:
     - Credentials (email/password with bcrypt)
     - OAuth providers (Google, GitHub, Facebook, Twitter, Microsoft, LinkedIn)
-    - Provider availability controlled via `.content/config.yml`
+    - Provider availability controlled via `.content/works.yaml`
 - **Session management**: Database-backed sessions
 - **Middleware**: `lib/auth/middleware.ts` for protected routes
 - **ReCAPTCHA v2** integration on auth forms

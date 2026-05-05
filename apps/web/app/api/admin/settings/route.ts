@@ -4,7 +4,7 @@ import { getCachedApiSession } from '@/lib/auth/cached-session';
 
 /**
  * GET /api/admin/settings
- * Retrieves the settings section from config.yml
+ * Retrieves the settings section from works.yaml
  */
 export async function GET(req: NextRequest) {
 	try {
@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * PATCH /api/admin/settings
- * Updates specific settings in config.yml
+ * Updates specific settings in works.yaml
  * Request body: { key: string, value: unknown }
  */
 export async function PATCH(req: NextRequest) {

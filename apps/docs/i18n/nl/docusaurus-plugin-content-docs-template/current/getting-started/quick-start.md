@@ -10,7 +10,7 @@ Krijg uw directorywebsite in minder dan 10 minuten aan de gang.
 
 ## Stap 1: Instellingen configureren
 
-Bewerk apps/web/.content/config.yml:
+Bewerk apps/web/.content/works.yaml:
 ```yaml
 company_name: 'Your Company'
 item_name: 'Tool'

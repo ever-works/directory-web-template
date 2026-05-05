@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### Шаг 2. Настройте тарифные планы
 
-Тарифные планы определены в вашем `.content/config.yml` :
+Тарифные планы определены в вашем `.content/works.yaml` :
 
 ```yaml
 pricing:

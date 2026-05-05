@@ -11,7 +11,7 @@ Esta página documenta cada configuración de ubicación y mapa disponible en la
 
 ## Fuente de Configuración
 
-Las configuraciones de ubicación se definen en la sección `settings.location` del archivo `config.yml` del repositorio de contenido:
+Las configuraciones de ubicación se definen en la sección `settings.location` del archivo `works.yaml` del repositorio de contenido:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-La estructura bruta leída de `config.yml`, definida en `lib/types/location.ts`:
+La estructura bruta leída de `works.yaml`, definida en `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

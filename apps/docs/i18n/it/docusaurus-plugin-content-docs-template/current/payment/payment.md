@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### Passaggio 2: configura i piani tariffari
 
-I piani tariffari sono definiti nel tuo `.content/config.yml` :
+I piani tariffari sono definiti nel tuo `.content/works.yaml` :
 
 ```yaml
 pricing:

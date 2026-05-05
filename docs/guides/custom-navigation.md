@@ -7,7 +7,7 @@ sidebar_position: 3
 
 # Custom Navigation Links Configuration
 
-This documentation explains how to configure custom links in the header (main menu) and footer of your site via the `config.yml` file.
+This documentation explains how to configure custom links in the header (main menu) and footer of your site via the `works.yaml` file.
 
 ## Overview
 
@@ -22,13 +22,13 @@ These links support:
 - ✅ External URLs (open in a new tab)
 - ✅ i18n translations (translation keys)
 
-## Configuration in config.yml
+## Configuration in works.yaml
 
-The `config.yml` file is located in the `.content/` directory of your data repository (configured via `DATA_REPOSITORY`).
+The `works.yaml` file is located in the `.content/` directory of your data repository (configured via `DATA_REPOSITORY`).
 
 ### Basic Structure
 
-Add the following sections to your `config.yml`:
+Add the following sections to your `works.yaml`:
 
 ```yaml
 # Custom links for the header (main menu)
@@ -299,7 +299,7 @@ custom_header:
 
 ### Recommended Workflow
 
-1. **Modify config.yml** in your data repository (`.content/config.yml`)
+1. **Modify works.yaml** in your data repository (`.content/works.yaml`)
 2. **Commit and push** changes to the repository
 3. **Automatic synchronization**: The system syncs periodically or on the next build
 4. **Revalidation**: Changes are applied after cache revalidation
@@ -309,8 +309,8 @@ custom_header:
 To test locally:
 
 ```bash
-# 1. Modify .content/config.yml
-nano .content/config.yml
+# 1. Modify .content/works.yaml
+nano .content/works.yaml
 
 # 2. Restart the development server
 pnpm dev
@@ -437,5 +437,5 @@ For any questions or issues:
 
 ---
 
-**Note**: Changes to `config.yml` require content synchronization or a server restart to be applied.
+**Note**: Changes to `works.yaml` require content synchronization or a server restart to be applied.
 

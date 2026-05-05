@@ -7,7 +7,7 @@ sidebar_position: 23
 
 # Endpoints Admin Configuración
 
-La API de configuración del administrador proporciona puntos finales para leer y modificar la configuración del sitio almacenada en `config.yml`. Esto incluye configuración general y el estado del proveedor de mapas. Todos los puntos finales requieren autenticación de administrador.
+La API de configuración del administrador proporciona puntos finales para leer y modificar la configuración del sitio almacenada en `works.yaml`. Esto incluye configuración general y el estado del proveedor de mapas. Todos los puntos finales requieren autenticación de administrador.
 
 ## Descripción General
 
@@ -23,7 +23,7 @@ La API de configuración del administrador proporciona puntos finales para leer 
 GET /api/admin/settings
 ```
 
-Recupera la sección completa de `settings` del archivo `config.yml` del sitio.
+Recupera la sección completa de `settings` del archivo `works.yaml` del sitio.
 
 **Autenticación:** Se requiere administrador (mediante `getCachedApiSession`)
 
@@ -43,7 +43,7 @@ Recupera la sección completa de `settings` del archivo `config.yml` del sitio.
 }
 ```
 
-La forma exacta del objeto `settings` depende de la configuración de `config.yml` del sitio. El punto final devuelve lo que esté almacenado bajo la clave `settings`.
+La forma exacta del objeto `settings` depende de la configuración de `works.yaml` del sitio. El punto final devuelve lo que esté almacenado bajo la clave `settings`.
 
 | Estado | Condición |
 |---|---|
@@ -58,7 +58,7 @@ La forma exacta del objeto `settings` depende de la configuración de `config.ym
 PATCH /api/admin/settings
 ```
 
-Actualiza un valor de configuración individual dentro de la sección `settings` de `config.yml`. La clave se circunscribe automáticamente al espacio de nombres `settings` (p. ej., al proporcionar la clave `"theme"` se actualiza `settings.theme` en el archivo de configuración).
+Actualiza un valor de configuración individual dentro de la sección `settings` de `works.yaml`. La clave se circunscribe automáticamente al espacio de nombres `settings` (p. ej., al proporcionar la clave `"theme"` se actualiza `settings.theme` en el archivo de configuración).
 
 **Autenticación:** Se requiere administrador
 
@@ -86,7 +86,7 @@ Actualiza un valor de configuración individual dentro de la sección `settings`
 }
 ```
 
-La actualización se persiste mediante `configManager.updateNestedKey()`, que modifica el archivo `config.yml` subyacente. La clave se prefija automáticamente con `settings.` antes de pasarla al gestor de configuración.
+La actualización se persiste mediante `configManager.updateNestedKey()`, que modifica el archivo `works.yaml` subyacente. La clave se prefija automáticamente con `settings.` antes de pasarla al gestor de configuración.
 
 **Respuestas de Error:**
 
@@ -154,7 +154,7 @@ No se exponen los valores reales de las claves en la respuesta.
 
 El sistema de configuración está construido sobre el singleton `configManager` de `lib/config-manager`:
 
-- **Almacenamiento:** La configuración se guarda en un archivo de configuración YAML (`config.yml`)
+- **Almacenamiento:** La configuración se guarda en un archivo de configuración YAML (`works.yaml`)
 - **Acceso:** El método `configManager.getConfig()` lee la configuración completa
 - **Actualizaciones:** El método `configManager.updateNestedKey()` modifica claves anidadas específicas
 - **Caché:** Las sesiones se almacenan en caché mediante `getCachedApiSession()` para mejorar el rendimiento

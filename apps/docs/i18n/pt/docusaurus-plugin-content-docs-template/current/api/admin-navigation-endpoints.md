@@ -7,7 +7,7 @@ sidebar_position: 29
 
 # Endpoints de Navegação e Índice de Localização do Admin
 
-Estes endpoints de admin gerenciam links de navegação personalizados do site e o índice de localização geográfica. Os endpoints de navegação permitem configurar links personalizados de cabeçalho e rodapé armazenados em `config.yml`. Os endpoints do índice de localização gerenciam o índice espacial usado para análise geográfica e recursos de mapa.
+Estes endpoints de admin gerenciam links de navegação personalizados do site e o índice de localização geográfica. Os endpoints de navegação permitem configurar links personalizados de cabeçalho e rodapé armazenados em `works.yaml`. Os endpoints do índice de localização gerenciam o índice espacial usado para análise geográfica e recursos de mapa.
 
 ## Visão geral
 
@@ -26,7 +26,7 @@ Estes endpoints de admin gerenciam links de navegação personalizados do site e
 GET /api/admin/navigation
 ```
 
-Recupera os itens de navegação `custom_header` e `custom_footer` do arquivo `config.yml` do site. Retorna arrays vazios se nenhuma navegação personalizada estiver configurada.
+Recupera os itens de navegação `custom_header` e `custom_footer` do arquivo `works.yaml` do site. Retorna arrays vazios se nenhuma navegação personalizada estiver configurada.
 
 **Autenticação:** Administrador obrigatório (via `getCachedApiSession`)
 
@@ -77,7 +77,7 @@ Cada item de navegação tem dois campos:
 PATCH /api/admin/navigation
 ```
 
-Atualiza os itens de navegação personalizada do cabeçalho ou rodapé em `config.yml`. Valida o formato do caminho de cada item para evitar ataques XSS por meio de esquemas de URL perigosos.
+Atualiza os itens de navegação personalizada do cabeçalho ou rodapé em `works.yaml`. Valida o formato do caminho de cada item para evitar ataques XSS por meio de esquemas de URL perigosos.
 
 **Autenticação:** Administrador obrigatório
 
@@ -253,7 +253,7 @@ Realiza ações de gerenciamento no índice de localização. Suporta reconstru�
 ## Detalhes de Implementação
 
 - **Prevenção de XSS:** A validação de caminho de navegação rejeita todos os esquemas de URL exceto `/`, `http://` e `https://`. Isso bloqueia `javascript:`, `data:`, `vbscript:` e URLs com protocolo relativo (`//evil.com`) que poderiam ser usados para cross-site scripting.
-- **Armazenamento de Configuração:** Os itens de navegação são armazenados em `config.yml` sob as chaves `custom_header` e `custom_footer`, persistidos via `configManager.updateNestedKey()`.
+- **Armazenamento de Configuração:** Os itens de navegação são armazenados em `works.yaml` sob as chaves `custom_header` e `custom_footer`, persistidos via `configManager.updateNestedKey()`.
 - **Rótulos i18n:** Os rótulos de navegação podem ser texto simples ou chaves de tradução (ex.: `"footer.PRIVACY_POLICY"`). O frontend é responsável por resolver as chaves de tradução.
 - **Reconstrução do Índice de Localização:** A operação de reconstrução carrega todos os itens do `ItemRepository` e os passa para o serviço de índice de localização. Isso pode ser uma operação intensiva em recursos para grandes conjuntos de dados.
 - **Desativação de Cache:** Os endpoints do índice de localização desabilitam explicitamente todo o cache para garantir que o painel de administração sempre exiba dados atuais.

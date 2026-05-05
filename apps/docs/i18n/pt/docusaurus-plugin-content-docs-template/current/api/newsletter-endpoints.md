@@ -170,14 +170,14 @@ Dois schemas Zod são exportados para validação:
 
 ### Provedores de E-mail
 
-O sistema suporta dois provedores de e-mail configurados via `config.yml` e variáveis de ambiente:
+O sistema suporta dois provedores de e-mail configurados via `works.yaml` e variáveis de ambiente:
 
 | Provedor | Variável de Ambiente | Descrição |
 |---|---|---|
 | Resend | `RESEND_API_KEY` | Provedor de e-mail padrão |
 | Novu | `NOVU_API_KEY` | Provedor alternativo com suporte a templates |
 
-O provedor é selecionado com base no campo `mail.provider` em `config.yml`. A configuração de e-mail é construída dinamicamente a partir da configuração do app usando `createEmailConfig()`.
+O provedor é selecionado com base no campo `mail.provider` em `works.yaml`. A configuração de e-mail é construída dinamicamente a partir da configuração do app usando `createEmailConfig()`.
 
 **Origem:** `template/lib/newsletter/config.ts`
 

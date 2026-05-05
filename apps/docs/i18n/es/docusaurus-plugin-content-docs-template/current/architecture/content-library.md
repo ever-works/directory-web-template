@@ -123,7 +123,7 @@ La configuración del sitio se almacena en caché utilizando Next.js `unstable_c
 import { CACHE_TAGS, CACHE_TTL } from './cache-config';
 
 const getCachedConfig = unstable_cache(
-  async () => { /* read and parse config.yml */ },
+  async () => { /* read and parse works.yaml */ },
   [CACHE_TAGS.CONFIG],
   { revalidate: CACHE_TTL }
 );
@@ -214,7 +214,7 @@ Esto garantiza que las operaciones de contenido con acceso al sistema de archivo
 
 |Función|Descripción|
 |----------|-------------|
-|`getCachedConfig()`|Devuelve la configuración del sitio en caché de `config.yml`|
+|`getCachedConfig()`|Devuelve la configuración del sitio en caché de `works.yaml`|
 |`trySyncRepository()`|Clona o extrae contenido del repositorio Git remoto|
 |`pullChanges()`|Extrae los últimos cambios con resolución de conflictos|
 |`validateLanguageCode()`|Valida el formato de código de idioma i18n.|

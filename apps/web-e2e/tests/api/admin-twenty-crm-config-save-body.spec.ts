@@ -64,7 +64,7 @@ import { test, expect } from '@playwright/test';
  *      must round-trip to a `< 500` status.
  *
  * Where the immediately-preceding `admin-settings-
- * update-method.spec.ts` walks a config.yml-write
+ * update-method.spec.ts` walks a works.yaml-write
  * PATCH, this spec walks a CRM-config-DB-write POST
  * with audit logging — a complementary surface that
  * no prior admin-tree smoke spec covers.

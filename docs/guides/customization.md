@@ -16,7 +16,7 @@ Learn how to customize your Ever Works directory website to match your brand and
 Customize your site's colors and branding by editing the theme configuration:
 
 ```yaml
-# .content/config.yml
+# .content/works.yaml
 theme:
   default: "everworks"
   custom_colors:
@@ -40,7 +40,7 @@ Replace the default logos and assets:
 Customize the header and navigation in your configuration:
 
 ```yaml
-# .content/config.yml
+# .content/works.yaml
 navigation:
   header:
     logo: "/images/your-logo.svg"
@@ -56,7 +56,7 @@ navigation:
 Customize the footer content:
 
 ```yaml
-# .content/config.yml
+# .content/works.yaml
 footer:
   copyright: "© 2024 Your Company Name"
   links:

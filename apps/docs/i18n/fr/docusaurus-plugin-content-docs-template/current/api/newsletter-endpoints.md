@@ -170,14 +170,14 @@ Deux schémas Zod sont exportés pour la validation :
 
 ### Fournisseurs d'e-mail
 
-Le système prend en charge deux fournisseurs d'e-mail configurés via `config.yml` et les variables d'environnement :
+Le système prend en charge deux fournisseurs d'e-mail configurés via `works.yaml` et les variables d'environnement :
 
 | Fournisseur | Variable d'environnement | Description |
 |---|---|---|
 | Resend | `RESEND_API_KEY` | Fournisseur d'e-mail par défaut |
 | Novu | `NOVU_API_KEY` | Fournisseur alternatif avec prise en charge des modèles |
 
-Le fournisseur est sélectionné en fonction du champ `mail.provider` dans `config.yml`. La configuration des e-mails est construite dynamiquement à partir de la configuration de l'application en utilisant `createEmailConfig()`.
+Le fournisseur est sélectionné en fonction du champ `mail.provider` dans `works.yaml`. La configuration des e-mails est construite dynamiquement à partir de la configuration de l'application en utilisant `createEmailConfig()`.
 
 **Source :** `template/lib/newsletter/config.ts`
 

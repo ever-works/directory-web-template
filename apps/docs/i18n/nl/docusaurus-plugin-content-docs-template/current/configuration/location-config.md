@@ -11,7 +11,7 @@ Deze pagina documenteert elke locatie- en kaartinstelling die beschikbaar is in 
 
 ## Configuratiebron
 
-Locatie-instellingen worden gedefinieerd in de sectie `settings.location` van het `config.yml`-bestand van uw contentrepository:
+Locatie-instellingen worden gedefinieerd in de sectie `settings.location` van het `works.yaml`-bestand van uw contentrepository:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-De ruwe structuur gelezen uit `config.yml`, gedefinieerd in `lib/types/location.ts`:
+De ruwe structuur gelezen uit `works.yaml`, gedefinieerd in `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

@@ -6,9 +6,9 @@ sidebar_position: 2
 
 # 快速入门
 
-## 第一步：配置 config.yml
+## 第一步：配置 works.yaml
 
-编辑 `config.yml` 文件以设置目录的基本参数。
+编辑 `works.yaml` 文件以设置目录的基本参数。
 
 ## 第二步：Fork 数据仓库
 

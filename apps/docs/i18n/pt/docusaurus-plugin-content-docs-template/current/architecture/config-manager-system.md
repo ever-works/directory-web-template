@@ -9,7 +9,7 @@ sidebar_position: 41
 
 ## Visão geral
 
-O Config Manager System fornece duas camadas de configuração complementares: a classe **ConfigManager** (`lib/config-manager.ts`) para gerenciar o arquivo de configuração de conteúdo baseado em YAML (`config.yml`) com persistência apoiada por Git, e o **ConfigService** (`lib/config/`) para validar e acessar a configuração de aplicativo baseada em variável de ambiente com esquemas Zod. Juntos, eles abrangem configurações editáveis ​​em tempo de execução e configuração do ambiente em tempo de implantação.
+O Config Manager System fornece duas camadas de configuração complementares: a classe **ConfigManager** (`lib/config-manager.ts`) para gerenciar o arquivo de configuração de conteúdo baseado em YAML (`works.yaml`) com persistência apoiada por Git, e o **ConfigService** (`lib/config/`) para validar e acessar a configuração de aplicativo baseada em variável de ambiente com esquemas Zod. Juntos, eles abrangem configurações editáveis ​​em tempo de execução e configuração do ambiente em tempo de implantação.
 
 ## Arquitetura
 
@@ -17,14 +17,14 @@ O sistema é dividido em dois subsistemas distintos:
 
 ### ConfigManager (baseado em YAML, editável em tempo de execução)
 
-`lib/config-manager.ts` gerencia o arquivo `config.yml` dentro do diretório `.content/` (clonado do repositório de dados). Ele lê e grava a configuração YAML e confirma e envia automaticamente as alterações para o repositório Git usando `isomorphic-git`. Isso é usado para configurações que os administradores podem alterar em tempo de execução (paginação, navegação, cabeçalho/rodapé).
+`lib/config-manager.ts` gerencia o arquivo `works.yaml` dentro do diretório `.content/` (clonado do repositório de dados). Ele lê e grava a configuração YAML e confirma e envia automaticamente as alterações para o repositório Git usando `isomorphic-git`. Isso é usado para configurações que os administradores podem alterar em tempo de execução (paginação, navegação, cabeçalho/rodapé).
 
 ### ConfigService (baseado em ambiente, validado na inicialização)
 
 `lib/config/` fornece um singleton validado pelo Zod que lê todas as variáveis de ambiente na inicialização e as organiza em seções digitadas: núcleo, autenticação, email, pagamento, análises e integrações. Inclui sinalizadores de recursos, utilitários de detecção de ambiente e exportações que podem ser agitadas em árvore.
 
 ```
-config-manager.ts       --> Runtime YAML config (config.yml)
+config-manager.ts       --> Runtime YAML config (works.yaml)
 lib/config/
   index.ts              --> Barrel exports
   config-service.ts     --> Singleton ConfigService class

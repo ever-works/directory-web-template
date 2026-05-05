@@ -152,7 +152,7 @@ NEXT_PUBLIC_SOLIDGATE_PUBLISHABLE_KEY=...
 
 ### Schritt 2: Preispläne konfigurieren
 
-Preispläne sind in Ihrem `.content/config.yml` definiert:
+Preispläne sind in Ihrem `.content/works.yaml` definiert:
 
 ```yaml
 pricing:

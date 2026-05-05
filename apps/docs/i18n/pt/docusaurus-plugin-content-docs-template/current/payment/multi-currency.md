@@ -124,7 +124,7 @@ Para testar o sistema multimoeda:
 ## Notas importantes
 
 - Os IDs de preços são resolvidos **no momento da finalização da compra**, não no momento da exibição
-- A configuração de preços em `content/config.yml` tem prioridade sobre a configuração padrão
+- A configuração de preços em `content/works.yaml` tem prioridade sobre a configuração padrão
 - As configurações de várias moedas serão usadas apenas se as variáveis de ambiente estiverem configuradas
 
 ## Integração com provedores de pagamento

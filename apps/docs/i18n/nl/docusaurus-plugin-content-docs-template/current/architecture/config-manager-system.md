@@ -9,7 +9,7 @@ sidebar_position: 41
 
 ## Overzicht
 
-Het Config Manager-systeem biedt twee complementaire configuratielagen: de klasse **ConfigManager** (`lib/config-manager.ts`) voor het beheren van het op YAML gebaseerde inhoudconfiguratiebestand (`config.yml`) met door Git ondersteunde persistentie, en de **ConfigService** (`lib/config/`) voor het valideren van en toegang krijgen tot de op omgevingsvariabelen gebaseerde applicatieconfiguratie met Zod-schema's. Samen omvatten ze zowel tijdens runtime bewerkbare instellingen als de configuratie van de implementatieomgeving.
+Het Config Manager-systeem biedt twee complementaire configuratielagen: de klasse **ConfigManager** (`lib/config-manager.ts`) voor het beheren van het op YAML gebaseerde inhoudconfiguratiebestand (`works.yaml`) met door Git ondersteunde persistentie, en de **ConfigService** (`lib/config/`) voor het valideren van en toegang krijgen tot de op omgevingsvariabelen gebaseerde applicatieconfiguratie met Zod-schema's. Samen omvatten ze zowel tijdens runtime bewerkbare instellingen als de configuratie van de implementatieomgeving.
 
 ## Architectuur
 
@@ -17,14 +17,14 @@ Het systeem is verdeeld in twee afzonderlijke subsystemen:
 
 ### ConfigManager (YAML-gebaseerd, runtime-bewerkbaar)
 
-`lib/config-manager.ts` beheert het bestand `config.yml` in de map `.content/` (gekloond uit de gegevensopslag). Het leest en schrijft de YAML-configuratie, en voert automatisch wijzigingen door en pusht deze naar de Git-repository met behulp van `isomorphic-git`. Dit wordt gebruikt voor instellingen die beheerders tijdens runtime kunnen wijzigen (paginering, navigatie, kop-/voettekst).
+`lib/config-manager.ts` beheert het bestand `works.yaml` in de map `.content/` (gekloond uit de gegevensopslag). Het leest en schrijft de YAML-configuratie, en voert automatisch wijzigingen door en pusht deze naar de Git-repository met behulp van `isomorphic-git`. Dit wordt gebruikt voor instellingen die beheerders tijdens runtime kunnen wijzigen (paginering, navigatie, kop-/voettekst).
 
 ### ConfigService (omgevingsgebaseerd, bij opstarten gevalideerd)
 
 `lib/config/` biedt een Zod-gevalideerde singleton die alle omgevingsvariabelen leest bij het opstarten en deze in getypte secties organiseert: kern, auth, e-mail, betaling, analyse en integraties. Het bevat functievlaggen, hulpprogramma's voor omgevingsdetectie en boomschudbare exports.
 
 ```
-config-manager.ts       --> Runtime YAML config (config.yml)
+config-manager.ts       --> Runtime YAML config (works.yaml)
 lib/config/
   index.ts              --> Barrel exports
   config-service.ts     --> Singleton ConfigService class

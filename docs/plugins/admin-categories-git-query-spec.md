@@ -83,7 +83,7 @@ unique combination of FOUR distinct contracts:
 | `GET /api/admin/categories/all`                | `{ success: false, error: 'Unauthorized' }`                         | Git-CMS file-system      | `GET(request: NextRequest)` |
 | `GET /api/admin/tags/all`                      | `{ success: false, error: 'Unauthorized' }`                         | Git-CMS file-system      | `GET(request: NextRequest)` |
 | `GET /api/admin/categories`                    | `{ success: false, error: 'Unauthorized' }`                         | DB repository            | `GET(request: NextRequest)` |
-| `PATCH /api/admin/settings`                    | `{ error: 'Unauthorized' }` (bare)                                  | config.yml file          | `PATCH(req)`             |
+| `PATCH /api/admin/settings`                    | `{ error: 'Unauthorized' }` (bare)                                  | works.yaml file          | `PATCH(req)`             |
 
 ## How the spec walks its scenario tree
 

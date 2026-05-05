@@ -11,7 +11,7 @@ Ta strona dokumentuje każde ustawienie lokalizacji i mapy dostępne w szablonie
 
 ## Źródło Konfiguracji
 
-Ustawienia lokalizacji są zdefiniowane w sekcji `settings.location` pliku `config.yml` w repozytorium treści:
+Ustawienia lokalizacji są zdefiniowane w sekcji `settings.location` pliku `works.yaml` w repozytorium treści:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-Surowa struktura odczytywana z `config.yml`, zdefiniowana w `lib/types/location.ts`:
+Surowa struktura odczytywana z `works.yaml`, zdefiniowana w `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

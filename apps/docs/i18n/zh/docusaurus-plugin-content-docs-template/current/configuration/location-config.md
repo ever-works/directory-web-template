@@ -11,7 +11,7 @@ sidebar_position: 13
 
 ## 配置来源
 
-位置设置定义在内容仓库 `config.yml` 的 `settings.location` 部分：
+位置设置定义在内容仓库 `works.yaml` 的 `settings.location` 部分：
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings（YAML / snake_case）
 
-从 `config.yml` 读取的原始格式，定义在 `lib/types/location.ts`：
+从 `works.yaml` 读取的原始格式，定义在 `lib/types/location.ts`：
 
 ```typescript
 interface LocationConfigSettings {

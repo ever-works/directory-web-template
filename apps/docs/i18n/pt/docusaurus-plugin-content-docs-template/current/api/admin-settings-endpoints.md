@@ -7,7 +7,7 @@ sidebar_position: 23
 
 # Endpoints de Configurações do Admin
 
-A API de configurações do admin fornece endpoints para leitura e modificação da configuração do site armazenada em `config.yml`. Inclui configurações gerais e status do provedor de mapas. Todos os endpoints requerem autenticação de administrador.
+A API de configurações do admin fornece endpoints para leitura e modificação da configuração do site armazenada em `works.yaml`. Inclui configurações gerais e status do provedor de mapas. Todos os endpoints requerem autenticação de administrador.
 
 ## Visão geral
 
@@ -23,7 +23,7 @@ A API de configurações do admin fornece endpoints para leitura e modificação
 GET /api/admin/settings
 ```
 
-Retorna a seção completa de `settings` do arquivo `config.yml` do site.
+Retorna a seção completa de `settings` do arquivo `works.yaml` do site.
 
 **Autenticação:** Administrador obrigatório (via `getCachedApiSession`)
 
@@ -43,7 +43,7 @@ Retorna a seção completa de `settings` do arquivo `config.yml` do site.
 }
 ```
 
-O formato exato do objeto `settings` depende do `config.yml` do site. O endpoint retorna o que estiver armazenado sob a chave `settings`.
+O formato exato do objeto `settings` depende do `works.yaml` do site. O endpoint retorna o que estiver armazenado sob a chave `settings`.
 
 | Status | Condição |
 |--------|----------|
@@ -56,7 +56,7 @@ O formato exato do objeto `settings` depende do `config.yml` do site. O endpoint
 PATCH /api/admin/settings
 ```
 
-Atualiza um único valor de configuração na seção `settings` do `config.yml`. A chave é automaticamente associada ao namespace `settings` (ex.: fornecer a chave `"theme"` atualiza `settings.theme` no arquivo de configuração).
+Atualiza um único valor de configuração na seção `settings` do `works.yaml`. A chave é automaticamente associada ao namespace `settings` (ex.: fornecer a chave `"theme"` atualiza `settings.theme` no arquivo de configuração).
 
 **Autenticação:** Administrador obrigatório
 
@@ -84,7 +84,7 @@ Atualiza um único valor de configuração na seção `settings` do `config.yml`
 }
 ```
 
-A atualização é persistida via `configManager.updateNestedKey()`, que modifica o arquivo `config.yml` subjacente. A chave é automaticamente prefixada com `settings.` antes de ser passada ao gerenciador de configuração.
+A atualização é persistida via `configManager.updateNestedKey()`, que modifica o arquivo `works.yaml` subjacente. A chave é automaticamente prefixada com `settings.` antes de ser passada ao gerenciador de configuração.
 
 **Respostas de erro:**
 
@@ -147,7 +147,7 @@ Nenhum valor de chave real é exposto na resposta.
 
 O sistema de configurações é baseado no singleton `configManager` de `lib/config-manager`:
 
-- **Armazenamento:** Configurações são armazenadas em um arquivo de configuração YAML (`config.yml`)
+- **Armazenamento:** Configurações são armazenadas em um arquivo de configuração YAML (`works.yaml`)
 - **Acesso:** O método `configManager.getConfig()` lê a configuração completa
 - **Atualizações:** O método `configManager.updateNestedKey()` modifica chaves aninhadas específicas
 - **Cache:** As sessões são cacheadas via `getCachedApiSession()` para melhor desempenho

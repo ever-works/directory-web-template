@@ -11,7 +11,7 @@ Diese Seite dokumentiert alle Standort- und Karteneinstellungen, die in der Vorl
 
 ## Konfigurationsquelle
 
-Standorteinstellungen werden im Abschnitt `settings.location` der `config.yml` Ihres Inhalts-Repositorys definiert:
+Standorteinstellungen werden im Abschnitt `settings.location` der `works.yaml` Ihres Inhalts-Repositorys definiert:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-Die rohe Form, die aus `config.yml` gelesen wird, definiert in `lib/types/location.ts`:
+Die rohe Form, die aus `works.yaml` gelesen wird, definiert in `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

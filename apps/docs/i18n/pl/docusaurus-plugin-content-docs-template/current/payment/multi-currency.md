@@ -124,7 +124,7 @@ Aby przetestować system wielowalutowy:
 ## Ważne uwagi
 
 - Identyfikatory cen są rozpoznawane **w momencie realizacji transakcji**, a nie w momencie wyświetlania
-- Konfiguracja cen w `content/config.yml` ma pierwszeństwo przed konfiguracją domyślną
+- Konfiguracja cen w `content/works.yaml` ma pierwszeństwo przed konfiguracją domyślną
 - Konfiguracje wielowalutowe są używane tylko wtedy, gdy skonfigurowane są zmienne środowiskowe
 
 ## Integracja z dostawcami płatności

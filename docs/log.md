@@ -33,6 +33,13 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `apps/web` `docs/configuration`
+  Migrated the data repository config contract to canonical
+  `works.yaml` while keeping legacy `works.yml`, `config.yaml`,
+  and `config.yml` read fallbacks for existing repositories.
+  Runtime config reads now merge legacy files first and let
+  `works.yaml` override them; admin writes and local bootstrap
+  create `works.yaml`.
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
@@ -3431,7 +3438,7 @@ why** at a higher level than per-commit diffs.
   required), a per-item path-format XSS-prevention
   validation, then `configManager.updateNestedKey
   ('custom_header'|'custom_footer', items)` for
-  the load-bearing config.yml write. Returns
+  the load-bearing works.yaml write. Returns
   `{ success: true, type, items }` on success
   (echoing both `type` and `items` from the
   input). The smoke spec pins a bare 401-envelope
@@ -3605,7 +3612,7 @@ why** at a higher level than per-commit diffs.
   a single-field required check (`if (!key)` → 400
   `'Key is required'`),
   `configManager.updateNestedKey('settings.${key}',
-  value)` for the load-bearing config.yml write,
+  value)` for the load-bearing works.yaml write,
   an update-failed branch (500 `'Failed to update
   setting'` if falsy), success payload
   `{ success: true, key, value }` with status 200
@@ -9603,7 +9610,7 @@ text-red-400`" three-reason analysis; the "Why
   param to gate the boolean), the no-`?token=`-override
   assertion (no per-user feature-flag override exists
   today), the no-`?tenant=`-override assertion (the
-  flag is host-wide today, sourced from `config.yml`
+  flag is host-wide today, sourced from `works.yaml`
   via `getExportEnabled()`), the response-shape
   stability assertion across permuted parameter sets,
   and the no-`Accept`-header-branching assertion that

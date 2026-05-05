@@ -188,7 +188,7 @@ Avisos são registrados para `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_SITE_URL` e `NE
 
 ## ConfigManager (Configuração YAML)
 
-A classe `ConfigManager` em `lib/config-manager.ts` gerencia o arquivo `config.yml` do repositório CMS baseado em Git. Trata leitura, escrita e commit de alterações de configuração.
+A classe `ConfigManager` em `lib/config-manager.ts` gerencia o arquivo `works.yaml` do repositório CMS baseado em Git. Trata leitura, escrita e commit de alterações de configuração.
 
 ### Lendo Configuração
 
@@ -239,7 +239,7 @@ Mensagens de commit são contextuais:
 "Update custom header navigation (5 items) - 2024-01-20T..."
 
 // Para chaves genéricas:
-"Update config.yml: myKey - 2024-01-20T..."
+"Update works.yaml: myKey - 2024-01-20T..."
 ```
 
 ### Segurança

@@ -7,7 +7,7 @@ sidebar_position: 23
 
 # Punkty końcowe Ustawień Administratora
 
-Punkty końcowe ustawień administratora zarządzają konfiguracją aplikacji przechowywaną w `config.yml`, w tym ogólnymi ustawieniami witryny oraz statusem funkcji mapy.
+Punkty końcowe ustawień administratora zarządzają konfiguracją aplikacji przechowywaną w `works.yaml`, w tym ogólnymi ustawieniami witryny oraz statusem funkcji mapy.
 
 ## Przegląd tras
 
@@ -25,7 +25,7 @@ Punkty końcowe ustawień administratora zarządzają konfiguracją aplikacji pr
 GET /api/admin/settings
 ```
 
-Zwraca pełną konfigurację aplikacji z `config.yml`.
+Zwraca pełną konfigurację aplikacji z `works.yaml`.
 
 **Uwierzytelnianie:** Wymagane uprawnienia administratora
 
@@ -64,7 +64,7 @@ Zwraca pełną konfigurację aplikacji z `config.yml`.
 PATCH /api/admin/settings
 ```
 
-Aktualizuje pojedynczy klucz konfiguracji. Klucz jest automatycznie poprzedzany prefiksem `"settings."` przed zapisem w `config.yml`.
+Aktualizuje pojedynczy klucz konfiguracji. Klucz jest automatycznie poprzedzany prefiksem `"settings."` przed zapisem w `works.yaml`.
 
 **Uwierzytelnianie:** Wymagane uprawnienia administratora
 
@@ -157,11 +157,11 @@ Ustawienia aplikacji są zarządzane w trzech warstwach:
 
 | Warstwa | Plik | Opis |
 |---------|------|------|
-| Konfiguracja aplikacji | `config.yml` | Ustawienia runetime zarządzane przez panel admina |
+| Konfiguracja aplikacji | `works.yaml` | Ustawienia runetime zarządzane przez panel admina |
 | Zmienne środowiskowe | `.env.local` | Tajemnice i dane dostępowe (klucze API, DB) |
 | Schemat bazy danych | Drizzle/SQLite | Dane użytkowników, elementów i treści |
 
-Ustawienia przechowywane w `config.yml` są odczytywane przez serwer przy każdym żądaniu (bez buforowania w panelu admina), zapewniając natychmiastowe działanie zmian bez konieczności ponownego wdrożenia.
+Ustawienia przechowywane w `works.yaml` są odczytywane przez serwer przy każdym żądaniu (bez buforowania w panelu admina), zapewniając natychmiastowe działanie zmian bez konieczności ponownego wdrożenia.
 
 ---
 
@@ -171,6 +171,6 @@ Ustawienia przechowywane w `config.yml` są odczytywane przez serwer przy każdy
 |-----|------|
 | 400 | Brakujące pola `key` lub `value` |
 | 401 | Brak uwierzytelnienia jako administrator |
-| 500 | Nie można odczytać lub zapisać `config.yml` |
+| 500 | Nie można odczytać lub zapisać `works.yaml` |
 
 **Źródło:** `template/app/api/admin/settings/**`

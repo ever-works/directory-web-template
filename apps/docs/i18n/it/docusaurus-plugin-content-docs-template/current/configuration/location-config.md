@@ -11,7 +11,7 @@ Questa pagina documenta ogni impostazione di posizione e mappa disponibile nel t
 
 ## Sorgente di Configurazione
 
-Le impostazioni di posizione sono definite nella sezione `settings.location` del file `config.yml` del repository di contenuti:
+Le impostazioni di posizione sono definite nella sezione `settings.location` del file `works.yaml` del repository di contenuti:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-La struttura raw letta da `config.yml`, definita in `lib/types/location.ts`:
+La struttura raw letta da `works.yaml`, definita in `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

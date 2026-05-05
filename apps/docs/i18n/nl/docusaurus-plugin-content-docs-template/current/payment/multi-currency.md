@@ -128,7 +128,7 @@ Om het multi-valuta systeem te testen:
 ## Belangrijke opmerkingen
 
 - Prijs-ID's worden opgelost **op het moment van checkout**, niet op weergavetijd
-- De prijsconfiguratie in `content/config.yml` heeft prioriteit boven de standaardconfiguratie
+- De prijsconfiguratie in `content/works.yaml` heeft prioriteit boven de standaardconfiguratie
 - Multi-valuta configuraties worden alleen gebruikt als omgevingsvariabelen zijn geconfigureerd
 
 ## Integratie met betalingsproviders

@@ -16,7 +16,7 @@ export type MapStyle = 'streets' | 'satellite';
 
 /**
  * Location settings configuration from YAML (snake_case).
- * Used for parsing config.yml settings.location section.
+ * Used for parsing the works.yaml settings.location section.
  */
 export interface LocationConfigSettings {
 	enabled?: boolean;
@@ -67,7 +67,7 @@ export const DEFAULT_LOCATION_SETTINGS: LocationSettings = {
 
 /**
  * Maps snake_case config settings to camelCase runtime settings.
- * @param config - Location settings from config.yml (snake_case)
+ * @param config - Location settings from works.yaml (snake_case)
  * @returns Runtime location settings (camelCase)
  */
 export function mapLocationConfigToRuntime(config?: LocationConfigSettings): LocationSettings {

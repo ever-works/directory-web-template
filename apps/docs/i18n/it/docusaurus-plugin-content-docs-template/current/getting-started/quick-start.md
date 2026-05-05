@@ -10,7 +10,7 @@ Metti in funzione il tuo sito web directory in meno di 10 minuti.
 
 ## Passo 1: Configurare le Impostazioni
 
-Modifica apps/web/.content/config.yml:
+Modifica apps/web/.content/works.yaml:
 ```yaml
 company_name: 'Your Company'
 item_name: 'Tool'
