@@ -18,67 +18,51 @@ import type { CustomNavigationItem } from '@/lib/content';
 import type { LocationConfigSettings, MapStatusResponse } from '@/lib/types/location';
 
 const GRADIENT_HEADER_CLASSES = [
-	'bg-linear-to-r',
-	'from-white',
-	'via-gray-50',
-	'to-white',
-	'dark:from-[#0a0a0a]',
-	'dark:via-[#0a0a0a]',
-	'dark:to-[#0a0a0a]',
-	'rounded-2xl',
-	'border',
-	'border-gray-100',
-	'dark:border-white/6',
-	'shadow-lg',
-	'p-6',
 	'mb-8'
 ].join(' ');
 
 const ICON_WRAPPER_CLASSES = [
-	'w-12',
-	'h-12',
-	'bg-linear-to-br',
-	'from-theme-primary',
-	'to-theme-accent',
+	'w-11',
+	'h-11',
+	'bg-gray-900',
+	'dark:bg-gray-800',
 	'rounded-xl',
 	'flex',
 	'items-center',
 	'justify-center',
-	'shadow-lg'
+	'shrink-0',
+	'shadow-sm'
 ].join(' ');
 
 const TITLE_CLASSES = [
-	'text-2xl',
-	'sm:text-3xl',
-	'font-bold',
-	'bg-linear-to-r',
-	'from-gray-900',
-	'to-gray-600',
-	'dark:from-white',
-	'dark:to-gray-300',
-	'bg-clip-text',
-	'text-transparent'
+	'text-xl',
+	'font-semibold',
+	'text-gray-900',
+	'dark:text-white',
+	'leading-tight',
+	'tracking-tight'
 ].join(' ');
 
-const SUBTITLE_CLASSES = ['text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' ');
+const SUBTITLE_CLASSES = ['text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-0.5'].join(' ');
 
 const ACCORDION_ITEM_CLASSES = [
 	'bg-white',
-	'dark:bg-white/5',
-	'rounded-xl',
+	'dark:bg-white/3',
+	'rounded-2xl',
 	'border',
-	'border-gray-200',
+	'border-gray-100',
 	'dark:border-white/6',
-	'shadow-xs',
-	'hover:shadow-md',
+	'hover:border-gray-200',
+	'dark:hover:border-white/10',
+	'hover:shadow-sm',
 	'transition-all',
 	'duration-200',
 	'mb-4'
 ].join(' ');
 
-const ACCORDION_TITLE_CLASSES = ['text-lg', 'font-semibold', 'text-gray-900', 'dark:text-gray-100'].join(' ');
+const ACCORDION_TITLE_CLASSES = ['text-sm', 'font-semibold', 'text-gray-900', 'dark:text-white'].join(' ');
 
-const ACCORDION_DESC_CLASSES = ['text-sm', 'text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' ');
+const ACCORDION_DESC_CLASSES = ['text-xs', 'text-gray-500', 'dark:text-gray-400', 'mt-0.5'].join(' ');
 
 const ACCORDION_CONTENT_CLASSES = ['px-6', 'pb-6', 'pt-2', 'space-y-4'].join(' ');
 
@@ -329,17 +313,20 @@ export function SettingsPage() {
 
 	return (
 		<div className="space-y-8">
-			{/* Welcome Section with Gradient */}
+			{/* Page Header */}
 			<div className={GRADIENT_HEADER_CLASSES}>
-				<div className="flex items-center space-x-4">
-					<div className={ICON_WRAPPER_CLASSES}>
-						<Sliders className="w-6 h-6 text-white" aria-hidden="true" />
-					</div>
-					<div>
-						<h1 className={TITLE_CLASSES}>Settings</h1>
-						<p className={SUBTITLE_CLASSES}>Configure your site settings and preferences</p>
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className={ICON_WRAPPER_CLASSES}>
+							<Sliders className="w-5 h-5 text-white" aria-hidden="true" />
+						</div>
+						<div>
+							<h1 className={TITLE_CLASSES}>Settings</h1>
+							<p className={SUBTITLE_CLASSES}>Configure your site settings and preferences</p>
+						</div>
 					</div>
 				</div>
+				<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
 			</div>
 
 			{/* Main Content */}

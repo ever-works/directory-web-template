@@ -1,15 +1,15 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Button, Chip, useDisclosure } from "@heroui/react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck, Loader2, LayoutGrid, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
 import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { useNavigation } from "@/components/providers";
+import { Container } from "@/components/ui/container";
+import { UniversalPagination } from "@/components/universal-pagination";
 import {
   AdminSearchBar,
   AdminStatusTabs,
@@ -20,47 +20,37 @@ import {
   type ActiveFilter,
 } from "@/components/admin/shared";
 
-// Helper function to generate consistent avatar colors based on user identifier
 function getAvatarColor(identifier: string): string {
   const colors = [
-    'from-blue-500 to-blue-600',
-    'from-green-500 to-green-600',
-    'from-purple-500 to-purple-600',
-    'from-red-500 to-red-600',
-    'from-yellow-500 to-yellow-600',
-    'from-indigo-500 to-indigo-600',
-    'from-pink-500 to-pink-600',
-    'from-teal-500 to-teal-600',
-    'from-orange-500 to-orange-600',
-    'from-cyan-500 to-cyan-600',
-    'from-emerald-500 to-emerald-600',
-    'from-violet-500 to-violet-600'
+    "from-blue-500 to-blue-600",
+    "from-green-500 to-green-600",
+    "from-purple-500 to-purple-600",
+    "from-red-500 to-red-600",
+    "from-yellow-500 to-yellow-600",
+    "from-indigo-500 to-indigo-600",
+    "from-pink-500 to-pink-600",
+    "from-teal-500 to-teal-600",
+    "from-orange-500 to-orange-600",
+    "from-cyan-500 to-cyan-600",
+    "from-emerald-500 to-emerald-600",
+    "from-violet-500 to-violet-600"
   ];
-
-  // Create a simple hash from the identifier
   let hash = 0;
   for (let i = 0; i < identifier.length; i++) {
     hash = identifier.charCodeAt(i) + ((hash << 5) - hash);
   }
-
-  // Use absolute value and modulo to get consistent index
-  const colorIndex = Math.abs(hash) % colors.length;
-  return colors[colorIndex];
+  return colors[Math.abs(hash) % colors.length];
 }
 
 export default function AdminUsersPage() {
   const PAGE_SIZE = 10;
+  const t = useTranslations("admin.ADMIN_USERS_PAGE");
 
-  // Translations
-  const t = useTranslations('admin.ADMIN_USERS_PAGE');
-
-  // Use custom hook
   const {
     users,
     stats,
     isLoading,
     isFetching,
-    isFiltering: _isFiltering,
     isSubmitting,
     isSearching,
     currentPage,
@@ -69,482 +59,422 @@ export default function AdminUsersPage() {
     searchTerm,
     roleFilter,
     statusFilter,
-    hasActiveFilters: _hasActiveFilters,
     hasActiveSearch,
-    activeFilterCount: _activeFilterCount,
     deleteUser,
     handlePageChange,
     setSearchTerm,
     setRoleFilter,
     setStatusFilter,
     clearAllFilters,
-  } = useAdminUsers({
-    page: 1,
-    limit: PAGE_SIZE,
-    role: '',
-    status: '',
-  });
+  } = useAdminUsers({ page: 1, limit: PAGE_SIZE, role: "", status: "" });
 
-  // Check if non-status filters are active (role or search)
   const hasNonStatusFilters = !!roleFilter || hasActiveSearch;
 
-  // Status tab options (no icons to prevent 2-line wrapping)
-  // When role/search filters are active, use totalUsers for "All" and hide individual counts
-  const statusOptions = useMemo<StatusTabOption<'active' | 'inactive'>[]>(() => [
-    { value: '', label: t('ALL_STATUSES'), count: hasNonStatusFilters ? totalUsers : stats.total },
-    { value: 'active', label: t('ACTIVE'), count: hasNonStatusFilters ? undefined : stats.active },
-    { value: 'inactive', label: t('INACTIVE'), count: hasNonStatusFilters ? undefined : stats.inactive },
-  ], [t, stats, totalUsers, hasNonStatusFilters]);
+  const displayUsers = users;
+  const displayStats = stats;
 
-  // Role filter sections for popover
-  // Note: Role IDs must match actual role names in database ('admin', 'client')
+  const statusOptions = useMemo<StatusTabOption<"active" | "inactive">[]>(() => [
+    { value: "", label: t("ALL_STATUSES"), count: hasNonStatusFilters ? totalUsers : displayStats.total },
+    { value: "active",   label: t("ACTIVE"),   count: hasNonStatusFilters ? undefined : displayStats.active },
+    { value: "inactive", label: t("INACTIVE"), count: hasNonStatusFilters ? undefined : displayStats.inactive },
+  ], [t, displayStats, totalUsers, hasNonStatusFilters]);
+
   const roleFilterSections = useMemo<FilterSection<string>[]>(() => [
     {
-      id: 'role',
-      label: t('ROLE_SECTION_LABEL'),
-      type: 'radio',
+      id: "role",
+      label: t("ROLE_SECTION_LABEL"),
+      type: "radio",
       options: [
-        { id: 'admin', label: t('ADMIN'), icon: <ShieldCheck className="w-3.5 h-3.5" /> },
-        { id: 'client', label: t('CLIENT'), icon: <Shield className="w-3.5 h-3.5" /> },
+        { id: "admin",  label: t("ADMIN"),  icon: <ShieldCheck className="w-3.5 h-3.5" /> },
+        { id: "client", label: t("CLIENT"), icon: <Shield className="w-3.5 h-3.5" /> },
       ],
       selectedValues: roleFilter ? [roleFilter] : [],
-      onChange: (values) => setRoleFilter(values[0] || ''),
+      onChange: (values) => setRoleFilter(values[0] || ""),
     },
   ], [t, roleFilter, setRoleFilter]);
 
-  // Build active filters for chip display
   const activeFiltersDisplay = useMemo<ActiveFilter[]>(() => {
     const filters: ActiveFilter[] = [];
-
-    if (searchTerm.trim().length >= 2) {
-      filters.push({
-        id: 'search',
-        type: 'search',
-        label: t('SEARCH_LABEL'),
-        value: searchTerm.trim(),
-      });
-    }
-
-    if (statusFilter) {
+    if (searchTerm.trim().length >= 2)
+      filters.push({ id: "search", type: "search", label: t("SEARCH_LABEL"), value: searchTerm.trim() });
+    if (statusFilter)
       filters.push({
         id: `status:${statusFilter}`,
-        type: 'status',
-        label: t('STATUS_LABEL'),
-        value: statusFilter === 'active' ? t('ACTIVE') : t('INACTIVE'),
-        icon: statusFilter === 'active' ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />,
+        type: "status",
+        label: t("STATUS_LABEL"),
+        value: statusFilter === "active" ? t("ACTIVE") : t("INACTIVE"),
+        icon: statusFilter === "active" ? <UserCheck className="w-3 h-3" /> : <UserX className="w-3 h-3" />,
       });
-    }
-
     if (roleFilter) {
-      const roleLabels: Record<string, string> = {
-        'admin': t('ADMIN'),
-        'client': t('CLIENT'),
-      };
-      filters.push({
-        id: `role:${roleFilter}`,
-        type: 'role',
-        label: t('ROLE_LABEL'),
-        value: roleLabels[roleFilter] || roleFilter,
-      });
+      const roleLabels: Record<string, string> = { admin: t("ADMIN"), client: t("CLIENT") };
+      filters.push({ id: `role:${roleFilter}`, type: "role", label: t("ROLE_LABEL"), value: roleLabels[roleFilter] || roleFilter });
     }
-
     return filters;
   }, [searchTerm, statusFilter, roleFilter, t]);
 
-  // Handle removing individual filters from chips
   const handleRemoveFilter = (filter: ActiveFilter) => {
     switch (filter.type) {
-      case 'search':
-        setSearchTerm('');
-        break;
-      case 'status':
-        setStatusFilter('');
-        break;
-      case 'role':
-        setRoleFilter('');
-        break;
+      case "search": setSearchTerm(""); break;
+      case "status": setStatusFilter(""); break;
+      case "role":   setRoleFilter(""); break;
     }
   };
 
-  // Local state for form
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
-  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // Handler functions
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit">("create");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t('DELETE_CONFIRMATION'))) {
-      return;
-    }
-    const ok= await deleteUser(id);
-    if (ok) onClose();
+    if (!confirm(t("DELETE_CONFIRMATION"))) return;
+    const ok = await deleteUser(id);
+    if (ok) setIsFormOpen(false);
   };
 
-  const openCreateForm = () => {
-    setFormMode('create');
-    setSelectedUser(null);
-    onOpen();
-  };
-
-  const openEditForm = (user: UserData) => {
-    setFormMode('edit');
-    setSelectedUser(user);
-    onOpen();
-  };
-
+  const openCreateForm = () => { setFormMode("create"); setSelectedUser(null); setIsFormOpen(true); };
+  const openEditForm = (user: UserData) => { setFormMode("edit"); setSelectedUser(user); setIsFormOpen(true); };
 
   const { isInitialLoad } = useNavigation();
   const shouldShowSkeleton = isInitialLoad && isLoading;
 
   if (shouldShowSkeleton) {
     return (
-      <div className="p-6 max-w-7xl mx-auto">
-        {/* Loading Header */}
+      <Container useGlobalWidth>
         <div className="mb-8">
-          <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl animate-pulse"></div>
-                <div>
-                  <div className="h-8 w-48 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse mb-2"></div>
-                  <div className="h-4 w-64 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-11 h-11 rounded-xl bg-gray-200 dark:bg-white/8 animate-pulse shrink-0" />
+              <div>
+                <div className="h-5 w-32 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse mb-2" />
+                <div className="h-3.5 w-48 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
               </div>
-              <div className="h-12 w-32 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse"></div>
             </div>
+            <div className="h-9 w-28 bg-gray-200 dark:bg-white/8 rounded-xl animate-pulse shrink-0" />
           </div>
+          <div className="mt-5 h-px bg-gray-200 dark:bg-white/8 animate-pulse" />
         </div>
-
-        {/* Loading Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {Array.from({ length: 3 }, (_, i) => (
-            <Card key={i} className="border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="h-4 w-24 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse mb-2"></div>
-                    <div className="h-8 w-16 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                  </div>
-                  <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl animate-pulse"></div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5">
+              <div className="flex items-start justify-between mb-4">
+                <div className="h-3 w-20 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
+                <div className="w-9 h-9 rounded-xl bg-gray-200 dark:bg-white/8 animate-pulse" />
+              </div>
+              <div className="h-7 w-14 bg-gray-200 dark:bg-white/8 rounded animate-pulse mb-2" />
+              <div className="h-3 w-16 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
+            </div>
           ))}
         </div>
-
-        {/* Loading Table */}
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-0">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
-              <div className="flex items-center justify-between">
-                <div className="h-6 w-24 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                <div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-              </div>
-            </div>
-            <div className="divide-y divide-gray-100 dark:divide-white/6">
-              {Array.from({ length: 5 }, (_, i) => (
-                <div key={i} className="px-6 py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-6 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-4 h-4 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse"></div>
-                        <div className="w-6 h-6 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        <div className="flex-1">
-                          <div className="h-5 w-32 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse mb-1"></div>
-                          <div className="h-3 w-24 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-6 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse"></div>
-                      <div className="flex space-x-1">
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                        <div className="w-8 h-8 bg-gray-200 dark:bg-white/8 rounded-sm animate-pulse"></div>
-                      </div>
-                    </div>
+        <div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5">
+            <div className="h-4 w-20 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
+          </div>
+          <div className="divide-y divide-gray-50 dark:divide-white/4">
+            {Array.from({ length: 5 }, (_, i) => (
+              <div key={i} className="px-5 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-white/8 animate-pulse shrink-0" />
+                  <div>
+                    <div className="h-4 w-32 bg-gray-200 dark:bg-white/8 rounded animate-pulse mb-1.5" />
+                    <div className="h-3 w-44 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Loading indicator with text */}
-        <div className="mt-8 text-center">
-          <div className="inline-flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-            <div className="w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm font-medium">{t('LOADING_USERS')}</span>
+                <div className="flex items-center gap-2">
+                  <div className="h-5 w-14 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse" />
+                  <div className="h-7 w-7 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse" />
+                  <div className="h-7 w-7 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </Container>
     );
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Enhanced Header */}
+    <Container useGlobalWidth>
+      {/* Page Header */}
       <div className="mb-8">
-        <div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                  {t('TITLE')}
-                </h1>
-                <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2">
-                  <span>{t('SUBTITLE')}</span>
-                  <span className="hidden sm:inline">•</span>
-                  <span className="text-sm px-2 py-1 bg-theme-primary/10 text-theme-primary rounded-full font-medium">
-                    {totalUsers} {t('TOTAL_USERS')}
-                  </span>
-                </p>
-              </div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 rounded-xl bg-gray-900 dark:bg-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+              <Users className="w-5 h-5 text-white" />
             </div>
-            <Button
-              color="primary"
-              size="lg"
-              onPress={openCreateForm}
-              startContent={<Plus size={18} />}
-              className="bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90 shadow-lg shadow-theme-primary/25 hover:shadow-xl hover:shadow-theme-primary/40 transition-all duration-300 text-white font-medium"
-            >
-              {t('ADD_USER')}
-            </Button>
+            <div>
+              <h1 className="text-xl font-semibold text-gray-900 dark:text-white leading-tight tracking-tight">
+                {t("TITLE")}
+              </h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t("SUBTITLE")}</p>
+            </div>
           </div>
+          <button
+            type="button"
+            onClick={openCreateForm}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950 shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            {t("ADD_USER")}
+          </button>
+        </div>
+        <div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+          <div className="flex items-start justify-between mb-4 pt-0.5">
+            <p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+              {t("TOTAL_USERS_STAT")}
+            </p>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+              <Users className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-2">
+            {displayStats.total}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{t("TOTAL_USERS")}</p>
+        </div>
+
+        <div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+          <div className="flex items-start justify-between mb-4 pt-0.5">
+            <p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+              {t("ACTIVE_USERS_STAT")}
+            </p>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+              <UserCheck className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-2">
+            {displayStats.active}
+          </p>
+          <div className="h-1.5 w-full bg-gray-100 dark:bg-white/6 rounded-full mb-2 overflow-hidden">
+            <div
+              className="h-full bg-linear-to-r from-gray-400 to-gray-600 dark:from-gray-500 dark:to-gray-400 rounded-full transition-all duration-700"
+              style={{ width: `${displayStats.total > 0 ? Math.round((displayStats.active / displayStats.total) * 100) : 0}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <span className="font-semibold text-gray-700 dark:text-gray-300">
+              {displayStats.total > 0 ? Math.round((displayStats.active / displayStats.total) * 100) : 0}%
+            </span>
+            <span>{t("ACTIVE")}</span>
+          </div>
+        </div>
+
+        <div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+          <div className="flex items-start justify-between mb-4 pt-0.5">
+            <p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+              {t("INACTIVE_USERS_STAT")}
+            </p>
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+              <UserX className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-2">
+            {displayStats.inactive}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{t("INACTIVE")}</p>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('TOTAL_USERS_STAT')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.total}</p>
-              </div>
-              <div className="w-12 h-12 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Users className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('ACTIVE_USERS_STAT')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.active}</p>
-              </div>
-              <div className="w-12 h-12 bg-linear-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                <UserCheck className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-0 shadow-lg">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t('INACTIVE_USERS_STAT')}</p>
-                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats.inactive}</p>
-              </div>
-              <div className="w-12 h-12 bg-linear-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center shadow-lg">
-                <UserX className="w-6 h-6 text-white" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
       {/* Search Bar */}
-      <div className="mb-6">
+      <div className="mb-4">
         <AdminSearchBar
           value={searchTerm}
           onChange={setSearchTerm}
           isSearching={isSearching}
-          placeholder={t('SEARCH_PLACEHOLDER')}
+          placeholder={t("SEARCH_PLACEHOLDER")}
         />
       </div>
 
       {/* Users Table */}
-      <Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
-        <CardContent className="p-0">
-          {/* Table Header with Filters */}
-          <div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
-            <div className="flex items-center justify-between gap-4 flex-wrap">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('USERS_TABLE_TITLE')}</h3>
-              <div className="flex items-center gap-3">
-                {/* Status Tabs */}
-                <AdminStatusTabs
-                  options={statusOptions}
-                  value={statusFilter as 'active' | 'inactive' | ''}
-                  onChange={setStatusFilter}
-                  showCounts={true}
-                />
-                {/* Filter Popover */}
-                <AdminFilterPopover
-                  sections={roleFilterSections}
-                  activeCount={roleFilter ? 1 : 0}
-                  onClearAll={clearAllFilters}
-                  triggerLabel={t('FILTERS')}
-                />
+      <div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+        {/* Table Header with Filters */}
+        <div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t("USERS_TABLE_TITLE")}</h3>
+            <div className="flex items-center gap-3">
+              <AdminStatusTabs
+                options={statusOptions}
+                value={statusFilter as "active" | "inactive" | ""}
+                onChange={setStatusFilter}
+                showCounts={true}
+              />
+              <AdminFilterPopover
+                sections={roleFilterSections}
+                activeCount={roleFilter ? 1 : 0}
+                onClearAll={clearAllFilters}
+                triggerLabel={t("FILTERS")}
+              />
+              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
+                <button type="button" onClick={() => setViewMode("grid")} title="Grid view"
+                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "grid" ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300")}>
+                  <LayoutGrid className="w-3.5 h-3.5" />
+                </button>
+                <button type="button" onClick={() => setViewMode("list")} title="List view"
+                  className={cn("p-1.5 rounded-md transition-colors", viewMode === "list" ? "bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm" : "text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300")}>
+                  <List className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Active Filters */}
-          {activeFiltersDisplay.length > 0 && (
-            <div className="px-6 py-3 border-b border-gray-100 dark:border-white/6 bg-gray-25 dark:bg-white/4">
-              <AdminActiveFilters
-                filters={activeFiltersDisplay}
-                onRemove={handleRemoveFilter}
-                onClearAll={clearAllFilters}
-              />
+        {/* Active Filters */}
+        {activeFiltersDisplay.length > 0 && (
+          <div className="px-5 py-3 border-b border-gray-50 dark:border-white/4">
+            <AdminActiveFilters
+              filters={activeFiltersDisplay}
+              onRemove={handleRemoveFilter}
+              onClearAll={clearAllFilters}
+            />
+          </div>
+        )}
+
+        {/* Users List */}
+        <div className={cn(
+          "relative transition-opacity duration-200",
+          isFetching && !isLoading && "opacity-60"
+        )}>
+          {isFetching && !isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+              <div className="bg-white/90 dark:bg-black/50 rounded-xl px-4 py-2 shadow-lg flex items-center gap-2 backdrop-blur-sm">
+                <Loader2 className="w-4 h-4 animate-spin text-gray-600 dark:text-gray-300" />
+                <span className="text-xs font-medium text-gray-600 dark:text-gray-300">{t("LOADING_USERS")}</span>
+              </div>
             </div>
           )}
 
-          {/* Users List */}
-          <div className={cn(
-            "relative transition-opacity duration-200",
-            isFetching && !isLoading && "opacity-60"
-          )}>
-            {/* Loading overlay for filter/page changes */}
-            {isFetching && !isLoading && (
-              <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                <div className="bg-white/90 dark:bg-[#0a0a0a]/90 rounded-lg px-4 py-2 shadow-lg flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-theme-primary" />
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{t('LOADING_USERS')}</span>
-                </div>
+          {displayUsers.length === 0 && !isFetching ? (
+            <div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
+                <Users className="w-6 h-6 text-gray-400 dark:text-gray-500" />
               </div>
-            )}
-
-            {users.length === 0 && !isFetching ? (
-              <div className="px-6 py-12 text-center">
-                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('NO_USERS_FOUND')}</h3>
-                <p className="text-gray-500 dark:text-gray-400">{t('NO_USERS_DESCRIPTION')}</p>
-              </div>
-            ) : users.length > 0 ? (
-              <div className="divide-y divide-gray-100 dark:divide-white/6">
-                {users.map((user) => (
-                <div key={user.id} className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-white/3 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-10 h-10 bg-linear-to-br ${getAvatarColor(user.name || user.email || user.id)} rounded-full flex items-center justify-center text-white font-semibold text-sm`}>
-                          {(user.name?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase()}
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 dark:text-white">{user.name}</h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {user.email}
-                          </p>
-                        </div>
-                      </div>
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">{t("NO_USERS_FOUND")}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-6">
+                {t("NO_USERS_DESCRIPTION")}
+              </p>
+              <button
+                type="button"
+                onClick={openCreateForm}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200"
+              >
+                <Plus className="w-4 h-4" />
+                {t("ADD_USER")}
+              </button>
+            </div>
+          ) : viewMode === "grid" ? (
+            <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {displayUsers.map((user) => (
+                <div key={user.id} className="group relative flex flex-col gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/6 bg-white dark:bg-white/2 hover:border-gray-200 dark:hover:border-white/10 hover:shadow-sm transition-all duration-200">
+                  <div className="flex items-start justify-between">
+                    <div className={cn("w-10 h-10 rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm shrink-0", getAvatarColor(user.name || user.email || user.id))}>
+                      {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <Chip
-                        color={user.status === 'active' ? 'success' : 'default'}
-                        variant="flat"
-                        size="sm"
-                      >
-                        {user.status === 'active' ? t('ACTIVE') : t('INACTIVE')}
-                      </Chip>
-                      <Chip
-                        color="primary"
-                        variant="flat"
-                        size="sm"
-                      >
-                        {user.roleName || t('NO_ROLE')}
-                      </Chip>
-                      <div className="flex space-x-1">
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          onPress={() => openEditForm(user as unknown as UserData)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          onPress={() => handleDelete(user.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset",
+                        user.status === "active" ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20" : "bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8")}>
+                        <span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
+                        {user.status === "active" ? t("ACTIVE") : t("INACTIVE")}
+                      </span>
                     </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-0.5">{user.name}</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-2">{user.email}</p>
+                    {user.roleName && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
+                        {user.roleName}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-end gap-1 pt-2 border-t border-gray-50 dark:border-white/4">
+                    <button type="button" onClick={() => openEditForm(user as unknown as UserData)} title={t("EDIT_USER") || "Edit"}
+                      className="flex cursor-pointer items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                      <Edit className="w-3.5 h-3.5" />Edit
+                    </button>
+                    <button type="button" onClick={() => handleDelete(user.id)} title={t("DELETE_USER") || "Delete"}
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                 </div>
               ))}
-              </div>
-            ) : null}
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50 dark:divide-white/4">
+              {displayUsers.map((user) => (
+                <div key={user.id} className="group flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-white/2.5 transition-colors duration-150">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className={cn("w-10 h-10 rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm shrink-0", getAvatarColor(user.name || user.email || user.id))}>
+                      {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.name}</h4>
+                        <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset",
+                          user.status === "active" ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20" : "bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8")}>
+                          <span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
+                          {user.status === "active" ? t("ACTIVE") : t("INACTIVE")}
+                        </span>
+                        {user.roleName && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
+                            {user.roleName}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 ml-13 md:ml-0">
+                    <button type="button" onClick={() => openEditForm(user as unknown as UserData)} title={t("EDIT_USER") || "Edit"}
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    <button type="button" onClick={() => handleDelete(user.id)} title={t("DELETE_USER") || "Delete"}
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-gray-100 dark:border-white/6">
+            <UniversalPagination
+              page={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
-        </CardContent>
-      </Card>
+        )}
+      </div>
 
-             {/* Pagination */}
-       {totalPages > 1 && (
-         <div className="mt-6 flex justify-center">
-           <div className="flex space-x-2">
-             <Button
-               variant="bordered"
-               size="sm"
-               disabled={currentPage === 1}
-               onPress={() => handlePageChange(currentPage - 1)}
-             >
-               {t('PREVIOUS')}
-             </Button>
-             <span className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-               {t('PAGE_OF', { current: currentPage, total: totalPages })}
-             </span>
-             <Button
-               variant="bordered"
-               size="sm"
-               disabled={currentPage === totalPages}
-               onPress={() => handlePageChange(currentPage + 1)}
-             >
-               {t('NEXT')}
-             </Button>
-           </div>
-         </div>
-       )}
-
-             {/* Form Modal - Using Reliable CSS Modal */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-60" 
-            onClick={() => {
-              if (!isSubmitting) {
-                onClose();
-              }
-            }}
-          />
-          <div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {formMode === 'create' ? t('CREATE_NEW_USER') : t('EDIT_USER')}
+      {/* Form Modal */}
+      {isFormOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
+          onClick={(e) => e.target === e.currentTarget && !isSubmitting && setIsFormOpen(false)}
+        >
+          <div className="relative bg-white dark:bg-[#121212] rounded-2xl shadow-xl max-w-4xl w-full my-8 overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/6">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
+                {formMode === "create" ? t("CREATE_NEW_USER") : t("EDIT_USER")}
               </h2>
               {!isSubmitting && (
                 <button
-                  onClick={onClose}
-                  className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
+                  type="button"
+                  onClick={() => setIsFormOpen(false)}
+                  className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+                  aria-label="Close"
                 >
-                  <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -553,14 +483,14 @@ export default function AdminUsersPage() {
             <div className="overflow-y-auto max-h-[calc(90vh-4rem)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
               <UserForm
                 user={selectedUser || undefined}
-                onSuccess={() => onClose()}
+                onSuccess={() => setIsFormOpen(false)}
                 isSubmitting={isSubmitting}
-                onCancel={onClose}
+                onCancel={() => setIsFormOpen(false)}
               />
             </div>
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
-} 
+}

@@ -1,64 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/components/ui/modal';
-import { Select, SelectItem } from '@/components/ui/select';
 import { Flag, X, Loader2, User, Calendar, FileText, CheckCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ReportStatus, ReportResolution } from '@/lib/db/schema';
 import type { ReportStatusValues, ReportResolutionValues } from '@/lib/db/schema';
 import type { AdminReportItem, UpdateReportParams } from '@/hooks/use-admin-reports';
+import { cn } from '@/lib/utils';
 
-// Extracted className constants for better maintainability
-const CLASSES = {
-	// Header styles
-	headerContainer: 'flex items-center justify-between',
-	headerLeft: 'flex items-center gap-3',
-	alertIcon: 'w-10 h-10 bg-linear-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg',
-	headerText: 'text-xl font-bold text-gray-900 dark:text-white',
-	headerSubtext: 'text-sm text-gray-600 dark:text-gray-400',
-	closeButton: 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 p-1',
+const INPUT_BASE = cn(
+	'w-full h-10 px-3 text-sm rounded-xl',
+	'bg-white dark:bg-white/5',
+	'border border-gray-200 dark:border-white/8',
+	'text-gray-900 dark:text-white',
+	'focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20',
+	'transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed appearance-none'
+);
 
-	// Info section styles
-	infoContainer:
-		'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-200 dark:border-white/6 p-4',
-	infoGrid: 'grid grid-cols-2 gap-4',
-	infoItem: 'flex items-center gap-2',
-	infoLabel: 'text-xs text-gray-500 dark:text-gray-400',
-	infoValue: 'text-sm font-medium text-gray-900 dark:text-white',
-
-	// Details section
-	detailsContainer: 'bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg p-4',
-	detailsText: 'text-gray-700 dark:text-gray-300 text-sm',
-
-	// Form styles
-	formSection: 'space-y-4',
-	label: 'block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2',
-	textarea:
-		'w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-white/8 bg-white dark:bg-white/5 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary resize-none',
-
-	// Footer styles
-	footerContainer: 'flex gap-3 w-full',
-	cancelButton: 'flex-1',
-	submitButton:
-		'flex-1 bg-theme-primary hover:bg-theme-primary/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200'
-} as const;
-
-// Resolution options with labels
 const RESOLUTION_OPTIONS: { value: ReportResolutionValues; label: string; description: string }[] = [
 	{ value: ReportResolution.CONTENT_REMOVED, label: 'Remove Content', description: 'Delete the reported content' },
 	{ value: ReportResolution.USER_WARNED, label: 'Warn User', description: 'Send a warning to the content owner' },
-	{
-		value: ReportResolution.USER_SUSPENDED,
-		label: 'Suspend User',
-		description: 'Temporarily suspend the user account'
-	},
+	{ value: ReportResolution.USER_SUSPENDED, label: 'Suspend User', description: 'Temporarily suspend the user' },
 	{ value: ReportResolution.USER_BANNED, label: 'Ban User', description: 'Permanently ban the user' },
 	{ value: ReportResolution.NO_ACTION, label: 'No Action', description: 'Dismiss without taking action' }
 ];
 
-// Status options
 const STATUS_OPTIONS: { value: ReportStatusValues; label: string }[] = [
 	{ value: ReportStatus.PENDING, label: 'Pending' },
 	{ value: ReportStatus.REVIEWED, label: 'Reviewed' },
@@ -81,7 +47,6 @@ export default function ReportReviewDialog({ report, open, onOpenChange, onUpdat
 	const [resolution, setResolution] = useState<ReportResolutionValues | ''>(report.resolution || '');
 	const [reviewNote, setReviewNote] = useState(report.reviewNote || '');
 
-	// Sync local state when report prop changes (e.g., after update or selecting different report)
 	useEffect(() => {
 		setStatus(report.status);
 		setResolution(report.resolution || '');
@@ -91,19 +56,10 @@ export default function ReportReviewDialog({ report, open, onOpenChange, onUpdat
 	const handleSubmit = async () => {
 		setIsLoading(true);
 		try {
-			const updateData: UpdateReportParams = {
-				status,
-				reviewNote: reviewNote.trim() || undefined
-			};
-
-			if (resolution) {
-				updateData.resolution = resolution as ReportResolutionValues;
-			}
-
+			const updateData: UpdateReportParams = { status, reviewNote: reviewNote.trim() || undefined };
+			if (resolution) updateData.resolution = resolution as ReportResolutionValues;
 			const success = await onUpdate(report.id, updateData);
-			if (success) {
-				onClose();
-			}
+			if (success) onClose();
 		} catch (error) {
 			console.error('Error updating report:', error);
 		} finally {
@@ -111,167 +67,165 @@ export default function ReportReviewDialog({ report, open, onOpenChange, onUpdat
 		}
 	};
 
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleString();
-	};
+	const formatDate = (dateString: string) =>
+		new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+	if (!open) return null;
 
 	return (
-		<Modal isOpen={open} onClose={() => onOpenChange(false)} size="xl">
-			<ModalContent>
-				<ModalHeader>
-					<div className={CLASSES.headerContainer}>
-						<div className={CLASSES.headerLeft}>
-							<div className={CLASSES.alertIcon}>
-								<Flag className="h-5 w-5 text-white" />
-							</div>
-							<div>
-								<h2 className={CLASSES.headerText}>{t('TITLE')}</h2>
-								<p className={CLASSES.headerSubtext}>{t('SUBTITLE')}</p>
-							</div>
+		<div
+			className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 [&::-webkit-scrollbar]:w-1"
+			onClick={(e) => e.target === e.currentTarget && !isLoading && onOpenChange(false)}
+		>
+			<div className="bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl overflow-hidden shadow-2xl shadow-black/20 w-full max-w-lg my-8">
+				{/* Header */}
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
+					<div className="flex items-center gap-3">
+						<div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
+							<Flag className="w-4 h-4 text-gray-500 dark:text-gray-400" />
 						</div>
-						<Button variant="ghost" size="sm" onClick={() => onOpenChange(false)} className={CLASSES.closeButton}>
-							<X className="h-4 w-4" />
-						</Button>
-					</div>
-				</ModalHeader>
-
-				<ModalBody>
-					<div className="space-y-6">
-						{/* Report Info */}
-						<div className={CLASSES.infoContainer}>
-							<div className={CLASSES.infoGrid}>
-								<div className={CLASSES.infoItem}>
-									<FileText className="w-4 h-4 text-gray-400" />
-									<div>
-										<p className={CLASSES.infoLabel}>{t('CONTENT_TYPE')}</p>
-										<p className={CLASSES.infoValue}>
-											{report.contentType.charAt(0).toUpperCase() + report.contentType.slice(1)}
-										</p>
-									</div>
-								</div>
-								<div className={CLASSES.infoItem}>
-									<FileText className="w-4 h-4 text-gray-400" />
-									<div>
-										<p className={CLASSES.infoLabel}>{t('CONTENT_ID')}</p>
-										<p className={CLASSES.infoValue}>{report.contentId}</p>
-									</div>
-								</div>
-								<div className={CLASSES.infoItem}>
-									<User className="w-4 h-4 text-gray-400" />
-									<div>
-										<p className={CLASSES.infoLabel}>{t('REPORTED_BY')}</p>
-										<p className={CLASSES.infoValue}>
-											{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}
-										</p>
-									</div>
-								</div>
-								<div className={CLASSES.infoItem}>
-									<Calendar className="w-4 h-4 text-gray-400" />
-									<div>
-										<p className={CLASSES.infoLabel}>{t('DATE')}</p>
-										<p className={CLASSES.infoValue}>{formatDate(report.createdAt)}</p>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						{/* Reason */}
 						<div>
-							<p className={CLASSES.label}>{t('REASON')}</p>
-							<div className="px-3 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-								<p className="text-red-700 dark:text-red-300 font-medium">
-									{report.reason.charAt(0).toUpperCase() + report.reason.slice(1)}
+							<h2 className="text-sm font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h2>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('SUBTITLE')}</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						onClick={() => onOpenChange(false)}
+						disabled={isLoading}
+						aria-label="Close"
+						className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-white/8 transition-colors disabled:opacity-50"
+					>
+						<X className="w-4 h-4" />
+					</button>
+				</div>
+
+				{/* Body */}
+				<div className="p-5 space-y-4">
+					{/* Flat meta row */}
+					<div className="grid grid-cols-2 gap-x-6 gap-y-3">
+						<div className="flex items-center gap-2 min-w-0">
+							<FileText className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+							<div className="min-w-0">
+								<p className="text-[10px] uppercase tracking-wide font-semibold text-gray-400 dark:text-gray-500">{t('CONTENT_TYPE')}</p>
+								<p className="text-sm font-medium text-gray-900 dark:text-white capitalize truncate">{report.contentType}</p>
+							</div>
+						</div>
+						<div className="flex items-center gap-2 min-w-0">
+							<User className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+							<div className="min-w-0">
+								<p className="text-[10px] uppercase tracking-wide font-semibold text-gray-400 dark:text-gray-500">{t('REPORTED_BY')}</p>
+								<p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+									{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}
 								</p>
 							</div>
 						</div>
-
-						{/* Details */}
-						{report.details && (
-							<div>
-								<p className={CLASSES.label}>{t('DETAILS')}</p>
-								<div className={CLASSES.detailsContainer}>
-									<p className={CLASSES.detailsText}>{report.details}</p>
-								</div>
+						<div className="flex items-center gap-2 min-w-0">
+							<FileText className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+							<div className="min-w-0">
+								<p className="text-[10px] uppercase tracking-wide font-semibold text-gray-400 dark:text-gray-500">{t('CONTENT_ID')}</p>
+								<p className="text-sm font-medium text-gray-900 dark:text-white truncate">{report.contentId}</p>
 							</div>
-						)}
-
-						{/* Form Section */}
-						<div className={CLASSES.formSection}>
-							{/* Status Select */}
-							<div>
-								<label className={CLASSES.label}>{t('STATUS')}</label>
-								<Select
-									selectedKeys={[status]}
-									onSelectionChange={(keys) => {
-										const value = keys[0] as ReportStatusValues;
-										if (value) setStatus(value);
-									}}
-									className="w-full"
-								>
-									{STATUS_OPTIONS.map((option) => (
-										<SelectItem key={option.value} value={option.value}>
-											{option.label}
-										</SelectItem>
-									))}
-								</Select>
-							</div>
-
-							{/* Resolution Select */}
-							<div>
-								<label className={CLASSES.label}>{t('RESOLUTION')}</label>
-								<Select
-									placeholder={t('SELECT_RESOLUTION')}
-									selectedKeys={resolution ? [resolution] : []}
-									onSelectionChange={(keys) => {
-										const value = keys[0] as ReportResolutionValues | undefined;
-										setResolution(value || '');
-									}}
-									className="w-full"
-								>
-									{RESOLUTION_OPTIONS.map((option) => (
-										<SelectItem key={option.value} value={option.value} description={option.description}>
-											{option.label}
-										</SelectItem>
-									))}
-								</Select>
-							</div>
-
-							{/* Review Note */}
-							<div>
-								<label className={CLASSES.label}>{t('REVIEW_NOTE')}</label>
-								<textarea
-									value={reviewNote}
-									onChange={(e) => setReviewNote(e.target.value)}
-									placeholder={t('REVIEW_NOTE_PLACEHOLDER')}
-									rows={3}
-									className={CLASSES.textarea}
-								/>
+						</div>
+						<div className="flex items-center gap-2 min-w-0">
+							<Calendar className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 shrink-0" />
+							<div className="min-w-0">
+								<p className="text-[10px] uppercase tracking-wide font-semibold text-gray-400 dark:text-gray-500">{t('DATE')}</p>
+								<p className="text-sm font-medium text-gray-900 dark:text-white">{formatDate(report.createdAt)}</p>
 							</div>
 						</div>
 					</div>
-				</ModalBody>
 
-				<ModalFooter>
-					<div className={CLASSES.footerContainer}>
-						<Button variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading} className={CLASSES.cancelButton}>
-							{t('CANCEL')}
-						</Button>
-						<Button onClick={handleSubmit} disabled={isLoading} className={CLASSES.submitButton}>
-							{isLoading ? (
-								<>
-									<Loader2 className="h-4 w-4 mr-2 animate-spin" />
-									{t('UPDATING')}
-								</>
-							) : (
-								<>
-									<CheckCircle className="h-4 w-4 mr-2" />
-									{t('UPDATE_REPORT')}
-								</>
-							)}
-						</Button>
+					{/* Reason + Details inline */}
+					<div className="pt-3 border-t border-gray-100 dark:border-white/6 space-y-3">
+						<div className="flex items-center justify-between">
+							<span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wide">{t('REASON')}</span>
+							<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20 capitalize">
+								{report.reason}
+							</span>
+						</div>
+						{report.details && (
+							<p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{report.details}</p>
+						)}
 					</div>
-				</ModalFooter>
-			</ModalContent>
-		</Modal>
+
+					{/* Divider */}
+					<div className="h-px bg-gray-100 dark:bg-white/6" />
+
+					{/* Status */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('STATUS')}</label>
+						<select
+							value={status}
+							onChange={(e) => setStatus(e.target.value as ReportStatusValues)}
+							disabled={isLoading}
+							className={INPUT_BASE}
+						>
+							{STATUS_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>{opt.label}</option>
+							))}
+						</select>
+					</div>
+
+					{/* Resolution */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('RESOLUTION')}</label>
+						<select
+							value={resolution}
+							onChange={(e) => setResolution(e.target.value as ReportResolutionValues | '')}
+							disabled={isLoading}
+							className={INPUT_BASE}
+						>
+							<option value="">{t('SELECT_RESOLUTION')}</option>
+							{RESOLUTION_OPTIONS.map((opt) => (
+								<option key={opt.value} value={opt.value}>{opt.label} — {opt.description}</option>
+							))}
+						</select>
+					</div>
+
+					{/* Review Note */}
+					<div>
+						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('REVIEW_NOTE')}</label>
+						<textarea
+							value={reviewNote}
+							onChange={(e) => setReviewNote(e.target.value)}
+							placeholder={t('REVIEW_NOTE_PLACEHOLDER')}
+							rows={3}
+							disabled={isLoading}
+							className={cn(
+								'w-full px-3 py-2.5 text-sm rounded-xl resize-none',
+								'bg-white dark:bg-white/5',
+								'border border-gray-200 dark:border-white/8',
+								'text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500',
+								'focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20',
+								'transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed'
+							)}
+						/>
+					</div>
+				</div>
+
+				{/* Footer */}
+				<div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5">
+					<button
+						type="button"
+						onClick={() => onOpenChange(false)}
+						disabled={isLoading}
+						className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
+					>
+						<X className="w-3.5 h-3.5" />
+						{t('CANCEL')}
+					</button>
+					<button
+						type="button"
+						onClick={handleSubmit}
+						disabled={isLoading}
+						className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
+					>
+						{isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle className="w-3.5 h-3.5" />}
+						{isLoading ? t('UPDATING') : t('UPDATE_REPORT')}
+					</button>
+				</div>
+			</div>
+		</div>
 	);
 }
