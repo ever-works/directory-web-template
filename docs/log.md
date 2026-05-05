@@ -35,6 +35,94 @@ why** at a higher level than per-commit diffs.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
+  `docs/plugins/client-dashboard-stats-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/dashboard/stats/route.ts` --
+  the **first per-source-file GET smoke** the docs
+  tree publishes that pins a **`requireClientAuth()`-
+  gated zero-argument handler** combining a
+  **`getClientDashboardRepository().getStats(userId)`
+  repository-delegation pattern**, a **spread-stats
+  success envelope `{ success: true, ...stats }`**
+  (NOT the `{ success: true, stats: <statsObject> }`
+  nested shape used by the sibling
+  `client-items-stats-query` spec), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  dashboard statistics')` outer catch**, and a
+  **five-bypass-prevention assertion battery**
+  (`?userId=…` admin-impersonation, `?token=…`
+  magic-token bypass, `?admin=…` query-admin-
+  override, `?from=…` date-range bypass, multi-
+  permutation shape stability) on top of the
+  standard query-string bulk-loop walk. UNIQUE:
+  every prior `requireClientAuth()`-gated GET smoke
+  (`client-items-stats-query`, `client-items-method`,
+  `client-items-id-method`, `client-items-import-
+  sample-query`) takes a `request: NextRequest`
+  argument; this is the SECOND `requireClientAuth()`
+  gate after `client-items-stats-query` and the
+  SECOND zero-argument handler in the
+  `requireClientAuth()` family, AND the FIRST per-
+  source-file GET smoke pinning the spread-stats
+  success envelope shape. The new page documents
+  the discriminated-union auth-gate contract, the
+  spread-stats success envelope, the `getClient
+  DashboardRepository()` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch dashboard statistics')` outer-
+  catch, the five-bypass-prevention assertion
+  battery, the at-a-glance scenario tree (a single
+  query-string bulk-loop walk covering ~60
+  permutations -- no-arg baseline, admin-
+  impersonation keys, client-terminology variants,
+  magic-auth keys, date-range filter keys, time-
+  window keys, pagination keys, projection keys,
+  cache-busting keys, content-negotiation, i18n
+  keys, filter keys, sort-override keys, multi-
+  tenancy keys, admin-override keys, empty values,
+  repeated keys, special-character values, 500-
+  character long values, bogus / typo'd query keys,
+  all asserting `< 500`, plus EIGHT hand-written
+  tests pinning the canonical 401 envelope shape,
+  the bogus-parameter status invariance, the
+  `?userId=…` session-gate-bypass-prevention, the
+  `?token=…` query-token-auth-bypass-prevention,
+  the `?admin=…` query-admin-override-prevention,
+  the `?from=…` date-range-bypass-prevention, and
+  the multi-permutation shape stability across
+  three different parameter sets), the cross-
+  references to the neighbouring
+  `requireClientAuth()`-gated GET sibling
+  `client-items-stats-query-spec.md` (pairs with
+  `client-items-stats-query.spec.ts` and pins the
+  `{ success: true, stats: ... }` nested-stats
+  success envelope on the auth branch vs the
+  spread-stats `{ success: true, ...stats }` shape
+  this spec pins), the neighbouring
+  `requireClientAuth()`-gated client family specs
+  (`client-items-method-spec.md`, `client-items-id-
+  method-spec.md`, `client-items-import-method-
+  spec.md`, `client-items-import-validate-method-
+  spec.md`, `client-items-import-sample-query-
+  spec.md`), the cross-cutting `client-protected.
+  spec.ts` (covers the broader auth-protected
+  client surface that this dashboard-stats endpoint
+  sits within), the neighbouring sibling `client-
+  geo-stats-query.spec.ts` (covers the `/api/
+  client/geo-stats` companion endpoint that
+  returns geographic-distribution stats with a
+  parallel `requireClientAuth()` gate -- no per-
+  source-file landing page yet for the geo-stats
+  sibling), and the Spec 010 (E2E Test Coverage)
+  governance anchor. Matching `docs/index.md`
+  entry added at the agent-discovery cluster
+  (just above the `agent-discovery-spec` entry)
+  of the per-source-file rollout list. The
+  corresponding e2e spec file is unchanged --
+  this run lands the docs landing page that was
+  missing.
   `docs/plugins/auth-change-password-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
