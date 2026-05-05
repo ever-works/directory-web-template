@@ -33,6 +33,98 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/health-database-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/health-database-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health-database-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/health/database/route.ts` --
+  the **first per-source-file GET smoke pinning a
+  public (no-auth-gate) zero-argument health-probe
+  endpoint** combining a **hard-coded
+  `db.execute(sql\`SELECT 1 as test\`)` round-trip**
+  (no parameter binding, no URL-driven SQL), a
+  **two-branch (200-healthy / 500-unhealthy) status
+  envelope** determined by the database's
+  reachability NOT the URL, a **shared
+  `{ status, database, timestamp }` envelope
+  shape** across both branches with a branch-
+  specific fourth key (`result` on success, `error`
+  on failure), and a **bare zero-argument
+  `GET()` Next 16 handler signature** that NEVER
+  reads the request URL. UNIQUE: every prior per-
+  source-file public-route GET smoke
+  (`featured-items-query`, `items-popularity-scores`,
+  `sponsor-ads-public`, `agent-discovery`) asserts
+  a generic `< 500` contract because their `500` is
+  a regression signal; this is the FIRST per-
+  source-file GET smoke that asserts the tighter
+  `[200, 500]` two-valid-status contract because
+  the route's `500` is an EXPECTED outcome (catch
+  branch when the configured database is
+  unreachable, which the e2e environment does not
+  guarantee). The new page documents the hard-
+  coded `SELECT 1` round-trip, the two-branch
+  shared `{ status, database, timestamp }`
+  envelope shape, the bare zero-argument `GET()`
+  handler signature, the `[200, 500]` two-valid-
+  status contract, the status-invariance under URL
+  changes contract (parameterised URL's status MUST
+  equal baseline's AND parameterised body's
+  `status` field MUST equal baseline's), the SQL-
+  injection invariance contract (SQL-injection-
+  shaped `?schema=` / `?table=` values do NOT reach
+  the SQL layer because `sql\`SELECT 1\`` is hard-
+  coded with no parameter binding), the canonical
+  health-envelope shape contract (`status` is a
+  string from `['healthy', 'unhealthy']`, `database`
+  is a string from `['connected', 'disconnected']`,
+  `timestamp` is a `Date.parse`-able ISO-8601
+  string), the non-JSON `format` invariance (the
+  route always responds `application/json`
+  regardless of any `Accept` header or
+  `?format=text` / `?format=prometheus`
+  parameter), the at-a-glance scenario tree (one
+  query-string bulk-loop walk covering ~50
+  permutations PLUS three hand-written tests --
+  canonical-envelope shape assertion, status-
+  invariance test, SQL-injection invariance test --
+  all asserting the `[200, 500]` two-valid-status
+  contract), the cross-references to the cross-
+  cutting
+  [`health.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health.spec.ts)
+  (also probes `GET /api/health/database` BUT
+  only the no-arg baseline; this per-source-file
+  spec adds the **query-param surface** + the
+  **SQL-injection invariance contract** + the
+  **canonical-envelope shape assertion**), the
+  neighbouring
+  [`internal-db-init-query-spec.md`](internal-db-init-query-spec.md)
+  (documents the related `/api/internal/db-init`
+  surface that complements the database-health
+  endpoint -- init-time vs probe-time database
+  surfaces), the neighbouring
+  [`cron-sync-query-spec.md`](cron-sync-query-spec.md)
+  (another zero-argument GET handler that mirrors
+  this spec's bare `GET()` signature posture), and
+  the change protocol (update this page in the
+  same PR that touches the source spec, update
+  `docs/log.md`, run `pnpm tsc --noEmit` in
+  `apps/web-e2e`). With this entry the **per-spec-
+  file docs rollout extends to 118-of-N** and the
+  **`tests/api/` per-spec-file sub-rollout extends
+  to 115-of-many**, and the **first per-source-
+  file GET smoke pinning a public (no-auth-gate)
+  zero-argument health-probe endpoint** lands --
+  pinning a tighter `[200, 500]` two-valid-status
+  contract, a status-invariance under URL changes
+  contract, a SQL-injection invariance contract, a
+  canonical Kubernetes-style health-envelope shape
+  contract, and a non-JSON content-negotiation
+  invariance contract that no prior per-source-
+  file public-route GET smoke covers.
+
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
