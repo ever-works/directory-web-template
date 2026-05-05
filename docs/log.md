@@ -33,6 +33,50 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-05-05
 
+- `apps/docs` `apps/web`
+  Added Vercel build-cost controls to both Vercel-deployed
+  apps in this monorepo (`directory-web-template-docs` rooted
+  at `apps/docs/`, `directory-web-template-demo` rooted at
+  `apps/web/`). Each app's `vercel.json` now carries:
+  - **An `ignoreCommand` allowlist** that tells Vercel to
+    skip the build for any branch other than `main`,
+    `master`, `develop`, or `stage`. Vercel's
+    [Ignored Build Step](https://vercel.com/docs/project-configuration/vercel-json#ignorecommand)
+    semantics are inverted from intuition: exit `1`
+    *continues* the build, exit `0` *skips* it. The script
+    matches `$VERCEL_GIT_COMMIT_REF` against the four
+    allowed branches and exits `1` only on a hit, otherwise
+    `0`. Result: feature-branch / dependabot / EW-* /
+    chore/* pushes no longer burn build minutes on either
+    Vercel project.
+  - **An explicit `github.autoJobCancelation: true`** that
+    locks in Vercel's default cancel-older-build-on-newer-
+    push behavior so it can't drift from a dashboard
+    toggle.
+  Pairs with a separate one-time API flip (out of repo
+  scope, applied via `PATCH /v9/projects/{projectId}` on
+  Vercel's REST API) that sets each project's
+  `resourceConfig.buildQueue.configuration` to
+  `WAIT_FOR_NAMESPACE_QUEUE` -- one active build per
+  branch -- so a flurry of `develop` pushes collapses to
+  "build only the latest commit". The combined effect on a
+  rapid-fire `develop` push: at most one build is running
+  at a time AND any in-progress build is canceled the
+  instant a newer commit lands. The Web app's existing
+  `crons[]` schedule (`/api/cron/sync` daily 03:00 UTC,
+  `/api/cron/subscription-reminders` daily 09:00 UTC,
+  `/api/cron/subscription-expiration` daily 00:00 UTC) is
+  preserved verbatim. NOTE: the four allowlisted branches
+  `main` / `master` / `develop` / `stage` are exhaustive
+  for the docs and demo Vercel projects today; introducing
+  a new long-lived branch (e.g. `release/*`) means
+  extending the `if [ … ] || [ … ]` chain in BOTH
+  `apps/docs/vercel.json` and `apps/web/vercel.json`. The
+  `WAIT_FOR_NAMESPACE_QUEUE` flip is a project-level Vercel
+  setting that lives in Vercel's config store (NOT in
+  `vercel.json`), so it is documented here for traceability
+  and re-applicability after a project re-create.
+
 - `apps/web` `apps/web-e2e` `docs/plugins`
   Fixed Web CI build failure where the new `/items.json`
   and `/llms.txt` agent-discovery routes treated the
