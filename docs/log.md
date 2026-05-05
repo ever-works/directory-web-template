@@ -97,6 +97,541 @@ why** at a higher level than per-commit diffs.
   per-source-file rollout list. The corresponding
   e2e spec file is unchanged -- this run lands the
   docs landing page that was missing.
+  `docs/plugins/admin-clients-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/admin/clients/route.ts` --
+  the **first per-source-file admin-tree GET smoke
+  pinning the bare-message single-step-collapse
+  `{ error: 'Unauthorized' }` 401 envelope** posture
+  (matches the sibling `admin/comments` /
+  `admin/companies` / `admin/users` routes; distinct
+  from the canonical-longer-message family of
+  `admin/categories` / `admin/items` /
+  `admin/items/import` / `admin/items/import/validate`
+  AND from the two-step-split-401-vs-403 family of
+  `admin/notifications/[id]/read` /
+  `admin/notifications/mark-all-read` /
+  `admin/users/check-email` /
+  `admin/users/check-username` /
+  `admin/clients/bulk` AND from the auth-gate-
+  divergence-finding posture of the un-gated
+  `admin/roles` / `admin/roles/active` family).
+  UNIQUE: every prior admin-tree query smoke pins
+  one of three different gate postures; this is
+  the FIRST per-source-file admin-tree GET smoke
+  pinning the bare-message single-step-collapse
+  envelope. The new page documents the
+  **single-step `session?.user?.isAdmin` gate
+  ahead of the shared
+  `validatePaginationParams(searchParams)`
+  helper** (the helper short-circuits with its
+  `{ error, status }` 400 envelope on
+  `?page=invalid` / `?limit=invalid` /
+  `?page=-1` / `?limit=0` / `?limit=200`, but
+  only on the AUTH branch -- the unauth branch
+  hits 401 BEFORE the helper runs), the **six
+  optional query-param reads, all AFTER the
+  gate** (`?search=`, `?status=`, `?plan=`,
+  `?accountType=`, `?provider=` -- parsed via
+  raw `searchParams.get('…') || undefined`
+  calls, NO inline enum coercion or Zod schema
+  validation, distinct from the `admin/roles`
+  route's narrow inline ternary enum coercion),
+  the **legacy `getClientProfiles({…})` query
+  helper** (distinct from the `admin/categories`
+  route's `categoryRepository.findAllPaginated(...)`
+  repository-pattern posture; the spec stays green
+  if a future contributor refactors the route to
+  a `clientRepository` abstraction), the
+  **three-key `{ success, data: { clients }, meta }`
+  success envelope** (the `data` key carries a
+  single `clients: []` sub-key, distinct from the
+  `admin/users` route's bare `{ success, data: [...],
+  pagination: {…} }` shape), the **`POST` branch
+  with environment-flag-gated CRM sync** (out of
+  scope for this GET-only spec but documented so
+  future contributors who add a `POST` smoke must
+  defend against the synchronous
+  `createTwentyCrmSyncServiceFromEnv()` upsert via
+  `TWENTY_CRM_ENABLED=false` environment override),
+  the at-a-glance scenario tree (one bulk-loop
+  walk over ~60 paths + eleven hand-written
+  scenarios pinning: the strict 401-on-no-arg-
+  baseline + bare `{ error: 'Unauthorized' }`
+  envelope; status invariance across stacked-key
+  permutations; per-key isolation walks for
+  `?asAdmin=` / `?as=` / `?asUser=` /
+  `?impersonate=` admin-impersonation, `?token=` /
+  `?secret=` / `?api_key=` / `?authorization=` /
+  `?session=` / `?adminToken=` magic-token,
+  `?bypass=` / `?admin=` / `?override=` /
+  `?force=` admin-override, `?status=` and
+  `?provider=` filter-bypass; `Accept` header
+  isolation; repeated-key walk; the bare-message
+  envelope assertion pinning `body.error ===
+  'Unauthorized'` AND `body.error !==
+  'Unauthorized. Admin access required.'` AND
+  `body.error !== 'Forbidden'`), the cross-
+  references to the neighbouring per-id sibling
+  [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
+  the neighbouring bulk sibling
+  [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
+  the neighbouring create sibling
+  [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
+  (the two per-source-file specs together pin
+  both the `POST` body surface and the `GET`
+  query surface on the SAME route file), the
+  shared admin-clients page-object driver
+  [`admin-clients-page-object.md`](admin-clients-page-object.md),
+  the prior per-source-file admin-tree GET
+  smokes
+  [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
+  [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
+  [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
+  [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
+  [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
+  [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
+  the admin-protected coverage spec
+  [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
+  (covers this route at the broad `< 500` level;
+  this per-source-file spec adds the deep query-
+  surface walk on top), and the change protocol
+  (update this page in the same PR that touches
+  the source spec, update `docs/log.md`, run
+  `pnpm tsc --noEmit` in `apps/web-e2e`). With
+  this entry the **per-spec-file docs rollout
+  extends to 118-of-N** and the **`tests/api/`
+  per-spec-file sub-rollout extends to
+  115-of-many**, and the **first per-source-file
+  admin-tree GET smoke pinning the bare-message
+  single-step-collapse `{ error: 'Unauthorized' }`
+  401 envelope** lands -- pinning a single-step
+  `session?.user?.isAdmin` gate ahead of the
+  `validatePaginationParams(...)` helper, six
+  gate-protected optional query-param reads with
+  no inline enum coercion or Zod validation, the
+  legacy `getClientProfiles({…})` query helper
+  posture, and the bare 401 envelope shape
+  distinct from both the canonical-longer-message
+  family and the two-step-split family.
+
+- `apps/docs` `apps/web`
+  Added Vercel build-cost controls to both Vercel-deployed
+  apps in this monorepo (`directory-web-template-docs` rooted
+  at `apps/docs/`, `directory-web-template-demo` rooted at
+  `apps/web/`). Each app's `vercel.json` now carries:
+  - **An `ignoreCommand` allowlist** that tells Vercel to
+    skip the build for any branch other than `main`,
+    `master`, `develop`, or `stage`. Vercel's
+    [Ignored Build Step](https://vercel.com/docs/project-configuration/vercel-json#ignorecommand)
+    semantics are inverted from intuition: exit `1`
+    *continues* the build, exit `0` *skips* it. The script
+    matches `$VERCEL_GIT_COMMIT_REF` against the four
+    allowed branches and exits `1` only on a hit, otherwise
+    `0`. Result: feature-branch / dependabot / EW-* /
+    chore/* pushes no longer burn build minutes on either
+    Vercel project.
+  - **An explicit `github.autoJobCancelation: true`** that
+    locks in Vercel's default cancel-older-build-on-newer-
+    push behavior so it can't drift from a dashboard
+    toggle.
+  Pairs with a separate one-time API flip (out of repo
+  scope, applied via `PATCH /v9/projects/{projectId}` on
+  Vercel's REST API) that sets each project's
+  `resourceConfig.buildQueue.configuration` to
+  `WAIT_FOR_NAMESPACE_QUEUE` -- one active build per
+  branch -- so a flurry of `develop` pushes collapses to
+  "build only the latest commit". The combined effect on a
+  rapid-fire `develop` push: at most one build is running
+  at a time AND any in-progress build is canceled the
+  instant a newer commit lands. The Web app's existing
+  `crons[]` schedule (`/api/cron/sync` daily 03:00 UTC,
+  `/api/cron/subscription-reminders` daily 09:00 UTC,
+  `/api/cron/subscription-expiration` daily 00:00 UTC) is
+  preserved verbatim. NOTE: the four allowlisted branches
+  `main` / `master` / `develop` / `stage` are exhaustive
+  for the docs and demo Vercel projects today; introducing
+  a new long-lived branch (e.g. `release/*`) means
+  extending the `if [ … ] || [ … ]` chain in BOTH
+  `apps/docs/vercel.json` and `apps/web/vercel.json`. The
+  `WAIT_FOR_NAMESPACE_QUEUE` flip is a project-level Vercel
+  setting that lives in Vercel's config store (NOT in
+  `vercel.json`), so it is documented here for traceability
+  and re-applicability after a project re-create.
+
+- `docs/plugins` `docs/index`
+  Added the dedicated per-source-file landing page
+  `docs/plugins/client-items-coordinates-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-items-coordinates-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/items/coordinates/route.ts` --
+  the **third per-source-file
+  `requireClientAuth()`-gated zero-argument GET
+  handler** (after the sibling
+  `client-dashboard-stats-query` and
+  `client-geo-stats-query` specs) combining a
+  **`getClientItemRepository().
+  getCoordinatesByUser(userId)` repository-
+  delegation pattern**, a
+  **nested-`coordinates`-keyed success envelope
+  `{ success: true, coordinates: Array<{ slug, name,
+  latitude, longitude }> }`** (the FIRST per-source-
+  file GET smoke pinning a `coordinates`-keyed
+  nested-array success envelope -- distinct from
+  BOTH the spread-into-envelope shape pinned by
+  `client-dashboard-stats-query` and
+  `client-geo-stats-query`, AND the `stats`-keyed
+  nested-object shape pinned by
+  `client-items-stats-query`), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  item coordinates')` outer catch**, and a
+  **nine-bypass-prevention assertion battery**
+  extending the six-test battery of the sibling
+  `client-geo-stats-query` spec with three
+  additional contracts: a single-item-lookup
+  bypass-prevention contract (`?slug=…` /
+  `?itemId=…` / `?itemSlug=…` invariance), a
+  content-negotiation bypass-prevention contract
+  (`?format=geojson` / `?format=kml` / `?format=xml`
+  / `?format=csv` invariance), and an
+  Accept-header invariance contract (`Accept:
+  application/geo+json` / `application/xml` /
+  `text/html` / `*/*` round-trip to the same 401
+  as `Accept: application/json`). UNIQUE: this is
+  the THIRD `requireClientAuth()`-gated GET smoke
+  and the THIRD zero-argument handler in the
+  `requireClientAuth()` family. The new page
+  documents the discriminated-union auth-gate
+  contract, the nested-`coordinates`-keyed
+  success envelope, the
+  `getClientItemRepository().
+  getCoordinatesByUser(userId)` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch item coordinates')` outer-
+  catch, the nine-bypass-prevention assertion
+  battery (extending the six-test battery of
+  `client-geo-stats-query` with single-item-
+  lookup, content-negotiation, and Accept-header
+  invariance contracts that no prior per-source-
+  file GET smoke covers; ALSO covering the
+  defensive `?lat=NaN` / `?lat=Infinity` spatial-
+  filter values that no prior per-source-file
+  GET smoke pins, AND the `?zoom=…` /
+  `?center=lat,lng` map-control bypass-prevention
+  keys that no prior per-source-file GET smoke
+  pins), the at-a-glance scenario tree (a single
+  query-string bulk-loop walk covering ~110
+  permutations -- no-arg baseline, admin-
+  impersonation keys, client-terminology variants,
+  single-item-lookup keys, magic-auth keys,
+  geographic-filter keys, spatial / map-control
+  filter keys including defensive `NaN` /
+  `Infinity` values, item-status filter keys,
+  pagination keys, projection keys, cache-
+  busting keys, content-negotiation keys
+  including geographic formats, i18n keys, sort-
+  override keys, multi-tenancy keys, admin-
+  override keys, empty values, repeated keys,
+  special-character values, 500-character long
+  values, bogus / typo'd query keys, all
+  asserting `< 500`, plus NINE hand-written
+  tests), the cross-references to the
+  neighbouring `requireClientAuth()`-gated GET
+  siblings (`client-geo-stats-query-spec.md`
+  shares the `getClientItemRepository()`
+  singleton-factory with this route but diverges
+  on which repository method it invokes
+  `getGeoStatsByUser` vs `getCoordinatesByUser`;
+  `client-items-stats-query-spec.md` ALSO shares
+  the `getClientItemRepository()` singleton-
+  factory but invokes `getStatsByUser`;
+  `client-dashboard-stats-query-spec.md` uses a
+  different repository singleton entirely
+  -- `getClientDashboardRepository()`), the
+  cross-references to the broader
+  `requireClientAuth()`-gated client family, the
+  cross-cutting `client-protected.spec.ts`, and
+  `docs/plugins/client-geo-stats-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-geo-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-geo-stats-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/geo-stats/route.ts` --
+  the **second per-source-file GET smoke** the
+  docs tree publishes that pins a
+  **`requireClientAuth()`-gated zero-argument
+  handler** (the FIRST being the sibling
+  `client-dashboard-stats-query` spec) combining
+  a **`getClientItemRepository().
+  getGeoStatsByUser(userId)` repository-delegation
+  pattern** (NOT `getClientDashboardRepository().
+  getStats(userId)` like the sibling
+  `client-dashboard-stats-query` spec, NOT
+  `getClientItemRepository().getStatsByUser(userId)`
+  like the sibling `client-items-stats-query`
+  spec), a **spread-geo-stats success envelope
+  `{ success: true, ...geoStats }`** (matches the
+  spread-into-envelope shape pinned by
+  `client-dashboard-stats-query`), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  geographic statistics')` outer catch**, and a
+  **six-bypass-prevention assertion battery**
+  (`?userId=…` admin-impersonation, `?token=…`
+  magic-token bypass, `?admin=…` query-admin-
+  override, `?country=…` / `?city=…` / `?lat=…`
+  geographic-filter bypass, multi-permutation
+  shape stability) on top of the standard query-
+  string bulk-loop walk. UNIQUE: this is the
+  THIRD `requireClientAuth()`-gated GET smoke
+  after `client-items-stats-query` and
+  `client-dashboard-stats-query`, and the SECOND
+  zero-argument handler in the
+  `requireClientAuth()` family. The new page
+  documents the discriminated-union auth-gate
+  contract, the spread-geo-stats success envelope,
+  the `getClientItemRepository().
+  getGeoStatsByUser(userId)` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch geographic statistics')`
+  outer-catch, the six-bypass-prevention
+  assertion battery (extending the five-test
+  battery of `client-dashboard-stats-query` with
+  a geographic-filter bypass-prevention contract
+  that no prior per-source-file GET smoke covers
+  -- `?country=` / `?city=` / `?lat=` / `?lng=` /
+  `?bbox=` / `?radius=` invariance), the at-a-
+  glance scenario tree (a single query-string
+  bulk-loop walk covering ~95 permutations -- no-
+  arg baseline, admin-impersonation keys, client-
+  terminology variants, magic-auth keys,
+  geographic-filter keys (`?country=` / `?city=` /
+  `?region=` / `?area=` / `?countryCode=`),
+  service-area filter keys (`?serviceArea=` /
+  `?service_area=` / `?coverage=`), spatial-
+  filter keys (`?lat=` / `?lng=` / `?bbox=` /
+  `?radius=`), time-window keys, pagination keys
+  (including `?topN=` per-bucket pagination),
+  projection keys (including `?fields=top_cities`
+  / `?fields=top_countries,service_area_breakdown`
+  per-bucket projection), cache-busting keys,
+  content-negotiation (including `?format=geojson`
+  / `?format=kml` geographic format keys), i18n
+  keys, filter keys, sort-override keys, multi-
+  tenancy keys, admin-override keys, empty
+  values, repeated keys, special-character
+  values, 500-character long values, bogus /
+  typo'd query keys, all asserting `< 500`, plus
+  EIGHT hand-written tests pinning the canonical
+  401 envelope shape, the bogus-parameter status
+  invariance, the `?userId=…` session-gate-bypass-
+  prevention, the `?token=…` query-token-auth-
+  bypass-prevention, the `?admin=…` query-admin-
+  override-prevention, the `?country=…` /
+  `?city=…` / `?lat=…` geographic-filter-bypass-
+  prevention, and the multi-permutation shape
+  stability across three different parameter
+  sets), the cross-references to the neighbouring
+  `requireClientAuth()`-gated GET sibling
+  `client-dashboard-stats-query-spec.md` (pairs
+  with `client-dashboard-stats-query.spec.ts` and
+  pins the spread-stats `{ success: true,
+  ...stats }` shape this spec mirrors -- both
+  specs share the same `requireClientAuth()`
+  discriminated-union auth-helper return
+  contract, the same `'Unauthorized. Please sign
+  in to continue.'` longer-message TWO-key 401
+  envelope, the same zero-argument handler
+  signature, and the same spread-into-envelope
+  success-payload shape -- but diverge on which
+  repository they delegate to and on which
+  bypass-prevention assertions they pin) and the
+  neighbouring `requireClientAuth()`-gated GET
+  sibling `client-items-stats-query-spec.md`
+  (shares the `getClientItemRepository()`
+  singleton-factory with this route, but diverges
+  on which repository method it invokes
+  `getStatsByUser` vs `getGeoStatsByUser`), and
+  the change protocol (update this page in the
+  same PR that touches the source spec, update
+  `docs/log.md`, run `pnpm tsc --noEmit` in
+  `apps/web-e2e`). With this entry the **per-
+  spec-file docs rollout extends to 119-of-N**
+  and the **`tests/api/` per-spec-file sub-
+  rollout extends to 116-of-many**, and the
+  **third per-source-file `requireClientAuth()`-
+  gated zero-argument GET smoke** lands --
+  pinning a nested-`coordinates`-keyed success
+  envelope shape that no prior per-source-file
+  GET smoke covers. NOTE: cross-references to
+  `client-geo-stats-query-spec.md` and
+  `client-dashboard-stats-query-spec.md` may
+  resolve as broken links until parallel PRs
+  #723 and #724 land that add those per-source-
+  file landing pages on develop.
+
+  spec-file docs rollout extends to 118-of-N**
+  and the **`tests/api/` per-spec-file sub-
+  rollout extends to 115-of-many**, and the
+  **first per-source-file GET smoke pinning a
+  `requireClientAuth()`-gated zero-argument
+  geo-stats handler** lands -- pinning a
+  discriminated-union auth-gate contract, a
+  spread-geo-stats success envelope, a
+  `getClientItemRepository().getGeoStatsByUser
+  (userId)` singleton-factory repository-
+  delegation, a `serverErrorResponse('Failed to
+  fetch geographic statistics')` outer-catch,
+  and a six-bypass-prevention assertion battery
+  that no prior per-source-file GET smoke
+  covers. NOTE: cross-references to
+  `client-dashboard-stats-query-spec.md` may
+  resolve as broken links until the parallel PR
+  #723 lands that adds the dashboard-stats
+  per-source-file landing page on develop.
+
+  `docs/plugins/client-dashboard-stats-query-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
+  paired with the `GET` export of
+  `apps/web/app/api/client/dashboard/stats/route.ts` --
+  the **first per-source-file GET smoke** the docs
+  tree publishes that pins a **`requireClientAuth()`-
+  gated zero-argument handler** combining a
+  **`getClientDashboardRepository().getStats(userId)`
+  repository-delegation pattern**, a **spread-stats
+  success envelope `{ success: true, ...stats }`**
+  (NOT the `{ success: true, stats: <statsObject> }`
+  nested shape used by the sibling
+  `client-items-stats-query` spec), a
+  **`serverErrorResponse(error, 'Failed to fetch
+  dashboard statistics')` outer catch**, and a
+  **five-bypass-prevention assertion battery**
+  (`?userId=…` admin-impersonation, `?token=…`
+  magic-token bypass, `?admin=…` query-admin-
+  override, `?from=…` date-range bypass, multi-
+  permutation shape stability) on top of the
+  standard query-string bulk-loop walk. UNIQUE:
+  every prior `requireClientAuth()`-gated GET smoke
+  (`client-items-stats-query`, `client-items-method`,
+  `client-items-id-method`, `client-items-import-
+  sample-query`) takes a `request: NextRequest`
+  argument; this is the SECOND `requireClientAuth()`
+  gate after `client-items-stats-query` and the
+  SECOND zero-argument handler in the
+  `requireClientAuth()` family, AND the FIRST per-
+  source-file GET smoke pinning the spread-stats
+  success envelope shape. The new page documents
+  the discriminated-union auth-gate contract, the
+  spread-stats success envelope, the `getClient
+  DashboardRepository()` singleton-factory
+  repository-delegation, the `serverErrorResponse
+  ('Failed to fetch dashboard statistics')` outer-
+  catch, the five-bypass-prevention assertion
+  battery, the at-a-glance scenario tree (a single
+  query-string bulk-loop walk covering ~60
+  permutations -- no-arg baseline, admin-
+  impersonation keys, client-terminology variants,
+  magic-auth keys, date-range filter keys, time-
+  window keys, pagination keys, projection keys,
+  cache-busting keys, content-negotiation, i18n
+  keys, filter keys, sort-override keys, multi-
+  tenancy keys, admin-override keys, empty values,
+  repeated keys, special-character values, 500-
+  character long values, bogus / typo'd query keys,
+  all asserting `< 500`, plus EIGHT hand-written
+  tests pinning the canonical 401 envelope shape,
+  the bogus-parameter status invariance, the
+  `?userId=…` session-gate-bypass-prevention, the
+  `?token=…` query-token-auth-bypass-prevention,
+  the `?admin=…` query-admin-override-prevention,
+  the `?from=…` date-range-bypass-prevention, and
+  the multi-permutation shape stability across
+  three different parameter sets), the cross-
+  references to the neighbouring
+  `requireClientAuth()`-gated GET sibling
+  `client-items-stats-query-spec.md` (pairs with
+  `client-items-stats-query.spec.ts` and pins the
+  `{ success: true, stats: ... }` nested-stats
+  success envelope on the auth branch vs the
+  spread-stats `{ success: true, ...stats }` shape
+  this spec pins), the neighbouring
+  `requireClientAuth()`-gated client family specs
+  (`client-items-method-spec.md`, `client-items-id-
+  method-spec.md`, `client-items-import-method-
+  spec.md`, `client-items-import-validate-method-
+  spec.md`, `client-items-import-sample-query-
+  spec.md`), the cross-cutting `client-protected.
+  spec.ts` (covers the broader auth-protected
+  client surface that this dashboard-stats endpoint
+  sits within), the neighbouring sibling `client-
+  geo-stats-query.spec.ts` (covers the `/api/
+  client/geo-stats` companion endpoint that
+  returns geographic-distribution stats with a
+  parallel `requireClientAuth()` gate -- no per-
+  source-file landing page yet for the geo-stats
+  sibling), and the Spec 010 (E2E Test Coverage)
+  governance anchor. Matching `docs/index.md`
+  entry added at the agent-discovery cluster
+  (just above the `agent-discovery-spec` entry)
+  of the per-source-file rollout list. The
+  corresponding e2e spec file is unchanged --
+  this run lands the docs landing page that was
+  missing.
+  `docs/plugins/auth-change-password-spec.md`
+  for the existing pre-landed e2e spec
+  [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
+  paired with the `POST` export of
+  `apps/web/app/api/auth/change-password/route.ts` --
+  the **bare-baseline companion** to the already-
+  documented
+  [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
+  landing page (paired with the rich-permutation
+  `auth-change-password-body.spec.ts`). The body
+  sibling pins the rate-limit-FIRST gate posture, the
+  canonical 401 / 400 / 429 envelopes, the bulk-loop
+  header / body walks, and the gate-before-Zod /
+  gate-before-tenant / gate-before-user-DB /
+  gate-before-OAuth-guard / gate-before-bcrypt-
+  current / gate-before-bcrypt-duplicate / gate-
+  before-DB-update invariants; this sibling pins
+  ONLY the bare two-test `< 500` no-server-error
+  contract on the bare two-test smoke companion --
+  the `POST /api/auth/change-password without a
+  session does not 5xx` test on a fully-shaped
+  body and the `POST /api/auth/change-password with
+  empty body does not 5xx` test on `{}` -- both
+  asserting `expect(response.status()).toBeLessThan(500)`.
+  UNIQUE within the auth-change-password spec pair:
+  this is the **bare-baseline** member of the pair.
+  Every prior per-source-file landing page in the
+  docs tree pairs to a SINGLE source spec; this is
+  the **first per-source-file landing page that
+  documents one HALF of a two-spec pair covering
+  the same route**. The new page documents the
+  body-sibling-vs-bare-baseline matrix (this spec
+  vs the body sibling at `auth-change-password-body
+  -spec.md` -- now with bulk-loop column +
+  envelope-shape column + gate-ordering column +
+  cross-method column + side-channel column),
+  the at-a-glance scenario tree (two hand-written
+  tests covering the well-shaped-body and empty-
+  body shapes -- both asserting `< 500` and both
+  expected to land on the unauth 401 branch under
+  the rate-limit-not-tripped-yet posture), the
+  cross-references to the rich-permutation body
+  sibling, the page-level forgot / reset password
+  smokes (`auth/forgot-password.spec.ts` +
+  `auth/new-password.spec.ts`), the Spec 003 (Auth
+  Providers) governance anchor, and the Spec 010
+  (E2E Test Coverage) governance anchor. Matching
+  `docs/index.md` entry added at the agent-
+  discovery cluster (just above the `agent-
+  discovery-spec` entry) of the per-source-file
+  rollout list. The corresponding e2e spec file
+  is unchanged -- this run lands the docs landing
+  page that was missing.
   `docs/plugins/surveys-exists-query-spec.md`
   for the existing pre-landed e2e spec
   [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
