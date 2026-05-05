@@ -170,14 +170,14 @@ Two Zod schemas are exported for validation:
 
 ### Email Providers
 
-The system supports two email providers configured via `config.yml` and environment variables:
+The system supports two email providers configured via `works.yml` and environment variables:
 
 | Provider | Environment Variable | Description |
 |---|---|---|
 | Resend | `RESEND_API_KEY` | Default email provider |
 | Novu | `NOVU_API_KEY` | Alternative provider with template support |
 
-The provider is selected based on the `mail.provider` field in `config.yml`. Email configuration is built dynamically from the app config using `createEmailConfig()`.
+The provider is selected based on the `mail.provider` field in `works.yml`. Email configuration is built dynamically from the app config using `createEmailConfig()`.
 
 **Source:** `template/lib/newsletter/config.ts`
 

@@ -27,12 +27,12 @@ The system allows users to "Sponsor" an existing item in the directory. Sponsore
 
 ## Configuration
 
-Sponsorship settings are configured in `.content/config.yml` and environment variables.
+Sponsorship settings are configured in `.content/works.yml` and environment variables.
 
 ### Pricing Configuration
 
 ```yaml
-# .content/config.yml
+# .content/works.yml
 settings:
   monetization:
     sponsor_ads:

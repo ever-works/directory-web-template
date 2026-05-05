@@ -1,0 +1,22 @@
+# Convenience wrapper so you can apply everything with:
+#   kubectl apply -k .deploy/k8s
+#
+# Edit `images.newName` and `images.newTag` (or set `IMAGE_PLACEHOLDER`
+# directly in deployment.yaml) to point at the image you built and pushed.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ever-works
+
+resources:
+    - namespace.yaml
+    - deployment.yaml
+    - service.yaml
+    - ingress.yaml
+
+# Override the image at apply time without editing deployment.yaml:
+#   kubectl kustomize .deploy/k8s | kubectl apply -f -
+# images:
+#     - name: IMAGE_PLACEHOLDER
+#       newName: ghcr.io/your-user/my-site
+#       newTag: v1

@@ -11,7 +11,7 @@ sidebar_position: 13
 
 ## Источник конфигурации
 
-Настройки геолокации определены в разделе `settings.location` файла `config.yml` репозитория контента:
+Настройки геолокации определены в разделе `settings.location` файла `works.yml` репозитория контента:
 
 ```yaml
 settings:
@@ -31,7 +31,7 @@ settings:
 
 ### LocationConfigSettings (YAML / snake_case)
 
-Исходный формат из `config.yml`, определённый в `lib/types/location.ts`:
+Исходный формат из `works.yml`, определённый в `lib/types/location.ts`:
 
 ```typescript
 interface LocationConfigSettings {

@@ -100,7 +100,7 @@ app/api/
 **结构**：
 ```
 .content/
-├── config.yml      # Site configuration
+├── works.yml      # Site configuration
 ├── items/          # Item definitions
 ├── categories/     # Category definitions
 └── tags/           # Tag definitions

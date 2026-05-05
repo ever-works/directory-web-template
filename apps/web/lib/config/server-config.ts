@@ -66,10 +66,10 @@ export function getServerConfig(): ServerConfig {
 }
 
 /**
- * Get configuration from config.yml file (same as useConfig hook)
+ * Get configuration from works.yml file (same as useConfig hook)
  * This is the server-side equivalent of useConfig()
  *
- * @deprecated This function reads from config.yml file. Consider using `configService` for env-based config.
+ * @deprecated This function reads from the data repository config file. Consider using `configService` for env-based config.
  */
 export async function getConfigFromFile(): Promise<Config> {
 	try {

@@ -197,7 +197,7 @@ index, so no schema change is needed.
 
 ## 10. Rollout & Migration Plan
 
-- Feature flag: `settings.header.map_enabled` in `config.yml`.
+- Feature flag: `settings.header.map_enabled` in `works.yml`.
   Default `false` so existing forks see no UI change after
   upgrading.
 - Operators opt in by setting:

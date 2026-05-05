@@ -40,7 +40,7 @@ import { test, expect } from '@playwright/test';
  *      The first PATCH smoke with a per-item XSS-
  *      prevention validation in a loop.
  *   8. **`configManager.updateNestedKey(key, items)`**
- *      — the load-bearing config.yml write. `key` is
+ *      — the load-bearing works.yml write. `key` is
  *      `'custom_header'` or `'custom_footer'` based on
  *      `type`.
  *   9. **Update-failed branch** — if `success` is
@@ -322,7 +322,7 @@ test.describe('API: /api/admin/navigation PATCH body / header surface', () => {
 	test(`PATCH ${NAVIGATION_PATH} configManager update is NOT entered on the unauth branch`, async ({ request }) => {
 		// On the auth branch with valid body,
 		// `configManager.updateNestedKey('custom_header'
-		// | 'custom_footer', items)` writes to config.yml.
+		// | 'custom_footer', items)` writes to works.yml.
 		// The unauth branch must NEVER reach this call.
 		const response = await request.patch(NAVIGATION_PATH, { data: VALID_BODY });
 		const body = await response.json();

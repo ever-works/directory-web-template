@@ -3,6 +3,7 @@ import 'server-only';
 import * as os from 'os';
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import { hasContentConfigFile } from './content-config-file';
 
 export function getContentPath() {
     const contentDir = '.content';
@@ -41,13 +42,7 @@ function getContentInitState(): ContentInitState {
  * Check if content directory has actual content (not just empty directory)
  */
 async function hasContentFiles(contentPath: string): Promise<boolean> {
-    try {
-        // Check for config.yml as indicator that content exists
-        await fs.access(path.join(contentPath, 'config.yml'));
-        return true;
-    } catch {
-        return false;
-    }
+    return hasContentConfigFile(contentPath);
 }
 
 async function hasUsableContent(contentPath: string): Promise<boolean> {

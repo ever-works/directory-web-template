@@ -6,6 +6,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import { fsExists } from "./lib";
 import { coreConfig } from "@/lib/config/config-service";
+import { getPrimaryContentConfigPath, hasContentConfigFile } from "./content-config-file";
 
 function getGitAuth(token?: string): GitAuth {
   if (!token) {
@@ -213,9 +214,9 @@ copyright_year: ${new Date().getFullYear()}
     // Create data directory for items (prevents ENOENT errors)
     await fs.promises.mkdir(path.join(dest, 'data'), { recursive: true });
 
-    // Create a minimal config.yml file if it doesn't exist
-    const configPath = path.join(dest, "config.yml");
-    if (!(await fsExists(configPath))) {
+    // Create a minimal works.yml file if no supported config file exists
+    const configPath = getPrimaryContentConfigPath(dest);
+    if (!(await hasContentConfigFile(dest))) {
       await fs.promises.writeFile(configPath, DEFAULT_CONFIG);
     }
 
@@ -267,8 +268,8 @@ copyright_year: ${new Date().getFullYear()}
     // Create data directory for items (prevents ENOENT errors)
     await fs.promises.mkdir(path.join(dest, 'data'), { recursive: true });
     
-    const configPath = path.join(dest, "config.yml");
-    if (!(await fsExists(configPath))) {
+    const configPath = getPrimaryContentConfigPath(dest);
+    if (!(await hasContentConfigFile(dest))) {
       await fs.promises.writeFile(configPath, DEFAULT_CONFIG);
     }
   }

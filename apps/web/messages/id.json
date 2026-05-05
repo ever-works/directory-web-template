@@ -2791,6 +2791,7 @@
 			"DELETE_CONFIRMATION": "Apakah Anda yakin ingin {action} kategori ini?",
 			"PERMANENTLY_DELETE": "menghapus secara permanen",
 			"DEACTIVATE": "menonaktifkan",
+			"DELETE": "Hapus",
 			"WARNING_DISABLED_TITLE": "Kategori saat ini dinonaktifkan di seluruh situs",
 			"WARNING_DISABLED_MESSAGE": "Kategori disembunyikan dari situs publik termasuk navigasi, filter, dan halaman item. Anda masih dapat mengelola kategori di sini, tetapi tidak akan terlihat oleh pengguna hingga diaktifkan kembali.",
 			"WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan"

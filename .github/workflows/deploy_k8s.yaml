@@ -1,0 +1,313 @@
+name: Kubernetes Deployment
+
+# Dispatched by the Ever Works platform via @ever-works/k8s-plugin's
+# `getWorkflowFilenames()`. The platform pushes the secrets this workflow
+# reads (KUBECONFIG, K8S_TOKEN, K8S_NAMESPACE, registry creds, etc.) before
+# triggering the dispatch.
+
+on:
+    workflow_dispatch:
+        inputs:
+            environment:
+                description: "Target environment (production, staging, …)"
+                required: true
+                type: string
+                default: production
+    workflow_call:
+        inputs:
+            environment:
+                required: true
+                type: string
+
+permissions:
+    contents: read
+    packages: write
+    deployments: write
+
+concurrency:
+    group: k8s-deployment-${{ github.ref }}-${{ inputs.environment }}
+    cancel-in-progress: true
+
+env:
+    NODE_OPTIONS: "--max-old-space-size=4096"
+    # K8S_REGISTRY_KIND drives every per-registry conditional below.
+    # Defaults to 'github' when the platform pushed nothing — that's the
+    # zero-config GHCR flow.
+    K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Echo target environment
+              run: echo "Deploying to ${{ inputs.environment }}"
+
+            - uses: actions/checkout@v4
+
+            # ---- Image tag ------------------------------------------------
+
+            - name: Resolve image tag
+              id: image
+              run: |
+                  set -euo pipefail
+                  REPO_OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+                  REPO_NAME="${{ github.event.repository.name }}"
+                  REGISTRY_OWNER="${{ secrets.K8S_REGISTRY_OWNER }}"
+                  REGISTRY_OWNER="${REGISTRY_OWNER:-$REPO_OWNER}"
+                  REGISTRY_OWNER="$(echo "$REGISTRY_OWNER" | tr '[:upper:]' '[:lower:]')"
+                  SHORT_SHA="${GITHUB_SHA::12}"
+
+                  case "$K8S_REGISTRY_KIND" in
+                      github)
+                          IMAGE_BASE="ghcr.io/$REGISTRY_OWNER"
+                          ;;
+                      dockerhub)
+                          IMAGE_BASE="docker.io/${{ secrets.REGISTRY_USERNAME }}"
+                          ;;
+                      generic)
+                          REG_HOST="${{ secrets.REGISTRY_SERVER }}"
+                          REG_HOST="${REG_HOST#https://}"
+                          REG_HOST="${REG_HOST#http://}"
+                          REG_HOST="${REG_HOST%/}"
+                          IMAGE_BASE="${REG_HOST}/${{ secrets.REGISTRY_USERNAME }}"
+                          ;;
+                      *)
+                          echo "::error::Unknown K8S_REGISTRY_KIND: $K8S_REGISTRY_KIND"
+                          exit 1
+                          ;;
+                  esac
+
+                  echo "image=${IMAGE_BASE}/${REPO_NAME}:${SHORT_SHA}" >> "$GITHUB_OUTPUT"
+                  echo "registry_host=$(echo "$IMAGE_BASE" | cut -d/ -f1)" >> "$GITHUB_OUTPUT"
+                  echo "Image: ${IMAGE_BASE}/${REPO_NAME}:${SHORT_SHA}"
+
+            # ---- Pre-build setup ------------------------------------------
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "22"
+                  cache: pnpm
+
+            # The Dockerfile copies the working tree into the build context
+            # so we don't need a host-side `pnpm install` here. We do it
+            # anyway to surface lockfile drift early (cheap with the cache).
+            - name: Install dependencies (lockfile check)
+              run: pnpm install --frozen-lockfile
+
+            # ---- Registry login -------------------------------------------
+
+            - name: Login to GHCR
+              if: env.K8S_REGISTRY_KIND == 'github'
+              uses: docker/login-action@v3
+              with:
+                  registry: ghcr.io
+                  username: ${{ github.actor }}
+                  password: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Login to Docker Hub
+              if: env.K8S_REGISTRY_KIND == 'dockerhub'
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
+
+            - name: Login to Generic registry
+              if: env.K8S_REGISTRY_KIND == 'generic'
+              uses: docker/login-action@v3
+              with:
+                  registry: ${{ secrets.REGISTRY_SERVER }}
+                  username: ${{ secrets.REGISTRY_USERNAME }}
+                  password: ${{ secrets.REGISTRY_PASSWORD }}
+
+            # ---- Build & push image ---------------------------------------
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+
+            - name: Build and push image
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: Dockerfile
+                  push: true
+                  tags: ${{ steps.image.outputs.image }}
+                  # DATA_REPOSITORY is a URL — fine to ship as a build-arg
+                  # (it ends up in the resulting image as an env var anyway
+                  # if the Dockerfile picks it up). GH_TOKEN, however, is a
+                  # credential and MUST go through BuildKit secrets so it's
+                  # not embedded in build cache layers / image metadata.
+                  build-args: |
+                      DATA_REPOSITORY=https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}
+                  secrets: |
+                      gh_token=${{ secrets.GH_TOKEN }}
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+
+            # ---- Kubectl + apply manifests --------------------------------
+
+            - name: Setup kubectl
+              uses: azure/setup-kubectl@v4
+              with:
+                  version: v1.30.4
+
+            - name: Configure kubectl
+              env:
+                  KUBECONFIG_YAML: ${{ secrets.K8S_TOKEN }}
+              run: |
+                  set -euo pipefail
+                  KCFG="$(mktemp -d)/config"
+                  printf '%s' "$KUBECONFIG_YAML" > "$KCFG"
+                  chmod 600 "$KCFG"
+                  echo "KUBECONFIG=$KCFG" >> "$GITHUB_ENV"
+                  kubectl version --client=true
+
+            - name: Ensure namespace
+              env:
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+              run: |
+                  kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
+            - name: Provision image-pull secret (private registries)
+              if: env.K8S_REGISTRY_KIND != 'github' || secrets.K8S_REGISTRY_VISIBILITY == 'private'
+              env:
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+                  WORK_SLUG: ${{ github.event.repository.name }}
+                  REGISTRY_HOST: ${{ steps.image.outputs.registry_host }}
+                  REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME || github.actor }}
+                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+              run: |
+                  kubectl create secret docker-registry "${WORK_SLUG}-pull" \
+                      --docker-server="$REGISTRY_HOST" \
+                      --docker-username="$REGISTRY_USERNAME" \
+                      --docker-password="$REGISTRY_PASSWORD" \
+                      -n "$NAMESPACE" \
+                      --dry-run=client -o yaml | kubectl apply -f -
+
+            - name: Render and apply manifests
+              env:
+                  IMAGE: ${{ steps.image.outputs.image }}
+                  WORK_SLUG: ${{ github.event.repository.name }}
+                  WORK_ID: ${{ secrets.TENANT_ID }}
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+                  REPLICAS: ${{ secrets.K8S_REPLICAS || '1' }}
+                  INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
+                  INGRESS_CLASS: ${{ secrets.K8S_INGRESS_CLASS }}
+                  TLS_ISSUER: ${{ secrets.K8S_TLS_ISSUER }}
+              run: |
+                  set -euo pipefail
+
+                  # Pull-secret reference for the Deployment podSpec.
+                  if [[ -n "${REGISTRY_USERNAME:-}${{ secrets.REGISTRY_USERNAME }}" || "${{ secrets.K8S_REGISTRY_VISIBILITY }}" == "private" ]]; then
+                      export PULL_SECRET_BLOCK="imagePullSecrets:
+                                - name: ${WORK_SLUG}-pull"
+                  else
+                      export PULL_SECRET_BLOCK=""
+                  fi
+
+                  envsubst < .deploy/k8s-platform/deployment.yaml | kubectl apply -f -
+                  envsubst < .deploy/k8s-platform/service.yaml | kubectl apply -f -
+
+                  # Ingress only when a host is configured.
+                  if [[ -n "$INGRESS_HOST" ]]; then
+                      # Build the controller-specific annotation lines as
+                      # individual `key: value` strings. We render the full
+                      # Ingress YAML below via a heredoc rather than
+                      # envsubst-substituting a multi-line block — that
+                      # approach broke YAML indent because only the first
+                      # line inherited the template's column position and
+                      # subsequent lines were emitted at column 0.
+                      ANNOTATION_LINES=()
+                      case "${INGRESS_CLASS:-}" in
+                          nginx|*nginx*)
+                              ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/proxy-body-size: 10m")
+                              if [[ -n "$TLS_ISSUER" ]]; then
+                                  ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/ssl-redirect: \"true\"")
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
+                              else
+                                  ANNOTATION_LINES+=("nginx.ingress.kubernetes.io/ssl-redirect: \"false\"")
+                              fi
+                              ;;
+                          traefik|*traefik*)
+                              if [[ -n "$TLS_ISSUER" ]]; then
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.entrypoints: websecure")
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.tls: \"true\"")
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
+                              else
+                                  ANNOTATION_LINES+=("traefik.ingress.kubernetes.io/router.entrypoints: web")
+                              fi
+                              ;;
+                          *)
+                              if [[ -n "$TLS_ISSUER" ]]; then
+                                  ANNOTATION_LINES+=("cert-manager.io/cluster-issuer: $TLS_ISSUER")
+                              fi
+                              ;;
+                      esac
+
+                      # Render Ingress YAML with proper indentation. Each
+                      # annotation gets exactly 8 spaces, matching the
+                      # `metadata.annotations:` parent indent.
+                      {
+                          echo "apiVersion: networking.k8s.io/v1"
+                          echo "kind: Ingress"
+                          echo "metadata:"
+                          echo "    name: ${WORK_SLUG}"
+                          echo "    namespace: ${NAMESPACE}"
+                          echo "    labels:"
+                          echo "        ever-works.io/managed: \"true\""
+                          echo "        ever-works.io/work-id: \"${WORK_ID}\""
+                          echo "        app.kubernetes.io/name: ${WORK_SLUG}"
+                          echo "        app.kubernetes.io/managed-by: ever-works-k8s-plugin"
+                          if [[ ${#ANNOTATION_LINES[@]} -gt 0 ]]; then
+                              echo "    annotations:"
+                              for line in "${ANNOTATION_LINES[@]}"; do
+                                  echo "        $line"
+                              done
+                          fi
+                          echo "spec:"
+                          if [[ -n "${INGRESS_CLASS:-}" ]]; then
+                              echo "    ingressClassName: ${INGRESS_CLASS}"
+                          fi
+                          echo "    rules:"
+                          echo "        - host: ${INGRESS_HOST}"
+                          echo "          http:"
+                          echo "              paths:"
+                          echo "                  - path: /"
+                          echo "                    pathType: Prefix"
+                          echo "                    backend:"
+                          echo "                        service:"
+                          echo "                            name: ${WORK_SLUG}"
+                          echo "                            port:"
+                          echo "                                number: 80"
+                          if [[ -n "$TLS_ISSUER" ]]; then
+                              TLS_SECRET_NAME="$(echo "$INGRESS_HOST" | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//')-tls"
+                              echo "    tls:"
+                              echo "        - hosts:"
+                              echo "              - ${INGRESS_HOST}"
+                              echo "          secretName: ${TLS_SECRET_NAME}"
+                          fi
+                      } | kubectl apply -f -
+                  fi
+
+            - name: Wait for rollout
+              env:
+                  WORK_SLUG: ${{ github.event.repository.name }}
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+              run: |
+                  kubectl rollout status "deployment/${WORK_SLUG}" -n "$NAMESPACE" --timeout=10m
+
+            - name: Deployment summary
+              if: success()
+              env:
+                  INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
+                  WORK_SLUG: ${{ github.event.repository.name }}
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+              run: |
+                  if [[ -n "$INGRESS_HOST" ]]; then
+                      echo "Deployed to https://${INGRESS_HOST}"
+                  else
+                      echo "Deployed in cluster: kubectl port-forward svc/${WORK_SLUG} 8080:80 -n ${NAMESPACE}"
+                  fi

@@ -11,7 +11,7 @@ Cette page documente tous les paramètres de localisation et de carte disponible
 
 ## Source de configuration
 
-Les paramètres de localisation sont définis dans la section `settings.location` du `config.yml` de votre dépôt de contenu :
+Les paramètres de localisation sont définis dans la section `settings.location` du `works.yml` de votre dépôt de contenu :
 
 ```yaml
 settings:

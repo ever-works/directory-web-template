@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { Button } from "@heroui/react";
 import { CheckCircle, XCircle, Trash2, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -20,11 +19,11 @@ interface BulkActionBarProps {
 
 const CONTAINER_CLASSES = cn(
 	"fixed bottom-6 left-1/2 -translate-x-1/2",
-	"flex items-center gap-4",
-	"px-6 py-3",
-	"bg-white dark:bg-white/5",
-	"border border-gray-200 dark:border-white/6",
-	"rounded-xl shadow-lg",
+	"flex items-center gap-3",
+	"px-5 py-2.5",
+	"bg-white dark:bg-[#121212]",
+	"border border-gray-200 dark:border-white/[0.06]",
+	"rounded-xl shadow-2xl",
 	"z-50",
 	"transition-all duration-300 ease-out"
 );
@@ -65,90 +64,102 @@ export function BulkActionBar({
 			role="toolbar"
 			aria-label={t("BULK_ACTIONS")}
 		>
-			{/* Selection count */}
-			<span className="text-sm font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
-				{t("BULK_SELECTED_COUNT", { count: selectedCount })}
-			</span>
-
-			{/* Divider */}
-			<div className="h-6 w-px bg-gray-200 dark:bg-white/8" />
-
-			{/* Action buttons */}
-			<div className="flex items-center gap-2">
-				{/* Approve button */}
-				<Button
-					size="sm"
-					color="success"
-					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
-					onPress={onApprove}
-					isDisabled={!canApproveOrReject || isProcessing}
-					className={cn(
-						!canApproveOrReject && "opacity-40 cursor-not-allowed"
-					)}
-					startContent={
-						processingAction === "approve" ? (
-							<Loader2 className="w-4 h-4 animate-spin" />
-						) : (
-							<CheckCircle className="w-4 h-4" />
-						)
-					}
-				>
-					{t("BULK_APPROVE")}
-				</Button>
-
-				{/* Reject button */}
-				<Button
-					size="sm"
-					color="warning"
-					variant={canApproveOrReject && !isProcessing ? "solid" : "flat"}
-					onPress={onReject}
-					isDisabled={!canApproveOrReject || isProcessing}
-					className={cn(
-						!canApproveOrReject && "opacity-40 cursor-not-allowed"
-					)}
-					startContent={
-						processingAction === "reject" ? (
-							<Loader2 className="w-4 h-4 animate-spin" />
-						) : (
-							<XCircle className="w-4 h-4" />
-						)
-					}
-				>
-					{t("BULK_REJECT")}
-				</Button>
-
-				{/* Delete button */}
-				<Button
-					size="sm"
-					color="danger"
-					variant="solid"
-					onPress={onDelete}
-					isDisabled={isProcessing}
-					startContent={
-						processingAction === "delete" ? (
-							<Loader2 className="w-4 h-4 animate-spin" />
-						) : (
-							<Trash2 className="w-4 h-4" />
-						)
-					}
-				>
-					{t("BULK_DELETE")}
-				</Button>
+			{/* Selection badge */}
+			<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.06]">
+				<span className="flex items-center justify-center w-4.5 h-4.5 text-[11px] font-bold rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 leading-none min-w-[18px] min-h-[18px]">
+					{selectedCount}
+				</span>
+				<span className="text-xs font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
+					{t("BULK_SELECTED_COUNT", { count: selectedCount })}
+				</span>
 			</div>
 
 			{/* Divider */}
-			<div className="h-6 w-px bg-gray-200 dark:bg-white/8" />
+			<div className="h-5 w-px bg-gray-200 dark:bg-white/[0.08]" />
+
+			{/* Action buttons */}
+			<div className="flex items-center gap-1.5">
+				{/* Approve button */}
+				<button
+					type="button"
+					onClick={onApprove}
+					disabled={!canApproveOrReject || isProcessing}
+					className={cn(
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"focus:outline-none focus:ring-2 focus:ring-offset-1",
+						canApproveOrReject && !isProcessing
+							? "bg-green-600 hover:bg-green-700 text-white shadow-sm shadow-green-500/20 focus:ring-green-500"
+							: "bg-gray-100 dark:bg-white/6 text-gray-400 dark:text-gray-500 opacity-50 cursor-not-allowed"
+					)}
+				>
+					{processingAction === "approve" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<CheckCircle className="w-3.5 h-3.5" />
+					)}
+					{t("BULK_APPROVE")}
+				</button>
+
+				{/* Reject button */}
+				<button
+					type="button"
+					onClick={onReject}
+					disabled={!canApproveOrReject || isProcessing}
+					className={cn(
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"focus:outline-none focus:ring-2 focus:ring-offset-1",
+						canApproveOrReject && !isProcessing
+							? "bg-orange-500 hover:bg-orange-600 text-white shadow-sm shadow-orange-500/20 focus:ring-orange-500"
+							: "bg-gray-100 dark:bg-white/6 text-gray-400 dark:text-gray-500 opacity-50 cursor-not-allowed"
+					)}
+				>
+					{processingAction === "reject" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<XCircle className="w-3.5 h-3.5" />
+					)}
+					{t("BULK_REJECT")}
+				</button>
+
+				{/* Delete button */}
+				<button
+					type="button"
+					onClick={onDelete}
+					disabled={isProcessing}
+					className={cn(
+						"inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150",
+						"bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-500/20",
+						"focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1",
+						"disabled:opacity-50 disabled:cursor-not-allowed"
+					)}
+				>
+					{processingAction === "delete" ? (
+						<Loader2 className="w-3.5 h-3.5 animate-spin" />
+					) : (
+						<Trash2 className="w-3.5 h-3.5" />
+					)}
+					{t("BULK_DELETE")}
+				</button>
+			</div>
+
+			{/* Divider */}
+			<div className="h-5 w-px bg-gray-200 dark:bg-white/[0.08]" />
 
 			{/* Clear selection button */}
-			<Button
-				size="sm"
-				variant="light"
-				onPress={onClear}
-				isDisabled={isProcessing}
-				startContent={<X className="w-4 h-4" />}
+			<button
+				type="button"
+				onClick={onClear}
+				disabled={isProcessing}
+				className={cn(
+					"inline-flex items-center gap-1.5 px-2 py-1 text-xs font-medium rounded-lg",
+					"text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200",
+					"hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors",
+					"disabled:opacity-40 disabled:cursor-not-allowed"
+				)}
 			>
+				<X className="w-3.5 h-3.5" />
 				{t("BULK_DESELECT_ALL")}
-			</Button>
+			</button>
 		</div>
 	);
 }

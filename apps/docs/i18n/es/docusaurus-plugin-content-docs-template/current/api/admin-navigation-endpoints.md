@@ -7,7 +7,7 @@ sidebar_position: 29
 
 # Endpoints Admin Navegación e Índice de Ubicación
 
-Estos puntos finales de administración gestionan los enlaces de navegación del sitio personalizados y el índice de ubicación geográfica. Los puntos finales de navegación permiten configurar enlaces personalizados de encabezado y pie de página almacenados en `config.yml`. Los puntos finales del índice de ubicación gestionan el índice espacial utilizado para analíticas geográficas y funciones de mapa.
+Estos puntos finales de administración gestionan los enlaces de navegación del sitio personalizados y el índice de ubicación geográfica. Los puntos finales de navegación permiten configurar enlaces personalizados de encabezado y pie de página almacenados en `works.yml`. Los puntos finales del índice de ubicación gestionan el índice espacial utilizado para analíticas geográficas y funciones de mapa.
 
 ## Descripción General
 
@@ -26,7 +26,7 @@ Estos puntos finales de administración gestionan los enlaces de navegación del
 GET /api/admin/navigation
 ```
 
-Recupera los elementos de navegación `custom_header` y `custom_footer` del archivo `config.yml` del sitio. Devuelve arrays vacíos si no hay navegación personalizada configurada.
+Recupera los elementos de navegación `custom_header` y `custom_footer` del archivo `works.yml` del sitio. Devuelve arrays vacíos si no hay navegación personalizada configurada.
 
 **Autenticación:** Se requiere administrador (mediante `getCachedApiSession`)
 
@@ -77,7 +77,7 @@ Cada elemento de navegación tiene dos campos:
 PATCH /api/admin/navigation
 ```
 
-Actualiza los elementos de navegación personalizados del encabezado o pie de página en `config.yml`. Valida el formato de la ruta de cada elemento para prevenir ataques XSS mediante esquemas de URL peligrosos.
+Actualiza los elementos de navegación personalizados del encabezado o pie de página en `works.yml`. Valida el formato de la ruta de cada elemento para prevenir ataques XSS mediante esquemas de URL peligrosos.
 
 **Autenticación:** Se requiere administrador
 

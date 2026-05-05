@@ -123,7 +123,7 @@ const customHeroFrontmatterSchema = z.object({
 import { CACHE_TAGS, CACHE_TTL } from './cache-config';
 
 const getCachedConfig = unstable_cache(
-  async () => { /* read and parse config.yml */ },
+  async () => { /* read and parse works.yml */ },
   [CACHE_TAGS.CONFIG],
   { revalidate: CACHE_TTL }
 );
@@ -214,7 +214,7 @@ import 'server-only';
 
 |функция|Описание|
 |----------|-------------|
-|`getCachedConfig()`|Връща кеширана конфигурация на сайта от `config.yml`|
+|`getCachedConfig()`|Връща кеширана конфигурация на сайта от `works.yml`|
 |`trySyncRepository()`|Клонира или изтегля съдържание от отдалечено Git хранилище|
 |`pullChanges()`|Извлича най-новите промени с разрешаване на конфликти|
 |`validateLanguageCode()`|Валидира формата на кода на езика i18n|

@@ -123,7 +123,7 @@ Per testare il sistema multivaluta:
 ## Note importanti
 
 - Gli ID prezzo vengono risolti **al momento del pagamento**, non al momento della visualizzazione
-- La configurazione dei prezzi in `content/config.yml` ha la priorità sulla configurazione predefinita
+- La configurazione dei prezzi in `content/works.yml` ha la priorità sulla configurazione predefinita
 - Le configurazioni multivaluta vengono utilizzate solo se sono configurate variabili di ambiente
 
 ## Integrazione con i fornitori di pagamenti

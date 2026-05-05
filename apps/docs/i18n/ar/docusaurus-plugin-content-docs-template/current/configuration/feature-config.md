@@ -166,7 +166,7 @@ const isValid = validateSiteConfig();
 
 ## ConfigManager (تهيئة YAML)
 
-تدير فئة `ConfigManager` في `lib/config-manager.ts` ملف `config.yml` من مستودع نظام إدارة المحتوى المعتمد على Git. تتعامل مع القراءة والكتابة وتأكيد تغييرات التهيئة.
+تدير فئة `ConfigManager` في `lib/config-manager.ts` ملف `works.yml` من مستودع نظام إدارة المحتوى المعتمد على Git. تتعامل مع القراءة والكتابة وتأكيد تغييرات التهيئة.
 
 ### قراءة التهيئة
 

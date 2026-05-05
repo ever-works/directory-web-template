@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: ${WORK_SLUG}
+    namespace: ${NAMESPACE}
+    labels:
+        ever-works.io/managed: "true"
+        ever-works.io/work-id: "${WORK_ID}"
+        app.kubernetes.io/name: ${WORK_SLUG}
+        app.kubernetes.io/managed-by: ever-works-k8s-plugin
+spec:
+    replicas: ${REPLICAS}
+    selector:
+        matchLabels:
+            app.kubernetes.io/name: ${WORK_SLUG}
+    strategy:
+        type: RollingUpdate
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+    template:
+        metadata:
+            labels:
+                ever-works.io/managed: "true"
+                ever-works.io/work-id: "${WORK_ID}"
+                app.kubernetes.io/name: ${WORK_SLUG}
+                app.kubernetes.io/managed-by: ever-works-k8s-plugin
+        spec:
+            ${PULL_SECRET_BLOCK}
+            containers:
+                - name: app
+                  image: ${IMAGE}
+                  imagePullPolicy: IfNotPresent
+                  ports:
+                      - containerPort: 3000
+                        name: http
+                  readinessProbe:
+                      httpGet:
+                          path: /
+                          port: http
+                      periodSeconds: 5
+                      initialDelaySeconds: 5
+                  livenessProbe:
+                      httpGet:
+                          path: /
+                          port: http
+                      periodSeconds: 10
+                      initialDelaySeconds: 30
+                  resources:
+                      requests:
+                          cpu: 100m
+                          memory: 256Mi
+                      limits:
+                          cpu: 500m
+                          memory: 1Gi
+                  env:
+                      - name: NODE_ENV
+                        value: production
+                      - name: PORT
+                        value: "3000"
+                      - name: HOSTNAME
+                        value: 0.0.0.0
