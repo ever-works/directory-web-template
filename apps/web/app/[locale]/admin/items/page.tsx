@@ -1016,7 +1016,7 @@ export default function AdminItemsPage() {
           aria-modal="true"
           aria-labelledby="item-form-modal-title"
           tabIndex={-1}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto focus:outline-none"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto focus:outline-none scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
           onClick={(e) => {
             // Close modal when clicking backdrop
             if (e.target === e.currentTarget) {

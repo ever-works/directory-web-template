@@ -1,18 +1,28 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Button, Card, CardBody, Chip, useDisclosure } from '@heroui/react';
 import { FolderPlus, Edit, Trash2, Layers, Link2, ListChecks } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 import { Collection } from '@/types/collection';
+import { Container } from '@/components/ui/container';
 import { useAdminCollections } from '@/hooks/use-admin-collections';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { CollectionForm } from '@/components/admin/collections/collection-form';
 import { AssignItemsModal } from '@/components/admin/collections/assign-items-modal';
-import { serverClient, apiUtils } from '@/lib/api/server-api-client';
 import { CollectionsSkeleton } from '@/components/admin/collections/collections-skeleton';
 import { useNavigation } from '@/components/providers';
+
+const ICON_GRADIENTS = [
+	'bg-linear-to-br from-blue-500 to-blue-600',
+	'bg-linear-to-br from-violet-500 to-violet-600',
+	'bg-linear-to-br from-emerald-500 to-emerald-600',
+	'bg-linear-to-br from-amber-500 to-amber-600',
+	'bg-linear-to-br from-pink-500 to-pink-600',
+	'bg-linear-to-br from-indigo-500 to-indigo-600',
+	'bg-linear-to-br from-teal-500 to-teal-600',
+	'bg-linear-to-br from-rose-500 to-rose-600',
+];
 
 export default function AdminCollectionsPage() {
 	const t = useTranslations('common');
@@ -20,8 +30,8 @@ export default function AdminCollectionsPage() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
 	const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
-	const formDisclosure = useDisclosure();
-	const assignDisclosure = useDisclosure();
+	const [formIsOpen, setFormIsOpen] = useState(false);
+	const [assignIsOpen, setAssignIsOpen] = useState(false);
 	const [assignInitialIds, setAssignInitialIds] = useState<string[]>([]);
 
 	const {
@@ -34,62 +44,43 @@ export default function AdminCollectionsPage() {
 		updateCollection,
 		deleteCollection,
 		assignItems,
-		fetchAssignedItems
+		fetchAssignedItems,
 	} = useAdminCollections({ page: currentPage, limit: PageSize, sortBy: 'name', includeInactive: true });
 
-	// Fetch all collections for global stats (with high limit to get all)
-	const { data: allCollectionsData } = useQuery({
-		queryKey: ['admin', 'collections', 'stats'],
-		queryFn: async () => {
-			const response = await serverClient.get<{
-				success: boolean;
-				collections: Collection[];
-				total: number;
-			}>('/api/admin/collections?limit=1000&includeInactive=true');
-			if (!apiUtils.isSuccess(response)) {
-				throw new Error(apiUtils.getErrorMessage(response));
-			}
-			return response.data;
-		},
-		staleTime: 5 * 60 * 1000
-	});
+	const activeCollections = useMemo(
+		() => collections.filter((c) => c.isActive !== false).length,
+		[collections]
+	);
 
-	// Calculate global stats from all collections
-	const activeCollections = useMemo(() => {
-		const allCollections = allCollectionsData?.collections || [];
-		return allCollections.filter((c) => c.isActive !== false).length;
-	}, [allCollectionsData]);
-
-	const totalItemsInCollections = useMemo(() => {
-		const allCollections = allCollectionsData?.collections || [];
-		return allCollections.reduce((sum, col) => sum + (col.item_count || 0), 0);
-	}, [allCollectionsData]);
+	const totalItemsInCollections = useMemo(
+		() => collections.reduce((sum, col) => sum + (col.item_count || 0), 0),
+		[collections]
+	);
 
 	const openCreateForm = () => {
 		setSelectedCollection(null);
 		setFormMode('create');
-		formDisclosure.onOpen();
+		setFormIsOpen(true);
 	};
 
 	const openEditForm = (collection: Collection) => {
 		setSelectedCollection(collection);
 		setFormMode('edit');
-		formDisclosure.onOpen();
+		setFormIsOpen(true);
+	};
+
+	const closeForm = () => {
+		setFormIsOpen(false);
+		setSelectedCollection(null);
 	};
 
 	const handleFormSubmit = async (data: any) => {
 		if (formMode === 'create') {
 			const success = await createCollection(data);
-			if (success) {
-				formDisclosure.onClose();
-				setSelectedCollection(null);
-			}
+			if (success) closeForm();
 		} else if (selectedCollection) {
 			const success = await updateCollection(selectedCollection.id, data);
-			if (success) {
-				formDisclosure.onClose();
-				setSelectedCollection(null);
-			}
+			if (success) closeForm();
 		}
 	};
 
@@ -100,18 +91,14 @@ export default function AdminCollectionsPage() {
 	};
 
 	const handleAssign = async (collection: Collection) => {
-		// Prefer items already stored on the collection (from collections.yml)
 		let assignedSlugs = Array.isArray(collection.items) && collection.items.length ? collection.items : [];
-
-		// Fallback to fetch if not present
 		if (assignedSlugs.length === 0) {
 			const assigned = await fetchAssignedItems(collection.id);
 			assignedSlugs = assigned.map((item) => item.slug);
 		}
-
 		setSelectedCollection(collection);
 		setAssignInitialIds(assignedSlugs);
-		assignDisclosure.onOpen();
+		setAssignIsOpen(true);
 	};
 
 	const handleAssignSave = async (itemSlugs: string[]) => {
@@ -120,252 +107,237 @@ export default function AdminCollectionsPage() {
 	};
 
 	const { isInitialLoad } = useNavigation();
-	const shouldShowSkeleton = isInitialLoad && isLoading;
+	if (isInitialLoad && isLoading) return <CollectionsSkeleton itemCount={PageSize} />;
 
-	if (shouldShowSkeleton) {
-		return <CollectionsSkeleton itemCount={PageSize} />;
-	}
+	const activePercent = total > 0 ? Math.round((activeCollections / total) * 100) : 0;
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
+		<Container useGlobalWidth>
+
+			{/* Page Header */}
 			<div className="mb-8">
-				<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6">
-					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-						<div className="flex items-center space-x-4">
-							<div className="w-12 h-12 bg-linear-to-br from-theme-primary to-theme-accent rounded-xl flex items-center justify-center shadow-lg">
-								<Layers className="w-6 h-6 text-white" />
-							</div>
-							<div>
-								<h1 className="text-2xl sm:text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-									{t('MANAGE_COLLECTIONS')}
-								</h1>
-								<p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2">
-									<span>{t('MANAGE_COLLECTIONS_DESC')}</span>
-									<span className="hidden sm:inline">•</span>
-									<span className="text-sm px-2 py-1 bg-theme-primary/10 text-theme-primary rounded-full font-medium">
-										{total} {t('TOTAL')}
-									</span>
-								</p>
-							</div>
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="w-11 h-11 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shrink-0 shadow-lg shadow-violet-500/25 dark:shadow-violet-500/15">
+							<Layers className="w-5 h-5 text-white" />
 						</div>
-						<Button
-							color="primary"
-							size="lg"
-							onPress={openCreateForm}
-							startContent={<FolderPlus size={18} />}
-							className="bg-linear-to-r from-theme-primary to-theme-accent hover:from-theme-primary/90 hover:to-theme-accent/90 shadow-lg shadow-theme-primary/25 hover:shadow-xl hover:shadow-theme-primary/40 transition-all duration-300 text-white font-medium"
-						>
-							{t('ADD_COLLECTION')}
-						</Button>
+						<div>
+							<h1 className="text-xl font-semibold text-gray-900 dark:text-white leading-tight tracking-tight">
+								{t('MANAGE_COLLECTIONS')}
+							</h1>
+							<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{t('MANAGE_COLLECTIONS_DESC')}</p>
+						</div>
 					</div>
+					<button
+						type="button"
+						onClick={openCreateForm}
+						className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950 shrink-0"
+					>
+						<FolderPlus className="w-4 h-4" />
+						{t('ADD_COLLECTION')}
+					</button>
+				</div>
+				<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
+			</div>
+
+			{/* Stats */}
+			<div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+
+				{/* Total */}
+				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+					<div className="flex items-start justify-between mb-4 pt-0.5">
+						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+							{t('TOTAL')}
+						</p>
+						<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400">
+							<Layers className="w-4 h-4" />
+						</div>
+					</div>
+					<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-3">{total}</p>
+					<p className="text-xs text-gray-500 dark:text-gray-400">{t('COLLECTION')}</p>
+				</div>
+
+				{/* Active — with progress bar */}
+				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+					<div className="flex items-start justify-between mb-4 pt-0.5">
+						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+							{t('ACTIVE')}
+						</p>
+						<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+							<ListChecks className="w-4 h-4" />
+						</div>
+					</div>
+					<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-3">{activeCollections}</p>
+					<div className="h-1.5 w-full bg-gray-100 dark:bg-white/6 rounded-full mb-2.5 overflow-hidden">
+						<div
+							className="h-full bg-linear-to-r from-emerald-400 to-emerald-600 rounded-full transition-all duration-700"
+							style={{ width: `${activePercent}%` }}
+						/>
+					</div>
+					<div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+						<span className="text-emerald-600 dark:text-emerald-400 font-semibold">{activePercent}%</span>
+						<span>{t('ACTIVE')}</span>
+					</div>
+				</div>
+
+				{/* Items Assigned */}
+				<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+					<div className="flex items-start justify-between mb-4 pt-0.5">
+						<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+							{t('ITEMS_ASSIGNED')}
+						</p>
+						<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400">
+							<Link2 className="w-4 h-4" />
+						</div>
+					</div>
+					<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-3">{totalItemsInCollections}</p>
+					<p className="text-xs text-gray-500 dark:text-gray-400">{t('ITEMS_ASSIGNED')}</p>
 				</div>
 			</div>
 
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-				<Card className="border-0 bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 shadow-lg">
-					<CardBody className="p-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-1">
-									{t('COLLECTION')}
-								</p>
-								<p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{total}</p>
+			{/* Collections List */}
+			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+
+				{/* Card header */}
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
+					<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('COLLECTION')}</h3>
+					<span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
+						{collections.length} {t('OF')} {total}
+					</span>
+				</div>
+
+				<div className="divide-y divide-gray-50 dark:divide-white/4">
+					{collections.length === 0 ? (
+						<div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+							<div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
+								<Layers className="w-6 h-6 text-gray-400 dark:text-gray-500" />
 							</div>
-							<div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-								<Layers className="w-6 h-6 text-white" />
-							</div>
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">{t('NO_COLLECTIONS_YET')}</h3>
+							<p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed mb-6">
+								{t('MANAGE_COLLECTIONS_DESC')}
+							</p>
+							<button
+								type="button"
+								onClick={openCreateForm}
+								className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
+							>
+								<FolderPlus className="w-4 h-4" />
+								{t('ADD_COLLECTION')}
+							</button>
 						</div>
-					</CardBody>
-				</Card>
-
-				<Card className="border-0 bg-linear-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 shadow-lg">
-					<CardBody className="p-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">
-									{t('ACTIVE')}
-								</p>
-								<p className="text-3xl font-bold text-green-700 dark:text-green-300">
-									{activeCollections}
-								</p>
-							</div>
-							<div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center shadow-lg">
-								<ListChecks className="w-6 h-6 text-white" />
-							</div>
-						</div>
-					</CardBody>
-				</Card>
-
-				<Card className="border-0 bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 shadow-lg">
-					<CardBody className="p-6">
-						<div className="flex items-center justify-between">
-							<div>
-								<p className="text-sm font-medium text-purple-600 dark:text-purple-400 mb-1">
-									{t('ITEMS_ASSIGNED')}
-								</p>
-								<p className="text-3xl font-bold text-purple-700 dark:text-purple-300">
-									{totalItemsInCollections}
-								</p>
-							</div>
-							<div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center shadow-lg">
-								<Link2 className="w-6 h-6 text-white" />
-							</div>
-						</div>
-					</CardBody>
-				</Card>
-			</div>
-
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs">
-				<CardBody className="p-0">
-				<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3 flex items-center justify-between">
-						<h3 className="text-lg font-semibold text-gray-900 dark:text-white">{t('COLLECTION')}</h3>
-						<span className="text-sm text-gray-600 dark:text-gray-400">
-							{collections.length} {t('OF')} {total}
-						</span>
-					</div>
-
-					<div className="divide-y divide-gray-100 dark:divide-white/6">
-						{collections.length === 0 ? (
-							<div className="p-6 text-center text-gray-500">{t('NO_COLLECTIONS_YET')}</div>
-						) : (
-							collections.map((collection) => (
-								<div
-									key={collection.id}
-									className="group px-6 py-4 hover:bg-linear-to-r hover:from-theme-primary/5 hover:to-theme-accent/5 dark:hover:from-theme-primary/10 dark:hover:to-theme-accent/10 transition-all"
-								>
-									<div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-										<div className="flex items-start gap-4 flex-1 min-w-0">
-											<div className="w-10 h-10 border rounded-lg flex items-center justify-center text-white font-semibold shadow-md">
-												{collection.icon_url || collection.name.charAt(0).toUpperCase()}
-											</div>
-											<div className="flex-1 min-w-0 space-y-1">
-												<div className="flex items-center gap-2">
-													<h4 className="font-medium text-gray-900 dark:text-white truncate">
-														{collection.name}
-													</h4>
-													<Chip
-														size="sm"
-														variant="flat"
-														color={collection.isActive !== false ? 'success' : 'danger'}
-													>
-														{collection.isActive !== false ? t('ACTIVE') : t('INACTIVE')}
-													</Chip>
-													<Chip size="sm" variant="flat" color="primary">
-														{t('COLLECTION_ITEMS', { count: collection.item_count || 0 })}
-													</Chip>
-												</div>
-												<p className="text-xs text-gray-500">
-													{t('SLUG_LABEL')} {collection.slug}
-												</p>
-												{collection.description && (
-													<p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-														{collection.description}
-													</p>
-												)}
-											</div>
+					) : (
+						collections.map((collection, index) => (
+							<div
+								key={collection.id}
+								className="group flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-white/2.5 transition-colors duration-150"
+							>
+								{/* Info */}
+								<div className="flex items-start gap-4 flex-1 min-w-0">
+									<div className={cn(
+										'w-10 h-10 rounded-xl flex items-center justify-center text-white font-semibold text-sm shadow-sm shrink-0',
+										ICON_GRADIENTS[index % ICON_GRADIENTS.length]
+									)}>
+										{collection.icon_url || collection.name.charAt(0).toUpperCase()}
+									</div>
+									<div className="flex-1 min-w-0 space-y-1">
+										<div className="flex items-center gap-2 flex-wrap">
+											<h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+												{collection.name}
+											</h4>
+											<span className={cn(
+												'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset',
+												collection.isActive !== false
+													? 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
+													: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
+											)}>
+												<span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
+												{collection.isActive !== false ? t('ACTIVE') : t('INACTIVE')}
+											</span>
+											<span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
+												{t('COLLECTION_ITEMS', { count: collection.item_count || 0 })}
+											</span>
 										</div>
-
-										<div className="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-											<Button
-												size="sm"
-												variant="flat"
-												onPress={() => handleAssign(collection)}
-												className="h-9 px-3"
-											>
-												<Link2 className="w-4 h-4 mr-1" /> {t('ASSIGN_ITEMS')}
-											</Button>
-											<Button
-												size="sm"
-												variant="flat"
-												onPress={() => openEditForm(collection)}
-												className="h-9 px-3"
-											>
-												<Edit className="w-4 h-4 mr-1" /> {t('EDIT')}
-											</Button>
-											<Button
-												size="sm"
-												color="danger"
-												variant="flat"
-												onPress={() => handleDelete(collection)}
-												className="h-9 px-3"
-												isDisabled={isSubmitting}
-											>
-												<Trash2 className="w-4 h-4 mr-1" /> {t('DELETE')}
-											</Button>
-										</div>
+										<p className="text-xs text-gray-400 dark:text-gray-500">/{collection.slug}</p>
+										{collection.description && (
+											<p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed">
+												{collection.description}
+											</p>
+										)}
 									</div>
 								</div>
-							))
-						)}
-					</div>
 
-					{totalPages > 1 && (
-						<div className="p-4 border-t border-gray-100 dark:border-white/6">
-							<UniversalPagination
-								page={currentPage}
-								totalPages={totalPages}
-								onPageChange={(page) => {
-									setCurrentPage(page);
-									window.scrollTo({ top: 0, behavior: 'smooth' });
-								}}
-							/>
-						</div>
-					)}
-				</CardBody>
-			</Card>
-
-			{formDisclosure.isOpen && (
-				<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-					<div
-						className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-						onClick={!isSubmitting ? formDisclosure.onClose : undefined}
-					/>
-					<div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
-						<div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/6">
-							<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-								{formMode === 'create' ? t('CREATE_COLLECTION') : t('EDIT_COLLECTION')}
-							</h2>
-							{!isSubmitting && (
-								<button
-									onClick={formDisclosure.onClose}
-									className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
-								>
-									<svg
-										className="w-5 h-5 text-gray-500 dark:text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
+								{/* Actions */}
+								<div className="flex items-center gap-1.5 ml-14 md:ml-0 md:opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+									<button
+										type="button"
+										onClick={() => handleAssign(collection)}
+										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1"
 									>
-										<path
-											strokeLinecap="round"
-											strokeLinejoin="round"
-											strokeWidth={2}
-											d="M6 18L18 6M6 6l12 12"
-										/>
-									</svg>
-								</button>
-							)}
-						</div>
-						<div className="overflow-y-auto max-h-[calc(90vh-4rem)]">
-							<CollectionForm
-								collection={selectedCollection || undefined}
-								mode={formMode}
-								isLoading={isSubmitting}
-								onSubmit={handleFormSubmit}
-								onCancel={formDisclosure.onClose}
-							/>
-						</div>
+										<Link2 className="w-3.5 h-3.5" />
+										{t('ASSIGN_ITEMS')}
+									</button>
+									<button
+										type="button"
+										onClick={() => openEditForm(collection)}
+										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1"
+									>
+										<Edit className="w-3.5 h-3.5" />
+										{t('EDIT')}
+									</button>
+									<button
+										type="button"
+										disabled={isSubmitting}
+										onClick={() => handleDelete(collection)}
+										className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-transparent text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-200 dark:hover:border-red-500/20 transition-all duration-150 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+									>
+										<Trash2 className="w-3.5 h-3.5" />
+										{t('DELETE')}
+									</button>
+								</div>
+							</div>
+						))
+					)}
+				</div>
+
+				{totalPages > 1 && (
+					<div className="p-4 border-t border-gray-100 dark:border-white/6">
+						<UniversalPagination
+							page={currentPage}
+							totalPages={totalPages}
+							onPageChange={(page) => {
+								setCurrentPage(page);
+								window.scrollTo({ top: 0, behavior: 'smooth' });
+							}}
+						/>
+					</div>
+				)}
+			</div>
+
+			{/* Create / Edit modal */}
+			{formIsOpen && (
+				<div
+					className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
+					onClick={(e) => e.target === e.currentTarget && !isSubmitting && closeForm()}
+				>
+					<div className="w-full max-w-2xl my-8 bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl shadow-2xl shadow-black/30 max-h-[calc(100vh-4rem)] overflow-y-auto">
+						<CollectionForm
+							collection={selectedCollection || undefined}
+							mode={formMode}
+							isLoading={isSubmitting}
+							onSubmit={handleFormSubmit}
+							onCancel={closeForm}
+						/>
 					</div>
 				</div>
 			)}
 
 			<AssignItemsModal
-				isOpen={assignDisclosure.isOpen}
-				onClose={assignDisclosure.onClose}
+				isOpen={assignIsOpen}
+				onClose={() => setAssignIsOpen(false)}
 				collectionName={selectedCollection?.name || t('THIS_COLLECTION')}
 				initialSelected={assignInitialIds}
 				onSave={handleAssignSave}
 			/>
-		</div>
+		</Container>
 	);
 }

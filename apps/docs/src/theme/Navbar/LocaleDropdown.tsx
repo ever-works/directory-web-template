@@ -137,7 +137,7 @@ const LocaleDropdown: React.FC = () => {
       </button>
 
        {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 p-1.5 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700/40 bg-white dark:bg-black shadow-lg animate-fade-in z-[200]">
+        <div className="absolute right-0 bottom-full mb-2 p-1.5 min-w-[160px] max-h-[300px] overflow-y-auto rounded-xl border border-gray-200 dark:border-gray-700/40 bg-white dark:bg-black shadow-lg animate-fade-in z-[200] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
           {locales.map((locale) => (
             <button
               key={locale}
