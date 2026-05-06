@@ -47,8 +47,9 @@ const SUBTITLE_CLASSES = ['text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-
 
 const ACCORDION_ITEM_CLASSES = [
 	'bg-white',
-	'dark:bg-white/3',
+	'dark:bg-[#191919]',
 	'rounded-2xl',
+	'overflow-hidden',
 	'border',
 	'border-gray-100',
 	'dark:border-white/6',
@@ -62,9 +63,9 @@ const ACCORDION_ITEM_CLASSES = [
 
 const ACCORDION_TITLE_CLASSES = ['text-sm', 'font-semibold', 'text-gray-900', 'dark:text-white'].join(' ');
 
-const ACCORDION_DESC_CLASSES = ['text-xs', 'text-gray-500', 'dark:text-gray-400', 'mt-0.5'].join(' ');
+const ACCORDION_DESC_CLASSES = ['text-sm', 'text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' ');
 
-const ACCORDION_CONTENT_CLASSES = ['px-6', 'pb-6', 'pt-2', 'space-y-4'].join(' ');
+const ACCORDION_CONTENT_CLASSES = ['px-6', 'pb-6', 'pt-2', 'space-y-4', 'dark:bg-[#191919]'].join(' ');
 
 const PLACEHOLDER_TEXT_CLASSES = [
 	'text-sm',
