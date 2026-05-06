@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Plus, Trash2, GripVertical, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import { isExternalUrl } from '@/lib/utils/custom-navigation';
 import type { CustomNavigationItem } from '@/lib/content';
 
@@ -112,6 +113,9 @@ const NativeLabel = ({ children, htmlFor, className = '' }: { children: React.Re
 };
 
 export function CustomNavigationManager({ type, items, onUpdate, disabled = false }: CustomNavigationManagerProps) {
+	const t = useTranslations('admin.ADMIN_SETTINGS_PAGE');
+	const tFooter = useTranslations('footer');
+
 	// Generate unique IDs for items - use ref to maintain stable function reference
 	const generateId = useRef(() => `nav-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`).current;
 
@@ -216,7 +220,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 		for (let i = 0; i < localItems.length; i++) {
 			const item = localItems[i];
 			if (!item.label || !item.path) {
-				toast.error(`Item ${i + 1} is incomplete. Please fill both label and path.`);
+				toast.error(t('CUSTOM_NAV_INCOMPLETE_ITEM', { number: i + 1 }));
 				return;
 			}
 		}
@@ -226,10 +230,10 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 			// Strip IDs before saving (onUpdate expects CustomNavigationItem[])
 			const itemsToSave: CustomNavigationItem[] = localItems.map(({ id: _id, ...item }) => item);
 			await onUpdate(itemsToSave);
-			toast.success(`${type === 'header' ? 'Header' : 'Footer'} navigation updated successfully`);
+			toast.success(type === 'header' ? t('CUSTOM_NAV_HEADER_SAVE_SUCCESS') : t('CUSTOM_NAV_FOOTER_SAVE_SUCCESS'));
 		} catch (error) {
 			console.error('Error saving navigation:', error);
-			toast.error('Failed to save navigation. Please try again.');
+			toast.error(t('CUSTOM_NAV_SAVE_ERROR'));
 		} finally {
 			setIsSaving(false);
 		}
@@ -240,23 +244,19 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 			<div className="flex items-center justify-between">
 				<div>
 					<h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-						{type === 'header' ? 'Header Links' : 'Footer Links'}
+						{type === 'header' ? t('CUSTOM_NAV_HEADER_TITLE') : t('CUSTOM_NAV_FOOTER_TITLE')}
 					</h4>
 					<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-						{type === 'header'
-							? 'Add custom links to the main navigation menu'
-							: 'Add custom links to the footer section'}
+						{type === 'header' ? t('CUSTOM_NAV_HEADER_DESC') : t('CUSTOM_NAV_FOOTER_DESC')}
 					</p>
 					{type === 'header' && (
 						<div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-gray-600 dark:text-gray-400 border border-blue-200 dark:border-blue-800">
-							<strong>Examples:</strong> About → /about | Documentation → /pages/docs | Blog →
-							https://blog.example.com
+							<strong>{t('CUSTOM_NAV_EXAMPLES')}</strong> {t('CUSTOM_NAV_HEADER_EXAMPLES')}
 						</div>
 					)}
 					{type === 'footer' && (
 						<div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-gray-600 dark:text-gray-400 border border-blue-200 dark:border-blue-800">
-							<strong>Examples:</strong> Privacy Policy → /pages/privacy-policy | Terms →
-							/pages/terms-of-service | GitHub → https://github.com/example
+							<strong>{t('CUSTOM_NAV_EXAMPLES')}</strong> {t('CUSTOM_NAV_FOOTER_EXAMPLES')}
 						</div>
 					)}
 				</div>
@@ -267,14 +267,14 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 					disabled={disabled || isSaving}
 				>
 					<Plus className="w-4 h-4" />
-					Add Link
+					{t('CUSTOM_NAV_ADD_LINK')}
 				</NativeButton>
 			</div>
 
 			{localItems.length === 0 ? (
 				<div className="text-center py-8 px-4 bg-gray-50 dark:bg-white/3 rounded-lg border border-dashed border-gray-300 dark:border-white/6">
 					<p className="text-sm text-gray-500 dark:text-gray-400">
-						No custom links configured. Click "Add Link" to get started.
+						{t('CUSTOM_NAV_EMPTY')}
 					</p>
 				</div>
 			) : (
@@ -319,7 +319,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 											onClick={() => moveItem(item.id, 'up')}
 											disabled={disabled || isSaving || !canMoveUp}
 											className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-											title="Move up"
+											title={t('CUSTOM_NAV_MOVE_UP')}
 										>
 											<svg
 												className="w-4 h-4"
@@ -340,7 +340,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 											onClick={() => moveItem(item.id, 'down')}
 											disabled={disabled || isSaving || !canMoveDown}
 											className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-											title="Move down"
+											title={t('CUSTOM_NAV_MOVE_DOWN')}
 										>
 											<svg
 												className="w-4 h-4"
@@ -362,7 +362,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 									<div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
 										<div className="space-y-2">
 											<NativeLabel htmlFor={`label-${item.id}`}>
-												Label <span className="text-red-500">*</span>
+												{t('CUSTOM_NAV_LABEL')} <span className="text-red-500">*</span>
 											</NativeLabel>
 											<NativeInput
 												id={`label-${item.id}`}
@@ -370,23 +370,21 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 												onChange={(e) => updateItem(item.id, 'label', e.target.value)}
 												placeholder={
 													type === 'header'
-														? 'About, Documentation, NAV_ABOUT, footer.HELP'
-														: 'Privacy Policy, footer.TERMS_OF_SERVICE, footer.PRIVACY_POLICY'
+														? t('CUSTOM_NAV_HEADER_LABEL_PLACEHOLDER')
+														: t('CUSTOM_NAV_FOOTER_LABEL_PLACEHOLDER')
 												}
 												disabled={disabled || isSaving}
 											/>
 											<p className="text-xs text-gray-500 dark:text-gray-400">
 												{type === 'header' ? (
 													<>
-														<strong>Plain text:</strong> About, Documentation, Blog |{' '}
-														<strong>Translation key:</strong> NAV_ABOUT, footer.HELP,
-														common.DOCS
+														<strong>{t('CUSTOM_NAV_PLAIN_TEXT')}</strong> {t('CUSTOM_NAV_HEADER_LABEL_PLAIN_VALUES')} |{' '}
+														<strong>{t('CUSTOM_NAV_TRANSLATION_KEY')}</strong> {t('CUSTOM_NAV_HEADER_LABEL_KEY_VALUES')}
 													</>
 												) : (
 													<>
-														<strong>Plain text:</strong> Privacy Policy, Terms |{' '}
-														<strong>Translation key:</strong> footer.PRIVACY_POLICY,
-														footer.TERMS_OF_SERVICE
+														<strong>{t('CUSTOM_NAV_PLAIN_TEXT')}</strong> {t('CUSTOM_NAV_FOOTER_LABEL_PLAIN_VALUES')} |{' '}
+														<strong>{t('CUSTOM_NAV_TRANSLATION_KEY')}</strong> {tFooter('PRIVACY_POLICY')}, {tFooter('TERMS_OF_SERVICE')}
 													</>
 												)}
 											</p>
@@ -394,7 +392,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 
 										<div className="space-y-2">
 											<NativeLabel htmlFor={`path-${item.id}`}>
-												Path / URL <span className="text-red-500">*</span>
+												{t('CUSTOM_NAV_PATH')} <span className="text-red-500">*</span>
 											</NativeLabel>
 											<div className="relative">
 												<NativeInput
@@ -403,8 +401,8 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 													onChange={(e) => updateItem(item.id, 'path', e.target.value)}
 													placeholder={
 														type === 'header'
-															? '/about, /pages/docs, https://blog.example.com'
-															: '/pages/privacy-policy, /pages/terms-of-service, https://github.com/example'
+															? t('CUSTOM_NAV_HEADER_PATH_PLACEHOLDER')
+															: t('CUSTOM_NAV_FOOTER_PATH_PLACEHOLDER')
 													}
 													disabled={disabled || isSaving}
 													className="pr-8"
@@ -414,9 +412,9 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 												)}
 											</div>
 											<p className="text-xs text-gray-500 dark:text-gray-400">
-												<strong>Internal routes:</strong> /about, /contact |{' '}
-												<strong>Markdown pages:</strong> /pages/docs, /pages/privacy-policy |{' '}
-												<strong>External URLs:</strong> https://example.com
+												<strong>{t('CUSTOM_NAV_PATH_HINT_INTERNAL')}</strong> {t('CUSTOM_NAV_PATH_HINT_INTERNAL_VALUES')} |{' '}
+												<strong>{t('CUSTOM_NAV_PATH_HINT_MARKDOWN')}</strong> {t('CUSTOM_NAV_PATH_HINT_MARKDOWN_VALUES')} |{' '}
+												<strong>{t('CUSTOM_NAV_PATH_HINT_EXTERNAL')}</strong> {t('CUSTOM_NAV_PATH_HINT_EXTERNAL_VALUES')}
 											</p>
 										</div>
 									</div>
@@ -445,7 +443,7 @@ export function CustomNavigationManager({ type, items, onUpdate, disabled = fals
 						disabled={disabled || isSaving}
 						className="min-w-[120px]"
 					>
-						{isSaving ? 'Saving...' : 'Save Changes'}
+						{isSaving ? t('CUSTOM_NAV_SAVING') : t('CUSTOM_NAV_SAVE')}
 					</NativeButton>
 				</div>
 			)}
