@@ -346,7 +346,7 @@ export function RolePermissionsModal({
               disabled={isButtonDisabled}
               className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
             >
-              {(isSubmitting || (isOpen && isLoadingPermissions))
+               {(isSubmitting || isLoadingPermissions)
                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 : <Save className="w-3.5 h-3.5" />
               }
