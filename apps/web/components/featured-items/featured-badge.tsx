@@ -21,10 +21,10 @@ interface FeaturedBadgeProps {
 // ─── Config ───────────────────────────────────────────────────────────────────
 
 const SIZE = {
-	xs: { badge: 'gap-1 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide', icon: 'size-2.5' },
-	sm: { badge: 'gap-1.5 text-xs font-semibold tracking-wide', icon: 'size-4' },
-	md: { badge: 'gap-1.5 px-3 py-1 text-xs font-semibold tracking-wider', icon: 'size-3' },
-	lg: { badge: 'gap-2 px-4 py-1.5 text-xs font-semibold tracking-widest', icon: 'size-3.5' },
+	xs: { badge: 'gap-1 px-1.5 py-0.5 text-[10px] font-normal tracking-wide', icon: 'size-2.5' },
+	sm: { badge: 'gap-1.5 text-xs font-normal tracking-wide', icon: 'size-3.5' },
+	md: { badge: 'gap-1.5 px-3 py-1 text-xs font-normal tracking-wider', icon: 'size-3' },
+	lg: { badge: 'gap-2 px-4 py-1.5 text-xs font-normal tracking-widest', icon: 'size-3' },
 } satisfies Record<Size, { badge: string; icon: string }>;
 
 const VARIANT: Record<Variant, {
@@ -91,7 +91,7 @@ export function FeaturedBadge({
 			)}
 
 			{/* Label — collapses when `collapsible` is true */}
-			{(showText || collapsible) && (
+			{/* {(showText || collapsible) && (
 				<span
 					className={cn(
 						'overflow-hidden whitespace-nowrap transition-[max-width,opacity] duration-300 ease-out',
@@ -104,7 +104,7 @@ export function FeaturedBadge({
 				>
 					{label}
 				</span>
-			)}
+			)} */}
 		</span>
 	);
 }

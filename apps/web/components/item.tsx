@@ -2,8 +2,8 @@
 
 import { ItemData, Tag, Category } from '@/lib/content';
 import Link from 'next/link';
-import { Card, CardBody, cn, Spinner } from '@heroui/react';
-import { FiFolder } from 'react-icons/fi';
+import { Card, CardBody, cn, Spinner, Tooltip } from '@heroui/react';
+import { FiFolder, FiEye, FiThumbsUp, FiMessageSquare } from 'react-icons/fi';
 import { useFilters } from '@/components/filters/context/filter-context';
 import { useParams } from 'next/navigation';
 import { PromoCodeComponent } from './promo-code';
@@ -19,12 +19,21 @@ import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useItemDistance } from '@/components/filters/context/location-distance-context';
 import { DistanceBadge } from '@/components/ui/distance-badge';
+import { Globe } from 'lucide-react';
+import type { ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
 
 type ItemProps = ItemData & {
 	onNavigate?: () => void;
 	layout?: string;
 	hideIndicatorInSimilarProducts?: boolean;
+	engagement?: ItemEngagementMetrics;
 };
+
+function formatCount(n: number): string {
+	if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+	if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+	return `${n}`;
+}
 
 const Item = memo(function Item(props: ItemProps) {
 	const params = useParams();
@@ -123,7 +132,7 @@ const Item = memo(function Item(props: ItemProps) {
 						</div>
 					)}
 
-					<div className="space-y-5">
+					<div className="space-y-3">
 						{/* Enhanced Description */}
 						<p className={descriptionClassName}>{displayDescription}</p>
 
@@ -139,10 +148,9 @@ const Item = memo(function Item(props: ItemProps) {
 							</div>
 						)}
 					</div>
-
-					{/* Promo Code Section */}
-					{props.promo_code && (
-						<div className="mt-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
+					{/* Footer */}
+					<div className="mt-auto pt-2 border-t border-gray-100 dark:border-white/6 flex flex-col gap-2">
+						{props.promo_code && (
 							<PromoCodeComponent
 								promoCode={props.promo_code}
 								variant="compact"
@@ -159,42 +167,91 @@ const Item = memo(function Item(props: ItemProps) {
 									}
 								}}
 							/>
+						)}
+
+						{/* Actions row */}
+						<div className="flex items-center justify-between gap-2">
+							<div className="flex items-center gap-1">
+								{user?.id && (
+									<Tooltip content="Save to favorites" placement="top" size="sm" showArrow>
+										<span className="inline-flex items-center">
+											<FavoriteButton
+												itemSlug={props.slug}
+												itemName={props.name}
+												itemIconUrl={props.icon_url}
+												itemCategory={
+													Array.isArray(props.category)
+														? typeof props.category[0] === 'string'
+															? props.category[0]
+															: props.category[0]?.name
+														: typeof props.category === 'string'
+															? props.category
+															: props.category?.name
+												}
+												variant="star"
+												size="sm"
+												className="transition-opacity duration-200"
+												hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
+											/>
+										</span>
+									</Tooltip>
+								)}
+								{distance !== undefined && <DistanceBadge distance={distance} size="sm" />}
+								{props.featured && (
+									<Tooltip content="Featured" placement="top" size="sm" showArrow>
+										<span className="inline-flex items-center">
+											<FeaturedBadge
+												variant="hero"
+												size="sm"
+												collapsible={true}
+												showText={false}
+												className="text-amber-500 dark:text-amber-400"
+											/>
+										</span>
+									</Tooltip>
+								)}
+							</div>
+
+							{/* Engagement stats */}
+							<div className="flex items-center gap-4 text-[11px] leading-none text-gray-400 dark:text-gray-500">
+								<Tooltip content="Views" placement="top" size="sm" showArrow>
+									<span className="flex items-center gap-1 cursor-default select-none">
+										<FiEye className="w-3 h-3 shrink-0" />
+										<span className="mt-px">{formatCount(props.engagement?.views ?? 0)}</span>
+									</span>
+								</Tooltip>
+								<Tooltip content="Votes" placement="top" size="sm" showArrow>
+									<span className="flex items-center gap-1 cursor-default select-none">
+										<FiThumbsUp className="w-3 h-3 shrink-0" />
+										<span className="mt-px">{formatCount(props.engagement?.votes ?? 0)}</span>
+									</span>
+								</Tooltip>
+								<Tooltip content="Comments" placement="top" size="sm" showArrow>
+									<span className="flex items-center gap-1 cursor-default select-none">
+										<FiMessageSquare className="w-3 h-3 shrink-0" />
+										<span className="mt-px">{formatCount(props.engagement?.comments ?? 0)}</span>
+									</span>
+								</Tooltip>
+								{props.source_url && (
+									<Tooltip content="Visit website" placement="top" size="sm" showArrow>
+										<a
+											href={props.source_url}
+											target="_blank"
+											rel="noopener noreferrer"
+											aria-label={`Visit ${props.name} website`}
+											onClick={(e) => {
+												e.preventDefault();
+												e.stopPropagation();
+												window.open(props.source_url, '_blank', 'noopener,noreferrer');
+											}}
+											className="flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors duration-150 shrink-0"
+										>
+											<Globe className="w-3 h-3 shrink-0" />
+										</a>
+									</Tooltip>
+								)}
+							</div>
 						</div>
-					)}
-					{/* Bottom row: FavoriteButton, DistanceBadge, FeaturedBadge */}
-					<div className="mt-auto flex items-center gap-2 pt-1">
-						{user?.id && (
-							<FavoriteButton
-								itemSlug={props.slug}
-								itemName={props.name}
-								itemIconUrl={props.icon_url}
-								itemCategory={
-									Array.isArray(props.category)
-										? typeof props.category[0] === 'string'
-											? props.category[0]
-											: props.category[0]?.name
-										: typeof props.category === 'string'
-											? props.category
-											: props.category?.name
-								}
-								variant="star"
-								size="sm"
-								className="transition-opacity duration-200"
-								hideIndicatorInSimilarProducts={props.hideIndicatorInSimilarProducts}
-							/>
-						)}
-
-						{distance !== undefined && <DistanceBadge distance={distance} size="sm" />}
-
-						{props.featured && (
-							<FeaturedBadge
-								variant="hero"
-								size="sm"
-								collapsible={true}
-								showText={false}
-								className="text-amber-500 dark:text-amber-400"
-							/>
-						)}
 					</div>
 				</CardBody>
 

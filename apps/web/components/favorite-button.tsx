@@ -91,7 +91,7 @@ export function FavoriteButton({
 			onMouseLeave={() => setIsHovered(false)}
 			disabled={isLoading}
 			className={cn(
-				'group relative flex items-center justify-center transition-all duration-300 ease-out',
+				'group relative cursor-pointer flex items-center justify-center transition-all duration-300 ease-out',
 				'shadow-0 active:scale-95',
 				'disabled:opacity-50 disabled:cursor-not-allowed',
 				variant === 'star' && sizeClasses[size],
@@ -100,20 +100,6 @@ export function FavoriteButton({
 			)}
 			aria-label={isFav ? `Remove ${itemName} from favorites` : `Add ${itemName} to favorites`}
 		>
-			{/* Background glow effect */}
-			{variant === 'star' && (
-				<div
-					className={cn(
-						'absolute inset-0 rounded-full transition-all duration-300',
-						isFav
-							? 'bg-linear-to-r from-yellow-400/20 to-orange-500/20 dark:from-yellow-400/30 dark:to-orange-500/30'
-							: 'bg-linear-to-r from-gray-400/10 to-gray-500/10 dark:from-white/4 dark:to-white/6',
-						isHovered && isFav && 'scale-110 opacity-100',
-						isHovered && !isFav && 'scale-105 opacity-80'
-					)}
-				/>
-			)}
-
 			{/* Icon */}
 			<IconComponent
 				className={cn(
