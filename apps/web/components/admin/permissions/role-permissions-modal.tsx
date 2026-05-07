@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import { Button, Input } from '@heroui/react';
+import { Loader2 } from 'lucide-react';
 import { Save, X, Search, Shield, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
 // import { useTranslations } from 'next-intl';
@@ -36,16 +36,18 @@ const modalBackdropClasses = clsx(
 );
 
 const modalContainerClasses = clsx(
-  'relative bg-white dark:bg-white/3 rounded-lg shadow-xl',
-  'w-full max-w-4xl my-8 mx-auto',
-  'max-h-[calc(100vh-4rem)] overflow-hidden',
-  'flex flex-col'
+	'relative bg-white dark:bg-[#121212] rounded-2xl',
+	'border border-gray-100 dark:border-white/8',
+	'shadow-2xl shadow-black/20',
+	'w-full max-w-4xl my-8 mx-auto',
+	'max-h-[calc(100vh-4rem)] overflow-hidden',
+	'flex flex-col'
 );
 
 const modalHeaderClasses = clsx(
-  'flex items-center justify-between p-6',
-  'border-b border-gray-200 dark:border-white/6',
-  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]'
+	'flex items-center justify-between px-5 py-3.5',
+	'border-b border-gray-100 dark:border-white/8',
+	'bg-gray-50/60 dark:bg-white/1.5'
 );
 
 const modalTitleClasses = clsx(
@@ -57,18 +59,18 @@ const modalBodyClasses = clsx(
 );
 
 const searchSectionClasses = clsx(
-  'p-6 border-b border-gray-200 dark:border-white/6',
-  'bg-gray-50/50 dark:bg-white/3'
+	'px-5 py-4 border-b border-gray-100 dark:border-white/8',
+	'bg-gray-50/60 dark:bg-white/1.5'
 );
 
 const permissionsSectionClasses = clsx(
-  'p-6 space-y-4'
+	'p-5 space-y-4'
 );
 
 const modalFooterClasses = clsx(
-  'flex justify-between items-center p-6',
-  'border-t border-gray-200 dark:border-white/6',
-  'bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]'
+	'flex justify-between items-center px-5 py-4',
+	'border-t border-gray-100 dark:border-white/8',
+	'bg-gray-50/60 dark:bg-white/1.5'
 );
 
 const changesSummaryClasses = clsx(
@@ -245,14 +247,14 @@ export function RolePermissionsModal({
         {/* Header */}
         <div className={modalHeaderClasses}>
           <div className={modalTitleClasses}>
-            <div className="w-8 h-8 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-4 h-4 text-white" />
+            <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
+              <Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
                 {translations.TITLE(role.name)}
               </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                 {translations.SUBTITLE}
               </p>
             </div>
@@ -262,10 +264,10 @@ export function RolePermissionsModal({
             <button
               type="button"
               onClick={handleClose}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
+              className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-white/8 transition-colors"
               aria-label={translations.CLOSE}
             >
-              <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <X className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -274,18 +276,16 @@ export function RolePermissionsModal({
         <div className={modalBodyClasses}>
           {/* Search Section */}
           <div className={searchSectionClasses}>
-            <Input
-              placeholder={translations.SEARCH_PLACEHOLDER}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              startContent={<Search className="w-4 h-4 text-gray-400" />}
-              variant="bordered"
-              size="sm"
-              classNames={{
-                input: "text-sm",
-                inputWrapper: "bg-white dark:bg-white/5"
-              }}
-            />
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              <input
+                type="text"
+                placeholder={translations.SEARCH_PLACEHOLDER}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-10 pl-10 pr-4 text-sm rounded-xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-white/20 focus:border-gray-400 dark:focus:border-white/20 transition-all duration-150"
+              />
+            </div>
           </div>
 
           {/* Permissions Section */}
@@ -330,30 +330,28 @@ export function RolePermissionsModal({
           </div>
 
           <div className={actionButtonsClasses}>
-            <Button
-              variant="bordered"
-              onPress={handleClose}
+            <button
+              type="button"
+              onClick={handleClose}
               disabled={isSubmitting}
-              startContent={<X size={16} />}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
             >
+              <X className="w-3.5 h-3.5" />
               {translations.CANCEL}
-            </Button>
+            </button>
 
-            <Button
-              color="primary"
-              onPress={handleSave}
-              isLoading={isSubmitting || (isOpen && isLoadingPermissions)}
+            <button
+              type="button"
+              onClick={handleSave}
               disabled={isButtonDisabled}
-              startContent={!isSubmitting && !(isOpen && isLoadingPermissions) && <Save size={16} />}
-              className={clsx(
-                'bg-linear-to-r from-theme-primary to-theme-accent',
-                'hover:from-theme-primary/90 hover:to-theme-accent/90',
-                'shadow-lg shadow-theme-primary/25 hover:shadow-xl hover:shadow-theme-primary/40',
-                'transition-all duration-300 text-white font-medium'
-              )}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 dark:focus:ring-white dark:focus:ring-offset-gray-950"
             >
+               {(isSubmitting || isLoadingPermissions)
+                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                : <Save className="w-3.5 h-3.5" />
+              }
               {isSubmitting ? translations.SAVING : translations.SAVE_PERMISSIONS}
-            </Button>
+            </button>
           </div>
         </div>
       </div>

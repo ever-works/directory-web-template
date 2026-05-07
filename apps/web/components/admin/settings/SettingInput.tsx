@@ -1,6 +1,5 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ChangeEvent } from 'react';
 
@@ -40,13 +39,13 @@ export function SettingInput({
 					{description}
 				</p>
 			)}
-			<Input
+			<input
 				type={type}
 				value={value}
 				onChange={handleChange}
 				placeholder={placeholder}
 				disabled={disabled}
-				className="max-w-md"
+				className="flex h-9 w-full max-w-md rounded-md border border-gray-300 dark:border-white/10 bg-transparent px-3 py-1 text-sm text-gray-900 dark:text-gray-100 transition-colors placeholder:text-gray-400 dark:placeholder:text-gray-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-white/20 disabled:cursor-not-allowed disabled:opacity-50"
 			/>
 		</div>
 	);

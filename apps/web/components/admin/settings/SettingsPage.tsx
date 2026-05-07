@@ -18,69 +18,54 @@ import type { CustomNavigationItem } from '@/lib/content';
 import type { LocationConfigSettings, MapStatusResponse } from '@/lib/types/location';
 
 const GRADIENT_HEADER_CLASSES = [
-	'bg-linear-to-r',
-	'from-white',
-	'via-gray-50',
-	'to-white',
-	'dark:from-[#0a0a0a]',
-	'dark:via-[#0a0a0a]',
-	'dark:to-[#0a0a0a]',
-	'rounded-2xl',
-	'border',
-	'border-gray-100',
-	'dark:border-white/6',
-	'shadow-lg',
-	'p-6',
 	'mb-8'
 ].join(' ');
 
 const ICON_WRAPPER_CLASSES = [
-	'w-12',
-	'h-12',
-	'bg-linear-to-br',
-	'from-theme-primary',
-	'to-theme-accent',
+	'w-11',
+	'h-11',
+	'bg-gray-900',
+	'dark:bg-gray-800',
 	'rounded-xl',
 	'flex',
 	'items-center',
 	'justify-center',
-	'shadow-lg'
+	'shrink-0',
+	'shadow-sm'
 ].join(' ');
 
 const TITLE_CLASSES = [
-	'text-2xl',
-	'sm:text-3xl',
-	'font-bold',
-	'bg-linear-to-r',
-	'from-gray-900',
-	'to-gray-600',
-	'dark:from-white',
-	'dark:to-gray-300',
-	'bg-clip-text',
-	'text-transparent'
+	'text-xl',
+	'font-semibold',
+	'text-gray-900',
+	'dark:text-white',
+	'leading-tight',
+	'tracking-tight'
 ].join(' ');
 
-const SUBTITLE_CLASSES = ['text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' ');
+const SUBTITLE_CLASSES = ['text-sm', 'text-gray-500', 'dark:text-gray-400', 'mt-0.5'].join(' ');
 
 const ACCORDION_ITEM_CLASSES = [
 	'bg-white',
-	'dark:bg-white/5',
-	'rounded-xl',
+	'dark:bg-[#191919]',
+	'rounded-2xl',
+	'overflow-hidden',
 	'border',
-	'border-gray-200',
+	'border-gray-100',
 	'dark:border-white/6',
-	'shadow-xs',
-	'hover:shadow-md',
+	'hover:border-gray-200',
+	'dark:hover:border-white/10',
+	'hover:shadow-sm',
 	'transition-all',
 	'duration-200',
 	'mb-4'
 ].join(' ');
 
-const ACCORDION_TITLE_CLASSES = ['text-lg', 'font-semibold', 'text-gray-900', 'dark:text-gray-100'].join(' ');
+const ACCORDION_TITLE_CLASSES = ['text-sm', 'font-semibold', 'text-gray-900', 'dark:text-white'].join(' ');
 
 const ACCORDION_DESC_CLASSES = ['text-sm', 'text-gray-600', 'dark:text-gray-400', 'mt-1'].join(' ');
 
-const ACCORDION_CONTENT_CLASSES = ['px-6', 'pb-6', 'pt-2', 'space-y-4'].join(' ');
+const ACCORDION_CONTENT_CLASSES = ['px-6', 'pb-6', 'pt-2', 'space-y-4', 'dark:bg-[#191919]'].join(' ');
 
 const PLACEHOLDER_TEXT_CLASSES = [
 	'text-sm',
@@ -278,10 +263,10 @@ export function SettingsPage() {
 			// Update local state with nested path support
 			setSettings((prev) => setNestedValue(prev, key, value));
 
-			toast.success('Setting updated successfully');
+			toast.success(t('SETTING_UPDATED'));
 		} catch (error) {
 			console.error('Error updating setting:', error);
-			toast.error('Failed to update setting. Please try again.');
+			toast.error(t('SETTING_UPDATE_ERROR'));
 		} finally {
 			setSaving(false);
 		}
@@ -329,17 +314,20 @@ export function SettingsPage() {
 
 	return (
 		<div className="space-y-8">
-			{/* Welcome Section with Gradient */}
+			{/* Page Header */}
 			<div className={GRADIENT_HEADER_CLASSES}>
-				<div className="flex items-center space-x-4">
-					<div className={ICON_WRAPPER_CLASSES}>
-						<Sliders className="w-6 h-6 text-white" aria-hidden="true" />
-					</div>
-					<div>
-						<h1 className={TITLE_CLASSES}>Settings</h1>
-						<p className={SUBTITLE_CLASSES}>Configure your site settings and preferences</p>
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className={ICON_WRAPPER_CLASSES}>
+							<Sliders className="w-5 h-5 text-white" aria-hidden="true" />
+						</div>
+						<div>
+						<h1 className={TITLE_CLASSES}>{t('PAGE_TITLE')}</h1>
+						<p className={SUBTITLE_CLASSES}>{t('PAGE_DESC')}</p>
+						</div>
 					</div>
 				</div>
+				<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
 			</div>
 
 			{/* Main Content */}
@@ -349,13 +337,13 @@ export function SettingsPage() {
 					<AccordionItem value="general" className={ACCORDION_ITEM_CLASSES}>
 						<AccordionTrigger>
 							<div className="text-left w-full">
-								<h3 className={ACCORDION_TITLE_CLASSES}>General Settings</h3>
-								<p className={ACCORDION_DESC_CLASSES}>Basic site configuration</p>
+					<h3 className={ACCORDION_TITLE_CLASSES}>{t('GENERAL_TITLE')}</h3>
+					<p className={ACCORDION_DESC_CLASSES}>{t('GENERAL_DESC')}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
 							{loading ? (
-								<p className={PLACEHOLDER_TEXT_CLASSES}>Loading settings...</p>
+								<p className={PLACEHOLDER_TEXT_CLASSES}>{t('LOADING_SETTINGS')}</p>
 							) : (
 								<>
 									<SettingSwitch
@@ -395,13 +383,13 @@ export function SettingsPage() {
 					<AccordionItem value="homepage" className={ACCORDION_ITEM_CLASSES}>
 						<AccordionTrigger>
 							<div className="text-left w-full">
-								<h3 className={ACCORDION_TITLE_CLASSES}>Homepage Settings</h3>
-								<p className={ACCORDION_DESC_CLASSES}>Configure homepage display and layout</p>
+					<h3 className={ACCORDION_TITLE_CLASSES}>{t('HOMEPAGE_TITLE')}</h3>
+					<p className={ACCORDION_DESC_CLASSES}>{t('HOMEPAGE_DESC')}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
 							{loading ? (
-								<p className={PLACEHOLDER_TEXT_CLASSES}>Loading settings...</p>
+								<p className={PLACEHOLDER_TEXT_CLASSES}>{t('LOADING_SETTINGS')}</p>
 							) : (
 								<>
 									<SettingSwitch
@@ -424,9 +412,9 @@ export function SettingsPage() {
 										value={settings.homepage?.default_view ?? 'classic'}
 										onChange={(value) => updateSetting('homepage.default_view', value)}
 										options={[
-											{ value: 'classic', label: 'List View' },
-											{ value: 'grid', label: 'Grid View' },
-											{ value: 'masonry', label: 'Masonry View' }
+										{ value: 'classic', label: t('VIEW_CLASSIC') },
+										{ value: 'grid', label: t('VIEW_GRID') },
+										{ value: 'masonry', label: t('VIEW_MASONRY') }
 										]}
 										disabled={saving}
 									/>
@@ -436,11 +424,11 @@ export function SettingsPage() {
 										value={settings.homepage?.default_sort ?? 'popularity'}
 										onChange={(value) => updateSetting('homepage.default_sort', value)}
 										options={[
-											{ value: 'popularity', label: 'Popularity' },
-											{ value: 'name-asc', label: 'Name A-Z' },
-											{ value: 'name-desc', label: 'Name Z-A' },
-											{ value: 'date-desc', label: 'Newest First' },
-											{ value: 'date-asc', label: 'Oldest First' }
+										{ value: 'popularity', label: t('SORT_POPULARITY') },
+										{ value: 'name-asc', label: t('SORT_NAME_ASC') },
+										{ value: 'name-desc', label: t('SORT_NAME_DESC') },
+										{ value: 'date-desc', label: t('SORT_DATE_DESC') },
+										{ value: 'date-asc', label: t('SORT_DATE_ASC') }
 										]}
 										disabled={saving}
 									/>
@@ -485,8 +473,8 @@ export function SettingsPage() {
 					<AccordionItem value="header" className={ACCORDION_ITEM_CLASSES}>
 						<AccordionTrigger>
 							<div className="text-left w-full">
-								<h3 className={ACCORDION_TITLE_CLASSES}>Header Settings</h3>
-								<p className={ACCORDION_DESC_CLASSES}>Configure header appearance and behavior</p>
+					<h3 className={ACCORDION_TITLE_CLASSES}>{t('HEADER_TITLE')}</h3>
+					<p className={ACCORDION_DESC_CLASSES}>{t('HEADER_DESC')}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
@@ -535,8 +523,8 @@ export function SettingsPage() {
 										value={settings.header?.layout_default ?? 'home1'}
 										onChange={(value) => updateSetting('header.layout_default', value)}
 										options={[
-											{ value: 'home1', label: 'Home 1' },
-											{ value: 'home2', label: 'Home 2' }
+										{ value: 'home1', label: t('LAYOUT_HOME1') },
+										{ value: 'home2', label: t('LAYOUT_HOME2') }
 										]}
 										disabled={saving}
 									/>
@@ -546,8 +534,8 @@ export function SettingsPage() {
 										value={settings.header?.pagination_default ?? 'standard'}
 										onChange={(value) => updateSetting('header.pagination_default', value)}
 										options={[
-											{ value: 'standard', label: 'Standard' },
-											{ value: 'infinite', label: 'Infinite Scroll' }
+										{ value: 'standard', label: t('PAGINATION_STANDARD') },
+										{ value: 'infinite', label: t('PAGINATION_INFINITE') }
 										]}
 										disabled={saving}
 									/>
@@ -557,8 +545,8 @@ export function SettingsPage() {
 										value={settings.header?.theme_default ?? 'light'}
 										onChange={(value) => updateSetting('header.theme_default', value)}
 										options={[
-											{ value: 'light', label: 'Light' },
-											{ value: 'dark', label: 'Dark' }
+										{ value: 'light', label: t('THEME_LIGHT') },
+										{ value: 'dark', label: t('THEME_DARK') }
 										]}
 										disabled={saving}
 									/>
@@ -571,8 +559,8 @@ export function SettingsPage() {
 					<AccordionItem value="footer" className={ACCORDION_ITEM_CLASSES}>
 						<AccordionTrigger>
 							<div className="text-left w-full">
-								<h3 className={ACCORDION_TITLE_CLASSES}>Footer Settings</h3>
-								<p className={ACCORDION_DESC_CLASSES}>Configure footer content and links</p>
+					<h3 className={ACCORDION_TITLE_CLASSES}>{t('FOOTER_TITLE')}</h3>
+					<p className={ACCORDION_DESC_CLASSES}>{t('FOOTER_DESC')}</p>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent className={ACCORDION_CONTENT_CLASSES}>
