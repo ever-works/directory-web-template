@@ -68,7 +68,7 @@ export function FeaturedBadge({
 	size = 'xs',
 	collapsible = false,
 }: FeaturedBadgeProps) {
-	const { base, Icon, label, fill } = VARIANT[variant];
+	const { base, Icon, fill } = VARIANT[variant];
 	const { badge, icon } = SIZE[size];
 
 	return (
