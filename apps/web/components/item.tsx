@@ -98,9 +98,11 @@ const Item = memo(function Item(props: ItemProps) {
 						</div>
 
 						{/* Name */}
-						<p className="min-w-0 flex-1 text-sm font-semibold text-gray-900 dark:text-white leading-snug line-clamp-2">
-							{props.name}
-						</p>
+						<div className="min-h-[2lh] flex items-center min-w-0">
+							<p className="text-sm font-semibold text-text dark:text-text-dark line-clamp-2">
+								{props.name}
+							</p>
+						</div>
 					</div>
 
 					{categoriesEnabled && (
@@ -190,7 +192,7 @@ const Item = memo(function Item(props: ItemProps) {
 								size="sm"
 								collapsible={true}
 								showText={false}
-								className="rounded-full text-amber-500 dark:text-amber-400"
+								className="text-amber-500 dark:text-amber-400"
 							/>
 						)}
 					</div>
