@@ -27,14 +27,29 @@ const auth = { username: "x-access-token", password: token };
 const dest = getContentPath();
 
 async function main() {
-  // If already cloned, skip to avoid wiping local content
+  await fs.promises.mkdir(dest, { recursive: true });
+
+  // If already cloned, pull the latest content instead of skipping.
   const gitDir = path.join(dest, '.git');
   if (fs.existsSync(gitDir)) {
-    console.log("Content repo already present, skipping clone:", dest);
+    console.log("Content repo already present, pulling latest changes:", dest);
+
+    const pullOptions = {
+      fs,
+      http,
+      url,
+      dir: dest,
+      author: { name: "website" },
+      singleBranch: true,
+    };
+
+    if (token) {
+      pullOptions.onAuth = () => auth;
+    }
+
+    await git.pull(pullOptions);
     return;
   }
-
-  await fs.promises.mkdir(dest, { recursive: true });
 
   console.log("Cloning content repository to", dest);
 

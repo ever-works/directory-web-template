@@ -84,7 +84,7 @@ export interface AppConfig {
 
 /**
  * Configuration manager for the data repository config file.
- * Reads and writes canonical works.yml.
+ * Reads and writes canonical .works/works.yml.
  */
 export class ConfigManager {
 	private configPath: string;
@@ -183,6 +183,7 @@ export class ConfigManager {
 			// Always recalculate path to avoid stale singleton issues
 			const currentPath = getPrimaryContentConfigPath(getContentPath());
 			this.configPath = currentPath;
+			await fs.promises.mkdir(path.dirname(currentPath), { recursive: true });
 
 			const yamlString = yaml.dump(config, {
 				indent: 2,
@@ -196,7 +197,10 @@ export class ConfigManager {
 			// Queue Git operation to prevent concurrent writes
 			// Operations are serialized to avoid conflicts
 			this.queueGitOperation(commitMessage).catch((error) => {
-				console.error(`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`, error);
+				console.error(
+					`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`,
+					error
+				);
 			});
 
 			return true;
@@ -263,7 +267,7 @@ export class ConfigManager {
 	}
 
 	/**
-	 * Commit and push works.yml changes to Git
+	 * Commit and push .works/works.yml changes to Git
 	 * Similar to how other git services handle commits
 	 * This method is called serially via queueGitOperation to prevent concurrent writes
 	 */
@@ -321,7 +325,7 @@ export class ConfigManager {
 				}
 			}
 
-			// Add works.yml to git
+			// Add .works/works.yml to git
 			await git.add({
 				fs: gitFs,
 				dir: contentPath,
@@ -329,7 +333,8 @@ export class ConfigManager {
 			});
 
 			// Create commit message
-			const commitMessage = customMessage || `Update ${PRIMARY_CONTENT_CONFIG_FILENAME} - ${new Date().toISOString()}`;
+			const commitMessage =
+				customMessage || `Update ${PRIMARY_CONTENT_CONFIG_FILENAME} - ${new Date().toISOString()}`;
 
 			// Commit changes (now on the correct branch)
 			await git.commit({
@@ -348,11 +353,16 @@ export class ConfigManager {
 				dir: contentPath
 			});
 
-			console.log(`✅ ${PRIMARY_CONTENT_CONFIG_FILENAME} committed and pushed to GitHub successfully (branch: ${branch})`);
+			console.log(
+				`✅ ${PRIMARY_CONTENT_CONFIG_FILENAME} committed and pushed to GitHub successfully (branch: ${branch})`
+			);
 		} catch (error) {
 			// Log error but don't throw - file was already saved successfully
 			// This allows the writeConfig to succeed even if Git operations fail
-			console.error(`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`, error);
+			console.error(
+				`⚠️ Git operations failed for ${PRIMARY_CONTENT_CONFIG_FILENAME}, but file was saved:`,
+				error
+			);
 		}
 	}
 

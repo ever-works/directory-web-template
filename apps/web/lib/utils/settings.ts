@@ -381,7 +381,7 @@ export function getLocationSettings(): {
 // ===================== Analytics Settings =====================
 
 /**
- * Server-side utility to get analytics settings from works.yml
+ * Server-side utility to get analytics settings from .works/works.yml
  * @returns any - the analytics configuration object
  */
 export function getAnalyticsSettings(): any {
