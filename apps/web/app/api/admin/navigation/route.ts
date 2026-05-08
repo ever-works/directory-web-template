@@ -40,7 +40,7 @@ function isValidNavigationPath(path: string): boolean {
  * /api/admin/navigation:
  *   get:
  *     summary: Get custom navigation configuration
- *     description: Retrieves custom_header and custom_footer navigation items from works.yml. Admin access required.
+ *     description: Retrieves custom_header and custom_footer navigation items from .works/works.yml. Admin access required.
  *     tags:
  *       - Admin - Navigation
  *     security:
@@ -152,7 +152,7 @@ export async function GET(req: NextRequest) {
  * /api/admin/navigation:
  *   patch:
  *     summary: Update custom navigation configuration
- *     description: Updates custom_header or custom_footer navigation items in works.yml. Validates path format to prevent XSS attacks. Only paths starting with /, http://, or https:// are allowed. Admin access required.
+ *     description: Updates custom_header or custom_footer navigation items in .works/works.yml. Validates path format to prevent XSS attacks. Only paths starting with /, http://, or https:// are allowed. Admin access required.
  *     tags:
  *       - Admin - Navigation
  *     security:

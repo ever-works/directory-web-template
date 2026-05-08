@@ -844,6 +844,7 @@ export async function fetchComparison(slug: string): Promise<ComparisonDetail | 
 const fetchItemsCache = new Map<string, { data: FetchItemsResult; timestamp: number }>();
 
 const FETCH_ITEMS_CACHE_TTL = 600000; // 10 minutes in milliseconds
+const CONTENT_CACHE_ENABLED = process.env.NODE_ENV !== 'development';
 
 // Directory metadata cache to avoid repeated readdir() calls
 // Stores: { files: string[], mtime: number, categories, tags, collections }
@@ -863,6 +864,38 @@ const DIRECTORY_CACHE_TTL = 600000; // 10 minutes in milliseconds
 const categoriesCache = new Map<string, { data: Map<string, Category>; timestamp: number }>();
 const tagsCache = new Map<string, { data: Map<string, Tag>; timestamp: number }>();
 const METADATA_CACHE_TTL = 600000; // 10 minutes in milliseconds
+
+async function getContentRevision(): Promise<string> {
+	const { ensureContentAvailable } = await import('./lib');
+	await ensureContentAvailable();
+
+	const contentPath = getContentPath();
+	const gitHeadPath = path.join(contentPath, '.git', 'HEAD');
+
+	try {
+		const head = (await fsp.readFile(gitHeadPath, 'utf8')).trim();
+		if (head.startsWith('ref:')) {
+			const ref = head.slice(5).trim();
+			return (await fsp.readFile(path.join(contentPath, '.git', ref), 'utf8')).trim();
+		}
+		if (head) {
+			return head;
+		}
+	} catch {
+		// Fall through to filesystem metadata for non-git fallback content.
+	}
+
+	try {
+		const [dataStat, configStat] = await Promise.all([
+			fsp.stat(path.join(contentPath, 'data')).catch(() => null),
+			Promise.all(getContentConfigPaths(contentPath).map((configPath) => fsp.stat(configPath).catch(() => null)))
+		]);
+		const configMtime = configStat.reduce((latest, stat) => Math.max(latest, stat?.mtimeMs ?? 0), 0);
+		return `fs:${dataStat?.mtimeMs ?? 0}:${configMtime}`;
+	} catch {
+		return 'missing';
+	}
+}
 
 /**
  * Clear the in-memory fetchItems cache
@@ -889,11 +922,13 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	const cacheKey = JSON.stringify(options);
 
 	// Check in-memory cache first
-	const cached = fetchItemsCache.get(cacheKey);
-	
-	if (cached && Date.now() - cached.timestamp < FETCH_ITEMS_CACHE_TTL) {
-		console.log('[CACHE] Returning cached fetchItems result for:', cacheKey);
-		return cached.data;
+	if (CONTENT_CACHE_ENABLED) {
+		const cached = fetchItemsCache.get(cacheKey);
+
+		if (cached && Date.now() - cached.timestamp < FETCH_ITEMS_CACHE_TTL) {
+			console.log('[CACHE] Returning cached fetchItems result for:', cacheKey);
+			return cached.data;
+		}
 	}
 
 	// Ensure content is available (copies from build to runtime on Vercel)
@@ -937,7 +972,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	// 1. Cache exists
 	// 2. Directory hasn't been modified (mtime unchanged)
 	// 3. Cache is still fresh (within TTL)
-	if (cachedDir && cachedDir.mtime === currentMtime && Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL) {
+	if (CONTENT_CACHE_ENABLED && cachedDir && cachedDir.mtime === currentMtime && Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL) {
 		console.log('[CACHE] Using cached directory metadata for:', dirCacheKey);
 		files = cachedDir.files;
 		// Deep clone Maps to prevent mutation of cached data by populate() functions
@@ -953,15 +988,17 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 		collections = await readCollections(options);
 
 		// Store in directory cache
-		directoryCache.set(dirCacheKey, {
-			files,
-			mtime: currentMtime,
-			categories,
-			tags,
-			collections,
-			timestamp: Date.now()
-		});
-		console.log('[CACHE] Stored directory metadata in cache for:', dirCacheKey);
+		if (CONTENT_CACHE_ENABLED) {
+			directoryCache.set(dirCacheKey, {
+				files,
+				mtime: currentMtime,
+				categories,
+				tags,
+				collections,
+				timestamp: Date.now()
+			});
+			console.log('[CACHE] Stored directory metadata in cache for:', dirCacheKey);
+		}
 	}
 
 	const itemsPromises = files.map(async (slug) => {
@@ -1027,8 +1064,10 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	};
 
 	// Store in cache
-	fetchItemsCache.set(cacheKey, { data: result, timestamp: Date.now() });
-	console.log('[CACHE] Stored fetchItems result in cache for:', cacheKey);
+	if (CONTENT_CACHE_ENABLED) {
+		fetchItemsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+		console.log('[CACHE] Stored fetchItems result in cache for:', cacheKey);
+	}
 
 	return result;
 }
@@ -1841,9 +1880,15 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
  * Tagged with CONTENT and ITEMS for cache invalidation
  */
 export const getCachedItems = async (options: FetchOptions = {}) => {
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchItems(options);
+	}
+
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
 	return unstable_cache(
-		async () => {
+		async (_revision: string, _optionsKey: string) => {
 			return await fetchItems(options);
 		},
 		['items', locale],
@@ -1858,7 +1903,7 @@ export const getCachedItems = async (options: FetchOptions = {}) => {
 				CACHE_TAGS.ITEMS_LOCALE(locale)
 			]
 		}
-	)();
+	)(revision, optionsKey);
 };
 
 export const getCachedComparisons = async (options: FetchOptions = {}) => {
@@ -1895,9 +1940,15 @@ export const getCachedComparison = async (slug: string, options: FetchOptions = 
  * Tagged with CONTENT and specific ITEM tag for granular invalidation
  */
 export const getCachedItem = async (slug: string, options: FetchOptions = {}) => {
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchItem(slug, options);
+	}
+
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
 	return unstable_cache(
-		async () => {
+		async (_revision: string, _optionsKey: string) => {
 			return await fetchItem(slug, options);
 		},
 		['item', slug, locale],
@@ -1905,7 +1956,7 @@ export const getCachedItem = async (slug: string, options: FetchOptions = {}) =>
 			revalidate: CONTENT_CACHE_TTL.ITEM,
 			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.ITEM(slug)]
 		}
-	)();
+	)(revision, optionsKey);
 };
 
 /**
@@ -1950,9 +2001,15 @@ export const getCachedHeroContent = async (source: string, locale: string = 'en'
  * Additional caching layer for filtered results
  */
 export const getCachedItemsByCategory = async (raw: string, options: FetchOptions = {}) => {
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByCategory(raw, options);
+	}
+
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
 	return unstable_cache(
-		async () => {
+		async (_revision: string, _optionsKey: string) => {
 			return await fetchByCategory(raw, options);
 		},
 		['items-by-category', raw, locale],
@@ -1960,7 +2017,7 @@ export const getCachedItemsByCategory = async (raw: string, options: FetchOption
 			revalidate: CONTENT_CACHE_TTL.CONTENT,
 			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES]
 		}
-	)();
+	)(revision, optionsKey);
 };
 
 /**
@@ -1969,9 +2026,15 @@ export const getCachedItemsByCategory = async (raw: string, options: FetchOption
  * Additional caching layer for filtered results
  */
 export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {}) => {
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByTag(raw, options);
+	}
+
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
 	return unstable_cache(
-		async () => {
+		async (_revision: string, _optionsKey: string) => {
 			return await fetchByTag(raw, options);
 		},
 		['items-by-tag', raw, locale],
@@ -1979,7 +2042,7 @@ export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {
 			revalidate: CONTENT_CACHE_TTL.CONTENT,
 			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.TAGS]
 		}
-	)();
+	)(revision, optionsKey);
 };
 
 /**
@@ -1988,9 +2051,15 @@ export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {
  * Additional caching layer for double-filtered results
  */
 export const getCachedItemsByCategoryAndTag = async (category: string, tag: string, options: FetchOptions = {}) => {
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByCategoryAndTag(category, tag, options);
+	}
+
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
 	return unstable_cache(
-		async () => {
+		async (_revision: string, _optionsKey: string) => {
 			return await fetchByCategoryAndTag(category, tag, options);
 		},
 		['items-by-category-tag', category, tag, locale],
@@ -1998,5 +2067,5 @@ export const getCachedItemsByCategoryAndTag = async (category: string, tag: stri
 			revalidate: CONTENT_CACHE_TTL.CONTENT,
 			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES, CACHE_TAGS.TAGS]
 		}
-	)();
+	)(revision, optionsKey);
 };

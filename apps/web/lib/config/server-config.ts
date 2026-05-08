@@ -66,7 +66,7 @@ export function getServerConfig(): ServerConfig {
 }
 
 /**
- * Get configuration from works.yml file (same as useConfig hook)
+ * Get configuration from .works/works.yml file (same as useConfig hook)
  * This is the server-side equivalent of useConfig()
  *
  * @deprecated This function reads from the data repository config file. Consider using `configService` for env-based config.
