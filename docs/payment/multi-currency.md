@@ -128,7 +128,7 @@ To test the multi-currency system:
 ## Important Notes
 
 - Price IDs are resolved **at checkout time**, not at display time
-- The pricing config in `content/works.yml` takes priority over the default config
+- The pricing config in `content/.works/works.yml` takes priority over the default config
 - Multi-currency configs are only used if environment variables are configured
 
 ## Integration with Payment Providers

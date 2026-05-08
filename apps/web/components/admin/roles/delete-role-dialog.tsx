@@ -1,173 +1,144 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Button } from '@heroui/react';
-import { AlertTriangle, Trash2, Shield } from 'lucide-react';
+import { AlertTriangle, Trash2, Shield, X, Loader2 } from 'lucide-react';
 import { RoleData } from '@/hooks/use-admin-roles';
-import clsx from 'clsx';
+import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 
 interface DeleteRoleDialogProps {
-  role: RoleData;
-  isOpen: boolean;
-  onConfirm: (hardDelete: boolean) => void;
-  onCancel: () => void;
+	role: RoleData;
+	isOpen: boolean;
+	onConfirm: (hardDelete: boolean) => void;
+	onCancel: () => void;
 }
 
 export function DeleteRoleDialog({ role, isOpen, onConfirm, onCancel }: DeleteRoleDialogProps) {
-  const t = useTranslations('admin.DELETE_ROLE_DIALOG');
-  const [isLoading, setIsLoading] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
+	const t = useTranslations('admin.DELETE_ROLE_DIALOG');
+	const [isLoading, setIsLoading] = useState(false);
+	const dialogRef = useRef<HTMLDivElement>(null);
 
-  const handleConfirm = async () => {
-    setIsLoading(true);
-    try {
-      onConfirm(false); // Always soft delete
-    } catch (error) {
-      console.error('Error deleting role:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	const handleConfirm = async () => {
+		setIsLoading(true);
+		try {
+			onConfirm(false);
+		} catch (error) {
+			console.error('Error deleting role:', error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  const handleCancel = () => {
-    if (!isLoading) {
-      onCancel();
-    }
-  };
+	const handleCancel = () => { if (!isLoading) onCancel(); };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape' && !isLoading) {
-      handleCancel();
-    }
-  };
+	useEffect(() => {
+		if (!isOpen) return;
+		const prev = document.body.style.overflow;
+		document.body.style.overflow = 'hidden';
+		const id = window.setTimeout(() => dialogRef.current?.focus(), 0);
+		return () => { window.clearTimeout(id); document.body.style.overflow = prev; };
+	}, [isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    // Defer to ensure element is mounted
-    const id = window.setTimeout(() => dialogRef.current?.focus(), 0);
-    return () => {
-      window.clearTimeout(id);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [isOpen]);
+	if (!isOpen) return null;
 
-  if (!isOpen) return null;
+	return (
+		<div
+			ref={dialogRef}
+			className="fixed inset-0 z-50 flex items-center justify-center p-4"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="delete-role-title"
+			onKeyDown={(e) => { if (e.key === 'Escape' && !isLoading) handleCancel(); }}
+			tabIndex={-1}
+		>
+			{/* Backdrop */}
+			<div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={handleCancel} aria-hidden="true" />
 
-  return (
-    <div
-      ref={dialogRef}
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="delete-role-title"
-      onKeyDown={handleKeyDown}
-      tabIndex={-1}
-    >
-      <div
-        className="fixed inset-0 bg-black bg-opacity-60"
-        onClick={handleCancel}
-        aria-hidden="true"
-      />
-      <div className="relative bg-white dark:bg-white/3 rounded-lg shadow-xl max-w-md w-full mx-4">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-white/6">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
-              <AlertTriangle size={16} className="text-red-600 dark:text-red-400" aria-hidden="true" focusable="false" />
-            </div>
-            <h2 id="delete-role-title" className="text-lg font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h2>
-          </div>
-          {!isLoading && (
-            <button
-              type="button"
-              onClick={handleCancel}
-              className="p-1 hover:bg-gray-100 dark:hover:bg-white/6 rounded-sm transition-colors"
-              aria-label={t('CLOSE_DIALOG')}
-            >
-              <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-        </div>
+			{/* Dialog */}
+			<div className="relative bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl shadow-2xl shadow-black/20 w-full max-w-md overflow-hidden">
+				{/* Header */}
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
+					<div className="flex items-center gap-3">
+						<div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/10 flex items-center justify-center shrink-0">
+							<AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400" />
+						</div>
+						<h2 id="delete-role-title" className="text-sm font-semibold text-gray-900 dark:text-white">
+							{t('TITLE')}
+						</h2>
+					</div>
+					{!isLoading && (
+						<button
+							type="button"
+							onClick={handleCancel}
+							aria-label={t('CLOSE_DIALOG')}
+							className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-white/8 transition-colors"
+						>
+							<X className="w-4 h-4" />
+						</button>
+					)}
+				</div>
 
-        {/* Body */}
-        <div className="p-6 space-y-4">
-          {/* Role Info */}
-          <div className="flex items-start space-x-3">
-            <div className="w-10 h-10 bg-linear-to-br from-theme-primary to-theme-accent rounded-lg flex items-center justify-center">
-              <Shield size={20} className="text-white" aria-hidden="true" focusable="false" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                {role.name}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {role.description}
-              </p>
-              <div className="flex items-center space-x-4 mt-2 text-xs text-gray-500 dark:text-gray-400">
-                <span>ID: {role.id}</span>
-                <span>
-                  {Array.isArray(role.permissions) ? role.permissions.length : 0} {t('PERMISSIONS')}
-                </span>
-                <span className={clsx(
-                  'px-2 py-1 rounded-full',
-                  role.isAdmin
-                    ? 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400'
-                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                )}>
-                  {role.isAdmin ? t('ADMIN_ROLE') : t('CLIENT_ROLE')}
-                </span>
-              </div>
-            </div>
-          </div>
+				{/* Body */}
+				<div className="p-5 space-y-4">
+					{/* Role Info */}
+					<div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50/80 dark:bg-white/3 border border-gray-100 dark:border-white/6">
+						<div className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
+							<Shield className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+						</div>
+						<div className="flex-1 min-w-0">
+							<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{role.name}</h3>
+							{role.description && (
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-2">{role.description}</p>
+							)}
+							<div className="flex items-center gap-3 mt-2 text-[10px] text-gray-400 dark:text-gray-500">
+								<span className="font-mono">ID: {role.id}</span>
+								<span>{Array.isArray(role.permissions) ? role.permissions.length : 0} {t('PERMISSIONS')}</span>
+								<span className={cn(
+									'inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-semibold ring-1 ring-inset',
+									role.isAdmin
+										? 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20'
+										: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
+								)}>
+									{role.isAdmin ? t('ADMIN_ROLE') : t('CLIENT_ROLE')}
+								</span>
+							</div>
+						</div>
+					</div>
 
-          {/* Warning */}
-          <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-            <div className="flex items-start space-x-2">
-              <AlertTriangle size={16} className="text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" aria-hidden="true" focusable="false" />
-              <div className="text-sm text-yellow-800 dark:text-yellow-200">
-                <p className="font-medium">{t('WARNING_TITLE')}</p>
-                <p className="mt-1">
-                  {t('WARNING_MESSAGE')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+					{/* Warning */}
+					<div className="flex items-start gap-3 p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700/30">
+						<AlertTriangle className="w-4 h-4 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" />
+						<div className="text-sm">
+							<p className="font-semibold text-yellow-800 dark:text-yellow-200">{t('WARNING_TITLE')}</p>
+							<p className="text-yellow-700 dark:text-yellow-400 mt-0.5 text-xs">{t('WARNING_MESSAGE')}</p>
+						</div>
+					</div>
+				</div>
 
-        {/* Footer */}
-        <div className="flex justify-end space-x-3 p-6 border-t border-gray-200 dark:border-white/6 bg-gray-50 dark:bg-white/5">
-          <Button
-            variant="bordered"
-            onPress={handleCancel}
-            disabled={isLoading}
-            type="button"
-            aria-label={t('CANCEL_ROLE_DELETION')}
-          >
-            {t('CANCEL')}
-          </Button>
-          <Button
-            color="danger"
-            onPress={handleConfirm}
-            isLoading={isLoading}
-            startContent={!isLoading && <Trash2 size={16} aria-hidden="true" focusable="false" />}
-            className={clsx(
-              'bg-linear-to-r from-red-500 to-red-600',
-              'hover:from-red-600 hover:to-red-700',
-              'shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40',
-              'transition-all duration-300 text-white font-medium'
-            )}
-            type="button"
-            aria-label={isLoading ? t('DELETING_ROLE') : t('CONFIRM_ROLE_DELETION')}
-          >
-            {isLoading ? t('DELETING') : t('DELETE_ROLE')}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+				{/* Footer */}
+				<div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5">
+					<button
+						type="button"
+						onClick={handleCancel}
+						disabled={isLoading}
+						aria-label={t('CANCEL_ROLE_DELETION')}
+						className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
+					>
+						<X className="w-3.5 h-3.5" />
+						{t('CANCEL')}
+					</button>
+					<button
+						type="button"
+						onClick={handleConfirm}
+						disabled={isLoading}
+						aria-label={isLoading ? t('DELETING_ROLE') : t('CONFIRM_ROLE_DELETION')}
+						className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl bg-red-600 dark:bg-red-500 text-white hover:bg-red-700 dark:hover:bg-red-600 shadow-sm transition-all duration-200 disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+					>
+						{isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+						{isLoading ? t('DELETING') : t('DELETE_ROLE')}
+					</button>
+				</div>
+			</div>
+		</div>
+	);
 }
