@@ -463,7 +463,7 @@ function validateLanguageCode(lang: string): boolean {
 
 ## Configuration via YAML
 
-The global site configuration is stored in `.content/.works/.works/works.yml` and parsed into a typed `Config` interface:
+The global site configuration is stored in `.content/.works/works.yml` and parsed into a typed `Config` interface:
 
 ```typescript
 // lib/content.ts
