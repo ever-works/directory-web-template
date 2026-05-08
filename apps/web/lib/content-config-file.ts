@@ -1,8 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
-export const PRIMARY_CONTENT_CONFIG_FILENAME = 'works.yml';
-export const CONTENT_CONFIG_FILENAMES = ['works.yml'] as const;
+export const PRIMARY_CONTENT_CONFIG_FILENAME = '.works/works.yml';
+export const CONTENT_CONFIG_FILENAMES = [PRIMARY_CONTENT_CONFIG_FILENAME] as const;
 
 export function getPrimaryContentConfigPath(contentPath: string): string {
 	return path.join(contentPath, PRIMARY_CONTENT_CONFIG_FILENAME);

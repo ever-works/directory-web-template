@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Flag, Eye, X, User, Calendar, FileText, AlertTriangle, CheckCircle, Clock } from 'lucide-react';
+import {
+	Flag, Eye, X, User, Calendar, FileText,
+	AlertTriangle, CheckCircle, Clock, LayoutGrid, List
+} from 'lucide-react';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminReports, type AdminReportItem } from '@/hooks/use-admin-reports';
 import { useAdminFilters } from '@/hooks/use-admin-filters';
@@ -20,139 +21,40 @@ import {
 	type ActiveFilter
 } from '@/components/admin/shared';
 import { useTranslations } from 'next-intl';
+import { Container } from '@/components/ui/container';
+import { cn } from '@/lib/utils';
 
-// Extracted className constants for better maintainability
-const CLASSES = {
-	// Page layout
-	pageContainer: 'p-6 max-w-7xl mx-auto',
-
-	// Header styles
-	headerWrapper: 'mb-8',
-	headerCard:
-		'bg-gradient-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] rounded-2xl border border-gray-100 dark:border-white/6 shadow-lg p-6',
-	headerContent: 'flex flex-col sm:flex-row sm:items-center justify-between gap-4',
-	headerLeft: 'flex items-center space-x-4',
-	headerIcon:
-		'w-12 h-12 bg-gradient-to-br from-red-500 to-orange-500 rounded-xl flex items-center justify-center shadow-lg',
-	headerTitle:
-		'text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent',
-	headerSubtitle: 'text-gray-600 dark:text-gray-400 mt-1 flex items-center space-x-2',
-	pendingBadge:
-		'text-sm px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-full font-medium',
-
-	// Stats cards
-	statsGrid: 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-6',
-	statCard: 'rounded-xl border-0 shadow-lg hover:shadow-xl transition-all duration-300 group p-5',
-	statCardTotal: 'bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20',
-	statCardPending: 'bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20',
-	statCardResolved: 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20',
-	statCardItems: 'bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20',
-	statContent: 'flex items-center justify-between',
-	statLabel: 'text-sm font-medium',
-	statValue: 'text-3xl font-bold group-hover:scale-105 transition-transform',
-	statIcon: 'w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform',
-
-	// Filters
-	filtersContainer: 'mb-6 space-y-4',
-	searchContainer: 'relative',
-	searchIcon: 'absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400',
-	searchInput:
-		'w-full pl-12 pr-4 py-3 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/6 rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary/20 focus:border-theme-primary transition-all duration-200 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
-	searchSpinner: 'absolute right-4 top-1/2 transform -translate-y-1/2',
-	spinnerIcon: 'w-4 h-4 border-2 border-theme-primary border-t-transparent rounded-full animate-spin',
-	filterRow: 'flex flex-wrap gap-3 items-center',
-	filterLabel: 'flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400',
-	resultsSummary: 'flex items-center justify-between text-sm text-gray-600 dark:text-gray-400',
-
-	// Report cards
-	reportsContainer: 'space-y-4',
-	reportCard:
-		'group bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/6 hover:border-theme-primary/30 hover:shadow-lg transition-all duration-300 p-5',
-	reportHeader: 'flex items-center justify-between mb-3',
-	reportBadges: 'flex items-center gap-2 flex-wrap',
-	reportDate: 'text-sm text-gray-500 dark:text-gray-400',
-	reportContentId: 'font-medium text-gray-900 dark:text-white mb-2',
-	reportDetails: 'text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4',
-	reportFooter: 'flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/6',
-	reportReporter: 'flex items-center gap-2',
-	reportReporterIcon: 'w-4 h-4 text-gray-400',
-	reportReporterText: 'text-sm text-gray-600 dark:text-gray-400',
-
-	// Empty state
-	emptyContainer: 'py-16 text-center',
-	emptyIconWrapper:
-		'w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-theme-primary/10 to-theme-accent/10 rounded-full flex items-center justify-center',
-	emptyIcon: 'w-8 h-8 text-theme-primary opacity-60',
-	emptyTitle: 'text-lg font-medium text-gray-900 dark:text-white mb-2',
-	emptyDescription: 'text-gray-500 dark:text-gray-400',
-
-	// Pagination
-	paginationWrapper: 'mt-8 space-y-6',
-	paginationInfo:
-		'bg-gradient-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a] rounded-xl border border-gray-100 dark:border-white/6 px-6 py-4 shadow-sm',
-	paginationContent: 'flex flex-col sm:flex-row sm:items-center justify-between gap-2',
-	paginationDot: 'w-2 h-2 bg-theme-primary rounded-full',
-	paginationText: 'text-sm font-medium text-gray-600 dark:text-gray-400',
-	paginationMeta: 'flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-500',
-	paginationCenter: 'flex justify-center',
-
-	// Loading skeleton
-	loadingSkeleton: 'bg-gray-200 dark:bg-white/8 rounded animate-pulse'
-} as const;
-
-// Status badge styles
-const STATUS_STYLES: Record<ReportStatusValues, { bg: string; text: string; icon: typeof Clock }> = {
-	pending: { bg: 'bg-orange-100 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', icon: Clock },
-	reviewed: { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', icon: Eye },
-	resolved: {
-		bg: 'bg-green-100 dark:bg-green-900/30',
-		text: 'text-green-700 dark:text-green-300',
-		icon: CheckCircle
-	},
-	dismissed: { bg: 'bg-gray-100 dark:bg-white/8', text: 'text-gray-700 dark:text-gray-300', icon: X }
-};
-
-// Reason badge styles
-const REASON_STYLES: Record<ReportReasonValues, { bg: string; text: string }> = {
-	spam: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', text: 'text-yellow-700 dark:text-yellow-300' },
-	harassment: { bg: 'bg-red-100 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300' },
-	inappropriate: { bg: 'bg-purple-100 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300' },
-	other: { bg: 'bg-gray-100 dark:bg-white/8', text: 'text-gray-700 dark:text-gray-300' }
-};
-
-// Define status type for filtering
 type ReportStatusFilter = ReportStatusValues | '';
+
+const STATUS_BADGE: Record<ReportStatusValues, { classes: string; Icon: typeof Clock }> = {
+	pending:   { classes: 'bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20', Icon: Clock },
+	reviewed:  { classes: 'bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20', Icon: Eye },
+	resolved:  { classes: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20', Icon: CheckCircle },
+	dismissed: { classes: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8', Icon: X }
+};
+
+const REASON_BADGE: Record<ReportReasonValues, string> = {
+	spam:          'bg-yellow-50 text-yellow-700 ring-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:ring-yellow-500/20',
+	harassment:    'bg-red-50 text-red-700 ring-red-200 dark:bg-red-500/10 dark:text-red-400 dark:ring-red-500/20',
+	inappropriate: 'bg-purple-50 text-purple-700 ring-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:ring-purple-500/20',
+	other:         'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
+};
 
 export default function AdminReportsPage() {
 	const t = useTranslations('admin.ADMIN_REPORTS_PAGE');
-
-	// Pagination state (managed externally since useAdminFilters handles filter resets)
 	const [currentPage, setCurrentPage] = useState(1);
 
-	// Use the unified filters hook
 	const {
-		searchTerm,
-		setSearchTerm,
-		debouncedSearchTerm,
-		isSearching,
-		hasActiveSearch,
-		statusFilter,
-		setStatusFilter,
-		multiFilters,
-		setMultiFilter,
-		hasActiveFilters,
-		clearAllFilters
+		searchTerm, setSearchTerm, debouncedSearchTerm, isSearching,
+		hasActiveSearch, statusFilter, setStatusFilter,
+		multiFilters, setMultiFilter, hasActiveFilters, clearAllFilters
 	} = useAdminFilters<ReportStatusFilter>({
 		minSearchLength: 2,
 		debounceDelay: 300,
-		initialMultiFilters: {
-			contentType: [],
-			reason: []
-		},
+		initialMultiFilters: { contentType: [], reason: [] },
 		onFiltersChange: () => setCurrentPage(1)
 	});
 
-	// Use admin reports hook with filter values from useAdminFilters
 	const { reports, stats, isLoading, isLoadingStats, isUpdating, totalPages, totalReports, updateReport } =
 		useAdminReports({
 			page: currentPage,
@@ -166,482 +68,410 @@ export default function AdminReportsPage() {
 	const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
 	const [reportToReview, setReportToReview] = useState<AdminReportItem | null>(null);
 
-	const openReviewDialog = (report: AdminReportItem) => {
-		setReportToReview(report);
-		setReviewDialogOpen(true);
-	};
+	const openReviewDialog = (report: AdminReportItem) => { setReportToReview(report); setReviewDialogOpen(true); };
+	const closeReviewDialog = () => { setReviewDialogOpen(false); setReportToReview(null); };
 
-	const closeReviewDialog = () => {
-		setReviewDialogOpen(false);
-		setReportToReview(null);
-	};
-
-	// Sync reportToReview with fresh data from reports array after query refresh
 	useEffect(() => {
 		if (reportToReview) {
-			const freshReport = reports.find((r) => r.id === reportToReview.id);
-			if (freshReport && freshReport !== reportToReview) {
-				setReportToReview(freshReport);
-			}
+			const fresh = reports.find((r) => r.id === reportToReview.id);
+			if (fresh && fresh !== reportToReview) setReportToReview(fresh);
 		}
 	}, [reports, reportToReview]);
 
-	// Build status tab options with counts from stats
-	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(
-		() => [
-			{ value: '', label: t('STATUS_ALL'), count: stats?.total || 0 },
-			{ value: 'pending', label: t('STATUS_LABELS.pending'), count: stats?.byStatus?.pending || 0 },
-			{ value: 'reviewed', label: t('STATUS_LABELS.reviewed'), count: stats?.byStatus?.reviewed || 0 },
-			{ value: 'resolved', label: t('STATUS_LABELS.resolved'), count: stats?.byStatus?.resolved || 0 },
-			{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'), count: stats?.byStatus?.dismissed || 0 }
-		],
-		[stats, t]
-	);
+	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-	// Build filter popover sections for Content Type and Reason (using radio since API supports single values)
-	const filterSections: FilterSection<string>[] = useMemo(
-		() => [
-			{
-				id: 'contentType',
-				label: t('CONTENT_TYPE'),
-				type: 'radio' as const,
-				options: Object.values(ReportContentType).map((type) => ({
-					id: type,
-					label: t(`CONTENT_TYPES.${type}`),
-					count: stats?.byContentType?.[type] || 0
-				})),
-				selectedValues: multiFilters.contentType?.slice(0, 1) || [],
-				onChange: (values: string[]) => setMultiFilter('contentType', values)
-			},
-			{
-				id: 'reason',
-				label: t('REASON'),
-				type: 'radio' as const,
-				options: Object.values(ReportReason).map((reason) => ({
-					id: reason,
-					label: t(`REASONS.${reason}`),
-					count: stats?.byReason?.[reason] || 0
-				})),
-				selectedValues: multiFilters.reason?.slice(0, 1) || [],
-				onChange: (values: string[]) => setMultiFilter('reason', values)
-			}
-		],
-		[stats, multiFilters, setMultiFilter, t]
-	);
+	const [hasLoaded, setHasLoaded] = useState(false);
+	useEffect(() => { if (!isLoading) setHasLoaded(true); }, [isLoading]);
+	const shouldShowSkeleton = !hasLoaded && isLoading;
+
+	const displayReports = reports;
+	const displayStats   = stats;
+
+	const statusOptions: StatusTabOption<ReportStatusFilter>[] = useMemo(() => [
+		{ value: '',          label: t('STATUS_ALL'),                count: displayStats?.total              ?? 0 },
+		{ value: 'pending',   label: t('STATUS_LABELS.pending'),     count: displayStats?.byStatus?.pending  ?? 0 },
+		{ value: 'reviewed',  label: t('STATUS_LABELS.reviewed'),    count: displayStats?.byStatus?.reviewed ?? 0 },
+		{ value: 'resolved',  label: t('STATUS_LABELS.resolved'),    count: displayStats?.byStatus?.resolved ?? 0 },
+		{ value: 'dismissed', label: t('STATUS_LABELS.dismissed'),   count: displayStats?.byStatus?.dismissed ?? 0 }
+	], [displayStats, t]);
+
+	const filterSections: FilterSection<string>[] = useMemo(() => [
+		{
+			id: 'contentType', label: t('CONTENT_TYPE'), type: 'radio' as const,
+			options: Object.values(ReportContentType).map((type) => ({
+				id: type, label: t(`CONTENT_TYPES.${type}`), count: displayStats?.byContentType?.[type] || 0
+			})),
+			selectedValues: multiFilters.contentType?.slice(0, 1) || [],
+			onChange: (vals: string[]) => setMultiFilter('contentType', vals)
+		},
+		{
+			id: 'reason', label: t('REASON'), type: 'radio' as const,
+			options: Object.values(ReportReason).map((reason) => ({
+				id: reason, label: t(`REASONS.${reason}`), count: displayStats?.byReason?.[reason] || 0
+			})),
+			selectedValues: multiFilters.reason?.slice(0, 1) || [],
+			onChange: (vals: string[]) => setMultiFilter('reason', vals)
+		}
+	], [displayStats, multiFilters, setMultiFilter, t]);
 
 	const advancedFilterCount = (multiFilters.contentType?.length || 0) + (multiFilters.reason?.length || 0);
 
-	// Build active filters array for chip display
 	const activeFilters: ActiveFilter[] = useMemo(() => {
 		const filters: ActiveFilter[] = [];
-
-		if (hasActiveSearch) {
-			filters.push({
-				id: 'search',
-				type: 'search',
-				label: t('SEARCH_PLACEHOLDER').replace('...', ''),
-				value: searchTerm.trim()
-			});
-		}
-
-		if (statusFilter) {
-			filters.push({
-				id: `status:${statusFilter}`,
-				type: 'status',
-				label: t('STATUS'),
-				value: t(`STATUS_LABELS.${statusFilter}`)
-			});
-		}
-
-		(multiFilters.contentType || []).forEach((type) => {
-			filters.push({
-				id: `contentType:${type}`,
-				type: 'contentType',
-				label: t('CONTENT_TYPE'),
-				value: t(`CONTENT_TYPES.${type}`)
-			});
-		});
-
-		(multiFilters.reason || []).forEach((reason) => {
-			filters.push({
-				id: `reason:${reason}`,
-				type: 'reason',
-				label: t('REASON'),
-				value: t(`REASONS.${reason}`)
-			});
-		});
-
+		if (hasActiveSearch)
+			filters.push({ id: 'search', type: 'search', label: t('SEARCH_PLACEHOLDER').replace('...', ''), value: searchTerm.trim() });
+		if (statusFilter)
+			filters.push({ id: `status:${statusFilter}`, type: 'status', label: t('STATUS'), value: t(`STATUS_LABELS.${statusFilter}`) });
+		(multiFilters.contentType || []).forEach((type) =>
+			filters.push({ id: `contentType:${type}`, type: 'contentType', label: t('CONTENT_TYPE'), value: t(`CONTENT_TYPES.${type}`) }));
+		(multiFilters.reason || []).forEach((reason) =>
+			filters.push({ id: `reason:${reason}`, type: 'reason', label: t('REASON'), value: t(`REASONS.${reason}`) }));
 		return filters;
 	}, [hasActiveSearch, searchTerm, statusFilter, multiFilters, t]);
 
-	// Filter removal handlers
 	const handleRemoveFilter = (filter: ActiveFilter) => {
 		switch (filter.type) {
-			case 'search':
-				setSearchTerm('');
-				break;
-			case 'status':
-				setStatusFilter('');
-				break;
-			case 'contentType':
-				setMultiFilter('contentType', []);
-				break;
-			case 'reason':
-				setMultiFilter('reason', []);
-				break;
+			case 'search':      setSearchTerm(''); break;
+			case 'status':      setStatusFilter(''); break;
+			case 'contentType': setMultiFilter('contentType', []); break;
+			case 'reason':      setMultiFilter('reason', []); break;
 		}
 	};
 
-	const handleClearAdvancedFilters = () => {
-		setMultiFilter('contentType', []);
-		setMultiFilter('reason', []);
-	};
+	const formatDate = (dateString: string) =>
+		new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
-	// Handle page change
-	const onPageChange = (page: number) => {
-		setCurrentPage(page);
-	};
-
-	const formatDate = (dateString: string) => {
-		return new Date(dateString).toLocaleDateString(undefined, {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	};
-
-	// Check if skeleton should be shown (only on initial page load)
-	// We use a local state to ensure we only show the skeleton once,
-	// ignoring the global isInitialLoad which might be buggy or persistent.
-	const [hasLoaded, setHasLoaded] = useState(false);
-
-	useEffect(() => {
-		if (!isLoading) {
-			setHasLoaded(true);
-		}
-	}, [isLoading]);
-
-	const shouldShowSkeleton = !hasLoaded && isLoading;
-
-	// Loading state
 	if (shouldShowSkeleton) {
 		return (
-			<div className={CLASSES.pageContainer}>
-				{/* Loading Header */}
-				<div className={CLASSES.headerWrapper}>
-					<div className={CLASSES.headerCard}>
-						<div className={CLASSES.headerContent}>
-							<div className={CLASSES.headerLeft}>
-								<div className={`w-12 h-12 ${CLASSES.loadingSkeleton} rounded-xl`}></div>
-								<div>
-									<div className={`h-8 w-48 ${CLASSES.loadingSkeleton} mb-2`}></div>
-									<div className={`h-4 w-64 ${CLASSES.loadingSkeleton}`}></div>
-								</div>
+			<Container useGlobalWidth>
+				<div className="mb-8">
+					<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+						<div className="flex items-center gap-4">
+							<div className="w-11 h-11 rounded-xl bg-gray-200 dark:bg-white/8 animate-pulse shrink-0" />
+							<div>
+								<div className="h-5 w-40 bg-gray-200 dark:bg-white/8 rounded-lg animate-pulse mb-2" />
+								<div className="h-3.5 w-56 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
 							</div>
 						</div>
 					</div>
+					<div className="mt-5 h-px bg-gray-200 dark:bg-white/8 animate-pulse" />
 				</div>
-
-				{/* Loading Stats */}
-				<div className={CLASSES.statsGrid}>
-					{Array.from({ length: 4 }, (_, i) => (
-						<div key={i} className={`${CLASSES.statCard} bg-gray-50 dark:bg-white/5`}>
-							<div className={`h-4 w-20 ${CLASSES.loadingSkeleton} mb-2`}></div>
-							<div className={`h-8 w-16 ${CLASSES.loadingSkeleton}`}></div>
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+					{[0, 1, 2, 3].map((i) => (
+						<div key={i} className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5">
+							<div className="flex items-start justify-between mb-4">
+								<div className="h-3 w-20 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
+								<div className="w-9 h-9 rounded-xl bg-gray-200 dark:bg-white/8 animate-pulse" />
+							</div>
+							<div className="h-7 w-14 bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
 						</div>
 					))}
 				</div>
-
-				{/* Loading Cards */}
-				<div className={CLASSES.reportsContainer}>
-					{Array.from({ length: 3 }, (_, i) => (
-						<div key={i} className={CLASSES.reportCard}>
-							<div className="flex items-center gap-2 mb-3">
-								<div className={`h-6 w-20 ${CLASSES.loadingSkeleton} rounded-full`}></div>
-								<div className={`h-6 w-16 ${CLASSES.loadingSkeleton} rounded-full`}></div>
+				<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+					{[0, 1, 2].map((i) => (
+						<div key={i} className="px-5 py-5 border-b border-gray-50 dark:border-white/4">
+							<div className="flex gap-2 mb-3">
+								<div className="h-5 w-20 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse" />
+								<div className="h-5 w-16 bg-gray-200 dark:bg-white/8 rounded-full animate-pulse" />
 							</div>
-							<div className={`h-5 w-48 ${CLASSES.loadingSkeleton} mb-2`}></div>
-							<div className={`h-4 w-full ${CLASSES.loadingSkeleton} mb-4`}></div>
-						<div className="flex justify-between pt-3 border-t border-gray-100 dark:border-white/6">
-								<div className={`h-4 w-32 ${CLASSES.loadingSkeleton}`}></div>
-								<div className={`h-8 w-20 ${CLASSES.loadingSkeleton} rounded-lg`}></div>
-							</div>
+							<div className="h-4 w-48 bg-gray-200 dark:bg-white/8 rounded animate-pulse mb-2" />
+							<div className="h-3 w-full bg-gray-200 dark:bg-white/8 rounded animate-pulse" />
 						</div>
 					))}
 				</div>
-
-				<div className="mt-8 text-center">
-					<div className="inline-flex items-center space-x-2 text-gray-500 dark:text-gray-400">
-						<div className={CLASSES.spinnerIcon}></div>
-						<span className="text-sm font-medium">{t('LOADING_REPORTS')}</span>
-					</div>
-				</div>
-			</div>
+			</Container>
 		);
 	}
 
 	return (
-		<div className={CLASSES.pageContainer}>
-			{/* Header */}
-			<div className={CLASSES.headerWrapper}>
-				<div className={CLASSES.headerCard}>
-					<div className={CLASSES.headerContent}>
-						<div className={CLASSES.headerLeft}>
-							<div className={CLASSES.headerIcon}>
-								<Flag className="w-6 h-6 text-white" />
-							</div>
-							<div>
-								<h1 className={CLASSES.headerTitle}>{t('TITLE')}</h1>
-								<p className={CLASSES.headerSubtitle}>
-									<span>{t('SUBTITLE')}</span>
-									<span className="hidden sm:inline">•</span>
-									<span className={CLASSES.pendingBadge}>
-										{stats?.pendingCount || 0} {t('PENDING')}
-									</span>
-								</p>
-							</div>
+		<Container useGlobalWidth>
+			{/* Page Header */}
+			<div className="mb-8">
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="w-11 h-11 rounded-xl bg-gray-900 dark:bg-gray-800 flex items-center justify-center shrink-0 shadow-sm">
+							<Flag className="w-5 h-5 text-white" />
+						</div>
+						<div>
+							<h1 className="text-xl font-semibold text-gray-900 dark:text-white leading-tight tracking-tight">
+								{t('TITLE')}
+							</h1>
+							<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5 flex items-center gap-2">
+								<span>{t('SUBTITLE')}</span>
+								{(displayStats?.pendingCount || 0) > 0 && (
+									<>
+										<span className="text-gray-300 dark:text-gray-600">·</span>
+										<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-orange-50 text-orange-700 ring-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:ring-orange-500/20">
+											<span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0 animate-pulse" />
+											{displayStats?.pendingCount} {t('PENDING')}
+										</span>
+									</>
+								)}
+							</p>
 						</div>
 					</div>
 				</div>
+				<div className="mt-5 h-px bg-linear-to-r from-gray-200 via-gray-100 to-transparent dark:from-white/10 dark:via-white/5 dark:to-transparent" />
 			</div>
 
-			{/* Stats Cards */}
-			{!isLoadingStats && stats && (
-				<div className={CLASSES.statsGrid}>
-					<div className={`${CLASSES.statCard} ${CLASSES.statCardTotal}`}>
-						<div className={CLASSES.statContent}>
-							<div>
-								<p className={`${CLASSES.statLabel} text-blue-600 dark:text-blue-400`}>
-									{t('TOTAL_REPORTS')}
-								</p>
-								<p className={`${CLASSES.statValue} text-blue-700 dark:text-blue-300`}>{stats.total}</p>
-							</div>
-							<div className={`${CLASSES.statIcon} bg-blue-500/20`}>
-								<Flag className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+			{/* Stats */}
+			{!isLoadingStats && displayStats && (
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+					<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+						<div className="flex items-start justify-between mb-4 pt-0.5">
+							<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+								{t('TOTAL_REPORTS')}
+							</p>
+							<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+								<Flag className="w-4 h-4" />
 							</div>
 						</div>
+						<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+							{displayStats.total}
+						</p>
 					</div>
-					<div className={`${CLASSES.statCard} ${CLASSES.statCardPending}`}>
-						<div className={CLASSES.statContent}>
-							<div>
-								<p className={`${CLASSES.statLabel} text-orange-600 dark:text-orange-400`}>
-									{t('PENDING')}
-								</p>
-								<p className={`${CLASSES.statValue} text-orange-700 dark:text-orange-300`}>
-									{stats.pendingCount}
-								</p>
-							</div>
-							<div className={`${CLASSES.statIcon} bg-orange-500/20`}>
-								<AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400" />
+
+					<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+						<div className="flex items-start justify-between mb-4 pt-0.5">
+							<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+								{t('PENDING')}
+							</p>
+							<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+								<AlertTriangle className="w-4 h-4" />
 							</div>
 						</div>
+						<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+							{displayStats.pendingCount}
+						</p>
 					</div>
-					<div className={`${CLASSES.statCard} ${CLASSES.statCardResolved}`}>
-						<div className={CLASSES.statContent}>
-							<div>
-								<p className={`${CLASSES.statLabel} text-green-600 dark:text-green-400`}>
-									{t('RESOLVED')}
-								</p>
-								<p className={`${CLASSES.statValue} text-green-700 dark:text-green-300`}>
-									{stats.resolvedCount}
-								</p>
-							</div>
-							<div className={`${CLASSES.statIcon} bg-green-500/20`}>
-								<CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+
+					<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+						<div className="flex items-start justify-between mb-4 pt-0.5">
+							<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+								{t('RESOLVED')}
+							</p>
+							<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+								<CheckCircle className="w-4 h-4" />
 							</div>
 						</div>
+						<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+							{displayStats.resolvedCount}
+						</p>
 					</div>
-					<div className={`${CLASSES.statCard} ${CLASSES.statCardItems}`}>
-						<div className={CLASSES.statContent}>
-							<div>
-								<p className={`${CLASSES.statLabel} text-purple-600 dark:text-purple-400`}>
-									{t('BY_ITEMS')}
-								</p>
-								<p className={`${CLASSES.statValue} text-purple-700 dark:text-purple-300`}>
-									{stats.byContentType?.item || 0}
-								</p>
-							</div>
-							<div className={`${CLASSES.statIcon} bg-purple-500/20`}>
-								<FileText className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+
+					<div className="relative bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl p-5 overflow-hidden hover:shadow-sm hover:border-gray-200 dark:hover:border-white/10 transition-all duration-200">
+						<div className="flex items-start justify-between mb-4 pt-0.5">
+							<p className="text-[11px] uppercase tracking-widest font-semibold text-gray-400 dark:text-gray-500 leading-none">
+								{t('BY_ITEMS')}
+							</p>
+							<div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400">
+								<FileText className="w-4 h-4" />
 							</div>
 						</div>
+						<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">
+							{displayStats.byContentType?.item || 0}
+						</p>
 					</div>
 				</div>
 			)}
 
-			{/* Reports Table Card */}
-			<Card className="border-0 shadow-lg bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm">
-				<CardContent className="p-0">
-					{/* Card Header with Title and Filters */}
-					<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-gray-50/50 dark:bg-white/3">
-						<div className="flex items-center justify-between gap-4 flex-wrap">
-							<h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-								{t('REPORTS_TABLE_TITLE')}
-							</h3>
-							<div className="flex items-center gap-3">
-								<AdminStatusTabs<ReportStatusFilter>
-									options={statusOptions}
-									value={statusFilter}
-									onChange={setStatusFilter}
-								/>
-								<AdminFilterPopover
-									sections={filterSections}
-									activeCount={advancedFilterCount}
-									onClearAll={handleClearAdvancedFilters}
-								/>
-							</div>
-						</div>
-					</div>
-
-					{/* Search and Filters Section */}
-					<div className="px-6 py-4 space-y-4">
-						{/* Search Bar */}
-						<AdminSearchBar
-							value={searchTerm}
-							onChange={setSearchTerm}
-							isSearching={isSearching}
-							placeholder={t('SEARCH_PLACEHOLDER')}
-							ariaLabel={t('SEARCH_PLACEHOLDER')}
-						/>
-
-						{/* Active Filter Chips */}
-						{activeFilters.length > 0 && (
-							<AdminActiveFilters
-								filters={activeFilters}
-								onRemove={handleRemoveFilter}
-								onClearAll={clearAllFilters}
+			{/* Reports Table */}
+			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
+				{/* Table Header */}
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5">
+					<div className="flex items-center justify-between gap-4 flex-wrap">
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+							{t('REPORTS_TABLE_TITLE')}
+						</h3>
+						<div className="flex items-center gap-3">
+							<AdminStatusTabs<ReportStatusFilter>
+								options={statusOptions}
+								value={statusFilter}
+								onChange={setStatusFilter}
 							/>
-						)}
-
-						{/* Results Summary */}
-						<div className={CLASSES.resultsSummary}>
-							<span>
-								{t('SHOWING_REPORTS', { count: reports.length, total: totalReports })}
-								{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
-							</span>
+							<AdminFilterPopover
+								sections={filterSections}
+								activeCount={advancedFilterCount}
+								onClearAll={() => { setMultiFilter('contentType', []); setMultiFilter('reason', []); }}
+							/>
+							<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
+								<button type="button" onClick={() => setViewMode('grid')} title="Grid view"
+									className={cn('p-1.5 rounded-md transition-colors', viewMode === 'grid' ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300')}>
+									<LayoutGrid className="w-3.5 h-3.5" />
+								</button>
+								<button type="button" onClick={() => setViewMode('list')} title="List view"
+									className={cn('p-1.5 rounded-md transition-colors', viewMode === 'list' ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm' : 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300')}>
+									<List className="w-3.5 h-3.5" />
+								</button>
+							</div>
 						</div>
 					</div>
+				</div>
 
-					{/* Reports List */}
-					<div className="px-6 pb-6">
-						{reports.length === 0 ? (
-							<div className={CLASSES.emptyContainer}>
-								<div className={CLASSES.emptyIconWrapper}>
-									<Flag className={CLASSES.emptyIcon} />
+				{/* Search & Active Filters */}
+				<div className="px-5 py-4 space-y-3 border-b border-gray-50 dark:border-white/4">
+					<AdminSearchBar
+						value={searchTerm}
+						onChange={setSearchTerm}
+						isSearching={isSearching}
+						placeholder={t('SEARCH_PLACEHOLDER')}
+						ariaLabel={t('SEARCH_PLACEHOLDER')}
+					/>
+					{activeFilters.length > 0 && (
+						<AdminActiveFilters
+							filters={activeFilters}
+							onRemove={handleRemoveFilter}
+							onClearAll={clearAllFilters}
+						/>
+					)}
+					<div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+						<span>
+							{t('SHOWING_REPORTS', { count: displayReports.length, total: totalReports || displayReports.length })}
+							{hasActiveFilters && <span className="ml-1">{t('FILTERED')}</span>}
+						</span>
+					</div>
+				</div>
+
+				{/* Reports List / Grid */}
+				{displayReports.length === 0 ? (
+					<div className="flex flex-col items-center justify-center px-6 py-20 text-center">
+						<div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
+							<Flag className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+						</div>
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">
+							{t('NO_REPORTS_FOUND')}
+						</h3>
+						<p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs leading-relaxed">
+							{hasActiveFilters ? t('NO_REPORTS_SEARCH_DESCRIPTION') : t('NO_REPORTS_DESCRIPTION')}
+						</p>
+					</div>
+				) : viewMode === 'grid' ? (
+					<div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+						{displayReports.map((report) => {
+							const statusStyle = STATUS_BADGE[report.status];
+							const StatusIcon = statusStyle.Icon;
+							return (
+								<div key={report.id} className="group relative flex flex-col gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/6 bg-white dark:bg-white/2 hover:border-gray-200 dark:hover:border-white/10 hover:shadow-sm transition-all duration-200">
+									<div className="flex items-start justify-between gap-2">
+										<div className="flex items-center gap-1.5 flex-wrap">
+											<span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset', statusStyle.classes)}>
+												<StatusIcon className="w-2.5 h-2.5" />
+												{t(`STATUS_LABELS.${report.status}`)}
+											</span>
+											<span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset', REASON_BADGE[report.reason])}>
+												{t(`REASONS.${report.reason}`)}
+											</span>
+										</div>
+										<span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 flex items-center gap-1">
+											<Calendar className="w-2.5 h-2.5" />
+											{formatDate(report.createdAt)}
+										</span>
+									</div>
+									<div className="flex-1 min-w-0">
+										<p className="text-sm font-semibold text-gray-900 dark:text-white truncate mb-1">
+											{report.contentId}
+										</p>
+										{report.details ? (
+											<p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{report.details}</p>
+										) : (
+											<p className="text-xs text-gray-400 dark:text-gray-600 italic">No details provided</p>
+										)}
+									</div>
+									<div className="flex items-center justify-between pt-2 border-t border-gray-50 dark:border-white/4">
+										<span className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500 truncate min-w-0">
+											<User className="w-3 h-3 shrink-0" />
+											<span className="truncate">{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}</span>
+										</span>
+										<button
+											type="button"
+											disabled={isUpdating === report.id}
+											onClick={() => openReviewDialog(report)}
+											className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 shrink-0 disabled:opacity-50"
+										>
+											<Eye className="w-3 h-3" />
+											{t('REVIEW')}
+										</button>
+									</div>
 								</div>
-								<h3 className={CLASSES.emptyTitle}>{t('NO_REPORTS_FOUND')}</h3>
-								<p className={CLASSES.emptyDescription}>
-									{hasActiveFilters
-										? t('NO_REPORTS_SEARCH_DESCRIPTION')
-										: t('NO_REPORTS_DESCRIPTION')}
-								</p>
-							</div>
-						) : (
-							<div className={CLASSES.reportsContainer}>
-								{reports.map((report) => {
-									const statusStyle = STATUS_STYLES[report.status];
-									const reasonStyle = REASON_STYLES[report.reason];
-									const StatusIcon = statusStyle.icon;
-
-									return (
-										<div key={report.id} className={CLASSES.reportCard}>
-											{/* Header: Badges + Date */}
-											<div className={CLASSES.reportHeader}>
-												<div className={CLASSES.reportBadges}>
-													{/* Status Badge */}
-													<span
-														className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
-													>
-														<StatusIcon className="w-3 h-3" />
-														{t(`STATUS_LABELS.${report.status}`)}
-													</span>
-													{/* Content Type Badge */}
-													<span className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-														{t(`CONTENT_TYPES.${report.contentType}`)}
-													</span>
-													{/* Reason Badge */}
-													<span
-														className={`px-2.5 py-1 rounded-full text-xs font-medium ${reasonStyle.bg} ${reasonStyle.text}`}
-													>
-														{t(`REASONS.${report.reason}`)}
-													</span>
-												</div>
-												<div className={CLASSES.reportDate}>
-													<Calendar className="w-3.5 h-3.5 inline mr-1" />
-													{formatDate(report.createdAt)}
-												</div>
+							);
+						})}
+					</div>
+				) : (
+					<div className="divide-y divide-gray-50 dark:divide-white/4">
+						{displayReports.map((report) => {
+							const statusStyle = STATUS_BADGE[report.status];
+							const StatusIcon = statusStyle.Icon;
+							return (
+								<div key={report.id} className="px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-white/2.5 transition-colors duration-150">
+									<div className="flex items-start justify-between gap-4">
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-1.5 flex-wrap mb-2">
+												<span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset', statusStyle.classes)}>
+													<StatusIcon className="w-2.5 h-2.5" />
+													{t(`STATUS_LABELS.${report.status}`)}
+												</span>
+												<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset bg-blue-50 text-blue-700 ring-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:ring-blue-500/20">
+													{t(`CONTENT_TYPES.${report.contentType}`)}
+												</span>
+												<span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset', REASON_BADGE[report.reason])}>
+													{t(`REASONS.${report.reason}`)}
+												</span>
 											</div>
-
-											{/* Content ID */}
-											<p className={CLASSES.reportContentId}>{report.contentId}</p>
-
-											{/* Details Preview */}
+											<p className="text-sm font-medium text-gray-900 dark:text-white truncate mb-1">{report.contentId}</p>
 											{report.details && (
-												<p className={CLASSES.reportDetails}>{report.details}</p>
+												<p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1 mb-2">{report.details}</p>
 											)}
-
-											{/* Footer: Reporter + Action */}
-											<div className={CLASSES.reportFooter}>
-												<div className={CLASSES.reportReporter}>
-													<User className={CLASSES.reportReporterIcon} />
-													<span className={CLASSES.reportReporterText}>
-														{report.reporter?.name ||
-															report.reporter?.email ||
-															t('UNKNOWN')}
-													</span>
-												</div>
-												<Button
-													size="sm"
-													disabled={isUpdating === report.id}
-													onClick={() => openReviewDialog(report)}
-													className="bg-theme-primary hover:bg-theme-primary/90 text-white"
-												>
-													<Eye className="w-4 h-4 mr-1" />
-													{t('REVIEW')}
-												</Button>
+											<div className="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
+												<span className="flex items-center gap-1">
+													<User className="w-3 h-3" />
+													{report.reporter?.name || report.reporter?.email || t('UNKNOWN')}
+												</span>
+												<span>·</span>
+												<span className="flex items-center gap-1">
+													<Calendar className="w-3 h-3" />
+													{formatDate(report.createdAt)}
+												</span>
 											</div>
 										</div>
-									);
+										<button
+											type="button"
+											disabled={isUpdating === report.id}
+											onClick={() => openReviewDialog(report)}
+											className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 shadow-sm transition-all duration-200 shrink-0 disabled:opacity-50"
+										>
+											<Eye className="w-3.5 h-3.5" />
+											{t('REVIEW')}
+										</button>
+									</div>
+								</div>
+							);
+						})}
+					</div>
+				)}
+
+				{/* Pagination */}
+				{totalPages > 1 && (
+					<div className="p-4 border-t border-gray-100 dark:border-white/6">
+						<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+							<span className="text-xs text-gray-500 dark:text-gray-400">
+								{t('SHOWING_RANGE', {
+									start: (currentPage - 1) * 10 + 1,
+									end: Math.min(currentPage * 10, totalReports),
+									total: totalReports
 								})}
-							</div>
-						)}
-					</div>
-				</CardContent>
-			</Card>
-
-			{/* Pagination */}
-			{totalReports > 0 && (
-				<div className={CLASSES.paginationWrapper}>
-					<div className={CLASSES.paginationInfo}>
-						<div className={CLASSES.paginationContent}>
-							<div className="flex items-center space-x-2">
-								<div className={CLASSES.paginationDot}></div>
-								<span className={CLASSES.paginationText}>
-									{t('SHOWING_RANGE', {
-										start: (currentPage - 1) * 10 + 1,
-										end: Math.min(currentPage * 10, totalReports),
-										total: totalReports
-									})}
-								</span>
-							</div>
-							<div className={CLASSES.paginationMeta}>
-								<span>{t('PAGE_OF', { current: currentPage, total: totalPages })}</span>
-								<span>•</span>
-								<span>10 {t('PER_PAGE')}</span>
-							</div>
+							</span>
+							<span className="text-xs text-gray-400 dark:text-gray-500">
+								{t('PAGE_OF', { current: currentPage, total: totalPages })} · 10 {t('PER_PAGE')}
+							</span>
 						</div>
-					</div>
-
-					<div className={CLASSES.paginationCenter}>
 						<UniversalPagination
 							page={currentPage}
 							totalPages={totalPages}
-							onPageChange={onPageChange}
-							className="shadow-lg"
+							onPageChange={setCurrentPage}
 						/>
 					</div>
-				</div>
-			)}
+				)}
+			</div>
 
 			{/* Review Dialog */}
 			{reportToReview && (
@@ -653,6 +483,6 @@ export default function AdminReportsPage() {
 					onClose={closeReviewDialog}
 				/>
 			)}
-		</div>
+		</Container>
 	);
 }
