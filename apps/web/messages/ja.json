@@ -216,7 +216,13 @@
 		"NEXT_STEP": "次のステップ",
 		"SUBMIT_PRODUCT": "製品を送信",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "カテゴリー",
+		"TAGS": "タグ",
+		"AVG": "平均",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "Close",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

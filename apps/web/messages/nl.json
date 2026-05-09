@@ -216,7 +216,13 @@
 		"NEXT_STEP": "Volgende stap",
 		"SUBMIT_PRODUCT": "Product indienen",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Categorieën",
+		"TAGS": "Tags",
+		"AVG": "Gem.",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "Close",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

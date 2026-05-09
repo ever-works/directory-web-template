@@ -243,7 +243,13 @@
 		"NEXT_STEP": "Следваща стъпка",
 		"SUBMIT_PRODUCT": "Изпрати продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Категории",
+		"TAGS": "Етикети",
+		"AVG": "Ср.",
+		"BASIC_INFO": "Основна информация",
+		"CLOSE": "Затвори",
+		"VS": "срещу"
 	},
 	"survey": {
 		"SURVEYS": "Анкети",
