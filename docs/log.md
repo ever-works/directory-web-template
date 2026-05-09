@@ -31,6 +31,52 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-09 (cont 2 — swap to `feed` library)
+
+- `lib/seo/feeds.ts` `apps/web/package.json`
+  Replaced ~250 LOC of hand-rolled RSS/Atom/JSON Feed XML/JSON string
+  templating with delegation to the npm
+  [`feed`](https://www.npmjs.com/package/feed) library (~5M weekly DLs,
+  emits all three formats from one populated `Feed` instance). Public
+  signatures (`generateRss`, `generateAtom`, `generateJsonFeed`,
+  `buildFeedEntries`, `resolveFeedConfig`, `FeedEntry`, `FeedConfig`)
+  unchanged so the route handlers in `app/rss.xml/`, `app/atom.xml/`,
+  `app/feed.json/` keep working without edits. `generateJsonFeed`
+  post-processes the library's JSON Feed 1.0 output to bump the
+  `version` URL to `https://jsonfeed.org/version/1.1` and add the
+  1.1-only `language` field. Same swap applied symmetrically to the
+  Astro minimal template's `@ever-works/plugin-rss` package.
+
+## 2026-05-09 (cont)
+
+- `app/rss.xml` `app/atom.xml` `app/feed.json` `lib/seo/feeds.ts`
+  `app/[locale]/layout.tsx` `lib/seo/ai-crawlers.ts`
+  Feeds + AI-crawler list update (follow-up to the discoverability pass earlier the same day):
+  - Added `lib/seo/feeds.ts` — pure helpers `buildFeedEntries`,
+    `generateRss`, `generateAtom`, `generateJsonFeed` sharing a single
+    `FeedConfig`. Items sorted by `updated_at` desc, capped at 50.
+  - New routes at `app/rss.xml/route.ts`, `app/atom.xml/route.ts`,
+    `app/feed.json/route.ts` (RSS 2.0, Atom 1.0, JSON Feed 1.1
+    respectively). Replaces the previously-advertised-but-unimplemented
+    `/atom.xml` reference in `llms.txt`.
+  - Locale layout `generateMetadata` now emits
+    `<link rel="alternate" type="application/rss+xml" …>` plus the
+    Atom and JSON-Feed equivalents for autodiscovery on every page.
+  - `lib/seo/ai-crawlers.ts` trimmed and randomized: list is now
+    exactly 18 bots (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
+    Claude-User, Claude-SearchBot, anthropic-ai, PerplexityBot,
+    Perplexity-User, Google-Extended, Applebot, Applebot-Extended,
+    Bingbot, CCBot, Meta-ExternalAgent, Amazonbot, Bytespider,
+    cohere-ai), rendered in randomized order so no single operator
+    appears clustered or "first" in robots.txt. Removed speculative
+    extras (Diffbot, MistralAI-User, YouBot, Timpibot,
+    Meta-ExternalFetcher, DuckAssistBot, Claude-Web,
+    cohere-training-data-crawler).
+  - `app/robots.ts` allow-list extended with `/rss.xml`, `/atom.xml`,
+    `/feed.json`.
+  - `app/llms.txt/route.ts` advertises `/feed.json` and `/rss.xml`
+    alongside the previously listed `/atom.xml` and `/sitemap.xml`.
+
 ## 2026-05-09
 
 - `docs/log`

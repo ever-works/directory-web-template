@@ -20,6 +20,10 @@ export default function robots(): MetadataRoute.Robots {
 		'/llms.txt',
 		'/llms-full.txt',
 		'/items.json',
+		// Feeds (RSS 2.0, Atom 1.0, JSON Feed 1.1).
+		'/rss.xml',
+		'/atom.xml',
+		'/feed.json',
 		// Markdown mirrors of every public page (per https://llmstxt.org and
 		// the per-page .md mirror convention used by AI crawlers).
 		'/*.md'
