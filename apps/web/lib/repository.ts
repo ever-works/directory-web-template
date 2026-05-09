@@ -4,7 +4,7 @@ import git, { GitAuth, Errors } from "isomorphic-git";
 import * as http from "isomorphic-git/http/node";
 import * as path from "node:path";
 import * as fs from "node:fs";
-import { fsExists } from "./lib";
+import { fsExists, replaceDirectoryAtomically } from "./lib";
 import { coreConfig } from "@/lib/config/config-service";
 import { getPrimaryContentConfigPath, hasContentConfigFile } from "./content-config-file";
 
@@ -98,6 +98,29 @@ async function tryPushLocalChanges(
   }
 }
 
+async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAuth): Promise<void> {
+  const tempDest = path.join(path.dirname(dest), `${path.basename(dest)}.${process.pid}.${Date.now()}.clone`);
+
+  try {
+    await fs.promises.rm(tempDest, { recursive: true, force: true });
+    await fs.promises.mkdir(tempDest, { recursive: true });
+    await withTimeout(
+      git.clone({
+        onAuth: () => auth,
+        fs,
+        http,
+        url,
+        dir: tempDest,
+        singleBranch: true,
+      })
+    );
+    await replaceDirectoryAtomically(dest, tempDest);
+  } catch (error) {
+    await fs.promises.rm(tempDest, { recursive: true, force: true }).catch(() => {});
+    throw error;
+  }
+}
+
 export async function pullChanges(url: string, dest: string, auth: GitAuth) {
   try {
     const author = { name: "website" }; // required for git pull for some reason
@@ -159,33 +182,11 @@ export async function pullChanges(url: string, dest: string, auth: GitAuth) {
       }
 
       // Reset: delete and re-clone
-      console.log("[SYNC] Resetting repository...");
-      await fs.promises.rm(dest, { recursive: true });
-      await fs.promises.mkdir(dest, { recursive: true });
-      await withTimeout(
-        git.clone({
-          onAuth: () => auth,
-          fs,
-          http,
-          url,
-          dir: dest,
-          singleBranch: true,
-        })
-      );
+      console.log("[SYNC] Resetting repository from a fresh clone...");
+      await cloneRepositoryAtomically(url, dest, auth);
     } else if (isBranchError) {
       console.error("Repository branch issue detected, trying to clone fresh...");
-      await fs.promises.rm(dest, { recursive: true });
-      await fs.promises.mkdir(dest, { recursive: true });
-      await withTimeout(
-        git.clone({
-          onAuth: () => auth,
-          fs,
-          http,
-          url,
-          dir: dest,
-          singleBranch: true,
-        })
-      );
+      await cloneRepositoryAtomically(url, dest, auth);
     } else {
       throw err;
     }
@@ -248,17 +249,7 @@ copyright_year: ${new Date().getFullYear()}
 
   try {
     console.log("Clonning repository...");
-    await fs.promises.mkdir(dest, { recursive: true });
-    await withTimeout(
-      git.clone({
-        onAuth: () => auth,
-        fs,
-        http,
-        url,
-        dir: dest,
-        singleBranch: true,
-      })
-    );
+    await cloneRepositoryAtomically(url, dest, auth);
   } catch (error) {
     console.error("Failed to clone repository:", error);
     console.warn("Continuing with local content only...");

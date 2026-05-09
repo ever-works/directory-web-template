@@ -31,6 +31,17 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-09
+
+- `docs/log`
+  Noted category sidebar and overflow tag dropdown virtualization for
+  large taxonomy catalogs.
+
+- `docs/log`
+  Noted production log-noise cleanup for missing optional CMS pages,
+  stale item directories, oversized listing cache payloads, and
+  anonymous engagement metric tenant resolution.
+
 ## 2026-05-05
 
 - `docs/plugins` `docs/index`

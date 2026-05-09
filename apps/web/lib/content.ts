@@ -43,8 +43,37 @@ function validatePath(filepath: string, basePath: string): void {
 		throw new Error('Invalid file path: outside of allowed directory');
 	}
 }
+
+function isNodeErrorWithCode(error: unknown, code: string): error is NodeJS.ErrnoException {
+	return error instanceof Error && 'code' in error && error.code === code;
+}
+
+const missingItemWarnings = new Set<string>();
+const missingPageWarnings = new Set<string>();
+
 function ensureTrailingSeparator(p: string): string {
 	return p.endsWith(path.sep) ? p : p + path.sep;
+}
+
+async function resolveItemDataFilename(base: string, preferredFilename: string): Promise<string | null> {
+	if (await fsExists(path.join(base, preferredFilename))) {
+		return preferredFilename;
+	}
+
+	try {
+		const entries = await fsp.readdir(base, { withFileTypes: true });
+		const yamlFiles = entries
+			.filter((entry) => entry.isFile() && /\.(ya?ml)$/i.test(entry.name))
+			.map((entry) => entry.name);
+
+		const primaryYaml = yamlFiles.find((name) => !path.basename(name, path.extname(name)).includes('.'));
+		return primaryYaml ?? yamlFiles[0] ?? null;
+	} catch (error) {
+		if (isNodeErrorWithCode(error, 'ENOENT')) {
+			return null;
+		}
+		throw error;
+	}
 }
 
 async function safeReadFile(filepath: string, basePath: string): Promise<string> {
@@ -511,7 +540,7 @@ export const getCachedConfig = unstable_cache(
 	{ revalidate: 60 }
 );
 
-async function parseItem(base: string, filename: string): Promise<ItemData | null> {
+async function parseItem(base: string, filename: string, slugOverride?: string): Promise<ItemData | null> {
 	try {
 		// Sanitize filename to prevent path traversal attacks
 		const sanitizedFilename = sanitizeFilename(filename);
@@ -521,11 +550,19 @@ async function parseItem(base: string, filename: string): Promise<ItemData | nul
 		// Use secure file reading function
 		const content = await safeReadFile(filepath, base);
 		const meta = yaml.parse(content) as ItemData;
-		meta.slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
+		meta.slug = slugOverride ?? path.basename(sanitizedFilename, path.extname(sanitizedFilename));
 		meta.updatedAt = parse(meta.updated_at, 'yyyy-MM-dd HH:mm', new Date());
+		delete meta.markdown;
 
 		return meta;
 	} catch (error) {
+		if (isNodeErrorWithCode(error, 'ENOENT')) {
+			if (!missingItemWarnings.has(filename)) {
+				missingItemWarnings.add(filename);
+				console.warn(`[CONTENT] Skipping item with missing YAML file: ${filename}`);
+			}
+			return null;
+		}
 		console.error(`Failed to parse item ${filename}:`, error);
 		return null;
 	}
@@ -586,7 +623,7 @@ async function readCollection<T extends Identifiable>(
 
 		return collection;
 	} catch (err) {
-		if (err instanceof Error && 'code' in err && err.code === 'ENOENT') {
+		if (isNodeErrorWithCode(err, 'ENOENT')) {
 			// Bootstrap missing collection files, so first read creates the YAML on disk
 			try {
 				const contentPath = getContentPath();
@@ -864,6 +901,7 @@ const DIRECTORY_CACHE_TTL = 600000; // 10 minutes in milliseconds
 const categoriesCache = new Map<string, { data: Map<string, Category>; timestamp: number }>();
 const tagsCache = new Map<string, { data: Map<string, Tag>; timestamp: number }>();
 const METADATA_CACHE_TTL = 600000; // 10 minutes in milliseconds
+let fetchItemsRepairPromise: Promise<void> | null = null;
 
 async function getContentRevision(): Promise<string> {
 	const { ensureContentAvailable } = await import('./lib');
@@ -917,7 +955,26 @@ export async function clearFetchItemsCache() {
 	console.log('[CACHE] In-memory fetchItems, directory, categories, and tags caches cleared');
 }
 
-export async function fetchItems(options: FetchOptions = {}): Promise<FetchItemsResult> {
+async function repairContentRepositoryAfterMissingItems(): Promise<void> {
+	if (!process.env.DATA_REPOSITORY) {
+		return;
+	}
+
+	if (!fetchItemsRepairPromise) {
+		fetchItemsRepairPromise = (async () => {
+			console.warn('[CONTENT] Missing item YAML files detected; attempting repository repair before returning listings.');
+			const { trySyncRepository } = await import('./repository');
+			await trySyncRepository();
+			await clearFetchItemsCache();
+		})().finally(() => {
+			fetchItemsRepairPromise = null;
+		});
+	}
+
+	await fetchItemsRepairPromise;
+}
+
+export async function fetchItems(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
 	// Create cache key from options
 	const cacheKey = JSON.stringify(options);
 
@@ -982,7 +1039,8 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	} else {
 		// Directory changed, or cache expired - read from filesystem
 		console.log('[CACHE] Reading directory metadata from filesystem:', dirCacheKey);
-		files = await fsp.readdir(dest);
+		const entries = await fsp.readdir(dest, { withFileTypes: true });
+		files = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
 		categories = await readCategories(options);
 		tags = await readTags(options);
 		collections = await readCollections(options);
@@ -1001,6 +1059,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 		}
 	}
 
+	let missingItemDataCount = 0;
 	const itemsPromises = files.map(async (slug) => {
 		try {
 			// Sanitize slug even though it comes from the filesystem
@@ -1010,7 +1069,17 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 			// Validate that the constructed path is safe
 			validatePath(base, dest);
 
-			const item = await parseItem(base, `${sanitizedSlug}.yml`);
+			const itemFilename = await resolveItemDataFilename(base, `${sanitizedSlug}.yml`);
+			if (!itemFilename) {
+				missingItemDataCount += 1;
+				if (!missingItemWarnings.has(sanitizedSlug)) {
+					missingItemWarnings.add(sanitizedSlug);
+					console.warn(`[CONTENT] Skipping item directory with no YAML file: ${sanitizedSlug}`);
+				}
+				return null;
+			}
+
+			const item = await parseItem(base, itemFilename, sanitizedSlug);
 			if (!item) {
 				return null;
 			}
@@ -1047,6 +1116,11 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 
 	const itemsResults = await Promise.all(itemsPromises);
 	const items = itemsResults.filter((item): item is NonNullable<typeof item> => item !== null);
+
+	if (missingItemDataCount > 0 && !repairAttempted) {
+		await repairContentRepositoryAfterMissingItems();
+		return fetchItems(options, true);
+	}
 
 	const tagsArray = Array.from(tags.values());
 	const sortedTags = options.sortTags ? tagsArray.sort((a, b) => a.name.localeCompare(b.name)) : tagsArray;
@@ -1728,7 +1802,11 @@ export async function fetchPageContent(
 		}
 
 		if (!contentPath) {
-			console.warn(`Page content not found: ${sanitizedSlug} (locale: ${locale})`);
+			const warningKey = `${sanitizedSlug}:${locale}`;
+			if (!missingPageWarnings.has(warningKey) && process.env.NODE_ENV !== 'production') {
+				missingPageWarnings.add(warningKey);
+				console.warn(`[CONTENT] Page content not found; using route fallback: ${sanitizedSlug} (locale: ${locale})`);
+			}
 			return null;
 		}
 
@@ -1871,8 +1949,10 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
 // ============================================================================
 // CACHED WRAPPERS
 // ============================================================================
-// These functions wrap the original fetch functions with Next.js unstable_cache
-// for improved performance. Cache is invalidated after repository sync.
+// Small content reads still use Next.js unstable_cache below.
+// Large item listing reads use the in-process cache in fetchItems() only; persisting
+// multi-megabyte or partially repaired listing payloads in Next's data cache can
+// hide production content sync problems for the full revalidation window.
 
 /**
  * Cached version of fetchItems()
@@ -1880,30 +1960,7 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
  * Tagged with CONTENT and ITEMS for cache invalidation
  */
 export const getCachedItems = async (options: FetchOptions = {}) => {
-	if (!CONTENT_CACHE_ENABLED) {
-		return fetchItems(options);
-	}
-
-	const locale = options.lang || 'en';
-	const revision = await getContentRevision();
-	const optionsKey = JSON.stringify(options);
-	return unstable_cache(
-		async (_revision: string, _optionsKey: string) => {
-			return await fetchItems(options);
-		},
-		['items', locale],
-		{
-			revalidate: CONTENT_CACHE_TTL.CONTENT,
-			tags: [
-				CACHE_TAGS.CONTENT,
-				CACHE_TAGS.ITEMS,
-				CACHE_TAGS.CATEGORIES,
-				CACHE_TAGS.TAGS,
-				CACHE_TAGS.COLLECTIONS,
-				CACHE_TAGS.ITEMS_LOCALE(locale)
-			]
-		}
-	)(revision, optionsKey);
+	return fetchItems(options);
 };
 
 export const getCachedComparisons = async (options: FetchOptions = {}) => {
@@ -2001,23 +2058,7 @@ export const getCachedHeroContent = async (source: string, locale: string = 'en'
  * Additional caching layer for filtered results
  */
 export const getCachedItemsByCategory = async (raw: string, options: FetchOptions = {}) => {
-	if (!CONTENT_CACHE_ENABLED) {
-		return fetchByCategory(raw, options);
-	}
-
-	const locale = options.lang || 'en';
-	const revision = await getContentRevision();
-	const optionsKey = JSON.stringify(options);
-	return unstable_cache(
-		async (_revision: string, _optionsKey: string) => {
-			return await fetchByCategory(raw, options);
-		},
-		['items-by-category', raw, locale],
-		{
-			revalidate: CONTENT_CACHE_TTL.CONTENT,
-			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES]
-		}
-	)(revision, optionsKey);
+	return fetchByCategory(raw, options);
 };
 
 /**
@@ -2026,23 +2067,7 @@ export const getCachedItemsByCategory = async (raw: string, options: FetchOption
  * Additional caching layer for filtered results
  */
 export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {}) => {
-	if (!CONTENT_CACHE_ENABLED) {
-		return fetchByTag(raw, options);
-	}
-
-	const locale = options.lang || 'en';
-	const revision = await getContentRevision();
-	const optionsKey = JSON.stringify(options);
-	return unstable_cache(
-		async (_revision: string, _optionsKey: string) => {
-			return await fetchByTag(raw, options);
-		},
-		['items-by-tag', raw, locale],
-		{
-			revalidate: CONTENT_CACHE_TTL.CONTENT,
-			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.TAGS]
-		}
-	)(revision, optionsKey);
+	return fetchByTag(raw, options);
 };
 
 /**
@@ -2051,21 +2076,5 @@ export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {
  * Additional caching layer for double-filtered results
  */
 export const getCachedItemsByCategoryAndTag = async (category: string, tag: string, options: FetchOptions = {}) => {
-	if (!CONTENT_CACHE_ENABLED) {
-		return fetchByCategoryAndTag(category, tag, options);
-	}
-
-	const locale = options.lang || 'en';
-	const revision = await getContentRevision();
-	const optionsKey = JSON.stringify(options);
-	return unstable_cache(
-		async (_revision: string, _optionsKey: string) => {
-			return await fetchByCategoryAndTag(category, tag, options);
-		},
-		['items-by-category-tag', category, tag, locale],
-		{
-			revalidate: CONTENT_CACHE_TTL.CONTENT,
-			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES, CACHE_TAGS.TAGS]
-		}
-	)(revision, optionsKey);
+	return fetchByCategoryAndTag(category, tag, options);
 };

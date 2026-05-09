@@ -8,6 +8,7 @@ import { formatDisplayName } from "../../utils/text-utils";
 import Image from "next/image";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactDOM from "react-dom";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { usePortal } from "@/hooks/use-portal";
 import { useTranslations } from "next-intl";
 import clsx from "clsx";
@@ -48,6 +49,9 @@ const NAV_BUTTON_STYLES = clsx(
 );
 
 const NAV_BUTTON_ICON = "w-4 h-4 text-gray-600 dark:text-gray-400";
+const TAG_POPOVER_ROW_HEIGHT = 40;
+const TAG_POPOVER_LIST_CLASS =
+  "max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full";
 
 // Scroll Button Component
 const ScrollButton = React.memo(React.forwardRef<HTMLButtonElement, {
@@ -85,6 +89,57 @@ const ScrollButton = React.memo(React.forwardRef<HTMLButtonElement, {
 }));
 
 ScrollButton.displayName = "ScrollButton";
+
+function VirtualizedMoreTagsList({
+  tags,
+  renderTag,
+}: {
+  tags: Tag[];
+  renderTag: (tag: Tag, index: number, inPopover: boolean) => React.ReactNode;
+}) {
+  const scrollParentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: tags.length,
+    getScrollElement: () => scrollParentRef.current,
+    estimateSize: () => TAG_POPOVER_ROW_HEIGHT,
+    overscan: 8,
+  });
+
+  if (tags.length === 0) {
+    return null;
+  }
+
+  return (
+    <div
+      ref={scrollParentRef}
+      className={TAG_POPOVER_LIST_CLASS}
+      style={{ scrollbarWidth: "thin" }}
+    >
+      <div
+        className="relative w-full"
+        style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+      >
+        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+          const tag = tags[virtualRow.index];
+          if (!tag) return null;
+
+          return (
+            <div
+              key={tag.id}
+              className="absolute left-0 top-0 w-full"
+              style={{
+                height: `${virtualRow.size}px`,
+                transform: `translateY(${virtualRow.start}px)`,
+              }}
+            >
+              {renderTag(tag, virtualRow.index, true)}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 interface TagsListProps {
   tags: Tag[];
@@ -673,11 +728,7 @@ export function TagsList({
                     {hiddenTags.length}
                   </span>
                 </h3>
-                <div className="grid grid-cols-1 gap-1.5 max-h-64 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700 [&::-webkit-scrollbar]:w-1 overflow-x-hidden w-full pr-1 scrollbar scrollbar-w-2 scrollbar-track-transparent scrollbar-thumb-theme-primary-500/40 dark:scrollbar-thumb-theme-primary-600/40 scrollbar-thumb-rounded-full"
-                  style={{ scrollbarWidth: "thin" }}
-                >
-                  {hiddenTags.map((tag, idx) => renderTag(tag, idx, true))}
-                </div>
+                <VirtualizedMoreTagsList tags={hiddenTags} renderTag={renderTag} />
               </div>
             </div>,
             (portalTarget || (typeof document !== 'undefined' ? document.body : null)) as Element
