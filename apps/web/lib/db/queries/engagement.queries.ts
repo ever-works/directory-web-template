@@ -23,7 +23,7 @@ export interface ItemEngagementMetrics {
  */
 export async function getEngagementMetricsPerItem(itemSlugs: string[]): Promise<Map<string, ItemEngagementMetrics>> {
 	const tenantId = await getTenantId();
-	if (!tenantId) throw new Error('Tenant ID not found');
+	if (!tenantId) return new Map();
 	if (itemSlugs.length === 0) return new Map();
 
 	// Run all queries in parallel for better performance
@@ -111,7 +111,7 @@ export async function getEngagementMetricsPerItem(itemSlugs: string[]): Promise<
 export async function getFavoritesPerItem(itemSlugs: string[]): Promise<Map<string, number>> {
 	if (itemSlugs.length === 0) return new Map();
 	const tenantId = await getTenantId();
-	if (!tenantId) throw new Error('Tenant ID not found');
+	if (!tenantId) return new Map();
 
 	const favoriteCounts = await db
 		.select({
@@ -135,7 +135,7 @@ export async function getCommentsPerItem(
 ): Promise<Map<string, { count: number; avgRating: number }>> {
 	if (itemSlugs.length === 0) return new Map();
 	const tenantId = await getTenantId();
-	if (!tenantId) throw new Error('Tenant ID not found');
+	if (!tenantId) return new Map();
 
 	const commentCounts = await db
 		.select({
