@@ -216,7 +216,13 @@
 		"NEXT_STEP": "अगला चरण",
 		"SUBMIT_PRODUCT": "उत्पाद सबमिट करें",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "श्रेणियाँ",
+		"TAGS": "टैग",
+		"AVG": "Avg",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "Close",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

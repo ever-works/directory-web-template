@@ -215,7 +215,13 @@
 		"NEXT_STEP": "下一步",
 		"SUBMIT_PRODUCT": "提交产品",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "分类",
+		"TAGS": "标签",
+		"AVG": "平均",
+		"BASIC_INFO": "基本信息",
+		"CLOSE": "关闭",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "调查问卷",

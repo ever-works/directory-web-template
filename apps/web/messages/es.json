@@ -216,7 +216,13 @@
 		"NEXT_STEP": "Siguiente paso",
 		"SUBMIT_PRODUCT": "Enviar producto",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Categorías",
+		"TAGS": "Etiquetas",
+		"AVG": "Prom.",
+		"BASIC_INFO": "Información Básica",
+		"CLOSE": "Cerrar",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Encuestas",

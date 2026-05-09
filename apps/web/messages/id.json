@@ -243,7 +243,13 @@
 		"NEXT_STEP": "Langkah berikutnya",
 		"SUBMIT_PRODUCT": "Kirim produk",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Kategori",
+		"TAGS": "Tag",
+		"AVG": "Rata-rata",
+		"BASIC_INFO": "Info Dasar",
+		"CLOSE": "Tutup",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Survei",

@@ -243,7 +243,13 @@
 		"NEXT_STEP": "Следующий шаг",
 		"SUBMIT_PRODUCT": "Отправить продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Категории",
+		"TAGS": "Теги",
+		"AVG": "Ср.",
+		"BASIC_INFO": "Основная информация",
+		"CLOSE": "Закрыть",
+		"VS": "против"
 	},
 	"survey": {
 		"SURVEYS": "Опросы",
