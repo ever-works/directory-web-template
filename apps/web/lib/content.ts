@@ -79,6 +79,34 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null;
 }
 
+// Cap concurrent file-reads to avoid EMFILE on serverless runtimes (Vercel/Lambda),
+// which have far smaller fd budgets than typical local machines.
+const FS_CONCURRENCY = (() => {
+	const raw = Number.parseInt(process.env.CONTENT_FS_CONCURRENCY ?? '', 10);
+	if (Number.isFinite(raw) && raw > 0) return raw;
+	return process.env.VERCEL === '1' ? 16 : 64;
+})();
+
+async function mapWithConcurrency<T, R>(
+	items: readonly T[],
+	limit: number,
+	worker: (item: T, index: number) => Promise<R>
+): Promise<R[]> {
+	if (items.length === 0) return [];
+	const effectiveLimit = Math.max(1, Math.min(limit, items.length));
+	const results = new Array<R>(items.length);
+	let cursor = 0;
+	const runners = Array.from({ length: effectiveLimit }, async () => {
+		while (true) {
+			const i = cursor++;
+			if (i >= items.length) return;
+			results[i] = await worker(items[i], i);
+		}
+	});
+	await Promise.all(runners);
+	return results;
+}
+
 function normalizeComparisonDimension(raw: unknown): ComparisonDimension | null {
 	if (!isRecord(raw)) return null;
 
@@ -90,8 +118,10 @@ function normalizeComparisonDimension(raw: unknown): ComparisonDimension | null 
 		return null;
 	}
 
-	const itemAScore = typeof raw.item_a_score === 'number' && Number.isFinite(raw.item_a_score) ? raw.item_a_score : undefined;
-	const itemBScore = typeof raw.item_b_score === 'number' && Number.isFinite(raw.item_b_score) ? raw.item_b_score : undefined;
+	const itemAScore =
+		typeof raw.item_a_score === 'number' && Number.isFinite(raw.item_a_score) ? raw.item_a_score : undefined;
+	const itemBScore =
+		typeof raw.item_b_score === 'number' && Number.isFinite(raw.item_b_score) ? raw.item_b_score : undefined;
 	const winner = raw.winner === 'item_a' || raw.winner === 'item_b' || raw.winner === 'tie' ? raw.winner : undefined;
 
 	return {
@@ -100,7 +130,7 @@ function normalizeComparisonDimension(raw: unknown): ComparisonDimension | null 
 		item_b_summary: itemBSummary,
 		item_a_score: itemAScore,
 		item_b_score: itemBScore,
-		winner,
+		winner
 	};
 }
 
@@ -117,10 +147,18 @@ function normalizeComparisonData(raw: unknown, fallbackSlug: string): Comparison
 	const category = typeof raw.category === 'string' ? raw.category : '';
 	const summary = typeof raw.summary === 'string' ? raw.summary : '';
 	const verdict = typeof raw.verdict === 'string' ? raw.verdict : '';
-	const verdictWinner = raw.verdict_winner === 'item_a' || raw.verdict_winner === 'item_b' || raw.verdict_winner === 'tie' ? raw.verdict_winner : undefined;
-	const generatedAt = typeof raw.generated_at === 'string' && raw.generated_at ? raw.generated_at : new Date(0).toISOString();
-	const dimensions = Array.isArray(raw.dimensions) ? raw.dimensions.map(normalizeComparisonDimension).filter((d): d is ComparisonDimension => d !== null) : [];
-	const sources = Array.isArray(raw.sources) ? raw.sources.filter((source): source is string => typeof source === 'string' && source.length > 0) : [];
+	const verdictWinner =
+		raw.verdict_winner === 'item_a' || raw.verdict_winner === 'item_b' || raw.verdict_winner === 'tie'
+			? raw.verdict_winner
+			: undefined;
+	const generatedAt =
+		typeof raw.generated_at === 'string' && raw.generated_at ? raw.generated_at : new Date(0).toISOString();
+	const dimensions = Array.isArray(raw.dimensions)
+		? raw.dimensions.map(normalizeComparisonDimension).filter((d): d is ComparisonDimension => d !== null)
+		: [];
+	const sources = Array.isArray(raw.sources)
+		? raw.sources.filter((source): source is string => typeof source === 'string' && source.length > 0)
+		: [];
 
 	if (!slug || !title || !itemAName || !itemBName) {
 		return null;
@@ -140,7 +178,7 @@ function normalizeComparisonData(raw: unknown, fallbackSlug: string): Comparison
 		verdict_winner: verdictWinner,
 		dimensions,
 		sources,
-		generated_at: generatedAt,
+		generated_at: generatedAt
 	};
 }
 
@@ -307,12 +345,12 @@ export type NovuMail = {
 	template_id?: string;
 	default_from: string;
 	backend_url?: string;
-}
+};
 
 export type ResendMail = {
 	provider: 'resend';
 	default_from: string;
-}
+};
 
 export type AuthProviderType = 'supabase' | 'next-auth' | 'both';
 
@@ -636,7 +674,11 @@ async function readCollections(options: FetchOptions): Promise<Map<string, Colle
 }
 
 function toSlug(text: string): string {
-	return text.toLowerCase().replace(/[&]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+	return text
+		.toLowerCase()
+		.replace(/[&]/g, '')
+		.replace(/[^a-z0-9]+/g, '-')
+		.replace(/(^-|-$)/g, '');
 }
 
 function populate<T extends Identifiable>(item: string | T, collection: Map<string, T & { count?: number }>): T {
@@ -677,7 +719,11 @@ function populateTag(tag: string | Tag, tags: Map<string, Tag>) {
 	return populate<Tag>(tag, tags);
 }
 
-function populateCollection(collection: string | Collection, collections: Map<string, Collection>, itemSlug?: string): Collection {
+function populateCollection(
+	collection: string | Collection,
+	collections: Map<string, Collection>,
+	itemSlug?: string
+): Collection {
 	const id = typeof collection === 'string' ? collection : collection.id;
 	const name = typeof collection === 'string' ? collection : collection.name;
 
@@ -715,7 +761,9 @@ function normalizeItemCollections(item: ItemData): string[] {
 	if (Array.isArray(item.collections)) {
 		return item.collections
 			.map((collection) => (typeof collection === 'string' ? collection : collection?.id))
-			.filter((collectionId): collectionId is string => typeof collectionId === 'string' && collectionId.length > 0);
+			.filter(
+				(collectionId): collectionId is string => typeof collectionId === 'string' && collectionId.length > 0
+			);
 	}
 
 	const legacyCollection = getLegacyCollectionValue(item);
@@ -771,21 +819,20 @@ async function fetchComparisons(): Promise<FetchComparisonsResult> {
 
 	try {
 		const entries = await fsp.readdir(comparisonsDir, { withFileTypes: true });
-		const comparisons = (await Promise.all(
-			entries
-				.filter((entry) => entry.isDirectory())
-				.map(async (entry) => {
-					const slug = sanitizeFilename(entry.name);
-					const ymlPath = path.join(comparisonsDir, slug, `${slug}.yml`);
-					try {
-						const raw = await safeReadFile(ymlPath, comparisonsDir);
-						return normalizeComparisonData(yaml.parse(raw), slug);
-					} catch (error) {
-						console.error(`Failed to load comparison ${slug}:`, error);
-						return null;
-					}
-				})
-		)).filter((comparison): comparison is ComparisonData => comparison !== null);
+		const directoryEntries = entries.filter((entry) => entry.isDirectory());
+		const comparisons = (
+			await mapWithConcurrency(directoryEntries, FS_CONCURRENCY, async (entry) => {
+				const slug = sanitizeFilename(entry.name);
+				const ymlPath = path.join(comparisonsDir, slug, `${slug}.yml`);
+				try {
+					const raw = await safeReadFile(ymlPath, comparisonsDir);
+					return normalizeComparisonData(yaml.parse(raw), slug);
+				} catch (error) {
+					console.error(`Failed to load comparison ${slug}:`, error);
+					return null;
+				}
+			})
+		).filter((comparison): comparison is ComparisonData => comparison !== null);
 
 		comparisons.sort((a, b) => new Date(b.generated_at).getTime() - new Date(a.generated_at).getTime());
 
@@ -972,7 +1019,12 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 	// 1. Cache exists
 	// 2. Directory hasn't been modified (mtime unchanged)
 	// 3. Cache is still fresh (within TTL)
-	if (CONTENT_CACHE_ENABLED && cachedDir && cachedDir.mtime === currentMtime && Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL) {
+	if (
+		CONTENT_CACHE_ENABLED &&
+		cachedDir &&
+		cachedDir.mtime === currentMtime &&
+		Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL
+	) {
 		console.log('[CACHE] Using cached directory metadata for:', dirCacheKey);
 		files = cachedDir.files;
 		// Deep clone Maps to prevent mutation of cached data by populate() functions
@@ -1001,7 +1053,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 		}
 	}
 
-	const itemsPromises = files.map(async (slug) => {
+	const itemsResults = await mapWithConcurrency(files, FS_CONCURRENCY, async (slug) => {
 		try {
 			// Sanitize slug even though it comes from the filesystem
 			const sanitizedSlug = sanitizeFilename(slug);
@@ -1044,8 +1096,6 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 			return null;
 		}
 	});
-
-	const itemsResults = await Promise.all(itemsPromises);
 	const items = itemsResults.filter((item): item is NonNullable<typeof item> => item !== null);
 
 	const tagsArray = Array.from(tags.values());
