@@ -42,6 +42,33 @@ why** at a higher level than per-commit diffs.
   stale item directories, oversized listing cache payloads, and
   anonymous engagement metric tenant resolution.
 
+- `docs/features/seo` `app/robots.ts` `app/llms.txt` `app/llms-full.txt`
+  AI agent / LLM discoverability pass:
+  - Added `lib/seo/ai-crawlers.ts` — explicit allow-list for major AI bots
+    (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) wired into
+    `app/robots.ts`. Default policy is `allow`; override via `AI_CRAWLERS`
+    env var (`allow` | `disallow` | `none` | comma-list).
+  - Added `app/llms-full.txt/route.ts` — long-form companion to
+    `/llms.txt` that concatenates every category, tag, item body, and
+    comparison into a single Markdown document.
+  - Added per-page Markdown mirrors at `<path>.md` for items, categories,
+    tags, collections, comparisons, `/pages/<slug>`, and the static info
+    pages (`about`, `help`, `pricing`, `privacy-policy`,
+    `terms-of-service`, `cookies`). HTML pages advertise the mirror via
+    `<link rel="alternate" type="text/markdown">`. Renderers live in
+    `lib/seo/markdown-mirror.ts`; URLs are wired via `next.config.ts`
+    rewrites onto internal `_md/route.ts` and `_static-md/[slug]/route.ts`
+    handlers.
+  - Added `<BreadcrumbJsonLd>` server component at
+    `components/seo/breadcrumb-json-ld.tsx` and emitted Schema.org
+    `BreadcrumbList` JSON-LD on every public listing/detail/static page
+    that previously lacked it.
+  - `lib/seo/listing-metadata.ts` now takes a `hasMarkdownMirror` flag
+    that, when true, adds `alternates.types['text/markdown']` to the
+    page's `<head>`.
+  - `app/llms.txt/route.ts` updated to advertise `/llms-full.txt` and
+    the per-page `.md` mirror URL convention.
+
 ## 2026-05-05
 
 - `docs/plugins` `docs/index`

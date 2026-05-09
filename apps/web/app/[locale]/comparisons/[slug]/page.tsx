@@ -77,7 +77,8 @@ export async function generateMetadata({
 		description: detail.comparison.summary,
 		path: `/comparisons/${slug}`,
 		locale,
-		keywords: ['comparison', detail.comparison.item_a_name, detail.comparison.item_b_name]
+		keywords: ['comparison', detail.comparison.item_a_name, detail.comparison.item_b_name],
+		hasMarkdownMirror: true
 	});
 }
 

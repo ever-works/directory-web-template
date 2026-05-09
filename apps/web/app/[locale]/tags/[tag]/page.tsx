@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { toTitleCase } from "@/lib/utils";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -31,6 +34,7 @@ export async function generateMetadata({
     locale,
     itemCount: taggedItems.length,
     keywords: [decodedTag, "tag", "directory", "listings"],
+    hasMarkdownMirror: true,
   });
 }
 
@@ -63,16 +67,29 @@ export default async function TagListing({
   // Decode the tag from URL
   const decodedTag = decodeURIComponent(tag);
 
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  const tagName = toTitleCase(decodedTag);
+
   return (
-    <Listing
-      categories={categories}
-      tags={tags}
-      items={items}
-      total={total}
-      start={start}
-      page={page}
-      basePath={basePath}
-      initialTag={decodedTag}
-    />
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: tCommon("HOME"), url: `${localePrefix || "/"}` },
+          { name: tCommon("TAGS"), url: `${localePrefix}/tags` },
+          { name: tagName },
+        ]}
+      />
+      <Listing
+        categories={categories}
+        tags={tags}
+        items={items}
+        total={total}
+        start={start}
+        page={page}
+        basePath={basePath}
+        initialTag={decodedTag}
+      />
+    </>
   );
 }

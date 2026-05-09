@@ -8,7 +8,8 @@ import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { Locale } from '@/lib/constants';
+import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,7 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: tPages('TERMS_OF_SERVICE_META_DESCRIPTION'),
     alternates: {
       canonical: getLocalizedUrl('/terms-of-service', locale as Locale),
-      languages: generateHreflangAlternates('/terms-of-service')
+      languages: generateHreflangAlternates('/terms-of-service'),
+      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/terms-of-service', locale as Locale)}.md` }
     }
   };
 }
@@ -48,9 +50,16 @@ export default async function TermsOfServicePage({ params }: PageProps) {
 
   const title = (metadata.title as string) || tFooter('TERMS_OF_SERVICE');
   const lastUpdated = metadata.lastUpdated as string | undefined;
+  const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 
   return (
     <div className="min-h-screen bg-linear-to-br from-slate-50 via-white to-slate-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] overflow-hidden">
+      <BreadcrumbJsonLd
+        items={[
+          { name: tCommon('HOME'), url: `${localePrefix || '/'}` },
+          { name: title }
+        ]}
+      />
       {/* Animated Floating Blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 w-72 h-72 bg-green-500/10 rounded-full blur-3xl animate-float"></div>

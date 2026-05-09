@@ -60,7 +60,40 @@ const nextConfig: NextConfig = {
 		unoptimized: false
 	},
 	async rewrites() {
+		// .md mirror rewrites: every public detail/listing page also serves a
+		// Markdown twin at the same path with `.md` appended, so AI agents
+		// (ChatGPT, Claude, Perplexity) can consume the canonical content
+		// without parsing HTML. Internally each `<path>.md` is dispatched to
+		// a `/_md` sibling route handler that renders Markdown from the same
+		// data layer the HTML page uses.
+		const mdMirrors = [
+			// Items
+			{ source: '/:locale([a-z]{2})/items/:slug.md', destination: '/:locale/items/:slug/_md' },
+			{ source: '/items/:slug.md', destination: '/items/:slug/_md' },
+			// Categories — single
+			{ source: '/:locale([a-z]{2})/categories/:category.md', destination: '/:locale/categories/:category/_md' },
+			{ source: '/categories/:category.md', destination: '/categories/:category/_md' },
+			// Categories — paginated/multi-segment (no .md inside the catch-all to keep things simple)
+			// Tags — single
+			{ source: '/:locale([a-z]{2})/tags/:tag.md', destination: '/:locale/tags/:tag/_md' },
+			{ source: '/tags/:tag.md', destination: '/tags/:tag/_md' },
+			// Collections
+			{ source: '/:locale([a-z]{2})/collections/:slug.md', destination: '/:locale/collections/:slug/_md' },
+			{ source: '/collections/:slug.md', destination: '/collections/:slug/_md' },
+			// Comparisons
+			{ source: '/:locale([a-z]{2})/comparisons/:slug.md', destination: '/:locale/comparisons/:slug/_md' },
+			{ source: '/comparisons/:slug.md', destination: '/comparisons/:slug/_md' },
+			// Pages (about, privacy-policy, etc — anything under /pages and the static info pages too)
+			{ source: '/:locale([a-z]{2})/pages/:slug.md', destination: '/:locale/pages/:slug/_md' },
+			{ source: '/pages/:slug.md', destination: '/pages/:slug/_md' },
+			// Static info pages — about, help, pricing, privacy-policy, terms-of-service, cookies
+			// served via a dedicated catch-all in /_static-md.
+			{ source: '/:locale([a-z]{2})/:staticSlug(about|help|pricing|privacy-policy|terms-of-service|cookies).md', destination: '/:locale/_static-md/:staticSlug' },
+			{ source: '/:staticSlug(about|help|pricing|privacy-policy|terms-of-service|cookies).md', destination: '/_static-md/:staticSlug' }
+		];
+
 		return [
+			...mdMirrors,
 			{
 				source: '/:path',
 				destination: '/:path/discover/1'
