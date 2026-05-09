@@ -4,17 +4,21 @@ import { getCachedConfig, getCachedItems } from '@/lib/content';
 /**
  * Public llms.txt endpoint per the public llms.txt convention
  * (https://llmstxt.org). Provides downstream LLM agents with a
- * machine-readable manifest of the directory and pointers to the canonical
- * data dump at /items.json. Designed to pair with the Ever Works
- * agent zero-friction onboarding feature so that:
+ * machine-readable manifest of the directory and pointers to:
  *
- *   - Agents that BUILD a directory via Ever Works produce sites that are
- *     immediately discoverable and indexable by other LLM agents.
- *   - Search-engine + LLM crawlers get a hint at where the canonical data
- *     lives without parsing HTML.
+ *  - /items.json       — JSON dump of every item (categories, tags, link).
+ *  - /llms-full.txt    — concatenated long-form Markdown of the entire site.
+ *  - /sitemap.xml      — full URL list.
+ *  - /atom.xml         — atom feed of recent items.
+ *  - /<page>.md        — per-page Markdown mirror of every public page
+ *                       (items/categories/tags/collections/comparisons/etc).
+ *
+ * Designed to pair with the Ever Works zero-friction onboarding feature
+ * so that any directory built by an agent through `POST /api/register-work`
+ * is immediately discoverable and indexable by other LLM agents.
  *
  * The response is plain text (Markdown-ish) and is short on purpose;
- * agents that want full data should fetch /items.json.
+ * agents that want full data should fetch /llms-full.txt or /items.json.
  */
 export async function GET(): Promise<NextResponse> {
 	const config = await getCachedConfig();
@@ -38,9 +42,26 @@ export async function GET(): Promise<NextResponse> {
 		'',
 		'## Canonical data',
 		'',
-		`- [Full items index](${siteUrl}/items.json) — JSON dump of every item with its category, tags, and link.`,
+		`- [Full long-form Markdown dump](${siteUrl}/llms-full.txt) — every category, tag, item, and comparison concatenated as Markdown for one-shot ingestion.`,
+		`- [Items JSON index](${siteUrl}/items.json) — JSON dump of every item with its category, tags, and link.`,
+		`- [JSON Feed 1.1](${siteUrl}/feed.json) — recent items as JSON Feed.`,
 		`- [Sitemap](${siteUrl}/sitemap.xml)`,
 		`- [Atom feed](${siteUrl}/atom.xml)`,
+		`- [RSS feed](${siteUrl}/rss.xml)`,
+		'',
+		'## Per-page Markdown mirrors',
+		'',
+		'Every public page also serves a clean Markdown twin at the same path with `.md` appended:',
+		'',
+		`- ${siteUrl}/items/<slug>.md`,
+		`- ${siteUrl}/categories/<id>.md`,
+		`- ${siteUrl}/tags/<id>.md`,
+		`- ${siteUrl}/collections/<slug>.md`,
+		`- ${siteUrl}/comparisons/<slug>.md`,
+		`- ${siteUrl}/pages/<slug>.md`,
+		`- ${siteUrl}/about.md, /help.md, /pricing.md, /privacy-policy.md, /terms-of-service.md, /cookies.md`,
+		'',
+		'Each HTML page advertises its mirror via `<link rel="alternate" type="text/markdown" href="…">`.',
 		'',
 		'## About',
 		'',

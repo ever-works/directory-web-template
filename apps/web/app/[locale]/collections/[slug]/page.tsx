@@ -49,6 +49,7 @@ export async function generateMetadata({
     itemCount: collection.items?.length,
     keywords: ["collection", collection.name, "curated", "directory"],
     imageUrl: collection.icon_url,
+    hasMarkdownMirror: true,
   });
 }
 

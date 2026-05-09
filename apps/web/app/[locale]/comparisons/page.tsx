@@ -7,6 +7,8 @@ import Hero from '@/components/hero';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 import { DotBgsible } from '@/components/shared/decorative-bg';
 import DecorativeBg from '@/components/shared/decorative-bg';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export const revalidate = 600;
 export const dynamicParams = true;
@@ -39,13 +41,21 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ComparisonsPage({ params }: { params: Promise<{ locale: string }> }) {
 	const { locale } = await params;
-	const [{ comparisons }, t] = await Promise.all([
+	const [{ comparisons }, t, tCommon] = await Promise.all([
 		getCachedComparisons({ lang: locale }),
-		getTranslations({ locale, namespace: 'comparisons' })
+		getTranslations({ locale, namespace: 'comparisons' }),
+		getTranslations({ locale, namespace: 'common' })
 	]);
 
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 	return (
 		<div className="relative">
+			<BreadcrumbJsonLd
+				items={[
+					{ name: tCommon('HOME'), url: `${localePrefix || '/'}` },
+					{ name: t('BADGE_TEXT') }
+				]}
+			/>
 			<Hero
 				badgeText={t('BADGE_TEXT')}
 				title={

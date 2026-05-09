@@ -7,6 +7,8 @@ import CustomHero from '@/components/custom-hero';
 import { FilterURLParser } from '@/components/filters/filter-url-parser';
 import { configManager } from '@/lib/config-manager';
 import { getHeroBadgeText, getHeroTitle, getHeroTitleGradient, getHeroDescription } from '@/lib/utils/settings';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 type ListingProps = {
 	total: number;
@@ -22,6 +24,7 @@ type ListingProps = {
 
 export default async function Listing(props: ListingProps) {
 	const t = await getTranslations('listing');
+	const tCommon = await getTranslations('common');
 	const locale = await getLocale();
 	const config = configManager.getConfig();
 	const homepageSettings = config.settings?.homepage;
@@ -51,6 +54,23 @@ export default async function Listing(props: ListingProps) {
 
 	const filterProviderKey = `${locale}:${props.basePath}:${props.initialCategory ?? ''}:${props.initialTag ?? ''}`;
 
+	// Build a BreadcrumbList trail for whichever listing variant is being rendered.
+	// Home (basePath '/'), discover, and category/tag-filtered listings all
+	// expose useful structure to AI/search agents.
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+	const breadcrumbItems: { name: string; url?: string }[] = [
+		{ name: tCommon('HOME'), url: `${localePrefix || '/'}` }
+	];
+	if (props.initialCategory) {
+		breadcrumbItems.push({ name: tCommon('CATEGORIES'), url: `${localePrefix}/categories` });
+		breadcrumbItems.push({ name: props.initialCategory });
+	} else if (props.initialTag) {
+		breadcrumbItems.push({ name: tCommon('TAGS'), url: `${localePrefix}/tags` });
+		breadcrumbItems.push({ name: props.initialTag });
+	} else if (props.basePath === '/discover') {
+		breadcrumbItems.push({ name: tCommon('DISCOVER'), url: `${localePrefix}/discover` });
+	}
+
 	return (
 		<FilterProvider
 			key={filterProviderKey}
@@ -58,6 +78,7 @@ export default async function Listing(props: ListingProps) {
 			initialCategory={props.initialCategory}
 			initialSortBy={defaultSort}
 		>
+			<BreadcrumbJsonLd items={breadcrumbItems} />
 			<FilterURLParser />
 			{shouldShowCustomHero && customHeroContent ? (
 				<CustomHero
