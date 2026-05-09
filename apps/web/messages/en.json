@@ -244,7 +244,13 @@
 		"NEXT_STEP": "Next Step",
 		"SUBMIT_PRODUCT": "Submit Product",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Categories",
+		"TAGS": "Tags",
+		"AVG": "Avg",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "Close",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

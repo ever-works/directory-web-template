@@ -216,7 +216,13 @@
 		"NEXT_STEP": "Наступний крок",
 		"SUBMIT_PRODUCT": "Надіслати продукт",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Категорії",
+		"TAGS": "Теги",
+		"AVG": "Avg",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "Close",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

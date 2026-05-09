@@ -243,7 +243,13 @@
 		"NEXT_STEP": "다음 단계",
 		"SUBMIT_PRODUCT": "제품 제출",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "카테고리",
+		"TAGS": "태그",
+		"AVG": "평균",
+		"BASIC_INFO": "기본 정보",
+		"CLOSE": "닫기",
+		"VS": "대"
 	},
 	"survey": {
 		"SURVEYS": "설문조사",
