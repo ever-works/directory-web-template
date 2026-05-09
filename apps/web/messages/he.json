@@ -215,7 +215,13 @@
 		"NEXT_STEP": "השלב הבא",
 		"SUBMIT_PRODUCT": "שלח מוצר",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "קטגוריות",
+		"TAGS": "תגיות",
+		"AVG": "Avg",
+		"BASIC_INFO": "Basic Info",
+		"CLOSE": "סגור",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

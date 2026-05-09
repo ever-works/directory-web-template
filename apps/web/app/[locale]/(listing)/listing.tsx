@@ -62,10 +62,10 @@ export default async function Listing(props: ListingProps) {
 		{ name: tCommon('HOME'), url: `${localePrefix || '/'}` }
 	];
 	if (props.initialCategory) {
-		breadcrumbItems.push({ name: t('CATEGORIES'), url: `${localePrefix}/categories` });
+		breadcrumbItems.push({ name: tCommon('CATEGORIES'), url: `${localePrefix}/categories` });
 		breadcrumbItems.push({ name: props.initialCategory });
 	} else if (props.initialTag) {
-		breadcrumbItems.push({ name: t('TAGS'), url: `${localePrefix}/tags` });
+		breadcrumbItems.push({ name: tCommon('TAGS'), url: `${localePrefix}/tags` });
 		breadcrumbItems.push({ name: props.initialTag });
 	} else if (props.basePath === '/discover') {
 		breadcrumbItems.push({ name: tCommon('DISCOVER'), url: `${localePrefix}/discover` });

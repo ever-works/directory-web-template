@@ -122,6 +122,7 @@ function buildFeed(entries: ReadonlyArray<FeedEntry>, config: FeedConfig): Feed 
 		language: 'en',
 		updated,
 		generator: 'Ever Works',
+		copyright: `© ${new Date().getFullYear()} ${config.title}`,
 		feedLinks: {
 			rss: `${siteUrl}/${config.rssFilename}`,
 			atom: `${siteUrl}/${config.atomFilename}`,

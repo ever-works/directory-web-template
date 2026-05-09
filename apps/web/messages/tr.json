@@ -243,7 +243,13 @@
 		"NEXT_STEP": "Sonraki adım",
 		"SUBMIT_PRODUCT": "Ürün gönder",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Kategoriler",
+		"TAGS": "Etiketler",
+		"AVG": "Ort",
+		"BASIC_INFO": "Temel Bilgi",
+		"CLOSE": "Kapat",
+		"VS": "karşısında"
 	},
 	"survey": {
 		"SURVEYS": "Anketler",

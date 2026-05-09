@@ -216,7 +216,13 @@
 		"NEXT_STEP": "Nächster Schritt",
 		"SUBMIT_PRODUCT": "Produkt einreichen",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "Kategorien",
+		"TAGS": "Tags",
+		"AVG": "Durchschn.",
+		"BASIC_INFO": "Grundinformationen",
+		"CLOSE": "Schließen",
+		"VS": "vs"
 	},
 	"survey": {
 		"SURVEYS": "Umfragen",

@@ -35,7 +35,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getCachedConfig, getCachedItems, getCachedComparisons } from '@/lib/content';
+import { getCachedConfig, getCachedItems, getCachedComparisons, type ItemData } from '@/lib/content';
 import { renderItemMarkdown, renderComparisonMarkdown } from '@/lib/seo/markdown-mirror';
 
 // Edge-case-safe upper bound on items rendered with full bodies. Sites
@@ -53,7 +53,7 @@ export async function GET(): Promise<NextResponse> {
 		getCachedComparisons().catch(() => ({ comparisons: [], total: 0 }))
 	]);
 
-	const items = (fetched as { items?: Array<unknown> }).items ?? [];
+	const items = (fetched as { items?: ItemData[] }).items ?? [];
 	const categories = (fetched as { categories?: Array<{ id?: string; name?: string; count?: number }> }).categories ?? [];
 	const tags = (fetched as { tags?: Array<{ id?: string; name?: string; count?: number }> }).tags ?? [];
 	const comparisons =
@@ -107,13 +107,14 @@ export async function GET(): Promise<NextResponse> {
 	lines.push('');
 	const cappedItems = items.slice(0, MAX_ITEMS_WITH_BODY);
 	for (const raw of cappedItems) {
-		// Use the same renderer as the per-item .md mirror, then strip
-		// the H1 + footer and demote headings one level so each item
-		// sits as an H3 under the H2 "Items" group.
-		const itemMd = renderItemMarkdown(raw as { meta: import('@/lib/content').ItemData; content?: string }, {
-			baseUrl: siteUrl,
-			locale: 'en'
-		});
+		if (!raw || typeof raw !== 'object' || !raw.slug) continue;
+		// `getCachedItems()` returns flat `ItemData` objects, but `renderItemMarkdown`
+		// expects the `{ meta, content? }` shape used by `getCachedItem()`. Wrap on
+		// the fly; body falls back to `meta.markdown` inside the renderer.
+		const itemMd = renderItemMarkdown(
+			{ meta: raw },
+			{ baseUrl: siteUrl, locale: 'en' }
+		);
 		const demoted = demoteAndStrip(itemMd);
 		lines.push(demoted);
 		lines.push('');
@@ -130,6 +131,7 @@ export async function GET(): Promise<NextResponse> {
 		lines.push('## Comparisons');
 		lines.push('');
 		for (const cmp of comparisons) {
+			if (!cmp || !cmp.slug || !cmp.title) continue;
 			const md = renderComparisonMarkdown(cmp as Parameters<typeof renderComparisonMarkdown>[0], { baseUrl: siteUrl, locale: 'en' });
 			lines.push(demoteAndStrip(md));
 			lines.push('');

@@ -215,7 +215,13 @@
 		"NEXT_STEP": "الخطوة التالية",
 		"SUBMIT_PRODUCT": "إرسال المنتج",
 		"PRIVACY": "Privacy",
-		"EDITED": "edited"
+		"EDITED": "edited",
+		"CATEGORIES": "التصنيفات",
+		"TAGS": "الوسوم",
+		"AVG": "المعدل",
+		"BASIC_INFO": "المعلومات الأساسية",
+		"CLOSE": "إغلاق",
+		"VS": "مقابل"
 	},
 	"survey": {
 		"SURVEYS": "الاستطلاعات",
