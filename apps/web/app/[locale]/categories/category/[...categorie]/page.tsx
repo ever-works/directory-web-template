@@ -4,6 +4,9 @@ import { paginateMeta, totalPages } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { toTitleCase, slugify } from "@/lib/utils";
 import Listing from "../../../(listing)/listing";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -84,16 +87,36 @@ export default async function CategoryListing({
   );
   const resolvedCategory = matchedCategory?.id ?? slug;
 
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  const categoryName = matchedCategory?.name ?? toTitleCase(category);
+  const breadcrumbItems: { name: string; url?: string }[] = [
+    { name: tCommon("HOME"), url: `${localePrefix || "/"}` },
+    { name: tCommon("CATEGORIES"), url: `${localePrefix}/categories` },
+  ];
+  if (page > 1) {
+    breadcrumbItems.push({
+      name: categoryName,
+      url: `${localePrefix}/categories/category/${resolvedCategory}`,
+    });
+    breadcrumbItems.push({ name: `Page ${page}` });
+  } else {
+    breadcrumbItems.push({ name: categoryName });
+  }
+
   return (
-    <Listing
-      total={total}
-      start={start}
-      page={page}
-      basePath={`/categories/category/${resolvedCategory}`}
-      categories={categories}
-      tags={tags}
-      items={items}
-      initialCategory={resolvedCategory}
-    />
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <Listing
+        total={total}
+        start={start}
+        page={page}
+        basePath={`/categories/category/${resolvedCategory}`}
+        categories={categories}
+        tags={tags}
+        items={items}
+        initialCategory={resolvedCategory}
+      />
+    </>
   );
 }

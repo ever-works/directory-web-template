@@ -73,15 +73,53 @@ async function hydrateRuntimeContentFromBundle(runtimeContentPath: string): Prom
         return false;
     }
 
+    const tempContentPath = path.join(
+        path.dirname(runtimeContentPath),
+        `${path.basename(runtimeContentPath)}.${process.pid}.${Date.now()}.tmp`
+    );
+
     try {
         console.log('[CONTENT] Hydrating runtime content from bundled deployment artifact...');
-        await fs.rm(runtimeContentPath, { recursive: true, force: true });
-        await fs.mkdir(path.dirname(runtimeContentPath), { recursive: true });
-        await fs.cp(bundledContentPath, runtimeContentPath, { recursive: true });
+        await fs.rm(tempContentPath, { recursive: true, force: true });
+        await fs.mkdir(path.dirname(tempContentPath), { recursive: true });
+        await fs.cp(bundledContentPath, tempContentPath, { recursive: true });
+        await replaceDirectoryAtomically(runtimeContentPath, tempContentPath);
         return await hasUsableContent(runtimeContentPath);
     } catch (error) {
         console.error('[CONTENT] Failed to hydrate runtime content from bundled artifact:', error);
+        await fs.rm(tempContentPath, { recursive: true, force: true }).catch(() => {});
         return false;
+    }
+}
+
+export async function replaceDirectoryAtomically(targetPath: string, replacementPath: string): Promise<void> {
+    const backupPath = path.join(
+        path.dirname(targetPath),
+        `${path.basename(targetPath)}.${process.pid}.${Date.now()}.backup`
+    );
+
+    let hasBackup = false;
+
+    try {
+        await fs.rm(backupPath, { recursive: true, force: true });
+
+        try {
+            await fs.rename(targetPath, backupPath);
+            hasBackup = true;
+        } catch (error) {
+            if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) {
+                throw error;
+            }
+        }
+
+        await fs.rename(replacementPath, targetPath);
+        await fs.rm(backupPath, { recursive: true, force: true });
+    } catch (error) {
+        if (hasBackup) {
+            await fs.rm(targetPath, { recursive: true, force: true }).catch(() => {});
+            await fs.rename(backupPath, targetPath).catch(() => {});
+        }
+        throw error;
     }
 }
 

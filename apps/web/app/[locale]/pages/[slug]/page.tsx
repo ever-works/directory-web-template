@@ -9,7 +9,8 @@ import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { formatDisplayName } from '@/components/filters/utils/text-utils';
 import { siteConfig } from '@/lib/config';
 import { generatePageHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { type Locale } from '@/lib/constants';
+import { type Locale, DEFAULT_LOCALE } from '@/lib/constants';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
 interface PageProps {
 	params: Promise<{ slug: string; locale: string }>;
@@ -64,7 +65,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 		},
 		alternates: {
 			canonical: getLocalizedUrl(`/pages/${slug}`, locale as Locale),
-			languages: generatePageHreflangAlternates(slug)
+			languages: generatePageHreflangAlternates(slug),
+			types: {
+				'text/markdown': `${_baseUrl}${getLocalizedUrl(`/pages/${slug}`, locale as Locale)}.md`
+			}
 		}
 	};
 }
@@ -87,8 +91,16 @@ export default async function DynamicPage({ params }: PageProps) {
 		}
 	];
 
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+
 	return (
 		<PageContainer className="py-8 sm:py-12 md:py-16">
+			<BreadcrumbJsonLd
+				items={[
+					{ name: t('HOME'), url: `${localePrefix || '/'}` },
+					{ name: title }
+				]}
+			/>
 			<Breadcrumb items={breadcrumbItems} homeLabel={t('HOME')} />
 
 			<article className="prose prose-lg dark:prose-invert max-w-none">

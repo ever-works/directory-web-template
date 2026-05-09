@@ -5,6 +5,9 @@ import { notFound } from "next/navigation";
 import { getCategoriesEnabled } from "@/lib/utils/settings";
 import { slugify, toTitleCase } from "@/lib/utils";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -44,6 +47,7 @@ export async function generateMetadata({
     locale,
     itemCount: categoryItems.length,
     keywords: [decodedCategory, "category", "directory", "listings"],
+    hasMarkdownMirror: true,
   });
 }
 
@@ -83,16 +87,29 @@ export default async function CategoryListing({
   );
   const resolvedCategory = matchedCategory?.id ?? slug;
 
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  const categoryName = matchedCategory?.name ?? toTitleCase(decodedCategory);
+
   return (
-    <Listing
-      categories={categories}
-      tags={tags}
-      items={items}
-      total={total}
-      start={start}
-      page={page}
-      basePath={basePath}
-      initialCategory={resolvedCategory}
-    />
+    <>
+      <BreadcrumbJsonLd
+        items={[
+          { name: tCommon("HOME"), url: `${localePrefix || "/"}` },
+          { name: tCommon("CATEGORIES"), url: `${localePrefix}/categories` },
+          { name: categoryName },
+        ]}
+      />
+      <Listing
+        categories={categories}
+        tags={tags}
+        items={items}
+        total={total}
+        start={start}
+        page={page}
+        basePath={basePath}
+        initialCategory={resolvedCategory}
+      />
+    </>
   );
 }

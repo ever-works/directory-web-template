@@ -12,6 +12,12 @@ interface ListingMetadataOptions {
 	itemCount?: number;
 	keywords?: string[];
 	imageUrl?: string;
+	/**
+	 * If true, advertise a Markdown mirror at `<canonical>.md` via
+	 * `<link rel="alternate" type="text/markdown" href="...">`. Set
+	 * for any listing/detail page that has a corresponding `.md` route.
+	 */
+	hasMarkdownMirror?: boolean;
 }
 
 export function generateListingMetadata({
@@ -22,6 +28,7 @@ export function generateListingMetadata({
 	itemCount,
 	keywords,
 	imageUrl,
+	hasMarkdownMirror,
 }: ListingMetadataOptions): Metadata {
 	const appUrl = getBaseUrl();
 	const fullTitle = `${title} | ${siteConfig.name}`;
@@ -49,6 +56,9 @@ export function generateListingMetadata({
 		alternates: {
 			canonical: canonicalUrl,
 			languages: generateHreflangAlternates(path),
+			...(hasMarkdownMirror && {
+				types: { 'text/markdown': `${canonicalUrl}.md` },
+			}),
 		},
 	};
 }

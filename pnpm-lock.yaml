@@ -316,6 +316,9 @@ importers:
       exceljs:
         specifier: ^4.4.0
         version: 4.4.0
+      feed:
+        specifier: ^5.2.1
+        version: 5.2.1
       framer-motion:
         specifier: 12.16.0
         version: 12.16.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -8501,6 +8504,10 @@ packages:
   feed@4.2.2:
     resolution: {integrity: sha512-u5/sxGfiMfZNtJ3OvQpXcvotFpYkL0n9u9mM2vkui2nGo8b4wvDkJ8gAkYqbA8QpGyFCv3RK0Z+Iv+9veCS9bQ==}
     engines: {node: '>=0.4.0'}
+
+  feed@5.2.1:
+    resolution: {integrity: sha512-jTynzYPWs9ALjro0GW8j7sv9y7cJBeOdD4Y88kVqYy/eyusIX3g+499JiTDIlD9Ge/unebx57T4Uzo6vpYvMtA==}
+    engines: {node: '>=20', pnpm: '>=10'}
 
   fflate@0.4.8:
     resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
@@ -23067,6 +23074,10 @@ snapshots:
       picomatch: 4.0.3
 
   feed@4.2.2:
+    dependencies:
+      xml-js: 1.6.11
+
+  feed@5.2.1:
     dependencies:
       xml-js: 1.6.11
 
