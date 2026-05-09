@@ -8,14 +8,16 @@
  * Optimized for performance: longer cache duration reduces filesystem reads
  */
 export const CACHE_TTL = {
-  /** Content cache duration - 10 minutes (600 seconds) */
-  CONTENT: 600,
-  /** Individual item cache duration - 10 minutes (600 seconds) */
-  ITEM: 600,
-  /** Site config cache duration - 10 minutes (600 seconds) */
-  CONFIG: 600,
-  /** Static pages cache duration - 10 minutes (600 seconds) */
-  PAGES: 600,
+	/** Content cache duration - 10 minutes (600 seconds) */
+	CONTENT: 600,
+	/** Listing cache - 60s. Short TTL bounds staleness if a partially-repaired listing slips in. */
+	LISTING: 60,
+	/** Individual item cache duration - 10 minutes (600 seconds) */
+	ITEM: 600,
+	/** Site config cache duration - 10 minutes (600 seconds) */
+	CONFIG: 600,
+	/** Static pages cache duration - 10 minutes (600 seconds) */
+	PAGES: 600
 } as const;
 
 /**
@@ -45,7 +47,7 @@ export const CACHE_TAGS = {
 	COMPARISONS: 'comparisons',
 
 	/** Site configuration */
-	CONFIG: 'config',  /** All static pages */
+	CONFIG: 'config' /** All static pages */,
 	PAGES: 'pages',
 
 	/** Specific page by slug */
@@ -64,5 +66,5 @@ export const CACHE_TAGS = {
 	COLLECTIONS_LOCALE: (locale: string) => `collections:${locale}`,
 
 	/** Comparisons by locale */
-	COMPARISONS_LOCALE: (locale: string) => `comparisons:${locale}`,
+	COMPARISONS_LOCALE: (locale: string) => `comparisons:${locale}`
 } as const;
