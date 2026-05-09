@@ -96,7 +96,10 @@ export async function generateMetadata({
 			},
 			alternates: {
 				canonical: getLocalizedUrl(`/items/${slug}`, locale as Locale),
-				languages: generateItemHreflangAlternates(slug)
+				languages: generateItemHreflangAlternates(slug),
+				types: {
+					'text/markdown': `${appUrl}${getLocalizedUrl(`/items/${slug}`, locale as Locale)}.md`
+				}
 			}
 		};
 	} catch (error) {

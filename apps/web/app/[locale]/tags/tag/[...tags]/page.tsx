@@ -3,6 +3,10 @@ import { paginateMeta, totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { notFound } from "next/navigation";
+import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@/lib/constants";
+import { toTitleCase } from "@/lib/utils";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -51,12 +55,32 @@ export default async function TagListing({
     lang: locale,
   });
   
+  const tCommon = await getTranslations({ locale, namespace: "common" });
+  const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
+  const tagName = toTitleCase(tag);
+  const breadcrumbItems: { name: string; url?: string }[] = [
+    { name: tCommon("HOME"), url: `${localePrefix || "/"}` },
+    { name: tCommon("TAGS"), url: `${localePrefix}/tags` },
+  ];
+  if (page > 1) {
+    breadcrumbItems.push({
+      name: tagName,
+      url: `${localePrefix}/tags/tag/${tag}`,
+    });
+    breadcrumbItems.push({ name: `Page ${page}` });
+  } else {
+    breadcrumbItems.push({ name: tagName });
+  }
+
   return (
+    <>
+      <BreadcrumbJsonLd items={breadcrumbItems} />
       <ListingTags
         total={total}
         page={page}
         basePath={`/tags/tag/${tag}`}
         tags={tags}
       />
+    </>
   );
-} 
+}

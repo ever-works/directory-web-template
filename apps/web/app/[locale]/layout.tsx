@@ -74,7 +74,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		},
 		alternates: {
 			canonical: locale === DEFAULT_LOCALE ? '/' : `/${locale}`,
-			languages: generateHreflangAlternates('/')
+			languages: generateHreflangAlternates('/'),
+			// Feed autodiscovery for RSS 2.0, Atom 1.0, and JSON Feed 1.1.
+			// Emitted at the locale-layout level so every page picks up
+			// the same `<link rel="alternate">` triplet for clients that
+			// hop links from any subpage.
+			types: {
+				'application/rss+xml': `${appUrl}/rss.xml`,
+				'application/atom+xml': `${appUrl}/atom.xml`,
+				'application/feed+json': `${appUrl}/feed.json`
+			}
 		}
 	};
 }

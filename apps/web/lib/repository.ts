@@ -47,6 +47,9 @@ function shouldSync() {
  * Check if there are uncommitted local changes in the repository
  */
 async function checkForLocalChanges(dir: string): Promise<boolean> {
+  if (isReadOnlyContentRuntime()) {
+    return false;
+  }
   try {
     const status = await git.statusMatrix({ fs, dir });
     // Status matrix: [filepath, HEAD, WORKDIR, STAGE]
@@ -61,6 +64,19 @@ async function checkForLocalChanges(dir: string): Promise<boolean> {
 }
 
 /**
+ * Returns true when the runtime cannot meaningfully push back to the data
+ * repository (read-only / ephemeral filesystems like Vercel Lambda). In those
+ * environments the working tree in /tmp is per-instance and contains stale
+ * state from prior cold starts, so attempting `git add`/`git push` produces
+ * spurious "NotFoundError" failures and never reaches the upstream.
+ */
+function isReadOnlyContentRuntime(): boolean {
+  if (coreConfig.DISABLE_AUTO_SYNC) return true;
+  if (process.env.VERCEL === '1') return true;
+  return false;
+}
+
+/**
  * Attempt to commit and push local changes
  */
 async function tryPushLocalChanges(
@@ -68,6 +84,10 @@ async function tryPushLocalChanges(
   url: string,
   auth: GitAuth
 ): Promise<boolean> {
+  if (isReadOnlyContentRuntime()) {
+    console.log("[SYNC] Skipping push: content runtime is read-only (DISABLE_AUTO_SYNC or Vercel).");
+    return false;
+  }
   try {
     // Stage all changes
     await git.add({ fs, dir, filepath: '.' });

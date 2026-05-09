@@ -8,7 +8,8 @@ import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { Locale } from '@/lib/constants';
+import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -30,7 +31,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description: tPages('ABOUT_PAGE_META_DESCRIPTION'),
     alternates: {
       canonical: getLocalizedUrl('/about', locale as Locale),
-      languages: generateHreflangAlternates('/about')
+      languages: generateHreflangAlternates('/about'),
+      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/about', locale as Locale)}.md` }
     }
   };
 }
@@ -49,8 +51,16 @@ export default async function AboutPage({ params }: PageProps) {
   const title = (metadata.title as string) || tFooter('ABOUT_US');
   const lastUpdated = metadata.lastUpdated as string | undefined;
 
+  const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#0a0a0a]">
+      <BreadcrumbJsonLd
+        items={[
+          { name: tCommon('HOME'), url: `${localePrefix || '/'}` },
+          { name: title }
+        ]}
+      />
 
       <PageContainer className="relative z-10 max-w-7xl mx-auto px-4 py-12">
         {/* Breadcrumbs */}

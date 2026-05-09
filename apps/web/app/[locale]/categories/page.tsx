@@ -4,6 +4,9 @@ import ListingCategories from './listing-categories';
 import { notFound } from 'next/navigation';
 import { getCategoriesEnabled } from '@/lib/utils/settings';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
+import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
+import { getTranslations } from 'next-intl/server';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -42,10 +45,22 @@ export default async function CategoriesPage({ params }: { params: Promise<{ loc
 
 	const { locale } = await params;
 	const { categories } = await getCachedItems({ lang: locale });
+	const tCommon = await getTranslations('common');
 
 	// Calculate pagination info
 	const page = 1;
 	const basePath = '/categories';
 
-	return <ListingCategories categories={categories} page={page} basePath={basePath} />;
+	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+	return (
+		<>
+			<BreadcrumbJsonLd
+				items={[
+					{ name: tCommon('HOME'), url: `${localePrefix || '/'}` },
+					{ name: tCommon('CATEGORIES') }
+				]}
+			/>
+			<ListingCategories categories={categories} page={page} basePath={basePath} />
+		</>
+	);
 }
