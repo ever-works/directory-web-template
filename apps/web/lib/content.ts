@@ -1999,18 +1999,32 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
 // ============================================================================
 // CACHED WRAPPERS
 // ============================================================================
-// Small content reads still use Next.js unstable_cache below.
-// Large item listing reads use the in-process cache in fetchItems() only; persisting
-// multi-megabyte or partially repaired listing payloads in Next's data cache can
-// hide production content sync problems for the full revalidation window.
+// Listings: short-TTL unstable_cache keyed by content revision so cold starts
+// don't re-walk the YAML tree. Single-item / page reads keep the longer TTL.
 
-/**
- * Cached version of fetchItems()
- * Cache key includes locale to prevent cross-locale pollution
- * Tagged with CONTENT and ITEMS for cache invalidation
- */
 export const getCachedItems = async (options: FetchOptions = {}) => {
-	return fetchItems(options);
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchItems(options);
+	}
+
+	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
+	return unstable_cache(
+		async (_revision: string, _optionsKey: string) => fetchItems(options),
+		['items', locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.LISTING,
+			tags: [
+				CACHE_TAGS.CONTENT,
+				CACHE_TAGS.ITEMS,
+				CACHE_TAGS.CATEGORIES,
+				CACHE_TAGS.TAGS,
+				CACHE_TAGS.COLLECTIONS,
+				CACHE_TAGS.ITEMS_LOCALE(locale)
+			]
+		}
+	)(revision, optionsKey);
 };
 
 export const getCachedComparisons = async (options: FetchOptions = {}) => {
@@ -2102,29 +2116,56 @@ export const getCachedHeroContent = async (source: string, locale: string = 'en'
 	)();
 };
 
-/**
- * Cached version of fetchByCategory()
- * Delegates to fetchItems internally, so benefits from its caching
- * Additional caching layer for filtered results
- */
 export const getCachedItemsByCategory = async (raw: string, options: FetchOptions = {}) => {
-	return fetchByCategory(raw, options);
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByCategory(raw, options);
+	}
+
+	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
+	return unstable_cache(
+		async (_revision: string, _optionsKey: string) => fetchByCategory(raw, options),
+		['items-by-category', raw, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.LISTING,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES]
+		}
+	)(revision, optionsKey);
 };
 
-/**
- * Cached version of fetchByTag()
- * Delegates to fetchItems internally, so benefits from its caching
- * Additional caching layer for filtered results
- */
 export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {}) => {
-	return fetchByTag(raw, options);
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByTag(raw, options);
+	}
+
+	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
+	return unstable_cache(
+		async (_revision: string, _optionsKey: string) => fetchByTag(raw, options),
+		['items-by-tag', raw, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.LISTING,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.TAGS]
+		}
+	)(revision, optionsKey);
 };
 
-/**
- * Cached version of fetchByCategoryAndTag()
- * Delegates to fetchItems internally, so benefits from its caching
- * Additional caching layer for double-filtered results
- */
 export const getCachedItemsByCategoryAndTag = async (category: string, tag: string, options: FetchOptions = {}) => {
-	return fetchByCategoryAndTag(category, tag, options);
+	if (!CONTENT_CACHE_ENABLED) {
+		return fetchByCategoryAndTag(category, tag, options);
+	}
+
+	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	const optionsKey = JSON.stringify(options);
+	return unstable_cache(
+		async (_revision: string, _optionsKey: string) => fetchByCategoryAndTag(category, tag, options),
+		['items-by-category-tag', category, tag, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.LISTING,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.CATEGORIES, CACHE_TAGS.TAGS]
+		}
+	)(revision, optionsKey);
 };
