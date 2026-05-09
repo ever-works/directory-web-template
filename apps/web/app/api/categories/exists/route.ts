@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchItems } from '@/lib/content';
+import { getCachedItems } from '@/lib/content';
 
 /**
  * API endpoint to check if categories exist
@@ -7,10 +7,8 @@ import { fetchItems } from '@/lib/content';
  */
 export async function GET(request: NextRequest) {
 	try {
-		// Fetch items to get categories
-		// We use the default locale, but this could be made locale-aware if needed
 		const locale = request?.nextUrl?.searchParams?.get('locale') || 'en';
-		const { categories } = await fetchItems({ lang: locale });
+		const { categories } = await getCachedItems({ lang: locale });
 
 		const hasCategories = Array.isArray(categories) && categories.length > 0;
 
