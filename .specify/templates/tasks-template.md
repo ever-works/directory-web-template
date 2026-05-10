@@ -77,12 +77,21 @@ Conventions:
 
 ### T-007 [seq] — Documentation
 
-- Files: `docs/features/<feature>.md`, `docs/index.md`, `docs/log.md`
+- Files: `docs/features/<feature>.md` (or `docs/plugins/<feature>.md`);
+  one of `docs/index.md` or `docs/agents-and-contributors.md`;
+  `docs/log.md`.
 - Steps:
   1. Add a feature page describing usage and configuration.
-  2. Link it from `docs/index.md`.
+  2. Link it from the appropriate index:
+     - End-user feature → `docs/index.md` (Next Steps / Use Cases).
+     - Spec / per-source-file / plugin / config reference →
+       `docs/agents-and-contributors.md`.
+     Keep the bullet description to **one line** (≤ ~200 chars). The
+     linked page holds the detail; do not paste failure matrices /
+     checklists into the bullet itself.
   3. Append a `docs/log.md` line.
-- Verification: docs lint clean (no broken links, frontmatter present).
+- Verification: docs lint clean (no broken links, frontmatter present);
+  the new index bullet is a single line.
 
 ### T-008 [seq] — Ship
 

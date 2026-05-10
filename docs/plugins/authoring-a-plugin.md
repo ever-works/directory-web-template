@@ -148,7 +148,10 @@ test('mything plugin renders its banner above the home listing', async ({ page }
 
 - Add a feature page under `docs/features/<name>.md` (or
   `docs/plugins/<name>.md`).
-- Link it from `docs/index.md`.
+- Link it from the appropriate index:
+  - End-user-facing plugin feature → `docs/index.md`.
+  - Per-source-file / spec / config reference → `docs/agents-and-contributors.md`.
+  Keep the bullet description to one line; the linked page holds the detail.
 - Append a line to `docs/log.md`.
 
 ## 8. Ship it
