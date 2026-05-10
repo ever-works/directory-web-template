@@ -20,6 +20,13 @@ export function LocaleCookieRedirect() {
 	const defaultLocale = DEFAULT_LOCALE;
 	// Keep this script tiny and synchronous — it runs in document <head>
 	// before any other JS, so it must not block paint for long.
-	const script = `(function(){try{var m=document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);if(!m)return;var c=decodeURIComponent(m[1]);var L=${supportedLocales};if(L.indexOf(c)===-1)return;var p=window.location.pathname;var seg=p.split('/')[1]||'';var cur=L.indexOf(seg)!==-1?seg:'${defaultLocale}';if(cur===c)return;var rest=L.indexOf(seg)!==-1?p.substring(seg.length+1):p;if(c==='${defaultLocale}'){window.location.replace(rest+window.location.search+window.location.hash);}else{window.location.replace('/'+c+(rest.startsWith('/')?rest:'/'+rest)+window.location.search+window.location.hash);}}catch(e){}})();`;
+	//
+	// Subtle: when the visitor lands on a non-default locale root (e.g. `/fr`)
+	// and the cookie says default locale, `p.substring(seg.length+1)` returns
+	// an empty string. `location.replace('')` resolves to the *current* URL,
+	// which would silently leave the visitor on the wrong locale. We force
+	// `rest` to `/` in that case (and likewise for the non-default branch's
+	// edge case) so the redirect always navigates somewhere meaningful.
+	const script = `(function(){try{var m=document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);if(!m)return;var c=decodeURIComponent(m[1]);var L=${supportedLocales};if(L.indexOf(c)===-1)return;var p=window.location.pathname;var seg=p.split('/')[1]||'';var hasLoc=L.indexOf(seg)!==-1;var cur=hasLoc?seg:'${defaultLocale}';if(cur===c)return;var rest=hasLoc?p.substring(seg.length+1):p;if(!rest)rest='/';if(rest.charAt(0)!=='/')rest='/'+rest;var target=c==='${defaultLocale}'?rest:'/'+c+(rest==='/'?'':rest);window.location.replace(target+window.location.search+window.location.hash);}catch(e){}})();`;
 	return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
