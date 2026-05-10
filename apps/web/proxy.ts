@@ -19,12 +19,28 @@ import { getRuntimeAuthSecret } from '@/lib/auth/auth-secret';
 import { updateSession as supabaseUpdate } from '@/lib/auth/supabase/middleware';
 import { getToken } from 'next-auth/jwt';
 import { createSafeCallbackUrl } from '@/lib/auth/validate-callback-url';
+import { DEFAULT_LOCALE, type Locale } from '@/lib/constants';
+import { isSupportedLocale } from '@/lib/i18n/locale-names';
 
 const intl = createIntlMiddleware(routing);
 
 const ADMIN_PREFIX = '/admin';
 const ADMIN_SIGNIN = '/admin/auth/signin';
 const authSecret = getRuntimeAuthSecret();
+
+/**
+ * Locale-detection mode for the *server*. Read from `LOCALE_DETECTION_MODE`
+ * env var. Edge middleware cannot read the YAML site config (no fs in
+ * Edge runtime), so the server-side strategy is pinned at deploy time.
+ *
+ * - `server-redirect` — Pattern C from `docs/performance/locale-detection.md`.
+ *   Middleware reads `Accept-Language` on first visit and 307s to the
+ *   visitor's preferred locale. Disables CDN caching of `/`.
+ * - any other value (default) — middleware does NOT redirect. Detection
+ *   either happens client-side via `<LocaleSuggestionBanner>` (Pattern A)
+ *   or not at all (Pattern B).
+ */
+const SERVER_REDIRECT_MODE = process.env.LOCALE_DETECTION_MODE === 'server-redirect';
 
 /* ────────────────────────────── Locale helper ───────────────────────────────────── */
 
@@ -44,6 +60,100 @@ function resolveLocalePrefix(pathname: string): {
 		locale: hasLocale ? maybeLocale : undefined,
 		pathWithoutLocale
 	};
+}
+
+/**
+ * Pick the visitor's preferred supported locale from the `Accept-Language`
+ * header. Returns `null` when none of the visitor's preferences match a
+ * supported locale.
+ *
+ * Used only by Pattern C (`SERVER_REDIRECT_MODE`).
+ *
+ * Edge-runtime safe — pure JS, no fs / Node APIs.
+ */
+function pickLocaleFromAcceptLanguage(header: string | null): Locale | null {
+	if (!header) return null;
+	// Parse `fr-FR,fr;q=0.9,en;q=0.8` — split, normalize, sort by q-weight.
+	const candidates = header
+		.split(',')
+		.map((part) => {
+			const trimmed = part.trim();
+			const [lang, ...rest] = trimmed.split(';');
+			const qMatch = rest.join(';').match(/q=([\d.]+)/);
+			const q = qMatch ? parseFloat(qMatch[1]) : 1.0;
+			return { lang: (lang || '').trim().toLowerCase(), q };
+		})
+		.filter((c) => c.lang)
+		.sort((a, b) => b.q - a.q);
+
+	for (const { lang } of candidates) {
+		// `fr-FR` -> primary subtag `fr`; tolerate plain `fr` too.
+		const primary = lang.split('-')[0];
+		if (isSupportedLocale(primary)) return primary;
+	}
+	return null;
+}
+
+/**
+ * Pattern C — server-side `Accept-Language` redirect.
+ *
+ * Returns a 307 `NextResponse` redirecting to the visitor's preferred
+ * locale, OR `null` when no redirect is needed.
+ *
+ * Conditions for redirecting:
+ *   - `LOCALE_DETECTION_MODE=server-redirect` env var is set.
+ *   - The visitor has not already chosen a locale (`NEXT_LOCALE` cookie
+ *     unset).
+ *   - `Accept-Language` resolves to a supported locale that differs from
+ *     the locale segment of the current URL.
+ *   - The current path is a public-facing page (we skip API + Next
+ *     internals, which the matcher already excludes anyway).
+ *
+ * Trade-off: by setting the cookie + returning a 307, this response is
+ * not edge-cacheable. That is the explicit Pattern C contract — the
+ * operator opted into it via the env var.
+ */
+function maybeServerRedirectForLocale(req: NextRequest): NextResponse | null {
+	if (!SERVER_REDIRECT_MODE) return null;
+
+	// Only the GET method makes sense for a locale redirect.
+	if (req.method !== 'GET' && req.method !== 'HEAD') return null;
+
+	// Respect explicit user choice.
+	const cookieLocale = req.cookies.get('NEXT_LOCALE')?.value;
+	if (cookieLocale && isSupportedLocale(cookieLocale)) return null;
+
+	const browserLocale = pickLocaleFromAcceptLanguage(req.headers.get('accept-language'));
+	if (!browserLocale) return null;
+
+	const { hasLocale, locale: pathLocale } = resolveLocalePrefix(req.nextUrl.pathname);
+	const currentLocale: Locale = (pathLocale as Locale) ?? DEFAULT_LOCALE;
+	if (browserLocale === currentLocale) return null;
+
+	// Compute the rewritten path. Honour `localePrefix: 'as-needed'`:
+	// the default locale lives at `/`, others at `/<locale>/`.
+	const url = req.nextUrl.clone();
+	const restOfPath = hasLocale
+		? req.nextUrl.pathname.substring(`/${pathLocale}`.length) || '/'
+		: req.nextUrl.pathname;
+	if (browserLocale === DEFAULT_LOCALE) {
+		url.pathname = restOfPath || '/';
+	} else {
+		url.pathname = `/${browserLocale}${restOfPath === '/' ? '' : restOfPath}`;
+	}
+
+	const redirectRes = NextResponse.redirect(url, 307);
+	// Persist the choice so subsequent requests don't keep paying the
+	// redirect cost and so the inline `<head>` cookie-redirect script
+	// in the layout takes over for return visits.
+	redirectRes.cookies.set({
+		name: 'NEXT_LOCALE',
+		value: browserLocale,
+		path: '/',
+		sameSite: 'lax',
+		maxAge: 60 * 60 * 24 * 365
+	});
+	return redirectRes;
 }
 
 /* ────────────────────────────────── Client Auth Guards ────────────────────────────── */
@@ -192,6 +302,14 @@ export default async function proxy(req: NextRequest) {
 	// Inject x-tenant-domain header for subdomain tenant routing
 	const hostname = req.headers.get('host') || '';
 	req.headers.set('x-tenant-domain', hostname);
+
+	// Pattern C — server-side Accept-Language redirect.
+	// Opt-in via `LOCALE_DETECTION_MODE=server-redirect`. See Spec 019 and
+	// `docs/performance/locale-detection.md`. Runs before `intl()` so we
+	// can short-circuit with a 307 instead of letting next-intl render the
+	// "wrong" locale and rely on a client-side switch.
+	const serverLocaleRedirect = maybeServerRedirectForLocale(req);
+	if (serverLocaleRedirect) return serverLocaleRedirect;
 
 	const intlResponse = await intl(req as any);
 

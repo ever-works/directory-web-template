@@ -17,6 +17,13 @@ inline as it lands.
       add env-driven `localePrefix`. Verify by `pnpm tsc --noEmit`.
 - [x] T-2 `apps/web/proxy.ts`: delete `[Client Guard Debug]`
       `console.log` block. Verify by `pnpm lint`.
+- [x] T-2b `apps/web/proxy.ts`: implement Pattern C — when
+      `LOCALE_DETECTION_MODE=server-redirect`, parse `Accept-Language`
+      and 307 to the visitor's preferred locale on first visit (no
+      `NEXT_LOCALE` cookie). Sets the cookie so subsequent visits
+      flow through the inline `<head>` cookie-redirect path instead.
+      Verify by setting the env var locally, hitting `/` with
+      `Accept-Language: fr-FR`, and confirming a 307 → `/fr`.
 
 ## Content loader
 

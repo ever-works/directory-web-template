@@ -31,6 +31,19 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-10 (cont — Spec 019 Pattern C wired up)
+
+- `apps/web/proxy.ts` Implements Pattern C in middleware: when
+  `LOCALE_DETECTION_MODE=server-redirect` env var is set, the
+  middleware parses `Accept-Language`, picks the closest supported
+  locale, and 307s on first visit (no `NEXT_LOCALE` cookie). The
+  redirect sets the cookie so subsequent requests flow through the
+  inline `<head>` cookie-redirect script in `app/layout.tsx`.
+- This finishes Spec 019 — the previous commit shipped the YAML knob
+  + Pattern A banner + Pattern B URL-style env, but left Pattern C
+  as docs-only. Now all three patterns described in
+  `docs/performance/locale-detection.md` are runnable.
+
 ## 2026-05-10 — Spec 019: CDN-cacheable public surface + pluggable locale detection
 
 - `spec-019` Drafted spec/plan/tasks for `019-cdn-cacheable-i18n` —
