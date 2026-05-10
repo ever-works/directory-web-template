@@ -90,11 +90,17 @@ tasks exist for it.
 ## Article IV — Documentation as a First-Class Citizen
 
 **Principle.** Every feature, plugin, and adapter has documentation in
-[`docs/`](../../docs/) that is **discoverable from `docs/index.md`** and is
+[`docs/`](../../docs/) that is **discoverable from `docs/index.md`**
+(directly for end-user features, or via
+[`docs/agents-and-contributors.md`](../../docs/agents-and-contributors.md)
+for per-source-file / spec / plugin reference pages) and is
 **focused on the template**, not the broader Ever Works platform.
 
 - New plugins ship with a `README.md` inside their package and a feature page
   under `docs/features/` or `docs/plugins/`.
+- Index-bullet descriptions stay to one line; the linked page holds the
+  detail. Pasting failure matrices / checklists into the bullet itself is
+  what bloated `docs/index.md` to 1.1 MB in May 2026.
 - Architectural decisions live in `docs/architecture/` and link back to the
   relevant `docs/spec/` folder.
 - Anything that is unclear or has multiple valid options must be raised in
