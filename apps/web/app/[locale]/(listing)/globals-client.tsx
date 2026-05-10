@@ -140,7 +140,10 @@ export default function GlobalsClient(props: ListingProps) {
 										tags={sortedTags}
 										enableSticky={false}
 										maxVisibleTags={3}
-										allItems={props.items}
+										// `props.items` is the current-page slice (PER_PAGE items) since
+										// Spec 020. Use `props.total` for the "All Tags (N)" badge so
+										// it shows the catalogue-wide count, not just the current page.
+										totalItemsCount={props.total}
 									/>
 								</div>
 							)}
@@ -150,7 +153,7 @@ export default function GlobalsClient(props: ListingProps) {
 										tags={sortedTags}
 										enableSticky={true}
 										maxVisibleTags={isFluid ? 8 : 5}
-										allItems={props.items}
+										totalItemsCount={props.total}
 									/>
 								</div>
 							)}
@@ -164,7 +167,11 @@ export default function GlobalsClient(props: ListingProps) {
 									<ListingClient
 										{...props}
 										items={filteredItems}
-										totalCount={props.items.length}
+										// Was: `props.items.length`. Since Spec 020 ships only the
+										// current-page slice, that length is now ~12, which made
+										// the pagination component think there was only one page.
+										// `props.total` is the server-computed filtered total.
+										totalCount={props.total}
 										config={listingConfig}
 										headerActions={<ExportButton />}
 									/>
