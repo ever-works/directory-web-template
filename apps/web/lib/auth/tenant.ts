@@ -156,14 +156,18 @@ const DEFAULT_TENANT_ID = 'default';
  */
 async function resolveByCreatingDefault(): Promise<string | null> {
 	if (!coreConfig.DATABASE_URL) return null;
-	if (ensuredTenants.has(DEFAULT_TENANT_ID)) return DEFAULT_TENANT_ID;
 
+	// `ensureTenantExists` is idempotent: it inserts on first call (with
+	// `onConflictDoNothing`) and short-circuits via the in-memory dedup set
+	// on subsequent calls. Safe to call on every miss.
 	await ensureTenantExists(DEFAULT_TENANT_ID, 'Default');
 
-	// `ensureTenantExists` swallows errors; the success flag tells us whether
-	// the row is actually present. Returning an id that doesn't exist would
-	// cause downstream FK inserts to blow up.
-	return ensuredTenants.has(DEFAULT_TENANT_ID) ? DEFAULT_TENANT_ID : null;
+	// Re-run the active-tenant lookup so the `status='active'` gate is
+	// preserved. If an admin later flipped the row to `inactive`, the
+	// in-memory dedup flag would still be set, but `resolveFromDatabase`
+	// will return `null` (fail-closed) — which is the correct behavior.
+	// Reusing it also reuses its 5-min TTL cache for the happy path.
+	return await resolveFromDatabase();
 }
 
 /**
