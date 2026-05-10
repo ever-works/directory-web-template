@@ -9,6 +9,26 @@ import { useFilters } from "../../context/filter-context";
 import { useTagsEnabled } from "@/hooks/use-tags-enabled";
 
 /**
+ * Hard cap on tags rendered into the horizontal-scroll strip's DOM.
+ * The "+N more" popover handles the rest (portal, client-only — not in SSR).
+ *
+ * Why a hard cap (Spec 020 follow-up): each tag is rendered as a HeroUI
+ * `Button` whose className totals ~1 KB of Tailwind utility classes. With
+ * the previous "pass full tags array" behaviour, a catalogue with 855
+ * tags (e.g. demo.ever.works) shipped ~855 × ~1 KB × 2 layouts
+ * (mobile-only + desktop-only Tags instances) ≈ 1.7 MB of pure tag-button
+ * DOM on every render. Capping at 30 cuts that to ~60 KB while keeping
+ * the horizontal-scroll-through-many-tags UX intact for the common case.
+ *
+ * Tunable per-fork via `NEXT_PUBLIC_TAG_STRIP_CAP` if a deployment really
+ * needs more.
+ */
+const TAG_STRIP_HARD_CAP = (() => {
+  const raw = Number.parseInt(process.env.NEXT_PUBLIC_TAG_STRIP_CAP ?? '', 10);
+  return Number.isFinite(raw) && raw > 0 ? raw : 30;
+})();
+
+/**
  * Main tags section component
  * Handles sticky behavior and tag visibility
  */
@@ -136,7 +156,16 @@ export function Tags({
           basePath={basePath}
           resetPath={resetPath}
           showAllTags={showAllTags}
-          visibleTags={showAllTags ? visibleTags : tags} // Pass all tags in single row mode for scroll behavior
+          // Single-row mode: cap the horizontal scroll strip at TAG_STRIP_HARD_CAP
+          // so the DOM doesn't include every tag in the catalogue. The previous
+          // version passed the full `tags` array here, which on a directory
+          // with 855 tags rendered ~855 HeroUI buttons × 2 layouts (mobile +
+          // desktop) × ~1KB of Tailwind classes each — about 1.7 MB of pure
+          // tag-button DOM in the SSR payload. The "+N more" popover (line
+          // 671 below) handles overflow without rendering all rows in SSR
+          // (it uses tanstack-react-virtual + a portal that's client-only).
+          // Spec 020 follow-up — `docs/performance/server-side-listings.md`.
+          visibleTags={showAllTags ? visibleTags : tags.slice(0, TAG_STRIP_HARD_CAP)}
           isAnyTagActive={isAnyTagActive}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
