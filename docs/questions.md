@@ -27,6 +27,45 @@ confirm, override, or refine.
 
 ---
 
+## Spec 019 — CDN-Cacheable Public Surface with Pluggable Locale Detection
+
+### Q-019a `server-redirect` value in YAML
+
+- **Context.** `settings.i18n.locale_detection` accepts
+  `client-banner` (default) and `none`. Should it also accept
+  `server-redirect`?
+- **Options.**
+  - **Env var only.** `LOCALE_DETECTION_MODE=server-redirect` is
+    the single switch. YAML stays focused on client-side concerns.
+  - YAML accepts `server-redirect` too. Operators can set it from
+    the data repo without touching env vars; middleware reads YAML
+    on every request.
+- **Default.** **Env var only.** Middleware needs to know at edge
+  time, before any YAML is loaded; an env var is the cleaner shape.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-019b Localized banner copy
+
+- **Context.** The locale-suggestion banner currently shows English
+  copy (`"This page is also available in <NativeName>"`). Should it
+  be localized to the *current* page locale?
+- **Options.**
+  - **Stay English.** The banner is by definition shown when the
+    visitor's preferred locale doesn't match the current page; the
+    visitor likely understands English well enough to read a one-line
+    suggestion, and the actionable CTA ("Switch to Français?") uses
+    the native name.
+  - Localize via `messages/<locale>.json`. Adds 21 new keys per
+    locale and keeps the banner copy in the visitor's *current* page
+    locale.
+- **Default.** **Stay English in v1**, revisit when there's a
+  user complaint.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 002 — Plugin Architecture
 
 ### Q-002a SDK package name
