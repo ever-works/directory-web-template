@@ -54,14 +54,18 @@ test.describe('i18n: locale-suggestion banner', () => {
 });
 
 test.describe('i18n: returning-visitor cookie redirect', () => {
-	test('redirects to cookied locale before paint', async ({ page, context }) => {
+	// Cookie scope must come from a real URL — `page.url()` is `about:blank`
+	// before any navigation, and `new URL('about:blank').hostname` is `''`,
+	// which makes `context.addCookies` throw. Always derive scope from the
+	// configured baseURL fixture.
+
+	test('redirects to cookied locale before paint', async ({ page, context, baseURL }) => {
 		// Pretend a previous visit set NEXT_LOCALE=fr.
 		await context.addCookies([
 			{
 				name: 'NEXT_LOCALE',
 				value: 'fr',
-				domain: new URL(page.url() || 'http://localhost:3000').hostname,
-				path: '/',
+				url: baseURL ?? 'http://localhost:3000',
 			},
 		]);
 
@@ -75,6 +79,7 @@ test.describe('i18n: returning-visitor cookie redirect', () => {
 	test('redirects from non-default locale root to default-locale root when cookie is default', async ({
 		page,
 		context,
+		baseURL,
 	}) => {
 		// Regression — the original cookie-redirect script computed an empty
 		// `rest` for `/fr` which made `location.replace('')` resolve to the
@@ -84,8 +89,7 @@ test.describe('i18n: returning-visitor cookie redirect', () => {
 			{
 				name: 'NEXT_LOCALE',
 				value: 'en',
-				domain: new URL(page.url() || 'http://localhost:3000').hostname,
-				path: '/',
+				url: baseURL ?? 'http://localhost:3000',
 			},
 		]);
 
@@ -100,13 +104,13 @@ test.describe('i18n: returning-visitor cookie redirect', () => {
 	test('redirects from non-default locale subpage to default-locale subpage when cookie is default', async ({
 		page,
 		context,
+		baseURL,
 	}) => {
 		await context.addCookies([
 			{
 				name: 'NEXT_LOCALE',
 				value: 'en',
-				domain: new URL(page.url() || 'http://localhost:3000').hostname,
-				path: '/',
+				url: baseURL ?? 'http://localhost:3000',
 			},
 		]);
 
