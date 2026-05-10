@@ -31,6 +31,55 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-10 (cont — Spec 019 Pattern C wired up)
+
+- `apps/web/proxy.ts` Implements Pattern C in middleware: when
+  `LOCALE_DETECTION_MODE=server-redirect` env var is set, the
+  middleware parses `Accept-Language`, picks the closest supported
+  locale, and 307s on first visit (no `NEXT_LOCALE` cookie). The
+  redirect sets the cookie so subsequent requests flow through the
+  inline `<head>` cookie-redirect script in `app/layout.tsx`.
+- This finishes Spec 019 — the previous commit shipped the YAML knob
+  + Pattern A banner + Pattern B URL-style env, but left Pattern C
+  as docs-only. Now all three patterns described in
+  `docs/performance/locale-detection.md` are runnable.
+
+## 2026-05-10 — Spec 019: CDN-cacheable public surface + pluggable locale detection
+
+- `spec-019` Drafted spec/plan/tasks for `019-cdn-cacheable-i18n` —
+  fixes `demo.ever.works` shipping `Cache-Control: no-store` on
+  every request despite ISR being configured. Root cause:
+  `next-intl` `localeDetection: true` mutates the response so
+  Vercel's edge cache bypasses it.
+- `i18n/routing.ts` Default flips to `localeDetection: false`. New
+  build-time env var `LOCALE_URL_STYLE` (`as-needed` | `always`)
+  controls URL prefix style.
+- `apps/web/lib/utils/settings.ts` New `getLocaleDetection()` reads
+  `settings.i18n.locale_detection` from the site YAML;
+  `client-banner` (default) | `none`.
+- `apps/web/components/i18n/locale-suggestion-banner.tsx`,
+  `locale-cookie-redirect.tsx` New userland Pattern A
+  implementation: a dismissible banner suggests the visitor's
+  browser locale after hydration, and a tiny inline `<head>`
+  script redirects returning visitors before paint based on
+  `NEXT_LOCALE` cookie. Keeps `/` fully edge-cacheable.
+- `apps/web/lib/content.ts` `fetchItems` now throws when an item
+  read fails with an IO error instead of silently dropping it from
+  the listing. Closes the "few items rendered" silent-symptom bug.
+- `apps/web/proxy.ts` Removed `[Client Guard Debug]` `console.log`
+  that ran on every `/client/*` request.
+- `apps/web/next.config.ts` `output: 'standalone'` is now gated on
+  `STANDALONE_BUILD=true` env var (Dockerfile sets it; Vercel
+  doesn't). Lets Vercel use its native serverless packaging.
+- `docs/performance/cdn-cacheability.md`,
+  `docs/performance/locale-detection.md`,
+  `docs/performance/content-loading.md` New operator-facing pages.
+- `apps/web-e2e/tests/public/home-perf.spec.ts`,
+  `apps/web-e2e/tests/i18n/locale-detection-banner.spec.ts` New
+  Playwright coverage.
+- `questions` Added Q-019a (server-redirect in YAML?) and Q-019b
+  (localized banner copy?), both with chosen defaults.
+
 ## 2026-05-09 (cont 2 — swap to `feed` library)
 
 - `lib/seo/feeds.ts` `apps/web/package.json`

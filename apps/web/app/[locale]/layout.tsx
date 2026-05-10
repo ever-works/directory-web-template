@@ -41,8 +41,10 @@ import {
 	getFooterSubscribeEnabled,
 	getFooterVersionEnabled,
 	getFooterThemeSelectorEnabled,
-	getAnalyticsSettings
+	getAnalyticsSettings,
+	getLocaleDetection
 } from '@/lib/utils/settings';
+import { LocaleSuggestionBanner } from '@/components/i18n/locale-suggestion-banner';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates } from '@/lib/seo/hreflang';
 import { DEFAULT_LOCALE } from '@/lib/constants';
@@ -141,6 +143,14 @@ export default async function RootLayout({
 	// Read location settings server-side
 	const locationSettings = getLocationSettings();
 
+	// Locale-detection strategy. `client-banner` (default) shows a small
+	// dismissible banner suggesting the visitor's browser language while
+	// keeping `/` edge-cacheable. `none` disables auto-detection entirely.
+	// `server-redirect` (Pattern C) is opted into via the `LOCALE_DETECTION_MODE`
+	// env var, not this YAML setting. See `docs/performance/locale-detection.md`
+	// and Spec 019.
+	const localeDetection = getLocaleDetection();
+
 	// Generate structured data schemas for SEO
 	const organizationSchema = generateOrganizationSchema();
 	const websiteSchema = generateWebSiteSchema(locale);
@@ -189,6 +199,8 @@ export default async function RootLayout({
 								<ConditionalLayout>{children}</ConditionalLayout>
 								{/* Settings Modal - Shared by header button */}
 								<SettingsModal />
+								{/* Locale suggestion banner — Pattern A from Spec 019. */}
+								{localeDetection === 'client-banner' && <LocaleSuggestionBanner />}
 							</Providers>
 						</SettingsModalProvider>
 					</SettingsProvider>
