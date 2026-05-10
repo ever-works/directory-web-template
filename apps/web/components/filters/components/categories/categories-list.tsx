@@ -78,7 +78,8 @@ export function CategoriesList({
 	const {
 		selectedCategories: contextSelectedCategories,
 		toggleSelectedCategory,
-		clearSelectedCategories
+		clearSelectedCategories,
+		setSelectedCategories
 	} = useFilters();
 
 	// Use props if provided, otherwise fall back to context
@@ -96,22 +97,52 @@ export function CategoriesList({
 		[t, totalItems]
 	);
 
-	// Handle category toggle for filter mode
+	/**
+	 * Handle category click in filter mode.
+	 *
+	 * UX contract:
+	 *   - Plain click on category B (single-select):
+	 *       - if A was selected → switch to just B
+	 *       - if B was the only selected → clear (toggle off)
+	 *   - Ctrl / Cmd / Shift + click on B (multi-select):
+	 *       - toggle B in/out of the current selection
+	 *   - Click on "All" → clear all
+	 *
+	 * `multi` is supplied by `CategoryItem.handleClick` based on
+	 * MouseEvent modifier keys.
+	 */
 	const handleCategoryToggle = useCallback(
-		(categoryId: string) => {
+		(categoryId: string, multi = false) => {
 			if (propOnCategoryToggle) {
-				// Use prop callback if provided
-				propOnCategoryToggle(categoryId);
+				// Use prop callback if provided. Forward `multi` so callers can
+				// honour modifier-key intent if they want; older callers ignore it.
+				(propOnCategoryToggle as (id: string, multi?: boolean) => void)(categoryId, multi);
+				return;
+			}
+			if (categoryId === 'all') {
+				clearSelectedCategories();
+				return;
+			}
+			if (multi) {
+				toggleSelectedCategory(categoryId);
+				return;
+			}
+			// Single-select branch.
+			const isOnlyOneSelected =
+				selectedCategories.length === 1 && selectedCategories[0] === categoryId;
+			if (isOnlyOneSelected) {
+				clearSelectedCategories();
 			} else {
-				// Fall back to context methods
-				if (categoryId === 'all') {
-					clearSelectedCategories();
-				} else {
-					toggleSelectedCategory(categoryId);
-				}
+				setSelectedCategories([categoryId]);
 			}
 		},
-		[propOnCategoryToggle, clearSelectedCategories, toggleSelectedCategory]
+		[
+			propOnCategoryToggle,
+			clearSelectedCategories,
+			toggleSelectedCategory,
+			setSelectedCategories,
+			selectedCategories
+		]
 	);
 
 	if (mode === 'filter') {
@@ -125,7 +156,7 @@ export function CategoriesList({
 					isActive={isActive}
 					href="#"
 					mode="filter"
-					onToggle={() => handleCategoryToggle(category.id)}
+					onToggle={(id, multi) => handleCategoryToggle(id, multi)}
 				/>
 			);
 		};
