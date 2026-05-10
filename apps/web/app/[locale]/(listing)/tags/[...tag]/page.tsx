@@ -1,16 +1,49 @@
 import { Metadata } from "next";
-import { getCachedItemsByTag } from "@/lib/content";
-import { paginateMeta } from "@/lib/paginate";
+import { getCachedItemsByTag, type ItemData } from "@/lib/content";
+import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import Listing from "../../listing";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { notFound } from "next/navigation";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { toTitleCase } from "@/lib/utils";
+import { toTitleCase, filterItems } from "@/lib/utils";
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time content errors
 export const revalidate = 600;
 export const dynamicParams = true;
+
+type SearchParams = {
+  q?: string;
+  sort?: string;
+  categories?: string;
+};
+
+function parseCsv(value: string | undefined): string[] {
+  if (!value) return [];
+  return value
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function sortItems(items: ItemData[], sort?: string): ItemData[] {
+  if (!sort) return items;
+  const copy = items.slice();
+  switch (sort) {
+    case 'name':
+    case 'name-asc':
+      return copy.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    case 'name-desc':
+      return copy.sort((a, b) => (b.name ?? '').localeCompare(a.name ?? ''));
+    case 'recent':
+    case 'updated':
+      return copy.sort((a, b) => (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0));
+    case 'oldest':
+      return copy.sort((a, b) => (a.updatedAt?.getTime() ?? 0) - (b.updatedAt?.getTime() ?? 0));
+    default:
+      return items;
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -36,36 +69,12 @@ export async function generateMetadata({
   });
 }
 
-// Remove generateStaticParams to prevent build-time content loading
-// export async function generateStaticParams() {
-//   async function fetchItemsTags(locale: string) {
-//     const { tags } = await fetchItems({ lang: locale });
-//     const paths = [];
-
-//     for (const tag of tags) {
-//       const pages = totalPages(tag.count || 0);
-
-//       for (let i = 1; i <= pages; ++i) {
-//       if (i === 1) {
-//         paths.push({ tag: [tag.id], locale });
-//       } else {
-//         paths.push({ tag: [tag.id, i.toString()], locale });
-//       }
-//     }
-//   }
-
-//   return paths;
-// }
-
-//   const params = LOCALES.map((locale) => fetchItemsTags(locale));
-
-//   return (await Promise.all(params)).flat();
-// }
-
 export default async function TagListing({
   params,
+  searchParams,
 }: {
   params: Promise<{ tag: string[]; locale: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const tagsEnabled = getTagsEnabled();
   if (!tagsEnabled) {
@@ -73,17 +82,29 @@ export default async function TagListing({
   }
 
   const { tag: tagMeta, locale } = await params;
+  const sp = (await searchParams) ?? {};
   const [rawTag, rawPage] = tagMeta;
   const tag = decodeURI(rawTag);
-  const { start, page } = paginateMeta(rawPage);
-  const { items, categories, total, tags } = await getCachedItemsByTag(tag, {
-    lang: locale,
+
+  // `getCachedItemsByTag` returns items already filtered to the path-encoded
+  // tag. We layer additional URL filters (search, sort, extra categories) on
+  // top, then slice for the current page. Same Spec 020 rule as the discover
+  // route: never ship more than `PER_PAGE` items in the RSC payload.
+  const { items: allItems, categories, tags } = await getCachedItemsByTag(tag, { lang: locale });
+  const filtered = filterItems(allItems, {
+    searchTerm: sp.q,
+    selectedCategories: parseCsv(sp.categories),
   });
+  const sorted = sortItems(filtered, sp.sort);
+  const total = sorted.length;
+  const { page, start } = paginateMeta(rawPage);
+  const pageItems = sorted.slice(start, start + PER_PAGE);
+
   return (
     <Listing
       categories={categories}
       tags={tags}
-      items={items}
+      items={pageItems}
       start={start}
       page={page}
       total={total}
