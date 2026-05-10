@@ -33,18 +33,37 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
     clearAllFilters
   } = useFilters();
 
+  /**
+   * Category-click handler. Mirrors the UX contract documented in
+   * `categories-list.tsx`:
+   *   - Plain click (no modifier) = single-select. Switches the selection
+   *     to just this category, or clears if this was already the only one.
+   *   - Ctrl / Cmd / Shift + click = multi-select. Toggles this category
+   *     in/out of the existing selection — multiple categories can stack.
+   *   - "all" / "clear-all" = clear (modifier ignored).
+   *
+   * `multi` arrives from `CategoryItem.handleClick`, which reads
+   * `e.ctrlKey || e.metaKey || e.shiftKey`.
+   */
   const handleCategoryToggle = useCallback(
-    (categoryId: string) => {
+    (categoryId: string, multi = false) => {
       if (categoryId === 'all' || categoryId === 'clear-all') {
         setSelectedCategories([]);
-      } else {
+        return;
+      }
+      if (multi) {
         setSelectedCategories(
           (prev) =>
             prev.includes(categoryId)
               ? prev.filter((id) => id !== categoryId) // deselect
               : [...prev, categoryId] // add to selection
         );
+        return;
       }
+      // Single-select branch.
+      setSelectedCategories((prev) =>
+        prev.length === 1 && prev[0] === categoryId ? [] : [categoryId]
+      );
     },
     [setSelectedCategories]
   );
