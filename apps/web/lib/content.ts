@@ -1024,7 +1024,17 @@ export async function clearFetchItemsCache() {
 	categoriesCache.clear();
 	tagsCache.clear();
 
-	console.log('[CACHE] In-memory fetchItems, directory, categories, and tags caches cleared');
+	// Also clear single-flight in-flight map. Otherwise a sync that overlaps
+	// an already-running `fetchItemsImpl` would let the next post-sync
+	// request join that pre-sync promise and receive stale data — defeating
+	// cache-invalidation semantics in exactly the window users care about
+	// (right after a content push). Clearing here doesn't cancel the
+	// in-flight promise itself; it just means new requests start a fresh
+	// fetch that sees the post-sync filesystem state.
+	// Caught by Codex review on PR #773.
+	inFlightFetches.clear();
+
+	console.log('[CACHE] In-memory fetchItems, directory, categories, in-flight, and tags caches cleared');
 }
 
 async function repairContentRepositoryAfterMissingItems(): Promise<void> {
