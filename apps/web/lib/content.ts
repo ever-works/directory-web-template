@@ -110,10 +110,35 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 // Cap concurrent file-reads to avoid EMFILE on serverless runtimes (Vercel/Lambda),
 // which have far smaller fd budgets than typical local machines.
+//
+// 2026-05-10: lowered Vercel default 16 → 8 after observing repeated EMFILE
+// in production under crawler load. The per-call cap is one half of the
+// safety; the other half is the in-flight dedup in fetchItems below.
+// See `docs/performance/content-loading.md`.
 const FS_CONCURRENCY = (() => {
 	const raw = Number.parseInt(process.env.CONTENT_FS_CONCURRENCY ?? '', 10);
 	if (Number.isFinite(raw) && raw > 0) return raw;
-	return process.env.VERCEL === '1' ? 16 : 64;
+	return process.env.VERCEL === '1' ? 8 : 64;
+})();
+
+/**
+ * Threshold above which `fetchItems` refuses to return a partial listing
+ * and throws instead. Default 10 %.
+ *
+ * Below the threshold: log loudly, return partial. The page renders
+ * slightly shorter but the site stays up — important on serverless
+ * runtimes where transient EMFILE on a single item under load shouldn't
+ * 500 the whole listing.
+ *
+ * Above the threshold: hard fail. A 500 with a stack trace is much easier
+ * to diagnose than "users are saying we have fewer items today".
+ *
+ * Tunable via `CONTENT_FAIL_THRESHOLD` env var (decimal, e.g. `0.10`).
+ */
+const FAIL_LOUD_THRESHOLD = (() => {
+	const raw = Number.parseFloat(process.env.CONTENT_FAIL_THRESHOLD ?? '');
+	if (Number.isFinite(raw) && raw > 0 && raw <= 1) return raw;
+	return 0.1;
 })();
 
 async function mapWithConcurrency<T, R>(
@@ -1021,6 +1046,25 @@ async function repairContentRepositoryAfterMissingItems(): Promise<void> {
 	await fetchItemsRepairPromise;
 }
 
+/**
+ * In-flight `fetchItems` calls keyed by serialized options. When multiple
+ * concurrent renders ask for the same listing (typical under crawler load
+ * on a multi-locale demo: 50+ requests for `/<locale>/...` arriving within
+ * a second), only the first one performs the ~1000-item filesystem walk.
+ * The others share its promise and return as soon as it resolves.
+ *
+ * Without this, every concurrent render runs its own walk; even with
+ * `FS_CONCURRENCY=8` per call, 50 concurrent calls = 400 in-flight fd
+ * reads → guaranteed EMFILE on serverless runtimes. With it, the global
+ * concurrent fd budget is bounded by `FS_CONCURRENCY × 1` regardless of
+ * burst size.
+ *
+ * The map is never larger than the number of distinct cache keys that
+ * happen to be in flight at once — typically 1 per locale, freed in
+ * `finally` blocks below — so it doesn't grow unboundedly.
+ */
+const inFlightFetches = new Map<string, Promise<FetchItemsResult>>();
+
 export async function fetchItems(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
 	// Create cache key from options
 	const cacheKey = JSON.stringify(options);
@@ -1033,7 +1077,33 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 			console.log('[CACHE] Returning cached fetchItems result for:', cacheKey);
 			return cached.data;
 		}
+
+		// Single-flight: if a fetch is already running for this key, share it.
+		// Critical for serverless fd-budget survival under crawler bursts —
+		// see the comment on `inFlightFetches` above.
+		const inFlight = inFlightFetches.get(cacheKey);
+		if (inFlight) {
+			console.log('[CACHE] Joining in-flight fetchItems for:', cacheKey);
+			return inFlight;
+		}
 	}
+
+	const fetchPromise = fetchItemsImpl(options, repairAttempted);
+	// Register before the first await so concurrent callers see it. The
+	// register/cleanup happens regardless of `CONTENT_CACHE_ENABLED` to
+	// prevent stampedes in dev too — the safety value is independent of
+	// result caching.
+	inFlightFetches.set(cacheKey, fetchPromise);
+	try {
+		return await fetchPromise;
+	} finally {
+		inFlightFetches.delete(cacheKey);
+	}
+}
+
+async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
+	// Cache key is recomputed here for the post-fetch cache write below.
+	const cacheKey = JSON.stringify(options);
 
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable, dirExists } = await import('./lib');
@@ -1172,23 +1242,48 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 	});
 	const items = itemsResults.filter((item): item is NonNullable<typeof item> => item !== null);
 
-	// Refuse to return a partial listing when IO errors occurred. Better to
-	// surface a 500 (which Vercel will retry, alert on, and log) than to serve
-	// a half-empty page that looks legit and silently underreports total count.
+	// Threshold-based partial-listing handling. The Spec 019 first cut threw
+	// on *any* IO error, which under steady fd pressure produced a
+	// cascading-500 death spiral (every render that hit a single transient
+	// EMFILE 500'd, the lambda kept the broken instance for retries, and
+	// demo.ever.works hung entirely).
+	//
+	// New behaviour:
+	//   - failure rate >= FAIL_LOUD_THRESHOLD: hard fail (loud, alertable).
+	//   - failure rate <  FAIL_LOUD_THRESHOLD: log loudly, return partial.
+	//
+	// Combined with the in-flight dedup above, single-item EMFILE during
+	// load can no longer sink the whole listing — the listing renders
+	// slightly shorter but the site stays up, and the error log still
+	// surfaces the problem.
 	if (ioErrors.length > 0) {
+		const failRate = files.length > 0 ? ioErrors.length / files.length : 0;
 		const sample = ioErrors.slice(0, 3).map((e) => {
 			const msg = e.error instanceof Error ? e.error.message : String(e.error);
 			return `${e.slug}: ${msg}`;
 		});
-		throw new Error(
-			`[CONTENT] fetchItems failed for ${ioErrors.length} of ${files.length} item(s); ` +
-				`refusing to return partial listing. Samples: ${sample.join('; ')}`
+		const pct = (failRate * 100).toFixed(1);
+		const threshPct = (FAIL_LOUD_THRESHOLD * 100).toFixed(0);
+		if (failRate >= FAIL_LOUD_THRESHOLD) {
+			throw new Error(
+				`[CONTENT] fetchItems failed for ${ioErrors.length} of ${files.length} item(s) ` +
+					`(${pct}%, at or above ${threshPct}% threshold); ` +
+					`refusing to return partial listing. Samples: ${sample.join('; ')}`
+			);
+		}
+		console.error(
+			`[CONTENT] fetchItems: ${ioErrors.length} of ${files.length} item(s) failed ` +
+				`(${pct}%, below ${threshPct}% threshold); returning partial listing. ` +
+				`Samples: ${sample.join('; ')}`
 		);
 	}
 
 	if (missingItemDataCount > 0 && !repairAttempted) {
 		await repairContentRepositoryAfterMissingItems();
-		return fetchItems(options, true);
+		// Recurse into the impl directly. Calling the public `fetchItems`
+		// here would deadlock — the single-flight map still has our own
+		// promise registered for this key, so we'd `await` ourselves.
+		return fetchItemsImpl(options, true);
 	}
 
 	const tagsArray = Array.from(tags.values());
