@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { type FilterState } from '@/lib/utils/url-filter-sync';
 
 interface UseFilterURLSyncOptions {
@@ -8,8 +9,16 @@ interface UseFilterURLSyncOptions {
 }
 
 /**
- * Custom hook for synchronizing filter state with URL
- * Handles URL updates when filters change
+ * Custom hook for synchronizing filter state with URL.
+ *
+ * 2026-05-10 (Spec 020): switched from `window.history.replaceState` to
+ * Next.js `router.replace`. The previous History-API write changed the
+ * URL silently and the server never re-rendered, which paired with the
+ * also-removed client-side filter on the *full catalogue* to produce
+ * working but very large (~3.7 MB) responses. With the server-side
+ * filter/sort/slice in `app/[locale]/.../page.tsx`, the URL has to
+ * trigger a real RSC navigation so the server produces a new filtered
+ * slice. Debounce stays at 300ms so search-box typing still feels live.
  *
  * Note: Does not parse from URL to avoid useSearchParams() SSR issues.
  * Initial state should be passed via initialTag/initialCategory props instead.
@@ -17,11 +26,13 @@ interface UseFilterURLSyncOptions {
 export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
   const { debounceMs = 300 } = options;
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
 
   /**
-   * Update URL based on filter state
-   * Uses replaceState to avoid triggering Next.js server navigation
-   * Uses debouncing to avoid excessive history entries
+   * Update URL based on filter state.
+   * Triggers an RSC navigation via Next.js router so the server re-renders
+   * with the new filter params.
+   * Debounced to avoid hammering the router on every keystroke.
    */
   const updateURL = useCallback(
     (filters: FilterState, immediate = false) => {
@@ -34,8 +45,6 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         const currentPath = window.location.pathname;
         if (/\/(categories|tags)\/[^/]+/.test(currentPath)) return;
 
-        // Build query params from current filter state.
-        // Keep the current pathname to avoid triggering Next.js soft navigation.
         const params = new URLSearchParams();
 
         if (filters.tags.length > 0) {
@@ -64,9 +73,12 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
 
         const currentFullPath = window.location.pathname + window.location.search;
 
-        // Only update if the URL actually changed
+        // Only push if the URL actually changed.
         if (newURL !== currentFullPath) {
-          window.history.replaceState(null, '', newURL);
+          // `replace` (not `push`) — filter changes shouldn't grow the back
+          // stack. `scroll: false` keeps the user's scroll position so the
+          // listing doesn't jump back to the top while typing.
+          router.replace(newURL, { scroll: false });
         }
       };
 
