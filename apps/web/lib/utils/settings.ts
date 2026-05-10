@@ -387,3 +387,32 @@ export function getLocationSettings(): {
 export function getAnalyticsSettings(): any {
 	return configManager.getNestedValue('settings.analytics') || {};
 }
+
+// ===================== i18n Settings =====================
+
+/**
+ * Locale-detection strategy for the public site. Controls how new visitors
+ * end up on a localized version of the page.
+ *
+ * - `client-banner` (default): static default locale at `/`, with a small
+ *   dismissible client-side banner suggesting the visitor's browser locale.
+ *   Keeps `/` fully edge-cacheable (sub-50 ms TTFB on warm CDN).
+ * - `none`: no auto-detection or banner; users navigate languages manually
+ *   via the language menu. Best with `LOCALE_URL_STYLE=always` for clean
+ *   per-locale URLs.
+ *
+ * The `server-redirect` mode (read `Accept-Language` and 307 on the server)
+ * is opted into via the `LOCALE_DETECTION_MODE=server-redirect` env var
+ * because middleware needs to know at edge time, before the YAML is loaded.
+ *
+ * See `docs/performance/locale-detection.md` and Spec 019.
+ */
+export type LocaleDetectionStrategy = 'client-banner' | 'none';
+
+export function getLocaleDetection(): LocaleDetectionStrategy {
+	const value = configManager.getNestedValue('settings.i18n.locale_detection');
+	if (value === 'none') return 'none';
+	// Default and any unknown value falls back to `client-banner` so the public
+	// site keeps a friendly UX without breaking edge cacheability.
+	return 'client-banner';
+}

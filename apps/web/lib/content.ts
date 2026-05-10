@@ -1112,6 +1112,11 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 	}
 
 	let missingItemDataCount = 0;
+	// IO errors (EMFILE, ENOMEM, EACCES, etc.) used to silently drop items, which
+	// produced "few items rendered" symptoms during fd-pressure incidents. Track
+	// them separately so we can fail loud and refuse to serve a partial listing.
+	// See Spec 019, `docs/performance/content-loading.md`.
+	const ioErrors: Array<{ slug: string; error: unknown }> = [];
 	const itemsResults = await mapWithConcurrency(files, FS_CONCURRENCY, async (slug) => {
 		try {
 			// Sanitize slug even though it comes from the filesystem
@@ -1160,12 +1165,26 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 
 			return item;
 		} catch (error) {
+			ioErrors.push({ slug, error });
 			console.error(`Failed to load item ${slug}:`, error);
-			// Return null for failed items, we'll filter them out
 			return null;
 		}
 	});
 	const items = itemsResults.filter((item): item is NonNullable<typeof item> => item !== null);
+
+	// Refuse to return a partial listing when IO errors occurred. Better to
+	// surface a 500 (which Vercel will retry, alert on, and log) than to serve
+	// a half-empty page that looks legit and silently underreports total count.
+	if (ioErrors.length > 0) {
+		const sample = ioErrors.slice(0, 3).map((e) => {
+			const msg = e.error instanceof Error ? e.error.message : String(e.error);
+			return `${e.slug}: ${msg}`;
+		});
+		throw new Error(
+			`[CONTENT] fetchItems failed for ${ioErrors.length} of ${files.length} item(s); ` +
+				`refusing to return partial listing. Samples: ${sample.join('; ')}`
+		);
+	}
 
 	if (missingItemDataCount > 0 && !repairAttempted) {
 		await repairContentRepositoryAfterMissingItems();

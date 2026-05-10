@@ -10,7 +10,11 @@ const nextConfig: NextConfig = {
 	turbopack: {
 		root: path.join(__dirname, '../..')
 	},
-	output: 'standalone',
+	// `standalone` produces a self-contained server bundle for Docker/k8s targets
+	// (the project Dockerfile sets `STANDALONE_BUILD=true`). Vercel uses its own
+	// serverless packaging and does not need `standalone`; leaving it on there
+	// inflates the build with no benefit. See Spec 019.
+	output: process.env.STANDALONE_BUILD === 'true' ? 'standalone' : undefined,
 	outputFileTracingRoot: path.join(__dirname, '../..'),
 	serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm'],
 	experimental: {

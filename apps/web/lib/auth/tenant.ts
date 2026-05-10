@@ -142,6 +142,35 @@ async function resolveFromHeaders(): Promise<string | null> {
 }
 
 /**
+ * Default tenant ID used as a final fallback. Lazy-created when a deployment
+ * has a database but no tenant row exists yet (e.g. fresh template install,
+ * demo). Avoids every tenant-scoped query throwing `Tenant ID not found` for
+ * anonymous traffic on an unprovisioned deployment.
+ */
+const DEFAULT_TENANT_ID = 'default';
+
+/**
+ * 5. Final fallback: lazy-create a default tenant when the database is
+ * reachable but no tenant exists. Single-tenant deployments work
+ * out-of-the-box without manual seeding.
+ */
+async function resolveByCreatingDefault(): Promise<string | null> {
+	if (!coreConfig.DATABASE_URL) return null;
+
+	// `ensureTenantExists` is idempotent: it inserts on first call (with
+	// `onConflictDoNothing`) and short-circuits via the in-memory dedup set
+	// on subsequent calls. Safe to call on every miss.
+	await ensureTenantExists(DEFAULT_TENANT_ID, 'Default');
+
+	// Re-run the active-tenant lookup so the `status='active'` gate is
+	// preserved. If an admin later flipped the row to `inactive`, the
+	// in-memory dedup flag would still be set, but `resolveFromDatabase`
+	// will return `null` (fail-closed) — which is the correct behavior.
+	// Reusing it also reuses its 5-min TTL cache for the happy path.
+	return await resolveFromDatabase();
+}
+
+/**
  * 4. Resolves the default active tenant from the database.
  */
 async function resolveFromDatabase(): Promise<string | null> {
@@ -192,12 +221,13 @@ async function resolveFromDatabase(): Promise<string | null> {
 
 /**
  * Server-side helper to get the current tenant ID.
- * 
+ *
  * Resolution order:
  * 1. Authenticated session (`user.tenantId`)
  * 2. Environment variable (`TENANT_ID`)
  * 3. HTTP Header (`x-tenant-domain`) via Subdomain routing
  * 4. Database fallback (first active tenant)
+ * 5. Lazy-create the `default` tenant (single-tenant / demo deployments)
  *
  * @returns The tenant ID string or null if not resolvable
  */
@@ -206,6 +236,7 @@ export async function getTenantId(): Promise<string | null> {
 		(await resolveFromSession()) ??
 		(await resolveFromEnv()) ??
 		(await resolveFromHeaders()) ??
-		(await resolveFromDatabase())
+		(await resolveFromDatabase()) ??
+		(await resolveByCreatingDefault())
 	);
 }
