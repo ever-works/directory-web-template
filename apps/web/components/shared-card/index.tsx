@@ -300,10 +300,16 @@ export function SharedCard(props: ExtendedCardProps) {
     config.enableSorting ?? true
   );
 
-  // Calculate counts (single source of truth)
-  // When server-sliced, both filteredCount and totalCount come from the
-  // server-supplied `total` — `sortedItems.length` is just the page slice.
-  const filteredCount = isServerSliced ? (total ?? sortedItems.length) : sortedItems.length;
+  // Calculate counts (single source of truth).
+  //
+  // - Client-side mode: `sortedItems.length` is the items remaining after
+  //   the in-memory filter; `items.length` is the catalogue.
+  // - Server-paginated mode: `items` is the current-page slice (PER_PAGE
+  //   or fewer on the last page); `total` is the server-computed
+  //   filter-applied total. The header reads "Showing {filtered} of
+  //   {total}" — `filtered` should describe what's visible on the page
+  //   (the slice), not the post-filter total again.
+  const filteredCount = isServerSliced ? items.length : sortedItems.length;
   const totalCount = props.totalCount ?? (isServerSliced ? (total ?? items.length) : items.length);
 
   // Handle view change (also exits map mode)
