@@ -1,8 +1,9 @@
 import { Metadata } from "next";
-import { getCachedItems, type ItemData } from "@/lib/content";
+import { getCachedItems } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { filterItems } from "@/lib/utils";
+import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
 
 // Enable ISR with 10 minutes revalidation
@@ -55,38 +56,6 @@ export async function generateStaticParams() {
   }
 
   return params;
-}
-
-/**
- * Sort items by the `?sort=` key, mirroring the previous client-side
- * `sortBy` values. Unknown / unspecified falls through to the natural
- * order returned by `fetchItems` (featured-first + recency).
- */
-function sortItems(items: ItemData[], sort?: string): ItemData[] {
-  if (!sort) return items;
-  const copy = items.slice();
-  switch (sort) {
-    case 'name':
-    case 'name-asc':
-      return copy.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
-    case 'name-desc':
-      return copy.sort((a, b) => (b.name ?? '').localeCompare(a.name ?? ''));
-    case 'recent':
-    case 'updated':
-      return copy.sort((a, b) => (b.updatedAt?.getTime() ?? 0) - (a.updatedAt?.getTime() ?? 0));
-    case 'oldest':
-      return copy.sort((a, b) => (a.updatedAt?.getTime() ?? 0) - (b.updatedAt?.getTime() ?? 0));
-    default:
-      return items;
-  }
-}
-
-function parseCsv(value: string | undefined): string[] {
-  if (!value) return [];
-  return value
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
 }
 
 export default async function DiscoverListing({

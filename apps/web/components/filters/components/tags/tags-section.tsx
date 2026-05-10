@@ -40,6 +40,7 @@ export function Tags({
   maxVisibleTags,
   mode = "navigation", // "navigation" | "filter"
   allItems,
+  totalItemsCount,
 }: TagsProps & { mode?: "navigation" | "filter" }) {
   const t = useTranslations("common");
   const pathname = usePathname();
@@ -169,7 +170,11 @@ export function Tags({
           isAnyTagActive={isAnyTagActive}
           selectedTags={selectedTags}
           setSelectedTags={setSelectedTags}
-          allItemsCount={allItems ? allItems.length : undefined}
+          // Prefer the explicit catalogue-wide count over `allItems.length`.
+          // Since Spec 020's server-side slice, `allItems` (when passed) is
+          // the current page (~12), so its `.length` would show "All Tags (12)"
+          // instead of "All Tags (~992)".
+          allItemsCount={totalItemsCount ?? (allItems ? allItems.length : undefined)}
         />
       </div>
     </div>

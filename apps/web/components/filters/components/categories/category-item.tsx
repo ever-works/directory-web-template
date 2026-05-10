@@ -46,7 +46,14 @@ export const CategoryItem = memo(function CategoryItem({
   const handleClick = (e: React.MouseEvent) => {
     if (mode === 'filter') {
       e.preventDefault();
-      onToggle?.(category.id);
+      // Modifier-key multi-select. Default (plain click) = replace selection
+      // with just this category — matches the typical sidebar UX (Gmail
+      // labels, GitHub labels). Ctrl / Cmd / Shift = toggle in/out, allowing
+      // multiple categories to stack. CategoriesList's handler reads this
+      // flag and chooses between `setSelectedCategories([id])` and
+      // `toggleSelectedCategory(id)`.
+      const multi = e.ctrlKey || e.metaKey || e.shiftKey;
+      onToggle?.(category.id, multi);
     }
   };
 
