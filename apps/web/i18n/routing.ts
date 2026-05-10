@@ -43,5 +43,39 @@ export const routing = defineRouting({
    */
   localeDetection: false,
 
+  /**
+   * `localeCookie` is a SEPARATE setting from `localeDetection` in
+   * `next-intl`. Even with detection disabled, the middleware's
+   * `syncCookie` step still writes `NEXT_LOCALE` whenever the resolved
+   * locale differs from what `Accept-Language` would have produced —
+   * verified by reading
+   * `node_modules/next-intl/dist/.../middleware/syncCookie.js` in
+   * v4.9.x:
+   *
+   *   if (!routing.localeCookie) return;
+   *   ...
+   *   } else if (!hasLocaleCookie) {
+   *     const acceptLanguageLocale = getAcceptLanguageLocale(...);
+   *     if (acceptLanguageLocale !== locale) {
+   *       response.cookies.set(name, locale, ...);
+   *     }
+   *   }
+   *
+   * That `Set-Cookie: NEXT_LOCALE=…` is what actually disqualifies the
+   * response from Vercel's edge cache: any `Set-Cookie` makes the
+   * response personalized, the CDN refuses to serve it, and the
+   * Cache-Control falls back to `private, no-store`. Disabling
+   * detection alone is not enough — the production deploy of Spec 019
+   * shipped with `localeDetection: false` and still hit MISS on every
+   * request because of this cookie.
+   *
+   * We disable the cookie entirely. Our userland strategy
+   * (`LocaleCookieRedirect` + `LocaleSuggestionBanner`) writes / reads
+   * `NEXT_LOCALE` on the client side, so the server never needs to.
+   *
+   * See Spec 019 and `docs/performance/locale-detection.md`.
+   */
+  localeCookie: false,
+
   localePrefix,
 });
