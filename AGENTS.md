@@ -18,7 +18,11 @@ These files form the **canonical** rule set for this repo:
   durable principles. **Every plan must pass the Constitution Check.**
 - [`.specify/README.md`](.specify/README.md) — Spec Kit workflow.
 - [`docs/spec/README.md`](docs/spec/README.md) — feature spec index.
-- [`docs/index.md`](docs/index.md) — full documentation index.
+- [`docs/index.md`](docs/index.md) — end-user home page.
+- [`docs/agents-and-contributors.md`](docs/agents-and-contributors.md) — agent
+  onboarding + per-source-file / spec / plugin reference index. **New
+  spec / plugin / config reference pages link from here, not from
+  `docs/index.md`.**
 - [`docs/log.md`](docs/log.md) — running log of changes.
 - [`docs/questions.md`](docs/questions.md) — open questions and chosen
   defaults awaiting maintainer review.
@@ -123,7 +127,14 @@ Almost everything is a **plugin** or **adapter**:
 ## 10. Documentation as a first-class citizen
 
 - Every feature has a page under [`docs/`](docs/) that is reachable
-  from [`docs/index.md`](docs/index.md).
+  from [`docs/index.md`](docs/index.md) — directly for end-user feature
+  pages, or via
+  [`docs/agents-and-contributors.md`](docs/agents-and-contributors.md)
+  for per-source-file / spec / plugin reference pages.
+- Index-bullet descriptions stay to **one line** — the linked page holds
+  the detail. Do not paste reference summaries / failure matrices /
+  checklists into the bullet itself; that bloated `docs/index.md` to
+  1.1 MB and broke the home page in May 2026.
 - Every plugin ships with a `README.md` inside its package and a
   feature page under `docs/features/` or `docs/plugins/`.
 - Open questions go to [`docs/questions.md`](docs/questions.md) with a
