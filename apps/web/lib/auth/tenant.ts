@@ -142,6 +142,31 @@ async function resolveFromHeaders(): Promise<string | null> {
 }
 
 /**
+ * Default tenant ID used as a final fallback. Lazy-created when a deployment
+ * has a database but no tenant row exists yet (e.g. fresh template install,
+ * demo). Avoids every tenant-scoped query throwing `Tenant ID not found` for
+ * anonymous traffic on an unprovisioned deployment.
+ */
+const DEFAULT_TENANT_ID = 'default';
+
+/**
+ * 5. Final fallback: lazy-create a default tenant when the database is
+ * reachable but no tenant exists. Single-tenant deployments work
+ * out-of-the-box without manual seeding.
+ */
+async function resolveByCreatingDefault(): Promise<string | null> {
+	if (!coreConfig.DATABASE_URL) return null;
+	if (ensuredTenants.has(DEFAULT_TENANT_ID)) return DEFAULT_TENANT_ID;
+
+	await ensureTenantExists(DEFAULT_TENANT_ID, 'Default');
+
+	// `ensureTenantExists` swallows errors; the success flag tells us whether
+	// the row is actually present. Returning an id that doesn't exist would
+	// cause downstream FK inserts to blow up.
+	return ensuredTenants.has(DEFAULT_TENANT_ID) ? DEFAULT_TENANT_ID : null;
+}
+
+/**
  * 4. Resolves the default active tenant from the database.
  */
 async function resolveFromDatabase(): Promise<string | null> {
@@ -192,12 +217,13 @@ async function resolveFromDatabase(): Promise<string | null> {
 
 /**
  * Server-side helper to get the current tenant ID.
- * 
+ *
  * Resolution order:
  * 1. Authenticated session (`user.tenantId`)
  * 2. Environment variable (`TENANT_ID`)
  * 3. HTTP Header (`x-tenant-domain`) via Subdomain routing
  * 4. Database fallback (first active tenant)
+ * 5. Lazy-create the `default` tenant (single-tenant / demo deployments)
  *
  * @returns The tenant ID string or null if not resolvable
  */
@@ -206,6 +232,7 @@ export async function getTenantId(): Promise<string | null> {
 		(await resolveFromSession()) ??
 		(await resolveFromEnv()) ??
 		(await resolveFromHeaders()) ??
-		(await resolveFromDatabase())
+		(await resolveFromDatabase()) ??
+		(await resolveByCreatingDefault())
 	);
 }
