@@ -101,7 +101,11 @@ alternative that was rejected.
 
 ## See also
 
-- [`docs/index.md`](../docs/index.md) — full documentation index
+- [`docs/index.md`](../docs/index.md) — end-user home page
+- [`docs/agents-and-contributors.md`](../docs/agents-and-contributors.md) —
+  agent onboarding + per-source-file / spec / plugin reference index.
+  Link new spec / plugin / config reference pages from here, not from
+  `docs/index.md`.
 - [`docs/spec/README.md`](../docs/spec/README.md) — index of every feature spec
 - [`docs/log.md`](../docs/log.md) — running log of changes to docs and specs
 - [`docs/questions.md`](../docs/questions.md) — open questions and chosen
