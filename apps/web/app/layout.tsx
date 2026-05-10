@@ -8,6 +8,7 @@ import { cleanUrl } from '@/lib/utils/url-cleaner';
 import { getLocale } from 'next-intl/server';
 import { RTL_LOCALES, type Locale } from '@/lib/constants';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { LocaleCookieRedirect } from '@/components/i18n/locale-cookie-redirect';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -42,6 +43,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
 	return (
 		<html lang={locale} dir={dir} suppressHydrationWarning>
+			<head>
+				{/*
+					Returning-visitor locale redirect. Reads `NEXT_LOCALE` cookie
+					and redirects client-side before paint if it disagrees with
+					the current URL. Pairs with `LocaleSuggestionBanner` and the
+					`localeDetection: false` setting in `i18n/routing.ts`.
+					See `docs/performance/locale-detection.md` and Spec 019.
+				*/}
+				<LocaleCookieRedirect />
+			</head>
 			<body className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-[#0a0a0a]`} suppressHydrationWarning>
 				<ThemeProvider>
 					<LayoutProvider>{children}</LayoutProvider>

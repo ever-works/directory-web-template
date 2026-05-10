@@ -52,15 +52,6 @@ async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Pro
 	try {
 		const token = await getToken({ req, secret: authSecret });
 
-		// DEBUG: Log to identify production authentication issues
-		console.log('[Client Guard Debug]', {
-			path: req.nextUrl.pathname,
-			hasToken: !!token,
-			tokenEmail: token?.email ? 'present' : 'missing',
-			authSecretExists: !!authSecret,
-			cookieHeader: req.headers.get('cookie')?.substring(0, 100) || 'no cookies'
-		});
-
 		if (token) {
 			// User is authenticated
 			return null; // null means "allow access"
