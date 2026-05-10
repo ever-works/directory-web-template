@@ -65,7 +65,9 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
             tags={props.tags}
             layoutKey={layoutKey}
             setLayoutKey={setLayoutKey}
-            totalCount={props.items.length}
+            // Was `props.items.length` — that's the current-page slice (~12)
+            // since Spec 020. `props.total` is the catalogue-wide filtered total.
+            totalCount={props.total}
             filteredCount={props.filteredAndSortedItems.length}
             searchEnabled={props.searchEnabled}
             isSticky={isSticky}

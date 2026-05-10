@@ -79,7 +79,11 @@ export interface CategoriesListProps {
   categories: Category[];
   mode?: "navigation" | "filter";
   selectedCategories?: string[];
-  onCategoryToggle?: (categoryId: string | "clear-all") => void;
+  /**
+   * `multi` mirrors `CategoryItemProps.onToggle` — true when the user
+   * held Ctrl / Cmd / Shift while clicking. Default is single-select.
+   */
+  onCategoryToggle?: (categoryId: string | "clear-all", multi?: boolean) => void;
 }
 
 /**
@@ -112,7 +116,19 @@ export interface TagsProps {
   maxVisibleTags?: number;
   total?: number;
   mode?: 'navigation' | 'filter';
+  /**
+   * @deprecated Pass `totalItemsCount` instead. With Spec 020's
+   * server-side slice, `allItems` is the current page (~12 items),
+   * not the catalogue. Using `allItems.length` here breaks the
+   * "All Tags (N)" badge.
+   */
   allItems?: ItemData[];
+  /**
+   * Catalogue-wide item count for the "All Tags (N)" badge. Pass
+   * `props.total` from the server-side filtered total. Falls back to
+   * `allItems?.length` (legacy) and then `tags.length`.
+   */
+  totalItemsCount?: number;
 }
 
 /**
@@ -135,7 +151,12 @@ export interface CategoryItemProps {
   isAllCategories?: boolean;
   totalItems?: number;
   mode?: "navigation" | "filter";
-  onToggle?: (categoryId: CategoryId) => void;
+  /**
+   * `multi` is true when the user held Ctrl / Cmd / Shift while clicking,
+   * signalling a multi-select intent. Default (no modifier): single-select —
+   * clicking replaces the current selection with just this category.
+   */
+  onToggle?: (categoryId: CategoryId, multi?: boolean) => void;
 }
 
 /**
@@ -143,7 +164,7 @@ export interface CategoryItemProps {
  */
 export interface CategoryItemFilterProps extends Omit<CategoryItemProps, 'mode' | 'onToggle'> {
   mode: "filter";
-  onToggle: (categoryId: CategoryId) => void;
+  onToggle: (categoryId: CategoryId, multi?: boolean) => void;
 }
 
 /**

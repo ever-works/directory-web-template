@@ -1,7 +1,8 @@
 "use client";
 
 import { useContext, useCallback, useMemo } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { layoutComponents, LayoutKey } from "@/components/layouts";
 import LayoutMap from "@/components/layouts/LayoutMap";
@@ -16,6 +17,7 @@ import { SORT_OPTIONS } from "./utils/sort-utils";
 import { useItemFiltering } from "./hooks/use-item-filtering";
 import { useItemSorting } from "./hooks/use-item-sorting";
 import { usePaginationLogic, useFilterChangeDetection } from "./hooks/use-pagination-logic";
+import { useServerInfiniteLoading } from "./hooks/use-server-infinite-loading";
 import { SharedCardHeader, EmptyState } from "./shared-card-header";
 import { SharedCardGrid } from "./shared-card-grid";
 import { SharedCardPagination } from "./shared-card-pagination";
@@ -154,15 +156,26 @@ export function SharedCard(props: ExtendedCardProps) {
     renderCustomEmpty,
     headerActions,
     page,
+    total,
+    basePath,
   } = props;
 
   // Merge config with defaults
   const config = useMemo(() => ({ ...DEFAULT_CONFIG, ...rawConfig }), [rawConfig]);
+  const perPage = config.perPage ?? PER_PAGE;
 
   // Get theme and filter state
   const { layoutKey, setLayoutKey, paginationType, isMapView, setIsMapView } = useLayoutTheme();
   const { searchTerm, selectedTags, sortBy, selectedTag } = useFilters();
   const t = useTranslations("listing");
+  const locale = useLocale();
+  const searchParams = useSearchParams();
+
+  // Spec 020: when the parent already sliced server-side (`total` exceeds
+  // the in-page items), pagination must be URL-driven. Client-side hooks
+  // would otherwise compute `totalPages = ceil(items.length / perPage) = 1`
+  // and silently hide the pagination controls.
+  const isServerSliced = typeof total === 'number' && total > items.length;
 
   // Map view availability
   const { settings: locationSettings } = useLocationSettings();
@@ -176,21 +189,35 @@ export function SharedCard(props: ExtendedCardProps) {
   // Get layout component
   const LayoutComponent = layoutComponents[layoutKey];
 
-  // Filter items
+  // Filter items. When server-sliced, the route already applied filters/sort —
+  // running the same filter again client-side over the page slice would just
+  // hide rows that the server intentionally included.
   const filteredItems = useItemFiltering(
     items,
-    searchTerm,
-    selectedTags,
+    isServerSliced ? "" : searchTerm,
+    isServerSliced ? [] : selectedTags,
     {
-      enableSearch: config.enableSearch ?? true,
-      enableTagFilter: config.enableTagFilter ?? true,
+      enableSearch: !isServerSliced && (config.enableSearch ?? true),
+      enableTagFilter: !isServerSliced && (config.enableTagFilter ?? true),
     }
   );
 
-  // Sort filtered items
   const sortedItems = useItemSorting(filteredItems, sortBy, {
-    enableSorting: config.enableSorting ?? true,
+    enableSorting: !isServerSliced && (config.enableSorting ?? true),
   });
+
+  // Server-pagination context — only populated when the parent supplied a
+  // catalogue-wide `total` and a `basePath` (the listing surfaces today).
+  const serverPagination = useMemo(() => {
+    if (!isServerSliced || !basePath) return undefined;
+    const sp = searchParams?.toString() ?? '';
+    return {
+      total,
+      page,
+      basePath,
+      search: sp ? `?${sp}` : '',
+    };
+  }, [isServerSliced, total, page, basePath, searchParams]);
 
   // Handle pagination
   const {
@@ -202,9 +229,10 @@ export function SharedCard(props: ExtendedCardProps) {
   } = usePaginationLogic(sortedItems, {
     perPage: config.perPage,
     showPagination: config.showPagination ?? true,
+    serverPagination,
   });
 
-  // Reset pagination when filters change
+  // Reset pagination when filters change (client-side mode only)
   useFilterChangeDetection(
     searchTerm,
     selectedTags,
@@ -213,12 +241,37 @@ export function SharedCard(props: ExtendedCardProps) {
     resetToFirstPage
   );
 
-  // Handle infinite scroll
-  const { displayedItems, hasMore, isLoading, error, loadMore } = useInfiniteLoading({
+  // Build the JSON-listing URL for the next page in server-paginated infinite
+  // mode. Filters / sort live in the current URL; we only swap the `page`.
+  const buildPageUrl = useCallback(
+    (nextPage: number) => {
+      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      params.set('page', String(nextPage));
+      return `/api/items/listing?${params.toString()}`;
+    },
+    [searchParams]
+  );
+
+  // Client-side infinite loading (legacy path — full catalogue in memory).
+  const clientInfinite = useInfiniteLoading({
     items: sortedItems,
     initialPage: page,
-    perPage: config.perPage,
+    perPage,
   });
+
+  // Server-side infinite loading (Spec 020 path — fetches `/api/items/listing`).
+  const serverInfinite = useServerInfiniteLoading({
+    initialItems: items,
+    total: total ?? items.length,
+    initialPage: page,
+    perPage,
+    buildPageUrl,
+    locale,
+  });
+
+  const { displayedItems, hasMore, isLoading, error, loadMore } = isServerSliced
+    ? serverInfinite
+    : clientInfinite;
 
   const { ref: loadMoreRef } = useInView({
     onChange: (inView) => {
@@ -248,8 +301,10 @@ export function SharedCard(props: ExtendedCardProps) {
   );
 
   // Calculate counts (single source of truth)
-  const filteredCount = sortedItems.length;
-  const totalCount = props.totalCount ?? items.length;
+  // When server-sliced, both filteredCount and totalCount come from the
+  // server-supplied `total` — `sortedItems.length` is just the page slice.
+  const filteredCount = isServerSliced ? (total ?? sortedItems.length) : sortedItems.length;
+  const totalCount = props.totalCount ?? (isServerSliced ? (total ?? items.length) : items.length);
 
   // Handle view change (also exits map mode)
   const handleViewChange = useCallback(
@@ -268,8 +323,12 @@ export function SharedCard(props: ExtendedCardProps) {
   // Determine items to display
   const itemsToDisplay = paginationType === "infinite" ? displayedItems : paginatedItems;
 
-  // Show empty state if no items
-  const showEmptyState = config.showEmptyState && sortedItems.length === 0;
+  // Show empty state if no items. When server-sliced, only treat as empty
+  // when the catalogue-wide `total` is 0 — `sortedItems.length === 0` could
+  // just mean the user navigated past the last page.
+  const showEmptyState = isServerSliced
+    ? config.showEmptyState && (total ?? 0) === 0
+    : config.showEmptyState && sortedItems.length === 0;
 
   if (showEmptyState) {
     if (renderCustomEmpty) {
