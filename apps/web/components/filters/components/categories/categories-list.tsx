@@ -6,7 +6,7 @@ import { usePathname } from '@/i18n/navigation';
 import { CategoriesListProps } from '../../types';
 import { CategoryItem } from './category-item';
 import { useFilters } from '../../context/filter-context';
-import { isCategoryPagePath } from '@/lib/utils';
+import { isCategoryPagePath, slugify } from '@/lib/utils';
 
 const CATEGORY_ROW_HEIGHT = 40;
 const CATEGORY_LIST_VIEWPORT_CLASS =
@@ -123,17 +123,22 @@ export function CategoriesList({
 				clearSelectedCategories();
 				return;
 			}
+			// Normalize to slug form for the same reason as the render-side
+			// `activeSlugs` set: URL round-trip slugifies categories, and
+			// without this the state and the click value drift apart on
+			// mixed-case category IDs.
+			const slug = slugify(categoryId);
 			if (multi) {
-				toggleSelectedCategory(categoryId);
+				toggleSelectedCategory(slug);
 				return;
 			}
 			// Single-select branch.
 			const isOnlyOneSelected =
-				selectedCategories.length === 1 && selectedCategories[0] === categoryId;
+				selectedCategories.length === 1 && slugify(selectedCategories[0]) === slug;
 			if (isOnlyOneSelected) {
 				clearSelectedCategories();
 			} else {
-				setSelectedCategories([categoryId]);
+				setSelectedCategories([slug]);
 			}
 		},
 		[
@@ -146,8 +151,14 @@ export function CategoriesList({
 	);
 
 	if (mode === 'filter') {
+		// Normalize on both sides because `FilterURLParser` slugifies the
+		// `?categories=` URL param into state ("Practices" → "practices")
+		// while the data layer hands us `category.id` verbatim from the
+		// YAML (which can be mixed case). Without normalization the
+		// visual `aria-pressed` state silently drifts from the URL truth.
+		const activeSlugs = new Set(selectedCategories.map((s) => slugify(s)));
 		const renderFilterCategory = (category: CategoryEntry) => {
-			const isActive = selectedCategories.includes(category.id);
+			const isActive = activeSlugs.has(slugify(category.id));
 
 			return (
 				<CategoryItem
