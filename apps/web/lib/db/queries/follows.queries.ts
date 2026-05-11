@@ -1,6 +1,6 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { clientProfiles, userFollows, type NewUserFollow, type UserFollow } from '../schema';
+import { clientProfiles, notifications, userFollows, type NewUserFollow, type UserFollow } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -57,9 +57,48 @@ export async function isFollowing(followerId: string, followingId: string): Prom
 }
 
 /**
+ * Best-effort notification when a follow is created. Looks up the follower's
+ * profile for a friendly title (falls back to "Someone"). Silently swallows
+ * errors — a failed notification must never block the follow itself.
+ */
+async function notifyFollowed(params: {
+	tenantId: string;
+	followerId: string;
+	followingId: string;
+}): Promise<void> {
+	try {
+		const [follower] = await db
+			.select({
+				displayName: clientProfiles.displayName,
+				name: clientProfiles.name,
+				username: clientProfiles.username
+			})
+			.from(clientProfiles)
+			.where(and(eq(clientProfiles.userId, params.followerId), eq(clientProfiles.tenantId, params.tenantId)))
+			.limit(1);
+
+		const followerLabel = follower?.displayName || follower?.name || follower?.username || 'Someone';
+
+		await db.insert(notifications).values({
+			userId: params.followingId,
+			tenantId: params.tenantId,
+			type: 'user_followed',
+			title: 'New follower',
+			message: `${followerLabel} started following you.`,
+			data: JSON.stringify({ followerUserId: params.followerId, followerUsername: follower?.username ?? null })
+		});
+	} catch (error) {
+		console.error('Failed to enqueue user_followed notification:', error);
+	}
+}
+
+/**
  * Create a follow row. Idempotent on the (follower, following, tenant) unique index — returns
  * the existing row if one is already present. Throws if follower === following (also enforced
  * by the table check constraint).
+ *
+ * Emits a best-effort `user_followed` notification to the target on first follow only (skipped
+ * when the row already existed).
  */
 export async function followUser(followerId: string, followingId: string): Promise<UserFollow | null> {
 	if (followerId === followingId) {
@@ -78,9 +117,13 @@ export async function followUser(followerId: string, followingId: string): Promi
 		})
 		.returning();
 
-	if (row) return row;
+	if (row) {
+		// Only notify on first follow (when an actual insert happened).
+		await notifyFollowed({ tenantId, followerId, followingId });
+		return row;
+	}
 
-	// Already followed — return the existing row.
+	// Already followed — return the existing row, no notification.
 	const [existing] = await db
 		.select()
 		.from(userFollows)

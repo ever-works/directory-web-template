@@ -153,6 +153,12 @@ persist across sessions, so that I can showcase work over time.
 - [ ] AC-19: The profile-button dropdown (non-admin view) includes
   a "Discover Users" entry linking to `/client/users`, placed
   between "Your Profile" and "Submissions".
+- [ ] AC-20: A first-time `POST /api/user/profile/follow/<username>`
+  inserts a `user_followed` notification row for the target with a
+  human-readable title/message and `data` carrying the follower's
+  user-id + username. Re-follow (after an unfollow → follow again)
+  *does* notify; idempotent re-clicks while already-following do
+  not. Notification failures must never break the follow itself.
 
 ## 7. Out-of-Scope Considerations
 

@@ -626,6 +626,7 @@ export const notifications = pgTable(
 				'comment_reported',
 				'item_reported',
 				'user_registered',
+				'user_followed',
 				'payment_failed',
 				'system_alert'
 			]

@@ -31,6 +31,16 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: new-follower notifications
+
+- `spec-022` AC-20: widened the `notifications.type` text enum
+  with `'user_followed'` (no DB migration — column is plain TEXT,
+  TS-level union only). `followUser()` now emits a best-effort
+  notification on first-follow only (skipped when the row already
+  existed), with the follower's display name in the message and
+  their userId/username in the `data` JSON blob. Notification
+  failures are logged but never break the follow. PR #816.
+
 ## 2026-05-12 — Spec 022: profile-menu nav link for /client/users
 
 - `spec-022` AC-19: added a "Discover Users" entry to the
