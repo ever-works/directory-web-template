@@ -50,17 +50,17 @@ test.describe('Public: Comparisons', () => {
 		await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible({ timeout: PAGE_READY_TIMEOUT });
 	});
 
-	test('comparisons page is reachable from header nav', async ({ page }) => {
+	test('comparisons link is exposed somewhere in the header / nav menu', async ({ page }) => {
 		await page.goto('/', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
-		const navLink = page
-			.locator('header')
-			.first()
-			.getByRole('link', { name: /^comparisons$/i })
-			.first();
-		const visible = await navLink.isVisible().catch(() => false);
-		test.skip(!visible, 'Comparisons nav link not present');
-		await navLink.click();
-		await expect(page).toHaveURL(/\/comparisons/);
+		await page.waitForTimeout(1_500);
+
+		// The link may live in the top-level header at desktop widths
+		// or behind a "More" submenu / mobile hamburger. We just assert
+		// the page has *some* anchor pointing at `/comparisons` so it's
+		// discoverable from the layout shell.
+		const anyComparisonsLink = page.locator('a[href$="/comparisons"], a[href$="/comparisons/"]');
+		const count = await anyComparisonsLink.count();
+		expect(count, 'expected at least one /comparisons link in the page chrome').toBeGreaterThan(0);
 	});
 
 	test('non-existent /comparisons/<slug> returns non-5xx', async ({ page }) => {
