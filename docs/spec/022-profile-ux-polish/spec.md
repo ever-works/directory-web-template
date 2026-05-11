@@ -130,6 +130,15 @@ persist across sessions, so that I can showcase work over time.
   interests) is inline-editable: click the value, edit, save with
   Enter, cancel with Escape. Saves PATCH `/api/user/profile` with
   optimistic UI and rollback on error.
+- [ ] AC-15: The About tab includes a "Recent Activity" card
+  showing the profile owner's last five non-deleted comments. Each
+  entry links to the item slug, shows the rating star if non-zero,
+  and a relative-time stamp. Empty state differs for self vs.
+  visitor.
+- [ ] AC-16: The Skills tab renders an empty-state card (icon +
+  hint pointing at the Manage button) when no skills exist,
+  instead of showing the categorized breakdown and a 0%
+  proficiency summary.
 
 ## 7. Out-of-Scope Considerations
 

@@ -6,7 +6,8 @@ import {
 	getClientProfileByUsername,
 	listPortfolioProjectsForProfile,
 	getProfileStats,
-	isFollowing
+	isFollowing,
+	getRecentCommentsByClientProfile
 } from '@/lib/db/queries';
 import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
@@ -24,10 +25,11 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
-	const [portfolioRows, stats, viewerFollows] = await Promise.all([
+	const [portfolioRows, stats, viewerFollows, recentComments] = await Promise.all([
 		listPortfolioProjectsForProfile(clientProfile.id),
 		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
-		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false)
+		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false),
+		getRecentCommentsByClientProfile(clientProfile.id, 5)
 	]);
 
 	const rawSkills = (clientProfile.skills ?? []) as Array<{
@@ -93,7 +95,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 						}}
 						initialIsFollowing={viewerFollows}
 					/>
-					<ProfileContent profile={profile} isOwn={isOwn} />
+					<ProfileContent profile={profile} isOwn={isOwn} recentComments={recentComments} />
 				</div>
 			</Container>
 		</div>

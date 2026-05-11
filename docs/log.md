@@ -31,6 +31,15 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: polish — recent activity feed + skills empty state
+
+- `spec-022` Added AC-15 (Recent Activity card on the About tab
+  listing the last five comments authored by the profile owner via
+  the new `getRecentCommentsByClientProfile` query — links each
+  entry to its item slug) and AC-16 (Skills tab renders a clean
+  empty-state card instead of showing a 0%-proficiency summary
+  when the profile has no skills). PR #816.
+
 ## 2026-05-12 — Spec 022: follow-up — public profiles, follows, inline edit
 
 - `spec-022` Extended Spec 022 with: public profile viewing (drop

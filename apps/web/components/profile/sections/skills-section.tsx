@@ -15,6 +15,18 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
     return acc;
   }, {} as Record<string, ProfileSkill[]>);
 
+  if (profile.skills.length === 0) {
+    return (
+      <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
+        <CardContent className="p-0 text-center py-12 text-sm text-gray-500 dark:text-gray-400">
+          <FiAward className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p className="text-base font-medium text-gray-700 dark:text-gray-300">No skills listed yet</p>
+          <p className="mt-1">Use the Manage button above to add skills with categories and proficiency.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Skills Tag Summary */}
