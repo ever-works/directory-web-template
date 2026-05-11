@@ -58,6 +58,8 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
     settings: t("settings.SETTINGS"),
     yourProfile: t("common.YOUR_PROFILE"),
     yourProfileDesc: t("common.YOUR_PROFILE_DESC"),
+    discoverUsers: t("common.DISCOVER_USERS"),
+    discoverUsersDesc: t("common.DISCOVER_USERS_DESC"),
     accountSettingsDesc: t("settings.ACCOUNT_SETTINGS_DESC"),
   }), [t]);
 
@@ -266,6 +268,17 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         gradientFrom="from-blue-100"
         gradientTo="to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30"
         iconColor="text-theme-primary-600 dark:text-theme-primary-400"
+      />
+
+      <MenuItem
+        href="/client/users"
+        icon={Users}
+        title={translations.discoverUsers}
+        description={translations.discoverUsersDesc}
+        gradientFrom="from-sky-100"
+        gradientTo="to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30"
+        iconColor="text-sky-600 dark:text-sky-400"
+        endIcon={Activity}
       />
 
       <MenuItem

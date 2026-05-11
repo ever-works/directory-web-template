@@ -31,6 +31,16 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: profile-menu nav link for /client/users
+
+- `spec-022` AC-19: added a "Discover Users" entry to the
+  profile-button dropdown (non-admin view) linking to
+  `/client/users`. Without this, the directory was reachable only
+  via direct URL or the followers/following stat tiles on a
+  profile page. New `common.DISCOVER_USERS` /
+  `common.DISCOVER_USERS_DESC` i18n keys (English; other locales
+  fall back). PR #816.
+
 ## 2026-05-12 — Spec 022: users directory at /client/users
 
 - `spec-022` AC-18 added: new public users directory at

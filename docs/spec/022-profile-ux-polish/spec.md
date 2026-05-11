@@ -150,6 +150,9 @@ persist across sessions, so that I can showcase work over time.
   jobTitle, bio, or location (case-insensitive); results paginate
   at 30/page; each row uses `ProfileRow` with a Follow button
   initialized from the viewer's follow state; admins are excluded.
+- [ ] AC-19: The profile-button dropdown (non-admin view) includes
+  a "Discover Users" entry linking to `/client/users`, placed
+  between "Your Profile" and "Submissions".
 
 ## 7. Out-of-Scope Considerations
 
