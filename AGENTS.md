@@ -35,7 +35,32 @@ wins**.
 
 ## 2. Spec-Driven Development (Spec Kit)
 
-Almost every change goes through Spec Kit:
+> **⚠️ Definition of Done — applies to every non-trivial PR.**
+>
+> A change is **NOT done** until ALL of these are true. CI does not
+> enforce them yet; agents and reviewers MUST self-enforce.
+>
+> 1. [ ] Spec exists under `docs/spec/NNN-<slug>/spec.md` covering
+>    **what** and **why** (status: shipped / in-progress / proposed).
+> 2. [ ] If the change is architecturally meaningful (new route, new
+>    surface, new API, new contract), a `plan.md` exists too.
+> 3. [ ] `docs/spec/README.md` index has a row for the new spec.
+> 4. [ ] `docs/log.md` has a dated entry naming the spec, the area
+>    (`spec-NNN`, `apps/web/...`), and the PR number(s).
+> 5. [ ] `docs/questions.md` has an entry for every open decision the
+>    spec defers, **with a chosen default** so work is not blocked.
+>
+> **Trivial-fix exception.** Typos, broken links, dependency bumps with
+> no API change: skip steps 1–3, write only the `docs/log.md` line.
+>
+> **Why this is loud.** May 2026 we shipped 9 PRs (#777 → #803,
+> including a 3.7 MB → 50 KB perf win and a silent category-state
+> bug fix) without a single spec or log entry. Catch-up cost two
+> additional PRs (#804 → #806) plus the cognitive tax of reverse-
+> engineering intent from PR descriptions. Spec/log alongside code
+> is cheaper than spec/log retrofitted.
+
+The standard Spec Kit flow is:
 
 1. **Spec** (`docs/spec/NNN-feature-slug/spec.md`) — describe **what** and
    **why**, not how.
@@ -46,10 +71,14 @@ Almost every change goes through Spec Kit:
 4. **Implement** the tasks one by one. Each task ends in a verification
    step.
 5. **Document** the change in `docs/`, link the spec, and append a line
-   to [`docs/log.md`](docs/log.md).
+   to [`docs/log.md`](docs/log.md). **This step is not optional** —
+   see the Definition of Done above.
 
-Trivial fixes (typos, broken links, dependency bumps without API
-changes) may skip directly to step 5 with a `docs/log.md` line.
+For multi-PR features (e.g. an initial spec landed in PR #N then
+follow-ups #N+1, #N+2 fix regressions or extend scope), each follow-up
+PR appends a `docs/log.md` line referencing the same `spec-NNN` and
+notes what changed in the spec body. Do not start a new spec number
+for incremental follow-ups to the same feature.
 
 ## 3. Plugin-First architecture
 
