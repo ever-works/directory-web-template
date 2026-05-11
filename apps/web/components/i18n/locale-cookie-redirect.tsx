@@ -27,6 +27,11 @@ export function LocaleCookieRedirect() {
 	// which would silently leave the visitor on the wrong locale. We force
 	// `rest` to `/` in that case (and likewise for the non-default branch's
 	// edge case) so the redirect always navigates somewhere meaningful.
-	const script = `(function(){try{var m=document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);if(!m)return;var c=decodeURIComponent(m[1]);var L=${supportedLocales};if(L.indexOf(c)===-1)return;var p=window.location.pathname;var seg=p.split('/')[1]||'';var hasLoc=L.indexOf(seg)!==-1;var cur=hasLoc?seg:'${defaultLocale}';if(cur===c)return;var rest=hasLoc?p.substring(seg.length+1):p;if(!rest)rest='/';if(rest.charAt(0)!=='/')rest='/'+rest;var target=c==='${defaultLocale}'?rest:'/'+c+(rest==='/'?'':rest);window.location.replace(target+window.location.search+window.location.hash);}catch(e){}})();`;
+	// Loop guard: once we redirect from this page-load we mark
+	// `sessionStorage` so a subsequent re-execution (e.g. a stale cookie
+	// or a client-side router push that races with this script) cannot
+	// fire `location.replace` again in the same session. The flag is
+	// cleared if the URL settles into a state that matches the cookie.
+	const script = `(function(){try{var m=document.cookie.match(/(?:^|; )NEXT_LOCALE=([^;]*)/);if(!m)return;var c=decodeURIComponent(m[1]);var L=${supportedLocales};if(L.indexOf(c)===-1)return;var p=window.location.pathname;var seg=p.split('/')[1]||'';var hasLoc=L.indexOf(seg)!==-1;var cur=hasLoc?seg:'${defaultLocale}';if(cur===c){try{sessionStorage.removeItem('lcr_g');}catch(e){}return;}var guard=null;try{guard=sessionStorage.getItem('lcr_g');}catch(e){}if(guard)return;var rest=hasLoc?p.substring(seg.length+1):p;if(!rest)rest='/';if(rest.charAt(0)!=='/')rest='/'+rest;var target=c==='${defaultLocale}'?rest:'/'+c+(rest==='/'?'':rest);try{sessionStorage.setItem('lcr_g','1');}catch(e){}window.location.replace(target+window.location.search+window.location.hash);}catch(e){}})();`;
 	return <script dangerouslySetInnerHTML={{ __html: script }} />;
 }
