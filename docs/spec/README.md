@@ -40,6 +40,8 @@ or architectural change.
 | 017 | [`map-view`](017-map-view/spec.md) ([plan](017-map-view/plan.md), [tasks](017-map-view/tasks.md)) | shipped       | Listing map view with synchronised sidebar + dedicated `/map` route + header nav link        |
 | 018 | [`performance-budget`](018-performance-budget/spec.md) ([plan](018-performance-budget/plan.md), [tasks](018-performance-budget/tasks.md)) | proposed      | CI-enforced Core Web Vitals + bundle size budgets per Article V of the constitution           |
 | 019 | [`cdn-cacheable-i18n`](019-cdn-cacheable-i18n/spec.md) ([plan](019-cdn-cacheable-i18n/plan.md), [tasks](019-cdn-cacheable-i18n/tasks.md)) | in-progress | CDN-cacheable public surface + pluggable locale-detection (client-banner default, path-prefix or server-redirect via env) |
+| 020 | [`server-side-listings`](020-server-side-listings/spec.md) | shipped       | Server-side filter / sort / slice for the listing surface; URL is source of truth for `?tags=`, `?categories=`, `?q=`, `?sort=`, `?page=`; JSON peer API; modifier-key category select; slugify-aware state |
+| 021 | [`public-e2e-coverage`](021-public-e2e-coverage/spec.md)   | shipped       | Deepened public-surface Playwright coverage: combined flow specs, JSON API contract, URL state persistence, redirect-loop guard, modifier-key UX           |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.
