@@ -16,6 +16,24 @@ import { test, expect } from '@playwright/test';
 const PAGE_READY_TIMEOUT = 15_000;
 
 test.describe('Public: Active filter chips + Clear All', () => {
+	test.beforeEach(async ({ page, context }) => {
+		// Belt-and-braces — adjacent specs may have left pagination /
+		// layout preferences in localStorage that change the chip
+		// rendering surface. Reset them before each test.
+		await context.clearCookies();
+		await page.goto('/', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT }).catch(() => undefined);
+		await page
+			.evaluate(() => {
+				try {
+					localStorage.clear();
+				} catch {
+					/* page may not have an origin yet */
+				}
+			})
+			.catch(() => undefined);
+	});
+
+
 	test('home page with ?tags=foo renders an active-filter chip', async ({ page }) => {
 		await page.goto('/discover/1?tags=free', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
 		await page.waitForTimeout(2_000);

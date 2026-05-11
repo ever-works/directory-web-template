@@ -22,6 +22,18 @@ import { test, expect } from '@playwright/test';
 
 const PAGE_READY_TIMEOUT = 20_000;
 
+async function clearPaginationPreference(page: import('@playwright/test').Page) {
+	// `LayoutThemeContext` persists `paginationType` in localStorage.
+	// Test files run sequentially in the same browser context, so we
+	// reset before AND after to avoid bleed into adjacent specs that
+	// assume standard pagination.
+	try {
+		await page.evaluate(() => localStorage.removeItem('paginationType'));
+	} catch {
+		/* page may not have navigated yet */
+	}
+}
+
 async function enableInfiniteMode(page: import('@playwright/test').Page) {
 	// `LayoutThemeContext` reads `STORAGE_KEYS.PAGINATION_TYPE` on mount.
 	// Pre-seed localStorage on the deployment origin before navigation.
@@ -39,6 +51,10 @@ async function enableInfiniteMode(page: import('@playwright/test').Page) {
 }
 
 test.describe('Public: Listing — infinite scroll mode', () => {
+	test.afterEach(async ({ page }) => {
+		await clearPaginationPreference(page);
+	});
+
 	test('toggling localStorage to "infinite" hides the numbered pagination strip', async ({ page }) => {
 		await enableInfiniteMode(page);
 		// The HeroUI Pagination component is omitted in infinite mode.
