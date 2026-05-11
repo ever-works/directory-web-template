@@ -57,6 +57,7 @@ export function ProfileHeader({ profile, isOwnProfile = false }: ProfileHeaderPr
 								height={112}
 								className="w-full h-full object-cover"
 								priority
+								unoptimized
 								onError={() => {
 									setImageError(true);
 								}}

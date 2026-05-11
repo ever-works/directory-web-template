@@ -42,6 +42,7 @@ or architectural change.
 | 019 | [`cdn-cacheable-i18n`](019-cdn-cacheable-i18n/spec.md) ([plan](019-cdn-cacheable-i18n/plan.md), [tasks](019-cdn-cacheable-i18n/tasks.md)) | in-progress | CDN-cacheable public surface + pluggable locale-detection (client-banner default, path-prefix or server-redirect via env) |
 | 020 | [`server-side-listings`](020-server-side-listings/spec.md) | shipped       | Server-side filter / sort / slice for the listing surface; URL is source of truth for `?tags=`, `?categories=`, `?q=`, `?sort=`, `?page=`; JSON peer API; modifier-key category select; slugify-aware state |
 | 021 | [`public-e2e-coverage`](021-public-e2e-coverage/spec.md)   | shipped       | Deepened public-surface Playwright coverage: combined flow specs, JSON API contract, URL state persistence, redirect-loop guard, modifier-key UX           |
+| 022 | [`profile-ux-polish`](022-profile-ux-polish/spec.md)       | in-progress   | End-to-end persistence for client profile: avatar (data URL), interests, skills, portfolio CRUD; public profile view rendered from saved data |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.

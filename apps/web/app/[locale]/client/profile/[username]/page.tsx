@@ -2,8 +2,9 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 import { ProfileHeader, ProfileContent } from '@/components/profile';
-import { getClientProfileByEmail } from '@/lib/db/queries';
+import { getClientProfileByEmail, listPortfolioProjectsForProfile } from '@/lib/db/queries';
 import { getLocale } from 'next-intl/server';
+import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
 // Force dynamic rendering to ensure auth() runs on each request
 export const dynamic = 'force-dynamic';
@@ -41,24 +42,47 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		redirect(`/${locale}/client/dashboard`);
 	}
 
-	// Use client profile data
-	const profile = {
+	const portfolioRows = await listPortfolioProjectsForProfile(clientProfile.id);
+
+	const rawSkills = (clientProfile.skills ?? []) as Array<{ name?: unknown; category?: unknown; proficiency?: unknown }>;
+	const skills: ProfileSkill[] = rawSkills
+		.filter((s) => typeof s?.name === 'string' && (s.name as string).trim().length > 0)
+		.map((s) => ({
+			name: String(s.name),
+			category: typeof s.category === 'string' ? s.category : 'Other',
+			proficiency: typeof s.proficiency === 'number' ? s.proficiency : 0
+		}));
+
+	const interests = (clientProfile.interests ?? '')
+		.split(',')
+		.map((part) => part.trim())
+		.filter(Boolean);
+
+	const profile: Profile = {
 		username: clientProfile.username || clientProfile.email?.split('@')[0] || 'user',
 		displayName: clientProfile.displayName || clientProfile.name || clientProfile.email?.split('@')[0] || 'User',
-		bio: clientProfile.bio || 'User profile',
-		avatar: '', // Client profiles don't have avatar field
-		location: clientProfile.location || 'Unknown',
-		company: clientProfile.company || 'Unknown',
-		jobTitle: clientProfile.jobTitle || 'User',
-		skills: [], // This would come from a separate skills table in the future
-		interests: [], // This would come from a separate interests table in the future
+		bio: clientProfile.bio || '',
+		avatar: clientProfile.avatar || '',
+		location: clientProfile.location || '',
+		company: clientProfile.company || '',
+		jobTitle: clientProfile.jobTitle || '',
+		skills,
+		interests,
 		website: clientProfile.website || '',
-		socialLinks: [], // This would come from a separate social links table in the future
-		portfolio: [], // This would come from a separate portfolio table in the future
+		socialLinks: [],
+		portfolio: portfolioRows.map((p) => ({
+			id: p.id,
+			title: p.title,
+			description: p.description,
+			imageUrl: p.imageUrl,
+			externalUrl: p.externalUrl,
+			tags: (p.tags ?? []) as string[],
+			isFeatured: !!p.isFeatured
+		})),
 		themeColor: '#3B82F6',
 		isPublic: true,
 		memberSince: clientProfile.createdAt?.toISOString().split('T')[0] || '2024-01-01',
-		submissions: [] // This would come from submissions table
+		submissions: []
 	};
 
 	return (

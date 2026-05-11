@@ -13,35 +13,31 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 
-const SKILL_CATEGORIES = ['Frontend', 'Backend', 'Tools & Frameworks', 'Other'];
+const SKILL_CATEGORIES = ['Frontend', 'Backend', 'Tools & Frameworks', 'Other'] as const;
+type SkillCategory = (typeof SKILL_CATEGORIES)[number];
 
 interface Skill {
 	name: string;
-	category: string;
+	category: SkillCategory;
 	proficiency: number;
 }
 
-type EditableUser = {
-	name?: string | null;
-	email?: string | null;
-	username?: string | null;
-	bio?: string | null;
-	location?: string | null;
-	company?: string | null;
-	title?: string | null;
-	website?: string | null;
-	interests?: string | null;
-};
+interface SavedProfile {
+	displayName: string;
+	username: string;
+	bio: string;
+	jobTitle: string;
+	company: string;
+	location: string;
+	website: string;
+	interests: string;
+	skills: Skill[];
+	avatar: string;
+}
 
 const DEFAULT_SKILLS: Skill[] = [{ name: '', category: 'Frontend', proficiency: 80 }];
-
-const deriveUsername = (user: EditableUser | undefined) => {
-	if (user?.username) return user.username;
-	if (user?.name) return user.name.toLowerCase().replace(/\s+/g, '');
-	if (user?.email) return user.email.split('@')[0];
-	return '';
-};
 
 function SkillsEditor({
 	initialSkills = [],
@@ -62,7 +58,9 @@ function SkillsEditor({
 			setErrors((prev) => ({ ...prev, [idx]: '' }));
 		}
 		setSkills((prev) => {
-			const updatedSkills = prev.map((skill, i) => (i === idx ? { ...skill, [field]: value } : skill));
+			const updatedSkills = prev.map((skill, i) =>
+				i === idx ? ({ ...skill, [field]: value } as Skill) : skill
+			);
 			onChange(updatedSkills);
 			return updatedSkills;
 		});
@@ -82,7 +80,7 @@ function SkillsEditor({
 
 	const addSkill = () => {
 		setSkills((prev) => {
-			const updatedSkills = [...prev, { name: '', category: 'Frontend', proficiency: 70 }];
+			const updatedSkills: Skill[] = [...prev, { name: '', category: 'Frontend', proficiency: 70 }];
 			onChange(updatedSkills);
 			return updatedSkills;
 		});
@@ -190,79 +188,112 @@ type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>;
 
 export default function BasicInfoPage() {
 	const t = useTranslations('profile');
-	const { user, isLoading: isUserLoading } = useCurrentUser();
+	const { isLoading: isUserLoading } = useCurrentUser();
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-
-	// Skills state for integration
 	const [skills, setSkills] = useState<Skill[]>(DEFAULT_SKILLS);
+	const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 
 	const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
-			// Validate file type
-				const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-				if (!allowedTypes.includes(file.type)) {
-					toast.error(t('INVALID_IMAGE_FILE'));
-					return;
-				}
-				// Validate file size (2MB limit)
-				if (file.size > 2 * 1024 * 1024) {
-					toast.error(t('FILE_SIZE_TOO_LARGE'));
-					return;
-				}
-			// Create preview
+			const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+			if (!allowedTypes.includes(file.type)) {
+				toast.error(t('INVALID_IMAGE_FILE'));
+				return;
+			}
+			// 2MB raw file cap (base64-inflated payload stays under the API's 3MB ceiling)
+			if (file.size > 2 * 1024 * 1024) {
+				toast.error(t('FILE_SIZE_TOO_LARGE'));
+				return;
+			}
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				setAvatarPreview(e.target?.result as string);
 			};
-				reader.onerror = () => {
-					toast.error(t('ERROR_READING_FILE'));
-					setAvatarPreview(null);
-				};
+			reader.onerror = () => {
+				toast.error(t('ERROR_READING_FILE'));
+				setAvatarPreview(null);
+			};
 			reader.readAsDataURL(file);
 		}
 	};
 
-		const {
-			register,
-			handleSubmit,
-			reset,
-			formState: { errors, isSubmitting }
-		} = useForm<ProfileFormData>({
-			resolver: zodResolver(createProfileSchema(t)),
-			defaultValues: {
-				displayName: '',
-				username: '',
-				bio: '',
-				location: '',
-				company: '',
-				jobTitle: '',
-				website: '',
-				interests: ''
-			}
-		});
+	const {
+		register,
+		handleSubmit,
+		reset,
+		formState: { errors, isSubmitting }
+	} = useForm<ProfileFormData>({
+		resolver: zodResolver(createProfileSchema(t)),
+		defaultValues: {
+			displayName: '',
+			username: '',
+			bio: '',
+			location: '',
+			company: '',
+			jobTitle: '',
+			website: '',
+			interests: ''
+		}
+	});
 
 	useEffect(() => {
-		if (!user) return;
-
-		const editableUser = user as EditableUser;
-		reset({
-			displayName: editableUser.name ?? '',
-			username: deriveUsername(editableUser),
-			bio: editableUser.bio ?? '',
-			location: editableUser.location ?? '',
-			company: editableUser.company ?? '',
-			jobTitle: editableUser.title ?? '',
-			website: editableUser.website ?? '',
-			interests: editableUser.interests ?? ''
-		});
-	}, [user, reset]);
+		let cancelled = false;
+		async function load() {
+			const response = await serverClient.get<SavedProfile>('/api/user/profile');
+			if (cancelled) return;
+			if (!apiUtils.isSuccess(response) || !response.data) {
+				setIsLoadingProfile(false);
+				return;
+			}
+			const profile = response.data;
+			reset({
+				displayName: profile.displayName,
+				username: profile.username,
+				bio: profile.bio,
+				location: profile.location,
+				company: profile.company,
+				jobTitle: profile.jobTitle,
+				website: profile.website,
+				interests: profile.interests
+			});
+			if (profile.skills?.length) {
+				setSkills(profile.skills);
+			}
+			if (profile.avatar) {
+				setAvatarPreview(profile.avatar);
+			}
+			setIsLoadingProfile(false);
+		}
+		void load();
+		return () => {
+			cancelled = true;
+		};
+	}, [reset]);
 
 	const onSubmit = async (data: ProfileFormData) => {
 		try {
-			// Merge skills into form data
-			void { ...data, skills };
-			toast.info('Profile editing is not connected to persistence yet in this template.');
+			const validSkills = (data.skills ?? skills).filter((s) => s.name.trim().length > 0);
+			const payload = {
+				displayName: data.displayName,
+				username: data.username,
+				bio: data.bio,
+				jobTitle: data.jobTitle,
+				company: data.company,
+				location: data.location,
+				website: data.website,
+				interests: data.interests,
+				skills: validSkills,
+				...(avatarPreview ? { avatar: avatarPreview } : {})
+			};
+
+			const response = await serverClient.patch<SavedProfile>('/api/user/profile', payload);
+			if (!apiUtils.isSuccess(response)) {
+				const message = apiUtils.getErrorMessage(response) || t('ERROR_UPDATING_PROFILE');
+				toast.error(message);
+				return;
+			}
+			toast.success(t('PROFILE_UPDATED'));
 		} catch (error) {
 			console.error('Error updating profile:', error);
 			toast.error(t('ERROR_UPDATING_PROFILE'));
@@ -294,10 +325,6 @@ export default function BasicInfoPage() {
 							<p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">
 								{t('BASIC_INFO_DESCRIPTION')}
 							</p>
-						</div>
-
-						<div className="max-w-3xl mx-auto rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
-							Profile editing is not connected to saved profile persistence yet. Changes on this screen are local only.
 						</div>
 
 						{/* Form */}
@@ -545,9 +572,9 @@ export default function BasicInfoPage() {
 											<Button
 												type="submit"
 												className="inline-flex items-center gap-2 px-6 py-2 text-base font-semibold bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-md transition-colors shadow-md w-full md:w-auto justify-center"
-												disabled={isSubmitting || isUserLoading}
+												disabled={isSubmitting || isUserLoading || isLoadingProfile}
 											>
-												{isSubmitting || isUserLoading ? t('SAVING') : t('SAVE_CHANGES')}
+												{isSubmitting || isLoadingProfile ? t('SAVING') : t('SAVE_CHANGES')}
 											</Button>
 										</div>
 									</div>

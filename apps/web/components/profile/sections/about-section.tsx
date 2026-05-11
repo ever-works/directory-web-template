@@ -105,7 +105,7 @@ export function AboutSection({ profile }: AboutSectionProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill: { name: string; level: number }) => (
+              {profile.skills.map((skill) => (
                 <ProfileTag key={skill.name} label={skill.name} />
               ))}
             </div>

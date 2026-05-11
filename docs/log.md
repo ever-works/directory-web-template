@@ -31,6 +31,21 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: profile UX polish (in-progress)
+
+- `spec-022` New spec under `docs/spec/022-profile-ux-polish/`
+  describing end-to-end persistence for the client profile:
+  avatar (as data URL in the existing `client_profiles.avatar`
+  column), new `interests text` and `skills jsonb` columns, new
+  `portfolio_projects` table with full CRUD, and the public profile
+  view rendered from saved data. Wires the basic-info form
+  (currently a no-op) and the portfolio editor (currently local
+  state only) through `GET`/`PATCH /api/user/profile` and
+  `/api/user/profile/portfolio*` routes. Fixes a long-standing bug
+  where the public profile page hardcoded `avatar: ''`. See PR
+  (forthcoming).
+- `index` `docs/spec/README.md` index updated with row 022.
+
 ## 2026-05-11 — `AGENTS.md` + `CLAUDE.md`: explicit Definition of Done
 
 - `agents` `AGENTS.md` §2 now leads with a ⚠️ "Definition of Done"
