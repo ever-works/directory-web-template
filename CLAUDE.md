@@ -10,6 +10,9 @@ This file gives Claude Code (and other AI coding tools) project-specific instruc
 > - [`docs/spec/README.md`](docs/spec/README.md) — index of every feature spec.
 > - [`docs/log.md`](docs/log.md) and [`docs/questions.md`](docs/questions.md) — running change log and open-questions register.
 
+> **⚠️ Definition of Done — non-negotiable for any non-trivial PR.**
+> A change is NOT done until the spec exists under `docs/spec/NNN-<slug>/`, the spec is indexed in `docs/spec/README.md`, AND a dated line referencing the spec + PR number is appended to `docs/log.md`. **Write these alongside the code, not after.** See [`AGENTS.md` §2](AGENTS.md) for the full checklist. Skipping is a recorded incident (May 2026, PRs #777 → #803 shipped without docs; catch-up cost three additional PRs).
+
 ## 1. Environment & tooling
 
 - This project uses a **Turborepo monorepo** with **pnpm workspaces**. Run commands from the **monorepo root** (where `turbo.json` lives) unless noted otherwise. The web app source lives in `apps/web/`.
