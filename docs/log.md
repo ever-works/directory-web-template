@@ -31,6 +31,99 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-11 — Spec 020 follow-ups: sort URL sync + redirect-loop guard
+
+- `spec-020` Sort URL sync (`?sort=<key>`) shipped to production
+  (PRs #798 → #799 → #800). Was a bare `useState` setter — never
+  wrote URL, never triggered re-render. On the home page (server-
+  sliced post Spec 020), client-side sorting is disabled, so the
+  user clicking "Name (A-Z)" did literally nothing visually.
+- `apps/web/components/filters/hooks/use-filter-state.ts`,
+  `…/use-filter-url-sync.ts`, `…/filter-url-parser.tsx` Wired
+  `setSortBy` through `syncFilterURL`; `FilterState` carries
+  optional `sort?: string`; URL writes `?sort=<key>` (omitting
+  `popularity` for clean bookmarks); parser reads + validates +
+  pushes back into context.
+- `apps/web/components/tags-cards.tsx`,
+  `apps/web/components/categories-grid.tsx` Switched
+  `useRouter` / `usePathname` imports from `next/navigation`
+  (locale-unaware) to `@/i18n/navigation`. Was producing
+  locale-less URLs on non-default locales, tripping the inline
+  `LocaleCookieRedirect` script and causing the `/` ⇄
+  `/?categories=…` ping-pong reported by the user.
+- `apps/web/components/i18n/locale-cookie-redirect.tsx` Added
+  `sessionStorage` loop guard (`lcr_g`): redirects fire at most
+  once per session. Cleared if URL settles into a state matching
+  the cookie.
+- `spec-021` New e2e specs: `sort-url-sync.spec.ts` (6 tests),
+  `locale-redirect-loop-guard.spec.ts` (5 tests). Comparisons
+  spec deepened from 2 → 6 tests (PRs #801 → #802 → #803).
+- `spec-020` Drafted `docs/spec/020-server-side-listings/spec.md`
+  capturing the original server-side-slice work + all post-facto
+  follow-ups (PRs #777, #780, #783, #786, #792, #798).
+- `spec-021` Drafted `docs/spec/021-public-e2e-coverage/spec.md`
+  capturing the testing investment that catches regressions like
+  the paging + sort + redirect-loop bugs at PR time.
+
+## 2026-05-11 — Spec 020 follow-up: slugify-aware category state
+
+- `spec-020` Category-selection state mismatch (PRs #792 →
+  #793 → #794). Clicking "Practices" applied the URL filter
+  (`?categories=Practices`) but the button's `aria-pressed`
+  stayed `false`. Cause: `FilterURLParser` slugifies on read
+  (`"Practices" → "practices"`) while the click handler stored
+  `category.id="Practices"` verbatim; strict equality in
+  `CategoryItem.isActive` failed. Same bug in
+  `ActiveFilters.selectedCategoryData` chip lookup.
+- `apps/web/components/filters/components/categories/categories-list.tsx`,
+  `…/categories-section.tsx`,
+  `apps/web/components/filters/components/active-filters/active-filters.tsx`
+  Normalised every category-id comparison through `slugify` so
+  the URL round-trip is lossless regardless of YAML id casing.
+- `spec-021` Added `categories-modifier-select.spec.ts` and
+  augmented `categories.spec.ts` / `tags.spec.ts` to catch the
+  next iteration of this class of bug.
+
+## 2026-05-11 — Spec 021: deepen public e2e coverage
+
+- `spec-021` Four new flow specs + 6 augmented thin specs +
+  2 page-object hardening commits, shipped via PRs #789 → #790 →
+  #791 (initial) and #795 → #796 → #797 (localStorage isolation
+  follow-up).
+- New specs: `listing-flow-comprehensive.spec.ts`,
+  `listing-api-filters.spec.ts`, `listing-url-state.spec.ts`,
+  `public-feeds.spec.ts`, `listing-infinite-scroll.spec.ts`,
+  `tag-and-category-detail-pages.spec.ts`,
+  `active-filters-and-clear.spec.ts`, `settings-modal.spec.ts`,
+  `header-and-hero.spec.ts`.
+- Page-object hardening: `view-toggle.page.ts` multi-marker
+  active-state detection; `sort-menu.page.ts` filter by visible
+  sort label to disambiguate from header "More" dropdown.
+
+## 2026-05-10 — Spec 020: server-side listing slice + URL-driven filter / sort / pagination
+
+- `spec-020` Inversion of the listing model (PR #777, plus
+  follow-ups #780, #783, #786). Was shipping the entire ~992-item
+  catalogue as a 3.7 MB RSC payload to every browser; now slices
+  to a 12-item page server-side, ~50 KB body. URL becomes source
+  of truth for `?tags=`, `?categories=`, `?q=`, `?sort=`, `?page=`.
+- `apps/web/app/[locale]/(listing)/discover/[page]/page.tsx` SSR
+  filter + sort + slice.
+- `apps/web/app/api/items/listing/route.ts` New JSON peer for
+  server-paginated infinite scroll.
+- `apps/web/lib/listing-server.ts` Shared `sortItems` +
+  `parseCsv` so SSR + API agree.
+- `apps/web/components/shared-card/hooks/use-pagination-logic.ts`,
+  `…/use-server-infinite-loading.ts` URL-driven numbered pagination
+  + JSON-API-backed infinite scroll.
+- `apps/web/components/filters/components/tags/tags-section.tsx`
+  Hard-cap tag-strip DOM at `TAG_STRIP_HARD_CAP = 30` (#780). The
+  pre-cap version rendered 855 HeroUI buttons × 2 layouts × ~1 KB
+  classes each on every page.
+- `apps/web/components/shared-card/index.tsx` Server-paginated
+  mode detection (`total > items.length`); header counter fix
+  (#786); modifier-key category select wiring.
+
 ## 2026-05-10 (cont — Spec 019 Pattern C wired up)
 
 - `apps/web/proxy.ts` Implements Pattern C in middleware: when
