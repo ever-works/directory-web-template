@@ -1,5 +1,6 @@
 'use client';
-import { useState, memo, useCallback } fimport { useTranslations, useLocale } from 'next-intl';
+import { useState, memo, useCallback } from 'react';
+import { useTranslations, useLocale } from 'next-intl';
 import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
