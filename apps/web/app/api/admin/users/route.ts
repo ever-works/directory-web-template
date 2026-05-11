@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 import { CreateUserRequest, UserListOptions } from '@/lib/types/user';
 import { isValidEmail } from '@/lib/utils/email-validation';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { passwordSchema } from '@/lib/validations/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -207,16 +207,8 @@ import { passwordSchema } from '@/lib/validations/auth';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -444,16 +436,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse request body
     const body = await request.json();

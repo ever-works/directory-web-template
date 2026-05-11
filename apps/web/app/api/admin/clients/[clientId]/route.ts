@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import {
   getClientProfileById,
   updateClientProfile,
@@ -91,11 +91,8 @@ export async function GET(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 
@@ -254,11 +251,8 @@ export async function PUT(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 
@@ -425,11 +419,8 @@ export async function DELETE(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 

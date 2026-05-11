@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 import type { UpdateRoleRequest } from '@/lib/types/role';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 const roleRepository = new RoleRepository();
 
@@ -106,16 +106,8 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
 
@@ -283,16 +275,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const body = await request.json();
@@ -467,16 +451,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const { searchParams } = new URL(request.url);

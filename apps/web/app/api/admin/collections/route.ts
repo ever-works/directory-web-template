@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collectionRepository } from '@/lib/repositories/collection.repository';
 import { CreateCollectionRequest, CollectionListOptions } from '@/types/collection';
-import { auth } from '@/lib/auth';
 import { invalidateContentCaches } from '@/lib/cache-invalidation';
 import { revalidatePath } from 'next/cache';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -120,13 +120,8 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 
@@ -283,13 +278,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		let body: any;
 		try {

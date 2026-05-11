@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { featuredItems } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -94,11 +94,8 @@ import { getTenantId } from '@/lib/auth/tenant';
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 
@@ -258,11 +255,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {
@@ -382,11 +376,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {

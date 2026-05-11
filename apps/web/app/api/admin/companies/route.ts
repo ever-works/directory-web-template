@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { listCompanies, createCompany, getCompanyByDomain, getCompanyBySlug } from '@/lib/db/queries';
 import { createCompanySchema } from '@/lib/validations/company';
 import { ZodError } from 'zod';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -157,11 +157,8 @@ import { ZodError } from 'zod';
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 
@@ -356,11 +353,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const body = await request.json();
 

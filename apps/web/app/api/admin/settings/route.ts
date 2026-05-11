@@ -1,18 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configManager } from '@/lib/config-manager';
-import { getCachedApiSession } from '@/lib/auth/cached-session';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * GET /api/admin/settings
  * Retrieves the settings section from .works/works.yml
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
-		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		// Get settings from config
 		const config = configManager.getConfig();
@@ -36,10 +33,8 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	try {
 		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const body = await req.json();
 		const { key, value } = body;

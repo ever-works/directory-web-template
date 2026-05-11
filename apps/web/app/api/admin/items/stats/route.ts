@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 const itemRepository = new ItemRepository();
 
@@ -88,13 +88,8 @@ const itemRepository = new ItemRepository();
 export async function GET(request: Request) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse filter query parameters
     const { searchParams } = new URL(request.url);

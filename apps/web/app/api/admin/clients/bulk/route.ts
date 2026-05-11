@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { updateClientProfile, deleteClientProfile } from '@/lib/db/queries';
 import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -191,11 +191,8 @@ import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const body = await request.json();
     
@@ -421,11 +418,8 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const body = await request.json();
     

@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { eq, and, desc, count } from 'drizzle-orm';
-import { auth } from '@/lib/auth';
 import { getTenantId } from '@/lib/auth/tenant';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -152,14 +152,9 @@ import { getTenantId } from '@/lib/auth/tenant';
  */
 export async function GET() {
 	try {
-		const session = await auth();
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
-		const isAdmin = session.user.isAdmin;
-		if (!isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {
@@ -354,10 +349,9 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+
 		const body = await request.json();
 		const { type, title, message, data, userId } = body;
 

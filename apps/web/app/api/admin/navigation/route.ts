@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configManager } from '@/lib/config-manager';
-import { getCachedApiSession } from '@/lib/auth/cached-session';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * Validates that a navigation path is safe to use as a link href
@@ -121,15 +121,11 @@ function isValidNavigationPath(path: string): boolean {
  *                   type: string
  *                   example: "Failed to fetch navigation"
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
-		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
-		// Get navigation config
 		const config = configManager.getConfig();
 		const custom_header = config.custom_header || [];
 		const custom_footer = config.custom_footer || [];
@@ -292,10 +288,8 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	try {
 		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const body = await req.json();
 		const { type, items } = body;

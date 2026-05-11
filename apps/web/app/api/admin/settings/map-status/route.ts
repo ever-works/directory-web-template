@@ -1,17 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getCachedApiSession } from '@/lib/auth/cached-session';
+import { NextResponse } from 'next/server';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * GET /api/admin/settings/map-status
  * Returns the configuration status of map providers (without exposing actual keys)
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
-		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const mapboxConfigured = Boolean(process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN);
 		const googleConfigured = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);

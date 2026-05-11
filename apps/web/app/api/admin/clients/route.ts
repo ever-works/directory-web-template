@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import {
   createClientProfile,
   getClientProfiles,
@@ -9,6 +8,7 @@ import { UserDbService } from '@/lib/services/user-db.service';
 import { AuthUserData } from '@/lib/types/user';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import crypto from 'crypto';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 // Type definitions for request bodies
 interface CreateClientRequest {
@@ -208,11 +208,8 @@ interface CreateClientRequest {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { searchParams } = new URL(request.url);
 
@@ -394,11 +391,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const raw = await request.json() as Partial<CreateClientRequest>;
     const email = raw.email ?? raw.userId;

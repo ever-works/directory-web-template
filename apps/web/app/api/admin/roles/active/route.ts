@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { RoleRepository } from '@/lib/repositories/role.repository';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 const roleRepository = new RoleRepository();
 
@@ -62,6 +63,9 @@ const roleRepository = new RoleRepository();
  */
 export async function GET() {
   try {
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
+
     const activeRoles = await roleRepository.findActive();
 
     return NextResponse.json({

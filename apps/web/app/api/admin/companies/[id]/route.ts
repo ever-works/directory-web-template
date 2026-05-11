@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getCompanyById, updateCompany, deleteCompany, getCompanyByDomain, getCompanyBySlug } from '@/lib/db/queries';
 import { updateCompanySchema } from '@/lib/validations/company';
 import { ZodError } from 'zod';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -80,11 +80,8 @@ import { ZodError } from 'zod';
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 
@@ -259,11 +256,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 
@@ -442,11 +436,8 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 

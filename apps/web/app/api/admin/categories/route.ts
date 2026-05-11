@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { categoryRepository } from "@/lib/repositories/category.repository";
 import { CreateCategoryRequest, CategoryListOptions } from "@/lib/types/category";
-import { auth } from "@/lib/auth";
 import { validatePaginationParams } from "@/lib/utils/pagination-validation";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -169,13 +169,8 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
 export async function GET(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -334,13 +329,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse request body
     const body = await request.json();
