@@ -56,6 +56,11 @@ export function useFilterURLSync(options: UseFilterURLSyncOptions = {}) {
         if (filters.q) {
           params.set('q', filters.q);
         }
+        if (filters.sort && filters.sort !== 'popularity') {
+          // 'popularity' is the implicit default — omit it from the URL
+          // so bookmarks stay clean.
+          params.set('sort', filters.sort);
+        }
         if (filters.nearLat != null && filters.nearLng != null) {
           params.set('near_lat', String(filters.nearLat));
           params.set('near_lng', String(filters.nearLng));
