@@ -47,7 +47,12 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
 				id: clientProfiles.id,
 				name: clientProfiles.name,
 				email: clientProfiles.email,
-				image: clientProfiles.avatar
+				image: clientProfiles.avatar,
+				username: clientProfiles.username,
+				bio: clientProfiles.bio,
+				jobTitle: clientProfiles.jobTitle,
+				company: clientProfiles.company,
+				location: clientProfiles.location
 			}
 		})
 		.from(comments)
@@ -97,8 +102,12 @@ export async function getCommentWithUserById(id: string): Promise<CommentWithUse
 				id: clientProfiles.id,
 				name: clientProfiles.name,
 				email: clientProfiles.email,
-				tenantId: clientProfiles.tenantId,
-				image: clientProfiles.avatar
+				image: clientProfiles.avatar,
+				username: clientProfiles.username,
+				bio: clientProfiles.bio,
+				jobTitle: clientProfiles.jobTitle,
+				company: clientProfiles.company,
+				location: clientProfiles.location
 			}
 		})
 		.from(comments)
