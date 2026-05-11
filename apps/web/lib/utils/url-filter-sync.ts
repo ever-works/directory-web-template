@@ -10,6 +10,11 @@ export interface FilterState {
   categories: string[];
   // Search query (optional)
   q?: string;
+  // Sort key (optional). Mirrors the values accepted by
+  // `lib/listing-server.ts::sortItems` so the URL ⇄ context round-trip
+  // is lossless. `undefined` (or `'popularity'`) means "no explicit
+  // sort" and is omitted from the URL.
+  sort?: string;
   // Location filter fields (optional)
   nearLat?: number;
   nearLng?: number;
