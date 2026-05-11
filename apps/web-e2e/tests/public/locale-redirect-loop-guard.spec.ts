@@ -48,6 +48,13 @@ async function countNavigations(
 }
 
 test.describe('Public: Locale redirect loop guard', () => {
+	test.afterEach(async ({ context }) => {
+		// `NEXT_LOCALE` cookies seeded here would otherwise bleed into
+		// adjacent specs (e.g. comparisons tests landing on a wrong-locale
+		// listing). Wipe both cookies and any sessionStorage guard.
+		await context.clearCookies().catch(() => undefined);
+	});
+
 	test('clicking a tag card on /tags does NOT trigger a loop (≤ 2 navigations)', async ({ page }) => {
 		await page.goto('/tags', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
 		await page.waitForTimeout(2_000);
