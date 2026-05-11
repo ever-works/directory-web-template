@@ -3,7 +3,8 @@
 import { Tag } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { Spinner } from "@heroui/react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "@/i18n/navigation";
 import { Hash, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useContainerWidth } from "@/components/ui/container";

@@ -5,6 +5,10 @@ import { usePathname } from '@/i18n/navigation';
 import { Suspense, useEffect, useRef } from 'react';
 import { useFilters } from '@/hooks/use-filters';
 import { slugify } from '@/lib/utils';
+import { SORT_OPTIONS } from './constants';
+import type { SortOption } from './types';
+
+const VALID_SORT_OPTIONS = new Set<string>(Object.values(SORT_OPTIONS));
 
 /**
  * Client component that parses URL query parameters and path and initializes filter state
@@ -17,6 +21,7 @@ function FilterURLParserContent() {
     setSelectedTags, setSelectedCategories, selectedTags, selectedCategories,
     setNearMe, setLocationCity, setLocationCountry, clearLocationFilter, locationFilter,
     setSearchTerm, searchTerm,
+    setSortBy, sortBy,
   } = useFilters();
   const lastUrlRef = useRef('');
   const isUpdatingRef = useRef(false);
@@ -188,6 +193,20 @@ function FilterURLParserContent() {
       if (prevUrl.includes('q=')) {
         setSearchTerm('');
       }
+    }
+
+    // Parse sort key from URL. The server route honours `?sort=` via
+    // `lib/listing-server.ts::sortItems`; the client mirrors it into
+    // `FilterContext` so the SortControl trigger reflects the active
+    // sort on direct navigation / refresh / back-forward.
+    const sortParam = searchParams.get('sort');
+    if (sortParam && VALID_SORT_OPTIONS.has(sortParam)) {
+      if (sortParam !== sortBy) {
+        setSortBy(sortParam as SortOption);
+      }
+    } else if (!sortParam && sortBy !== SORT_OPTIONS.POPULARITY && prevUrl.includes('sort=')) {
+      // URL had a `sort=` previously and now doesn't → restore default.
+      setSortBy(SORT_OPTIONS.POPULARITY);
     }
 
     // Update lastUrlRef at the very end, after all logic has completed
