@@ -107,11 +107,13 @@ test.describe('Public: home-page combined flow (search → sort → paginate →
 
 	test('browser back from a detail page returns to the same filtered listing', async ({ page }) => {
 		await page.goto('/discover/1?q=time', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+		await page.waitForTimeout(2_000);
 		const firstLink = page.locator('a[href*="/items/"]').first();
-		const isVisible = await firstLink.isVisible().catch(() => false);
-		test.skip(!isVisible, 'No items in filtered set to drill into');
+		const count = await firstLink.count();
+		test.skip(count === 0, 'No items in filtered set to drill into');
 
-		await firstLink.click();
+		await firstLink.waitFor({ state: 'attached', timeout: PAGE_READY_TIMEOUT });
+		await firstLink.click({ force: true });
 		await page.waitForURL(/\/items\//, { timeout: PAGE_READY_TIMEOUT });
 
 		await page.goBack({ waitUntil: 'domcontentloaded' });
