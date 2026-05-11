@@ -85,6 +85,27 @@ export async function getClientProfileById(id: string): Promise<ClientProfile | 
 }
 
 /**
+ * Find client profile by username within the current tenant. Case-insensitive.
+ */
+export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	const normalized = username.toLowerCase().trim();
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(
+			and(
+				sql`lower(${clientProfiles.username}) = ${normalized}`,
+				eq(clientProfiles.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return profile || null;
+}
+
+/**
  * Find client profile by user ID
  * @param userId - User ID
  * @returns Client profile or null if not found

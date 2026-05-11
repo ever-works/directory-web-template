@@ -71,6 +71,11 @@ profile page renders the persisted data.
 - Cross-tenant or admin-side profile editing. Updates are
   self-service only, scoped by `tenantId` + the authenticated user's
   `clientProfileId`.
+- Follower **lists** (who-follows-whom drill-down). Counts only this
+  round; clickable lists are a follow-up spec.
+- Profile **privacy toggle**. All profiles are public for now; a
+  `client_profiles.is_public` column is a follow-up spec if/when
+  someone files the request.
 
 ## 5. User Stories
 
@@ -110,6 +115,21 @@ persist across sessions, so that I can showcase work over time.
 - [ ] AC-9: Avatar uploads above 2MB are rejected client-side with a
   translated error toast.
 - [ ] AC-10: `pnpm lint`, `pnpm tsc --noEmit`, and `pnpm build` pass.
+- [ ] AC-11: `/client/profile/<username>` is reachable for any user
+  (no longer redirects on mismatch). 404 when the username does not
+  exist in the current tenant.
+- [ ] AC-12: Stats strip shows followers, following, submissions,
+  comments, favorites, portfolio. Counts come from the new
+  `getProfileStats()` aggregator.
+- [ ] AC-13: A signed-in user can follow / unfollow another profile
+  via the "Follow" button. Backed by a new `user_follows` table
+  (migration `0034`) with `(follower_id, following_id, tenant_id)`
+  uniqueness and a self-follow check constraint.
+- [ ] AC-14: When viewing your own profile, every editable field
+  (displayName, jobTitle, bio, location, company, website,
+  interests) is inline-editable: click the value, edit, save with
+  Enter, cancel with Escape. Saves PATCH `/api/user/profile` with
+  optimistic UI and rollback on error.
 
 ## 7. Out-of-Scope Considerations
 
@@ -157,18 +177,36 @@ persist across sessions, so that I can showcase work over time.
 
 ### API
 
-| Method | Path                                  | Notes                                  |
-| ------ | ------------------------------------- | -------------------------------------- |
-| GET    | `/api/user/profile`                   | Full profile of the authenticated user |
-| PATCH  | `/api/user/profile`                   | Partial update                         |
-| GET    | `/api/user/profile/portfolio`         | List own portfolio projects            |
-| POST   | `/api/user/profile/portfolio`         | Create new project                     |
-| PATCH  | `/api/user/profile/portfolio/[id]`    | Update by id                           |
-| DELETE | `/api/user/profile/portfolio/[id]`    | Delete by id                           |
+| Method | Path                                              | Notes                                                      |
+| ------ | ------------------------------------------------- | ---------------------------------------------------------- |
+| GET    | `/api/user/profile`                               | Full profile of the authenticated user                     |
+| PATCH  | `/api/user/profile`                               | Partial update                                             |
+| GET    | `/api/user/profile/portfolio`                     | List own portfolio projects                                |
+| POST   | `/api/user/profile/portfolio`                     | Create new project                                         |
+| PATCH  | `/api/user/profile/portfolio/[id]`                | Update by id                                               |
+| DELETE | `/api/user/profile/portfolio/[id]`                | Delete by id                                               |
+| GET    | `/api/user/profile/follow/[username]`             | isFollowing + counts (public; `isFollowing=null` if guest) |
+| POST   | `/api/user/profile/follow/[username]`             | Follow (idempotent, 401 if guest, 400 if self)             |
+| DELETE | `/api/user/profile/follow/[username]`             | Unfollow                                                   |
 
-All routes require an authenticated session with `clientProfileId`
-in claims; responses are tenant-scoped. The existing
-`/api/user/profile/location` route is untouched.
+Auth required for write/update endpoints; reads on follow state are
+public (counts visible to everyone, isFollowing only to the viewer).
+The existing `/api/user/profile/location` route is untouched.
+
+### Migration 0034 — `user_follows`
+
+| Column        | Type      | Notes                                                |
+| ------------- | --------- | ---------------------------------------------------- |
+| `id`          | text PK   | UUID                                                 |
+| `follower_id` | text      | → `users.id`, cascade                                |
+| `following_id`| text      | → `users.id`, cascade                                |
+| `tenant_id`   | text      | → `tenant.id`, cascade                               |
+| `created_at`  | timestamp | default `now()`                                      |
+
+Indexes: unique on `(follower_id, following_id, tenant_id)`, plus
+single-column indexes on follower/following/tenant. Table-level
+`CHECK (follower_id <> following_id)` prevents self-follows at the
+DB layer.
 
 ## 10. Plugin / Adapter Impact
 

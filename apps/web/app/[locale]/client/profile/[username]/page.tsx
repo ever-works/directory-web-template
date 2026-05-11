@@ -1,50 +1,40 @@
 import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 import { ProfileHeader, ProfileContent } from '@/components/profile';
-import { getClientProfileByEmail, listPortfolioProjectsForProfile } from '@/lib/db/queries';
-import { getLocale } from 'next-intl/server';
+import {
+	getClientProfileByUsername,
+	listPortfolioProjectsForProfile,
+	getProfileStats,
+	isFollowing
+} from '@/lib/db/queries';
 import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
-// Force dynamic rendering to ensure auth() runs on each request
+// Force dynamic rendering — page depends on session/follow state
 export const dynamic = 'force-dynamic';
 
 export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;
-	const locale = await getLocale();
-	const session = await auth();
-
-	// Check if user is authenticated
-	if (!session?.user) {
-		redirect(`/${locale}/auth/signin`);
-	}
-
-	// Check if user is admin - redirect to admin dashboard
-	if (session.user.isAdmin === true) {
-		redirect(`/${locale}/admin`);
-	}
-
-	// Validate that user has an email
-	if (!session.user.email) {
-		redirect(`/${locale}/auth/signin`);
-	}
-
-	// Get the client profile data directly
-	const clientProfile = await getClientProfileByEmail(session.user.email);
-
+	const clientProfile = await getClientProfileByUsername(username);
 	if (!clientProfile) {
-		redirect(`/${locale}/client/dashboard`);
+		notFound();
 	}
 
-	// Validate that the username in the URL matches the authenticated user
-	const userUsername = clientProfile.username || clientProfile.email?.split('@')[0] || 'user';
-	if (username !== userUsername) {
-		redirect(`/${locale}/client/dashboard`);
-	}
+	const session = await auth();
+	const viewerUserId = session?.user?.id ?? null;
+	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
-	const portfolioRows = await listPortfolioProjectsForProfile(clientProfile.id);
+	const [portfolioRows, stats, viewerFollows] = await Promise.all([
+		listPortfolioProjectsForProfile(clientProfile.id),
+		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
+		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false)
+	]);
 
-	const rawSkills = (clientProfile.skills ?? []) as Array<{ name?: unknown; category?: unknown; proficiency?: unknown }>;
+	const rawSkills = (clientProfile.skills ?? []) as Array<{
+		name?: unknown;
+		category?: unknown;
+		proficiency?: unknown;
+	}>;
 	const skills: ProfileSkill[] = rawSkills
 		.filter((s) => typeof s?.name === 'string' && (s.name as string).trim().length > 0)
 		.map((s) => ({
@@ -89,8 +79,21 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		<div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-8 pb-16">
-					<ProfileHeader profile={profile} />
-					<ProfileContent profile={profile} />
+					<ProfileHeader
+						profile={profile}
+						isOwn={isOwn}
+						isAuthenticated={!!viewerUserId}
+						stats={{
+							comments: stats.comments,
+							favorites: stats.favorites,
+							portfolio: stats.portfolio,
+							followers: stats.followers,
+							following: stats.following,
+							submissions: clientProfile.totalSubmissions ?? 0
+						}}
+						initialIsFollowing={viewerFollows}
+					/>
+					<ProfileContent profile={profile} isOwn={isOwn} />
 				</div>
 			</Container>
 		</div>

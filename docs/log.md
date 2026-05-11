@@ -31,6 +31,18 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: follow-up — public profiles, follows, inline edit
+
+- `spec-022` Extended Spec 022 with: public profile viewing (drop
+  username-mismatch redirect; 404 on missing); new `user_follows`
+  table (migration `0034`) with cascade scoping + self-follow check
+  constraint; `GET/POST/DELETE /api/user/profile/follow/[username]`
+  for follow toggle + count; new `ProfileStatsStrip` showing
+  followers / following / submissions / comments / favorites /
+  portfolio; inline-edit on every editable field in the header and
+  About section, hitting the existing `PATCH /api/user/profile`
+  route with optimistic UI. PR #816.
+
 ## 2026-05-12 — Spec 022: profile UX polish (in-progress)
 
 - `spec-022` New spec under `docs/spec/022-profile-ux-polish/`

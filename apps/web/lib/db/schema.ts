@@ -280,6 +280,33 @@ export const portfolioProjects = pgTable(
 	]
 );
 
+// ######################### User Follows Schema #########################
+export const userFollows = pgTable(
+	'user_follows',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		followerId: text('follower_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		followingId: text('following_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id')
+			.notNull()
+			.references(() => tenant.id, { onDelete: 'cascade' }),
+		createdAt: timestamp('created_at').notNull().defaultNow()
+	},
+	(follow) => [
+		uniqueIndex('user_follows_unique_idx').on(follow.followerId, follow.followingId, follow.tenantId),
+		index('user_follows_follower_id_idx').on(follow.followerId),
+		index('user_follows_following_id_idx').on(follow.followingId),
+		index('user_follows_tenant_id_idx').on(follow.tenantId),
+		check('user_follows_no_self_follow', sql`${follow.followerId} <> ${follow.followingId}`)
+	]
+);
+
 export const sessions = pgTable('sessions', {
 	sessionToken: text('sessionToken').primaryKey(),
 	userId: text('userId')
@@ -843,6 +870,10 @@ export type ClientProfileWithUser = ClientProfile & {
 // ######################### Portfolio Projects Types #########################
 export type PortfolioProject = typeof portfolioProjects.$inferSelect;
 export type NewPortfolioProject = typeof portfolioProjects.$inferInsert;
+
+// ######################### User Follows Types #########################
+export type UserFollow = typeof userFollows.$inferSelect;
+export type NewUserFollow = typeof userFollows.$inferInsert;
 
 // ######################### Favorites Types #########################
 export type Favorite = typeof favorites.$inferSelect;

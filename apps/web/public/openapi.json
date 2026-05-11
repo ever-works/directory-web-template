@@ -33482,6 +33482,28 @@
           }
         }
       }
+    },
+    "/api/user/profile/follow/{username}": {
+      "get": {
+        "tags": [
+          "User - Profile Follow"
+        ],
+        "summary": "Get follow state + counts for a profile",
+        "description": "Returns isFollowing (whether the authenticated user follows this profile) plus public follower/following counts. isFollowing is null for unauthenticated viewers."
+      },
+      "post": {
+        "tags": [
+          "User - Profile Follow"
+        ],
+        "summary": "Follow a profile",
+        "description": "Idempotent — following an already-followed profile returns 200."
+      },
+      "delete": {
+        "tags": [
+          "User - Profile Follow"
+        ],
+        "summary": "Unfollow a profile"
+      }
     }
   },
   "tags": []
