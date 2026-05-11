@@ -31,6 +31,20 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-11 — `AGENTS.md` + `CLAUDE.md`: explicit Definition of Done
+
+- `agents` `AGENTS.md` §2 now leads with a ⚠️ "Definition of Done"
+  callout listing the five spec/log checks (spec file, plan if
+  architectural, README index row, log entry, questions with
+  defaults). Adds explicit trivial-fix exception. References the
+  May 2026 incident (PRs #777 → #803 shipped without docs; catch-up
+  cost #804 → #806) as the precedent that motivated the louder
+  language.
+- `claude` `CLAUDE.md` Mirrors a short ⚠️ Definition-of-Done
+  callout right under the "Read first" block so it's visible to
+  every Claude Code session opening this repo.
+- `docs/log.md` (this file) gets the entry. Eating the dogfood.
+
 ## 2026-05-11 — Spec 020 follow-ups: sort URL sync + redirect-loop guard
 
 - `spec-020` Sort URL sync (`?sort=<key>`) shipped to production
