@@ -139,6 +139,12 @@ persist across sessions, so that I can showcase work over time.
   hint pointing at the Manage button) when no skills exist,
   instead of showing the categorized breakdown and a 0%
   proficiency summary.
+- [ ] AC-17: `/client/profile/<username>/followers` and
+  `/client/profile/<username>/following` render paginated lists
+  (30 per page) of who follows / is followed by the profile owner.
+  Each row links to the listed profile and shows a Follow button
+  initialized from the viewer's follow state. The two tiles on the
+  stats strip ("Followers", "Following") link to these pages.
 
 ## 7. Out-of-Scope Considerations
 

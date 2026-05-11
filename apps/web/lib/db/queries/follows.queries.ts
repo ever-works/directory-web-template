@@ -1,6 +1,6 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { userFollows, type NewUserFollow, type UserFollow } from '../schema';
+import { clientProfiles, userFollows, type NewUserFollow, type UserFollow } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -94,6 +94,102 @@ export async function followUser(followerId: string, followingId: string): Promi
 		.limit(1);
 
 	return existing ?? null;
+}
+
+/**
+ * Row returned by the followers/following list queries — enough to render a
+ * profile row (avatar, displayName, username, jobTitle) and a follow toggle.
+ */
+export interface FollowListRow {
+	userId: string;
+	username: string | null;
+	displayName: string | null;
+	name: string;
+	avatar: string | null;
+	jobTitle: string | null;
+	bio: string | null;
+	followedAt: Date;
+}
+
+/**
+ * List people who follow the given userId within the current tenant.
+ * Ordered by most recent follow first. Caller passes limit + offset.
+ */
+export async function listFollowers(
+	userId: string,
+	limit = 30,
+	offset = 0
+): Promise<FollowListRow[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return [];
+
+	return await db
+		.select({
+			userId: userFollows.followerId,
+			username: clientProfiles.username,
+			displayName: clientProfiles.displayName,
+			name: clientProfiles.name,
+			avatar: clientProfiles.avatar,
+			jobTitle: clientProfiles.jobTitle,
+			bio: clientProfiles.bio,
+			followedAt: userFollows.createdAt
+		})
+		.from(userFollows)
+		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followerId))
+		.where(and(eq(userFollows.followingId, userId), eq(userFollows.tenantId, tenantId)))
+		.orderBy(desc(userFollows.createdAt))
+		.limit(limit)
+		.offset(offset);
+}
+
+/**
+ * List people the given userId follows within the current tenant.
+ */
+export async function listFollowing(userId: string, limit = 30, offset = 0): Promise<FollowListRow[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return [];
+
+	return await db
+		.select({
+			userId: userFollows.followingId,
+			username: clientProfiles.username,
+			displayName: clientProfiles.displayName,
+			name: clientProfiles.name,
+			avatar: clientProfiles.avatar,
+			jobTitle: clientProfiles.jobTitle,
+			bio: clientProfiles.bio,
+			followedAt: userFollows.createdAt
+		})
+		.from(userFollows)
+		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followingId))
+		.where(and(eq(userFollows.followerId, userId), eq(userFollows.tenantId, tenantId)))
+		.orderBy(desc(userFollows.createdAt))
+		.limit(limit)
+		.offset(offset);
+}
+
+/**
+ * Given a viewer userId and a set of target userIds, return the subset that
+ * the viewer currently follows. Used to render the correct initial state for
+ * follow buttons on a list.
+ */
+export async function getFollowingSubset(viewerUserId: string, targetUserIds: string[]): Promise<Set<string>> {
+	if (targetUserIds.length === 0) return new Set();
+	const tenantId = await getTenantId();
+	if (!tenantId) return new Set();
+
+	const rows = await db
+		.select({ followingId: userFollows.followingId })
+		.from(userFollows)
+		.where(
+			and(
+				eq(userFollows.followerId, viewerUserId),
+				eq(userFollows.tenantId, tenantId),
+				sql`${userFollows.followingId} = ANY(${targetUserIds})`
+			)
+		);
+
+	return new Set(rows.map((r) => r.followingId));
 }
 
 /**

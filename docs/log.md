@@ -31,6 +31,16 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: followers / following drill-down pages
+
+- `spec-022` AC-17 added: new pages
+  `/client/profile/<username>/followers` and `.../following` render
+  paginated lists (30/page) of who follows / is followed, each row
+  with a working Follow button initialized from the viewer's
+  follow state via the new `getFollowingSubset()` helper. The two
+  stats-strip tiles ("Followers", "Following") link to these
+  pages. PR #816.
+
 ## 2026-05-12 — Spec 022: polish — recent activity feed + skills empty state
 
 - `spec-022` Added AC-15 (Recent Activity card on the About tab

@@ -217,7 +217,7 @@ export function ProfileHeader({
 						</div>
 
 						{/* Stats strip */}
-						{liveStats && <ProfileStatsStrip stats={liveStats} />}
+						{liveStats && <ProfileStatsStrip stats={liveStats} username={profile.username} />}
 
 						{/* Social Links (read-only for now; managed via settings later) */}
 						{profile.socialLinks.length > 0 && (
