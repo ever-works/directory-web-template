@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { ActiveFiltersProps, TagId } from '../../types';
 import { containerStyles, textStyles, filterItemStyles } from '../../utils/style-utils';
 import { formatDisplayName } from '../../utils/text-utils';
+import { slugify } from '@/lib/utils';
 
 /**
  * Active filters component
@@ -25,11 +26,15 @@ export function ActiveFilters({
   const hasActiveFilters =
     searchTerm || selectedTags.length > 0 || selectedCategories.length > 0 || sortBy !== 'popularity';
 
-  // Memoize category and tag lookups to prevent unnecessary iterations
+  // Memoize category and tag lookups to prevent unnecessary iterations.
+  // `selectedCategories` is normalised to slug form by `FilterURLParser`
+  // when it round-trips through the URL, so we match availableCategories
+  // by slugified id instead of strict equality.
   const selectedCategoryData = useMemo(() => {
     return selectedCategories
       .map((categoryId) => {
-        const category = availableCategories.find((c) => c.id === categoryId);
+        const targetSlug = slugify(categoryId);
+        const category = availableCategories.find((c) => slugify(c.id) === targetSlug);
         return category ? { id: categoryId, name: category.name } : null;
       })
       .filter((item): item is { id: string; name: string } => item !== null);

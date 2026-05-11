@@ -1,48 +1,54 @@
 import { test, expect } from '@playwright/test';
 
 /**
- * Tag surface coverage — covers both the navigation-mode `/tags`
- * landing page AND the filter-mode tag strip on the home / discover
- * pages.
+ * Tag surface coverage — covers two distinct surfaces:
  *
- * Navigation mode (`/tags`): each tag is a `<Link>` to `/tags/[slug]`.
- * Filter mode (home): each tag is a HeroUI Button that toggles
- * `selectedTags` in the FilterContext, which writes `?tags=` to the URL.
+ * 1. **Landing page (`/tags`)** — `TagsCards` renders each tag as a
+ *    `<div role="button">` (NOT an `<a href>`) whose click handler
+ *    calls `router.push('/?tags=<id>')`. The intentional UX is "browse
+ *    all tags → click → see filtered listing on home page", not "click
+ *    → navigate to a `/tags/<slug>` detail page". The previous version
+ *    of this spec mis-assumed `<a href>` and silently skipped.
  *
- * The original spec only covered the navigation-mode landing page.
- * Added: filter-mode home behaviour, URL sync, /tags/[slug] route shape.
+ * 2. **Filter-mode strip on home / discover pages** — each tag is a
+ *    HeroUI Button that toggles `selectedTags` in `FilterContext` and
+ *    writes `?tags=` to the URL via `useFilterURLSync`.
+ *
+ * Plus the `/tags/[...slug]` SSR route which renders a per-tag listing
+ * (different from the landing page).
  */
 
 const PAGE_READY_TIMEOUT = 15_000;
 
-test.describe('Public: Tags — navigation mode (/tags)', () => {
-	test('tags landing page loads with a heading', async ({ page }) => {
+test.describe('Public: Tags — landing page (/tags)', () => {
+	test('landing page loads with a heading', async ({ page }) => {
 		await page.goto('/tags', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
 		await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 	});
 
-	test('tags landing page advertises at least one tag link', async ({ page }) => {
+	test('landing page renders at least one tag card', async ({ page }) => {
 		await page.goto('/tags', { waitUntil: 'domcontentloaded' });
-		const tagLinks = page.locator('a[href*="/tags/"]');
-		const count = await tagLinks.count();
-		expect(count).toBeGreaterThanOrEqual(0);
-		await expect(page.locator('body')).toBeVisible();
+		// `TagsCards` uses `<div role="button" aria-label="View items tagged <name>">`.
+		const tagCards = page.locator('[role="button"][aria-label^="View items tagged"]');
+		expect(await tagCards.count()).toBeGreaterThan(0);
 	});
 
-	test('clicking a tag from /tags navigates to its detail page', async ({ page }) => {
-		await page.goto('/tags', { waitUntil: 'domcontentloaded' });
-		const firstTag = page.locator('a[href*="/tags/"]').first();
-		const isVisible = await firstTag.isVisible().catch(() => false);
-		test.skip(!isVisible, 'No tag links present on /tags');
+	test('clicking a tag card navigates to home with ?tags= filter', async ({ page }) => {
+		await page.goto('/tags', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+		const firstCard = page.locator('[role="button"][aria-label^="View items tagged"]').first();
+		await expect(firstCard).toBeVisible();
+		const ariaLabel = await firstCard.getAttribute('aria-label');
+		expect(ariaLabel, 'expected aria-label on tag card').toBeTruthy();
 
-		await firstTag.click();
-		await expect(page).toHaveURL(/\/tags\//);
+		await firstCard.click();
+		// `TagsCards.handleClick` pushes `/?tags=<id>`. next-intl may
+		// strip the default-locale prefix, leaving `/?tags=…` OR
+		// `/en?tags=…`. Either is acceptable — just assert the param.
+		await page.waitForURL((url) => url.searchParams.has('tags'), { timeout: PAGE_READY_TIMEOUT });
+		expect(page.url()).toMatch(/[?&]tags=/);
 	});
 
-	test('/tags/[slug] route returns non-5xx', async ({ page, request }) => {
-		// Pick a plausible tag slug from the items.json dump. If the
-		// deployment doesn't expose one, fall back to "free" which is
-		// near-universal in directory templates.
+	test('/tags/[slug] route returns non-5xx and renders a listing', async ({ page, request }) => {
 		let slug = 'free';
 		const itemsResp = await request.get('/items.json');
 		if (itemsResp.status() === 200) {
@@ -62,11 +68,10 @@ test.describe('Public: Tags — navigation mode (/tags)', () => {
 	});
 });
 
-test.describe('Public: Tags — filter mode (home page)', () => {
+test.describe('Public: Tags — filter-mode strip (home / discover)', () => {
 	test('home page renders an "All Tags" filter button', async ({ page }) => {
 		await page.goto('/', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
 		await page.waitForTimeout(2_000);
-
 		const allTagsButton = page.getByRole('button', { name: /^All Tags/i }).first();
 		const isVisible = await allTagsButton.isVisible().catch(() => false);
 		test.skip(!isVisible, 'No tag strip on home (tags disabled or no tags in catalogue)');
@@ -90,7 +95,7 @@ test.describe('Public: Tags — filter mode (home page)', () => {
 			.filter((n): n is string => Boolean(n))
 			.map((n) => Number.parseInt(n, 10));
 		test.skip(numbers.length === 0, 'No numeric badge inside "All Tags"');
-		// Regression sentinel: was 12 (page slice) post-Spec-020.
+		// Regression sentinel: post-Spec-020 the value was 12 (page slice).
 		expect(Math.max(...numbers)).toBeGreaterThan(12);
 	});
 
@@ -104,7 +109,7 @@ test.describe('Public: Tags — filter mode (home page)', () => {
 		await expect(page.locator('body')).toBeVisible();
 	});
 
-	test('?tags=foo,bar CSV is parsed by the SSR route (multi-tag intersection)', async ({ request }) => {
+	test('?tags=foo,bar CSV is parsed by the SSR route (OR semantics)', async ({ request }) => {
 		const response = await request.get('/api/items/listing?page=1&tags=free,collaboration&lang=en');
 		expect(response.status()).toBe(200);
 		const body = await response.json();

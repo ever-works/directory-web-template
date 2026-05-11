@@ -32,7 +32,7 @@ async function getCategoryButtonNames(page: import('@playwright/test').Page, lim
 	// `aria-pressed` is only present on the filter-mode buttons (see
 	// `category-item.tsx`), so this selector excludes the navigation links
 	// served on `/categories`.
-	const buttons = page.locator('button[aria-pressed]');
+	const buttons = page.locator('button[aria-pressed][aria-label]');
 	const count = await buttons.count();
 	if (count === 0) return [];
 	const names: string[] = [];
@@ -52,7 +52,7 @@ test.describe('Public: Categories sidebar — single-click vs modifier-key multi
 		test.skip(candidates.length < 3, 'Filter-mode categories sidebar not present (or fewer than 2 categories)');
 
 		// Skip the "All Categories" entry — pick the first two real categories.
-		const buttons = page.locator('button[aria-pressed]');
+		const buttons = page.locator('button[aria-pressed][aria-label]');
 		const allCategoriesIdx = (await buttons.allTextContents()).findIndex((t) =>
 			/all categories/i.test(t)
 		);
@@ -82,7 +82,7 @@ test.describe('Public: Categories sidebar — single-click vs modifier-key multi
 		const candidates = await getCategoryButtonNames(page, 5);
 		test.skip(candidates.length < 3, 'Filter-mode categories sidebar not present (or fewer than 2 categories)');
 
-		const buttons = page.locator('button[aria-pressed]');
+		const buttons = page.locator('button[aria-pressed][aria-label]');
 		const allCategoriesIdx = (await buttons.allTextContents()).findIndex((t) =>
 			/all categories/i.test(t)
 		);
@@ -110,7 +110,7 @@ test.describe('Public: Categories sidebar — single-click vs modifier-key multi
 		const candidates = await getCategoryButtonNames(page, 5);
 		test.skip(candidates.length < 2, 'Filter-mode categories sidebar not present');
 
-		const buttons = page.locator('button[aria-pressed]');
+		const buttons = page.locator('button[aria-pressed][aria-label]');
 		const allCategoriesIdx = (await buttons.allTextContents()).findIndex((t) =>
 			/all categories/i.test(t)
 		);
@@ -130,7 +130,7 @@ test.describe('Public: Categories sidebar — single-click vs modifier-key multi
 	test('clicking "All Categories" clears any active selection', async ({ page }) => {
 		await gotoHome(page);
 
-		const buttons = page.locator('button[aria-pressed]');
+		const buttons = page.locator('button[aria-pressed][aria-label]');
 		const texts = await buttons.allTextContents();
 		const allIdx = texts.findIndex((t) => /all categories/i.test(t));
 		test.skip(allIdx < 0, '"All Categories" button not present');
