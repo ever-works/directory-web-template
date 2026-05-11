@@ -178,7 +178,16 @@ jobs:
                   WORK_SLUG: ${{ github.event.repository.name }}
                   REGISTRY_HOST: ${{ steps.image.outputs.registry_host }}
                   REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME || github.actor }}
-                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+                  # Password priority:
+                  # 1. REGISTRY_PASSWORD — explicit, used for docker hub / generic registries.
+                  # 2. GITHUB_READ_PACKAGES_TOKEN — fine-grained PAT with
+                  #    `read:packages` that the platform pushes from the user's
+                  #    GitHub plugin settings. Required for private GHCR images
+                  #    because the workflow's built-in GITHUB_TOKEN only has
+                  #    `packages:read` for the workflow's own repo, not for
+                  #    images owned by a different account.
+                  # 3. GITHUB_TOKEN — fallback that works for same-repo GHCR.
+                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
                   kubectl create secret docker-registry "${WORK_SLUG}-pull" \
                       --docker-server="$REGISTRY_HOST" \
