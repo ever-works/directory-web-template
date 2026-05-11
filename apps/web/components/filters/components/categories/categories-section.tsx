@@ -11,6 +11,7 @@ import { SortControl } from '../controls/sort-control';
 import { ActiveFilters } from '../active-filters/active-filters';
 import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
 import { useContainerWidth } from '@/components/ui/container';
+import { slugify } from '@/lib/utils';
 
 /**
  * Main categories section component
@@ -51,18 +52,23 @@ export function Categories({ total, categories, tags }: CategoriesProps & { tags
         setSelectedCategories([]);
         return;
       }
+      // Normalize to the slug form that `FilterURLParser` round-trips
+      // through the URL. The data layer can carry mixed-case IDs (e.g.
+      // "Practices"); without slugifying here the click → URL → state
+      // → button-isActive loop drifts on the second hop.
+      const slug = slugify(categoryId);
       if (multi) {
         setSelectedCategories(
           (prev) =>
-            prev.includes(categoryId)
-              ? prev.filter((id) => id !== categoryId) // deselect
-              : [...prev, categoryId] // add to selection
+            prev.some((id) => slugify(id) === slug)
+              ? prev.filter((id) => slugify(id) !== slug) // deselect
+              : [...prev, slug] // add to selection
         );
         return;
       }
       // Single-select branch.
       setSelectedCategories((prev) =>
-        prev.length === 1 && prev[0] === categoryId ? [] : [categoryId]
+        prev.length === 1 && slugify(prev[0]) === slug ? [] : [slug]
       );
     },
     [setSelectedCategories]
