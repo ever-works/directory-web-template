@@ -37,7 +37,10 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   );
   const selectedCategoriesRef = useRef<CategoryId[]>(initialCategory ? [initialCategory] : []);
 
-  const [sortBy, setSortBy] = useState<SortOption>(
+  const [sortBy, setSortByInternal] = useState<SortOption>(
+    initialSortBy && isValidSortOption(initialSortBy) ? initialSortBy : SORT_OPTIONS.POPULARITY
+  );
+  const sortByRef = useRef<SortOption>(
     initialSortBy && isValidSortOption(initialSortBy) ? initialSortBy : SORT_OPTIONS.POPULARITY
   );
 
@@ -83,6 +86,9 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     if (loc.city) fields.city = loc.city;
     if (loc.country) fields.country = loc.country;
     if (searchTermRef.current) fields.q = searchTermRef.current;
+    if (sortByRef.current && sortByRef.current !== SORT_OPTIONS.POPULARITY) {
+      fields.sort = sortByRef.current;
+    }
     return fields;
   }, []);
 
@@ -142,6 +148,28 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
   }, [syncFilterURL, getExtraFilterStateFields]);
 
   /**
+   * Wrapped setter that updates sort state AND the URL. Sort lives in
+   * the URL as `?sort=<key>` for bookmarkability and to drive the
+   * server-rendered listing route (`/discover/[page]?sort=`).
+   * `popularity` is the implicit default and is omitted from the URL.
+   */
+  const setSortBy = useCallback(
+    (next: SortOption | ((prev: SortOption) => SortOption)) => {
+      setSortByInternal((prev) => {
+        const computed = typeof next === 'function' ? (next as (p: SortOption) => SortOption)(prev) : next;
+        sortByRef.current = computed;
+        return computed;
+      });
+      syncFilterURL({
+        tags: selectedTagsRef.current,
+        categories: selectedCategoriesRef.current,
+        ...getExtraFilterStateFields(),
+      });
+    },
+    [syncFilterURL, getExtraFilterStateFields]
+  );
+
+  /**
    * Wrapped setter that updates both search term state and URL
    */
   const setSearchTerm = useCallback((term: string) => {
@@ -166,7 +194,8 @@ export function useFilterState(initialTag?: string | null, initialCategory?: str
     selectedTagsRef.current = [];
     setSelectedCategoriesInternal([]);
     selectedCategoriesRef.current = [];
-    setSortBy(SORT_OPTIONS.POPULARITY);
+    setSortByInternal(SORT_OPTIONS.POPULARITY);
+    sortByRef.current = SORT_OPTIONS.POPULARITY;
     setSelectedTag(null);
     setSelectedCategory(null);
     setLocationFilterInternal({});
