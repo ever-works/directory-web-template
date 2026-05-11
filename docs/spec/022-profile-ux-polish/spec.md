@@ -145,6 +145,11 @@ persist across sessions, so that I can showcase work over time.
   Each row links to the listed profile and shows a Follow button
   initialized from the viewer's follow state. The two tiles on the
   stats strip ("Followers", "Following") link to these pages.
+- [ ] AC-18: `/client/users` renders a discoverable users
+  directory: a search input filters by displayName, username, name,
+  jobTitle, bio, or location (case-insensitive); results paginate
+  at 30/page; each row uses `ProfileRow` with a Follow button
+  initialized from the viewer's follow state; admins are excluded.
 
 ## 7. Out-of-Scope Considerations
 

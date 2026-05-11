@@ -31,6 +31,17 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: users directory at /client/users
+
+- `spec-022` AC-18 added: new public users directory at
+  `/client/users`. URL-driven server-side search (filters
+  displayName, username, name, jobTitle, bio, location, all
+  case-insensitive) + pagination, 30 rows per page, admins
+  excluded. Uses the existing `ProfileRow` + `getFollowingSubset`
+  helpers, so each row carries a follow button initialized from
+  the viewer's follow state. New `searchPublicProfiles` query in
+  `client.queries.ts`. PR #816.
+
 ## 2026-05-12 — Spec 022: followers / following drill-down pages
 
 - `spec-022` AC-17 added: new pages
