@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 const roleRepository = new RoleRepository();
 
@@ -69,13 +70,12 @@ export async function GET() {
     const activeRoles = await roleRepository.findActive();
 
     return NextResponse.json({
+      success: true,
+      data: activeRoles,
+      // Legacy field retained for backward compatibility (see EW-606)
       roles: activeRoles,
     });
   } catch (error) {
-    console.error('Error fetching active roles:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch active roles' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch active roles');
   }
 }

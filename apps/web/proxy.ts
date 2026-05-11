@@ -26,7 +26,48 @@ const intl = createIntlMiddleware(routing);
 
 const ADMIN_PREFIX = '/admin';
 const ADMIN_SIGNIN = '/admin/auth/signin';
+const ADMIN_API_PREFIX = '/api/admin/';
 const authSecret = getRuntimeAuthSecret();
+
+/**
+ * Edge-layer guard for `/api/admin/*` routes. Rejects fully-anonymous calls
+ * with a 401 JSON envelope that matches what the route handlers return.
+ *
+ * Intentionally minimal — only checks that *some* auth artefact is present:
+ *   - NextAuth: a decodable session JWT
+ *   - Supabase: a session cookie (we don't decrypt; just presence)
+ *
+ * The actual admin-role check still happens at the route level via
+ * `checkAdminAuth()` / `requireAdminSession()`. This guard is defense in
+ * depth — it catches routes that forget to call the guard, and stops drive-by
+ * scanning before it touches application code.
+ */
+async function adminApiEdgeGuard(req: NextRequest): Promise<NextResponse | null> {
+	const cfg = getAuthConfig();
+
+	const unauthorized = () =>
+		NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
+	if (cfg.provider === 'next-auth' || cfg.provider === 'both') {
+		try {
+			const token = await getToken({ req, secret: authSecret });
+			if (token) return null;
+		} catch {
+			// Fall through to alternate provider / 401.
+		}
+	}
+
+	if (cfg.provider === 'supabase' || cfg.provider === 'both') {
+		// Supabase cookies follow `sb-<project-ref>-auth-token[.N]`. We don't
+		// need to decode them here — the route handler does the real check.
+		const hasSupabaseCookie = req.cookies
+			.getAll()
+			.some((c) => c.name.startsWith('sb-') && c.name.includes('-auth-token'));
+		if (hasSupabaseCookie) return null;
+	}
+
+	return unauthorized();
+}
 
 /**
  * Locale-detection mode for the *server*. Read from `LOCALE_DETECTION_MODE`
@@ -303,6 +344,15 @@ export default async function proxy(req: NextRequest) {
 	const hostname = req.headers.get('host') || '';
 	req.headers.set('x-tenant-domain', hostname);
 
+	// Edge guard for /api/admin/*. Stops fully-anonymous calls before they
+	// reach the route handler. The route still performs the DB-backed admin
+	// role check; this is defense in depth.
+	if (originalPathname.startsWith(ADMIN_API_PREFIX)) {
+		const blocked = await adminApiEdgeGuard(req);
+		if (blocked) return blocked;
+		return NextResponse.next();
+	}
+
 	// Pattern C — server-side Accept-Language redirect.
 	// Opt-in via `LOCALE_DETECTION_MODE=server-redirect`. See Spec 019 and
 	// `docs/performance/locale-detection.md`. Runs before `intl()` so we
@@ -522,5 +572,10 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-	matcher: ['/((?!api|trpc|_next|_vercel|.*\\..*).*)']
+	matcher: [
+		// Page routes (excludes /api, /trpc, Next internals, and asset files)
+		'/((?!api|trpc|_next|_vercel|.*\\..*).*)',
+		// Edge guard for admin API surface — see `adminApiEdgeGuard`
+		'/api/admin/:path*'
+	]
 };

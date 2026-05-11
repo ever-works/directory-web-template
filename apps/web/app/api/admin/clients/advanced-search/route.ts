@@ -334,7 +334,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in advanced search:', error);
     return NextResponse.json(
-      { error: 'Failed to perform advanced search' },
+      { success: false, error: 'Failed to perform advanced search' },
       { status: 500 }
     );
   }

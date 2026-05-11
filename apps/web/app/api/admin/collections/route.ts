@@ -167,6 +167,14 @@ export async function GET(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
+			data: result.collections,
+			meta: {
+				total: result.total,
+				page: result.page,
+				limit: result.limit,
+				totalPages: result.totalPages
+			},
+			// Legacy fields retained for backward compatibility (see EW-606)
 			collections: result.collections,
 			total: result.total,
 			page: result.page,

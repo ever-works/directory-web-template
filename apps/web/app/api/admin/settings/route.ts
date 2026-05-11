@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configManager } from '@/lib/config-manager';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * GET /api/admin/settings
@@ -11,17 +12,20 @@ export async function GET() {
 		const authError = await checkAdminAuth();
 		if (authError) return authError;
 
-		// Get settings from config
 		const config = configManager.getConfig();
 		const settings = config.settings || {};
 
-		return NextResponse.json({ settings }, { status: 200 });
-	} catch (error) {
-		console.error('Error fetching settings:', error);
 		return NextResponse.json(
-			{ error: 'Failed to fetch settings' },
-			{ status: 500 }
+			{
+				success: true,
+				data: settings,
+				// Legacy field retained for backward compatibility (see EW-606)
+				settings,
+			},
+			{ status: 200 }
 		);
+	} catch (error) {
+		return safeErrorResponse(error, 'Failed to fetch settings');
 	}
 }
 
@@ -32,7 +36,6 @@ export async function GET() {
  */
 export async function PATCH(req: NextRequest) {
 	try {
-		// Check admin authentication
 		const authError = await checkAdminAuth();
 		if (authError) return authError;
 
@@ -41,31 +44,32 @@ export async function PATCH(req: NextRequest) {
 
 		if (!key) {
 			return NextResponse.json(
-				{ error: 'Key is required' },
+				{ success: false, error: 'Key is required' },
 				{ status: 400 }
 			);
 		}
 
-		// Update the nested key under settings
 		const settingsKey = `settings.${key}`;
-		const success = await configManager.updateNestedKey(settingsKey, value);
+		const updated = await configManager.updateNestedKey(settingsKey, value);
 
-		if (!success) {
+		if (!updated) {
 			return NextResponse.json(
-				{ error: 'Failed to update setting' },
+				{ success: false, error: 'Failed to update setting' },
 				{ status: 500 }
 			);
 		}
 
 		return NextResponse.json(
-			{ success: true, key, value },
+			{
+				success: true,
+				data: { key, value },
+				// Legacy fields retained for backward compatibility (see EW-606)
+				key,
+				value,
+			},
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.error('Error updating settings:', error);
-		return NextResponse.json(
-			{ error: 'Failed to update settings' },
-			{ status: 500 }
-		);
+		return safeErrorResponse(error, 'Failed to update settings');
 	}
 }

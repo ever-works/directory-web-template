@@ -199,7 +199,7 @@ export async function PUT(request: NextRequest) {
     // Validate that we have a valid array of client updates
     if (!Array.isArray(body.clients) || body.clients.length === 0) {
       return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
+        success: false, error: 'Invalid request: clients array is required' 
       }, { status: 400 });
     }
 
@@ -426,7 +426,7 @@ export async function DELETE(request: NextRequest) {
     // Validate that we have a valid array of client identifiers
     if (!Array.isArray(body.clients) || body.clients.length === 0) {
       return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
+        success: false, error: 'Invalid request: clients array is required' 
       }, { status: 400 });
     }
 

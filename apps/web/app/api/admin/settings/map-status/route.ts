@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * GET /api/admin/settings/map-status
@@ -26,9 +27,16 @@ export async function GET() {
 			}
 		};
 
-		return NextResponse.json({ status: mapStatus }, { status: 200 });
+		return NextResponse.json(
+			{
+				success: true,
+				data: mapStatus,
+				// Legacy field retained for backward compatibility (see EW-606)
+				status: mapStatus,
+			},
+			{ status: 200 }
+		);
 	} catch (error) {
-		console.error('Error fetching map status:', error);
-		return NextResponse.json({ error: 'Failed to fetch map status' }, { status: 500 });
+		return safeErrorResponse(error, 'Failed to fetch map status');
 	}
 }

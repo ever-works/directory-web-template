@@ -58,12 +58,12 @@ export async function PATCH() {
 		const session = await auth();
 
 		if (!session?.user?.id) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const tenantId = session.user.tenantId;
 		if (!tenantId) {
-			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
 		}
 
 		const updatedNotifications = await db
@@ -88,6 +88,6 @@ export async function PATCH() {
 		});
 	} catch (error) {
 		console.error('Error marking all notifications as read:', error);
-		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
 	}
 }

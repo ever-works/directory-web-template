@@ -18,7 +18,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const items = await collectionRepository.getAssignedItems(id);
 
-    return NextResponse.json({ success: true, items });
+    return NextResponse.json({
+      success: true,
+      data: items,
+      // Legacy field retained for backward compatibility (see EW-606)
+      items,
+    });
   } catch (error) {
     return safeErrorResponse(error, 'Failed to fetch collection items');
   }
@@ -48,9 +53,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
+      data: { collection: result.collection, updatedItems: result.updatedItems },
+      message: "Collection items updated successfully",
+      // Legacy fields retained for backward compatibility (see EW-606)
       collection: result.collection,
       updatedItems: result.updatedItems,
-      message: "Collection items updated successfully",
     });
   } catch (error) {
     return safeErrorResponse(error, 'Failed to assign collection items');

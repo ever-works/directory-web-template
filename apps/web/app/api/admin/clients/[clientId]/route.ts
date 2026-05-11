@@ -100,7 +100,7 @@ export async function GET(
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -114,7 +114,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching client:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch client' },
+      { success: false, error: 'Failed to fetch client' },
       { status: 500 }
     );
   }
@@ -262,7 +262,7 @@ export async function PUT(
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -342,7 +342,7 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating client:', error);
     return NextResponse.json(
-      { error: 'Failed to update client' },
+      { success: false, error: 'Failed to update client' },
       { status: 500 }
     );
   }
@@ -428,7 +428,7 @@ export async function DELETE(
 
     if (!success) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -440,7 +440,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting client:', error);
     return NextResponse.json(
-      { error: 'Failed to delete client' },
+      { success: false, error: 'Failed to delete client' },
       { status: 500 }
     );
   }

@@ -305,7 +305,15 @@ export async function POST(request: NextRequest) {
     // Invalidate content caches to ensure immediate visibility
     await invalidateContentCaches();
 
-    return NextResponse.json({ success: true, tag }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: tag,
+        // Legacy field retained for backward compatibility (see EW-606)
+        tag,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating tag:', error);
     

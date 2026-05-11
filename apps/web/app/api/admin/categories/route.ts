@@ -204,6 +204,15 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      data: result.categories,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+      // Legacy fields retained for backward compatibility with existing
+      // frontend consumers. See EW-606.
       categories: result.categories,
       total: result.total,
       page: result.page,
@@ -355,8 +364,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      category: newCategory,
+      data: newCategory,
       message: "Category created successfully",
+      // Legacy field retained for backward compatibility (see EW-606)
+      category: newCategory,
     }, { status: 201 });
 
   } catch (error) {

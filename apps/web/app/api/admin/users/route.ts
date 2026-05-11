@@ -6,6 +6,7 @@ import { isValidEmail } from '@/lib/utils/email-validation';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { passwordSchema } from '@/lib/validations/auth';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { mapTypedError, safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -284,11 +285,7 @@ export async function GET(request: NextRequest) {
       totalPages: result.totalPages,
     });
   } catch (error) {
-    console.error('Error in GET /api/admin/users:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch users');
   }
 }
 
@@ -521,18 +518,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, data: newUser }, { status: 201 });
   } catch (error) {
-    console.error('Error in POST /api/admin/users:', error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    const typed = mapTypedError(error);
+    if (typed) return typed;
+    return safeErrorResponse(error, 'Failed to create user');
   }
-} 
+}

@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     if (!username) {
       return NextResponse.json(
-        { error: 'Username is required' },
+        { success: false, error: 'Username is required' },
         { status: 400 }
       );
     }
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in POST /api/admin/users/check-username:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     );
   }

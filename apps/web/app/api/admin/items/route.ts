@@ -283,6 +283,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      data: result.items,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+      // Legacy fields retained for backward compatibility (see EW-606)
       items: result.items,
       total: result.total,
       page: result.page,

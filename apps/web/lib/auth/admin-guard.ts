@@ -1,7 +1,18 @@
+import { cache } from 'react';
 import { NextRequest, NextResponse } from 'next/server';
 import type { Session } from 'next-auth';
 import { auth } from '@/lib/auth';
 import { isAdmin } from '@/lib/db/roles';
+
+/**
+ * Request-scoped memo of `isAdmin(userId)`. Multiple guard calls within a
+ * single request (e.g. a route that calls `checkAdminAuth()` and then a
+ * helper that also probes admin state) share one DB round-trip.
+ *
+ * `react.cache` is request-scoped in the App Router server runtime — it does
+ * not leak across requests.
+ */
+const isAdminCached = cache((userId: string) => isAdmin(userId));
 
 /**
  * Session shape returned by {@link requireAdminSession} after admin verification.
@@ -41,7 +52,7 @@ export async function requireAdminSession(): Promise<{ session: AdminSession } |
       );
     }
 
-    const userIsAdmin = await isAdmin(session.user.id);
+    const userIsAdmin = await isAdminCached(session.user.id);
     if (!userIsAdmin) {
       return NextResponse.json(
         { success: false, error: 'Forbidden' },

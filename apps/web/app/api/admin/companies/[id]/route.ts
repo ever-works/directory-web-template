@@ -88,7 +88,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 		const company = await getCompanyById(id);
 
 		if (!company) {
-			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+			return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 });
 		}
 
 		return NextResponse.json({
@@ -97,7 +97,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 		});
 	} catch (error) {
 		console.error('Error fetching company:', error);
-		return NextResponse.json({ error: 'Failed to fetch company' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to fetch company' }, { status: 500 });
 	}
 }
 
@@ -264,7 +264,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		// Check if company exists
 		const existingCompany = await getCompanyById(id);
 		if (!existingCompany) {
-			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+			return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 });
 		}
 
 		const body = await request.json();
@@ -279,7 +279,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 					field: err.path.join('.'),
 					message: err.message
 				}));
-				return NextResponse.json({ error: 'Validation error', details }, { status: 400 });
+				return NextResponse.json({ success: false, error: 'Validation error', details }, { status: 400 });
 			}
 			throw error;
 		}
@@ -289,7 +289,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			const existingByDomain = await getCompanyByDomain(validatedData.domain);
 			if (existingByDomain && existingByDomain.id !== id) {
 				return NextResponse.json(
-					{ error: `Company with domain '${validatedData.domain}' already exists` },
+					{ success: false, error: `Company with domain '${validatedData.domain}' already exists` },
 					{ status: 409 }
 				);
 			}
@@ -300,7 +300,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 			const existingBySlug = await getCompanyBySlug(validatedData.slug);
 			if (existingBySlug && existingBySlug.id !== id) {
 				return NextResponse.json(
-					{ error: `Company with slug '${validatedData.slug}' already exists` },
+					{ success: false, error: `Company with slug '${validatedData.slug}' already exists` },
 					{ status: 409 }
 				);
 			}
@@ -313,7 +313,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		const company = await updateCompany(id, updateData);
 
 		if (!company) {
-			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+			return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 });
 		}
 
 		// Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
@@ -354,16 +354,16 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 		if (error instanceof Error) {
 			if (error.message.includes('unique constraint') || error.message.includes('duplicate key')) {
 				if (error.message.toLowerCase().includes('domain')) {
-					return NextResponse.json({ error: 'Company with this domain already exists' }, { status: 409 });
+					return NextResponse.json({ success: false, error: 'Company with this domain already exists' }, { status: 409 });
 				}
 				if (error.message.toLowerCase().includes('slug')) {
-					return NextResponse.json({ error: 'Company with this slug already exists' }, { status: 409 });
+					return NextResponse.json({ success: false, error: 'Company with this slug already exists' }, { status: 409 });
 				}
-				return NextResponse.json({ error: 'Company with this information already exists' }, { status: 409 });
+				return NextResponse.json({ success: false, error: 'Company with this information already exists' }, { status: 409 });
 			}
 		}
 
-		return NextResponse.json({ error: 'Failed to update company' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to update company' }, { status: 500 });
 	}
 }
 
@@ -444,7 +444,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 		const success = await deleteCompany(id);
 
 		if (!success) {
-			return NextResponse.json({ error: 'Company not found' }, { status: 404 });
+			return NextResponse.json({ success: false, error: 'Company not found' }, { status: 404 });
 		}
 
 		return NextResponse.json({
@@ -453,6 +453,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 		});
 	} catch (error) {
 		console.error('Error deleting company:', error);
-		return NextResponse.json({ error: 'Failed to delete company' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to delete company' }, { status: 500 });
 	}
 }
