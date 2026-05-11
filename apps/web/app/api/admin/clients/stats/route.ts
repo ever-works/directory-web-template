@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getEnhancedClientStats } from '@/lib/db/queries';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -262,19 +262,8 @@ import { getEnhancedClientStats } from '@/lib/db/queries';
  */
 export async function GET() {
   try {
-    const session = await auth();
-    if (!session) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-    if (!session.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Forbidden' },
-        { status: 403 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Get comprehensive client statistics
     const stats = await getEnhancedClientStats();

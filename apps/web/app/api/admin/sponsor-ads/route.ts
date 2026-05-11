@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
 import { validatePaginationParams } from "@/lib/utils/pagination-validation";
 import { querySponsorAdsSchema } from "@/lib/validations/sponsor-ad";
 import type { SponsorAdStatus, SponsorAdIntervalType } from "@/lib/types/sponsor-ad";
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -61,14 +61,8 @@ import type { SponsorAdStatus, SponsorAdIntervalType } from "@/lib/types/sponsor
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: "Unauthorized. Admin access required." },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 

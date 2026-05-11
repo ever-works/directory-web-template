@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { updateClientProfile, deleteClientProfile } from '@/lib/db/queries';
 import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -191,18 +191,15 @@ import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const body = await request.json();
     
     // Validate that we have a valid array of client updates
     if (!Array.isArray(body.clients) || body.clients.length === 0) {
       return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
+        success: false, error: 'Invalid request: clients array is required' 
       }, { status: 400 });
     }
 
@@ -421,18 +418,15 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const body = await request.json();
     
     // Validate that we have a valid array of client identifiers
     if (!Array.isArray(body.clients) || body.clients.length === 0) {
       return NextResponse.json({ 
-        error: 'Invalid request: clients array is required' 
+        success: false, error: 'Invalid request: clients array is required' 
       }, { status: 400 });
     }
 

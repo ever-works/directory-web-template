@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { TwentyCrmConfigRepository } from '@/lib/repositories/twenty-crm-config.repository';
 import { validateTwentyCrmConfig } from '@/lib/utils/twenty-crm-validation';
 import { logActivity } from '@/lib/db/queries/activity.queries';
 import { ActivityType } from '@/lib/db/schema';
+import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 
 const configRepository = new TwentyCrmConfigRepository();
 
@@ -104,14 +104,8 @@ const configRepository = new TwentyCrmConfigRepository();
  */
 export async function GET() {
   try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Admin access required.' },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Get configuration (merged from DB and env)
     const config = await configRepository.getConfig();
@@ -300,14 +294,9 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin || !session.user.id) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Admin access required.' },
-        { status: 401 }
-      );
-    }
+    const authResult = await requireAdminSession();
+    if (authResult instanceof NextResponse) return authResult;
+    const { session } = authResult;
 
     // Parse request body
     const body = await request.json();

@@ -34,3 +34,36 @@ export function safeErrorMessage(error: unknown, fallbackMessage: string): strin
 	}
 	return fallbackMessage;
 }
+
+/**
+ * Map a known typed business error thrown by a service / repository to its
+ * HTTP response. Returns `null` if the error is not a known type — caller
+ * should then fall through to `safeErrorResponse(error, ...)`.
+ *
+ * The heuristics here are deliberately conservative: only well-known phrases
+ * (`"already exists"`, `"not found"`, validation phrases) map to user-visible
+ * messages. Anything else falls through to the generic fallback so that
+ * accidental leaks of raw ORM / DB messages stay server-side.
+ */
+export function mapTypedError(error: unknown): NextResponse | null {
+	if (!(error instanceof Error)) return null;
+	const msg = error.message;
+	const lower = msg.toLowerCase();
+
+	if (lower.includes('already exists') || lower.includes('already in use') || lower.includes('duplicate key')) {
+		return NextResponse.json({ success: false, error: msg }, { status: 409 });
+	}
+	if (lower.includes('not found')) {
+		return NextResponse.json({ success: false, error: msg }, { status: 404 });
+	}
+	if (
+		lower.includes('must be') ||
+		lower.startsWith('invalid ') ||
+		lower.includes(' is required') ||
+		lower.startsWith('cannot ')
+	) {
+		return NextResponse.json({ success: false, error: msg }, { status: 400 });
+	}
+
+	return null;
+}

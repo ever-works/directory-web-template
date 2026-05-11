@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemExportService } from '@/lib/services/item-export.service';
 import { exportQuerySchema } from '@/lib/validations/item-import';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * GET /api/admin/items/export?format=csv|xlsx
@@ -10,13 +10,8 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 		const { format } = exportQuerySchema.parse(Object.fromEntries(searchParams));

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { listCompanies, createCompany, getCompanyByDomain, getCompanyBySlug } from '@/lib/db/queries';
 import { createCompanySchema } from '@/lib/validations/company';
 import { ZodError } from 'zod';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -157,11 +157,8 @@ import { ZodError } from 'zod';
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 
@@ -175,7 +172,7 @@ export async function GET(request: NextRequest) {
 		// Validate page parameter
 		if (isNaN(page) || page < 1) {
 			return NextResponse.json(
-				{ error: 'Invalid page parameter. Must be a positive integer.' },
+				{ success: false, error: 'Invalid page parameter. Must be a positive integer.' },
 				{ status: 400 }
 			);
 		}
@@ -183,7 +180,7 @@ export async function GET(request: NextRequest) {
 		// Validate limit parameter
 		if (isNaN(limit) || limit < 1 || limit > 100) {
 			return NextResponse.json(
-				{ error: 'Invalid limit parameter. Must be between 1 and 100.' },
+				{ success: false, error: 'Invalid limit parameter. Must be between 1 and 100.' },
 				{ status: 400 }
 			);
 		}
@@ -212,7 +209,7 @@ export async function GET(request: NextRequest) {
 		});
 	} catch (error) {
 		console.error('Error fetching companies:', error);
-		return NextResponse.json({ error: 'Failed to fetch companies' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to fetch companies' }, { status: 500 });
 	}
 }
 
@@ -356,11 +353,8 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const body = await request.json();
 
@@ -374,7 +368,7 @@ export async function POST(request: NextRequest) {
 					field: err.path.join('.'),
 					message: err.message
 				}));
-				return NextResponse.json({ error: 'Validation error', details }, { status: 400 });
+				return NextResponse.json({ success: false, error: 'Validation error', details }, { status: 400 });
 			}
 			throw error;
 		}
@@ -384,7 +378,7 @@ export async function POST(request: NextRequest) {
 			const existingByDomain = await getCompanyByDomain(validatedData.domain);
 			if (existingByDomain) {
 				return NextResponse.json(
-					{ error: `Company with domain '${validatedData.domain}' already exists` },
+					{ success: false, error: `Company with domain '${validatedData.domain}' already exists` },
 					{ status: 409 }
 				);
 			}
@@ -395,7 +389,7 @@ export async function POST(request: NextRequest) {
 			const existingBySlug = await getCompanyBySlug(validatedData.slug);
 			if (existingBySlug) {
 				return NextResponse.json(
-					{ error: `Company with slug '${validatedData.slug}' already exists` },
+					{ success: false, error: `Company with slug '${validatedData.slug}' already exists` },
 					{ status: 409 }
 				);
 			}
@@ -418,15 +412,15 @@ export async function POST(request: NextRequest) {
 		if (error instanceof Error) {
 			if (error.message.includes('unique constraint') || error.message.includes('duplicate key')) {
 				if (error.message.toLowerCase().includes('domain')) {
-					return NextResponse.json({ error: 'Company with this domain already exists' }, { status: 409 });
+					return NextResponse.json({ success: false, error: 'Company with this domain already exists' }, { status: 409 });
 				}
 				if (error.message.toLowerCase().includes('slug')) {
-					return NextResponse.json({ error: 'Company with this slug already exists' }, { status: 409 });
+					return NextResponse.json({ success: false, error: 'Company with this slug already exists' }, { status: 409 });
 				}
-				return NextResponse.json({ error: 'Company with this information already exists' }, { status: 409 });
+				return NextResponse.json({ success: false, error: 'Company with this information already exists' }, { status: 409 });
 			}
 		}
 
-		return NextResponse.json({ error: 'Failed to create company' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to create company' }, { status: 500 });
 	}
 }

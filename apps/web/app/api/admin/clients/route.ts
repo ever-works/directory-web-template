@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import {
   createClientProfile,
   getClientProfiles,
@@ -9,6 +8,7 @@ import { UserDbService } from '@/lib/services/user-db.service';
 import { AuthUserData } from '@/lib/types/user';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import crypto from 'crypto';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 // Type definitions for request bodies
 interface CreateClientRequest {
@@ -208,11 +208,8 @@ interface CreateClientRequest {
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { searchParams } = new URL(request.url);
 
@@ -220,7 +217,7 @@ export async function GET(request: NextRequest) {
     const paginationResult = validatePaginationParams(searchParams);
     if ('error' in paginationResult) {
       return NextResponse.json(
-        { error: paginationResult.error },
+        { success: false, error: paginationResult.error },
         { status: paginationResult.status }
       );
     }
@@ -256,7 +253,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching clients:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch clients' },
+      { success: false, error: 'Failed to fetch clients' },
       { status: 500 }
     );
   }
@@ -394,16 +391,13 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const raw = await request.json() as Partial<CreateClientRequest>;
     const email = raw.email ?? raw.userId;
     if (!email) {
-      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Email is required' }, { status: 400 });
     }
 
     // Generate a stable profile name from display name or email prefix
@@ -434,7 +428,7 @@ export async function POST(request: NextRequest) {
       } catch (userError) {
         console.error('Error creating user for client:', userError);
         return NextResponse.json(
-          { error: `Failed to create user: ${userError instanceof Error ? userError.message : 'Unknown error'}` },
+          { success: false, error: `Failed to create user: ${userError instanceof Error ? userError.message : 'Unknown error'}` },
           { status: 400 }
         );
       }
@@ -443,7 +437,7 @@ export async function POST(request: NextRequest) {
     // Ensure we have a valid user
     if (!user || !user.id) {
       return NextResponse.json(
-        { error: 'Failed to create or find user for client' },
+        { success: false, error: 'Failed to create or find user for client' },
         { status: 400 }
       );
     }
@@ -501,7 +495,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error creating client:', error);
     return NextResponse.json(
-      { error: 'Failed to create client' },
+      { success: false, error: 'Failed to create client' },
       { status: 500 }
     );
   }

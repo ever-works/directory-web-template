@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { sponsorAdService } from "@/lib/services/sponsor-ad.service";
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -45,14 +45,9 @@ export async function POST(
 	{ params }: { params: Promise<{ id: string }> }
 ) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin || !session.user.id) {
-			return NextResponse.json(
-				{ success: false, error: "Unauthorized. Admin access required." },
-				{ status: 401 }
-			);
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const { id } = await params;
 
