@@ -27,6 +27,11 @@ export type CommentWithUser = {
     name: string | null;
     email: string | null;
     image: string | null;
+    username: string | null;
+    bio: string | null;
+    jobTitle: string | null;
+    company: string | null;
+    location: string | null;
   };
 };
 
