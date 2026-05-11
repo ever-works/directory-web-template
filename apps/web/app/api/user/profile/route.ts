@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getClientProfileById, updateClientProfile } from '@/lib/db/queries/client.queries';
+import { isUsernameAvailable } from '@/lib/db/queries/utils';
 import { updateProfileSchema } from '@/lib/validations/user-profile';
 import { Logger } from '@/lib/logger';
 import type { NewClientProfile } from '@/lib/db/schema';
@@ -105,7 +106,17 @@ export async function PATCH(request: NextRequest) {
 		const data: Partial<NewClientProfile> = {};
 		const input = parsed.data;
 		if (input.displayName !== undefined) data.displayName = input.displayName;
-		if (input.username !== undefined) data.username = input.username.toLowerCase();
+		if (input.username !== undefined) {
+			const normalized = input.username.toLowerCase();
+			const available = await isUsernameAvailable(normalized, session.user.clientProfileId);
+			if (!available) {
+				return NextResponse.json(
+					{ error: 'Username is already taken', path: ['username'] },
+					{ status: 409 }
+				);
+			}
+			data.username = normalized;
+		}
 		if (input.bio !== undefined) data.bio = input.bio ?? null;
 		if (input.jobTitle !== undefined) data.jobTitle = input.jobTitle ?? null;
 		if (input.company !== undefined) data.company = input.company ?? null;

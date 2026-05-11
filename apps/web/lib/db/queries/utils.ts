@@ -1,4 +1,4 @@
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { clientProfiles } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -68,4 +68,27 @@ export async function ensureUniqueUsername(baseUsername: string): Promise<string
 			throw new Error(`Unable to generate unique username for: ${baseUsername}`);
 		}
 	}
+}
+
+/**
+ * Check whether a username is available within the current tenant.
+ * Pass `excludeProfileId` so a profile updating its own row sees its current
+ * username as available.
+ */
+export async function isUsernameAvailable(username: string, excludeProfileId?: string): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return false;
+
+	const conditions = [eq(clientProfiles.username, username), eq(clientProfiles.tenantId, tenantId)];
+	if (excludeProfileId) {
+		conditions.push(ne(clientProfiles.id, excludeProfileId));
+	}
+
+	const [existing] = await db
+		.select({ id: clientProfiles.id })
+		.from(clientProfiles)
+		.where(and(...conditions))
+		.limit(1);
+
+	return !existing;
 }
