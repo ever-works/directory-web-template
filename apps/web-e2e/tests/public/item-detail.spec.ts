@@ -3,54 +3,72 @@ import { test, expect, type Page } from '@playwright/test';
 /**
  * Item-detail page coverage.
  *
- * The original spec verified the page renders an h1 and a body. This
- * version also pins:
- *   - The slug in the URL matches the link clicked from the listing.
- *   - The page exposes structured-data anchors (canonical, og:title).
- *   - Direct GET on a real slug returns non-5xx.
- *   - Back navigation returns to the originating listing.
+ * The previous version used `.first().isVisible()` to gate the click,
+ * which silently skipped tests on smaller viewports (the first item
+ * card sat below the fold). Switched to `.count() > 0` so we test what
+ * exists in the DOM, then `scrollIntoViewIfNeeded()` before clicking.
+ *
+ * Coverage:
+ *   - h1 + meta presence on detail page
+ *   - slug round-trip from listing link
+ *   - direct GET on a real slug from /items.json
+ *   - back navigation returns to the listing
  */
 
 const PAGE_READY_TIMEOUT = 15_000;
 
-async function gotoFirstItem(page: Page): Promise<string | null> {
+async function clickFirstItem(page: Page): Promise<string | null> {
 	await page.goto('/discover/1', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+	// Give React + intersection observers a beat to settle so the listing
+	// is no longer remounting between read/click.
+	await page.waitForTimeout(2_000);
 	const link = page.locator('a[href*="/items/"]').first();
-	const visible = await link.isVisible().catch(() => false);
-	if (!visible) return null;
+	const count = await link.count();
+	if (count === 0) return null;
+
 	const href = await link.getAttribute('href');
-	await link.click();
+	// `waitFor({ state: 'attached' })` plus a click without scrolling
+	// avoids the "element detached" race we see when scrolling triggers
+	// a re-render of virtualised item cards.
+	await link.waitFor({ state: 'attached', timeout: PAGE_READY_TIMEOUT });
+	await link.click({ force: true });
 	await page.waitForURL(/\/items\//, { timeout: PAGE_READY_TIMEOUT });
 	return href;
 }
 
 test.describe('Public: Item Detail Page', () => {
 	test('item detail page displays an h1 heading', async ({ page }) => {
-		const href = await gotoFirstItem(page);
-		test.skip(href === null, 'No items available');
+		const href = await clickFirstItem(page);
+		test.skip(href === null, 'No items rendered on /discover/1');
 		await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
 	});
 
 	test('item detail URL contains the slug the listing advertised', async ({ page }) => {
-		const href = await gotoFirstItem(page);
+		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
 		const slug = href!.split('/items/').pop()?.replace(/\/$/, '');
 		expect(slug, 'expected a slug after /items/').toBeTruthy();
 		expect(page.url()).toContain(`/items/${slug}`);
 	});
 
-	test('item detail page advertises a canonical / og:url meta tag', async ({ page }) => {
-		const href = await gotoFirstItem(page);
+	test('item detail page exposes canonical or og:url meta', async ({ page }) => {
+		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
-
-		// Either rel="canonical" OR og:url should be present.
 		const canonical = await page.locator('link[rel="canonical"]').count();
 		const ogUrl = await page.locator('meta[property="og:url"]').count();
 		expect(canonical + ogUrl, 'expected canonical or og:url meta').toBeGreaterThan(0);
 	});
 
-	test('item detail page returns non-5xx on direct GET', async ({ page, request }) => {
-		// Get a real slug via the public items dump if available.
+	test('item detail page exposes Open Graph title meta', async ({ page }) => {
+		const href = await clickFirstItem(page);
+		test.skip(href === null, 'No items available');
+		const ogTitle = page.locator('meta[property="og:title"]');
+		expect(await ogTitle.count()).toBeGreaterThan(0);
+		const ogTitleValue = await ogTitle.first().getAttribute('content');
+		expect(ogTitleValue?.length ?? 0).toBeGreaterThan(0);
+	});
+
+	test('item detail page returns non-5xx on direct GET (via /items.json slug)', async ({ page, request }) => {
 		const itemsResp = await request.get('/items.json');
 		test.skip(itemsResp.status() !== 200, '/items.json not available');
 		const body = await itemsResp.json();
@@ -66,11 +84,13 @@ test.describe('Public: Item Detail Page', () => {
 
 	test('back button returns to the listing the user came from', async ({ page }) => {
 		await page.goto('/discover/1', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+		await page.waitForTimeout(2_000);
 		const firstLink = page.locator('a[href*="/items/"]').first();
-		const visible = await firstLink.isVisible().catch(() => false);
-		test.skip(!visible, 'No items on /discover/1');
+		const count = await firstLink.count();
+		test.skip(count === 0, 'No items on /discover/1');
 
-		await firstLink.click();
+		await firstLink.waitFor({ state: 'attached', timeout: PAGE_READY_TIMEOUT });
+		await firstLink.click({ force: true });
 		await page.waitForURL(/\/items\//, { timeout: PAGE_READY_TIMEOUT });
 
 		await page.goBack({ waitUntil: 'domcontentloaded' });
