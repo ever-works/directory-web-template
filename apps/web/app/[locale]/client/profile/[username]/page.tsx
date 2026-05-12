@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
 import { FiChevronRight, FiUser } from 'react-icons/fi';
@@ -25,6 +26,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;
+	const t = await getTranslations('profile');
 	const clientProfile = await getClientProfileByUsername(username);
 	if (!clientProfile) {
 		notFound();
@@ -97,7 +99,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 							className="inline-flex items-center gap-1.5 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
 						>
 							<FiUser className="w-3.5 h-3.5" />
-							Profiles
+							{t('PROFILES_BREADCRUMB')}
 						</Link>
 						<FiChevronRight className="w-3.5 h-3.5" />
 						<span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 font-medium text-xs">
@@ -154,7 +156,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 									id="about-heading"
 									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
 								>
-									About
+									{t('ABOUT_SECTION')}
 								</h2>
 								<AboutSection profile={profile} isOwn={isOwn} />
 							</section>
@@ -165,7 +167,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 									id="activity-heading"
 									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
 								>
-									Recent activity
+									{t('RECENT_ACTIVITY_SECTION')}
 								</h2>
 								<RecentActivitySection
 									comments={recentComments}
@@ -181,14 +183,14 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 										id="skills-heading"
 										className="text-lg font-semibold text-gray-900 dark:text-gray-100"
 									>
-										Skills & expertise
+										{t('SKILLS_EXPERTISE_SECTION')}
 									</h2>
 									{isOwn && (
 										<Link
 											href="/client/settings/profile/basic-info"
 											className="text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
 										>
-											Manage
+											{t('MANAGE_LINK')}
 										</Link>
 									)}
 								</div>
@@ -202,14 +204,14 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 										id="portfolio-heading"
 										className="text-lg font-semibold text-gray-900 dark:text-gray-100"
 									>
-										Portfolio
+										{t('PORTFOLIO_SECTION')}
 									</h2>
 									{isOwn && (
 										<Link
 											href="/client/settings/profile/portfolio"
 											className="text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
 										>
-											Manage
+											{t('MANAGE_LINK')}
 										</Link>
 									)}
 								</div>

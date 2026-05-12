@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
@@ -42,6 +43,7 @@ export default async function ProfileFollowingPage({
 
 	const totalPages = Math.max(1, Math.ceil(total / FOLLOW_LIST_PAGE_SIZE));
 	const displayName = profile.displayName || profile.name || profile.username || 'this user';
+	const t = await getTranslations('profile');
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -53,16 +55,16 @@ export default async function ProfileFollowingPage({
 						className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors duration-150"
 					>
 						<FiArrowLeft className="w-3.5 h-3.5" />
-						Back to profile
+						{t('BACK_TO_PROFILE')}
 					</Link>
 
 					{/* Header */}
 					<div>
 						<h1 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100">
-							People {displayName} follows
+							{t('FOLLOWING_PAGE_TITLE', { name: displayName })}
 						</h1>
 						<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-							{total.toLocaleString()} {total === 1 ? 'profile' : 'profiles'}
+							{total.toLocaleString()} {t(total === 1 ? 'PROFILE_SINGULAR' : 'PROFILE_PLURAL')}
 						</p>
 					</div>
 
@@ -71,9 +73,9 @@ export default async function ProfileFollowingPage({
 							<span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neutral-100 dark:bg-white/8 text-neutral-400 mb-4">
 								<FiUserCheck className="w-6 h-6" />
 							</span>
-							<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Not following anyone yet</p>
+							<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t('NO_FOLLOWING_TITLE')}</p>
 							<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-								Profiles {displayName} follows will appear here.
+								{t('NO_FOLLOWING_DESC', { name: displayName })}
 							</p>
 						</div>
 					) : (
@@ -118,10 +120,10 @@ export default async function ProfileFollowingPage({
 								}`}
 							>
 								<FiChevronLeft className="w-4 h-4" />
-								Previous
+								{t('PAGINATION_PREVIOUS')}
 							</Link>
 							<span className="text-sm text-neutral-500 dark:text-neutral-400">
-								Page {page} of {totalPages}
+								{t('PAGINATION_PAGE_OF', { current: page, total: totalPages })}
 							</span>
 							<Link
 								href={{
@@ -135,7 +137,7 @@ export default async function ProfileFollowingPage({
 										: 'border-transparent text-neutral-300 dark:text-neutral-600 pointer-events-none'
 								}`}
 							>
-								Next
+								{t('PAGINATION_NEXT')}
 								<FiChevronRight className="w-4 h-4" />
 							</Link>
 						</div>
