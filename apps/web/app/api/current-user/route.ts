@@ -109,23 +109,27 @@ export async function GET() {
 		return NextResponse.json(null);
 	}
 
-	// Prefer the freshly-saved avatar from `client_profiles` over the NextAuth
-	// `session.user.image` (which is set at sign-in time and never refreshed
-	// when the user changes their avatar). Falls back to the session image
-	// for accounts without a client profile (e.g. admins).
+	// Prefer the freshly-saved avatar and display name from `client_profiles`
+	// over the NextAuth session claims (set at sign-in time and never refreshed
+	// when the user changes them). Falls back to the session values for
+	// accounts without a client profile (e.g. admins).
 	let image: string | null | undefined = session.user.image;
+	let name: string | null | undefined = session.user.name;
 	if (session.user.clientProfileId) {
 		try {
 			const profile = await getClientProfileById(session.user.clientProfileId);
 			if (profile?.avatar) image = profile.avatar;
+			if (profile?.displayName || profile?.name) {
+				name = profile.displayName || profile.name;
+			}
 		} catch {
-			// best-effort — fall back to the session image
+			// best-effort — fall back to the session values
 		}
 	}
 
 	const safeUser = {
 		id: session.user.id,
-		name: session.user.name,
+		name,
 		email: session.user.email,
 		image,
 		provider: session.user.provider,

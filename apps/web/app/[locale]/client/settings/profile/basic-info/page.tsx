@@ -195,6 +195,7 @@ export default function BasicInfoPage() {
 	const [skills, setSkills] = useState<Skill[]>(DEFAULT_SKILLS);
 	const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 	const [initialAvatar, setInitialAvatar] = useState<string | null>(null);
+	const [initialDisplayName, setInitialDisplayName] = useState<string>('');
 
 	const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -260,6 +261,7 @@ export default function BasicInfoPage() {
 				website: profile.website,
 				interests: profile.interests
 			});
+			setInitialDisplayName(profile.displayName ?? '');
 			if (profile.skills?.length) {
 				setSkills(profile.skills);
 			}
@@ -299,11 +301,15 @@ export default function BasicInfoPage() {
 				toast.error(message);
 				return;
 			}
-			// If the avatar changed, invalidate /api/current-user so the top-nav
-			// profile button (and anything else reading useCurrentUser) shows the
-			// new avatar immediately instead of the stale NextAuth session image.
-			if (avatarPreview !== initialAvatar) {
-				setInitialAvatar(avatarPreview);
+			// If the avatar or display name changed, invalidate /api/current-user so
+			// the top-nav profile button (and anything else reading useCurrentUser)
+			// shows the new values immediately instead of the stale NextAuth
+			// session claims.
+			const avatarChanged = avatarPreview !== initialAvatar;
+			const displayNameChanged = (data.displayName ?? '') !== initialDisplayName;
+			if (avatarChanged || displayNameChanged) {
+				if (avatarChanged) setInitialAvatar(avatarPreview);
+				if (displayNameChanged) setInitialDisplayName(data.displayName ?? '');
 				await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
 			}
 			toast.success(t('PROFILE_UPDATED'));

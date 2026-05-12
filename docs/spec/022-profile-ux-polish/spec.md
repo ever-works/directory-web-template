@@ -159,14 +159,17 @@ persist across sessions, so that I can showcase work over time.
   user-id + username. Re-follow (after an unfollow → follow again)
   *does* notify; idempotent re-clicks while already-following do
   not. Notification failures must never break the follow itself.
-- [ ] AC-21: After a user saves a new avatar on basic-info, the
-  top-nav profile button and any other consumer of
-  `useCurrentUser()` show the new avatar without a full page
+- [ ] AC-21: After a user saves a new avatar **or display name**
+  (from basic-info or via inline edit on their own public
+  profile), the top-nav profile button and any other consumer of
+  `useCurrentUser()` show the new value without a full page
   reload. `/api/current-user` returns the saved
-  `client_profiles.avatar` in preference to the NextAuth
-  `session.user.image` (which is stale after sign-in); the form
-  invalidates the `auth-session` React-Query key on successful
-  save so active subscribers refetch immediately.
+  `client_profiles.avatar` and `client_profiles.displayName` (or
+  `name`) in preference to the NextAuth session claims (which are
+  stale after sign-in); both the basic-info form and the header's
+  inline displayName editor invalidate the `auth-session`
+  React-Query key on successful save so active subscribers
+  refetch immediately.
 
 ## 7. Out-of-Scope Considerations
 

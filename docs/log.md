@@ -31,6 +31,18 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: stale-session fix extended to displayName
+
+- `spec-022` Extended AC-21 to also cover `displayName`. The
+  same staleness pattern that hit the avatar also hit the
+  user's name in the top-nav and in the dropdown header.
+  `/api/current-user` now also prefers
+  `client_profiles.displayName || .name` over
+  `session.user.name`; basic-info form invalidation now triggers
+  on avatar OR displayName change; the profile header's inline
+  displayName editor invalidates the cache via the new `onSaved`
+  callback path. PR #816.
+
 ## 2026-05-12 — Spec 022: avatar propagation fix
 
 - `spec-022` AC-21 added: top-nav profile button (and anything

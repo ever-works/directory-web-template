@@ -4,7 +4,9 @@ import { FiEdit2, FiMapPin, FiBriefcase, FiGlobe, FiGithub, FiLinkedin, FiTwitte
 import { Card } from '@/components/ui/card';
 import type { Profile } from '@/lib/types/profile';
 import { useState, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Link } from '@/i18n/navigation';
+import { CURRENT_USER_QUERY_KEY } from '@/hooks/use-current-user';
 import { InlineEditField } from './inline-edit-field';
 import { ProfileStatsStrip, type ProfileStatsData } from './profile-stats-strip';
 import { FollowButton } from './follow-button';
@@ -26,6 +28,15 @@ export function ProfileHeader({
 }: ProfileHeaderProps) {
 	const [imageError, setImageError] = useState(false);
 	const [liveStats, setLiveStats] = useState<ProfileStatsData | undefined>(stats);
+	const queryClient = useQueryClient();
+
+	// When the owner inline-edits displayName, the top-nav profile button and
+	// anything else reading useCurrentUser shows the stale NextAuth name until
+	// /api/current-user is refetched. Invalidate the cache so subscribers refetch.
+	const refreshCurrentUser = () => {
+		if (!isOwn) return;
+		void queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+	};
 
 	useEffect(() => {
 		setImageError(false);
@@ -112,6 +123,7 @@ export function ProfileHeader({
 										placeholder="Your name"
 										emptyLabel="Add your name"
 										displayClassName="break-words"
+										onSaved={refreshCurrentUser}
 									/>
 								</h1>
 								<p className="text-lg text-blue-600 dark:text-blue-400 font-medium">
