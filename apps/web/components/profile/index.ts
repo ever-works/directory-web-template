@@ -11,3 +11,4 @@ export { SkillsSection } from "./sections/skills-section";
 export { SubmissionsSection } from "./sections/submissions-section";
 export { RecentActivitySection } from "./sections/recent-activity-section";
 export { ProfileRow } from "./profile-row";
+export { ProfileSettingsMenu } from "./profile-settings-menu";

@@ -21,6 +21,7 @@ import { Card } from '@/components/ui/card';
 import { ProfileTag } from './profile-tag';
 import { InlineEditField } from './inline-edit-field';
 import { FollowButton } from './follow-button';
+import { ProfileSettingsMenu } from './profile-settings-menu';
 import { CURRENT_USER_QUERY_KEY } from '@/hooks/use-current-user';
 import type { Profile } from '@/lib/types/profile';
 
@@ -276,13 +277,16 @@ export function ProfilePanel({
 
 				{/* Actions */}
 				{isOwn ? (
-					<Link
-						href="/client/settings/profile/basic-info"
-						className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white transition-all duration-150"
-					>
-						<FiEdit2 className="w-3.5 h-3.5" />
-						Edit profile
-					</Link>
+					<div className="flex items-center gap-2">
+						<Link
+							href="/client/settings/profile/basic-info"
+							className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-sm hover:shadow transition-all duration-150 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#141414] focus-visible:ring-theme-primary-500"
+						>
+							<FiEdit2 className="w-3.5 h-3.5" />
+							Edit profile
+						</Link>
+						<ProfileSettingsMenu />
+					</div>
 				) : (
 					<div className="flex items-center gap-2">
 						<div className="flex-1">
