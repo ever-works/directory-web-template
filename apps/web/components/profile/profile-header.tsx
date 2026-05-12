@@ -1,6 +1,16 @@
 'use client';
 import Image from 'next/image';
-import { FiEdit2, FiMapPin, FiBriefcase, FiGlobe, FiGithub, FiLinkedin, FiTwitter, FiUser } from 'react-icons/fi';
+import {
+	FiEdit2,
+	FiMapPin,
+	FiBriefcase,
+	FiGlobe,
+	FiGithub,
+	FiLinkedin,
+	FiTwitter,
+	FiUser,
+	FiUsers
+} from 'react-icons/fi';
 import { Card } from '@/components/ui/card';
 import type { Profile } from '@/lib/types/profile';
 import { useState, useEffect } from 'react';
@@ -137,7 +147,16 @@ export function ProfileHeader({
 									/>
 								</p>
 							</div>
-							<div className="flex items-center gap-2">
+							<div className="flex items-center gap-2 flex-wrap">
+								{isAuthenticated && (
+									<Link
+										href="/client/users"
+										className="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-gray-100 dark:hover:bg-white/5 transition-colors"
+									>
+										<FiUsers className="w-4 h-4" />
+										Discover users
+									</Link>
+								)}
 								{isOwn ? (
 									<Link
 										href="/client/settings/profile/basic-info"

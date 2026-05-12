@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
+
+- `spec-022` Avatars stored as base64 data URLs in
+  `client_profiles.avatar` were never rendering anywhere that
+  goes through `components/header/avatar.tsx`'s
+  `isValidImageUrl()` gate — the helper only accepted relative
+  paths and `http(s):` URLs, silently dropping every data URL.
+  Affected surfaces: top-nav profile button + dropdown header,
+  comments section (current user's avatar in the comment form
+  AND each past comment author's avatar). Fixed by accepting
+  `data:image/*` in `isValidImageUrl` and passing
+  `unoptimized` to Next/Image for data URLs so the optimizer
+  doesn't try to transform them.
+- `spec-022` AC-19 reworked: the "Discover Users" entry was
+  moved off the global profile-button dropdown and onto the
+  profile page header card itself (visible to any authenticated
+  viewer alongside the Edit-profile / Follow action). Discovery
+  starts from a profile, not from the header nav. PR #816.
+
 ## 2026-05-12 — Spec 022: stale-session fix extended to displayName
 
 - `spec-022` Extended AC-21 to also cover `displayName`. The

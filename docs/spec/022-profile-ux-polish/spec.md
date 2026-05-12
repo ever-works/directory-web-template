@@ -150,9 +150,12 @@ persist across sessions, so that I can showcase work over time.
   jobTitle, bio, or location (case-insensitive); results paginate
   at 30/page; each row uses `ProfileRow` with a Follow button
   initialized from the viewer's follow state; admins are excluded.
-- [ ] AC-19: The profile-button dropdown (non-admin view) includes
-  a "Discover Users" entry linking to `/client/users`, placed
-  between "Your Profile" and "Submissions".
+- [ ] AC-19: The `/client/profile/<username>` page header card
+  shows a "Discover users" link to `/client/users` for any
+  authenticated viewer (alongside the Edit-profile / Follow
+  primary action). The previously-added entry in the global
+  profile-button dropdown is removed — discovery starts from a
+  profile, not from the header nav.
 - [ ] AC-20: A first-time `POST /api/user/profile/follow/<username>`
   inserts a `user_followed` notification row for the target with a
   human-readable title/message and `data` carrying the follower's

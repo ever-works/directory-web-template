@@ -22,6 +22,7 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 	const dimensions = tailwindUnit * 4;
 
 	if (src && !imageError && isValidImageUrl(src)) {
+		const isDataUrl = src.startsWith('data:image/');
 		return (
 			<div className={`relative rounded-full overflow-hidden ${sizeMap[size]} ${className ?? ''}`}>
 				<Image
@@ -32,6 +33,7 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 					className="object-cover rounded-full"
 					onError={() => setImageError(true)}
 					priority
+					unoptimized={isDataUrl}
 				/>
 			</div>
 		);
