@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { TwentyCrmConfigRepository } from '@/lib/repositories/twenty-crm-config.repository';
 import { TwentyCrmApiService } from '@/lib/services/twenty-crm-api.service';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 const configRepository = new TwentyCrmConfigRepository();
 const apiService = new TwentyCrmApiService();
@@ -161,13 +161,8 @@ const apiService = new TwentyCrmApiService();
 export async function POST() {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Admin access required.' },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Get raw configuration (unmasked API key for testing)
     const config = await configRepository.getRawConfig();

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { tagRepository } from '@/lib/repositories/tag.repository';
 import { UpdateTagRequest } from '@/lib/types/tag';
 import { invalidateContentCaches } from '@/lib/cache-invalidation';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -90,10 +90,8 @@ export async function GET(
 ) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const tag = await tagRepository.findById(id);
@@ -250,10 +248,8 @@ export async function PUT(
 ) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const body = await request.json();
@@ -390,10 +386,8 @@ export async function DELETE(
 ) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     await tagRepository.delete(id);

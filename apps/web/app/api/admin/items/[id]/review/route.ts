@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 import { ReviewRequest } from '@/lib/types/item';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -138,13 +138,9 @@ export async function POST(
 ) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authResult = await requireAdminSession();
+    if (authResult instanceof NextResponse) return authResult;
+    const { session } = authResult;
 
     const body = await request.json();
     const { status, review_notes }: ReviewRequest = body;

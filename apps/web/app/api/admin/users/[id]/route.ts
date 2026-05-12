@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 import { UpdateUserRequest, isValidUserStatus } from '@/lib/types/user';
 import { isValidEmail } from '@/lib/utils/email-validation';
+import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
+import { mapTypedError, safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * @swagger
@@ -108,16 +109,8 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
 
@@ -131,11 +124,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: user });
   } catch (error) {
-    console.error('Error in GET /api/admin/users/[id]:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return safeErrorResponse(error, 'Failed to fetch user');
   }
 }
 
@@ -304,16 +293,8 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
 
@@ -415,19 +396,9 @@ export async function PUT(
 
     return NextResponse.json({ success: true, data: updatedUser });
   } catch (error) {
-    console.error('Error in PUT /api/admin/users/[id]:', error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    const typed = mapTypedError(error);
+    if (typed) return typed;
+    return safeErrorResponse(error, 'Failed to update user');
   }
 }
 
@@ -538,16 +509,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authResult = await requireAdminSession();
+    if (authResult instanceof NextResponse) return authResult;
+    const { session } = authResult;
 
     const { id } = await params;
 
@@ -565,18 +529,8 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, message: 'User deleted successfully' });
   } catch (error) {
-    console.error('Error in DELETE /api/admin/users/[id]:', error);
-    
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 400 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    const typed = mapTypedError(error);
+    if (typed) return typed;
+    return safeErrorResponse(error, 'Failed to delete user');
   }
-} 
+}

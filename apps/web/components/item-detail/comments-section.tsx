@@ -1,11 +1,11 @@
 'use client';
 import { useState, memo, useCallback } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, Trash2, Pencil, Check, AlertTriangle } from 'lucide-react';
+import { MessageCircle, Trash2, Pencil, Check, AlertTriangle, MapPin, Briefcase, ExternalLink } from 'lucide-react';
 import { Rating } from '@/components/ui/rating';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import type { CommentWithUser } from '@/lib/types/comment';
@@ -20,6 +20,7 @@ import {
 	ModalBody,
 	ModalFooter
 } from '@/components/ui/modal';
+import * as Popover from '@radix-ui/react-popover';
 
 // Design system class constants
 const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden';
@@ -177,6 +178,146 @@ const CommentForm = memo(
 );
 CommentForm.displayName = 'CommentForm';
 
+// Dev-only stub — fills empty profile fields with realistic data so the card
+// always renders with representative content during local development.
+const DEV_PROFILE_STUB = {
+	username: 'sarah.chen',
+	jobTitle: 'Senior Product Designer',
+	company: 'Linear',
+	location: 'San Francisco, CA',
+	bio: 'Passionate about clean systems and great user experiences. Previously at Figma and Notion.'
+} as const;
+
+// Clickable avatar — opens a clean profile card on click
+const UserProfilePopover = memo(
+	({
+		user,
+		children
+	}: {
+		user: CommentWithUser['user'];
+		children: React.ReactNode;
+	}) => {
+		const locale = useLocale();
+
+		// In development, backfill missing fields so the card always looks complete.
+		const isDev = process.env.NODE_ENV !== 'production';
+		const username  = user.username  ?? (isDev ? DEV_PROFILE_STUB.username  : null);
+		const jobTitle  = user.jobTitle  ?? (isDev ? DEV_PROFILE_STUB.jobTitle  : null);
+		const company   = user.company   ?? (isDev ? DEV_PROFILE_STUB.company   : null);
+		const location  = user.location  ?? (isDev ? DEV_PROFILE_STUB.location  : null);
+		const bio       = user.bio       ?? (isDev ? DEV_PROFILE_STUB.bio       : null);
+
+		const profileHref = username ? `/${locale}/client/profile/${username}` : null;
+		const hasDetails  = jobTitle || company || location || bio;
+
+		return (
+			<Popover.Root>
+				<Popover.Trigger asChild>
+					<button
+						type="button"
+						className="self-start cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:focus-visible:ring-white/20 transition-opacity hover:opacity-80"
+						aria-label={`View ${user.name ?? 'user'}'s profile`}
+					>
+						{children}
+					</button>
+				</Popover.Trigger>
+
+				<Popover.Portal>
+					<Popover.Content
+						side="right"
+						align="start"
+						sideOffset={10}
+						collisionPadding={16}
+						className="z-50 w-56 overflow-hidden rounded-2xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.03] shadow-lg shadow-black/[0.06] dark:shadow-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:slide-in-from-left-1 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 duration-150 ease-out"
+					>
+						{/* ── Identity row ─────────────────────────────────────────── */}
+						<div className="flex items-center gap-3 px-4 pt-4 pb-3">
+							<Avatar
+								src={user.image}
+								alt={user.name ?? 'User'}
+								fallback={user.name?.[0] ?? 'U'}
+								size="md"
+								className="shrink-0 ring-1 ring-gray-100 dark:ring-white/8"
+							/>
+							<div className="min-w-0 flex-1">
+								<p className="truncate text-[13px] font-semibold leading-snug text-gray-900 dark:text-gray-100">
+									{user.name ?? 'Anonymous'}
+								</p>
+								{username && (
+									<p className="truncate text-[11px] text-gray-400 dark:text-gray-500 mt-0.5 font-normal">
+										@{username}
+									</p>
+								)}
+							</div>
+						</div>
+
+						{/* ── Divider ──────────────────────────────────────────────── */}
+						{hasDetails && (
+							<div className="mx-4 border-t border-gray-100 dark:border-white/6" />
+						)}
+
+						{/* ── Profile details ──────────────────────────────────────── */}
+						{hasDetails && (
+							<div className="px-4 py-3 space-y-2">
+								{/* Role · Company */}
+								{(jobTitle || company) && (
+									<div className="flex items-start gap-2">
+										<Briefcase className="mt-px w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-gray-500" />
+										<p className="text-[12px] leading-snug text-gray-600 dark:text-gray-400 line-clamp-1">
+											{[jobTitle, company].filter(Boolean).join(' · ')}
+										</p>
+									</div>
+								)}
+
+								{/* Location */}
+								{location && (
+									<div className="flex items-center gap-2">
+										<MapPin className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-gray-500" />
+										<p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">{location}</p>
+									</div>
+								)}
+
+								{/* Bio */}
+								{bio && (
+									<p className="pt-0.5 text-[11.5px] leading-relaxed text-gray-400 dark:text-gray-500 line-clamp-2">
+										{bio}
+									</p>
+								)}
+							</div>
+						)}
+
+						{/* ── Actions ─────────────────────────────────────────────── */}
+						<div className="mx-4 border-t border-gray-100 dark:border-white/6" />
+						<div className="px-4 py-3 flex gap-2">
+							{/* Follow — secondary outline */}
+							<button
+								type="button"
+								className="flex-1 h-8 rounded-xl text-[12px] font-semibold border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150 select-none"
+							>
+								Follow
+							</button>
+
+							{/* View profile — primary */}
+							{profileHref ? (
+								<a
+									href={profileHref}
+									className="flex flex-1 items-center justify-center gap-1 h-8 rounded-xl text-[12px] font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors duration-150 select-none"
+								>
+									Profile
+									<ExternalLink className="w-3 h-3 opacity-60" />
+								</a>
+							) : (
+								<span className="flex-1" />
+							)}
+						</div>
+					</Popover.Content>
+				</Popover.Portal>
+			</Popover.Root>
+		);
+	}
+);
+UserProfilePopover.displayName = 'UserProfilePopover';
+
 // Extracted single comment component
 const Comment = memo(
 	({
@@ -229,14 +370,16 @@ const Comment = memo(
 
 		return (
 			<div className={`${isFluid ? 'max-w-[80%]' : 'w-full'} group flex gap-3 px-6 py-3.5 transition-colors duration-150`}>
-				{/* Avatar — LinkedIn positions it top-left */}
-				<Avatar
-					src={comment.user.image}
-					alt={comment.user.name || 'Anonymous'}
-					fallback={comment.user.name?.[0] || 'A'}
-					size="sm"
-					className="w-4 h-4 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5 rounded-full"
-				/>
+				{/* Avatar — click to open profile popover */}
+				<UserProfilePopover user={comment.user}>
+					<Avatar
+						src={comment.user.image}
+						alt={comment.user.name || 'Anonymous'}
+						fallback={comment.user.name?.[0] || 'A'}
+						size="sm"
+						className="w-4 h-4 shrink-0 ring-1 ring-gray-200 dark:ring-white/10 mt-0.5 rounded-full"
+					/>
+				</UserProfilePopover>
 				<div className="flex-1 min-w-0">
 					{/* LinkedIn-style name card bubble */}
 					<div className="px-4">

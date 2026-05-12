@@ -148,18 +148,18 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 	try {
 		const session = await auth();
 		if (!session?.user?.id) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 		}
 
 		const { id: notificationId } = await params;
 
 		if (!notificationId) {
-			return NextResponse.json({ error: 'Notification ID is required' }, { status: 400 });
+			return NextResponse.json({ success: false, error: 'Notification ID is required' }, { status: 400 });
 		}
 
 		const tenantId = session.user.tenantId;
 		if (!tenantId) {
-			return NextResponse.json({ error: 'Tenant not found' }, { status: 403 });
+			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
 		}
 
 		const updatedNotification = await db
@@ -179,7 +179,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 			.returning();
 
 		if (updatedNotification.length === 0) {
-			return NextResponse.json({ error: 'Notification not found' }, { status: 404 });
+			return NextResponse.json({ success: false, error: 'Notification not found' }, { status: 404 });
 		}
 
 		return NextResponse.json({
@@ -188,6 +188,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 		});
 	} catch (error) {
 		console.error('Error marking notification as read:', error);
-		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
 	}
 }

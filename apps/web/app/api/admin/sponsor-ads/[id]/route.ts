@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -30,14 +30,8 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 		const sponsorAd = await sponsorAdService.getSponsorAdWithUser(id);
@@ -83,14 +77,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { deleteComment, getCommentById } from '@/lib/db/queries';
 import { db } from '@/lib/db/drizzle';
 import { comments, clientProfiles } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 export const runtime = 'nodejs';
 
@@ -154,10 +154,8 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 
@@ -403,10 +401,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
  */
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {
@@ -564,10 +560,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
  */
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 		const comment = await getCommentById(id);

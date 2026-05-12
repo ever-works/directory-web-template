@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 
 const roleRepository = new RoleRepository();
@@ -93,16 +93,8 @@ const roleRepository = new RoleRepository();
  */
 export async function GET() {
   try {
-    // Check authentication
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Check admin permissions
-    if (!session.user.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const roles = await roleRepository.findAll();
     

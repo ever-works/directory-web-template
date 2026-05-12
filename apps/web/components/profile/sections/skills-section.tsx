@@ -1,33 +1,31 @@
 import { FiAward, FiTrendingUp, FiGrid, FiBarChart2 } from "react-icons/fi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProfileTag } from "../profile-tag";
-import type { Profile } from "@/lib/types/profile";
-
-// Configurable skill categories for better reusability
-const SKILL_CATEGORIES: Record<string, string[]> = {
-  Frontend: ["React", "Vue.js", "Angular", "HTML", "CSS", "JavaScript", "TypeScript"],
-  Backend: ["Node.js", "Python", "Java", "C#", "PHP", "Go", "Rust"],
-  "Tools & Frameworks": ["Next.js", "Tailwind CSS", "Docker", "Git", "AWS", "Firebase"]
-};
+import type { Profile, ProfileSkill } from "@/lib/types/profile";
 
 interface SkillsSectionProps {
   profile: Profile;
 }
 
 export function SkillsSection({ profile }: SkillsSectionProps) {
-  const getSkillCategory = (skill: string) => {
-    for (const [category, skills] of Object.entries(SKILL_CATEGORIES)) {
-      if (skills.includes(skill)) return category;
-    }
-    return "Other";
-  };
-
-  const categorizedSkills = profile.skills.reduce((acc: Record<string, { name: string; level: number }[]>, skill: { name: string; level: number }) => {
-    const category = getSkillCategory(skill.name);
+  const categorizedSkills = profile.skills.reduce((acc, skill) => {
+    const category = skill.category || "Other";
     if (!acc[category]) acc[category] = [];
     acc[category].push(skill);
     return acc;
-  }, {} as Record<string, { name: string; level: number }[]>);
+  }, {} as Record<string, ProfileSkill[]>);
+
+  if (profile.skills.length === 0) {
+    return (
+      <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
+        <CardContent className="p-0 text-center py-12 text-sm text-gray-500 dark:text-gray-400">
+          <FiAward className="w-10 h-10 mx-auto mb-3 opacity-50" />
+          <p className="text-base font-medium text-gray-700 dark:text-gray-300">No skills listed yet</p>
+          <p className="mt-1">Use the Manage button above to add skills with categories and proficiency.</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -48,7 +46,7 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Here are the technologies and tools I work with. Each skill represents my proficiency level based on experience and projects.
           </p>
-          
+
           <div className="space-y-6">
             {Object.entries(categorizedSkills).map(([category, skills]) => (
               <div key={category} className="space-y-4">
@@ -56,22 +54,22 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
                   <FiTrendingUp className="w-4 h-4 text-theme-primary-500" />
                   {category}
                 </h3>
-                
+
                 <div className="space-y-3">
-                  {skills.map((skill: { name: string; level: number }) => (
+                  {skills.map((skill) => (
                     <div key={skill.name} className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                           {skill.name}
                         </span>
                         <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {skill.level}%
+                          {skill.proficiency}%
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-white/8 rounded-full h-2">
                         <div
                           className="bg-theme-primary-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${skill.level}%` }}
+                          style={{ width: `${skill.proficiency}%` }}
                         />
                       </div>
                     </div>
@@ -122,7 +120,7 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
               </div>
               <div className="text-2xl font-bold text-theme-primary-600 dark:text-theme-primary-400">
                 {profile.skills && profile.skills.length > 0
-                  ? Math.round(profile.skills.reduce((sum: number, skill: { name: string; level: number }) => sum + skill.level, 0) / profile.skills.length)
+                  ? Math.round(profile.skills.reduce((sum, skill) => sum + skill.proficiency, 0) / profile.skills.length)
                   : 0}
               </div>
               <div className="text-sm text-muted-foreground font-medium mt-1">Avg. Proficiency</div>
@@ -135,4 +133,4 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
       </Card>
     </div>
   );
-} 
+}

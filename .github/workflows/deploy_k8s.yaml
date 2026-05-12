@@ -34,6 +34,11 @@ env:
     # Defaults to 'github' when the platform pushed nothing — that's the
     # zero-config GHCR flow.
     K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
+    # Hoisted from secrets so step `if:` conditionals can reference it.
+    # `secrets.X` is not a valid expression context in step-level `if:`,
+    # but workflow/job-level `env:` is — so we mirror the secret into env
+    # once and let downstream `env.K8S_REGISTRY_VISIBILITY` work everywhere.
+    K8S_REGISTRY_VISIBILITY: ${{ secrets.K8S_REGISTRY_VISIBILITY || 'public' }}
 
 jobs:
     build-and-deploy:
@@ -172,7 +177,7 @@ jobs:
                   kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Provision image-pull secret (private registries)
-              if: env.K8S_REGISTRY_KIND != 'github' || secrets.K8S_REGISTRY_VISIBILITY == 'private'
+              if: env.K8S_REGISTRY_KIND != 'github' || env.K8S_REGISTRY_VISIBILITY == 'private'
               env:
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
                   WORK_SLUG: ${{ github.event.repository.name }}

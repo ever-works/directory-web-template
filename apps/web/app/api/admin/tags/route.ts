@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { tagRepository } from '@/lib/repositories/tag.repository';
 import { CreateTagRequest } from '@/lib/types/tag';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { invalidateContentCaches } from '@/lib/cache-invalidation';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -146,10 +146,8 @@ import { invalidateContentCaches } from '@/lib/cache-invalidation';
 export async function GET(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { searchParams} = new URL(request.url);
 
@@ -289,10 +287,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const body = await request.json();
     const { id, name, isActive }: CreateTagRequest = body;
@@ -309,7 +305,15 @@ export async function POST(request: NextRequest) {
     // Invalidate content caches to ensure immediate visibility
     await invalidateContentCaches();
 
-    return NextResponse.json({ success: true, tag }, { status: 201 });
+    return NextResponse.json(
+      {
+        success: true,
+        data: tag,
+        // Legacy field retained for backward compatibility (see EW-606)
+        tag,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Error creating tag:', error);
     

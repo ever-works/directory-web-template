@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { getReportById, updateReport } from '@/lib/db/queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 import {
 	ReportStatus,
 	ReportResolution,
@@ -57,10 +57,8 @@ export async function GET(
 		const dbCheck = checkDatabaseAvailability();
 		if (dbCheck) return dbCheck;
 
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { id } = await params;
 		const report = await getReportById(id);
@@ -133,10 +131,9 @@ export async function PUT(
 		const dbCheck = checkDatabaseAvailability();
 		if (dbCheck) return dbCheck;
 
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const { id } = await params;
 

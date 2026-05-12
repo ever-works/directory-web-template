@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { collectionRepository } from "@/lib/repositories/collection.repository";
-import { auth } from "@/lib/auth";
 import { AssignCollectionItemsRequest } from "@/types/collection";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
 import { revalidatePath } from "next/cache";
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -12,18 +12,18 @@ interface RouteParams {
 
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const items = await collectionRepository.getAssignedItems(id);
 
-    return NextResponse.json({ success: true, items });
+    return NextResponse.json({
+      success: true,
+      data: items,
+      // Legacy field retained for backward compatibility (see EW-606)
+      items,
+    });
   } catch (error) {
     return safeErrorResponse(error, 'Failed to fetch collection items');
   }
@@ -31,13 +31,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { id } = await params;
     const body = (await request.json()) as AssignCollectionItemsRequest;
@@ -58,9 +53,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({
       success: true,
+      data: { collection: result.collection, updatedItems: result.updatedItems },
+      message: "Collection items updated successfully",
+      // Legacy fields retained for backward compatibility (see EW-606)
       collection: result.collection,
       updatedItems: result.updatedItems,
-      message: "Collection items updated successfully",
     });
   } catch (error) {
     return safeErrorResponse(error, 'Failed to assign collection items');

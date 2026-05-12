@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { itemAuditService } from '@/lib/services/item-audit.service';
 import { ItemAuditAction, type ItemAuditActionValues } from '@/lib/db/schema';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -152,13 +152,8 @@ export async function GET(
 ) {
 	try {
 		// Check admin authentication
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const resolvedParams = await params;
 		const itemId = resolvedParams.id;

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { configManager } from '@/lib/config-manager';
-import { getCachedApiSession } from '@/lib/auth/cached-session';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { safeErrorResponse } from '@/lib/utils/api-error';
 
 /**
  * Validates that a navigation path is safe to use as a link href
@@ -121,29 +122,27 @@ function isValidNavigationPath(path: string): boolean {
  *                   type: string
  *                   example: "Failed to fetch navigation"
  */
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
-		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
-		// Get navigation config
 		const config = configManager.getConfig();
 		const custom_header = config.custom_header || [];
 		const custom_footer = config.custom_footer || [];
 
 		return NextResponse.json(
 			{
+				success: true,
+				data: { custom_header, custom_footer },
+				// Legacy fields retained for backward compatibility (see EW-606)
 				custom_header,
 				custom_footer
 			},
 			{ status: 200 }
 		);
 	} catch (error) {
-		console.error('Error fetching navigation:', error);
-		return NextResponse.json({ error: 'Failed to fetch navigation' }, { status: 500 });
+		return safeErrorResponse(error, 'Failed to fetch navigation');
 	}
 }
 
@@ -292,20 +291,18 @@ export async function GET(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
 	try {
 		// Check admin authentication
-		const session = await getCachedApiSession(req);
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const body = await req.json();
 		const { type, items } = body;
 
 		if (!type || (type !== 'header' && type !== 'footer')) {
-			return NextResponse.json({ error: 'Type must be "header" or "footer"' }, { status: 400 });
+			return NextResponse.json({ success: false, error: 'Type must be "header" or "footer"' }, { status: 400 });
 		}
 
 		if (!Array.isArray(items)) {
-			return NextResponse.json({ error: 'Items must be an array' }, { status: 400 });
+			return NextResponse.json({ success: false, error: 'Items must be an array' }, { status: 400 });
 		}
 
 		// Validate items structure
@@ -320,7 +317,7 @@ export async function PATCH(req: NextRequest) {
 				!item.path.trim()
 			) {
 				return NextResponse.json(
-					{ error: 'Each item must have non-empty "label" and "path" string fields' },
+					{ success: false, error: 'Each item must have non-empty "label" and "path" string fields' },
 					{ status: 400 }
 				);
 			}
@@ -329,7 +326,7 @@ export async function PATCH(req: NextRequest) {
 			if (!isValidNavigationPath(item.path)) {
 				return NextResponse.json(
 					{
-						error: 'Invalid path format. Paths must start with "/" for internal routes or "http://"/"https://" for external URLs.'
+						success: false, error: 'Invalid path format. Paths must start with "/" for internal routes or "http://"/"https://" for external URLs.'
 					},
 					{ status: 400 }
 				);
@@ -341,12 +338,12 @@ export async function PATCH(req: NextRequest) {
 		const success = await configManager.updateNestedKey(key, items);
 
 		if (!success) {
-			return NextResponse.json({ error: 'Failed to update navigation' }, { status: 500 });
+			return NextResponse.json({ success: false, error: 'Failed to update navigation' }, { status: 500 });
 		}
 
 		return NextResponse.json({ success: true, type, items }, { status: 200 });
 	} catch (error) {
 		console.error('Error updating navigation:', error);
-		return NextResponse.json({ error: 'Failed to update navigation' }, { status: 500 });
+		return NextResponse.json({ success: false, error: 'Failed to update navigation' }, { status: 500 });
 	}
 }

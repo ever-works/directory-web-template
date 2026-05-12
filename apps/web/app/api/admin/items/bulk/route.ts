@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -130,13 +130,9 @@ export async function POST(
 ): Promise<NextResponse> {
 	try {
 		// Check admin authentication
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const body: BulkActionRequest = await request.json();
 		const { action, ids, reason } = body;
