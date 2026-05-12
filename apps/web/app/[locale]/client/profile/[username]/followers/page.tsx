@@ -45,7 +45,7 @@ export default async function ProfileFollowersPage({
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-			<Container maxWidth="2xl" padding="default" useGlobalWidth>
+			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-6 py-8">
 					{/* Back link */}
 					<Link

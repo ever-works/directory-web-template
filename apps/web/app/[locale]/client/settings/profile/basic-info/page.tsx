@@ -219,6 +219,7 @@ export default function BasicInfoPage() {
 	const [isLoadingProfile, setIsLoadingProfile] = useState(true);
 	const [initialAvatar, setInitialAvatar] = useState<string | null>(null);
 	const [initialDisplayName, setInitialDisplayName] = useState<string>('');
+	const [profileUsername, setProfileUsername] = useState<string>('');
 
 	const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -282,6 +283,7 @@ export default function BasicInfoPage() {
 				interests: profile.interests
 			});
 			setInitialDisplayName(profile.displayName ?? '');
+			setProfileUsername(profile.username ?? '');
 			if (profile.skills?.length) setSkills(profile.skills);
 			if (profile.avatar) {
 				setAvatarPreview(profile.avatar);
@@ -332,17 +334,17 @@ export default function BasicInfoPage() {
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-			<Container maxWidth="2xl" padding="default" useGlobalWidth>
+			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="py-8 space-y-6">
 					{/* Page header */}
 					<div className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<Link
-								href="/client/settings"
+								href={profileUsername ? `/client/profile/${profileUsername}` : '/client/profile'}
 								className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors duration-150"
 							>
 								<FiArrowLeft className="w-3.5 h-3.5" />
-								{t('BACK_TO_SETTINGS')}
+								{t('BACK_TO_PROFILE')}
 							</Link>
 						</div>
 					</div>
@@ -576,7 +578,7 @@ export default function BasicInfoPage() {
 						{/* Actions */}
 						<div className="px-6 py-4 flex items-center justify-end gap-3 bg-neutral-50 dark:bg-white/2 rounded-b-xl">
 							<Link
-								href="/client/settings/profile"
+								href={profileUsername ? `/client/profile/${profileUsername}` : '/client/profile'}
 								className="px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150"
 							>
 								{t('CANCEL')}
