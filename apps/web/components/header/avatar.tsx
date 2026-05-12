@@ -28,9 +28,9 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 				<Image
 					src={src}
 					alt={alt}
-					width={dimensions}
-					height={dimensions}
-					className="object-cover rounded-full"
+					fill
+					sizes={`${dimensions}px`}
+					className="object-cover"
 					onError={() => setImageError(true)}
 					priority
 					unoptimized={isDataUrl}
