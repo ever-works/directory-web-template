@@ -1,6 +1,7 @@
 export { ProfileHeader } from "./profile-header";
 export { ProfileNavigation } from "./profile-navigation";
 export { ProfileContent } from "./profile-content";
+export { ProfilePanel } from "./profile-panel";
 export { ProfileStatsStrip } from "./profile-stats-strip";
 export { FollowButton } from "./follow-button";
 export { InlineEditField } from "./inline-edit-field";
