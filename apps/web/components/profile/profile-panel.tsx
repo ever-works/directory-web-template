@@ -32,14 +32,6 @@ interface ProfilePanelProps {
 	verified?: boolean;
 }
 
-/**
- * Left-column profile card — replaces the old full-width ProfileHeader.
- *
- * Layout mirrors the reference candidate card: cover banner with avatar
- * overlap and an optional verified pill, then a column with name + role
- * pill, skills, interests, two side-by-side info boxes (Location, Member
- * since), and the action row (Edit profile / Follow + Discover users).
- */
 export function ProfilePanel({
 	profile,
 	isOwn,
@@ -67,37 +59,36 @@ export function ProfilePanel({
 
 	const socialIcon = (platform: string) => {
 		switch (platform.toLowerCase()) {
-			case 'github':
-				return <FiGithub className="w-4 h-4" />;
-			case 'linkedin':
-				return <FiLinkedin className="w-4 h-4" />;
+			case 'github':   return <FiGithub className="w-4 h-4" />;
+			case 'linkedin': return <FiLinkedin className="w-4 h-4" />;
 			case 'twitter':
-			case 'x':
-				return <FiTwitter className="w-4 h-4" />;
-			default:
-				return <FiGlobe className="w-4 h-4" />;
+			case 'x':        return <FiTwitter className="w-4 h-4" />;
+			default:         return <FiGlobe className="w-4 h-4" />;
 		}
 	};
 
+	const MAX_SKILLS_SHOWN = 8;
+	const visibleSkills = profile.skills.slice(0, MAX_SKILLS_SHOWN);
+	const extraSkillCount = profile.skills.length - MAX_SKILLS_SHOWN;
+
 	return (
 		<Card className="overflow-hidden border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 shadow-sm">
-			{/* Cover + avatar overlap */}
-			<div className="relative">
-				<div
-					className="h-24 w-full"
-					style={{
-						background:
-							'linear-gradient(120deg, var(--theme-primary, #6366f1), var(--theme-secondary, #a5b4fc) 80%)'
-					}}
-				/>
+			{/* Cover banner */}
+			<div className="relative h-24 w-full shrink-0"
+				style={{ background: 'linear-gradient(120deg, var(--theme-primary, #6366f1), var(--theme-secondary, #a5b4fc) 80%)' }}
+			>
 				{verified && (
-					<span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/95 text-theme-primary-700 dark:bg-white/10 dark:text-theme-primary-300 px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm">
-						<FiCheckCircle className="w-3.5 h-3.5" />
+					<span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/90 dark:bg-white/10 text-theme-primary-700 dark:text-theme-primary-300 px-2 py-0.5 text-xs font-medium shadow-sm backdrop-blur-sm">
+						<FiCheckCircle className="w-3 h-3" />
 						Verified
 					</span>
 				)}
-				<div className="absolute left-6 -bottom-10">
-					<div className="relative h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-neutral-950 shadow-md bg-white dark:bg-white/5">
+			</div>
+
+			{/* Avatar — overlaps cover */}
+			<div className="px-5">
+				<div className="relative -mt-10 mb-3 w-fit">
+					<div className="relative h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-neutral-950 shadow-md bg-neutral-100 dark:bg-white/5">
 						{!imageError && profile.avatar ? (
 							<Image
 								src={profile.avatar}
@@ -111,14 +102,14 @@ export function ProfilePanel({
 							/>
 						) : (
 							<div className="w-full h-full flex items-center justify-center">
-								<FiUser className="w-8 h-8 text-gray-400" />
+								<FiUser className="w-8 h-8 text-neutral-400" />
 							</div>
 						)}
 					</div>
 					{isOwn && (
 						<Link
 							href="/client/settings/profile/basic-info"
-							className="absolute -bottom-1 -right-1 rounded-full bg-white dark:bg-neutral-950 p-1.5 shadow-md border border-neutral-200 dark:border-white/10 text-theme-primary-600 dark:text-theme-primary-400 hover:bg-neutral-50 dark:hover:bg-white/8 transition-all duration-150"
+							className="absolute -bottom-1 -right-1 rounded-full bg-white dark:bg-neutral-950 p-1.5 shadow border border-neutral-200 dark:border-white/10 text-theme-primary-600 dark:text-theme-primary-400 hover:bg-neutral-50 dark:hover:bg-white/8 transition-all duration-150"
 							aria-label="Change avatar"
 							title="Change avatar in settings"
 						>
@@ -128,10 +119,11 @@ export function ProfilePanel({
 				</div>
 			</div>
 
-			<div className="p-6 pt-14 space-y-5">
-				{/* Name + role pill */}
-				<div className="space-y-1.5">
-					<h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 leading-tight">
+			{/* Body */}
+			<div className="px-5 pb-5 space-y-4">
+				{/* Name + role */}
+				<div>
+					<h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 leading-snug">
 						<InlineEditField
 							field="displayName"
 							value={profile.displayName}
@@ -144,24 +136,22 @@ export function ProfilePanel({
 						/>
 					</h1>
 					{(profile.jobTitle || isOwn) && (
-						<div className="inline-flex items-center">
-							<span className="inline-flex items-center rounded-md bg-theme-primary-50 dark:bg-theme-primary-500/10 text-theme-primary-700 dark:text-theme-primary-300 px-2.5 py-1 text-xs font-medium">
-								<InlineEditField
-									field="jobTitle"
-									value={profile.jobTitle}
-									canEdit={isOwn}
-									maxLength={100}
-									placeholder="Your role"
-									emptyLabel="Add role"
-								/>
-							</span>
-						</div>
+						<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+							<InlineEditField
+								field="jobTitle"
+								value={profile.jobTitle}
+								canEdit={isOwn}
+								maxLength={100}
+								placeholder="Your role"
+								emptyLabel="Add role"
+							/>
+						</p>
 					)}
 				</div>
 
-				{/* Bio (compact) */}
+				{/* Bio */}
 				{(profile.bio || isOwn) && (
-					<div className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
+					<p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
 						<InlineEditField
 							field="bio"
 							value={profile.bio}
@@ -171,177 +161,130 @@ export function ProfilePanel({
 							placeholder="Tell others about yourself"
 							emptyLabel={isOwn ? 'Add a short bio' : 'No bio yet'}
 						/>
-					</div>
+					</p>
 				)}
 
-				{/* Skills */}
-				{(profile.skills.length > 0 || isOwn) && (
-					<div className="space-y-2">
-						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Skills</h3>
-						{profile.skills.length > 0 ? (
-							<div className="flex flex-wrap gap-1.5">
-								{profile.skills.map((skill) => (
-									<ProfileTag key={skill.name} label={skill.name} />
-								))}
-							</div>
-						) : (
-							isOwn && (
-								<Link
-									href="/client/settings/profile/basic-info"
-									className="text-xs text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
-								>
-									Add your skills
-								</Link>
-							)
-						)}
-					</div>
-				)}
-
-				{/* Interests */}
-				{(profile.interests.length > 0 || isOwn) && (
-					<div className="space-y-2">
-						<h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Interests</h3>
-						{profile.interests.length > 0 ? (
-							<div className="flex flex-wrap gap-1.5">
-								{profile.interests.map((interest) => (
-									<ProfileTag key={interest} label={interest} />
-								))}
-							</div>
-						) : (
-							isOwn && (
-								<Link
-									href="/client/settings/profile/basic-info"
-									className="text-xs text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
-								>
-									Add interests
-								</Link>
-							)
-						)}
-					</div>
-				)}
-
-				{/* Two-up info boxes — Location + Member since */}
-				<div className="grid grid-cols-2 gap-2">
-					<div className="rounded-lg border border-neutral-200 dark:border-white/8 bg-neutral-50/80 dark:bg-white/3 px-3 py-2 transition-colors duration-150">
-						<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-							<FiMapPin className="w-3 h-3" />
-							Location
+				{/* Info list */}
+				<div className="space-y-2">
+					{(profile.location || isOwn) && (
+						<div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+							<FiMapPin className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
+							<InlineEditField
+								field="location"
+								value={profile.location}
+								canEdit={isOwn}
+								maxLength={100}
+								placeholder="Location"
+								emptyLabel="Add location"
+							/>
 						</div>
-						<div className="mt-1 text-sm text-gray-900 dark:text-gray-100 truncate">
-							{profile.location ? (
-								<InlineEditField
-									field="location"
-									value={profile.location}
-									canEdit={isOwn}
-									maxLength={100}
-									placeholder="Where are you?"
-									emptyLabel="Add"
-								/>
-							) : isOwn ? (
-								<InlineEditField
-									field="location"
-									value={profile.location}
-									canEdit
-									maxLength={100}
-									placeholder="Where are you?"
-									emptyLabel="Add"
-								/>
-							) : (
-								<span className="italic text-gray-400 dark:text-gray-500">—</span>
-							)}
-						</div>
-					</div>
-					<div className="rounded-lg border border-neutral-200 dark:border-white/8 bg-neutral-50/80 dark:bg-white/3 px-3 py-2 transition-colors duration-150">
-						<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-							<FiCalendar className="w-3 h-3" />
-							Member since
-						</div>
-						<div className="mt-1 text-sm text-gray-900 dark:text-gray-100 truncate">
-							{formatMemberSince(profile.memberSince)}
-						</div>
-					</div>
+					)}
 					{(profile.company || isOwn) && (
-						<div className="rounded-lg border border-gray-200 dark:border-white/8 bg-gray-50/60 dark:bg-white/3 px-3 py-2 col-span-2">
-							<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-								<FiBriefcase className="w-3 h-3" />
-								Company
-							</div>
-							<div className="mt-1 text-sm text-gray-900 dark:text-gray-100 truncate">
-								<InlineEditField
-									field="company"
-									value={profile.company}
-									canEdit={isOwn}
-									maxLength={100}
-									placeholder="Where do you work?"
-									emptyLabel="Add company"
-								/>
-							</div>
+						<div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+							<FiBriefcase className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
+							<InlineEditField
+								field="company"
+								value={profile.company}
+								canEdit={isOwn}
+								maxLength={100}
+								placeholder="Company"
+								emptyLabel="Add company"
+							/>
 						</div>
 					)}
 					{(profile.website || isOwn) && (
-						<div className="rounded-lg border border-gray-200 dark:border-white/8 bg-gray-50/60 dark:bg-white/3 px-3 py-2 col-span-2">
-							<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
-								<FiGlobe className="w-3 h-3" />
-								Website
-							</div>
-							<div className="mt-1 text-sm text-gray-900 dark:text-gray-100 truncate">
-								{isOwn ? (
-									<InlineEditField
-										field="website"
-										value={profile.website}
-										canEdit
-										type="url"
-										maxLength={200}
-										placeholder="https://your.site"
-										emptyLabel="Add website"
-									/>
-								) : profile.website ? (
-									<a
-										href={profile.website}
-										target="_blank"
-										rel="noopener noreferrer"
-										className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate"
-									>
-										{profile.website.replace(/^https?:\/\//, '')}
-									</a>
-								) : (
-									<span className="italic text-gray-400 dark:text-gray-500">—</span>
-								)}
-							</div>
+						<div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+							<FiGlobe className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
+							{isOwn ? (
+								<InlineEditField
+									field="website"
+									value={profile.website}
+									canEdit
+									type="url"
+									maxLength={200}
+									placeholder="https://your.site"
+									emptyLabel="Add website"
+								/>
+							) : profile.website ? (
+								<a
+									href={profile.website}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate"
+								>
+									{profile.website.replace(/^https?:\/\//, '')}
+								</a>
+							) : null}
 						</div>
 					)}
+					<div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-500">
+						<FiCalendar className="w-3.5 h-3.5 shrink-0" />
+						<span>Joined {formatMemberSince(profile.memberSince)}</span>
+					</div>
 				</div>
 
-				{/* Social links (read-only for now) */}
+				{/* Skills */}
+				{(profile.skills.length > 0 || isOwn) && (
+					<div className="space-y-1.5">
+						<p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">Skills</p>
+						{profile.skills.length > 0 ? (
+							<div className="flex flex-wrap gap-1">
+								{visibleSkills.map((skill) => (
+									<ProfileTag key={skill.name} label={skill.name} />
+								))}
+								{extraSkillCount > 0 && (
+									<Link
+										href="/client/settings/profile/basic-info"
+										className="inline-flex items-center px-2.5 py-1 rounded-full border border-dashed border-neutral-300 dark:border-white/10 text-xs text-neutral-500 dark:text-neutral-400 hover:border-theme-primary-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-all duration-150"
+									>
+										+{extraSkillCount} more
+									</Link>
+								)}
+							</div>
+						) : isOwn ? (
+							<Link
+								href="/client/settings/profile/basic-info"
+								className="text-xs text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
+							>
+								Add your skills →
+							</Link>
+						) : null}
+					</div>
+				)}
+
+				{/* Social links — icon only row */}
 				{profile.socialLinks.length > 0 && (
-					<div className="flex flex-wrap items-center gap-2">
+					<div className="flex items-center gap-1.5">
 						{profile.socialLinks.map((link) => (
 							<a
 								key={link.platform}
 								href={link.url}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/5 hover:bg-neutral-50 dark:hover:bg-white/10 hover:border-neutral-300 dark:hover:border-white/15 text-xs text-neutral-700 dark:text-neutral-200 transition-all duration-150"
+								className="p-2 rounded-lg border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/5 text-neutral-600 dark:text-neutral-300 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
 								title={link.displayName}
+								aria-label={link.displayName}
 							>
 								{socialIcon(link.platform)}
-								<span className="truncate max-w-[14ch]">{link.displayName}</span>
 							</a>
 						))}
 					</div>
 				)}
 
+				{/* Divider */}
+				<div className="border-t border-neutral-100 dark:border-white/6" />
+
 				{/* Actions */}
-				<div className="flex flex-wrap items-center gap-2 pt-2">
-					{isOwn ? (
-						<Link
-							href="/client/settings/profile/basic-info"
-							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm bg-theme-primary-600 hover:bg-theme-primary-700 text-white transition-all duration-150 w-full"
-						>
-							<FiEdit2 className="w-4 h-4" />
-							Edit profile
-						</Link>
-					) : (
+				{isOwn ? (
+					<Link
+						href="/client/settings/profile/basic-info"
+						className="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white transition-all duration-150"
+					>
+						<FiEdit2 className="w-3.5 h-3.5" />
+						Edit profile
+					</Link>
+				) : (
+					<div className="flex items-center gap-2">
 						<div className="flex-1">
 							<FollowButton
 								username={profile.username}
@@ -349,17 +292,18 @@ export function ProfilePanel({
 								isAuthenticated={isAuthenticated}
 							/>
 						</div>
-					)}
-					{isAuthenticated && (
-						<Link
-							href="/client/users"
-							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
-						>
-							<FiUsers className="w-4 h-4" />
-							Discover
-						</Link>
-					)}
-				</div>
+						{isAuthenticated && (
+							<Link
+								href="/client/users"
+								className="flex items-center justify-center p-2 rounded-lg border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
+								title="Discover users"
+								aria-label="Discover users"
+							>
+								<FiUsers className="w-4 h-4" />
+							</Link>
+						)}
+					</div>
+				)}
 			</div>
 		</Card>
 	);

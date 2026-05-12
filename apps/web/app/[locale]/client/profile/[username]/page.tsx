@@ -87,8 +87,8 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	};
 
 	return (
-		<div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
-			<Container maxWidth="7xl" padding="default">
+		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-6 py-8">
 					{/* Breadcrumb */}
 					<nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">

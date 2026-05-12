@@ -104,14 +104,16 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 				/* compact variant */
 				const tile = (
 					<>
-						<span className="p-1.5 bg-neutral-100 dark:bg-white/8 rounded-lg text-neutral-500 dark:text-neutral-400 mb-2" aria-hidden="true">
-							{item.icon}
-						</span>
+						<div className="flex items-center gap-1.5 mb-1.5">
+							<span className="text-neutral-400 dark:text-neutral-500" aria-hidden="true">
+								{item.icon}
+							</span>
+							<p className="text-[11px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide font-medium leading-none">
+								{item.label}
+							</p>
+						</div>
 						<p className="text-base font-semibold text-neutral-900 dark:text-white leading-none">
 							{formatCount(stats[item.key])}
-						</p>
-						<p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 uppercase tracking-wide">
-							{item.label}
 						</p>
 					</>
 				);
