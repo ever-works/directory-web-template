@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ProfileTag } from "../profile-tag";
 import { InlineEditField } from "../inline-edit-field";
 import type { Profile } from "@/lib/types/profile";
@@ -12,6 +13,7 @@ interface AboutSectionProps {
 }
 
 export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
+  const t = useTranslations("profile");
   const hasBio = !!profile.bio || isOwn;
   const hasInterests = profile.interests.length > 0 || isOwn;
 
@@ -23,7 +25,7 @@ export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
       {hasBio && (
         <div className={CARD}>
           <div className="px-5 py-4 border-b border-neutral-100 dark:border-white/6">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">About</h3>
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{t("ABOUT_SECTION")}</h3>
           </div>
           <div className="px-5 py-4">
             <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
@@ -33,8 +35,8 @@ export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
                 canEdit={!!isOwn}
                 multiline
                 maxLength={500}
-                placeholder="Tell others about yourself"
-                emptyLabel={isOwn ? "Add a bio" : "No bio yet."}
+                placeholder={t("BIO_EDIT_PLACEHOLDER")}
+                emptyLabel={isOwn ? t("BIO_ADD_LABEL") : t("BIO_EMPTY")}
               />
             </p>
           </div>
@@ -45,13 +47,13 @@ export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
       {hasInterests && (
         <div className={CARD}>
           <div className="px-5 py-4 border-b border-neutral-100 dark:border-white/6">
-            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Interests</h3>
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{t("INTERESTS")}</h3>
           </div>
           <div className="px-5 py-4">
             {isOwn ? (
               <div className="space-y-3">
                 <p className="text-xs text-neutral-400 dark:text-neutral-500">
-                  Comma-separated — each item becomes a tag.
+                  {t("INTERESTS_HINT")}
                 </p>
                 <p className="text-sm text-neutral-900 dark:text-neutral-100">
                   <InlineEditField
@@ -59,8 +61,8 @@ export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
                     value={profile.interests.join(", ")}
                     canEdit
                     maxLength={200}
-                    placeholder="design, open source, climbing, ..."
-                    emptyLabel="Add interests"
+                    placeholder={t("INTERESTS_EDIT_PLACEHOLDER")}
+                    emptyLabel={t("INTERESTS_ADD_LABEL")}
                   />
                 </p>
                 {profile.interests.length > 0 && (

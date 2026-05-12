@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { FiArrowRight, FiMessageCircle, FiStar } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
 
@@ -15,22 +18,23 @@ interface RecentActivitySectionProps {
 	displayName: string;
 }
 
-const formatRelative = (input: Date | string) => {
-	const date = typeof input === 'string' ? new Date(input) : input;
-	const diff = Date.now() - date.getTime();
-	const day = 86_400_000;
-	if (diff < 3_600_000) return 'just now';
-	if (diff < day) {
-		const h = Math.floor(diff / 3_600_000);
-		return `${h}h ago`;
-	}
-	if (diff < 7 * day) return `${Math.floor(diff / day)}d ago`;
-	return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-};
-
 const truncate = (s: string, max = 180) => (s.length <= max ? s : `${s.slice(0, max).trimEnd()}…`);
 
 export function RecentActivitySection({ comments, isOwn, displayName }: RecentActivitySectionProps) {
+	const t = useTranslations("profile");
+
+	const formatRelative = (input: Date | string): string => {
+		const date = typeof input === 'string' ? new Date(input) : input;
+		const diff = Date.now() - date.getTime();
+		const day = 86_400_000;
+		if (diff < 3_600_000) return t('JUST_NOW');
+		if (diff < day) return t('HOURS_AGO', { h: Math.floor(diff / 3_600_000) });
+		if (diff < 7 * day) return t('DAYS_AGO', { d: Math.floor(diff / day) });
+		return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+	};
+
+	const commentCount = comments.length;
+
 	return (
 		<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm overflow-hidden">
 			{/* Header */}
@@ -38,22 +42,22 @@ export function RecentActivitySection({ comments, isOwn, displayName }: RecentAc
 				<span className="p-1.5 bg-theme-primary-50 dark:bg-theme-primary-500/12 rounded-lg text-theme-primary-600 dark:text-theme-primary-400">
 					<FiMessageCircle className="w-3.5 h-3.5" />
 				</span>
-				<h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recent Activity</h3>
-				{comments.length > 0 && (
+				<h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{t("RECENT_ACTIVITY_SECTION")}</h3>
+				{commentCount > 0 && (
 					<span className="ml-auto text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
-						{comments.length} comment{comments.length !== 1 ? 's' : ''}
+						{commentCount} {t(commentCount !== 1 ? 'COMMENT_PLURAL' : 'COMMENT_SINGULAR')}
 					</span>
 				)}
 			</div>
 
 			{/* Content */}
 			<div className="px-5 py-4">
-				{comments.length > 0 ? (
+				{commentCount > 0 ? (
 					<ol className="relative space-y-0">
 						{/* Timeline track */}
 						<div className="absolute left-3.75 top-3 bottom-3 w-px bg-neutral-100 dark:bg-white/8" aria-hidden="true" />
 
-						{comments.map((comment, idx) => (
+						{comments.map((comment) => (
 							<li key={comment.id} className="relative flex gap-4 pb-5 last:pb-0">
 								{/* Timeline dot */}
 								<div className="relative z-10 mt-1.5 shrink-0 flex items-center justify-center w-7.5 h-7.5">
@@ -65,7 +69,7 @@ export function RecentActivitySection({ comments, isOwn, displayName }: RecentAc
 									{/* Meta row */}
 									<div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
 										<div className="flex items-center gap-1.5 min-w-0 text-xs text-neutral-500 dark:text-neutral-400">
-											<span className="shrink-0">Reviewed</span>
+											<span className="shrink-0">{t("REVIEWED_LABEL")}</span>
 											<Link
 												href={`/items/${comment.itemSlug}`}
 												className="font-medium text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate max-w-[18ch] transition-colors duration-150"
@@ -104,11 +108,11 @@ export function RecentActivitySection({ comments, isOwn, displayName }: RecentAc
 						</span>
 						<div className="space-y-1">
 							<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-								{isOwn ? 'No activity yet' : `${displayName} hasn't commented yet`}
+								{isOwn ? t("NO_ACTIVITY_OWN") : t("NO_ACTIVITY_OTHER", { name: displayName })}
 							</p>
 							{isOwn && (
 								<p className="text-xs text-neutral-400 dark:text-neutral-500">
-									Comments you leave on tools will appear here.
+									{t("ACTIVITY_HINT")}
 								</p>
 							)}
 						</div>
@@ -117,7 +121,7 @@ export function RecentActivitySection({ comments, isOwn, displayName }: RecentAc
 								href="/"
 								className="inline-flex items-center gap-1.5 text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline font-medium transition-colors duration-150"
 							>
-								Browse the directory
+								{t("BROWSE_DIRECTORY")}
 								<FiArrowRight className="w-3.5 h-3.5" />
 							</Link>
 						)}

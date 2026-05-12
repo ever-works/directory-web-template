@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { FiExternalLink, FiStar, FiTag } from "react-icons/fi";
 import { cn } from "@/lib/utils";
@@ -18,6 +21,7 @@ interface PortfolioSectionProps {
 }
 
 export function PortfolioSection({ profile }: PortfolioSectionProps) {
+  const t = useTranslations("profile");
   const featuredProjects = profile.portfolio.filter(item => item.isFeatured);
   const otherProjects = profile.portfolio.filter(item => !item.isFeatured);
 
@@ -27,8 +31,8 @@ export function PortfolioSection({ profile }: PortfolioSectionProps) {
         <span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neutral-100 dark:bg-white/8 text-neutral-400 mb-4">
           <FiExternalLink className="w-6 h-6" />
         </span>
-        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">No projects yet</p>
-        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Projects will appear here once added.</p>
+        <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{t("NO_PROJECTS_TITLE")}</p>
+        <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{t("NO_PROJECTS_DESC")}</p>
       </div>
     );
   }
@@ -41,7 +45,7 @@ export function PortfolioSection({ profile }: PortfolioSectionProps) {
             <span className="p-1 bg-yellow-50 dark:bg-yellow-500/10 rounded-md">
               <FiStar className="w-3.5 h-3.5 text-yellow-500" />
             </span>
-            Featured Projects
+            {t("FEATURED_PROJECTS")}
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {featuredProjects.map((project) => (
@@ -55,7 +59,7 @@ export function PortfolioSection({ profile }: PortfolioSectionProps) {
         <div>
           {featuredProjects.length > 0 && (
             <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
-              All Projects
+              {t("ALL_PROJECTS")}
             </h3>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -75,6 +79,8 @@ interface PortfolioCardProps {
 }
 
 function PortfolioCard({ project, featured = false }: PortfolioCardProps) {
+  const t = useTranslations("profile");
+
   return (
     <div
       className={cn(
@@ -98,7 +104,7 @@ function PortfolioCard({ project, featured = false }: PortfolioCardProps) {
           <div className="absolute top-2.5 right-2.5">
             <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded-full shadow-sm">
               <FiStar className="w-3 h-3" />
-              Featured
+              {t("FEATURED_BADGE")}
             </span>
           </div>
         )}
@@ -116,7 +122,7 @@ function PortfolioCard({ project, featured = false }: PortfolioCardProps) {
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 p-1 rounded-md text-neutral-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:bg-neutral-100 dark:hover:bg-white/8 transition-all duration-150"
-            aria-label={`Open ${project.title}`}
+            aria-label={t("OPEN_PROJECT", { title: project.title })}
           >
             <FiExternalLink className="w-3.5 h-3.5" />
           </a>
