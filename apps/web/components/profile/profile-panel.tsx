@@ -80,7 +80,7 @@ export function ProfilePanel({
 	};
 
 	return (
-		<Card className="overflow-hidden border border-gray-200 dark:border-white/6 bg-white dark:bg-[#141414] shadow-sm">
+		<Card className="overflow-hidden border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 shadow-sm">
 			{/* Cover + avatar overlap */}
 			<div className="relative">
 				<div
@@ -97,7 +97,7 @@ export function ProfilePanel({
 					</span>
 				)}
 				<div className="absolute left-6 -bottom-10">
-					<div className="relative h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-[#141414] shadow-md bg-white dark:bg-white/5">
+					<div className="relative h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white dark:ring-neutral-950 shadow-md bg-white dark:bg-white/5">
 						{!imageError && profile.avatar ? (
 							<Image
 								src={profile.avatar}
@@ -118,7 +118,7 @@ export function ProfilePanel({
 					{isOwn && (
 						<Link
 							href="/client/settings/profile/basic-info"
-							className="absolute -bottom-1 -right-1 rounded-full bg-white dark:bg-[#0a0a0a] p-1.5 shadow-md border border-gray-200 dark:border-white/10 text-theme-primary-600 dark:text-theme-primary-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+							className="absolute -bottom-1 -right-1 rounded-full bg-white dark:bg-neutral-950 p-1.5 shadow-md border border-neutral-200 dark:border-white/10 text-theme-primary-600 dark:text-theme-primary-400 hover:bg-neutral-50 dark:hover:bg-white/8 transition-all duration-150"
 							aria-label="Change avatar"
 							title="Change avatar in settings"
 						>
@@ -222,7 +222,7 @@ export function ProfilePanel({
 
 				{/* Two-up info boxes — Location + Member since */}
 				<div className="grid grid-cols-2 gap-2">
-					<div className="rounded-lg border border-gray-200 dark:border-white/8 bg-gray-50/60 dark:bg-white/3 px-3 py-2">
+					<div className="rounded-lg border border-neutral-200 dark:border-white/8 bg-neutral-50/80 dark:bg-white/3 px-3 py-2 transition-colors duration-150">
 						<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
 							<FiMapPin className="w-3 h-3" />
 							Location
@@ -251,7 +251,7 @@ export function ProfilePanel({
 							)}
 						</div>
 					</div>
-					<div className="rounded-lg border border-gray-200 dark:border-white/8 bg-gray-50/60 dark:bg-white/3 px-3 py-2">
+					<div className="rounded-lg border border-neutral-200 dark:border-white/8 bg-neutral-50/80 dark:bg-white/3 px-3 py-2 transition-colors duration-150">
 						<div className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
 							<FiCalendar className="w-3 h-3" />
 							Member since
@@ -321,7 +321,7 @@ export function ProfilePanel({
 								href={link.url}
 								target="_blank"
 								rel="noopener noreferrer"
-								className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border border-gray-200 dark:border-white/8 bg-white dark:bg-white/5 hover:bg-gray-50 dark:hover:bg-white/10 text-xs text-gray-700 dark:text-gray-200 transition-colors"
+								className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/5 hover:bg-neutral-50 dark:hover:bg-white/10 hover:border-neutral-300 dark:hover:border-white/15 text-xs text-neutral-700 dark:text-neutral-200 transition-all duration-150"
 								title={link.displayName}
 							>
 								{socialIcon(link.platform)}
@@ -336,7 +336,7 @@ export function ProfilePanel({
 					{isOwn ? (
 						<Link
 							href="/client/settings/profile/basic-info"
-							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm bg-theme-primary-600 hover:bg-theme-primary-700 text-white transition-colors flex-1"
+							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm bg-theme-primary-600 hover:bg-theme-primary-700 text-white transition-all duration-150 w-full"
 						>
 							<FiEdit2 className="w-4 h-4" />
 							Edit profile
@@ -353,7 +353,7 @@ export function ProfilePanel({
 					{isAuthenticated && (
 						<Link
 							href="/client/users"
-							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+							className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
 						>
 							<FiUsers className="w-4 h-4" />
 							Discover

@@ -1,5 +1,4 @@
 import { FiArrowRight, FiMessageCircle, FiStar } from 'react-icons/fi';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Link } from '@/i18n/navigation';
 
 export interface RecentComment {
@@ -34,63 +33,68 @@ export function RecentActivitySection({ comments, isOwn, displayName }: RecentAc
 	const hasAny = comments.length > 0;
 
 	return (
-		<Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
-			<CardHeader className="p-0 mb-2">
-				<CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-					<FiMessageCircle className="w-5 h-5 text-theme-primary-500" />
-					Recent Activity
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="p-0">
-				{hasAny ? (
-					<ul className="space-y-4">
-						{comments.map((comment) => (
-							<li
-								key={comment.id}
-								className="border-l-2 border-gray-200 dark:border-white/8 pl-4 py-1"
-							>
-								<div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-									<div className="flex items-center gap-2">
-										<span>commented on</span>
-										<Link
-											href={`/items/${comment.itemSlug}`}
-											className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate max-w-[24ch]"
-										>
-											{comment.itemSlug}
-										</Link>
-										{comment.rating > 0 && (
-											<span className="inline-flex items-center gap-0.5 text-yellow-500">
-												<FiStar className="w-3 h-3 fill-current" />
-												{comment.rating}
-											</span>
-										)}
-									</div>
-									<span>{formatRelative(comment.createdAt)}</span>
+		<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm p-6">
+			<div className="flex items-center gap-2 mb-4">
+				<span className="p-1.5 bg-neutral-100 dark:bg-white/8 rounded-lg text-theme-primary-600 dark:text-theme-primary-400">
+					<FiMessageCircle className="w-3.5 h-3.5" />
+				</span>
+				<h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Recent Activity</h3>
+			</div>
+
+			{hasAny ? (
+				<ul className="space-y-3">
+					{comments.map((comment) => (
+						<li
+							key={comment.id}
+							className="rounded-lg border border-neutral-100 dark:border-white/6 bg-neutral-50 dark:bg-white/3 p-3 transition-colors duration-150 hover:bg-neutral-100 dark:hover:bg-white/5"
+						>
+							<div className="flex items-center justify-between text-xs text-neutral-500 dark:text-neutral-400 mb-1.5">
+								<div className="flex items-center gap-1.5 min-w-0">
+									<FiMessageCircle className="w-3 h-3 shrink-0" />
+									<span className="shrink-0">on</span>
+									<Link
+										href={`/items/${comment.itemSlug}`}
+										className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate max-w-[20ch]"
+									>
+										{comment.itemSlug}
+									</Link>
+									{comment.rating > 0 && (
+										<span className="inline-flex items-center gap-0.5 text-yellow-500 shrink-0">
+											<FiStar className="w-3 h-3 fill-current" />
+											<span className="font-medium">{comment.rating}</span>
+										</span>
+									)}
 								</div>
-								<p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">
-									{truncate(comment.content)}
-								</p>
-							</li>
-						))}
-					</ul>
-				) : (
-					<div className="text-center py-8 text-sm text-gray-500 dark:text-gray-400">
+								<span className="shrink-0 ml-2">{formatRelative(comment.createdAt)}</span>
+							</div>
+							<p className="text-sm text-neutral-700 dark:text-neutral-200 leading-relaxed">
+								{truncate(comment.content)}
+							</p>
+						</li>
+					))}
+				</ul>
+			) : (
+				<div className="text-center py-8">
+					<span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-neutral-100 dark:bg-white/8 text-neutral-400 mb-3">
+						<FiMessageCircle className="w-5 h-5" />
+					</span>
+					<p className="text-sm text-neutral-500 dark:text-neutral-400">
 						{isOwn ? (
-							<>
-								<p>You haven&apos;t left any comments yet.</p>
-								<Link
-									href="/"
-									className="inline-flex items-center gap-1 mt-2 text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
-								>
-									Browse the directory <FiArrowRight className="w-3 h-3" />
-								</Link>
-							</>
+							<>You haven&apos;t left any comments yet.</>
 						) : (
-							<p>{displayName} hasn&apos;t left any comments yet.</p>
+							<>{displayName} hasn&apos;t left any comments yet.</>
 						)}
-					</div>
-				)}
-			</CardContent>
-		</Card>
+					</p>
+					{isOwn && (
+						<Link
+							href="/"
+							className="inline-flex items-center gap-1 mt-2 text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
+						>
+							Browse the directory <FiArrowRight className="w-3.5 h-3.5" />
+						</Link>
+					)}
+				</div>
+			)}
+		</div>
 	);
 }

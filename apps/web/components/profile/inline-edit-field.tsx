@@ -142,7 +142,7 @@ export function InlineEditField({
 	if (editing) {
 		const sharedClass =
 			inputClassName ??
-			'w-full bg-white dark:bg-white/5 border-2 border-blue-400 dark:border-blue-500 rounded-md px-2 py-1 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500';
+			'w-full bg-white dark:bg-white/5 border-2 border-theme-primary-400 dark:border-theme-primary-500 rounded-md px-2 py-1 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-theme-primary-400 dark:focus:ring-theme-primary-500';
 		return (
 			<span className={`inline-flex items-start gap-2 w-full ${className ?? ''}`}>
 				{multiline ? (
@@ -217,7 +217,7 @@ export function InlineEditField({
 					type="button"
 					onClick={startEdit}
 					aria-label={`Edit ${field}`}
-					className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+					className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-150 p-1 text-gray-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400"
 				>
 					<FiEdit2 className="w-3.5 h-3.5" />
 				</button>

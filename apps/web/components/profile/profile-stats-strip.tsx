@@ -34,12 +34,12 @@ interface StatItem {
 }
 
 const COMPACT_ITEMS: StatItem[] = [
-	{ key: 'followers', label: 'Followers', icon: <FiUserPlus className="w-4 h-4" /> },
-	{ key: 'following', label: 'Following', icon: <FiUserCheck className="w-4 h-4" /> },
-	{ key: 'submissions', label: 'Submissions', icon: <FiSend className="w-4 h-4" /> },
-	{ key: 'comments', label: 'Comments', icon: <FiMessageCircle className="w-4 h-4" /> },
-	{ key: 'favorites', label: 'Favorites', icon: <FiHeart className="w-4 h-4" /> },
-	{ key: 'portfolio', label: 'Portfolio', icon: <FiBriefcase className="w-4 h-4" /> }
+	{ key: 'followers', label: 'Followers', icon: <FiUserPlus className="w-3.5 h-3.5" /> },
+	{ key: 'following', label: 'Following', icon: <FiUserCheck className="w-3.5 h-3.5" /> },
+	{ key: 'submissions', label: 'Submissions', icon: <FiSend className="w-3.5 h-3.5" /> },
+	{ key: 'comments', label: 'Comments', icon: <FiMessageCircle className="w-3.5 h-3.5" /> },
+	{ key: 'favorites', label: 'Favorites', icon: <FiHeart className="w-3.5 h-3.5" /> },
+	{ key: 'portfolio', label: 'Portfolio', icon: <FiBriefcase className="w-3.5 h-3.5" /> }
 ];
 
 const HEADLINE_ITEMS: StatItem[] = [
@@ -53,7 +53,7 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 	const gridClass =
 		variant === 'headline'
 			? 'grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4'
-			: 'grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4';
+			: 'grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-3';
 
 	return (
 		<div className={gridClass}>
@@ -68,23 +68,27 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 				if (variant === 'headline') {
 					const inner = (
 						<>
-							<div className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
-								{item.icon}
-								<span className="text-xs font-medium uppercase tracking-wide">{item.label}</span>
+							<div className="flex items-start justify-between mb-3">
+								<p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+									{item.label}
+								</p>
+								<span className="p-1.5 bg-neutral-100 dark:bg-white/8 rounded-lg text-neutral-500 dark:text-neutral-400" aria-hidden="true">
+									{item.icon}
+								</span>
 							</div>
-							<div className="mt-2 text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100">
+							<p className="text-2xl md:text-3xl font-semibold text-neutral-900 dark:text-white tracking-tight">
 								{formatCount(stats[item.key])}
-							</div>
+							</p>
 						</>
 					);
 					const base =
-						'rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-[#141414] px-5 py-4 shadow-sm transition-colors';
+						'bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8 transition-all duration-150';
 					if (linkHref) {
 						return (
 							<Link
 								key={item.key}
 								href={linkHref}
-								className={`${base} hover:border-theme-primary-300 dark:hover:border-theme-primary-500/40`}
+								className={`${base} hover:border-theme-primary-300 dark:hover:border-theme-primary-500/40 hover:shadow-sm`}
 							>
 								{inner}
 							</Link>
@@ -97,25 +101,28 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 					);
 				}
 
+				/* compact variant */
 				const tile = (
 					<>
-						<div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+						<span className="p-1.5 bg-neutral-100 dark:bg-white/8 rounded-lg text-neutral-500 dark:text-neutral-400 mb-2" aria-hidden="true">
 							{item.icon}
-							<span className="text-xs uppercase tracking-wide">{item.label}</span>
-						</div>
-						<div className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+						</span>
+						<p className="text-base font-semibold text-neutral-900 dark:text-white leading-none">
 							{formatCount(stats[item.key])}
-						</div>
+						</p>
+						<p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5 uppercase tracking-wide">
+							{item.label}
+						</p>
 					</>
 				);
 				const baseClass =
-					'flex flex-col items-center justify-center rounded-lg border border-gray-200 dark:border-white/6 bg-white/60 dark:bg-white/3 px-3 py-2 transition-colors';
+					'flex flex-col items-center justify-center rounded-xl border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 px-2 py-3 transition-all duration-150';
 				if (linkHref) {
 					return (
 						<Link
 							key={item.key}
 							href={linkHref}
-							className={`${baseClass} hover:bg-white dark:hover:bg-white/6 cursor-pointer`}
+							className={`${baseClass} hover:border-theme-primary-300 dark:hover:border-theme-primary-500/40 hover:shadow-sm cursor-pointer`}
 						>
 							{tile}
 						</Link>
