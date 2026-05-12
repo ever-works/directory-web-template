@@ -115,6 +115,9 @@ importers:
       '@babel/core':
         specifier: ^7.28.5
         version: 7.29.0
+      '@faker-js/faker':
+        specifier: ^10.1.0
+        version: 10.3.0
       '@floating-ui/react':
         specifier: ^0.27.16
         version: 0.27.19(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -403,6 +406,9 @@ importers:
       recharts:
         specifier: ^3.1.0
         version: 3.8.0(@types/react@19.2.7)(react-dom@19.2.5(react@19.2.5))(react-is@16.13.1)(react@19.2.5)(redux@5.0.1)
+      remark-gfm:
+        specifier: ^4.0.1
+        version: 4.0.1
       require-in-the-middle:
         specifier: ^8.0.1
         version: 8.0.1
