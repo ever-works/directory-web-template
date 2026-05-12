@@ -23,6 +23,40 @@ export async function createComment(data: NewComment) {
 }
 
 /**
+ * Get the most recent comments authored by a client profile within the current tenant.
+ * Soft-deleted comments are excluded. `itemId` in the returned rows is the canonical
+ * item slug (see {@link getItemIdFromSlug}).
+ */
+export async function getRecentCommentsByClientProfile(
+	clientProfileId: string,
+	limit = 5
+): Promise<Array<{ id: string; content: string; itemSlug: string; rating: number; createdAt: Date }>> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return [];
+
+	const rows = await db
+		.select({
+			id: comments.id,
+			content: comments.content,
+			itemSlug: comments.itemId,
+			rating: comments.rating,
+			createdAt: comments.createdAt
+		})
+		.from(comments)
+		.where(
+			and(
+				eq(comments.userId, clientProfileId),
+				eq(comments.tenantId, tenantId),
+				isNull(comments.deletedAt)
+			)
+		)
+		.orderBy(desc(comments.createdAt))
+		.limit(limit);
+
+	return rows;
+}
+
+/**
  * Get comments by item slug with user information
  * @param itemSlug - Item slug
  * @returns Array of comments with user details

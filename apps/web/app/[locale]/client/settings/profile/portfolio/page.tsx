@@ -4,9 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FiBriefcase, FiArrowLeft, FiPlus, FiEdit, FiTrash2, FiStar, FiExternalLink } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
+import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 
 interface PortfolioProject {
 	id: string;
@@ -18,9 +20,37 @@ interface PortfolioProject {
 	isFeatured: boolean;
 }
 
+interface PortfolioListResponse {
+	projects: Array<{
+		id: string;
+		title: string;
+		description: string;
+		imageUrl: string;
+		externalUrl: string;
+		tags: string[] | null;
+		isFeatured: boolean | null;
+	}>;
+}
+
+interface PortfolioMutationResponse {
+	project: PortfolioListResponse['projects'][number];
+}
+
+const normalize = (raw: PortfolioListResponse['projects'][number]): PortfolioProject => ({
+	id: raw.id,
+	title: raw.title,
+	description: raw.description,
+	imageUrl: raw.imageUrl,
+	externalUrl: raw.externalUrl,
+	tags: raw.tags ?? [],
+	isFeatured: !!raw.isFeatured
+});
+
 export default function PortfolioPage() {
 	const t = useTranslations('settings.PORTFOLIO_PAGE');
 	const [projects, setProjects] = useState<PortfolioProject[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+	const [isSaving, setIsSaving] = useState(false);
 	const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
 	const [title, setTitle] = useState('');
@@ -30,7 +60,6 @@ export default function PortfolioPage() {
 	const [tags, setTags] = useState('');
 	const [isFeatured, setIsFeatured] = useState(false);
 	const [errors, setErrors] = useState<{ [key: string]: string }>({});
-	const [success, setSuccess] = useState('');
 
 	const validate = () => {
 		const newErrors: { [key: string]: string } = {};
@@ -63,15 +92,31 @@ export default function PortfolioPage() {
 		setEditingProjectId(null);
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	useEffect(() => {
+		let cancelled = false;
+		async function load() {
+			const response = await serverClient.get<PortfolioListResponse>('/api/user/profile/portfolio');
+			if (cancelled) return;
+			if (!apiUtils.isSuccess(response) || !response.data) {
+				setIsLoading(false);
+				return;
+			}
+			setProjects(response.data.projects.map(normalize));
+			setIsLoading(false);
+		}
+		void load();
+		return () => {
+			cancelled = true;
+		};
+	}, []);
+
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setSuccess('');
 		const validationErrors = validate();
 		setErrors(validationErrors);
 		if (Object.keys(validationErrors).length > 0) return;
 
-		const nextProject: PortfolioProject = {
-			id: editingProjectId ?? `local-project-${Date.now()}`,
+		const payload = {
 			title: title.trim(),
 			imageUrl: imageUrl.trim(),
 			description: description.trim(),
@@ -83,13 +128,37 @@ export default function PortfolioPage() {
 			isFeatured
 		};
 
-		setProjects((prev) =>
-			editingProjectId
-				? prev.map((project) => (project.id === editingProjectId ? nextProject : project))
-				: [nextProject, ...prev]
-		);
-		setSuccess(editingProjectId ? 'Project updated locally for this session.' : 'Project added locally for this session.');
-		resetForm();
+		setIsSaving(true);
+		try {
+			if (editingProjectId) {
+				const response = await serverClient.patch<PortfolioMutationResponse>(
+					`/api/user/profile/portfolio/${editingProjectId}`,
+					payload
+				);
+				if (!apiUtils.isSuccess(response) || !response.data) {
+					toast.error(apiUtils.getErrorMessage(response) || 'Failed to update project');
+					return;
+				}
+				const updated = normalize(response.data.project);
+				setProjects((prev) => prev.map((project) => (project.id === updated.id ? updated : project)));
+				toast.success('Project updated');
+			} else {
+				const response = await serverClient.post<PortfolioMutationResponse>(
+					'/api/user/profile/portfolio',
+					payload
+				);
+				if (!apiUtils.isSuccess(response) || !response.data) {
+					toast.error(apiUtils.getErrorMessage(response) || 'Failed to create project');
+					return;
+				}
+				const created = normalize(response.data.project);
+				setProjects((prev) => [created, ...prev]);
+				toast.success('Project added');
+			}
+			resetForm();
+		} finally {
+			setIsSaving(false);
+		}
 	};
 
 	const handleEditProject = (project: PortfolioProject) => {
@@ -100,15 +169,19 @@ export default function PortfolioPage() {
 		setExternalUrl(project.externalUrl);
 		setTags(project.tags.join(', '));
 		setIsFeatured(project.isFeatured);
-		setSuccess('');
 	};
 
-	const handleDeleteProject = (projectId: string) => {
+	const handleDeleteProject = async (projectId: string) => {
+		const response = await serverClient.delete<{ success: true }>(`/api/user/profile/portfolio/${projectId}`);
+		if (!apiUtils.isSuccess(response)) {
+			toast.error(apiUtils.getErrorMessage(response) || 'Failed to delete project');
+			return;
+		}
 		setProjects((prev) => prev.filter((project) => project.id !== projectId));
 		if (editingProjectId === projectId) {
 			resetForm();
 		}
-		setSuccess('Project removed from the local session.');
+		toast.success('Project deleted');
 	};
 
 	return (
@@ -126,14 +199,10 @@ export default function PortfolioPage() {
 						</Link>
 					</div>
 
-						<div className="text-center">
-							<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('TITLE')}</h1>
-							<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">{t('DESCRIPTION')}</p>
-						</div>
-
-						<div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
-							Portfolio changes on this page are local to the current session until portfolio persistence is implemented.
-						</div>
+					<div className="text-center">
+						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{t('TITLE')}</h1>
+						<p className="text-gray-600 dark:text-gray-300 text-lg max-w-2xl mx-auto">{t('DESCRIPTION')}</p>
+					</div>
 
 					{/* Add New Project */}
 					<Card className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-sm shadow-lg">
@@ -280,34 +349,28 @@ export default function PortfolioPage() {
 									</label>
 								</div>
 
-								{success && (
-									<div className="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-										<p className="text-green-600 dark:text-green-400 text-sm font-medium">
-											{success}
-										</p>
-									</div>
-								)}
-
-									<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-white/6">
-										{editingProjectId && (
-											<Button
-												type="button"
-												variant="outline"
-												className="py-3 px-6"
-												onClick={resetForm}
-											>
-												Cancel edit
-											</Button>
-										)}
+								<div className="flex flex-col sm:flex-row justify-end gap-4 pt-6 border-t border-gray-200 dark:border-white/6">
+									{editingProjectId && (
 										<Button
-											type="submit"
-											className="inline-flex items-center gap-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-2"
+											type="button"
+											variant="outline"
+											className="py-3 px-6"
+											onClick={resetForm}
+											disabled={isSaving}
 										>
-											{editingProjectId ? <FiEdit className="w-4 h-4" /> : <FiPlus className="w-4 h-4" />}
-											{editingProjectId ? 'Save project' : t('FORM.ADD_PROJECT')}
+											Cancel edit
 										</Button>
-									</div>
-								</form>
+									)}
+									<Button
+										type="submit"
+										disabled={isSaving}
+										className="inline-flex items-center gap-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-medium py-3 px-6 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:ring-offset-2"
+									>
+										{editingProjectId ? <FiEdit className="w-4 h-4" /> : <FiPlus className="w-4 h-4" />}
+										{editingProjectId ? 'Save project' : t('FORM.ADD_PROJECT')}
+									</Button>
+								</div>
+							</form>
 						</CardContent>
 					</Card>
 
@@ -319,25 +382,29 @@ export default function PortfolioPage() {
 								{t('YOUR_PROJECTS')}
 							</CardTitle>
 						</CardHeader>
-							<CardContent className="p-6">
-								{projects.length === 0 ? (
-									<div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">
-										No portfolio projects have been added in this session yet.
-									</div>
-								) : (
-									<div className="space-y-4">
-										{projects.map((project) => (
-											<PortfolioItem
-												key={project.id}
-												project={project}
-												onEdit={() => handleEditProject(project)}
-												onDelete={() => handleDeleteProject(project.id)}
-											/>
-										))}
-									</div>
-								)}
-							</CardContent>
-						</Card>
+						<CardContent className="p-6">
+							{isLoading ? (
+								<div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">
+									Loading...
+								</div>
+							) : projects.length === 0 ? (
+								<div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-600 dark:border-white/10 dark:text-gray-300">
+									No portfolio projects yet. Add your first one above.
+								</div>
+							) : (
+								<div className="space-y-4">
+									{projects.map((project) => (
+										<PortfolioItem
+											key={project.id}
+											project={project}
+											onEdit={() => handleEditProject(project)}
+											onDelete={() => handleDeleteProject(project.id)}
+										/>
+									))}
+								</div>
+							)}
+						</CardContent>
+					</Card>
 				</div>
 			</Container>
 		</div>
@@ -345,7 +412,7 @@ export default function PortfolioPage() {
 }
 
 interface PortfolioItemProps {
-		project: PortfolioProject;
+	project: PortfolioProject;
 	onEdit: () => void;
 	onDelete: () => void;
 }
@@ -413,7 +480,6 @@ function PortfolioItem({ project, onEdit, onDelete }: PortfolioItemProps) {
 	);
 }
 
-// Helper component for image with error handling
 function ProjectImage({ imageUrl, title }: { imageUrl: string; title: string }) {
 	const [imgSrc, setImgSrc] = useState(imageUrl);
 	return (

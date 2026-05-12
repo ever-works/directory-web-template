@@ -85,6 +85,119 @@ export async function getClientProfileById(id: string): Promise<ClientProfile | 
 }
 
 /**
+ * Slim row returned by `searchPublicProfiles` — only the fields the public
+ * users directory needs to render a row.
+ */
+export interface PublicProfileRow {
+	userId: string;
+	username: string | null;
+	displayName: string | null;
+	name: string;
+	avatar: string | null;
+	jobTitle: string | null;
+	bio: string | null;
+	location: string | null;
+}
+
+/**
+ * Search public profiles within the current tenant for the user-facing
+ * directory page. Excludes admins. Searches displayName / username / name /
+ * jobTitle / bio / location case-insensitively when `query` is provided.
+ * Returns rows + total count for pagination.
+ */
+export async function searchPublicProfiles(params: {
+	query?: string;
+	page?: number;
+	limit?: number;
+}): Promise<{ rows: PublicProfileRow[]; total: number; page: number; limit: number; totalPages: number }> {
+	const page = Math.max(1, params.page ?? 1);
+	const limit = Math.min(100, Math.max(1, params.limit ?? 30));
+	const offset = (page - 1) * limit;
+
+	const tenantId = await getTenantId();
+	if (!tenantId) return { rows: [], total: 0, page, limit, totalPages: 0 };
+
+	const whereConditions: SQL[] = [
+		eq(clientProfiles.tenantId, tenantId),
+		// Only show active accounts
+		eq(clientProfiles.status, 'active')
+	];
+
+	if (params.query && params.query.trim()) {
+		const escaped = params.query.trim().replace(/\\/g, '\\\\').replace(/[%_]/g, '\\$&');
+		const like = `%${escaped}%`;
+		whereConditions.push(
+			sql`(${clientProfiles.displayName} ILIKE ${like} OR
+			     ${clientProfiles.username} ILIKE ${like} OR
+			     ${clientProfiles.name} ILIKE ${like} OR
+			     ${clientProfiles.jobTitle} ILIKE ${like} OR
+			     ${clientProfiles.bio} ILIKE ${like} OR
+			     ${clientProfiles.location} ILIKE ${like})`
+		);
+	}
+
+	const whereClause = and(...whereConditions);
+	const excludeAdmins = isNull(roles.id);
+
+	const [countResult] = await db
+		.select({ count: sql<number>`count(distinct ${clientProfiles.id})::int` })
+		.from(clientProfiles)
+		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
+		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
+		.where(and(whereClause, excludeAdmins));
+
+	const total = Number(countResult?.count ?? 0);
+
+	const rows = await db
+		.select({
+			userId: clientProfiles.userId,
+			username: clientProfiles.username,
+			displayName: clientProfiles.displayName,
+			name: clientProfiles.name,
+			avatar: clientProfiles.avatar,
+			jobTitle: clientProfiles.jobTitle,
+			bio: clientProfiles.bio,
+			location: clientProfiles.location
+		})
+		.from(clientProfiles)
+		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
+		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
+		.where(and(whereClause, excludeAdmins))
+		.orderBy(desc(clientProfiles.createdAt))
+		.limit(limit)
+		.offset(offset);
+
+	return {
+		rows,
+		total,
+		page,
+		limit,
+		totalPages: Math.max(1, Math.ceil(total / limit))
+	};
+}
+
+/**
+ * Find client profile by username within the current tenant. Case-insensitive.
+ */
+export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	const normalized = username.toLowerCase().trim();
+	const [profile] = await db
+		.select()
+		.from(clientProfiles)
+		.where(
+			and(
+				sql`lower(${clientProfiles.username}) = ${normalized}`,
+				eq(clientProfiles.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return profile || null;
+}
+
+/**
  * Find client profile by user ID
  * @param userId - User ID
  * @returns Client profile or null if not found
@@ -254,6 +367,8 @@ export async function getClientProfiles(params: {
 			website: clientProfiles.website,
 			location: clientProfiles.location,
 			avatar: clientProfiles.avatar,
+			interests: clientProfiles.interests,
+			skills: clientProfiles.skills,
 			accountType: clientProfiles.accountType,
 			status: clientProfiles.status,
 			plan: clientProfiles.plan,
@@ -912,6 +1027,8 @@ export async function getAdminDashboardData(params: {
 			website: clientProfiles.website,
 			location: clientProfiles.location,
 			avatar: clientProfiles.avatar,
+			interests: clientProfiles.interests,
+			skills: clientProfiles.skills,
 			accountType: clientProfiles.accountType,
 			status: clientProfiles.status,
 			plan: clientProfiles.plan,
@@ -1281,6 +1398,8 @@ export async function advancedClientSearch(params: {
 			website: clientProfiles.website,
 			location: clientProfiles.location,
 			avatar: clientProfiles.avatar,
+			interests: clientProfiles.interests,
+			skills: clientProfiles.skills,
 			accountType: clientProfiles.accountType,
 			status: clientProfiles.status,
 			plan: clientProfiles.plan,

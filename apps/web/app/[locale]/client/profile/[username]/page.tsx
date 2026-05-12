@@ -1,72 +1,101 @@
 import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 import { ProfileHeader, ProfileContent } from '@/components/profile';
-import { getClientProfileByEmail } from '@/lib/db/queries';
-import { getLocale } from 'next-intl/server';
+import {
+	getClientProfileByUsername,
+	listPortfolioProjectsForProfile,
+	getProfileStats,
+	isFollowing,
+	getRecentCommentsByClientProfile
+} from '@/lib/db/queries';
+import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
-// Force dynamic rendering to ensure auth() runs on each request
+// Force dynamic rendering — page depends on session/follow state
 export const dynamic = 'force-dynamic';
 
 export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;
-	const locale = await getLocale();
-	const session = await auth();
-
-	// Check if user is authenticated
-	if (!session?.user) {
-		redirect(`/${locale}/auth/signin`);
-	}
-
-	// Check if user is admin - redirect to admin dashboard
-	if (session.user.isAdmin === true) {
-		redirect(`/${locale}/admin`);
-	}
-
-	// Validate that user has an email
-	if (!session.user.email) {
-		redirect(`/${locale}/auth/signin`);
-	}
-
-	// Get the client profile data directly
-	const clientProfile = await getClientProfileByEmail(session.user.email);
-
+	const clientProfile = await getClientProfileByUsername(username);
 	if (!clientProfile) {
-		redirect(`/${locale}/client/dashboard`);
+		notFound();
 	}
 
-	// Validate that the username in the URL matches the authenticated user
-	const userUsername = clientProfile.username || clientProfile.email?.split('@')[0] || 'user';
-	if (username !== userUsername) {
-		redirect(`/${locale}/client/dashboard`);
-	}
+	const session = await auth();
+	const viewerUserId = session?.user?.id ?? null;
+	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
-	// Use client profile data
-	const profile = {
+	const [portfolioRows, stats, viewerFollows, recentComments] = await Promise.all([
+		listPortfolioProjectsForProfile(clientProfile.id),
+		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
+		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false),
+		getRecentCommentsByClientProfile(clientProfile.id, 5)
+	]);
+
+	const rawSkills = (clientProfile.skills ?? []) as Array<{
+		name?: unknown;
+		category?: unknown;
+		proficiency?: unknown;
+	}>;
+	const skills: ProfileSkill[] = rawSkills
+		.filter((s) => typeof s?.name === 'string' && (s.name as string).trim().length > 0)
+		.map((s) => ({
+			name: String(s.name),
+			category: typeof s.category === 'string' ? s.category : 'Other',
+			proficiency: typeof s.proficiency === 'number' ? s.proficiency : 0
+		}));
+
+	const interests = (clientProfile.interests ?? '')
+		.split(',')
+		.map((part) => part.trim())
+		.filter(Boolean);
+
+	const profile: Profile = {
 		username: clientProfile.username || clientProfile.email?.split('@')[0] || 'user',
 		displayName: clientProfile.displayName || clientProfile.name || clientProfile.email?.split('@')[0] || 'User',
-		bio: clientProfile.bio || 'User profile',
-		avatar: '', // Client profiles don't have avatar field
-		location: clientProfile.location || 'Unknown',
-		company: clientProfile.company || 'Unknown',
-		jobTitle: clientProfile.jobTitle || 'User',
-		skills: [], // This would come from a separate skills table in the future
-		interests: [], // This would come from a separate interests table in the future
+		bio: clientProfile.bio || '',
+		avatar: clientProfile.avatar || '',
+		location: clientProfile.location || '',
+		company: clientProfile.company || '',
+		jobTitle: clientProfile.jobTitle || '',
+		skills,
+		interests,
 		website: clientProfile.website || '',
-		socialLinks: [], // This would come from a separate social links table in the future
-		portfolio: [], // This would come from a separate portfolio table in the future
+		socialLinks: [],
+		portfolio: portfolioRows.map((p) => ({
+			id: p.id,
+			title: p.title,
+			description: p.description,
+			imageUrl: p.imageUrl,
+			externalUrl: p.externalUrl,
+			tags: (p.tags ?? []) as string[],
+			isFeatured: !!p.isFeatured
+		})),
 		themeColor: '#3B82F6',
 		isPublic: true,
 		memberSince: clientProfile.createdAt?.toISOString().split('T')[0] || '2024-01-01',
-		submissions: [] // This would come from submissions table
+		submissions: []
 	};
 
 	return (
 		<div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default">
 				<div className="space-y-8 pb-16">
-					<ProfileHeader profile={profile} />
-					<ProfileContent profile={profile} />
+					<ProfileHeader
+						profile={profile}
+						isOwn={isOwn}
+						isAuthenticated={!!viewerUserId}
+						stats={{
+							comments: stats.comments,
+							favorites: stats.favorites,
+							portfolio: stats.portfolio,
+							followers: stats.followers,
+							following: stats.following,
+							submissions: clientProfile.totalSubmissions ?? 0
+						}}
+						initialIsFollowing={viewerFollows}
+					/>
+					<ProfileContent profile={profile} isOwn={isOwn} recentComments={recentComments} />
 				</div>
 			</Container>
 		</div>

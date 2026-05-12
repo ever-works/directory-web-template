@@ -205,6 +205,8 @@ export const clientProfiles = pgTable(
 		website: text('website'),
 		location: text('location'),
 		avatar: text('avatar'),
+		interests: text('interests'),
+		skills: jsonb('skills').$type<Array<{ name: string; category: string; proficiency: number }>>(),
 		accountType: text('account_type', {
 			enum: ['individual', 'business', 'enterprise']
 		}).default('individual'),
@@ -245,6 +247,63 @@ export const clientProfiles = pgTable(
 		index('client_profile_username_idx').on(clientProfile.username),
 		index('client_profile_created_at_idx').on(clientProfile.createdAt),
 		index('client_profile_tenant_id_idx').on(clientProfile.tenantId)
+	]
+);
+
+// ######################### Portfolio Projects Schema #########################
+export const portfolioProjects = pgTable(
+	'portfolio_projects',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		clientProfileId: text('client_profile_id')
+			.notNull()
+			.references(() => clientProfiles.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id')
+			.notNull()
+			.references(() => tenant.id, { onDelete: 'cascade' }),
+		title: text('title').notNull(),
+		description: text('description').notNull(),
+		imageUrl: text('image_url').notNull(),
+		externalUrl: text('external_url').notNull(),
+		tags: jsonb('tags').$type<string[]>().default(sql`'[]'::jsonb`),
+		isFeatured: boolean('is_featured').default(false),
+		position: integer('position').default(0),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		updatedAt: timestamp('updated_at').notNull().defaultNow()
+	},
+	(project) => [
+		index('portfolio_projects_client_profile_id_idx').on(project.clientProfileId),
+		index('portfolio_projects_tenant_id_idx').on(project.tenantId),
+		index('portfolio_projects_is_featured_idx').on(project.isFeatured)
+	]
+);
+
+// ######################### User Follows Schema #########################
+export const userFollows = pgTable(
+	'user_follows',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		followerId: text('follower_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		followingId: text('following_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		tenantId: text('tenant_id')
+			.notNull()
+			.references(() => tenant.id, { onDelete: 'cascade' }),
+		createdAt: timestamp('created_at').notNull().defaultNow()
+	},
+	(follow) => [
+		uniqueIndex('user_follows_unique_idx').on(follow.followerId, follow.followingId, follow.tenantId),
+		index('user_follows_follower_id_idx').on(follow.followerId),
+		index('user_follows_following_id_idx').on(follow.followingId),
+		index('user_follows_tenant_id_idx').on(follow.tenantId),
+		check('user_follows_no_self_follow', sql`${follow.followerId} <> ${follow.followingId}`)
 	]
 );
 
@@ -567,6 +626,7 @@ export const notifications = pgTable(
 				'comment_reported',
 				'item_reported',
 				'user_registered',
+				'user_followed',
 				'payment_failed',
 				'system_alert'
 			]
@@ -807,6 +867,14 @@ export type NewClientProfile = typeof clientProfiles.$inferInsert;
 export type ClientProfileWithUser = ClientProfile & {
 	user: typeof users.$inferSelect;
 };
+
+// ######################### Portfolio Projects Types #########################
+export type PortfolioProject = typeof portfolioProjects.$inferSelect;
+export type NewPortfolioProject = typeof portfolioProjects.$inferInsert;
+
+// ######################### User Follows Types #########################
+export type UserFollow = typeof userFollows.$inferSelect;
+export type NewUserFollow = typeof userFollows.$inferInsert;
 
 // ######################### Favorites Types #########################
 export type Favorite = typeof favorites.$inferSelect;

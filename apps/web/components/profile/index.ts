@@ -1,7 +1,12 @@
 export { ProfileHeader } from "./profile-header";
 export { ProfileNavigation } from "./profile-navigation";
 export { ProfileContent } from "./profile-content";
+export { ProfileStatsStrip } from "./profile-stats-strip";
+export { FollowButton } from "./follow-button";
+export { InlineEditField } from "./inline-edit-field";
 export { AboutSection } from "./sections/about-section";
 export { PortfolioSection } from "./sections/portfolio-section";
 export { SkillsSection } from "./sections/skills-section";
-export { SubmissionsSection } from "./sections/submissions-section"; 
+export { SubmissionsSection } from "./sections/submissions-section";
+export { RecentActivitySection } from "./sections/recent-activity-section";
+export { ProfileRow } from "./profile-row";
