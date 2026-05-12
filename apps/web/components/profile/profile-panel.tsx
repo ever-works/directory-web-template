@@ -6,7 +6,6 @@ import {
 	FiBriefcase,
 	FiCalendar,
 	FiCheckCircle,
-	FiEdit2,
 	FiGithub,
 	FiGlobe,
 	FiLinkedin,
@@ -130,16 +129,7 @@ export function ProfilePanel({
 							</div>
 						)}
 					</div>
-					{isOwn && (
-						<Link
-							href="/client/settings/profile/basic-info"
-							className="absolute -bottom-1 -right-1 rounded-full bg-white dark:bg-neutral-950 p-1.5 shadow-md border border-neutral-200 dark:border-white/10 text-theme-primary-600 dark:text-theme-primary-400 hover:scale-110 hover:bg-theme-primary-50 dark:hover:bg-theme-primary-500/10 transition-all duration-150"
-							aria-label="Change avatar"
-						>
-							<FiEdit2 className="w-3 h-3" />
-						</Link>
-					)}
-				</div>
+					</div>
 				{isOwn && (
 					<div className="pb-1">
 						<ProfileSettingsMenu />
@@ -315,9 +305,8 @@ export function ProfilePanel({
 				{isOwn ? (
 					<Link
 						href="/client/settings/profile/basic-info"
-						className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
+						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
 					>
-						<FiEdit2 className="w-3.5 h-3.5" />
 						Edit profile
 					</Link>
 				) : (
