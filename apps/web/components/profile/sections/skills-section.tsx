@@ -99,7 +99,7 @@ export function SkillsSection({ profile }: SkillsSectionProps) {
                       </span>
                     </div>
                   </div>
-                  <div className="h-1 w-full bg-neutral-100 dark:bg-white/8 rounded-full overflow-hidden">
+                  <div className="h-0.5 w-full bg-neutral-100 dark:bg-white/8 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full bg-linear-to-r ${proficiencyColor(skill.proficiency)} transition-all duration-500`}
                       style={{ width: `${skill.proficiency}%` }}
