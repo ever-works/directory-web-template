@@ -63,6 +63,11 @@ ARG DATA_REPOSITORY=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+# Required so apps/web/next.config.ts emits `.next/standalone`, which the
+# runner stage copies. Without this the runner COPY fails with:
+#   "/work/apps/web/.next/standalone": not found
+# Vercel builds leave this unset so they keep their serverless output mode.
+ENV STANDALONE_BUILD=true
 
 RUN --mount=type=secret,id=gh_token \
     sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
