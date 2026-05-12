@@ -332,7 +332,7 @@ export default function BasicInfoPage() {
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
-			<Container maxWidth="2xl" padding="default">
+			<Container maxWidth="2xl" padding="default" useGlobalWidth>
 				<div className="py-8 space-y-6">
 					{/* Page header */}
 					<div className="flex items-center justify-between">
