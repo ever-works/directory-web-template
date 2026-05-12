@@ -15,40 +15,6 @@ interface AboutSectionProps {
 export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
   return (
     <div className="space-y-4">
-      {/* About Me */}
-      <div className={CARD}>
-        <h3 className={`${SECTION_TITLE} mb-3`}>About Me</h3>
-        <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
-          <InlineEditField
-            field="bio"
-            value={profile.bio}
-            canEdit={isOwn}
-            multiline
-            maxLength={500}
-            placeholder="Tell others about yourself"
-            emptyLabel={isOwn ? "Add a bio" : "No bio yet"}
-          />
-        </p>
-      </div>
-
-      {/* Skills */}
-      {(profile.skills.length > 0 || isOwn) && (
-        <div className={CARD}>
-          <h3 className={`${SECTION_TITLE} mb-3`}>Skills & Expertise</h3>
-          {profile.skills.length > 0 ? (
-            <div className="flex flex-wrap gap-1.5">
-              {profile.skills.map((skill) => (
-                <ProfileTag key={skill.name} label={skill.name} />
-              ))}
-            </div>
-          ) : isOwn ? (
-            <p className="text-sm text-neutral-400 dark:text-neutral-500 italic">
-              No skills added yet — go to Settings to add them.
-            </p>
-          ) : null}
-        </div>
-      )}
-
       {/* Interests */}
       {(profile.interests.length > 0 || isOwn) && (
         <div className={CARD}>
