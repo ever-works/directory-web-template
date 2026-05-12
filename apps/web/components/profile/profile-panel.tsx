@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
 	FiBriefcase,
 	FiCalendar,
@@ -52,6 +53,7 @@ export function ProfilePanel({
 	initialIsFollowing,
 	verified
 }: ProfilePanelProps) {
+	const t = useTranslations('profile');
 	const [imageError, setImageError] = useState(false);
 	const completeness = useCompleteness(profile);
 
@@ -93,7 +95,7 @@ export function ProfilePanel({
 				{verified && (
 					<span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-white/90 dark:bg-white/12 text-theme-primary-700 dark:text-theme-primary-200 px-2.5 py-1 text-xs font-medium shadow-sm backdrop-blur-sm border border-white/20">
 						<FiCheckCircle className="w-3 h-3" />
-						Verified
+						{t('VERIFIED_BADGE')}
 					</span>
 				)}
 			</div>
@@ -104,7 +106,7 @@ export function ProfilePanel({
 					{!imageError && profile.avatar ? (
 						<Image
 							src={profile.avatar}
-							alt={`${profile.displayName}'s avatar`}
+							alt={t('AVATAR_ALT', { name: profile.displayName })}
 							fill
 							sizes="96px"
 							className="object-cover"
@@ -134,7 +136,7 @@ export function ProfilePanel({
 							{profile.displayName}
 						</h1>
 						{verified && (
-							<FiCheckCircle className="w-4 h-4 text-theme-primary-500 shrink-0" aria-label="Verified" />
+							<FiCheckCircle className="w-4 h-4 text-theme-primary-500 shrink-0" aria-label={t('VERIFIED_BADGE')} />
 						)}
 					</div>
 					<p className="text-sm text-neutral-500 dark:text-neutral-400">@{profile.username}</p>
@@ -148,11 +150,11 @@ export function ProfilePanel({
 				</div>
 
 				{/* Bio */}
-				{profile.bio && (
+				{/* {profile.bio && (
 					<p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
 						{profile.bio}
 					</p>
-				)}
+				)} */}
 
 				{/* Info list */}
 				<div className="space-y-1.5">
@@ -183,7 +185,7 @@ export function ProfilePanel({
 					)}
 					<div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-500">
 						<FiCalendar className="w-3.5 h-3.5 shrink-0" />
-						<span>Joined {formatMemberSince(profile.memberSince)}</span>
+						<span>{t('JOINED_DATE', { date: formatMemberSince(profile.memberSince) })}</span>
 					</div>
 				</div>
 
@@ -192,16 +194,16 @@ export function ProfilePanel({
 					<div className="rounded-lg bg-theme-primary-50/70 dark:bg-theme-primary-500/8 border border-theme-primary-100 dark:border-theme-primary-500/20 px-3 py-2.5 space-y-2">
 						<div className="flex items-center justify-between">
 							<span className="text-xs font-medium text-neutral-600 dark:text-neutral-300">
-								Profile {completeness}% complete
+								{t('PROFILE_COMPLETENESS', { percent: completeness })}
 							</span>
 							<Link
 								href="/client/settings/profile/basic-info"
 								className="text-xs text-theme-primary-600 dark:text-theme-primary-400 hover:underline font-medium transition-colors duration-150"
 							>
-								Complete →
+								{t('COMPLETE_PROFILE_LINK')}
 							</Link>
 						</div>
-						<div className="h-1.5 w-full bg-neutral-200 dark:bg-white/10 rounded-full overflow-hidden">
+						<div className="h-0.5 w-full bg-neutral-200 dark:bg-white/10 rounded-full overflow-hidden">
 							<div
 								className="h-full rounded-full bg-linear-to-r from-theme-primary-500 to-theme-primary-400 transition-all duration-700 ease-out"
 								style={{ width: `${completeness}%` }}
@@ -214,7 +216,7 @@ export function ProfilePanel({
 				{profile.skills.length > 0 && (
 					<div className="space-y-2">
 						<p className="text-[11px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">
-							Tech Stack
+							{t('TECH_STACK')}
 						</p>
 						<div className="flex flex-wrap gap-1">
 							{visibleSkills.map((skill) => (
@@ -222,7 +224,7 @@ export function ProfilePanel({
 							))}
 							{extraSkillCount > 0 && (
 								<span className="inline-flex items-center px-2.5 py-1 rounded-full border border-neutral-200 dark:border-white/10 text-xs text-neutral-500 dark:text-neutral-400">
-									+{extraSkillCount} more
+									{t('MORE_SKILLS', { count: extraSkillCount })}
 								</span>
 							)}
 						</div>
@@ -254,9 +256,9 @@ export function ProfilePanel({
 				{isOwn ? (
 					<Link
 						href="/client/settings/profile/basic-info"
-						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
+						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-black dark:bg-white text-white dark:text-black shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
 					>
-						Edit profile
+						{t('EDIT_PROFILE')}
 					</Link>
 				) : (
 					<div className="flex items-center gap-2">
@@ -271,8 +273,8 @@ export function ProfilePanel({
 							<Link
 								href="/client/users"
 								className="flex items-center justify-center p-2.5 rounded-lg border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
-								title="Discover users"
-								aria-label="Discover users"
+								title={t('DISCOVER_USERS')}
+								aria-label={t('DISCOVER_USERS')}
 							>
 								<FiUsers className="w-4 h-4" />
 							</Link>
