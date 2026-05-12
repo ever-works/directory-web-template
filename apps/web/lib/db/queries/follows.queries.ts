@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { clientProfiles, notifications, userFollows, type NewUserFollow, type UserFollow } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -221,6 +221,8 @@ export async function getFollowingSubset(viewerUserId: string, targetUserIds: st
 	const tenantId = await getTenantId();
 	if (!tenantId) return new Set();
 
+	// Use drizzle's `inArray` so the JS array is bound as a Postgres array.
+	// `sql\`= ANY(${array})\`` does not produce a valid array literal here.
 	const rows = await db
 		.select({ followingId: userFollows.followingId })
 		.from(userFollows)
@@ -228,7 +230,7 @@ export async function getFollowingSubset(viewerUserId: string, targetUserIds: st
 			and(
 				eq(userFollows.followerId, viewerUserId),
 				eq(userFollows.tenantId, tenantId),
-				sql`${userFollows.followingId} = ANY(${targetUserIds})`
+				inArray(userFollows.followingId, targetUserIds)
 			)
 		);
 
