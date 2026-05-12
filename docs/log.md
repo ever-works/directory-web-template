@@ -31,6 +31,126 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
+
+- `spec-022` Avatars stored as base64 data URLs in
+  `client_profiles.avatar` were never rendering anywhere that
+  goes through `components/header/avatar.tsx`'s
+  `isValidImageUrl()` gate — the helper only accepted relative
+  paths and `http(s):` URLs, silently dropping every data URL.
+  Affected surfaces: top-nav profile button + dropdown header,
+  comments section (current user's avatar in the comment form
+  AND each past comment author's avatar). Fixed by accepting
+  `data:image/*` in `isValidImageUrl` and passing
+  `unoptimized` to Next/Image for data URLs so the optimizer
+  doesn't try to transform them.
+- `spec-022` AC-19 reworked: the "Discover Users" entry was
+  moved off the global profile-button dropdown and onto the
+  profile page header card itself (visible to any authenticated
+  viewer alongside the Edit-profile / Follow action). Discovery
+  starts from a profile, not from the header nav. PR #816.
+
+## 2026-05-12 — Spec 022: stale-session fix extended to displayName
+
+- `spec-022` Extended AC-21 to also cover `displayName`. The
+  same staleness pattern that hit the avatar also hit the
+  user's name in the top-nav and in the dropdown header.
+  `/api/current-user` now also prefers
+  `client_profiles.displayName || .name` over
+  `session.user.name`; basic-info form invalidation now triggers
+  on avatar OR displayName change; the profile header's inline
+  displayName editor invalidates the cache via the new `onSaved`
+  callback path. PR #816.
+
+## 2026-05-12 — Spec 022: avatar propagation fix
+
+- `spec-022` AC-21 added: top-nav profile button (and anything
+  else reading `useCurrentUser()`) was showing the stale NextAuth
+  `session.user.image` after the user changed their avatar via
+  basic-info. Fixed by (a) making `/api/current-user` prefer
+  `client_profiles.avatar` when the session has a
+  `clientProfileId`, falling back to the session image otherwise;
+  (b) invalidating the `auth-session` React-Query key from the
+  basic-info form when the avatar value changes, so active
+  subscribers refetch immediately. PR #816.
+
+## 2026-05-12 — Spec 022: new-follower notifications
+
+- `spec-022` AC-20: widened the `notifications.type` text enum
+  with `'user_followed'` (no DB migration — column is plain TEXT,
+  TS-level union only). `followUser()` now emits a best-effort
+  notification on first-follow only (skipped when the row already
+  existed), with the follower's display name in the message and
+  their userId/username in the `data` JSON blob. Notification
+  failures are logged but never break the follow. PR #816.
+
+## 2026-05-12 — Spec 022: profile-menu nav link for /client/users
+
+- `spec-022` AC-19: added a "Discover Users" entry to the
+  profile-button dropdown (non-admin view) linking to
+  `/client/users`. Without this, the directory was reachable only
+  via direct URL or the followers/following stat tiles on a
+  profile page. New `common.DISCOVER_USERS` /
+  `common.DISCOVER_USERS_DESC` i18n keys (English; other locales
+  fall back). PR #816.
+
+## 2026-05-12 — Spec 022: users directory at /client/users
+
+- `spec-022` AC-18 added: new public users directory at
+  `/client/users`. URL-driven server-side search (filters
+  displayName, username, name, jobTitle, bio, location, all
+  case-insensitive) + pagination, 30 rows per page, admins
+  excluded. Uses the existing `ProfileRow` + `getFollowingSubset`
+  helpers, so each row carries a follow button initialized from
+  the viewer's follow state. New `searchPublicProfiles` query in
+  `client.queries.ts`. PR #816.
+
+## 2026-05-12 — Spec 022: followers / following drill-down pages
+
+- `spec-022` AC-17 added: new pages
+  `/client/profile/<username>/followers` and `.../following` render
+  paginated lists (30/page) of who follows / is followed, each row
+  with a working Follow button initialized from the viewer's
+  follow state via the new `getFollowingSubset()` helper. The two
+  stats-strip tiles ("Followers", "Following") link to these
+  pages. PR #816.
+
+## 2026-05-12 — Spec 022: polish — recent activity feed + skills empty state
+
+- `spec-022` Added AC-15 (Recent Activity card on the About tab
+  listing the last five comments authored by the profile owner via
+  the new `getRecentCommentsByClientProfile` query — links each
+  entry to its item slug) and AC-16 (Skills tab renders a clean
+  empty-state card instead of showing a 0%-proficiency summary
+  when the profile has no skills). PR #816.
+
+## 2026-05-12 — Spec 022: follow-up — public profiles, follows, inline edit
+
+- `spec-022` Extended Spec 022 with: public profile viewing (drop
+  username-mismatch redirect; 404 on missing); new `user_follows`
+  table (migration `0034`) with cascade scoping + self-follow check
+  constraint; `GET/POST/DELETE /api/user/profile/follow/[username]`
+  for follow toggle + count; new `ProfileStatsStrip` showing
+  followers / following / submissions / comments / favorites /
+  portfolio; inline-edit on every editable field in the header and
+  About section, hitting the existing `PATCH /api/user/profile`
+  route with optimistic UI. PR #816.
+
+## 2026-05-12 — Spec 022: profile UX polish (in-progress)
+
+- `spec-022` New spec under `docs/spec/022-profile-ux-polish/`
+  describing end-to-end persistence for the client profile:
+  avatar (as data URL in the existing `client_profiles.avatar`
+  column), new `interests text` and `skills jsonb` columns, new
+  `portfolio_projects` table with full CRUD, and the public profile
+  view rendered from saved data. Wires the basic-info form
+  (currently a no-op) and the portfolio editor (currently local
+  state only) through `GET`/`PATCH /api/user/profile` and
+  `/api/user/profile/portfolio*` routes. Fixes a long-standing bug
+  where the public profile page hardcoded `avatar: ''`. See PR
+  (forthcoming).
+- `index` `docs/spec/README.md` index updated with row 022.
+
 ## 2026-05-11 — `AGENTS.md` + `CLAUDE.md`: explicit Definition of Done
 
 - `agents` `AGENTS.md` §2 now leads with a ⚠️ "Definition of Done"

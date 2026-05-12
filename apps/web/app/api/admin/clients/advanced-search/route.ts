@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { advancedClientSearch } from '@/lib/db/queries';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -243,11 +243,8 @@ import { advancedClientSearch } from '@/lib/db/queries';
  */
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { searchParams } = new URL(request.url);
     
@@ -337,7 +334,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error in advanced search:', error);
     return NextResponse.json(
-      { error: 'Failed to perform advanced search' },
+      { success: false, error: 'Failed to perform advanced search' },
       { status: 500 }
     );
   }

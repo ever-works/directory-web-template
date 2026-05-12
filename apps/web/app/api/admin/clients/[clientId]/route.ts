@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import {
   getClientProfileById,
   updateClientProfile,
@@ -91,11 +91,8 @@ export async function GET(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 
@@ -103,7 +100,7 @@ export async function GET(
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -117,7 +114,7 @@ export async function GET(
   } catch (error) {
     console.error('Error fetching client:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch client' },
+      { success: false, error: 'Failed to fetch client' },
       { status: 500 }
     );
   }
@@ -254,11 +251,8 @@ export async function PUT(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 
@@ -268,7 +262,7 @@ export async function PUT(
 
     if (!client) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -348,7 +342,7 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating client:', error);
     return NextResponse.json(
-      { error: 'Failed to update client' },
+      { success: false, error: 'Failed to update client' },
       { status: 500 }
     );
   }
@@ -425,11 +419,8 @@ export async function DELETE(
   { params }: { params: Promise<{ clientId: string }> }
 ) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     const { clientId } = await params;
 
@@ -437,7 +428,7 @@ export async function DELETE(
 
     if (!success) {
       return NextResponse.json(
-        { error: 'Client not found' },
+        { success: false, error: 'Client not found' },
         { status: 404 }
       );
     }
@@ -449,7 +440,7 @@ export async function DELETE(
   } catch (error) {
     console.error('Error deleting client:', error);
     return NextResponse.json(
-      { error: 'Failed to delete client' },
+      { success: false, error: 'Failed to delete client' },
       { status: 500 }
     );
   }

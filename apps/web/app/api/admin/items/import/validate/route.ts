@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemImportService } from '@/lib/services/item-import.service';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import type { ImportDuplicateStrategy, ColumnMapping } from '@/lib/types/item-import-export';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * POST /api/admin/items/import/validate
@@ -11,13 +11,8 @@ import type { ImportDuplicateStrategy, ColumnMapping } from '@/lib/types/item-im
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const formData = await request.formData();
 		const file = formData.get('file') as File | null;

@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { featuredItems } from '@/lib/db/schema';
 import { eq, desc, and, count } from 'drizzle-orm';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { getTenantId } from '@/lib/auth/tenant';
+import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -131,11 +131,8 @@ import { getTenantId } from '@/lib/auth/tenant';
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 
@@ -308,11 +305,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const tenantId = await getTenantId();
 		if (!tenantId) {

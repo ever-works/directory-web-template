@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { RoleRepository } from '@/lib/repositories/role.repository';
 import type { CreateRoleRequest, RoleStatus } from '@/lib/types/role';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 const roleRepository = new RoleRepository();
 
@@ -150,6 +151,9 @@ const roleRepository = new RoleRepository();
  */
 export async function GET(request: NextRequest) {
   try {
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
+
     const { searchParams } = new URL(request.url);
 
     // Validate pagination parameters
@@ -181,6 +185,14 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
+      data: result.roles,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+      // Legacy fields retained for backward compatibility (see EW-606)
       roles: result.roles,
       total: result.total,
       page: result.page,
@@ -309,6 +321,9 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
+
     const body = await request.json();
     const roleData: CreateRoleRequest = body;
 

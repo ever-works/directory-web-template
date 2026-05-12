@@ -46,6 +46,15 @@ export * from './user.queries';
 // Vote queries
 export * from './vote.queries';
 
+// Portfolio queries
+export * from './portfolio.queries';
+
+// Follow queries
+export * from './follows.queries';
+
+// Profile stats queries
+export * from './profile-stats.queries';
+
 // Location index queries
 export * from './location-index.queries';
 

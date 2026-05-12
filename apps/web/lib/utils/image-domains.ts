@@ -152,6 +152,10 @@ export function isValidImageUrl(url: string): boolean {
 	// Allow relative URLs starting with /
 	if (url.startsWith('/')) return true;
 
+	// Allow inline image data URLs (used for user-uploaded avatars stored in
+	// `client_profiles.avatar`).
+	if (url.startsWith('data:image/')) return true;
+
 	// Check for valid absolute URL format
 	try {
 		const parsed = new URL(url);

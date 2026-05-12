@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { categoryRepository } from "@/lib/repositories/category.repository";
-import { auth } from "@/lib/auth";
 import { invalidateContentCaches } from "@/lib/cache-invalidation";
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -89,13 +89,8 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
 export async function PUT(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse request body
     const body = await request.json();

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemImportService } from '@/lib/services/item-import.service';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import type { ImportRowValidation, ImportDuplicateStrategy } from '@/lib/types/item-import-export';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 
 interface ImportRequestBody {
 	rows: ImportRowValidation[];
@@ -18,13 +18,9 @@ interface ImportRequestBody {
  */
 export async function POST(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Unauthorized. Admin access required.' },
-				{ status: 401 }
-			);
-		}
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		const body = (await request.json()) as ImportRequestBody;
 

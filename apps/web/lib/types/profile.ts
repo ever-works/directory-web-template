@@ -1,3 +1,19 @@
+export interface ProfileSkill {
+  name: string;
+  category: string;
+  proficiency: number;
+}
+
+export interface PortfolioItem {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  externalUrl: string;
+  tags: string[];
+  isFeatured: boolean;
+}
+
 export interface Profile {
   username: string;
   displayName: string;
@@ -12,17 +28,9 @@ export interface Profile {
     url: string;
     displayName: string;
   }>;
-  skills: { name: string; level: number; }[];
+  skills: ProfileSkill[];
   interests: string[];
-  portfolio: Array<{
-    id: string;
-    title: string;
-    description: string;
-    imageUrl: string;
-    externalUrl: string;
-    tags: string[];
-    isFeatured: boolean;
-  }>;
+  portfolio: PortfolioItem[];
   themeColor: string;
   isPublic: boolean;
   memberSince: string;
@@ -37,4 +45,4 @@ export interface Profile {
     url: string;
     imageUrl?: string;
   }>;
-} 
+}

@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth';
 import { NextResponse } from 'next/server';
+import { getClientProfileById } from '@/lib/db/queries/client.queries';
 
 /**
  * @swagger
@@ -108,11 +109,29 @@ export async function GET() {
 		return NextResponse.json(null);
 	}
 
+	// Prefer the freshly-saved avatar and display name from `client_profiles`
+	// over the NextAuth session claims (set at sign-in time and never refreshed
+	// when the user changes them). Falls back to the session values for
+	// accounts without a client profile (e.g. admins).
+	let image: string | null | undefined = session.user.image;
+	let name: string | null | undefined = session.user.name;
+	if (session.user.clientProfileId) {
+		try {
+			const profile = await getClientProfileById(session.user.clientProfileId);
+			if (profile?.avatar) image = profile.avatar;
+			if (profile?.displayName || profile?.name) {
+				name = profile.displayName || profile.name;
+			}
+		} catch {
+			// best-effort — fall back to the session values
+		}
+	}
+
 	const safeUser = {
 		id: session.user.id,
-		name: session.user.name,
+		name,
 		email: session.user.email,
-		image: session.user.image,
+		image,
 		provider: session.user.provider,
 		isAdmin: session.user.isAdmin || false,
 		tenantId: session.user.tenantId

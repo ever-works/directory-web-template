@@ -1,6 +1,6 @@
-import { auth } from "@/lib/auth";
 import { getCachedItems } from "@/lib/content";
 import { NextRequest, NextResponse } from "next/server";
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 
 /**
  * @swagger
@@ -85,10 +85,8 @@ import { NextRequest, NextResponse } from "next/server";
  */
 export async function GET(request: NextRequest) {
 	try {
-		const session = await auth();
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
 		const locale = searchParams.get('locale') || 'en';

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import { CreateItemRequest, SortField, SortOrder } from '@/lib/types/item';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
+import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 
 const itemRepository = new ItemRepository();
 
@@ -191,14 +191,8 @@ const itemRepository = new ItemRepository();
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authError = await checkAdminAuth();
+    if (authError) return authError;
 
     // Parse query parameters
     const { searchParams } = new URL(request.url);
@@ -289,6 +283,14 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      data: result.items,
+      meta: {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      },
+      // Legacy fields retained for backward compatibility (see EW-606)
       items: result.items,
       total: result.total,
       page: result.page,
@@ -463,13 +465,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check admin authentication
-    const session = await auth();
-    if (!session?.user?.isAdmin) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 401 }
-      );
-    }
+    const authResult = await requireAdminSession();
+    if (authResult instanceof NextResponse) return authResult;
+    const { session } = authResult;
 
     // Parse request body
     const body = await request.json();

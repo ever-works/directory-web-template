@@ -11,8 +11,8 @@ export function GoogleAnalytics({ gaId }: { gaId: string | undefined | null }) {
 	useEffect(() => {
 		if (pathname && gaId) {
 			const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-			if (typeof window !== 'undefined' && window.gtag) {
-				window.gtag('config', gaId, {
+			if (typeof window !== 'undefined' && (window as any).gtag) {
+				(window as any).gtag('config', gaId, {
 					page_path: url
 				});
 			}
