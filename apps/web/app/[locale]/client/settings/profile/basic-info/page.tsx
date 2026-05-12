@@ -12,7 +12,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
-import { useCurrentUser } from '@/hooks/use-current-user';
+import { useQueryClient } from '@tanstack/react-query';
+import { CURRENT_USER_QUERY_KEY, useCurrentUser } from '@/hooks/use-current-user';
 import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 
 const SKILL_CATEGORIES = ['Frontend', 'Backend', 'Tools & Frameworks', 'Other'] as const;
@@ -189,9 +190,11 @@ type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>;
 export default function BasicInfoPage() {
 	const t = useTranslations('profile');
 	const { isLoading: isUserLoading } = useCurrentUser();
+	const queryClient = useQueryClient();
 	const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 	const [skills, setSkills] = useState<Skill[]>(DEFAULT_SKILLS);
 	const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+	const [initialAvatar, setInitialAvatar] = useState<string | null>(null);
 
 	const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
@@ -262,6 +265,9 @@ export default function BasicInfoPage() {
 			}
 			if (profile.avatar) {
 				setAvatarPreview(profile.avatar);
+				setInitialAvatar(profile.avatar);
+			} else {
+				setInitialAvatar(null);
 			}
 			setIsLoadingProfile(false);
 		}
@@ -292,6 +298,13 @@ export default function BasicInfoPage() {
 				const message = apiUtils.getErrorMessage(response) || t('ERROR_UPDATING_PROFILE');
 				toast.error(message);
 				return;
+			}
+			// If the avatar changed, invalidate /api/current-user so the top-nav
+			// profile button (and anything else reading useCurrentUser) shows the
+			// new avatar immediately instead of the stale NextAuth session image.
+			if (avatarPreview !== initialAvatar) {
+				setInitialAvatar(avatarPreview);
+				await queryClient.invalidateQueries({ queryKey: CURRENT_USER_QUERY_KEY });
 			}
 			toast.success(t('PROFILE_UPDATED'));
 		} catch (error) {

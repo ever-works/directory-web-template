@@ -31,6 +31,18 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-12 — Spec 022: avatar propagation fix
+
+- `spec-022` AC-21 added: top-nav profile button (and anything
+  else reading `useCurrentUser()`) was showing the stale NextAuth
+  `session.user.image` after the user changed their avatar via
+  basic-info. Fixed by (a) making `/api/current-user` prefer
+  `client_profiles.avatar` when the session has a
+  `clientProfileId`, falling back to the session image otherwise;
+  (b) invalidating the `auth-session` React-Query key from the
+  basic-info form when the avatar value changes, so active
+  subscribers refetch immediately. PR #816.
+
 ## 2026-05-12 — Spec 022: new-follower notifications
 
 - `spec-022` AC-20: widened the `notifications.type` text enum
