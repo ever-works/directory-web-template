@@ -2,7 +2,7 @@
 
 import { Container } from '@/components/ui/container';
 import { Button } from '@/components/ui/button';
-import { FiUser, FiMapPin, FiBriefcase, FiGlobe, FiArrowLeft, FiUpload, FiPlus, FiTrash2, FiX, FiCheck, FiZoomIn, FiEdit2 } from 'react-icons/fi';
+import { FiUser, FiArrowLeft, FiUpload, FiPlus, FiTrash2, FiX, FiCheck, FiZoomIn, FiEdit2 } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
@@ -408,7 +408,7 @@ function SkillsEditor({
 	return (
 		<div className="space-y-3">
 			<div className="flex items-center justify-between">
-				<p className={LABEL_CLASS + ' mb-0'}>{t('SKILLS')}</p>
+				<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{t('SKILLS')}</p>
 				<span className="text-xs text-neutral-400 dark:text-neutral-500">
 					{t('SKILLS_COUNT', { count: skills.length })}
 				</span>
@@ -664,8 +664,8 @@ export default function BasicInfoPage() {
 
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="py-8 space-y-6">
-					{/* Back link */}
-					<div>
+					{/* Page header */}
+					<div className="space-y-2">
 						<Link
 							href={profileUsername ? `/client/profile/${profileUsername}` : '/client/profile'}
 							className="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors duration-150"
@@ -673,16 +673,14 @@ export default function BasicInfoPage() {
 							<FiArrowLeft className="w-3.5 h-3.5" />
 							{t('BACK_TO_PROFILE')}
 						</Link>
-					</div>
-
-					{/* Title */}
-					<div>
-						<h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-							{t('BASIC_INFO_TITLE')}
-						</h1>
-						<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
-							{t('BASIC_INFO_DESCRIPTION')}
-						</p>
+						<div>
+							<h1 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+								{t('BASIC_INFO_TITLE')}
+							</h1>
+							<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-0.5">
+								{t('BASIC_INFO_DESCRIPTION')}
+							</p>
+						</div>
 					</div>
 
 					{isLoadingProfile ? (
@@ -692,117 +690,97 @@ export default function BasicInfoPage() {
 							className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm divide-y divide-neutral-100 dark:divide-white/6"
 							onSubmit={handleSubmit(onSubmit)}
 						>
-							{/* ── Avatar ── */}
-							<div className="p-6">
-								<p className="text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-4">
+							{/* ── Profile Photo ── */}
+							<div className="p-6 space-y-4">
+								<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
 									{t('PROFILE_PHOTO')}
 								</p>
-								<div className="flex items-center gap-4">
-									<div className="relative w-16 h-16 rounded-xl overflow-hidden bg-neutral-100 dark:bg-white/8 shrink-0 flex items-center justify-center ring-1 ring-neutral-200 dark:ring-white/10">
-										{avatarPreview ? (
-											<Image
-												src={avatarPreview}
-												alt="Avatar preview"
-												fill
-												unoptimized
-												sizes="64px"
-												className="object-cover"
-												priority
-											/>
-										) : (
-											<FiUser className="w-7 h-7 text-neutral-400" />
-										)}
-										{/* Edit overlay */}
-										{avatarPreview && (
-											<label
-												htmlFor="avatar"
-												className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-xl"
-												title={t('UPLOAD_AVATAR')}
-											>
-												<FiEdit2 className="w-5 h-5 text-white" />
-											</label>
-										)}
-									</div>
-									<div className="space-y-1">
-										<label
-											htmlFor="avatar"
-											className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-lg cursor-pointer transition-colors duration-150"
-										>
-											<FiUpload className="w-3.5 h-3.5" />
-											{t('UPLOAD_AVATAR')}
-											<input
-												id="avatar"
-												name="avatar"
-												type="file"
-												accept="image/*"
-												className="hidden"
-												onChange={handleAvatarChange}
-											/>
-										</label>
-										<p className={HELP_CLASS}>{t('AVATAR_FILE_TYPES')}</p>
-									</div>
-								</div>
-							</div>
 
-							{/* ── Cover style ── */}
-							<div className="p-6 space-y-3">
-								<div>
-									<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-										{t('COVER_STYLE')}
-									</p>
-									<p className={HELP_CLASS + ' mt-0.5'}>{t('COVER_STYLE_HELP')}</p>
-								</div>
-
-								{/* Mini cover preview */}
+								{/* Mini profile preview card — cover fills the full card */}
 								<div
-									className="h-14 w-full rounded-xl relative overflow-hidden"
+									className="relative rounded-xl overflow-hidden border border-neutral-200 dark:border-white/10 h-36 transition-all duration-300"
 									style={{ background: getCoverBackground(coverColor) }}
 								>
+									{/* Noise texture */}
 									<div
-										className="absolute inset-0 opacity-15 mix-blend-overlay"
+										className="absolute inset-0 opacity-15 mix-blend-overlay pointer-events-none"
 										style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")' }}
 									/>
-									{/* Mini avatar silhouette */}
-									<div className="absolute bottom-0 left-4 w-8 h-8 rounded-lg bg-white/30 ring-2 ring-white/40 flex items-center justify-center mb-1 translate-y-1/2">
-										{avatarPreview ? (
-											<Image
-												src={avatarPreview}
-												alt=""
-												fill
-												unoptimized
-												sizes="32px"
-												className="object-cover rounded-lg"
-											/>
-										) : (
-											<FiUser className="w-4 h-4 text-white/70" />
-										)}
+
+									{/* Avatar + upload anchored to bottom */}
+									<div className="absolute bottom-0 inset-x-0 px-4 pb-3 flex items-end gap-4">
+										<div className="relative z-10 w-16 h-16 rounded-xl overflow-hidden bg-white/10 shrink-0 flex items-center justify-center ring-2 ring-white/40">
+											{avatarPreview ? (
+												<Image
+													src={avatarPreview}
+													alt="Avatar preview"
+													fill
+													unoptimized
+													sizes="64px"
+													className="object-cover"
+													priority
+												/>
+											) : (
+												<FiUser className="w-7 h-7 text-white/70" />
+											)}
+											{avatarPreview && (
+												<label
+													htmlFor="avatar"
+													className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-xl"
+													title={t('UPLOAD_AVATAR')}
+												>
+													<FiEdit2 className="w-5 h-5 text-white" />
+												</label>
+											)}
+										</div>
+										<div className="pb-1 space-y-1">
+											<label
+												htmlFor="avatar"
+												className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white border border-white/25 rounded-lg cursor-pointer transition-all duration-150"
+											>
+												<FiUpload className="w-3.5 h-3.5" />
+												{t('UPLOAD_AVATAR')}
+												<input
+													id="avatar"
+													name="avatar"
+													type="file"
+													accept="image/*"
+													className="hidden"
+													onChange={handleAvatarChange}
+												/>
+											</label>
+											<p className="text-xs text-white/60">{t('AVATAR_FILE_TYPES')}</p>
+										</div>
 									</div>
 								</div>
 
-								{/* Swatch grid */}
-								<div className="flex flex-wrap gap-2">
-									{COVER_PRESETS.map((preset) => (
-										<button
-											key={preset.id}
-											type="button"
-											onClick={() => setCoverColor(preset.id)}
-											title={preset.label}
-											className={`relative w-10 h-6 rounded-md overflow-hidden ring-2 transition-all duration-150 ${
-												coverColor === preset.id
-													? 'ring-theme-primary-500 scale-110 shadow-md'
-													: 'ring-neutral-200 dark:ring-white/10 hover:ring-neutral-400 dark:hover:ring-white/30'
-											}`}
-											style={{
-												background: preset.css || 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)'
-											}}
-										>
-											{coverColor === preset.id && (
-												<span className="absolute inset-0 flex items-center justify-center">
-													<FiCheck className="w-3 h-3 text-white drop-shadow" />
-												</span>
-											)}
-										</button>
-									))}
+								{/* Cover color swatches */}
+								<div className="space-y-2">
+									<p className={LABEL_CLASS}>{t('COVER_STYLE')}</p>
+									<div className="flex flex-wrap gap-2">
+										{COVER_PRESETS.map((preset) => (
+											<button
+												key={preset.id}
+												type="button"
+												onClick={() => setCoverColor(preset.id)}
+												title={preset.label}
+												className={`relative w-10 h-6 rounded-md overflow-hidden ring-2 transition-all duration-150 ${
+													coverColor === preset.id
+														? 'ring-theme-primary-500 scale-110 shadow-md'
+														: 'ring-neutral-200 dark:ring-white/10 hover:ring-neutral-400 dark:hover:ring-white/30'
+												}`}
+												style={{
+													background: preset.css || 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)'
+												}}
+											>
+												{coverColor === preset.id && (
+													<span className="absolute inset-0 flex items-center justify-center">
+														<FiCheck className="w-3 h-3 text-white drop-shadow" />
+													</span>
+												)}
+											</button>
+										))}
+									</div>
 								</div>
 							</div>
 
@@ -894,9 +872,6 @@ export default function BasicInfoPage() {
 
 							{/* ── Skills ── */}
 							<div className="p-6">
-								<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-4">
-									{t('SKILLS')}
-								</p>
 								<SkillsEditor initialSkills={skills} onChange={setSkills} />
 							</div>
 
@@ -923,8 +898,7 @@ export default function BasicInfoPage() {
 										<p className={HELP_CLASS}>{t('JOB_TITLE_HELP')}</p>
 									</div>
 									<div>
-										<label htmlFor="company" className={LABEL_CLASS + ' flex items-center gap-1'}>
-											<FiBriefcase className="w-3 h-3" />
+										<label htmlFor="company" className={LABEL_CLASS}>
 											{t('COMPANY')}
 										</label>
 										<input
@@ -940,8 +914,7 @@ export default function BasicInfoPage() {
 										<p className={HELP_CLASS}>{t('COMPANY_HELP')}</p>
 									</div>
 									<div>
-										<label htmlFor="location" className={LABEL_CLASS + ' flex items-center gap-1'}>
-											<FiMapPin className="w-3 h-3" />
+										<label htmlFor="location" className={LABEL_CLASS}>
 											{t('LOCATION')}
 										</label>
 										<input
@@ -957,8 +930,7 @@ export default function BasicInfoPage() {
 										<p className={HELP_CLASS}>{t('LOCATION_HELP')}</p>
 									</div>
 									<div>
-										<label htmlFor="website" className={LABEL_CLASS + ' flex items-center gap-1'}>
-											<FiGlobe className="w-3 h-3" />
+										<label htmlFor="website" className={LABEL_CLASS}>
 											{t('WEBSITE')}
 										</label>
 										<input
