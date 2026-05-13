@@ -1,4 +1,4 @@
-import { and, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { comments, favorites, portfolioProjects, userFollows } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -69,4 +69,26 @@ export async function getProfileStats(params: {
 		followers: followersRow[0]?.count ?? 0,
 		following: followingRow[0]?.count ?? 0
 	};
+}
+
+/** Recent items liked/favorited by a user, for the public activity feed. */
+export async function getRecentFavoritesByUser(
+	userId: string,
+	limit = 5
+): Promise<Array<{ id: string; itemSlug: string; itemName: string; itemIconUrl: string | null; createdAt: Date }>> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return [];
+
+	return db
+		.select({
+			id: favorites.id,
+			itemSlug: favorites.itemSlug,
+			itemName: favorites.itemName,
+			itemIconUrl: favorites.itemIconUrl,
+			createdAt: favorites.createdAt
+		})
+		.from(favorites)
+		.where(and(eq(favorites.userId, userId), eq(favorites.tenantId, tenantId)))
+		.orderBy(desc(favorites.createdAt))
+		.limit(limit);
 }

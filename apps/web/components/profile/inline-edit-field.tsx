@@ -30,14 +30,6 @@ interface InlineEditFieldProps {
 	onSaved?: (value: string) => void;
 }
 
-/**
- * Inline-editable text field bound to PATCH /api/user/profile.
- *
- * - Hover (or focus) reveals a pencil icon when `canEdit` is true.
- * - Click switches to an input; Enter saves (single-line), Escape cancels,
- *   blur cancels unless the explicit save button was clicked.
- * - On save: optimistic local state, PATCH, rollback on error.
- */
 export function InlineEditField({
 	field,
 	value,
@@ -57,7 +49,6 @@ export function InlineEditField({
 	const [editing, setEditing] = useState(false);
 	const [saving, setSaving] = useState(false);
 	const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
-	// Suppress the cancel-on-blur if the user clicked the save button.
 	const saveClickedRef = useRef(false);
 
 	useEffect(() => {
@@ -68,7 +59,6 @@ export function InlineEditField({
 	useEffect(() => {
 		if (editing && inputRef.current) {
 			inputRef.current.focus();
-			// Select all when single-line, place cursor at end for textarea.
 			if (multiline) {
 				const len = inputRef.current.value.length;
 				(inputRef.current as HTMLTextAreaElement).setSelectionRange(len, len);
@@ -129,7 +119,6 @@ export function InlineEditField({
 	};
 
 	const handleBlur = () => {
-		// If the save button was clicked, commit handles it. Otherwise treat blur as cancel.
 		setTimeout(() => {
 			if (saveClickedRef.current) {
 				saveClickedRef.current = false;
@@ -140,61 +129,55 @@ export function InlineEditField({
 	};
 
 	if (editing) {
-		const sharedClass =
+		const inputClass =
 			inputClassName ??
-			'w-full bg-white dark:bg-white/5 border-2 border-blue-400 dark:border-blue-500 rounded-md px-2 py-1 text-base text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500';
+			'w-full bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-white/15 rounded-md px-2.5 py-1.5 text-sm text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/40 focus:border-theme-primary-400 dark:focus:border-theme-primary-500 transition-all duration-150';
 		return (
-			<span className={`inline-flex items-start gap-2 w-full ${className ?? ''}`}>
+			<span className={`inline-flex items-start gap-1.5 w-full ${className ?? ''}`}>
 				{multiline ? (
 					<textarea
-						ref={(el) => {
-							inputRef.current = el;
-						}}
+						ref={(el) => { inputRef.current = el; }}
 						value={draft}
 						onChange={(e) => setDraft(e.target.value)}
 						onKeyDown={handleKeyDown}
 						onBlur={handleBlur}
 						maxLength={maxLength}
 						rows={3}
-						className={sharedClass}
+						className={inputClass}
 					/>
 				) : (
 					<input
-						ref={(el) => {
-							inputRef.current = el;
-						}}
+						ref={(el) => { inputRef.current = el; }}
 						type={type}
 						value={draft}
 						onChange={(e) => setDraft(e.target.value)}
 						onKeyDown={handleKeyDown}
 						onBlur={handleBlur}
 						maxLength={maxLength}
-						className={sharedClass}
+						className={inputClass}
 					/>
 				)}
-				<button
-					type="button"
-					onMouseDown={() => {
-						saveClickedRef.current = true;
-					}}
-					onClick={commit}
-					disabled={saving}
-					aria-label="Save"
-					className="shrink-0 p-1 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 disabled:opacity-50"
-				>
-					<FiCheck className="w-4 h-4" />
-				</button>
-				<button
-					type="button"
-					onMouseDown={() => {
-						saveClickedRef.current = true;
-					}}
-					onClick={cancelEdit}
-					aria-label="Cancel"
-					className="shrink-0 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-				>
-					<FiX className="w-4 h-4" />
-				</button>
+				<span className="flex items-center gap-0.5 shrink-0 mt-0.5">
+					<button
+						type="button"
+						onMouseDown={() => { saveClickedRef.current = true; }}
+						onClick={commit}
+						disabled={saving}
+						aria-label="Save"
+						className="p-1.5 rounded-md bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-950/70 disabled:opacity-50 transition-colors duration-150"
+					>
+						<FiCheck className="w-3.5 h-3.5" />
+					</button>
+					<button
+						type="button"
+						onMouseDown={() => { saveClickedRef.current = true; }}
+						onClick={cancelEdit}
+						aria-label="Cancel"
+						className="p-1.5 rounded-md bg-neutral-100 dark:bg-white/8 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-white/12 transition-colors duration-150"
+					>
+						<FiX className="w-3.5 h-3.5" />
+					</button>
+				</span>
 			</span>
 		);
 	}
@@ -203,11 +186,9 @@ export function InlineEditField({
 	const isEmpty = !current;
 
 	return (
-		<span className={`group inline-flex items-start gap-2 ${className ?? ''}`}>
+		<span className={`group inline-flex items-start gap-1.5 ${className ?? ''}`}>
 			<span
-				className={`${displayClassName ?? ''} ${isEmpty ? 'italic text-gray-400 dark:text-gray-500' : ''} ${
-					canEdit ? 'cursor-pointer' : ''
-				}`}
+				className={`${displayClassName ?? ''} ${isEmpty ? 'italic text-neutral-400 dark:text-neutral-500' : ''} ${canEdit ? 'cursor-pointer' : ''}`}
 				onClick={canEdit ? startEdit : undefined}
 			>
 				{display}
@@ -217,9 +198,9 @@ export function InlineEditField({
 					type="button"
 					onClick={startEdit}
 					aria-label={`Edit ${field}`}
-					className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400"
+					className="shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-150 p-1 rounded text-neutral-400 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:bg-neutral-100 dark:hover:bg-white/8"
 				>
-					<FiEdit2 className="w-3.5 h-3.5" />
+					<FiEdit2 className="w-3 h-3" />
 				</button>
 			)}
 		</span>

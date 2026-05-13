@@ -61,10 +61,10 @@ export function FollowButton({
 			onClick={handleClick}
 			disabled={pending}
 			aria-pressed={isFollowing}
-			className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors disabled:opacity-60 ${
+			className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all duration-150 disabled:opacity-60 w-full ${
 				isFollowing
-					? 'bg-gray-100 text-gray-900 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-100 dark:hover:bg-white/10'
-					: 'bg-blue-600 text-white hover:bg-blue-700'
+					? 'bg-neutral-100 text-neutral-900 hover:bg-neutral-200 dark:bg-white/5 dark:text-neutral-100 dark:hover:bg-white/10'
+					: 'bg-theme-primary-600 text-white hover:bg-theme-primary-700'
 			}`}
 		>
 			{isFollowing ? (

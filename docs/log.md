@@ -50,6 +50,24 @@ why** at a higher level than per-commit diffs.
   viewer alongside the Edit-profile / Follow action). Discovery
   starts from a profile, not from the header nav. PR #816.
 
+## 2026-05-12 — Spec 022: 2-column dashboard layout for /client/profile (EW-613)
+
+- `spec-022` AC-22 added: rebuilt the public profile page as a
+  Toptal-style 2-column dashboard. New `ProfilePanel` component
+  (sticky left card with cover banner + avatar overlap, name +
+  role pill, skills/interests chips, four info boxes — Location,
+  Member since, Company, Website — and the action row).
+  `ProfileStatsStrip` gained a `headline` variant (3 large tiles
+  for followers / following / submissions) used at the top of the
+  right column above the existing compact 6-tile strip. Sections
+  (About, Recent Activity, Skills, Portfolio) now stack
+  vertically in the right column with `Manage` shortcuts for the
+  owner; the previous tab-gated `ProfileContent` is bypassed by
+  the new layout (component kept in tree for future surfaces).
+  Visual tokens match the rest of the template: `Container`,
+  `Card`, `theme-primary-*`, `rounded-xl`, dark-mode parity.
+  Tracked under [EW-613](https://evertech.atlassian.net/browse/EW-613).
+
 ## 2026-05-12 — Spec 022: stale-session fix extended to displayName
 
 - `spec-022` Extended AC-21 to also cover `displayName`. The
