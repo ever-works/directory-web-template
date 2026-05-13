@@ -140,6 +140,15 @@ jobs:
                   file: Dockerfile
                   push: true
                   tags: ${{ steps.image.outputs.image }}
+                  # Explicit OCI labels via the action's `labels:` input
+                  # (rather than only relying on Dockerfile LABEL). buildx
+                  # writes these into the image config in a way GHCR's
+                  # auto-link parser can see — Dockerfile LABEL inside a
+                  # multi-stage build was getting lost on push.
+                  labels: |
+                      org.opencontainers.image.source=https://github.com/${{ github.repository }}
+                      org.opencontainers.image.revision=${{ github.sha }}
+                      org.opencontainers.image.title=${{ github.repository }}
                   # DATA_REPOSITORY is a URL — fine to ship as a build-arg
                   # (it ends up in the resulting image as an env var anyway
                   # if the Dockerfile picks it up). GH_TOKEN, however, is a
@@ -151,6 +160,16 @@ jobs:
                       GITHUB_SHA=${{ github.sha }}
                   secrets: |
                       gh_token=${{ secrets.GH_TOKEN }}
+                  # Disable provenance / SBOM attestation. With these on,
+                  # buildx pushes a manifest LIST (image + attestation
+                  # artifact) rather than a single image manifest. GHCR's
+                  # auto-link logic only scans the top-level manifest for
+                  # the `org.opencontainers.image.source` label, so the
+                  # label gets buried under the attestation layer and the
+                  # auto-link silently fails. Side benefit: smaller
+                  # registry footprint and faster pulls.
+                  provenance: false
+                  sbom: false
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
 
