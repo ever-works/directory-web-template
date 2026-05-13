@@ -9,6 +9,7 @@ import {
 	FiCheckCircle,
 	FiGithub,
 	FiGlobe,
+	FiHeart,
 	FiLinkedin,
 	FiMapPin,
 	FiTwitter,
@@ -28,6 +29,7 @@ interface ProfilePanelProps {
 	isAuthenticated: boolean;
 	initialIsFollowing: boolean;
 	verified?: boolean;
+	stats?: { favorites: number; portfolio: number; followers: number; following: number };
 }
 
 function useCompleteness(profile: Profile) {
@@ -46,12 +48,19 @@ function useCompleteness(profile: Profile) {
 	return checks.reduce((sum, [has, weight]) => sum + (has ? weight : 0), 0);
 }
 
+const formatCount = (n: number): string => {
+	if (n < 1000) return n.toString();
+	if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0)}k`;
+	return `${(n / 1_000_000).toFixed(1)}M`;
+};
+
 export function ProfilePanel({
 	profile,
 	isOwn,
 	isAuthenticated,
 	initialIsFollowing,
-	verified
+	verified,
+	stats
 }: ProfilePanelProps) {
 	const t = useTranslations('profile');
 	const [imageError, setImageError] = useState(false);
@@ -77,6 +86,21 @@ export function ProfilePanel({
 		}
 	};
 
+	const COVER_PRESETS: Record<string, string> = {
+		midnight: 'linear-gradient(135deg,#1e1b4b,#3730a3)',
+		ocean:    'linear-gradient(135deg,#0369a1,#38bdf8)',
+		forest:   'linear-gradient(135deg,#14532d,#4ade80)',
+		sunset:   'linear-gradient(135deg,#c2410c,#fbbf24)',
+		rose:     'linear-gradient(135deg,#9f1239,#fb7185)',
+		slate:    'linear-gradient(135deg,#334155,#94a3b8)',
+		violet:   'linear-gradient(135deg,#5b21b6,#c4b5fd)',
+		amber:    'linear-gradient(135deg,#92400e,#fcd34d)',
+		teal:     'linear-gradient(135deg,#134e4a,#5eead4)',
+	};
+	const coverBackground = profile.coverColor && COVER_PRESETS[profile.coverColor]
+		? COVER_PRESETS[profile.coverColor]
+		: 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)';
+
 	const MAX_SKILLS_SHOWN = 6;
 	const visibleSkills = profile.skills.slice(0, MAX_SKILLS_SHOWN);
 	const extraSkillCount = profile.skills.length - MAX_SKILLS_SHOWN;
@@ -86,7 +110,7 @@ export function ProfilePanel({
 			{/* Cover */}
 			<div
 				className="relative h-28 w-full"
-				style={{ background: 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)' }}
+				style={{ background: coverBackground }}
 			>
 				<div
 					className="absolute inset-0 opacity-20 mix-blend-overlay"
@@ -155,6 +179,27 @@ export function ProfilePanel({
 						{profile.bio}
 					</p>
 				)} */}
+
+				{/* Followers / Following — LinkedIn-style inline links */}
+				{stats && (
+					<div className="flex items-center gap-1 text-sm flex-wrap">
+						<Link
+							href={`/client/profile/${profile.username}/followers`}
+							className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-150"
+						>
+							{formatCount(stats.followers)}
+							<span className="text-neutral-500 dark:text-neutral-400">{t('STAT_FOLLOWERS')}</span>
+						</Link>
+						<span className="text-neutral-300 dark:text-neutral-600 mx-1">·</span>
+						<Link
+							href={`/client/profile/${profile.username}/following`}
+							className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-150"
+						>
+							{formatCount(stats.following)}
+							<span className="text-neutral-500 dark:text-neutral-400">{t('STAT_FOLLOWING')}</span>
+						</Link>
+					</div>
+				)}
 
 				{/* Info list */}
 				<div className="space-y-1.5">
