@@ -252,7 +252,6 @@ function ImageCropModal({
 						onWheel={onWheel}
 					>
 						{/* Actual image */}
-						{/* eslint-disable-next-line @next/next/no-img-element */}
 						<img
 							ref={imgRef}
 							src={src}
