@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { FiArrowRight, FiHeart, FiMessageCircle, FiStar } from 'react-icons/fi';
+import { FiArrowRight, FiHeart, FiMessageCircle, FiStar, FiUserPlus, FiUserCheck } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
 
 export interface RecentComment {
@@ -20,13 +20,26 @@ export interface RecentFavorite {
 	createdAt: Date | string;
 }
 
+export interface RecentFollow {
+	id: string;
+	otherUserId: string;
+	otherUsername: string | null;
+	otherDisplayName: string | null;
+	otherName: string;
+	otherAvatar: string | null;
+	direction: 'outgoing' | 'incoming';
+	createdAt: Date | string;
+}
+
 type ActivityItem =
 	| { kind: 'comment'; data: RecentComment }
-	| { kind: 'favorite'; data: RecentFavorite };
+	| { kind: 'favorite'; data: RecentFavorite }
+	| { kind: 'follow'; data: RecentFollow };
 
 interface RecentActivitySectionProps {
 	comments: RecentComment[];
 	favorites: RecentFavorite[];
+	follows?: RecentFollow[];
 	isOwn: boolean;
 	displayName: string;
 }
@@ -35,7 +48,7 @@ const truncate = (s: string, max = 180) => (s.length <= max ? s : `${s.slice(0, 
 
 const toDate = (v: Date | string) => (typeof v === 'string' ? new Date(v) : v);
 
-export function RecentActivitySection({ comments, favorites, isOwn, displayName }: RecentActivitySectionProps) {
+export function RecentActivitySection({ comments, favorites, follows = [], isOwn, displayName }: RecentActivitySectionProps) {
 	const t = useTranslations("profile");
 
 	const formatRelative = (input: Date | string): string => {
@@ -52,6 +65,7 @@ export function RecentActivitySection({ comments, favorites, isOwn, displayName 
 	const items: ActivityItem[] = [
 		...comments.map((c): ActivityItem => ({ kind: 'comment', data: c })),
 		...favorites.map((f): ActivityItem => ({ kind: 'favorite', data: f })),
+		...follows.map((f): ActivityItem => ({ kind: 'follow', data: f })),
 	].sort((a, b) => toDate(b.data.createdAt).getTime() - toDate(a.data.createdAt).getTime());
 
 	const isEmpty = items.length === 0;
@@ -86,8 +100,10 @@ export function RecentActivitySection({ comments, favorites, isOwn, displayName 
 								<div className="relative z-10 mt-1.5 shrink-0 flex items-center justify-center w-7.5 h-7.5">
 									{item.kind === 'comment' ? (
 										<div className="w-2 h-2 rounded-full bg-theme-primary-400 dark:bg-theme-primary-500 ring-2 ring-white dark:ring-neutral-950" />
-									) : (
+									) : item.kind === 'favorite' ? (
 										<div className="w-2 h-2 rounded-full bg-rose-400 dark:bg-rose-500 ring-2 ring-white dark:ring-neutral-950" />
+									) : (
+										<div className="w-2 h-2 rounded-full bg-violet-400 dark:bg-violet-500 ring-2 ring-white dark:ring-neutral-950" />
 									)}
 								</div>
 
@@ -95,8 +111,10 @@ export function RecentActivitySection({ comments, favorites, isOwn, displayName 
 								<div className="flex-1 min-w-0 rounded-lg border border-neutral-100 dark:border-white/6 bg-neutral-50/60 dark:bg-white/3 p-3 hover:border-neutral-200 dark:hover:border-white/10 hover:bg-white dark:hover:bg-white/5 transition-all duration-150">
 									{item.kind === 'comment' ? (
 										<CommentEntry comment={item.data} formatRelative={formatRelative} />
-									) : (
+									) : item.kind === 'favorite' ? (
 										<FavoriteEntry favorite={item.data} formatRelative={formatRelative} />
+									) : (
+										<FollowEntry follow={item.data} formatRelative={formatRelative} />
 									)}
 								</div>
 							</li>
@@ -198,6 +216,45 @@ function FavoriteEntry({
 				dateTime={new Date(favorite.createdAt).toISOString()}
 			>
 				{formatRelative(favorite.createdAt)}
+			</time>
+		</div>
+	);
+}
+
+function FollowEntry({
+	follow,
+	formatRelative,
+}: {
+	follow: RecentFollow;
+	formatRelative: (d: Date | string) => string;
+}) {
+	const otherLabel = follow.otherDisplayName || follow.otherName || follow.otherUsername || 'someone';
+	const otherHref = follow.otherUsername ? `/client/profile/${follow.otherUsername}` : null;
+	const verb = follow.direction === 'outgoing' ? 'Followed' : 'Followed by';
+	const Icon = follow.direction === 'outgoing' ? FiUserPlus : FiUserCheck;
+	return (
+		<div className="flex items-center justify-between gap-2 flex-wrap">
+			<div className="flex items-center gap-1.5 min-w-0 text-xs text-neutral-500 dark:text-neutral-400">
+				<Icon className="w-3 h-3 shrink-0 text-violet-500" />
+				<span className="shrink-0">{verb}</span>
+				{otherHref ? (
+					<Link
+						href={otherHref}
+						className="font-medium text-neutral-800 dark:text-neutral-200 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:underline truncate max-w-[22ch] transition-colors duration-150"
+					>
+						{otherLabel}
+					</Link>
+				) : (
+					<span className="font-medium text-neutral-800 dark:text-neutral-200 truncate max-w-[22ch]">
+						{otherLabel}
+					</span>
+				)}
+			</div>
+			<time
+				className="text-[11px] text-neutral-400 dark:text-neutral-500 shrink-0 tabular-nums"
+				dateTime={new Date(follow.createdAt).toISOString()}
+			>
+				{formatRelative(follow.createdAt)}
 			</time>
 		</div>
 	);

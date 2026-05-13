@@ -10,7 +10,9 @@ import {
 	getProfileStats,
 	isFollowing,
 	getRecentCommentsByClientProfile,
-	getRecentFavoritesByUser
+	getRecentFavoritesByUser,
+	listFollowing,
+	listFollowers
 } from '@/lib/db/queries';
 import {
 	ProfilePanel,
@@ -20,6 +22,7 @@ import {
 	SkillsSection,
 	RecentActivitySection
 } from '@/components/profile';
+import type { RecentFollow } from '@/components/profile/sections/recent-activity-section';
 import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
 // Force dynamic rendering — page depends on session/follow state
@@ -37,13 +40,38 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
-	const [portfolioRows, stats, viewerFollows, recentComments, recentFavorites] = await Promise.all([
+	const [portfolioRows, stats, viewerFollows, recentComments, recentFavorites, outgoingFollows, incomingFollows] = await Promise.all([
 		listPortfolioProjectsForProfile(clientProfile.id),
 		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
 		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false),
 		getRecentCommentsByClientProfile(clientProfile.id, 5),
-		getRecentFavoritesByUser(clientProfile.userId, 5)
+		getRecentFavoritesByUser(clientProfile.userId, 5),
+		listFollowing(clientProfile.userId, 5, 0),
+		listFollowers(clientProfile.userId, 5, 0)
 	]);
+
+	const recentFollows: RecentFollow[] = [
+		...outgoingFollows.map((row): RecentFollow => ({
+			id: `out-${row.userId}-${row.followedAt.getTime()}`,
+			otherUserId: row.userId,
+			otherUsername: row.username,
+			otherDisplayName: row.displayName,
+			otherName: row.name,
+			otherAvatar: row.avatar,
+			direction: 'outgoing',
+			createdAt: row.followedAt
+		})),
+		...incomingFollows.map((row): RecentFollow => ({
+			id: `in-${row.userId}-${row.followedAt.getTime()}`,
+			otherUserId: row.userId,
+			otherUsername: row.username,
+			otherDisplayName: row.displayName,
+			otherName: row.name,
+			otherAvatar: row.avatar,
+			direction: 'incoming',
+			createdAt: row.followedAt
+		}))
+	];
 
 	const rawSkills = (clientProfile.skills ?? []) as Array<{
 		name?: unknown;
@@ -176,6 +204,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 								<RecentActivitySection
 									comments={recentComments}
 									favorites={recentFavorites}
+									follows={recentFollows}
 									isOwn={isOwn}
 									displayName={profile.displayName}
 								/>
