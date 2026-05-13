@@ -168,26 +168,60 @@ Conventions:
   regressions from the new repository). Unit tests deferred to
   T-002b (no test framework today; tracked under Q-023e).
 
-### T-004 [seq] — Implement `runAgent` + system-prompt scaffolding
+### T-004 [seq] — Implement `runAgent` + system-prompt scaffolding — **done**
 
 - Files: `packages/plugin-ai-chat/src/agent.ts`,
   `packages/plugin-ai-chat/src/prompts/index.ts`
 - Steps:
-  1. Build the system prompt from `next-intl` keys
-     (`AI_CHAT_SYSTEM_PROMPT`, `AI_CHAT_SYSTEM_PROMPT_AUTHENTICATED`,
-     interpolating `directoryName`, `locale`, `currentPageUrl`).
-  2. Author `runAgent({ messages, scenario, session, locale,
-     currentPageUrl })` that:
-     - filters the tool set by `requiresAuth` + scenario,
-     - calls `streamText({...})` from `ai`,
-     - returns `{ toUIMessageStreamResponse }`.
-  3. Strip prompt-injection markers from user input before
-     interpolation (per spec §11).
-- Verification: `packages/plugin-ai-chat/__tests__/agent.test.ts`
-  asserts (with a mock provider) that the prompt includes the
-  resolved locale + page URL, that filtered tools include only
-  scenario-allowed entries, and that an anonymous session cannot
-  invoke `mySubmissions`.
+  1. [x] `prompts/index.ts` ships:
+     - `AiChatPromptTemplates` interface (`anonymous`,
+       `authenticated`, optional per-scenario openers).
+     - Bundled English fallback templates
+       (`DEFAULT_ANONYMOUS_TEMPLATE`,
+       `DEFAULT_AUTHENTICATED_TEMPLATE`) so the plugin works
+       in isolation; apps override via translated strings.
+     - `buildSystemPrompt({ templates, directoryName, locale,
+       scenario, session, currentPageUrl, toolNames })`
+       interpolating `{directoryName}`, `{locale}`,
+       `{context}`, `{toolList}` and appending the matching
+       scenario opener.
+  2. [x] **Pivot from original plan.** Step 1 of the original
+     plan said "build the system prompt from `next-intl` keys".
+     The plugin **cannot import `next-intl`** — that lives in
+     `apps/web` and would invert the layering (Article I). The
+     route (T-007) resolves the message strings via `next-intl`
+     and passes them in as `templates`. Bundled English
+     templates remain the fallback. Per Q-023c default, the
+     localised strings live under `AI_CHAT_*` in
+     `apps/web/messages/<locale>.json`.
+  3. [x] `agent.ts` ships:
+     - `runAgent({ uiMessages, model, ctx, scenario, allow?,
+       templates?, directoryName, currentPageUrl?, maxSteps?,
+       abortSignal? })` returning
+       `{ stream, systemPrompt, modelMessageCount, toolNames }`.
+     - Internally: `createTools` filters by session + scenario
+       + allow-list, `buildSystemPrompt` assembles the prompt,
+       `clampUiMessages` enforces the §8 limits (50 messages,
+       4000 chars/message), `convertToModelMessages` converts
+       to model form, then `streamText` with
+       `stopWhen: stepCountIs(maxSteps ?? 5)`.
+  4. [x] Prompt-injection mitigation: `sanitiseForPrompt`
+     strips `<system>`, `</system>`, `<user>`, `</user>`,
+     `<assistant>`, `</assistant>` markers (case-insensitive)
+     from `directoryName` and `currentPageUrl` before
+     interpolation. Per spec §11 risk register.
+  5. [x] Returns the `StreamTextResult` to the caller without
+     forcing a response shape. The route (T-007) calls
+     `.toUIMessageStreamResponse()` itself so it can wire
+     `onFinish` for the optional persistence path.
+- Verification: [x] `pnpm --filter @ever-works/plugin-ai-chat
+  typecheck` clean; [x] `apps/web tsc --noEmit` clean.
+  Unit tests for the prompt builder + agent filter deferred
+  to T-002b (no test framework yet — Q-023e).
+- **Package surface added in this task:**
+  `package.json#exports` now exposes `./prompts` and `./agent`
+  so the route can `import { runAgent }
+  from '@ever-works/plugin-ai-chat/agent'` directly.
 
 ### T-005 [P] — Author chat UI components
 
