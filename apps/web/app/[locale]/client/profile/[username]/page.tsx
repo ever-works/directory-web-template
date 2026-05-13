@@ -85,6 +85,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 			isFeatured: !!p.isFeatured
 		})),
 		themeColor: '#3B82F6',
+		coverColor: clientProfile.coverColor || '',
 		isPublic: true,
 		memberSince: clientProfile.createdAt?.toISOString().split('T')[0] || '2024-01-01',
 		submissions: []
@@ -119,6 +120,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 								isAuthenticated={!!viewerUserId}
 								initialIsFollowing={viewerFollows}
 								verified={!!clientProfile.emailVerified}
+								stats={{ favorites: stats.favorites, portfolio: stats.portfolio, followers: stats.followers, following: stats.following }}
 							/>
 						</aside>
 
