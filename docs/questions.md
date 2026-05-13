@@ -423,6 +423,31 @@ confirm, override, or refine.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
+### Q-023e Test runner for `plugin-ai-chat` (and possibly the wider repo)
+
+- **Context.** The repo has no JS test framework today —
+  CLAUDE.md §4 says *"Treat `pnpm lint`, `pnpm tsc --noEmit`,
+  and `pnpm build` as the main 'test suite' (there is currently
+  no Jest/Vitest setup)."* But for `plugin-ai-chat` we want
+  real unit tests of the Zod schema, the tools, and the agent's
+  scenario filter — typecheck alone can't catch a wrongly-named
+  scenario or a missing `requiresAuth` flag.
+- **Options.**
+  - **Add `vitest` to `packages/plugin-ai-chat` only.** Small
+    blast radius; doesn't commit the whole repo. Other packages
+    that want it later opt in independently.
+  - Add `vitest` to the repo root + a `vitest.workspace.ts`.
+    Bigger change; would also need a separate spec since it
+    affects every package, including `apps/web`.
+  - Skip unit tests entirely; lean on Playwright e2e (T-013)
+    for coverage.
+- **Default.** **Add `vitest` to `plugin-ai-chat` only**
+  (T-002b). The pure-TS schema + tool logic is exactly where
+  unit tests pay back the most; Playwright is good enough for
+  the rest.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
 ### Q-023d Slot IDs for chat surfaces
 
 - **Context.** Plan §4's manifest stub uses

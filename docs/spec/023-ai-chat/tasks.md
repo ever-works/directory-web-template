@@ -50,22 +50,71 @@ Conventions:
   with the default ("add three new slot IDs"). Out of scope for
   T-001 itself.
 
-### T-002 [seq] — Author `AiChatConfig` Zod schema + `AppConfig` extension
+### T-002 [seq] — Author `AiChatConfig` Zod schema — **done**
 
-- Files: `packages/plugin-ai-chat/src/config.ts`,
-  `apps/web/lib/config-manager.ts`
+- Files: `packages/plugin-ai-chat/src/config.ts`
 - Steps:
-  1. Author `AiChatConfigSchema` (Zod) and `AiChatConfig` (type)
-     matching the `works.yml` block in the spec §9.
-  2. Export defaults (`enabled: false`, `position: 'floating'`,
-     anonymous scenarios = full default set, authenticated scenarios
-     = anonymous + personal tools, `persist: false`).
-  3. Extend `AppConfig` in `apps/web/lib/config-manager.ts` with
-     optional `aiChat?: AiChatConfig`. Wire the merge into the
-     existing `mergeConfigObjects` path.
-- Verification: `pnpm tsc --noEmit` clean; a unit test in
-  `packages/plugin-ai-chat/__tests__/config.test.ts` covers schema
-  acceptance, rejection, and default-merging.
+  1. [x] Authored `AiChatConfigSchema` (Zod, `.strict()`) and
+     `AiChatConfig` (z.infer) matching the `works.yml` block in
+     spec §9. Exposes the canonical constant sets
+     (`CHAT_POSITIONS`, `ANONYMOUS_SCENARIOS`,
+     `AUTHENTICATED_EXTRA_SCENARIOS`, `AUTHENTICATED_SCENARIOS`,
+     `SHIPPED_LOCALES`) for downstream code (tools, prompts).
+  2. [x] Defaults: `enabled=false`, `position='floating'`,
+     `provider='openrouter'`, `model='openai/gpt-4o-mini'`,
+     `defaultLocale='en'`, `persist=false`, anonymous = full
+     anonymous set, authenticated = anonymous + extra. The
+     line `DEFAULT_AI_CHAT_CONFIG = AiChatConfigSchema.parse({})`
+     at module top doubles as a load-time smoke test that fails
+     fast on schema regressions.
+  3. [x] Exposed `parseAiChatConfig(unknown)` returning
+     `{ ok, config | error }` for the future layout-mount seam
+     in `apps/web/app/[locale]/layout.tsx` (T-006) to consume.
+- **Pivot from original plan.** Step 3 of the original plan
+  ("Extend `AppConfig` in `apps/web/lib/config-manager.ts` with
+  typed `aiChat?: AiChatConfig`") is **not done** — and is
+  withdrawn as a violation of Constitution Article I (core must
+  not import from plugin packages). The only core seam that needs
+  to read `aiChat` is T-006's layout mount, which calls
+  `parseAiChatConfig(appConfig.aiChat)` and gets full typing from
+  there. `AppConfig.[key: string]: any` continues to absorb the
+  raw block unchanged. The plan §3 row for `config-manager.ts` is
+  amended in the same commit.
+- Verification: [x] `pnpm --filter @ever-works/plugin-ai-chat
+  typecheck` clean; the parse-at-module-load asserts the
+  defaults round-trip. A formal unit test in
+  `__tests__/config.test.ts` is deferred to **T-002b** below —
+  the repo has no Jest/Vitest setup today (per CLAUDE.md §4).
+
+### T-002b [P] — Set up a unit test runner for `packages/plugin-ai-chat`
+
+- Files: `packages/plugin-ai-chat/{vitest.config.ts,package.json,
+  __tests__/config.test.ts}` (and likely a workspace-level
+  `vitest.workspace.ts`)
+- Context: this task did not exist in the original plan. T-002
+  surfaced that the repo has no JS test runner (CLAUDE.md §4:
+  *"Treat `pnpm lint`, `pnpm tsc --noEmit`, and `pnpm build` as
+  the main 'test suite' (there is currently no Jest/Vitest
+  setup)."*). For plugin-ai-chat we want real unit tests of the
+  Zod schema (accept / reject / default-merge), the tools'
+  `requiresAuth` semantics, and the agent's scenario filter —
+  none of which `tsc --noEmit` can verify on its own.
+- Steps:
+  1. Add `vitest` as a dev dependency on `plugin-ai-chat` (only
+     — leaves `apps/web` untouched until a separate decision is
+     made about the wider repo).
+  2. Add a `test` script (`vitest run`) and a `test:watch`
+     script.
+  3. Author `__tests__/config.test.ts` covering: defaults
+     round-trip, scenario-list rejection (empty array, unknown
+     scenario name), `parseAiChatConfig` success/error paths.
+- Verification: `pnpm --filter @ever-works/plugin-ai-chat test`
+  passes locally and in CI. Tracked separately so it does not
+  block T-003 / T-004 / T-005 work; those can proceed against
+  the typecheck bar until T-002b lands.
+- Recorded as [Q-023e](../../questions.md) so the test-framework
+  decision (vitest? jest? plugin-only or repo-wide?) gets
+  maintainer review.
 
 ### T-003 [seq] — Implement directory-aware tools
 
