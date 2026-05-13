@@ -147,6 +147,8 @@ jobs:
                   # not embedded in build cache layers / image metadata.
                   build-args: |
                       DATA_REPOSITORY=https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}
+                      GITHUB_REPOSITORY=${{ github.repository }}
+                      GITHUB_SHA=${{ github.sha }}
                   secrets: |
                       gh_token=${{ secrets.GH_TOKEN }}
                   cache-from: type=gha
@@ -192,7 +194,12 @@ jobs:
                   #    `packages:read` for the workflow's own repo, not for
                   #    images owned by a different account.
                   # 3. GITHUB_TOKEN — fallback that works for same-repo GHCR.
-                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
+                  # DEPLOY_TOKEN is what the Ever Works platform's k8s-plugin
+                  # actually pushes — the read:packages PAT created via the
+                  # GitHub OAuth `plugins/read-packages` flow. The legacy
+                  # GITHUB_READ_PACKAGES_TOKEN name is kept in the chain for
+                  # back-compat.
+                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.DEPLOY_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
                   kubectl create secret docker-registry "${WORK_SLUG}-pull" \
                       --docker-server="$REGISTRY_HOST" \
