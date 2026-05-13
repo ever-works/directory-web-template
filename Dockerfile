@@ -20,6 +20,18 @@
 
 ARG NODE_VERSION=22-alpine
 
+# Passed in from the workflow as `${{ github.repository }}` (e.g.
+# `ever-works/awesome-compliance-automation-website`). The
+# `org.opencontainers.image.source` label below tells GHCR to auto-link
+# this package to that repo on push, which is what enables per-repo
+# fine-grained PAT permissions to actually grant pull access. Without
+# the link, a fine-grained PAT can have Repository → Packages: Read on
+# the repo and still get 403 from kubelet (the package is treated as a
+# top-level org package and falls back to the package's own
+# "Manage access" list, which is empty).
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+
 # ---- deps ------------------------------------------------------------------
 
 FROM node:${NODE_VERSION} AS deps
@@ -77,6 +89,20 @@ RUN --mount=type=secret,id=gh_token \
 
 FROM node:${NODE_VERSION} AS runner
 WORKDIR /app
+
+# Re-declare for this stage (ARGs scope to the FROM that introduced them).
+ARG GITHUB_REPOSITORY=""
+ARG GITHUB_SHA=""
+
+# OCI image labels — `image.source` is the magic one: GHCR sees this on
+# push and auto-links the package to the repo URL it points at, which
+# is what makes fine-grained PAT Repository → Packages permissions
+# actually grant pull access for kubelet. Without the link, the package
+# is treated as a top-level org-owned package and falls back to its own
+# Manage Access list.
+LABEL org.opencontainers.image.source="https://github.com/${GITHUB_REPOSITORY}"
+LABEL org.opencontainers.image.revision="${GITHUB_SHA}"
+LABEL org.opencontainers.image.title="${GITHUB_REPOSITORY}"
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
