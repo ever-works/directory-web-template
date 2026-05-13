@@ -55,21 +55,32 @@ Conventions:
 
 - Files: `packages/plugin-ai-chat/src/tools/{index.ts,searchItems.ts,
   getItemDetails.ts,listCategories.ts,listTags.ts,mySubmissions.ts,
-  myFavourites.ts,myProfile.ts,navigate.ts}`
+  myFavourites.ts,myProfile.ts,navigate.ts}`,
+  `apps/web/lib/repositories/favorite.repository.ts`
 - Steps:
   1. Each tool exports `{ description, inputSchema (Zod),
      requiresAuth, execute }`.
-  2. Read tools (`searchItems`, `getItemDetails`, `listCategories`,
-     `listTags`) call existing repositories under
-     `apps/web/lib/repositories/**` — no direct SQL.
-  3. Authenticated tools (`mySubmissions`, `myFavourites`,
-     `myProfile`) accept a `session` parameter; refuse to run when
-     `session === null`.
+  2. Read tools wrap existing repositories — no direct SQL:
+     - `searchItems` / `getItemDetails` → `item.repository.ts`
+     - `listCategories` → `category.repository.ts`
+     - `listTags` → `tag.repository.ts`
+  3. Authenticated tools accept a `session` parameter and refuse to
+     run when `session === null`:
+     - `mySubmissions` → `ClientItemRepository.findByUser(userId)`
+       (rows in `items` table with `submitted_by=userId,
+       status='pending'`).
+     - `myFavourites` → new
+       `lib/repositories/favorite.repository.ts` reading the
+       existing `favorites` table (`userId`, `itemSlug`,
+       `tenantId`).
+     - `myProfile` → existing user / `client-dashboard` repos.
   4. `navigate` returns a structured `{ path, locale }` so the
      client can `router.push()` after the stream completes.
 - Verification: unit tests in
   `packages/plugin-ai-chat/__tests__/tools.test.ts` cover the
-  happy path and the auth-refusal path for each tool.
+  happy path and the auth-refusal path for each tool; the new
+  `favorite.repository.ts` has its own test covering tenant
+  isolation.
 
 ### T-004 [seq] — Implement `runAgent` + system-prompt scaffolding
 
@@ -102,11 +113,18 @@ Conventions:
   1. Mirror the platform's component names; consume `useChat()` from
      `@ai-sdk/react` with `DefaultChatTransport` pointing at
      `/api/chat`.
-  2. Implement the focus trap, `Esc` to close, `aria-live="polite"`
-     streaming bubble, and the keyboard map from spec §8 / plan §6.
-  3. Use existing UI primitives (HeroUI / shadcn) where applicable;
+  2. Build `<ChatPanel>` on **HeroUI's `<Modal>` / `<Drawer>`**
+     (same primitive used by `components/settings-modal.tsx`,
+     `components/tags-modal.tsx`). HeroUI already provides the
+     focus trap, `Esc`-to-close, `role="dialog"` /
+     `aria-modal="true"`, and `aria-labelledby` wiring — do **not**
+     hand-roll a focus-trap hook.
+  3. Streaming bubble = `<div aria-live="polite">`. Implement the
+     keyboard map from spec §8 / plan §6 on top of HeroUI's
+     bindings (Enter/Send, Shift+Enter newline).
+  4. Use existing UI primitives (HeroUI / shadcn) where applicable;
      do not author new design tokens.
-  4. Ensure RTL works for Arabic (panel anchored to bottom-left).
+  5. Ensure RTL works for Arabic (panel anchored to bottom-left).
 - Verification: visual diff against the wireframe sketches; axe-core
   pass under both `dark` and `light` themes (asserted in the e2e
   task T-013).
@@ -127,15 +145,20 @@ Conventions:
 
 ### T-007 [P] — Implement `POST /api/chat`
 
-- Files: `apps/web/app/api/chat/route.ts`,
-  `apps/web/lib/services/chat-rate-limit.ts`
+- Files: `apps/web/app/api/chat/route.ts` (only — **no new
+  rate-limit file**)
 - Steps:
-  1. Resolve session via existing `auth()` helper.
+  1. Resolve session via existing `auth()` helper from
+     `lib/auth/index.ts`.
   2. Validate the request body with Zod (`messages`,
      `conversationId?`, `scenario?`, `currentPageUrl?`).
   3. Look up `aiChat.enabled`; return 404 when false.
-  4. Apply rate-limit (per-IP for anon, per-user for auth);
-     return 429 with `Retry-After` when exceeded.
+  4. Apply rate-limit by calling the **existing** helper
+     `apps/web/lib/utils/rate-limit.ts → ratelimit(...)`. Use
+     `ip:${ip}` for anonymous and `user:${session.userId}` for
+     authenticated callers, with the limits/window from
+     `AI_CHAT_RATE_LIMIT_*`. Return 429 with `Retry-After` when
+     exceeded.
   5. Resolve the active provider via `createOpenAICompatible({
      name: 'ever-works-template',
      baseURL: env.AI_CHAT_BASE_URL,
@@ -150,15 +173,16 @@ Conventions:
 ### T-008 [P] — Drizzle schema + repository for conversation history
 
 - Files: `apps/web/lib/db/schema.ts`,
-  `apps/web/lib/repositories/chat.ts`,
+  `apps/web/lib/repositories/chat.repository.ts`,
   `apps/web/lib/db/migrations/*`
 - Steps:
   1. Add `chat_conversations` and `chat_messages` tables (plan §5).
   2. Generate migration via `pnpm db:generate`; smoke-test
      `pnpm db:migrate` against SQLite and Postgres.
-  3. Implement `lib/repositories/chat.ts` with
-     `createConversation`, `appendMessages`, `listConversations`,
-     `getConversation` — all user-scoped.
+  3. Implement `lib/repositories/chat.repository.ts` (follows the
+     existing `*.repository.ts` naming) with `createConversation`,
+     `appendMessages`, `listConversations`, `getConversation` —
+     all user-scoped.
   4. Wire `onFinish` in the API route to call the repository when
      `aiChat.persist === true && session !== null`.
 - Verification: `pnpm db:migrate` succeeds on a fresh SQLite db;
@@ -178,15 +202,25 @@ Conventions:
 
 ### T-010 [P] — Typed analytics events
 
-- Files: `apps/web/lib/analytics/events.ts`
+- Files: `apps/web/lib/analytics/types.ts`
 - Steps:
-  1. Add typed events: `ai_chat_opened`, `ai_chat_message_sent`,
-     `ai_chat_tool_called`, `ai_chat_scenario_blocked`,
-     `ai_chat_closed`. Schemas (Zod) per Spec 016.
-  2. Emit from `ChatLauncher` (open/close) and from the chat
-     transport (`message_sent`); emit from the agent's
-     `onToolCall` hook (`tool_called`); emit from the API route
-     on scenario rejection (`scenario_blocked`).
+  1. Extend the existing `enum AnalyticsEvent` (in
+     `lib/analytics/types.ts`, **not** an `events.ts` file —
+     that name is wrong; the repo uses an enum) with these
+     members:
+     - `AI_CHAT_OPENED = 'ai_chat_opened'`
+     - `AI_CHAT_MESSAGE_SENT = 'ai_chat_message_sent'`
+     - `AI_CHAT_TOOL_CALLED = 'ai_chat_tool_called'`
+     - `AI_CHAT_SCENARIO_BLOCKED = 'ai_chat_scenario_blocked'`
+     - `AI_CHAT_CLOSED = 'ai_chat_closed'`
+  2. If Spec 016 has shipped Zod payload schemas for each enum
+     member, add matching schemas alongside; otherwise emit
+     untyped payloads (matches the rest of the file today).
+  3. Emit via `analytics.track(AnalyticsEvent.AI_CHAT_OPENED, {...})`
+     from `ChatLauncher` (open/close), the chat transport
+     (`message_sent`), the agent's `onToolCall` hook
+     (`tool_called`), and the API route on scenario rejection
+     (`scenario_blocked`).
 - Verification: a Playwright spec captures `__NEXT_ANALYTICS__`
   fixture events and asserts each event fires once per user
   action.

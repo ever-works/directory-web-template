@@ -64,7 +64,7 @@ flowchart LR
   sdk -->|HTTPS| provider[(OpenRouter / OpenAI-compatible)]
   agent -->|tool calls| tools[plugin-ai-chat: tools]
   tools -->|read items| cms[(Git CMS .content/)]
-  tools -->|read user data| db[(Drizzle: items, favourites, submissions)]
+  tools -->|read user data| db[(Drizzle: items.submitted_by, favorites)]
   route -->|optional persist| db2[(chat_conversations, chat_messages)]
 ```
 
@@ -75,7 +75,7 @@ flowchart LR
 | `packages/plugin-ai-chat/` (new)                                              | new package    | Components, tools, config schema, system prompts, agent runner                     |
 | `packages/plugin-ai-chat/package.json`                                        | new            | `ai@^6`, `@ai-sdk/react@^3`, `@ai-sdk/openai-compatible@^2`, `zod`                  |
 | `packages/plugin-ai-chat/src/components/*.tsx`                                | new            | `ChatLauncher`, `ChatPanel`, `ChatHeroTakeover`, `ChatSidebar`, plus shared parts  |
-| `packages/plugin-ai-chat/src/tools/*.ts`                                      | new            | `searchItems`, `getItemDetails`, `listCategories`, `listTags`, `mySubmissions`, `myFavourites`, `myProfile`, `navigate` |
+| `packages/plugin-ai-chat/src/tools/*.ts`                                      | new            | `searchItems`, `getItemDetails`, `listCategories`, `listTags`, `mySubmissions`, `myFavourites`, `myProfile`, `navigate`. Each authenticated tool **wraps** an existing repo: `mySubmissions` → `ClientItemRepository.findByUser()` (rows in `items` with `submitted_by=userId, status='pending'`); `myFavourites` → new `favorite.repository.ts` reading the existing `favorites` table; `myProfile` → existing user / client-dashboard repos. |
 | `packages/plugin-ai-chat/src/agent.ts`                                        | new            | `runAgent({ messages, scenario, session, locale, currentPageUrl })` → stream       |
 | `packages/plugin-ai-chat/src/config.ts`                                       | new            | Zod schema for `AiChatConfig`; defaults; merging helper                            |
 | `packages/plugin-ai-chat/src/prompts/<locale>.ts`                             | new            | System-prompt scaffolding (locale-aware); strings sourced via `next-intl`          |
@@ -84,12 +84,13 @@ flowchart LR
 | `apps/web/app/[locale]/chat/page.tsx`                                         | new (gated)    | Full-page chat surface — rendered only when `position` is `hero-takeover\|sidebar` |
 | `apps/web/lib/config-manager.ts`                                              | modify         | Extend `AppConfig` with typed `aiChat?: AiChatConfig`                              |
 | `apps/web/lib/db/schema.ts`                                                   | modify         | `chat_conversations`, `chat_messages` tables (opt-in)                              |
-| `apps/web/lib/repositories/chat.ts`                                           | new            | Read / write conversation history; gated by `aiChat.persist`                        |
-| `apps/web/lib/services/chat-rate-limit.ts`                                    | new            | Token-bucket per IP (anon) / per user (auth); pluggable Redis backend              |
+| `apps/web/lib/repositories/chat.repository.ts`                                | new            | Read / write conversation history; gated by `aiChat.persist`. Follows existing `*.repository.ts` naming. |
+| `apps/web/lib/repositories/favorite.repository.ts`                            | new (small)    | Wraps reads against the existing `favorites` table (`userId`, `itemSlug`) for the `myFavourites` tool — no equivalent repo today. |
+| `apps/web/lib/utils/rate-limit.ts`                                            | **reuse**      | Existing `ratelimit({ key, limit, windowMs })` helper. `/api/chat` calls it with per-IP / per-user keys; no new service file needed. |
 | `apps/web/messages/<locale>.json`                                             | modify (×6)    | Add `AI_CHAT_*` keys (EN/FR/ES/DE/AR/ZH); RTL verified for AR                       |
 | `apps/web/.env.example`                                                       | modify         | Document `AI_CHAT_PROVIDER`, `AI_CHAT_API_KEY`, `AI_CHAT_BASE_URL`, `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_*`, `AI_CHAT_DAILY_BUDGET_USD` |
 | `apps/web/scripts/check-env.js`                                               | modify         | Mark AI vars as required iff `aiChat.enabled=true`; no-op otherwise                |
-| `apps/web/lib/analytics/events.ts`                                            | modify         | Add typed events: `ai_chat_opened`, `ai_chat_message_sent`, `ai_chat_tool_called`, `ai_chat_scenario_blocked`, `ai_chat_closed` |
+| `apps/web/lib/analytics/types.ts`                                             | modify         | Extend the existing `enum AnalyticsEvent` with `AI_CHAT_OPENED = 'ai_chat_opened'`, `AI_CHAT_MESSAGE_SENT`, `AI_CHAT_TOOL_CALLED`, `AI_CHAT_SCENARIO_BLOCKED`, `AI_CHAT_CLOSED`. (Note: file is `types.ts`, not `events.ts`; the project uses an enum, not lowercase string events.) |
 | `apps/web-e2e/tests/public/ai-chat.spec.ts` (new)                             | new e2e        | Anon flow, disabled flow, i18n, a11y                                               |
 | `apps/web-e2e/tests/api/ai-chat.spec.ts` (new)                                | new e2e        | Rate limit, scenario gating, 404 when disabled                                     |
 | `apps/web-e2e/page-objects/public/ai-chat.page.ts` (new)                      | new            | Locators: launcher, dialog, input, messages                                        |
@@ -189,11 +190,15 @@ keeps `db:migrate` deterministic).
   - System-prompt scaffolding: `AI_CHAT_SYSTEM_PROMPT`,
     `AI_CHAT_SYSTEM_PROMPT_AUTHENTICATED` (interpolated with
     `directoryName`, `locale`, `currentPageUrl`).
-- **A11y.** Launcher = `<button aria-label>`. Panel =
-  `<div role="dialog" aria-modal aria-labelledby>`. Streaming bubbles
-  = `<div aria-live="polite">`. Focus trap via existing
-  `useFocusTrap` hook used by the settings modal. WCAG 2.2 AA
-  contrast verified on light + dark themes; axe-core spec asserts.
+- **A11y.** Launcher = `<button aria-label>`. The panel is built on
+  **HeroUI's `<Modal>` / `<Drawer>` primitives**, which already ship
+  with a built-in focus trap, `Esc`-to-close, `role="dialog"` /
+  `aria-modal="true"`, and `aria-labelledby` wiring — the template
+  uses these throughout (e.g. `components/settings-modal.tsx`,
+  `components/tags-modal.tsx`), so we reuse the same primitive
+  instead of authoring a focus-trap hook. Streaming bubbles use
+  `<div aria-live="polite">`. WCAG 2.2 AA contrast verified on light
+  + dark themes; axe-core spec asserts.
 
 ## 7. Performance Plan
 
@@ -214,8 +219,13 @@ keeps `db:migrate` deterministic).
   `/api/categories` (already cached). The streaming endpoint itself
   is uncached by design.
 - **Database.** Tools use existing repositories
-  (`lib/repositories/items.ts`, `lib/repositories/favourites.ts`); no
-  net-new N+1 queries.
+  (`lib/repositories/item.repository.ts`,
+  `lib/repositories/client-item.repository.ts`,
+  `lib/repositories/category.repository.ts`,
+  `lib/repositories/tag.repository.ts`) plus a small new
+  `lib/repositories/favorite.repository.ts` that wraps reads against
+  the existing `favorites` table (`userId`, `itemSlug`). No net-new
+  N+1 queries.
 
 ## 8. Security Plan
 
@@ -234,10 +244,17 @@ keeps `db:migrate` deterministic).
   with `rehype-sanitize`) strips inline scripts; tool results are
   serialised through a JSON schema, never spliced raw into the
   prompt.
-- **Rate limiting.** Token-bucket: per-IP for anon (20 req / 60 s),
-  per-user for auth (60 req / 60 s). In-memory by default; Redis
-  via `REDIS_URL` for multi-instance deployments. Budget envelope:
-  `AI_CHAT_DAILY_BUDGET_USD` disables the chat when exceeded.
+- **Rate limiting.** **Reuses the existing
+  `apps/web/lib/utils/rate-limit.ts` helper** (`ratelimit({ key,
+  limit, windowMs })` — in-memory Map-backed). `/api/chat` calls it
+  twice per request: a per-IP key for anonymous callers
+  (default: 20 req / 60 s) and a per-user key for authenticated
+  callers (default: 60 req / 60 s). Limits configurable via
+  `AI_CHAT_RATE_LIMIT_ANON` / `AI_CHAT_RATE_LIMIT_AUTH`. A future
+  Redis backend (for multi-instance deployments) would be a swap
+  inside that helper, not a new file — out of scope for v1.
+  Budget envelope: `AI_CHAT_DAILY_BUDGET_USD` disables the chat
+  when exceeded.
 - **Abuse.** Inputs are scanned for prompt-injection markers
   (`</?system>`, `</?assistant>`, etc.) and stripped before being
   embedded into the system prompt.
