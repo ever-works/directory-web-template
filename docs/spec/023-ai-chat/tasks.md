@@ -223,31 +223,68 @@ Conventions:
   so the route can `import { runAgent }
   from '@ever-works/plugin-ai-chat/agent'` directly.
 
-### T-005 [P] — Author chat UI components
+### T-005 [P] — Author chat UI components — **done (MVP set)**
 
-- Files: `packages/plugin-ai-chat/src/components/{ChatLauncher.tsx,
-  ChatPanel.tsx,ChatProvider.tsx,ChatMessages.tsx,ChatMessage.tsx,
-  ChatInput.tsx,ChatToolbar.tsx,ChatWelcome.tsx,ChatMarkdown.tsx,
-  ChatToolResult.tsx,ChatHeroTakeover.tsx,ChatSidebar.tsx}`
+- Files: `apps/web/components/ai/{ChatLauncher.tsx,
+  ChatPanel.tsx, ChatProvider.tsx, ChatMessages.tsx,
+  ChatMessage.tsx, ChatInput.tsx, ChatWelcome.tsx, types.ts,
+  index.ts}`, `apps/web/messages/en.json`,
+  `apps/web/package.json` (deps)
+- **Pivot from original plan (Article I).** Components live in
+  `apps/web/components/ai/` rather than inside the plugin. The
+  plugin would need to import `@heroui/react`, `next-intl`, and
+  `next/dynamic` — all app-level concerns. Putting UI inside
+  `packages/plugin-ai-chat/` would couple the plugin to the
+  host app's UI library, which is exactly what Article I
+  forbids. The platform makes the same choice
+  (`apps/web/src/components/ai/*`). Plugin retains the
+  TypeScript-only surface: config, tools, agent, prompts.
 - Steps:
-  1. Mirror the platform's component names; consume `useChat()` from
-     `@ai-sdk/react` with `DefaultChatTransport` pointing at
-     `/api/chat`.
-  2. Build `<ChatPanel>` on **HeroUI's `<Modal>` / `<Drawer>`**
-     (same primitive used by `components/settings-modal.tsx`,
-     `components/tags-modal.tsx`). HeroUI already provides the
-     focus trap, `Esc`-to-close, `role="dialog"` /
-     `aria-modal="true"`, and `aria-labelledby` wiring — do **not**
-     hand-roll a focus-trap hook.
-  3. Streaming bubble = `<div aria-live="polite">`. Implement the
-     keyboard map from spec §8 / plan §6 on top of HeroUI's
-     bindings (Enter/Send, Shift+Enter newline).
-  4. Use existing UI primitives (HeroUI / shadcn) where applicable;
-     do not author new design tokens.
-  5. Ensure RTL works for Arabic (panel anchored to bottom-left).
-- Verification: visual diff against the wireframe sketches; axe-core
-  pass under both `dark` and `light` themes (asserted in the e2e
-  task T-013).
+  1. [x] Components consume `useChat()` from `@ai-sdk/react` via
+     a single `AiChatProvider` (`ChatProvider.tsx`) that wraps
+     `DefaultChatTransport` pointed at `/api/chat`. One source
+     of state — no parallel `useState` for messages.
+  2. [x] `<ChatPanel>` built on HeroUI's `<Modal>` (same
+     primitive `components/settings-modal.tsx` and
+     `components/tags-modal.tsx` use). HeroUI provides the focus
+     trap, Esc-to-close, `role="dialog"`, `aria-modal="true"`,
+     and `aria-labelledby` for free — no hand-rolled
+     focus-trap.
+  3. [x] Streaming list = `<ol aria-live="polite" aria-busy>`.
+     Keyboard map: Enter sends, Shift+Enter newline; Stop
+     button replaces Send while streaming and calls
+     `chat.stop()`.
+  4. [x] Uses existing primitives (HeroUI `Button`, `Textarea`,
+     `Chip`, `Modal*`) and Tailwind tokens — no new design
+     tokens.
+  5. [x] RTL: launcher anchors to `bottom-left` via the
+     `rtl:left-6 rtl:right-auto` Tailwind utilities.
+- Bundle strategy (AC-7): `ChatLauncher` is a small client
+  button (~few KB). The panel + everything dynamic
+  (`@ai-sdk/react`, `ai`, `ChatMessages`/`ChatMessage`/`ChatInput`/
+  `ChatWelcome`, the HeroUI Modal subtree) is loaded via
+  `next/dynamic({ ssr: false })` — and only after the visitor
+  opens the chat the first time.
+- Deps added to `apps/web/package.json`: `ai@^6.0.154`,
+  `@ai-sdk/react@^3.0.156`, `@ai-sdk/openai-compatible@^2.0.41`,
+  `@ever-works/plugin-ai-chat` (workspace).
+- i18n: `messages/en.json` gains an `ai_chat` namespace with
+  31 keys (launcher labels, panel title, placeholder, send/stop,
+  empty-state copy, scenario chips, error states). Other
+  locales fill in via T-009.
+- **MVP scope:** the seven components needed for the default
+  `floating` position. `ChatToolbar` (provider selector / new
+  chat / history), `ChatMarkdown` (markdown renderer),
+  `ChatToolResult` (rich tool-output viewer), `ChatHeroTakeover`
+  (hero-takeover layout), and `ChatSidebar` (sidebar layout)
+  are deferred — `floating` is the default position and the only
+  one the e2e and operator docs require for v1. Each is
+  separately scoped under its own follow-up (see
+  Notes section at the bottom of this file).
+- Verification: [x] `pnpm tsc --noEmit` clean; [x] `pnpm lint`
+  clean for the new files (0 errors, 0 warnings under
+  `components/ai/`). Visual / axe-core pass tracked under T-013
+  with the page object.
 
 ### T-006 [seq] — Wire `<ChatLauncher>` into the layout
 
@@ -530,3 +567,25 @@ Conventions:
   can be parallelised once the package skeleton lands.
 - New tasks discovered during implementation must be appended here,
   not squirrelled away in scratch files.
+
+## T-005 follow-ups (deferred to keep the MVP shippable)
+
+The components below were on the original T-005 list but are not on
+the critical path for the `floating` default position. Each lands as
+its own task before / after T-013 depending on user value:
+
+- **T-005a — `<ChatMarkdown>`** + `react-markdown` + `rehype-sanitize`.
+  Replaces the plain `whitespace-pre-wrap` text rendering in
+  `ChatMessage.tsx` with a sanitised Markdown renderer. Required for
+  the LLM's code-block / link / list output to be readable.
+- **T-005b — `<ChatToolResult>`** rich viewer. Replaces the
+  `<details><pre>JSON</pre></details>` fallback in `ChatMessage.tsx`
+  with a per-tool renderer (item cards for `searchItems`, category
+  pill list for `listCategories`, etc.).
+- **T-005c — `<ChatToolbar>`** (provider/model selector + new chat
+  + history) — only needed when we expose user-facing chat
+  history; gated on T-008 being shipped.
+- **T-005d — `<ChatHeroTakeover>`** and `<ChatSidebar>`. Required
+  before T-006 supports the `hero-takeover` and `sidebar`
+  positions. Both are off the default path; AC-1 still passes with
+  `floating` only.

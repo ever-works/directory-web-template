@@ -186,7 +186,6 @@ export async function POST(request: NextRequest) {
 
 	// 3. Resolve session.
 	const session = await auth();
-	const userId = session?.user?.id;
 	const locale = parsed.locale ?? chatConfig.defaultLocale;
 	const chatSession = sessionToChatSession(session?.user, locale);
 

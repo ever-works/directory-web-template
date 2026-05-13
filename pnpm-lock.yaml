@@ -106,6 +106,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@ai-sdk/openai-compatible':
+        specifier: ^2.0.41
+        version: 2.0.47(zod@4.3.6)
+      '@ai-sdk/react':
+        specifier: ^3.0.156
+        version: 3.0.184(react@19.2.5)(zod@4.3.6)
       '@auth/drizzle-adapter':
         specifier: ^1.8.0
         version: 1.11.1
@@ -115,6 +121,9 @@ importers:
       '@babel/core':
         specifier: ^7.28.5
         version: 7.29.0
+      '@ever-works/plugin-ai-chat':
+        specifier: workspace:*
+        version: link:../../packages/plugin-ai-chat
       '@faker-js/faker':
         specifier: ^10.1.0
         version: 10.3.0
@@ -292,6 +301,9 @@ importers:
       '@vercel/speed-insights':
         specifier: ^1.2.0
         version: 1.3.1(next@16.2.6(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)
+      ai:
+        specifier: ^6.0.154
+        version: 6.0.182(zod@4.3.6)
       axios:
         specifier: ^1.15.2
         version: 1.15.2
@@ -8495,10 +8507,6 @@ packages:
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
-
-  eventsource-parser@3.0.6:
-    resolution: {integrity: sha512-Vo1ab+QXPzZ4tCa8SwIHJFaSzy4R6SHf7BY79rFBDf0idraZWAkYrDjDj8uWaSm3S2TK+hJ7/t1CEmZ7jXw+pg==}
-    engines: {node: '>=18.0.0'}
 
   eventsource-parser@3.0.8:
     resolution: {integrity: sha512-70QWGkr4snxr0OXLRWsFLeRBIRPuQOvt4s8QYjmUlmlkyTZkRqS7EDVRZtzU3TiyDbXSzaOeF0XUKy8PchzukQ==}
@@ -20456,7 +20464,7 @@ snapshots:
       '@s2-dev/streamstore': 0.22.5
       dequal: 2.0.3
       eventsource: 3.0.7
-      eventsource-parser: 3.0.6
+      eventsource-parser: 3.0.8
       execa: 8.0.1
       humanize-duration: 3.33.2
       jose: 5.10.0
@@ -23092,13 +23100,11 @@ snapshots:
 
   events@3.3.0: {}
 
-  eventsource-parser@3.0.6: {}
-
   eventsource-parser@3.0.8: {}
 
   eventsource@3.0.7:
     dependencies:
-      eventsource-parser: 3.0.6
+      eventsource-parser: 3.0.8
 
   evt@2.5.9:
     dependencies:
