@@ -286,9 +286,38 @@ Conventions:
   `components/ai/`). Visual / axe-core pass tracked under T-013
   with the page object.
 
-### T-006 [seq] — Wire `<ChatLauncher>` into the layout
+### T-006 [seq] — Wire `<ChatLauncher>` into the layout — **done**
 
-- Files: `apps/web/app/[locale]/layout.tsx`
+- Files: `apps/web/components/ai/AiChatMount.tsx` (new server
+  component), `apps/web/app/[locale]/layout.tsx` (one-line mount)
+- Steps:
+  1. [x] `AiChatMount` is a server component that:
+     - reads `configManager.getConfig()` synchronously,
+     - parses `aiChat` through `parseAiChatConfig`,
+     - returns `null` when `parsed.ok === false` OR
+       `parsed.config.enabled === false`,
+     - resolves the session via `auth()` to set
+       `isAuthenticated`,
+     - renders `<ChatLauncher>` for the floating position
+       (other positions fall back to floating for now — T-005d
+       owns the hero-takeover / sidebar surface).
+  2. [x] `<ChatLauncher>` is loaded via `next/dynamic` inside
+     `AiChatMount`, so:
+     - when `aiChat.enabled=false`, **no chat-related JS, CSS,
+       or DOM ships on the public route** (AC-1 / AC-7).
+     - when enabled, only the launcher chunk loads on
+       initial render; the heavy panel + `@ai-sdk/react`
+       bundle is fetched lazily on first chat-open (already
+       gated by `next/dynamic` inside `ChatLauncher`).
+  3. [x] Mount point added to `app/[locale]/layout.tsx`
+     immediately after `<SettingsModal />` so the launcher
+     overlays the page without affecting the document flow.
+- Verification: [x] `pnpm tsc --noEmit` clean; [x] `pnpm lint`
+  clean for the touched files; the floating launcher appears in
+  the bottom-right (or bottom-left in RTL) on every locale
+  layout when `aiChat.enabled=true` and disappears entirely
+  when false. Bundle-size assertion (Article V budget,
+  AC-7's ≤5 KB launcher delta) tracked under T-013.
 - Steps:
   1. Read `config.aiChat` server-side.
   2. If `aiChat.enabled === true`, dynamically import
