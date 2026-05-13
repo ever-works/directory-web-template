@@ -5,7 +5,7 @@ import { useComments } from '@/hooks/use-comments';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, Trash2, Pencil, Check, AlertTriangle, MapPin, Briefcase, ExternalLink } from 'lucide-react';
+import { MessageCircle, Trash2, Pencil, Check, AlertTriangle, MapPin, Briefcase, ExternalLink, Loader } from 'lucide-react';
 import { Rating } from '@/components/ui/rating';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import type { CommentWithUser } from '@/lib/types/comment';
@@ -21,6 +21,8 @@ import {
 	ModalFooter
 } from '@/components/ui/modal';
 import * as Popover from '@radix-ui/react-popover';
+import { useRouter } from '@/i18n/navigation';
+import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 
 // Design system class constants
 const CARD_WRAPPER_CLASSES = 'bg-white dark:bg-white/[0.03] rounded-2xl border border-gray-200 dark:border-white/8 overflow-hidden';
@@ -178,16 +180,6 @@ const CommentForm = memo(
 );
 CommentForm.displayName = 'CommentForm';
 
-// Dev-only stub — fills empty profile fields with realistic data so the card
-// always renders with representative content during local development.
-const DEV_PROFILE_STUB = {
-	username: 'sarah.chen',
-	jobTitle: 'Senior Product Designer',
-	company: 'Linear',
-	location: 'San Francisco, CA',
-	bio: 'Passionate about clean systems and great user experiences. Previously at Figma and Notion.'
-} as const;
-
 // Clickable avatar — opens a clean profile card on click
 const UserProfilePopover = memo(
 	({
@@ -198,20 +190,75 @@ const UserProfilePopover = memo(
 		children: React.ReactNode;
 	}) => {
 		const locale = useLocale();
+		const t = useTranslations('profile');
+		const router = useRouter();
+		const { user: currentUser, isLoading: authLoading } = useCurrentUser();
 
-		// In development, backfill missing fields so the card always looks complete.
-		const isDev = process.env.NODE_ENV !== 'production';
-		const username  = user.username  ?? (isDev ? DEV_PROFILE_STUB.username  : null);
-		const jobTitle  = user.jobTitle  ?? (isDev ? DEV_PROFILE_STUB.jobTitle  : null);
-		const company   = user.company   ?? (isDev ? DEV_PROFILE_STUB.company   : null);
-		const location  = user.location  ?? (isDev ? DEV_PROFILE_STUB.location  : null);
-		const bio       = user.bio       ?? (isDev ? DEV_PROFILE_STUB.bio       : null);
+		const [open, setOpen] = useState(false);
+		const [isFollowing, setIsFollowing] = useState<boolean | null>(null);
+		const [followPending, setFollowPending] = useState(false);
 
+		const username   = user.username;
+		const jobTitle   = user.jobTitle;
+		const company    = user.company;
+		const location   = user.location;
+		const bio        = user.bio;
+
+		const isAuthenticated = !!currentUser;
+		const isSelf = !!(currentUser && currentUser.id === user.id);
+		// Don't render the follow button until we know the viewer's identity —
+		// avoids a flash of the button on the current user's own comment avatars.
+		const showFollowButton = !authLoading && !isSelf;
 		const profileHref = username ? `/${locale}/client/profile/${username}` : null;
 		const hasDetails  = jobTitle || company || location || bio;
 
+		const handleOpenChange = useCallback(async (nextOpen: boolean) => {
+			setOpen(nextOpen);
+			if (nextOpen && username && isAuthenticated && !isSelf && isFollowing === null) {
+				try {
+					const res = await serverClient.get<{ isFollowing: boolean | null; isSelf: boolean }>(
+						`/api/user/profile/follow/${encodeURIComponent(username)}`
+					);
+					if (apiUtils.isSuccess(res) && res.data) {
+						setIsFollowing(res.data.isFollowing ?? false);
+					}
+				} catch {
+					// silently ignore — button stays in unknown state
+				}
+			}
+		}, [username, isAuthenticated, isSelf, isFollowing]);
+
+		const handleFollowToggle = useCallback(async () => {
+			if (!isAuthenticated) {
+				router.push('/auth/signin');
+				return;
+			}
+			if (!username || followPending || isSelf) return;
+
+			const previous = isFollowing;
+			setFollowPending(true);
+			setIsFollowing(previous === null ? true : !previous);
+
+			try {
+				const path = `/api/user/profile/follow/${encodeURIComponent(username)}`;
+				const res = previous
+					? await serverClient.delete<{ isFollowing: boolean }>(path)
+					: await serverClient.post<{ isFollowing: boolean }>(path);
+
+				if (apiUtils.isSuccess(res) && res.data) {
+					setIsFollowing(res.data.isFollowing);
+				} else {
+					setIsFollowing(previous);
+				}
+			} catch {
+				setIsFollowing(previous);
+			} finally {
+				setFollowPending(false);
+			}
+		}, [username, isAuthenticated, isSelf, isFollowing, followPending, router]);
+
 		return (
-			<Popover.Root>
+			<Popover.Root open={open} onOpenChange={handleOpenChange}>
 				<Popover.Trigger asChild>
 					<button
 						type="button"
@@ -259,7 +306,6 @@ const UserProfilePopover = memo(
 						{/* ── Profile details ──────────────────────────────────────── */}
 						{hasDetails && (
 							<div className="px-4 py-3 space-y-2">
-								{/* Role · Company */}
 								{(jobTitle || company) && (
 									<div className="flex items-start gap-2">
 										<Briefcase className="mt-px w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-gray-500" />
@@ -268,16 +314,12 @@ const UserProfilePopover = memo(
 										</p>
 									</div>
 								)}
-
-								{/* Location */}
 								{location && (
 									<div className="flex items-center gap-2">
 										<MapPin className="w-3.5 h-3.5 shrink-0 text-gray-400 dark:text-gray-500" />
 										<p className="text-[12px] text-gray-500 dark:text-gray-400 truncate">{location}</p>
 									</div>
 								)}
-
-								{/* Bio */}
 								{bio && (
 									<p className="pt-0.5 text-[11.5px] leading-relaxed text-gray-400 dark:text-gray-500 line-clamp-2">
 										{bio}
@@ -289,25 +331,47 @@ const UserProfilePopover = memo(
 						{/* ── Actions ─────────────────────────────────────────────── */}
 						<div className="mx-4 border-t border-gray-100 dark:border-white/6" />
 						<div className="px-4 py-3 flex gap-2">
-							{/* Follow — secondary outline */}
-							<button
-								type="button"
-								className="flex-1 h-8 rounded-xl text-[12px] font-semibold border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors duration-150 select-none"
-							>
-								Follow
-							</button>
+							{/* Follow button — hidden for self and while auth is resolving */}
+							{showFollowButton && (
+								<button
+									type="button"
+									onClick={handleFollowToggle}
+									disabled={followPending}
+									className={`flex-1 h-8 rounded-xl text-[12px] font-semibold transition-all duration-150 select-none flex items-center justify-center gap-1.5 ${
+										isFollowing
+											? 'border border-gray-200 dark:border-white/8 text-gray-600 dark:text-gray-300 hover:border-red-300 dark:hover:border-red-500/40 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/8'
+											: 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100'
+									} disabled:opacity-60`}
+								>
+									{followPending ? (
+										<Loader className="w-3 h-3 animate-spin" />
+									) : isFollowing ? (
+										t('UNFOLLOW')
+									) : (
+										t('FOLLOW')
+									)}
+								</button>
+							)}
 
 							{/* View profile — primary */}
 							{profileHref ? (
 								<a
 									href={profileHref}
-									className="flex flex-1 items-center justify-center gap-1 h-8 rounded-xl text-[12px] font-semibold bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors duration-150 select-none"
+									className={`flex items-center justify-center gap-1 h-8 rounded-xl text-[12px] font-semibold transition-colors duration-150 select-none ${
+										isSelf
+											? 'flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100'
+											: 'w-8 border border-gray-200 dark:border-white/8 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
+									}`}
+									title="View profile"
 								>
-									Profile
-									<ExternalLink className="w-3 h-3 opacity-60" />
+									{isSelf ? (
+										<>Profile <ExternalLink className="w-3 h-3 opacity-60" /></>
+									) : (
+										<ExternalLink className="w-3.5 h-3.5" />
+									)}
 								</a>
 							) : (
-								<span className="flex-1" />
+								isSelf && <span className="flex-1" />
 							)}
 						</div>
 					</Popover.Content>
@@ -363,7 +427,7 @@ const Comment = memo(
 			setIsEditing(false);
 		};
 
-		const isOwner = currentUserId === comment.userId;
+		const isOwner = currentUserId === comment.user.id;
 		const wasEdited = comment.editedAt !== null;
 		const containerWidth = useContainerWidth();
 		const isFluid = containerWidth === 'fluid';
