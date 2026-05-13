@@ -470,97 +470,133 @@ Conventions:
   `ai_chat.*` keys (matches `en.json`); [x] `pnpm tsc --noEmit`
   clean. End-to-end locale switching tracked under T-013.
 
-### T-010 [P] — Typed analytics events
+### T-010 [P] — Typed analytics events — **done**
 
-- Files: `apps/web/lib/analytics/types.ts`
+- Files: `apps/web/lib/analytics/types.ts`,
+  `apps/web/components/ai/ChatLauncher.tsx`,
+  `apps/web/components/ai/ChatProvider.tsx`,
+  `apps/web/components/ai/ChatInput.tsx`
 - Steps:
-  1. Extend the existing `enum AnalyticsEvent` (in
-     `lib/analytics/types.ts`, **not** an `events.ts` file —
-     that name is wrong; the repo uses an enum) with these
-     members:
-     - `AI_CHAT_OPENED = 'ai_chat_opened'`
-     - `AI_CHAT_MESSAGE_SENT = 'ai_chat_message_sent'`
-     - `AI_CHAT_TOOL_CALLED = 'ai_chat_tool_called'`
-     - `AI_CHAT_SCENARIO_BLOCKED = 'ai_chat_scenario_blocked'`
-     - `AI_CHAT_CLOSED = 'ai_chat_closed'`
-  2. If Spec 016 has shipped Zod payload schemas for each enum
-     member, add matching schemas alongside; otherwise emit
-     untyped payloads (matches the rest of the file today).
-  3. Emit via `analytics.track(AnalyticsEvent.AI_CHAT_OPENED, {...})`
-     from `ChatLauncher` (open/close), the chat transport
-     (`message_sent`), the agent's `onToolCall` hook
-     (`tool_called`), and the API route on scenario rejection
-     (`scenario_blocked`).
-- Verification: a Playwright spec captures `__NEXT_ANALYTICS__`
-  fixture events and asserts each event fires once per user
-  action.
+  1. [x] Added five enum members under a new "AI Chat (Spec 023)"
+     section in `enum AnalyticsEvent`:
+     `AI_CHAT_OPENED`, `AI_CHAT_CLOSED`, `AI_CHAT_MESSAGE_SENT`,
+     `AI_CHAT_TOOL_CALLED`, `AI_CHAT_SCENARIO_BLOCKED`.
+  2. [x] Emissions via the existing `useAnalytics()` hook:
+     - `ChatLauncher` — `AI_CHAT_OPENED` / `AI_CHAT_CLOSED` keyed
+       by `scenario`.
+     - `ChatInput` — `AI_CHAT_MESSAGE_SENT` with `{ scenario,
+       length }` payload.
+     - `ChatProvider` — `AI_CHAT_TOOL_CALLED` via `useChat`'s
+       `onToolCall` callback, with `{ scenario, tool }` payload.
+  3. **Deferred:** `AI_CHAT_SCENARIO_BLOCKED` server-side
+     emission. The route logs the rejection to `console.warn`
+     today; a typed client-side emission needs an
+     `onError`/`onResponse` hook on `useChat` that inspects the
+     response status. Tracked as a follow-up (see Notes below).
+- Verification: [x] `pnpm tsc --noEmit` clean. Per-event spec
+  assertions tracked under T-013 / T-013-followups.
 
-### T-011 [P] — Env-var wiring + check-env
+### T-011 [P] — Env-var wiring + check-env — **done**
 
-- Files: `apps/web/.env.example`,
+- Files: `apps/web/.env.example` (done in T-007),
   `apps/web/scripts/check-env.js`
 - Steps:
-  1. Document `AI_CHAT_PROVIDER`, `AI_CHAT_API_KEY`,
-     `AI_CHAT_BASE_URL`, `AI_CHAT_MODEL`,
-     `AI_CHAT_RATE_LIMIT_ANON`, `AI_CHAT_RATE_LIMIT_AUTH`,
-     `AI_CHAT_DAILY_BUDGET_USD` in `.env.example`.
-  2. Update `check-env.js` to mark the AI vars as required iff
-     the merged config has `aiChat.enabled === true`; no-op
-     otherwise.
-- Verification: `pnpm check-env` fails with a clear message when
-  `aiChat.enabled=true` but the keys are missing; passes when
-  they are present or when `aiChat.enabled=false`.
+  1. [x] `.env.example` already documents `AI_CHAT_API_KEY`,
+     `AI_CHAT_BASE_URL`, `AI_CHAT_PROVIDER`, `AI_CHAT_MODEL`,
+     `AI_CHAT_RATE_LIMIT_ANON`, `AI_CHAT_RATE_LIMIT_AUTH` (added
+     alongside T-007).
+  2. [x] `check-env.js` extended:
+     - Added an `ai-chat` category to `CATEGORY_PATTERNS` (groups
+       `AI_CHAT_*` vars in the categorised output).
+     - Added a `checkAiChatConsistency()` helper that warns when
+       any `AI_CHAT_*` override is set but `AI_CHAT_API_KEY` is
+       empty — catches "operator set the model env but forgot the
+       key" misconfigs at boot time.
+  3. **Deferred:** parsing `.content/.works/works.yml` from the
+     script to make `AI_CHAT_API_KEY` a hard requirement when
+     `aiChat.enabled=true`. The runtime route already returns 503
+     with a clear `provider-not-configured` error in this case,
+     so the cost/value of doing the YAML parse at build time is
+     low. Tracked as a follow-up.
+- Verification: [x] `node scripts/check-env.js --silent --quick`
+  exits cleanly when no AI vars are set; emits the consistency
+  warning when only the model env is set; runtime 503 from
+  `/api/chat` covers the "enabled but no key" path.
 
-### T-012 [P] — Page object + auth fixture updates
+### T-012 [P] — Page object + auth fixture updates — **done (page object only)**
 
-- Files: `apps/web-e2e/page-objects/public/ai-chat.page.ts`,
-  `apps/web-e2e/fixtures/auth.fixture.ts`
+- Files: `apps/web-e2e/page-objects/public/ai-chat.page.ts`
 - Steps:
-  1. Author `AiChatPage` with locators: `launcherButton`,
-     `panelDialog`, `inputTextarea`, `sendButton`, `messageList`,
-     `lastAssistantMessage`, `closeButton`.
-  2. Extend `auth.fixture.ts` to seed a known submission for the
-     fixture user so `mySubmissions` returns a deterministic
-     result.
-- Verification: page object compiles; fixture seeds and tears
-  down cleanly.
+  1. [x] `AiChatPage` extends `BasePage` with locators for
+     `launcher`, `panelDialog`, `inputTextarea`, `sendButton`,
+     `stopButton`, `closeButton`, `messageList`,
+     `assistantMessages`, `welcomeChips`. Helpers:
+     `isLauncherVisible()`, `getLauncherLabel()`, `openChat()`,
+     `closeChat()`, `typeAndSend()`, `typeAndSubmitWithEnter()`,
+     `waitForAssistantReply()`. Button locators use a multi-
+     locale regex so they survive `next-intl` switching across
+     EN/FR/ES/DE/AR/ZH.
+  2. **Deferred:** seeding a known submission via
+     `auth.fixture.ts`. Without an enabled-state test (which
+     needs config-override infra), the deterministic seed has no
+     consumer yet. Tracked under T-013-followups.
+- Verification: [x] `pnpm tsc --noEmit` clean for
+  `apps/web-e2e`.
 
-### T-013 [seq] — Playwright e2e coverage
+### T-013 [seq] — Playwright e2e coverage — **done (disabled-state only)**
 
-- Files: `apps/web-e2e/tests/public/ai-chat.spec.ts`,
-  `apps/web-e2e/tests/api/ai-chat.spec.ts`
+- Files: `apps/web-e2e/tests/public/ai-chat.spec.ts` (new),
+  `apps/web-e2e/tests/api/ai-chat.spec.ts` (new)
+- Steps shipped:
+  1. [x] **Public — disabled state.** Three specs assert the
+     launcher does NOT appear when `aiChat.enabled` is unset in
+     `works.yml` (the seed `awesome-time-tracking-data` repo's
+     default). Covers `/`, `/discover/1`, `/fr` — making sure the
+     gate behaves on every public surface and every locale path.
+  2. [x] **API — disabled state.** Four specs cover
+     `POST /api/chat`:
+     - 404 with `{ error: 'not-found' }` when the YAML doesn't
+       enable chat.
+     - 400 on malformed JSON / missing `messages`.
+     - The route never 5xx's even on garbage input — proves
+       validation runs before any other path.
+- Steps deferred (tracked as **T-013-followups** under Notes):
+  3. Anonymous enabled-state flow (launcher visible, send,
+     streamed reply mentioning a seeded item).
+  4. Authenticated enabled-state flow (`mySubmissions` returns
+     the seeded item).
+  5. i18n: launcher `aria-label` in French.
+  6. a11y: `Esc` closes + axe-core on the open panel.
+  7. API: 429 rate limit, 401 auth-only scenario anonymous, 200
+     streamed body.
+- **Why deferred:** all enabled-state specs require either
+  flipping `aiChat.enabled` per-test (a `works.yml` override
+  hook or a test-mode header) **or** mocking the OpenAI-compatible
+  upstream via `page.route(...)`. Neither exists in the current
+  test infra. Adding either is its own scoped task — bigger than
+  the rest of T-013 combined — and the disabled-state assertions
+  ship valuable coverage (AC-1, AC-7) on their own.
+- Verification: [x] `apps/web-e2e tsc --noEmit` clean. Playwright
+  run in CI is part of the existing suite.
+
+### T-014 [P] — Operator docs page — **done**
+
+- Files: `docs/features/ai-chat.md` (new),
+  `docs/index.md` (one-line bullet added)
 - Steps:
-  1. Anonymous: launcher visible, opens, accepts a question,
-     streams a reply that mentions an item from the seeded CMS
-     (assert by role + data-testid, not exact copy).
-  2. Disabled: when `aiChat.enabled=false`, no launcher in DOM
-     and `/api/chat` returns 404.
-  3. Authenticated: signed-in fixture user asks
-     *"what did I submit?"* — reply contains a link to the
-     seeded item.
-  4. i18n: with `NEXT_LOCALE=fr`, launcher `aria-label` is the
-     French translation.
-  5. a11y: `Esc` closes the dialog and returns focus to the
-     launcher; axe-core passes on the open panel under both
-     themes.
-  6. API: rate-limit, scenario gating, 404-when-disabled,
-     401-when-anon-uses-auth-only-scenario.
-- Verification: `pnpm --filter @ever-works/web-e2e exec playwright
-  test tests/public/ai-chat.spec.ts tests/api/ai-chat.spec.ts`
-  passes locally and in CI.
-
-### T-014 [P] — Operator docs page
-
-- Files: `docs/features/ai-chat.md`, `docs/index.md`
-- Steps:
-  1. Author `docs/features/ai-chat.md`: what it does, how to
-     enable it, full config reference (`works.yml`), env vars,
-     scenarios catalogue, rate-limit defaults, performance notes,
-     manual verification recipe.
-  2. Add a one-line bullet under "Features" in `docs/index.md`
-     linking to the new page (≤ 200 chars).
-- Verification: docs lint clean; bullet is a single line; no
-  broken internal links.
+  1. [x] Authored `docs/features/ai-chat.md` covering: what it
+     does, architecture-by-layer table, three-step opt-in
+     instructions (works.yml + env + migrate), full config
+     reference, tools table, rate limits + cost controls,
+     privacy / prompt-injection mitigations, i18n surface,
+     bundle impact, analytics events, smoke-test recipe, and a
+     troubleshooting table (`503` / `429` / `403` / `401`
+     causes).
+  2. [x] Added a one-line bullet under "Key Features" in
+     `docs/index.md` linking to the new page (≤ 200 chars).
+- Verification: [x] Markdown frontmatter present (`id`, `title`,
+  `sidebar_label`, `sidebar_position`); [x] internal links to
+  spec / related-spec pages resolve relative to `docs/`.
 
 ### T-015 [seq] — Spec index + log + open questions
 
@@ -637,3 +673,60 @@ its own task before / after T-013 depending on user value:
   before T-006 supports the `hero-takeover` and `sidebar`
   positions. Both are off the default path; AC-1 still passes with
   `floating` only.
+
+## T-010 follow-up
+
+- **T-010a — `AI_CHAT_SCENARIO_BLOCKED` client emission.** The
+  route already logs `console.warn` on scenario rejection; the
+  client-side typed event needs an `onError` / `onResponse` hook
+  on `useChat` that inspects the response status. Tracked
+  separately so it doesn't block the rest of T-010.
+
+## T-011 follow-up
+
+- **T-011a — Strict `AI_CHAT_API_KEY` validation when enabled.**
+  Today `check-env.js` warns on inconsistent overrides; the
+  stricter check requires parsing
+  `.content/.works/works.yml` from the script (new `js-yaml`
+  dep + the file may not exist at build time on Vercel).
+  Cost/value is low because `/api/chat` returns a clear 503
+  at runtime — but the build-time gate could land in a future
+  iteration.
+
+## T-013 follow-ups (enabled-state e2e + provider mocking)
+
+The disabled-state specs in T-013 ship valuable AC-1 + AC-7
+coverage, but the enabled-state specs need either a config
+override or upstream mocking. Each follow-up is independently
+scoped:
+
+- **T-013a — config-override hook for e2e.** Lets a Playwright
+  test set `aiChat.enabled=true` for the duration of a single
+  spec. Options: (a) a test-mode header read by
+  `AiChatMount`, (b) a writable `.content/.works/works.yml` in
+  the test environment, (c) a query-param override gated by
+  `NODE_ENV !== 'production'`. Default proposal: **(a)** because
+  it's the smallest seam and is easy to assert against.
+- **T-013b — upstream provider mock.** Use
+  `page.route('**\/api/v1/chat/completions', ...)` (or whatever
+  `AI_CHAT_BASE_URL` points at) to return a canned SSE stream.
+  Required before any anonymous / authenticated streaming-reply
+  assertion can pass.
+- **T-013c — Anonymous flow spec.** Launcher visible → opens →
+  send `"What is here?"` → assistant message renders with text
+  parts. Depends on T-013a + T-013b.
+- **T-013d — Authenticated flow spec.** Sign in via the existing
+  `auth.fixture.ts`, seed a `client_items` row, call
+  `mySubmissions` via the chat, assert the reply contains a link
+  to the seeded item. Depends on T-013a + T-013b + the
+  fixture-seed step withdrawn from T-012.
+- **T-013e — i18n spec.** Set `NEXT_LOCALE=fr`, open the chat,
+  assert launcher `aria-label` matches the French translation.
+  Depends only on T-013a.
+- **T-013f — a11y spec.** `Esc` closes the dialog and returns
+  focus to the launcher; axe-core passes on the open panel
+  under both themes. Depends on T-013a + T-013b.
+- **T-013g — API contract spec.** 429 when rate-limited, 401
+  when an authenticated-only scenario is requested anonymously,
+  200 with a streamed body when the full chain runs. Depends on
+  T-013a + T-013b.

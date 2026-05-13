@@ -5,6 +5,8 @@ import { Button, Textarea } from '@heroui/react';
 import { Send, StopCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useAiChat } from './ChatProvider';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
 
 /**
  * Message composer. Auto-resizing textarea + send button (or
@@ -16,9 +18,10 @@ import { useAiChat } from './ChatProvider';
  */
 export function ChatInput() {
 	const t = useTranslations('ai_chat');
-	const { chat } = useAiChat();
+	const { chat, scenario } = useAiChat();
 	const [text, setText] = useState('');
 	const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+	const { track } = useAnalytics();
 
 	const isStreaming = chat.status === 'streaming' || chat.status === 'submitted';
 	const hasError = chat.status === 'error';
@@ -31,6 +34,7 @@ export function ChatInput() {
 	const submit = () => {
 		const trimmed = text.trim();
 		if (!trimmed || isStreaming) return;
+		track(AnalyticsEvent.AI_CHAT_MESSAGE_SENT, { scenario, length: trimmed.length });
 		void chat.sendMessage({ text: trimmed });
 		setText('');
 	};

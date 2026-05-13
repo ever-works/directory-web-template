@@ -8,6 +8,8 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import type { AuthenticatedScenario } from '@ever-works/plugin-ai-chat';
 import { cn } from '@/lib/utils';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
 
 const ChatPanel = dynamic(
 	() => import('./ChatPanel').then((mod) => ({ default: mod.ChatPanel })),
@@ -54,14 +56,25 @@ export function ChatLauncher({
 	const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 	const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
 	const [currentPageUrl, setCurrentPageUrl] = useState<string | null>(null);
+	const { track } = useAnalytics();
 
 	// Capture the current URL only when the chat is actually opened — avoids
 	// running on every navigation, and keeps the launcher SSR-friendly.
 	useEffect(() => {
-		if (!isOpen) return;
+		if (!isOpen) {
+			if (hasOpenedOnce) {
+				track(AnalyticsEvent.AI_CHAT_CLOSED, { scenario });
+			}
+			return;
+		}
 		setCurrentPageUrl(typeof window !== 'undefined' ? window.location.href : null);
 		if (!hasOpenedOnce) setHasOpenedOnce(true);
-	}, [isOpen, hasOpenedOnce]);
+		track(AnalyticsEvent.AI_CHAT_OPENED, { scenario });
+		// `track` is stable from useAnalytics; `scenario` is a prop. The
+		// hasOpenedOnce dependency keeps the closed-event from firing on
+		// initial render.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isOpen]);
 
 	const Icon = isOpen ? X : MessageCircle;
 

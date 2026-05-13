@@ -1,9 +1,11 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
 import { useChat, type UseChatHelpers } from '@ai-sdk/react';
 import { DefaultChatTransport, type UIMessage } from 'ai';
 import type { AuthenticatedScenario } from '@ever-works/plugin-ai-chat';
+import { useAnalytics } from '@/hooks/use-analytics';
+import { AnalyticsEvent } from '@/lib/analytics/types';
 
 /**
  * Bridges `@ai-sdk/react`'s `useChat()` to the rest of the AI-chat
@@ -42,6 +44,8 @@ export function AiChatProvider({
 	currentPageUrl,
 	children,
 }: AiChatProviderProps) {
+	const { track } = useAnalytics();
+
 	// `DefaultChatTransport` is stable across renders; building it inside
 	// `useMemo` avoids reconfiguring the underlying fetcher when the parent
 	// re-renders with the same scenario/locale.
@@ -59,7 +63,14 @@ export function AiChatProvider({
 		[scenario, locale, conversationId, currentPageUrl],
 	);
 
-	const chat = useChat<UIMessage>({ transport });
+	const onToolCall = useCallback(
+		({ toolCall }: { toolCall: { toolName: string } }) => {
+			track(AnalyticsEvent.AI_CHAT_TOOL_CALLED, { scenario, tool: toolCall.toolName });
+		},
+		[track, scenario],
+	);
+
+	const chat = useChat<UIMessage>({ transport, onToolCall });
 
 	const value = useMemo<AiChatContextValue>(
 		() => ({ scenario, locale, isAuthenticated, chat }),

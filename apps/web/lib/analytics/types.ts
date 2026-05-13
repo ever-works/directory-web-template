@@ -34,7 +34,14 @@ export enum AnalyticsEvent {
 	// Errors & Debugging
 	API_ERROR = 'api_error',
 	FORM_VALIDATION_ERROR = 'form_validation_error',
-	FEATURE_FLAG_CHECKED = 'feature_flag_checked'
+	FEATURE_FLAG_CHECKED = 'feature_flag_checked',
+
+	// AI Chat (Spec 023)
+	AI_CHAT_OPENED = 'ai_chat_opened',
+	AI_CHAT_CLOSED = 'ai_chat_closed',
+	AI_CHAT_MESSAGE_SENT = 'ai_chat_message_sent',
+	AI_CHAT_TOOL_CALLED = 'ai_chat_tool_called',
+	AI_CHAT_SCENARIO_BLOCKED = 'ai_chat_scenario_blocked'
 }
 
 /**
