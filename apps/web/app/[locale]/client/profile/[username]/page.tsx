@@ -44,10 +44,10 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		listPortfolioProjectsForProfile(clientProfile.id),
 		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
 		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false),
-		getRecentCommentsByClientProfile(clientProfile.id, 5),
-		getRecentFavoritesByUser(clientProfile.userId, 5),
-		listFollowing(clientProfile.userId, 5, 0),
-		listFollowers(clientProfile.userId, 5, 0)
+		getRecentCommentsByClientProfile(clientProfile.id, 10),
+		getRecentFavoritesByUser(clientProfile.userId, 10),
+		listFollowing(clientProfile.userId, 8, 0),
+		listFollowers(clientProfile.userId, 8, 0)
 	]);
 
 	const recentFollows: RecentFollow[] = [

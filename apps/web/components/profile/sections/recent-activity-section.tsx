@@ -1,8 +1,14 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { FiArrowRight, FiHeart, FiMessageCircle, FiStar, FiUserPlus, FiUserCheck } from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
+
+type ActivityFilter = 'all' | 'comment' | 'favorite' | 'follow';
+
+const FILTER_THRESHOLD = 10;
+const FILTER_CAP = 8;
 
 export interface RecentComment {
 	id: string;
@@ -61,14 +67,43 @@ export function RecentActivitySection({ comments, favorites, follows = [], isOwn
 		return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 	};
 
-	// Merge and sort newest-first
-	const items: ActivityItem[] = [
+	const [filter, setFilter] = useState<ActivityFilter>('all');
+
+	// Merge and sort newest-first (memoized — recomputes only when input lists change)
+	const allItems = useMemo<ActivityItem[]>(() => [
 		...comments.map((c): ActivityItem => ({ kind: 'comment', data: c })),
 		...favorites.map((f): ActivityItem => ({ kind: 'favorite', data: f })),
 		...follows.map((f): ActivityItem => ({ kind: 'follow', data: f })),
-	].sort((a, b) => toDate(b.data.createdAt).getTime() - toDate(a.data.createdAt).getTime());
+	].sort((a, b) => toDate(b.data.createdAt).getTime() - toDate(a.data.createdAt).getTime()),
+		[comments, favorites, follows]
+	);
 
-	const isEmpty = items.length === 0;
+	// Per-kind counts for tab badges + threshold check
+	const counts = useMemo(() => ({
+		all: allItems.length,
+		comment: comments.length,
+		favorite: favorites.length,
+		follow: follows.length,
+	}), [allItems.length, comments.length, favorites.length, follows.length]);
+
+	// Show filter tabs only once the section is long enough to benefit from them
+	const showFilter = counts.all > FILTER_THRESHOLD;
+
+	// Items visible in the current view (filtered + capped when tabs are shown)
+	const items = useMemo<ActivityItem[]>(() => {
+		if (!showFilter) return allItems;
+		const filtered = filter === 'all' ? allItems : allItems.filter((it) => it.kind === filter);
+		return filtered.slice(0, FILTER_CAP);
+	}, [showFilter, filter, allItems]);
+
+	const isEmpty = allItems.length === 0;
+
+	const filters: Array<{ kind: ActivityFilter; labelKey: string; count: number }> = [
+		{ kind: 'all', labelKey: 'ACTIVITY_FILTER_ALL', count: counts.all },
+		{ kind: 'comment', labelKey: 'ACTIVITY_FILTER_COMMENTS', count: counts.comment },
+		{ kind: 'favorite', labelKey: 'ACTIVITY_FILTER_FAVORITES', count: counts.favorite },
+		{ kind: 'follow', labelKey: 'ACTIVITY_FILTER_FOLLOWS', count: counts.follow },
+	];
 
 	return (
 		<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm overflow-hidden">
@@ -82,14 +117,79 @@ export function RecentActivitySection({ comments, favorites, follows = [], isOwn
 				</h3>
 				{!isEmpty && (
 					<span className="ml-auto text-xs text-neutral-400 dark:text-neutral-500 tabular-nums">
-						{items.length} {t(items.length !== 1 ? 'ACTIVITY_PLURAL' : 'ACTIVITY_SINGULAR')}
+						{counts.all} {t(counts.all !== 1 ? 'ACTIVITY_PLURAL' : 'ACTIVITY_SINGULAR')}
 					</span>
 				)}
 			</div>
 
+			{/* Filter tabs — only when there's enough activity to make filtering useful */}
+			{showFilter && (
+				<div
+					role="tablist"
+					aria-label={t('RECENT_ACTIVITY_SECTION')}
+					className="flex items-center gap-1 px-5 py-2 border-b border-neutral-100 dark:border-white/6 overflow-x-auto"
+				>
+					{filters.map((f) => {
+						const isActive = filter === f.kind;
+						return (
+							<button
+								key={f.kind}
+								type="button"
+								role="tab"
+								aria-selected={isActive}
+								onClick={() => setFilter(f.kind)}
+								className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-colors duration-150 whitespace-nowrap ${
+									isActive
+										? 'bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-500/12 dark:text-theme-primary-300'
+										: 'text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-white/5'
+								}`}
+							>
+								<span>{t(f.labelKey)}</span>
+								<span
+									className={`text-[10px] tabular-nums ${
+										isActive ? 'text-theme-primary-600/80 dark:text-theme-primary-400/80' : 'text-neutral-400 dark:text-neutral-500'
+									}`}
+								>
+									{f.count}
+								</span>
+							</button>
+						);
+					})}
+				</div>
+			)}
+
 			{/* Content */}
 			<div className="px-5 py-4">
-				{!isEmpty ? (
+				{isEmpty ? (
+					<div className="py-8 flex flex-col items-center text-center gap-3">
+						<span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neutral-100 dark:bg-white/8 text-neutral-400">
+							<FiMessageCircle className="w-5 h-5" />
+						</span>
+						<div className="space-y-1">
+							<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+								{isOwn ? t("NO_ACTIVITY_OWN") : t("NO_ACTIVITY_OTHER", { name: displayName })}
+							</p>
+							{isOwn && (
+								<p className="text-xs text-neutral-400 dark:text-neutral-500">
+									{t("ACTIVITY_HINT")}
+								</p>
+							)}
+						</div>
+						{isOwn && (
+							<Link
+								href="/"
+								className="inline-flex items-center gap-1.5 text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline font-medium transition-colors duration-150"
+							>
+								{t("BROWSE_DIRECTORY")}
+								<FiArrowRight className="w-3.5 h-3.5" />
+							</Link>
+						)}
+					</div>
+				) : items.length === 0 ? (
+					<p className="py-6 text-center text-xs text-neutral-400 dark:text-neutral-500">
+						{t('NO_ACTIVITY_FILTERED')}
+					</p>
+				) : (
 					<ol className="relative space-y-0">
 						{/* Timeline track */}
 						<div className="absolute left-3.75 top-3 bottom-3 w-px bg-neutral-100 dark:bg-white/8" aria-hidden="true" />
@@ -120,31 +220,6 @@ export function RecentActivitySection({ comments, favorites, follows = [], isOwn
 							</li>
 						))}
 					</ol>
-				) : (
-					<div className="py-8 flex flex-col items-center text-center gap-3">
-						<span className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-neutral-100 dark:bg-white/8 text-neutral-400">
-							<FiMessageCircle className="w-5 h-5" />
-						</span>
-						<div className="space-y-1">
-							<p className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-								{isOwn ? t("NO_ACTIVITY_OWN") : t("NO_ACTIVITY_OTHER", { name: displayName })}
-							</p>
-							{isOwn && (
-								<p className="text-xs text-neutral-400 dark:text-neutral-500">
-									{t("ACTIVITY_HINT")}
-								</p>
-							)}
-						</div>
-						{isOwn && (
-							<Link
-								href="/"
-								className="inline-flex items-center gap-1.5 text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline font-medium transition-colors duration-150"
-							>
-								{t("BROWSE_DIRECTORY")}
-								<FiArrowRight className="w-3.5 h-3.5" />
-							</Link>
-						)}
-					</div>
 				)}
 			</div>
 		</div>
@@ -158,12 +233,13 @@ function CommentEntry({
 	comment: RecentComment;
 	formatRelative: (d: Date | string) => string;
 }) {
+	const t = useTranslations("profile");
 	return (
 		<>
 			<div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
 				<div className="flex items-center gap-1.5 min-w-0 text-xs text-neutral-500 dark:text-neutral-400">
 					<FiMessageCircle className="w-3 h-3 shrink-0 text-theme-primary-400" />
-					<span className="shrink-0">Reviewed</span>
+					<span className="shrink-0">{t('ACTIVITY_VERB_REVIEWED')}</span>
 					<Link
 						href={`/items/${comment.itemSlug}`}
 						className="font-medium text-theme-primary-600 dark:text-theme-primary-400 hover:underline truncate max-w-[18ch] transition-colors duration-150"
@@ -199,11 +275,12 @@ function FavoriteEntry({
 	favorite: RecentFavorite;
 	formatRelative: (d: Date | string) => string;
 }) {
+	const t = useTranslations("profile");
 	return (
 		<div className="flex items-center justify-between gap-2 flex-wrap">
 			<div className="flex items-center gap-1.5 min-w-0 text-xs text-neutral-500 dark:text-neutral-400">
 				<FiHeart className="w-3 h-3 shrink-0 text-rose-400 fill-current" />
-				<span className="shrink-0">Liked</span>
+				<span className="shrink-0">{t('ACTIVITY_VERB_LIKED')}</span>
 				<Link
 					href={`/items/${favorite.itemSlug}`}
 					className="font-medium text-neutral-800 dark:text-neutral-200 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 hover:underline truncate max-w-[22ch] transition-colors duration-150"
@@ -228,9 +305,10 @@ function FollowEntry({
 	follow: RecentFollow;
 	formatRelative: (d: Date | string) => string;
 }) {
+	const t = useTranslations("profile");
 	const otherLabel = follow.otherDisplayName || follow.otherName || follow.otherUsername || 'someone';
 	const otherHref = follow.otherUsername ? `/client/profile/${follow.otherUsername}` : null;
-	const verb = follow.direction === 'outgoing' ? 'Followed' : 'Followed by';
+	const verb = follow.direction === 'outgoing' ? t('ACTIVITY_VERB_FOLLOWED') : t('ACTIVITY_VERB_FOLLOWED_BY');
 	const Icon = follow.direction === 'outgoing' ? FiUserPlus : FiUserCheck;
 	return (
 		<div className="flex items-center justify-between gap-2 flex-wrap">
