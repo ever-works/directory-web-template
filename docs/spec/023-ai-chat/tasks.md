@@ -263,32 +263,65 @@ Conventions:
   Playwright check that inspects `window.__NEXT_DATA__` or the
   network log).
 
-### T-007 [P] — Implement `POST /api/chat`
+### T-007 [P] — Implement `POST /api/chat` — **done**
 
-- Files: `apps/web/app/api/chat/route.ts` (only — **no new
-  rate-limit file**)
+- Files: `apps/web/app/api/chat/route.ts` (new),
+  `apps/web/lib/services/chat-context.service.ts` (new),
+  `apps/web/.env.example` (modified)
 - Steps:
-  1. Resolve session via existing `auth()` helper from
+  1. [x] Resolves session via existing `auth()` helper from
      `lib/auth/index.ts`.
-  2. Validate the request body with Zod (`messages`,
-     `conversationId?`, `scenario?`, `currentPageUrl?`).
-  3. Look up `aiChat.enabled`; return 404 when false.
-  4. Apply rate-limit by calling the **existing** helper
-     `apps/web/lib/utils/rate-limit.ts → ratelimit(...)`. Use
-     `ip:${ip}` for anonymous and `user:${session.userId}` for
-     authenticated callers, with the limits/window from
-     `AI_CHAT_RATE_LIMIT_*`. Return 429 with `Retry-After` when
-     exceeded.
-  5. Resolve the active provider via `createOpenAICompatible({
-     name: 'ever-works-template',
-     baseURL: env.AI_CHAT_BASE_URL,
-     apiKey: env.AI_CHAT_API_KEY,
-  })`.
-  6. Dispatch to `runAgent` from `plugin-ai-chat` and stream the
-     response via `toUIMessageStreamResponse()`.
-- Verification: Playwright API spec in
-  `apps/web-e2e/tests/api/ai-chat.spec.ts` asserts the 404, 401,
-  429, and 200 paths.
+  2. [x] Validates the request body with Zod
+     (`messages`, `conversationId?`, `scenario?`,
+     `currentPageUrl?`, `locale?`). 400 on parse failure,
+     400 on malformed JSON.
+  3. [x] Loads `aiChat` from `configManager.getConfig()`,
+     runs it through `parseAiChatConfig`, returns 404 when
+     disabled (or when the YAML block fails validation).
+  4. [x] Persona gating: rejects with 403 when the active
+     persona (anonymous / authenticated) is disabled, or
+     when the requested scenario isn't in
+     `aiChat.{anonymous|authenticated}.scenarios`. Rejects
+     with 401 if an authenticated-only scenario
+     (my-submissions / my-favourites / my-profile) is
+     requested without a session.
+  5. [x] Calls the **existing** `ratelimit(...)` from
+     `lib/utils/rate-limit.ts` with `chat:user:${userId}`
+     for authenticated and `chat:ip:${ip}` for anonymous,
+     limits from `AI_CHAT_RATE_LIMIT_*` env (defaults 60 /
+     20 per 60s). 429 with `Retry-After` header on excess.
+  6. [x] Resolves the provider via `createOpenAICompatible({
+     name, baseURL: AI_CHAT_BASE_URL ??
+     'https://openrouter.ai/api/v1', apiKey: AI_CHAT_API_KEY })`.
+     Returns 503 (`provider-not-configured`) when the API key
+     is missing.
+  7. [x] Builds a real `AiChatToolContext` via the new
+     `lib/services/chat-context.service.ts` — wires
+     `searchItems` / `getItem` to the existing Git-CMS
+     readers (`getCachedItems`, `getCachedItem`), derives
+     `listCategories` / `listTags` from the same cache (no
+     net-new GH token requirement), and routes
+     `getMySubmissions` to `ClientItemRepository`,
+     `getMyFavourites` to the new `favorite.repository.ts`,
+     `getMyProfile` to a small composition of repos +
+     session.
+  8. [x] Dispatches to `runAgent` from the plugin and
+     returns `stream.toUIMessageStreamResponse()`.
+     `abortSignal` is forwarded from the request so the
+     model call is cancelled when the client disconnects.
+- Verification: [x] `pnpm tsc --noEmit` clean for both
+  packages; route compiles cleanly under Next 16 with
+  `runtime = 'nodejs'`. Playwright API spec (404, 401,
+  429, 200 paths) tracked under T-013 — pending the e2e
+  fixture work in that task.
+- **Deferred to T-008:** the `onFinish` persistence hook
+  on the streaming response (writes to
+  `chat_conversations` / `chat_messages` when
+  `aiChat.persist=true && session !== null`).
+- **Env vars documented:** `.env.example` now describes
+  `AI_CHAT_API_KEY`, `AI_CHAT_BASE_URL`, `AI_CHAT_PROVIDER`,
+  `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_ANON`,
+  `AI_CHAT_RATE_LIMIT_AUTH`.
 
 ### T-008 [P] — Drizzle schema + repository for conversation history
 
