@@ -1400,6 +1400,8 @@
 		"NO_ACTIVITY_OWN": "Sem atividade ainda",
 		"NO_ACTIVITY_OTHER": "{name} ainda não comentou",
 		"ACTIVITY_HINT": "Comentários que você deixar aparecerão aqui.",
+		"ACTIVITY_SINGULAR": "atividade",
+		"ACTIVITY_PLURAL": "atividades",
 		"BROWSE_DIRECTORY": "Explorar o diretório",
 		"JUST_NOW": "agora mesmo",
 		"HOURS_AGO": "há {h}h",

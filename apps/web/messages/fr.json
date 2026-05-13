@@ -1491,6 +1491,8 @@
 		"NO_ACTIVITY_OWN": "Pas encore d'activité",
 		"NO_ACTIVITY_OTHER": "{name} n'a pas encore commenté",
 		"ACTIVITY_HINT": "Les commentaires que vous laissez apparaîtront ici.",
+		"ACTIVITY_SINGULAR": "activité",
+		"ACTIVITY_PLURAL": "activités",
 		"BROWSE_DIRECTORY": "Parcourir l'annuaire",
 		"JUST_NOW": "à l'instant",
 		"HOURS_AGO": "il y a {h}h",

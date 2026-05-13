@@ -1534,6 +1534,8 @@
 		"NO_ACTIVITY_OWN": "No activity yet",
 		"NO_ACTIVITY_OTHER": "{name} hasn't commented yet",
 		"ACTIVITY_HINT": "Comments you leave on tools will appear here.",
+		"ACTIVITY_SINGULAR": "activity",
+		"ACTIVITY_PLURAL": "activities",
 		"BROWSE_DIRECTORY": "Browse the directory",
 		"JUST_NOW": "just now",
 		"HOURS_AGO": "{h}h ago",

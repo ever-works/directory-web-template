@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "아직 활동이 없습니다",
 		"NO_ACTIVITY_OTHER": "{name}은(는) 아직 댓글을 남기지 않았습니다",
 		"ACTIVITY_HINT": "도구에 남긴 댓글이 여기에 표시됩니다.",
+		"ACTIVITY_SINGULAR": "활동",
+		"ACTIVITY_PLURAL": "활동",
 		"BROWSE_DIRECTORY": "디렉토리 탐색",
 		"JUST_NOW": "방금",
 		"HOURS_AGO": "{h}시간 전",

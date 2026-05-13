@@ -1433,6 +1433,8 @@
 		"NO_ACTIVITY_OWN": "Noch keine Aktivität",
 		"NO_ACTIVITY_OTHER": "{name} hat noch nicht kommentiert",
 		"ACTIVITY_HINT": "Ihre Kommentare zu Tools erscheinen hier.",
+		"ACTIVITY_SINGULAR": "Aktivität",
+		"ACTIVITY_PLURAL": "Aktivitäten",
 		"BROWSE_DIRECTORY": "Verzeichnis durchsuchen",
 		"JUST_NOW": "gerade eben",
 		"HOURS_AGO": "vor {h}h",

@@ -1420,6 +1420,8 @@
 		"NO_ACTIVITY_OWN": "لا يوجد نشاط بعد",
 		"NO_ACTIVITY_OTHER": "{name} لم يعلق بعد",
 		"ACTIVITY_HINT": "التعليقات التي تتركها ستظهر هنا.",
+		"ACTIVITY_SINGULAR": "نشاط",
+		"ACTIVITY_PLURAL": "أنشطة",
 		"BROWSE_DIRECTORY": "تصفح الدليل",
 		"JUST_NOW": "الآن",
 		"HOURS_AGO": "منذ {h} س",

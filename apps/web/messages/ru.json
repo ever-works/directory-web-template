@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "Пока нет активности",
 		"NO_ACTIVITY_OTHER": "{name} ещё не оставлял комментариев",
 		"ACTIVITY_HINT": "Ваши комментарии к инструментам появятся здесь.",
+		"ACTIVITY_SINGULAR": "активность",
+		"ACTIVITY_PLURAL": "активности",
 		"BROWSE_DIRECTORY": "Просмотреть каталог",
 		"JUST_NOW": "только что",
 		"HOURS_AGO": "{h}ч назад",

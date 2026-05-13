@@ -1400,6 +1400,8 @@
 		"NO_ACTIVITY_OWN": "まだ活動がありません",
 		"NO_ACTIVITY_OTHER": "{name}はまだコメントしていません",
 		"ACTIVITY_HINT": "ツールに残したコメントがここに表示されます。",
+		"ACTIVITY_SINGULAR": "アクティビティ",
+		"ACTIVITY_PLURAL": "アクティビティ",
 		"BROWSE_DIRECTORY": "ディレクトリを閲覧する",
 		"JUST_NOW": "たった今",
 		"HOURS_AGO": "{h}時間前",

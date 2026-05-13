@@ -1432,6 +1432,8 @@
 		"NO_ACTIVITY_OWN": "暂无活动",
 		"NO_ACTIVITY_OTHER": "{name} 还没有评论",
 		"ACTIVITY_HINT": "您在工具上留下的评论将显示在这里。",
+		"ACTIVITY_SINGULAR": "活动",
+		"ACTIVITY_PLURAL": "活动",
 		"BROWSE_DIRECTORY": "浏览目录",
 		"JUST_NOW": "刚刚",
 		"HOURS_AGO": "{h}小时前",

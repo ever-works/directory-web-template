@@ -1400,6 +1400,8 @@
 		"NO_ACTIVITY_OWN": "Nog geen activiteit",
 		"NO_ACTIVITY_OTHER": "{name} heeft nog niet gereageerd",
 		"ACTIVITY_HINT": "Reacties die u achterlaat verschijnen hier.",
+		"ACTIVITY_SINGULAR": "activiteit",
+		"ACTIVITY_PLURAL": "activiteiten",
 		"BROWSE_DIRECTORY": "Door de directory bladeren",
 		"JUST_NOW": "zojuist",
 		"HOURS_AGO": "{h}u geleden",

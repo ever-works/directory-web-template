@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "Chưa có hoạt động",
 		"NO_ACTIVITY_OTHER": "{name} chưa bình luận",
 		"ACTIVITY_HINT": "Bình luận bạn để lại sẽ xuất hiện ở đây.",
+		"ACTIVITY_SINGULAR": "hoạt động",
+		"ACTIVITY_PLURAL": "hoạt động",
 		"BROWSE_DIRECTORY": "Duyệt thư mục",
 		"JUST_NOW": "vừa xong",
 		"HOURS_AGO": "{h}g trước",

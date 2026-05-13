@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "Henüz aktivite yok",
 		"NO_ACTIVITY_OTHER": "{name} henüz yorum yapmadı",
 		"ACTIVITY_HINT": "Araçlara bıraktığınız yorumlar burada görünür.",
+		"ACTIVITY_SINGULAR": "aktivite",
+		"ACTIVITY_PLURAL": "aktiviteler",
 		"BROWSE_DIRECTORY": "Dizini gözat",
 		"JUST_NOW": "şimdi",
 		"HOURS_AGO": "{h}s önce",

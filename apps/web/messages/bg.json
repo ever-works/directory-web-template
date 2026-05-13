@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "Все още няма активност",
 		"NO_ACTIVITY_OTHER": "{name} все още не е коментирал",
 		"ACTIVITY_HINT": "Коментарите, които оставяте, ще се появят тук.",
+		"ACTIVITY_SINGULAR": "активност",
+		"ACTIVITY_PLURAL": "активности",
 		"BROWSE_DIRECTORY": "Разгледайте директорията",
 		"JUST_NOW": "точно сега",
 		"HOURS_AGO": "преди {h}ч",

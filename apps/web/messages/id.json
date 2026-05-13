@@ -1489,6 +1489,8 @@
 		"NO_ACTIVITY_OWN": "Belum ada aktivitas",
 		"NO_ACTIVITY_OTHER": "{name} belum berkomentar",
 		"ACTIVITY_HINT": "Komentar yang Anda tinggalkan akan muncul di sini.",
+		"ACTIVITY_SINGULAR": "aktivitas",
+		"ACTIVITY_PLURAL": "aktivitas",
 		"BROWSE_DIRECTORY": "Jelajahi direktori",
 		"JUST_NOW": "baru saja",
 		"HOURS_AGO": "{h}j lalu",
