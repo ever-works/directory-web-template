@@ -31,6 +31,18 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-13 — Spec 023: AI Chat for Directory Visitors (proposed)
+
+- `spec-023` Drafted `docs/spec/023-ai-chat/` (spec + plan + tasks)
+  for EW-132. Proposes a self-contained AI chat plugin
+  (`packages/plugin-ai-chat/`) built on the Vercel AI SDK
+  (`ai@^6`, `@ai-sdk/react@^3`), opt-in via `works.yml`, with
+  three layout modes (floating / hero-takeover / sidebar),
+  anonymous-vs-authenticated scenario gating, six-locale i18n
+  (FR required by Jira AC), and `next/dynamic`-loaded panel so
+  the public bundle is preserved when the feature is off.
+- `docs/spec/README.md` Indexed spec 023 (status: *proposed*).
+
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 
 - `spec-022` Avatars stored as base64 data URLs in

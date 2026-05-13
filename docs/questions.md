@@ -389,6 +389,59 @@ confirm, override, or refine.
 
 ---
 
+## Spec 023 — AI Chat for Directory Visitors
+
+### Q-023a Default model
+
+- **Context.** The chat is OpenAI-compatible by design but needs a
+  sensible default model so a fresh template that opts in works
+  without a model-selection UI.
+- **Options.**
+  - **`openai/gpt-4o-mini` via OpenRouter.** Cheap, fast, broadly
+    multilingual; OpenRouter is the same gateway the Ever Works
+    platform uses by default.
+  - `anthropic/claude-3-5-haiku` via OpenRouter. Better quality on
+    long context; slightly higher cost; same gateway.
+- **Default.** **`openai/gpt-4o-mini` via OpenRouter.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023b Should v1 allow chat-driven mutations?
+
+- **Context.** The chat could navigate the visitor to a submission
+  form *and* fill it in / submit it on their behalf via tool calls.
+  Mutations multiply the abuse surface and prompt-injection blast
+  radius.
+- **Options.**
+  - **Read-only + navigate.** Tools fetch data and return a route
+    to the visitor; the visitor confirms by clicking.
+  - Read + write. Tools can also call into existing
+    submit/follow/favourite repositories with the visitor's
+    session.
+- **Default.** **Read-only + navigate.** Re-evaluate once the
+  read-only tools have been used in anger.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023c Where do scenario openers and the system prompt live?
+
+- **Context.** Strings need to translate via the existing pipeline
+  (`next-intl` + Crowdin per Spec 014) but they're conceptually
+  part of the plugin package.
+- **Options.**
+  - **`apps/web/messages/<locale>.json` under `AI_CHAT_*`.** The
+    plugin package reads them through `next-intl` at call time;
+    Crowdin/translators see them like any other UI string.
+  - Inline `.ts` constants under
+    `packages/plugin-ai-chat/src/prompts/<locale>.ts`. Keeps the
+    plugin self-contained but bypasses the translation pipeline.
+- **Default.** **`apps/web/messages/<locale>.json` under
+  `AI_CHAT_*`.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.
