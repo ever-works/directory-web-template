@@ -116,36 +116,57 @@ Conventions:
   decision (vitest? jest? plugin-only or repo-wide?) gets
   maintainer review.
 
-### T-003 [seq] — Implement directory-aware tools
+### T-003 [seq] — Implement directory-aware tools — **done**
 
-- Files: `packages/plugin-ai-chat/src/tools/{index.ts,searchItems.ts,
-  getItemDetails.ts,listCategories.ts,listTags.ts,mySubmissions.ts,
-  myFavourites.ts,myProfile.ts,navigate.ts}`,
+- Files: `packages/plugin-ai-chat/src/tools/{index.ts,
+  context.ts, tool.ts, types.ts, searchItems.ts, getItemDetails.ts,
+  listCategories.ts, listTags.ts, mySubmissions.ts,
+  myFavourites.ts, myProfile.ts, navigate.ts}`,
   `apps/web/lib/repositories/favorite.repository.ts`
 - Steps:
-  1. Each tool exports `{ description, inputSchema (Zod),
-     requiresAuth, execute }`.
-  2. Read tools wrap existing repositories — no direct SQL:
-     - `searchItems` / `getItemDetails` → `item.repository.ts`
-     - `listCategories` → `category.repository.ts`
-     - `listTags` → `tag.repository.ts`
-  3. Authenticated tools accept a `session` parameter and refuse to
-     run when `session === null`:
-     - `mySubmissions` → `ClientItemRepository.findByUser(userId)`
-       (rows in `items` table with `submitted_by=userId,
-       status='pending'`).
-     - `myFavourites` → new
-       `lib/repositories/favorite.repository.ts` reading the
-       existing `favorites` table (`userId`, `itemSlug`,
-       `tenantId`).
-     - `myProfile` → existing user / `client-dashboard` repos.
-  4. `navigate` returns a structured `{ path, locale }` so the
-     client can `router.push()` after the stream completes.
-- Verification: unit tests in
-  `packages/plugin-ai-chat/__tests__/tools.test.ts` cover the
-  happy path and the auth-refusal path for each tool; the new
-  `favorite.repository.ts` has its own test covering tenant
-  isolation.
+  1. [x] Each tool exports a `ChatTool<TInput, TOutput>` with
+     `{ name, description, inputSchema (Zod), requiresAuth,
+     scenarios, execute }`. The wrapper carries `requiresAuth` and
+     `scenarios` metadata that the agent (T-004) uses to filter
+     which tools the model sees per conversation.
+  2. **Pivot from original plan (Article I).** Tools do **not**
+     import from `apps/web` — that's the same plugin→app
+     coupling Article I forbids in reverse. Instead, every tool
+     receives an `AiChatToolContext` (defined in
+     `tools/context.ts`) and calls methods on it. The chat route
+     (`/api/chat`, T-007) constructs the real `AiChatToolContext`
+     by wiring:
+     - `searchItems` / `getItem` → existing
+       `lib/services/category-git.service.ts` +
+       `lib/content.ts` (Git-CMS items).
+     - `listCategories` → `category.repository.ts`.
+     - `listTags` → `tag.repository.ts`.
+     - `getMySubmissions` → `ClientItemRepository.findByUser()`.
+     - `getMyFavourites` → new `favorite.repository.ts`
+       (added in this task — `listUserFavorites`,
+       `countUserFavorites`, tenant-scoped reads against the
+       existing `favorites` table).
+     - `getMyProfile` → existing user / client-dashboard repos.
+  3. [x] Authenticated tools (`mySubmissions`, `myFavourites`,
+     `myProfile`) check `ctx.session` and return an
+     `AuthRequiredResult` discriminated-union shape when
+     anonymous, so the model can surface a sign-in CTA. The
+     agent's tool-set filter (`createTools`) also drops
+     `requiresAuth=true` tools entirely from the anonymous tool
+     set — belt-and-braces.
+  4. [x] `navigate` returns `{ path, locale }` so the client
+     can `router.push()` after the stream completes. Supports
+     11 known targets (home, submit, pricing, sign-in/up,
+     favorites, dashboard, item, category, tag, search).
+  5. [x] `createTools(ctx, { scenario, allow? })` aggregator
+     filters `ALL_CHAT_TOOLS` by session, scenario, and the
+     optional `aiChat.{anonymous|authenticated}.scenarios`
+     allow-list, then maps survivors to Vercel-AI-SDK
+     `Tool` shape via the SDK's `tool()` helper.
+- Verification: [x] `pnpm --filter @ever-works/plugin-ai-chat
+  typecheck` clean; [x] `apps/web tsc --noEmit` clean (no
+  regressions from the new repository). Unit tests deferred to
+  T-002b (no test framework today; tracked under Q-023e).
 
 ### T-004 [seq] — Implement `runAgent` + system-prompt scaffolding
 
