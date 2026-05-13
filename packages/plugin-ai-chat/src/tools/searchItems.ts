@@ -8,13 +8,7 @@ const inputSchema = z.object({
 		.min(1, 'query is required')
 		.max(200, 'query is too long')
 		.describe('A free-text search query (item name, keywords, category hints).'),
-	limit: z
-		.number()
-		.int()
-		.min(1)
-		.max(20)
-		.default(5)
-		.describe('Maximum number of items to return (1–20). Default 5.'),
+	limit: z.number().int().min(1).max(20).default(5).describe('Maximum number of items to return (1–20). Default 5.')
 });
 
 export type SearchItemsInput = z.infer<typeof inputSchema>;
@@ -27,5 +21,5 @@ export const searchItemsTool: ChatTool<SearchItemsInput, ItemSummary[]> = {
 	inputSchema,
 	requiresAuth: false,
 	scenarios: ['browse', 'search', 'submit', 'support', 'navigate'],
-	execute: async (input, ctx) => ctx.searchItems({ query: input.query, limit: input.limit }),
+	execute: async (input, ctx) => ctx.searchItems({ query: input.query, limit: input.limit })
 };

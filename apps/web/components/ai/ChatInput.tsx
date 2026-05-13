@@ -81,13 +81,7 @@ export function ChatInput() {
 					<StopCircle className="h-4 w-4" aria-hidden="true" />
 				</Button>
 			) : (
-				<Button
-					type="submit"
-					color="primary"
-					isIconOnly
-					aria-label={t('SEND')}
-					isDisabled={!text.trim()}
-				>
+				<Button type="submit" color="primary" isIconOnly aria-label={t('SEND')} isDisabled={!text.trim()}>
 					<Send className="h-4 w-4" aria-hidden="true" />
 				</Button>
 			)}

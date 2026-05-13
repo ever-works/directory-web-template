@@ -25,7 +25,7 @@ export const ALL_CHAT_TOOLS: ReadonlyArray<ChatTool<unknown, unknown>> = [
 	navigateTool as ChatTool<unknown, unknown>,
 	mySubmissionsTool as ChatTool<unknown, unknown>,
 	myFavouritesTool as ChatTool<unknown, unknown>,
-	myProfileTool as ChatTool<unknown, unknown>,
+	myProfileTool as ChatTool<unknown, unknown>
 ];
 
 export interface CreateToolsOptions {
@@ -55,10 +55,7 @@ export interface CreateToolsOptions {
  *   3. If `opts.allow` is provided, tools whose name is not in the
  *      set are dropped.
  */
-export function createTools(
-	ctx: AiChatToolContext,
-	opts: CreateToolsOptions,
-): ToolSet {
+export function createTools(ctx: AiChatToolContext, opts: CreateToolsOptions): ToolSet {
 	const set: Record<string, Tool> = {};
 
 	for (const t of ALL_CHAT_TOOLS) {
@@ -69,7 +66,7 @@ export function createTools(
 		set[t.name] = tool({
 			description: t.description,
 			inputSchema: t.inputSchema,
-			execute: (input) => t.execute(input, ctx) as Promise<unknown>,
+			execute: (input) => t.execute(input, ctx) as Promise<unknown>
 		});
 	}
 
@@ -77,9 +74,7 @@ export function createTools(
 }
 
 export type { ChatTool } from './tool';
-export type {
-	AiChatToolContext,
-} from './context';
+export type { AiChatToolContext } from './context';
 export type {
 	AuthRequiredResult,
 	CategorySummary,
@@ -87,7 +82,7 @@ export type {
 	ItemDetail,
 	ItemSummary,
 	TagSummary,
-	UserProfileSummary,
+	UserProfileSummary
 } from './types';
 
 export { getItemDetailsTool } from './getItemDetails';

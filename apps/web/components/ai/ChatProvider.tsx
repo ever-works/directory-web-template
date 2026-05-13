@@ -42,7 +42,7 @@ export function AiChatProvider({
 	isAuthenticated,
 	conversationId,
 	currentPageUrl,
-	children,
+	children
 }: AiChatProviderProps) {
 	const { track } = useAnalytics();
 
@@ -57,24 +57,24 @@ export function AiChatProvider({
 					scenario,
 					locale,
 					conversationId,
-					currentPageUrl: currentPageUrl ?? null,
-				},
+					currentPageUrl: currentPageUrl ?? null
+				}
 			}),
-		[scenario, locale, conversationId, currentPageUrl],
+		[scenario, locale, conversationId, currentPageUrl]
 	);
 
 	const onToolCall = useCallback(
 		({ toolCall }: { toolCall: { toolName: string } }) => {
 			track(AnalyticsEvent.AI_CHAT_TOOL_CALLED, { scenario, tool: toolCall.toolName });
 		},
-		[track, scenario],
+		[track, scenario]
 	);
 
 	const chat = useChat<UIMessage>({ transport, onToolCall });
 
 	const value = useMemo<AiChatContextValue>(
 		() => ({ scenario, locale, isAuthenticated, chat }),
-		[scenario, locale, isAuthenticated, chat],
+		[scenario, locale, isAuthenticated, chat]
 	);
 
 	return <AiChatContext.Provider value={value}>{children}</AiChatContext.Provider>;

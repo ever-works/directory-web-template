@@ -1,11 +1,4 @@
-import type {
-	CategorySummary,
-	ChatSession,
-	ItemDetail,
-	ItemSummary,
-	TagSummary,
-	UserProfileSummary,
-} from './types';
+import type { CategorySummary, ChatSession, ItemDetail, ItemSummary, TagSummary, UserProfileSummary } from './types';
 
 /**
  * Dependency-injection seam between the plugin and the host

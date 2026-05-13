@@ -105,7 +105,7 @@ Primary users:
 ## 4. Non-Goals
 
 - **Building a chat-driven admin tool.** This spec is about
-  *directory visitors*. The platform already has its own admin chat
+  _directory visitors_. The platform already has its own admin chat
   with deeper tools (deploy, generate items, manage works); we do not
   re-ship those.
 - **Inventing a new AI provider plugin SDK.** Spec 002 (Plugin
@@ -158,66 +158,66 @@ own provider account without forking the UI.
 ## 6. Acceptance Criteria
 
 - [ ] AC-1: When `aiChat.enabled=true` in `works.yml`, a chat surface
-  is mounted on every public page according to `aiChat.position`
-  (`floating` | `hero-takeover` | `sidebar`). When
-  `aiChat.enabled=false` (default), no chat-related JS, CSS, or DOM is
-  emitted on any public route.
+      is mounted on every public page according to `aiChat.position`
+      (`floating` | `hero-takeover` | `sidebar`). When
+      `aiChat.enabled=false` (default), no chat-related JS, CSS, or DOM is
+      emitted on any public route.
 - [ ] AC-2: The chat is **fully configurable from `works.yml`** —
-  `enabled`, `position`, `provider`, `model`, `defaultLocale`,
-  `anonymous.{enabled, scenarios[]}`,
-  `authenticated.{enabled, scenarios[]}`, `persist`. Reading the
-  config goes through a typed `AiChatConfig` interface alongside
-  the existing `AppConfig` in `apps/web/lib/config-manager.ts`.
+      `enabled`, `position`, `provider`, `model`, `defaultLocale`,
+      `anonymous.{enabled, scenarios[]}`,
+      `authenticated.{enabled, scenarios[]}`, `persist`. Reading the
+      config goes through a typed `AiChatConfig` interface alongside
+      the existing `AppConfig` in `apps/web/lib/config-manager.ts`.
 - [ ] AC-3: `POST /api/chat` streams a chat completion via
-  `streamText` from the Vercel AI SDK, returns a
-  `toUIMessageStreamResponse()`, and requires a CSRF-safe POST. It
-  resolves the active user from the existing Auth.js session and
-  enforces per-IP rate limiting for anonymous callers (defaults:
-  20 requests / 60 s) and per-user rate limiting for authenticated
-  callers (defaults: 60 requests / 60 s). Limits are configurable via
-  env.
+      `streamText` from the Vercel AI SDK, returns a
+      `toUIMessageStreamResponse()`, and requires a CSRF-safe POST. It
+      resolves the active user from the existing Auth.js session and
+      enforces per-IP rate limiting for anonymous callers (defaults:
+      20 requests / 60 s) and per-user rate limiting for authenticated
+      callers (defaults: 60 requests / 60 s). Limits are configurable via
+      env.
 - [ ] AC-4: Anonymous visitors can invoke only the **anonymous
-  scenarios** allowed in `works.yml` (default set: `browse`, `search`,
-  `submit`, `pricing`, `login-help`, `support`). Calls that target an
-  authenticated-only tool return a structured error and a CTA to sign
-  in. Authenticated visitors can invoke the anonymous set plus
-  `my-submissions`, `my-favourites`, `my-profile`, and `navigate`.
+      scenarios** allowed in `works.yml` (default set: `browse`, `search`,
+      `submit`, `pricing`, `login-help`, `support`). Calls that target an
+      authenticated-only tool return a structured error and a CTA to sign
+      in. Authenticated visitors can invoke the anonymous set plus
+      `my-submissions`, `my-favourites`, `my-profile`, and `navigate`.
 - [ ] AC-5: The chat ships with **six locales** matching Spec 005
-  (EN/FR/ES/DE/AR/ZH). The system prompt and canned scenario openers
-  are translated; the message bubbles use the visitor's active locale
-  by default. Arabic renders RTL.
+      (EN/FR/ES/DE/AR/ZH). The system prompt and canned scenario openers
+      are translated; the message bubbles use the visitor's active locale
+      by default. Arabic renders RTL.
 - [ ] AC-6: When `aiChat.persist=true` and the visitor is
-  authenticated, conversations are stored in two new Drizzle tables
-  (`chat_conversations`, `chat_messages`) scoped to `user_id`. When
-  `persist=false` or the visitor is anonymous, no DB writes occur and
-  history lives only in `localStorage` under a versioned key.
+      authenticated, conversations are stored in two new Drizzle tables
+      (`chat_conversations`, `chat_messages`) scoped to `user_id`. When
+      `persist=false` or the visitor is anonymous, no DB writes occur and
+      history lives only in `localStorage` under a versioned key.
 - [ ] AC-7: The chat bundle is loaded via `next/dynamic` only after
-  the chat is opened (floating mode) or the visitor types the first
-  character into the hero (hero-takeover). Public-route first-load JS
-  for `/` does not increase by more than **+5 KB gzip** when the chat
-  is enabled (the launcher button + lazy-loader). Article V budget
-  (250 KB gzip first-load) is preserved.
+      the chat is opened (floating mode) or the visitor types the first
+      character into the hero (hero-takeover). Public-route first-load JS
+      for `/` does not increase by more than **+5 KB gzip** when the chat
+      is enabled (the launcher button + lazy-loader). Article V budget
+      (250 KB gzip first-load) is preserved.
 - [ ] AC-8: The chat passes basic accessibility checks: the launcher
-  button has an `aria-label`, the open chat is a focus trap, `Esc`
-  closes it, `Tab` cycles through the message list and input, screen
-  readers announce streaming responses via `aria-live="polite"`, and
-  the panel meets WCAG 2.2 AA contrast on light and dark themes.
+      button has an `aria-label`, the open chat is a focus trap, `Esc`
+      closes it, `Tab` cycles through the message list and input, screen
+      readers announce streaming responses via `aria-live="polite"`, and
+      the panel meets WCAG 2.2 AA contrast on light and dark themes.
 - [ ] AC-9: Playwright e2e coverage:
-  - **anonymous flow:** the chat launcher appears when enabled,
-    opens, accepts a question, and streams a reply that mentions an
-    item from the seeded CMS (asserted via role, not exact copy);
-  - **disabled flow:** the chat does not appear and `/api/chat`
-    returns 404 when `aiChat.enabled=false`;
-  - **authenticated flow:** a signed-in user can invoke
-    `my-submissions` and the response contains a link to the
-    seeded item they submitted in fixtures;
-  - **i18n:** the launcher label is translated when the locale
-    cookie is set to `fr`.
+    - **anonymous flow:** the chat launcher appears when enabled,
+      opens, accepts a question, and streams a reply that mentions an
+      item from the seeded CMS (asserted via role, not exact copy);
+    - **disabled flow:** the chat does not appear and `/api/chat`
+      returns 404 when `aiChat.enabled=false`;
+    - **authenticated flow:** a signed-in user can invoke
+      `my-submissions` and the response contains a link to the
+      seeded item they submitted in fixtures;
+    - **i18n:** the launcher label is translated when the locale
+      cookie is set to `fr`.
 - [ ] AC-10: The chat surface is also reachable from a future
-  `/chat` route (locale-prefixed) for full-page sessions, but **only
-  when** `aiChat.position` is `hero-takeover` or `sidebar` — if
-  `floating`, `/chat` returns 404 so we do not advertise a route that
-  the operator did not enable.
+      `/chat` route (locale-prefixed) for full-page sessions, but **only
+      when** `aiChat.position` is `hero-takeover` or `sidebar` — if
+      `floating`, `/chat` returns 404 so we do not advertise a route that
+      the operator did not enable.
 
 ## 7. Out-of-Scope Considerations
 
@@ -246,7 +246,7 @@ own provider account without forking the UI.
   Crisp / HubSpot so visitors immediately recognise it.
 - **Hero-takeover layout.** The standard hero block on the home page
   is replaced by a single-line input that says, in the visitor's
-  locale, *"Ask me anything about this directory…"*. Once the
+  locale, _"Ask me anything about this directory…"_. Once the
   visitor types a character, the layout splits into chat-left /
   results-canvas-right (≥ 1024 px) or chat-top / canvas-below
   (< 1024 px). On every other route the floating launcher is used so
@@ -278,19 +278,17 @@ own provider account without forking the UI.
 
 - **New API route.** `POST /api/chat` (server route, Node runtime).
   Request body: `{ messages: UIMessage[], conversationId?: string,
-  scenario?: string, currentPageUrl?: string }`. Response:
+scenario?: string, currentPageUrl?: string }`. Response:
   `toUIMessageStreamResponse()` (SSE). Returns 404 when
   `aiChat.enabled=false`; returns 401 when the requested scenario
   requires authentication and no session is present.
 - **New optional Drizzle tables** (created only when
-  `aiChat.persist=true` in `works.yml`):
-  - `chat_conversations(id, user_id, title, locale, scenario,
-    created_at, updated_at)` — FK to `users.id`,
-    `INDEX (user_id, updated_at DESC)`.
-  - `chat_messages(id, conversation_id, role, parts, tool_calls,
-    tool_results, created_at)` — FK to `chat_conversations.id`,
-    `parts` and tool fields stored as `jsonb` (Postgres) / `text`
-    (SQLite).
+  `aiChat.persist=true` in `works.yml`): - `chat_conversations(id, user_id, title, locale, scenario,
+created_at, updated_at)` — FK to `users.id`,
+  `INDEX (user_id, updated_at DESC)`. - `chat_messages(id, conversation_id, role, parts, tool_calls,
+tool_results, created_at)` — FK to `chat_conversations.id`,
+  `parts` and tool fields stored as `jsonb` (Postgres) / `text`
+  (SQLite).
 - **New env vars.** `AI_CHAT_PROVIDER`, `AI_CHAT_API_KEY`,
   `AI_CHAT_BASE_URL`, `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_ANON`,
   `AI_CHAT_RATE_LIMIT_AUTH`. Validated by `scripts/check-env.js`;
@@ -300,40 +298,39 @@ own provider account without forking the UI.
   `ai_chat_scenario_blocked`, `ai_chat_closed`.
 - **New `works.yml` block:**
 
-  ```yaml
-  aiChat:
-    enabled: true
-    position: floating          # floating | hero-takeover | sidebar
-    provider: openrouter        # any @ai-sdk/openai-compatible target
-    model: openai/gpt-4o-mini   # operator-chosen default
-    defaultLocale: en
-    persist: false
-    anonymous:
-      enabled: true
-      scenarios: [browse, search, submit, pricing, login-help, support]
-    authenticated:
-      enabled: true
-      scenarios: [browse, search, submit, pricing, my-submissions,
-                  my-favourites, my-profile, navigate, support]
-  ```
+    ```yaml
+    aiChat:
+        enabled: true
+        position: floating # floating | hero-takeover | sidebar
+        provider: openrouter # any @ai-sdk/openai-compatible target
+        model: openai/gpt-4o-mini # operator-chosen default
+        defaultLocale: en
+        persist: false
+        anonymous:
+            enabled: true
+            scenarios: [browse, search, submit, pricing, login-help, support]
+        authenticated:
+            enabled: true
+            scenarios: [browse, search, submit, pricing, my-submissions, my-favourites, my-profile, navigate, support]
+    ```
 
-  Backed by an `AiChatConfig` TypeScript interface alongside
-  `AppConfig` in `apps/web/lib/config-manager.ts` and a Zod schema
-  in `packages/plugin-ai-chat/src/config.ts`.
+    Backed by an `AiChatConfig` TypeScript interface alongside
+    `AppConfig` in `apps/web/lib/config-manager.ts` and a Zod schema
+    in `packages/plugin-ai-chat/src/config.ts`.
 
 ## 10. Plugin / Adapter Impact
 
 - The feature ships as a **package** under
   `packages/plugin-ai-chat/`, exporting:
-  - the React components (`AiChatLauncher`, `AiChatPanel`,
-    `AiChatHeroTakeover`, `AiChatSidebar`),
-  - the tool definitions (`searchItems`, `getItemDetails`,
-    `listCategories`, `listTags`, `mySubmissions`, `myFavourites`,
-    `myProfile`, `navigate`),
-  - the system prompt + scenario openers (per-locale),
-  - the Zod config schema,
-  - and an optional `defineDirectoryPlugin({...})` manifest stub for
-    Spec 002 to consume once the plugin SDK lands.
+    - the React components (`AiChatLauncher`, `AiChatPanel`,
+      `AiChatHeroTakeover`, `AiChatSidebar`),
+    - the tool definitions (`searchItems`, `getItemDetails`,
+      `listCategories`, `listTags`, `mySubmissions`, `myFavourites`,
+      `myProfile`, `navigate`),
+    - the system prompt + scenario openers (per-locale),
+    - the Zod config schema,
+    - and an optional `defineDirectoryPlugin({...})` manifest stub for
+      Spec 002 to consume once the plugin SDK lands.
 - Core code does not import `packages/plugin-ai-chat/` directly except
   through a single seam in `apps/web/app/[locale]/layout.tsx` (the
   mount point) and `apps/web/app/api/chat/route.ts` (the API
@@ -388,7 +385,7 @@ A new spec file `apps/web-e2e/tests/public/ai-chat.spec.ts` covers:
 - the launcher is absent when the feature is disabled and
   `/api/chat` returns 404;
 - a signed-in fixture user (`auth.fixture.ts`) can ask
-  *"what did I submit?"* and the reply contains a link to the
+  _"what did I submit?"_ and the reply contains a link to the
   seeded item they own;
 - the `Esc` key closes the panel and returns focus to the launcher
   (a11y);

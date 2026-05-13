@@ -16,12 +16,9 @@ import { configManager } from '@/lib/config-manager';
  * itself.
  */
 
-const ChatLauncher = dynamic(
-	() => import('./ChatLauncher').then((mod) => ({ default: mod.ChatLauncher })),
-	{
-		loading: () => null,
-	},
-);
+const ChatLauncher = dynamic(() => import('./ChatLauncher').then((mod) => ({ default: mod.ChatLauncher })), {
+	loading: () => null
+});
 
 export interface AiChatMountProps {
 	locale: string;
@@ -40,11 +37,5 @@ export async function AiChatMount({ locale }: AiChatMountProps) {
 	const session = await auth();
 	const isAuthenticated = Boolean(session?.user?.id);
 
-	return (
-		<ChatLauncher
-			scenario="browse"
-			locale={locale}
-			isAuthenticated={isAuthenticated}
-		/>
-	);
+	return <ChatLauncher scenario="browse" locale={locale} isAuthenticated={isAuthenticated} />;
 }

@@ -3,13 +3,7 @@ import type { ChatTool } from './tool';
 import type { TagSummary } from './types';
 
 const inputSchema = z.object({
-	limit: z
-		.number()
-		.int()
-		.min(1)
-		.max(50)
-		.default(25)
-		.describe('Maximum number of tags to return (1–50). Default 25.'),
+	limit: z.number().int().min(1).max(50).default(25).describe('Maximum number of tags to return (1–50). Default 25.')
 });
 
 export type ListTagsInput = z.infer<typeof inputSchema>;
@@ -22,5 +16,5 @@ export const listTagsTool: ChatTool<ListTagsInput, TagSummary[]> = {
 	inputSchema,
 	requiresAuth: false,
 	scenarios: ['browse', 'search', 'support'],
-	execute: async (input, ctx) => ctx.listTags({ limit: input.limit }),
+	execute: async (input, ctx) => ctx.listTags({ limit: input.limit })
 };

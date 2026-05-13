@@ -24,9 +24,9 @@ const MINIMAL_BODY = {
 		{
 			id: 'm1',
 			role: 'user',
-			parts: [{ type: 'text', text: 'hello' }],
-		},
-	],
+			parts: [{ type: 'text', text: 'hello' }]
+		}
+	]
 };
 
 test.describe('API: /api/chat — disabled state (default)', () => {
@@ -43,7 +43,7 @@ test.describe('API: /api/chat — disabled state (default)', () => {
 	test('returns 400 on malformed JSON', async ({ request }) => {
 		const response = await request.post('/api/chat', {
 			data: '{not json',
-			headers: { 'Content-Type': 'application/json' },
+			headers: { 'Content-Type': 'application/json' }
 		});
 		// Validation runs first, before the 404 gate, so this is 400.
 		expect(response.status()).toBe(400);

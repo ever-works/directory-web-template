@@ -41,9 +41,6 @@ export interface ChatTool<TInput, TOutput> {
  */
 export const ANY_SCENARIO = '*' as const;
 
-export function isAvailableInScenario(
-	tool: ChatTool<unknown, unknown>,
-	scenario: AuthenticatedScenario,
-): boolean {
+export function isAvailableInScenario(tool: ChatTool<unknown, unknown>, scenario: AuthenticatedScenario): boolean {
 	return tool.scenarios.includes(ANY_SCENARIO) || tool.scenarios.includes(scenario);
 }

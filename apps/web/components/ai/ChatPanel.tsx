@@ -1,13 +1,6 @@
 'use client';
 
-import {
-	Modal,
-	ModalBody,
-	ModalContent,
-	ModalFooter,
-	ModalHeader,
-	type ModalProps,
-} from '@heroui/react';
+import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, type ModalProps } from '@heroui/react';
 import { useTranslations } from 'next-intl';
 import type { AuthenticatedScenario } from '@ever-works/plugin-ai-chat';
 import { AiChatProvider } from './ChatProvider';
@@ -38,7 +31,7 @@ export function ChatPanel({
 	locale,
 	isAuthenticated,
 	conversationId,
-	currentPageUrl,
+	currentPageUrl
 }: ChatPanelProps) {
 	const t = useTranslations('ai_chat');
 
@@ -52,7 +45,7 @@ export function ChatPanel({
 			aria-label={t('TITLE')}
 			classNames={{
 				base: 'h-[80vh] max-h-[640px] sm:bottom-6 sm:right-6 sm:m-0',
-				wrapper: 'sm:justify-end sm:items-end',
+				wrapper: 'sm:justify-end sm:items-end'
 			}}
 		>
 			<ModalContent>

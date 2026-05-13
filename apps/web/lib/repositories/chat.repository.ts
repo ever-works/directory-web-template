@@ -1,12 +1,7 @@
 import 'server-only';
 import { and, desc, eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
-import {
-	chatConversations,
-	chatMessages,
-	type ChatConversation,
-	type ChatMessage,
-} from '@/lib/db/schema';
+import { chatConversations, chatMessages, type ChatConversation, type ChatMessage } from '@/lib/db/schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -60,7 +55,7 @@ export async function createConversation(input: CreateConversationInput): Promis
 			locale: input.locale,
 			scenario: input.scenario ?? null,
 			title: input.title ?? null,
-			tenantId: tenantId ?? null,
+			tenantId: tenantId ?? null
 		})
 		.returning();
 	const row = rows[0];
@@ -78,7 +73,7 @@ export async function createConversation(input: CreateConversationInput): Promis
  */
 export async function appendMessages(
 	conversationId: string,
-	messages: ReadonlyArray<Omit<AppendMessageInput, 'conversationId'>>,
+	messages: ReadonlyArray<Omit<AppendMessageInput, 'conversationId'>>
 ): Promise<ChatMessage[]> {
 	if (messages.length === 0) return [];
 	const inserted = await db
@@ -89,24 +84,18 @@ export async function appendMessages(
 				role: m.role,
 				parts: m.parts as ChatMessage['parts'],
 				toolCalls: (m.toolCalls ?? null) as ChatMessage['toolCalls'],
-				toolResults: (m.toolResults ?? null) as ChatMessage['toolResults'],
-			})),
+				toolResults: (m.toolResults ?? null) as ChatMessage['toolResults']
+			}))
 		)
 		.returning();
-	await db
-		.update(chatConversations)
-		.set({ updatedAt: new Date() })
-		.where(eq(chatConversations.id, conversationId));
+	await db.update(chatConversations).set({ updatedAt: new Date() }).where(eq(chatConversations.id, conversationId));
 	return inserted;
 }
 
 /**
  * List the visitor's conversations, most-recently-updated first.
  */
-export async function listConversations(
-	userId: string,
-	options: { limit?: number } = {},
-): Promise<ChatConversation[]> {
+export async function listConversations(userId: string, options: { limit?: number } = {}): Promise<ChatConversation[]> {
 	const tenantId = await getTenantId();
 	const where = tenantId
 		? and(eq(chatConversations.userId, userId), eq(chatConversations.tenantId, tenantId))
@@ -127,22 +116,18 @@ export async function listConversations(
  */
 export async function getConversation(
 	userId: string,
-	conversationId: string,
+	conversationId: string
 ): Promise<ConversationWithMessages | null> {
 	const tenantId = await getTenantId();
 	const where = tenantId
 		? and(
 				eq(chatConversations.id, conversationId),
 				eq(chatConversations.userId, userId),
-				eq(chatConversations.tenantId, tenantId),
+				eq(chatConversations.tenantId, tenantId)
 			)
 		: and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId));
 
-	const conversationRows = await db
-		.select()
-		.from(chatConversations)
-		.where(where)
-		.limit(1);
+	const conversationRows = await db.select().from(chatConversations).where(where).limit(1);
 	const conversation = conversationRows[0];
 	if (!conversation) return null;
 
@@ -159,16 +144,13 @@ export async function getConversation(
  * Verify ownership of a conversation by `userId`. Returns the
  * conversation if owned, `null` otherwise.
  */
-export async function requireOwnership(
-	userId: string,
-	conversationId: string,
-): Promise<ChatConversation | null> {
+export async function requireOwnership(userId: string, conversationId: string): Promise<ChatConversation | null> {
 	const tenantId = await getTenantId();
 	const where = tenantId
 		? and(
 				eq(chatConversations.id, conversationId),
 				eq(chatConversations.userId, userId),
-				eq(chatConversations.tenantId, tenantId),
+				eq(chatConversations.tenantId, tenantId)
 			)
 		: and(eq(chatConversations.id, conversationId), eq(chatConversations.userId, userId));
 	const rows = await db.select().from(chatConversations).where(where).limit(1);

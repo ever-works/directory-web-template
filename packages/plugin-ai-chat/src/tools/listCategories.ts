@@ -9,7 +9,7 @@ const inputSchema = z.object({
 		.min(1)
 		.max(50)
 		.default(25)
-		.describe('Maximum number of categories to return (1–50). Default 25.'),
+		.describe('Maximum number of categories to return (1–50). Default 25.')
 });
 
 export type ListCategoriesInput = z.infer<typeof inputSchema>;
@@ -22,5 +22,5 @@ export const listCategoriesTool: ChatTool<ListCategoriesInput, CategorySummary[]
 	inputSchema,
 	requiresAuth: false,
 	scenarios: ['browse', 'search', 'submit', 'support'],
-	execute: async (input, ctx) => ctx.listCategories({ limit: input.limit }),
+	execute: async (input, ctx) => ctx.listCategories({ limit: input.limit })
 };

@@ -16,13 +16,13 @@ const ANON_CHIPS: SuggestionChip[] = [
 	{ labelKey: 'WELCOME_CHIP_SUBMIT', prompt: 'How do I submit a product?' },
 	{ labelKey: 'WELCOME_CHIP_PRICING', prompt: 'What pricing plans are available?' },
 	{ labelKey: 'WELCOME_CHIP_SIGN_IN', prompt: 'How do I sign in?' },
-	{ labelKey: 'WELCOME_CHIP_SUPPORT', prompt: 'I need help with something.' },
+	{ labelKey: 'WELCOME_CHIP_SUPPORT', prompt: 'I need help with something.' }
 ];
 
 const AUTH_CHIPS: SuggestionChip[] = [
 	{ labelKey: 'WELCOME_CHIP_MY_SUBMISSIONS', prompt: 'What did I submit recently?', authOnly: true },
 	{ labelKey: 'WELCOME_CHIP_MY_FAVOURITES', prompt: 'Show me my favourites.', authOnly: true },
-	{ labelKey: 'WELCOME_CHIP_MY_PROFILE', prompt: 'Summarise my profile.', authOnly: true },
+	{ labelKey: 'WELCOME_CHIP_MY_PROFILE', prompt: 'Summarise my profile.', authOnly: true }
 ];
 
 /**

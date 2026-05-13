@@ -1,10 +1,4 @@
-import {
-	convertToModelMessages,
-	stepCountIs,
-	streamText,
-	type LanguageModel,
-	type UIMessage,
-} from 'ai';
+import { convertToModelMessages, stepCountIs, streamText, type LanguageModel, type UIMessage } from 'ai';
 
 type StreamTextResultDefault = ReturnType<typeof streamText>;
 import type { AuthenticatedScenario } from './config';
@@ -28,7 +22,7 @@ export const DEFAULT_MAX_STEPS = 5;
  */
 export const DEFAULT_MESSAGE_LIMITS = {
 	maxMessages: 50,
-	maxCharsPerMessage: 4000,
+	maxCharsPerMessage: 4000
 } as const;
 
 export interface RunAgentParams {
@@ -81,10 +75,7 @@ export interface RunAgentParams {
  * messages and assistant replies are preserved untouched so we
  * don't break the model's chain-of-thought.
  */
-function clampUiMessages(
-	messages: ReadonlyArray<UIMessage>,
-	limits = DEFAULT_MESSAGE_LIMITS,
-): UIMessage[] {
+function clampUiMessages(messages: ReadonlyArray<UIMessage>, limits = DEFAULT_MESSAGE_LIMITS): UIMessage[] {
 	const truncated = messages.map((m) => {
 		if (m.role !== 'user') return m;
 		const parts = m.parts.map((p) => {
@@ -147,7 +138,7 @@ export async function runAgent(params: RunAgentParams): Promise<RunAgentResult> 
 		scenario: params.scenario,
 		session: params.ctx.session,
 		currentPageUrl: params.currentPageUrl ?? null,
-		toolNames,
+		toolNames
 	});
 
 	const clamped = clampUiMessages(params.uiMessages);
@@ -159,13 +150,13 @@ export async function runAgent(params: RunAgentParams): Promise<RunAgentResult> 
 		system: systemPrompt,
 		tools,
 		stopWhen: stepCountIs(params.maxSteps ?? DEFAULT_MAX_STEPS),
-		abortSignal: params.abortSignal,
+		abortSignal: params.abortSignal
 	});
 
 	return {
 		stream,
 		systemPrompt,
 		modelMessageCount: modelMessages.length,
-		toolNames,
+		toolNames
 	};
 }

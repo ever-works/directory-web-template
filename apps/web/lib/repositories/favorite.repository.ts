@@ -52,7 +52,7 @@ function clampLimit(value?: number): number {
  */
 export async function listUserFavorites(
 	userId: string,
-	options: ListFavoritesOptions = {},
+	options: ListFavoritesOptions = {}
 ): Promise<UserFavoriteRow[]> {
 	const tenantId = await getTenantId();
 	const limit = clampLimit(options.limit);
@@ -61,12 +61,7 @@ export async function listUserFavorites(
 		? and(eq(favorites.userId, userId), eq(favorites.tenantId, tenantId))
 		: eq(favorites.userId, userId);
 
-	return db
-		.select()
-		.from(favorites)
-		.where(where)
-		.orderBy(desc(favorites.createdAt))
-		.limit(limit);
+	return db.select().from(favorites).where(where).orderBy(desc(favorites.createdAt)).limit(limit);
 }
 
 /**

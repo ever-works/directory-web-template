@@ -6,7 +6,7 @@ import type {
 	ItemDetail,
 	ItemSummary,
 	TagSummary,
-	UserProfileSummary,
+	UserProfileSummary
 } from '@ever-works/plugin-ai-chat/tools';
 import { getCachedItem, getCachedItems, type ItemData } from '@/lib/content';
 import { countUserFavorites, listUserFavorites } from '@/lib/repositories/favorite.repository';
@@ -68,7 +68,7 @@ function toItemSummary(item: ItemData): ItemSummary {
 		categorySlug: categoryToSlug(item.category),
 		tagSlugs: tagsToSlugs(item.tags),
 		iconUrl: item.icon_url ?? null,
-		url: item.source_url ?? null,
+		url: item.source_url ?? null
 	};
 }
 
@@ -79,7 +79,7 @@ function toItemDetail(item: ItemData): ItemDetail {
 		websiteUrl: item.source_url ?? null,
 		priceModel: null,
 		createdAt: null,
-		updatedAt: item.updated_at ?? null,
+		updatedAt: item.updated_at ?? null
 	};
 }
 
@@ -145,7 +145,7 @@ async function listCategoriesFromItems(limit: number): Promise<CategorySummary[]
 		slug,
 		name: slug,
 		itemCount,
-		description: null,
+		description: null
 	}));
 }
 
@@ -174,7 +174,7 @@ async function getMySubmissions(userId: string, limit: number): Promise<ItemSumm
 		page: 1,
 		limit,
 		sortBy: 'submitted_at',
-		sortOrder: 'desc',
+		sortOrder: 'desc'
 	});
 	return result.items.map((row) => toItemSummary(row as unknown as ItemData));
 }
@@ -188,18 +188,16 @@ async function getMyFavourites(userId: string, limit: number): Promise<ItemSumma
 		categorySlug: row.itemCategory,
 		tagSlugs: [],
 		iconUrl: row.itemIconUrl,
-		url: null,
+		url: null
 	}));
 }
 
-async function getMyProfile(
-	session: ChatSession,
-): Promise<UserProfileSummary | null> {
+async function getMyProfile(session: ChatSession): Promise<UserProfileSummary | null> {
 	const [favoriteCount, submissions] = await Promise.all([
 		countUserFavorites(session.userId).catch(() => 0),
 		getClientItemRepository()
 			.getStatsByUser(session.userId)
-			.catch(() => null),
+			.catch(() => null)
 	]);
 	return {
 		userId: session.userId,
@@ -208,7 +206,7 @@ async function getMyProfile(
 		avatarUrl: null,
 		submissionCount: submissions?.total ?? 0,
 		favoriteCount,
-		profileCompleteness: undefined,
+		profileCompleteness: undefined
 	};
 }
 
@@ -232,6 +230,6 @@ export function buildAiChatToolContext(input: BuildContextInput): AiChatToolCont
 		getMyProfile: async (userId) => {
 			if (!input.session || input.session.userId !== userId) return null;
 			return getMyProfile(input.session);
-		},
+		}
 	};
 }

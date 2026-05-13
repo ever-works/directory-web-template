@@ -38,17 +38,17 @@ Groq, Together, or any other OpenAI-shaped endpoint.
 
 ## Architecture (one-liner per layer)
 
-| Layer | Path | What it does |
-| --- | --- | --- |
-| Plugin (config + schema) | `packages/plugin-ai-chat/src/config.ts` | Zod schema for the `aiChat` block in `works.yml` |
-| Plugin (tools) | `packages/plugin-ai-chat/src/tools/` | 8 directory-aware tool definitions |
-| Plugin (agent) | `packages/plugin-ai-chat/src/agent.ts` | `runAgent()` — `streamText` + tool-set filter |
-| Plugin (prompts) | `packages/plugin-ai-chat/src/prompts/index.ts` | System-prompt builder + sanitiser |
-| App (route) | `apps/web/app/api/chat/route.ts` | Session, rate-limit, provider, dispatch |
-| App (DI seam) | `apps/web/lib/services/chat-context.service.ts` | Wires `AiChatToolContext` to repos + Git-CMS |
-| App (persistence) | `apps/web/lib/repositories/chat.repository.ts` | Opt-in conversation history (Drizzle) |
-| App (UI) | `apps/web/components/ai/` | 7 React components for the floating layout |
-| App (mount) | `apps/web/components/ai/AiChatMount.tsx` | Server-gates by `aiChat.enabled` |
+| Layer                    | Path                                            | What it does                                     |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------------ |
+| Plugin (config + schema) | `packages/plugin-ai-chat/src/config.ts`         | Zod schema for the `aiChat` block in `works.yml` |
+| Plugin (tools)           | `packages/plugin-ai-chat/src/tools/`            | 8 directory-aware tool definitions               |
+| Plugin (agent)           | `packages/plugin-ai-chat/src/agent.ts`          | `runAgent()` — `streamText` + tool-set filter    |
+| Plugin (prompts)         | `packages/plugin-ai-chat/src/prompts/index.ts`  | System-prompt builder + sanitiser                |
+| App (route)              | `apps/web/app/api/chat/route.ts`                | Session, rate-limit, provider, dispatch          |
+| App (DI seam)            | `apps/web/lib/services/chat-context.service.ts` | Wires `AiChatToolContext` to repos + Git-CMS     |
+| App (persistence)        | `apps/web/lib/repositories/chat.repository.ts`  | Opt-in conversation history (Drizzle)            |
+| App (UI)                 | `apps/web/components/ai/`                       | 7 React components for the floating layout       |
+| App (mount)              | `apps/web/components/ai/AiChatMount.tsx`        | Server-gates by `aiChat.enabled`                 |
 
 ## Enabling it
 
@@ -57,18 +57,17 @@ Groq, Together, or any other OpenAI-shaped endpoint.
 ```yaml
 aiChat:
     enabled: true
-    position: floating            # floating | hero-takeover | sidebar
+    position: floating # floating | hero-takeover | sidebar
     provider: openrouter
     model: openai/gpt-4o-mini
     defaultLocale: en
-    persist: false                # set true to store member conversations
+    persist: false # set true to store member conversations
     anonymous:
         enabled: true
         scenarios: [browse, search, submit, pricing, login-help, support]
     authenticated:
         enabled: true
-        scenarios: [browse, search, submit, pricing, my-submissions,
-                    my-favourites, my-profile, navigate, support]
+        scenarios: [browse, search, submit, pricing, my-submissions, my-favourites, my-profile, navigate, support]
 ```
 
 Every field has a default; the minimal opt-in is `aiChat.enabled: true`.
@@ -118,25 +117,30 @@ question, and you should see a streaming reply.
 ## Configuration reference
 
 ### `aiChat.enabled` (boolean, default `false`)
+
 Master switch. When `false`, **no chat JS, CSS, or DOM ships** on
 public routes — the launcher import is gated server-side.
 
 ### `aiChat.position` (`'floating'` | `'hero-takeover'` | `'sidebar'`)
+
 Where the chat surface lives. Only `floating` is fully implemented
 in v1; the other two fall back to `floating` until their dedicated
 layouts ship (tracked under T-005d in the spec).
 
 ### `aiChat.provider`, `aiChat.model`
+
 String labels passed to `@ai-sdk/openai-compatible.createOpenAICompatible`.
 Override per-deployment via `AI_CHAT_PROVIDER` / `AI_CHAT_MODEL` env
 vars.
 
 ### `aiChat.defaultLocale` (BCP-47 string, default `'en'`)
+
 The locale the chat uses when the visitor's locale isn't passed
 explicitly. Should match one of the locales in your `next-intl`
 config.
 
 ### `aiChat.persist` (boolean, default `false`)
+
 When `true` AND the visitor is signed in, conversations are stored
 in Drizzle so they can be resumed across sessions. Anonymous
 conversations never persist.
@@ -148,9 +152,11 @@ Scenarios filter which tools the model can call and which welcome
 chips render.
 
 Anonymous scenarios (all default):
+
 - `browse`, `search`, `submit`, `pricing`, `login-help`, `support`
 
 Additional scenarios unlocked when authenticated:
+
 - `my-submissions`, `my-favourites`, `my-profile`, `navigate`
 
 A visitor can never invoke a scenario outside the persona's allow
@@ -162,16 +168,16 @@ to match.
 The plugin ships eight tools the model can call. Each is bound to a
 real Ever Works data source via the `AiChatToolContext` interface:
 
-| Tool | Anonymous? | Wires to |
-| --- | --- | --- |
-| `searchItems` | ✅ | `getCachedItems()` + in-memory scoring |
-| `getItemDetails` | ✅ | `getCachedItem()` |
-| `listCategories` | ✅ | Derived from `getCachedItems()` |
-| `listTags` | ✅ | Derived from `getCachedItems()` |
-| `navigate` | ✅ | Returns `{ path, locale }` for client-side `router.push()` |
-| `mySubmissions` | 🔒 | `ClientItemRepository.findByUserPaginated()` |
-| `myFavourites` | 🔒 | `favorite.repository.ts → listUserFavorites()` |
-| `myProfile` | 🔒 | Session + `getStatsByUser()` + `countUserFavorites()` |
+| Tool             | Anonymous? | Wires to                                                   |
+| ---------------- | ---------- | ---------------------------------------------------------- |
+| `searchItems`    | ✅         | `getCachedItems()` + in-memory scoring                     |
+| `getItemDetails` | ✅         | `getCachedItem()`                                          |
+| `listCategories` | ✅         | Derived from `getCachedItems()`                            |
+| `listTags`       | ✅         | Derived from `getCachedItems()`                            |
+| `navigate`       | ✅         | Returns `{ path, locale }` for client-side `router.push()` |
+| `mySubmissions`  | 🔒         | `ClientItemRepository.findByUserPaginated()`               |
+| `myFavourites`   | 🔒         | `favorite.repository.ts → listUserFavorites()`             |
+| `myProfile`      | 🔒         | Session + `getStatsByUser()` + `countUserFavorites()`      |
 
 Authenticated tools return an `authentication-required` error shape
 when called without a session — the model is instructed to surface a
@@ -182,9 +188,9 @@ sign-in CTA in that case.
 In-memory token bucket via the existing
 `apps/web/lib/utils/rate-limit.ts`. Window is 60s.
 
-| Persona | Default | Env override |
-| --- | --- | --- |
-| Anonymous | 20 req / 60s, keyed by IP | `AI_CHAT_RATE_LIMIT_ANON` |
+| Persona       | Default                        | Env override              |
+| ------------- | ------------------------------ | ------------------------- |
+| Anonymous     | 20 req / 60s, keyed by IP      | `AI_CHAT_RATE_LIMIT_ANON` |
 | Authenticated | 60 req / 60s, keyed by user id | `AI_CHAT_RATE_LIMIT_AUTH` |
 
 Excess requests return `429` with a `Retry-After` header.
@@ -260,21 +266,21 @@ public listing bundle does not regress when chat is enabled.
 Five PostHog events are tracked via the typed `AnalyticsEvent` enum
 (Spec 016):
 
-| Event | When |
-| --- | --- |
-| `ai_chat_opened` | Visitor opens the panel |
-| `ai_chat_closed` | Visitor closes the panel |
-| `ai_chat_message_sent` | Visitor submits a message (carries `scenario` + `length`) |
-| `ai_chat_tool_called` | Model invokes a tool (carries `scenario` + `tool` name) |
+| Event                      | When                                                                                         |
+| -------------------------- | -------------------------------------------------------------------------------------------- |
+| `ai_chat_opened`           | Visitor opens the panel                                                                      |
+| `ai_chat_closed`           | Visitor closes the panel                                                                     |
+| `ai_chat_message_sent`     | Visitor submits a message (carries `scenario` + `length`)                                    |
+| `ai_chat_tool_called`      | Model invokes a tool (carries `scenario` + `tool` name)                                      |
 | `ai_chat_scenario_blocked` | Server-side rejection (logged server-side; client emission via error-handler is a follow-up) |
 
 ## Smoke test recipe
 
 1. Add to `.content/.works/works.yml`:
-   ```yaml
-   aiChat:
-       enabled: true
-   ```
+    ```yaml
+    aiChat:
+        enabled: true
+    ```
 2. Set `AI_CHAT_API_KEY` in `apps/web/.env.local`.
 3. `pnpm dev`, open `http://localhost:3000`.
 4. Click the chat launcher in the bottom-right.
@@ -284,14 +290,14 @@ Five PostHog events are tracked via the typed `AnalyticsEvent` enum
 
 ## Troubleshooting
 
-| Symptom | Likely cause |
-| --- | --- |
-| Launcher missing | `aiChat.enabled` is not `true` in works.yml |
-| `503 provider-not-configured` | `AI_CHAT_API_KEY` is unset |
-| `429 rate-limited` | Adjust `AI_CHAT_RATE_LIMIT_*` envs |
-| `403 scenario-not-allowed` | Scenario not in works.yml's persona allow-list |
+| Symptom                       | Likely cause                                        |
+| ----------------------------- | --------------------------------------------------- |
+| Launcher missing              | `aiChat.enabled` is not `true` in works.yml         |
+| `503 provider-not-configured` | `AI_CHAT_API_KEY` is unset                          |
+| `429 rate-limited`            | Adjust `AI_CHAT_RATE_LIMIT_*` envs                  |
+| `403 scenario-not-allowed`    | Scenario not in works.yml's persona allow-list      |
 | `401 authentication-required` | An authenticated scenario was requested anonymously |
-| Tool returns empty | The Git-CMS may not be cloned; check `.content/` |
+| Tool returns empty            | The Git-CMS may not be cloned; check `.content/`    |
 
 ## Related
 

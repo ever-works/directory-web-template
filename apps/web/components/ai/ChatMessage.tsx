@@ -48,12 +48,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
 		'max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-sm',
 		isUser
 			? 'self-end bg-primary text-primary-foreground'
-			: 'self-start bg-default-100 text-foreground dark:bg-default-50',
+			: 'self-start bg-default-100 text-foreground dark:bg-default-50'
 	);
-	const containerClasses = cn(
-		'flex flex-col gap-1 px-2',
-		isUser ? 'items-end' : 'items-start',
-	);
+	const containerClasses = cn('flex flex-col gap-1 px-2', isUser ? 'items-end' : 'items-start');
 
 	return (
 		<li className={containerClasses}>
@@ -72,7 +69,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
 					if (isToolPart(part)) {
 						const toolName = part.toolName ?? part.type.replace(/^tool-/, '');
 						return (
-							<details key={index} className="mt-2 rounded-lg bg-default-50 px-3 py-2 text-xs dark:bg-default-100/50">
+							<details
+								key={index}
+								className="mt-2 rounded-lg bg-default-50 px-3 py-2 text-xs dark:bg-default-100/50"
+							>
 								<summary className="cursor-pointer select-none font-medium">
 									{t('TOOL_RESULT_FROM', { tool: toolName })}
 								</summary>

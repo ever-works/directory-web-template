@@ -11,14 +11,11 @@ import { cn } from '@/lib/utils';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { AnalyticsEvent } from '@/lib/analytics/types';
 
-const ChatPanel = dynamic(
-	() => import('./ChatPanel').then((mod) => ({ default: mod.ChatPanel })),
-	{
-		ssr: false,
-		// Loading state is the closed panel — the launcher button keeps showing.
-		loading: () => null,
-	},
-);
+const ChatPanel = dynamic(() => import('./ChatPanel').then((mod) => ({ default: mod.ChatPanel })), {
+	ssr: false,
+	// Loading state is the closed panel — the launcher button keeps showing.
+	loading: () => null
+});
 
 export interface ChatLauncherProps {
 	/**
@@ -45,13 +42,7 @@ export interface ChatLauncherProps {
  * The launcher itself is a tiny client component: no chat hooks
  * mount until `isOpen` flips to `true`.
  */
-export function ChatLauncher({
-	scenario,
-	locale,
-	isAuthenticated,
-	conversationId,
-	className,
-}: ChatLauncherProps) {
+export function ChatLauncher({ scenario, locale, isAuthenticated, conversationId, className }: ChatLauncherProps) {
 	const t = useTranslations('ai_chat');
 	const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 	const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
@@ -91,7 +82,7 @@ export function ChatLauncher({
 				className={cn(
 					'fixed bottom-6 right-6 z-[9000] shadow-lg shadow-primary/30',
 					'rtl:left-6 rtl:right-auto',
-					className,
+					className
 				)}
 				data-testid="ai-chat-launcher"
 			>

@@ -17,32 +17,17 @@ export type ChatPosition = (typeof CHAT_POSITIONS)[number];
  * scenario name maps to a system-prompt opener and a tool-set filter
  * at agent run time (see T-004 — runAgent).
  */
-export const ANONYMOUS_SCENARIOS = [
-	'browse',
-	'search',
-	'submit',
-	'pricing',
-	'login-help',
-	'support',
-] as const;
+export const ANONYMOUS_SCENARIOS = ['browse', 'search', 'submit', 'pricing', 'login-help', 'support'] as const;
 export type AnonymousScenario = (typeof ANONYMOUS_SCENARIOS)[number];
 
 /**
  * Additional scenarios unlocked when the visitor is signed in. The
  * full authenticated set is the anonymous set ∪ these.
  */
-export const AUTHENTICATED_EXTRA_SCENARIOS = [
-	'my-submissions',
-	'my-favourites',
-	'my-profile',
-	'navigate',
-] as const;
+export const AUTHENTICATED_EXTRA_SCENARIOS = ['my-submissions', 'my-favourites', 'my-profile', 'navigate'] as const;
 export type AuthenticatedExtraScenario = (typeof AUTHENTICATED_EXTRA_SCENARIOS)[number];
 
-export const AUTHENTICATED_SCENARIOS = [
-	...ANONYMOUS_SCENARIOS,
-	...AUTHENTICATED_EXTRA_SCENARIOS,
-] as const;
+export const AUTHENTICATED_SCENARIOS = [...ANONYMOUS_SCENARIOS, ...AUTHENTICATED_EXTRA_SCENARIOS] as const;
 export type AuthenticatedScenario = (typeof AUTHENTICATED_SCENARIOS)[number];
 
 /**
@@ -58,7 +43,7 @@ const anonymousPersonaSchema = z.object({
 	scenarios: z
 		.array(z.enum(ANONYMOUS_SCENARIOS))
 		.min(1, 'at least one scenario must be enabled')
-		.default([...ANONYMOUS_SCENARIOS]),
+		.default([...ANONYMOUS_SCENARIOS])
 });
 
 const authenticatedPersonaSchema = z.object({
@@ -66,7 +51,7 @@ const authenticatedPersonaSchema = z.object({
 	scenarios: z
 		.array(z.enum(AUTHENTICATED_SCENARIOS))
 		.min(1, 'at least one scenario must be enabled')
-		.default([...AUTHENTICATED_SCENARIOS]),
+		.default([...AUTHENTICATED_SCENARIOS])
 });
 
 export const AiChatConfigSchema = z
@@ -79,12 +64,12 @@ export const AiChatConfigSchema = z
 		persist: z.boolean().default(false),
 		anonymous: anonymousPersonaSchema.default({
 			enabled: true,
-			scenarios: [...ANONYMOUS_SCENARIOS],
+			scenarios: [...ANONYMOUS_SCENARIOS]
 		}),
 		authenticated: authenticatedPersonaSchema.default({
 			enabled: true,
-			scenarios: [...AUTHENTICATED_SCENARIOS],
-		}),
+			scenarios: [...AUTHENTICATED_SCENARIOS]
+		})
 	})
 	.strict();
 
@@ -108,7 +93,7 @@ export const DEFAULT_AI_CHAT_CONFIG: AiChatConfig = AiChatConfigSchema.parse({})
  * (core must not import from plugin packages).
  */
 export function parseAiChatConfig(
-	value: unknown,
+	value: unknown
 ): { ok: true; config: AiChatConfig } | { ok: false; error: z.ZodError } {
 	const result = AiChatConfigSchema.safeParse(value ?? {});
 	if (result.success) {

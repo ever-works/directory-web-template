@@ -6,18 +6,14 @@ import {
 	runAgent,
 	type AiChatConfig,
 	type AuthenticatedScenario,
-	type ChatSession,
+	type ChatSession
 } from '@ever-works/plugin-ai-chat';
 import type { UIMessage } from 'ai';
 import { auth } from '@/lib/auth';
 import { configManager } from '@/lib/config-manager';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { buildAiChatToolContext } from '@/lib/services/chat-context.service';
-import {
-	appendMessages,
-	createConversation,
-	requireOwnership,
-} from '@/lib/repositories/chat.repository';
+import { appendMessages, createConversation, requireOwnership } from '@/lib/repositories/chat.repository';
 
 /**
  * POST /api/chat — streaming chat completions for the directory's
@@ -54,7 +50,7 @@ const ALLOWED_SCENARIOS = [
 	'my-submissions',
 	'my-favourites',
 	'my-profile',
-	'navigate',
+	'navigate'
 ] as const satisfies ReadonlyArray<AuthenticatedScenario>;
 
 const RequestSchema = z.object({
@@ -65,7 +61,7 @@ const RequestSchema = z.object({
 	conversationId: z.string().min(1).max(64).optional(),
 	scenario: z.enum(ALLOWED_SCENARIOS).optional(),
 	currentPageUrl: z.string().max(2048).optional().nullable(),
-	locale: z.string().min(2).max(16).optional(),
+	locale: z.string().min(2).max(16).optional()
 });
 
 // ---------------------------------------------------------------------------
@@ -87,20 +83,18 @@ function getRateLimitConfig(): { anon: RateLimitConfig; auth: RateLimitConfig } 
 	return {
 		anon: {
 			limit: readPositiveInt(process.env.AI_CHAT_RATE_LIMIT_ANON, 20),
-			windowMs: 60_000,
+			windowMs: 60_000
 		},
 		auth: {
 			limit: readPositiveInt(process.env.AI_CHAT_RATE_LIMIT_AUTH, 60),
-			windowMs: 60_000,
-		},
+			windowMs: 60_000
+		}
 	};
 }
 
 function resolveClientIp(request: NextRequest): string {
 	return (
-		request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-		request.headers.get('x-real-ip') ||
-		'unknown'
+		request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown'
 	);
 }
 
@@ -118,8 +112,7 @@ interface ChatProviderEnv {
 function readProviderEnv(config: AiChatConfig): ChatProviderEnv | null {
 	const apiKey = process.env.AI_CHAT_API_KEY;
 	if (!apiKey) return null;
-	const baseUrl =
-		process.env.AI_CHAT_BASE_URL ?? 'https://openrouter.ai/api/v1';
+	const baseUrl = process.env.AI_CHAT_BASE_URL ?? 'https://openrouter.ai/api/v1';
 	const modelId = process.env.AI_CHAT_MODEL ?? config.model;
 	const name = process.env.AI_CHAT_PROVIDER ?? config.provider;
 	return { baseUrl, apiKey, modelId, name };
@@ -136,17 +129,14 @@ interface MinimalAuthUser {
 	tenantId?: string;
 }
 
-function sessionToChatSession(
-	user: MinimalAuthUser | undefined,
-	locale: string,
-): ChatSession | null {
+function sessionToChatSession(user: MinimalAuthUser | undefined, locale: string): ChatSession | null {
 	if (!user?.id) return null;
 	return {
 		userId: user.id,
 		email: user.email ?? null,
 		displayName: user.name ?? null,
 		locale,
-		tenantId: user.tenantId ?? null,
+		tenantId: user.tenantId ?? null
 	};
 }
 
@@ -161,10 +151,7 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const result = RequestSchema.safeParse(body);
 		if (!result.success) {
-			return NextResponse.json(
-				{ error: 'invalid-request', issues: result.error.issues },
-				{ status: 400 },
-			);
+			return NextResponse.json({ error: 'invalid-request', issues: result.error.issues }, { status: 400 });
 		}
 		parsed = result.data;
 	} catch {
@@ -196,16 +183,10 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: 'chat-disabled-for-persona' }, { status: 403 });
 	}
 	if (!persona.scenarios.includes(scenario as never)) {
-		return NextResponse.json(
-			{ error: 'scenario-not-allowed', scenario },
-			{ status: 403 },
-		);
+		return NextResponse.json({ error: 'scenario-not-allowed', scenario }, { status: 403 });
 	}
 	// Tools that require auth are also gated by the plugin's createTools.
-	if (
-		!chatSession &&
-		['my-submissions', 'my-favourites', 'my-profile'].includes(scenario)
-	) {
+	if (!chatSession && ['my-submissions', 'my-favourites', 'my-profile'].includes(scenario)) {
 		return NextResponse.json({ error: 'authentication-required' }, { status: 401 });
 	}
 
@@ -220,8 +201,8 @@ export async function POST(request: NextRequest) {
 			{ error: 'rate-limited', retryAfter: retryAfterSeconds },
 			{
 				status: 429,
-				headers: { 'Retry-After': String(retryAfterSeconds) },
-			},
+				headers: { 'Retry-After': String(retryAfterSeconds) }
+			}
 		);
 	}
 
@@ -234,14 +215,14 @@ export async function POST(request: NextRequest) {
 	const provider = createOpenAICompatible({
 		name: providerEnv.name,
 		baseURL: providerEnv.baseUrl,
-		apiKey: providerEnv.apiKey,
+		apiKey: providerEnv.apiKey
 	});
 
 	// 7. Build the tool context + run the agent.
 	const directoryName = typeof appConfig.name === 'string' ? appConfig.name : 'this directory';
 	const ctx = buildAiChatToolContext({
 		locale,
-		session: chatSession,
+		session: chatSession
 	});
 
 	let agentResult;
@@ -254,7 +235,7 @@ export async function POST(request: NextRequest) {
 			allow: new Set(persona.scenarios),
 			directoryName,
 			currentPageUrl: parsed.currentPageUrl ?? null,
-			abortSignal: request.signal,
+			abortSignal: request.signal
 		});
 	} catch (error) {
 		console.error('[/api/chat] runAgent failed:', error);
@@ -271,7 +252,7 @@ export async function POST(request: NextRequest) {
 					session: chatSession,
 					locale,
 					scenario,
-					conversationId: parsed.conversationId,
+					conversationId: parsed.conversationId
 				}).catch((error) => {
 					console.error('[/api/chat] persistence pre-flight failed:', error);
 					return null;
@@ -288,7 +269,7 @@ export async function POST(request: NextRequest) {
 						console.error('[/api/chat] onFinish persistence failed:', error);
 					}
 				}
-			: undefined,
+			: undefined
 	});
 }
 
@@ -309,7 +290,7 @@ async function resolveConversationForPersistence(input: {
 	const created = await createConversation({
 		userId: input.session.userId,
 		locale: input.locale,
-		scenario: input.scenario,
+		scenario: input.scenario
 	});
 	return { conversationId: created.id };
 }
@@ -322,23 +303,20 @@ interface PersistableMessage {
 async function persistChatTurn(
 	conversationId: string,
 	clientMessages: ReadonlyArray<unknown>,
-	finalMessages: ReadonlyArray<unknown>,
+	finalMessages: ReadonlyArray<unknown>
 ): Promise<void> {
 	// Persist the LAST user message from the request payload (the new one the
 	// client just sent — earlier messages were persisted on prior turns) plus
 	// every NEW assistant / tool message produced during this run.
-	const lastUserMessage = [...clientMessages]
-		.reverse()
-		.find((m): m is PersistableMessage => {
-			return typeof m === 'object' && m !== null && (m as PersistableMessage).role === 'user';
-		});
+	const lastUserMessage = [...clientMessages].reverse().find((m): m is PersistableMessage => {
+		return typeof m === 'object' && m !== null && (m as PersistableMessage).role === 'user';
+	});
 
 	const newAssistantMessages = finalMessages.filter(
 		(m): m is PersistableMessage =>
 			typeof m === 'object' &&
 			m !== null &&
-			((m as PersistableMessage).role === 'assistant' ||
-				(m as PersistableMessage).role === 'tool'),
+			((m as PersistableMessage).role === 'assistant' || (m as PersistableMessage).role === 'tool')
 	);
 
 	const toPersist: Array<{

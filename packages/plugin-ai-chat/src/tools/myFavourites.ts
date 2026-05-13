@@ -9,7 +9,7 @@ const inputSchema = z.object({
 		.min(1)
 		.max(50)
 		.default(20)
-		.describe('Maximum number of favourites to return (1–50). Default 20.'),
+		.describe('Maximum number of favourites to return (1–50). Default 20.')
 });
 
 export type MyFavouritesInput = z.infer<typeof inputSchema>;
@@ -24,11 +24,8 @@ export const myFavouritesTool: ChatTool<MyFavouritesInput, ItemSummary[] | AuthR
 	scenarios: ['my-favourites', 'support', 'navigate'],
 	execute: async (input, ctx) => {
 		if (!ctx.session) {
-			return authRequired(
-				'my-favourites',
-				'Sign in to see the items you have favourited.',
-			);
+			return authRequired('my-favourites', 'Sign in to see the items you have favourited.');
 		}
 		return ctx.getMyFavourites(ctx.session.userId, { limit: input.limit });
-	},
+	}
 };

@@ -84,7 +84,7 @@ Current context: {context}.`;
 export const DEFAULT_PROMPT_TEMPLATES: AiChatPromptTemplates = {
 	anonymous: DEFAULT_ANONYMOUS_TEMPLATE,
 	authenticated: DEFAULT_AUTHENTICATED_TEMPLATE,
-	scenarios: {},
+	scenarios: {}
 };
 
 /**
@@ -125,9 +125,7 @@ export function buildSystemPrompt(input: BuildSystemPromptInput): string {
 	const directoryName = sanitiseForPrompt(input.directoryName) || 'this';
 	const locale = sanitiseForPrompt(input.locale) || 'en';
 	const safeUrl = sanitiseForPrompt(input.currentPageUrl);
-	const context = safeUrl
-		? `the visitor is on ${safeUrl}`
-		: 'the visitor is on the directory home page';
+	const context = safeUrl ? `the visitor is on ${safeUrl}` : 'the visitor is on the directory home page';
 	const toolList = input.toolNames.length > 0 ? input.toolNames.join(', ') : 'none';
 
 	const interpolate = (template: string): string =>

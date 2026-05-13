@@ -40,13 +40,13 @@ but the surface around them is identical.
 
 **Why this approach over the alternatives:**
 
-- *Platform-backed (point at `evertech` API).* Rejected: it ties every
+- _Platform-backed (point at `evertech` API)._ Rejected: it ties every
   generated directory to a live platform deployment, which the
   template-first architecture explicitly avoids.
-- *Direct `streamText` in `apps/web` with no package.* Rejected: the
+- _Direct `streamText` in `apps/web` with no package._ Rejected: the
   constitution (Article I) requires net-new functionality to ship as a
   plugin so it can be enabled, disabled, swapped, and configured.
-- *iframe-embed of a hosted widget (Crisp, Intercom, etc.).* Rejected:
+- _iframe-embed of a hosted widget (Crisp, Intercom, etc.)._ Rejected:
   no directory-aware tools, no personalised authenticated experience,
   and an opaque privacy / GDPR story.
 
@@ -70,35 +70,35 @@ flowchart LR
 
 ## 3. Affected Packages & Files
 
-| Package / Path                                                                | Change         | Notes                                                                              |
-| ----------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------- |
-| `packages/plugin-ai-chat/` (new)                                              | new package    | Components, tools, config schema, system prompts, agent runner                     |
-| `packages/plugin-ai-chat/package.json`                                        | new            | `ai@^6`, `@ai-sdk/react@^3`, `@ai-sdk/openai-compatible@^2`, `zod`                  |
-| `packages/plugin-ai-chat/src/components/*.tsx`                                | new            | `ChatLauncher`, `ChatPanel`, `ChatHeroTakeover`, `ChatSidebar`, plus shared parts  |
-| `packages/plugin-ai-chat/src/tools/*.ts`                                      | new            | `searchItems`, `getItemDetails`, `listCategories`, `listTags`, `mySubmissions`, `myFavourites`, `myProfile`, `navigate`. Each authenticated tool **wraps** an existing repo: `mySubmissions` → `ClientItemRepository.findByUser()` (rows in `items` with `submitted_by=userId, status='pending'`); `myFavourites` → new `favorite.repository.ts` reading the existing `favorites` table; `myProfile` → existing user / client-dashboard repos. |
-| `packages/plugin-ai-chat/src/agent.ts`                                        | new            | `runAgent({ messages, scenario, session, locale, currentPageUrl })` → stream       |
-| `packages/plugin-ai-chat/src/config.ts`                                       | new            | Zod schema for `AiChatConfig`; defaults; merging helper                            |
-| `packages/plugin-ai-chat/src/prompts/<locale>.ts`                             | new            | System-prompt scaffolding (locale-aware); strings sourced via `next-intl`          |
-| `apps/web/app/api/chat/route.ts`                                              | new            | Thin POST handler: session, rate-limit, validate, dispatch to plugin               |
-| `apps/web/app/[locale]/layout.tsx`                                            | modify         | Mount `<ChatLauncher>` when `aiChat.enabled=true`; gated by config                 |
-| `apps/web/app/[locale]/chat/page.tsx`                                         | new (gated)    | Full-page chat surface — rendered only when `position` is `hero-takeover\|sidebar` |
-| `apps/web/lib/config-manager.ts`                                              | **no change**  | Withdrawn. Originally proposed extending `AppConfig` with `aiChat?: AiChatConfig`, but importing the plugin's type into core violates Article I (core must not import from plugin packages). The chat config block is absorbed by `AppConfig.[key: string]: any`; the future layout-mount seam (T-006) calls `parseAiChatConfig(appConfig.aiChat)` from `@ever-works/plugin-ai-chat/config` and gets fully-typed config from there. |
-| `apps/web/lib/db/schema.ts`                                                   | modify         | `chat_conversations`, `chat_messages` tables (opt-in)                              |
-| `apps/web/lib/repositories/chat.repository.ts`                                | new            | Read / write conversation history; gated by `aiChat.persist`. Follows existing `*.repository.ts` naming. |
-| `apps/web/lib/repositories/favorite.repository.ts`                            | new (small)    | Wraps reads against the existing `favorites` table (`userId`, `itemSlug`) for the `myFavourites` tool — no equivalent repo today. |
-| `apps/web/lib/utils/rate-limit.ts`                                            | **reuse**      | Existing `ratelimit({ key, limit, windowMs })` helper. `/api/chat` calls it with per-IP / per-user keys; no new service file needed. |
-| `apps/web/messages/<locale>.json`                                             | modify (×6)    | Add `AI_CHAT_*` keys (EN/FR/ES/DE/AR/ZH); RTL verified for AR                       |
-| `apps/web/.env.example`                                                       | modify         | Document `AI_CHAT_PROVIDER`, `AI_CHAT_API_KEY`, `AI_CHAT_BASE_URL`, `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_*`, `AI_CHAT_DAILY_BUDGET_USD` |
-| `apps/web/scripts/check-env.js`                                               | modify         | Mark AI vars as required iff `aiChat.enabled=true`; no-op otherwise                |
-| `apps/web/lib/analytics/types.ts`                                             | modify         | Extend the existing `enum AnalyticsEvent` with `AI_CHAT_OPENED = 'ai_chat_opened'`, `AI_CHAT_MESSAGE_SENT`, `AI_CHAT_TOOL_CALLED`, `AI_CHAT_SCENARIO_BLOCKED`, `AI_CHAT_CLOSED`. (Note: file is `types.ts`, not `events.ts`; the project uses an enum, not lowercase string events.) |
-| `apps/web-e2e/tests/public/ai-chat.spec.ts` (new)                             | new e2e        | Anon flow, disabled flow, i18n, a11y                                               |
-| `apps/web-e2e/tests/api/ai-chat.spec.ts` (new)                                | new e2e        | Rate limit, scenario gating, 404 when disabled                                     |
-| `apps/web-e2e/page-objects/public/ai-chat.page.ts` (new)                      | new            | Locators: launcher, dialog, input, messages                                        |
-| `apps/web-e2e/fixtures/auth.fixture.ts`                                       | modify         | Re-use for authenticated chat tests; seed a known submission                       |
-| `docs/features/ai-chat.md` (new)                                              | new doc        | Operator-facing usage, config reference, env vars                                  |
-| `docs/spec/README.md`                                                         | modify         | New row for spec 023                                                               |
-| `docs/log.md`                                                                 | modify         | Dated entry referencing PR                                                         |
-| `docs/questions.md`                                                           | modify         | Record open questions (default model, mutations, prompt location)                  |
+| Package / Path                                           | Change        | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/plugin-ai-chat/` (new)                         | new package   | Components, tools, config schema, system prompts, agent runner                                                                                                                                                                                                                                                                                                                                                                                 |
+| `packages/plugin-ai-chat/package.json`                   | new           | `ai@^6`, `@ai-sdk/react@^3`, `@ai-sdk/openai-compatible@^2`, `zod`                                                                                                                                                                                                                                                                                                                                                                             |
+| `packages/plugin-ai-chat/src/components/*.tsx`           | new           | `ChatLauncher`, `ChatPanel`, `ChatHeroTakeover`, `ChatSidebar`, plus shared parts                                                                                                                                                                                                                                                                                                                                                              |
+| `packages/plugin-ai-chat/src/tools/*.ts`                 | new           | `searchItems`, `getItemDetails`, `listCategories`, `listTags`, `mySubmissions`, `myFavourites`, `myProfile`, `navigate`. Each authenticated tool **wraps** an existing repo: `mySubmissions` → `ClientItemRepository.findByUser()` (rows in `items` with `submitted_by=userId, status='pending'`); `myFavourites` → new `favorite.repository.ts` reading the existing `favorites` table; `myProfile` → existing user / client-dashboard repos. |
+| `packages/plugin-ai-chat/src/agent.ts`                   | new           | `runAgent({ messages, scenario, session, locale, currentPageUrl })` → stream                                                                                                                                                                                                                                                                                                                                                                   |
+| `packages/plugin-ai-chat/src/config.ts`                  | new           | Zod schema for `AiChatConfig`; defaults; merging helper                                                                                                                                                                                                                                                                                                                                                                                        |
+| `packages/plugin-ai-chat/src/prompts/<locale>.ts`        | new           | System-prompt scaffolding (locale-aware); strings sourced via `next-intl`                                                                                                                                                                                                                                                                                                                                                                      |
+| `apps/web/app/api/chat/route.ts`                         | new           | Thin POST handler: session, rate-limit, validate, dispatch to plugin                                                                                                                                                                                                                                                                                                                                                                           |
+| `apps/web/app/[locale]/layout.tsx`                       | modify        | Mount `<ChatLauncher>` when `aiChat.enabled=true`; gated by config                                                                                                                                                                                                                                                                                                                                                                             |
+| `apps/web/app/[locale]/chat/page.tsx`                    | new (gated)   | Full-page chat surface — rendered only when `position` is `hero-takeover\|sidebar`                                                                                                                                                                                                                                                                                                                                                             |
+| `apps/web/lib/config-manager.ts`                         | **no change** | Withdrawn. Originally proposed extending `AppConfig` with `aiChat?: AiChatConfig`, but importing the plugin's type into core violates Article I (core must not import from plugin packages). The chat config block is absorbed by `AppConfig.[key: string]: any`; the future layout-mount seam (T-006) calls `parseAiChatConfig(appConfig.aiChat)` from `@ever-works/plugin-ai-chat/config` and gets fully-typed config from there.            |
+| `apps/web/lib/db/schema.ts`                              | modify        | `chat_conversations`, `chat_messages` tables (opt-in)                                                                                                                                                                                                                                                                                                                                                                                          |
+| `apps/web/lib/repositories/chat.repository.ts`           | new           | Read / write conversation history; gated by `aiChat.persist`. Follows existing `*.repository.ts` naming.                                                                                                                                                                                                                                                                                                                                       |
+| `apps/web/lib/repositories/favorite.repository.ts`       | new (small)   | Wraps reads against the existing `favorites` table (`userId`, `itemSlug`) for the `myFavourites` tool — no equivalent repo today.                                                                                                                                                                                                                                                                                                              |
+| `apps/web/lib/utils/rate-limit.ts`                       | **reuse**     | Existing `ratelimit({ key, limit, windowMs })` helper. `/api/chat` calls it with per-IP / per-user keys; no new service file needed.                                                                                                                                                                                                                                                                                                           |
+| `apps/web/messages/<locale>.json`                        | modify (×6)   | Add `AI_CHAT_*` keys (EN/FR/ES/DE/AR/ZH); RTL verified for AR                                                                                                                                                                                                                                                                                                                                                                                  |
+| `apps/web/.env.example`                                  | modify        | Document `AI_CHAT_PROVIDER`, `AI_CHAT_API_KEY`, `AI_CHAT_BASE_URL`, `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_*`, `AI_CHAT_DAILY_BUDGET_USD`                                                                                                                                                                                                                                                                                                        |
+| `apps/web/scripts/check-env.js`                          | modify        | Mark AI vars as required iff `aiChat.enabled=true`; no-op otherwise                                                                                                                                                                                                                                                                                                                                                                            |
+| `apps/web/lib/analytics/types.ts`                        | modify        | Extend the existing `enum AnalyticsEvent` with `AI_CHAT_OPENED = 'ai_chat_opened'`, `AI_CHAT_MESSAGE_SENT`, `AI_CHAT_TOOL_CALLED`, `AI_CHAT_SCENARIO_BLOCKED`, `AI_CHAT_CLOSED`. (Note: file is `types.ts`, not `events.ts`; the project uses an enum, not lowercase string events.)                                                                                                                                                           |
+| `apps/web-e2e/tests/public/ai-chat.spec.ts` (new)        | new e2e       | Anon flow, disabled flow, i18n, a11y                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `apps/web-e2e/tests/api/ai-chat.spec.ts` (new)           | new e2e       | Rate limit, scenario gating, 404 when disabled                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `apps/web-e2e/page-objects/public/ai-chat.page.ts` (new) | new           | Locators: launcher, dialog, input, messages                                                                                                                                                                                                                                                                                                                                                                                                    |
+| `apps/web-e2e/fixtures/auth.fixture.ts`                  | modify        | Re-use for authenticated chat tests; seed a known submission                                                                                                                                                                                                                                                                                                                                                                                   |
+| `docs/features/ai-chat.md` (new)                         | new doc       | Operator-facing usage, config reference, env vars                                                                                                                                                                                                                                                                                                                                                                                              |
+| `docs/spec/README.md`                                    | modify        | New row for spec 023                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `docs/log.md`                                            | modify        | Dated entry referencing PR                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `docs/questions.md`                                      | modify        | Record open questions (default model, mutations, prompt location)                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## 4. Public API / Plugin Manifest
 
@@ -116,8 +116,8 @@ export const plugin = defineDirectoryPlugin({
 	slots: {
 		'layout.global.overlay': () => import('./components/ChatLauncher'),
 		'hero.takeover': () => import('./components/ChatHeroTakeover'),
-		'layout.sidebar.tab': () => import('./components/ChatSidebar'),
-	},
+		'layout.sidebar.tab': () => import('./components/ChatSidebar')
+	}
 });
 
 export { runAgent } from './agent';
@@ -134,30 +134,41 @@ New (opt-in) Drizzle tables, created only when `aiChat.persist=true`:
 
 ```ts
 // apps/web/lib/db/schema.ts
-export const chatConversations = pgTable('chat_conversations', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-	title: text('title'),
-	locale: text('locale').notNull(),
-	scenario: text('scenario'),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-	updatedAt: timestamp('updated_at').notNull().defaultNow(),
-}, (t) => ({
-	userUpdatedIdx: index('idx_chat_conv_user_updated').on(t.userId, t.updatedAt),
-}));
+export const chatConversations = pgTable(
+	'chat_conversations',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		userId: uuid('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		title: text('title'),
+		locale: text('locale').notNull(),
+		scenario: text('scenario'),
+		createdAt: timestamp('created_at').notNull().defaultNow(),
+		updatedAt: timestamp('updated_at').notNull().defaultNow()
+	},
+	(t) => ({
+		userUpdatedIdx: index('idx_chat_conv_user_updated').on(t.userId, t.updatedAt)
+	})
+);
 
-export const chatMessages = pgTable('chat_messages', {
-	id: uuid('id').primaryKey().defaultRandom(),
-	conversationId: uuid('conversation_id').notNull()
-		.references(() => chatConversations.id, { onDelete: 'cascade' }),
-	role: text('role').notNull(),  // 'user' | 'assistant' | 'tool'
-	parts: jsonb('parts').notNull(),
-	toolCalls: jsonb('tool_calls'),
-	toolResults: jsonb('tool_results'),
-	createdAt: timestamp('created_at').notNull().defaultNow(),
-}, (t) => ({
-	convCreatedIdx: index('idx_chat_msg_conv_created').on(t.conversationId, t.createdAt),
-}));
+export const chatMessages = pgTable(
+	'chat_messages',
+	{
+		id: uuid('id').primaryKey().defaultRandom(),
+		conversationId: uuid('conversation_id')
+			.notNull()
+			.references(() => chatConversations.id, { onDelete: 'cascade' }),
+		role: text('role').notNull(), // 'user' | 'assistant' | 'tool'
+		parts: jsonb('parts').notNull(),
+		toolCalls: jsonb('tool_calls'),
+		toolResults: jsonb('tool_results'),
+		createdAt: timestamp('created_at').notNull().defaultNow()
+	},
+	(t) => ({
+		convCreatedIdx: index('idx_chat_msg_conv_created').on(t.conversationId, t.createdAt)
+	})
+);
 ```
 
 SQLite variants use `text` for `jsonb` columns. Migration generated
@@ -169,27 +180,27 @@ keeps `db:migrate` deterministic).
 ## 6. UX & A11y Plan
 
 - **Components and slot locations.**
-  - `<ChatLauncher>` mounts in `layout.global.overlay` (rendered once
-    per public locale layout).
-  - `<ChatHeroTakeover>` is opt-in via slot in
-    `app/[locale]/(listing)/listing.tsx` and replaces the default hero.
-  - `<ChatSidebar>` mounts as a tab in `LayoutClassic`'s sidebar.
+    - `<ChatLauncher>` mounts in `layout.global.overlay` (rendered once
+      per public locale layout).
+    - `<ChatHeroTakeover>` is opt-in via slot in
+      `app/[locale]/(listing)/listing.tsx` and replaces the default hero.
+    - `<ChatSidebar>` mounts as a tab in `LayoutClassic`'s sidebar.
 - **Keyboard map.** Launcher: `Enter`/`Space` opens. Panel:
   `Esc` closes and returns focus to launcher; `Tab` cycles
-  *input → send → messages → close*; `Shift+Enter` newline;
+  _input → send → messages → close_; `Shift+Enter` newline;
   `Enter` sends. Hero-takeover: focus starts in the single-line input.
 - **Localisation.** New keys (one line each) under `AI_CHAT_*` in
   `apps/web/messages/<locale>.json`:
-  - `AI_CHAT_LAUNCHER_LABEL`, `AI_CHAT_TITLE`, `AI_CHAT_PLACEHOLDER`,
-    `AI_CHAT_SEND`, `AI_CHAT_CLEAR`, `AI_CHAT_CLOSE`,
-    `AI_CHAT_SIGN_IN_CTA`, `AI_CHAT_SCENARIO_BLOCKED`,
-    `AI_CHAT_RATE_LIMITED`, `AI_CHAT_ERROR`, `AI_CHAT_EMPTY_STATE`,
-    `AI_CHAT_TYPING`, `AI_CHAT_HERO_PROMPT`.
-  - Per-scenario opener: `AI_CHAT_SCENARIO_<NAME>` (e.g.
-    `AI_CHAT_SCENARIO_SUBMIT`).
-  - System-prompt scaffolding: `AI_CHAT_SYSTEM_PROMPT`,
-    `AI_CHAT_SYSTEM_PROMPT_AUTHENTICATED` (interpolated with
-    `directoryName`, `locale`, `currentPageUrl`).
+    - `AI_CHAT_LAUNCHER_LABEL`, `AI_CHAT_TITLE`, `AI_CHAT_PLACEHOLDER`,
+      `AI_CHAT_SEND`, `AI_CHAT_CLEAR`, `AI_CHAT_CLOSE`,
+      `AI_CHAT_SIGN_IN_CTA`, `AI_CHAT_SCENARIO_BLOCKED`,
+      `AI_CHAT_RATE_LIMITED`, `AI_CHAT_ERROR`, `AI_CHAT_EMPTY_STATE`,
+      `AI_CHAT_TYPING`, `AI_CHAT_HERO_PROMPT`.
+    - Per-scenario opener: `AI_CHAT_SCENARIO_<NAME>` (e.g.
+      `AI_CHAT_SCENARIO_SUBMIT`).
+    - System-prompt scaffolding: `AI_CHAT_SYSTEM_PROMPT`,
+      `AI_CHAT_SYSTEM_PROMPT_AUTHENTICATED` (interpolated with
+      `directoryName`, `locale`, `currentPageUrl`).
 - **A11y.** Launcher = `<button aria-label>`. The panel is built on
   **HeroUI's `<Modal>` / `<Drawer>` primitives**, which already ship
   with a built-in focus trap, `Esc`-to-close, `role="dialog"` /
@@ -198,7 +209,7 @@ keeps `db:migrate` deterministic).
   `components/tags-modal.tsx`), so we reuse the same primitive
   instead of authoring a focus-trap hook. Streaming bubbles use
   `<div aria-live="polite">`. WCAG 2.2 AA contrast verified on light
-  + dark themes; axe-core spec asserts.
+    - dark themes; axe-core spec asserts.
 
 ## 7. Performance Plan
 
@@ -239,14 +250,14 @@ keeps `db:migrate` deterministic).
 - **Input validation.** Request body validated with Zod
   (`messages`, `conversationId`, `scenario`, `currentPageUrl`).
   Messages are length-capped (`max 50 messages`, `max 4 000 chars
-  per message`) to prevent context-stuffing.
+per message`) to prevent context-stuffing.
 - **Output sanitisation.** Markdown renderer (e.g. `react-markdown`
   with `rehype-sanitize`) strips inline scripts; tool results are
   serialised through a JSON schema, never spliced raw into the
   prompt.
 - **Rate limiting.** **Reuses the existing
   `apps/web/lib/utils/rate-limit.ts` helper** (`ratelimit({ key,
-  limit, windowMs })` — in-memory Map-backed). `/api/chat` calls it
+limit, windowMs })` — in-memory Map-backed). `/api/chat` calls it
   twice per request: a per-IP key for anonymous callers
   (default: 20 req / 60 s) and a per-user key for authenticated
   callers (default: 60 req / 60 s). Limits configurable via
@@ -265,24 +276,24 @@ keeps `db:migrate` deterministic).
 ## 9. Test Plan
 
 - **Unit tests** (`packages/plugin-ai-chat/__tests__/`):
-  - `config.test.ts` — Zod schema accepts/rejects expected configs;
-    defaults applied.
-  - `tools.test.ts` — each tool validates input, returns the
-    expected shape, and refuses to run when its `requiresAuth` flag
-    is set and no session is present.
-  - `agent.test.ts` — `runAgent` injects the scenario-gating
-    middleware and the rate-limiter.
+    - `config.test.ts` — Zod schema accepts/rejects expected configs;
+      defaults applied.
+    - `tools.test.ts` — each tool validates input, returns the
+      expected shape, and refuses to run when its `requiresAuth` flag
+      is set and no session is present.
+    - `agent.test.ts` — `runAgent` injects the scenario-gating
+      middleware and the rate-limiter.
 - **Playwright e2e** (`apps/web-e2e/tests/public/ai-chat.spec.ts`):
   the four flows in AC-9.
 - **Playwright API** (`apps/web-e2e/tests/api/ai-chat.spec.ts`):
   rate limit, scenario gating, 404 when disabled.
 - **Manual verification recipe** (added to `docs/features/ai-chat.md`):
-  1. `cp .env.example .env.local`, fill in `AI_CHAT_*`.
-  2. Edit `.content/.works/works.yml` to add the `aiChat` block.
-  3. `pnpm dev`, open `http://localhost:3000`, click the launcher,
-     ask *"what is here?"* → expect a streamed reply.
-  4. Sign in as the seeded `tester@ever.works`, ask
-     *"what did I submit?"* → expect a link to the seeded item.
+    1. `cp .env.example .env.local`, fill in `AI_CHAT_*`.
+    2. Edit `.content/.works/works.yml` to add the `aiChat` block.
+    3. `pnpm dev`, open `http://localhost:3000`, click the launcher,
+       ask _"what is here?"_ → expect a streamed reply.
+    4. Sign in as the seeded `tester@ever.works`, ask
+       _"what did I submit?"_ → expect a link to the seeded item.
 - **Quality bar.** `pnpm lint`, `pnpm tsc --noEmit`, and `pnpm build`
   must pass for the affected packages.
 
@@ -291,9 +302,9 @@ keeps `db:migrate` deterministic).
 - **Default off.** `aiChat.enabled=false` in the template's seed
   `works.yml`. Existing deployments are unaffected on upgrade.
 - **Opt-in steps for an operator.**
-  1. Add the `aiChat` block to `.content/.works/works.yml`.
-  2. Set `AI_CHAT_*` env vars on Vercel (or wherever).
-  3. Redeploy. The launcher appears on the next request.
+    1. Add the `aiChat` block to `.content/.works/works.yml`.
+    2. Set `AI_CHAT_*` env vars on Vercel (or wherever).
+    3. Redeploy. The launcher appears on the next request.
 - **Backwards compatibility.** Net-additive — no existing behaviour
   changes when `aiChat.enabled` is absent or `false`.
 - **Feature flag.** None beyond `aiChat.enabled`. The Ever Works
@@ -306,28 +317,28 @@ keeps `db:migrate` deterministic).
 ## 11. Constitution Check
 
 - [x] **I — Plugin-First** — feature ships as `packages/plugin-ai-chat/`
-  with a manifest, config schema, and slot-based mount; core has two
-  short seams that short-circuit when disabled.
+      with a manifest, config schema, and slot-based mount; core has two
+      short seams that short-circuit when disabled.
 - [x] **II — TypeScript Everywhere** — every new file is `.ts` / `.tsx`.
 - [x] **III — Spec Before Code** — this spec + plan + tasks land
-  before any code in the same PR; implementation lands in follow-up PRs.
+      before any code in the same PR; implementation lands in follow-up PRs.
 - [x] **IV — Documentation First-Class** —
-  `docs/features/ai-chat.md` added, indexed under `docs/index.md`,
-  `docs/spec/README.md` updated, `docs/log.md` appended.
+      `docs/features/ai-chat.md` added, indexed under `docs/index.md`,
+      `docs/spec/README.md` updated, `docs/log.md` appended.
 - [x] **V — Performance Budget** — see §7; launcher ≤ 5 KB gzip,
-  panel loaded dynamically; LCP / INP / CLS targets unchanged.
+      panel loaded dynamically; LCP / INP / CLS targets unchanged.
 - [x] **VI — Latest Stable Frameworks** — `ai@^6`,
-  `@ai-sdk/react@^3` track latest; mirrors the platform's pinning.
+      `@ai-sdk/react@^3` track latest; mirrors the platform's pinning.
 - [x] **VII — Reuse Before Build** — Vercel AI SDK +
-  `@ai-sdk/openai-compatible` are the popular libraries; we author
-  no custom streaming layer.
+      `@ai-sdk/openai-compatible` are the popular libraries; we author
+      no custom streaming layer.
 - [x] **VIII — No Removal Without Migration** — additive change;
-  no specs, files, or tests removed.
+      no specs, files, or tests removed.
 - [x] **IX — Test Coverage Bar** — Playwright e2e + API specs are in
-  the AC list and tasks.
+      the AC list and tasks.
 - [x] **X — Modular Packages** — code lives in a single focused
-  package (`plugin-ai-chat`) with a declared public surface
-  (`package.json#exports`).
+      package (`plugin-ai-chat`) with a declared public surface
+      (`package.json#exports`).
 
 ## 12. Complexity Tracking
 

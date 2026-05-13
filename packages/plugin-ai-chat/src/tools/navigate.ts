@@ -12,26 +12,18 @@ const KNOWN_TARGETS = [
 	'item',
 	'category',
 	'tag',
-	'search',
+	'search'
 ] as const;
 
 const inputSchema = z.object({
-	target: z
-		.enum(KNOWN_TARGETS)
-		.describe('Which directory page to take the visitor to.'),
+	target: z.enum(KNOWN_TARGETS).describe('Which directory page to take the visitor to.'),
 	slug: z
 		.string()
 		.min(1)
 		.max(200)
 		.optional()
-		.describe(
-			'Slug parameter for targets that need one (`item`, `category`, `tag`). Ignored otherwise.',
-		),
-	query: z
-		.string()
-		.max(200)
-		.optional()
-		.describe('Pre-fill query string for the `search` target. Ignored otherwise.'),
+		.describe('Slug parameter for targets that need one (`item`, `category`, `tag`). Ignored otherwise.'),
+	query: z.string().max(200).optional().describe('Pre-fill query string for the `search` target. Ignored otherwise.')
 });
 
 export type NavigateInput = z.infer<typeof inputSchema>;
@@ -66,9 +58,7 @@ function buildPath(input: NavigateInput): string {
 		case 'tag':
 			return input.slug ? `/tags/${encodeURIComponent(input.slug)}` : '/tags';
 		case 'search':
-			return input.query
-				? `/?q=${encodeURIComponent(input.query)}`
-				: '/';
+			return input.query ? `/?q=${encodeURIComponent(input.query)}` : '/';
 	}
 }
 
@@ -76,13 +66,13 @@ export const navigateTool: ChatTool<NavigateInput, NavigateResult> = {
 	name: 'navigate',
 	description:
 		'Take the visitor to a directory page (home, submit, pricing, sign-in, an item, a category, a tag, etc.). ' +
-		'Returns a path the client will `router.push()` after the assistant\'s reply finishes streaming. ' +
+		"Returns a path the client will `router.push()` after the assistant's reply finishes streaming. " +
 		'Use this whenever the visitor asks "take me to…" or "open the submission form".',
 	inputSchema,
 	requiresAuth: false,
 	scenarios: ['browse', 'search', 'submit', 'pricing', 'login-help', 'navigate', 'support'],
 	execute: async (input, ctx) => ({
 		path: buildPath(input),
-		locale: ctx.locale,
-	}),
+		locale: ctx.locale
+	})
 };

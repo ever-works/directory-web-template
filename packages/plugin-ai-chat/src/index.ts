@@ -22,7 +22,7 @@ export {
 	type AnonymousScenario,
 	type AuthenticatedExtraScenario,
 	type AuthenticatedScenario,
-	type ChatPosition,
+	type ChatPosition
 } from './config';
 
 // Tools
@@ -47,7 +47,7 @@ export {
 	type ItemSummary,
 	type NavigateResult,
 	type TagSummary,
-	type UserProfileSummary,
+	type UserProfileSummary
 } from './tools';
 
 // Prompts
@@ -58,14 +58,8 @@ export {
 	DEFAULT_PROMPT_TEMPLATES,
 	sanitiseForPrompt,
 	type AiChatPromptTemplates,
-	type BuildSystemPromptInput,
+	type BuildSystemPromptInput
 } from './prompts';
 
 // Agent
-export {
-	DEFAULT_MAX_STEPS,
-	DEFAULT_MESSAGE_LIMITS,
-	runAgent,
-	type RunAgentParams,
-	type RunAgentResult,
-} from './agent';
+export { DEFAULT_MAX_STEPS, DEFAULT_MESSAGE_LIMITS, runAgent, type RunAgentParams, type RunAgentResult } from './agent';
