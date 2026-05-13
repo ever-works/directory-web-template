@@ -13,6 +13,11 @@ import { auth } from '@/lib/auth';
 import { configManager } from '@/lib/config-manager';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { buildAiChatToolContext } from '@/lib/services/chat-context.service';
+import {
+	appendMessages,
+	createConversation,
+	requireOwnership,
+} from '@/lib/repositories/chat.repository';
 
 /**
  * POST /api/chat — streaming chat completions for the directory's
@@ -257,6 +262,98 @@ export async function POST(request: NextRequest) {
 		return NextResponse.json({ error: 'agent-failed' }, { status: 502 });
 	}
 
-	// 8. Stream back to the client.
-	return agentResult.stream.toUIMessageStreamResponse();
+	// 8. Optional persistence: when `aiChat.persist === true` AND the visitor
+	//    is signed in, ensure a conversation row exists and append the new
+	//    messages after the stream finishes. Errors here are logged and
+	//    swallowed so a DB hiccup never breaks the user-facing stream.
+	const persistenceContext =
+		chatConfig.persist && chatSession
+			? await resolveConversationForPersistence({
+					session: chatSession,
+					locale,
+					scenario,
+					conversationId: parsed.conversationId,
+				}).catch((error) => {
+					console.error('[/api/chat] persistence pre-flight failed:', error);
+					return null;
+				})
+			: null;
+
+	// 9. Stream back to the client.
+	return agentResult.stream.toUIMessageStreamResponse({
+		onFinish: persistenceContext
+			? async ({ messages: finalMessages }) => {
+					try {
+						await persistChatTurn(persistenceContext.conversationId, parsed.messages, finalMessages);
+					} catch (error) {
+						console.error('[/api/chat] onFinish persistence failed:', error);
+					}
+				}
+			: undefined,
+	});
+}
+
+interface PersistenceContext {
+	conversationId: string;
+}
+
+async function resolveConversationForPersistence(input: {
+	session: ChatSession;
+	locale: string;
+	scenario: AuthenticatedScenario;
+	conversationId?: string;
+}): Promise<PersistenceContext> {
+	if (input.conversationId) {
+		const owned = await requireOwnership(input.session.userId, input.conversationId);
+		if (owned) return { conversationId: owned.id };
+	}
+	const created = await createConversation({
+		userId: input.session.userId,
+		locale: input.locale,
+		scenario: input.scenario,
+	});
+	return { conversationId: created.id };
+}
+
+interface PersistableMessage {
+	role: string;
+	parts?: unknown;
+}
+
+async function persistChatTurn(
+	conversationId: string,
+	clientMessages: ReadonlyArray<unknown>,
+	finalMessages: ReadonlyArray<unknown>,
+): Promise<void> {
+	// Persist the LAST user message from the request payload (the new one the
+	// client just sent — earlier messages were persisted on prior turns) plus
+	// every NEW assistant / tool message produced during this run.
+	const lastUserMessage = [...clientMessages]
+		.reverse()
+		.find((m): m is PersistableMessage => {
+			return typeof m === 'object' && m !== null && (m as PersistableMessage).role === 'user';
+		});
+
+	const newAssistantMessages = finalMessages.filter(
+		(m): m is PersistableMessage =>
+			typeof m === 'object' &&
+			m !== null &&
+			((m as PersistableMessage).role === 'assistant' ||
+				(m as PersistableMessage).role === 'tool'),
+	);
+
+	const toPersist: Array<{
+		role: 'user' | 'assistant' | 'tool' | 'system';
+		parts: unknown;
+	}> = [];
+	if (lastUserMessage) {
+		toPersist.push({ role: 'user', parts: lastUserMessage.parts ?? [] });
+	}
+	for (const m of newAssistantMessages) {
+		const role = m.role as 'assistant' | 'tool';
+		toPersist.push({ role, parts: m.parts ?? [] });
+	}
+
+	if (toPersist.length === 0) return;
+	await appendMessages(conversationId, toPersist);
 }

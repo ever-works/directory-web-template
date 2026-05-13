@@ -1437,3 +1437,63 @@ export const locationIndexMeta = pgTable(
 
 export type LocationIndexMeta = typeof locationIndexMeta.$inferSelect;
 export type NewLocationIndexMeta = typeof locationIndexMeta.$inferInsert;
+
+// ######################### AI Chat Conversations (Spec 023) #########################
+/**
+ * Conversation envelope for the optional AI-chat persistence layer.
+ *
+ * Created and populated only when `aiChat.persist === true` in `works.yml`
+ * **and** the visitor is authenticated. Anonymous chats are never persisted
+ * — they live in the client's `localStorage` only.
+ *
+ * Cascade-deleted with the parent user; messages cascade-delete with the
+ * parent conversation.
+ */
+export const chatConversations = pgTable(
+	'chat_conversations',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		title: text('title'),
+		locale: text('locale').notNull(),
+		scenario: text('scenario'),
+		createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		updatedAt: timestamp('updated_at', { mode: 'date', withTimezone: true }).notNull().defaultNow(),
+		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
+	},
+	(table) => ({
+		userUpdatedIdx: index('chat_conversations_user_updated_idx').on(table.userId, table.updatedAt),
+		tenantIdIdx: index('chat_conversations_tenant_id_idx').on(table.tenantId)
+	})
+);
+
+export type ChatConversation = typeof chatConversations.$inferSelect;
+export type NewChatConversation = typeof chatConversations.$inferInsert;
+
+// ######################### AI Chat Messages (Spec 023) #########################
+export const chatMessages = pgTable(
+	'chat_messages',
+	{
+		id: text('id')
+			.primaryKey()
+			.$defaultFn(() => crypto.randomUUID()),
+		conversationId: text('conversation_id')
+			.notNull()
+			.references(() => chatConversations.id, { onDelete: 'cascade' }),
+		role: text('role').notNull(), // 'user' | 'assistant' | 'tool' | 'system'
+		parts: jsonb('parts').notNull(), // UIMessage.parts[] verbatim
+		toolCalls: jsonb('tool_calls'),
+		toolResults: jsonb('tool_results'),
+		createdAt: timestamp('created_at', { mode: 'date', withTimezone: true }).notNull().defaultNow()
+	},
+	(table) => ({
+		convCreatedIdx: index('chat_messages_conv_created_idx').on(table.conversationId, table.createdAt)
+	})
+);
+
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type NewChatMessage = typeof chatMessages.$inferInsert;

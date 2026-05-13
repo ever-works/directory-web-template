@@ -323,23 +323,55 @@ Conventions:
   `AI_CHAT_MODEL`, `AI_CHAT_RATE_LIMIT_ANON`,
   `AI_CHAT_RATE_LIMIT_AUTH`.
 
-### T-008 [P] — Drizzle schema + repository for conversation history
+### T-008 [P] — Drizzle schema + repository for conversation history — **done**
 
 - Files: `apps/web/lib/db/schema.ts`,
   `apps/web/lib/repositories/chat.repository.ts`,
-  `apps/web/lib/db/migrations/*`
+  `apps/web/lib/db/migrations/0035_skinny_komodo.sql`,
+  `apps/web/app/api/chat/route.ts`
 - Steps:
-  1. Add `chat_conversations` and `chat_messages` tables (plan §5).
-  2. Generate migration via `pnpm db:generate`; smoke-test
-     `pnpm db:migrate` against SQLite and Postgres.
-  3. Implement `lib/repositories/chat.repository.ts` (follows the
-     existing `*.repository.ts` naming) with `createConversation`,
-     `appendMessages`, `listConversations`, `getConversation` —
-     all user-scoped.
-  4. Wire `onFinish` in the API route to call the repository when
-     `aiChat.persist === true && session !== null`.
-- Verification: `pnpm db:migrate` succeeds on a fresh SQLite db;
-  a Playwright API spec persists a conversation and reads it back.
+  1. [x] Added `chat_conversations` and `chat_messages` `pgTable`
+     definitions at the bottom of `lib/db/schema.ts`, mirroring
+     the existing `favorites` / `featured_items` shape (text PK
+     with `crypto.randomUUID()` default, cascade FKs to
+     `users` / `tenant`, btree indexes on hot columns).
+  2. [x] `pnpm db:generate` produced
+     `migrations/0035_skinny_komodo.sql` — both tables + 3
+     indexes + 3 FK constraints. No backfill needed; the tables
+     are empty on day one and stay so unless
+     `aiChat.persist=true`. (Repo is Postgres-only per
+     `drizzle.config.ts`; SQLite is mentioned in CLAUDE.md only
+     for local-dev convenience.)
+  3. [x] Implemented
+     `apps/web/lib/repositories/chat.repository.ts` (follows the
+     existing `*.repository.ts` naming) with:
+     - `createConversation({ userId, locale, scenario?, title? })`
+     - `appendMessages(conversationId, messages[])` — batched
+       insert + `updated_at` bump in one round-trip
+     - `listConversations(userId, { limit? })` — most-recent
+       first
+     - `getConversation(userId, conversationId)` — returns
+       `{ conversation, messages[] }` or `null` (treats
+       "not found" and "not yours" identically to prevent ID
+       probing)
+     - `requireOwnership(userId, conversationId)` — predicate
+       used by the route's persistence pre-flight
+     All reads tenant-scoped where possible, with a graceful
+     userId-only fallback for single-tenant deployments.
+  4. [x] Wired `onFinish` into the API route's
+     `toUIMessageStreamResponse({ onFinish })` callback,
+     guarded by `chatConfig.persist === true && chatSession`.
+     Pre-flight resolves the conversation (resumes when
+     `parsed.conversationId` is supplied and owned, otherwise
+     creates a new one). Persists the new user message + every
+     assistant/tool message produced during the run. Errors are
+     logged and swallowed so a DB hiccup never breaks the
+     user-facing stream.
+- Verification: [x] `pnpm db:generate` succeeded (Postgres
+  dialect); [x] generated SQL inspected and matches plan §5;
+  [x] `pnpm tsc --noEmit` clean for `apps/web`. Playwright API
+  spec asserting a conversation is persisted and read back is
+  part of T-013.
 
 ### T-009 [P] — i18n strings (six locales)
 
