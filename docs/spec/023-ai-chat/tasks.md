@@ -19,20 +19,36 @@ Conventions:
 
 ## Task list
 
-### T-001 [P] — Scaffold `plugin-ai-chat` package
+### T-001 [P] — Scaffold `plugin-ai-chat` package — **done**
 
 - Files: `packages/plugin-ai-chat/{package.json,tsconfig.json,src/index.ts,README.md}`
 - Steps:
-  1. Create the package skeleton at `packages/plugin-ai-chat/`.
-  2. Add deps: `ai@^6`, `@ai-sdk/react@^3`,
-     `@ai-sdk/openai-compatible@^2`, `zod`. Peer deps: `react@^19`,
-     `react-dom@^19`, `next@^16`.
-  3. Wire into `pnpm-workspace.yaml`.
-  4. Inherit ESLint and TS config from `packages/eslint-config` and
-     `packages/tsconfig`.
-  5. Declare `package.json#exports` for `.`, `./components`,
-     `./tools`, `./config`.
-- Verification: `pnpm --filter plugin-ai-chat typecheck` succeeds.
+  1. [x] Create the package skeleton at `packages/plugin-ai-chat/`.
+  2. [x] Add deps: `ai@^6.0.154`, `@ai-sdk/react@^3.0.156`,
+     `@ai-sdk/openai-compatible@^2.0.41`, `zod@^4.0.5`,
+     `@ever-works/plugin-sdk` (workspace). Peer dep:
+     `react>=19.0.0`. (Pinned the exact minor versions the
+     platform ships, not arbitrary `^6` — keeps cross-repo
+     parity.)
+  3. [x] Wired into the workspace via the existing
+     `pnpm-workspace.yaml` glob `packages/*` (no edit required).
+  4. [x] TS config extends `@ever-works/tsconfig/base.json` with
+     `jsx: react-jsx`. ESLint is config-free at the package
+     level today (matches `plugin-sdk` / `plugin-demo` — there
+     is no `packages/eslint-config` peer at this layer).
+  5. [x] `package.json#exports` declared for `.` and `./config`;
+     more entry points (`./components`, `./tools`) land alongside
+     T-003 / T-005.
+- Verification: [x] `pnpm --filter @ever-works/plugin-ai-chat
+  typecheck` clean; `apps/web` still typechecks; lockfile delta
+  is +145 lines (the new AI SDK packages and their transitive
+  deps).
+- **Sub-task discovered during T-001:** add three new SLOT_IDS
+  (`chat.launcher.overlay`, `home.hero.takeover`,
+  `layout.sidebar.tab`) to `packages/plugin-sdk/src/slots.ts`
+  before T-006 lands. Recorded as [Q-023d](../../questions.md)
+  with the default ("add three new slot IDs"). Out of scope for
+  T-001 itself.
 
 ### T-002 [seq] — Author `AiChatConfig` Zod schema + `AppConfig` extension
 

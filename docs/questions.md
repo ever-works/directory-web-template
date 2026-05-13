@@ -423,6 +423,35 @@ confirm, override, or refine.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
+### Q-023d Slot IDs for chat surfaces
+
+- **Context.** Plan §4's manifest stub uses
+  `layout.global.overlay`, `hero.takeover`,
+  `layout.sidebar.tab`. None of these exist in
+  `packages/plugin-sdk/src/slots.ts` — the canonical `SLOT_IDS`
+  array currently covers header / footer / item-detail /
+  admin / client-dashboard slots only. The SDK file notes:
+  *"Slot ids are stable; renaming a slot is a breaking change.
+  New slot ids land via a small spec."*
+- **Options.**
+  - **Add three new SLOT_IDS** (`chat.launcher.overlay`,
+    `home.hero.takeover`, `layout.sidebar.tab`) to
+    `packages/plugin-sdk/src/slots.ts` as a coordinated
+    sub-task of T-001, called out in this spec since it is
+    materially part of the chat feature surface.
+  - Skip the slot system entirely for v1: mount
+    `<ChatLauncher>` directly from
+    `apps/web/app/[locale]/layout.tsx` behind the
+    `aiChat.enabled` config gate. Lose the
+    plugin-discoverability story; gain simplicity.
+- **Default.** **Add three new SLOT_IDS** — preserves the
+  plugin-first principle (Article I) and keeps the
+  manifest stub honest. Adding new slot IDs lands in the
+  same PR series as T-001 / T-006, with the diff to
+  `slots.ts` documented in the relevant task's commit.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
 ### Q-023c Where do scenario openers and the system prompt live?
 
 - **Context.** Strings need to translate via the existing pipeline
