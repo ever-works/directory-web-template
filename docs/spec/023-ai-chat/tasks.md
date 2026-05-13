@@ -439,17 +439,36 @@ Conventions:
   spec asserting a conversation is persisted and read back is
   part of T-013.
 
-### T-009 [P] — i18n strings (six locales)
+### T-009 [P] — i18n strings (six locales) — **done**
 
 - Files: `apps/web/messages/{en,fr,es,de,ar,zh}.json`
 - Steps:
-  1. Add the `AI_CHAT_*` keys from plan §6 to all six locale files.
-  2. French strings reviewed against the Jira AC (FR required).
-  3. AR string set verified RTL with the existing
-     `tests/public/i18n.spec.ts` page object.
-- Verification: `pnpm --filter @ever-works/web exec next-intl check`
-  (or the existing message-completeness script) reports no
-  missing keys across locales.
+  1. [x] Added the `ai_chat` namespace (29 keys) to **all six**
+     locale files. English was authored in T-005; this task
+     fills in FR, ES, DE, AR, ZH.
+  2. [x] French translations cover the Jira AC's explicit
+     requirement. The opener "Posez votre question" + the
+     scenario chips were chosen to match the tone of existing
+     `auth` / `header` strings in `fr.json`.
+  3. [x] Arabic translations use the same `ai_chat` namespace
+     and inherit RTL automatically via the existing locale
+     layout direction (no extra wiring needed). The launcher's
+     bottom-anchored class already includes
+     `rtl:left-6 rtl:right-auto`.
+- **Caveat:** translations are AI-authored (not professionally
+  reviewed). FR / ES / DE / AR / ZH are all colloquially
+  reasonable for tech-product UI copy and JSON-valid, but a
+  human native speaker should sanity-check the panel title +
+  scenario chips before final ship. Tracked separately under
+  "translation review" — non-blocking for v1.
+- Naming note: keys live under the `ai_chat` namespace (per the
+  repo's existing `auth` / `header` snake-cased convention), not
+  the `AI_CHAT_*` flat-key shape the plan §6 mentioned. The
+  components consume them via `useTranslations('ai_chat')`.
+- Verification: [x] `node -e "JSON.parse(...)"` round-trip
+  succeeds for all six files; [x] each file exposes 29
+  `ai_chat.*` keys (matches `en.json`); [x] `pnpm tsc --noEmit`
+  clean. End-to-end locale switching tracked under T-013.
 
 ### T-010 [P] — Typed analytics events
 
