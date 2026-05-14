@@ -31,6 +31,26 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 024: EW-120 platform Activity Feed pull endpoint
+
+- `spec-024` Net-new `GET /api/platform/activity-feed` route handler
+  authenticates the Ever Works platform via HMAC-SHA256 over
+  `${timestamp}:${queryString}:${workId}` (wire-compatible with the
+  platform's `DirectoryWebsiteClient`), then returns a normalised
+  page of users / items / reports drawn from `users`,
+  `itemAuditLogs`, and `reports`. Pull-mode only; push-mode
+  emission deferred to a follow-up spec.
+- New env vars: `PLATFORM_SYNC_SECRET` (HMAC secret),
+  `PLATFORM_WORK_ID` (UUID identifying this Work), and optional
+  `PLATFORM_ADMIN_BASE_URL` (absolute base for admin click-throughs).
+  Both required vars blank → 503 `not_provisioned`, letting the
+  platform surface a clean "configure pull mode" banner instead of
+  a runtime error.
+- Per-source over-fetch of `limit` rows from each of the three
+  sources, then global merge by timestamp DESC, then slice — same
+  fix as the platform-side Codex P1 (commit `4070ec08` on
+  ever-works PR #740) so a dominant source can't starve the page.
+
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 
 - `spec-022` Avatars stored as base64 data URLs in
