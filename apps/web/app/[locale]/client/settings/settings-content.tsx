@@ -5,15 +5,70 @@ import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard,
 import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import Image from 'next/image';
+import { User } from 'next-auth';
+
+// ─── User Identity Card ────────────────────────────────────────────────────
+
+function UserIdentityCard({ user, isLoading }: { user: User | undefined; isLoading: boolean }) {
+	const initials = user?.name
+		?.split(' ')
+		.map((n) => n[0])
+		.join('')
+		.toUpperCase()
+		.slice(0, 2) || '?';
+
+	if (isLoading) {
+		return (
+			<div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-[#111111] shadow-sm animate-pulse">
+				<div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-white/8 shrink-0" />
+				<div className="flex-1 space-y-1.5">
+					<div className="h-3 w-28 bg-gray-200 dark:bg-white/8 rounded" />
+					<div className="h-2.5 w-40 bg-gray-100 dark:bg-white/5 rounded" />
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-[#111111] shadow-sm">
+			<div className="relative w-10 h-10 rounded-full bg-theme-primary-100 dark:bg-theme-primary-900/30 flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-white dark:ring-white/10">
+				{user?.image ? (
+					<Image src={user.image} alt={user.name || 'User'} fill className="object-cover" />
+				) : (
+					<span className="text-sm font-semibold text-theme-primary-600 dark:text-theme-primary-400">
+						{initials}
+					</span>
+				)}
+			</div>
+			<div className="flex-1 min-w-0">
+				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+					{user?.name || 'Your Profile'}
+				</p>
+				{user?.email && (
+					<p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
+				)}
+			</div>
+			<span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-600 dark:text-green-400 shrink-0">
+				<span className="w-1.5 h-1.5 rounded-full bg-green-400" />
+				Active
+			</span>
+		</div>
+	);
+}
+
+// ─── Settings Card ─────────────────────────────────────────────────────────
 
 interface SettingsCardProps {
 	title: string;
 	description: string;
 	icon: React.ReactNode;
 	href: string;
+	isDone?: boolean;
 }
 
-function SettingsCard({ title, description, icon, href }: SettingsCardProps) {
+function SettingsCard({ title, description, icon, href, isDone }: SettingsCardProps) {
 	return (
 		<Link
 			href={href}
@@ -28,10 +83,20 @@ function SettingsCard({ title, description, icon, href }: SettingsCardProps) {
 				</h3>
 				<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{description}</p>
 			</div>
-			<FiArrowRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 group-hover:text-theme-primary-400 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" />
+			<div className="flex items-center gap-2 shrink-0">
+				{isDone !== undefined && (
+					<span
+						className={`w-1.5 h-1.5 rounded-full transition-colors ${isDone ? 'bg-green-400' : 'bg-gray-300 dark:bg-gray-600'}`}
+						title={isDone ? 'Complete' : 'Incomplete'}
+					/>
+				)}
+				<FiArrowRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 group-hover:text-theme-primary-400 group-hover:translate-x-0.5 transition-all duration-150" />
+			</div>
 		</Link>
 	);
 }
+
+// ─── Settings Section ──────────────────────────────────────────────────────
 
 interface SettingsSectionProps {
 	label: string;
@@ -51,27 +116,29 @@ function SettingsSection({ label, children }: SettingsSectionProps) {
 	);
 }
 
+// ─── Page ──────────────────────────────────────────────────────────────────
+
 export function SettingsContent() {
 	const t = useTranslations('settings');
+	const { user, isLoading } = useCurrentUser();
+
+	const hasName = Boolean(user?.name);
+	const hasImage = Boolean(user?.image);
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
-				<div className="max-w-xl mx-auto py-8 space-y-7">
-					{/* Page Header */}
-					<div className="flex items-center gap-3">
-						<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
-							<FiSettings className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
-						</div>
-						<div>
-							<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
-								{t('PROFILE_SETTINGS')}
-							</h1>
-							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-								Manage your profile, security and billing
-							</p>
-						</div>
+				<div className="max-w-xl mx-auto py-8 space-y-5">
+					{/* Page header label */}
+					<div className="flex items-center gap-2 px-0.5">
+						<FiSettings className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
+						<span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
+							{t('PROFILE_SETTINGS')}
+						</span>
 					</div>
+
+					{/* User identity card */}
+					<UserIdentityCard user={user} isLoading={isLoading} />
 
 					{/* Profile */}
 					<SettingsSection label="Profile">
@@ -80,6 +147,7 @@ export function SettingsContent() {
 							description={t('SETTINGS_CARDS.BASIC_INFO.DESCRIPTION')}
 							icon={<FiUser className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
 							href="/client/settings/profile/basic-info"
+							isDone={hasName && hasImage}
 						/>
 						<SettingsCard
 							title={t('SETTINGS_CARDS.LOCATION.TITLE')}
@@ -102,6 +170,7 @@ export function SettingsContent() {
 							description={t('SETTINGS_CARDS.THEME_COLORS.DESCRIPTION')}
 							icon={<FiDroplet className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
 							href="/client/settings/profile/theme-colors"
+							isDone={true}
 						/>
 					</SettingsSection>
 
