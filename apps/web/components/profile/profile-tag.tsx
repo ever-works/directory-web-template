@@ -8,7 +8,7 @@ interface ProfileTagProps {
 }
 
 const PROFILE_TAG_BASE_CLASSES = cn(
-  "inline-flex items-center gap-1 px-4 py-1.5 rounded-full border border-gray-300 dark:border-white/6 bg-white/70 dark:bg-white/5 text-gray-800 dark:text-gray-100 text-sm font-medium transition-all duration-200 shadow-xs hover:shadow-md hover:border-theme-primary-400 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-400"
+  "inline-flex items-center gap-1 px-3 py-1 rounded-full border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/5 text-neutral-700 dark:text-neutral-200 text-xs font-medium transition-all duration-150 hover:border-theme-primary-300 dark:hover:border-theme-primary-500/50 hover:bg-theme-primary-50 dark:hover:bg-theme-primary-500/10 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 focus:outline-none focus:ring-2 focus:ring-theme-primary-400"
 );
 
 export function ProfileTag({ label, className }: ProfileTagProps) {
@@ -17,7 +17,7 @@ export function ProfileTag({ label, className }: ProfileTagProps) {
       className={cn(PROFILE_TAG_BASE_CLASSES, className)}
       tabIndex={0}
     >
-      <FiTag className="w-4 h-4 opacity-60" />
+      <FiTag className="w-3 h-3 opacity-50" />
       {label}
     </span>
   );

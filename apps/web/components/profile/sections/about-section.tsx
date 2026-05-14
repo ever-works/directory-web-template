@@ -1,10 +1,11 @@
 "use client";
 
-import { FiMapPin, FiBriefcase, FiGlobe, FiCalendar } from "react-icons/fi";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useTranslations } from "next-intl";
 import { ProfileTag } from "../profile-tag";
 import { InlineEditField } from "../inline-edit-field";
 import type { Profile } from "@/lib/types/profile";
+
+const CARD = "bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm overflow-hidden";
 
 interface AboutSectionProps {
   profile: Profile;
@@ -12,201 +13,75 @@ interface AboutSectionProps {
 }
 
 export function AboutSection({ profile, isOwn = false }: AboutSectionProps) {
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  const t = useTranslations("profile");
+  const hasBio = !!profile.bio || isOwn;
+  const hasInterests = profile.interests.length > 0 || isOwn;
+
+  if (!hasBio && !hasInterests) return null;
 
   return (
-    <div className="space-y-6">
-      {/* About Me */}
-      <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
-        <CardHeader className="p-0 mb-2">
-          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">About Me</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-base">
-            <InlineEditField
-              field="bio"
-              value={profile.bio}
-              canEdit={isOwn}
-              multiline
-              maxLength={500}
-              placeholder="Tell others about yourself"
-              emptyLabel={isOwn ? "Add a bio" : "No bio yet"}
-            />
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Personal Information */}
-      <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
-        <CardHeader className="p-0 mb-2">
-          <CardTitle className="text-lg font-bold text-gray-900 dark:text-gray-100">Personal Information</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="space-y-4">
-            {(profile.location || isOwn) && (
-              <div className="flex items-center gap-3">
-                <FiMapPin className="w-5 h-5 text-theme-primary-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Location</p>
-                  <p className="text-gray-900 dark:text-gray-100">
-                    <InlineEditField
-                      field="location"
-                      value={profile.location}
-                      canEdit={isOwn}
-                      maxLength={100}
-                      placeholder="Where are you?"
-                      emptyLabel="Add location"
-                    />
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {(profile.company || isOwn) && (
-              <div className="flex items-center gap-3">
-                <FiBriefcase className="w-5 h-5 text-theme-primary-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Company</p>
-                  <p className="text-gray-900 dark:text-gray-100">
-                    <InlineEditField
-                      field="company"
-                      value={profile.company}
-                      canEdit={isOwn}
-                      maxLength={100}
-                      placeholder="Where do you work?"
-                      emptyLabel="Add company"
-                    />
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {(profile.jobTitle || isOwn) && (
-              <div className="flex items-center gap-3">
-                <FiBriefcase className="w-5 h-5 text-theme-primary-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Job Title</p>
-                  <p className="text-gray-900 dark:text-gray-100">
-                    <InlineEditField
-                      field="jobTitle"
-                      value={profile.jobTitle}
-                      canEdit={isOwn}
-                      maxLength={100}
-                      placeholder="Your role"
-                      emptyLabel="Add a job title"
-                    />
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {(profile.website || isOwn) && (
-              <div className="flex items-center gap-3">
-                <FiGlobe className="w-5 h-5 text-theme-primary-500" />
-                <div className="flex-1">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Website</p>
-                  {isOwn ? (
-                    <p className="text-gray-900 dark:text-gray-100">
-                      <InlineEditField
-                        field="website"
-                        value={profile.website}
-                        canEdit
-                        type="url"
-                        maxLength={200}
-                        placeholder="https://your.site"
-                        emptyLabel="Add website"
-                      />
-                    </p>
-                  ) : (
-                    <a
-                      href={profile.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
-                    >
-                      {profile.website}
-                    </a>
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-3">
-              <FiCalendar className="w-5 h-5 text-theme-primary-500" />
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
-                <p className="text-gray-900 dark:text-gray-100">{formatDate(profile.memberSince)}</p>
-              </div>
-            </div>
+    <div className="space-y-4">
+      {/* Bio */}
+      {hasBio && (
+        <div className={CARD}>
+          <div className="px-5 py-4 border-b border-neutral-100 dark:border-white/6">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{t("ABOUT_SECTION")}</h3>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Skills (preview) */}
-      {profile.skills.length > 0 && (
-        <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Skills & Expertise
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {profile.skills.map((skill) => (
-                <ProfileTag key={skill.name} label={skill.name} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+          <div className="px-5 py-4">
+            <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+              <InlineEditField
+                field="bio"
+                value={profile.bio}
+                canEdit={!!isOwn}
+                multiline
+                maxLength={500}
+                placeholder={t("BIO_EDIT_PLACEHOLDER")}
+                emptyLabel={isOwn ? t("BIO_ADD_LABEL") : t("BIO_EMPTY")}
+              />
+            </p>
+          </div>
+        </div>
       )}
 
       {/* Interests */}
-      {(profile.interests.length > 0 || isOwn) && (
-        <Card className="border border-gray-600/40 dark:border-gray-300/10 rounded-xl bg-transparent shadow-sm p-6">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-              Interests
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
+      {hasInterests && (
+        <div className={CARD}>
+          <div className="px-5 py-4 border-b border-neutral-100 dark:border-white/6">
+            <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{t("INTERESTS")}</h3>
+          </div>
+          <div className="px-5 py-4">
             {isOwn ? (
-              <div className="space-y-2">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Comma-separated. Each item becomes a tag below.
+              <div className="space-y-3">
+                <p className="text-xs text-neutral-400 dark:text-neutral-500">
+                  {t("INTERESTS_HINT")}
                 </p>
-                <p className="text-gray-900 dark:text-gray-100">
+                <p className="text-sm text-neutral-900 dark:text-neutral-100">
                   <InlineEditField
                     field="interests"
                     value={profile.interests.join(", ")}
                     canEdit
                     maxLength={200}
-                    placeholder="design, hiking, open source, ..."
-                    emptyLabel="Add interests"
+                    placeholder={t("INTERESTS_EDIT_PLACEHOLDER")}
+                    emptyLabel={t("INTERESTS_ADD_LABEL")}
                   />
                 </p>
                 {profile.interests.length > 0 && (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    {profile.interests.map((interest) => (
-                      <ProfileTag key={interest} label={interest} />
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {profile.interests.map((i) => (
+                      <ProfileTag key={i} label={i} />
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex flex-wrap gap-2">
-                {profile.interests.map((interest) => (
-                  <ProfileTag key={interest} label={interest} />
+              <div className="flex flex-wrap gap-1.5">
+                {profile.interests.map((i) => (
+                  <ProfileTag key={i} label={i} />
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
     </div>
   );

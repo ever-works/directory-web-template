@@ -162,6 +162,17 @@ persist across sessions, so that I can showcase work over time.
   user-id + username. Re-follow (after an unfollow → follow again)
   *does* notify; idempotent re-clicks while already-following do
   not. Notification failures must never break the follow itself.
+- [ ] AC-22: `/client/profile/<username>` renders as a 2-column
+  dashboard (collapses to single column below `lg`): a sticky left
+  profile panel (cover banner + avatar overlap, name + role pill,
+  Skills, Interests, Location / Member-since / Company / Website
+  info boxes, social links, action row) and a right column with a
+  headline 3-tile stat row (Followers / Following / Submissions),
+  a secondary 6-tile compact stat row, then About, Recent
+  Activity, Skills, and Portfolio sections in order. Visual
+  language matches the directory template (Card + Container,
+  theme-primary tokens, rounded-xl + border + subtle shadow).
+  Implemented in EW-613 / PR (forthcoming).
 - [ ] AC-21: After a user saves a new avatar **or display name**
   (from basic-info or via inline edit on their own public
   profile), the top-nav profile button and any other consumer of
