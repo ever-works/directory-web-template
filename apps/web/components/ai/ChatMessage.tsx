@@ -3,12 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { UIMessage } from 'ai';
-
-/**
- * Renders a single chat turn. Anything more elaborate than plain
- * text / tool-result JSON (markdown, code blocks, citations) lands
- * in a follow-up alongside the markdown renderer task.
- */
+import { ChatMarkdown } from './ChatMarkdown';
 
 export interface ChatMessageProps {
 	message: UIMessage;
@@ -60,11 +55,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
 			<div className={bubbleClasses} role="article">
 				{message.parts.map((part, index) => {
 					if (isTextPart(part)) {
-						return (
-							<p key={index} className="whitespace-pre-wrap break-words">
-								{part.text}
-							</p>
-						);
+						if (isUser) {
+							return (
+								<p key={index} className="whitespace-pre-wrap break-words">
+									{part.text}
+								</p>
+							);
+						}
+						return <ChatMarkdown key={index} text={part.text} />;
 					}
 					if (isToolPart(part)) {
 						const toolName = part.toolName ?? part.type.replace(/^tool-/, '');

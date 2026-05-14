@@ -12,9 +12,10 @@
 		"lint": "echo 'No lint configured for e2e'"
 	},
 	"devDependencies": {
+		"@axe-core/playwright": "^4.11.3",
 		"@ever-works/tsconfig": "workspace:*",
-		"@playwright/test": "^1.58.2",
 		"@faker-js/faker": "^10.1.0",
+		"@playwright/test": "^1.58.2",
 		"dotenv": "^16.4.7",
 		"typescript": "^5"
 	}

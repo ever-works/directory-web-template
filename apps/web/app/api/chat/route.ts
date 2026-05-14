@@ -14,6 +14,11 @@ import { configManager } from '@/lib/config-manager';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { buildAiChatToolContext } from '@/lib/services/chat-context.service';
 import { appendMessages, createConversation, requireOwnership } from '@/lib/repositories/chat.repository';
+import {
+	AI_CHAT_TEST_OVERRIDE_COOKIE,
+	applyAiChatTestOverride,
+	isAiChatTestOverrideCookie
+} from '@/lib/services/ai-chat-test-overrides';
 
 /**
  * POST /api/chat — streaming chat completions for the directory's
@@ -166,7 +171,8 @@ export async function POST(request: NextRequest) {
 		// chat is effectively disabled until the YAML is corrected.
 		return NextResponse.json({ error: 'not-found' }, { status: 404 });
 	}
-	const chatConfig = configParse.config;
+	const overrideActive = isAiChatTestOverrideCookie(request.cookies.get(AI_CHAT_TEST_OVERRIDE_COOKIE)?.value);
+	const chatConfig = applyAiChatTestOverride(configParse.config, overrideActive);
 	if (!chatConfig.enabled) {
 		return NextResponse.json({ error: 'not-found' }, { status: 404 });
 	}

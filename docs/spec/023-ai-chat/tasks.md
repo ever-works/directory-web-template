@@ -618,9 +618,10 @@ the critical path for the `floating` default position. Each lands as
 its own task before / after T-013 depending on user value:
 
 - **T-005a — `<ChatMarkdown>`** + `react-markdown` + `rehype-sanitize`.
-  Replaces the plain `whitespace-pre-wrap` text rendering in
-  `ChatMessage.tsx` with a sanitised Markdown renderer. Required for
-  the LLM's code-block / link / list output to be readable.
+  **Shipped.** Assistant text is now rendered through
+  `apps/web/components/ai/ChatMarkdown.tsx` (GFM + sanitised HTML);
+  user bubbles stay plain. `remark-gfm` was already in the web app;
+  `react-markdown` and `rehype-sanitize` were added.
 - **T-005b — `<ChatToolResult>`** rich viewer. Replaces the
   `<details><pre>JSON</pre></details>` fallback in `ChatMessage.tsx`
   with a per-tool renderer (item cards for `searchItems`, category
@@ -659,33 +660,51 @@ coverage, but the enabled-state specs need either a config
 override or upstream mocking. Each follow-up is independently
 scoped:
 
-- **T-013a — config-override hook for e2e.** Lets a Playwright
-  test set `aiChat.enabled=true` for the duration of a single
-  spec. Options: (a) a test-mode header read by
-  `AiChatMount`, (b) a writable `.content/.works/works.yml` in
-  the test environment, (c) a query-param override gated by
-  `NODE_ENV !== 'production'`. Default proposal: **(a)** because
-  it's the smallest seam and is easy to assert against.
-- **T-013b — upstream provider mock.** Use
-  `page.route('**\/api/v1/chat/completions', ...)` (or whatever
-  `AI_CHAT_BASE_URL` points at) to return a canned SSE stream.
-  Required before any anonymous / authenticated streaming-reply
-  assertion can pass.
-- **T-013c — Anonymous flow spec.** Launcher visible → opens →
-  send `"What is here?"` → assistant message renders with text
-  parts. Depends on T-013a + T-013b.
-- **T-013d — Authenticated flow spec.** Sign in via the existing
-  `auth.fixture.ts`, seed a `client_items` row, call
-  `mySubmissions` via the chat, assert the reply contains a link
-  to the seeded item. Depends on T-013a + T-013b + the
-  fixture-seed step withdrawn from T-012.
-- **T-013e — i18n spec.** Set `NEXT_LOCALE=fr`, open the chat,
-  assert launcher `aria-label` matches the French translation.
-  Depends only on T-013a.
-- **T-013f — a11y spec.** `Esc` closes the dialog and returns
-  focus to the launcher; axe-core passes on the open panel
-  under both themes. Depends on T-013a + T-013b.
-- **T-013g — API contract spec.** 429 when rate-limited, 401
-  when an authenticated-only scenario is requested anonymously,
-  200 with a streamed body when the full chain runs. Depends on
-  T-013a + T-013b.
+- **T-013a — config-override hook for e2e.** **Shipped.**
+  `apps/web/lib/services/ai-chat-test-overrides.ts` reads an
+  `ai-chat-test-override` cookie, gated by
+  `E2E_ALLOW_TEST_OVERRIDES=true` AND `NODE_ENV !== production`.
+  Both `AiChatMount` (server component) and `/api/chat/route.ts`
+  apply the override before checking `enabled`. Token defaults to
+  `enabled` and can be customised via `E2E_TEST_OVERRIDE_TOKEN`.
+- **T-013b — upstream provider mock.** **Shipped.** Because the
+  OpenAI-compatible call is made from the Next.js server, browser
+  `page.route(...)` cannot intercept it. Instead, the gated route
+  `apps/web/app/api/__test__/openai-mock/chat/completions/route.ts`
+  returns a canned SSE stream and is only active when the override
+  env vars are set. Tests configure
+  `AI_CHAT_BASE_URL=http://localhost:3000/api/__test__/openai-mock`.
+- **T-013c — Anonymous flow spec.** **Shipped** in
+  `apps/web-e2e/tests/public/ai-chat-enabled.spec.ts` (launcher
+  open, streamed reply, markdown rendered without raw asterisks).
+- **T-013d — Authenticated flow spec.** **Shipped** in
+  `apps/web-e2e/tests/client/ai-chat-enabled.spec.ts` using the
+  `clientPage` fixture; sends a message and asserts the streamed
+  assistant turn renders. Full `mySubmissions` round-trip with a
+  fixture-seeded `client_items` row is still deferred until the
+  T-012 seed helper lands.
+- **T-013e — i18n spec.** **Shipped** in
+  `apps/web-e2e/tests/public/ai-chat-enabled.spec.ts`: asserts the
+  launcher `aria-label` on `/fr` is non-empty and is not the
+  English default.
+- **T-013f — a11y spec.** **Shipped** in the same file: `Esc`
+  closes the dialog and focus returns to the launcher, and
+  `@axe-core/playwright` is asserted clean of critical / serious
+  violations on the open panel (`color-contrast` disabled because
+  it is theme-tunable and out of scope for AC-8).
+- **T-013g — API contract spec.** **Shipped** in
+  `apps/web-e2e/tests/api/ai-chat-enabled.spec.ts`: 200 with a
+  non-JSON streaming `Content-Type`, 401 when an authenticated-only
+  scenario is requested anonymously, and 429 once the anon
+  rate-limit window is exhausted.
+
+All seven specs `test.skip` when the override env vars are not
+provisioned, so they pass cleanly under the current CI job and are
+expected to be flipped on by a parallel CI job (or local run)
+that exports:
+
+```bash
+export E2E_ALLOW_TEST_OVERRIDES=true
+export AI_CHAT_API_KEY=anything
+export AI_CHAT_BASE_URL=http://localhost:3000/api/__test__/openai-mock
+```
