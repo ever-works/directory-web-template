@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Eye, ThumbsUp, Heart, MessageSquare, Star, BarChart3 } from 'lucide-react';
+import { Eye, ThumbsUp, Heart, MessageSquare, Star, Clock, BarChart3 } from 'lucide-react';
 import type { ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
 
 interface ItemStatsSectionProps {
@@ -18,12 +18,12 @@ interface StatRowProps {
 
 function StatRow({ icon, label, value }: StatRowProps) {
 	return (
-		<div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/6 last:border-b-0">
-			<div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
-				<span className="text-gray-400 dark:text-gray-500">{icon}</span>
+		<div className="flex items-center justify-between py-1.5">
+			<div className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+				<span className="text-gray-400 dark:text-gray-500 shrink-0">{icon}</span>
 				<span>{label}</span>
 			</div>
-			<span className="text-xs font-semibold text-gray-900 dark:text-white tabular-nums">{value}</span>
+			<span className="text-[11px] font-medium text-gray-900 dark:text-white tabular-nums">{value}</span>
 		</div>
 	);
 }
@@ -54,9 +54,10 @@ function formatRelativeAge(iso?: string, locale = 'en'): string {
 }
 
 /**
- * Sidebar card showing engagement statistics for the current item:
- * views, votes, favorites, comments, average rating, and the time since
- * publication. Shows en-dashes until the API responds to avoid layout shift.
+ * Compact sidebar card showing engagement statistics for the current item:
+ * views, votes, favorites, comments, average rating, and listed age. Reads
+ * the existing /api/items/engagement endpoint on mount; shows en-dashes
+ * until the response resolves so the card height stays stable.
  */
 export function ItemStatsSection({ itemSlug, publishedAt }: ItemStatsSectionProps) {
 	const t = useTranslations();
@@ -74,7 +75,7 @@ export function ItemStatsSection({ itemSlug, publishedAt }: ItemStatsSectionProp
 				if (cancelled) return;
 				setMetrics(data.metrics?.[itemSlug] ?? null);
 			} catch {
-				// Silently fall back to placeholders — stats are non-critical.
+				// Non-critical; leave placeholders.
 			} finally {
 				if (!cancelled) setLoaded(true);
 			}
@@ -87,8 +88,8 @@ export function ItemStatsSection({ itemSlug, publishedAt }: ItemStatsSectionProp
 	const v = (n: number | undefined) => (loaded ? formatCompact(n ?? 0) : '–');
 
 	return (
-		<div className="bg-white dark:bg-white/3 rounded-xl p-4 border border-gray-200 dark:border-white/6 shadow-sm">
-			<div className="flex items-center gap-4 mb-4">
+		<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
+			<div className="flex items-center gap-4 mb-2">
 				<div className="p-1.5 bg-linear-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/30 dark:to-violet-900/30 rounded-xl">
 					<BarChart3 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
 				</div>
@@ -97,44 +98,35 @@ export function ItemStatsSection({ itemSlug, publishedAt }: ItemStatsSectionProp
 				</h2>
 			</div>
 
-			<div className="space-y-0">
+			<div>
 				<StatRow
-					icon={<Eye className="w-3.5 h-3.5" />}
+					icon={<Eye className="w-3 h-3" />}
 					label={t('itemDetail.STATS_VIEWS', { defaultValue: 'Views' })}
 					value={v(metrics?.views)}
 				/>
 				<StatRow
-					icon={<ThumbsUp className="w-3.5 h-3.5" />}
+					icon={<ThumbsUp className="w-3 h-3" />}
 					label={t('itemDetail.STATS_VOTES', { defaultValue: 'Upvotes' })}
 					value={v(metrics?.votes)}
 				/>
 				<StatRow
-					icon={<Heart className="w-3.5 h-3.5" />}
+					icon={<Heart className="w-3 h-3" />}
 					label={t('itemDetail.STATS_FAVORITES', { defaultValue: 'Favorites' })}
 					value={v(metrics?.favorites)}
 				/>
 				<StatRow
-					icon={<MessageSquare className="w-3.5 h-3.5" />}
+					icon={<MessageSquare className="w-3 h-3" />}
 					label={t('itemDetail.STATS_COMMENTS', { defaultValue: 'Comments' })}
 					value={v(metrics?.comments)}
 				/>
 				<StatRow
-					icon={<Star className="w-3.5 h-3.5" />}
+					icon={<Star className="w-3 h-3" />}
 					label={t('itemDetail.STATS_AVG_RATING', { defaultValue: 'Avg. rating' })}
 					value={loaded ? formatRating(metrics?.avgRating ?? 0) : '–'}
 				/>
 				{publishedAt && (
 					<StatRow
-						icon={
-							<svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									strokeLinecap="round"
-									strokeLinejoin="round"
-									strokeWidth="2"
-									d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-								/>
-							</svg>
-						}
+						icon={<Clock className="w-3 h-3" />}
 						label={t('itemDetail.STATS_AGE', { defaultValue: 'Listed' })}
 						value={formatRelativeAge(publishedAt)}
 					/>

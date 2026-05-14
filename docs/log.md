@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 023 (v3): revert Activity Overview, keep compact Statistics card in sidebar
+
+- `spec-023` Reverted v2's full-width Activity Overview panel and
+  removed the new `/api/items/[slug]/activity` route + the
+  `getItemActivityTimeSeries` query function it depended on. Per user
+  feedback the page should reuse the existing engagement totals from
+  `/api/items/engagement` rather than introducing a time-series surface.
+- `spec-023` `<ItemStatsSection>` is back in the sidebar (directly
+  below the Tags card), and its typography was tightened to
+  `text-[11px]` for both labels and values with `w-3 h-3` icons —
+  matches the compact density of the other sidebar cards.
+- `spec-023` Removed the `ACTIVITY_OVERVIEW` and
+  `ACTIVITY_OVERVIEW_DESCRIPTION` i18n keys from all 21 locales.
+- `spec-023` Spec, index status, and this log entry rolled back to
+  describe the simpler final shape: full-width carousel +
+  compact sidebar stats card.
+
+---
+
 ## 2026-05-14 — Spec 023 (v2): Activity Overview panel replaces sidebar Statistics card
 
 - `spec-023` Revision in the same PR: the compact sidebar

@@ -16,7 +16,7 @@ import { PromoCodeComponent } from '../promo-code/promo-code';
 import { FavoriteButton } from '../favorite-button';
 import type { ItemData } from '@/lib/content';
 import type { ItemLocationData } from '@/lib/types/item';
-import { ItemActivityOverview } from './item-activity-overview';
+import { ItemStatsSection } from './item-stats-section';
 import { ItemsCarousel } from '@/components/shared/items-carousel';
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
@@ -435,12 +435,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
+						<ItemStatsSection itemSlug={meta.slug || meta.name} publishedAt={meta.updated_at} />
 					</div>
-				</div>
-
-				{/* Activity Overview — full-width engagement panel */}
-				<div className="mt-16">
-					<ItemActivityOverview itemSlug={meta.slug || meta.name} publishedAt={meta.updated_at} />
 				</div>
 
 				{/* Similar Products — full-width carousel like /favorites */}
