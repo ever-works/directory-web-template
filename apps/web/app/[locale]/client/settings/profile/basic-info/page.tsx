@@ -573,7 +573,15 @@ export default function BasicInfoPage() {
 		}
 	});
 
-	const bioValue = watch('bio', '');
+	const {
+		bio: bioValue = '',
+		displayName: wDisplayName = '',
+		location: wLocation = '',
+		company: wCompany = '',
+		jobTitle: wJobTitle = '',
+		website: wWebsite = '',
+		interests: wInterests = '',
+	} = watch();
 
 	// ── Load profile ───────────────────────────────────────────────────────────
 	useEffect(() => {
@@ -690,6 +698,62 @@ export default function BasicInfoPage() {
 							className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm divide-y divide-neutral-100 dark:divide-white/6"
 							onSubmit={handleSubmit(onSubmit)}
 						>
+							{/* ── Completeness banner ── */}
+							{(() => {
+								const fields: { label: string; done: boolean; fieldId: string }[] = [
+									{ label: t('PROFILE_PHOTO'), done: !!avatarPreview, fieldId: 'avatar' },
+									{ label: t('DISPLAY_NAME'), done: !!wDisplayName?.trim(), fieldId: 'displayName' },
+									{ label: t('BIO'), done: !!bioValue?.trim(), fieldId: 'bio' },
+									{ label: t('JOB_TITLE'), done: !!wJobTitle?.trim(), fieldId: 'jobTitle' },
+									{ label: t('LOCATION'), done: !!wLocation?.trim(), fieldId: 'location' },
+									{ label: t('SKILLS'), done: skills.some((s) => s.name.trim()), fieldId: 'skills-editor' },
+									{ label: t('INTERESTS'), done: !!wInterests?.trim(), fieldId: 'interests' },
+									{ label: t('COMPANY'), done: !!wCompany?.trim(), fieldId: 'company' },
+									{ label: t('WEBSITE'), done: !!wWebsite?.trim(), fieldId: 'website' },
+								];
+								const done = fields.filter((f) => f.done).length;
+								if (done === fields.length) return null;
+								return (
+									<div className="p-5 bg-amber-50/60 dark:bg-amber-500/5 border-b border-amber-100 dark:border-amber-500/15 rounded-t-xl space-y-3">
+										<div className="flex items-center justify-between gap-2">
+											<p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+												{t('COMPLETENESS_PANEL_TITLE')}
+											</p>
+											<span className="text-xs text-neutral-500 dark:text-neutral-400 shrink-0">
+												{t('COMPLETENESS_FIELDS_DONE', { done, total: fields.length })}
+											</span>
+										</div>
+										<div className="flex flex-wrap gap-1.5">
+											{fields.map(({ label, done: isDone, fieldId }) => (
+												<button
+													key={label}
+													type="button"
+													onClick={() => {
+														const el = document.getElementById(fieldId);
+														el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+														if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+															el.focus();
+														}
+													}}
+													className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all duration-150 border ${
+														isDone
+															? 'bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 border-green-200 dark:border-green-500/20 cursor-default'
+															: 'bg-white dark:bg-white/5 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-500/25 hover:border-amber-300 dark:hover:border-amber-500/40 hover:bg-amber-50 dark:hover:bg-amber-500/10 cursor-pointer'
+													}`}
+												>
+													{isDone ? (
+														<FiCheck className="w-3 h-3 shrink-0" />
+													) : (
+														<span className="w-3 h-3 rounded-full border border-current inline-block shrink-0" />
+													)}
+													{label}
+												</button>
+											))}
+										</div>
+									</div>
+								);
+							})()}
+
 							{/* ── Profile Photo ── */}
 							<div className="p-6 space-y-4">
 								<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
@@ -871,7 +935,7 @@ export default function BasicInfoPage() {
 							</div>
 
 							{/* ── Skills ── */}
-							<div className="p-6">
+							<div id="skills-editor" className="p-6">
 								<SkillsEditor initialSkills={skills} onChange={setSkills} />
 							</div>
 
