@@ -119,6 +119,19 @@ const monetizationMethods: MonetizationMethod[] = [
 
   const ActiveMethodIcon = monetizationMethods[activeMethod].Icon;
 
+  const getDifficultyLabel = (difficulty: 'Easy' | 'Medium' | 'Hard') => {
+    switch (difficulty) {
+      case 'Easy':
+        return t('DIFFICULTY_EASY');
+      case 'Medium':
+        return t('DIFFICULTY_MEDIUM');
+      case 'Hard':
+        return t('DIFFICULTY_HARD');
+      default:
+        return difficulty;
+    }
+  };
+
   return (
     <section>
       <div className="max-w-7xl mx-auto">
@@ -204,7 +217,7 @@ const monetizationMethods: MonetizationMethod[] = [
                       method.difficulty === "Medium" ? "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300" :
                       "bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300"
                     }`}>
-                      {method.difficulty}
+                      {getDifficultyLabel(method.difficulty)}
                     </span>
                   </div>
                 </div>
@@ -226,7 +239,7 @@ const monetizationMethods: MonetizationMethod[] = [
                     <ActiveMethodIcon className="w-4 h-4 text-white dark:text-neutral-400" />
                   </div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                    {monetizationMethods[activeMethod].title} - Detailed Analysis
+                    {monetizationMethods[activeMethod].title} - {t("DETAILED_ANALYSIS_SUFFIX")}
                   </h3>
                 </div>
                 <button
@@ -295,30 +308,30 @@ const monetizationMethods: MonetizationMethod[] = [
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/6">
                   <div className="grid md:grid-cols-3 gap-4">
                     <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
-                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Implementation Steps</h5>
+                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">{t("IMPL_STEPS_TITLE")}</h5>
                       <ol className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                        <li>1. Configure payment gateway</li>
-                        <li>2. Set up tracking system</li>
-                        <li>3. Create user dashboard</li>
-                        <li>4. Launch beta testing</li>
+                        <li>1. {t("IMPL_STEP_1")}</li>
+                        <li>2. {t("IMPL_STEP_2")}</li>
+                        <li>3. {t("IMPL_STEP_3")}</li>
+                        <li>4. {t("IMPL_STEP_4")}</li>
                       </ol>
                     </div>
                     <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
-                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Required Tools</h5>
+                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">{t("REQUIRED_TOOLS_TITLE")}</h5>
                       <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                        <li>• Stripe integration</li>
-                        <li>• Analytics platform</li>
-                        <li>• Content management</li>
-                        <li>• User authentication</li>
+                        <li>• {t("TOOL_STRIPE")}</li>
+                        <li>• {t("TOOL_ANALYTICS")}</li>
+                        <li>• {t("TOOL_CMS")}</li>
+                        <li>• {t("TOOL_AUTH")}</li>
                       </ul>
                     </div>
                     <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4">
-                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">Success Metrics</h5>
+                      <h5 className="font-semibold text-slate-900 dark:text-white mb-2">{t("SUCCESS_METRICS_TITLE")}</h5>
                       <ul className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
-                        <li>• Monthly recurring revenue</li>
-                        <li>• User conversion rate</li>
-                        <li>• Average transaction value</li>
-                        <li>• Customer lifetime value</li>
+                        <li>• {t("METRIC_MRR")}</li>
+                        <li>• {t("METRIC_CONVERSION")}</li>
+                        <li>• {t("METRIC_AVG_TX")}</li>
+                        <li>• {t("METRIC_CLV")}</li>
                       </ul>
                     </div>
                   </div>

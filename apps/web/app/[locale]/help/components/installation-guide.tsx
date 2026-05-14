@@ -135,20 +135,20 @@ pnpm start`,
 	const tips = [
 		{
 			Icon: Zap,
-			title: 'Use pnpm',
-			description: 'Faster and more efficient than npm',
+			title: t('TIP_USE_PNPM_TITLE'),
+			description: t('TIP_USE_PNPM_DESC'),
 			color: 'bg-green-500'
 		},
 		{
 			Icon: Search,
-			title: 'Check Environment',
-			description: 'Verify your setup with pnpm check-env',
+			title: t('TIP_CHECK_ENV_TITLE'),
+			description: t('TIP_CHECK_ENV_DESC'),
 			color: 'bg-neutral-900 dark:bg-white/30'
 		},
 		{
 			Icon: RefreshCw,
-			title: 'Hot Reload',
-			description: 'Development mode with live updates',
+			title: t('TIP_HOT_RELOAD_TITLE'),
+			description: t('TIP_HOT_RELOAD_DESC'),
 			color: 'bg-purple-500'
 		}
 	];
@@ -174,6 +174,19 @@ pnpm start`,
 
 	const progressPercentage = (completedSteps.length / installationSteps.length) * 100;
 
+	const getDifficultyLabel = (difficulty: 'Easy' | 'Medium' | 'Hard') => {
+		switch (difficulty) {
+			case 'Easy':
+				return t('DIFFICULTY_EASY');
+			case 'Medium':
+				return t('DIFFICULTY_MEDIUM');
+			case 'Hard':
+				return t('DIFFICULTY_HARD');
+			default:
+				return difficulty;
+		}
+	};
+
 	return (
 		<div>
 				{/* Header */}
@@ -194,7 +207,7 @@ pnpm start`,
 							{t('INSTALLATION_PROGRESS')}
 						</span>
 						<span className="text-xs text-slate-500 dark:text-slate-400">
-							{completedSteps.length} of {installationSteps.length} completed
+							{t('INSTALL_COMPLETED_OF_TOTAL', { completed: completedSteps.length, total: installationSteps.length })}
 						</span>
 					</div>
 					<div className="w-full bg-slate-200 dark:bg-white/8 rounded-full h-1.5">
@@ -242,7 +255,7 @@ pnpm start`,
 													<span
 														className="text-xs px-2 py-1 rounded-full bg-neutral-100 text-neutral-600 dark:bg-white/8 dark:text-neutral-400"
 													>
-														{step.difficulty}
+														{getDifficultyLabel(step.difficulty)}
 													</span>
 												</div>
 											</div>
@@ -291,7 +304,7 @@ pnpm start`,
 									</div>
 									<div className="flex items-center gap-4">
 										<span className="text-slate-500 dark:text-slate-400 text-xs">
-											Step {activeStep + 1} of {installationSteps.length}
+											{t('STEP_OF', { current: activeStep + 1, total: installationSteps.length })}
 										</span>
 										<div className="flex items-center gap-2">
 											<span className="text-xs text-slate-500 dark:text-slate-400">
@@ -306,7 +319,7 @@ pnpm start`,
 															: 'bg-neutral-100 text-neutral-700 dark:bg-white/8 dark:text-neutral-300'
 												}`}
 											>
-												{installationSteps[activeStep].difficulty}
+												{getDifficultyLabel(installationSteps[activeStep].difficulty)}
 											</span>
 										</div>
 									</div>
@@ -342,7 +355,7 @@ pnpm start`,
 										variant="outline"
 										className="border-slate-300 dark:border-white/8 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/6"
 									>
-										← Previous
+										← {t('PREVIOUS')}
 									</Button>
 
 									<div className="flex items-center gap-2">
@@ -351,7 +364,7 @@ pnpm start`,
 											disabled={completedSteps.includes(activeStep)}
 											className="bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900"
 										>
-											{completedSteps.includes(activeStep) ? '✓ Completed' : 'Mark Complete'}
+											{completedSteps.includes(activeStep) ? `✓ ${t('COMPLETED_LABEL')}` : t('MARK_COMPLETE')}
 										</Button>
 									</div>
 
@@ -360,7 +373,7 @@ pnpm start`,
 										disabled={activeStep === installationSteps.length - 1}
 										className="bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900"
 									>
-										Next →
+										{t('NEXT')} →
 									</Button>
 								</div>
 							</div>
@@ -371,7 +384,7 @@ pnpm start`,
 				{/* Tips Section */}
 				<div className="mt-8">
 				<h3 className="text-xs font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-3">
-						Quick Tips
+						{t('QUICK_TIPS')}
 					</h3>
 					<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 						{tips.map((tip, index) => (
@@ -395,17 +408,17 @@ pnpm start`,
 				<div className="mt-8 text-center">
 				<div className="bg-neutral-50 dark:bg-white/3 rounded-xl p-6 border border-neutral-100 dark:border-white/6">
 					<h3 className="text-sm font-semibold mb-1.5 text-slate-900 dark:text-white">
-						Ready to Launch Your Platform?
+						{t('READY_TO_LAUNCH_TITLE')}
 					</h3>
 					<p className="text-slate-500 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
-						You&apos;re just a few steps away from having your web platform live and ready for users.
+						{t('READY_TO_LAUNCH_DESC')}
 					</p>
 					<div className="flex flex-col sm:flex-row gap-3 justify-center">
 						<button className="h-9 px-4 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
-							Deploy to Production
+							{t('DEPLOY_TO_PRODUCTION')}
 						</button>
 						<button className="h-9 px-4 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
-							View Documentation
+							{t('VIEW_DOCUMENTATION')}
 						</button>
 					</div>
 				</div>

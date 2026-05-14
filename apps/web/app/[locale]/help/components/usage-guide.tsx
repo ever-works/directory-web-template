@@ -30,6 +30,19 @@ export function UsageGuide() {
   const [output, setOutput] = useState("");
   const t = useTranslations("help");
 
+  const getDifficultyLabel = (difficulty: "Beginner" | "Intermediate" | "Advanced") => {
+    switch (difficulty) {
+      case "Beginner":
+        return t("DIFFICULTY_BEGINNER");
+      case "Intermediate":
+        return t("DIFFICULTY_INTERMEDIATE");
+      case "Advanced":
+        return t("DIFFICULTY_ADVANCED");
+      default:
+        return difficulty;
+    }
+  };
+
   const usageSections: UsageSection[] = [
     {
       id: "creating-items",
@@ -340,8 +353,8 @@ npm start`,
 
   const runCode = async () => {
     setIsRunning(true);
-    setOutput("Running code...");
-    
+    setOutput(t("RUNNING_BTN"));
+
     // Simulate code execution
     setTimeout(() => {
       const currentSection = usageSections.find(s => s.id === activeSection);
@@ -389,7 +402,7 @@ npm start`,
                   disabled={isRunning}
                   className="h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-md hover:bg-gray-700 dark:hover:bg-gray-100 disabled:opacity-50 transition-colors"
                 >
-                  {isRunning ? "Running..." : "▶ Run Code"}
+                  {isRunning ? t("RUNNING_BTN") : `▶ ${t("RUN_CODE")}`}
                 </button>
               </div>
             </div>
@@ -400,7 +413,7 @@ npm start`,
             <div className="w-80 bg-slate-50 dark:bg-[#0a0a0a] border-r border-slate-200 dark:border-white/6">
               <div className="p-4">
                 <h3 className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-3 uppercase tracking-widest">
-                  Sections
+                  {t("SECTIONS")}
                 </h3>
                 <div className="space-y-2">
                   {usageSections.map((section) => (
@@ -422,7 +435,7 @@ npm start`,
                             {section.title}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
-                            {section.estimatedTime} • {section.difficulty}
+                            {section.estimatedTime} • {getDifficultyLabel(section.difficulty)}
                           </div>
                         </div>
                       </div>
@@ -447,9 +460,9 @@ npm start`,
                           : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                       }`}
                     >
-                      {tab === "code" && "💻 Code"}
-                      {tab === "output" && "📤 Output"}
-                      {tab === "docs" && "📖 Documentation"}
+                      {tab === "code" && `💻 ${t("TAB_CODE")}`}
+                      {tab === "output" && `📤 ${t("TAB_OUTPUT")}`}
+                      {tab === "docs" && `📖 ${t("TAB_DOCS")}`}
                     </button>
                   ))}
                 </div>
@@ -469,7 +482,7 @@ npm start`,
                             {content.explanation && (
                               <div className="mt-3 p-3 bg-neutral-50 dark:bg-white/5 rounded-lg border border-neutral-200 dark:border-white/8">
                                 <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                                  <strong>💡 Note:</strong> {content.explanation}
+                                  <strong>💡 {t("NOTE_PREFIX")}</strong> {content.explanation}
                                 </p>
                               </div>
                             )}
@@ -534,7 +547,7 @@ npm start`,
                             <div className="bg-slate-800 px-4 py-3 flex items-center justify-between border-b border-slate-700">
                               <div className="flex items-center space-x-2">
                                 <span className="text-green-400">●</span>
-                                <span className="text-slate-400 text-sm">Terminal</span>
+                                <span className="text-slate-400 text-sm">{t("TERMINAL")}</span>
                               </div>
                             </div>
                             <div className="p-4 font-mono text-sm">
@@ -550,9 +563,9 @@ npm start`,
 
                 {activeTab === "output" && (
                   <div className="bg-black rounded-lg border border-slate-700 p-4 font-mono text-sm">
-                    <div className="text-green-400 mb-2">$ Output:</div>
+                    <div className="text-green-400 mb-2">$ {t("OUTPUT_PREFIX")}</div>
                     <div className="text-slate-300 whitespace-pre-wrap">
-                      {output || "No output available. Run the code to see results."}
+                      {output || t("NO_OUTPUT")}
                     </div>
                   </div>
                 )}
@@ -563,7 +576,7 @@ npm start`,
                     <div>
                       <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                         <span>📋</span>
-                        Prerequisites
+                        {t("PREREQUISITES")}
                       </h4>
                       <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                         <ul className="space-y-2">
@@ -581,7 +594,7 @@ npm start`,
                     <div>
                       <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                         <span className="">🚀</span>
-                        Next Steps
+                        {t("NEXT_STEPS_LABEL")}
                       </h4>
                       <div className="bg-slate-50 dark:bg-white/3 rounded-lg p-4 border border-slate-200 dark:border-white/6">
                         <ul className="space-y-2">

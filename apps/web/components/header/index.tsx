@@ -94,7 +94,8 @@ const NAVIGATION_CONFIG: Array<{
 	{
 		key: 'comparisons',
 		href: '/comparisons',
-		staticLabel: 'Comparisons'
+		translationKey: 'COMPARISONS',
+		translationNamespace: 'common'
 	},
 	{
 		key: 'favorites',

@@ -69,7 +69,8 @@ export async function generateMetadata({
 	const detail = await getCachedComparison(slug, { lang: locale });
 
 	if (!detail) {
-		return generateListingMetadata({ title: 'Comparison', path: `/comparisons/${slug}`, locale });
+		const tFallback = await getTranslations({ locale, namespace: 'comparisons' });
+		return generateListingMetadata({ title: tFallback('FALLBACK_TITLE'), path: `/comparisons/${slug}`, locale });
 	}
 
 	return generateListingMetadata({
@@ -91,6 +92,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 
 	const { comparison, markdown } = detail;
 	const t = await getTranslations('comparisons');
+	const tCommon = await getTranslations('common');
 	const tieLabel = t('TIE_LABEL');
 	const noWinnerLabel = t('NO_WINNER');
 	const overallWinner = getWinnerLabel(comparison.verdict_winner, comparison.item_a_name, comparison.item_b_name, tieLabel, noWinnerLabel);
@@ -107,7 +109,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 		category: comparison.category
 	});
 	const breadcrumbSchema = generateBreadcrumbSchema([
-		{ name: 'Home', url: getLocalizedUrl('/', locale as Locale) },
+		{ name: tCommon('HOME'), url: getLocalizedUrl('/', locale as Locale) },
 		{ name: t('ALL_COMPARISONS'), url: getLocalizedUrl('/comparisons', locale as Locale) },
 		{ name: comparison.title, url: comparisonUrl }
 	]);
@@ -190,7 +192,7 @@ export default async function ComparisonPage({ params }: { params: Promise<{ loc
 							{comparison.item_a_name}
 						</span>
 						<span className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">
-							vs
+							{t('VS')}
 						</span>
 						<span className="rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-white/4 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white shadow-sm">
 							{comparison.item_b_name}
