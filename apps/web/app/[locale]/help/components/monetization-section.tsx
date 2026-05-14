@@ -35,21 +35,21 @@ const monetizationMethods: MonetizationMethod[] = [
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       features: [
-        "Commission tracking system",
-        "Affiliate dashboard",
-        "Automated payouts",
-        "Performance analytics"
+        t("MON_AFF_FEATURE_1"),
+        t("MON_AFF_FEATURE_2"),
+        t("MON_AFF_FEATURE_3"),
+        t("MON_AFF_FEATURE_4")
       ],
       pros: [
-        "Passive income potential",
-        "Low maintenance required",
-        "Scalable revenue model",
-        "No inventory needed"
+        t("MON_AFF_PRO_1"),
+        t("MON_AFF_PRO_2"),
+        t("MON_AFF_PRO_3"),
+        t("MON_AFF_PRO_4")
       ],
       cons: [
-        "Dependent on partner performance",
-        "Commission rates vary",
-        "Requires quality content"
+        t("MON_AFF_CON_1"),
+        t("MON_AFF_CON_2"),
+        t("MON_AFF_CON_3")
       ]
   },
   {
@@ -63,21 +63,21 @@ const monetizationMethods: MonetizationMethod[] = [
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       features: [
-        "Premium listing tiers",
-        "Payment processing",
-        "Content verification",
-        "Priority placement"
+        t("MON_PAID_FEATURE_1"),
+        t("MON_PAID_FEATURE_2"),
+        t("MON_PAID_FEATURE_3"),
+        t("MON_PAID_FEATURE_4")
       ],
       pros: [
-        "High revenue potential",
-        "Direct user payments",
-        "Quality content control",
-        "Predictable income"
+        t("MON_PAID_PRO_1"),
+        t("MON_PAID_PRO_2"),
+        t("MON_PAID_PRO_3"),
+        t("MON_PAID_PRO_4")
       ],
       cons: [
-        "Requires user base",
-        "Content moderation needed",
-        "Payment processing fees"
+        t("MON_PAID_CON_1"),
+        t("MON_PAID_CON_2"),
+        t("MON_PAID_CON_3")
       ]
   },
   {
@@ -91,21 +91,21 @@ const monetizationMethods: MonetizationMethod[] = [
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
       features: [
-        "Ad management system",
-        "Targeting options",
-        "Performance tracking",
-        "Automated optimization"
+        t("MON_ADS_FEATURE_1"),
+        t("MON_ADS_FEATURE_2"),
+        t("MON_ADS_FEATURE_3"),
+        t("MON_ADS_FEATURE_4")
       ],
       pros: [
-        "High CPM potential",
-        "Automated revenue",
-        "Scalable model",
-        "Low operational cost"
+        t("MON_ADS_PRO_1"),
+        t("MON_ADS_PRO_2"),
+        t("MON_ADS_PRO_3"),
+        t("MON_ADS_PRO_4")
       ],
       cons: [
-        "Traffic dependent",
-        "Ad blocker impact",
-        "User experience balance"
+        t("MON_ADS_CON_1"),
+        t("MON_ADS_CON_2"),
+        t("MON_ADS_CON_3")
       ]
     }
   ];

@@ -54,14 +54,14 @@ export function UsageGuide() {
       difficulty: "Beginner",
       estimatedTime: "10-15 minutes",
       prerequisites: [
-        "Basic JavaScript knowledge",
-        "API endpoint access",
-        "Authentication setup"
+        t("USAGE_PREREQ_BASIC_JS"),
+        t("USAGE_PREREQ_API_ACCESS"),
+        t("USAGE_PREREQ_AUTH_SETUP")
       ],
       nextSteps: [
-        "Add item validation",
-        "Implement file uploads",
-        "Set up item categories"
+        t("USAGE_NEXT_ITEM_VALIDATION"),
+        t("USAGE_NEXT_FILE_UPLOADS"),
+        t("USAGE_NEXT_CATEGORIES")
       ],
       content: [
         {
@@ -120,14 +120,14 @@ curl -X POST /api/items \\
       difficulty: "Intermediate",
       estimatedTime: "20-30 minutes",
       prerequisites: [
-        "CSS/SCSS knowledge",
-        "Design system understanding",
-        "Theme configuration access"
+        t("USAGE_PREREQ_CSS_KNOWLEDGE"),
+        t("USAGE_PREREQ_DESIGN_SYSTEM"),
+        t("USAGE_PREREQ_THEME_CONFIG")
       ],
       nextSteps: [
-        "Create custom components",
-        "Implement dark mode",
-        "Add animations"
+        t("USAGE_NEXT_CUSTOM_COMPONENTS"),
+        t("USAGE_NEXT_DARK_MODE"),
+        t("USAGE_NEXT_ANIMATIONS")
       ],
       content: [
         {
@@ -176,14 +176,14 @@ Accent: #8b5cf6
       difficulty: "Advanced",
       estimatedTime: "30-45 minutes",
       prerequisites: [
-        "Authentication system",
-        "Database knowledge",
-        "Security best practices"
+        t("USAGE_PREREQ_AUTH_SYSTEM"),
+        t("USAGE_PREREQ_DB_KNOWLEDGE"),
+        t("USAGE_PREREQ_SECURITY")
       ],
       nextSteps: [
-        "Implement role-based access",
-        "Add user analytics",
-        "Set up user notifications"
+        t("USAGE_NEXT_RBAC"),
+        t("USAGE_NEXT_USER_ANALYTICS"),
+        t("USAGE_NEXT_NOTIFICATIONS")
       ],
       content: [
         {
@@ -234,14 +234,14 @@ export async function middleware(request: NextRequest) {
       difficulty: "Intermediate",
       estimatedTime: "25-35 minutes",
       prerequisites: [
-        "Stripe account",
-        "Payment processing knowledge",
-        "Webhook handling"
+        t("USAGE_PREREQ_STRIPE_ACCOUNT"),
+        t("USAGE_PREREQ_PAYMENT_KNOWLEDGE"),
+        t("USAGE_PREREQ_WEBHOOK_HANDLING")
       ],
       nextSteps: [
-        "Add subscription management",
-        "Implement refunds",
-        "Set up payment analytics"
+        t("USAGE_NEXT_SUBSCRIPTIONS"),
+        t("USAGE_NEXT_REFUNDS"),
+        t("USAGE_NEXT_PAYMENT_ANALYTICS")
       ],
       content: [
         {
@@ -301,14 +301,14 @@ Status: requires_payment_method
       difficulty: "Beginner",
       estimatedTime: "15-25 minutes",
       prerequisites: [
-        "Git repository",
-        "Deployment platform account",
-        "Environment variables"
+        t("USAGE_PREREQ_GIT_REPO"),
+        t("USAGE_PREREQ_DEPLOY_ACCOUNT"),
+        t("USAGE_PREREQ_ENV_VARS")
       ],
       nextSteps: [
-        "Set up CI/CD pipeline",
-        "Configure monitoring",
-        "Implement backups"
+        t("USAGE_NEXT_CI_CD"),
+        t("USAGE_NEXT_MONITORING"),
+        t("USAGE_NEXT_BACKUPS")
       ],
       content: [
         {
