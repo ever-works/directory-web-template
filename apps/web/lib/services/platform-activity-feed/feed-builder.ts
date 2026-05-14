@@ -1,4 +1,4 @@
-import { and, desc, gt, inArray, sql } from 'drizzle-orm';
+import { and, desc, inArray, lt, sql } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { clientProfiles, ItemAuditAction, itemAuditLogs, reports, users } from '@/lib/db/schema';
 import type { ItemAuditActionValues } from '@/lib/db/schema';
@@ -49,8 +49,12 @@ export async function buildActivityFeed(query: FeedQuery, adminBaseUrl: string):
 }
 
 async function fetchUsers(since: Date | null, limit: number): Promise<FeedEntry[]> {
+	// `since` is the cursor from the previous page (== that page's OLDEST
+	// timestamp). For newest-first pagination we want rows STRICTLY OLDER
+	// than the cursor so pages don't overlap. Using `>` here would make
+	// each follow-up page repeat newer rows and pagination would loop.
 	const conditions = [sql`${users.createdAt} IS NOT NULL`];
-	if (since) conditions.push(gt(users.createdAt, since));
+	if (since) conditions.push(lt(users.createdAt, since));
 
 	const rows = await db
 		.select({
@@ -87,7 +91,8 @@ async function fetchUsers(since: Date | null, limit: number): Promise<FeedEntry[
 async function fetchItems(since: Date | null, limit: number): Promise<FeedEntry[]> {
 	const allowedActions: ItemAuditActionValues[] = [ItemAuditAction.CREATED, ItemAuditAction.STATUS_CHANGED];
 	const conditions = [inArray(itemAuditLogs.action, allowedActions)];
-	if (since) conditions.push(gt(itemAuditLogs.createdAt, since));
+	// See `fetchUsers` for cursor-direction rationale.
+	if (since) conditions.push(lt(itemAuditLogs.createdAt, since));
 
 	const rows = await db
 		.select()
@@ -121,8 +126,9 @@ async function fetchItems(since: Date | null, limit: number): Promise<FeedEntry[
 }
 
 async function fetchReports(since: Date | null, limit: number): Promise<FeedEntry[]> {
+	// See `fetchUsers` for cursor-direction rationale.
 	const conditions = [sql`${reports.createdAt} IS NOT NULL`];
-	if (since) conditions.push(gt(reports.createdAt, since));
+	if (since) conditions.push(lt(reports.createdAt, since));
 
 	const rows = await db
 		.select({

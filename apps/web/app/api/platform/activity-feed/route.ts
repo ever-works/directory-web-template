@@ -85,7 +85,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 	}
 
 	try {
-		const adminBaseUrl = process.env.PLATFORM_ADMIN_BASE_URL ?? request.nextUrl.origin;
+		// `||` not `??` so an injected-empty `PLATFORM_ADMIN_BASE_URL=""`
+		// (common in container envs that turn unset values into empty
+		// strings) falls back to the request origin. The contract is
+		// "absolute click-through URL with origin fallback when blank".
+		const adminBaseUrl = process.env.PLATFORM_ADMIN_BASE_URL || request.nextUrl.origin;
 		const body = await buildActivityFeed(
 			{
 				since: parsed.since ? new Date(parsed.since) : null,

@@ -129,7 +129,10 @@ x-platform-ts: <ISO8601>
 User-Agent: ever-works-platform/activity-feed
 ```
 
-- `since` (optional) — exclusive lower bound on entry timestamp.
+- `since` (optional) — **cursor** from the previous page; entries with
+  `timestamp < since` are returned (newest-first pagination — the
+  cursor is the OLDEST timestamp of the page that preceded it, so
+  follow-up pages return strictly OLDER rows).
 - `limit` (1–200, default 50) — page size.
 - `types` — comma-separated, one or more of `users,items,reports,all`.
 
@@ -161,8 +164,10 @@ HMAC-SHA256(secret, `${timestamp}:${canonicalQuery}:${workId}`)
 
 - `type` ∈ `user_registered | item_created | item_status_changed | report_created`.
 - `target.type` ∈ `user | item | report`.
-- `nextCursor` is the timestamp of the last entry returned (exclusive)
-  or `null` when the page wasn't full.
+- `nextCursor` is the timestamp of the LAST (oldest) entry returned,
+  or `null` when the page wasn't full. The platform threads it back
+  as `since` on the next request and the server returns entries with
+  `timestamp < nextCursor` (exclusive — strictly older).
 - `serverTime` is used by the platform for drift detection (rejects
   if > 5 minutes off).
 
