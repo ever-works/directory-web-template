@@ -5,7 +5,7 @@ import { SubscriptionCard } from '@/components/settings/billing/subscription-car
 import { SubscriptionHistoryCard } from '@/components/settings/billing/subscription-history-card';
 import { SubscriptionActions } from '@/components/settings/billing/subscription-actions';
 import { Container } from '@/components/ui/container';
-import { CreditCard, ChevronRight, Plus, Download, RefreshCw } from 'lucide-react';
+import { CreditCard, ChevronRight, Plus, Download, RefreshCw, Crown, Zap } from 'lucide-react';
 import { BillingStats } from '@/components/settings/billing/billing-stats';
 import { TabNavigation } from '@/components/settings/billing/tab-navigation';
 import { SearchAndFilters } from '@/components/settings/billing/search-and-filters';
@@ -20,6 +20,116 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useProviderPayment } from '@/hooks/use-provider-payment';
 import { PaymentProvider } from '@/lib/constants';
+
+// ─── Days Remaining Bar ────────────────────────────────────────────────────
+
+function DaysRemainingBar({ endDate }: { endDate: string }) {
+	const end = new Date(endDate);
+	const now = new Date();
+	const daysLeft = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+	const totalDays = 30;
+	const pct = Math.min(100, (daysLeft / totalDays) * 100);
+	const isUrgent = daysLeft <= 7;
+	const isMedium = daysLeft <= 14;
+
+	return (
+		<div className="space-y-1 min-w-[100px]">
+			<div className="flex justify-between text-[10px] text-gray-500 dark:text-gray-400">
+				<span>{daysLeft}d left</span>
+				<span>/{totalDays}d</span>
+			</div>
+			<div className="w-full h-1.5 bg-gray-100 dark:bg-white/8 rounded-full overflow-hidden">
+				<div
+					className={`h-full rounded-full transition-all duration-500 ${
+						isUrgent ? 'bg-red-400' : isMedium ? 'bg-amber-400' : 'bg-green-400'
+					}`}
+					style={{ width: `${pct}%` }}
+				/>
+			</div>
+		</div>
+	);
+}
+
+// ─── Current Plan Card ─────────────────────────────────────────────────────
+
+interface PlanCardProps {
+	planName: string;
+	hasActiveSubscription: boolean;
+	currentPeriodEnd?: string;
+	onUpgrade: () => void;
+}
+
+function PlanCard({ planName, hasActiveSubscription, currentPeriodEnd, onUpgrade }: PlanCardProps) {
+	return (
+		<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+			<div className="flex items-center justify-between gap-4 flex-wrap">
+				<div className="flex items-center gap-3">
+					<div
+						className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+							hasActiveSubscription
+								? 'bg-theme-primary-100 dark:bg-theme-primary-900/30'
+								: 'bg-gray-100 dark:bg-white/5'
+						}`}
+					>
+						{hasActiveSubscription ? (
+							<Crown className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
+						) : (
+							<Zap className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+						)}
+					</div>
+					<div>
+						<div className="flex items-center gap-2">
+							<span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+								{planName}
+							</span>
+							<span
+								className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
+									hasActiveSubscription
+										? 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
+										: 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'
+								}`}
+							>
+								{hasActiveSubscription ? 'Active' : 'Free'}
+							</span>
+						</div>
+						{currentPeriodEnd && hasActiveSubscription && (
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								Renews{' '}
+								{new Date(currentPeriodEnd).toLocaleDateString('en-US', {
+									month: 'short',
+									day: 'numeric',
+									year: 'numeric'
+								})}
+							</p>
+						)}
+						{!hasActiveSubscription && (
+							<p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+								Upgrade to unlock all features
+							</p>
+						)}
+					</div>
+				</div>
+
+				<div className="flex items-center gap-4">
+					{currentPeriodEnd && hasActiveSubscription && (
+						<DaysRemainingBar endDate={currentPeriodEnd} />
+					)}
+					{!hasActiveSubscription && (
+						<button
+							onClick={onUpgrade}
+							className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white text-xs font-medium rounded-lg transition-colors"
+						>
+							<Zap className="w-3.5 h-3.5" />
+							Upgrade
+						</button>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
 	const t = useTranslations('billing');
@@ -161,6 +271,14 @@ export default function BillingPage() {
 
 					{!loading && (
 						<div className="space-y-4">
+							{/* Current plan — prominent card above stats */}
+							<PlanCard
+								planName={subscription?.currentSubscription?.planName || 'Free Plan'}
+								hasActiveSubscription={subscription?.hasActiveSubscription || false}
+								currentPeriodEnd={subscription?.currentSubscription?.currentPeriodEnd}
+								onUpgrade={() => setActiveTab('subscriptions')}
+							/>
+
 							<BillingStats
 								totalSpent={totalSpent}
 								activePayments={activePayments}
