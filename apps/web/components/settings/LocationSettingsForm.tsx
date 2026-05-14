@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { MapPin, Trash2, Loader2 } from 'lucide-react';
+import { MapPin, Trash2, Loader2, EyeOff, Building2, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
@@ -13,19 +13,16 @@ import { useLocationSettings } from '@/hooks/use-location-settings';
 import type { LocationPickerValue } from '@/lib/maps/types';
 import type { LocationPrivacy } from '@/lib/validations/user-location';
 
-const PRIVACY_OPTIONS: Array<{ value: LocationPrivacy; labelKey: string; descriptionKey: string }> = [
-	{ value: 'private', labelKey: 'PRIVACY_PRIVATE', descriptionKey: 'PRIVACY_PRIVATE_DESC' },
-	{ value: 'city', labelKey: 'PRIVACY_CITY', descriptionKey: 'PRIVACY_CITY_DESC' },
-	{ value: 'exact', labelKey: 'PRIVACY_EXACT', descriptionKey: 'PRIVACY_EXACT_DESC' },
+const PRIVACY_OPTIONS: Array<{
+	value: LocationPrivacy;
+	labelKey: string;
+	descriptionKey: string;
+	icon: React.ElementType;
+}> = [
+	{ value: 'private', labelKey: 'PRIVACY_PRIVATE', descriptionKey: 'PRIVACY_PRIVATE_DESC', icon: EyeOff },
+	{ value: 'city', labelKey: 'PRIVACY_CITY', descriptionKey: 'PRIVACY_CITY_DESC', icon: Building2 },
+	{ value: 'exact', labelKey: 'PRIVACY_EXACT', descriptionKey: 'PRIVACY_EXACT_DESC', icon: Target },
 ];
-
-const SELECT_CLASS = cn(
-	'w-full h-12 px-4 text-base rounded-lg outline-hidden',
-	'bg-white dark:bg-white/5',
-	'border-2 border-gray-200 dark:border-white/6',
-	'focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400',
-	'text-gray-900 dark:text-white',
-);
 
 /**
  * Form for managing user default location and privacy settings.
@@ -131,29 +128,66 @@ export function LocationSettingsForm() {
 							mapHeight={240}
 						/>
 
-						{/* Privacy Setting */}
+						{/* Privacy Setting — visual radio cards */}
 						<div>
-							<label
-								htmlFor="location-privacy"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-							>
+							<p className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
 								{t('PRIVACY')}
-							</label>
-							<select
-								id="location-privacy"
-								value={privacy}
-								onChange={(e) => setPrivacy(e.target.value as LocationPrivacy)}
-								className={SELECT_CLASS}
-							>
-								{PRIVACY_OPTIONS.map((option) => (
-									<option key={option.value} value={option.value}>
-										{t(option.labelKey)} - {t(option.descriptionKey)}
-									</option>
-								))}
-							</select>
-							<p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								{t('PRIVACY_HELP')}
 							</p>
+							<div className="grid grid-cols-3 gap-2">
+								{PRIVACY_OPTIONS.map((option) => {
+									const Icon = option.icon;
+									const isSelected = privacy === option.value;
+									return (
+										<button
+											key={option.value}
+											type="button"
+											onClick={() => setPrivacy(option.value)}
+											aria-pressed={isSelected}
+											className={cn(
+												'flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-center transition-all duration-150',
+												'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-offset-2',
+												isSelected
+													? 'border-theme-primary-500 bg-theme-primary-50 dark:bg-theme-primary-900/20'
+													: 'border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.02] hover:border-theme-primary-200 dark:hover:border-theme-primary-700/50 hover:bg-gray-50 dark:hover:bg-white/[0.04]'
+											)}
+										>
+											<div
+												className={cn(
+													'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+													isSelected
+														? 'bg-theme-primary-100 dark:bg-theme-primary-800/50'
+														: 'bg-gray-100 dark:bg-white/8'
+												)}
+											>
+												<Icon
+													className={cn(
+														'w-4 h-4',
+														isSelected
+															? 'text-theme-primary-600 dark:text-theme-primary-400'
+															: 'text-gray-500 dark:text-gray-400'
+													)}
+												/>
+											</div>
+											<div>
+												<p
+													className={cn(
+														'text-xs font-semibold leading-tight',
+														isSelected
+															? 'text-theme-primary-700 dark:text-theme-primary-300'
+															: 'text-gray-700 dark:text-gray-300'
+													)}
+												>
+													{t(option.labelKey)}
+												</p>
+												<p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-snug">
+													{t(option.descriptionKey)}
+												</p>
+											</div>
+										</button>
+									);
+								})}
+							</div>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-2">{t('PRIVACY_HELP')}</p>
 						</div>
 
 						{/* Actions */}
