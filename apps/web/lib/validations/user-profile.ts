@@ -37,7 +37,8 @@ export const updateProfileSchema = z.object({
 	website: optionalUrl,
 	interests: z.string().max(200).nullable().optional(),
 	skills: z.array(skillSchema).max(50).nullable().optional(),
-	avatar: z.union([dataUrlSchema, z.literal(''), z.null()]).optional()
+	avatar: z.union([dataUrlSchema, z.literal(''), z.null()]).optional(),
+	coverColor: z.string().max(30).nullable().optional()
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

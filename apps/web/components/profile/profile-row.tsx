@@ -31,10 +31,10 @@ export function ProfileRow({
 	follow
 }: ProfileRowProps) {
 	return (
-		<div className="flex items-center gap-4 p-4 border border-gray-200 dark:border-white/6 rounded-lg hover:bg-gray-50 dark:hover:bg-white/3 transition-colors">
+		<div className="flex items-center gap-4 p-4 border border-neutral-200 dark:border-white/8 rounded-xl bg-white dark:bg-white/3 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/12 transition-all duration-150">
 			<Link
 				href={`/client/profile/${username}`}
-				className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-white dark:bg-white/5 ring-1 ring-gray-200 dark:ring-white/10"
+				className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-white dark:bg-white/5 ring-1 ring-neutral-200 dark:ring-white/10 transition-opacity duration-150 hover:opacity-90"
 			>
 				{avatar ? (
 					<Image
@@ -54,11 +54,11 @@ export function ProfileRow({
 			<div className="flex-1 min-w-0">
 				<Link
 					href={`/client/profile/${username}`}
-					className="font-semibold text-gray-900 dark:text-gray-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 truncate block"
+					className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 truncate block transition-colors duration-150"
 				>
 					{displayName}
 				</Link>
-				<div className="text-sm text-gray-500 dark:text-gray-400 truncate">
+				<div className="text-sm text-neutral-500 dark:text-neutral-400 truncate">
 					@{username}
 					{jobTitle ? ` · ${jobTitle}` : ''}
 				</div>

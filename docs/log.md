@@ -31,6 +31,34 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 024: EW-120 platform Activity Feed (pull + push)
+
+- `spec-024` Net-new `GET /api/platform/activity-feed` route handler
+  authenticates the Ever Works platform via HMAC-SHA256 over
+  `${timestamp}:${queryString}:${workId}` (wire-compatible with the
+  platform's `DirectoryWebsiteClient`), then returns a normalised
+  page of users / items / reports drawn from `users`,
+  `itemAuditLogs`, and `reports`.
+- `spec-024` Push mode added in the same PR: fire-and-forget
+  `emitActivityEvent(...)` POSTs to the platform's
+  `/api/activity-log/ingest` endpoint from four event hook sites —
+  user registration (`lib/auth/index.ts`), item creation
+  (`app/api/admin/items/route.ts`), report filed (`app/api/reports/route.ts`),
+  and report resolved (`app/api/admin/reports/[id]/route.ts`).
+  Fresh UUID `eventId` per call (platform stores `(workId, eventId)`
+  uniquely so retries are idempotent). 2 retries with 200ms → 800ms
+  backoff; 4xx is permanent (no retry), 5xx / network / timeout
+  retryable. 5-second per-request timeout via `AbortController`.
+- New env vars: `PLATFORM_WORK_ID` (shared), `PLATFORM_SYNC_SECRET`
+  (pull), `PLATFORM_ADMIN_BASE_URL` (optional, pull),
+  `PLATFORM_API_URL` (push), `PLATFORM_API_SECRET_TOKEN` (push).
+  Pull vars blank → 503 `not_provisioned`; push vars blank → silent
+  no-op (no warning spam for OSS users not on the platform).
+- Per-source over-fetch of `limit` rows from each of the three pull
+  sources, then global merge by timestamp DESC, then slice — same
+  fix as the platform-side Codex P1 (commit `4070ec08` on
+  ever-works PR #740) so a dominant source can't starve the page.
+
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 
 - `spec-022` Avatars stored as base64 data URLs in
@@ -49,6 +77,24 @@ why** at a higher level than per-commit diffs.
   profile page header card itself (visible to any authenticated
   viewer alongside the Edit-profile / Follow action). Discovery
   starts from a profile, not from the header nav. PR #816.
+
+## 2026-05-12 — Spec 022: 2-column dashboard layout for /client/profile (EW-613)
+
+- `spec-022` AC-22 added: rebuilt the public profile page as a
+  Toptal-style 2-column dashboard. New `ProfilePanel` component
+  (sticky left card with cover banner + avatar overlap, name +
+  role pill, skills/interests chips, four info boxes — Location,
+  Member since, Company, Website — and the action row).
+  `ProfileStatsStrip` gained a `headline` variant (3 large tiles
+  for followers / following / submissions) used at the top of the
+  right column above the existing compact 6-tile strip. Sections
+  (About, Recent Activity, Skills, Portfolio) now stack
+  vertically in the right column with `Manage` shortcuts for the
+  owner; the previous tab-gated `ProfileContent` is bypassed by
+  the new layout (component kept in tree for future surfaces).
+  Visual tokens match the rest of the template: `Container`,
+  `Card`, `theme-primary-*`, `rounded-xl`, dark-mode parity.
+  Tracked under [EW-613](https://evertech.atlassian.net/browse/EW-613).
 
 ## 2026-05-12 — Spec 022: stale-session fix extended to displayName
 

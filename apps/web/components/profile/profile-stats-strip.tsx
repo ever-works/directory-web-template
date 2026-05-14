@@ -1,4 +1,7 @@
-import { FiBriefcase, FiHeart, FiMessageCircle, FiSend, FiUserCheck, FiUserPlus } from 'react-icons/fi';
+'use client';
+
+import { FiBriefcase, FiHeart, FiSend } from 'react-icons/fi';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 export interface ProfileStatsData {
@@ -12,8 +15,8 @@ export interface ProfileStatsData {
 
 interface ProfileStatsStripProps {
 	stats: ProfileStatsData;
-	/** When provided, the followers/following tiles become links to the list pages. */
 	username?: string;
+	variant?: 'compact' | 'headline';
 }
 
 const formatCount = (n: number): string => {
@@ -28,54 +31,110 @@ interface StatItem {
 	icon: React.ReactNode;
 }
 
-const ITEMS: StatItem[] = [
-	{ key: 'followers', label: 'Followers', icon: <FiUserPlus className="w-4 h-4" /> },
-	{ key: 'following', label: 'Following', icon: <FiUserCheck className="w-4 h-4" /> },
-	{ key: 'submissions', label: 'Submissions', icon: <FiSend className="w-4 h-4" /> },
-	{ key: 'comments', label: 'Comments', icon: <FiMessageCircle className="w-4 h-4" /> },
-	{ key: 'favorites', label: 'Favorites', icon: <FiHeart className="w-4 h-4" /> },
-	{ key: 'portfolio', label: 'Portfolio', icon: <FiBriefcase className="w-4 h-4" /> }
-];
+export function ProfileStatsStrip({ stats, username, variant = 'compact' }: ProfileStatsStripProps) {
+	const t = useTranslations('profile');
 
-export function ProfileStatsStrip({ stats, username }: ProfileStatsStripProps) {
-	return (
-		<div className="grid grid-cols-3 md:grid-cols-6 gap-2 md:gap-4">
-			{ITEMS.map((item) => {
-				const linkHref =
-					username && item.key === 'followers'
-						? `/client/profile/${username}/followers`
-						: username && item.key === 'following'
-							? `/client/profile/${username}/following`
-							: null;
+	const COMPACT_ITEMS: StatItem[] = [
+		// { key: 'comments',    label: t('STAT_COMMENTS'),    icon: <FiMessageCircle className="w-3.5 h-3.5" /> },
+		
+		
+	];
 
-				const tile = (
-					<>
-						<div className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-							{item.icon}
-							<span className="text-xs uppercase tracking-wide">{item.label}</span>
-						</div>
-						<div className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-1">
-							{formatCount(stats[item.key])}
-						</div>
-					</>
-				);
+	const HEADLINE_ITEMS: StatItem[] = [
+		{ key: 'submissions', label: t('STAT_SUBMISSIONS'), icon: <FiSend className="w-4 h-4" /> },
+		{ key: 'portfolio',   label: t('STAT_PORTFOLIO'),   icon: <FiBriefcase className="w-3.5 h-3.5" /> },
+		{ key: 'favorites',   label: t('STAT_FAVORITES'),   icon: <FiHeart className="w-3.5 h-3.5" /> },
+	];
 
-				const baseClass =
-					'flex flex-col items-center justify-center rounded-lg border border-gray-200 dark:border-white/6 bg-white/60 dark:bg-white/3 px-3 py-2 transition-colors';
+	const items = variant === 'headline' ? HEADLINE_ITEMS : COMPACT_ITEMS;
 
-				if (linkHref) {
-					return (
+	if (variant === 'headline') {
+		return (
+			<div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+				{items.map((item) => {
+					const linkHref =
+						username && item.key === 'followers' ? `/client/profile/${username}/followers` :
+						username && item.key === 'following' ? `/client/profile/${username}/following` : null;
+
+					const inner = (
+						<>
+							<div className="flex items-center justify-between mb-4">
+								<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-widest">
+									{item.label}
+								</p>
+								<span className="p-1.5 rounded-lg bg-theme-primary-50 dark:bg-theme-primary-500/12 text-theme-primary-600 dark:text-theme-primary-400" aria-hidden="true">
+									{item.icon}
+								</span>
+							</div>
+							<p className="text-3xl font-bold text-neutral-900 dark:text-white tracking-tight leading-none">
+								{formatCount(stats[item.key])}
+							</p>
+							{linkHref && (
+								<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2 group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-400 transition-colors duration-150">
+									{t('STAT_VIEW_ALL')} →
+								</p>
+							)}
+						</>
+					);
+
+					const base = 'group bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8 shadow-sm transition-all duration-150';
+
+					return linkHref ? (
 						<Link
 							key={item.key}
 							href={linkHref}
-							className={`${baseClass} hover:bg-white dark:hover:bg-white/6 cursor-pointer`}
+							className={`${base} hover:border-theme-primary-300 dark:hover:border-theme-primary-500/40 hover:shadow-md`}
 						>
-							{tile}
+							{inner}
 						</Link>
+					) : (
+						<div key={item.key} className={base}>
+							{inner}
+						</div>
 					);
-				}
+				})}
+			</div>
+		);
+	}
 
-				return (
+	/* compact variant */
+	return (
+		<div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+			{items.map((item) => {
+				const linkHref =
+					username && item.key === 'followers'  ? `/client/profile/${username}/followers` :
+					username && item.key === 'following'  ? `/client/profile/${username}/following` :
+					username && item.key === 'comments'   ? `/client/profile/${username}#activity-heading` :
+					username && item.key === 'favorites'  ? `/client/profile/${username}#activity-heading` :
+					username && item.key === 'portfolio'  ? `/client/profile/${username}#portfolio-heading` : null;
+
+				const tile = (
+					<>
+						<div className="flex items-center gap-1.5 mb-1.5">
+							<span className="text-neutral-400 dark:text-neutral-500" aria-hidden="true">
+								{item.icon}
+							</span>
+							<p className="text-[11px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wide font-medium leading-none truncate">
+								{item.label}
+							</p>
+						</div>
+						<p className="text-base font-bold text-neutral-900 dark:text-white leading-none tabular-nums">
+							{formatCount(stats[item.key])}
+						</p>
+					</>
+				);
+
+				const baseClass = 'flex flex-col items-center justify-center rounded-xl border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 px-2 py-3 transition-all duration-150';
+
+				return linkHref ? (
+					<Link
+						key={item.key}
+						href={linkHref}
+						className={`${baseClass} hover:border-theme-primary-300 dark:hover:border-theme-primary-500/40 hover:shadow-sm cursor-pointer`}
+					>
+						{tile}
+					</Link>
+				) : (
 					<div key={item.key} className={baseClass}>
 						{tile}
 					</div>

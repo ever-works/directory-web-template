@@ -8,13 +8,14 @@ import { AboutSection } from "./sections/about-section";
 import { PortfolioSection } from "./sections/portfolio-section";
 import { SkillsSection } from "./sections/skills-section";
 import { SubmissionsSection } from "./sections/submissions-section";
-import { RecentActivitySection, type RecentComment } from "./sections/recent-activity-section";
+import { RecentActivitySection, type RecentComment, type RecentFavorite } from "./sections/recent-activity-section";
 import type { Profile } from "@/lib/types/profile";
 
 interface ProfileContentProps {
   profile: Profile;
   isOwn?: boolean;
   recentComments?: RecentComment[];
+  recentFavorites?: RecentFavorite[];
 }
 
 function ProfileSectionHeader({
@@ -40,7 +41,7 @@ function ProfileSectionHeader({
   );
 }
 
-export function ProfileContent({ profile, isOwn = false, recentComments = [] }: ProfileContentProps) {
+export function ProfileContent({ profile, isOwn = false, recentComments = [], recentFavorites = [] }: ProfileContentProps) {
   const [activeTab, setActiveTab] = useState("about");
 
   const renderSection = () => {
@@ -55,6 +56,7 @@ export function ProfileContent({ profile, isOwn = false, recentComments = [] }: 
             <AboutSection profile={profile} isOwn={isOwn} />
             <RecentActivitySection
               comments={recentComments}
+              favorites={recentFavorites}
               isOwn={isOwn}
               displayName={profile.displayName}
             />
@@ -97,6 +99,7 @@ export function ProfileContent({ profile, isOwn = false, recentComments = [] }: 
             <AboutSection profile={profile} isOwn={isOwn} />
             <RecentActivitySection
               comments={recentComments}
+              favorites={recentFavorites}
               isOwn={isOwn}
               displayName={profile.displayName}
             />

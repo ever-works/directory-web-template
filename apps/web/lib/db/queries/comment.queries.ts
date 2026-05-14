@@ -78,7 +78,7 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
 			deletedAt: comments.deletedAt,
 			tenantId: comments.tenantId,
 			user: {
-				id: clientProfiles.id,
+				id: clientProfiles.userId,
 				name: clientProfiles.name,
 				email: clientProfiles.email,
 				image: clientProfiles.avatar,
@@ -133,7 +133,7 @@ export async function getCommentWithUserById(id: string): Promise<CommentWithUse
 			deletedAt: comments.deletedAt,
 			tenantId: comments.tenantId,
 			user: {
-				id: clientProfiles.id,
+				id: clientProfiles.userId,
 				name: clientProfiles.name,
 				email: clientProfiles.email,
 				image: clientProfiles.avatar,
