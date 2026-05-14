@@ -16,7 +16,7 @@ import {
 	OverviewEmptyState
 } from '@/components/settings/billing/empty-state';
 import { FiArrowLeft } from 'react-icons/fi';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useProviderPayment } from '@/hooks/use-provider-payment';
 import { PaymentProvider } from '@/lib/constants';
@@ -83,13 +83,19 @@ export default function BillingPage() {
 									</p>
 								</div>
 								<div className="space-y-2.5">
-									<button className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm">
+									<Link
+										href="/pricing"
+										className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+									>
 										<Plus className="w-4 h-4" />
 										{t('UPGRADE_NOW')}
-									</button>
-									<button className="w-full px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-white/8 transition-colors">
+									</Link>
+									<Link
+										href="/pricing"
+										className="w-full flex items-center justify-center px-5 py-2.5 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 text-gray-700 dark:text-gray-300 text-sm font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-white/8 transition-colors"
+									>
 										{t('VIEW_PLANS')}
-									</button>
+									</Link>
 								</div>
 							</div>
 						</div>
