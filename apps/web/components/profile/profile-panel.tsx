@@ -32,20 +32,40 @@ interface ProfilePanelProps {
 	stats?: { favorites: number; portfolio: number; followers: number; following: number };
 }
 
-function useCompleteness(profile: Profile) {
-	const checks: [boolean, number][] = [
-		[!!profile.displayName, 10],
-		[!!profile.bio, 15],
-		[!!profile.avatar, 15],
-		[!!profile.location, 10],
-		[!!profile.jobTitle, 10],
-		[!!profile.company, 5],
-		[!!profile.website, 10],
-		[profile.skills.length > 0, 15],
-		[profile.interests.length > 0, 5],
-		[profile.portfolio.length > 0, 5],
+const COMPLETENESS_FIELD_KEYS = {
+	displayName: 'DISPLAY_NAME',
+	bio: 'BIO',
+	avatar: 'PROFILE_PHOTO',
+	location: 'LOCATION',
+	jobTitle: 'JOB_TITLE',
+	company: 'COMPANY',
+	website: 'WEBSITE',
+	skills: 'SKILLS',
+	interests: 'INTERESTS',
+	portfolio: 'PORTFOLIO_SECTION',
+} as const;
+
+type CompletenessFieldKey = keyof typeof COMPLETENESS_FIELD_KEYS;
+
+function useCompleteness(profile: Profile): { score: number; missingKeys: CompletenessFieldKey[] } {
+	const checks: [boolean, number, CompletenessFieldKey][] = [
+		[!!profile.displayName, 10, 'displayName'],
+		[!!profile.bio, 15, 'bio'],
+		[!!profile.avatar, 15, 'avatar'],
+		[!!profile.location, 10, 'location'],
+		[!!profile.jobTitle, 10, 'jobTitle'],
+		[!!profile.company, 5, 'company'],
+		[!!profile.website, 10, 'website'],
+		[profile.skills.length > 0, 15, 'skills'],
+		[profile.interests.length > 0, 5, 'interests'],
+		[profile.portfolio.length > 0, 5, 'portfolio'],
 	];
-	return checks.reduce((sum, [has, weight]) => sum + (has ? weight : 0), 0);
+	const score = checks.reduce((sum, [has, weight]) => sum + (has ? weight : 0), 0);
+	const missingKeys = checks
+		.filter(([has]) => !has)
+		.sort((a, b) => b[1] - a[1])
+		.map(([, , key]) => key);
+	return { score, missingKeys };
 }
 
 const formatCount = (n: number): string => {
@@ -64,7 +84,7 @@ export function ProfilePanel({
 }: ProfilePanelProps) {
 	const t = useTranslations('profile');
 	const [imageError, setImageError] = useState(false);
-	const completeness = useCompleteness(profile);
+	const { score: completeness, missingKeys } = useCompleteness(profile);
 
 	useEffect(() => {
 		setImageError(false);
@@ -254,6 +274,26 @@ export function ProfilePanel({
 								style={{ width: `${completeness}%` }}
 							/>
 						</div>
+						{missingKeys.length > 0 && (
+							<div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+								<span className="text-[11px] text-neutral-400 dark:text-neutral-500 shrink-0">
+									{t('PROFILE_MISSING_TITLE')}
+								</span>
+								{missingKeys.slice(0, 3).map((key) => (
+									<span
+										key={key}
+										className="text-[11px] text-theme-primary-600 dark:text-theme-primary-400 font-medium"
+									>
+										{t(COMPLETENESS_FIELD_KEYS[key] as Parameters<typeof t>[0])}
+									</span>
+								))}
+								{missingKeys.length > 3 && (
+									<span className="text-[11px] text-neutral-400 dark:text-neutral-500">
+										{t('PROFILE_MISSING_MORE', { count: missingKeys.length - 3 })}
+									</span>
+								)}
+							</div>
+						)}
 					</div>
 				)}
 
