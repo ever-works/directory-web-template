@@ -31,6 +31,35 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 023 (v2): Activity Overview panel replaces sidebar Statistics card
+
+- `spec-023` Revision in the same PR: the compact sidebar
+  Statistics card shipped in the first iteration is replaced by a
+  **full-width Activity Overview** panel under the two-column grid
+  and above the Similar Products carousel. The panel has six tiles
+  (Views / Upvotes / Favorites / Comments / Avg. rating / Listed) and
+  a sparkline below; clicking a chartable tile (Views / Upvotes /
+  Favorites / Comments) highlights it with a
+  `theme-primary-500 → theme-primary-700` gradient and updates the
+  sparkline. Rating and Listed are static tiles.
+- `spec-023` New endpoint `GET /api/items/[slug]/activity?days=N`
+  returns `{ totals, series[] }` — totals reuse
+  `getEngagementMetricsPerItem`, and a new
+  `getItemActivityTimeSeries(slug, days)` query in
+  `engagement.queries.ts` aggregates `item_views`, `votes`,
+  `favorites`, `comments` into daily buckets for the last N days
+  (clamped 1–90, default 30), filling missing days with zeros.
+- `spec-023` New i18n keys `ACTIVITY_OVERVIEW` and
+  `ACTIVITY_OVERVIEW_DESCRIPTION` added under `itemDetail.*` across
+  all 21 supported locales.
+- `spec-023` `<ItemStatsSection>` is no longer wired into the page
+  but kept on disk (no removal without confirmation). The sidebar
+  is back to its pre-spec composition (Information / Promo / Sponsor
+  / Category / Tags) and the new Activity Overview owns the
+  engagement surface end-to-end.
+
+---
+
 ## 2026-05-14 — Spec 023: Item detail Similar Products → carousel + new Statistics sidebar block
 
 - `spec-023` On `/items/[slug]`, the old vertical "Similar Products"
