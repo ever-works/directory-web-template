@@ -205,6 +205,7 @@ export const clientProfiles = pgTable(
 		website: text('website'),
 		location: text('location'),
 		avatar: text('avatar'),
+		coverColor: text('cover_color'),
 		interests: text('interests'),
 		skills: jsonb('skills').$type<Array<{ name: string; category: string; proficiency: number }>>(),
 		accountType: text('account_type', {

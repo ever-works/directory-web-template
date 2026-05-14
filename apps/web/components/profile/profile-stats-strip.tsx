@@ -1,4 +1,7 @@
-import { FiBriefcase, FiHeart, FiMessageCircle, FiSend, FiUserCheck, FiUserPlus } from 'react-icons/fi';
+'use client';
+
+import { FiBriefcase, FiHeart, FiSend } from 'react-icons/fi';
+import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
 export interface ProfileStatsData {
@@ -28,22 +31,21 @@ interface StatItem {
 	icon: React.ReactNode;
 }
 
-const COMPACT_ITEMS: StatItem[] = [
-	{ key: 'followers',   label: 'Followers',   icon: <FiUserPlus className="w-3.5 h-3.5" /> },
-	{ key: 'following',   label: 'Following',   icon: <FiUserCheck className="w-3.5 h-3.5" /> },
-	{ key: 'submissions', label: 'Submissions', icon: <FiSend className="w-3.5 h-3.5" /> },
-	{ key: 'comments',    label: 'Comments',    icon: <FiMessageCircle className="w-3.5 h-3.5" /> },
-	{ key: 'favorites',   label: 'Favorites',   icon: <FiHeart className="w-3.5 h-3.5" /> },
-	{ key: 'portfolio',   label: 'Portfolio',   icon: <FiBriefcase className="w-3.5 h-3.5" /> }
-];
-
-const HEADLINE_ITEMS: StatItem[] = [
-	{ key: 'followers',   label: 'Followers',   icon: <FiUserPlus className="w-4 h-4" /> },
-	{ key: 'following',   label: 'Following',   icon: <FiUserCheck className="w-4 h-4" /> },
-	{ key: 'submissions', label: 'Submissions', icon: <FiSend className="w-4 h-4" /> }
-];
-
 export function ProfileStatsStrip({ stats, username, variant = 'compact' }: ProfileStatsStripProps) {
+	const t = useTranslations('profile');
+
+	const COMPACT_ITEMS: StatItem[] = [
+		// { key: 'comments',    label: t('STAT_COMMENTS'),    icon: <FiMessageCircle className="w-3.5 h-3.5" /> },
+		
+		
+	];
+
+	const HEADLINE_ITEMS: StatItem[] = [
+		{ key: 'submissions', label: t('STAT_SUBMISSIONS'), icon: <FiSend className="w-4 h-4" /> },
+		{ key: 'portfolio',   label: t('STAT_PORTFOLIO'),   icon: <FiBriefcase className="w-3.5 h-3.5" /> },
+		{ key: 'favorites',   label: t('STAT_FAVORITES'),   icon: <FiHeart className="w-3.5 h-3.5" /> },
+	];
+
 	const items = variant === 'headline' ? HEADLINE_ITEMS : COMPACT_ITEMS;
 
 	if (variant === 'headline') {
@@ -69,7 +71,7 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 							</p>
 							{linkHref && (
 								<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2 group-hover:text-theme-primary-500 dark:group-hover:text-theme-primary-400 transition-colors duration-150">
-									View all →
+									{t('STAT_VIEW_ALL')} →
 								</p>
 							)}
 						</>
@@ -100,8 +102,11 @@ export function ProfileStatsStrip({ stats, username, variant = 'compact' }: Prof
 		<div className="grid grid-cols-3 md:grid-cols-6 gap-2">
 			{items.map((item) => {
 				const linkHref =
-					username && item.key === 'followers' ? `/client/profile/${username}/followers` :
-					username && item.key === 'following' ? `/client/profile/${username}/following` : null;
+					username && item.key === 'followers'  ? `/client/profile/${username}/followers` :
+					username && item.key === 'following'  ? `/client/profile/${username}/following` :
+					username && item.key === 'comments'   ? `/client/profile/${username}#activity-heading` :
+					username && item.key === 'favorites'  ? `/client/profile/${username}#activity-heading` :
+					username && item.key === 'portfolio'  ? `/client/profile/${username}#portfolio-heading` : null;
 
 				const tile = (
 					<>

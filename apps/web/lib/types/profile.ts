@@ -32,6 +32,7 @@ export interface Profile {
   interests: string[];
   portfolio: PortfolioItem[];
   themeColor: string;
+  coverColor: string;
   isPublic: boolean;
   memberSince: string;
   submissions: Array<{

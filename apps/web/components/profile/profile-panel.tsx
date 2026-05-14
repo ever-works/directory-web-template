@@ -9,6 +9,7 @@ import {
 	FiCheckCircle,
 	FiGithub,
 	FiGlobe,
+	FiHeart,
 	FiLinkedin,
 	FiMapPin,
 	FiTwitter,
@@ -28,34 +29,62 @@ interface ProfilePanelProps {
 	isAuthenticated: boolean;
 	initialIsFollowing: boolean;
 	verified?: boolean;
+	stats?: { favorites: number; portfolio: number; followers: number; following: number };
 }
 
-function useCompleteness(profile: Profile) {
-	const checks: [boolean, number][] = [
-		[!!profile.displayName, 10],
-		[!!profile.bio, 15],
-		[!!profile.avatar, 15],
-		[!!profile.location, 10],
-		[!!profile.jobTitle, 10],
-		[!!profile.company, 5],
-		[!!profile.website, 10],
-		[profile.skills.length > 0, 15],
-		[profile.interests.length > 0, 5],
-		[profile.portfolio.length > 0, 5],
+const COMPLETENESS_FIELD_KEYS = {
+	displayName: 'DISPLAY_NAME',
+	bio: 'BIO',
+	avatar: 'PROFILE_PHOTO',
+	location: 'LOCATION',
+	jobTitle: 'JOB_TITLE',
+	company: 'COMPANY',
+	website: 'WEBSITE',
+	skills: 'SKILLS',
+	interests: 'INTERESTS',
+	portfolio: 'PORTFOLIO_SECTION',
+} as const;
+
+type CompletenessFieldKey = keyof typeof COMPLETENESS_FIELD_KEYS;
+
+function useCompleteness(profile: Profile): { score: number; missingKeys: CompletenessFieldKey[] } {
+	const checks: [boolean, number, CompletenessFieldKey][] = [
+		[!!profile.displayName, 10, 'displayName'],
+		[!!profile.bio, 15, 'bio'],
+		[!!profile.avatar, 15, 'avatar'],
+		[!!profile.location, 10, 'location'],
+		[!!profile.jobTitle, 10, 'jobTitle'],
+		[!!profile.company, 5, 'company'],
+		[!!profile.website, 10, 'website'],
+		[profile.skills.length > 0, 15, 'skills'],
+		[profile.interests.length > 0, 5, 'interests'],
+		[profile.portfolio.length > 0, 5, 'portfolio'],
 	];
-	return checks.reduce((sum, [has, weight]) => sum + (has ? weight : 0), 0);
+	const score = checks.reduce((sum, [has, weight]) => sum + (has ? weight : 0), 0);
+	const missingKeys = checks
+		.filter(([has]) => !has)
+		.sort((a, b) => b[1] - a[1])
+		.map(([, , key]) => key);
+	return { score, missingKeys };
 }
+
+const formatCount = (n: number): string => {
+	if (n < 1000) return n.toString();
+	if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0)}k`;
+	return `${(n / 1_000_000).toFixed(1)}M`;
+};
 
 export function ProfilePanel({
 	profile,
 	isOwn,
 	isAuthenticated,
 	initialIsFollowing,
-	verified
+	verified,
+	stats
 }: ProfilePanelProps) {
 	const t = useTranslations('profile');
 	const [imageError, setImageError] = useState(false);
-	const completeness = useCompleteness(profile);
+	const { score: completeness, missingKeys } = useCompleteness(profile);
 
 	useEffect(() => {
 		setImageError(false);
@@ -77,6 +106,21 @@ export function ProfilePanel({
 		}
 	};
 
+	const COVER_PRESETS: Record<string, string> = {
+		midnight: 'linear-gradient(135deg,#1e1b4b,#3730a3)',
+		ocean:    'linear-gradient(135deg,#0369a1,#38bdf8)',
+		forest:   'linear-gradient(135deg,#14532d,#4ade80)',
+		sunset:   'linear-gradient(135deg,#c2410c,#fbbf24)',
+		rose:     'linear-gradient(135deg,#9f1239,#fb7185)',
+		slate:    'linear-gradient(135deg,#334155,#94a3b8)',
+		violet:   'linear-gradient(135deg,#5b21b6,#c4b5fd)',
+		amber:    'linear-gradient(135deg,#92400e,#fcd34d)',
+		teal:     'linear-gradient(135deg,#134e4a,#5eead4)',
+	};
+	const coverBackground = profile.coverColor && COVER_PRESETS[profile.coverColor]
+		? COVER_PRESETS[profile.coverColor]
+		: 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)';
+
 	const MAX_SKILLS_SHOWN = 6;
 	const visibleSkills = profile.skills.slice(0, MAX_SKILLS_SHOWN);
 	const extraSkillCount = profile.skills.length - MAX_SKILLS_SHOWN;
@@ -86,7 +130,7 @@ export function ProfilePanel({
 			{/* Cover */}
 			<div
 				className="relative h-28 w-full"
-				style={{ background: 'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)' }}
+				style={{ background: coverBackground }}
 			>
 				<div
 					className="absolute inset-0 opacity-20 mix-blend-overlay"
@@ -156,6 +200,27 @@ export function ProfilePanel({
 					</p>
 				)} */}
 
+				{/* Followers / Following — LinkedIn-style inline links */}
+				{stats && (
+					<div className="flex items-center gap-1 text-sm flex-wrap">
+						<Link
+							href={`/client/profile/${profile.username}/followers`}
+							className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-150"
+						>
+							{formatCount(stats.followers)}
+							<span className="text-neutral-500 dark:text-neutral-400">{t('STAT_FOLLOWERS')}</span>
+						</Link>
+						<span className="text-neutral-300 dark:text-neutral-600 mx-1">·</span>
+						<Link
+							href={`/client/profile/${profile.username}/following`}
+							className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-150"
+						>
+							{formatCount(stats.following)}
+							<span className="text-neutral-500 dark:text-neutral-400">{t('STAT_FOLLOWING')}</span>
+						</Link>
+					</div>
+				)}
+
 				{/* Info list */}
 				<div className="space-y-1.5">
 					{profile.location && (
@@ -209,6 +274,26 @@ export function ProfilePanel({
 								style={{ width: `${completeness}%` }}
 							/>
 						</div>
+						{missingKeys.length > 0 && (
+							<div className="flex flex-wrap items-center gap-x-1 gap-y-0.5">
+								<span className="text-[11px] text-neutral-400 dark:text-neutral-500 shrink-0">
+									{t('PROFILE_MISSING_TITLE')}
+								</span>
+								{missingKeys.slice(0, 3).map((key) => (
+									<span
+										key={key}
+										className="text-[11px] text-theme-primary-600 dark:text-theme-primary-400 font-medium"
+									>
+										{t(COMPLETENESS_FIELD_KEYS[key] as Parameters<typeof t>[0])}
+									</span>
+								))}
+								{missingKeys.length > 3 && (
+									<span className="text-[11px] text-neutral-400 dark:text-neutral-500">
+										{t('PROFILE_MISSING_MORE', { count: missingKeys.length - 3 })}
+									</span>
+								)}
+							</div>
+						)}
 					</div>
 				)}
 
