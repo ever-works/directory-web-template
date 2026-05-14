@@ -31,6 +31,32 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 023: Item detail Similar Products → carousel + new Statistics sidebar block
+
+- `spec-023` On `/items/[slug]`, the old vertical "Similar Products"
+  list in the right sidebar (`SimilarItemsSection`) is replaced by a
+  **full-width horizontal carousel** rendered below the two-column
+  grid, matching the recommended-items UX on `/favorites`
+  (prev/next, dot indicators, gradient edge overlays,
+  ResizeObserver-driven responsive card count). The carousel logic
+  is extracted into a reusable
+  `apps/web/components/shared/items-carousel.tsx`.
+- `spec-023` The freed sidebar slot now hosts a new
+  `<ItemStatsSection>` "Statistics" card showing views, upvotes,
+  favorites, comments, average rating, and a relative "Listed N
+  days ago" timestamp. Metrics are fetched on mount from the existing
+  `/api/items/engagement` endpoint; rows show en-dash placeholders
+  until the response resolves.
+- `spec-023` Adds 9 new i18n keys under `itemDetail.*`
+  (`SIMILAR_PRODUCTS`, `SIMILAR_PRODUCTS_DESCRIPTION`, `STATISTICS`,
+  `STATS_VIEWS`, `STATS_VOTES`, `STATS_FAVORITES`, `STATS_COMMENTS`,
+  `STATS_AVG_RATING`, `STATS_AGE`) across all 21 supported locales.
+- `spec-023` `similar-items-section.tsx` is left in place (no
+  imports) per the project's no-removal-without-confirmation rule;
+  a follow-up PR can delete the file once the new layout has soaked.
+
+---
+
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 
 - `spec-022` Avatars stored as base64 data URLs in
