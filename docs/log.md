@@ -31,6 +31,34 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 024: EW-120 platform Activity Feed (pull + push)
+
+- `spec-024` Net-new `GET /api/platform/activity-feed` route handler
+  authenticates the Ever Works platform via HMAC-SHA256 over
+  `${timestamp}:${queryString}:${workId}` (wire-compatible with the
+  platform's `DirectoryWebsiteClient`), then returns a normalised
+  page of users / items / reports drawn from `users`,
+  `itemAuditLogs`, and `reports`.
+- `spec-024` Push mode added in the same PR: fire-and-forget
+  `emitActivityEvent(...)` POSTs to the platform's
+  `/api/activity-log/ingest` endpoint from four event hook sites —
+  user registration (`lib/auth/index.ts`), item creation
+  (`app/api/admin/items/route.ts`), report filed (`app/api/reports/route.ts`),
+  and report resolved (`app/api/admin/reports/[id]/route.ts`).
+  Fresh UUID `eventId` per call (platform stores `(workId, eventId)`
+  uniquely so retries are idempotent). 2 retries with 200ms → 800ms
+  backoff; 4xx is permanent (no retry), 5xx / network / timeout
+  retryable. 5-second per-request timeout via `AbortController`.
+- New env vars: `PLATFORM_WORK_ID` (shared), `PLATFORM_SYNC_SECRET`
+  (pull), `PLATFORM_ADMIN_BASE_URL` (optional, pull),
+  `PLATFORM_API_URL` (push), `PLATFORM_API_SECRET_TOKEN` (push).
+  Pull vars blank → 503 `not_provisioned`; push vars blank → silent
+  no-op (no warning spam for OSS users not on the platform).
+- Per-source over-fetch of `limit` rows from each of the three pull
+  sources, then global merge by timestamp DESC, then slice — same
+  fix as the platform-side Codex P1 (commit `4070ec08` on
+  ever-works PR #740) so a dominant source can't starve the page.
+
 ## 2026-05-13 — Spec 023: AI Chat for Directory Visitors (proposed)
 
 - `spec-023` Drafted `docs/spec/023-ai-chat/` (spec + plan + tasks)

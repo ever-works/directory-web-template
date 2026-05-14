@@ -84,16 +84,29 @@ const drizzle = baseAdapter
 				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
 				const { getTenantId } = await import('./tenant');
 				const tenantId = await getTenantId();
-				
+
 				if (!tenantId) {
 					console.warn('[auth] Could not resolve tenantId during OAuth user creation');
 				}
 
-				return baseAdapter.createUser!({
+				const created = await baseAdapter.createUser!({
 					...data,
 					// Fallback dynamically ensuring tenant ID isn't completely entirely empty
 					tenantId: tenantId || undefined
 				});
+
+				// EW-120 push mode: emit WEBSITE_USER_REGISTERED. Fire-and-
+				// forget; never block the auth flow on the platform sync.
+				const displayName = (data?.name ?? data?.email ?? created?.id) as string;
+				void import('@/lib/services/platform-activity-feed/push-client').then(({ emitActivityEvent }) =>
+					emitActivityEvent({
+						actionType: 'WEBSITE_USER_REGISTERED',
+						summary: `${displayName} signed up`,
+						metadata: { userId: created?.id, email: created?.email ?? null }
+					})
+				);
+
+				return created;
 			}
 		}
 	: undefined;
