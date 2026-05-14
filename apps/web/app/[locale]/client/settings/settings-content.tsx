@@ -1,8 +1,8 @@
 'use client';
 
 import { Container } from '@/components/ui/container';
-import { Card, CardContent } from '@/components/ui/card';
-import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard, FiMapPin } from 'react-icons/fi';
+import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard, FiMapPin, FiSettings } from 'react-icons/fi';
+import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 
@@ -15,128 +15,121 @@ interface SettingsCardProps {
 
 function SettingsCard({ title, description, icon, href }: SettingsCardProps) {
 	return (
-		<Link href={href} className="block group">
-			<Card className="h-full hover:shadow-lg hover:shadow-theme-primary-500/10 border border-gray-200 dark:border-white/6 transition-all duration-300 hover:scale-[1.02] cursor-pointer group-hover:border-theme-primary-300 dark:group-hover:border-theme-primary-600 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
-				<CardContent className="p-6">
-					<div className="flex items-start justify-between">
-						<div className="flex items-start gap-4 flex-1">
-							<div className="shrink-0 w-12 h-12 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-xl flex items-center justify-center group-hover:from-theme-primary-200 group-hover:to-theme-primary-300 dark:group-hover:from-theme-primary-800/60 dark:group-hover:to-theme-primary-700/60 transition-all duration-300 shadow-sm">
-								{icon}
-							</div>
-							<div className="flex-1 min-w-0">
-								<h3 className="font-semibold text-gray-900 dark:text-gray-100 text-lg group-hover:text-theme-primary-700 dark:group-hover:text-theme-primary-400 transition-colors mb-1">
-									{title}
-								</h3>
-								<p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-									{description}
-								</p>
-							</div>
-						</div>
-						<FiArrowRight className="w-5 h-5 text-gray-400 group-hover:text-theme-primary-500 group-hover:translate-x-1 transition-all duration-300" />
-					</div>
-				</CardContent>
-			</Card>
+		<Link
+			href={href}
+			className="flex items-center gap-3 px-4 py-3.5 group hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors duration-150"
+		>
+			<div className="shrink-0 w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg flex items-center justify-center group-hover:bg-theme-primary-100 dark:group-hover:bg-theme-primary-800/40 transition-colors duration-150">
+				{icon}
+			</div>
+			<div className="flex-1 min-w-0">
+				<h3 className="font-medium text-sm text-gray-900 dark:text-gray-100 group-hover:text-theme-primary-700 dark:group-hover:text-theme-primary-300 transition-colors">
+					{title}
+				</h3>
+				<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{description}</p>
+			</div>
+			<FiArrowRight className="w-3.5 h-3.5 text-gray-300 dark:text-gray-600 group-hover:text-theme-primary-400 group-hover:translate-x-0.5 transition-all duration-150 shrink-0" />
 		</Link>
+	);
+}
+
+interface SettingsSectionProps {
+	label: string;
+	children: React.ReactNode;
+}
+
+function SettingsSection({ label, children }: SettingsSectionProps) {
+	return (
+		<div className="space-y-2">
+			<p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-0.5">
+				{label}
+			</p>
+			<div className="rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-[#111111] shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-white/[0.04]">
+				{children}
+			</div>
+		</div>
 	);
 }
 
 export function SettingsContent() {
 	const t = useTranslations('settings');
 
-	const settingsCards = [
-		{
-			id: 'basic-info',
-			title: t('SETTINGS_CARDS.BASIC_INFO.TITLE'),
-			description: t('SETTINGS_CARDS.BASIC_INFO.DESCRIPTION'),
-			icon: <FiUser className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/settings/profile/basic-info`
-		},
-		{
-			id: 'location',
-			title: t('SETTINGS_CARDS.LOCATION.TITLE'),
-			description: t('SETTINGS_CARDS.LOCATION.DESCRIPTION'),
-			icon: <FiMapPin className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/settings/profile/location`
-		},
-		{
-			id: 'security',
-			title: t('SETTINGS_CARDS.SECURITY.TITLE'),
-			description: t('SETTINGS_CARDS.SECURITY.DESCRIPTION'),
-			icon: (
-				<svg
-					className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400"
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth={2}
-						d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-					/>
-				</svg>
-			),
-			href: `/client/settings/security`
-		},
-		{
-			id: 'theme-colors',
-			title: t('SETTINGS_CARDS.THEME_COLORS.TITLE'),
-			description: t('SETTINGS_CARDS.THEME_COLORS.DESCRIPTION'),
-			icon: <FiDroplet className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/settings/profile/theme-colors`
-		},
-		{
-			id: 'portfolio',
-			title: t('SETTINGS_CARDS.PORTFOLIO.TITLE'),
-			description: t('SETTINGS_CARDS.PORTFOLIO.DESCRIPTION'),
-			icon: <FiBriefcase className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/settings/profile/portfolio`
-		},
-		{
-			id: 'submissions',
-			title: t('SETTINGS_CARDS.SUBMISSIONS.TITLE'),
-			description: t('SETTINGS_CARDS.SUBMISSIONS.DESCRIPTION'),
-			icon: <FiFileText className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/submissions`
-		},
-		{
-			id: 'billing',
-			title: t('SETTINGS_CARDS.BILLING.TITLE'),
-			description: t('SETTINGS_CARDS.BILLING.DESCRIPTION'),
-			icon: <FiCreditCard className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />,
-			href: `/client/settings/profile/billing`
-		}
-	];
-
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
+		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
-				<div className="space-y-12 py-8">
-					{/* Section Header */}
-					<div className="text-center space-y-4">
-						<div className="inline-flex items-center justify-center w-16 h-16 bg-linear-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-2xl mb-4">
-							<FiUser className="w-8 h-8 text-theme-primary-600 dark:text-theme-primary-400" />
+				<div className="max-w-xl mx-auto py-8 space-y-7">
+					{/* Page Header */}
+					<div className="flex items-center gap-3">
+						<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
+							<FiSettings className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
 						</div>
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-							{t('PROFILE_SETTINGS')}
-						</h1>
+						<div>
+							<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+								{t('PROFILE_SETTINGS')}
+							</h1>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+								Manage your profile, security and billing
+							</p>
+						</div>
 					</div>
 
-					{/* Settings Grid Panel */}
-					<div className="space-y-8">
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-							{settingsCards.map((card) => (
-								<SettingsCard
-									key={card.id}
-									title={card.title}
-									description={card.description}
-									icon={card.icon}
-									href={card.href}
-								/>
-							))}
-						</div>
-					</div>
+					{/* Profile */}
+					<SettingsSection label="Profile">
+						<SettingsCard
+							title={t('SETTINGS_CARDS.BASIC_INFO.TITLE')}
+							description={t('SETTINGS_CARDS.BASIC_INFO.DESCRIPTION')}
+							icon={<FiUser className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/basic-info"
+						/>
+						<SettingsCard
+							title={t('SETTINGS_CARDS.LOCATION.TITLE')}
+							description={t('SETTINGS_CARDS.LOCATION.DESCRIPTION')}
+							icon={<FiMapPin className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/location"
+						/>
+						<SettingsCard
+							title={t('SETTINGS_CARDS.PORTFOLIO.TITLE')}
+							description={t('SETTINGS_CARDS.PORTFOLIO.DESCRIPTION')}
+							icon={<FiBriefcase className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/portfolio"
+						/>
+					</SettingsSection>
+
+					{/* Appearance */}
+					<SettingsSection label="Appearance">
+						<SettingsCard
+							title={t('SETTINGS_CARDS.THEME_COLORS.TITLE')}
+							description={t('SETTINGS_CARDS.THEME_COLORS.DESCRIPTION')}
+							icon={<FiDroplet className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/theme-colors"
+						/>
+					</SettingsSection>
+
+					{/* Security */}
+					<SettingsSection label="Security">
+						<SettingsCard
+							title={t('SETTINGS_CARDS.SECURITY.TITLE')}
+							description={t('SETTINGS_CARDS.SECURITY.DESCRIPTION')}
+							icon={<Shield className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/security"
+						/>
+					</SettingsSection>
+
+					{/* Content & Billing */}
+					<SettingsSection label="Content & Billing">
+						<SettingsCard
+							title={t('SETTINGS_CARDS.SUBMISSIONS.TITLE')}
+							description={t('SETTINGS_CARDS.SUBMISSIONS.DESCRIPTION')}
+							icon={<FiFileText className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/submissions"
+						/>
+						<SettingsCard
+							title={t('SETTINGS_CARDS.BILLING.TITLE')}
+							description={t('SETTINGS_CARDS.BILLING.DESCRIPTION')}
+							icon={<FiCreditCard className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/billing"
+						/>
+					</SettingsSection>
 				</div>
 			</Container>
 		</div>
