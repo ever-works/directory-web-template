@@ -48,7 +48,7 @@ interface StatRowProps {
 
 function StatRow({ icon, label, value, active, onSelect }: StatRowProps) {
 	const interactive = Boolean(onSelect);
-	const className = `flex items-center justify-between rounded-md px-1.5 py-1.5 ${
+	const className = `flex items-center justify-between gap-2 rounded-md px-2 py-1.5 ${
 		interactive
 			? `cursor-pointer ${
 					active
@@ -73,17 +73,17 @@ function StatRow({ icon, label, value, active, onSelect }: StatRowProps) {
 
 	const content = (
 		<>
-			<span className={labelClass}>
+			<span className={`${labelClass} min-w-0`}>
 				<span className={iconClass}>{icon}</span>
-				<span>{label}</span>
+				<span className="truncate">{label}</span>
 			</span>
-			<span className={valueClass}>{value}</span>
+			<span className={`${valueClass} shrink-0`}>{value}</span>
 		</>
 	);
 
 	if (interactive) {
 		return (
-			<button type="button" onClick={onSelect} aria-pressed={active} className={`${className} w-full text-left`}>
+			<button type="button" onClick={onSelect} aria-pressed={active} className={`${className} text-left`}>
 				{content}
 			</button>
 		);
@@ -118,7 +118,7 @@ function Sparkline({ series, metric }: SparklineProps) {
 
 	if (points.length === 0) {
 		return (
-			<div className="h-14 flex items-center justify-center text-[10px] text-gray-400 dark:text-gray-500">
+			<div className="h-24 flex items-center justify-center text-[10px] text-gray-400 dark:text-gray-500">
 				–
 			</div>
 		);
@@ -129,7 +129,7 @@ function Sparkline({ series, metric }: SparklineProps) {
 	const gradientId = `item-stats-sparkline-${metric}`;
 
 	return (
-		<svg viewBox={`0 0 ${width} ${height}`} className="w-full h-14" preserveAspectRatio="none">
+		<svg viewBox={`0 0 ${width} ${height}`} className="w-full h-24" preserveAspectRatio="none">
 			<defs>
 				<linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
 					<stop offset="0%" stopColor="var(--theme-primary-500, currentColor)" stopOpacity="0.3" />
@@ -198,7 +198,7 @@ export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStats
 
 	return (
 		<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
-			<div className="flex items-center gap-4 mb-2">
+			<div className="flex items-center gap-2.5 mb-3 pb-2.5 border-b border-gray-100 dark:border-white/6">
 				<div className="p-1.5 bg-linear-to-br from-indigo-100 to-violet-100 dark:from-indigo-900/30 dark:to-violet-900/30 rounded-xl">
 					<BarChart3 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
 				</div>
@@ -207,35 +207,37 @@ export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStats
 				</h2>
 			</div>
 
-			<div>
-				<StatRow
-					icon={<Eye className="w-3 h-3" />}
-					label={t('itemDetail.STATS_VIEWS', { defaultValue: 'Views' })}
-					value={v(totals?.views)}
-					active={selected === 'views'}
-					onSelect={() => setSelected('views')}
-				/>
-				<StatRow
-					icon={<ThumbsUp className="w-3 h-3" />}
-					label={t('itemDetail.STATS_VOTES', { defaultValue: 'Upvotes' })}
-					value={v(totals?.votes)}
-					active={selected === 'votes'}
-					onSelect={() => setSelected('votes')}
-				/>
-				<StatRow
-					icon={<Heart className="w-3 h-3" />}
-					label={t('itemDetail.STATS_FAVORITES', { defaultValue: 'Favorites' })}
-					value={v(totals?.favorites)}
-					active={selected === 'favorites'}
-					onSelect={() => setSelected('favorites')}
-				/>
-				<StatRow
-					icon={<MessageSquare className="w-3 h-3" />}
-					label={t('itemDetail.STATS_COMMENTS', { defaultValue: 'Comments' })}
-					value={v(totals?.comments)}
-					active={selected === 'comments'}
-					onSelect={() => setSelected('comments')}
-				/>
+			<div className="space-y-0.5">
+				<div className="grid grid-cols-2 gap-2 mb-4">
+					<StatRow
+						icon={<Eye className="w-3 h-3" />}
+						label={t('itemDetail.STATS_VIEWS', { defaultValue: 'Views' })}
+						value={v(totals?.views)}
+						active={selected === 'views'}
+						onSelect={() => setSelected('views')}
+					/>
+					<StatRow
+						icon={<ThumbsUp className="w-3 h-3" />}
+						label={t('itemDetail.STATS_VOTES', { defaultValue: 'Upvotes' })}
+						value={v(totals?.votes)}
+						active={selected === 'votes'}
+						onSelect={() => setSelected('votes')}
+					/>
+					<StatRow
+						icon={<Heart className="w-3 h-3" />}
+						label={t('itemDetail.STATS_FAVORITES', { defaultValue: 'Favorites' })}
+						value={v(totals?.favorites)}
+						active={selected === 'favorites'}
+						onSelect={() => setSelected('favorites')}
+					/>
+					<StatRow
+						icon={<MessageSquare className="w-3 h-3" />}
+						label={t('itemDetail.STATS_COMMENTS', { defaultValue: 'Comments' })}
+						value={v(totals?.comments)}
+						active={selected === 'comments'}
+						onSelect={() => setSelected('comments')}
+					/>
+				</div>
 				<StatRow
 					icon={<Star className="w-3 h-3" />}
 					label={t('itemDetail.STATS_AVG_RATING', { defaultValue: 'Avg. rating' })}
@@ -250,7 +252,7 @@ export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStats
 				)}
 			</div>
 
-			<div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/6">
+			<div className="mt-3 pt-2 border-t border-gray-100 dark:border-white/6 flex">
 				<Sparkline series={series} metric={selected} />
 			</div>
 		</div>
