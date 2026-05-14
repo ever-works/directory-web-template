@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { FiUserCheck, FiUserPlus } from 'react-icons/fi';
+import { FiLoader, FiUserCheck, FiUserPlus } from 'react-icons/fi';
 import { toast } from 'sonner';
 import { useRouter } from '@/i18n/navigation';
+import { useRouter as useNextRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 
 interface FollowButtonProps {
@@ -20,6 +22,8 @@ export function FollowButton({
 	onCountsChange
 }: FollowButtonProps) {
 	const router = useRouter();
+	const nextRouter = useNextRouter();
+	const t = useTranslations('profile');
 	const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 	const [pending, setPending] = useState(false);
 
@@ -41,15 +45,16 @@ export function FollowButton({
 				: await serverClient.post<{ isFollowing: boolean; followers: number; following: number }>(path);
 			if (!apiUtils.isSuccess(response) || !response.data) {
 				setIsFollowing(previous);
-				toast.error(apiUtils.getErrorMessage(response) || 'Failed to update follow state');
+				toast.error(apiUtils.getErrorMessage(response) || t('FOLLOW_FAILED'));
 				return;
 			}
 			setIsFollowing(response.data.isFollowing);
 			onCountsChange?.({ followers: response.data.followers, following: response.data.following });
+			nextRouter.refresh();
 		} catch (error) {
 			setIsFollowing(previous);
 			console.error('Follow toggle error:', error);
-			toast.error('Failed to update follow state');
+			toast.error(t('FOLLOW_FAILED'));
 		} finally {
 			setPending(false);
 		}
@@ -67,13 +72,15 @@ export function FollowButton({
 					: 'bg-theme-primary-600 text-white hover:bg-theme-primary-700'
 			}`}
 		>
-			{isFollowing ? (
+			{pending ? (
+				<FiLoader className="w-4 h-4 animate-spin" />
+			) : isFollowing ? (
 				<>
-					<FiUserCheck className="w-4 h-4" /> Following
+					<FiUserCheck className="w-4 h-4" /> {t('FOLLOWING')}
 				</>
 			) : (
 				<>
-					<FiUserPlus className="w-4 h-4" /> Follow
+					<FiUserPlus className="w-4 h-4" /> {t('FOLLOW')}
 				</>
 			)}
 		</button>
