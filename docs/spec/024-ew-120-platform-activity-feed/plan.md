@@ -142,6 +142,34 @@ so re-saves on the same record don't double-emit a "resolved" event.
 
 ## Verification
 
+### Playwright HTTP integration tests
+
+`apps/web-e2e/tests/api/platform-activity-feed.spec.ts` — 12 cases,
+mode-adaptive. Probes the endpoint once at the top to detect whether
+the running server has `PLATFORM_SYNC_SECRET` + `PLATFORM_WORK_ID`
+set, then runs the matching assertion set:
+
+- **Unprovisioned** (CI default, no env vars):
+  - `503` on a bare GET.
+  - `503` still wins over a forged bearer + timestamp (the platform's
+    "not_provisioned" banner must not be masked by an `unauthorized`
+    response).
+- **Provisioned** (local `.env.local` with both vars set):
+  - `401` for missing Authorization, non-Bearer prefix, missing
+    `x-platform-ts`, drift > 5 min, tampered query, single-byte
+    flipped signature.
+  - `200` with `{ entries, nextCursor, serverTime }` shape for a
+    valid signed request.
+- **Mode-independent**:
+  - `< 500` for out-of-range `limit`, invalid `types` csv, malformed
+    `since` (zod validation runs before signature check).
+
+Not currently wired to the GitHub Actions CI gate (template CI is
+`lint + build` only — see `CLAUDE.md` §4). Run manually with
+`pnpm --filter @ever-works/web-e2e test platform-activity-feed`.
+
+### Manual / shell verification
+
 Template has no automated test runner today. Manual verification:
 
 ```bash
