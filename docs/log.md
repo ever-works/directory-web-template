@@ -31,6 +31,30 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 023 (v5): backfill missing LocationSection translations
+
+- `spec-023` Audit of `/items/[slug]` translation coverage surfaced
+  that 8 `itemDetail.*` keys consumed by `LocationSection`
+  (`LOCATION`, `REMOTE_SERVICE`, `REMOTE_SERVICE_DESC`,
+  `GET_DIRECTIONS`, `LOCAL_SERVICE`, `REGIONAL_SERVICE`,
+  `NATIONAL_SERVICE`, `GLOBAL_SERVICE`) existed only in `en.json`.
+  Every non-English locale fell back to English for the entire
+  Location card. This pre-dated the PR.
+- `spec-023` Added the 8 keys to all 20 non-English locale files
+  (`ar`, `bg`, `de`, `es`, `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`,
+  `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `uk`, `vi`, `zh`). Each
+  locale's values are real translations (no English-identical
+  entries). Keys were inserted right after `STATS_AGE` so they sit
+  next to the existing Location-section neighbours in `en.json`.
+- `spec-023` Wider audit gaps (hard-coded English in
+  `breadcrumb.tsx` / `report-button.tsx` / `favorite-button.tsx` /
+  `CompactVote`, plus untranslated `COMMENTS_*` / Promo / Survey
+  values in several non-Latin locales) remain unaddressed — they
+  are pre-existing and out of scope here. Recommend tracking under
+  a follow-up spec (e.g. `024-items-i18n-cleanup`).
+
+---
+
 ## 2026-05-14 — Spec 023 (v4): inline sparkline inside the compact sidebar Statistics card
 
 - `spec-023` Per user feedback v3 lost the chart by mistake — the
