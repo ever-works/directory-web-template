@@ -28,18 +28,28 @@ Spec 023 swaps that arrangement:
    buttons, dot indicators, gradient edge overlays, ResizeObserver-based
    responsive item count).
 2. **A new compact `<ItemStatsSection>` card** lives in the sidebar
-   slot the Similar Products list used to occupy. It shows the
-   item's engagement totals — views, upvotes, favorites, comments,
-   average rating, and a relative "Listed N days/months/years ago"
-   timestamp — fed by the existing `/api/items/engagement` endpoint.
-   The card uses tight `text-[11px]` rows with small inline icons so
-   it reads quickly without competing with the larger Information
-   panel above it.
+   slot the Similar Products list used to occupy. Six tight
+   `text-[11px]` rows (Views / Upvotes / Favorites / Comments /
+   Avg. rating / Listed) plus a small inline sparkline below the
+   rows. The four chartable rows (Views, Upvotes, Favorites,
+   Comments) are clickable — selecting one highlights it with the
+   deployment's `theme-primary` tokens and re-plots the sparkline
+   from that metric. Rating and Listed are static rows. Default
+   selection is Views.
 
 The carousel logic is extracted into a reusable `<ItemsCarousel>`
 component under `apps/web/components/shared/` so any future surface
 that needs the same horizontal scroller can drop it in without
 re-deriving the scroll math.
+
+A small endpoint `GET /api/items/[slug]/activity?days=N` powers the
+sidebar card: it returns `{ totals, series[] }` — totals reuse the
+existing `getEngagementMetricsPerItem`, and a new
+`getItemActivityTimeSeries(slug, days)` in `engagement.queries.ts`
+aggregates `item_views`, `votes`, `favorites`, and `comments` into
+daily buckets for the last N days (clamped 1–90, default 30),
+filling missing days with zeros so the sparkline needs no gap
+handling.
 
 ## 2. Motivation
 
@@ -65,16 +75,17 @@ re-deriving the scroll math.
   imported by the page but is left in place per the project's
   "no removal without confirmation" convention; a follow-up PR can
   remove it once the new layout has soaked.
-- Server-side rendering of the engagement totals. The stats card
-  fetches `/api/items/engagement` on mount; SSR-prefetching is a
+- Server-side rendering of the stats payload. The card fetches
+  `/api/items/[slug]/activity` on mount; SSR-prefetching is a
   separate optimization.
-- Time-series sparkline / "Activity Overview" panel. Earlier
-  iterations of this spec experimented with a full-width
-  6-tile + sparkline panel backed by a new `/api/items/[slug]/activity`
-  endpoint. That direction was rolled back at the user's request: the
-  sidebar Statistics card stays where it was, and the new endpoint
-  was never shipped. Time-series visualization can come back as a
-  separate spec if needed.
+- A standalone full-width "Activity Overview" panel. An earlier
+  iteration tried that layout but it was rolled back at the user's
+  request — the engagement data lives in the sidebar Statistics
+  card now, with a small inline sparkline rather than a hero-sized
+  chart.
+- Multi-series overlay or stacked sparkline. The chart shows one
+  metric at a time — the user picks via the rows. Layered charts
+  would require a chart library and are out of scope.
 
 ## 4. Acceptance criteria
 
@@ -90,19 +101,35 @@ re-deriving the scroll math.
   titled "Statistics" (i18n key `itemDetail.STATISTICS`) directly
   below the Tags card.
 - **AC-4:** `<ItemStatsSection>` shows five rows — Views, Upvotes,
-  Favorites, Comments, Avg. rating — sourced from
-  `/api/items/engagement`. Each row shows an en-dash placeholder until
-  the fetch resolves. A sixth row "Listed N {days|months|years} ago"
-  renders when `meta.updated_at` is present, computed locally via
-  `Intl.RelativeTimeFormat`. Rows use `text-[11px]` for both label and
-  value with `w-3 h-3` icons so the card matches the rest of the
-  sidebar's compact density.
-- **AC-5:** All nine new strings (`SIMILAR_PRODUCTS`,
+  Favorites, Comments, Avg. rating — sourced from the new
+  `/api/items/[slug]/activity` endpoint. Each row shows an en-dash
+  placeholder until the fetch resolves. A sixth row "Listed N
+  {days|months|years} ago" renders when `meta.updated_at` is
+  present, computed locally via `Intl.RelativeTimeFormat`. Rows use
+  `text-[11px]` for both label and value with `w-3 h-3` icons so the
+  card matches the rest of the sidebar's compact density.
+- **AC-5:** Clicking any of the four chartable rows (Views, Upvotes,
+  Favorites, Comments) highlights that row with a
+  `theme-primary` background-tint + text colour and re-plots the
+  sparkline below the rows to show that metric over the last 30
+  days. Rating and Listed rows are non-clickable. Default selection
+  is Views.
+- **AC-6:** The sparkline renders as an inline SVG (no chart
+  library) below the row list, separated by a faint top border. It
+  uses a `theme-primary-500` area fill at low opacity with a
+  `theme-primary-600` stroke. ~14 row-heights tall so the whole card
+  stays compact.
+- **AC-7:** New endpoint `GET /api/items/[slug]/activity?days=N`
+  responds with `{ totals: ItemEngagementMetrics, series:
+  ItemActivityDay[] }`. `days` is clamped to 1–90 (default 30). When
+  `DATABASE_URL` is missing, returns zeros (consistent with
+  `/api/items/engagement`).
+- **AC-8:** All nine new strings (`SIMILAR_PRODUCTS`,
   `SIMILAR_PRODUCTS_DESCRIPTION`, `STATISTICS`, `STATS_VIEWS`,
   `STATS_VOTES`, `STATS_FAVORITES`, `STATS_COMMENTS`,
   `STATS_AVG_RATING`, `STATS_AGE`) live under `itemDetail.*` in all 21
   supported locale files.
-- **AC-6:** `pnpm lint` and `pnpm tsc --noEmit` pass for `@ever-works/web`.
+- **AC-9:** `pnpm lint` and `pnpm tsc --noEmit` pass for `@ever-works/web`.
 
 ## 5. Open questions
 

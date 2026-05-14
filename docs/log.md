@@ -31,6 +31,32 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-14 — Spec 023 (v4): inline sparkline inside the compact sidebar Statistics card
+
+- `spec-023` Per user feedback v3 lost the chart by mistake — the
+  intent was "keep the chart from v2, but keep the sidebar
+  placement from v3, and the smaller/cleaner typography from v3".
+  v4 puts the sparkline back into the sidebar Statistics card.
+- `spec-023` `<ItemStatsSection>` now renders the six existing
+  `text-[11px]` rows AND a small inline SVG sparkline below them,
+  separated by a faint top border. The four chartable rows (Views,
+  Upvotes, Favorites, Comments) became clickable: selecting one
+  tints the row with `theme-primary` (background + text) and
+  re-plots the sparkline from that metric. Rating and Listed rows
+  remain static. Default selection is Views. Sparkline keeps the
+  `theme-primary-500` low-opacity area fill + `theme-primary-600`
+  stroke from v2 but is ~14 row-heights tall so the whole card
+  stays compact and sidebar-shaped.
+- `spec-023` Restored from history: `getItemActivityTimeSeries` +
+  `ItemActivityDay` type in `engagement.queries.ts`, and the
+  `GET /api/items/[slug]/activity?days=N` route. They were removed
+  in v3 and are back exactly as in commit 4780edd. The
+  `ACTIVITY_OVERVIEW` / `ACTIVITY_OVERVIEW_DESCRIPTION` i18n keys
+  remain removed — the sidebar card reuses the existing
+  `itemDetail.STATISTICS` heading.
+
+---
+
 ## 2026-05-14 — Spec 023 (v3): revert Activity Overview, keep compact Statistics card in sidebar
 
 - `spec-023` Reverted v2's full-width Activity Overview panel and
