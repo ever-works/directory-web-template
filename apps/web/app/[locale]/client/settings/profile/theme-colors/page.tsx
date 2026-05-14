@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { Container } from '@/components/ui/container';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FiArrowLeft, FiCheck, FiDroplet } from 'react-icons/fi';
 import Link from 'next/link';
 import { useTheme } from '@/hooks/use-theme';
+import { ThemeKey } from '@/components/context/LayoutThemeContext';
 import { cn } from '@/lib/utils';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -12,6 +14,14 @@ export default function ThemeColorsPage() {
 	const locale = useLocale();
 	const t = useTranslations('settings.THEME_COLORS_PAGE');
 	const { themeKey, availableThemes, changeTheme } = useTheme();
+
+	const [appliedKey, setAppliedKey] = useState<string | null>(null);
+
+	const handleChangeTheme = (key: ThemeKey) => {
+		changeTheme(key);
+		setAppliedKey(key);
+		setTimeout(() => setAppliedKey(null), 1600);
+	};
 
 	if (!availableThemes || availableThemes.length === 0) {
 		return (
@@ -77,11 +87,13 @@ export default function ThemeColorsPage() {
 							<div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
 								{availableThemes.map((theme) => {
 									const isSelected = themeKey === theme.key;
+									const justApplied = appliedKey === theme.key;
+
 									return (
 										<button
 											key={theme.key}
 											type="button"
-											onClick={() => changeTheme(theme.key)}
+											onClick={() => handleChangeTheme(theme.key as ThemeKey)}
 											aria-pressed={isSelected}
 											className={cn(
 												'group relative text-left rounded-xl border-2 overflow-hidden transition-all duration-200',
@@ -91,33 +103,46 @@ export default function ThemeColorsPage() {
 													: 'border-gray-200 dark:border-white/8 hover:border-theme-primary-300 dark:hover:border-theme-primary-600/50 hover:shadow-sm'
 											)}
 										>
-											{/* Color band preview */}
-											<div className="h-10 w-full flex">
+											{/* Mini UI preview — mock nav bar + content skeleton */}
+											<div className="h-16 w-full overflow-hidden bg-gray-50 dark:bg-white/5">
+												{/* Mock nav bar */}
 												<div
-													className="flex-1"
+													className="h-6 w-full flex items-center px-2 gap-1.5"
 													style={{ background: theme.colors.primary }}
-												/>
-												<div
-													className="flex-1"
-													style={{ background: theme.colors.secondary }}
-												/>
-												<div
-													className="flex-1"
-													style={{
-														background:
-															theme.colors.accent ||
-															theme.colors.secondary ||
-															theme.colors.primary
-													}}
-												/>
+												>
+													<div className="w-2 h-2 rounded-full bg-white/40" />
+													<div className="flex-1 h-1 rounded-full bg-white/20" />
+													<div
+														className="h-3 w-5 rounded"
+														style={{ background: theme.colors.secondary + 'cc' }}
+													/>
+												</div>
+												{/* Mock content skeleton */}
+												<div className="px-2 pt-2 space-y-1.5">
+													<div
+														className="h-1 w-14 rounded-full opacity-60"
+														style={{ background: theme.colors.primary }}
+													/>
+													<div className="flex gap-1">
+														<div
+															className="h-2.5 w-7 rounded"
+															style={{ background: theme.colors.primary }}
+														/>
+														<div
+															className="h-2.5 w-7 rounded opacity-30"
+															style={{ background: theme.colors.secondary }}
+														/>
+													</div>
+												</div>
 											</div>
 
 											{/* Card body */}
 											<div
 												className={cn(
-													'p-4 bg-white dark:bg-white/[0.02]',
-													isSelected &&
-														'bg-theme-primary-50/60 dark:bg-theme-primary-900/10'
+													'p-3.5 transition-colors',
+													isSelected
+														? 'bg-theme-primary-50/60 dark:bg-theme-primary-900/10'
+														: 'bg-white dark:bg-white/[0.02] group-hover:bg-gray-50/80 dark:group-hover:bg-white/[0.04]'
 												)}
 											>
 												<div className="flex items-center justify-between mb-1">
@@ -131,8 +156,8 @@ export default function ThemeColorsPage() {
 													>
 														{theme.label}
 													</h3>
-													{isSelected && (
-														<span className="flex items-center justify-center w-5 h-5 rounded-full bg-theme-primary-500 shadow-sm">
+													{isSelected && !justApplied && (
+														<span className="flex items-center justify-center w-5 h-5 rounded-full bg-theme-primary-500">
 															<FiCheck className="w-3 h-3 text-white" />
 														</span>
 													)}
@@ -148,6 +173,18 @@ export default function ThemeColorsPage() {
 													{theme.description}
 												</p>
 											</div>
+
+											{/* "Applied" overlay — fades in then out */}
+											{justApplied && (
+												<div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-black/60 pointer-events-none animate-fade-in rounded-xl">
+													<div className="flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-[#1a1a1a] rounded-full shadow border border-theme-primary-200 dark:border-theme-primary-700">
+														<FiCheck className="w-3.5 h-3.5 text-theme-primary-600 dark:text-theme-primary-400" />
+														<span className="text-xs font-semibold text-theme-primary-700 dark:text-theme-primary-300">
+															Applied
+														</span>
+													</div>
+												</div>
+											)}
 										</button>
 									);
 								})}
