@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { createReport, getClientProfileById, hasUserReportedContent } from '@/lib/db/queries';
 import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { emitActivityEvent } from '@/lib/services/platform-activity-feed/push-client';
 import {
 	ReportContentType,
 	ReportReason,
@@ -143,6 +144,21 @@ export async function POST(request: Request) {
 			reason: reason as ReportReasonValues,
 			details: typeof details === 'string' ? details.trim() || undefined : undefined,
 			reportedBy: clientProfile.id
+		});
+
+		// EW-120 push mode: emit WEBSITE_REPORT_FILED. Fire-and-forget;
+		// never block the user response on platform sync.
+		void emitActivityEvent({
+			actionType: 'WEBSITE_REPORT_FILED',
+			summary: `${clientProfile.name ?? 'A user'} reported a ${report.contentType} for ${report.reason}`,
+			metadata: {
+				reportId: report.id,
+				contentType: report.contentType,
+				contentId: report.contentId,
+				reason: report.reason,
+				reportedBy: clientProfile.id
+			},
+			occurredAt: report.createdAt
 		});
 
 		return NextResponse.json({
