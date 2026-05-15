@@ -20,6 +20,7 @@ The Directory Web Template is a modern, full-stack directory website solution bu
 - **Git-based CMS**: Content synchronization from Git repositories with YAML-based structure
 - **Theming System**: Built-in themes with dynamic color generation
 - **Maps & Location**: Mapbox / Google Maps abstraction with marker clustering, auto-geocoding from YAML addresses, and an opt-in [Map view](features/map-view.md) for listings (sidebar + map, Zillow / Airbnb style)
+- **AI Chat**: Opt-in Vercel-AI-SDK [chat assistant](features/ai-chat.md) for visitors — works.yml-driven, six-locale, anonymous vs. authenticated personas, lazy-loaded panel preserves the public bundle when disabled
 - **Analytics & Monitoring**: PostHog, Sentry, performance monitoring
 - **Admin Dashboard**: Content management, user management, and analytics
 - **SEO Optimized**: Sitemap generation, structured data (JSON-LD), meta tags
