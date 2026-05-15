@@ -7,13 +7,16 @@ sidebar_position: 33
 
 # AI Chat for Directory Visitors
 
-An opt-in conversational assistant that helps visitors browse the
-directory, search, submit, and get support — and gives signed-in
-members an account-aware assistant that can answer "what did I submit
-last week?", surface their favourites, and guide them through
-completing their profile.
+A conversational assistant that helps visitors browse the directory,
+search, submit, and get support — and gives signed-in members an
+account-aware assistant that can answer "what did I submit last
+week?", surface their favourites, and guide them through completing
+their profile.
 
-> **Status:** Shipped behind the `aiChat.enabled` flag.
+> **Status:** Shipped. `aiChat.enabled` defaults to `true`; the only
+> action a directory operator must take is set `AI_CHAT_API_KEY`. If
+> the key is missing, the launcher silently no-ops (a server-side
+> warning is logged once per process).
 > **Spec:** [`docs/spec/023-ai-chat/`](../spec/023-ai-chat/spec.md)
 > **Jira:** [EW-132](https://evertech.atlassian.net/browse/EW-132)
 
@@ -52,11 +55,16 @@ Groq, Together, or any other OpenAI-shaped endpoint.
 
 ## Enabling it
 
-### 1. Add the `aiChat` block to your `works.yml`
+The chat is **on by default** — every field of the `aiChat` block has
+a default value, and `aiChat.enabled` itself defaults to `true`. The
+only action a directory operator must take to activate the chat is
+set `AI_CHAT_API_KEY` (step 2 below).
+
+### 1. (Optional) Tune the `aiChat` block in your `works.yml`
 
 ```yaml
 aiChat:
-    enabled: true
+    enabled: true # default; set false to hide the launcher entirely
     position: floating # floating | hero-takeover | sidebar
     provider: openrouter
     model: openai/gpt-4o-mini
@@ -70,17 +78,17 @@ aiChat:
         scenarios: [browse, search, submit, pricing, my-submissions, my-favourites, my-profile, navigate, support]
 ```
 
-Every field has a default; the minimal opt-in is `aiChat.enabled: true`.
-The schema lives at
+You only need to add this block to override a default. To turn the
+chat off, set `aiChat.enabled: false`. The schema lives at
 [`packages/plugin-ai-chat/src/config.ts`](https://github.com/ever-works/directory-web-template/blob/develop/packages/plugin-ai-chat/src/config.ts).
 
-### 2. Set the API key
+### 2. Set the API key (required)
 
 The chat needs a server-side OpenAI-compatible API key. Add to
 `apps/web/.env.local`:
 
 ```bash
-# Required when aiChat.enabled is true
+# Required to activate the chat (launcher is hidden until set)
 AI_CHAT_API_KEY=sk-or-v1-…
 
 # Optional overrides — defaults shown

@@ -5,8 +5,11 @@ import { z } from 'zod';
  * directory's `works.yml`. See `docs/spec/023-ai-chat/spec.md §9`.
  *
  * Defaults are chosen so a brand-new template that does **not** set
- * the `aiChat` block at all parses successfully with `enabled: false`,
- * i.e. the chat is off by default.
+ * the `aiChat` block at all parses successfully with `enabled: true`,
+ * i.e. the chat is **on** by default. Operators who do not provision
+ * `AI_CHAT_API_KEY` get a silent no-op (the layout mount in
+ * `apps/web` skips the launcher when the key is missing) — never a
+ * broken launcher.
  */
 
 export const CHAT_POSITIONS = ['floating', 'hero-takeover', 'sidebar'] as const;
@@ -56,7 +59,7 @@ const authenticatedPersonaSchema = z.object({
 
 export const AiChatConfigSchema = z
 	.object({
-		enabled: z.boolean().default(false),
+		enabled: z.boolean().default(true),
 		position: z.enum(CHAT_POSITIONS).default('floating'),
 		provider: z.string().min(1).default('openrouter'),
 		model: z.string().min(1).default('openai/gpt-4o-mini'),

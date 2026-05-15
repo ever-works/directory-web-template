@@ -19,15 +19,17 @@ sidebar_label: '023 AI Chat'
 
 ## 1. Summary
 
-Every generated directory ships with an opt-in AI chat that helps
-visitors browse, search, submit, and get support — and gives logged-in
-members a deeper, account-aware assistant that can answer "what did I
-submit last week?", surface their favourites, and guide them through
-upgrading or completing their profile. The chat reads its configuration
-from the directory's `works.yml`, so operators turn it on, pick a
-position (floating widget, hero takeover, or sidebar layout), and choose
-which scenarios anonymous vs. authenticated visitors can use — all
-without touching code.
+Every generated directory ships with an AI chat **on by default** that
+helps visitors browse, search, submit, and get support — and gives
+logged-in members a deeper, account-aware assistant that can answer
+"what did I submit last week?", surface their favourites, and guide
+them through upgrading or completing their profile. The chat reads its
+configuration from the directory's `works.yml`, so operators can tune
+the position (floating widget, hero takeover, or sidebar layout) and
+choose which scenarios anonymous vs. authenticated visitors can use —
+all without touching code. The single action required to activate the
+chat is setting `AI_CHAT_API_KEY`; until the key is provided the
+launcher is hidden, so operators never ship a broken UI.
 
 The implementation uses the **Vercel AI SDK** (`ai@^6`,
 `@ai-sdk/react@^3`) for the same reasons the platform picked it:
