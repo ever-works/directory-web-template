@@ -3529,6 +3529,47 @@
 			"WELCOME_BACK": "Willkommen zurück, {name}! Hier ist Ihre Aktivitätsübersicht.",
 			"REFRESH": "Aktualisieren",
 			"FAILED_TO_LOAD": "Fehler beim Laden der Dashboard-Statistiken",
+			"USER_FALLBACK": "da",
+			"HEADER_SUBTITLE": "So entwickeln sich Ihre Inhalte.",
+			"NEW_SUBMISSION": "Neue Einreichung",
+			"GREETING": {
+				"MORNING": "Guten Morgen, {name}",
+				"AFTERNOON": "Guten Tag, {name}",
+				"EVENING": "Guten Abend, {name}"
+			},
+			"TABS": {
+				"LABEL": "Dashboard-Bereiche",
+				"OVERVIEW": "Übersicht",
+				"CONTENT": "Inhalte",
+				"ENGAGEMENT": "Engagement",
+				"GEOGRAPHIC": "Geografie"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Schnellaktionen",
+				"NEW_SUBMISSION": "Neue Einreichung",
+				"NEW_SUBMISSION_DESC": "Neuen Eintrag im Verzeichnis einreichen",
+				"MY_SUBMISSIONS": "Meine Einreichungen",
+				"MY_SUBMISSIONS_DESC": "Einreichungen anzeigen und verwalten",
+				"BILLING": "Abrechnung",
+				"BILLING_DESC": "Zahlungsmethoden verwalten",
+				"SETTINGS": "Einstellungen",
+				"SETTINGS_DESC": "Profil und Voreinstellungen aktualisieren"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Dashboard-Hinweise",
+				"PENDING_ITEMS": "{count, plural, one {# Eintrag wartet auf Prüfung} other {# Einträge warten auf Prüfung}}",
+				"VIEW_SUBMISSIONS": "Einreichungen anzeigen",
+				"NO_SUBMISSIONS": "Sie haben noch nichts eingereicht.",
+				"SUBMIT_FIRST": "Ersten Eintrag einreichen",
+				"DISMISS": "Hinweis ausblenden"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Reichen Sie Ihren ersten Eintrag ein, um loszulegen.",
+				"SUBMIT_NOW": "Jetzt einreichen",
+				"VIEWS": "Aufrufe erscheinen, sobald Ihre Inhalte freigegeben sind.",
+				"VOTES": "Stimmen erscheinen, sobald andere Ihre Inhalte bewerten.",
+				"COMMENTS": "Kommentare erscheinen, sobald andere mit Ihren Inhalten interagieren."
+			},
 			"LOCATION_DISABLED_TITLE": "Standort-Insights sind deaktiviert",
 			"LOCATION_DISABLED_DESC": "Aktivieren Sie Standortfunktionen in den Verzeichniseinstellungen, um Ihre Einträge auf einer Karte zu sehen und die geografische Abdeckung zu prüfen.",
 			"ENGAGEMENT_CHART": {
@@ -3545,12 +3586,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Gesamte Einreichungen",
+				"TOTAL_SUBMISSIONS_SHORT": "Einreichungen",
 				"CONTENT_CREATED": "Von Ihnen erstellte Inhalte",
 				"TOTAL_VIEWS": "Gesamte Aufrufe",
+				"TOTAL_VIEWS_SHORT": "Aufrufe",
 				"VIEWS_ON_CONTENT": "Aufrufe Ihrer Inhalte",
 				"VOTES_RECEIVED": "Erhaltene Stimmen",
+				"VOTES_RECEIVED_SHORT": "Stimmen",
 				"VOTES_ON_CONTENT": "Stimmen für Ihre Inhalte",
 				"COMMENTS_RECEIVED": "Erhaltene Kommentare",
+				"COMMENTS_RECEIVED_SHORT": "Kommentare",
 				"COMMENTS_ON_CONTENT": "Kommentare zu Ihren Inhalten"
 			},
 			"PERIOD_COMPARISON": {

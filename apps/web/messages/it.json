@@ -3495,6 +3495,47 @@
 			"WELCOME_BACK": "Bentornato, {name}! Ecco la panoramica delle tue attività.",
 			"REFRESH": "Aggiorna",
 			"FAILED_TO_LOAD": "Impossibile caricare le statistiche della dashboard",
+			"USER_FALLBACK": "a te",
+			"HEADER_SUBTITLE": "Ecco come stanno andando i tuoi contenuti.",
+			"NEW_SUBMISSION": "Nuovo invio",
+			"GREETING": {
+				"MORNING": "Buongiorno, {name}",
+				"AFTERNOON": "Buon pomeriggio, {name}",
+				"EVENING": "Buonasera, {name}"
+			},
+			"TABS": {
+				"LABEL": "Sezioni del cruscotto",
+				"OVERVIEW": "Panoramica",
+				"CONTENT": "Contenuti",
+				"ENGAGEMENT": "Coinvolgimento",
+				"GEOGRAPHIC": "Geografica"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Azioni rapide",
+				"NEW_SUBMISSION": "Nuovo invio",
+				"NEW_SUBMISSION_DESC": "Invia un nuovo elemento alla directory",
+				"MY_SUBMISSIONS": "I miei invii",
+				"MY_SUBMISSIONS_DESC": "Visualizza e gestisci i tuoi invii",
+				"BILLING": "Fatturazione",
+				"BILLING_DESC": "Gestisci i metodi di pagamento",
+				"SETTINGS": "Impostazioni",
+				"SETTINGS_DESC": "Aggiorna il tuo profilo e le preferenze"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Avvisi del cruscotto",
+				"PENDING_ITEMS": "{count, plural, one {Hai # elemento in attesa di revisione} other {Hai # elementi in attesa di revisione}}",
+				"VIEW_SUBMISSIONS": "Visualizza invii",
+				"NO_SUBMISSIONS": "Non hai ancora inviato nulla.",
+				"SUBMIT_FIRST": "Invia il tuo primo elemento",
+				"DISMISS": "Chiudi avviso"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Invia il tuo primo elemento per iniziare.",
+				"SUBMIT_NOW": "Invia ora",
+				"VIEWS": "Le visualizzazioni appariranno una volta approvati i contenuti.",
+				"VOTES": "I voti appariranno man mano che le persone interagiscono con i tuoi contenuti.",
+				"COMMENTS": "I commenti appariranno quando le persone interagiranno con i tuoi contenuti."
+			},
 			"LOCATION_DISABLED_TITLE": "Le informazioni sulla posizione sono disattivate",
 			"LOCATION_DISABLED_DESC": "Abilita le funzionalità di posizione nelle impostazioni della directory per vedere i tuoi elementi su una mappa e rivedere la copertura geografica.",
 			"ENGAGEMENT_CHART": {
@@ -3511,12 +3552,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Invii Totali",
+				"TOTAL_SUBMISSIONS_SHORT": "Invii",
 				"CONTENT_CREATED": "Contenuti che hai creato",
 				"TOTAL_VIEWS": "Visualizzazioni Totali",
+				"TOTAL_VIEWS_SHORT": "Visualizzazioni",
 				"VIEWS_ON_CONTENT": "Visualizzazioni dei tuoi contenuti",
 				"VOTES_RECEIVED": "Voti Ricevuti",
+				"VOTES_RECEIVED_SHORT": "Voti",
 				"VOTES_ON_CONTENT": "Voti sui tuoi contenuti",
 				"COMMENTS_RECEIVED": "Commenti Ricevuti",
+				"COMMENTS_RECEIVED_SHORT": "Commenti",
 				"COMMENTS_ON_CONTENT": "Commenti sui tuoi contenuti"
 			},
 			"PERIOD_COMPARISON": {

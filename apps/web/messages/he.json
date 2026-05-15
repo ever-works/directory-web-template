@@ -3457,6 +3457,47 @@
 				"ID": "מזהה",
 				"NO_DATA": "לא נמצאו פריטים מובילים",
 				"NO_DATA_DESC": "כאשר התוכן שלך יקבל יותר מעורבות, הפריטים המובילים שלך יופיעו כאן."
+			},
+			"USER_FALLBACK": "שם",
+			"HEADER_SUBTITLE": "כך מתפקד התוכן שלך.",
+			"NEW_SUBMISSION": "הגשה חדשה",
+			"GREETING": {
+				"MORNING": "בוקר טוב, {name}",
+				"AFTERNOON": "אחר צהריים טובים, {name}",
+				"EVENING": "ערב טוב, {name}"
+			},
+			"TABS": {
+				"LABEL": "חלקי הלוח",
+				"OVERVIEW": "סקירה",
+				"CONTENT": "תוכן",
+				"ENGAGEMENT": "מעורבות",
+				"GEOGRAPHIC": "גאוגרפי"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "פעולות מהירות",
+				"NEW_SUBMISSION": "הגשה חדשה",
+				"NEW_SUBMISSION_DESC": "הגש פריט חדש למדריך",
+				"MY_SUBMISSIONS": "ההגשות שלי",
+				"MY_SUBMISSIONS_DESC": "הצג ונהל את ההגשות שלך",
+				"BILLING": "חיוב",
+				"BILLING_DESC": "נהל אמצעי תשלום",
+				"SETTINGS": "הגדרות",
+				"SETTINGS_DESC": "עדכן את הפרופיל וההעדפות שלך"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "התראות הלוח",
+				"PENDING_ITEMS": "{count, plural, one {יש לך # פריט בהמתנה לסקירה} other {יש לך # פריטים בהמתנה לסקירה}}",
+				"VIEW_SUBMISSIONS": "הצג הגשות",
+				"NO_SUBMISSIONS": "עדיין לא הגשת דבר.",
+				"SUBMIT_FIRST": "הגש את הפריט הראשון שלך",
+				"DISMISS": "סגור התראה"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "הגש את הפריט הראשון שלך כדי להתחיל.",
+				"SUBMIT_NOW": "הגש עכשיו",
+				"VIEWS": "הצפיות יופיעו לאחר שהתוכן שלך יאושר.",
+				"VOTES": "ההצבעות יופיעו ככל שאנשים יתקשרו עם התוכן שלך.",
+				"COMMENTS": "התגובות יופיעו כאשר אנשים יעסקו בתוכן שלך."
 			}
 		}
 	},

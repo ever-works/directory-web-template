@@ -3586,6 +3586,47 @@
 			"WELCOME_BACK": "Bon retour, {name} ! Voici votre aperçu d'activité.",
 			"REFRESH": "Actualiser",
 			"FAILED_TO_LOAD": "Échec du chargement des statistiques",
+			"USER_FALLBACK": "vous",
+			"HEADER_SUBTITLE": "Voici les performances de votre contenu.",
+			"NEW_SUBMISSION": "Nouvelle soumission",
+			"GREETING": {
+				"MORNING": "Bonjour, {name}",
+				"AFTERNOON": "Bon après-midi, {name}",
+				"EVENING": "Bonsoir, {name}"
+			},
+			"TABS": {
+				"LABEL": "Sections du tableau de bord",
+				"OVERVIEW": "Vue d’ensemble",
+				"CONTENT": "Contenu",
+				"ENGAGEMENT": "Engagement",
+				"GEOGRAPHIC": "Géographie"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Actions rapides",
+				"NEW_SUBMISSION": "Nouvelle soumission",
+				"NEW_SUBMISSION_DESC": "Soumettre un nouvel élément à l’annuaire",
+				"MY_SUBMISSIONS": "Mes soumissions",
+				"MY_SUBMISSIONS_DESC": "Voir et gérer vos soumissions",
+				"BILLING": "Facturation",
+				"BILLING_DESC": "Gérer les moyens de paiement",
+				"SETTINGS": "Paramètres",
+				"SETTINGS_DESC": "Mettre à jour votre profil et vos préférences"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Alertes du tableau de bord",
+				"PENDING_ITEMS": "{count, plural, one {Vous avez # élément en attente de validation} other {Vous avez # éléments en attente de validation}}",
+				"VIEW_SUBMISSIONS": "Voir les soumissions",
+				"NO_SUBMISSIONS": "Vous n’avez encore rien soumis.",
+				"SUBMIT_FIRST": "Soumettre votre premier élément",
+				"DISMISS": "Ignorer l’alerte"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Soumettez votre premier élément pour commencer.",
+				"SUBMIT_NOW": "Soumettre maintenant",
+				"VIEWS": "Les vues apparaîtront une fois votre contenu approuvé.",
+				"VOTES": "Les votes apparaîtront à mesure que les gens interagissent avec votre contenu.",
+				"COMMENTS": "Les commentaires apparaîtront lorsque les gens s’engageront avec votre contenu."
+			},
 			"LOCATION_DISABLED_TITLE": "Les statistiques de localisation sont désactivées",
 			"LOCATION_DISABLED_DESC": "Activez les fonctionnalités de localisation dans les paramètres de votre annuaire pour voir vos éléments sur une carte et examiner la couverture géographique.",
 			"ENGAGEMENT_CHART": {
@@ -3602,12 +3643,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total des Soumissions",
+				"TOTAL_SUBMISSIONS_SHORT": "Soumissions",
 				"CONTENT_CREATED": "Contenu que vous avez créé",
 				"TOTAL_VIEWS": "Vues Totales",
+				"TOTAL_VIEWS_SHORT": "Vues",
 				"VIEWS_ON_CONTENT": "Vues sur votre contenu",
 				"VOTES_RECEIVED": "Votes Reçus",
+				"VOTES_RECEIVED_SHORT": "Votes",
 				"VOTES_ON_CONTENT": "Votes sur votre contenu",
 				"COMMENTS_RECEIVED": "Commentaires Reçus",
+				"COMMENTS_RECEIVED_SHORT": "Commentaires",
 				"COMMENTS_ON_CONTENT": "Commentaires sur votre contenu"
 			},
 			"PERIOD_COMPARISON": {

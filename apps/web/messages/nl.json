@@ -3491,6 +3491,47 @@
 			"WELCOME_BACK": "Welkom terug, {name}! Hier is uw activiteitenoverzicht.",
 			"REFRESH": "Vernieuwen",
 			"FAILED_TO_LOAD": "Kan dashboardstatistieken niet laden",
+			"USER_FALLBACK": "daar",
+			"HEADER_SUBTITLE": "Zo presteert je content.",
+			"NEW_SUBMISSION": "Nieuwe inzending",
+			"GREETING": {
+				"MORNING": "Goedemorgen, {name}",
+				"AFTERNOON": "Goedemiddag, {name}",
+				"EVENING": "Goedenavond, {name}"
+			},
+			"TABS": {
+				"LABEL": "Dashboard-secties",
+				"OVERVIEW": "Overzicht",
+				"CONTENT": "Content",
+				"ENGAGEMENT": "Betrokkenheid",
+				"GEOGRAPHIC": "Geografisch"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Snelle acties",
+				"NEW_SUBMISSION": "Nieuwe inzending",
+				"NEW_SUBMISSION_DESC": "Dien een nieuw item in voor de directory",
+				"MY_SUBMISSIONS": "Mijn inzendingen",
+				"MY_SUBMISSIONS_DESC": "Bekijk en beheer je inzendingen",
+				"BILLING": "Facturering",
+				"BILLING_DESC": "Beheer betaalmethodes",
+				"SETTINGS": "Instellingen",
+				"SETTINGS_DESC": "Profiel en voorkeuren bijwerken"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Dashboard-meldingen",
+				"PENDING_ITEMS": "{count, plural, one {Je hebt # item dat op beoordeling wacht} other {Je hebt # items die op beoordeling wachten}}",
+				"VIEW_SUBMISSIONS": "Bekijk inzendingen",
+				"NO_SUBMISSIONS": "Je hebt nog niets ingediend.",
+				"SUBMIT_FIRST": "Dien je eerste item in",
+				"DISMISS": "Melding sluiten"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Dien je eerste item in om te starten.",
+				"SUBMIT_NOW": "Nu indienen",
+				"VIEWS": "Weergaven verschijnen zodra je content is goedgekeurd.",
+				"VOTES": "Stemmen verschijnen wanneer mensen met je content interageren.",
+				"COMMENTS": "Reacties verschijnen wanneer mensen betrokken raken bij je content."
+			},
 			"LOCATION_DISABLED_TITLE": "Locatie-inzichten zijn uitgeschakeld",
 			"LOCATION_DISABLED_DESC": "Schakel locatiefuncties in de directory-instellingen in om je items op een kaart te zien en de geografische dekking te bekijken.",
 			"ENGAGEMENT_CHART": {
@@ -3507,12 +3548,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Totaal Inzendingen",
+				"TOTAL_SUBMISSIONS_SHORT": "Inzendingen",
 				"CONTENT_CREATED": "Door u gemaakte inhoud",
 				"TOTAL_VIEWS": "Totaal Weergaven",
+				"TOTAL_VIEWS_SHORT": "Weergaven",
 				"VIEWS_ON_CONTENT": "Weergaven van uw inhoud",
 				"VOTES_RECEIVED": "Ontvangen Stemmen",
+				"VOTES_RECEIVED_SHORT": "Stemmen",
 				"VOTES_ON_CONTENT": "Stemmen op uw inhoud",
 				"COMMENTS_RECEIVED": "Ontvangen Reacties",
+				"COMMENTS_RECEIVED_SHORT": "Reacties",
 				"COMMENTS_ON_CONTENT": "Reacties op uw inhoud"
 			},
 			"PERIOD_COMPARISON": {

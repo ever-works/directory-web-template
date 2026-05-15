@@ -3518,6 +3518,47 @@
 			"WELCOME_BACK": "¡Bienvenido de nuevo, {name}! Aquí está tu resumen de actividad.",
 			"REFRESH": "Actualizar",
 			"FAILED_TO_LOAD": "Error al cargar las estadísticas del panel",
+			"USER_FALLBACK": "allí",
+			"HEADER_SUBTITLE": "Así está rindiendo tu contenido.",
+			"NEW_SUBMISSION": "Nuevo envío",
+			"GREETING": {
+				"MORNING": "Buenos días, {name}",
+				"AFTERNOON": "Buenas tardes, {name}",
+				"EVENING": "Buenas noches, {name}"
+			},
+			"TABS": {
+				"LABEL": "Secciones del panel",
+				"OVERVIEW": "Resumen",
+				"CONTENT": "Contenido",
+				"ENGAGEMENT": "Interacción",
+				"GEOGRAPHIC": "Geográfica"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Acciones rápidas",
+				"NEW_SUBMISSION": "Nuevo envío",
+				"NEW_SUBMISSION_DESC": "Envía un nuevo elemento al directorio",
+				"MY_SUBMISSIONS": "Mis envíos",
+				"MY_SUBMISSIONS_DESC": "Ver y gestionar tus envíos",
+				"BILLING": "Facturación",
+				"BILLING_DESC": "Gestionar métodos de pago",
+				"SETTINGS": "Configuración",
+				"SETTINGS_DESC": "Actualizar tu perfil y preferencias"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Alertas del panel",
+				"PENDING_ITEMS": "{count, plural, one {Tienes # elemento pendiente de revisión} other {Tienes # elementos pendientes de revisión}}",
+				"VIEW_SUBMISSIONS": "Ver envíos",
+				"NO_SUBMISSIONS": "Aún no has enviado nada.",
+				"SUBMIT_FIRST": "Envía tu primer elemento",
+				"DISMISS": "Descartar alerta"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Envía tu primer elemento para empezar.",
+				"SUBMIT_NOW": "Enviar ahora",
+				"VIEWS": "Las vistas aparecerán cuando se apruebe tu contenido.",
+				"VOTES": "Los votos aparecerán a medida que la gente interactúe con tu contenido.",
+				"COMMENTS": "Los comentarios aparecerán cuando la gente se involucre con tu contenido."
+			},
 			"LOCATION_DISABLED_TITLE": "Las estadísticas de ubicación están deshabilitadas",
 			"LOCATION_DISABLED_DESC": "Habilita las funciones de ubicación en la configuración del directorio para ver tus elementos en un mapa y revisar la cobertura geográfica.",
 			"ENGAGEMENT_CHART": {
@@ -3534,12 +3575,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total de Envíos",
+				"TOTAL_SUBMISSIONS_SHORT": "Envíos",
 				"CONTENT_CREATED": "Contenido que has creado",
 				"TOTAL_VIEWS": "Vistas Totales",
+				"TOTAL_VIEWS_SHORT": "Vistas",
 				"VIEWS_ON_CONTENT": "Vistas en tu contenido",
 				"VOTES_RECEIVED": "Votos Recibidos",
+				"VOTES_RECEIVED_SHORT": "Votos",
 				"VOTES_ON_CONTENT": "Votos en tu contenido",
 				"COMMENTS_RECEIVED": "Comentarios Recibidos",
+				"COMMENTS_RECEIVED_SHORT": "Comentarios",
 				"COMMENTS_ON_CONTENT": "Comentarios en tu contenido"
 			},
 			"PERIOD_COMPARISON": {

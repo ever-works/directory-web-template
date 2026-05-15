@@ -3690,6 +3690,47 @@
 			"WELCOME_BACK": "{name}님, 다시 오신 것을 환영합니다! 활동 개요입니다.",
 			"REFRESH": "새로고침",
 			"FAILED_TO_LOAD": "대시보드 통계를 불러오는데 실패했습니다",
+			"USER_FALLBACK": "님",
+			"HEADER_SUBTITLE": "콘텐츠의 성과를 확인하세요.",
+			"NEW_SUBMISSION": "새 제출",
+			"GREETING": {
+				"MORNING": "좋은 아침입니다, {name}님",
+				"AFTERNOON": "안녕하세요, {name}님",
+				"EVENING": "좋은 저녁입니다, {name}님"
+			},
+			"TABS": {
+				"LABEL": "대시보드 섹션",
+				"OVERVIEW": "개요",
+				"CONTENT": "콘텐츠",
+				"ENGAGEMENT": "참여",
+				"GEOGRAPHIC": "지역"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "빠른 작업",
+				"NEW_SUBMISSION": "새 제출",
+				"NEW_SUBMISSION_DESC": "디렉토리에 새 항목 제출",
+				"MY_SUBMISSIONS": "내 제출",
+				"MY_SUBMISSIONS_DESC": "제출 항목 보기 및 관리",
+				"BILLING": "결제",
+				"BILLING_DESC": "결제 수단 관리",
+				"SETTINGS": "설정",
+				"SETTINGS_DESC": "프로필과 환경 설정 업데이트"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "대시보드 알림",
+				"PENDING_ITEMS": "{count, plural, other {검토 대기 중인 항목이 #개 있습니다}}",
+				"VIEW_SUBMISSIONS": "제출 항목 보기",
+				"NO_SUBMISSIONS": "아직 제출한 항목이 없습니다.",
+				"SUBMIT_FIRST": "첫 항목 제출하기",
+				"DISMISS": "알림 닫기"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "첫 항목을 제출하여 시작하세요.",
+				"SUBMIT_NOW": "지금 제출",
+				"VIEWS": "콘텐츠가 승인되면 조회수가 표시됩니다.",
+				"VOTES": "사람들이 콘텐츠에 반응하면 투표가 표시됩니다.",
+				"COMMENTS": "사람들이 콘텐츠에 참여하면 댓글이 표시됩니다."
+			},
 			"LOCATION_DISABLED_TITLE": "위치 인사이트가 비활성화되었습니다",
 			"LOCATION_DISABLED_DESC": "디렉토리 설정에서 위치 기능을 활성화하여 항목을 지도에서 보고 지역 범위를 검토하세요.",
 			"ENGAGEMENT_CHART": {
@@ -3706,12 +3747,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "총 제출물",
+				"TOTAL_SUBMISSIONS_SHORT": "제출",
 				"CONTENT_CREATED": "생성한 콘텐츠",
 				"TOTAL_VIEWS": "총 조회수",
+				"TOTAL_VIEWS_SHORT": "조회",
 				"VIEWS_ON_CONTENT": "콘텐츠 조회수",
 				"VOTES_RECEIVED": "받은 투표",
+				"VOTES_RECEIVED_SHORT": "투표",
 				"VOTES_ON_CONTENT": "콘텐츠 투표",
 				"COMMENTS_RECEIVED": "받은 댓글",
+				"COMMENTS_RECEIVED_SHORT": "댓글",
 				"COMMENTS_ON_CONTENT": "콘텐츠 댓글"
 			},
 			"PERIOD_COMPARISON": {

@@ -3690,6 +3690,47 @@
 			"WELCOME_BACK": "С возвращением, {name}! Вот обзор вашей активности.",
 			"REFRESH": "Обновить",
 			"FAILED_TO_LOAD": "Не удалось загрузить статистику панели",
+			"USER_FALLBACK": "там",
+			"HEADER_SUBTITLE": "Вот как работает ваш контент.",
+			"NEW_SUBMISSION": "Новая заявка",
+			"GREETING": {
+				"MORNING": "Доброе утро, {name}",
+				"AFTERNOON": "Добрый день, {name}",
+				"EVENING": "Добрый вечер, {name}"
+			},
+			"TABS": {
+				"LABEL": "Разделы панели",
+				"OVERVIEW": "Обзор",
+				"CONTENT": "Контент",
+				"ENGAGEMENT": "Вовлечённость",
+				"GEOGRAPHIC": "География"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Быстрые действия",
+				"NEW_SUBMISSION": "Новая заявка",
+				"NEW_SUBMISSION_DESC": "Отправить новый элемент в каталог",
+				"MY_SUBMISSIONS": "Мои заявки",
+				"MY_SUBMISSIONS_DESC": "Просмотр и управление заявками",
+				"BILLING": "Биллинг",
+				"BILLING_DESC": "Управление способами оплаты",
+				"SETTINGS": "Настройки",
+				"SETTINGS_DESC": "Обновите профиль и параметры"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Уведомления панели",
+				"PENDING_ITEMS": "{count, plural, one {У вас # элемент ожидает проверки} few {У вас # элемента ожидают проверки} many {У вас # элементов ожидают проверки} other {У вас # элементов ожидают проверки}}",
+				"VIEW_SUBMISSIONS": "Посмотреть заявки",
+				"NO_SUBMISSIONS": "Вы пока ничего не отправили.",
+				"SUBMIT_FIRST": "Отправить первый элемент",
+				"DISMISS": "Закрыть уведомление"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Отправьте первый элемент, чтобы начать.",
+				"SUBMIT_NOW": "Отправить сейчас",
+				"VIEWS": "Просмотры появятся, когда ваш контент будет одобрен.",
+				"VOTES": "Голоса появятся, когда люди начнут взаимодействовать с вашим контентом.",
+				"COMMENTS": "Комментарии появятся, когда люди начнут вовлекаться в ваш контент."
+			},
 			"LOCATION_DISABLED_TITLE": "Аналитика по местоположению отключена",
 			"LOCATION_DISABLED_DESC": "Включите функции местоположения в настройках каталога, чтобы видеть свои элементы на карте и отслеживать географический охват.",
 			"ENGAGEMENT_CHART": {
@@ -3706,12 +3747,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Всего заявок",
+				"TOTAL_SUBMISSIONS_SHORT": "Заявки",
 				"CONTENT_CREATED": "Контента, который вы создали",
 				"TOTAL_VIEWS": "Всего просмотров",
+				"TOTAL_VIEWS_SHORT": "Просмотры",
 				"VIEWS_ON_CONTENT": "Просмотров вашего контента",
 				"VOTES_RECEIVED": "Получено голосов",
+				"VOTES_RECEIVED_SHORT": "Голоса",
 				"VOTES_ON_CONTENT": "Голосов за ваш контент",
 				"COMMENTS_RECEIVED": "Получено комментариев",
+				"COMMENTS_RECEIVED_SHORT": "Комментарии",
 				"COMMENTS_ON_CONTENT": "Комментариев к вашему контенту"
 			},
 			"PERIOD_COMPARISON": {

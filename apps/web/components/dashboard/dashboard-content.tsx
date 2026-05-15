@@ -20,7 +20,7 @@ import { EngagementDistribution } from './engagement-distribution';
 import { EngagementRateChart } from './engagement-rate-chart';
 import { ItemsMapCard } from './ItemsMapCard';
 import { GeoStatsCard } from './GeoStatsCard';
-import { DashboardHeader, type Period } from './dashboard-header';
+import { DashboardHeader } from './dashboard-header';
 import { QuickActions } from './quick-actions';
 import { DashboardAlertBanner } from './dashboard-alert-banner';
 import { DashboardMobileSummary } from './dashboard-mobile-summary';
@@ -50,7 +50,6 @@ export function DashboardContent({ session }: DashboardContentProps) {
 	const t = useTranslations('client.dashboard');
 	const locale = useLocale();
 
-	const [period, setPeriod] = useState<Period>('30d');
 	const [activeTab, setActiveTab] = useState<Tab>('overview');
 
 	const {
@@ -104,11 +103,9 @@ export function DashboardContent({ session }: DashboardContentProps) {
 					</div>
 				)}
 
-				{/* Header: avatar + greeting + period tabs + CTA */}
+				{/* Header: avatar + greeting + actions */}
 				<DashboardHeader
 					session={session}
-					period={period}
-					onPeriodChange={setPeriod}
 					onRefresh={handleRefresh}
 					isRefreshing={isFetching}
 				/>

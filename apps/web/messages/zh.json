@@ -3523,6 +3523,47 @@
 			"WELCOME_BACK": "欢迎回来，{name}！这是您的活动概览。",
 			"REFRESH": "刷新",
 			"FAILED_TO_LOAD": "加载仪表盘统计数据失败",
+			"USER_FALLBACK": "你",
+			"HEADER_SUBTITLE": "看看您的内容表现如何。",
+			"NEW_SUBMISSION": "新建提交",
+			"GREETING": {
+				"MORNING": "早上好，{name}",
+				"AFTERNOON": "下午好，{name}",
+				"EVENING": "晚上好，{name}"
+			},
+			"TABS": {
+				"LABEL": "仪表板部分",
+				"OVERVIEW": "概览",
+				"CONTENT": "内容",
+				"ENGAGEMENT": "互动",
+				"GEOGRAPHIC": "地理"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "快捷操作",
+				"NEW_SUBMISSION": "新建提交",
+				"NEW_SUBMISSION_DESC": "向目录提交新项目",
+				"MY_SUBMISSIONS": "我的提交",
+				"MY_SUBMISSIONS_DESC": "查看并管理您的提交",
+				"BILLING": "账单",
+				"BILLING_DESC": "管理付款方式",
+				"SETTINGS": "设置",
+				"SETTINGS_DESC": "更新您的个人资料和偏好"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "仪表板提醒",
+				"PENDING_ITEMS": "{count, plural, other {您有 # 个项目等待审核}}",
+				"VIEW_SUBMISSIONS": "查看提交",
+				"NO_SUBMISSIONS": "您尚未提交任何内容。",
+				"SUBMIT_FIRST": "提交您的第一个项目",
+				"DISMISS": "关闭提醒"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "提交您的第一个项目以开始。",
+				"SUBMIT_NOW": "立即提交",
+				"VIEWS": "内容获批后将显示浏览量。",
+				"VOTES": "当人们对您的内容做出反应时将显示投票。",
+				"COMMENTS": "当人们参与您的内容时将显示评论。"
+			},
 			"LOCATION_DISABLED_TITLE": "位置洞察已禁用",
 			"LOCATION_DISABLED_DESC": "在目录设置中启用位置功能，可在地图上查看您的项目并审视地理覆盖范围。",
 			"ENGAGEMENT_CHART": {
@@ -3539,12 +3580,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "总提交数",
+				"TOTAL_SUBMISSIONS_SHORT": "提交",
 				"CONTENT_CREATED": "您创建的内容",
 				"TOTAL_VIEWS": "总浏览量",
+				"TOTAL_VIEWS_SHORT": "浏览",
 				"VIEWS_ON_CONTENT": "您的内容浏览量",
 				"VOTES_RECEIVED": "获得的投票",
+				"VOTES_RECEIVED_SHORT": "投票",
 				"VOTES_ON_CONTENT": "您的内容投票数",
 				"COMMENTS_RECEIVED": "获得的评论",
+				"COMMENTS_RECEIVED_SHORT": "评论",
 				"COMMENTS_ON_CONTENT": "您的内容评论数"
 			},
 			"PERIOD_COMPARISON": {

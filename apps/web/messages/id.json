@@ -3628,6 +3628,47 @@
 			"WELCOME_BACK": "Selamat datang kembali, {name}! Ini ikhtisar aktivitas Anda.",
 			"REFRESH": "Segarkan",
 			"FAILED_TO_LOAD": "Gagal memuat statistik dasbor",
+			"USER_FALLBACK": "di sana",
+			"HEADER_SUBTITLE": "Beginilah performa konten Anda.",
+			"NEW_SUBMISSION": "Kiriman baru",
+			"GREETING": {
+				"MORNING": "Selamat pagi, {name}",
+				"AFTERNOON": "Selamat siang, {name}",
+				"EVENING": "Selamat malam, {name}"
+			},
+			"TABS": {
+				"LABEL": "Bagian dasbor",
+				"OVERVIEW": "Ringkasan",
+				"CONTENT": "Konten",
+				"ENGAGEMENT": "Keterlibatan",
+				"GEOGRAPHIC": "Geografis"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Tindakan cepat",
+				"NEW_SUBMISSION": "Kiriman baru",
+				"NEW_SUBMISSION_DESC": "Kirim item baru ke direktori",
+				"MY_SUBMISSIONS": "Kiriman saya",
+				"MY_SUBMISSIONS_DESC": "Lihat dan kelola kiriman Anda",
+				"BILLING": "Penagihan",
+				"BILLING_DESC": "Kelola metode pembayaran",
+				"SETTINGS": "Pengaturan",
+				"SETTINGS_DESC": "Perbarui profil dan preferensi Anda"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Peringatan dasbor",
+				"PENDING_ITEMS": "{count, plural, other {Anda memiliki # item menunggu peninjauan}}",
+				"VIEW_SUBMISSIONS": "Lihat kiriman",
+				"NO_SUBMISSIONS": "Anda belum mengirim apa pun.",
+				"SUBMIT_FIRST": "Kirim item pertama Anda",
+				"DISMISS": "Tutup peringatan"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Kirim item pertama Anda untuk memulai.",
+				"SUBMIT_NOW": "Kirim sekarang",
+				"VIEWS": "Tampilan akan muncul setelah konten Anda disetujui.",
+				"VOTES": "Suara akan muncul saat orang berinteraksi dengan konten Anda.",
+				"COMMENTS": "Komentar akan muncul saat orang terlibat dengan konten Anda."
+			},
 			"LOCATION_DISABLED_TITLE": "Wawasan lokasi dinonaktifkan",
 			"LOCATION_DISABLED_DESC": "Aktifkan fitur lokasi di pengaturan direktori untuk melihat item Anda di peta dan meninjau cakupan geografis.",
 			"ENGAGEMENT_CHART": {
@@ -3644,12 +3685,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total Kiriman",
+				"TOTAL_SUBMISSIONS_SHORT": "Kiriman",
 				"CONTENT_CREATED": "Konten yang telah Anda buat",
 				"TOTAL_VIEWS": "Total Tampilan",
+				"TOTAL_VIEWS_SHORT": "Tampilan",
 				"VIEWS_ON_CONTENT": "Tampilan pada konten Anda",
 				"VOTES_RECEIVED": "Suara Diterima",
+				"VOTES_RECEIVED_SHORT": "Suara",
 				"VOTES_ON_CONTENT": "Suara pada konten Anda",
 				"COMMENTS_RECEIVED": "Komentar Diterima",
+				"COMMENTS_RECEIVED_SHORT": "Komentar",
 				"COMMENTS_ON_CONTENT": "Komentar pada konten Anda"
 			},
 			"PERIOD_COMPARISON": {

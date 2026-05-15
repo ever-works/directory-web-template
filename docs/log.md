@@ -31,6 +31,35 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-15 — Spec 026 (EW-627) round 2: layout v2 + avatar fix + i18n backfill
+
+- `spec-026` Extended Spec 026 with §6 covering the new dashboard layout
+  (header / quick actions / alerts / mobile summary / four content tabs),
+  the per-card trend deltas + zero-state CTAs in `StatsCard`, and the
+  avatar fix. Acceptance criteria AC-10 through AC-17 added.
+- `spec-026` Removed the prototype `7d / 30d / 90d` period selector. The
+  control was decorative — `useDashboardStats()` ignored the value and
+  every period rendered the same data. Documented as out-of-scope §6.2;
+  re-introduce when `GET /api/client/dashboard/stats` accepts `?days=N`
+  and the repository plumbs the value through to its date-range queries.
+- `spec-026` Avatar regression fix: `<Avatar>` now sets
+  `unoptimized={true}` for any external `http(s)://` URL so OAuth-provider
+  hostnames not in `next.config.ts > images.remotePatterns` no longer
+  fall through to the gradient initials. Also dropped the unconditional
+  `priority` prop. Avatars are 32–48 px, so optimization buys nothing.
+- `spec-026` Replaced the `t(label).split(' ').slice(-1)[0]` last-word
+  hack in `<DashboardMobileSummary>` with dedicated
+  `client.dashboard.STATS.*_SHORT` keys. The trick produced broken
+  labels in Russian, Arabic, Chinese, and any language where the
+  meaningful word isn't the last token.
+- `spec-026` Backfilled 30 new dashboard root keys + 4 `STATS.*_SHORT`
+  keys across all 20 non-English locale files (`ar`, `bg`, `de`, `es`,
+  `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`,
+  `th`, `tr`, `uk`, `vi`, `zh`) with real translations (no
+  English-identical entries). Backfill script used once and removed.
+
+---
+
 ## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
 
 - `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering

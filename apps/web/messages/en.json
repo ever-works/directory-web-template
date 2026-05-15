@@ -3876,12 +3876,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total Submissions",
+				"TOTAL_SUBMISSIONS_SHORT": "Submissions",
 				"CONTENT_CREATED": "Content you've created",
 				"TOTAL_VIEWS": "Total Views",
+				"TOTAL_VIEWS_SHORT": "Views",
 				"VIEWS_ON_CONTENT": "Views on your content",
 				"VOTES_RECEIVED": "Votes Received",
+				"VOTES_RECEIVED_SHORT": "Votes",
 				"VOTES_ON_CONTENT": "Votes on your content",
 				"COMMENTS_RECEIVED": "Comments Received",
+				"COMMENTS_RECEIVED_SHORT": "Comments",
 				"COMMENTS_ON_CONTENT": "Comments on your content"
 			},
 			"PERIOD_COMPARISON": {
@@ -3981,7 +3985,6 @@
 			"USER_FALLBACK": "there",
 			"HEADER_SUBTITLE": "Here's how your content is performing.",
 			"NEW_SUBMISSION": "New Submission",
-			"PERIOD_LABEL": "Time period",
 			"TABS": {
 				"LABEL": "Dashboard sections",
 				"OVERVIEW": "Overview",

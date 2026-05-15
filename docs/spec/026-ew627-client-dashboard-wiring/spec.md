@@ -104,3 +104,69 @@ filed as EW-627:
 - Should the disabled-location placeholder include a deep link to the location settings page?
   Default: **no for this PR** — the settings route is admin-only; a non-admin user can't act on
   the link. A help-doc link can be added when the docs page exists.
+
+## 6. Layout v2 — header / quick actions / alerts / mobile summary / tabs
+
+Spec extended after the initial wiring fixes landed: the page was reshaped into a richer
+landing surface with a personalized header (avatar + greeting), a quick-actions row, a
+dismissible alert banner, a sticky mobile KPI bar, and four content tabs
+(Overview / Content / Engagement / Geographic). `StatsCard` gained per-card trend deltas
+(derived from `periodComparison`) and zero-state CTAs.
+
+### 6.1 Acceptance criteria (additive)
+
+- **AC-10:** `<DashboardHeader>` renders the user's avatar via `<Avatar>`, a greeting (Good
+  morning / afternoon / evening) keyed off the local hour, a one-line subtitle, and Refresh +
+  New Submission actions. Mobile collapses to icon-only buttons.
+- **AC-11:** `<QuickActions>` renders four cards (New Submission, My Submissions, Billing,
+  Settings) linking to existing routes under `/[locale]/`. All copy uses
+  `client.dashboard.QUICK_ACTIONS.*` translation keys.
+- **AC-12:** `<DashboardAlertBanner>` surfaces two alert types — pending-items (warning) and
+  zero-submissions (info) — each with a CTA link and a dismiss button. Dismiss state persists
+  in `localStorage` under `dashboard_dismissed_alerts`. Pending alert key includes the count
+  so the banner re-shows when the count changes.
+- **AC-13:** `<DashboardMobileSummary>` is a sticky top-of-viewport KPI bar visible only at
+  `< sm` breakpoint. Each KPI shows an icon, the value, and a dedicated short label
+  (`STATS.*_SHORT`) — **never the long label trimmed by `.split(' ').slice(-1)`**, since that
+  trick produces broken labels in Russian, Arabic, Chinese, and any language where the
+  meaningful word isn't the last token.
+- **AC-14:** Page content is organised into four tabs (`overview`, `content`, `engagement`,
+  `geographic`) using ARIA `tablist`/`tab`/`tabpanel`. Tab state is local
+  (`useState<Tab>('overview')`). The Geographic tab renders the existing maps/geo cards or
+  the location-disabled placeholder from AC-4.
+- **AC-15:** `<StatsCard>` accepts an optional `trend` (computed from
+  `periodComparison.change.*`) and an optional `emptyState` (shown when the value is `0`,
+  with a CTA link to e.g. `/submit`).
+- **AC-16:** `<Avatar>` (used by the header) sets `unoptimized={true}` for any external
+  http/https URL so OAuth-provider avatars whose hostname isn't in
+  `next.config.ts > images.remotePatterns` render via direct browser fetch instead of
+  silently falling through to the gradient initials. Size is 32–48 px so the optimizer adds
+  no value. Also drops the unconditional `priority` prop (Next.js warns when too many
+  priority images render at once). `referrerPolicy="no-referrer"` is preserved for OAuth
+  hotlink-protected images.
+- **AC-17:** All 30 new strings under `client.dashboard.*` (`USER_FALLBACK`,
+  `HEADER_SUBTITLE`, `NEW_SUBMISSION`, `GREETING.{MORNING, AFTERNOON, EVENING}`,
+  `TABS.{LABEL, OVERVIEW, CONTENT, ENGAGEMENT, GEOGRAPHIC}`,
+  `QUICK_ACTIONS.{SECTION_LABEL, NEW_SUBMISSION, NEW_SUBMISSION_DESC, MY_SUBMISSIONS,
+  MY_SUBMISSIONS_DESC, BILLING, BILLING_DESC, SETTINGS, SETTINGS_DESC}`,
+  `ALERTS.{REGION_LABEL, PENDING_ITEMS, VIEW_SUBMISSIONS, NO_SUBMISSIONS, SUBMIT_FIRST,
+  DISMISS}`, `EMPTY.{SUBMISSIONS, SUBMIT_NOW, VIEWS, VOTES, COMMENTS}`) live in all 21
+  locale files with real translations. The four
+  `STATS.{TOTAL_SUBMISSIONS, TOTAL_VIEWS, VOTES_RECEIVED, COMMENTS_RECEIVED}_SHORT` short
+  labels are also added to all 21 locales.
+
+### 6.2 Out of scope for v2
+
+- A working period selector (`7d / 30d / 90d`). A toggle was prototyped but removed in this
+  round because `useDashboardStats()` ignores the value — every period would have shown the
+  same data, which is worse than not having the control. Re-adding requires plumbing
+  `?days=N` through `GET /api/client/dashboard/stats` → `client-dashboard.repository.ts` →
+  the date-range queries (`getRecentViewsCount`, `getDailyViewsData`, `getWeeklyEngagementData`,
+  `getDailyActivityData`, `calculateRecentSubmissions`) and rethinking
+  `periodComparison` semantics so the comparison matches the selected window. Tracked as a
+  follow-up.
+- An admin link from the location-disabled placeholder. The settings route is admin-only and
+  most dashboard users can't act on the link.
+- Migrating any of `<QuickActions>` / `<DashboardAlertBanner>` / `<DashboardMobileSummary>`
+  to a server component. They depend on locale, session, or `localStorage` and are
+  intentionally client-only.

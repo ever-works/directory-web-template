@@ -3496,6 +3496,47 @@
 			"WELCOME_BACK": "おかえりなさい、{name}さん！活動の概要はこちらです。",
 			"REFRESH": "更新",
 			"FAILED_TO_LOAD": "ダッシュボード統計の読み込みに失敗しました",
+			"USER_FALLBACK": "こんにちは",
+			"HEADER_SUBTITLE": "コンテンツのパフォーマンスをご確認ください。",
+			"NEW_SUBMISSION": "新規投稿",
+			"GREETING": {
+				"MORNING": "おはようございます、{name}さん",
+				"AFTERNOON": "こんにちは、{name}さん",
+				"EVENING": "こんばんは、{name}さん"
+			},
+			"TABS": {
+				"LABEL": "ダッシュボードのセクション",
+				"OVERVIEW": "概要",
+				"CONTENT": "コンテンツ",
+				"ENGAGEMENT": "エンゲージメント",
+				"GEOGRAPHIC": "地理"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "クイックアクション",
+				"NEW_SUBMISSION": "新規投稿",
+				"NEW_SUBMISSION_DESC": "ディレクトリに新しい項目を投稿",
+				"MY_SUBMISSIONS": "マイ投稿",
+				"MY_SUBMISSIONS_DESC": "投稿を確認・管理",
+				"BILLING": "請求",
+				"BILLING_DESC": "支払い方法を管理",
+				"SETTINGS": "設定",
+				"SETTINGS_DESC": "プロフィールと環境設定を更新"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "ダッシュボードのお知らせ",
+				"PENDING_ITEMS": "{count, plural, other {確認待ちの項目が#件あります}}",
+				"VIEW_SUBMISSIONS": "投稿を表示",
+				"NO_SUBMISSIONS": "まだ投稿がありません。",
+				"SUBMIT_FIRST": "最初の項目を投稿",
+				"DISMISS": "通知を閉じる"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "最初の項目を投稿して始めましょう。",
+				"SUBMIT_NOW": "今すぐ投稿",
+				"VIEWS": "コンテンツが承認されると表示回数が表示されます。",
+				"VOTES": "人々がコンテンツに反応すると投票が表示されます。",
+				"COMMENTS": "人々がコンテンツに関与するとコメントが表示されます。"
+			},
 			"LOCATION_DISABLED_TITLE": "位置情報の分析は無効です",
 			"LOCATION_DISABLED_DESC": "ディレクトリ設定で位置情報機能を有効にすると、項目を地図上で確認し、地理的な範囲を確認できます。",
 			"ENGAGEMENT_CHART": {
@@ -3512,12 +3553,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "総提出数",
+				"TOTAL_SUBMISSIONS_SHORT": "投稿",
 				"CONTENT_CREATED": "作成したコンテンツ",
 				"TOTAL_VIEWS": "総閲覧数",
+				"TOTAL_VIEWS_SHORT": "閲覧",
 				"VIEWS_ON_CONTENT": "コンテンツの閲覧数",
 				"VOTES_RECEIVED": "獲得した投票",
+				"VOTES_RECEIVED_SHORT": "投票",
 				"VOTES_ON_CONTENT": "コンテンツへの投票",
 				"COMMENTS_RECEIVED": "獲得したコメント",
+				"COMMENTS_RECEIVED_SHORT": "コメント",
 				"COMMENTS_ON_CONTENT": "コンテンツへのコメント"
 			},
 			"PERIOD_COMPARISON": {

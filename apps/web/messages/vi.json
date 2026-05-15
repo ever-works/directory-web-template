@@ -3644,6 +3644,47 @@
 			"WELCOME_BACK": "Chào mừng trở lại, {name}! ",
 			"REFRESH": "Làm mới",
 			"FAILED_TO_LOAD": "Không tải được số liệu thống kê trên trang tổng quan",
+			"USER_FALLBACK": "bạn",
+			"HEADER_SUBTITLE": "Đây là hiệu suất nội dung của bạn.",
+			"NEW_SUBMISSION": "Gửi mới",
+			"GREETING": {
+				"MORNING": "Chào buổi sáng, {name}",
+				"AFTERNOON": "Chào buổi chiều, {name}",
+				"EVENING": "Chào buổi tối, {name}"
+			},
+			"TABS": {
+				"LABEL": "Các phần của bảng điều khiển",
+				"OVERVIEW": "Tổng quan",
+				"CONTENT": "Nội dung",
+				"ENGAGEMENT": "Tương tác",
+				"GEOGRAPHIC": "Địa lý"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Hành động nhanh",
+				"NEW_SUBMISSION": "Gửi mới",
+				"NEW_SUBMISSION_DESC": "Gửi mục mới vào thư mục",
+				"MY_SUBMISSIONS": "Bài gửi của tôi",
+				"MY_SUBMISSIONS_DESC": "Xem và quản lý bài gửi của bạn",
+				"BILLING": "Thanh toán",
+				"BILLING_DESC": "Quản lý phương thức thanh toán",
+				"SETTINGS": "Cài đặt",
+				"SETTINGS_DESC": "Cập nhật hồ sơ và tùy chọn của bạn"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Thông báo bảng điều khiển",
+				"PENDING_ITEMS": "{count, plural, other {Bạn có # mục đang chờ duyệt}}",
+				"VIEW_SUBMISSIONS": "Xem bài gửi",
+				"NO_SUBMISSIONS": "Bạn chưa gửi gì cả.",
+				"SUBMIT_FIRST": "Gửi mục đầu tiên",
+				"DISMISS": "Đóng thông báo"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Gửi mục đầu tiên để bắt đầu.",
+				"SUBMIT_NOW": "Gửi ngay",
+				"VIEWS": "Lượt xem sẽ xuất hiện khi nội dung được duyệt.",
+				"VOTES": "Phiếu bầu sẽ xuất hiện khi mọi người tương tác với nội dung của bạn.",
+				"COMMENTS": "Bình luận sẽ xuất hiện khi mọi người tham gia với nội dung của bạn."
+			},
 			"LOCATION_DISABLED_TITLE": "Thông tin chi tiết về vị trí đã bị tắt",
 			"LOCATION_DISABLED_DESC": "Bật tính năng vị trí trong cài đặt thư mục để xem các mục của bạn trên bản đồ và xem phạm vi phủ sóng địa lý.",
 			"ENGAGEMENT_CHART": {
@@ -3660,12 +3701,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Tổng số bài gửi",
+				"TOTAL_SUBMISSIONS_SHORT": "Bài gửi",
 				"CONTENT_CREATED": "Nội dung bạn đã tạo",
 				"TOTAL_VIEWS": "Tổng số lượt xem",
+				"TOTAL_VIEWS_SHORT": "Lượt xem",
 				"VIEWS_ON_CONTENT": "Lượt xem nội dung của bạn",
 				"VOTES_RECEIVED": "Đã nhận được phiếu bầu",
+				"VOTES_RECEIVED_SHORT": "Phiếu bầu",
 				"VOTES_ON_CONTENT": "Bình chọn cho nội dung của bạn",
 				"COMMENTS_RECEIVED": "Nhận xét đã nhận",
+				"COMMENTS_RECEIVED_SHORT": "Bình luận",
 				"COMMENTS_ON_CONTENT": "Nhận xét về nội dung của bạn"
 			},
 			"PERIOD_COMPARISON": {

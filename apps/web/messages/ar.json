@@ -3513,6 +3513,47 @@
 			"WELCOME_BACK": "مرحباً بعودتك، {name}! إليك نظرة عامة على نشاطك.",
 			"REFRESH": "تحديث",
 			"FAILED_TO_LOAD": "فشل في تحميل إحصائيات لوحة التحكم",
+			"USER_FALLBACK": "هناك",
+			"HEADER_SUBTITLE": "إليك أداء المحتوى الخاص بك.",
+			"NEW_SUBMISSION": "إرسال جديد",
+			"GREETING": {
+				"MORNING": "صباح الخير، {name}",
+				"AFTERNOON": "مساء الخير، {name}",
+				"EVENING": "مساء الخير، {name}"
+			},
+			"TABS": {
+				"LABEL": "أقسام لوحة التحكم",
+				"OVERVIEW": "نظرة عامة",
+				"CONTENT": "المحتوى",
+				"ENGAGEMENT": "التفاعل",
+				"GEOGRAPHIC": "الجغرافيا"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "إجراءات سريعة",
+				"NEW_SUBMISSION": "إرسال جديد",
+				"NEW_SUBMISSION_DESC": "أرسل عنصرًا جديدًا إلى الدليل",
+				"MY_SUBMISSIONS": "إرسالاتي",
+				"MY_SUBMISSIONS_DESC": "عرض وإدارة إرسالاتك",
+				"BILLING": "الفوترة",
+				"BILLING_DESC": "إدارة طرق الدفع",
+				"SETTINGS": "الإعدادات",
+				"SETTINGS_DESC": "تحديث ملفك الشخصي وتفضيلاتك"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "تنبيهات لوحة التحكم",
+				"PENDING_ITEMS": "{count, plural, one {لديك عنصر # في انتظار المراجعة} other {لديك # عناصر في انتظار المراجعة}}",
+				"VIEW_SUBMISSIONS": "عرض الإرسالات",
+				"NO_SUBMISSIONS": "لم تُرسل أي شيء بعد.",
+				"SUBMIT_FIRST": "أرسل عنصرك الأول",
+				"DISMISS": "تجاهل التنبيه"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "أرسل عنصرك الأول للبدء.",
+				"SUBMIT_NOW": "أرسل الآن",
+				"VIEWS": "ستظهر المشاهدات بمجرد اعتماد المحتوى الخاص بك.",
+				"VOTES": "ستظهر الأصوات عند تفاعل الأشخاص مع محتواك.",
+				"COMMENTS": "ستظهر التعليقات عند تفاعل الأشخاص مع محتواك."
+			},
 			"LOCATION_DISABLED_TITLE": "تم تعطيل رؤى الموقع",
 			"LOCATION_DISABLED_DESC": "فعِّل ميزات الموقع في إعدادات الدليل لرؤية عناصرك على الخريطة ومراجعة التغطية الجغرافية.",
 			"ENGAGEMENT_CHART": {
@@ -3529,12 +3570,16 @@
 			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "إجمالي التقديمات",
+				"TOTAL_SUBMISSIONS_SHORT": "الإرسالات",
 				"CONTENT_CREATED": "المحتوى الذي أنشأته",
 				"TOTAL_VIEWS": "إجمالي المشاهدات",
+				"TOTAL_VIEWS_SHORT": "المشاهدات",
 				"VIEWS_ON_CONTENT": "مشاهدات محتواك",
 				"VOTES_RECEIVED": "الأصوات المستلمة",
+				"VOTES_RECEIVED_SHORT": "الأصوات",
 				"VOTES_ON_CONTENT": "أصوات على محتواك",
 				"COMMENTS_RECEIVED": "التعليقات المستلمة",
+				"COMMENTS_RECEIVED_SHORT": "التعليقات",
 				"COMMENTS_ON_CONTENT": "تعليقات على محتواك"
 			},
 			"PERIOD_COMPARISON": {
