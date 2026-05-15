@@ -308,7 +308,7 @@ tool_results, created_at)` — FK to `chat_conversations.id`,
         enabled: true
         position: floating # floating | hero-takeover | sidebar
         provider: openrouter # any @ai-sdk/openai-compatible target
-        model: openai/gpt-4o-mini # operator-chosen default
+        model: meta-llama/llama-3.3-70b-instruct:free # OpenRouter free-tier default
         defaultLocale: en
         persist: false
         anonymous:
@@ -364,10 +364,13 @@ tool_results, created_at)` — FK to `chat_conversations.id`,
   the platform's component names (`ChatProvider`, `ChatInterface`,
   `ChatMessages`, …) so a future merge or shared package is
   cheap.
-- **Open question: default model.** Should we default to
-  `openai/gpt-4o-mini` (cheap, fast) or `anthropic/claude-3-5-haiku`
-  (better quality on long context)? Default chosen:
-  `openai/gpt-4o-mini` via OpenRouter. Recorded in
+- **Open question: default model.** Original default
+  `openai/gpt-4o-mini` was a paid model. Revised default
+  `meta-llama/llama-3.3-70b-instruct:free` — an OpenRouter free-tier
+  model so operators who paste a free OpenRouter key get a working
+  chat at $0/month. Quality is "good enough" for directory-assistant
+  scenarios; operators wanting better quality can override via
+  `AI_CHAT_MODEL` or `aiChat.model` in `works.yml`. Recorded in
   [`docs/questions.md`](../../questions.md).
 - **Open question: should the chat be allowed to perform mutations
   (submit items, follow users) on the visitor's behalf?** Default
