@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { useState } from 'react';
 import { isValidImageUrl } from '@/lib/utils/image-domains';
@@ -34,6 +36,7 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 					onError={() => setImageError(true)}
 					priority
 					unoptimized={isDataUrl}
+					referrerPolicy="no-referrer"
 				/>
 			</div>
 		);
