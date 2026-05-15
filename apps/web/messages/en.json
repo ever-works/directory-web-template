@@ -1505,7 +1505,6 @@
 		"PERFORMANCE_TRACKING": "Performance Tracking",
 		"PERFORMANCE_TRACKING_MESSAGE": "Access your listing statistics once published",
 		"VIEW_SUBMISSIONS": "View My Submissions",
-		"NEW_SUBMISSION": "New Submission",
 		"NEED_HELP": "Need Help?",
 		"SECURITY_NOTICE": "This transaction is secured by Stripe. You will receive an email notification once your listing is published.",
 		"THANK_YOU_MESSAGE": "Thank you for trusting our directory to promote your product/service.",
@@ -1928,7 +1927,6 @@
 			"VIEW_ALL_NOTIFICATIONS": "View All Notifications",
 			"NEW_BADGE": "NEW",
 			"NOTIFICATION_TYPES": {
-				"NEW_SUBMISSION": "New Submission",
 				"REPORTED_COMMENT": "Reported Comment",
 				"NEW_USER": "New User",
 				"PAYMENT_ISSUE": "Payment Issue",
@@ -2017,13 +2015,6 @@
 			"FAILED_TO_LOAD_ADMIN_STATISTICS": "Failed to load admin statistics.",
 			"RETRY": "Retry",
 			"RETRY_LOADING_DASHBOARD_DATA": "Retry loading dashboard data",
-			"TABS": {
-				"OVERVIEW": "Overview",
-				"ANALYTICS": "Analytics",
-				"PERFORMANCE": "Performance",
-				"REPORTS": "Reports",
-				"TOOLS": "Tools"
-			},
 			"SECTIONS": {
 				"DASHBOARD_STATISTICS": "Dashboard Statistics",
 				"SUBMISSIONS_STATUS": "Submissions Status",
@@ -3793,7 +3784,6 @@
 			"ANALYTICS_DESC": "Track your submission performance, approval rates, and community engagement metrics once you start submitting.",
 			"COMMUNITY_SCORE": "Community Score",
 			"YOUR_SUBMISSIONS": "Your Submissions",
-			"NEW_SUBMISSION": "New Submission",
 			"TRASH": "Trash",
 			"BULK_IMPORT": "Bulk Import"
 		},
@@ -3982,6 +3972,48 @@
 				"GLOBAL": "Global",
 				"NO_DATA": "No location data",
 				"NO_DATA_DESC": "Add location data to your items to see geographic coverage."
+			},
+			"GREETING": {
+				"MORNING": "Good morning, {name}",
+				"AFTERNOON": "Good afternoon, {name}",
+				"EVENING": "Good evening, {name}"
+			},
+			"USER_FALLBACK": "there",
+			"HEADER_SUBTITLE": "Here's how your content is performing.",
+			"NEW_SUBMISSION": "New Submission",
+			"PERIOD_LABEL": "Time period",
+			"TABS": {
+				"LABEL": "Dashboard sections",
+				"OVERVIEW": "Overview",
+				"CONTENT": "Content",
+				"ENGAGEMENT": "Engagement",
+				"GEOGRAPHIC": "Geographic"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Quick actions",
+				"NEW_SUBMISSION": "New Submission",
+				"NEW_SUBMISSION_DESC": "Submit a new item to the directory",
+				"MY_SUBMISSIONS": "My Submissions",
+				"MY_SUBMISSIONS_DESC": "View and manage your submissions",
+				"BILLING": "Billing",
+				"BILLING_DESC": "Manage payment methods",
+				"SETTINGS": "Settings",
+				"SETTINGS_DESC": "Update your profile and preferences"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Dashboard alerts",
+				"PENDING_ITEMS": "{count, plural, one {You have # item pending review} other {You have # items pending review}}",
+				"VIEW_SUBMISSIONS": "View submissions",
+				"NO_SUBMISSIONS": "You haven't submitted anything yet.",
+				"SUBMIT_FIRST": "Submit your first item",
+				"DISMISS": "Dismiss alert"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Submit your first item to get started.",
+				"SUBMIT_NOW": "Submit now",
+				"VIEWS": "Views will appear once your content is approved.",
+				"VOTES": "Votes will appear as people interact with your content.",
+				"COMMENTS": "Comments will appear once people engage with your content."
 			}
 		}
 	},
