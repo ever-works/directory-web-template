@@ -31,6 +31,35 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-15 — Spec 023: AI Chat enabled-state e2e + markdown rendering
+
+- `spec-023` T-005a shipped: assistant chat bubbles render
+  through `apps/web/components/ai/ChatMarkdown.tsx`
+  (`react-markdown` + GFM + `rehype-sanitize`). User bubbles stay
+  plain. Replaces the `**bold**` / list markers leaking through to
+  the user as literal text.
+- `spec-023` T-013a shipped: `apps/web/lib/services/ai-chat-test-overrides.ts`
+  reads an `ai-chat-test-override` cookie gated by
+  `E2E_ALLOW_TEST_OVERRIDES=true` AND `NODE_ENV !== production`. Both
+  `AiChatMount` and `/api/chat/route.ts` consult the helper before
+  evaluating `enabled`, so the same toggle flips the launcher _and_
+  the API contract for a single browser context.
+- `spec-023` T-013b shipped: gated mock OpenAI-compatible endpoint
+  at `apps/web/app/api/__test__/openai-mock/chat/completions/route.ts`.
+  Active only with the same env gate; otherwise 404. Tests set
+  `AI_CHAT_BASE_URL` at it.
+- `spec-023` T-013c-g shipped:
+  `apps/web-e2e/tests/public/ai-chat-enabled.spec.ts` (anon flow +
+  markdown rendering + `/fr` aria-label + `Esc` returns focus +
+  `@axe-core/playwright` clean),
+  `apps/web-e2e/tests/client/ai-chat-enabled.spec.ts` (authed
+  flow via `clientPage` fixture), and
+  `apps/web-e2e/tests/api/ai-chat-enabled.spec.ts` (200 streaming
+  Content-Type, 401 auth-only scenarios, 429 rate-limit). All
+  `test.skip` when the override env vars are not provisioned.
+- Closes AC-8 (a11y) and AC-9 (e2e). AC-10 (`/chat` route +
+  non-floating positions) still tracked under T-005d.
+
 ## 2026-05-14 — Spec 024: EW-120 platform Activity Feed (pull + push)
 
 - `spec-024` Net-new `GET /api/platform/activity-feed` route handler
@@ -58,6 +87,18 @@ why** at a higher level than per-commit diffs.
   sources, then global merge by timestamp DESC, then slice — same
   fix as the platform-side Codex P1 (commit `4070ec08` on
   ever-works PR #740) so a dominant source can't starve the page.
+
+## 2026-05-13 — Spec 023: AI Chat for Directory Visitors (proposed)
+
+- `spec-023` Drafted `docs/spec/023-ai-chat/` (spec + plan + tasks)
+  for EW-132. Proposes a self-contained AI chat plugin
+  (`packages/plugin-ai-chat/`) built on the Vercel AI SDK
+  (`ai@^6`, `@ai-sdk/react@^3`), opt-in via `works.yml`, with
+  three layout modes (floating / hero-takeover / sidebar),
+  anonymous-vs-authenticated scenario gating, six-locale i18n
+  (FR required by Jira AC), and `next/dynamic`-loaded panel so
+  the public bundle is preserved when the feature is off.
+- `docs/spec/README.md` Indexed spec 023 (status: _proposed_).
 
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 
@@ -295,7 +336,7 @@ why** at a higher level than per-commit diffs.
   `parseCsv` so SSR + API agree.
 - `apps/web/components/shared-card/hooks/use-pagination-logic.ts`,
   `…/use-server-infinite-loading.ts` URL-driven numbered pagination
-  + JSON-API-backed infinite scroll.
+    - JSON-API-backed infinite scroll.
 - `apps/web/components/filters/components/tags/tags-section.tsx`
   Hard-cap tag-strip DOM at `TAG_STRIP_HARD_CAP = 30` (#780). The
   pre-cap version rendered 855 HeroUI buttons × 2 layouts × ~1 KB
@@ -313,9 +354,9 @@ why** at a higher level than per-commit diffs.
   redirect sets the cookie so subsequent requests flow through the
   inline `<head>` cookie-redirect script in `app/layout.tsx`.
 - This finishes Spec 019 — the previous commit shipped the YAML knob
-  + Pattern A banner + Pattern B URL-style env, but left Pattern C
-  as docs-only. Now all three patterns described in
-  `docs/performance/locale-detection.md` are runnable.
+    - Pattern A banner + Pattern B URL-style env, but left Pattern C
+      as docs-only. Now all three patterns described in
+      `docs/performance/locale-detection.md` are runnable.
 
 ## 2026-05-10 — Spec 019: CDN-cacheable public surface + pluggable locale detection
 
@@ -374,30 +415,30 @@ why** at a higher level than per-commit diffs.
 - `app/rss.xml` `app/atom.xml` `app/feed.json` `lib/seo/feeds.ts`
   `app/[locale]/layout.tsx` `lib/seo/ai-crawlers.ts`
   Feeds + AI-crawler list update (follow-up to the discoverability pass earlier the same day):
-  - Added `lib/seo/feeds.ts` — pure helpers `buildFeedEntries`,
-    `generateRss`, `generateAtom`, `generateJsonFeed` sharing a single
-    `FeedConfig`. Items sorted by `updated_at` desc, capped at 50.
-  - New routes at `app/rss.xml/route.ts`, `app/atom.xml/route.ts`,
-    `app/feed.json/route.ts` (RSS 2.0, Atom 1.0, JSON Feed 1.1
-    respectively). Replaces the previously-advertised-but-unimplemented
-    `/atom.xml` reference in `llms.txt`.
-  - Locale layout `generateMetadata` now emits
-    `<link rel="alternate" type="application/rss+xml" …>` plus the
-    Atom and JSON-Feed equivalents for autodiscovery on every page.
-  - `lib/seo/ai-crawlers.ts` trimmed and randomized: list is now
-    exactly 18 bots (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
-    Claude-User, Claude-SearchBot, anthropic-ai, PerplexityBot,
-    Perplexity-User, Google-Extended, Applebot, Applebot-Extended,
-    Bingbot, CCBot, Meta-ExternalAgent, Amazonbot, Bytespider,
-    cohere-ai), rendered in randomized order so no single operator
-    appears clustered or "first" in robots.txt. Removed speculative
-    extras (Diffbot, MistralAI-User, YouBot, Timpibot,
-    Meta-ExternalFetcher, DuckAssistBot, Claude-Web,
-    cohere-training-data-crawler).
-  - `app/robots.ts` allow-list extended with `/rss.xml`, `/atom.xml`,
-    `/feed.json`.
-  - `app/llms.txt/route.ts` advertises `/feed.json` and `/rss.xml`
-    alongside the previously listed `/atom.xml` and `/sitemap.xml`.
+    - Added `lib/seo/feeds.ts` — pure helpers `buildFeedEntries`,
+      `generateRss`, `generateAtom`, `generateJsonFeed` sharing a single
+      `FeedConfig`. Items sorted by `updated_at` desc, capped at 50.
+    - New routes at `app/rss.xml/route.ts`, `app/atom.xml/route.ts`,
+      `app/feed.json/route.ts` (RSS 2.0, Atom 1.0, JSON Feed 1.1
+      respectively). Replaces the previously-advertised-but-unimplemented
+      `/atom.xml` reference in `llms.txt`.
+    - Locale layout `generateMetadata` now emits
+      `<link rel="alternate" type="application/rss+xml" …>` plus the
+      Atom and JSON-Feed equivalents for autodiscovery on every page.
+    - `lib/seo/ai-crawlers.ts` trimmed and randomized: list is now
+      exactly 18 bots (GPTBot, ChatGPT-User, OAI-SearchBot, ClaudeBot,
+      Claude-User, Claude-SearchBot, anthropic-ai, PerplexityBot,
+      Perplexity-User, Google-Extended, Applebot, Applebot-Extended,
+      Bingbot, CCBot, Meta-ExternalAgent, Amazonbot, Bytespider,
+      cohere-ai), rendered in randomized order so no single operator
+      appears clustered or "first" in robots.txt. Removed speculative
+      extras (Diffbot, MistralAI-User, YouBot, Timpibot,
+      Meta-ExternalFetcher, DuckAssistBot, Claude-Web,
+      cohere-training-data-crawler).
+    - `app/robots.ts` allow-list extended with `/rss.xml`, `/atom.xml`,
+      `/feed.json`.
+    - `app/llms.txt/route.ts` advertises `/feed.json` and `/rss.xml`
+      alongside the previously listed `/atom.xml` and `/sitemap.xml`.
 
 ## 2026-05-09
 
@@ -412,30 +453,30 @@ why** at a higher level than per-commit diffs.
 
 - `docs/features/seo` `app/robots.ts` `app/llms.txt` `app/llms-full.txt`
   AI agent / LLM discoverability pass:
-  - Added `lib/seo/ai-crawlers.ts` — explicit allow-list for major AI bots
-    (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) wired into
-    `app/robots.ts`. Default policy is `allow`; override via `AI_CRAWLERS`
-    env var (`allow` | `disallow` | `none` | comma-list).
-  - Added `app/llms-full.txt/route.ts` — long-form companion to
-    `/llms.txt` that concatenates every category, tag, item body, and
-    comparison into a single Markdown document.
-  - Added per-page Markdown mirrors at `<path>.md` for items, categories,
-    tags, collections, comparisons, `/pages/<slug>`, and the static info
-    pages (`about`, `help`, `pricing`, `privacy-policy`,
-    `terms-of-service`, `cookies`). HTML pages advertise the mirror via
-    `<link rel="alternate" type="text/markdown">`. Renderers live in
-    `lib/seo/markdown-mirror.ts`; URLs are wired via `next.config.ts`
-    rewrites onto internal `_md/route.ts` and `_static-md/[slug]/route.ts`
-    handlers.
-  - Added `<BreadcrumbJsonLd>` server component at
-    `components/seo/breadcrumb-json-ld.tsx` and emitted Schema.org
-    `BreadcrumbList` JSON-LD on every public listing/detail/static page
-    that previously lacked it.
-  - `lib/seo/listing-metadata.ts` now takes a `hasMarkdownMirror` flag
-    that, when true, adds `alternates.types['text/markdown']` to the
-    page's `<head>`.
-  - `app/llms.txt/route.ts` updated to advertise `/llms-full.txt` and
-    the per-page `.md` mirror URL convention.
+    - Added `lib/seo/ai-crawlers.ts` — explicit allow-list for major AI bots
+      (GPTBot, ClaudeBot, PerplexityBot, Google-Extended, etc.) wired into
+      `app/robots.ts`. Default policy is `allow`; override via `AI_CRAWLERS`
+      env var (`allow` | `disallow` | `none` | comma-list).
+    - Added `app/llms-full.txt/route.ts` — long-form companion to
+      `/llms.txt` that concatenates every category, tag, item body, and
+      comparison into a single Markdown document.
+    - Added per-page Markdown mirrors at `<path>.md` for items, categories,
+      tags, collections, comparisons, `/pages/<slug>`, and the static info
+      pages (`about`, `help`, `pricing`, `privacy-policy`,
+      `terms-of-service`, `cookies`). HTML pages advertise the mirror via
+      `<link rel="alternate" type="text/markdown">`. Renderers live in
+      `lib/seo/markdown-mirror.ts`; URLs are wired via `next.config.ts`
+      rewrites onto internal `_md/route.ts` and `_static-md/[slug]/route.ts`
+      handlers.
+    - Added `<BreadcrumbJsonLd>` server component at
+      `components/seo/breadcrumb-json-ld.tsx` and emitted Schema.org
+      `BreadcrumbList` JSON-LD on every public listing/detail/static page
+      that previously lacked it.
+    - `lib/seo/listing-metadata.ts` now takes a `hasMarkdownMirror` flag
+      that, when true, adds `alternates.types['text/markdown']` to the
+      page's `<head>`.
+    - `app/llms.txt/route.ts` updated to advertise `/llms-full.txt` and
+      the per-page `.md` mirror URL convention.
 
 ## 2026-05-05
 
@@ -450,7 +491,7 @@ why** at a higher level than per-commit diffs.
   public (no-auth-gate) tenant-resolving listing
   endpoint** combining a
   **`Number.parseInt(searchParams.get('limit') ??
-  '6', 10)` default-`6` parse path** with explicit
+'6', 10)` default-`6` parse path** with explicit
   radix-`10` (load-bearing for any caller submitting
   a leading-`0` value that some `parseInt`
   implementations would treat as octal), a
@@ -478,7 +519,7 @@ why** at a higher level than per-commit diffs.
   resolution null-short-circuit** (the FIRST per-
   source-file GET smoke pinning a route whose null-
   tenant branch returns the SAME `{ success: true,
-  data: [], count: 0 }` envelope as the success
+data: [], count: 0 }` envelope as the success
   branch and the `checkDatabaseAvailability()`
   short-circuit -- the route does NOT 401 or 403
   on a null tenant), an **`isActive: true` +
@@ -489,16 +530,16 @@ why** at a higher level than per-commit diffs.
   same `and(...)` clause; the `includeExpired`
   parameter only affects whether the optional
   `or(isNull(featuredItems.featuredUntil),
-  gte(featuredItems.featuredUntil, currentDate))`
+gte(featuredItems.featuredUntil, currentDate))`
   expiration filter is appended), a **multi-key
   composite ORDER BY** (the FIRST per-source-file
   GET smoke pinning a Drizzle two-key composite
   ordering `desc(featuredItems.featuredOrder),
-  desc(featuredItems.featuredAt)`), a **`{ success,
-  data, count }` three-key envelope** (the FIRST
+desc(featuredItems.featuredAt)`), a **`{ success,
+data, count }` three-key envelope** (the FIRST
   per-source-file GET smoke pinning a public-
   route success envelope that adds a `count:
-  number` cardinality key alongside `success` /
+number` cardinality key alongside `success` /
   `data`), and a **try / catch empty-list
   fallback (NOT 500)** (the FIRST per-source-file
   GET smoke pinning a route that catches every
@@ -527,7 +568,7 @@ why** at a higher level than per-commit diffs.
   `isActive: true` + `tenantId` two-condition
   WHERE clause, the
   `desc(featuredItems.featuredOrder),
-  desc(featuredItems.featuredAt)` multi-key
+desc(featuredItems.featuredAt)` multi-key
   composite ORDER BY, the `{ success, data, count }`
   three-key envelope, the try / catch empty-list
   fallback, the at-a-glance scenario tree (one
@@ -679,48 +720,42 @@ why** at a higher level than per-commit diffs.
   injection invariance contract (SQL-injection-
   shaped `?schema=` / `?table=` values do NOT reach
   the SQL layer because `sql\`SELECT 1\`` is hard-
-  coded with no parameter binding), the canonical
-  health-envelope shape contract (`status` is a
-  string from `['healthy', 'unhealthy']`, `database`
-  is a string from `['connected', 'disconnected']`,
-  `timestamp` is a `Date.parse`-able ISO-8601
-  string), the non-JSON `format` invariance (the
-  route always responds `application/json`
-  regardless of any `Accept` header or
-  `?format=text` / `?format=prometheus`
-  parameter), the at-a-glance scenario tree (one
-  query-string bulk-loop walk covering ~50
-  permutations PLUS three hand-written tests --
-  canonical-envelope shape assertion, status-
-  invariance test, SQL-injection invariance test --
-  all asserting the `[200, 500]` two-valid-status
-  contract), the cross-references to the cross-
-  cutting
-  [`health.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health.spec.ts)
-  (also probes `GET /api/health/database` BUT
-  only the no-arg baseline; this per-source-file
-  spec adds the **query-param surface** + the
-  **SQL-injection invariance contract** + the
-  **canonical-envelope shape assertion**), the
-  neighbouring
-  [`internal-db-init-query-spec.md`](internal-db-init-query-spec.md)
-  (documents the related `/api/internal/db-init`
-  surface that complements the database-health
-  endpoint -- init-time vs probe-time database
-  surfaces), the neighbouring
-  [`cron-sync-query-spec.md`](cron-sync-query-spec.md)
-  (another zero-argument GET handler that mirrors
-  this spec's bare `GET()` signature posture), and
-  the change protocol (update this page in the
-  same PR that touches the source spec, update
-  `docs/log.md`, run `pnpm tsc --noEmit` in
-  `apps/web-e2e`). With this entry the **per-spec-
-  file docs rollout extends to 118-of-N** and the
-  **`tests/api/` per-spec-file sub-rollout extends
-  to 115-of-many**, and the **first per-source-
-  file GET smoke pinning a public (no-auth-gate)
-  zero-argument health-probe endpoint** lands --
-  pinning a tighter `[200, 500]` two-valid-status
+coded with no parameter binding), the canonical
+health-envelope shape contract (`status`is a
+string from`['healthy', 'unhealthy']`, `database`is a string from`['connected', 'disconnected']`,
+`timestamp`is a`Date.parse`-able ISO-8601
+string), the non-JSON `format`invariance (the
+route always responds`application/json`regardless of any`Accept`header or`?format=text`/`?format=prometheus`parameter), the at-a-glance scenario tree (one
+query-string bulk-loop walk covering ~50
+permutations PLUS three hand-written tests --
+canonical-envelope shape assertion, status-
+invariance test, SQL-injection invariance test --
+all asserting the`[200, 500]` two-valid-status
+contract), the cross-references to the cross-
+cutting
+[`health.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/health.spec.ts)
+(also probes `GET /api/health/database` BUT
+only the no-arg baseline; this per-source-file
+spec adds the **query-param surface** + the
+**SQL-injection invariance contract** + the
+**canonical-envelope shape assertion**), the
+neighbouring
+[`internal-db-init-query-spec.md`](internal-db-init-query-spec.md)
+(documents the related `/api/internal/db-init`
+surface that complements the database-health
+endpoint -- init-time vs probe-time database
+surfaces), the neighbouring
+[`cron-sync-query-spec.md`](cron-sync-query-spec.md)
+(another zero-argument GET handler that mirrors
+this spec's bare `GET()`signature posture), and
+the change protocol (update this page in the
+same PR that touches the source spec, update`docs/log.md`, run `pnpm tsc --noEmit`in`apps/web-e2e`). With this entry the **per-spec-
+file docs rollout extends to 118-of-N** and the
+**`tests/api/`per-spec-file sub-rollout extends
+to 115-of-many**, and the **first per-source-
+file GET smoke pinning a public (no-auth-gate)
+zero-argument health-probe endpoint** lands --
+pinning a tighter`[200, 500]` two-valid-status
   contract, a status-invariance under URL changes
   contract, a SQL-injection invariance contract, a
   canonical Kubernetes-style health-envelope shape
@@ -728,169 +763,168 @@ why** at a higher level than per-commit diffs.
   invariance contract that no prior per-source-
   file public-route GET smoke covers.
 
-  `docs/plugins/admin-clients-query-spec.md`
-  for the existing pre-landed e2e spec
-  [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
-  paired with the `GET` export of
-  `apps/web/app/api/admin/clients/route.ts` --
-  the **first per-source-file admin-tree GET smoke
-  pinning the bare-message single-step-collapse
-  `{ error: 'Unauthorized' }` 401 envelope** posture
-  (matches the sibling `admin/comments` /
-  `admin/companies` / `admin/users` routes; distinct
-  from the canonical-longer-message family of
-  `admin/categories` / `admin/items` /
-  `admin/items/import` / `admin/items/import/validate`
-  AND from the two-step-split-401-vs-403 family of
-  `admin/notifications/[id]/read` /
-  `admin/notifications/mark-all-read` /
-  `admin/users/check-email` /
-  `admin/users/check-username` /
-  `admin/clients/bulk` AND from the auth-gate-
-  divergence-finding posture of the un-gated
-  `admin/roles` / `admin/roles/active` family).
-  UNIQUE: every prior admin-tree query smoke pins
-  one of three different gate postures; this is
-  the FIRST per-source-file admin-tree GET smoke
-  pinning the bare-message single-step-collapse
-  envelope. The new page documents the
-  **single-step `session?.user?.isAdmin` gate
-  ahead of the shared
-  `validatePaginationParams(searchParams)`
-  helper** (the helper short-circuits with its
-  `{ error, status }` 400 envelope on
-  `?page=invalid` / `?limit=invalid` /
-  `?page=-1` / `?limit=0` / `?limit=200`, but
-  only on the AUTH branch -- the unauth branch
-  hits 401 BEFORE the helper runs), the **six
-  optional query-param reads, all AFTER the
-  gate** (`?search=`, `?status=`, `?plan=`,
-  `?accountType=`, `?provider=` -- parsed via
-  raw `searchParams.get('…') || undefined`
-  calls, NO inline enum coercion or Zod schema
-  validation, distinct from the `admin/roles`
-  route's narrow inline ternary enum coercion),
-  the **legacy `getClientProfiles({…})` query
-  helper** (distinct from the `admin/categories`
-  route's `categoryRepository.findAllPaginated(...)`
-  repository-pattern posture; the spec stays green
-  if a future contributor refactors the route to
-  a `clientRepository` abstraction), the
-  **three-key `{ success, data: { clients }, meta }`
-  success envelope** (the `data` key carries a
-  single `clients: []` sub-key, distinct from the
-  `admin/users` route's bare `{ success, data: [...],
-  pagination: {…} }` shape), the **`POST` branch
-  with environment-flag-gated CRM sync** (out of
-  scope for this GET-only spec but documented so
-  future contributors who add a `POST` smoke must
-  defend against the synchronous
-  `createTwentyCrmSyncServiceFromEnv()` upsert via
-  `TWENTY_CRM_ENABLED=false` environment override),
-  the at-a-glance scenario tree (one bulk-loop
-  walk over ~60 paths + eleven hand-written
-  scenarios pinning: the strict 401-on-no-arg-
-  baseline + bare `{ error: 'Unauthorized' }`
-  envelope; status invariance across stacked-key
-  permutations; per-key isolation walks for
-  `?asAdmin=` / `?as=` / `?asUser=` /
-  `?impersonate=` admin-impersonation, `?token=` /
-  `?secret=` / `?api_key=` / `?authorization=` /
-  `?session=` / `?adminToken=` magic-token,
-  `?bypass=` / `?admin=` / `?override=` /
-  `?force=` admin-override, `?status=` and
-  `?provider=` filter-bypass; `Accept` header
-  isolation; repeated-key walk; the bare-message
-  envelope assertion pinning `body.error ===
-  'Unauthorized'` AND `body.error !==
-  'Unauthorized. Admin access required.'` AND
-  `body.error !== 'Forbidden'`), the cross-
-  references to the neighbouring per-id sibling
-  [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
-  the neighbouring bulk sibling
-  [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
-  the neighbouring create sibling
-  [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
-  (the two per-source-file specs together pin
-  both the `POST` body surface and the `GET`
-  query surface on the SAME route file), the
-  shared admin-clients page-object driver
-  [`admin-clients-page-object.md`](admin-clients-page-object.md),
-  the prior per-source-file admin-tree GET
-  smokes
-  [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
-  [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
-  [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
-  [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
-  [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
-  [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
-  the admin-protected coverage spec
-  [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
-  (covers this route at the broad `< 500` level;
-  this per-source-file spec adds the deep query-
-  surface walk on top), and the change protocol
-  (update this page in the same PR that touches
-  the source spec, update `docs/log.md`, run
-  `pnpm tsc --noEmit` in `apps/web-e2e`). With
-  this entry the **per-spec-file docs rollout
-  extends to 118-of-N** and the **`tests/api/`
-  per-spec-file sub-rollout extends to
-  115-of-many**, and the **first per-source-file
-  admin-tree GET smoke pinning the bare-message
-  single-step-collapse `{ error: 'Unauthorized' }`
-  401 envelope** lands -- pinning a single-step
-  `session?.user?.isAdmin` gate ahead of the
-  `validatePaginationParams(...)` helper, six
-  gate-protected optional query-param reads with
-  no inline enum coercion or Zod validation, the
-  legacy `getClientProfiles({…})` query helper
-  posture, and the bare 401 envelope shape
-  distinct from both the canonical-longer-message
-  family and the two-step-split family.
+            `docs/plugins/admin-clients-query-spec.md`
+            for the existing pre-landed e2e spec
+            [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
+            paired with the `GET` export of
+            `apps/web/app/api/admin/clients/route.ts` --
+            the **first per-source-file admin-tree GET smoke
+            pinning the bare-message single-step-collapse
+            `{ error: 'Unauthorized' }` 401 envelope** posture
+            (matches the sibling `admin/comments` /
+            `admin/companies` / `admin/users` routes; distinct
+            from the canonical-longer-message family of
+            `admin/categories` / `admin/items` /
+            `admin/items/import` / `admin/items/import/validate`
+            AND from the two-step-split-401-vs-403 family of
+            `admin/notifications/[id]/read` /
+            `admin/notifications/mark-all-read` /
+            `admin/users/check-email` /
+            `admin/users/check-username` /
+            `admin/clients/bulk` AND from the auth-gate-
+            divergence-finding posture of the un-gated
+            `admin/roles` / `admin/roles/active` family).
+            UNIQUE: every prior admin-tree query smoke pins
+            one of three different gate postures; this is
+            the FIRST per-source-file admin-tree GET smoke
+            pinning the bare-message single-step-collapse
+            envelope. The new page documents the
+            **single-step `session?.user?.isAdmin` gate
+            ahead of the shared
+            `validatePaginationParams(searchParams)`
+            helper** (the helper short-circuits with its
+            `{ error, status }` 400 envelope on
+            `?page=invalid` / `?limit=invalid` /
+            `?page=-1` / `?limit=0` / `?limit=200`, but
+            only on the AUTH branch -- the unauth branch
+            hits 401 BEFORE the helper runs), the **six
+            optional query-param reads, all AFTER the
+            gate** (`?search=`, `?status=`, `?plan=`,
+            `?accountType=`, `?provider=` -- parsed via
+            raw `searchParams.get('…') || undefined`
+            calls, NO inline enum coercion or Zod schema
+            validation, distinct from the `admin/roles`
+            route's narrow inline ternary enum coercion),
+            the **legacy `getClientProfiles({…})` query
+            helper** (distinct from the `admin/categories`
+            route's `categoryRepository.findAllPaginated(...)`
+            repository-pattern posture; the spec stays green
+            if a future contributor refactors the route to
+            a `clientRepository` abstraction), the
+            **three-key `{ success, data: { clients }, meta }`
+            success envelope** (the `data` key carries a
+            single `clients: []` sub-key, distinct from the
+            `admin/users` route's bare `{ success, data: [...],
+
+        pagination: {…} }` shape), the **`POST`branch
+        with environment-flag-gated CRM sync** (out of
+        scope for this GET-only spec but documented so
+        future contributors who add a`POST`smoke must
+        defend against the synchronous
+
+    `createTwentyCrmSyncServiceFromEnv()`upsert via
+    `TWENTY_CRM_ENABLED=false`environment override),
+    the at-a-glance scenario tree (one bulk-loop
+    walk over ~60 paths + eleven hand-written
+    scenarios pinning: the strict 401-on-no-arg-
+    baseline + bare`{ error: 'Unauthorized' }` envelope; status invariance across stacked-key
+    permutations; per-key isolation walks for
+    `?asAdmin=`/`?as=`/`?asUser=`/
+    `?impersonate=`admin-impersonation,`?token=`/
+    `?secret=`/`?api_key=`/`?authorization=`/
+    `?session=`/`?adminToken=`magic-token,
+    `?bypass=`/`?admin=`/`?override=`/
+    `?force=`admin-override,`?status=`and
+    `?provider=`filter-bypass;`Accept`header
+    isolation; repeated-key walk; the bare-message
+    envelope assertion pinning`body.error ===
+    'Unauthorized'`AND`body.error !==
+    'Unauthorized. Admin access required.'`AND
+    `body.error !== 'Forbidden'`), the cross-
+    references to the neighbouring per-id sibling
+    [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
+    the neighbouring bulk sibling
+    [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
+    the neighbouring create sibling
+    [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
+    (the two per-source-file specs together pin
+    both the `POST`body surface and the`GET`
+    query surface on the SAME route file), the
+    shared admin-clients page-object driver
+    [`admin-clients-page-object.md`](admin-clients-page-object.md),
+    the prior per-source-file admin-tree GET
+    smokes
+    [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
+    [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
+    [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
+    [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
+    [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
+    [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
+    the admin-protected coverage spec
+    [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
+    (covers this route at the broad `< 500`level;
+    this per-source-file spec adds the deep query-
+    surface walk on top), and the change protocol
+    (update this page in the same PR that touches
+    the source spec, update`docs/log.md`, run
+    `pnpm tsc --noEmit`in`apps/web-e2e`). With
+    this entry the **per-spec-file docs rollout
+    extends to 118-of-N** and the **`tests/api/` per-spec-file sub-rollout extends to
+    115-of-many**, and the **first per-source-file
+    admin-tree GET smoke pinning the bare-message
+    single-step-collapse`{ error: 'Unauthorized' }` 401 envelope** lands -- pinning a single-step
+    `session?.user?.isAdmin`gate ahead of the
+    `validatePaginationParams(...)`helper, six
+    gate-protected optional query-param reads with
+    no inline enum coercion or Zod validation, the
+    legacy`getClientProfiles({…})` query helper
+    posture, and the bare 401 envelope shape
+    distinct from both the canonical-longer-message
+    family and the two-step-split family.
 
 - `apps/docs` `apps/web`
   Added Vercel build-cost controls to both Vercel-deployed
   apps in this monorepo (`directory-web-template-docs` rooted
   at `apps/docs/`, `directory-web-template-demo` rooted at
   `apps/web/`). Each app's `vercel.json` now carries:
-  - **An `ignoreCommand` allowlist** that tells Vercel to
-    skip the build for any branch other than `main`,
-    `master`, `develop`, or `stage`. Vercel's
-    [Ignored Build Step](https://vercel.com/docs/project-configuration/vercel-json#ignorecommand)
-    semantics are inverted from intuition: exit `1`
-    *continues* the build, exit `0` *skips* it. The script
-    matches `$VERCEL_GIT_COMMIT_REF` against the four
-    allowed branches and exits `1` only on a hit, otherwise
-    `0`. Result: feature-branch / dependabot / EW-* /
-    chore/* pushes no longer burn build minutes on either
-    Vercel project.
-  - **An explicit `github.autoJobCancelation: true`** that
-    locks in Vercel's default cancel-older-build-on-newer-
-    push behavior so it can't drift from a dashboard
-    toggle.
-  Pairs with a separate one-time API flip (out of repo
-  scope, applied via `PATCH /v9/projects/{projectId}` on
-  Vercel's REST API) that sets each project's
-  `resourceConfig.buildQueue.configuration` to
-  `WAIT_FOR_NAMESPACE_QUEUE` -- one active build per
-  branch -- so a flurry of `develop` pushes collapses to
-  "build only the latest commit". The combined effect on a
-  rapid-fire `develop` push: at most one build is running
-  at a time AND any in-progress build is canceled the
-  instant a newer commit lands. The Web app's existing
-  `crons[]` schedule (`/api/cron/sync` daily 03:00 UTC,
-  `/api/cron/subscription-reminders` daily 09:00 UTC,
-  `/api/cron/subscription-expiration` daily 00:00 UTC) is
-  preserved verbatim. NOTE: the four allowlisted branches
-  `main` / `master` / `develop` / `stage` are exhaustive
-  for the docs and demo Vercel projects today; introducing
-  a new long-lived branch (e.g. `release/*`) means
-  extending the `if [ … ] || [ … ]` chain in BOTH
-  `apps/docs/vercel.json` and `apps/web/vercel.json`. The
-  `WAIT_FOR_NAMESPACE_QUEUE` flip is a project-level Vercel
-  setting that lives in Vercel's config store (NOT in
-  `vercel.json`), so it is documented here for traceability
-  and re-applicability after a project re-create.
+    - **An `ignoreCommand` allowlist** that tells Vercel to
+      skip the build for any branch other than `main`,
+      `master`, `develop`, or `stage`. Vercel's
+      [Ignored Build Step](https://vercel.com/docs/project-configuration/vercel-json#ignorecommand)
+      semantics are inverted from intuition: exit `1`
+      _continues_ the build, exit `0` _skips_ it. The script
+      matches `$VERCEL_GIT_COMMIT_REF` against the four
+      allowed branches and exits `1` only on a hit, otherwise
+      `0`. Result: feature-branch / dependabot / EW-_ /
+      chore/_ pushes no longer burn build minutes on either
+      Vercel project.
+    - **An explicit `github.autoJobCancelation: true`** that
+      locks in Vercel's default cancel-older-build-on-newer-
+      push behavior so it can't drift from a dashboard
+      toggle.
+      Pairs with a separate one-time API flip (out of repo
+      scope, applied via `PATCH /v9/projects/{projectId}` on
+      Vercel's REST API) that sets each project's
+      `resourceConfig.buildQueue.configuration` to
+      `WAIT_FOR_NAMESPACE_QUEUE` -- one active build per
+      branch -- so a flurry of `develop` pushes collapses to
+      "build only the latest commit". The combined effect on a
+      rapid-fire `develop` push: at most one build is running
+      at a time AND any in-progress build is canceled the
+      instant a newer commit lands. The Web app's existing
+      `crons[]` schedule (`/api/cron/sync` daily 03:00 UTC,
+      `/api/cron/subscription-reminders` daily 09:00 UTC,
+      `/api/cron/subscription-expiration` daily 00:00 UTC) is
+      preserved verbatim. NOTE: the four allowlisted branches
+      `main` / `master` / `develop` / `stage` are exhaustive
+      for the docs and demo Vercel projects today; introducing
+      a new long-lived branch (e.g. `release/*`) means
+      extending the `if [ … ] || [ … ]` chain in BOTH
+      `apps/docs/vercel.json` and `apps/web/vercel.json`. The
+      `WAIT_FOR_NAMESPACE_QUEUE` flip is a project-level Vercel
+      setting that lives in Vercel's config store (NOT in
+      `vercel.json`), so it is documented here for traceability
+      and re-applicability after a project re-create.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
@@ -905,11 +939,11 @@ why** at a higher level than per-commit diffs.
   `client-dashboard-stats-query` and
   `client-geo-stats-query` specs) combining a
   **`getClientItemRepository().
-  getCoordinatesByUser(userId)` repository-
+getCoordinatesByUser(userId)` repository-
   delegation pattern**, a
   **nested-`coordinates`-keyed success envelope
   `{ success: true, coordinates: Array<{ slug, name,
-  latitude, longitude }> }`** (the FIRST per-source-
+latitude, longitude }> }`** (the FIRST per-source-
   file GET smoke pinning a `coordinates`-keyed
   nested-array success envelope -- distinct from
   BOTH the spread-into-envelope shape pinned by
@@ -918,7 +952,7 @@ why** at a higher level than per-commit diffs.
   nested-object shape pinned by
   `client-items-stats-query`), a
   **`serverErrorResponse(error, 'Failed to fetch
-  item coordinates')` outer catch**, and a
+item coordinates')` outer catch**, and a
   **nine-bypass-prevention assertion battery**
   extending the six-test battery of the sibling
   `client-geo-stats-query` spec with three
@@ -929,7 +963,7 @@ why** at a higher level than per-commit diffs.
   (`?format=geojson` / `?format=kml` / `?format=xml`
   / `?format=csv` invariance), and an
   Accept-header invariance contract (`Accept:
-  application/geo+json` / `application/xml` /
+application/geo+json` / `application/xml` /
   `text/html` / `*/*` round-trip to the same 401
   as `Accept: application/json`). UNIQUE: this is
   the THIRD `requireClientAuth()`-gated GET smoke
@@ -939,9 +973,9 @@ why** at a higher level than per-commit diffs.
   contract, the nested-`coordinates`-keyed
   success envelope, the
   `getClientItemRepository().
-  getCoordinatesByUser(userId)` singleton-factory
+getCoordinatesByUser(userId)` singleton-factory
   repository-delegation, the `serverErrorResponse
-  ('Failed to fetch item coordinates')` outer-
+('Failed to fetch item coordinates')` outer-
   catch, the nine-bypass-prevention assertion
   battery (extending the six-test battery of
   `client-geo-stats-query` with single-item-
@@ -996,9 +1030,9 @@ why** at a higher level than per-commit diffs.
   handler** (the FIRST being the sibling
   `client-dashboard-stats-query` spec) combining
   a **`getClientItemRepository().
-  getGeoStatsByUser(userId)` repository-delegation
+getGeoStatsByUser(userId)` repository-delegation
   pattern** (NOT `getClientDashboardRepository().
-  getStats(userId)` like the sibling
+getStats(userId)` like the sibling
   `client-dashboard-stats-query` spec, NOT
   `getClientItemRepository().getStatsByUser(userId)`
   like the sibling `client-items-stats-query`
@@ -1007,7 +1041,7 @@ why** at a higher level than per-commit diffs.
   spread-into-envelope shape pinned by
   `client-dashboard-stats-query`), a
   **`serverErrorResponse(error, 'Failed to fetch
-  geographic statistics')` outer catch**, and a
+geographic statistics')` outer catch**, and a
   **six-bypass-prevention assertion battery**
   (`?userId=…` admin-impersonation, `?token=…`
   magic-token bypass, `?admin=…` query-admin-
@@ -1023,9 +1057,9 @@ why** at a higher level than per-commit diffs.
   documents the discriminated-union auth-gate
   contract, the spread-geo-stats success envelope,
   the `getClientItemRepository().
-  getGeoStatsByUser(userId)` singleton-factory
+getGeoStatsByUser(userId)` singleton-factory
   repository-delegation, the `serverErrorResponse
-  ('Failed to fetch geographic statistics')`
+('Failed to fetch geographic statistics')`
   outer-catch, the six-bypass-prevention
   assertion battery (extending the five-test
   battery of `client-dashboard-stats-query` with
@@ -1068,11 +1102,11 @@ why** at a higher level than per-commit diffs.
   `client-dashboard-stats-query-spec.md` (pairs
   with `client-dashboard-stats-query.spec.ts` and
   pins the spread-stats `{ success: true,
-  ...stats }` shape this spec mirrors -- both
+...stats }` shape this spec mirrors -- both
   specs share the same `requireClientAuth()`
   discriminated-union auth-helper return
   contract, the same `'Unauthorized. Please sign
-  in to continue.'` longer-message TWO-key 401
+in to continue.'` longer-message TWO-key 401
   envelope, the same zero-argument handler
   signature, and the same spread-into-envelope
   success-payload shape -- but diverge on which
@@ -1102,271 +1136,265 @@ why** at a higher level than per-commit diffs.
   #723 and #724 land that add those per-source-
   file landing pages on develop.
 
-  spec-file docs rollout extends to 118-of-N**
-  and the **`tests/api/` per-spec-file sub-
-  rollout extends to 115-of-many**, and the
-  **first per-source-file GET smoke pinning a
-  `requireClientAuth()`-gated zero-argument
-  geo-stats handler** lands -- pinning a
-  discriminated-union auth-gate contract, a
-  spread-geo-stats success envelope, a
-  `getClientItemRepository().getGeoStatsByUser
-  (userId)` singleton-factory repository-
-  delegation, a `serverErrorResponse('Failed to
-  fetch geographic statistics')` outer-catch,
-  and a six-bypass-prevention assertion battery
-  that no prior per-source-file GET smoke
-  covers. NOTE: cross-references to
-  `client-dashboard-stats-query-spec.md` may
-  resolve as broken links until the parallel PR
-  #723 lands that adds the dashboard-stats
-  per-source-file landing page on develop.
+            spec-file docs rollout extends to 118-of-N**
+            and the **`tests/api/` per-spec-file sub-
+            rollout extends to 115-of-many**, and the
+            **first per-source-file GET smoke pinning a
+            `requireClientAuth()`-gated zero-argument
+            geo-stats handler\*\* lands -- pinning a
+            discriminated-union auth-gate contract, a
+            spread-geo-stats success envelope, a
+            `getClientItemRepository().getGeoStatsByUser
 
-  `docs/plugins/client-dashboard-stats-query-spec.md`
-  for the existing pre-landed e2e spec
-  [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
-  paired with the `GET` export of
-  `apps/web/app/api/client/dashboard/stats/route.ts` --
-  the **first per-source-file GET smoke** the docs
-  tree publishes that pins a **`requireClientAuth()`-
-  gated zero-argument handler** combining a
-  **`getClientDashboardRepository().getStats(userId)`
-  repository-delegation pattern**, a **spread-stats
-  success envelope `{ success: true, ...stats }`**
-  (NOT the `{ success: true, stats: <statsObject> }`
-  nested shape used by the sibling
-  `client-items-stats-query` spec), a
-  **`serverErrorResponse(error, 'Failed to fetch
-  dashboard statistics')` outer catch**, and a
-  **five-bypass-prevention assertion battery**
-  (`?userId=…` admin-impersonation, `?token=…`
-  magic-token bypass, `?admin=…` query-admin-
-  override, `?from=…` date-range bypass, multi-
-  permutation shape stability) on top of the
-  standard query-string bulk-loop walk. UNIQUE:
-  every prior `requireClientAuth()`-gated GET smoke
-  (`client-items-stats-query`, `client-items-method`,
-  `client-items-id-method`, `client-items-import-
-  sample-query`) takes a `request: NextRequest`
-  argument; this is the SECOND `requireClientAuth()`
-  gate after `client-items-stats-query` and the
-  SECOND zero-argument handler in the
-  `requireClientAuth()` family, AND the FIRST per-
-  source-file GET smoke pinning the spread-stats
-  success envelope shape. The new page documents
-  the discriminated-union auth-gate contract, the
-  spread-stats success envelope, the `getClient
-  DashboardRepository()` singleton-factory
-  repository-delegation, the `serverErrorResponse
-  ('Failed to fetch dashboard statistics')` outer-
-  catch, the five-bypass-prevention assertion
-  battery, the at-a-glance scenario tree (a single
-  query-string bulk-loop walk covering ~60
-  permutations -- no-arg baseline, admin-
-  impersonation keys, client-terminology variants,
-  magic-auth keys, date-range filter keys, time-
-  window keys, pagination keys, projection keys,
-  cache-busting keys, content-negotiation, i18n
-  keys, filter keys, sort-override keys, multi-
-  tenancy keys, admin-override keys, empty values,
-  repeated keys, special-character values, 500-
-  character long values, bogus / typo'd query keys,
-  all asserting `< 500`, plus EIGHT hand-written
-  tests pinning the canonical 401 envelope shape,
-  the bogus-parameter status invariance, the
-  `?userId=…` session-gate-bypass-prevention, the
-  `?token=…` query-token-auth-bypass-prevention,
-  the `?admin=…` query-admin-override-prevention,
-  the `?from=…` date-range-bypass-prevention, and
-  the multi-permutation shape stability across
-  three different parameter sets), the cross-
-  references to the neighbouring
-  `requireClientAuth()`-gated GET sibling
-  `client-items-stats-query-spec.md` (pairs with
-  `client-items-stats-query.spec.ts` and pins the
-  `{ success: true, stats: ... }` nested-stats
-  success envelope on the auth branch vs the
-  spread-stats `{ success: true, ...stats }` shape
-  this spec pins), the neighbouring
-  `requireClientAuth()`-gated client family specs
-  (`client-items-method-spec.md`, `client-items-id-
-  method-spec.md`, `client-items-import-method-
-  spec.md`, `client-items-import-validate-method-
-  spec.md`, `client-items-import-sample-query-
-  spec.md`), the cross-cutting `client-protected.
-  spec.ts` (covers the broader auth-protected
-  client surface that this dashboard-stats endpoint
-  sits within), the neighbouring sibling `client-
-  geo-stats-query.spec.ts` (covers the `/api/
-  client/geo-stats` companion endpoint that
-  returns geographic-distribution stats with a
-  parallel `requireClientAuth()` gate -- no per-
-  source-file landing page yet for the geo-stats
-  sibling), and the Spec 010 (E2E Test Coverage)
-  governance anchor. Matching `docs/index.md`
-  entry added at the agent-discovery cluster
-  (just above the `agent-discovery-spec` entry)
-  of the per-source-file rollout list. The
-  corresponding e2e spec file is unchanged --
-  this run lands the docs landing page that was
-  missing.
-  `docs/plugins/auth-change-password-spec.md`
-  for the existing pre-landed e2e spec
-  [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
-  paired with the `POST` export of
-  `apps/web/app/api/auth/change-password/route.ts` --
-  the **bare-baseline companion** to the already-
-  documented
-  [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
-  landing page (paired with the rich-permutation
-  `auth-change-password-body.spec.ts`). The body
-  sibling pins the rate-limit-FIRST gate posture, the
-  canonical 401 / 400 / 429 envelopes, the bulk-loop
-  header / body walks, and the gate-before-Zod /
-  gate-before-tenant / gate-before-user-DB /
-  gate-before-OAuth-guard / gate-before-bcrypt-
-  current / gate-before-bcrypt-duplicate / gate-
-  before-DB-update invariants; this sibling pins
-  ONLY the bare two-test `< 500` no-server-error
-  contract on the bare two-test smoke companion --
-  the `POST /api/auth/change-password without a
-  session does not 5xx` test on a fully-shaped
-  body and the `POST /api/auth/change-password with
-  empty body does not 5xx` test on `{}` -- both
-  asserting `expect(response.status()).toBeLessThan(500)`.
-  UNIQUE within the auth-change-password spec pair:
-  this is the **bare-baseline** member of the pair.
-  Every prior per-source-file landing page in the
-  docs tree pairs to a SINGLE source spec; this is
-  the **first per-source-file landing page that
-  documents one HALF of a two-spec pair covering
-  the same route**. The new page documents the
-  body-sibling-vs-bare-baseline matrix (this spec
-  vs the body sibling at `auth-change-password-body
-  -spec.md` -- now with bulk-loop column +
-  envelope-shape column + gate-ordering column +
-  cross-method column + side-channel column),
-  the at-a-glance scenario tree (two hand-written
-  tests covering the well-shaped-body and empty-
-  body shapes -- both asserting `< 500` and both
-  expected to land on the unauth 401 branch under
-  the rate-limit-not-tripped-yet posture), the
-  cross-references to the rich-permutation body
-  sibling, the page-level forgot / reset password
-  smokes (`auth/forgot-password.spec.ts` +
-  `auth/new-password.spec.ts`), the Spec 003 (Auth
-  Providers) governance anchor, and the Spec 010
-  (E2E Test Coverage) governance anchor. Matching
-  `docs/index.md` entry added at the agent-
-  discovery cluster (just above the `agent-
-  discovery-spec` entry) of the per-source-file
-  rollout list. The corresponding e2e spec file
-  is unchanged -- this run lands the docs landing
-  page that was missing.
-  `docs/plugins/surveys-exists-query-spec.md`
-  for the existing pre-landed e2e spec
-  [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
-  paired with the `GET` export of
-  `apps/web/app/api/surveys/exists/route.ts` -- the
-  **third member of the public-existence-probe trio**
-  alongside the previously-documented
-  `categories-exists-query-spec.md` (catch-and-200
-  Git-CMS sibling) and the still-undocumented DB-backed
-  `collections-exists-query.spec.ts` (catch-and-500
-  sibling). UNIQUE within the trio: this is the
-  **catch-and-no-count** member -- same catch-and-200
-  posture as the categories-exists sibling but the
-  response envelope is the leaner `{ exists }` shape
-  with NO `count` field (since the route's `limit: 1`
-  short-circuit makes the count uninformative anyway).
-  Distinct from every other public-existence probe the
-  docs tree publishes: the route lives above a
-  **DB-backed `surveyService.getMany`** call that
-  selects published surveys from the configured
-  database (vs the categories-exists sibling's Git-CMS
-  `fetchItems` reader and the collections-exists
-  sibling's `collectionRepository.findAll` DB-repository
-  reader), reads a **`?type=` query param** rather than
-  `?locale=` (and uses a strict byte-for-byte
-  `typeParam === SurveyTypeEnum.ITEM` ternary that
-  maps every non-`'item'` value -- `null` for the
-  absent key, `''` for the empty value, `'global'` for
-  the explicit value, every typo / unknown /
-  case-variant -- to the same GLOBAL branch), and is
-  silent in the catch branch on every environment
-  (distinct from the categories-exists sibling which
-  logs to `console.error` in development mode and from
-  the collections-exists sibling which logs
-  unconditionally). The new page documents the
-  cross-route exists-probe matrix (this route vs
-  `/api/categories/exists` vs `/api/collections/exists`),
-  the at-a-glance scenario tree (~50-path bulk-loop
-  walk + five hand-written invariants including the
-  UNIQUE `typeParam === SurveyTypeEnum.ITEM`
-  fallback-semantics walk pinning that the no-arg, the
-  explicit `?type=global`, the unknown `?type=unknown`,
-  the case-variant `?type=ITEM`, and the empty
-  `?type=` paths all land in the same GLOBAL branch and
-  return the same status, plus the branch-split
-  shape-invariance walk pinning that the ITEM branch
-  and the GLOBAL branch return the same envelope
-  shape), the cross-references to the catch-and-200
-  Git-CMS-backed sibling, the catch-and-500 DB-backed
-  sibling, the cross-cutting `feature-existence.spec.ts`
-  no-arg-baseline sibling, the survey-detail GET / PUT
-  / DELETE sibling, the per-survey-responses GET / POST
-  sibling, the per-response-detail GET sibling, and the
-  Spec 010 / Spec 005 governance anchors. Matching
-  `docs/index.md` entry added at the surveys cluster
-  (just above the `surveys-id-responses-method-spec`
-  entry) of the per-source-file rollout list. The
-  corresponding e2e spec file is unchanged -- this run
-  lands the docs landing page that was missing.
-  `docs/plugins/categories-exists-query-spec.md`
-  for the existing pre-landed e2e spec
-  [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
-  paired with the `GET` export of
-  `apps/web/app/api/categories/exists/route.ts` --
-  the **first per-source-file GET smoke** the docs tree
-  publishes that pins a **fully public Git-CMS-backed
-  existence probe whose catch branch ALSO returns
-  `200 OK`** (NOT `500`). Distinct from every other
-  public-route per-source-file GET smoke: the
-  companion `collections-exists-query.spec.ts` (sibling
-  existence probe served from
-  `apps/web/app/api/collections/exists/route.ts`) has a
-  **catch-and-500** posture; the
-  `items-popularity-scores-query-spec.md` sibling is
-  also no-auth-gate but does NOT surface a navigation-
-  shell-degradation contract. The categories-exists
-  route is the **catch-and-200 sibling** of the
-  collections-exists route — same `{ exists, count }`
-  envelope, but the catch branch maps every thrown
-  error to a `200` with `{ exists: false, count: 0 }`
-  rather than a `500`. The distinction is load-
-  bearing: the navigation shell hits both probes on
-  every render and must degrade quietly when the
-  content layer is unavailable rather than blocking
-  the whole page. The new page documents the cross-
-  route exists-probe matrix (this route vs
-  `/api/collections/exists` vs `/api/surveys/exists`),
-  the at-a-glance scenario tree (~50-path bulk-loop
-  walk + four hand-written invariants including the
-  UNIQUE `searchParams.get('locale') || 'en'` fallback-
-  semantics walk pinning that the no-arg, the empty-
-  string `?locale=`, and the explicit-`?locale=en`
-  paths all land in the same branch and return the
-  same status), the cross-references to the catch-and-
-  500 DB-backed sibling, the surveys existence probe,
-  the Git-CMS-backed admin sibling, the DB-backed
-  admin sibling, the public-route per-source-file
-  popularity-scores spec, and the Spec 010 / Spec 005
-  governance anchors. Matching `docs/index.md` entry
-  added at the top of the per-source-file rollout list
-  (above the `admin-categories-all-query-spec` entry
-  from the previous run). The corresponding e2e spec
-  file is unchanged -- this run lands the docs landing
-  page that was missing.
+        (userId)`singleton-factory repository-
+        delegation, a`serverErrorResponse('Failed to
+        fetch geographic statistics')`outer-catch,
+        and a six-bypass-prevention assertion battery
+        that no prior per-source-file GET smoke
+        covers. NOTE: cross-references to
+
+    `client-dashboard-stats-query-spec.md` may
+    resolve as broken links until the parallel PR
+    #723 lands that adds the dashboard-stats
+    per-source-file landing page on develop.
+
+            `docs/plugins/client-dashboard-stats-query-spec.md`
+            for the existing pre-landed e2e spec
+            [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
+            paired with the `GET` export of
+            `apps/web/app/api/client/dashboard/stats/route.ts` --
+            the **first per-source-file GET smoke** the docs
+            tree publishes that pins a **`requireClientAuth()`-
+            gated zero-argument handler** combining a
+            **`getClientDashboardRepository().getStats(userId)`
+            repository-delegation pattern**, a **spread-stats
+            success envelope `{ success: true, ...stats }`**
+            (NOT the `{ success: true, stats: <statsObject> }`
+            nested shape used by the sibling
+            `client-items-stats-query` spec), a
+            **`serverErrorResponse(error, 'Failed to fetch
+
+        dashboard statistics')` outer catch**, and a
+        **five-bypass-prevention assertion battery**
+        (`?userId=…`admin-impersonation,`?token=…`    magic-token bypass,`?admin=…`query-admin-
+        override,`?from=…`date-range bypass, multi-
+        permutation shape stability) on top of the
+        standard query-string bulk-loop walk. UNIQUE:
+        every prior`requireClientAuth()`-gated GET smoke
+        (`client-items-stats-query`, `client-items-method`,
+        `client-items-id-method`, `client-items-import-
+        sample-query`) takes a `request: NextRequest`    argument; this is the SECOND`requireClientAuth()`    gate after`client-items-stats-query`and the
+        SECOND zero-argument handler in the
+
+    `requireClientAuth()`family, AND the FIRST per-
+    source-file GET smoke pinning the spread-stats
+    success envelope shape. The new page documents
+    the discriminated-union auth-gate contract, the
+    spread-stats success envelope, the`getClient
+    DashboardRepository()`singleton-factory
+    repository-delegation, the`serverErrorResponse
+    ('Failed to fetch dashboard statistics')`outer-
+    catch, the five-bypass-prevention assertion
+    battery, the at-a-glance scenario tree (a single
+    query-string bulk-loop walk covering ~60
+    permutations -- no-arg baseline, admin-
+    impersonation keys, client-terminology variants,
+    magic-auth keys, date-range filter keys, time-
+    window keys, pagination keys, projection keys,
+    cache-busting keys, content-negotiation, i18n
+    keys, filter keys, sort-override keys, multi-
+    tenancy keys, admin-override keys, empty values,
+    repeated keys, special-character values, 500-
+    character long values, bogus / typo'd query keys,
+    all asserting`< 500`, plus EIGHT hand-written
+    tests pinning the canonical 401 envelope shape,
+    the bogus-parameter status invariance, the
+    `?userId=…`session-gate-bypass-prevention, the
+    `?token=…`query-token-auth-bypass-prevention,
+    the`?admin=…`query-admin-override-prevention,
+    the`?from=…`date-range-bypass-prevention, and
+    the multi-permutation shape stability across
+    three different parameter sets), the cross-
+    references to the neighbouring
+    `requireClientAuth()`-gated GET sibling
+    `client-items-stats-query-spec.md`(pairs with
+    `client-items-stats-query.spec.ts`and pins the
+    `{ success: true, stats: ... }`nested-stats
+    success envelope on the auth branch vs the
+    spread-stats`{ success: true, ...stats }`shape
+    this spec pins), the neighbouring
+    `requireClientAuth()`-gated client family specs
+    (`client-items-method-spec.md`, `client-items-id-
+    method-spec.md`, `client-items-import-method-
+    spec.md`, `client-items-import-validate-method-
+    spec.md`, `client-items-import-sample-query-
+    spec.md`), the cross-cutting `client-protected.
+    spec.ts`(covers the broader auth-protected
+    client surface that this dashboard-stats endpoint
+    sits within), the neighbouring sibling`client-
+    geo-stats-query.spec.ts`(covers the`/api/
+    client/geo-stats`companion endpoint that
+    returns geographic-distribution stats with a
+    parallel`requireClientAuth()`gate -- no per-
+    source-file landing page yet for the geo-stats
+    sibling), and the Spec 010 (E2E Test Coverage)
+    governance anchor. Matching`docs/index.md` entry added at the agent-discovery cluster
+    (just above the`agent-discovery-spec`entry)
+    of the per-source-file rollout list. The
+    corresponding e2e spec file is unchanged --
+    this run lands the docs landing page that was
+    missing.
+    `docs/plugins/auth-change-password-spec.md`
+    for the existing pre-landed e2e spec
+    [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
+    paired with the `POST`export of
+    `apps/web/app/api/auth/change-password/route.ts` --
+    the **bare-baseline companion** to the already-
+    documented
+    [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
+    landing page (paired with the rich-permutation
+    `auth-change-password-body.spec.ts`). The body
+    sibling pins the rate-limit-FIRST gate posture, the
+    canonical 401 / 400 / 429 envelopes, the bulk-loop
+    header / body walks, and the gate-before-Zod /
+    gate-before-tenant / gate-before-user-DB /
+    gate-before-OAuth-guard / gate-before-bcrypt-
+    current / gate-before-bcrypt-duplicate / gate-
+    before-DB-update invariants; this sibling pins
+    ONLY the bare two-test `< 500`no-server-error
+    contract on the bare two-test smoke companion --
+    the`POST /api/auth/change-password without a
+    session does not 5xx`test on a fully-shaped
+    body and the`POST /api/auth/change-password with
+    empty body does not 5xx`test on`{}`-- both
+    asserting`expect(response.status()).toBeLessThan(500)`.
+    UNIQUE within the auth-change-password spec pair:
+    this is the **bare-baseline** member of the pair.
+    Every prior per-source-file landing page in the
+    docs tree pairs to a SINGLE source spec; this is
+    the **first per-source-file landing page that
+    documents one HALF of a two-spec pair covering
+    the same route**. The new page documents the
+    body-sibling-vs-bare-baseline matrix (this spec
+    vs the body sibling at `auth-change-password-body
+    -spec.md`-- now with bulk-loop column +
+    envelope-shape column + gate-ordering column +
+    cross-method column + side-channel column),
+    the at-a-glance scenario tree (two hand-written
+    tests covering the well-shaped-body and empty-
+    body shapes -- both asserting`< 500` and both
+    expected to land on the unauth 401 branch under
+    the rate-limit-not-tripped-yet posture), the
+    cross-references to the rich-permutation body
+    sibling, the page-level forgot / reset password
+    smokes (`auth/forgot-password.spec.ts`+
+    `auth/new-password.spec.ts`), the Spec 003 (Auth
+    Providers) governance anchor, and the Spec 010
+    (E2E Test Coverage) governance anchor. Matching
+    `docs/index.md`entry added at the agent-
+    discovery cluster (just above the`agent-
+    discovery-spec`entry) of the per-source-file
+    rollout list. The corresponding e2e spec file
+    is unchanged -- this run lands the docs landing
+    page that was missing.
+    `docs/plugins/surveys-exists-query-spec.md`
+    for the existing pre-landed e2e spec
+    [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
+    paired with the `GET`export of
+    `apps/web/app/api/surveys/exists/route.ts`-- the
+    **third member of the public-existence-probe trio**
+    alongside the previously-documented
+    `categories-exists-query-spec.md`(catch-and-200
+    Git-CMS sibling) and the still-undocumented DB-backed
+    `collections-exists-query.spec.ts`(catch-and-500
+    sibling). UNIQUE within the trio: this is the
+    **catch-and-no-count** member -- same catch-and-200
+    posture as the categories-exists sibling but the
+    response envelope is the leaner`{ exists }`shape
+    with NO`count`field (since the route's`limit: 1` short-circuit makes the count uninformative anyway).
+    Distinct from every other public-existence probe the
+    docs tree publishes: the route lives above a
+    **DB-backed`surveyService.getMany`** call that
+    selects published surveys from the configured
+    database (vs the categories-exists sibling's Git-CMS
+    `fetchItems`reader and the collections-exists
+    sibling's`collectionRepository.findAll` DB-repository
+    reader), reads a **`?type=`query param** rather than
+    `?locale=`(and uses a strict byte-for-byte
+    `typeParam === SurveyTypeEnum.ITEM` ternary that
+    maps every non-`'item'`value --`null`for the
+    absent key,`''`for the empty value,`'global'`for
+    the explicit value, every typo / unknown /
+    case-variant -- to the same GLOBAL branch), and is
+    silent in the catch branch on every environment
+    (distinct from the categories-exists sibling which
+    logs to`console.error`in development mode and from
+    the collections-exists sibling which logs
+    unconditionally). The new page documents the
+    cross-route exists-probe matrix (this route vs
+    `/api/categories/exists`vs`/api/collections/exists`),
+    the at-a-glance scenario tree (~50-path bulk-loop
+    walk + five hand-written invariants including the
+    UNIQUE `typeParam === SurveyTypeEnum.ITEM` fallback-semantics walk pinning that the no-arg, the
+    explicit`?type=global`, the unknown `?type=unknown`,
+    the case-variant `?type=ITEM`, and the empty
+    `?type=`paths all land in the same GLOBAL branch and
+    return the same status, plus the branch-split
+    shape-invariance walk pinning that the ITEM branch
+    and the GLOBAL branch return the same envelope
+    shape), the cross-references to the catch-and-200
+    Git-CMS-backed sibling, the catch-and-500 DB-backed
+    sibling, the cross-cutting`feature-existence.spec.ts` no-arg-baseline sibling, the survey-detail GET / PUT
+    / DELETE sibling, the per-survey-responses GET / POST
+    sibling, the per-response-detail GET sibling, and the
+    Spec 010 / Spec 005 governance anchors. Matching
+    `docs/index.md`entry added at the surveys cluster
+    (just above the`surveys-id-responses-method-spec` entry) of the per-source-file rollout list. The
+    corresponding e2e spec file is unchanged -- this run
+    lands the docs landing page that was missing.
+    `docs/plugins/categories-exists-query-spec.md`
+    for the existing pre-landed e2e spec
+    [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+    paired with the `GET`export of
+    `apps/web/app/api/categories/exists/route.ts`--
+    the **first per-source-file GET smoke** the docs tree
+    publishes that pins a **fully public Git-CMS-backed
+    existence probe whose catch branch ALSO returns
+    `200 OK`** (NOT `500`). Distinct from every other
+    public-route per-source-file GET smoke: the
+    companion `collections-exists-query.spec.ts`(sibling
+    existence probe served from
+    `apps/web/app/api/collections/exists/route.ts`) has a
+    **catch-and-500** posture; the
+    `items-popularity-scores-query-spec.md`sibling is
+    also no-auth-gate but does NOT surface a navigation-
+    shell-degradation contract. The categories-exists
+    route is the **catch-and-200 sibling** of the
+    collections-exists route — same`{ exists, count }` envelope, but the catch branch maps every thrown
+    error to a`200`with`{ exists: false, count: 0 }` rather than a`500`. The distinction is load-
+    bearing: the navigation shell hits both probes on
+    every render and must degrade quietly when the
+    content layer is unavailable rather than blocking
+    the whole page. The new page documents the cross-
+    route exists-probe matrix (this route vs
+    `/api/collections/exists`vs`/api/surveys/exists`),
+    the at-a-glance scenario tree (~50-path bulk-loop
+    walk + four hand-written invariants including the
+    UNIQUE `searchParams.get('locale') || 'en'`fallback-
+    semantics walk pinning that the no-arg, the empty-
+    string`?locale=`, and the explicit-`?locale=en` paths all land in the same branch and return the
+    same status), the cross-references to the catch-and-
+    500 DB-backed sibling, the surveys existence probe,
+    the Git-CMS-backed admin sibling, the DB-backed
+    admin sibling, the public-route per-source-file
+    popularity-scores spec, and the Spec 010 / Spec 005
+    governance anchors. Matching`docs/index.md`entry
+    added at the top of the per-source-file rollout list
+    (above the`admin-categories-all-query-spec` entry
+    from the previous run). The corresponding e2e spec
+    file is unchanged -- this run lands the docs landing
+    page that was missing.
+
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
   `docs/plugins/admin-categories-all-query-spec.md`
@@ -1456,11 +1484,11 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file GET smoke** the docs
   tree publishes that pins a **public (no-auth-gate)
   debug endpoint** combining a `Math.min(parseInt(
-  limit), 100)` admit-clamp invariant, a `locale`
+limit), 100)` admit-clamp invariant, a `locale`
   default-`'en'` fallback, a `getCachedItems({ lang })`
   cache-aware fetch path, an empty-items short-
   circuit envelope `{ items: [], message: 'No items
-  found' }`, a logarithmic-scaling score formula
+found' }`, a logarithmic-scaling score formula
   `Math.log10(value + 1) * weight`, a featured-boost
   score cap (`+10000`), a three-tier recency-decay
   schedule (`<30d` → `1000`, `<90d` → `500`, `<180d`
@@ -1482,7 +1510,7 @@ why** at a higher level than per-commit diffs.
   query parameter; the route NEVER 4xxs on a
   malformed `limit`); logarithmic-scaling score
   formula (UNIQUE FIRST — `Math.log10(value + 1) *
-  weight` engagement-scoring formula); featured
+weight` engagement-scoring formula); featured
   boost (+10000) (UNIQUE FIRST — featured-item flat
   score boost as the load-bearing tie-breaker
   between featured and non-featured items); three-
@@ -1490,7 +1518,7 @@ why** at a higher level than per-commit diffs.
   piecewise-linear recency-decay schedule); empty-
   items short-circuit envelope (UNIQUE FIRST — non-
   error early-return envelope on a `getCachedItems(
-  { lang })` cache miss); stable rank-after-sort
+{ lang })` cache miss); stable rank-after-sort
   mutation (UNIQUE FIRST — sort-then-mutate-`rank`
   pattern); score-breakdown surface (UNIQUE FIRST —
   `scoreBreakdown` sub-object with seven labeled
@@ -1536,7 +1564,7 @@ why** at a higher level than per-commit diffs.
   envelope; this is the FIRST
   `requireClientAuth()`-gated GET smoke that returns
   a **binary stream** with a `Content-Disposition:
-  attachment; filename="..."` header on the happy
+attachment; filename="..."` header on the happy
   path. Distinct contracts:
   `requireClientAuth()` + `exportQuerySchema` pair
   (UNIQUE FIRST — Zod-enum `format` parse gated by
@@ -1550,7 +1578,7 @@ why** at a higher level than per-commit diffs.
   pair, distinct from JSON envelopes of every prior
   `client-items*` GET smoke);
   `safeErrorResponse(error, 'Failed to generate
-  sample template')` outer-catch helper that BYTE-
+sample template')` outer-catch helper that BYTE-
   IDENTICALLY matches the admin sibling 500-message
   (UNIQUE FIRST `requireClientAuth()`-gated GET
   smoke pinning `safeErrorResponse` cross-utility
@@ -1564,7 +1592,7 @@ why** at a higher level than per-commit diffs.
   / `client-items-import-validate-method`
   siblings); longer-message TWO-key 401 envelope
   `{ success: false, error: 'Unauthorized.
-  Please sign in to continue.' }`; `format=` Zod-
+Please sign in to continue.' }`; `format=` Zod-
   enum case-sensitivity (Zod enums match exactly,
   uppercase variants rejected on auth branch);
   `format=` enum default (`.default('csv')`,
@@ -1576,7 +1604,7 @@ why** at a higher level than per-commit diffs.
   `filename` leak), a gate-before-catch invariance
   walk, a gate-before-binary-stream-header
   invariance walk (CRITICAL — `Content-
-  Disposition: attachment; …` NEVER appears on the
+Disposition: attachment; …` NEVER appears on the
   unauth branch), a gate-before-binary-stream-
   content-type invariance walk (CRITICAL — unauth
   branch emits `application/json`, NOT `text/csv` or
@@ -1628,7 +1656,7 @@ why** at a higher level than per-commit diffs.
   `surveyService.getResponseById(responseId)` with a
   `404 'Response not found'` non-existence guard
   AFTER the auth gate. UNIQUE: pins a `'Failed to
-  fetch response'` (singular) 500-catch helper that
+fetch response'` (singular) 500-catch helper that
   is distinct from the plural-collection sibling's
   `'Failed to fetch responses'`. Pairs with a new
   per-source-file docs reference at
@@ -1688,19 +1716,18 @@ why** at a higher level than per-commit diffs.
   `executeImport` service call (UNIQUE FIRST —
   dry-run vs commit-mode); FOUR-key
   `{ success, headers, suggestedMapping,
-  validationResults, summary }` success payload
+validationResults, summary }` success payload
   (UNIQUE FIRST vs prior `result`-keyed two-key
   payload); `safeErrorResponse(error, 'Failed to
-  validate import file')` outer-catch helper that
+validate import file')` outer-catch helper that
   BYTE-IDENTICALLY matches the admin sibling 500-
-  message; hard-coded `duplicateStrategy: 'skip'`
-  + `defaultStatus: 'pending'` validation options
+  message; hard-coded `duplicateStrategy: 'skip'` - `defaultStatus: 'pending'` validation options
   (UNIQUE FIRST — client requests CANNOT override
   either via form data, distinct from admin
   sibling which DOES accept these as form fields);
   longer-message TWO-key 401 envelope
   `{ success: false, error: 'Unauthorized.
-  Please sign in to continue.' }`. The smoke spec
+Please sign in to continue.' }`. The smoke spec
   pins two bulk-loop walks (~9 headers + ~12
   multipart bodies all asserting `< 500`), a
   longer-message TWO-key 401-envelope assertion,
@@ -1759,18 +1786,18 @@ why** at a higher level than per-commit diffs.
   `'Missing or invalid rows array.'` Zod-free
   400 message (UNIQUE FIRST);
   `safeErrorResponse(error, 'Failed to execute
-  import')` outer-catch helper (UNIQUE FIRST —
+import')` outer-catch helper (UNIQUE FIRST —
   sourced from `@/lib/utils/api-error`, NOT
   `client-auth.serverErrorResponse`);
   `{ success, result }` success payload with
   the service-derived `{ total, created,
-  updated, skipped, errors }` result aggregate
+updated, skipped, errors }` result aggregate
   (UNIQUE FIRST — `result`-keyed vs `item` /
   `subscription` / `data` / `stats` priors);
   longer-message TWO-key 401 envelope; hard-
   coded `{ duplicateStrategy: 'skip',
-  defaultStatus: 'pending', submittedBy:
-  userId }` import options that client requests
+defaultStatus: 'pending', submittedBy:
+userId }` import options that client requests
   CANNOT override. The smoke spec pins two
   bulk-loop walks (~6 headers + ~10 POST
   bodies all asserting `< 500`), a longer-
@@ -1829,7 +1856,7 @@ why** at a higher level than per-commit diffs.
   per-source-file triple-method smoke pinning Zod
   validation on a dynamic-segment parameter); GET
   success payload with `engagement: { views, likes
-  }` nested sub-object (UNIQUE — FIRST per-source-
+}` nested sub-object (UNIQUE — FIRST per-source-
   file GET smoke pinning a nested engagement-
   metrics sub-object); PUT empty-update guard
   (`Object.keys(updateData).length === 0` → 400
@@ -1977,7 +2004,7 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file GET smoke** the
   docs tree publishes that pins a **THREE-bucket
   nested-stats success payload** (`{ success: true,
-  stats: { overview, byInterval, revenue } }` where
+stats: { overview, byInterval, revenue } }` where
   each bucket has its own required-keys contract).
   UNIQUE: every prior per-source-file GET stats
   smoke pins a flat shallow stats key set; this is
@@ -1995,15 +2022,15 @@ why** at a higher level than per-commit diffs.
   (distinct from `requireClientAuth()`
   discriminated-union helper); TWO-key 401
   envelope (same shape as parent `/sponsor-ads/
-  user` route, distinct from bare ONE-key
+user` route, distinct from bare ONE-key
   envelope); TWO-key success payload using `stats`
   key (NOT `data`); service-call delegation
   (`sponsorAdService.getSponsorAdStatsByUser` is
   the ONLY post-auth load-bearing call); TWO-key
   500 catch envelope `'Failed to fetch sponsor ad
-  stats'` (distinct from parent route's `'Failed
-  to fetch sponsor ads'` and `'Failed to create
-  sponsor ad'` — NO 's' on `stat`); zero-arg GET
+stats'` (distinct from parent route's `'Failed
+to fetch sponsor ads'` and `'Failed to create
+sponsor ad'` — NO 's' on `stat`); zero-arg GET
   signature. The smoke spec pins one bulk-loop
   walk (~6 headers all asserting `< 500`), a
   canonical TWO-key 401-envelope assertion, a
@@ -2045,7 +2072,7 @@ why** at a higher level than per-commit diffs.
   ads POST smokes); POST 400 for invalid JSON
   with distinct message (FIRST per-source-file
   POST smoke pinning a try/catch around `await
-  request.json()` with distinct message);
+request.json()` with distinct message);
   conditional already-exists 400 catch branch
   via `'already have'` message substring (UNIQUE
   — FIRST per-source-file POST smoke pinning a
@@ -2088,7 +2115,7 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file QUAD-method
   smoke** the docs tree publishes (every prior
   smoke covers 1, 2, or 3 methods). Distinct from
-  the *singular* sibling at
+  the _singular_ sibling at
   `/api/stripe/subscription`: PROPER USER-SCOPED
   IDOR on PUT AND DELETE (CONTRAST with the
   singular sibling which has NO IDOR — Q-010
@@ -2205,7 +2232,7 @@ why** at a higher level than per-commit diffs.
   docs tree publishes that pins the
   **`requireClientAuth()` helper-based auth
   gate** with the **`'Unauthorized. Please sign
-  in to continue.'`** longer-message TWO-key
+in to continue.'`** longer-message TWO-key
   envelope. UNIQUE: a different auth-helper
   abstraction than the bare `auth()` session
   lookup used in every other per-source-file
@@ -2220,7 +2247,7 @@ why** at a higher level than per-commit diffs.
   contract); longer-message 401 envelope
   `'Unauthorized. Please sign in to continue.'`
   (UNIQUE); TWO-key success payload `{ success:
-  true, stats: <statsObject> }` (UNIQUE — uses
+true, stats: <statsObject> }` (UNIQUE — uses
   `stats` key NOT `data`); `serverErrorResponse`
   outer-catch helper (UNIQUE distinct from
   `safeErrorResponse`); zero-arg GET signature.
@@ -2252,8 +2279,8 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file dynamic-segment
   GET smoke** the docs tree publishes that pins a
   **strict user-id-IDOR check** (`session.user.id
-  !== params.userId` → 403 bare `{ error:
-  'Forbidden' }` with NO message specifying
+!== params.userId` → 403 bare `{ error:
+'Forbidden' }` with NO message specifying
   ownership) on a per-user resource lookup
   endpoint. CRITICAL: provides the auth-gated
   counterpart to the
@@ -2272,7 +2299,7 @@ why** at a higher level than per-commit diffs.
   parameter required (consistent with the POST/
   PUT siblings' body-required check); 404 with
   bare envelope `{ error: 'Payment account not
-  found' }` (UNIQUE); returns raw paymentAccount
+found' }` (UNIQUE); returns raw paymentAccount
   fields in success (matches POST/PUT siblings);
   DOES have `auth()` gate (CONTRAST with the no-
   auth-gate POST/PUT siblings — security-
@@ -2335,7 +2362,7 @@ why** at a higher level than per-commit diffs.
   ONE-key 500 envelope; returns raw
   paymentAccount fields in success payload
   (UNIQUE: most success responses use `{
-  success: true, data: {...} }`). The smoke
+success: true, data: {...} }`). The smoke
   spec pins four bulk-loop walks (~6 headers ×
   2 methods + ~7 POST bodies + ~6 PUT bodies),
   a NO-401 contract assertion on BOTH POST and
@@ -2343,7 +2370,7 @@ why** at a higher level than per-commit diffs.
   required-field cascade canonical-messages
   assertion (POST emits three distinct 400
   messages, PUT emits a fourth `'Account ID is
-  required'`), a strict ONE-key 400 envelope-
+required'`), a strict ONE-key 400 envelope-
   shape assertion, a cross-method probe (GET /
   PATCH / DELETE), and a no-catch-on-valid-body
   contract. With this addition the per-spec-
@@ -2388,24 +2415,24 @@ why** at a higher level than per-commit diffs.
   local DB write); dynamic success message based
   on the `enabled` toggle. The smoke spec pins
   three bulk-loop walks (~6 headers × 2 methods
-  + ~13 PATCH bodies), canonical bare ONE-key
-  401-envelope assertions on GET AND PATCH, a
-  cross-method 401-envelope-equality assertion,
-  a strict envelope-shape assertion, a gate-
-  before-post-auth invariant, a setAutoRenewal-
-  not-entered invariance walk (CRITICAL —
-  pinning that XSS markers in the body are
-  NEVER echoed back), a gate-before-enum-
-  validation invariance walk on GET, a cross-
-  method probe (POST / PUT / DELETE), a side-
-  channel walk, a gate-before-body-validation
-  invariance walk pinning that malformed JSON /
-  array body / non-bool enabled all produce 401
-  NOT 400, and a cross-subscription-ID
-  invariance walk. With this addition the per-
-  spec-file docs rollout extends to 99-of-N and
-  the `tests/api/` per-spec-file sub-rollout
-  extends to 97-of-many.
+    - ~13 PATCH bodies), canonical bare ONE-key
+      401-envelope assertions on GET AND PATCH, a
+      cross-method 401-envelope-equality assertion,
+      a strict envelope-shape assertion, a gate-
+      before-post-auth invariant, a setAutoRenewal-
+      not-entered invariance walk (CRITICAL —
+      pinning that XSS markers in the body are
+      NEVER echoed back), a gate-before-enum-
+      validation invariance walk on GET, a cross-
+      method probe (POST / PUT / DELETE), a side-
+      channel walk, a gate-before-body-validation
+      invariance walk pinning that malformed JSON /
+      array body / non-bool enabled all produce 401
+      NOT 400, and a cross-subscription-ID
+      invariance walk. With this addition the per-
+      spec-file docs rollout extends to 99-of-N and
+      the `tests/api/` per-spec-file sub-rollout
+      extends to 97-of-many.
 
 - `docs/plugins` Added `verify-recaptcha-body-spec.md` —
   the **ninety-eighth** per-source-file reference
@@ -2418,7 +2445,7 @@ why** at a higher level than per-commit diffs.
   **first per-source-file smoke** the docs tree
   publishes that pins a **dev-mode bypass envelope**
   with status 200 `{ success: true, score: 1.0,
-  action: 'bypass' }` (when `RECAPTCHA_SECRET_KEY`
+action: 'bypass' }` (when `RECAPTCHA_SECRET_KEY`
   is missing AND `NODE_ENV === 'development'`). It
   is also the **first** smoke the docs tree
   publishes that pins a route built on top of the
@@ -2496,7 +2523,7 @@ why** at a higher level than per-commit diffs.
   header (UNIQUE — every other cron handler
   compares ONLY the secret portion after stripping
   `Bearer `); BARE ONE-key 401 envelope `{ error:
-  'Unauthorized' }` (NO `success` key, NO
+'Unauthorized' }` (NO `success` key, NO
   `message` field — DIFFERENT from the cron-
   subscription-expiration sibling's TWO-key
   envelope); 207 Multi-Status response (UNIQUE —
@@ -2556,8 +2583,8 @@ why** at a higher level than per-commit diffs.
   throw); `authHeader.replace('Bearer ', '')`
   parsing (vs exact-match comparison like cron/
   sync); TWO-key 401 envelope `{ success: false,
-  message: 'Unauthorized - Invalid or missing
-  cron secret' }` (UNIQUE — longer specific
+message: 'Unauthorized - Invalid or missing
+cron secret' }` (UNIQUE — longer specific
   message naming the failure mode, vs cron/sync's
   `'Unauthorized'` — uses `message` not `error`);
   GET + POST dual-method-delegate exports (POST
@@ -2602,7 +2629,7 @@ why** at a higher level than per-commit diffs.
   success response** for a Stripe-customer-session
   endpoint where the no-customer-found branch ALSO
   returns an OBJECT (with `hasActiveSubscription:
-  false` + a `message` field). UNIQUE — the direct
+false` + a `message` field). UNIQUE — the direct
   sibling `user-payments-query.spec.ts` returns a
   top-level **ARRAY** for the same Stripe-customer-
   session pattern; together the two specs pin the
@@ -2612,20 +2639,20 @@ why** at a higher level than per-commit diffs.
   session-gated GET smoke: OBJECT-wrapped success
   response (UNIQUE); no-customer-found 200 OBJECT
   `{ hasActiveSubscription: false, message: 'No
-  Stripe customer found' }` (distinct from the
+Stripe customer found' }` (distinct from the
   user-payments sibling's `[]` empty-array
   fallback); bare ONE-key `{ error: 'Unauthorized' }`
   401 envelope; two-tier 500 catch dispatcher with
   TWO different 500 messages on the SAME ONE-key
   envelope shape (`'Failed to fetch subscription
-  data from Stripe'` vs `'Failed to fetch
-  subscription data'`); zero-arg GET signature;
+data from Stripe'` vs `'Failed to fetch
+subscription data'`); zero-arg GET signature;
   Stripe Subscriptions list with `expand:
-  ['data.default_payment_method']` (UNIQUE — the
+['data.default_payment_method']` (UNIQUE — the
   FIRST per-source-file GET smoke pinning a Stripe
   expansion-list invariant); active-subscription
   discriminator (`sub.status === 'active' ||
-  sub.status === 'trialing'`); cents-to-major-
+sub.status === 'trialing'`); cents-to-major-
   units transform; currency uppercase invariant;
   caller-supplied-Stripe-key bypass attempt walked
   via `?stripeKey=` / `?stripe_key=` query
@@ -2668,12 +2695,12 @@ why** at a higher level than per-commit diffs.
   FIRST per-source-file DELETE smoke pinning a
   three-field IDOR via `userId === session.user.id`
   AND `itemSlug === path.itemSlug` AND `tenantId
-  === currentTenantId`); SELECT-then-DELETE
+=== currentTenantId`); SELECT-then-DELETE
   pattern (the handler runs an inline SELECT
   pre-check BEFORE the DELETE to surface 404 if
   not found, distinct from single-step DELETE
   WHERE); TWO-key success payload `{ success:
-  true, message: 'Favorite removed successfully' }`
+true, message: 'Favorite removed successfully' }`
   with NO `data` field (UNIQUE — most DELETE
   handlers return `data: { ... }` with deletion
   details). The smoke spec pins a ~7-header bulk-
@@ -2711,7 +2738,7 @@ why** at a higher level than per-commit diffs.
   accessible for **published** surveys but admin-
   gated for unpublished surveys (with a UNIQUE
   **404-mask**: non-admin callers see `404 'Survey
-  not found'` INSTEAD of `403 'Forbidden'`); PUT
+not found'` INSTEAD of `403 'Forbidden'`); PUT
   and DELETE are admin-only. Distinct from EVERY
   prior triple-method smoke: MIXED-auth gate (FIRST
   per-source-file triple-method smoke pinning a
@@ -2728,7 +2755,7 @@ why** at a higher level than per-commit diffs.
   FIRST per-source-file PUT/DELETE smoke pinning
   an `Error.message` equality-match catch-
   dispatcher); TWO-key `{ success: false, error:
-  'Unauthorized' }` 401 envelope on PUT and DELETE;
+'Unauthorized' }` 401 envelope on PUT and DELETE;
   `data: null` in DELETE success payload (UNUSUAL).
   The smoke spec pins four bulk-loop walks (~6
   headers × 3 methods + ~9 PUT bodies all
@@ -2781,7 +2808,7 @@ why** at a higher level than per-commit diffs.
   tier 500 catch dispatcher with TWO different 500
   messages on the SAME ONE-key envelope shape
   (UNIQUE — `'Failed to fetch payment data from
-  Stripe'` vs `'Failed to fetch payment data'`);
+Stripe'` vs `'Failed to fetch payment data'`);
   zero-arg GET signature; Stripe Invoices +
   Subscriptions DUAL-list load-bearing chain (FIRST
   per-source-file GET smoke pinning a dual-Stripe-
@@ -2830,7 +2857,7 @@ why** at a higher level than per-commit diffs.
   auth — same pattern as lemonsqueezy/update's
   dev-mode short-circuit); FOUR-key 401 envelope
   `{ success: false, timestamp: <ISO>, duration:
-  <ms>, message: 'Unauthorized' }` (UNIQUE — NO
+<ms>, message: 'Unauthorized' }` (UNIQUE — NO
   `error` field; uses `message` not `error` for the
   auth failure — the FIRST per-source-file smoke
   pinning a 401 envelope WITHOUT an `error` field);
@@ -2840,9 +2867,9 @@ why** at a higher level than per-commit diffs.
   responses (matches lemonsqueezy/update's richest-
   envelope spec but with a `message`-only
   envelope); custom `Cache-Control: no-cache,
-  no-store, must-revalidate` header on success;
+no-store, must-revalidate` header on success;
   conditional success status (`{ status: result.
-  success ? 200 : 500 }` based on the sync result).
+success ? 200 : 500 }` based on the sync result).
   The smoke spec pins a ~9-header bulk-loop walk
   (including various Authorization probes — wrong
   Bearer, empty Bearer, non-Bearer scheme, Basic
@@ -2890,8 +2917,8 @@ why** at a higher level than per-commit diffs.
   source-file smoke pinning a `new URL()`
   validation contract on a constructed return URL,
   with TWO-key 500 envelope `{ error: 'Invalid
-  return URL configuration', message: 'The
-  application URL is not properly configured' }`);
+return URL configuration', message: 'The
+application URL is not properly configured' }`);
   FOUR-key Stripe-error catch envelope (UNIQUE —
   the FIRST per-source-file POST smoke pinning a
   FOUR-key envelope with both `code` AND `type`
@@ -2905,7 +2932,7 @@ why** at a higher level than per-commit diffs.
   helper in BOTH the inner-stripe-error catch AND
   the outer catch; TWO-key outer-catch 500
   envelope `{ error: 'Failed to create billing
-  portal session', message }`. The POST handler
+portal session', message }`. The POST handler
   combines `auth()` session lookup
   (`!session?.user` → 401 ONE-key),
   `initializeStripeProvider()` +
@@ -2919,7 +2946,7 @@ why** at a higher level than per-commit diffs.
   try/catch, inner-stripe-error catch (400 FOUR-
   key), success payload 200
   `{ success: true, data, message: 'Billing
-  portal session created' }`, outer catch 500
+portal session created' }`, outer catch 500
   TWO-key. Documents the at-a-glance scenario
   tree (a ~9-header bulk-loop walk + a ~9-body
   bulk-loop walk all asserting `< 500`; a
@@ -3007,9 +3034,9 @@ why** at a higher level than per-commit diffs.
   `customer.metadata?.userId !== session.user.id`
   → 403; `!paymentMethod.customer` check distinct
   for each method (GET → 400 `'Payment method not
-  associated with any customer'` with `any`;
+associated with any customer'` with `any`;
   DELETE → 400 `'Payment method not associated
-  with a customer'` with `a` — UNIQUE: only known
+with a customer'` with `a` — UNIQUE: only known
   per-source-file smoke pinning a one-word
   article-shift `any` vs `a` between two methods
   on the same handler); DELETE default-
@@ -3021,8 +3048,8 @@ why** at a higher level than per-commit diffs.
   default to undefined); THREE-branch StripeError
   catch on BOTH methods with distinct 500 messages
   per method (`'Failed to retrieve payment
-  method'` for GET, `'Failed to delete payment
-  method'` for DELETE). The smoke spec pins TWO
+method'` for GET, `'Failed to delete payment
+method'` for DELETE). The smoke spec pins TWO
   header bulk-loops (~7 headers × 2 methods);
   canonical 401-envelope assertions on GET AND
   DELETE; cross-method envelope-equality
@@ -3062,12 +3089,11 @@ why** at a higher level than per-commit diffs.
   `error.code === 'resource_missing'` substring
   detection in the catch (UNIQUE Stripe enum-typed
   code-based dispatcher). Distinct from setup-
-  intent POST root: GET method; `success: false`
-  + `error: 'Unauthorized'` 2-key envelope (vs
+  intent POST root: GET method; `success: false` - `error: 'Unauthorized'` 2-key envelope (vs
   root's bare 1-key); customer-metadata IDOR
   check; filtered SetupIntent fields in success
   (vs root's raw provider object); Stripe-`error.
-  code` substring detection. The smoke spec pins
+code` substring detection. The smoke spec pins
   a canonical 401-envelope assertion, a strict
   envelope-shape assertion, a no-`client_secret`-
   leak CRITICAL security invariant, a gate-before-
@@ -3133,9 +3159,9 @@ why** at a higher level than per-commit diffs.
   check** (`customer.metadata?.userId === userId`
   → 403 if mismatch). Distinct from create sibling:
   DELETE method; ONE-key 401 envelope `'Authentication
-  required'`; helper-function-extraction; customer-
+required'`; helper-function-extraction; customer-
   metadata IDOR; Stripe-error-echo with `'Stripe
-  error: '` prefix; default-payment-method
+error: '` prefix; default-payment-method
   reassignment side-effect; affected-subscriptions
   count. The smoke spec pins canonical 401-envelope,
   strict envelope-shape, success-branch non-
@@ -3169,15 +3195,15 @@ why** at a higher level than per-commit diffs.
   POST smoke: USER-scoped IDOR check
   (`userSubscription.userId !== session.user.id` →
   merged 404 `'Subscription not found or access
-  denied'`; FIRST per-source-file POST smoke
+denied'`; FIRST per-source-file POST smoke
   pinning a USER-scoped IDOR on a Stripe
   subscription endpoint, sitting at the user-
   scoped end of the IDOR spectrum that began with
   stripe/cancel (no IDOR) and stripe/reactivate
   (tenant-only)); THREE-state allow-list pre-check
   400 (`subscription.status !== 'active' &&
-  subscription.status !== 'pending' &&
-  subscription.status !== 'paused'` → 400
+subscription.status !== 'pending' &&
+subscription.status !== 'paused'` → 400
   `'Subscription is not active'`; FIRST per-
   source-file POST smoke pinning a THREE-state
   allow-list pre-check 400, distinct from the
@@ -3191,15 +3217,15 @@ why** at a higher level than per-commit diffs.
   LemonSqueezy update-plan sibling which uses Zod
   `safeParse`); conditional tenant-filter on a
   Drizzle UPDATE WHERE clause (`...(tenantId ?
-  [eq(subscriptions.tenantId, tenantId)] : [])`;
+[eq(subscriptions.tenantId, tenantId)] : [])`;
   FIRST per-source-file POST smoke pinning a
   conditional tenant filter spread into a DB UPDATE);
   plan-changed email payload with BOTH old + new
   plan names (`oldPlanName: subscription.planId,
-  newPlanName: newPlanId`; FIRST per-source-file
+newPlanName: newPlanId`; FIRST per-source-file
   POST smoke pinning an email with both old + new
   plan names); dynamic success message (`Plan
-  updated to ${newPlanId} successfully`; template
+updated to ${newPlanId} successfully`; template
   literal with `newPlanId` interpolation, distinct
   from reactivate sibling's static message). The
   smoke spec pins a bare 401-envelope assertion, a
@@ -3221,7 +3247,7 @@ why** at a higher level than per-commit diffs.
   400-not-entered invariance walk (3 shapes), an
   updateSubscription-DB-update-email-send-chain-
   not-entered invariance walk, a no-`'Failed to
-  update subscription'`-leak invariant, a body-
+update subscription'`-leak invariant, a body-
   completely-ignored invariance walk, and a cross-
   subscription-ID invariance walk pinning that
   the tenant-scoped DB read AND the user-id
@@ -3245,7 +3271,7 @@ why** at a higher level than per-commit diffs.
   `timestamp`; (2) per-request UUID via
   `crypto.randomUUID?.()` with browser-fallback;
   (3) performance tracking via `Date.now() -
-  startTime`; (4) development-mode short-circuit;
+startTime`; (4) development-mode short-circuit;
   (5) custom response headers (`Cache-Control` /
   `X-Request-ID` / `X-Response-Time`); (6) five-
   tier catch dispatcher (`VALIDATION_ERROR` → 400,
@@ -3317,7 +3343,7 @@ why** at a higher level than per-commit diffs.
   the user via `auth()` and then looks up the
   subscription via
   `getSubscriptionByProviderSubscriptionId('stripe',
-  subscriptionId)`, which scopes the query by
+subscriptionId)`, which scopes the query by
   `tenantId` but NOT by `userId`; sits between the
   stripe/cancel sibling which has NO IDOR check at
   all and the polar/cancel sibling which enforces
@@ -3328,7 +3354,7 @@ why** at a higher level than per-commit diffs.
   400 contract** (the handler reads
   `subscription.cancelAtPeriodEnd` from the DB row
   and returns 400 `'Subscription is not scheduled
-  for cancellation'` BEFORE calling the provider;
+for cancellation'` BEFORE calling the provider;
   distinct from the polar/subscription/[id]/
   reactivate sibling which surfaces the same 400
   via a catch-substring detection on the upstream
@@ -3339,8 +3365,7 @@ why** at a higher level than per-commit diffs.
   IDOR check (partial-IDOR finding); state-machine
   pre-check 400 minted from a DB-row column read;
   no body parsing (matches polar/reactivate
-  sibling); multi-step write (`updateSubscription`
-  + `updateSubscriptionBySubscriptionId` DB sync +
+  sibling); multi-step write (`updateSubscription` - `updateSubscriptionBySubscriptionId` DB sync +
   async email side-effect with try/catch fault
   tolerance); generic 500 catch (single static
   string, NO substring detection); static success
@@ -3366,7 +3391,7 @@ why** at a higher level than per-commit diffs.
   tenant-scoped DB read is NOT entered upstream of
   the auth gate) — pinning two FIRST contracts no
   prior smoke covers and completing the
-  stripe/subscription/[id]/* POST pair (cancel +
+  stripe/subscription/[id]/\* POST pair (cancel +
   reactivate).
 
 - `docs/plugins` Added `stripe-subscription-id-cancel-body-spec.md` —
@@ -3386,9 +3411,9 @@ why** at a higher level than per-commit diffs.
   enforce ownership) AND the **first per-source-
   file POST smoke** pinning a **DB-sync-after-
   provider-call contract** (after `stripeProvider.
-  cancelSubscription(...)` succeeds, the handler
+cancelSubscription(...)` succeeds, the handler
   ALSO calls `updateSubscriptionBySubscriptionId
-  ({...})` to sync the cancellation state back to
+({...})` to sync the cancellation state back to
   the local DB). Distinct from polar/subscription/
   [id]/cancel sibling: NO IDOR-protection; NO
   Content-Length 413 pre-check; DB sync side-
@@ -3476,7 +3501,7 @@ why** at a higher level than per-commit diffs.
   substring-detection on a business-rule
   violation: `'not scheduled for cancellation'` →
   400 `'Subscription is not scheduled for
-  cancellation'`). Distinct from EVERY prior POST
+cancellation'`). Distinct from EVERY prior POST
   smoke: no body parsing; no Content-Length 413
   pre-check (distinct from polar/cancel sibling);
   THREE-string catch dispatcher (404 / 401 / 400);
@@ -3514,14 +3539,14 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file POST smoke**
   pinning a **Content-Length 413 pre-check** (the
   handler reads `request.headers.get('content-
-  length')` BEFORE the body parse and returns 413
+length')` BEFORE the body parse and returns 413
   if declared length > 1KB; FIRST 413 contract in
   the rollout) AND the **first per-source-file
   POST smoke** pinning an **IDOR-protection
   chain** (after `getCustomerId` → 403, retrieves
   subscription and explicitly checks ownership;
   merged 404 message `'Subscription not found or
-  access denied'` for both not-found AND ownership-
+access denied'` for both not-found AND ownership-
   mismatch). Distinct from EVERY prior POST smoke:
   Content-Length 413 pre-check; IDOR-protection
   chain; private property access via
@@ -3561,7 +3586,7 @@ why** at a higher level than per-commit diffs.
   **first per-source-file POST smoke** pinning a
   **`code` field in the 401 envelope** (THREE-key
   envelope `{ error, message, code:
-  'AUTH_REQUIRED' }`; FIRST per-source-file POST
+'AUTH_REQUIRED' }`; FIRST per-source-file POST
   smoke pinning enum-typed code in 401) AND the
   **first per-source-file POST smoke** pinning a
   **`timestamp` field in success AND catch
@@ -3569,8 +3594,8 @@ why** at a higher level than per-commit diffs.
   smoke: email-gated auth; THREE-key 401 envelope
   with `code: 'AUTH_REQUIRED'`; `code` field in
   400 validation envelope (`code: 'VALIDATION_
-  ERROR'`); FOUR-key catch envelope with `code:
-  'CANCEL_FAILED'` AND `timestamp` (FIRST per-
+ERROR'`); FOUR-key catch envelope with `code:
+'CANCEL_FAILED'` AND `timestamp` (FIRST per-
   source-file POST smoke pinning a 4-key catch
   envelope); conditional success message based on
   `cancelAtPeriodEnd` flag; `timestamp` field in
@@ -3609,7 +3634,7 @@ why** at a higher level than per-commit diffs.
   invalid Zod contract) AND the **first per-
   source-file POST smoke** pinning a **Stripe-
   error-echo contract** (`error instanceof Stripe.
-  errors.StripeError` → 400 with raw stripe error
+errors.StripeError` → 400 with raw stripe error
   message echoed; EVERY prior catch uses static-
   string messages). Distinct from every prior POST
   smoke: Zod `.parse(body)` throwing; stripe-error-
@@ -3647,7 +3672,7 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file POST smoke**
   pinning a **NO-body-validation contract** (the
   handler destructures `{ amount, currency = 'usd',
-  metadata, planId }` and passes them straight to
+metadata, planId }` and passes them straight to
   `stripeProvider.createPaymentIntent(...)` with NO
   validation; EVERY prior POST smoke has at least
   one body-validation gate -- FIRST trust-the-body
@@ -3696,8 +3721,8 @@ why** at a higher level than per-commit diffs.
   — the **first per-source-file POST smoke**
   pinning a **swallow-and-continue body-parse
   contract** (`try { const body = await request.json();
-  successUrl = body.successUrl; cancelUrl =
-  body.cancelUrl; } catch { /* Body is optional */ }`
+successUrl = body.successUrl; cancelUrl =
+body.cancelUrl; } catch { /* Body is optional */ }`
   — malformed JSON OR missing body silently leaves
   `successUrl` / `cancelUrl` as `undefined`; FIRST
   swallow-and-continue contract in the rollout, distinct
@@ -3710,14 +3735,14 @@ why** at a higher level than per-commit diffs.
   `appUrl`) AND a **multi-provider `switch` dispatch
   with default-case 400** (Stripe / LemonSqueezy /
   Polar / default → 400 `'Payment configuration is
-  incomplete. Please contact support.'`) AND a
+incomplete. Please contact support.'`) AND a
   **state-machine 400 branch with status
   interpolation** (`Cannot renew sponsor ad with
-  status: ${sponsorAd.status}. Only active or expired
-  ads can be renewed.`; whitelist gate
+status: ${sponsorAd.status}. Only active or expired
+ads can be renewed.`; whitelist gate
   `renewableStatuses = [ACTIVE, EXPIRED]`). The smoke
   spec pins a canonical 401 `{ success: false, error:
-  'Unauthorized' }` two-key envelope, a strict
+'Unauthorized' }` two-key envelope, a strict
   envelope-shape assertion, gate-before-post-auth /
   -ownership / -state-machine / -provider-switch /
   -outer-catch invariants, swallow-and-continue
@@ -3796,16 +3821,16 @@ why** at a higher level than per-commit diffs.
   silently coalesces to `{}`; FIRST silent-coalesce
   contract in the rollout) AND a **conditional Zod
   validation contract** (`.omit({ id: true })
-  .safeParse(body)` with `if (!parsed.success &&
-  body.cancelReason !== undefined)` gate). Distinct
+.safeParse(body)` with `if (!parsed.success &&
+body.cancelReason !== undefined)` gate). Distinct
   from EVERY prior POST smoke: silent-coalesce
   body-parse contract; conditional Zod validation
   with `.omit`; default-fallback string for
   `cancelReason` (`'Cancelled by user'`); three-
   branch outer catch with mixed exact-string +
   substring detection (`error.message === 'Sponsor
-  ad not found'` → 404, `error.message.includes
-  ('Cannot cancel')` → 400, default → 500). The
+ad not found'` → 404, `error.message.includes
+('Cannot cancel')` → 400, default → 500). The
   smoke spec pins a canonical one-key 401-envelope
   assertion, a strict envelope-shape assertion, a
   success-branch-key non-disclosure assertion, a
@@ -3838,7 +3863,7 @@ why** at a higher level than per-commit diffs.
   gate posture (returns 429 with `retryAfter`
   field; FIRST per-source-file POST smoke pinning
   a `retryAfter` field); `'Unauthorized. Please
-  sign in.'` 401 message (UNIQUE imperative-
+sign in.'` 401 message (UNIQUE imperative-
   phrased); OAuth-account check (FIRST per-
   source-file POST smoke pinning OAuth-account-
   restriction); dual bcrypt.compare gates (current-
@@ -3885,7 +3910,7 @@ why** at a higher level than per-commit diffs.
   per-source-file PUT or DELETE smoke** that pins a
   **plain-text 401 envelope** instead of a JSON one
   (the unauth branches return `new NextResponse
-  ('Unauthorized', { status: 401 })` -- plain-text
+('Unauthorized', { status: 401 })` -- plain-text
   body, NOT JSON; FIRST plain-text 401 contract in
   the rollout). Distinct from the comment-create POST
   sibling: plain-text 401 envelope (NOT JSON);
@@ -3893,11 +3918,10 @@ why** at a higher level than per-commit diffs.
   / tenant errors; MIXED-envelope contract (auth /
   profile / tenant errors return plain-text, body-
   validation errors PUT-only return JSON; FIRST
-  per-source-file smoke pinning a mixed plain-text
-  + JSON envelope contract on the same handler);
+  per-source-file smoke pinning a mixed plain-text - JSON envelope contract on the same handler);
   three-step ownership chain via Drizzle query with
   embedded `userId` + `tenantId` + `deletedAt IS
-  NULL` filters; DELETE returns 204 No Content; PUT
+NULL` filters; DELETE returns 204 No Content; PUT
   body validation pins a partial-update validation
   contract (FIRST per-source-file PUT smoke). The
   smoke spec pins a doubled header walk (~10 ×
@@ -3940,11 +3964,11 @@ why** at a higher level than per-commit diffs.
   from ALL FOUR siblings: multi-provider switch
   dispatch (FIRST per-source-file POST smoke pinning a
   three-way provider dispatch via env var); `success:
-  false` envelope on every error branch (distinct from
+false` envelope on every error branch (distinct from
   the quartet's two-key `{ error, message }`
   envelopes); open-redirect validation via
   `validateRedirectUrl(successUrl)` + `validateRedirect
-  Url(cancelUrl)` (FIRST per-source-file POST smoke
+Url(cancelUrl)` (FIRST per-source-file POST smoke
   pinning an open-redirect-prevention contract);
   three-stage post-auth gate stack 404 → 403 → 400
   (UNIQUE forbidden branch -- no other checkout has
@@ -3959,7 +3983,7 @@ why** at a higher level than per-commit diffs.
   (distinct from the quartet which all export `GET` +
   `POST`). The smoke spec pins a canonical success-
   false 401-envelope assertion `{ success: false,
-  error: 'Unauthorized' }`, a strict envelope-shape
+error: 'Unauthorized' }`, a strict envelope-shape
   assertion (exactly `success` + `error` keys), a
   success-branch-key non-disclosure assertion, a gate-
   before-post-auth invariant across SEVEN candidate
@@ -3995,12 +4019,11 @@ why** at a higher level than per-commit diffs.
   quartet (Solidgate + Polar + LemonSqueezy +
   Stripe). Distinct from ALL three siblings:
   three-way mode ternary mapping (`'one_time' →
-  'payment'`, `'subscription' → 'subscription'`,
+'payment'`, `'subscription' → 'subscription'`,
   unknown → `'setup'` -- UNIQUE setup fallback);
   trial-amount validation (FIRST per-source-file
   POST smoke pinning trial-config validation);
-  helper-function pipeline (`buildCheckoutLineItems`
-  + `createBaseCheckoutParams` +
+  helper-function pipeline (`buildCheckoutLineItems` - `createBaseCheckoutParams` +
   `applySubscriptionConfig` from co-located
   `./helpers` -- FIRST per-source-file POST smoke
   pinning a multi-helper assembly pipeline);
@@ -4192,31 +4215,31 @@ why** at a higher level than per-commit diffs.
   assertion each; this spec drills into the
   Solidgate handler specifically. Distinct from the
   closest analogue (`polar-subscription-portal-body
-  -spec.md`) in five ways: (a) **TWO-key 401
+-spec.md`) in five ways: (a) **TWO-key 401
   envelope** -- Solidgate returns `{ error:
-  'Unauthorized', message: 'Authentication
-  required' }` (TWO keys); polar-portal returns
+'Unauthorized', message: 'Authentication
+required' }` (TWO keys); polar-portal returns
   `{ error: 'Unauthorized' }` (ONE key) -- UNIQUE;
   (b) **Zod `safeParse` AFTER the auth gate** --
   the `checkoutSchema.safeParse(json)` and the
   surrounding `try/catch` around `request.json()`
   fire only AFTER `auth()`; (c) **FIVE-key success
   envelope** -- success returns `{ data: { id, url
-  }, status, message }` with a literal `status: 200`
+}, status, message }` with a literal `status: 200`
   field embedded in the body, separate from the HTTP
   status -- UNIQUE; (d) **500 catch (NOT 400)** --
   outer catch returns 500 with `{ error, message,
-  details }` (dev-only stack); polar-webhook uses
+details }` (dev-only stack); polar-webhook uses
   `safeErrorResponse(..., 400)` -- UNIQUE; (e) **POST
   -only export** -- GET / PUT / PATCH / DELETE are
   NOT exported; method-resolution returns 405. The
   spec pins a canonical two-key 401-envelope
   assertion, a strict envelope-shape invariance walk
   pinning `Object.keys(body).sort() === ['error',
-  'message']`, a no-Zod-issue-leak invariance walk
+'message']`, a no-Zod-issue-leak invariance walk
   pinning that schema details (`amount`,
   `successUrl`, `cancelUrl`, `mode`, `'Invalid
-  request body'`, `'Invalid JSON'`) must NEVER
+request body'`, `'Invalid JSON'`) must NEVER
   appear in the unauth response, a no-success-key-
   leak invariance walk pinning that `data` / `id` /
   `url` / literal `status: 200` must NEVER appear, a
@@ -4250,7 +4273,7 @@ why** at a higher level than per-commit diffs.
   the **third per-source-file webhook POST smoke**
   (after polar + lemonsqueezy). Distinct from BOTH:
   two-header signature fallback (`x-signature ||
-  solidgate-signature` -- UNIQUE to Solidgate);
+solidgate-signature` -- UNIQUE to Solidgate);
   manual JSON parse like polar but NO
   `validateWebhookPayload` check; in-memory
   idempotency Set with 24-hour TTL (FIRST webhook
@@ -4289,14 +4312,14 @@ why** at a higher level than per-commit diffs.
   `apps/web/app/api/items/[slug]/comments/rating/route.ts`
   — the **first per-source-file query smoke** for a
   public item-detail endpoint that uses
-  **`checkDatabaseAvailability()` as a *graceful-
-  fallback* gate** (NOT as a 503-returning gate like
+  **`checkDatabaseAvailability()` as a _graceful-
+  fallback_ gate** (NOT as a 503-returning gate like
   the sibling `item-comments-create-body` POST). When
   `process.env.DATABASE_URL` is missing OR the tenant
   resolution returns null OR the Drizzle aggregate
   query throws, the handler returns the SAME success-
   shaped envelope `{ averageRating: 0,
-  totalRatings: 0 }` with status 200 — NEVER a 4xx or
+totalRatings: 0 }` with status 200 — NEVER a 4xx or
   5xx. It is also the **first per-source-file query
   smoke** that pins a **two-key envelope shape**
   (`{ averageRating, totalRatings }`) with NO
@@ -4321,7 +4344,7 @@ why** at a higher level than per-commit diffs.
   comparison across five paths, an envelope-shape
   invariance walk pinning that all five parameterised
   paths return the same `{ averageRating: 0,
-  totalRatings: 0 }` envelope, an `Accept` header
+totalRatings: 0 }` envelope, an `Accept` header
   isolation walk, a side-channel walk, a cross-method
   probe (POST / PUT / PATCH / DELETE), and a
   graceful-degrade catch-branch invariance walk
@@ -4340,14 +4363,13 @@ why** at a higher level than per-commit diffs.
   `polar-webhook-body-spec.md`). Distinct from the
   polar sibling: different signature header
   (`x-signature` -- lowercase, single field, vs
-  polar's `webhook-signature` + `webhook-timestamp`
-  + `webhook-id`); NO manual JSON parse (the
+  polar's `webhook-signature` + `webhook-timestamp` - `webhook-id`); NO manual JSON parse (the
   handler reads the raw body via `await
-  request.text()` and passes it as a STRING to
+request.text()` and passes it as a STRING to
   `lemonSqueezyProvider.handleWebhook(body,
-  signature)`); simpler 2-tier rejection chain
+signature)`); simpler 2-tier rejection chain
   (only `'No signature provided'` and `'Webhook
-  not processed'` -- vs polar's 4-tier chain);
+not processed'` -- vs polar's 4-tier chain);
   switch-statement event dispatcher (8 mapped
   handlers + default `console.log`); same
   400-default catch as polar but via raw
@@ -4355,7 +4377,7 @@ why** at a higher level than per-commit diffs.
   `safeErrorResponse(...)`). The smoke spec pins
   a first-gate signature-header-presence-
   rejection assertion `{ error: 'No signature
-  provided' }`, a strict envelope-shape assertion
+provided' }`, a strict envelope-shape assertion
   across all rejection branches, a success-
   branch-received-key non-disclosure assertion,
   a catch-branch-defaults-to-400 invariant
@@ -4415,7 +4437,7 @@ why** at a higher level than per-commit diffs.
   scenarios: a canonical-envelope 401 assertion
   pinning `{ error: 'Authentication required' }`, a
   strict envelope-shape assertion (`Object.keys(body)
-  === ['error']`, no `success` key), a gate-before-
+=== ['error']`, no `success` key), a gate-before-
   post-auth invariance walk pinning none of the three
   candidate post-auth static messages may surface, a
   vote-record non-disclosure walk pinning that none
@@ -4450,7 +4472,7 @@ why** at a higher level than per-commit diffs.
   **load-bearing FIRST gate** (BEFORE `auth()`) --
   when `DATABASE_URL` is missing, the helper returns
   a **503** `{ error: 'Database not configured',
-  code: 'DATABASE_UNAVAILABLE', message: '...' }`
+code: 'DATABASE_UNAVAILABLE', message: '...' }`
   envelope (first POST smoke pinning this helper-
   emitted shape with a 503 status), the **first**
   non-admin POST smoke that uses the
@@ -4466,10 +4488,10 @@ why** at a higher level than per-commit diffs.
   handler combines a `checkDatabaseAvailability()`
   gate (load-bearing FIRST gate), `auth()` lookup, a
   `!session?.user` gate (→ 401 `'Authentication
-  required'`), JSON body parse, content validation
+required'`), JSON body parse, content validation
   (`!content?.trim()` → 400 `'Content is required'`),
   rating range validation (`typeof rating !==
-  'number' || rating < 1 || rating > 5` → 400
+'number' || rating < 1 || rating > 5` → 400
   `'Rating must be between 1 and 5'`),
   `getClientProfileByUserId(...)` lookup (not found
   → 404 `'Client profile not found'`), the
@@ -4478,7 +4500,7 @@ why** at a higher level than per-commit diffs.
   load-bearing `createComment(...)` write, a
   `getCommentWithUserById(comment.id)` post-write
   lookup (if null → 500 `'Failed to retrieve
-  comment'` -- the first POST smoke pinning a post-
+comment'` -- the first POST smoke pinning a post-
   write null-check 500 envelope), success payload
   `{ success: true, comment }` with status 200, and
   outer catch 500 `'Failed to create comment'`. The
@@ -4528,15 +4550,15 @@ why** at a higher level than per-commit diffs.
   resolution, a `!session?.user?.id` gate (→ 401
   `{ success: false, error: 'Unauthorized' }`), JSON
   body parse, vote-type enum validation, `getClient
-  ProfileByUserId(...)` lookup (not found → 404
+ProfileByUserId(...)` lookup (not found → 404
   `'Client profile not found'`), the
   `isUserBlocked(...)` moderation-status gate (if
   true → 403 with the dynamic `getBlockReasonMessage`
   message), existing-votes lookup + replace logic,
   the load-bearing `createVote({ userId, itemId,
-  voteType })` write, `getVoteCountForItem(slug)`,
+voteType })` write, `getVoteCountForItem(slug)`,
   success payload `{ success: true, count, userVote:
-  type }` with status 200, and outer catch
+type }` with status 200, and outer catch
   `console.error` + 500 `'Internal server error'`.
   The smoke spec pins a canonical-envelope bare-
   message 401 assertion, a strict envelope-shape
@@ -4573,8 +4595,8 @@ why** at a higher level than per-commit diffs.
   unauthenticated-rejected; this spec drills into
   the Polar webhook handler specifically), the
   **first POST smoke** that uses **`await
-  request.text()` (raw body)** instead of `await
-  request.json()` (because Polar calculates
+request.text()` (raw body)** instead of `await
+request.json()` (because Polar calculates
   signatures on the raw body, not the parsed JSON;
   the handler manually parses the raw text via
   `JSON.parse(bodyText)` inside a try/catch), and
@@ -4592,12 +4614,12 @@ why** at a higher level than per-commit diffs.
   (missing → 400 `'No signature provided'`), the
   load-bearing `polarProvider.handleWebhook(...)`
   signature-verification call, a `!webhookResult.
-  received` check (400 `'Webhook not processed'`),
+received` check (400 `'Webhook not processed'`),
   the load-bearing `routeWebhookEvent(...)` event-
   routing call on the success branch, success
   payload `{ received: true }` with status 200,
   and outer catch `safeErrorResponse(error,
-  'Webhook processing failed', 400)`. The smoke
+'Webhook processing failed', 400)`. The smoke
   spec pins a first-gate JSON-parse-rejection
   assertion, a second-gate validate-payload-
   rejection assertion, a third-gate signature-
@@ -4645,7 +4667,7 @@ why** at a higher level than per-commit diffs.
   `auth()` owner check, the `cookies()` viewer-id
   read, OR the `recordItemView(...)` write — making
   the canonical envelope `{ success: true, counted:
-  false, reason: 'bot' }` (status 200) the
+false, reason: 'bot' }` (status 200) the
   load-bearing invariant for the spec. It is also
   the **first POST smoke** the docs tree publishes
   that pins a **synthetic-User-Agent override
@@ -4654,7 +4676,7 @@ why** at a higher level than per-commit diffs.
   non-existent slug, progresses past the bot gate,
   reaches `itemRepository.findBySlug(slug)`, and
   lands on the `if (!item) return 404 { success:
-  false, error: 'Item not found' }` branch. The two
+false, error: 'Item not found' }` branch. The two
   branches together pin the gate-before-find order
   as a load-bearing invariant: a regression that
   re-orders the `findBySlug(...)` call before the
@@ -4662,15 +4684,15 @@ why** at a higher level than per-commit diffs.
   disclosure on the bot branch OR as a status-code
   change. The smoke spec pins a canonical bot
   envelope assertion `{ success: true, counted:
-  false, reason: 'bot' }`, a strict envelope-shape
+false, reason: 'bot' }`, a strict envelope-shape
   assertion (`Object.keys(body).sort() ===
-  ['counted', 'reason', 'success']`), a
+['counted', 'reason', 'success']`), a
   post-bot-gate-key non-disclosure assertion that
   NONE of `error`, `data`, `code` keys must appear
   in any bot response, a gate-before-post-bot
   invariant pinning that NONE of the three candidate
   static messages (`'Item not found'`, `'Failed to
-  record view'`, `'Database not configured'`) must
+record view'`, `'Database not configured'`) must
   appear in any bot response, a parameterised-vs-
   baseline status-stability comparison, a
   side-channel walk, a cross-method probe, a
@@ -4686,7 +4708,7 @@ why** at a higher level than per-commit diffs.
   non-bot-branch assertion, and an owner-exclusion-
   not-entered invariance walk pinning that
   anonymous requests can NEVER receive `reason:
-  'owner'` regardless of UA OR `submitted_by`
+'owner'` regardless of UA OR `submitted_by`
   body-field bypass attempts — the **first
   bot-detection-graceful-degradation POST smoke**
   the docs tree publishes that pins the bot gate as
@@ -4714,13 +4736,13 @@ why** at a higher level than per-commit diffs.
   `process.env.PLATFORM_API_URL` is missing, the
   handler returns a 200 -- NOT 401, NOT 503 --
   with the envelope `{ success: false,
-  featureDisabled: true, message: 'URL extraction
-  feature is not available. This feature requires
-  PLATFORM_API_URL to be configured.' }` -- no
+featureDisabled: true, message: 'URL extraction
+feature is not available. This feature requires
+PLATFORM_API_URL to be configured.' }` -- no
   prior smoke spec covers a `featureDisabled:
-  true` envelope shape), and the **first POST
+true` envelope shape), and the **first POST
   smoke** that uses **Zod `safeParse` + `result.
-  error.issues[0].message`** (NOT `flatten()`
+error.issues[0].message`** (NOT `flatten()`
   like admin/items/import) to surface the FIRST
   validation issue as the 400 envelope's `error`
   field. In the e2e test environment
@@ -4775,7 +4797,7 @@ why** at a higher level than per-commit diffs.
   the location_index table. For an unauthenticated
   request the FIRST branch of the helper fires
   returning 401 `{ success: false, error:
-  'Unauthorized' }` (canonical envelope with
+'Unauthorized' }` (canonical envelope with
   `success: false` AND short `'Unauthorized'`
   message). The smoke spec pins a canonical-envelope
   bare-message 401 assertion, a strict envelope-
@@ -4817,11 +4839,11 @@ why** at a higher level than per-commit diffs.
   `{ error: 'Unauthorized' }` (bare envelope, no
   `success` key, short message), a JSON body
   parse, a `type` enum check (`'header' |
-  'footer'`), an `items` array check, a per-item
+'footer'`), an `items` array check, a per-item
   structure validation loop (label / path
   required), a per-item path-format XSS-prevention
   validation, then `configManager.updateNestedKey
-  ('custom_header'|'custom_footer', items)` for
+('custom_header'|'custom_footer', items)` for
   the load-bearing works.yml write. Returns
   `{ success: true, type, items }` on success
   (echoing both `type` and `items` from the
@@ -4857,17 +4879,17 @@ why** at a higher level than per-commit diffs.
   — the **first admin-tree POST smoke** the docs
   tree publishes that combines the compound single-
   `if` gate (`!session?.user?.isAdmin ||
-  !session.user.id`), a Zod-`safeParse`-like
+!session.user.id`), a Zod-`safeParse`-like
   validation via `validateTwentyCrmConfig(body)` that
   returns a custom `{ success, data | error }` shape
   and is translated to a `details: [{field, message}]`
   400 envelope, AND a `logActivity(...)` side-effect
   that captures `request.headers.get('x-forwarded-
-  for')` for the audit log — the first POST smoke
+for')` for the audit log — the first POST smoke
   that reads a request header for an audit side-
   effect. Returns `{ success: true, message:
-  'Configuration saved successfully', data:
-  <savedConfig> }` on success. The companion
+'Configuration saved successfully', data:
+<savedConfig> }` on success. The companion
   `admin-twenty-crm-config-query.spec.ts` covers the
   GET surface of the same route. The smoke spec pins
   a canonical-longer 401-envelope assertion, a
@@ -4996,13 +5018,13 @@ why** at a higher level than per-commit diffs.
   a single-field required check (`if (!key)` → 400
   `'Key is required'`),
   `configManager.updateNestedKey('settings.${key}',
-  value)` for the load-bearing works.yml write,
+value)` for the load-bearing works.yml write,
   an update-failed branch (500 `'Failed to update
-  setting'` if falsy), success payload
+setting'` if falsy), success payload
   `{ success: true, key, value }` with status 200
   (UNIQUE: echoes the input key and value), and
   outer catch `console.error` + 500 `'Failed to
-  update settings'`. The companion
+update settings'`. The companion
   `admin-settings-query.spec.ts` covers the GET
   surface of the same route. The smoke spec pins a
   bare 401-envelope assertion, a strict envelope-
@@ -5034,10 +5056,10 @@ why** at a higher level than per-commit diffs.
   the configured `DATA_REPOSITORY` GitHub repository
   via `createCategoryGitService`). The POST handler
   combines a single-step inline `!session?.user?.
-  isAdmin` gate that returns 401 `{ error:
-  'Unauthorized. Admin access required.' }` — NOTE:
+isAdmin` gate that returns 401 `{ error:
+'Unauthorized. Admin access required.' }` — NOTE:
   canonical longer message but WITHOUT `success:
-  false` envelope key, a UNIQUE envelope shape that
+false` envelope key, a UNIQUE envelope shape that
   mixes the canonical longer message of
   `admin/items/[id]` etc. WITH the bare envelope of
   `admin/clients/[clientId]`/`admin/companies/[id]`
@@ -5046,12 +5068,12 @@ why** at a higher level than per-commit diffs.
   env-var validation chain (missing / malformed),
   GH_TOKEN env-var validation, then the Git-service
   call. Returns `{ success: true, category:
-  <newCategory>, message: 'Category created and
-  committed to Git repository' }` with status 200
+<newCategory>, message: 'Category created and
+committed to Git repository' }` with status 200
   (NOT 201). Outer catch is two-branch
   (`'already exists'` → 409 echoing raw error.message,
   else `safeErrorResponse(error, 'Failed to create
-  category via Git')`). The smoke spec pins a
+category via Git')`). The smoke spec pins a
   canonical-longer-bare-envelope 401 assertion, a
   strict envelope-shape assertion (no `success` key),
   a success-branch-key non-disclosure assertion, a
@@ -5088,10 +5110,10 @@ why** at a higher level than per-commit diffs.
   first POST smoke that uses a 400, not 409, for an
   already-exists check), then an inline Drizzle
   insert. Returns `{ success: true, data:
-  <featuredItem>, message: 'Item featured
-  successfully' }` with status 200. Outer catch is
+<featuredItem>, message: 'Item featured
+successfully' }` with status 200. Outer catch is
   `console.error` + 500 `'Failed to create featured
-  item'`. The smoke spec pins a hybrid 401-envelope
+item'`. The smoke spec pins a hybrid 401-envelope
   assertion, a strict envelope-shape assertion, an
   unauth-lands-on-401-not-403 invariant, a success-
   branch-key non-disclosure assertion, a gate-before-
@@ -5102,7 +5124,7 @@ why** at a higher level than per-commit diffs.
   entered invariance walk, an already-featured-
   check-not-entered invariance walk pinning that the
   unauth response must NEVER echo `'Item is already
-  featured'`, and a Drizzle-insert-not-entered
+featured'`, and a Drizzle-insert-not-entered
   invariance walk — the **seventh Q-010b auth-gate-
   divergence finding** the docs tree publishes.
 
@@ -5168,7 +5190,7 @@ why** at a higher level than per-commit diffs.
   `auth()` at all**, so any unauthenticated client can
   create roles (including admin-flagged roles by
   sending `{ name: 'X', description: 'Y',
-  isAdmin: true }`). The companion
+isAdmin: true }`). The companion
   `admin-roles-query.spec.ts` already documents the
   same Q-010b finding for the GET surface. With no
   gate, the unauth client receives the same response
@@ -5181,10 +5203,10 @@ why** at a higher level than per-commit diffs.
   collapsing — the first POST smoke that walks a
   slug-derivation step), a soft-delete-aware
   uniqueness check (`roleRepository.exists(id,
-  { includeDeleted: true })`), and an outer-catch
+{ includeDeleted: true })`), and an outer-catch
   translation that maps
   `'already exists' | 'unique constraint' | 'duplicate
-  key'` to a single fixed 409 message. The smoke spec
+key'` to a single fixed 409 message. The smoke spec
   pins a NEVER-401-or-403 invariant pinning the auth-
   gate-divergence finding, a `success`-key envelope-
   shape assertion, a per-header-permutation status-
@@ -5197,7 +5219,7 @@ why** at a higher level than per-commit diffs.
   and a length-validation deterministic-fire invariant
   — the **fifth Q-010b auth-gate-divergence finding**
   the docs tree publishes (joining `admin-roles-query-
-  spec.md`, `admin-roles-active-query-spec.md`,
+spec.md`, `admin-roles-active-query-spec.md`,
   `admin-featured-items-id-method-spec.md`, and the
   broader `admin-by-id.spec.ts` coverage).
 
@@ -5213,7 +5235,7 @@ why** at a higher level than per-commit diffs.
   **first POST-only collection-level admin-tree smoke**
   the docs tree publishes that combines a **per-call
   inline `try { body = await request.json() } catch
-  (jsonError) { ... }`** wrapper emitting an
+(jsonError) { ... }`** wrapper emitting an
   `'Invalid JSON in request body'` 400 envelope (the
   FIRST collection-level admin POST route the smoke
   layer covers that wraps the `request.json()` call in
@@ -5224,37 +5246,32 @@ why** at a higher level than per-commit diffs.
   `'Collection ID and name are required'`) plus a
   **two-`revalidatePath` cache-invalidation chain** on
   the success branch (`revalidatePath('/collections')`
-  PLUS `revalidatePath(\`/collections/\${slug}\`)`
-  slug-aware, in addition to
-  `await invalidateContentCaches()`). Sibling of
-  `admin-categories-create-body-spec.md` — they share the
-  SAME canonical-longer 401 envelope, the SAME three-
-  branch outer catch chain (`'already exists'` /
-  `'must'` / `safeErrorResponse(...)` fallback), and the
-  SAME non-`data` success-payload key (`collection`
-  here, `category` there). Returns
-  `{ success: true, collection: <collection>, message:
-  'Collection created successfully' }` with status 201.
-  The companion `admin-collections-query.spec.ts` covers
-  the GET (paginated list) surface of the same route.
-  The smoke spec pins a canonical-longer 401-envelope
-  assertion (vs the bare-envelope sibling routes), a
-  strict envelope-shape assertion, a success-branch-key
-  non-disclosure assertion, a gate-before-post-auth
-  invariant pinning that the four static post-auth
-  messages must NEVER appear in any unauth response, a
-  parameterised-vs-baseline status-stability comparison,
-  a side-channel walk, a cross-method probe, a
-  per-call-`request.json`-try/catch-not-entered
-  invariance walk pinning that the `'Invalid JSON in
-  request body'` 400 envelope must NEVER appear on the
-  unauth branch (distinct from prior POST smokes which
-  use the bare `await request.json()` form), a required-
+  PLUS `revalidatePath(\`/collections/\${slug}\`)`slug-aware, in addition to`await invalidateContentCaches()`). Sibling of
+`admin-categories-create-body-spec.md` — they share the
+SAME canonical-longer 401 envelope, the SAME three-
+branch outer catch chain (`'already exists'`/`'must'`/`safeErrorResponse(...)` fallback), and the
+SAME non-`data` success-payload key (`collection`here,`category`there). Returns`{ success: true, collection: <collection>, message:
+  'Collection created successfully' }`with status 201.
+The companion`admin-collections-query.spec.ts` covers
+the GET (paginated list) surface of the same route.
+The smoke spec pins a canonical-longer 401-envelope
+assertion (vs the bare-envelope sibling routes), a
+strict envelope-shape assertion, a success-branch-key
+non-disclosure assertion, a gate-before-post-auth
+invariant pinning that the four static post-auth
+messages must NEVER appear in any unauth response, a
+parameterised-vs-baseline status-stability comparison,
+a side-channel walk, a cross-method probe, a
+per-call-`request.json`-try/catch-not-entered
+invariance walk pinning that the `'Invalid JSON in
+  request body'`400 envelope must NEVER appear on the
+unauth branch (distinct from prior POST smokes which
+use the bare`await request.json()`form), a required-
   field-check-not-entered invariance walk, a create-call-
-  + cache-invalidation-not-entered invariance walk
-  pinning that the unauth response status must NOT be
-  201, must NOT contain a `collection` key, and the
-  `revalidatePath` side-effects must NEVER fire, and a
+    - cache-invalidation-not-entered invariance walk
+      pinning that the unauth response status must NOT be
+      201, must NOT contain a`collection`key, and the
+     `revalidatePath` side-effects must NEVER fire, and a
   three-branch-outer-catch-not-entered invariance walk
   pinning that the unauth response must echo the
   canonical 401 envelope, not any branch of the outer
@@ -5297,7 +5314,7 @@ why** at a higher level than per-commit diffs.
   invariant pinning that the five static post-auth
   messages plus the dynamic
   `'Company with (domain|slug) '<...>' already
-  exists'` 409 messages (matched via regex prefix)
+exists'` 409 messages (matched via regex prefix)
   must NEVER appear in any unauth response, a
   parameterised-vs-baseline status-stability
   comparison, a side-channel walk, a cross-method
@@ -5335,14 +5352,14 @@ why** at a higher level than per-commit diffs.
   required check, `getUserByEmail(email)` lookup, an
   inner-try/catch user-create branch that returns 400
   with dynamically-interpolated `'Failed to create
-  user: <err.message>'` message on failure, a get-or-
+user: <err.message>'` message on failure, a get-or-
   create fallback validation, then
   `createClientProfile(clientData)` with defaults, an
   optional CRM sync side-effect, and returns
   `{ success: true, data: <client>, message: 'Client
-  created successfully' }` with status 200 (NOT 201).
+created successfully' }` with status 200 (NOT 201).
   The outer catch returns 500 `{ error: 'Failed to
-  create client' }` (BARE envelope). The companion
+create client' }` (BARE envelope). The companion
   `admin-clients-query.spec.ts` covers the GET surface
   of the same route. The smoke spec pins a bare 401-
   envelope assertion, a strict envelope-shape
@@ -5381,7 +5398,7 @@ why** at a higher level than per-commit diffs.
   envelope `admin/categories` and `admin/collections`
   POST smokes. The POST handler runs a two-field
   required check, calls `tagRepository.create({ id,
-  name, isActive: isActive ?? true })` (defaults
+name, isActive: isActive ?? true })` (defaults
   `isActive` to `true` if not provided), runs
   `await invalidateContentCaches()`, and returns
   `{ success: true, tag: <tag> }` with status 201 (NO
@@ -5420,14 +5437,14 @@ why** at a higher level than per-commit diffs.
   **single-step inline `!session?.user?.isAdmin` gate**
   with a **single required-field validation**
   (`if (!createData.name)` → 400 `'Category name is
-  required'`) AND a **three-branch outer-catch chain**
+required'`) AND a **three-branch outer-catch chain**
   (`error.message.includes('already exists')` → 409
   echoing raw message, `error.message.includes('must
-  be')` → 400 echoing raw message, `safeErrorResponse(
-  error, 'Failed to create category')` fallback) AND a
+be')` → 400 echoing raw message, `safeErrorResponse(
+error, 'Failed to create category')` fallback) AND a
   **`category` success-payload key (NOT `data`)** —
   `{ success: true, category: <category>, message:
-  'Category created successfully' }` with status 201.
+'Category created successfully' }` with status 201.
   Distinct from `admin/items` POST which uses a five-
   field guard with TWO 409 pre-create duplicate checks
   AND a `data` success-key; distinct from `admin/users`
@@ -5436,7 +5453,7 @@ why** at a higher level than per-commit diffs.
   through outer catch; distinct from `admin/collections`
   POST which uses a two-field guard AND a `collection`
   success-key. The companion `admin-categories-query.
-  spec.ts` covers the GET (paginated list) surface of
+spec.ts` covers the GET (paginated list) surface of
   the same route. The smoke spec pins a canonical-
   longer 401-envelope assertion, a strict envelope-
   shape assertion, a success-branch-key non-disclosure
@@ -5446,7 +5463,7 @@ why** at a higher level than per-commit diffs.
   auth invariant pinning that NONE of the three static
   post-auth messages (`'Category name is required'`,
   `'Failed to create category'`, `'Category created
-  successfully'`) must appear in any unauth response, a
+successfully'`) must appear in any unauth response, a
   parameterised-vs-baseline status-stability comparison,
   a side-channel cookie / `X-*` header walk, a cross-
   method probe asserting PUT / PATCH / DELETE round-
@@ -5457,7 +5474,7 @@ why** at a higher level than per-commit diffs.
   cache-invalidation-not-entered invariance walk
   pinning that the unauth response status must NOT be
   201 and must NEVER echo `'Category created
-  successfully'`, and a two-branch-catch-not-entered
+successfully'`, and a two-branch-catch-not-entered
   invariance walk pinning that the unauth response
   must equal the canonical 401 envelope rather than any
   catch-branch shape — the **first `category`-success-
@@ -5547,7 +5564,7 @@ why** at a higher level than per-commit diffs.
   status must appear in any unauth response, a gate-
   before-post-auth invariant pinning that the two
   static post-auth messages plus the dynamic `'Item
-  with (ID|slug) '<...>' already exists'` 409
+with (ID|slug) '<...>' already exists'` 409
   messages (matched via regex prefix) must NEVER
   appear in any unauth response, a parameterised-vs-
   baseline status-stability comparison, a side-channel
@@ -5592,7 +5609,7 @@ why** at a higher level than per-commit diffs.
   handlers share the SAME hybrid 401 envelope
   (`{ success: false, error: 'Unauthorized' }` —
   matching `admin/users/[id]` and `admin/featured-
-  items/[id]`) and the SAME `console.error` + 500
+items/[id]`) and the SAME `console.error` + 500
   catch posture. Each handler diverges on its post-
   gate surface: GET calls `roleRepository.findById`
   returning 404 / 200; PUT parses body AFTER both
@@ -5603,7 +5620,7 @@ why** at a higher level than per-commit diffs.
   empty / (b) name-length / (c) description-length),
   calls `roleRepository.update(id, ...)`, returns
   `{ success: true, data: <role>, message: 'Role
-  updated successfully' }`; DELETE parses
+updated successfully' }`; DELETE parses
   `searchParams.get('hard') === 'true'`, runs an
   existence check, branches on `hardDelete` boolean
   (`hardDelete === true` →
@@ -5626,7 +5643,7 @@ why** at a higher level than per-commit diffs.
   status, and a hard-delete-branch-not-entered
   invariance walk pinning that the unauth response
   must NEVER echo `'Role deleted (marked as
-  inactive)'` or `'Role permanently deleted'` — the
+inactive)'` or `'Role permanently deleted'` — the
   **first two-step-gate-with-DELETE-?hard-query
   admin-tree smoke** the docs tree publishes.
 
@@ -5655,10 +5672,10 @@ why** at a higher level than per-commit diffs.
   `tagRepository.update(id, ...)`, runs
   `await invalidateContentCaches()`, returns
   `{ success: true, data, message: 'Tag updated
-  successfully' }`, with three catch branches plus
+successfully' }`, with three catch branches plus
   500 fallback; DELETE calls `tagRepository.delete`,
   runs cache invalidation, returns `{ success: true,
-  message: 'Tag deleted successfully' }`, with one
+message: 'Tag deleted successfully' }`, with one
   catch branch plus 500 fallback. The smoke spec
   pins per-method hybrid 401-envelope assertions,
   gate-before-post-auth across seven candidate
@@ -5710,13 +5727,13 @@ why** at a higher level than per-commit diffs.
   post-gate surface: (a) **GET** calls
   `collectionRepository.findById(id)` returning 404
   `'Collection not found'` if missing or `{ success:
-  true, data: <collection> }`; (b) **PUT** parses JSON
+true, data: <collection> }`; (b) **PUT** parses JSON
   body AFTER the gate, runs **Zod
   `safeParse(updateCollectionSchema)`** → 400 `{
-  success: false, error: 'Invalid collection payload',
-  details: parsed.error.flatten() }` (UNIQUE
+success: false, error: 'Invalid collection payload',
+details: parsed.error.flatten() }` (UNIQUE
   `flatten()`-shaped `details: { formErrors:
-  string[], fieldErrors: Record<string, string[]> }`
+string[], fieldErrors: Record<string, string[]> }`
   envelope — DIFFERENT from the `error.errors` array a
   `parse()`-then-catch route would emit), then runs the
   pre-update `findById`, then
@@ -5727,14 +5744,14 @@ why** at a higher level than per-commit diffs.
   the conditional slug-revalidation branch plus the
   always-emitted new-slug + index revalidation,
   returning `{ success: true, data: <updated>, message:
-  'Collection updated successfully' }`; (c) **DELETE**
+'Collection updated successfully' }`; (c) **DELETE**
   runs the pre-delete `findById`, calls
   `collectionRepository.delete(id)`, has TWO distinct
   catch branches (`not found` → 404 with bare-message
   echo, `safeErrorResponse(...)` fallback), then runs
   `invalidateContentCaches()` + two `revalidatePath(...)`
   calls, returning `{ success: true, message:
-  'Collection deleted successfully' }` (NO `data` key).
+'Collection deleted successfully' }` (NO `data` key).
   The smoke spec pins per-method canonical-401-envelope
   assertions, a strict envelope-shape assertion, a
   cross-method envelope-equality assertion, a success-
@@ -5761,10 +5778,10 @@ why** at a higher level than per-commit diffs.
   **first Zod-`safeParse(...)`-with-`flatten()`-envelope
   admin-tree smoke** the docs tree publishes (joining
   the prior Zod-`parse()` `admin-companies-id-method-
-  spec.md`, the validation-less `admin-featured-items-
-  id-method-spec.md`, and the inline-untyped `admin-
-  items-id-method-spec.md` and `admin-categories-id-
-  method-spec.md` triple-method smokes the sub-rollout
+spec.md`, the validation-less `admin-featured-items-
+id-method-spec.md`, and the inline-untyped `admin-
+items-id-method-spec.md` and `admin-categories-id-
+method-spec.md` triple-method smokes the sub-rollout
   previously published).
 
 - `docs/plugins` Added `admin-featured-items-id-method-spec.md` —
@@ -5800,7 +5817,7 @@ why** at a higher level than per-commit diffs.
   Each handler diverges on its post-gate surface:
   (a) **GET** runs an inline Drizzle `select()` with
   tenant scoping returning 404 `'Featured item not
-  found'` if `result.length === 0` or
+found'` if `result.length === 0` or
   `{ success: true, data: <featured-item> }`;
   (b) **PUT** parses JSON body AFTER tenant resolution
   and runs **NO body validation** (seven fields
@@ -5810,14 +5827,14 @@ why** at a higher level than per-commit diffs.
   `db.update(...).set({...}).returning()`), returns
   404 if `updatedItem.length === 0` or
   `{ success: true, data: <updatedItem>, message:
-  'Featured item updated successfully' }`;
+'Featured item updated successfully' }`;
   (c) **DELETE** runs **soft delete** via
   `db.update(...).set({ isActive: false, updatedAt:
-  new Date() }).returning()` — distinct from every
+new Date() }).returning()` — distinct from every
   prior admin DELETE smoke that actually removes the
   row — returns 404 if `updatedItem.length === 0` or
   `{ success: true, message: 'Featured item removed
-  successfully' }` (NO `data` key). The smoke spec
+successfully' }` (NO `data` key). The smoke spec
   pins per-method hybrid 401-envelope assertions, a
   strict envelope-shape assertion, a cross-method
   envelope-equality assertion, a success-branch-key
@@ -5859,7 +5876,7 @@ why** at a higher level than per-commit diffs.
   `success` key — matching `admin/clients/[clientId]`)
   with a **Zod `parse()` (NOT `safeParse()`) body-
   validation step** that emits a `details: [{field,
-  message}]` 400 envelope (a UNIQUE envelope key no
+message}]` 400 envelope (a UNIQUE envelope key no
   prior admin-tree smoke pins) AND **two 409 Conflict
   pre-update uniqueness checks**
   (`getCompanyByDomain(...)` and
@@ -5867,7 +5884,7 @@ why** at a higher level than per-commit diffs.
   interpolated messages AND an **outer-catch unique-
   constraint translation chain** that maps
   `error.message.includes('unique constraint' |
-  'duplicate key')` to one of three 409 envelope
+'duplicate key')` to one of three 409 envelope
   variants based on `domain` / `slug` substring
   detection. All three handlers share the SAME
   single-step inline `!session?.user?.isAdmin` gate
@@ -5945,23 +5962,23 @@ why** at a higher level than per-commit diffs.
   `await params` (NOTE: ordering distinct from GET)
   → 403 `'Tenant not found'`, parses JSON body,
   validates `content?.trim()` → 400 `'Content is
-  required'` if falsy, runs a soft-delete-aware
+required'` if falsy, runs a soft-delete-aware
   `getCommentById(id)` existence check
   (`existingComment.deletedAt` → 404 `'Comment not
-  found'`), then issues an **inline Drizzle re-query**
+found'`), then issues an **inline Drizzle re-query**
   (NOTE: the actual `updateComment` call is
   **commented out** in the source — the route
   currently re-fetches the comment without updating
   it; a regression-sensitive note), returning
   `{ success: true, data: <comment-with-user>,
-  message: 'Comment updated successfully' }`;
+message: 'Comment updated successfully' }`;
   (c) **DELETE** has **NO `getTenantId()` call**
   (distinct from GET / PUT), runs a soft-delete-aware
   `getCommentById(id)` existence check, calls
   `deleteComment(id)` (soft delete via setting
   `deletedAt`), and returns
   `{ success: true, message: 'Comment deleted
-  successfully' }` (NO `data` key). The smoke spec
+successfully' }` (NO `data` key). The smoke spec
   pins per-method 403-envelope assertions across
   GET / PUT / DELETE, a NEVER-401 invariant across
   all three methods, a strict envelope-shape
@@ -6007,9 +6024,9 @@ why** at a higher level than per-commit diffs.
   bearing divergence: GET uses a `console.error` + 500
   `'Failed to fetch sponsor ad'` catch, while DELETE
   uses a **narrow-match `error.message === 'Sponsor
-  ad not found'`** → 404 catch followed by a
+ad not found'`** → 404 catch followed by a
   `safeErrorResponse(error, 'Failed to delete sponsor
-  ad')` fallback. The DELETE handler is the **first
+ad')` fallback. The DELETE handler is the **first
   admin DELETE smoke** where the catch chain begins
   with a narrow-match equality check on a service-
   thrown sentinel string (rather than a
@@ -6100,7 +6117,7 @@ why** at a higher level than per-commit diffs.
   404 `'Category not found'` branch, returns
   `{ success: true, data: <category> }`, catches
   with `safeErrorResponse(error, 'Failed to fetch
-  category')`;
+category')`;
   (b) **PUT** — JSON body parse via
   `await request.json()` AFTER the gate (NOT
   wrapped in a per-call try/catch — a malformed
@@ -6110,11 +6127,11 @@ why** at a higher level than per-commit diffs.
   calls `categoryRepository.update(updateData)`,
   runs `await invalidateContentCaches()` on the
   success branch, returns `{ success: true,
-  data: <category>, message: 'Category updated
-  successfully' }`, has THREE message-pattern
+data: <category>, message: 'Category updated
+successfully' }`, has THREE message-pattern
   catch branches BEFORE the outer
   `safeErrorResponse(error, 'Failed to update
-  category')` catch (`'not found'` → 404,
+category')` catch (`'not found'` → 404,
   `'already exists'` → 409, `'must be'` → 400,
   each echoing the raw `error.message`);
   (c) **DELETE** — no body parse, parses
@@ -6124,15 +6141,15 @@ why** at a higher level than per-commit diffs.
   `categoryRepository.delete(id)`, runs
   `await invalidateContentCaches()` on the
   success branch, returns `{ success: true,
-  message: 'Category permanently deleted' }`
+message: 'Category permanently deleted' }`
   for `hard === true` or `{ success: true,
-  message: 'Category deactivated successfully' }`
+message: 'Category deactivated successfully' }`
   otherwise (NO `data` key — distinct from
   GET / PUT), has ONE message-pattern catch
   branch (`'not found'` → 404 echoing
   `error.message`) BEFORE the outer
   `safeErrorResponse(error, 'Failed to delete
-  category')` catch. The smoke spec pins per-
+category')` catch. The smoke spec pins per-
   method canonical-longer 401-envelope assertions,
   a cross-method envelope-equality assertion, a
   DELETE-query envelope-invariance assertion
@@ -6189,7 +6206,7 @@ why** at a higher level than per-commit diffs.
   `items`, NOT `data` — distinct from every prior
   admin GET smoke), catches with
   `safeErrorResponse(error, 'Failed to fetch
-  collection items')`;
+collection items')`;
   (b) **POST** — parses JSON via
   `await request.json()`, validates
   `Array.isArray(body.itemIds)` → 400
@@ -6199,11 +6216,11 @@ why** at a higher level than per-commit diffs.
   `revalidatePath(...)` calls (`/collections` and
   `/collections/<slug>`), returns
   `{ success: true, collection, updatedItems,
-  message: 'Collection items updated successfully' }`
+message: 'Collection items updated successfully' }`
   (FOUR success-branch keys distinct from every prior
   admin POST smoke which uses at most three), catches
   with `safeErrorResponse(error, 'Failed to assign
-  collection items')`. The smoke spec pins per-method
+collection items')`. The smoke spec pins per-method
   canonical-longer 401-envelope assertions, a cross-
   method envelope-equality assertion, a success-
   branch-key non-disclosure assertion that NONE of
@@ -6252,7 +6269,7 @@ why** at a higher level than per-commit diffs.
   title / avatar / role-DB-lookup / status-enum), a
   **DELETE self-deletion guard**
   (`session.user.id === id` → 400 `'Cannot delete your
-  own account'` — a unique safety check no other
+own account'` — a unique safety check no other
   admin-tree route enforces), and an
   **`error.message`-pass-through catch posture** on
   PUT and DELETE that returns 400 with the raw error
@@ -6284,7 +6301,7 @@ why** at a higher level than per-commit diffs.
   `message` key);
   (9) **DELETE success payload**
   `{ success: true, message: 'User deleted
-  successfully' }` (NO `data` key);
+successfully' }` (NO `data` key);
   (10) **method-resolution surface** with `GET` /
   `PUT` / `DELETE`-only export. The smoke spec pins
   per-method hybrid 401-envelope assertions across
@@ -6360,11 +6377,11 @@ why** at a higher level than per-commit diffs.
   PUT which includes `'Item updated successfully'`);
   (7) **DELETE success payload**
   `{ success: true, message: 'Client deleted
-  successfully' }` (NO `data` key);
+successfully' }` (NO `data` key);
   (8) **PUT CRM-sync side effect** — two-step
   (company → person) chain wrapped in its own try/
   catch, gated by `process.env.TWENTY_CRM_ENABLED
-  !== 'false'`, distinct from the sibling route's
+!== 'false'`, distinct from the sibling route's
   single-step (company-only) sync;
   (9) **method-resolution surface** with `GET` /
   `PUT` / `DELETE`-only export. The smoke spec pins
@@ -6413,9 +6430,9 @@ why** at a higher level than per-commit diffs.
   each has its own divergent post-gate surface:
   (a) **GET** — no body parse, calls
   `itemRepository.findById(id)` with a 404 `'Item not
-  found'` branch, returns `{ success: true, data:
-  <item> }`, catches with `safeErrorResponse(error,
-  'Failed to fetch item')`;
+found'` branch, returns `{ success: true, data:
+<item> }`, catches with `safeErrorResponse(error,
+'Failed to fetch item')`;
   (b) **PUT** — parses JSON via `await request.json()`
   (NOT wrapped in a per-call try/catch — a malformed
   body would 500 via the outer catch on the auth
@@ -6428,17 +6445,17 @@ why** at a higher level than per-commit diffs.
   body `brand` field) and to the Location Index
   (gated by `getLocationEnabled()`), returns
   `{ success: true, data: <item>, message: 'Item
-  updated successfully' }`, catches with
+updated successfully' }`, catches with
   `safeErrorResponse(error, 'Failed to update
-  item')`;
+item')`;
   (c) **DELETE** — no body parse, builds the same
   audit-user, calls `itemRepository.delete(id,
-  auditUser)`, optionally removes from the Location
+auditUser)`, optionally removes from the Location
   Index, returns `{ success: true, message: 'Item
-  deleted successfully' }` (NOTE: NO `data` key —
+deleted successfully' }` (NOTE: NO `data` key —
   distinct from GET / PUT success payloads), catches
   with `safeErrorResponse(error, 'Failed to delete
-  item')`. The smoke spec pins per-method canonical-
+item')`. The smoke spec pins per-method canonical-
   longer 401-envelope assertions across GET / PUT /
   DELETE, a cross-method envelope-equality assertion
   pinning that all three handlers emit byte-identical
@@ -6448,8 +6465,8 @@ why** at a higher level than per-commit diffs.
   across all three methods, a gate-before-post-auth
   invariant pinning that NONE of the six post-auth
   messages (`'Item not found'`, `'Failed to fetch
-  item'`, `'Failed to update item'`, `'Failed to
-  delete item'`, `'Item updated successfully'`,
+item'`, `'Failed to update item'`, `'Failed to
+delete item'`, `'Item updated successfully'`,
   `'Item deleted successfully'`) must appear in any
   unauth response, a per-id-shape status-stability
   comparison across all three methods, a PUT body-
@@ -6539,8 +6556,8 @@ why** at a higher level than per-commit diffs.
   cookie-less smoke harness lands on the FIRST
   `checkAdminAuth()` branch (the 401 `'Unauthorized'`
   no-session envelope) — NOT the SECOND (`'User ID
-  not found'`) and NOT the THIRD (`'Insufficient
-  permissions'` 403) — the **first dual-method
+not found'`) and NOT the THIRD (`'Insufficient
+permissions'` 403) — the **first dual-method
   `checkAdminAuth()`-helper admin-tree smoke** the
   docs tree publishes.
 - `docs/plugins` Added `admin-sponsor-ads-id-cancel-method-spec.md` —
@@ -6581,7 +6598,7 @@ why** at a higher level than per-commit diffs.
   tree smoke** the docs tree publishes;
   (7) **service-call surface** with
   `sponsorAdService.cancelSponsorAd(id,
-  validationResult.data.cancelReason)` (NOTE: no
+validationResult.data.cancelReason)` (NOTE: no
   `session.user.id` audit-user threaded through,
   distinct from the sibling `approve` / `reject`
   routes);
@@ -6589,7 +6606,7 @@ why** at a higher level than per-commit diffs.
   mapping `'Sponsor ad not found'` → 404 FIRST, then
   `error.message.includes('Cannot cancel')` → 400,
   with `safeErrorResponse(error, 'Failed to cancel
-  sponsor ad')` fallback — distinct from the sibling
+sponsor ad')` fallback — distinct from the sibling
   `reject` route's order;
   (9) **service-zero-rows fallback** returning 500;
   (10) **method-resolution surface** with `POST`-only
@@ -6604,8 +6621,7 @@ why** at a higher level than per-commit diffs.
   unauth response does NOT echo a `data` key from the
   service payload, and the gate-before-Zod-validation
   invariant pinning that every `cancelReason` shape
-  (missing + empty + null + valid + 500-char-boundary
-  + 501-char-too-long + numeric) round-trips to the
+  (missing + empty + null + valid + 500-char-boundary - 501-char-too-long + numeric) round-trips to the
   same 401 status — the **first optional-Zod-field
   admin-tree smoke** the docs tree publishes.
 
@@ -6646,7 +6662,7 @@ why** at a higher level than per-commit diffs.
   the gate and AFTER params resolution and AFTER the
   body parse, with a 400 response that echoes
   `validationResult.error.issues[0]?.message ||
-  'Invalid request body'` — a **dynamic** error
+'Invalid request body'` — a **dynamic** error
   message drawn from the Zod schema, distinct from the
   hand-rolled string literals of every prior admin-
   tree smoke — the **first Zod-`safeParse(...)`
@@ -6658,15 +6674,15 @@ why** at a higher level than per-commit diffs.
   (7) **service-call surface** AFTER both the gate AND
   the Zod validation with
   `sponsorAdService.rejectSponsorAd(id,
-  session.user.id, validationResult.data.rejectionReason)`,
+session.user.id, validationResult.data.rejectionReason)`,
   success-branch payload
   `{ success: true, data: <ad>, message: 'Sponsor ad
-  rejected successfully' }`;
+rejected successfully' }`;
   (8) **two-branch catch chain** mapping
   `error.message.includes('Cannot reject')` → 400,
   `'Sponsor ad not found'` → 404, with
   `safeErrorResponse(error, 'Failed to reject sponsor
-  ad')` fallback — a complementary surface to the
+ad')` fallback — a complementary surface to the
   three-branch catch chain of the sibling `approve`
   route;
   (9) **service-zero-rows fallback** returning 500;
@@ -6724,21 +6740,21 @@ why** at a higher level than per-commit diffs.
   (7) **service-call surface** AFTER both the gate AND
   the body parse with
   `sponsorAdService.approveSponsorAd(id,
-  session.user.id, forceApprove)`, success-branch
+session.user.id, forceApprove)`, success-branch
   payload
   `{ success: true, data: <ad>, message: 'Sponsor ad
-  approved and activated successfully' }`;
+approved and activated successfully' }`;
   (8) **multi-error-code catch chain** mapping
   `'Sponsor ad not found'` → 404,
   `'PAYMENT_NOT_RECEIVED'` → 400,
   `error.message.includes('Cannot approve')` → 400,
   with `safeErrorResponse(error, 'Failed to approve
-  sponsor ad')` fallback — the **first multi-error-
+sponsor ad')` fallback — the **first multi-error-
   code catch chain admin-tree smoke** the docs tree
   publishes;
   (9) **service-zero-rows fallback** returning 500
   `{ success: false, error: 'Failed to approve
-  sponsor ad' }`;
+sponsor ad' }`;
   (10) **method-resolution surface** with `POST`-only
   export. The smoke spec pins the gate-before-post-
   auth invariant that NONE of the four post-gate
@@ -6818,7 +6834,7 @@ why** at a higher level than per-commit diffs.
   bodies do NOT 400 with a JSON-parse error before the
   gate fires, and the gate-before-DB-update invariant
   pinning that the `db.update(notifications)
-  ...returning()` call is NOT entered on the unauth
+...returning()` call is NOT entered on the unauth
   branch — the **first dynamic-segment `[id]` `PATCH`
   admin-tree smoke** the docs tree publishes.
 
@@ -6852,9 +6868,9 @@ why** at a higher level than per-commit diffs.
   spec that documents a `formData()`-based body parse;
   (6) **five-step file / mapping validation chain**
   with five distinct 400 messages (`'No file
-  provided.'`, `'Invalid file type. Only CSV and XLSX
-  files are supported.'`, `'File too large. Maximum
-  size is 10 MB.'`, `'Invalid column mapping JSON.'`,
+provided.'`, `'Invalid file type. Only CSV and XLSX
+files are supported.'`, `'File too large. Maximum
+size is 10 MB.'`, `'Invalid column mapping JSON.'`,
   `'File contains no data rows.'`) — the **first
   five-step file/mapping-validation admin-tree smoke**
   the docs tree publishes;
@@ -6864,10 +6880,10 @@ why** at a higher level than per-commit diffs.
   `parseCSV(...)` / `parseXLSX(...)` followed by
   `validateRows(...)`, with success-branch payload
   `{ success: true, headers, suggestedMapping,
-  validationResults, summary }` (four success-branch
+validationResults, summary }` (four success-branch
   keys plus the `success: true` flag);
   (8) **`safeErrorResponse(error, 'Failed to validate
-  import file')` catch** matching the
+import file')` catch** matching the
   `admin/items/import`, `admin/items/bulk`, and
   `admin/items/[id]/history` catch family;
   (9) **method-resolution surface** with `POST`-only
@@ -6927,7 +6943,7 @@ why** at a higher level than per-commit diffs.
   the gate**;
   (6) **two-step body validation chain** with two
   distinct 400 messages (`'Missing or invalid rows
-  array.'` on `!body.rows || !Array.isArray(body.rows)`,
+array.'` on `!body.rows || !Array.isArray(body.rows)`,
   `'Missing import options.'` on `!body.options`) —
   the **first two-step body-validation admin-tree
   smoke** the docs tree publishes;
@@ -7327,12 +7343,12 @@ why** at a higher level than per-commit diffs.
   echo the success-branch `success: true` /
   `updatedCount` keys; a gate-step-ordering
   invariant pinning that the 403 `'Tenant not
-  found'` envelope must NEVER appear in the unauth
+found'` envelope must NEVER appear in the unauth
   response body; a parameterised-vs-baseline
   status-stability comparison; a side-channel
   cookie / `X-*` header walk including fabricated
   `X-Tenant-Id` / `X-User-Id` / `Authorization:
-  Bearer` / `X-Api-Key` / `X-Admin-Token` headers;
+Bearer` / `X-Api-Key` / `X-Admin-Token` headers;
   a cross-method probe asserting GET / POST / PUT
   / DELETE round-trip to `< 500`; a strict
   envelope-shape assertion). Cross-references to
@@ -7666,7 +7682,7 @@ why** at a higher level than per-commit diffs.
   via the question register.
 - `docs/questions` Added Q-010b
   (`Should /api/admin/roles and /api/admin/roles/active
-  carry an explicit auth() gate?`) — surfaces the
+carry an explicit auth() gate?`) — surfaces the
   auth-gate-divergence finding for human review with
   the recommended default of "yes, add the same two-
   step gate as the sibling /api/admin/roles/stats
@@ -7691,7 +7707,7 @@ why** at a higher level than per-commit diffs.
   auth gate). The spec also pins the **auth-gate-
   before-Zod-validation** order via a deliberate
   `'Unauthorized. Admin access required.' !=
-  'Invalid query parameters'` assertion that
+'Invalid query parameters'` assertion that
   surfaces any future re-ordering as a 400 instead
   of a 401 on the unauth branch, plus a
   side-channel walk asserting that fabricated
@@ -7796,7 +7812,7 @@ why** at a higher level than per-commit diffs.
   use-flag from
   [`playwright-config.md`](plugins/playwright-config.md));
   (d) the **why 30-second `expect.toBeVisible({
-  timeout: 30_000 })` override** rationale
+timeout: 30_000 })` override** rationale
   (deliberate self-documenting pin against future
   contributors who lower the global default,
   cold-cache resilience for the home-page render,

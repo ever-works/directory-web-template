@@ -389,6 +389,113 @@ confirm, override, or refine.
 
 ---
 
+## Spec 023 — AI Chat for Directory Visitors
+
+### Q-023a Default model
+
+- **Context.** The chat is OpenAI-compatible by design but needs a
+  sensible default model so a fresh template that opts in works
+  without a model-selection UI.
+- **Options.**
+  - **`openai/gpt-4o-mini` via OpenRouter.** Cheap, fast, broadly
+    multilingual; OpenRouter is the same gateway the Ever Works
+    platform uses by default.
+  - `anthropic/claude-3-5-haiku` via OpenRouter. Better quality on
+    long context; slightly higher cost; same gateway.
+- **Default.** **`openai/gpt-4o-mini` via OpenRouter.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023b Should v1 allow chat-driven mutations?
+
+- **Context.** The chat could navigate the visitor to a submission
+  form *and* fill it in / submit it on their behalf via tool calls.
+  Mutations multiply the abuse surface and prompt-injection blast
+  radius.
+- **Options.**
+  - **Read-only + navigate.** Tools fetch data and return a route
+    to the visitor; the visitor confirms by clicking.
+  - Read + write. Tools can also call into existing
+    submit/follow/favourite repositories with the visitor's
+    session.
+- **Default.** **Read-only + navigate.** Re-evaluate once the
+  read-only tools have been used in anger.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023e Test runner for `plugin-ai-chat` (and possibly the wider repo)
+
+- **Context.** The repo has no JS test framework today —
+  CLAUDE.md §4 says *"Treat `pnpm lint`, `pnpm tsc --noEmit`,
+  and `pnpm build` as the main 'test suite' (there is currently
+  no Jest/Vitest setup)."* But for `plugin-ai-chat` we want
+  real unit tests of the Zod schema, the tools, and the agent's
+  scenario filter — typecheck alone can't catch a wrongly-named
+  scenario or a missing `requiresAuth` flag.
+- **Options.**
+  - **Add `vitest` to `packages/plugin-ai-chat` only.** Small
+    blast radius; doesn't commit the whole repo. Other packages
+    that want it later opt in independently.
+  - Add `vitest` to the repo root + a `vitest.workspace.ts`.
+    Bigger change; would also need a separate spec since it
+    affects every package, including `apps/web`.
+  - Skip unit tests entirely; lean on Playwright e2e (T-013)
+    for coverage.
+- **Default.** **Add `vitest` to `plugin-ai-chat` only**
+  (T-002b). The pure-TS schema + tool logic is exactly where
+  unit tests pay back the most; Playwright is good enough for
+  the rest.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023d Slot IDs for chat surfaces
+
+- **Context.** Plan §4's manifest stub uses
+  `layout.global.overlay`, `hero.takeover`,
+  `layout.sidebar.tab`. None of these exist in
+  `packages/plugin-sdk/src/slots.ts` — the canonical `SLOT_IDS`
+  array currently covers header / footer / item-detail /
+  admin / client-dashboard slots only. The SDK file notes:
+  *"Slot ids are stable; renaming a slot is a breaking change.
+  New slot ids land via a small spec."*
+- **Options.**
+  - **Add three new SLOT_IDS** (`chat.launcher.overlay`,
+    `home.hero.takeover`, `layout.sidebar.tab`) to
+    `packages/plugin-sdk/src/slots.ts` as a coordinated
+    sub-task of T-001, called out in this spec since it is
+    materially part of the chat feature surface.
+  - Skip the slot system entirely for v1: mount
+    `<ChatLauncher>` directly from
+    `apps/web/app/[locale]/layout.tsx` behind the
+    `aiChat.enabled` config gate. Lose the
+    plugin-discoverability story; gain simplicity.
+- **Default.** **Add three new SLOT_IDS** — preserves the
+  plugin-first principle (Article I) and keeps the
+  manifest stub honest. Adding new slot IDs lands in the
+  same PR series as T-001 / T-006, with the diff to
+  `slots.ts` documented in the relevant task's commit.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-023c Where do scenario openers and the system prompt live?
+
+- **Context.** Strings need to translate via the existing pipeline
+  (`next-intl` + Crowdin per Spec 014) but they're conceptually
+  part of the plugin package.
+- **Options.**
+  - **`apps/web/messages/<locale>.json` under `AI_CHAT_*`.** The
+    plugin package reads them through `next-intl` at call time;
+    Crowdin/translators see them like any other UI string.
+  - Inline `.ts` constants under
+    `packages/plugin-ai-chat/src/prompts/<locale>.ts`. Keeps the
+    plugin self-contained but bypasses the translation pipeline.
+- **Default.** **`apps/web/messages/<locale>.json` under
+  `AI_CHAT_*`.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.
