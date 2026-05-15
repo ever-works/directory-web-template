@@ -1,7 +1,7 @@
 "use client";
 import { useTranslations } from "next-intl";
 import Hero from "@/components/hero";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { Collection } from "@/types/collection";
 import { Container } from "@/components/ui/container";
 import { Paginate } from "@/components/filters/components/pagination/paginate";

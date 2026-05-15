@@ -10,7 +10,7 @@ import { usePricingSection } from '@/hooks/use-pricing-section';
 import { usePaymentAvailability } from '@/hooks/use-payment-availability';
 import { useTheme } from 'next-themes';
 import { useDisclosure } from '@heroui/react';
-import Link from 'next/link';
+import { Link } from "@/i18n/navigation";
 import { Button } from '@/components/ui/button';
 import { PaymentFormModal } from '@/components/payment/stripe-payment-modal';
 import DecorativeBg from '../shared/decorative-bg';

@@ -76,7 +76,7 @@ export function footerNavigation(t: (key: string) => string, options: FooterNavi
 
 	const productLinks = [
 		{ label: t('common.COLLECTION'), href: '/collections' },
-		{ label: 'Comparisons', href: '/comparisons' },
+		{ label: t('common.COMPARISONS'), href: '/comparisons' },
 		{ label: t('common.CATEGORY'), href: '/categories' },
 		{ label: t('common.TAG'), href: '/tags' },
 		{ label: t('common.PRICING'), href: '/pricing' },

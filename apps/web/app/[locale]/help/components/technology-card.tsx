@@ -198,7 +198,7 @@ export function TechnologyCard({
             ))}
           {getFeatureTags(name).length > 3 && (
             <span className="px-2 py-1 text-xs bg-slate-100 dark:bg-white/8 rounded-md border border-slate-200 dark:border-white/8 font-medium text-slate-700 dark:text-slate-300">
-              +{getFeatureTags(name).length - 3} more
+              {t("TECH_CARD_MORE_TAGS", { count: getFeatureTags(name).length - 3 })}
             </span>
           )}
         </div>
@@ -210,7 +210,7 @@ export function TechnologyCard({
             isExpanded ? 'bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6'
           }`}
         >
-          {isExpanded ? "Show Less" : "Show Details"}
+          {isExpanded ? t("TECH_CARD_SHOW_LESS") : t("TECH_CARD_SHOW_DETAILS")}
         </button>
 
         {/* Expanded Content */}
@@ -219,9 +219,9 @@ export function TechnologyCard({
             {/* Tabs */}
             <div className="flex gap-1 mb-4 bg-slate-100 dark:bg-white/8 rounded-lg p-1">
               {[
-                { id: 'overview', label: 'Overview', icon: '📋' },
-                { id: 'performance', label: 'Performance', icon: '⚡' },
-                { id: 'comparison', label: 'Comparison', icon: '📊' }
+                { id: 'overview', label: t('TECH_CARD_TAB_OVERVIEW'), icon: '📋' },
+                { id: 'performance', label: t('TECH_CARD_TAB_PERFORMANCE'), icon: '⚡' },
+                { id: 'comparison', label: t('TECH_CARD_TAB_COMPARISON'), icon: '📊' }
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -247,7 +247,7 @@ export function TechnologyCard({
                     <div>
                       <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                         <span className="">🎯</span>
-                        Use Cases
+                        {t("TECH_CARD_USE_CASES")}
                       </h4>
                       <div className="space-y-1">
                         {useCases.map((useCase, index) => (
@@ -266,7 +266,7 @@ export function TechnologyCard({
                       <div>
                         <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                           <span className="">✅</span>
-                          Pros
+                          {t("TECH_CARD_PROS")}
                         </h4>
                         <div className="space-y-1">
                           {pros.map((pro, index) => (
@@ -283,7 +283,7 @@ export function TechnologyCard({
                       <div>
                         <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                           <span className="">⚠️</span>
-                          Cons
+                          {t("TECH_CARD_CONS")}
                         </h4>
                         <div className="space-y-1">
                           {cons.map((con, index) => (
@@ -326,7 +326,7 @@ export function TechnologyCard({
                 <div>
                   <h4 className="text-xs font-semibold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
                     <span className="">🔄</span>
-                    Alternatives
+                    {t("TECH_CARD_ALTERNATIVES")}
                   </h4>
                   <div className="space-y-2">
                     {alternatives.map((alternative, index) => (
@@ -337,7 +337,7 @@ export function TechnologyCard({
                         <button
                           className="h-6 px-2 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded transition-colors"
                         >
-                          Compare
+                          {t("TECH_CARD_COMPARE")}
                         </button>
                       </div>
                     ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from 'next-intl';
 import { MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';

@@ -4,7 +4,7 @@ import { useConfig } from '@/app/[locale]/config';
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { IconEverworksSimple } from '@/components/icons/Icons';
 import { isExternalUrl } from '@/lib/utils/custom-navigation';
 

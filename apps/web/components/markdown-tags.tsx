@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { FiTag } from "react-icons/fi";
 
 function normalizeTagForUrl(tag: string): string {
