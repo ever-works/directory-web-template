@@ -3,20 +3,16 @@ import { test, expect } from '@playwright/test';
 /**
  * API smoke coverage for `POST /api/chat` (Spec 023).
  *
- * The default test environment ships with `aiChat.enabled: false`
- * (seed `awesome-time-tracking-data` does not enable it). The chat
- * route's contract under that state:
+ * `aiChat.enabled` defaults to `true`, but the default e2e environment
+ * does not set `AI_CHAT_API_KEY`, so the route returns 503
+ * (`provider-not-configured`). The handler still validates the request
+ * body first, so we additionally assert 400 on malformed JSON / missing
+ * fields and never a 5xx beyond the documented 503.
  *
- *   - Any POST → 404 with `{ "error": "not-found" }`.
- *   - The route must never 5xx, never leak schema details, and never
- *     execute a model call.
- *
- * Enabled-state assertions (401 when an authenticated-only scenario
- * is requested anonymously, 429 when over the rate limit, 200 with
- * a streamed body when fully wired) are tracked under
- * **T-013-followups** in `docs/spec/023-ai-chat/tasks.md` because
- * they require either a config-override hook or a mocked upstream
- * provider — neither exists today.
+ * Full enabled-state assertions (200 streamed body, 401 for auth-only
+ * scenarios, 429 when rate-limited) live in
+ * `ai-chat-enabled.spec.ts` and skip when the override env vars are
+ * not provisioned.
  */
 
 const MINIMAL_BODY = {
@@ -29,14 +25,14 @@ const MINIMAL_BODY = {
 	]
 };
 
-test.describe('API: /api/chat — disabled state (default)', () => {
-	test('returns 404 when aiChat.enabled is not set in works.yml', async ({ request }) => {
+test.describe('API: /api/chat — no API key (default e2e env)', () => {
+	test('returns 503 when AI_CHAT_API_KEY is missing', async ({ request }) => {
 		const response = await request.post('/api/chat', { data: MINIMAL_BODY });
-		expect(response.status()).toBe(404);
+		expect(response.status()).toBe(503);
 
 		const json = await response.json().catch(() => null);
 		if (json) {
-			expect(json).toMatchObject({ error: 'not-found' });
+			expect(json).toMatchObject({ error: 'provider-not-configured' });
 		}
 	});
 
@@ -45,7 +41,7 @@ test.describe('API: /api/chat — disabled state (default)', () => {
 			data: '{not json',
 			headers: { 'Content-Type': 'application/json' }
 		});
-		// Validation runs first, before the 404 gate, so this is 400.
+		// Validation runs before the 503 gate.
 		expect(response.status()).toBe(400);
 	});
 
@@ -54,9 +50,10 @@ test.describe('API: /api/chat — disabled state (default)', () => {
 		expect(response.status()).toBe(400);
 	});
 
-	test('does not 5xx — route is fail-soft even with garbage input', async ({ request }) => {
+	test('does not 5xx beyond documented 503 — route is fail-soft for garbage input', async ({ request }) => {
 		const garbage = { messages: 'not-an-array', scenario: 999 };
 		const response = await request.post('/api/chat', { data: garbage });
-		expect(response.status()).toBeLessThan(500);
+		// 400 path takes precedence over 503 because validation runs first.
+		expect(response.status()).toBe(400);
 	});
 });
