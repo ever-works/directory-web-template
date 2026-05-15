@@ -1,4 +1,8 @@
 export { DashboardContent } from "./dashboard-content";
+export { DashboardHeader } from "./dashboard-header";
+export { QuickActions } from "./quick-actions";
+export { DashboardAlertBanner } from "./dashboard-alert-banner";
+export { DashboardMobileSummary } from "./dashboard-mobile-summary";
 export { StatsCard } from "./stats-card";
 export { ActivityChart } from "./activity-chart";
 export { EngagementChart } from "./engagement-chart";
@@ -13,3 +17,4 @@ export { ApprovalTrend } from "./approval-trend";
 export { SubmissionCalendar } from "./submission-calendar";
 export { EngagementDistribution } from "./engagement-distribution";
 export { EngagementRateChart } from "./engagement-rate-chart";
+export type { Period } from "./dashboard-header";
