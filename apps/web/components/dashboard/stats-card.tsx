@@ -1,5 +1,6 @@
 import { useId } from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
+import Link from 'next/link';
 
 const CARD_BASE_STYLES =
     'bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8';
@@ -18,6 +19,11 @@ interface StatsCardProps {
         value: number;
         isPositive: boolean;
     };
+    emptyState?: {
+        message: string;
+        href?: string;
+        linkLabel?: string;
+    };
     className?: string;
     isLoading?: boolean;
 }
@@ -28,6 +34,7 @@ export function StatsCard({
     description,
     icon: Icon,
     trend,
+    emptyState,
     className = '',
     isLoading = false
 }: StatsCardProps) {
@@ -56,8 +63,10 @@ export function StatsCard({
 
     const formattedValue = value.toLocaleString();
     const trendDescription = trend
-        ? `${trend.isPositive ? 'increased' : 'decreased'} by ${Math.abs(trend.value)}% from last month`
+        ? `${trend.isPositive ? 'increased' : 'decreased'} by ${Math.abs(trend.value)}% from last period`
         : '';
+
+    const showEmpty = value === 0 && emptyState;
 
     return (
         <article
@@ -73,28 +82,63 @@ export function StatsCard({
                     <Icon className={ICON_STYLES} />
                 </div>
             </div>
+
             <p className={VALUE_STYLES}>{formattedValue}</p>
+
             {description && (
                 <p id={descId} className={DESCRIPTION_STYLES}>
                     {description}
                 </p>
             )}
-            {trend && (
+
+            {/* Trend badge */}
+            {trend && value > 0 && (
                 <div className="mt-2 flex items-center gap-1">
                     <span className="sr-only">{trendDescription}</span>
-                    <span
-                        className={`text-xs font-medium ${trend.isPositive
-                                ? 'text-emerald-600 dark:text-emerald-400'
-                                : 'text-red-500 dark:text-red-400'
-                            }`}
-                        aria-hidden="true"
-                    >
-                        {trend.isPositive ? '+' : '-'}
-                        {Math.abs(trend.value)}%
-                    </span>
-                    <span className="text-xs text-neutral-400 dark:text-neutral-500" aria-hidden="true">
-                        from last month
-                    </span>
+                    {trend.value === 0 ? (
+                        <span className="text-xs text-neutral-400 dark:text-neutral-500" aria-hidden="true">
+                            No change
+                        </span>
+                    ) : (
+                        <>
+                            {trend.isPositive ? (
+                                <TrendingUp className="h-3 w-3 text-emerald-500 dark:text-emerald-400" aria-hidden="true" />
+                            ) : (
+                                <TrendingDown className="h-3 w-3 text-red-500 dark:text-red-400" aria-hidden="true" />
+                            )}
+                            <span
+                                className={`text-xs font-medium ${
+                                    trend.isPositive
+                                        ? 'text-emerald-600 dark:text-emerald-400'
+                                        : 'text-red-500 dark:text-red-400'
+                                }`}
+                                aria-hidden="true"
+                            >
+                                {trend.isPositive ? '+' : '-'}
+                                {Math.abs(trend.value)}%
+                            </span>
+                            <span className="text-xs text-neutral-400 dark:text-neutral-500" aria-hidden="true">
+                                vs last period
+                            </span>
+                        </>
+                    )}
+                </div>
+            )}
+
+            {/* Zero-state CTA */}
+            {showEmpty && (
+                <div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/6">
+                    <p className="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1.5">
+                        {emptyState.message}
+                    </p>
+                    {emptyState.href && (
+                        <Link
+                            href={emptyState.href}
+                            className="text-[11px] font-semibold text-neutral-900 dark:text-white underline underline-offset-2 hover:opacity-70 transition-opacity"
+                        >
+                            {emptyState.linkLabel ?? 'Get started →'}
+                        </Link>
+                    )}
                 </div>
             )}
         </article>
