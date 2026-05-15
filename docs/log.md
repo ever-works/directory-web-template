@@ -31,22 +31,22 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-14 — Spec 023 (v5): backfill missing LocationSection translations
+## 2026-05-14 — Spec 025 (v5): backfill missing LocationSection translations
 
-- `spec-023` Audit of `/items/[slug]` translation coverage surfaced
+- `spec-025` Audit of `/items/[slug]` translation coverage surfaced
   that 8 `itemDetail.*` keys consumed by `LocationSection`
   (`LOCATION`, `REMOTE_SERVICE`, `REMOTE_SERVICE_DESC`,
   `GET_DIRECTIONS`, `LOCAL_SERVICE`, `REGIONAL_SERVICE`,
   `NATIONAL_SERVICE`, `GLOBAL_SERVICE`) existed only in `en.json`.
   Every non-English locale fell back to English for the entire
   Location card. This pre-dated the PR.
-- `spec-023` Added the 8 keys to all 20 non-English locale files
+- `spec-025` Added the 8 keys to all 20 non-English locale files
   (`ar`, `bg`, `de`, `es`, `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`,
   `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `uk`, `vi`, `zh`). Each
   locale's values are real translations (no English-identical
   entries). Keys were inserted right after `STATS_AGE` so they sit
   next to the existing Location-section neighbours in `en.json`.
-- `spec-023` Wider audit gaps (hard-coded English in
+- `spec-025` Wider audit gaps (hard-coded English in
   `breadcrumb.tsx` / `report-button.tsx` / `favorite-button.tsx` /
   `CompactVote`, plus untranslated `COMMENTS_*` / Promo / Survey
   values in several non-Latin locales) remain unaddressed — they
@@ -55,13 +55,13 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-14 — Spec 023 (v4): inline sparkline inside the compact sidebar Statistics card
+## 2026-05-14 — Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
 
-- `spec-023` Per user feedback v3 lost the chart by mistake — the
+- `spec-025` Per user feedback v3 lost the chart by mistake — the
   intent was "keep the chart from v2, but keep the sidebar
   placement from v3, and the smaller/cleaner typography from v3".
   v4 puts the sparkline back into the sidebar Statistics card.
-- `spec-023` `<ItemStatsSection>` now renders the six existing
+- `spec-025` `<ItemStatsSection>` now renders the six existing
   `text-[11px]` rows AND a small inline SVG sparkline below them,
   separated by a faint top border. The four chartable rows (Views,
   Upvotes, Favorites, Comments) became clickable: selecting one
@@ -71,7 +71,7 @@ why** at a higher level than per-commit diffs.
   `theme-primary-500` low-opacity area fill + `theme-primary-600`
   stroke from v2 but is ~14 row-heights tall so the whole card
   stays compact and sidebar-shaped.
-- `spec-023` Restored from history: `getItemActivityTimeSeries` +
+- `spec-025` Restored from history: `getItemActivityTimeSeries` +
   `ItemActivityDay` type in `engagement.queries.ts`, and the
   `GET /api/items/[slug]/activity?days=N` route. They were removed
   in v3 and are back exactly as in commit 4780edd. The
@@ -81,28 +81,28 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-14 — Spec 023 (v3): revert Activity Overview, keep compact Statistics card in sidebar
+## 2026-05-14 — Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
 
-- `spec-023` Reverted v2's full-width Activity Overview panel and
+- `spec-025` Reverted v2's full-width Activity Overview panel and
   removed the new `/api/items/[slug]/activity` route + the
   `getItemActivityTimeSeries` query function it depended on. Per user
   feedback the page should reuse the existing engagement totals from
   `/api/items/engagement` rather than introducing a time-series surface.
-- `spec-023` `<ItemStatsSection>` is back in the sidebar (directly
+- `spec-025` `<ItemStatsSection>` is back in the sidebar (directly
   below the Tags card), and its typography was tightened to
   `text-[11px]` for both labels and values with `w-3 h-3` icons —
   matches the compact density of the other sidebar cards.
-- `spec-023` Removed the `ACTIVITY_OVERVIEW` and
+- `spec-025` Removed the `ACTIVITY_OVERVIEW` and
   `ACTIVITY_OVERVIEW_DESCRIPTION` i18n keys from all 21 locales.
-- `spec-023` Spec, index status, and this log entry rolled back to
+- `spec-025` Spec, index status, and this log entry rolled back to
   describe the simpler final shape: full-width carousel +
   compact sidebar stats card.
 
 ---
 
-## 2026-05-14 — Spec 023 (v2): Activity Overview panel replaces sidebar Statistics card
+## 2026-05-14 — Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
 
-- `spec-023` Revision in the same PR: the compact sidebar
+- `spec-025` Revision in the same PR: the compact sidebar
   Statistics card shipped in the first iteration is replaced by a
   **full-width Activity Overview** panel under the two-column grid
   and above the Similar Products carousel. The panel has six tiles
@@ -111,17 +111,17 @@ why** at a higher level than per-commit diffs.
   Favorites / Comments) highlights it with a
   `theme-primary-500 → theme-primary-700` gradient and updates the
   sparkline. Rating and Listed are static tiles.
-- `spec-023` New endpoint `GET /api/items/[slug]/activity?days=N`
+- `spec-025` New endpoint `GET /api/items/[slug]/activity?days=N`
   returns `{ totals, series[] }` — totals reuse
   `getEngagementMetricsPerItem`, and a new
   `getItemActivityTimeSeries(slug, days)` query in
   `engagement.queries.ts` aggregates `item_views`, `votes`,
   `favorites`, `comments` into daily buckets for the last N days
   (clamped 1–90, default 30), filling missing days with zeros.
-- `spec-023` New i18n keys `ACTIVITY_OVERVIEW` and
+- `spec-025` New i18n keys `ACTIVITY_OVERVIEW` and
   `ACTIVITY_OVERVIEW_DESCRIPTION` added under `itemDetail.*` across
   all 21 supported locales.
-- `spec-023` `<ItemStatsSection>` is no longer wired into the page
+- `spec-025` `<ItemStatsSection>` is no longer wired into the page
   but kept on disk (no removal without confirmation). The sidebar
   is back to its pre-spec composition (Information / Promo / Sponsor
   / Category / Tags) and the new Activity Overview owns the
@@ -129,9 +129,9 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-14 — Spec 023: Item detail Similar Products → carousel + new Statistics sidebar block
+## 2026-05-14 — Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
 
-- `spec-023` On `/items/[slug]`, the old vertical "Similar Products"
+- `spec-025` On `/items/[slug]`, the old vertical "Similar Products"
   list in the right sidebar (`SimilarItemsSection`) is replaced by a
   **full-width horizontal carousel** rendered below the two-column
   grid, matching the recommended-items UX on `/favorites`
@@ -139,17 +139,17 @@ why** at a higher level than per-commit diffs.
   ResizeObserver-driven responsive card count). The carousel logic
   is extracted into a reusable
   `apps/web/components/shared/items-carousel.tsx`.
-- `spec-023` The freed sidebar slot now hosts a new
+- `spec-025` The freed sidebar slot now hosts a new
   `<ItemStatsSection>` "Statistics" card showing views, upvotes,
   favorites, comments, average rating, and a relative "Listed N
   days ago" timestamp. Metrics are fetched on mount from the existing
   `/api/items/engagement` endpoint; rows show en-dash placeholders
   until the response resolves.
-- `spec-023` Adds 9 new i18n keys under `itemDetail.*`
+- `spec-025` Adds 9 new i18n keys under `itemDetail.*`
   (`SIMILAR_PRODUCTS`, `SIMILAR_PRODUCTS_DESCRIPTION`, `STATISTICS`,
   `STATS_VIEWS`, `STATS_VOTES`, `STATS_FAVORITES`, `STATS_COMMENTS`,
   `STATS_AVG_RATING`, `STATS_AGE`) across all 21 supported locales.
-- `spec-023` `similar-items-section.tsx` is left in place (no
+- `spec-025` `similar-items-section.tsx` is left in place (no
   imports) per the project's no-removal-without-confirmation rule;
   a follow-up PR can delete the file once the new layout has soaked.
 

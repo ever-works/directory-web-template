@@ -1,10 +1,10 @@
 ---
-id: spec-023-item-detail-stats-carousel
-title: 'Spec 023 — Item Detail: Similar Products carousel + Statistics block'
-sidebar_label: '023 Item Stats + Carousel'
+id: spec-025-item-detail-stats-carousel
+title: 'Spec 025 — Item Detail: Similar Products carousel + Statistics block'
+sidebar_label: '025 Item Stats + Carousel'
 ---
 
-# Feature spec — `023-item-detail-stats-carousel`
+# Feature spec — `025-item-detail-stats-carousel`
 
 > **Status:** proposed.
 >
@@ -20,7 +20,7 @@ shares the narrow sidebar column (lg:w-1/3, or ~25% on fluid layouts)
 with metadata cards, so each similar item is squeezed into a single
 classic row — visually dense and easy to miss.
 
-Spec 023 swaps that arrangement:
+Spec 025 swaps that arrangement:
 
 1. **Similar Products move out of the sidebar** into a **full-width
    horizontal carousel** below the two-column grid, matching the

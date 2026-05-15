@@ -43,7 +43,7 @@ or architectural change.
 | 020 | [`server-side-listings`](020-server-side-listings/spec.md) | shipped       | Server-side filter / sort / slice for the listing surface; URL is source of truth for `?tags=`, `?categories=`, `?q=`, `?sort=`, `?page=`; JSON peer API; modifier-key category select; slugify-aware state |
 | 021 | [`public-e2e-coverage`](021-public-e2e-coverage/spec.md)   | shipped       | Deepened public-surface Playwright coverage: combined flow specs, JSON API contract, URL state persistence, redirect-loop guard, modifier-key UX           |
 | 022 | [`profile-ux-polish`](022-profile-ux-polish/spec.md)       | in-progress   | End-to-end persistence for client profile: avatar (data URL), interests, skills, portfolio CRUD; public profile view rendered from saved data |
-| 023 | [`item-detail-stats-carousel`](023-item-detail-stats-carousel/spec.md) | proposed      | `/items/[slug]` reshape: full-width Similar Products carousel below the grid + a compact `<ItemStatsSection>` sidebar card with 6 stat rows and an inline sparkline (click a row to switch the plotted metric), backed by a new `/api/items/[slug]/activity` time-series endpoint |
+| 025 | [`item-detail-stats-carousel`](025-item-detail-stats-carousel/spec.md) | proposed      | `/items/[slug]` reshape: full-width Similar Products carousel below the grid + a compact `<ItemStatsSection>` sidebar card with 6 stat rows and an inline sparkline (click a row to switch the plotted metric), backed by a new `/api/items/[slug]/activity` time-series endpoint |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.
