@@ -67,7 +67,7 @@ aiChat:
     enabled: true # default; set false to hide the launcher entirely
     position: floating # floating | hero-takeover | sidebar
     provider: openrouter
-    model: openai/gpt-4o-mini
+    model: meta-llama/llama-3.3-70b-instruct:free
     defaultLocale: en
     persist: false # set true to store member conversations
     anonymous:
@@ -94,7 +94,7 @@ AI_CHAT_API_KEY=sk-or-v1-…
 # Optional overrides — defaults shown
 # AI_CHAT_BASE_URL=https://openrouter.ai/api/v1
 # AI_CHAT_PROVIDER=openrouter
-# AI_CHAT_MODEL=openai/gpt-4o-mini
+# AI_CHAT_MODEL=meta-llama/llama-3.3-70b-instruct:free
 # AI_CHAT_RATE_LIMIT_ANON=20        # requests per 60s, anonymous
 # AI_CHAT_RATE_LIMIT_AUTH=60        # requests per 60s, authenticated
 ```
