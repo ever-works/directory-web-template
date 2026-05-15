@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Container } from './ui/container';
 import { CustomHeroFrontmatter } from '@/lib/content';
-import Link from 'next/link';
+import { Link } from "@/i18n/navigation";
 
 /**
  * Validates a URL to prevent XSS attacks via javascript: or data: schemes.

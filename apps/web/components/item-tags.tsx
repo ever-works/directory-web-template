@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { FiTag, FiHash } from "react-icons/fi";
 import { cn } from "../lib/utils/index";
 

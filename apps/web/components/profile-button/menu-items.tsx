@@ -1,6 +1,7 @@
 
 import { memo, useMemo } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import {
   User,
   Settings,
@@ -37,14 +38,13 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   // Derive isAdmin from user prop
   const isAdmin = user.isAdmin === true;
   const t = useTranslations();
+  const router = useRouter();
 
-  // Simplified navigation handler
+  // Navigation handler — routes via next-intl so the active locale prefix is preserved.
   const handleNavigation = (href: string) => {
     onNavigationStart?.();
     onItemClick(); // Close menu immediately
-
-    // Use window.location for immediate page transition with loading
-    window.location.href = href;
+    router.push(href);
   };
 
   // Memoize translations to prevent unnecessary re-renders

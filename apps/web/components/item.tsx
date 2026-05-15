@@ -1,7 +1,7 @@
 'use client';
 
 import { ItemData, Tag, Category } from '@/lib/content';
-import Link from 'next/link';
+import { Link } from "@/i18n/navigation";
 import { Card, CardBody, cn, Spinner, Tooltip } from '@heroui/react';
 import { FiFolder, FiEye, FiThumbsUp, FiMessageSquare } from 'react-icons/fi';
 import { useFilters } from '@/components/filters/context/filter-context';

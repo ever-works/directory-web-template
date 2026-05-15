@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { memo } from "react";
 import { useTranslations } from "next-intl";
 

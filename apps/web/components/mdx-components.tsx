@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { FiTag } from "react-icons/fi";
 import { Chip } from "@heroui/react";
-import { usePathname } from "next/navigation";
+import { Link, usePathname } from "@/i18n/navigation";
 
 export function Tag({ name }: { name: string }) {
   const pathname = usePathname();

@@ -11,8 +11,7 @@ import {
 	NavbarMenuItem
 } from '@heroui/react';
 import { useLocale, useTranslations } from 'next-intl';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Link, usePathname } from '@/i18n/navigation';
 import { useMemo, useCallback, useState, useRef } from 'react';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { LayoutSwitcher } from '../layout-switcher';
