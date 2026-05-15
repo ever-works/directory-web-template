@@ -3586,6 +3586,20 @@
 			"WELCOME_BACK": "Bon retour, {name} ! Voici votre aperçu d'activité.",
 			"REFRESH": "Actualiser",
 			"FAILED_TO_LOAD": "Échec du chargement des statistiques",
+			"LOCATION_DISABLED_TITLE": "Les statistiques de localisation sont désactivées",
+			"LOCATION_DISABLED_DESC": "Activez les fonctionnalités de localisation dans les paramètres de votre annuaire pour voir vos éléments sur une carte et examiner la couverture géographique.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Engagement de la communauté",
+				"VIEWS": "Vues",
+				"VOTES_RECEIVED": "Votes reçus",
+				"COMMENTS_RECEIVED": "Commentaires reçus"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Éléments les plus performants",
+				"ID": "ID",
+				"NO_DATA": "Aucun élément phare trouvé",
+				"NO_DATA_DESC": "Lorsque votre contenu obtiendra plus d’engagement, vos meilleurs éléments apparaîtront ici."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total des Soumissions",
 				"CONTENT_CREATED": "Contenu que vous avez créé",

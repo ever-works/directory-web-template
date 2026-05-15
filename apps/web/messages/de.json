@@ -3529,6 +3529,20 @@
 			"WELCOME_BACK": "Willkommen zurück, {name}! Hier ist Ihre Aktivitätsübersicht.",
 			"REFRESH": "Aktualisieren",
 			"FAILED_TO_LOAD": "Fehler beim Laden der Dashboard-Statistiken",
+			"LOCATION_DISABLED_TITLE": "Standort-Insights sind deaktiviert",
+			"LOCATION_DISABLED_DESC": "Aktivieren Sie Standortfunktionen in den Verzeichniseinstellungen, um Ihre Einträge auf einer Karte zu sehen und die geografische Abdeckung zu prüfen.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Community-Engagement",
+				"VIEWS": "Aufrufe",
+				"VOTES_RECEIVED": "Erhaltene Stimmen",
+				"COMMENTS_RECEIVED": "Erhaltene Kommentare"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Top-Einträge",
+				"ID": "ID",
+				"NO_DATA": "Keine Top-Einträge gefunden",
+				"NO_DATA_DESC": "Sobald Ihre Inhalte mehr Engagement erhalten, erscheinen Ihre Top-Einträge hier."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Gesamte Einreichungen",
 				"CONTENT_CREATED": "Von Ihnen erstellte Inhalte",

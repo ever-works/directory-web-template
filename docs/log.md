@@ -31,6 +31,31 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
+
+- `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering
+  the seven wiring gaps audited in EW-627: hardcoded `Shares` pie slice,
+  always-true `viewsAvailable`, silent fetch errors on `ItemsMapCard` /
+  `GeoStatsCard`, missing placeholder when `locationSettings.enabled` is
+  false, hardcoded English on engagement-chart and top-items headings,
+  loose `StatsCard.value` type, and the always-12-week
+  `engagementOverview` window. Indexed in
+  `docs/spec/README.md` as row 026.
+- `spec-026` API contract: `engagementChartData` items now use a typed
+  `{ key, value, color }` shape (`'views' | 'votesReceived' |
+  'commentsReceived'`) instead of `{ name, value, color }`, and the
+  `Shares` slice is removed. Swagger JSDoc on `GET
+  /api/client/dashboard/stats` updated; re-run `pnpm generate-docs`
+  before release to refresh `public/openapi.json`.
+- `spec-026` Added 10 new strings under `client.dashboard.*`
+  (`LOCATION_DISABLED_TITLE`, `LOCATION_DISABLED_DESC`,
+  `ENGAGEMENT_CHART.{TITLE, VIEWS, VOTES_RECEIVED,
+  COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
+  to all 21 locale files with real translations. Backfill script
+  used once and removed.
+
+---
+
 ## 2026-05-14 — Spec 025 (v5): backfill missing LocationSection translations
 
 - `spec-025` Audit of `/items/[slug]` translation coverage surfaced

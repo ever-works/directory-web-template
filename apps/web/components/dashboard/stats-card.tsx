@@ -11,7 +11,7 @@ const DESCRIPTION_STYLES = 'mt-1.5 text-xs text-neutral-400 dark:text-neutral-50
 
 interface StatsCardProps {
     title: string;
-    value: string | number;
+    value: number;
     description?: string;
     icon: LucideIcon;
     trend?: {
@@ -54,7 +54,7 @@ export function StatsCard({
         );
     }
 
-    const formattedValue = typeof value === 'number' ? value.toLocaleString() : value;
+    const formattedValue = value.toLocaleString();
     const trendDescription = trend
         ? `${trend.isPositive ? 'increased' : 'decreased'} by ${Math.abs(trend.value)}% from last month`
         : '';

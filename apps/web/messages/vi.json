@@ -3644,6 +3644,20 @@
 			"WELCOME_BACK": "Chào mừng trở lại, {name}! ",
 			"REFRESH": "Làm mới",
 			"FAILED_TO_LOAD": "Không tải được số liệu thống kê trên trang tổng quan",
+			"LOCATION_DISABLED_TITLE": "Thông tin chi tiết về vị trí đã bị tắt",
+			"LOCATION_DISABLED_DESC": "Bật tính năng vị trí trong cài đặt thư mục để xem các mục của bạn trên bản đồ và xem phạm vi phủ sóng địa lý.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Sự tham gia của cộng đồng",
+				"VIEWS": "Lượt xem",
+				"VOTES_RECEIVED": "Phiếu bầu nhận được",
+				"COMMENTS_RECEIVED": "Bình luận nhận được"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Mục hoạt động hàng đầu",
+				"ID": "ID",
+				"NO_DATA": "Không tìm thấy mục hàng đầu",
+				"NO_DATA_DESC": "Khi nội dung của bạn nhận được nhiều tương tác hơn, các mục hàng đầu sẽ xuất hiện ở đây."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Tổng số bài gửi",
 				"CONTENT_CREATED": "Nội dung bạn đã tạo",

@@ -3870,6 +3870,20 @@
 			"WELCOME_BACK": "Welcome back, {name}! Here's your activity overview.",
 			"REFRESH": "Refresh",
 			"FAILED_TO_LOAD": "Failed to load dashboard stats",
+			"LOCATION_DISABLED_TITLE": "Location insights are disabled",
+			"LOCATION_DISABLED_DESC": "Enable location features in your directory settings to see your items on a map and review geographic coverage.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Community Engagement",
+				"VIEWS": "Views",
+				"VOTES_RECEIVED": "Votes Received",
+				"COMMENTS_RECEIVED": "Comments Received"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Top Performing Items",
+				"ID": "ID",
+				"NO_DATA": "No top items found",
+				"NO_DATA_DESC": "Once your content gets more engagement, your top items will appear here."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total Submissions",
 				"CONTENT_CREATED": "Content you've created",

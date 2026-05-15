@@ -3628,6 +3628,20 @@
 			"WELCOME_BACK": "Selamat datang kembali, {name}! Ini ikhtisar aktivitas Anda.",
 			"REFRESH": "Segarkan",
 			"FAILED_TO_LOAD": "Gagal memuat statistik dasbor",
+			"LOCATION_DISABLED_TITLE": "Wawasan lokasi dinonaktifkan",
+			"LOCATION_DISABLED_DESC": "Aktifkan fitur lokasi di pengaturan direktori untuk melihat item Anda di peta dan meninjau cakupan geografis.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Keterlibatan Komunitas",
+				"VIEWS": "Tampilan",
+				"VOTES_RECEIVED": "Suara Diterima",
+				"COMMENTS_RECEIVED": "Komentar Diterima"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Item Berkinerja Terbaik",
+				"ID": "ID",
+				"NO_DATA": "Tidak ada item teratas ditemukan",
+				"NO_DATA_DESC": "Setelah konten Anda mendapatkan lebih banyak keterlibatan, item teratas Anda akan muncul di sini."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total Kiriman",
 				"CONTENT_CREATED": "Konten yang telah Anda buat",

@@ -3518,6 +3518,20 @@
 			"WELCOME_BACK": "¡Bienvenido de nuevo, {name}! Aquí está tu resumen de actividad.",
 			"REFRESH": "Actualizar",
 			"FAILED_TO_LOAD": "Error al cargar las estadísticas del panel",
+			"LOCATION_DISABLED_TITLE": "Las estadísticas de ubicación están deshabilitadas",
+			"LOCATION_DISABLED_DESC": "Habilita las funciones de ubicación en la configuración del directorio para ver tus elementos en un mapa y revisar la cobertura geográfica.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Interacción de la comunidad",
+				"VIEWS": "Vistas",
+				"VOTES_RECEIVED": "Votos recibidos",
+				"COMMENTS_RECEIVED": "Comentarios recibidos"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Mejores elementos",
+				"ID": "ID",
+				"NO_DATA": "No se encontraron elementos destacados",
+				"NO_DATA_DESC": "Cuando tu contenido reciba más interacción, tus mejores elementos aparecerán aquí."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total de Envíos",
 				"CONTENT_CREATED": "Contenido que has creado",

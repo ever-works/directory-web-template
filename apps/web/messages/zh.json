@@ -3523,6 +3523,20 @@
 			"WELCOME_BACK": "欢迎回来，{name}！这是您的活动概览。",
 			"REFRESH": "刷新",
 			"FAILED_TO_LOAD": "加载仪表盘统计数据失败",
+			"LOCATION_DISABLED_TITLE": "位置洞察已禁用",
+			"LOCATION_DISABLED_DESC": "在目录设置中启用位置功能，可在地图上查看您的项目并审视地理覆盖范围。",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "社区互动",
+				"VIEWS": "浏览量",
+				"VOTES_RECEIVED": "收到的投票",
+				"COMMENTS_RECEIVED": "收到的评论"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "最佳表现项目",
+				"ID": "ID",
+				"NO_DATA": "未找到热门项目",
+				"NO_DATA_DESC": "当您的内容获得更多互动时，热门项目将显示在此处。"
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "总提交数",
 				"CONTENT_CREATED": "您创建的内容",

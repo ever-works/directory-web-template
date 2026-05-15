@@ -3627,6 +3627,20 @@
 			"WELCOME_BACK": "Tekrar hoş geldiniz, {name}! İşte aktivite genel bakışınız.",
 			"REFRESH": "Yenile",
 			"FAILED_TO_LOAD": "Kontrol paneli istatistikleri yüklenemedi",
+			"LOCATION_DISABLED_TITLE": "Konum içgörüleri devre dışı",
+			"LOCATION_DISABLED_DESC": "Öğelerinizi haritada görmek ve coğrafi kapsamı incelemek için dizin ayarlarınızda konum özelliklerini etkinleştirin.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Topluluk Etkileşimi",
+				"VIEWS": "Görüntülenmeler",
+				"VOTES_RECEIVED": "Alınan Oylar",
+				"COMMENTS_RECEIVED": "Alınan Yorumlar"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "En İyi Performans Gösteren Öğeler",
+				"ID": "Kimlik",
+				"NO_DATA": "En iyi öğe bulunamadı",
+				"NO_DATA_DESC": "İçeriğiniz daha fazla etkileşim aldığında, en iyi öğeleriniz burada görünecek."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Toplam Gönderim",
 				"CONTENT_CREATED": "Oluşturduğunuz içerik",

@@ -3491,6 +3491,20 @@
 			"WELCOME_BACK": "Witaj ponownie, {name}! Oto przegląd Twojej aktywności.",
 			"REFRESH": "Odśwież",
 			"FAILED_TO_LOAD": "Nie udało się załadować statystyk panelu",
+			"LOCATION_DISABLED_TITLE": "Statystyki lokalizacji są wyłączone",
+			"LOCATION_DISABLED_DESC": "Włącz funkcje lokalizacji w ustawieniach katalogu, aby zobaczyć swoje elementy na mapie i przejrzeć zasięg geograficzny.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Zaangażowanie społeczności",
+				"VIEWS": "Wyświetlenia",
+				"VOTES_RECEIVED": "Otrzymane głosy",
+				"COMMENTS_RECEIVED": "Otrzymane komentarze"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Najlepiej działające elementy",
+				"ID": "ID",
+				"NO_DATA": "Nie znaleziono najlepszych elementów",
+				"NO_DATA_DESC": "Gdy Twoja treść zyska więcej zaangażowania, Twoje najlepsze elementy pojawią się tutaj."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Łączna Liczba Zgłoszeń",
 				"CONTENT_CREATED": "Utworzona przez Ciebie treść",

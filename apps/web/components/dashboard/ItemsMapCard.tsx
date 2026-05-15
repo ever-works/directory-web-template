@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { MapPin } from 'lucide-react';
+import { AlertTriangle, MapPin } from 'lucide-react';
 import { Map } from '@/components/maps';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES } from './styles';
@@ -36,12 +36,15 @@ const BADGE_STYLES =
 	'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
 const EMPTY_CONTAINER_STYLES =
 	'flex items-center justify-center bg-gray-50 dark:bg-white/4 rounded-lg';
+const ERROR_CONTAINER_STYLES =
+	'flex flex-col items-center justify-center gap-2 rounded-lg border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 px-4 text-center';
 
 export function ItemsMapCard() {
 	const t = useTranslations('client.dashboard.ITEMS_MAP');
+	const tCommon = useTranslations('client.dashboard');
 	const { settings } = useLocationSettings();
 
-	const { data: coordinates = [], isLoading } = useQuery({
+	const { data: coordinates = [], isLoading, isError, error } = useQuery({
 		queryKey: ['client-item-coordinates'],
 		queryFn: fetchClientItemCoordinates,
 		enabled: settings.enabled,
@@ -60,6 +63,26 @@ export function ItemsMapCard() {
 					<div className={SKELETON_MAP_STYLES} />
 				</div>
 			</div>
+		);
+	}
+
+	if (isError) {
+		return (
+			<section className={CARD_BASE_STYLES} aria-labelledby="items-map-title" role="alert">
+				<div className={HEADER_STYLES}>
+					<div className="flex items-center gap-2">
+						<MapPin className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+						<h3 id="items-map-title" className={TITLE_STYLES}>
+							{t('TITLE')}
+						</h3>
+					</div>
+				</div>
+				<div className={ERROR_CONTAINER_STYLES} style={{ height: MAP_HEIGHT }}>
+					<AlertTriangle className="h-6 w-6" aria-hidden="true" />
+					<p className="text-sm font-medium">{tCommon('FAILED_TO_LOAD')}</p>
+					<p className={SUBTITLE_STYLES}>{error instanceof Error ? error.message : String(error)}</p>
+				</div>
+			</section>
 		);
 	}
 

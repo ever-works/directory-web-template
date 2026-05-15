@@ -3492,6 +3492,20 @@
 			"WELCOME_BACK": "Bem-vindo de volta, {name}! Aqui está sua visão geral de atividades.",
 			"REFRESH": "Atualizar",
 			"FAILED_TO_LOAD": "Falha ao carregar estatísticas do painel",
+			"LOCATION_DISABLED_TITLE": "As informações de localização estão desativadas",
+			"LOCATION_DISABLED_DESC": "Ative os recursos de localização nas configurações do diretório para ver seus itens em um mapa e revisar a cobertura geográfica.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Engajamento da comunidade",
+				"VIEWS": "Visualizações",
+				"VOTES_RECEIVED": "Votos recebidos",
+				"COMMENTS_RECEIVED": "Comentários recebidos"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Itens com melhor desempenho",
+				"ID": "ID",
+				"NO_DATA": "Nenhum item em destaque encontrado",
+				"NO_DATA_DESC": "Quando seu conteúdo receber mais engajamento, seus melhores itens aparecerão aqui."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total de Submissões",
 				"CONTENT_CREATED": "Conteúdo que você criou",

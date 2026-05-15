@@ -2,7 +2,7 @@
 
 import { Session } from 'next-auth';
 import { useTranslations } from 'next-intl';
-import { MessageSquare, ThumbsUp, TrendingUp, Activity, RefreshCw } from 'lucide-react';
+import { MessageSquare, ThumbsUp, TrendingUp, Activity, RefreshCw, MapPinOff } from 'lucide-react';
 import { StatsCard } from './stats-card';
 import { ActivityChart } from './activity-chart';
 import { EngagementChart } from './engagement-chart';
@@ -121,10 +121,24 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				</div>
 
 				{/* Location Cards */}
-				{locationSettings.enabled && (
+				{locationSettings.enabled ? (
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 						<ItemsMapCard />
 						<GeoStatsCard />
+					</div>
+				) : (
+					<div className="mb-6 flex items-center gap-3 rounded-xl border border-dashed border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 p-4">
+						<div className="p-2 bg-neutral-100 dark:bg-white/8 rounded-lg">
+							<MapPinOff className="h-4 w-4 text-neutral-500 dark:text-neutral-400" aria-hidden="true" />
+						</div>
+						<div>
+							<p className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+								{t('LOCATION_DISABLED_TITLE')}
+							</p>
+							<p className="text-[11px] text-neutral-500 dark:text-neutral-400">
+								{t('LOCATION_DISABLED_DESC')}
+							</p>
+						</div>
 					</div>
 				)}
 

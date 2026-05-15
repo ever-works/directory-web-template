@@ -3491,6 +3491,20 @@
 			"WELCOME_BACK": "Welkom terug, {name}! Hier is uw activiteitenoverzicht.",
 			"REFRESH": "Vernieuwen",
 			"FAILED_TO_LOAD": "Kan dashboardstatistieken niet laden",
+			"LOCATION_DISABLED_TITLE": "Locatie-inzichten zijn uitgeschakeld",
+			"LOCATION_DISABLED_DESC": "Schakel locatiefuncties in de directory-instellingen in om je items op een kaart te zien en de geografische dekking te bekijken.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Community-betrokkenheid",
+				"VIEWS": "Weergaven",
+				"VOTES_RECEIVED": "Ontvangen stemmen",
+				"COMMENTS_RECEIVED": "Ontvangen reacties"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Best presterende items",
+				"ID": "ID",
+				"NO_DATA": "Geen topitems gevonden",
+				"NO_DATA_DESC": "Zodra je content meer betrokkenheid krijgt, verschijnen je topitems hier."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Totaal Inzendingen",
 				"CONTENT_CREATED": "Door u gemaakte inhoud",

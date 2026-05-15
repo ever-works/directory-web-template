@@ -3495,6 +3495,20 @@
 			"WELCOME_BACK": "Bentornato, {name}! Ecco la panoramica delle tue attività.",
 			"REFRESH": "Aggiorna",
 			"FAILED_TO_LOAD": "Impossibile caricare le statistiche della dashboard",
+			"LOCATION_DISABLED_TITLE": "Le informazioni sulla posizione sono disattivate",
+			"LOCATION_DISABLED_DESC": "Abilita le funzionalità di posizione nelle impostazioni della directory per vedere i tuoi elementi su una mappa e rivedere la copertura geografica.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Coinvolgimento della community",
+				"VIEWS": "Visualizzazioni",
+				"VOTES_RECEIVED": "Voti ricevuti",
+				"COMMENTS_RECEIVED": "Commenti ricevuti"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Elementi con migliori prestazioni",
+				"ID": "ID",
+				"NO_DATA": "Nessun elemento principale trovato",
+				"NO_DATA_DESC": "Quando i tuoi contenuti riceveranno più coinvolgimento, i tuoi elementi principali appariranno qui."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Invii Totali",
 				"CONTENT_CREATED": "Contenuti che hai creato",
