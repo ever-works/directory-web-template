@@ -62,7 +62,13 @@ export const AiChatConfigSchema = z
 		enabled: z.boolean().default(true),
 		position: z.enum(CHAT_POSITIONS).default('floating'),
 		provider: z.string().min(1).default('openrouter'),
-		model: z.string().min(1).default('openai/gpt-4o-mini'),
+		// Default to an OpenRouter free-tier model so a directory operator
+		// who just pastes a free OpenRouter API key gets a working chat
+		// at $0/month. Operators wanting better quality can override via
+		// `AI_CHAT_MODEL` or by setting `model:` in works.yml. `:free`
+		// suffix is OpenRouter's free-tier router; rate-limited per
+		// account but never billed.
+		model: z.string().min(1).default('meta-llama/llama-3.3-70b-instruct:free'),
 		defaultLocale: z.string().min(2).default('en'),
 		persist: z.boolean().default(false),
 		anonymous: anonymousPersonaSchema.default({
