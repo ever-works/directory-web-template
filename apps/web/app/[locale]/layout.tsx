@@ -20,6 +20,7 @@ import { Analytics, ThirdPartyAnalytics } from './integration/analytics';
 import { SettingsProvider } from '@/components/providers/settings-provider';
 import { SettingsModalProvider } from '@/components/providers/settings-modal-provider';
 import { SettingsModal } from '@/components/settings-modal';
+import { AiChatMount } from '@/components/ai/AiChatMount';
 import { NavigationLoadingBar } from '@/components/navigation-loading-bar';
 import {
 	getCategoriesEnabled,
@@ -199,6 +200,8 @@ export default async function RootLayout({
 								<ConditionalLayout>{children}</ConditionalLayout>
 								{/* Settings Modal - Shared by header button */}
 								<SettingsModal />
+								{/* AI chat launcher (Spec 023). Returns null when `aiChat.enabled` is false. */}
+								<AiChatMount locale={locale} />
 								{/* Locale suggestion banner — Pattern A from Spec 019. */}
 								{localeDetection === 'client-banner' && <LocaleSuggestionBanner />}
 							</Providers>

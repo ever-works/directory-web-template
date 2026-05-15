@@ -105,8 +105,23 @@ const CATEGORY_PATTERNS = [
   { name: 'storage', pattern: /^(STORAGE_|S3_|AWS_|CLOUDINARY_|UPLOAD_)/ },
   { name: 'api', pattern: /^(API_|ENDPOINT_)/ },
   { name: 'security', pattern: /^(SECRET_|KEY_|ENCRYPTION_|CRYPTO_)/ },
-  { name: 'background-jobs', pattern: /^(TRIGGER_DEV_|BACKGROUND_JOBS_)/ }
+  { name: 'background-jobs', pattern: /^(TRIGGER_DEV_|BACKGROUND_JOBS_)/ },
+  { name: 'ai-chat', pattern: /^AI_CHAT_/ }
 ];
+
+// AI Chat (Spec 023): vars are optional at the env layer (they are required
+// only when `aiChat.enabled: true` in works.yml), but if any AI_CHAT_*
+// override is set, the API key must also be present — otherwise /api/chat
+// returns 503 at runtime.
+function checkAiChatConsistency() {
+  const anyOverride = ['AI_CHAT_BASE_URL', 'AI_CHAT_MODEL', 'AI_CHAT_PROVIDER',
+    'AI_CHAT_RATE_LIMIT_ANON', 'AI_CHAT_RATE_LIMIT_AUTH']
+    .some(hasNonEmptyValue);
+  if (anyOverride && !hasNonEmptyValue('AI_CHAT_API_KEY')) {
+    return '⚠️  AI_CHAT_* override(s) set but AI_CHAT_API_KEY is empty — chat will return 503 if enabled.';
+  }
+  return null;
+}
 
 // Get all environment variables
 const allEnvVars = Object.keys(process.env);
@@ -270,6 +285,12 @@ if (missingVars.length > 0) {
 if (missingCriticalVars.length > 0) {
   allWarnings.push(`⚠️  Missing critical variables: ${missingCriticalVars.join(', ')}`);
   allWarnings.push('   Application may not function correctly!');
+}
+
+// Spec 023 — AI chat consistency warning
+const aiChatWarning = checkAiChatConsistency();
+if (aiChatWarning) {
+  allWarnings.push(aiChatWarning);
 }
 
 // Check for production-recommended variables

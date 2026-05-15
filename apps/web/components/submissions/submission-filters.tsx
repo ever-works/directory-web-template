@@ -11,6 +11,7 @@ export interface SubmissionFiltersProps {
   onSearchChange: (search: string) => void;
   isSearching?: boolean;
   disabled?: boolean;
+  hideStatusTabs?: boolean;
   statusCounts?: {
     all: number;
     approved: number;
@@ -26,6 +27,7 @@ export function SubmissionFilters({
   onSearchChange,
   isSearching = false,
   disabled = false,
+  hideStatusTabs = false,
   statusCounts,
 }: SubmissionFiltersProps) {
   const t = useTranslations('client.submissions');
@@ -37,8 +39,8 @@ export function SubmissionFilters({
 
   return (
     <div className="space-y-4">
-      {/* Status Tabs */}
-      <div className="flex flex-wrap gap-2">
+      {/* Status Tabs — hidden when chips are shown in the card header */}
+      {!hideStatusTabs && <div className="flex flex-wrap gap-2">
         {CLIENT_STATUS_FILTERS.map((filter) => {
           const isActive = status === filter.value;
           const count = statusCounts?.[filter.value as keyof typeof statusCounts];
@@ -74,7 +76,7 @@ export function SubmissionFilters({
             </button>
           );
         })}
-      </div>
+      </div>}
 
       {/* Search Input */}
       <div className="relative">
