@@ -6,6 +6,7 @@ import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
+import { emitActivityEvent } from '@/lib/services/platform-activity-feed/push-client';
 
 const itemRepository = new ItemRepository();
 
@@ -531,6 +532,19 @@ export async function POST(request: NextRequest) {
       submitted_by: session.user.id,
       location,
     }, auditUser);
+
+    // EW-120 push mode: emit WEBSITE_ITEM_SUBMITTED. Fire-and-forget;
+    // never block the admin response on platform sync.
+    void emitActivityEvent({
+      actionType: 'WEBSITE_ITEM_SUBMITTED',
+      summary: `${auditUser?.name ?? 'An admin'} added "${name}"`,
+      metadata: {
+        itemSlug: slug,
+        itemName: name,
+        status: status || 'draft',
+        submittedBy: session.user.id,
+      },
+    });
 
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
     const crmEnabled = process.env.TWENTY_CRM_ENABLED === 'true';

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getReportById, updateReport } from '@/lib/db/queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
+import { emitActivityEvent } from '@/lib/services/platform-activity-feed/push-client';
 import {
 	ReportStatus,
 	ReportResolution,
@@ -173,6 +174,25 @@ export async function PUT(
 
 		if (!updatedReport) {
 			return NextResponse.json({ success: false, error: 'Failed to update report' }, { status: 500 });
+		}
+
+		// EW-120 push mode: emit WEBSITE_REPORT_RESOLVED on any terminal
+		// status transition. Fire-and-forget; never block the admin response.
+		const becameTerminal =
+			(status === ReportStatus.RESOLVED || status === ReportStatus.DISMISSED) &&
+			existingReport.status !== status;
+		if (becameTerminal) {
+			void emitActivityEvent({
+				actionType: 'WEBSITE_REPORT_RESOLVED',
+				summary: `Report resolved (${status}${resolution ? `, ${resolution}` : ''})`,
+				metadata: {
+					reportId: id,
+					previousStatus: existingReport.status,
+					newStatus: status,
+					resolution: resolution ?? null,
+					reviewedBy: session.user.id
+				}
+			});
 		}
 
 		// Execute moderation action based on resolution

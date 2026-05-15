@@ -10,31 +10,31 @@ export default function LocationSettingsPage() {
 	const t = useTranslations('settings.LOCATION_SETTINGS');
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-			<Container maxWidth="7xl" padding="default">
-				<div className="space-y-8 py-8">
+		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
+			<Container maxWidth="7xl" padding="default" useGlobalWidth>
+				<div className="py-8 space-y-6">
 					{/* Back link */}
-					<div className="flex items-center gap-4">
+					<div>
 						<Link
 							href="/client/settings"
-							className="inline-flex items-center gap-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+							className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
 						>
-							<FiArrowLeft className="w-4 h-4" />
+							<FiArrowLeft className="w-3.5 h-3.5" />
 							{t('BACK')}
 						</Link>
 					</div>
 
-					{/* Header */}
-					<div className="text-center space-y-4">
-						<div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-theme-primary-100 to-theme-primary-200 dark:from-theme-primary-900/40 dark:to-theme-primary-800/40 rounded-2xl mb-4">
-							<FiMapPin className="w-8 h-8 text-theme-primary-600 dark:text-theme-primary-400" />
+					{/* Page Header */}
+					<div className="flex items-center gap-3">
+						<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
+							<FiMapPin className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
 						</div>
-						<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-3">
-							{t('TITLE')}
-						</h1>
-						<p className="text-gray-600 dark:text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">
-							{t('DESCRIPTION')}
-						</p>
+						<div>
+							<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+								{t('TITLE')}
+							</h1>
+							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('DESCRIPTION')}</p>
+						</div>
 					</div>
 
 					{/* Form */}
