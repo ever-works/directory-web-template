@@ -29519,7 +29519,11 @@
                         "properties": {
                           "key": {
                             "type": "string",
-                            "enum": ["views", "votesReceived", "commentsReceived"]
+                            "enum": [
+                              "views",
+                              "votesReceived",
+                              "commentsReceived"
+                            ]
                           },
                           "value": {
                             "type": "integer"

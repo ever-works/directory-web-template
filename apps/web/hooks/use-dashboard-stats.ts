@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { mockDashboardStats } from "@/lib/mock/dashboard-stats.mock";
 import type {
     PeriodComparisonDataExport,
     CategoryPerformanceDataExport,
@@ -98,6 +97,5 @@ export function useDashboardStats() {
       return stats as UserStats;
     },
     staleTime: 5 * 60 * 1000,
-    placeholderData: mockDashboardStats,
   });
 } 
