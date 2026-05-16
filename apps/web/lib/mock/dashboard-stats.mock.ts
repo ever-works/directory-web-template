@@ -64,26 +64,26 @@ export const mockDashboardStats: UserStats = {
 	],
 
 	engagementChartData: [
-		{ name: 'Votes', value: 187, color: '#10b981' },
-		{ name: 'Comments', value: 53, color: '#f59e0b' },
-		{ name: 'Views', value: 3842, color: '#8b5cf6' },
+		{ key: 'views', value: 3842, color: '#3B82F6' },
+		{ key: 'votesReceived', value: 187, color: '#10B981' },
+		{ key: 'commentsReceived', value: 53, color: '#F59E0B' },
 	],
 
 	categoryPerformance: [
-		{ category: 'Web Dev', items: 8, avgEngagement: 14.2, totalEngagement: 114 },
-		{ category: 'DevTools', items: 6, avgEngagement: 11.5, totalEngagement: 69 },
-		{ category: 'Design', items: 5, avgEngagement: 9.8, totalEngagement: 49 },
-		{ category: 'AI / ML', items: 3, avgEngagement: 8.3, totalEngagement: 25 },
-		{ category: 'Mobile', items: 2, avgEngagement: 6.0, totalEngagement: 12 },
+		{ category: 'Web Dev', itemCount: 8, avgEngagement: 14.2, totalEngagement: 114 },
+		{ category: 'DevTools', itemCount: 6, avgEngagement: 11.5, totalEngagement: 69 },
+		{ category: 'Design', itemCount: 5, avgEngagement: 9.8, totalEngagement: 49 },
+		{ category: 'AI / ML', itemCount: 3, avgEngagement: 8.3, totalEngagement: 25 },
+		{ category: 'Mobile', itemCount: 2, avgEngagement: 6.0, totalEngagement: 12 },
 	],
 
 	approvalTrend: [
-		{ month: 'Nov', approvalRate: 80, approved: 4, total: 5 },
-		{ month: 'Dec', approvalRate: 100, approved: 5, total: 5 },
-		{ month: 'Jan', approvalRate: 75, approved: 3, total: 4 },
-		{ month: 'Feb', approvalRate: 86, approved: 6, total: 7 },
-		{ month: 'Mar', approvalRate: 67, approved: 2, total: 3 },
-		{ month: 'Apr', approvalRate: 100, approved: 4, total: 4 },
+		{ month: 'Nov', rate: 80, approved: 4, total: 5 },
+		{ month: 'Dec', rate: 100, approved: 5, total: 5 },
+		{ month: 'Jan', rate: 75, approved: 3, total: 4 },
+		{ month: 'Feb', rate: 86, approved: 6, total: 7 },
+		{ month: 'Mar', rate: 67, approved: 2, total: 3 },
+		{ month: 'Apr', rate: 100, approved: 4, total: 4 },
 	],
 
 	submissionCalendar: [
@@ -100,8 +100,8 @@ export const mockDashboardStats: UserStats = {
 	],
 
 	engagementDistribution: [
-		{ itemId: 'item-001', title: 'Next.js Boilerplate', engagement: 108, percentage: 44 },
-		{ itemId: 'item-002', title: 'Tailwind UI Pack', engagement: 81, percentage: 33 },
-		{ itemId: 'item-003', title: 'Drizzle Starter', engagement: 57, percentage: 23 },
+		{ id: 'item-001', slug: 'nextjs-boilerplate', title: 'Next.js Boilerplate', engagement: 108, percentage: 44 },
+		{ id: 'item-002', slug: 'tailwind-ui-pack', title: 'Tailwind UI Pack', engagement: 81, percentage: 33 },
+		{ id: 'item-003', slug: 'drizzle-starter', title: 'Drizzle Starter', engagement: 57, percentage: 23 },
 	],
 };
