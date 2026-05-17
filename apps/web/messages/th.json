@@ -1571,6 +1571,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "แดชบอร์ด",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3445,6 +3446,84 @@
 				"GLOBAL": "ระดับโลก",
 				"NO_DATA": "ไม่มีข้อมูลตำแหน่ง",
 				"NO_DATA_DESC": "เพิ่มข้อมูลตำแหน่งในรายการของคุณเพื่อดูความครอบคลุมทางภูมิศาสตร์"
+			},
+			"LOCATION_DISABLED_TITLE": "ข้อมูลเชิงลึกของตำแหน่งถูกปิดใช้งาน",
+			"LOCATION_DISABLED_DESC": "เปิดใช้งานคุณสมบัติตำแหน่งในการตั้งค่าไดเรกทอรีเพื่อดูรายการของคุณบนแผนที่และตรวจสอบความครอบคลุมทางภูมิศาสตร์",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "การมีส่วนร่วมของชุมชน",
+				"SUBTITLE": "ผู้ชมของคุณมีปฏิสัมพันธ์กับเนื้อหาอย่างไร",
+				"TOTAL_LABEL": "รวม",
+				"VIEWS": "การดู",
+				"VOTES_RECEIVED": "ได้รับโหวต",
+				"COMMENTS_RECEIVED": "ความคิดเห็นที่ได้รับ",
+				"NO_DATA": "ยังไม่มีการมีส่วนร่วม",
+				"NO_DATA_DESC": "เมื่อเนื้อหาของคุณได้รับการดู โหวต หรือความคิดเห็น คุณจะเห็นการกระจายที่นี่"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "รายการที่มีประสิทธิภาพสูงสุด",
+				"ID": "รหัส",
+				"NO_DATA": "ไม่พบรายการยอดนิยม",
+				"NO_DATA_DESC": "เมื่อเนื้อหาของคุณได้รับการมีส่วนร่วมมากขึ้น รายการยอดนิยมของคุณจะปรากฏที่นี่"
+			},
+			"USER_FALLBACK": "คุณ",
+			"HEADER_SUBTITLE": "ดูประสิทธิภาพของเนื้อหาของคุณ",
+			"NEW_SUBMISSION": "ส่งใหม่",
+			"VIEW_PROFILE": "ดูโปรไฟล์",
+			"GREETING": {
+				"MORNING": "อรุณสวัสดิ์, {name}",
+				"AFTERNOON": "สวัสดีตอนบ่าย, {name}",
+				"EVENING": "สวัสดีตอนเย็น, {name}"
+			},
+			"TABS": {
+				"LABEL": "ส่วนของแดชบอร์ด",
+				"OVERVIEW": "ภาพรวม",
+				"CONTENT": "เนื้อหา",
+				"ENGAGEMENT": "การมีส่วนร่วม",
+				"GEOGRAPHIC": "ภูมิศาสตร์"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "การดำเนินการด่วน",
+				"NEW_SUBMISSION": "ส่งใหม่",
+				"NEW_SUBMISSION_DESC": "ส่งรายการใหม่เข้าสู่ไดเรกทอรี",
+				"MY_SUBMISSIONS": "รายการที่ส่งของฉัน",
+				"MY_SUBMISSIONS_DESC": "ดูและจัดการรายการที่ส่ง",
+				"BILLING": "การเรียกเก็บเงิน",
+				"BILLING_DESC": "จัดการวิธีการชำระเงิน",
+				"SETTINGS": "การตั้งค่า",
+				"SETTINGS_DESC": "อัปเดตโปรไฟล์และการตั้งค่าของคุณ"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "การแจ้งเตือนของแดชบอร์ด",
+				"PENDING_ITEMS": "{count, plural, other {คุณมีรายการ # รายการรอการตรวจสอบ}}",
+				"VIEW_SUBMISSIONS": "ดูรายการที่ส่ง",
+				"NO_SUBMISSIONS": "คุณยังไม่ได้ส่งสิ่งใด",
+				"SUBMIT_FIRST": "ส่งรายการแรกของคุณ",
+				"DISMISS": "ปิดการแจ้งเตือน"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "ส่งรายการแรกของคุณเพื่อเริ่มต้น",
+				"SUBMIT_NOW": "ส่งทันที",
+				"VIEWS": "ยอดดูจะปรากฏเมื่อเนื้อหาของคุณได้รับการอนุมัติ",
+				"VOTES": "โหวตจะปรากฏเมื่อมีคนตอบสนองกับเนื้อหาของคุณ",
+				"COMMENTS": "ความคิดเห็นจะปรากฏเมื่อผู้คนมีส่วนร่วมกับเนื้อหาของคุณ"
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "ไทม์ไลน์การส่ง",
+				"SUBTITLE": "การส่งรายเดือนใน 6 เดือนที่ผ่านมา",
+				"TOTAL_LABEL": "รวม",
+				"SUBMISSIONS_LABEL": "การส่ง",
+				"PEAK_HINT": "เดือนสูงสุด: {month} ด้วย {count} การส่ง",
+				"NO_DATA": "ไม่มีประวัติการส่ง",
+				"NO_DATA_DESC": "ส่งรายการแรกของคุณเพื่อเริ่มติดตามกิจกรรมรายเดือน"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "กิจกรรมรายสัปดาห์",
+				"SUBTITLE": "การส่ง การดู และการมีส่วนร่วมใน 7 วันที่ผ่านมา",
+				"SUBMISSIONS_LABEL": "การส่ง",
+				"VIEWS_LABEL": "การดู",
+				"ENGAGEMENT_LABEL": "การมีส่วนร่วม",
+				"NO_DATA": "ไม่มีกิจกรรมในสัปดาห์นี้",
+				"NO_DATA_DESC": "กิจกรรมจะปรากฏที่นี่เมื่อเนื้อหาของคุณเริ่มได้รับการดูและโหวต"
 			}
 		}
 	},

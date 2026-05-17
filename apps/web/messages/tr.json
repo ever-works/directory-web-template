@@ -1660,6 +1660,7 @@
 		"SUBMISSION_UPDATED_DATE": "Güncellendi: {date}",
 		"VIEW_SUBMISSION": "Gönderimi görüntüle",
 		"PROFILES_BREADCRUMB": "Profiller",
+		"BACK_TO_DASHBOARD": "Pano",
 		"ABOUT_SECTION": "Hakkında",
 		"RECENT_ACTIVITY_SECTION": "Son aktivite",
 		"SKILLS_EXPERTISE_SECTION": "Beceriler ve uzmanlık",
@@ -3627,14 +3628,78 @@
 			"WELCOME_BACK": "Tekrar hoş geldiniz, {name}! İşte aktivite genel bakışınız.",
 			"REFRESH": "Yenile",
 			"FAILED_TO_LOAD": "Kontrol paneli istatistikleri yüklenemedi",
+			"USER_FALLBACK": "merhaba",
+			"HEADER_SUBTITLE": "İçeriğinizin nasıl performans gösterdiğini görün.",
+			"NEW_SUBMISSION": "Yeni gönderim",
+			"VIEW_PROFILE": "Profili görüntüle",
+			"GREETING": {
+				"MORNING": "Günaydın, {name}",
+				"AFTERNOON": "İyi günler, {name}",
+				"EVENING": "İyi akşamlar, {name}"
+			},
+			"TABS": {
+				"LABEL": "Pano bölümleri",
+				"OVERVIEW": "Genel Bakış",
+				"CONTENT": "İçerik",
+				"ENGAGEMENT": "Etkileşim",
+				"GEOGRAPHIC": "Coğrafi"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Hızlı eylemler",
+				"NEW_SUBMISSION": "Yeni gönderim",
+				"NEW_SUBMISSION_DESC": "Dizine yeni öğe gönderin",
+				"MY_SUBMISSIONS": "Gönderimlerim",
+				"MY_SUBMISSIONS_DESC": "Gönderimlerinizi görüntüleyin ve yönetin",
+				"BILLING": "Faturalandırma",
+				"BILLING_DESC": "Ödeme yöntemlerini yönetin",
+				"SETTINGS": "Ayarlar",
+				"SETTINGS_DESC": "Profilinizi ve tercihlerinizi güncelleyin"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Pano bildirimleri",
+				"PENDING_ITEMS": "{count, plural, other {İncelemeyi bekleyen # öğeniz var}}",
+				"VIEW_SUBMISSIONS": "Gönderimleri görüntüle",
+				"NO_SUBMISSIONS": "Henüz hiçbir şey göndermediniz.",
+				"SUBMIT_FIRST": "İlk öğenizi gönderin",
+				"DISMISS": "Bildirimi kapat"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Başlamak için ilk öğenizi gönderin.",
+				"SUBMIT_NOW": "Şimdi gönder",
+				"VIEWS": "İçeriğiniz onaylandığında görüntülenmeler görünecek.",
+				"VOTES": "İnsanlar içeriğinize tepki verdikçe oylar görünecek.",
+				"COMMENTS": "İnsanlar içeriğinizle etkileşime geçtikçe yorumlar görünecek."
+			},
+			"LOCATION_DISABLED_TITLE": "Konum içgörüleri devre dışı",
+			"LOCATION_DISABLED_DESC": "Öğelerinizi haritada görmek ve coğrafi kapsamı incelemek için dizin ayarlarınızda konum özelliklerini etkinleştirin.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Topluluk Etkileşimi",
+				"SUBTITLE": "Hedef kitlenizin içeriğinizle nasıl etkileşime girdiği",
+				"TOTAL_LABEL": "Toplam",
+				"VIEWS": "Görüntülenmeler",
+				"VOTES_RECEIVED": "Alınan Oylar",
+				"COMMENTS_RECEIVED": "Alınan Yorumlar",
+				"NO_DATA": "Henüz etkileşim yok",
+				"NO_DATA_DESC": "İçeriğiniz görüntülenme, oy veya yorum aldığında, karışımı burada göreceksiniz."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "En İyi Performans Gösteren Öğeler",
+				"ID": "Kimlik",
+				"NO_DATA": "En iyi öğe bulunamadı",
+				"NO_DATA_DESC": "İçeriğiniz daha fazla etkileşim aldığında, en iyi öğeleriniz burada görünecek."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Toplam Gönderim",
+				"TOTAL_SUBMISSIONS_SHORT": "Gönderiler",
 				"CONTENT_CREATED": "Oluşturduğunuz içerik",
 				"TOTAL_VIEWS": "Toplam Görüntülenme",
+				"TOTAL_VIEWS_SHORT": "Görüntülenmeler",
 				"VIEWS_ON_CONTENT": "İçeriğinizdeki görüntülenmeler",
 				"VOTES_RECEIVED": "Alınan Oylar",
+				"VOTES_RECEIVED_SHORT": "Oylar",
 				"VOTES_ON_CONTENT": "İçeriğinizdeki oylar",
 				"COMMENTS_RECEIVED": "Alınan Yorumlar",
+				"COMMENTS_RECEIVED_SHORT": "Yorumlar",
 				"COMMENTS_ON_CONTENT": "İçeriğinizdeki yorumlar"
 			},
 			"PERIOD_COMPARISON": {
@@ -3687,7 +3752,32 @@
 				"MORE": "Çok"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "Gönderim Durumu"
+				"TITLE": "Gönderim Durumu",
+				"SUBTITLE": "Gönderimlerinizin mevcut duruma göre dökümü",
+				"TOTAL_LABEL": "Toplam",
+				"APPROVED_LABEL": "Onaylanan",
+				"PENDING_LABEL": "Beklemede",
+				"REJECTED_LABEL": "Reddedilen",
+				"NO_DATA": "Henüz gönderim yok",
+				"NO_DATA_DESC": "İçerik gönderdiğinizde, burada onaylanan, beklemede ve reddedilen arasındaki dağılımı göreceksiniz."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Gönderim Zaman Çizelgesi",
+				"SUBTITLE": "Son 6 ayın aylık gönderimleri",
+				"TOTAL_LABEL": "Toplam",
+				"SUBMISSIONS_LABEL": "gönderim",
+				"PEAK_HINT": "Zirve ay: {month}, {count} gönderim",
+				"NO_DATA": "Gönderim geçmişi yok",
+				"NO_DATA_DESC": "Aylık aktiviteyi takip etmeye başlamak için ilk öğenizi gönderin."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Haftalık Aktivite",
+				"SUBTITLE": "Son 7 gündeki gönderimler, görüntülenmeler ve etkileşim",
+				"SUBMISSIONS_LABEL": "Gönderimler",
+				"VIEWS_LABEL": "Görüntülenmeler",
+				"ENGAGEMENT_LABEL": "Etkileşim",
+				"NO_DATA": "Bu hafta aktivite yok",
+				"NO_DATA_DESC": "İçeriğiniz görüntülenme ve oy almaya başladığında aktivite burada görünecek."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Etkileşim Dağılımı",

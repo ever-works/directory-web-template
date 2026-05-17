@@ -1666,6 +1666,7 @@
 		"SUBMISSION_UPDATED_DATE": "更新时间：{date}",
 		"VIEW_SUBMISSION": "查看提交",
 		"PROFILES_BREADCRUMB": "个人资料",
+		"BACK_TO_DASHBOARD": "仪表板",
 		"ABOUT_SECTION": "关于",
 		"RECENT_ACTIVITY_SECTION": "近期动态",
 		"SKILLS_EXPERTISE_SECTION": "技能与专长",
@@ -3523,14 +3524,78 @@
 			"WELCOME_BACK": "欢迎回来，{name}！这是您的活动概览。",
 			"REFRESH": "刷新",
 			"FAILED_TO_LOAD": "加载仪表盘统计数据失败",
+			"USER_FALLBACK": "你",
+			"HEADER_SUBTITLE": "看看您的内容表现如何。",
+			"NEW_SUBMISSION": "新建提交",
+			"VIEW_PROFILE": "查看个人资料",
+			"GREETING": {
+				"MORNING": "早上好，{name}",
+				"AFTERNOON": "下午好，{name}",
+				"EVENING": "晚上好，{name}"
+			},
+			"TABS": {
+				"LABEL": "仪表板部分",
+				"OVERVIEW": "概览",
+				"CONTENT": "内容",
+				"ENGAGEMENT": "互动",
+				"GEOGRAPHIC": "地理"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "快捷操作",
+				"NEW_SUBMISSION": "新建提交",
+				"NEW_SUBMISSION_DESC": "向目录提交新项目",
+				"MY_SUBMISSIONS": "我的提交",
+				"MY_SUBMISSIONS_DESC": "查看并管理您的提交",
+				"BILLING": "账单",
+				"BILLING_DESC": "管理付款方式",
+				"SETTINGS": "设置",
+				"SETTINGS_DESC": "更新您的个人资料和偏好"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "仪表板提醒",
+				"PENDING_ITEMS": "{count, plural, other {您有 # 个项目等待审核}}",
+				"VIEW_SUBMISSIONS": "查看提交",
+				"NO_SUBMISSIONS": "您尚未提交任何内容。",
+				"SUBMIT_FIRST": "提交您的第一个项目",
+				"DISMISS": "关闭提醒"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "提交您的第一个项目以开始。",
+				"SUBMIT_NOW": "立即提交",
+				"VIEWS": "内容获批后将显示浏览量。",
+				"VOTES": "当人们对您的内容做出反应时将显示投票。",
+				"COMMENTS": "当人们参与您的内容时将显示评论。"
+			},
+			"LOCATION_DISABLED_TITLE": "位置洞察已禁用",
+			"LOCATION_DISABLED_DESC": "在目录设置中启用位置功能，可在地图上查看您的项目并审视地理覆盖范围。",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "社区互动",
+				"SUBTITLE": "您的受众如何与内容互动",
+				"TOTAL_LABEL": "总计",
+				"VIEWS": "浏览量",
+				"VOTES_RECEIVED": "收到的投票",
+				"COMMENTS_RECEIVED": "收到的评论",
+				"NO_DATA": "暂无互动",
+				"NO_DATA_DESC": "当您的内容获得浏览、投票或评论时，您将在此处看到组合。"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "最佳表现项目",
+				"ID": "ID",
+				"NO_DATA": "未找到热门项目",
+				"NO_DATA_DESC": "当您的内容获得更多互动时，热门项目将显示在此处。"
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "总提交数",
+				"TOTAL_SUBMISSIONS_SHORT": "提交",
 				"CONTENT_CREATED": "您创建的内容",
 				"TOTAL_VIEWS": "总浏览量",
+				"TOTAL_VIEWS_SHORT": "浏览",
 				"VIEWS_ON_CONTENT": "您的内容浏览量",
 				"VOTES_RECEIVED": "获得的投票",
+				"VOTES_RECEIVED_SHORT": "投票",
 				"VOTES_ON_CONTENT": "您的内容投票数",
 				"COMMENTS_RECEIVED": "获得的评论",
+				"COMMENTS_RECEIVED_SHORT": "评论",
 				"COMMENTS_ON_CONTENT": "您的内容评论数"
 			},
 			"PERIOD_COMPARISON": {
@@ -3618,6 +3683,24 @@
 				"GLOBAL": "全球",
 				"NO_DATA": "无位置数据",
 				"NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "提交时间线",
+				"SUBTITLE": "过去 6 个月的每月提交",
+				"TOTAL_LABEL": "总计",
+				"SUBMISSIONS_LABEL": "提交",
+				"PEAK_HINT": "高峰月：{month}，共 {count} 次提交",
+				"NO_DATA": "暂无提交历史",
+				"NO_DATA_DESC": "提交您的第一个项目以开始跟踪每月活动。"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "每周活动",
+				"SUBTITLE": "过去 7 天的提交、浏览和互动",
+				"SUBMISSIONS_LABEL": "提交",
+				"VIEWS_LABEL": "浏览",
+				"ENGAGEMENT_LABEL": "互动",
+				"NO_DATA": "本周无活动",
+				"NO_DATA_DESC": "当您的内容开始获得浏览和投票时，活动将出现在这里。"
 			}
 		}
 	},

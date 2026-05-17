@@ -1565,6 +1565,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "לוח בקרה",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3443,6 +3444,84 @@
 				"GLOBAL": "גלובלי",
 				"NO_DATA": "אין נתוני מיקום",
 				"NO_DATA_DESC": "הוסף נתוני מיקום לפריטים שלך כדי לראות כיסוי גיאוגרפי."
+			},
+			"LOCATION_DISABLED_TITLE": "תובנות מיקום מושבתות",
+			"LOCATION_DISABLED_DESC": "הפעל את תכונות המיקום בהגדרות המדריך כדי לראות את הפריטים שלך על מפה ולסקור כיסוי גיאוגרפי.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "מעורבות הקהילה",
+				"SUBTITLE": "כיצד הקהל שלך מתקשר עם התוכן שלך",
+				"TOTAL_LABEL": "סך הכול",
+				"VIEWS": "צפיות",
+				"VOTES_RECEIVED": "הצבעות שהתקבלו",
+				"COMMENTS_RECEIVED": "תגובות שהתקבלו",
+				"NO_DATA": "אין מעורבות עדיין",
+				"NO_DATA_DESC": "כאשר התוכן שלך יקבל צפיות, הצבעות או תגובות, תראה את התמהיל כאן."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "פריטים מובילים",
+				"ID": "מזהה",
+				"NO_DATA": "לא נמצאו פריטים מובילים",
+				"NO_DATA_DESC": "כאשר התוכן שלך יקבל יותר מעורבות, הפריטים המובילים שלך יופיעו כאן."
+			},
+			"USER_FALLBACK": "שם",
+			"HEADER_SUBTITLE": "כך מתפקד התוכן שלך.",
+			"NEW_SUBMISSION": "הגשה חדשה",
+			"VIEW_PROFILE": "הצג פרופיל",
+			"GREETING": {
+				"MORNING": "בוקר טוב, {name}",
+				"AFTERNOON": "אחר צהריים טובים, {name}",
+				"EVENING": "ערב טוב, {name}"
+			},
+			"TABS": {
+				"LABEL": "חלקי הלוח",
+				"OVERVIEW": "סקירה",
+				"CONTENT": "תוכן",
+				"ENGAGEMENT": "מעורבות",
+				"GEOGRAPHIC": "גאוגרפי"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "פעולות מהירות",
+				"NEW_SUBMISSION": "הגשה חדשה",
+				"NEW_SUBMISSION_DESC": "הגש פריט חדש למדריך",
+				"MY_SUBMISSIONS": "ההגשות שלי",
+				"MY_SUBMISSIONS_DESC": "הצג ונהל את ההגשות שלך",
+				"BILLING": "חיוב",
+				"BILLING_DESC": "נהל אמצעי תשלום",
+				"SETTINGS": "הגדרות",
+				"SETTINGS_DESC": "עדכן את הפרופיל וההעדפות שלך"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "התראות הלוח",
+				"PENDING_ITEMS": "{count, plural, one {יש לך # פריט בהמתנה לסקירה} other {יש לך # פריטים בהמתנה לסקירה}}",
+				"VIEW_SUBMISSIONS": "הצג הגשות",
+				"NO_SUBMISSIONS": "עדיין לא הגשת דבר.",
+				"SUBMIT_FIRST": "הגש את הפריט הראשון שלך",
+				"DISMISS": "סגור התראה"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "הגש את הפריט הראשון שלך כדי להתחיל.",
+				"SUBMIT_NOW": "הגש עכשיו",
+				"VIEWS": "הצפיות יופיעו לאחר שהתוכן שלך יאושר.",
+				"VOTES": "ההצבעות יופיעו ככל שאנשים יתקשרו עם התוכן שלך.",
+				"COMMENTS": "התגובות יופיעו כאשר אנשים יעסקו בתוכן שלך."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "ציר זמן הגשות",
+				"SUBTITLE": "הגשות חודשיות ב-6 החודשים האחרונים",
+				"TOTAL_LABEL": "סך הכול",
+				"SUBMISSIONS_LABEL": "הגשות",
+				"PEAK_HINT": "חודש שיא: {month} עם {count} הגשות",
+				"NO_DATA": "אין היסטוריית הגשות",
+				"NO_DATA_DESC": "הגש את הפריט הראשון שלך כדי להתחיל לעקוב אחר הפעילות החודשית."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "פעילות שבועית",
+				"SUBTITLE": "הגשות, צפיות ומעורבות ב-7 הימים האחרונים",
+				"SUBMISSIONS_LABEL": "הגשות",
+				"VIEWS_LABEL": "צפיות",
+				"ENGAGEMENT_LABEL": "מעורבות",
+				"NO_DATA": "אין פעילות השבוע",
+				"NO_DATA_DESC": "הפעילות תופיע כאן ברגע שהתוכן שלך יתחיל לקבל צפיות והצבעות."
 			}
 		}
 	},

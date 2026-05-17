@@ -1723,6 +1723,7 @@
 		"SUBMISSION_UPDATED_DATE": "업데이트: {date}",
 		"VIEW_SUBMISSION": "제출물 보기",
 		"PROFILES_BREADCRUMB": "프로필",
+		"BACK_TO_DASHBOARD": "대시보드",
 		"ABOUT_SECTION": "소개",
 		"RECENT_ACTIVITY_SECTION": "최근 활동",
 		"SKILLS_EXPERTISE_SECTION": "기술 및 전문성",
@@ -3690,14 +3691,78 @@
 			"WELCOME_BACK": "{name}님, 다시 오신 것을 환영합니다! 활동 개요입니다.",
 			"REFRESH": "새로고침",
 			"FAILED_TO_LOAD": "대시보드 통계를 불러오는데 실패했습니다",
+			"USER_FALLBACK": "님",
+			"HEADER_SUBTITLE": "콘텐츠의 성과를 확인하세요.",
+			"NEW_SUBMISSION": "새 제출",
+			"VIEW_PROFILE": "프로필 보기",
+			"GREETING": {
+				"MORNING": "좋은 아침입니다, {name}님",
+				"AFTERNOON": "안녕하세요, {name}님",
+				"EVENING": "좋은 저녁입니다, {name}님"
+			},
+			"TABS": {
+				"LABEL": "대시보드 섹션",
+				"OVERVIEW": "개요",
+				"CONTENT": "콘텐츠",
+				"ENGAGEMENT": "참여",
+				"GEOGRAPHIC": "지역"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "빠른 작업",
+				"NEW_SUBMISSION": "새 제출",
+				"NEW_SUBMISSION_DESC": "디렉토리에 새 항목 제출",
+				"MY_SUBMISSIONS": "내 제출",
+				"MY_SUBMISSIONS_DESC": "제출 항목 보기 및 관리",
+				"BILLING": "결제",
+				"BILLING_DESC": "결제 수단 관리",
+				"SETTINGS": "설정",
+				"SETTINGS_DESC": "프로필과 환경 설정 업데이트"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "대시보드 알림",
+				"PENDING_ITEMS": "{count, plural, other {검토 대기 중인 항목이 #개 있습니다}}",
+				"VIEW_SUBMISSIONS": "제출 항목 보기",
+				"NO_SUBMISSIONS": "아직 제출한 항목이 없습니다.",
+				"SUBMIT_FIRST": "첫 항목 제출하기",
+				"DISMISS": "알림 닫기"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "첫 항목을 제출하여 시작하세요.",
+				"SUBMIT_NOW": "지금 제출",
+				"VIEWS": "콘텐츠가 승인되면 조회수가 표시됩니다.",
+				"VOTES": "사람들이 콘텐츠에 반응하면 투표가 표시됩니다.",
+				"COMMENTS": "사람들이 콘텐츠에 참여하면 댓글이 표시됩니다."
+			},
+			"LOCATION_DISABLED_TITLE": "위치 인사이트가 비활성화되었습니다",
+			"LOCATION_DISABLED_DESC": "디렉토리 설정에서 위치 기능을 활성화하여 항목을 지도에서 보고 지역 범위를 검토하세요.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "커뮤니티 참여",
+				"SUBTITLE": "시청자가 콘텐츠와 어떻게 상호작용하는지",
+				"TOTAL_LABEL": "합계",
+				"VIEWS": "조회수",
+				"VOTES_RECEIVED": "받은 투표",
+				"COMMENTS_RECEIVED": "받은 댓글",
+				"NO_DATA": "아직 참여가 없습니다",
+				"NO_DATA_DESC": "콘텐츠가 조회, 투표, 댓글을 받으면 구성을 여기에서 확인할 수 있습니다."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "상위 성과 항목",
+				"ID": "ID",
+				"NO_DATA": "상위 항목을 찾을 수 없음",
+				"NO_DATA_DESC": "콘텐츠가 더 많은 참여를 얻으면 상위 항목이 여기에 표시됩니다."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "총 제출물",
+				"TOTAL_SUBMISSIONS_SHORT": "제출",
 				"CONTENT_CREATED": "생성한 콘텐츠",
 				"TOTAL_VIEWS": "총 조회수",
+				"TOTAL_VIEWS_SHORT": "조회",
 				"VIEWS_ON_CONTENT": "콘텐츠 조회수",
 				"VOTES_RECEIVED": "받은 투표",
+				"VOTES_RECEIVED_SHORT": "투표",
 				"VOTES_ON_CONTENT": "콘텐츠 투표",
 				"COMMENTS_RECEIVED": "받은 댓글",
+				"COMMENTS_RECEIVED_SHORT": "댓글",
 				"COMMENTS_ON_CONTENT": "콘텐츠 댓글"
 			},
 			"PERIOD_COMPARISON": {
@@ -3750,7 +3815,32 @@
 				"MORE": "많음"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "제출 상태"
+				"TITLE": "제출 상태",
+				"SUBTITLE": "현재 상태별 제출 분포",
+				"TOTAL_LABEL": "합계",
+				"APPROVED_LABEL": "승인됨",
+				"PENDING_LABEL": "대기 중",
+				"REJECTED_LABEL": "거부됨",
+				"NO_DATA": "아직 제출이 없습니다",
+				"NO_DATA_DESC": "콘텐츠를 제출하면 승인, 대기, 거부의 분포가 여기에 표시됩니다."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "제출 타임라인",
+				"SUBTITLE": "지난 6개월간 월별 제출",
+				"TOTAL_LABEL": "합계",
+				"SUBMISSIONS_LABEL": "제출",
+				"PEAK_HINT": "최고 달: {month}, {count}건의 제출",
+				"NO_DATA": "제출 기록이 없습니다",
+				"NO_DATA_DESC": "월간 활동을 추적하려면 첫 항목을 제출하세요."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "주간 활동",
+				"SUBTITLE": "지난 7일간의 제출, 조회 및 참여",
+				"SUBMISSIONS_LABEL": "제출",
+				"VIEWS_LABEL": "조회",
+				"ENGAGEMENT_LABEL": "참여",
+				"NO_DATA": "이번 주에는 활동이 없습니다",
+				"NO_DATA_DESC": "콘텐츠가 조회와 투표를 받기 시작하면 여기에 활동이 표시됩니다."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "참여 분포",

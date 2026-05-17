@@ -1571,6 +1571,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "डैशबोर्ड",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3449,6 +3450,84 @@
 				"GLOBAL": "वैश्विक",
 				"NO_DATA": "कोई स्थान डेटा नहीं",
 				"NO_DATA_DESC": "भौगोलिक कवरेज देखने के लिए अपने आइटम में स्थान डेटा जोड़ें।"
+			},
+			"LOCATION_DISABLED_TITLE": "स्थान संबंधी अंतर्दृष्टि अक्षम है",
+			"LOCATION_DISABLED_DESC": "अपने आइटम मानचित्र पर देखने और भौगोलिक कवरेज की समीक्षा करने के लिए डायरेक्टरी सेटिंग्स में स्थान सुविधाएँ सक्षम करें।",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "समुदाय की भागीदारी",
+				"SUBTITLE": "आपके दर्शक आपकी सामग्री के साथ कैसे जुड़ते हैं",
+				"TOTAL_LABEL": "कुल",
+				"VIEWS": "दृश्य",
+				"VOTES_RECEIVED": "प्राप्त वोट",
+				"COMMENTS_RECEIVED": "प्राप्त टिप्पणियाँ",
+				"NO_DATA": "अभी तक कोई जुड़ाव नहीं",
+				"NO_DATA_DESC": "जब आपकी सामग्री को दृश्य, वोट या टिप्पणियाँ मिलेंगी, तो आप यहाँ मिश्रण देखेंगे।"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "शीर्ष प्रदर्शन वाले आइटम",
+				"ID": "आईडी",
+				"NO_DATA": "कोई शीर्ष आइटम नहीं मिला",
+				"NO_DATA_DESC": "जब आपकी सामग्री को अधिक जुड़ाव मिलेगा, तो आपके शीर्ष आइटम यहाँ दिखाई देंगे।"
+			},
+			"USER_FALLBACK": "वहाँ",
+			"HEADER_SUBTITLE": "देखें कि आपकी सामग्री कैसा प्रदर्शन कर रही है.",
+			"NEW_SUBMISSION": "नया सबमिशन",
+			"VIEW_PROFILE": "प्रोफ़ाइल देखें",
+			"GREETING": {
+				"MORNING": "सुप्रभात, {name}",
+				"AFTERNOON": "नमस्कार, {name}",
+				"EVENING": "शुभ संध्या, {name}"
+			},
+			"TABS": {
+				"LABEL": "डैशबोर्ड अनुभाग",
+				"OVERVIEW": "अवलोकन",
+				"CONTENT": "सामग्री",
+				"ENGAGEMENT": "संलग्नता",
+				"GEOGRAPHIC": "भौगोलिक"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "त्वरित क्रियाएँ",
+				"NEW_SUBMISSION": "नया सबमिशन",
+				"NEW_SUBMISSION_DESC": "डायरेक्टरी में नया आइटम सबमिट करें",
+				"MY_SUBMISSIONS": "मेरे सबमिशन",
+				"MY_SUBMISSIONS_DESC": "अपने सबमिशन देखें और प्रबंधित करें",
+				"BILLING": "बिलिंग",
+				"BILLING_DESC": "भुगतान विधियाँ प्रबंधित करें",
+				"SETTINGS": "सेटिंग्स",
+				"SETTINGS_DESC": "अपनी प्रोफ़ाइल और प्राथमिकताएँ अपडेट करें"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "डैशबोर्ड अलर्ट",
+				"PENDING_ITEMS": "{count, plural, one {आपके पास # आइटम समीक्षा के लिए लंबित है} other {आपके पास # आइटम समीक्षा के लिए लंबित हैं}}",
+				"VIEW_SUBMISSIONS": "सबमिशन देखें",
+				"NO_SUBMISSIONS": "आपने अभी तक कुछ सबमिट नहीं किया है.",
+				"SUBMIT_FIRST": "अपना पहला आइटम सबमिट करें",
+				"DISMISS": "अलर्ट खारिज करें"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "शुरू करने के लिए अपना पहला आइटम सबमिट करें.",
+				"SUBMIT_NOW": "अभी सबमिट करें",
+				"VIEWS": "आपकी सामग्री स्वीकृत होने के बाद दृश्य दिखाई देंगे.",
+				"VOTES": "जब लोग आपकी सामग्री से जुड़ेंगे तब वोट दिखाई देंगे.",
+				"COMMENTS": "जब लोग आपकी सामग्री से जुड़ेंगे तब टिप्पणियाँ दिखाई देंगी."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "सबमिशन समयरेखा",
+				"SUBTITLE": "पिछले 6 महीनों में मासिक सबमिशन",
+				"TOTAL_LABEL": "कुल",
+				"SUBMISSIONS_LABEL": "सबमिशन",
+				"PEAK_HINT": "शीर्ष महीना: {month} में {count} सबमिशन",
+				"NO_DATA": "कोई सबमिशन इतिहास नहीं",
+				"NO_DATA_DESC": "मासिक गतिविधि पर नज़र रखने के लिए अपना पहला आइटम सबमिट करें।"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "साप्ताहिक गतिविधि",
+				"SUBTITLE": "पिछले 7 दिनों में सबमिशन, दृश्य और जुड़ाव",
+				"SUBMISSIONS_LABEL": "सबमिशन",
+				"VIEWS_LABEL": "दृश्य",
+				"ENGAGEMENT_LABEL": "जुड़ाव",
+				"NO_DATA": "इस सप्ताह कोई गतिविधि नहीं",
+				"NO_DATA_DESC": "गतिविधि यहाँ दिखाई देगी जब आपकी सामग्री को दृश्य और वोट मिलने लगेंगे।"
 			}
 		}
 	},
