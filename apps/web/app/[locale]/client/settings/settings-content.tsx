@@ -8,6 +8,13 @@ import { Link } from '@/i18n/navigation';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import Image from 'next/image';
 import { User } from 'next-auth';
+import { isDemoMode } from '@/lib/utils';
+import SelectLayout from '@/components/ui/select-layout';
+import SelectContainerWidth from '@/components/ui/select-container-width';
+import SelectPaginationType from '@/components/ui/select-pagination-type';
+import SelectDatabaseMode from '@/components/ui/select-database-mode';
+import SelectCheckoutProvider from '@/components/ui/select-checkout-provider';
+import { DatabaseStatusWarning } from '@/components/ui/database-status-warning';
 
 // ─── User Identity Card ────────────────────────────────────────────────────
 
@@ -116,11 +123,34 @@ function SettingsSection({ label, children }: SettingsSectionProps) {
 	);
 }
 
+// ─── Preferences Panel ─────────────────────────────────────────────────────
+// Section that mounts the same controls the SettingsModal exposes (Spec 026).
+// Each block component is self-contained (renders its own card + handles its
+// own toast feedback via `sonner`), so the panel only contributes the section
+// label and vertical stack.
+
+interface PreferencesPanelProps {
+	label: string;
+	children: React.ReactNode;
+}
+
+function PreferencesPanel({ label, children }: PreferencesPanelProps) {
+	return (
+		<div className="space-y-2">
+			<p className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-0.5">
+				{label}
+			</p>
+			<div className="space-y-3">{children}</div>
+		</div>
+	);
+}
+
 // ─── Page ──────────────────────────────────────────────────────────────────
 
 export function SettingsContent() {
 	const t = useTranslations('settings');
 	const { user, isLoading } = useCurrentUser();
+	const isDemo = isDemoMode();
 
 	const hasName = Boolean(user?.name);
 	const hasImage = Boolean(user?.image);
@@ -173,6 +203,16 @@ export function SettingsContent() {
 							isDone={true}
 						/>
 					</SettingsSection>
+
+					{/* Preferences — same controls as SettingsModal (Spec 026) */}
+					<PreferencesPanel label={t('PREFERENCES')}>
+						<SelectLayout />
+						<SelectContainerWidth />
+						<SelectPaginationType />
+						{isDemo && <SelectDatabaseMode />}
+						{isDemo && <SelectCheckoutProvider />}
+						{isDemo && <DatabaseStatusWarning />}
+					</PreferencesPanel>
 
 					{/* Security */}
 					<SettingsSection label="Security">

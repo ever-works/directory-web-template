@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Pengaturan dan preferensi akun",
 		"ADMIN_SETTINGS_DESC": "Kelola konfigurasi dan preferensi situs",
 		"PROFILE_SETTINGS": "Pengaturan Profil",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Gaya Paginasi",
 		"PAGINATION_STYLE_DESC": "Pilih bagaimana konten ditampilkan saat menjelajahi daftar",
 		"PAGINATION_STANDARD_LABEL": "Standar",

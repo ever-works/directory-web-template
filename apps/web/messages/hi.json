@@ -531,6 +531,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Account settings and preferences",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "Profile Settings",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Pagination Style",
 		"PAGINATION_STYLE_DESC": "Choose how content is displayed when browsing listings",
 		"PAGINATION_STANDARD_LABEL": "Standard",

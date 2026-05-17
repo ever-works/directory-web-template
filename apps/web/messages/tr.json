@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Hesap ayarları ve tercihler",
 		"ADMIN_SETTINGS_DESC": "Site yapılandırmasını ve tercihlerini yönetin",
 		"PROFILE_SETTINGS": "Profil Ayarları",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Sayfalama Stili",
 		"PAGINATION_STYLE_DESC": "Listeleri göz atarken içeriğin nasıl görüntüleneceğini seçin",
 		"PAGINATION_STANDARD_LABEL": "Standart",
