@@ -66,8 +66,8 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
 			) : (
 				<div className="flex flex-col items-center gap-5 sm:flex-row sm:items-stretch sm:gap-2" style={{ minHeight: CHART_HEIGHT }}>
 					{/* Donut with center total */}
-					<div className="relative w-full max-w-[220px] sm:flex-1" style={{ height: CHART_HEIGHT }}>
-						<ResponsiveContainer width="100%" height="100%">
+					<div className="relative w-full max-w-[240px] sm:flex-1" style={{ height: CHART_HEIGHT }}>
+						<ResponsiveContainer width="104%" height="100%">
 							<PieChart>
 								<Pie
 									data={translated}
@@ -100,7 +100,7 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
 							</PieChart>
 						</ResponsiveContainer>
 						<div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-							<span className="text-[11px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+							<span className="text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
 								{t("TOTAL_LABEL")}
 							</span>
 							<span className="text-xl font-semibold text-neutral-900 dark:text-white tabular-nums">
@@ -110,7 +110,7 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
 					</div>
 
 					{/* Side legend */}
-					<ul className="w-full sm:flex-1 sm:max-w-[220px] flex flex-col justify-center gap-2">
+					<ul className="w-full sm:flex-1 sm:max-w-[200px] flex flex-col justify-center gap-2">
 						{translated.map((slice) => (
 							<li
 								key={slice.key}
@@ -118,10 +118,10 @@ export function EngagementChart({ data, isLoading = false }: EngagementChartProp
 							>
 								<ChartLegendItem color={slice.color} label={slice.name} />
 								<div className="flex items-baseline gap-2 shrink-0 tabular-nums">
-									<span className="text-sm font-semibold text-neutral-900 dark:text-white">
+									<span className="text-xs font-semibold text-neutral-900 dark:text-white">
 										{slice.value.toLocaleString()}
 									</span>
-									<span className="text-[11px] text-neutral-500 dark:text-neutral-400 w-10 text-right">
+									<span className="text-[10px] text-neutral-500 dark:text-neutral-400 w-10 text-right">
 										{slice.percent.toFixed(0)}%
 									</span>
 								</div>
