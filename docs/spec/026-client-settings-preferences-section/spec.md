@@ -100,6 +100,17 @@ to exist unchanged for users who prefer the quick-access surface.
 
 ## 6. Implementation Notes (non-binding)
 
+- Align the header `SettingsButton`
+  (`apps/web/components/settings-button.tsx`) visually with the
+  `SettingsCard` icon treatment on `/client/settings`: tinted
+  theme-primary square (`w-8 h-8 bg-theme-primary-50
+  dark:bg-theme-primary-900/30 rounded-lg`), 4×4 icon in
+  `text-theme-primary-600 dark:text-theme-primary-400`, hover bumps
+  the wrapper tint one shade. Keeps the same click target
+  (`h-9 w-9`), portal tooltip, and `openModal()` behaviour. The
+  `FloatingSettingsButton` is intentionally left alone — its
+  prominent theme-primary fill on the body is the established
+  shortcut affordance, not a card icon.
 - Edit
   `apps/web/app/[locale]/client/settings/settings-content.tsx`:
     - Add a new `PreferencesSection` block rendered after Appearance

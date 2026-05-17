@@ -31,6 +31,10 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 026: align header `SettingsButton` with `/client/settings` icon style
+
+- `spec-026` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes.
+
 ## 2026-05-17 — Spec 026: client-settings Preferences section
 
 - `spec-026` Drafted spec at `docs/spec/026-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files.
