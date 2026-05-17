@@ -14,13 +14,15 @@ import SelectCheckoutProvider from '@/components/ui/select-checkout-provider';
 import { DatabaseStatusWarning } from '@/components/ui/database-status-warning';
 import { useFocusManagement } from '@/components/ui/accessibility';
 
+// Visual treatment matches `/client/settings` (`settings-content.tsx`):
+// flat surfaces, theme-primary tinted icon square, neutral borders, no
+// glassmorphism. The modal reads as the same control system as the page.
 const BACKDROP_CLASSES = cn(
 	'fixed inset-0',
-	'bg-gradient-to-br from-black/50 via-black/60 to-black/70',
-	'dark:bg-gradient-to-br dark:from-black/70 dark:via-black/80 dark:to-black/90',
-	'backdrop-blur-2xl backdrop-saturate-150',
+	'bg-black/40 dark:bg-black/60',
+	'backdrop-blur-sm',
 	'z-[9998]',
-	'transition-all duration-300 ease-out'
+	'transition-opacity duration-200 ease-out'
 );
 
 const MODAL_CLASSES = cn(
@@ -28,17 +30,30 @@ const MODAL_CLASSES = cn(
 	'transform -translate-x-1/2 -translate-y-1/2',
 	'w-full max-w-2xl',
 	'max-h-[90vh]',
-	'bg-white/95 dark:bg-[#0a0a0a]/95',
-	'backdrop-blur-xl',
-	'border border-gray-200/50 dark:border-white/[0.07]',
-	'rounded-2xl shadow-2xl shadow-black/20 dark:shadow-black/60',
+	'bg-white dark:bg-[#111111]',
+	'border border-gray-200 dark:border-white/6',
+	'rounded-xl shadow-2xl shadow-black/20 dark:shadow-black/60',
 	'z-[9999]',
-	'overflow-visible',
-	'transition-all duration-300 ease-out',
+	'transition-all duration-200 ease-out',
 	'animate-fade-in-up'
 );
 
-const _DIVIDER_CLASSES = cn('border-t border-gray-200 dark:border-white/6');
+const HEADER_ICON_WRAPPER_CLASSES = cn(
+	'shrink-0 w-8 h-8',
+	'flex items-center justify-center',
+	'rounded-lg',
+	'bg-theme-primary-50 dark:bg-theme-primary-900/30'
+);
+
+const HEADER_ICON_CLASSES = cn('w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400');
+
+const CLOSE_BUTTON_CLASSES = cn(
+	'p-2 rounded-lg',
+	'text-gray-500 dark:text-gray-400',
+	'hover:text-gray-700 dark:hover:text-gray-200',
+	'hover:bg-gray-50 dark:hover:bg-white/[0.03]',
+	'transition-colors duration-150'
+);
 
 export function SettingsModal() {
 	const { isOpen, closeModal } = useSettingsModal();
@@ -80,47 +95,26 @@ export function SettingsModal() {
 				aria-labelledby="settings-title"
 				tabIndex={-1}
 			>
-				{/* Modal Header */}
-				<div
-					className={cn(
-						'flex items-center justify-between px-4 md:px-6 py-4',
-						'border-b border-gray-200 dark:border-white/6',
-						'bg-gradient-to-r from-gray-50/50 to-white',
-						'dark:from-[#0a0a0a]/50 dark:to-[#0a0a0a]/50',
-						'shadow-sm'
-					)}
-				>
-					<div className="flex items-center gap-3">
-						<div
-							className={cn(
-								'p-2 rounded-lg overflow-hidden',
-								'bg-gradient-to-br from-theme-primary-100 to-theme-primary-200',
-								'dark:from-theme-primary-900/30 dark:to-theme-primary-800/30',
-								'border border-theme-primary-300/50 dark:border-theme-primary-600/50'
-							)}
-						>
-							<Settings className="h-4 w-4 text-theme-primary-600 dark:text-theme-primary-400" />
-						</div>
+				{/* Modal Header — flat treatment matching `/client/settings` */}
+				<div className="flex items-center justify-between gap-3 px-4 md:px-6 py-4 border-b border-gray-200 dark:border-white/6">
+					<div className="flex items-center gap-3 min-w-0">
+						<span className={HEADER_ICON_WRAPPER_CLASSES}>
+							<Settings className={HEADER_ICON_CLASSES} />
+						</span>
 						<h2
 							id="settings-title"
-							className="text-xl font-bold tracking-tight text-gray-900 dark:text-white"
+							className="text-base font-semibold tracking-tight text-gray-900 dark:text-gray-100 truncate"
 						>
 							{t('SETTINGS')}
 						</h2>
 					</div>
 					<button
 						onClick={closeModal}
-						className={cn(
-							'p-2 rounded-lg transition-all duration-200',
-							'text-gray-500 hover:text-gray-700',
-							'dark:text-gray-400 dark:hover:text-gray-200',
-							'hover:bg-gray-100 dark:hover:bg-white/6',
-							'hover:scale-110'
-						)}
+						className={CLOSE_BUTTON_CLASSES}
 						aria-label={t('CLOSE_SETTINGS')}
 						type="button"
 					>
-						<X className="h-5 w-5" />
+						<X className="w-4 h-4" />
 					</button>
 				</div>
 
@@ -128,9 +122,9 @@ export function SettingsModal() {
 				<div
 					className={cn(
 						'px-4 md:px-6 py-4 space-y-5',
-						'overflow-y-auto overscroll-contain scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1',
-						'max-h-[calc(90vh-96px)]',
-						'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1'
+						'overflow-y-auto overscroll-contain max-h-[calc(90vh-72px)]',
+						'scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40',
+						'dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1'
 					)}
 				>
 					{/* Layout Section - Always show */}

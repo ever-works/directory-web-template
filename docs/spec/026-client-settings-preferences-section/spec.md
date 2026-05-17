@@ -111,6 +111,34 @@ to exist unchanged for users who prefer the quick-access surface.
   `FloatingSettingsButton` is intentionally left alone — its
   prominent theme-primary fill on the body is the established
   shortcut affordance, not a card icon.
+- Align `SettingsModal` (`apps/web/components/settings-modal.tsx`)
+  with the same `/client/settings` visual language so opening the
+  modal feels like landing on the page in a sheet:
+    - **Surface:** solid `bg-white dark:bg-[#111111]` (page-card
+      bg) with `border border-gray-200 dark:border-white/6` and
+      `rounded-xl`. Drops the previous `bg-white/95
+      backdrop-blur-xl`, `border-...[0.07]`, and `rounded-2xl`
+      glassmorphic look.
+    - **Backdrop:** simple `bg-black/40 dark:bg-black/60
+      backdrop-blur-sm`. Drops the heavy gradient
+      (`from-black/50 via-black/60 to-black/70 backdrop-blur-2xl
+      backdrop-saturate-150`).
+    - **Header:** flat — no gradient bg, no `shadow-sm`. Icon
+      container becomes the page's flat tinted square
+      (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30
+      rounded-lg`) instead of the previous gradient + border ring.
+      Title typography drops from `text-xl font-bold` to
+      `text-base font-semibold tracking-tight` so it matches the
+      page's user-card name treatment.
+    - **Close button:** drops `hover:scale-110` and
+      `hover:bg-gray-100`; uses the page's hover-bg
+      (`hover:bg-gray-50 dark:hover:bg-white/[0.03]`) and a slimmer
+      `w-4 h-4` icon.
+    - **Animation:** keeps `animate-fade-in-up` for entry. No
+      change to focus trap, Esc-to-close, or body-scroll lock.
+    - **Cleanup:** dedupes the duplicated scrollbar utility
+      classes on the content scroll region and tightens the
+      `max-h` calc to match the new header height.
 - Edit
   `apps/web/app/[locale]/client/settings/settings-content.tsx`:
     - Add a new `PreferencesSection` block rendered after Appearance

@@ -31,6 +31,10 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 026: align `SettingsModal` with `/client/settings` visual language
+
+- `spec-026` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes.
+
 ## 2026-05-18 — Spec 026: align header `SettingsButton` with `/client/settings` icon style
 
 - `spec-026` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes.
