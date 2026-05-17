@@ -1660,6 +1660,7 @@
 		"SUBMISSION_UPDATED_DATE": "Актуализирано: {date}",
 		"VIEW_SUBMISSION": "Преглед на заявката",
 		"PROFILES_BREADCRUMB": "Профили",
+		"BACK_TO_DASHBOARD": "Табло",
 		"ABOUT_SECTION": "За",
 		"RECENT_ACTIVITY_SECTION": "Скорошна дейност",
 		"SKILLS_EXPERTISE_SECTION": "Умения и опит",
@@ -3632,6 +3633,7 @@
 			"USER_FALLBACK": "там",
 			"HEADER_SUBTITLE": "Ето как се представя вашето съдържание.",
 			"NEW_SUBMISSION": "Ново подаване",
+			"VIEW_PROFILE": "Виж профила",
 			"GREETING": {
 				"MORNING": "Добро утро, {name}",
 				"AFTERNOON": "Добър ден, {name}",

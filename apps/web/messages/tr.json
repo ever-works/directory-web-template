@@ -1660,6 +1660,7 @@
 		"SUBMISSION_UPDATED_DATE": "Güncellendi: {date}",
 		"VIEW_SUBMISSION": "Gönderimi görüntüle",
 		"PROFILES_BREADCRUMB": "Profiller",
+		"BACK_TO_DASHBOARD": "Pano",
 		"ABOUT_SECTION": "Hakkında",
 		"RECENT_ACTIVITY_SECTION": "Son aktivite",
 		"SKILLS_EXPERTISE_SECTION": "Beceriler ve uzmanlık",
@@ -3630,6 +3631,7 @@
 			"USER_FALLBACK": "merhaba",
 			"HEADER_SUBTITLE": "İçeriğinizin nasıl performans gösterdiğini görün.",
 			"NEW_SUBMISSION": "Yeni gönderim",
+			"VIEW_PROFILE": "Profili görüntüle",
 			"GREETING": {
 				"MORNING": "Günaydın, {name}",
 				"AFTERNOON": "İyi günler, {name}",

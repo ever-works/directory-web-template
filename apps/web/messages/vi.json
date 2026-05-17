@@ -1660,6 +1660,7 @@
 		"SUBMISSION_UPDATED_DATE": "Cập nhật: {date}",
 		"VIEW_SUBMISSION": "Xem bài nộp",
 		"PROFILES_BREADCRUMB": "Hồ sơ",
+		"BACK_TO_DASHBOARD": "Bảng điều khiển",
 		"ABOUT_SECTION": "Giới thiệu",
 		"RECENT_ACTIVITY_SECTION": "Hoạt động gần đây",
 		"SKILLS_EXPERTISE_SECTION": "Kỹ năng & chuyên môn",
@@ -3647,6 +3648,7 @@
 			"USER_FALLBACK": "bạn",
 			"HEADER_SUBTITLE": "Đây là hiệu suất nội dung của bạn.",
 			"NEW_SUBMISSION": "Gửi mới",
+			"VIEW_PROFILE": "Xem hồ sơ",
 			"GREETING": {
 				"MORNING": "Chào buổi sáng, {name}",
 				"AFTERNOON": "Chào buổi chiều, {name}",

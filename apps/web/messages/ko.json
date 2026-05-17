@@ -1723,6 +1723,7 @@
 		"SUBMISSION_UPDATED_DATE": "업데이트: {date}",
 		"VIEW_SUBMISSION": "제출물 보기",
 		"PROFILES_BREADCRUMB": "프로필",
+		"BACK_TO_DASHBOARD": "대시보드",
 		"ABOUT_SECTION": "소개",
 		"RECENT_ACTIVITY_SECTION": "최근 활동",
 		"SKILLS_EXPERTISE_SECTION": "기술 및 전문성",
@@ -3693,6 +3694,7 @@
 			"USER_FALLBACK": "님",
 			"HEADER_SUBTITLE": "콘텐츠의 성과를 확인하세요.",
 			"NEW_SUBMISSION": "새 제출",
+			"VIEW_PROFILE": "프로필 보기",
 			"GREETING": {
 				"MORNING": "좋은 아침입니다, {name}님",
 				"AFTERNOON": "안녕하세요, {name}님",

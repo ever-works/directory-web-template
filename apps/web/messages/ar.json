@@ -1654,6 +1654,7 @@
 		"SUBMISSION_UPDATED_DATE": "تحديث: {date}",
 		"VIEW_SUBMISSION": "عرض المقدمة",
 		"PROFILES_BREADCRUMB": "الملفات الشخصية",
+		"BACK_TO_DASHBOARD": "لوحة التحكم",
 		"ABOUT_SECTION": "حول",
 		"RECENT_ACTIVITY_SECTION": "النشاط الأخير",
 		"SKILLS_EXPERTISE_SECTION": "المهارات والخبرات",
@@ -3516,6 +3517,7 @@
 			"USER_FALLBACK": "هناك",
 			"HEADER_SUBTITLE": "إليك أداء المحتوى الخاص بك.",
 			"NEW_SUBMISSION": "إرسال جديد",
+			"VIEW_PROFILE": "عرض الملف الشخصي",
 			"GREETING": {
 				"MORNING": "صباح الخير، {name}",
 				"AFTERNOON": "مساء الخير، {name}",

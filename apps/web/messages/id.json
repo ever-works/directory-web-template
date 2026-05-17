@@ -1660,6 +1660,7 @@
 		"SUBMISSION_UPDATED_DATE": "Diperbarui: {date}",
 		"VIEW_SUBMISSION": "Lihat kiriman",
 		"PROFILES_BREADCRUMB": "Profil",
+		"BACK_TO_DASHBOARD": "Dasbor",
 		"ABOUT_SECTION": "Tentang",
 		"RECENT_ACTIVITY_SECTION": "Aktivitas terbaru",
 		"SKILLS_EXPERTISE_SECTION": "Keterampilan & keahlian",
@@ -3631,6 +3632,7 @@
 			"USER_FALLBACK": "di sana",
 			"HEADER_SUBTITLE": "Beginilah performa konten Anda.",
 			"NEW_SUBMISSION": "Kiriman baru",
+			"VIEW_PROFILE": "Lihat profil",
 			"GREETING": {
 				"MORNING": "Selamat pagi, {name}",
 				"AFTERNOON": "Selamat siang, {name}",

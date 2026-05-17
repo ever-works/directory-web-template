@@ -3,13 +3,16 @@
 import { Session } from 'next-auth';
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/header/avatar';
 import Link from 'next/link';
 
 interface DashboardHeaderProps {
 	session: Session | null;
+	/** Username of the viewer's client profile. When present, the header
+	 *  renders a "View Profile" link to /client/profile/{username}. */
+	profileUsername?: string | null;
 	onRefresh: () => void;
 	isRefreshing?: boolean;
 }
@@ -21,7 +24,7 @@ function getGreeting(): 'MORNING' | 'AFTERNOON' | 'EVENING' {
 	return 'EVENING';
 }
 
-export function DashboardHeader({ session, onRefresh, isRefreshing }: DashboardHeaderProps) {
+export function DashboardHeader({ session, profileUsername, onRefresh, isRefreshing }: DashboardHeaderProps) {
 	const t = useTranslations('client.dashboard');
 	const locale = useLocale();
 	const greetingKey = getGreeting();
@@ -60,6 +63,15 @@ export function DashboardHeader({ session, onRefresh, isRefreshing }: DashboardH
 					<RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
 					<span>{t('REFRESH')}</span>
 				</Button>
+				{profileUsername && (
+					<Link
+						href={`/${locale}/client/profile/${profileUsername}`}
+						className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+					>
+						<User className="h-3.5 w-3.5" />
+						{t('VIEW_PROFILE')}
+					</Link>
+				)}
 				<Link
 					href={`/${locale}/submit`}
 					className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors"
@@ -81,6 +93,15 @@ export function DashboardHeader({ session, onRefresh, isRefreshing }: DashboardH
 				>
 					<RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
 				</Button>
+				{profileUsername && (
+					<Link
+						href={`/${locale}/client/profile/${profileUsername}`}
+						aria-label={t('VIEW_PROFILE')}
+						className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+					>
+						<User className="h-3.5 w-3.5" />
+					</Link>
+				)}
 				<Link
 					href={`/${locale}/submit`}
 					aria-label={t('NEW_SUBMISSION')}

@@ -30,6 +30,7 @@ import { PageContainer } from '../ui/container';
 
 interface DashboardContentProps {
 	session: Session | null;
+	profileUsername?: string | null;
 }
 
 type Tab = 'overview' | 'content' | 'engagement' | 'geographic';
@@ -46,7 +47,7 @@ const TABS: TabDef[] = [
 	{ id: 'geographic', labelKey: 'TABS.GEOGRAPHIC' },
 ];
 
-export function DashboardContent({ session }: DashboardContentProps) {
+export function DashboardContent({ session, profileUsername }: DashboardContentProps) {
 	const t = useTranslations('client.dashboard');
 	const locale = useLocale();
 
@@ -106,6 +107,7 @@ export function DashboardContent({ session }: DashboardContentProps) {
 				{/* Header: avatar + greeting + actions */}
 				<DashboardHeader
 					session={session}
+					profileUsername={profileUsername}
 					onRefresh={handleRefresh}
 					isRefreshing={isFetching}
 				/>

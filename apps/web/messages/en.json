@@ -1763,6 +1763,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "Dashboard",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3985,6 +3986,7 @@
 			"USER_FALLBACK": "there",
 			"HEADER_SUBTITLE": "Here's how your content is performing.",
 			"NEW_SUBMISSION": "New Submission",
+			"VIEW_PROFILE": "View Profile",
 			"TABS": {
 				"LABEL": "Dashboard sections",
 				"OVERVIEW": "Overview",

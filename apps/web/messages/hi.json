@@ -1571,6 +1571,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "डैशबोर्ड",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3467,6 +3468,7 @@
 			"USER_FALLBACK": "वहाँ",
 			"HEADER_SUBTITLE": "देखें कि आपकी सामग्री कैसा प्रदर्शन कर रही है.",
 			"NEW_SUBMISSION": "नया सबमिशन",
+			"VIEW_PROFILE": "प्रोफ़ाइल देखें",
 			"GREETING": {
 				"MORNING": "सुप्रभात, {name}",
 				"AFTERNOON": "नमस्कार, {name}",

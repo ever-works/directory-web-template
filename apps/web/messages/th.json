@@ -1571,6 +1571,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
+		"BACK_TO_DASHBOARD": "แดชบอร์ด",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3463,6 +3464,7 @@
 			"USER_FALLBACK": "คุณ",
 			"HEADER_SUBTITLE": "ดูประสิทธิภาพของเนื้อหาของคุณ",
 			"NEW_SUBMISSION": "ส่งใหม่",
+			"VIEW_PROFILE": "ดูโปรไฟล์",
 			"GREETING": {
 				"MORNING": "อรุณสวัสดิ์, {name}",
 				"AFTERNOON": "สวัสดีตอนบ่าย, {name}",

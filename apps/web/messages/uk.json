@@ -1634,6 +1634,7 @@
 		"SUBMISSION_UPDATED_DATE": "Updated: {date}",
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Профілі",
+		"BACK_TO_DASHBOARD": "Панель",
 		"ABOUT_SECTION": "Про",
 		"RECENT_ACTIVITY_SECTION": "Остання активність",
 		"SKILLS_EXPERTISE_SECTION": "Навички та експертиза",
@@ -3506,6 +3507,7 @@
 			"USER_FALLBACK": "привіт",
 			"HEADER_SUBTITLE": "Подивіться, як показує себе ваш контент.",
 			"NEW_SUBMISSION": "Нове подання",
+			"VIEW_PROFILE": "Переглянути профіль",
 			"GREETING": {
 				"MORNING": "Доброго ранку, {name}",
 				"AFTERNOON": "Доброго дня, {name}",

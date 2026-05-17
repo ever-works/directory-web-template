@@ -1666,6 +1666,7 @@
 		"SUBMISSION_UPDATED_DATE": "更新时间：{date}",
 		"VIEW_SUBMISSION": "查看提交",
 		"PROFILES_BREADCRUMB": "个人资料",
+		"BACK_TO_DASHBOARD": "仪表板",
 		"ABOUT_SECTION": "关于",
 		"RECENT_ACTIVITY_SECTION": "近期动态",
 		"SKILLS_EXPERTISE_SECTION": "技能与专长",
@@ -3526,6 +3527,7 @@
 			"USER_FALLBACK": "你",
 			"HEADER_SUBTITLE": "看看您的内容表现如何。",
 			"NEW_SUBMISSION": "新建提交",
+			"VIEW_PROFILE": "查看个人资料",
 			"GREETING": {
 				"MORNING": "早上好，{name}",
 				"AFTERNOON": "下午好，{name}",

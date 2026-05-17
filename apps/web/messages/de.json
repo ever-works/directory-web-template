@@ -1667,6 +1667,7 @@
 		"SUBMISSION_UPDATED_DATE": "Aktualisiert: {date}",
 		"VIEW_SUBMISSION": "Einreichung ansehen",
 		"PROFILES_BREADCRUMB": "Profile",
+		"BACK_TO_DASHBOARD": "Dashboard",
 		"ABOUT_SECTION": "Über",
 		"RECENT_ACTIVITY_SECTION": "Letzte Aktivitäten",
 		"SKILLS_EXPERTISE_SECTION": "Fähigkeiten & Expertise",
@@ -3532,6 +3533,7 @@
 			"USER_FALLBACK": "da",
 			"HEADER_SUBTITLE": "So entwickeln sich Ihre Inhalte.",
 			"NEW_SUBMISSION": "Neue Einreichung",
+			"VIEW_PROFILE": "Profil anzeigen",
 			"GREETING": {
 				"MORNING": "Guten Morgen, {name}",
 				"AFTERNOON": "Guten Tag, {name}",

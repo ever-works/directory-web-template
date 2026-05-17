@@ -1634,6 +1634,7 @@
 		"SUBMISSION_UPDATED_DATE": "Aggiornato: {date}",
 		"VIEW_SUBMISSION": "Visualizza proposta",
 		"PROFILES_BREADCRUMB": "Profili",
+		"BACK_TO_DASHBOARD": "Cruscotto",
 		"ABOUT_SECTION": "Informazioni",
 		"RECENT_ACTIVITY_SECTION": "Attività recente",
 		"SKILLS_EXPERTISE_SECTION": "Competenze ed esperienza",
@@ -3498,6 +3499,7 @@
 			"USER_FALLBACK": "a te",
 			"HEADER_SUBTITLE": "Ecco come stanno andando i tuoi contenuti.",
 			"NEW_SUBMISSION": "Nuovo invio",
+			"VIEW_PROFILE": "Vedi profilo",
 			"GREETING": {
 				"MORNING": "Buongiorno, {name}",
 				"AFTERNOON": "Buon pomeriggio, {name}",

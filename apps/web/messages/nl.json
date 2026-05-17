@@ -1634,6 +1634,7 @@
 		"SUBMISSION_UPDATED_DATE": "Bijgewerkt: {date}",
 		"VIEW_SUBMISSION": "Inzending bekijken",
 		"PROFILES_BREADCRUMB": "Profielen",
+		"BACK_TO_DASHBOARD": "Dashboard",
 		"ABOUT_SECTION": "Over",
 		"RECENT_ACTIVITY_SECTION": "Recente activiteit",
 		"SKILLS_EXPERTISE_SECTION": "Vaardigheden & expertise",
@@ -3494,6 +3495,7 @@
 			"USER_FALLBACK": "daar",
 			"HEADER_SUBTITLE": "Zo presteert je content.",
 			"NEW_SUBMISSION": "Nieuwe inzending",
+			"VIEW_PROFILE": "Profiel bekijken",
 			"GREETING": {
 				"MORNING": "Goedemorgen, {name}",
 				"AFTERNOON": "Goedemiddag, {name}",

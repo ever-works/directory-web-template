@@ -1723,6 +1723,7 @@
 		"SUBMISSION_UPDATED_DATE": "Обновлено: {date}",
 		"VIEW_SUBMISSION": "Просмотреть заявку",
 		"PROFILES_BREADCRUMB": "Профили",
+		"BACK_TO_DASHBOARD": "Панель",
 		"ABOUT_SECTION": "О себе",
 		"RECENT_ACTIVITY_SECTION": "Последняя активность",
 		"SKILLS_EXPERTISE_SECTION": "Навыки и экспертиза",
@@ -3693,6 +3694,7 @@
 			"USER_FALLBACK": "там",
 			"HEADER_SUBTITLE": "Вот как работает ваш контент.",
 			"NEW_SUBMISSION": "Новая заявка",
+			"VIEW_PROFILE": "Открыть профиль",
 			"GREETING": {
 				"MORNING": "Доброе утро, {name}",
 				"AFTERNOON": "Добрый день, {name}",

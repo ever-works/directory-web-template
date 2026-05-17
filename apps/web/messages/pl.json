@@ -1634,6 +1634,7 @@
 		"SUBMISSION_UPDATED_DATE": "Zaktualizowano: {date}",
 		"VIEW_SUBMISSION": "Zobacz zgłoszenie",
 		"PROFILES_BREADCRUMB": "Profile",
+		"BACK_TO_DASHBOARD": "Pulpit",
 		"ABOUT_SECTION": "O mnie",
 		"RECENT_ACTIVITY_SECTION": "Ostatnia aktywność",
 		"SKILLS_EXPERTISE_SECTION": "Umiejętności i wiedza",
@@ -3494,6 +3495,7 @@
 			"USER_FALLBACK": "Cześć",
 			"HEADER_SUBTITLE": "Oto jak radzi sobie Twoja treść.",
 			"NEW_SUBMISSION": "Nowe zgłoszenie",
+			"VIEW_PROFILE": "Zobacz profil",
 			"GREETING": {
 				"MORNING": "Dzień dobry, {name}",
 				"AFTERNOON": "Dzień dobry, {name}",

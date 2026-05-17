@@ -1656,6 +1656,7 @@
 		"SUBMISSION_UPDATED_DATE": "Actualizado: {date}",
 		"VIEW_SUBMISSION": "Ver envío",
 		"PROFILES_BREADCRUMB": "Perfiles",
+		"BACK_TO_DASHBOARD": "Panel",
 		"ABOUT_SECTION": "Acerca de",
 		"RECENT_ACTIVITY_SECTION": "Actividad reciente",
 		"SKILLS_EXPERTISE_SECTION": "Habilidades y experiencia",
@@ -3521,6 +3522,7 @@
 			"USER_FALLBACK": "allí",
 			"HEADER_SUBTITLE": "Así está rindiendo tu contenido.",
 			"NEW_SUBMISSION": "Nuevo envío",
+			"VIEW_PROFILE": "Ver perfil",
 			"GREETING": {
 				"MORNING": "Buenos días, {name}",
 				"AFTERNOON": "Buenas tardes, {name}",

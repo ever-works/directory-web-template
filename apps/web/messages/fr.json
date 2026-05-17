@@ -1725,6 +1725,7 @@
 		"SUBMISSION_UPDATED_DATE": "Mis à jour : {date}",
 		"VIEW_SUBMISSION": "Voir la soumission",
 		"PROFILES_BREADCRUMB": "Profils",
+		"BACK_TO_DASHBOARD": "Tableau de bord",
 		"ABOUT_SECTION": "À propos",
 		"RECENT_ACTIVITY_SECTION": "Activité récente",
 		"SKILLS_EXPERTISE_SECTION": "Compétences & expertise",
@@ -3589,6 +3590,7 @@
 			"USER_FALLBACK": "vous",
 			"HEADER_SUBTITLE": "Voici les performances de votre contenu.",
 			"NEW_SUBMISSION": "Nouvelle soumission",
+			"VIEW_PROFILE": "Voir le profil",
 			"GREETING": {
 				"MORNING": "Bonjour, {name}",
 				"AFTERNOON": "Bon après-midi, {name}",

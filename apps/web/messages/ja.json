@@ -1634,6 +1634,7 @@
 		"SUBMISSION_UPDATED_DATE": "更新日: {date}",
 		"VIEW_SUBMISSION": "投稿を見る",
 		"PROFILES_BREADCRUMB": "プロフィール",
+		"BACK_TO_DASHBOARD": "ダッシュボード",
 		"ABOUT_SECTION": "について",
 		"RECENT_ACTIVITY_SECTION": "最近のアクティビティ",
 		"SKILLS_EXPERTISE_SECTION": "スキルと専門知識",
@@ -3499,6 +3500,7 @@
 			"USER_FALLBACK": "こんにちは",
 			"HEADER_SUBTITLE": "コンテンツのパフォーマンスをご確認ください。",
 			"NEW_SUBMISSION": "新規投稿",
+			"VIEW_PROFILE": "プロフィールを見る",
 			"GREETING": {
 				"MORNING": "おはようございます、{name}さん",
 				"AFTERNOON": "こんにちは、{name}さん",
