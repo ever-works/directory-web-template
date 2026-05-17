@@ -1,90 +1,156 @@
 "use client";
 
-import { useTheme } from 'next-themes';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getTooltipStyles } from './styles';
+import { useId, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import {
+	Line,
+	Area,
+	ComposedChart,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+} from "recharts";
+import { Activity } from "lucide-react";
+import {
+	ChartCard,
+	ChartCardSkeleton,
+	ChartEmptyState,
+	ChartLegend,
+	ChartTooltip,
+	formatCompactNumber,
+	useChartAxisProps,
+} from "./_chart-primitives";
+import { SEMANTIC_COLORS } from "./styles";
 
 interface ActivityData {
-  date: string;
-  submissions: number;
-  views: number;
-  engagement: number;
+	date: string;
+	submissions: number;
+	views: number;
+	engagement: number;
 }
 
 interface ActivityChartProps {
-  data: ActivityData[];
-  isLoading?: boolean;
+	data: ActivityData[];
+	isLoading?: boolean;
 }
 
+const CHART_HEIGHT = 260;
+
 export function ActivityChart({ data, isLoading = false }: ActivityChartProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  if (isLoading) {
-    return (
-      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-        <div className="animate-pulse">
-          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-          <div className="h-64 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
-        </div>
-      </div>
-    );
-  }
+	const t = useTranslations("client.dashboard.ACTIVITY_CHART");
+	const gradientId = useId();
+	const { gridColor, axisProps } = useChartAxisProps();
 
-  // Validate data structure
-  const validData = data.filter(item => 
-    item && 
-    typeof item.date === 'string' && 
-    typeof item.submissions === 'number' && 
-    typeof item.views === 'number' && 
-    typeof item.engagement === 'number'
-  );
+	// Validate data shape (defensive; matches previous behaviour).
+	const validData = useMemo(
+		() =>
+			data.filter(
+				(item) =>
+					item &&
+					typeof item.date === "string" &&
+					typeof item.submissions === "number" &&
+					typeof item.views === "number" &&
+					typeof item.engagement === "number",
+			),
+		[data],
+	);
 
-  return (
-    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
-        Weekly Activity
-      </h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <LineChart 
-          data={validData} 
-          aria-label="Weekly activity chart showing submissions, views, and engagement over time"
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(163,163,163,0.15)" />
-          <XAxis 
-            dataKey="date" 
-            stroke="#a3a3a3"
-            fontSize={11}
-            tick={{ fill: '#a3a3a3' }}
-          />
-          <YAxis 
-            stroke="#a3a3a3"
-            fontSize={11}
-            tick={{ fill: '#a3a3a3' }}
-          />
-          <Tooltip contentStyle={getTooltipStyles(isDark)} />
-          <Line 
-            type="monotone" 
-            dataKey="submissions" 
-            stroke="#3B82F6" 
-            strokeWidth={2}
-            name="Content Created"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="views" 
-            stroke="#10B981" 
-            strokeWidth={2}
-            name="Views Received"
-          />
-          <Line 
-            type="monotone" 
-            dataKey="engagement" 
-            stroke="#F59E0B" 
-            strokeWidth={2}
-            name="Votes Received"
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-} 
+	const isEmpty = useMemo(
+		() => validData.every((d) => d.submissions === 0 && d.views === 0 && d.engagement === 0),
+		[validData],
+	);
+
+	if (isLoading) {
+		return <ChartCardSkeleton height={CHART_HEIGHT} />;
+	}
+
+	const colors = {
+		submissions: SEMANTIC_COLORS.submissions,
+		views: SEMANTIC_COLORS.views,
+		engagement: SEMANTIC_COLORS.votes,
+	};
+
+	const legendItems = [
+		{ color: colors.submissions, label: t("SUBMISSIONS_LABEL") },
+		{ color: colors.views, label: t("VIEWS_LABEL") },
+		{ color: colors.engagement, label: t("ENGAGEMENT_LABEL") },
+	];
+
+	return (
+		<ChartCard
+			title={t("TITLE")}
+			subtitle={t("SUBTITLE")}
+			headerRight={<ChartLegend items={legendItems} className="hidden sm:flex" />}
+		>
+			{/* Mobile-only legend (header version is hidden < sm to avoid wrapping) */}
+			<ChartLegend items={legendItems} className="sm:hidden mb-4" />
+
+			{isEmpty || validData.length === 0 ? (
+				<ChartEmptyState
+					icon={<Activity className="h-5 w-5" />}
+					title={t("NO_DATA")}
+					description={t("NO_DATA_DESC")}
+					height={CHART_HEIGHT}
+				/>
+			) : (
+				<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+					<ComposedChart data={validData} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
+						<defs>
+							<linearGradient id={`viewsArea-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+								<stop offset="0%" stopColor={colors.views} stopOpacity={0.25} />
+								<stop offset="100%" stopColor={colors.views} stopOpacity={0} />
+							</linearGradient>
+						</defs>
+						<CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
+						<XAxis dataKey="date" {...axisProps} />
+						<YAxis
+							{...axisProps}
+							allowDecimals={false}
+							tickFormatter={formatCompactNumber}
+							width={40}
+						/>
+						<Tooltip
+							cursor={{ stroke: gridColor, strokeWidth: 1 }}
+							content={
+								<ChartTooltip
+									valueFormatter={(v) => Number(v ?? 0).toLocaleString()}
+								/>
+							}
+						/>
+						{/* Views as soft area in the background */}
+						<Area
+							type="monotone"
+							dataKey="views"
+							name={t("VIEWS_LABEL")}
+							stroke={colors.views}
+							strokeWidth={2}
+							fill={`url(#viewsArea-${gradientId})`}
+							activeDot={{ r: 4, strokeWidth: 0 }}
+						/>
+						{/* Submissions + Engagement as crisp lines */}
+						<Line
+							type="monotone"
+							dataKey="submissions"
+							name={t("SUBMISSIONS_LABEL")}
+							stroke={colors.submissions}
+							strokeWidth={2}
+							dot={false}
+							activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
+						/>
+						<Line
+							type="monotone"
+							dataKey="engagement"
+							name={t("ENGAGEMENT_LABEL")}
+							stroke={colors.engagement}
+							strokeWidth={2}
+							dot={false}
+							activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
+						/>
+					</ComposedChart>
+				</ResponsiveContainer>
+			)}
+		</ChartCard>
+	);
+}

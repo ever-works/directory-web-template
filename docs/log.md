@@ -31,21 +31,110 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-18 — Spec 026: align preference block components with `/client/settings`
+## 2026-05-18 — Spec 027: e2e coverage + PR-number backfill for Preferences section
 
-- `spec-026` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated.
+- `spec-027` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
+- `spec-027` Renumbered this spec from `026` → `027` because `develop` landed `spec-026-ew627-client-dashboard-wiring` concurrently. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, README index row, and every earlier `spec-026` reference in this log were rewritten to `spec-027` / `027-…`. No code changes in this commit. PR #850.
 
-## 2026-05-18 — Spec 026: align `SettingsModal` with `/client/settings` visual language
+## 2026-05-18 — Spec 027: align preference block components with `/client/settings`
 
-- `spec-026` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes.
+- `spec-027` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
 
-## 2026-05-18 — Spec 026: align header `SettingsButton` with `/client/settings` icon style
+## 2026-05-18 — Spec 027: align `SettingsModal` with `/client/settings` visual language
 
-- `spec-026` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes.
+- `spec-027` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
 
-## 2026-05-17 — Spec 026: client-settings Preferences section
+## 2026-05-18 — Spec 027: align header `SettingsButton` with `/client/settings` icon style
 
-- `spec-026` Drafted spec at `docs/spec/026-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files.
+- `spec-027` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-17 — Spec 027: client-settings Preferences section
+
+- `spec-027` Drafted spec at `docs/spec/027-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
+
+## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
+
+- `spec-026` Extended Spec 026 with §7 covering the visual redesign of the
+  five focus chart cards on `/client/dashboard`: Submission Timeline,
+  Submission Status, Weekly Activity, Community Engagement, and Approval
+  Rate Trend. Acceptance criteria AC-18 through AC-23 added.
+- `spec-026` New shared primitive module
+  `apps/web/components/dashboard/_chart-primitives.tsx` exporting
+  `<ChartCard>`, `<ChartCardSkeleton>`, `<ChartEmptyState>`,
+  `<ChartLegend>` / `<ChartLegendItem>`, `<ChartKpi>`,
+  `<ChartTooltip>`, `useChartAxisProps()`, and `formatCompactNumber()`.
+  Replaces ad-hoc per-chart chrome + Recharts defaults across all five
+  redesigned cards.
+- `spec-026` Replaced the cramped 3-slice pie in Submission Status with
+  a horizontal stacked bar over a per-status row list (icon chip + count
+  + percent). Reads at a glance and scales better with future statuses.
+- `spec-026` Weekly Activity now flows all three series labels
+  ("Submissions", "Views", "Engagement") through `useTranslations()` —
+  previously hard-coded English bypassed the i18n layer entirely.
+- `spec-026` Community Engagement converted from a flat pie with
+  overlapping labels to a donut with the total in the centre + side
+  legend with per-slice value and percent. Stacks below `sm`.
+- `spec-026` Backfilled 29 new chart-redesign i18n keys across all 20
+  non-English locale files with real translations
+  (`SUBMISSION_TIMELINE.*`, `ACTIVITY_CHART.*`, plus extensions to
+  `STATUS_BREAKDOWN.*` and `ENGAGEMENT_CHART.*`). Backfill script used
+  once and removed.
+
+---
+
+## 2026-05-15 — Spec 026 (EW-627) round 2: layout v2 + avatar fix + i18n backfill
+
+- `spec-026` Extended Spec 026 with §6 covering the new dashboard layout
+  (header / quick actions / alerts / mobile summary / four content tabs),
+  the per-card trend deltas + zero-state CTAs in `StatsCard`, and the
+  avatar fix. Acceptance criteria AC-10 through AC-17 added.
+- `spec-026` Removed the prototype `7d / 30d / 90d` period selector. The
+  control was decorative — `useDashboardStats()` ignored the value and
+  every period rendered the same data. Documented as out-of-scope §6.2;
+  re-introduce when `GET /api/client/dashboard/stats` accepts `?days=N`
+  and the repository plumbs the value through to its date-range queries.
+- `spec-026` Avatar regression fix: `<Avatar>` now sets
+  `unoptimized={true}` for any external `http(s)://` URL so OAuth-provider
+  hostnames not in `next.config.ts > images.remotePatterns` no longer
+  fall through to the gradient initials. Also dropped the unconditional
+  `priority` prop. Avatars are 32–48 px, so optimization buys nothing.
+- `spec-026` Replaced the `t(label).split(' ').slice(-1)[0]` last-word
+  hack in `<DashboardMobileSummary>` with dedicated
+  `client.dashboard.STATS.*_SHORT` keys. The trick produced broken
+  labels in Russian, Arabic, Chinese, and any language where the
+  meaningful word isn't the last token.
+- `spec-026` Backfilled 30 new dashboard root keys + 4 `STATS.*_SHORT`
+  keys across all 20 non-English locale files (`ar`, `bg`, `de`, `es`,
+  `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`,
+  `th`, `tr`, `uk`, `vi`, `zh`) with real translations (no
+  English-identical entries). Backfill script used once and removed.
+
+---
+
+## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
+
+- `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering
+  the seven wiring gaps audited in EW-627: hardcoded `Shares` pie slice,
+  always-true `viewsAvailable`, silent fetch errors on `ItemsMapCard` /
+  `GeoStatsCard`, missing placeholder when `locationSettings.enabled` is
+  false, hardcoded English on engagement-chart and top-items headings,
+  loose `StatsCard.value` type, and the always-12-week
+  `engagementOverview` window. Indexed in
+  `docs/spec/README.md` as row 026.
+- `spec-026` API contract: `engagementChartData` items now use a typed
+  `{ key, value, color }` shape (`'views' | 'votesReceived' |
+  'commentsReceived'`) instead of `{ name, value, color }`, and the
+  `Shares` slice is removed. Swagger JSDoc on `GET
+  /api/client/dashboard/stats` updated; re-run `pnpm generate-docs`
+  before release to refresh `public/openapi.json`.
+- `spec-026` Added 10 new strings under `client.dashboard.*`
+  (`LOCATION_DISABLED_TITLE`, `LOCATION_DISABLED_DESC`,
+  `ENGAGEMENT_CHART.{TITLE, VIEWS, VOTES_RECEIVED,
+  COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
+  to all 21 locale files with real translations. Backfill script
+  used once and removed.
+
+---
 
 ## 2026-05-14 — Spec 025 (v5): backfill missing LocationSection translations
 

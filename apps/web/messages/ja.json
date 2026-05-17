@@ -1635,6 +1635,7 @@
 		"SUBMISSION_UPDATED_DATE": "更新日: {date}",
 		"VIEW_SUBMISSION": "投稿を見る",
 		"PROFILES_BREADCRUMB": "プロフィール",
+		"BACK_TO_DASHBOARD": "ダッシュボード",
 		"ABOUT_SECTION": "について",
 		"RECENT_ACTIVITY_SECTION": "最近のアクティビティ",
 		"SKILLS_EXPERTISE_SECTION": "スキルと専門知識",
@@ -3497,14 +3498,78 @@
 			"WELCOME_BACK": "おかえりなさい、{name}さん！活動の概要はこちらです。",
 			"REFRESH": "更新",
 			"FAILED_TO_LOAD": "ダッシュボード統計の読み込みに失敗しました",
+			"USER_FALLBACK": "こんにちは",
+			"HEADER_SUBTITLE": "コンテンツのパフォーマンスをご確認ください。",
+			"NEW_SUBMISSION": "新規投稿",
+			"VIEW_PROFILE": "プロフィールを見る",
+			"GREETING": {
+				"MORNING": "おはようございます、{name}さん",
+				"AFTERNOON": "こんにちは、{name}さん",
+				"EVENING": "こんばんは、{name}さん"
+			},
+			"TABS": {
+				"LABEL": "ダッシュボードのセクション",
+				"OVERVIEW": "概要",
+				"CONTENT": "コンテンツ",
+				"ENGAGEMENT": "エンゲージメント",
+				"GEOGRAPHIC": "地理"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "クイックアクション",
+				"NEW_SUBMISSION": "新規投稿",
+				"NEW_SUBMISSION_DESC": "ディレクトリに新しい項目を投稿",
+				"MY_SUBMISSIONS": "マイ投稿",
+				"MY_SUBMISSIONS_DESC": "投稿を確認・管理",
+				"BILLING": "請求",
+				"BILLING_DESC": "支払い方法を管理",
+				"SETTINGS": "設定",
+				"SETTINGS_DESC": "プロフィールと環境設定を更新"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "ダッシュボードのお知らせ",
+				"PENDING_ITEMS": "{count, plural, other {確認待ちの項目が#件あります}}",
+				"VIEW_SUBMISSIONS": "投稿を表示",
+				"NO_SUBMISSIONS": "まだ投稿がありません。",
+				"SUBMIT_FIRST": "最初の項目を投稿",
+				"DISMISS": "通知を閉じる"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "最初の項目を投稿して始めましょう。",
+				"SUBMIT_NOW": "今すぐ投稿",
+				"VIEWS": "コンテンツが承認されると表示回数が表示されます。",
+				"VOTES": "人々がコンテンツに反応すると投票が表示されます。",
+				"COMMENTS": "人々がコンテンツに関与するとコメントが表示されます。"
+			},
+			"LOCATION_DISABLED_TITLE": "位置情報の分析は無効です",
+			"LOCATION_DISABLED_DESC": "ディレクトリ設定で位置情報機能を有効にすると、項目を地図上で確認し、地理的な範囲を確認できます。",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "コミュニティのエンゲージメント",
+				"SUBTITLE": "視聴者がコンテンツとどのように関わっているか",
+				"TOTAL_LABEL": "合計",
+				"VIEWS": "表示回数",
+				"VOTES_RECEIVED": "受け取った投票",
+				"COMMENTS_RECEIVED": "受け取ったコメント",
+				"NO_DATA": "まだエンゲージメントがありません",
+				"NO_DATA_DESC": "コンテンツが表示・投票・コメントを得ると、その内訳がここに表示されます。"
+			},
+			"TOP_ITEMS": {
+				"TITLE": "上位のパフォーマンスアイテム",
+				"ID": "ID",
+				"NO_DATA": "上位アイテムが見つかりません",
+				"NO_DATA_DESC": "コンテンツがより多くのエンゲージメントを獲得すると、上位アイテムがここに表示されます。"
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "総提出数",
+				"TOTAL_SUBMISSIONS_SHORT": "投稿",
 				"CONTENT_CREATED": "作成したコンテンツ",
 				"TOTAL_VIEWS": "総閲覧数",
+				"TOTAL_VIEWS_SHORT": "閲覧",
 				"VIEWS_ON_CONTENT": "コンテンツの閲覧数",
 				"VOTES_RECEIVED": "獲得した投票",
+				"VOTES_RECEIVED_SHORT": "投票",
 				"VOTES_ON_CONTENT": "コンテンツへの投票",
 				"COMMENTS_RECEIVED": "獲得したコメント",
+				"COMMENTS_RECEIVED_SHORT": "コメント",
 				"COMMENTS_ON_CONTENT": "コンテンツへのコメント"
 			},
 			"PERIOD_COMPARISON": {
@@ -3592,6 +3657,24 @@
 				"GLOBAL": "グローバル",
 				"NO_DATA": "位置情報データなし",
 				"NO_DATA_DESC": "地理的カバレッジを確認するには、アイテムに位置情報を追加してください。"
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "投稿タイムライン",
+				"SUBTITLE": "過去6か月の月別投稿",
+				"TOTAL_LABEL": "合計",
+				"SUBMISSIONS_LABEL": "投稿",
+				"PEAK_HINT": "ピーク月: {month} ({count}件の投稿)",
+				"NO_DATA": "投稿履歴がありません",
+				"NO_DATA_DESC": "月別のアクティビティを追跡するために、最初の項目を投稿してください。"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "週間アクティビティ",
+				"SUBTITLE": "過去7日間の投稿・表示・エンゲージメント",
+				"SUBMISSIONS_LABEL": "投稿",
+				"VIEWS_LABEL": "表示",
+				"ENGAGEMENT_LABEL": "エンゲージメント",
+				"NO_DATA": "今週のアクティビティはありません",
+				"NO_DATA_DESC": "コンテンツが表示や投票を集め始めると、ここにアクティビティが表示されます。"
 			}
 		}
 	},

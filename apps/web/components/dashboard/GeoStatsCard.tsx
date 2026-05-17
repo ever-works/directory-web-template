@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
-import { BarChart3, Globe, MapPin, Building, Navigation, Layers } from 'lucide-react';
+import { AlertTriangle, BarChart3, Globe, MapPin, Building, Navigation, Layers } from 'lucide-react';
 import { useLocationSettings } from '@/hooks/use-location-settings';
 import { CARD_BASE_STYLES, TITLE_STYLES, SUBTITLE_STYLES } from './styles';
 
@@ -49,12 +49,15 @@ const STAT_ROW_STYLES = 'flex justify-between text-sm';
 const STAT_LABEL_STYLES = 'flex items-center gap-2 text-gray-600 dark:text-gray-400';
 const STAT_VALUE_STYLES = 'font-medium text-gray-900 dark:text-gray-100';
 const LIST_ROW_STYLES = 'flex justify-between text-sm text-gray-600 dark:text-gray-400';
+const ERROR_CONTAINER_STYLES =
+	'flex flex-col items-center justify-center gap-2 rounded-lg border border-red-200 dark:border-red-800/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 py-8 px-4 text-center';
 
 export function GeoStatsCard() {
 	const t = useTranslations('client.dashboard.GEO_STATS');
+	const tCommon = useTranslations('client.dashboard');
 	const { settings } = useLocationSettings();
 
-	const { data: stats, isLoading } = useQuery({
+	const { data: stats, isLoading, isError, error } = useQuery({
 		queryKey: ['client-geo-stats'],
 		queryFn: fetchGeoStats,
 		enabled: settings.enabled,
@@ -76,8 +79,22 @@ export function GeoStatsCard() {
 		);
 	}
 
-	if (!stats) {
-		return null;
+	if (isError || !stats) {
+		return (
+			<section className={CARD_BASE_STYLES} aria-labelledby="geo-stats-title" role={isError ? 'alert' : undefined}>
+				<div className="flex items-center gap-2 mb-6">
+					<BarChart3 className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+					<h3 id="geo-stats-title" className={TITLE_STYLES}>
+						{t('TITLE')}
+					</h3>
+				</div>
+				<div className={ERROR_CONTAINER_STYLES}>
+					<AlertTriangle className="h-6 w-6" aria-hidden="true" />
+					<p className="text-sm font-medium">{tCommon('FAILED_TO_LOAD')}</p>
+					{error instanceof Error && <p className={SUBTITLE_STYLES}>{error.message}</p>}
+				</div>
+			</section>
+		);
 	}
 
 	const locationPercent =

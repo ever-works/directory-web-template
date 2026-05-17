@@ -124,7 +124,7 @@ function SettingsSection({ label, children }: SettingsSectionProps) {
 }
 
 // ─── Preferences Panel ─────────────────────────────────────────────────────
-// Section that mounts the same controls the SettingsModal exposes (Spec 026).
+// Section that mounts the same controls the SettingsModal exposes (Spec 027).
 // Each block component is self-contained (renders its own card + handles its
 // own toast feedback via `sonner`), so the panel only contributes the section
 // label and vertical stack.
@@ -204,7 +204,7 @@ export function SettingsContent() {
 						/>
 					</SettingsSection>
 
-					{/* Preferences — same controls as SettingsModal (Spec 026) */}
+					{/* Preferences — same controls as SettingsModal (Spec 027) */}
 					<PreferencesPanel label={t('PREFERENCES')}>
 						<SelectLayout />
 						<SelectContainerWidth />

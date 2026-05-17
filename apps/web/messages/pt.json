@@ -1635,6 +1635,7 @@
 		"SUBMISSION_UPDATED_DATE": "Atualizado: {date}",
 		"VIEW_SUBMISSION": "Ver submissão",
 		"PROFILES_BREADCRUMB": "Perfis",
+		"BACK_TO_DASHBOARD": "Painel",
 		"ABOUT_SECTION": "Sobre",
 		"RECENT_ACTIVITY_SECTION": "Atividade recente",
 		"SKILLS_EXPERTISE_SECTION": "Habilidades e expertise",
@@ -3493,14 +3494,78 @@
 			"WELCOME_BACK": "Bem-vindo de volta, {name}! Aqui está sua visão geral de atividades.",
 			"REFRESH": "Atualizar",
 			"FAILED_TO_LOAD": "Falha ao carregar estatísticas do painel",
+			"USER_FALLBACK": "aí",
+			"HEADER_SUBTITLE": "Veja como o seu conteúdo está se saindo.",
+			"NEW_SUBMISSION": "Novo envio",
+			"VIEW_PROFILE": "Ver perfil",
+			"GREETING": {
+				"MORNING": "Bom dia, {name}",
+				"AFTERNOON": "Boa tarde, {name}",
+				"EVENING": "Boa noite, {name}"
+			},
+			"TABS": {
+				"LABEL": "Seções do painel",
+				"OVERVIEW": "Visão geral",
+				"CONTENT": "Conteúdo",
+				"ENGAGEMENT": "Engajamento",
+				"GEOGRAPHIC": "Geográfico"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Ações rápidas",
+				"NEW_SUBMISSION": "Novo envio",
+				"NEW_SUBMISSION_DESC": "Envie um novo item para o diretório",
+				"MY_SUBMISSIONS": "Meus envios",
+				"MY_SUBMISSIONS_DESC": "Veja e gerencie seus envios",
+				"BILLING": "Faturamento",
+				"BILLING_DESC": "Gerencie métodos de pagamento",
+				"SETTINGS": "Configurações",
+				"SETTINGS_DESC": "Atualize seu perfil e preferências"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Alertas do painel",
+				"PENDING_ITEMS": "{count, plural, one {Você tem # item aguardando revisão} other {Você tem # itens aguardando revisão}}",
+				"VIEW_SUBMISSIONS": "Ver envios",
+				"NO_SUBMISSIONS": "Você ainda não enviou nada.",
+				"SUBMIT_FIRST": "Envie seu primeiro item",
+				"DISMISS": "Dispensar alerta"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Envie seu primeiro item para começar.",
+				"SUBMIT_NOW": "Enviar agora",
+				"VIEWS": "As visualizações aparecerão quando seu conteúdo for aprovado.",
+				"VOTES": "Os votos aparecerão à medida que as pessoas interagirem com o seu conteúdo.",
+				"COMMENTS": "Os comentários aparecerão quando as pessoas se engajarem com o seu conteúdo."
+			},
+			"LOCATION_DISABLED_TITLE": "As informações de localização estão desativadas",
+			"LOCATION_DISABLED_DESC": "Ative os recursos de localização nas configurações do diretório para ver seus itens em um mapa e revisar a cobertura geográfica.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Engajamento da comunidade",
+				"SUBTITLE": "Como o seu público interage com o seu conteúdo",
+				"TOTAL_LABEL": "Total",
+				"VIEWS": "Visualizações",
+				"VOTES_RECEIVED": "Votos recebidos",
+				"COMMENTS_RECEIVED": "Comentários recebidos",
+				"NO_DATA": "Sem engajamento por enquanto",
+				"NO_DATA_DESC": "Quando o seu conteúdo receber visualizações, votos ou comentários, verá a distribuição aqui."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Itens com melhor desempenho",
+				"ID": "ID",
+				"NO_DATA": "Nenhum item em destaque encontrado",
+				"NO_DATA_DESC": "Quando seu conteúdo receber mais engajamento, seus melhores itens aparecerão aqui."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Total de Submissões",
+				"TOTAL_SUBMISSIONS_SHORT": "Envios",
 				"CONTENT_CREATED": "Conteúdo que você criou",
 				"TOTAL_VIEWS": "Total de Visualizações",
+				"TOTAL_VIEWS_SHORT": "Visualizações",
 				"VIEWS_ON_CONTENT": "Visualizações do seu conteúdo",
 				"VOTES_RECEIVED": "Votos Recebidos",
+				"VOTES_RECEIVED_SHORT": "Votos",
 				"VOTES_ON_CONTENT": "Votos no seu conteúdo",
 				"COMMENTS_RECEIVED": "Comentários Recebidos",
+				"COMMENTS_RECEIVED_SHORT": "Comentários",
 				"COMMENTS_ON_CONTENT": "Comentários no seu conteúdo"
 			},
 			"PERIOD_COMPARISON": {
@@ -3588,6 +3653,24 @@
 				"GLOBAL": "Global",
 				"NO_DATA": "Sem dados de localização",
 				"NO_DATA_DESC": "Adicione dados de localização aos seus itens para ver a cobertura geográfica."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Linha do tempo de envios",
+				"SUBTITLE": "Envios mensais nos últimos 6 meses",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "envios",
+				"PEAK_HINT": "Mês de pico: {month} com {count} envios",
+				"NO_DATA": "Sem histórico de envios",
+				"NO_DATA_DESC": "Envie o seu primeiro item para começar a acompanhar a atividade mensal."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Atividade semanal",
+				"SUBTITLE": "Envios, visualizações e engajamento dos últimos 7 dias",
+				"SUBMISSIONS_LABEL": "Envios",
+				"VIEWS_LABEL": "Visualizações",
+				"ENGAGEMENT_LABEL": "Engajamento",
+				"NO_DATA": "Sem atividade esta semana",
+				"NO_DATA_DESC": "A atividade aparecerá aqui assim que o seu conteúdo começar a receber visualizações e votos."
 			}
 		}
 	},

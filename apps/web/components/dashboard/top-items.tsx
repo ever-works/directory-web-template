@@ -1,6 +1,7 @@
 "use client";
 
 import { TrendingUp, Eye, ThumbsUp, MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface TopItem {
   id: string;
@@ -16,6 +17,7 @@ interface TopItemsProps {
 }
 
 export function TopItems({ items, isLoading = false }: TopItemsProps) {
+  const t = useTranslations('client.dashboard.TOP_ITEMS');
   if (isLoading) {
     return (
       <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
@@ -36,10 +38,10 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
       <div className="flex items-center gap-2 mb-4">
         <TrendingUp className="h-4 w-4 text-neutral-400 dark:text-neutral-500" />
         <h3 className="text-sm font-semibold text-neutral-900 dark:text-white">
-          Top Performing Items
+          {t('TITLE')}
         </h3>
       </div>
-      
+
       <div className="space-y-4">
         {items.length === 0 ? (
           <div className="text-center py-10">
@@ -47,15 +49,15 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
               <TrendingUp className="h-5 w-5 text-neutral-400" aria-hidden="true" />
             </div>
             <h3 className="text-sm font-medium text-neutral-900 dark:text-white mb-1">
-              No top items found
+              {t('NO_DATA')}
             </h3>
             <p className="text-xs text-neutral-500 dark:text-neutral-400">
-              Once your content gets more engagement, your top items will appear here.
+              {t('NO_DATA_DESC')}
             </p>
           </div>
         ) : (
           items.map((item, index) => (
-            <div 
+            <div
               key={item.id}
               className="flex items-center justify-between px-3 py-2.5 bg-neutral-50 dark:bg-white/3 rounded-lg border border-neutral-100 dark:border-white/5 hover:border-neutral-200 dark:hover:border-white/8 transition-colors"
             >
@@ -68,7 +70,7 @@ export function TopItems({ items, isLoading = false }: TopItemsProps) {
                     {item.title}
                   </h4>
                   <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
-                    ID: {item.id}
+                    {t('ID')}: {item.id}
                   </p>
                 </div>
               </div>

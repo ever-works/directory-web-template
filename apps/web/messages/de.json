@@ -1668,6 +1668,7 @@
 		"SUBMISSION_UPDATED_DATE": "Aktualisiert: {date}",
 		"VIEW_SUBMISSION": "Einreichung ansehen",
 		"PROFILES_BREADCRUMB": "Profile",
+		"BACK_TO_DASHBOARD": "Dashboard",
 		"ABOUT_SECTION": "Über",
 		"RECENT_ACTIVITY_SECTION": "Letzte Aktivitäten",
 		"SKILLS_EXPERTISE_SECTION": "Fähigkeiten & Expertise",
@@ -3530,14 +3531,78 @@
 			"WELCOME_BACK": "Willkommen zurück, {name}! Hier ist Ihre Aktivitätsübersicht.",
 			"REFRESH": "Aktualisieren",
 			"FAILED_TO_LOAD": "Fehler beim Laden der Dashboard-Statistiken",
+			"USER_FALLBACK": "da",
+			"HEADER_SUBTITLE": "So entwickeln sich Ihre Inhalte.",
+			"NEW_SUBMISSION": "Neue Einreichung",
+			"VIEW_PROFILE": "Profil anzeigen",
+			"GREETING": {
+				"MORNING": "Guten Morgen, {name}",
+				"AFTERNOON": "Guten Tag, {name}",
+				"EVENING": "Guten Abend, {name}"
+			},
+			"TABS": {
+				"LABEL": "Dashboard-Bereiche",
+				"OVERVIEW": "Übersicht",
+				"CONTENT": "Inhalte",
+				"ENGAGEMENT": "Engagement",
+				"GEOGRAPHIC": "Geografie"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Schnellaktionen",
+				"NEW_SUBMISSION": "Neue Einreichung",
+				"NEW_SUBMISSION_DESC": "Neuen Eintrag im Verzeichnis einreichen",
+				"MY_SUBMISSIONS": "Meine Einreichungen",
+				"MY_SUBMISSIONS_DESC": "Einreichungen anzeigen und verwalten",
+				"BILLING": "Abrechnung",
+				"BILLING_DESC": "Zahlungsmethoden verwalten",
+				"SETTINGS": "Einstellungen",
+				"SETTINGS_DESC": "Profil und Voreinstellungen aktualisieren"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Dashboard-Hinweise",
+				"PENDING_ITEMS": "{count, plural, one {# Eintrag wartet auf Prüfung} other {# Einträge warten auf Prüfung}}",
+				"VIEW_SUBMISSIONS": "Einreichungen anzeigen",
+				"NO_SUBMISSIONS": "Sie haben noch nichts eingereicht.",
+				"SUBMIT_FIRST": "Ersten Eintrag einreichen",
+				"DISMISS": "Hinweis ausblenden"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Reichen Sie Ihren ersten Eintrag ein, um loszulegen.",
+				"SUBMIT_NOW": "Jetzt einreichen",
+				"VIEWS": "Aufrufe erscheinen, sobald Ihre Inhalte freigegeben sind.",
+				"VOTES": "Stimmen erscheinen, sobald andere Ihre Inhalte bewerten.",
+				"COMMENTS": "Kommentare erscheinen, sobald andere mit Ihren Inhalten interagieren."
+			},
+			"LOCATION_DISABLED_TITLE": "Standort-Insights sind deaktiviert",
+			"LOCATION_DISABLED_DESC": "Aktivieren Sie Standortfunktionen in den Verzeichniseinstellungen, um Ihre Einträge auf einer Karte zu sehen und die geografische Abdeckung zu prüfen.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Community-Engagement",
+				"SUBTITLE": "Wie Ihr Publikum mit Ihren Inhalten interagiert",
+				"TOTAL_LABEL": "Gesamt",
+				"VIEWS": "Aufrufe",
+				"VOTES_RECEIVED": "Erhaltene Stimmen",
+				"COMMENTS_RECEIVED": "Erhaltene Kommentare",
+				"NO_DATA": "Noch kein Engagement",
+				"NO_DATA_DESC": "Sobald Ihre Inhalte Aufrufe, Stimmen oder Kommentare erhalten, sehen Sie hier die Mischung."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Top-Einträge",
+				"ID": "ID",
+				"NO_DATA": "Keine Top-Einträge gefunden",
+				"NO_DATA_DESC": "Sobald Ihre Inhalte mehr Engagement erhalten, erscheinen Ihre Top-Einträge hier."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Gesamte Einreichungen",
+				"TOTAL_SUBMISSIONS_SHORT": "Einreichungen",
 				"CONTENT_CREATED": "Von Ihnen erstellte Inhalte",
 				"TOTAL_VIEWS": "Gesamte Aufrufe",
+				"TOTAL_VIEWS_SHORT": "Aufrufe",
 				"VIEWS_ON_CONTENT": "Aufrufe Ihrer Inhalte",
 				"VOTES_RECEIVED": "Erhaltene Stimmen",
+				"VOTES_RECEIVED_SHORT": "Stimmen",
 				"VOTES_ON_CONTENT": "Stimmen für Ihre Inhalte",
 				"COMMENTS_RECEIVED": "Erhaltene Kommentare",
+				"COMMENTS_RECEIVED_SHORT": "Kommentare",
 				"COMMENTS_ON_CONTENT": "Kommentare zu Ihren Inhalten"
 			},
 			"PERIOD_COMPARISON": {
@@ -3625,6 +3690,24 @@
 				"GLOBAL": "Global",
 				"NO_DATA": "Keine Standortdaten",
 				"NO_DATA_DESC": "Fügen Sie Standortdaten zu Ihren Einträgen hinzu, um die geografische Abdeckung zu sehen."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Einreichungs-Zeitleiste",
+				"SUBTITLE": "Monatliche Einreichungen der letzten 6 Monate",
+				"TOTAL_LABEL": "Gesamt",
+				"SUBMISSIONS_LABEL": "Einreichungen",
+				"PEAK_HINT": "Spitzenmonat: {month} mit {count} Einreichungen",
+				"NO_DATA": "Keine Einreichungs-Historie",
+				"NO_DATA_DESC": "Reichen Sie Ihr erstes Element ein, um die monatliche Aktivität zu verfolgen."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Wöchentliche Aktivität",
+				"SUBTITLE": "Einreichungen, Aufrufe und Engagement der letzten 7 Tage",
+				"SUBMISSIONS_LABEL": "Einreichungen",
+				"VIEWS_LABEL": "Aufrufe",
+				"ENGAGEMENT_LABEL": "Engagement",
+				"NO_DATA": "Keine Aktivität diese Woche",
+				"NO_DATA_DESC": "Aktivität erscheint hier, sobald Ihre Inhalte Aufrufe und Stimmen erhalten."
 			}
 		}
 	},

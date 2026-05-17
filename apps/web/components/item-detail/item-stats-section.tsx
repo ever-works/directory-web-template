@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Eye, ThumbsUp, Heart, MessageSquare, Star, Clock, BarChart3 } from 'lucide-react';
 import type { ItemActivityDay, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
 
@@ -25,7 +25,7 @@ function formatRating(r: number): string {
 	return `${r.toFixed(1)} / 5`;
 }
 
-function formatRelativeAge(iso?: string, locale = 'en'): string {
+function formatRelativeAge(iso: string | undefined, locale: string): string {
 	if (!iso) return '–';
 	const then = new Date(iso).getTime();
 	if (Number.isNaN(then)) return '–';
@@ -98,7 +98,13 @@ interface SparklineProps {
 
 function Sparkline({ series, metric }: SparklineProps) {
 	const values = series.map((d) => d[metric]);
-	const maxValue = Math.max(1, ...values);
+	// `votes` is net (upvotes - downvotes) and can be negative, so anchor the
+	// scale to the actual min/max instead of assuming a non-negative range.
+	const rawMax = values.length ? Math.max(...values) : 0;
+	const rawMin = values.length ? Math.min(...values) : 0;
+	const maxValue = Math.max(rawMax, 0);
+	const minValue = Math.min(rawMin, 0);
+	const range = Math.max(1, maxValue - minValue);
 	const width = 400;
 	const height = 56;
 	const padX = 2;
@@ -112,9 +118,9 @@ function Sparkline({ series, metric }: SparklineProps) {
 		const stepX = series.length === 1 ? 0 : usableW / (series.length - 1);
 		return series.map((d, i) => ({
 			x: padX + i * stepX,
-			y: padTop + (1 - d[metric] / maxValue) * usableH
+			y: padTop + (1 - (d[metric] - minValue) / range) * usableH
 		}));
-	}, [series, metric, maxValue, usableW, usableH]);
+	}, [series, metric, minValue, range, usableW, usableH]);
 
 	if (points.length === 0) {
 		return (
@@ -167,6 +173,7 @@ interface ActivityPayload {
  */
 export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStatsSectionProps) {
 	const t = useTranslations();
+	const locale = useLocale();
 	const [data, setData] = useState<ActivityPayload | null>(null);
 	const [loaded, setLoaded] = useState(false);
 	const [selected, setSelected] = useState<SeriesMetric>('views');
@@ -247,7 +254,7 @@ export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStats
 					<StatRow
 						icon={<Clock className="w-3 h-3" />}
 						label={t('itemDetail.STATS_AGE', { defaultValue: 'Listed' })}
-						value={formatRelativeAge(publishedAt)}
+						value={formatRelativeAge(publishedAt, locale)}
 					/>
 				)}
 			</div>

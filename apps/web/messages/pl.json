@@ -1635,6 +1635,7 @@
 		"SUBMISSION_UPDATED_DATE": "Zaktualizowano: {date}",
 		"VIEW_SUBMISSION": "Zobacz zgłoszenie",
 		"PROFILES_BREADCRUMB": "Profile",
+		"BACK_TO_DASHBOARD": "Pulpit",
 		"ABOUT_SECTION": "O mnie",
 		"RECENT_ACTIVITY_SECTION": "Ostatnia aktywność",
 		"SKILLS_EXPERTISE_SECTION": "Umiejętności i wiedza",
@@ -3492,14 +3493,78 @@
 			"WELCOME_BACK": "Witaj ponownie, {name}! Oto przegląd Twojej aktywności.",
 			"REFRESH": "Odśwież",
 			"FAILED_TO_LOAD": "Nie udało się załadować statystyk panelu",
+			"USER_FALLBACK": "Cześć",
+			"HEADER_SUBTITLE": "Oto jak radzi sobie Twoja treść.",
+			"NEW_SUBMISSION": "Nowe zgłoszenie",
+			"VIEW_PROFILE": "Zobacz profil",
+			"GREETING": {
+				"MORNING": "Dzień dobry, {name}",
+				"AFTERNOON": "Dzień dobry, {name}",
+				"EVENING": "Dobry wieczór, {name}"
+			},
+			"TABS": {
+				"LABEL": "Sekcje pulpitu",
+				"OVERVIEW": "Przegląd",
+				"CONTENT": "Treść",
+				"ENGAGEMENT": "Zaangażowanie",
+				"GEOGRAPHIC": "Geograficzny"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Szybkie akcje",
+				"NEW_SUBMISSION": "Nowe zgłoszenie",
+				"NEW_SUBMISSION_DESC": "Zgłoś nowy element do katalogu",
+				"MY_SUBMISSIONS": "Moje zgłoszenia",
+				"MY_SUBMISSIONS_DESC": "Wyświetl i zarządzaj zgłoszeniami",
+				"BILLING": "Rozliczenia",
+				"BILLING_DESC": "Zarządzaj metodami płatności",
+				"SETTINGS": "Ustawienia",
+				"SETTINGS_DESC": "Zaktualizuj profil i preferencje"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Powiadomienia pulpitu",
+				"PENDING_ITEMS": "{count, plural, one {Masz # element oczekujący na weryfikację} few {Masz # elementy oczekujące na weryfikację} many {Masz # elementów oczekujących na weryfikację} other {Masz # elementów oczekujących na weryfikację}}",
+				"VIEW_SUBMISSIONS": "Zobacz zgłoszenia",
+				"NO_SUBMISSIONS": "Nie zgłosiłeś jeszcze niczego.",
+				"SUBMIT_FIRST": "Zgłoś swój pierwszy element",
+				"DISMISS": "Zamknij powiadomienie"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Zgłoś swój pierwszy element, aby zacząć.",
+				"SUBMIT_NOW": "Zgłoś teraz",
+				"VIEWS": "Wyświetlenia pojawią się po zatwierdzeniu treści.",
+				"VOTES": "Głosy pojawią się, gdy ludzie zaczną reagować na Twoją treść.",
+				"COMMENTS": "Komentarze pojawią się, gdy ludzie zaczną angażować się w Twoją treść."
+			},
+			"LOCATION_DISABLED_TITLE": "Statystyki lokalizacji są wyłączone",
+			"LOCATION_DISABLED_DESC": "Włącz funkcje lokalizacji w ustawieniach katalogu, aby zobaczyć swoje elementy na mapie i przejrzeć zasięg geograficzny.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Zaangażowanie społeczności",
+				"SUBTITLE": "Jak Twoi odbiorcy wchodzą w interakcję z treścią",
+				"TOTAL_LABEL": "Łącznie",
+				"VIEWS": "Wyświetlenia",
+				"VOTES_RECEIVED": "Otrzymane głosy",
+				"COMMENTS_RECEIVED": "Otrzymane komentarze",
+				"NO_DATA": "Brak zaangażowania",
+				"NO_DATA_DESC": "Gdy Twoja treść otrzyma wyświetlenia, głosy lub komentarze, zobaczysz tutaj ich rozkład."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Najlepiej działające elementy",
+				"ID": "ID",
+				"NO_DATA": "Nie znaleziono najlepszych elementów",
+				"NO_DATA_DESC": "Gdy Twoja treść zyska więcej zaangażowania, Twoje najlepsze elementy pojawią się tutaj."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Łączna Liczba Zgłoszeń",
+				"TOTAL_SUBMISSIONS_SHORT": "Zgłoszenia",
 				"CONTENT_CREATED": "Utworzona przez Ciebie treść",
 				"TOTAL_VIEWS": "Łączna Liczba Wyświetleń",
+				"TOTAL_VIEWS_SHORT": "Wyświetlenia",
 				"VIEWS_ON_CONTENT": "Wyświetlenia Twoich treści",
 				"VOTES_RECEIVED": "Otrzymane Głosy",
+				"VOTES_RECEIVED_SHORT": "Głosy",
 				"VOTES_ON_CONTENT": "Głosy na Twoje treści",
 				"COMMENTS_RECEIVED": "Otrzymane Komentarze",
+				"COMMENTS_RECEIVED_SHORT": "Komentarze",
 				"COMMENTS_ON_CONTENT": "Komentarze do Twoich treści"
 			},
 			"PERIOD_COMPARISON": {
@@ -3587,6 +3652,24 @@
 				"GLOBAL": "Globalny",
 				"NO_DATA": "Brak danych lokalizacji",
 				"NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć zasięg geograficzny."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Oś czasu zgłoszeń",
+				"SUBTITLE": "Miesięczne zgłoszenia z ostatnich 6 miesięcy",
+				"TOTAL_LABEL": "Łącznie",
+				"SUBMISSIONS_LABEL": "zgłoszeń",
+				"PEAK_HINT": "Szczytowy miesiąc: {month} – {count} zgłoszeń",
+				"NO_DATA": "Brak historii zgłoszeń",
+				"NO_DATA_DESC": "Zgłoś swój pierwszy element, aby zacząć śledzić miesięczną aktywność."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Aktywność tygodniowa",
+				"SUBTITLE": "Zgłoszenia, wyświetlenia i zaangażowanie z ostatnich 7 dni",
+				"SUBMISSIONS_LABEL": "Zgłoszenia",
+				"VIEWS_LABEL": "Wyświetlenia",
+				"ENGAGEMENT_LABEL": "Zaangażowanie",
+				"NO_DATA": "Brak aktywności w tym tygodniu",
+				"NO_DATA_DESC": "Aktywność pojawi się tutaj, gdy Twoja treść zacznie otrzymywać wyświetlenia i głosy."
 			}
 		}
 	},

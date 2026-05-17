@@ -1,3 +1,5 @@
+'use client';
+
 import Image from 'next/image';
 import { useState } from 'react';
 import { isValidImageUrl } from '@/lib/utils/image-domains';
@@ -23,6 +25,11 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 
 	if (src && !imageError && isValidImageUrl(src)) {
 		const isDataUrl = src.startsWith('data:image/');
+		const isExternal = /^https?:\/\//i.test(src);
+		// Bypass next/image optimization for external avatars: hostnames outside
+		// `next.config.ts > images.remotePatterns` get rejected by the optimizer
+		// and we silently fall through to the gradient fallback. Avatars are
+		// 32–48px so optimization buys us nothing anyway.
 		return (
 			<div className={`relative rounded-full overflow-hidden ${sizeMap[size]} ${className ?? ''}`}>
 				<Image
@@ -32,8 +39,8 @@ export function Avatar({ src, alt = '', fallback, size = 'sm', className }: Avat
 					sizes={`${dimensions}px`}
 					className="object-cover"
 					onError={() => setImageError(true)}
-					priority
-					unoptimized={isDataUrl}
+					unoptimized={isDataUrl || isExternal}
+					referrerPolicy="no-referrer"
 				/>
 			</div>
 		);

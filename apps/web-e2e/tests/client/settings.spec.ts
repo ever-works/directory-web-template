@@ -25,4 +25,20 @@ test.describe('Client: Settings', () => {
 
 		await page.waitForURL(/\/auth\/signin/);
 	});
+
+	// Spec 027: the Preferences section embeds the same controls as
+	// `SettingsModal` (Layout / Container Width / Pagination Style + demo-only
+	// blocks). Always-on blocks must render inline on `/client/settings`.
+	test('settings page shows Preferences section with always-on layout controls', async ({ clientPage }) => {
+		const settingsPage = new ClientSettingsPage(clientPage);
+		await settingsPage.navigate();
+		await settingsPage.waitForPageReady();
+
+		// Each block exposes an h3 heading via its own translated label.
+		// Match on role + name regex so the assertion is locale-tolerant for
+		// English fixtures and stable against unrelated copy changes.
+		await expect(clientPage.getByRole('heading', { level: 3, name: /layout/i }).first()).toBeVisible();
+		await expect(clientPage.getByRole('heading', { level: 3, name: /container width/i }).first()).toBeVisible();
+		await expect(clientPage.getByRole('heading', { level: 3, name: /pagination/i }).first()).toBeVisible();
+	});
 });

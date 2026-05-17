@@ -1635,6 +1635,7 @@
 		"SUBMISSION_UPDATED_DATE": "Bijgewerkt: {date}",
 		"VIEW_SUBMISSION": "Inzending bekijken",
 		"PROFILES_BREADCRUMB": "Profielen",
+		"BACK_TO_DASHBOARD": "Dashboard",
 		"ABOUT_SECTION": "Over",
 		"RECENT_ACTIVITY_SECTION": "Recente activiteit",
 		"SKILLS_EXPERTISE_SECTION": "Vaardigheden & expertise",
@@ -3492,14 +3493,78 @@
 			"WELCOME_BACK": "Welkom terug, {name}! Hier is uw activiteitenoverzicht.",
 			"REFRESH": "Vernieuwen",
 			"FAILED_TO_LOAD": "Kan dashboardstatistieken niet laden",
+			"USER_FALLBACK": "daar",
+			"HEADER_SUBTITLE": "Zo presteert je content.",
+			"NEW_SUBMISSION": "Nieuwe inzending",
+			"VIEW_PROFILE": "Profiel bekijken",
+			"GREETING": {
+				"MORNING": "Goedemorgen, {name}",
+				"AFTERNOON": "Goedemiddag, {name}",
+				"EVENING": "Goedenavond, {name}"
+			},
+			"TABS": {
+				"LABEL": "Dashboard-secties",
+				"OVERVIEW": "Overzicht",
+				"CONTENT": "Content",
+				"ENGAGEMENT": "Betrokkenheid",
+				"GEOGRAPHIC": "Geografisch"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Snelle acties",
+				"NEW_SUBMISSION": "Nieuwe inzending",
+				"NEW_SUBMISSION_DESC": "Dien een nieuw item in voor de directory",
+				"MY_SUBMISSIONS": "Mijn inzendingen",
+				"MY_SUBMISSIONS_DESC": "Bekijk en beheer je inzendingen",
+				"BILLING": "Facturering",
+				"BILLING_DESC": "Beheer betaalmethodes",
+				"SETTINGS": "Instellingen",
+				"SETTINGS_DESC": "Profiel en voorkeuren bijwerken"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Dashboard-meldingen",
+				"PENDING_ITEMS": "{count, plural, one {Je hebt # item dat op beoordeling wacht} other {Je hebt # items die op beoordeling wachten}}",
+				"VIEW_SUBMISSIONS": "Bekijk inzendingen",
+				"NO_SUBMISSIONS": "Je hebt nog niets ingediend.",
+				"SUBMIT_FIRST": "Dien je eerste item in",
+				"DISMISS": "Melding sluiten"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Dien je eerste item in om te starten.",
+				"SUBMIT_NOW": "Nu indienen",
+				"VIEWS": "Weergaven verschijnen zodra je content is goedgekeurd.",
+				"VOTES": "Stemmen verschijnen wanneer mensen met je content interageren.",
+				"COMMENTS": "Reacties verschijnen wanneer mensen betrokken raken bij je content."
+			},
+			"LOCATION_DISABLED_TITLE": "Locatie-inzichten zijn uitgeschakeld",
+			"LOCATION_DISABLED_DESC": "Schakel locatiefuncties in de directory-instellingen in om je items op een kaart te zien en de geografische dekking te bekijken.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Community-betrokkenheid",
+				"SUBTITLE": "Hoe je publiek met je content interageert",
+				"TOTAL_LABEL": "Totaal",
+				"VIEWS": "Weergaven",
+				"VOTES_RECEIVED": "Ontvangen stemmen",
+				"COMMENTS_RECEIVED": "Ontvangen reacties",
+				"NO_DATA": "Nog geen betrokkenheid",
+				"NO_DATA_DESC": "Wanneer je content weergaven, stemmen of reacties krijgt, zie je hier de mix."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Best presterende items",
+				"ID": "ID",
+				"NO_DATA": "Geen topitems gevonden",
+				"NO_DATA_DESC": "Zodra je content meer betrokkenheid krijgt, verschijnen je topitems hier."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Totaal Inzendingen",
+				"TOTAL_SUBMISSIONS_SHORT": "Inzendingen",
 				"CONTENT_CREATED": "Door u gemaakte inhoud",
 				"TOTAL_VIEWS": "Totaal Weergaven",
+				"TOTAL_VIEWS_SHORT": "Weergaven",
 				"VIEWS_ON_CONTENT": "Weergaven van uw inhoud",
 				"VOTES_RECEIVED": "Ontvangen Stemmen",
+				"VOTES_RECEIVED_SHORT": "Stemmen",
 				"VOTES_ON_CONTENT": "Stemmen op uw inhoud",
 				"COMMENTS_RECEIVED": "Ontvangen Reacties",
+				"COMMENTS_RECEIVED_SHORT": "Reacties",
 				"COMMENTS_ON_CONTENT": "Reacties op uw inhoud"
 			},
 			"PERIOD_COMPARISON": {
@@ -3587,6 +3652,24 @@
 				"GLOBAL": "Globaal",
 				"NO_DATA": "Geen locatiegegevens",
 				"NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om de geografische dekking te zien."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Inzendings-tijdlijn",
+				"SUBTITLE": "Maandelijkse inzendingen van de afgelopen 6 maanden",
+				"TOTAL_LABEL": "Totaal",
+				"SUBMISSIONS_LABEL": "inzendingen",
+				"PEAK_HINT": "Piekmaand: {month} met {count} inzendingen",
+				"NO_DATA": "Geen inzendings-historie",
+				"NO_DATA_DESC": "Dien je eerste item in om de maandelijkse activiteit bij te houden."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Wekelijkse activiteit",
+				"SUBTITLE": "Inzendingen, weergaven en betrokkenheid van de afgelopen 7 dagen",
+				"SUBMISSIONS_LABEL": "Inzendingen",
+				"VIEWS_LABEL": "Weergaven",
+				"ENGAGEMENT_LABEL": "Betrokkenheid",
+				"NO_DATA": "Geen activiteit deze week",
+				"NO_DATA_DESC": "Activiteit verschijnt hier zodra je content weergaven en stemmen krijgt."
 			}
 		}
 	},

@@ -1635,6 +1635,7 @@
 		"SUBMISSION_UPDATED_DATE": "Aggiornato: {date}",
 		"VIEW_SUBMISSION": "Visualizza proposta",
 		"PROFILES_BREADCRUMB": "Profili",
+		"BACK_TO_DASHBOARD": "Cruscotto",
 		"ABOUT_SECTION": "Informazioni",
 		"RECENT_ACTIVITY_SECTION": "Attività recente",
 		"SKILLS_EXPERTISE_SECTION": "Competenze ed esperienza",
@@ -3496,14 +3497,78 @@
 			"WELCOME_BACK": "Bentornato, {name}! Ecco la panoramica delle tue attività.",
 			"REFRESH": "Aggiorna",
 			"FAILED_TO_LOAD": "Impossibile caricare le statistiche della dashboard",
+			"USER_FALLBACK": "a te",
+			"HEADER_SUBTITLE": "Ecco come stanno andando i tuoi contenuti.",
+			"NEW_SUBMISSION": "Nuovo invio",
+			"VIEW_PROFILE": "Vedi profilo",
+			"GREETING": {
+				"MORNING": "Buongiorno, {name}",
+				"AFTERNOON": "Buon pomeriggio, {name}",
+				"EVENING": "Buonasera, {name}"
+			},
+			"TABS": {
+				"LABEL": "Sezioni del cruscotto",
+				"OVERVIEW": "Panoramica",
+				"CONTENT": "Contenuti",
+				"ENGAGEMENT": "Coinvolgimento",
+				"GEOGRAPHIC": "Geografica"
+			},
+			"QUICK_ACTIONS": {
+				"SECTION_LABEL": "Azioni rapide",
+				"NEW_SUBMISSION": "Nuovo invio",
+				"NEW_SUBMISSION_DESC": "Invia un nuovo elemento alla directory",
+				"MY_SUBMISSIONS": "I miei invii",
+				"MY_SUBMISSIONS_DESC": "Visualizza e gestisci i tuoi invii",
+				"BILLING": "Fatturazione",
+				"BILLING_DESC": "Gestisci i metodi di pagamento",
+				"SETTINGS": "Impostazioni",
+				"SETTINGS_DESC": "Aggiorna il tuo profilo e le preferenze"
+			},
+			"ALERTS": {
+				"REGION_LABEL": "Avvisi del cruscotto",
+				"PENDING_ITEMS": "{count, plural, one {Hai # elemento in attesa di revisione} other {Hai # elementi in attesa di revisione}}",
+				"VIEW_SUBMISSIONS": "Visualizza invii",
+				"NO_SUBMISSIONS": "Non hai ancora inviato nulla.",
+				"SUBMIT_FIRST": "Invia il tuo primo elemento",
+				"DISMISS": "Chiudi avviso"
+			},
+			"EMPTY": {
+				"SUBMISSIONS": "Invia il tuo primo elemento per iniziare.",
+				"SUBMIT_NOW": "Invia ora",
+				"VIEWS": "Le visualizzazioni appariranno una volta approvati i contenuti.",
+				"VOTES": "I voti appariranno man mano che le persone interagiscono con i tuoi contenuti.",
+				"COMMENTS": "I commenti appariranno quando le persone interagiranno con i tuoi contenuti."
+			},
+			"LOCATION_DISABLED_TITLE": "Le informazioni sulla posizione sono disattivate",
+			"LOCATION_DISABLED_DESC": "Abilita le funzionalità di posizione nelle impostazioni della directory per vedere i tuoi elementi su una mappa e rivedere la copertura geografica.",
+			"ENGAGEMENT_CHART": {
+				"TITLE": "Coinvolgimento della community",
+				"SUBTITLE": "Come il tuo pubblico interagisce con i tuoi contenuti",
+				"TOTAL_LABEL": "Totale",
+				"VIEWS": "Visualizzazioni",
+				"VOTES_RECEIVED": "Voti ricevuti",
+				"COMMENTS_RECEIVED": "Commenti ricevuti",
+				"NO_DATA": "Nessun coinvolgimento per ora",
+				"NO_DATA_DESC": "Quando i tuoi contenuti riceveranno visualizzazioni, voti o commenti, vedrai il mix qui."
+			},
+			"TOP_ITEMS": {
+				"TITLE": "Elementi con migliori prestazioni",
+				"ID": "ID",
+				"NO_DATA": "Nessun elemento principale trovato",
+				"NO_DATA_DESC": "Quando i tuoi contenuti riceveranno più coinvolgimento, i tuoi elementi principali appariranno qui."
+			},
 			"STATS": {
 				"TOTAL_SUBMISSIONS": "Invii Totali",
+				"TOTAL_SUBMISSIONS_SHORT": "Invii",
 				"CONTENT_CREATED": "Contenuti che hai creato",
 				"TOTAL_VIEWS": "Visualizzazioni Totali",
+				"TOTAL_VIEWS_SHORT": "Visualizzazioni",
 				"VIEWS_ON_CONTENT": "Visualizzazioni dei tuoi contenuti",
 				"VOTES_RECEIVED": "Voti Ricevuti",
+				"VOTES_RECEIVED_SHORT": "Voti",
 				"VOTES_ON_CONTENT": "Voti sui tuoi contenuti",
 				"COMMENTS_RECEIVED": "Commenti Ricevuti",
+				"COMMENTS_RECEIVED_SHORT": "Commenti",
 				"COMMENTS_ON_CONTENT": "Commenti sui tuoi contenuti"
 			},
 			"PERIOD_COMPARISON": {
@@ -3591,6 +3656,24 @@
 				"GLOBAL": "Globale",
 				"NO_DATA": "Nessun dato di posizione",
 				"NO_DATA_DESC": "Aggiungi dati di posizione ai tuoi elementi per vedere la copertura geografica."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Cronologia invii",
+				"SUBTITLE": "Invii mensili degli ultimi 6 mesi",
+				"TOTAL_LABEL": "Totale",
+				"SUBMISSIONS_LABEL": "invii",
+				"PEAK_HINT": "Mese di picco: {month} con {count} invii",
+				"NO_DATA": "Nessuna cronologia di invii",
+				"NO_DATA_DESC": "Invia il tuo primo elemento per iniziare a tracciare l’attività mensile."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Attività settimanale",
+				"SUBTITLE": "Invii, visualizzazioni e coinvolgimento degli ultimi 7 giorni",
+				"SUBMISSIONS_LABEL": "Invii",
+				"VIEWS_LABEL": "Visualizzazioni",
+				"ENGAGEMENT_LABEL": "Coinvolgimento",
+				"NO_DATA": "Nessuna attività questa settimana",
+				"NO_DATA_DESC": "L’attività apparirà qui quando i tuoi contenuti inizieranno a ricevere visualizzazioni e voti."
 			}
 		}
 	},

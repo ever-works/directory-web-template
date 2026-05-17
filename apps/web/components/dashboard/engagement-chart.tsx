@@ -1,63 +1,135 @@
 "use client";
 
-import { useTheme } from 'next-themes';
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { getTooltipStyles } from './styles';
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { TrendingUp } from "lucide-react";
+import {
+	ChartCard,
+	ChartCardSkeleton,
+	ChartEmptyState,
+	ChartLegendItem,
+	ChartTooltip,
+	formatCompactNumber,
+} from "./_chart-primitives";
 
-interface EngagementData {
-  name: string;
-  value: number;
-  color: string;
-  [key: string]: any;
+export type EngagementSliceKey = "views" | "votesReceived" | "commentsReceived";
+
+export interface EngagementSlice {
+	key: EngagementSliceKey;
+	value: number;
+	color: string;
 }
 
 interface EngagementChartProps {
-  data: EngagementData[];
-  isLoading?: boolean;
+	data: EngagementSlice[];
+	isLoading?: boolean;
 }
 
-export function EngagementChart({ data, isLoading = false }: EngagementChartProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  if (isLoading) {
-    return (
-      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-        <div className="animate-pulse">
-          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/2"></div>
-          <div className="h-62.5 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
-        </div>
-      </div>
-    );
-  }
+const KEY_TO_LABEL: Record<EngagementSliceKey, "VIEWS" | "VOTES_RECEIVED" | "COMMENTS_RECEIVED"> = {
+	views: "VIEWS",
+	votesReceived: "VOTES_RECEIVED",
+	commentsReceived: "COMMENTS_RECEIVED",
+};
 
-  return (
-    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
-        Community Engagement
-      </h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            labelLine={false}
-            label={({ name, percent }: { name?: string; percent?: number }) => {
-              if ((percent ?? 0) === 0) return '';
-              return `${name ?? 'Unknown'} ${((percent ?? 0) * 100).toFixed(0)}%`;
-            }}
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip contentStyle={getTooltipStyles(isDark)} />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
-} 
+const CHART_HEIGHT = 240;
+
+export function EngagementChart({ data, isLoading = false }: EngagementChartProps) {
+	const t = useTranslations("client.dashboard.ENGAGEMENT_CHART");
+
+	const total = useMemo(() => data.reduce((sum, d) => sum + d.value, 0), [data]);
+	const translated = useMemo(
+		() =>
+			data.map((slice) => ({
+				...slice,
+				name: t(KEY_TO_LABEL[slice.key]),
+				percent: total > 0 ? (slice.value / total) * 100 : 0,
+			})),
+		[data, t, total],
+	);
+
+	if (isLoading) {
+		return <ChartCardSkeleton height={CHART_HEIGHT} />;
+	}
+
+	const isEmpty = total === 0;
+
+	return (
+		<ChartCard title={t("TITLE")} subtitle={t("SUBTITLE")}>
+			{isEmpty ? (
+				<ChartEmptyState
+					icon={<TrendingUp className="h-5 w-5" />}
+					title={t("NO_DATA")}
+					description={t("NO_DATA_DESC")}
+					height={CHART_HEIGHT}
+				/>
+			) : (
+				<div className="flex flex-col items-center gap-5 sm:flex-row sm:items-stretch sm:gap-2" style={{ minHeight: CHART_HEIGHT }}>
+					{/* Donut with center total */}
+					<div className="relative w-full max-w-[240px] sm:flex-1" style={{ height: CHART_HEIGHT }}>
+						<ResponsiveContainer width="104%" height="100%">
+							<PieChart>
+								<Pie
+									data={translated}
+									cx="50%"
+									cy="50%"
+									innerRadius={62}
+									outerRadius={88}
+									paddingAngle={2}
+									dataKey="value"
+									nameKey="name"
+									stroke="none"
+								>
+									{translated.map((entry) => (
+										<Cell key={entry.key} fill={entry.color} />
+									))}
+								</Pie>
+								<Tooltip
+									content={
+										<ChartTooltip
+											valueFormatter={(v, name) => {
+												const slice = translated.find((s) => s.name === name);
+												const num = Number(v ?? 0);
+												return slice
+													? `${num.toLocaleString()} (${slice.percent.toFixed(0)}%)`
+													: num.toLocaleString();
+											}}
+										/>
+									}
+								/>
+							</PieChart>
+						</ResponsiveContainer>
+						<div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+							<span className="text-[10px] uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+								{t("TOTAL_LABEL")}
+							</span>
+							<span className="text-xl font-semibold text-neutral-900 dark:text-white tabular-nums">
+								{formatCompactNumber(total)}
+							</span>
+						</div>
+					</div>
+
+					{/* Side legend */}
+					<ul className="w-full sm:flex-1 sm:max-w-[200px] flex flex-col justify-center gap-2">
+						{translated.map((slice) => (
+							<li
+								key={slice.key}
+								className="flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-neutral-50 dark:hover:bg-white/[0.03] transition-colors"
+							>
+								<ChartLegendItem color={slice.color} label={slice.name} />
+								<div className="flex items-baseline gap-2 shrink-0 tabular-nums">
+									<span className="text-xs font-semibold text-neutral-900 dark:text-white">
+										{slice.value.toLocaleString()}
+									</span>
+									<span className="text-[10px] text-neutral-500 dark:text-neutral-400 w-10 text-right">
+										{slice.percent.toFixed(0)}%
+									</span>
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			)}
+		</ChartCard>
+	);
+}
