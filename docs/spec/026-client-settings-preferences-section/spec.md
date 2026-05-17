@@ -111,6 +111,42 @@ to exist unchanged for users who prefer the quick-access surface.
   `FloatingSettingsButton` is intentionally left alone — its
   prominent theme-primary fill on the body is the established
   shortcut affordance, not a card icon.
+- Align the **six block components** rendered both in
+  `SettingsModal` and the new `/client/settings` Preferences
+  section with the same `/client/settings` visual language:
+    - Files: `apps/web/components/ui/select-layout.tsx`,
+      `select-container-width.tsx`, `select-pagination-type.tsx`,
+      `select-database-mode.tsx`, `select-checkout-provider.tsx`,
+      `database-status-warning.tsx`.
+    - **Surface:** `p-4 rounded-xl bg-white dark:bg-[#111111]
+      border border-gray-200 dark:border-white/6 shadow-sm`
+      (drops `p-5`, semi-transparent `/80` & `/[0.04]`, faint
+      `/50` & `/[0.07]` borders, `group`, and `transition-all`).
+    - **Icon container:** flat tinted square
+      `shrink-0 w-8 h-8 flex items-center justify-center
+      rounded-lg bg-theme-primary-50
+      dark:bg-theme-primary-900/30` (was `bg-gray-100 dark:bg-
+      white/5 p-2 rounded-lg`).
+    - **Icon:** `w-4 h-4 text-theme-primary-600
+      dark:text-theme-primary-400` (was `h-5 w-5 text-gray-400
+      dark:text-gray-500` — gray-on-card → theme-primary like
+      `SettingsCard`).
+    - **Title:** `text-sm font-semibold tracking-tight
+      text-gray-900 dark:text-gray-100` (was `text-base
+      font-semibold tracking-tight leading-tight`).
+    - **Description:** `text-xs text-gray-500 dark:text-gray-400
+      mt-0.5` (was `text-sm text-gray-600 dark:text-gray-400
+      leading-relaxed mt-1`).
+    - `DatabaseStatusWarning` additionally has its mismatched
+      title color normalized: was a gray Info icon paired with
+      `text-blue-900` heading and `text-blue-700` body — now
+      the same neutral typography as the other blocks (with the
+      same theme-primary icon square so it sits in the stack).
+    - Functional internals are untouched: layout-option buttons
+      in `SelectLayout`, `SegmentedToggle`, `Select` dropdown,
+      amber "no checkout providers" sub-warning, toast feedback,
+      and all `useLayoutTheme` wiring continue to work as
+      before. This is a pure visual refresh.
 - Align `SettingsModal` (`apps/web/components/settings-modal.tsx`)
   with the same `/client/settings` visual language so opening the
   modal feels like landing on the page in a sheet:
