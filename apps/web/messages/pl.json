@@ -3538,9 +3538,13 @@
 			"LOCATION_DISABLED_DESC": "Włącz funkcje lokalizacji w ustawieniach katalogu, aby zobaczyć swoje elementy na mapie i przejrzeć zasięg geograficzny.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Zaangażowanie społeczności",
+				"SUBTITLE": "Jak Twoi odbiorcy wchodzą w interakcję z treścią",
+				"TOTAL_LABEL": "Łącznie",
 				"VIEWS": "Wyświetlenia",
 				"VOTES_RECEIVED": "Otrzymane głosy",
-				"COMMENTS_RECEIVED": "Otrzymane komentarze"
+				"COMMENTS_RECEIVED": "Otrzymane komentarze",
+				"NO_DATA": "Brak zaangażowania",
+				"NO_DATA_DESC": "Gdy Twoja treść otrzyma wyświetlenia, głosy lub komentarze, zobaczysz tutaj ich rozkład."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Najlepiej działające elementy",
@@ -3647,6 +3651,24 @@
 				"GLOBAL": "Globalny",
 				"NO_DATA": "Brak danych lokalizacji",
 				"NO_DATA_DESC": "Dodaj dane lokalizacji do swoich elementów, aby zobaczyć zasięg geograficzny."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Oś czasu zgłoszeń",
+				"SUBTITLE": "Miesięczne zgłoszenia z ostatnich 6 miesięcy",
+				"TOTAL_LABEL": "Łącznie",
+				"SUBMISSIONS_LABEL": "zgłoszeń",
+				"PEAK_HINT": "Szczytowy miesiąc: {month} – {count} zgłoszeń",
+				"NO_DATA": "Brak historii zgłoszeń",
+				"NO_DATA_DESC": "Zgłoś swój pierwszy element, aby zacząć śledzić miesięczną aktywność."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Aktywność tygodniowa",
+				"SUBTITLE": "Zgłoszenia, wyświetlenia i zaangażowanie z ostatnich 7 dni",
+				"SUBMISSIONS_LABEL": "Zgłoszenia",
+				"VIEWS_LABEL": "Wyświetlenia",
+				"ENGAGEMENT_LABEL": "Zaangażowanie",
+				"NO_DATA": "Brak aktywności w tym tygodniu",
+				"NO_DATA_DESC": "Aktywność pojawi się tutaj, gdy Twoja treść zacznie otrzymywać wyświetlenia i głosy."
 			}
 		}
 	},

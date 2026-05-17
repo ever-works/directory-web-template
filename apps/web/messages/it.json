@@ -3542,9 +3542,13 @@
 			"LOCATION_DISABLED_DESC": "Abilita le funzionalità di posizione nelle impostazioni della directory per vedere i tuoi elementi su una mappa e rivedere la copertura geografica.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Coinvolgimento della community",
+				"SUBTITLE": "Come il tuo pubblico interagisce con i tuoi contenuti",
+				"TOTAL_LABEL": "Totale",
 				"VIEWS": "Visualizzazioni",
 				"VOTES_RECEIVED": "Voti ricevuti",
-				"COMMENTS_RECEIVED": "Commenti ricevuti"
+				"COMMENTS_RECEIVED": "Commenti ricevuti",
+				"NO_DATA": "Nessun coinvolgimento per ora",
+				"NO_DATA_DESC": "Quando i tuoi contenuti riceveranno visualizzazioni, voti o commenti, vedrai il mix qui."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Elementi con migliori prestazioni",
@@ -3651,6 +3655,24 @@
 				"GLOBAL": "Globale",
 				"NO_DATA": "Nessun dato di posizione",
 				"NO_DATA_DESC": "Aggiungi dati di posizione ai tuoi elementi per vedere la copertura geografica."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Cronologia invii",
+				"SUBTITLE": "Invii mensili degli ultimi 6 mesi",
+				"TOTAL_LABEL": "Totale",
+				"SUBMISSIONS_LABEL": "invii",
+				"PEAK_HINT": "Mese di picco: {month} con {count} invii",
+				"NO_DATA": "Nessuna cronologia di invii",
+				"NO_DATA_DESC": "Invia il tuo primo elemento per iniziare a tracciare l’attività mensile."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Attività settimanale",
+				"SUBTITLE": "Invii, visualizzazioni e coinvolgimento degli ultimi 7 giorni",
+				"SUBMISSIONS_LABEL": "Invii",
+				"VIEWS_LABEL": "Visualizzazioni",
+				"ENGAGEMENT_LABEL": "Coinvolgimento",
+				"NO_DATA": "Nessuna attività questa settimana",
+				"NO_DATA_DESC": "L’attività apparirà qui quando i tuoi contenuti inizieranno a ricevere visualizzazioni e voti."
 			}
 		}
 	},

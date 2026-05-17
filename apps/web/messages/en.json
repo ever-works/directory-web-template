@@ -3865,9 +3865,13 @@
 			"LOCATION_DISABLED_DESC": "Enable location features in your directory settings to see your items on a map and review geographic coverage.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Community Engagement",
+				"SUBTITLE": "How your audience interacts with your content",
+				"TOTAL_LABEL": "Total",
 				"VIEWS": "Views",
 				"VOTES_RECEIVED": "Votes Received",
-				"COMMENTS_RECEIVED": "Comments Received"
+				"COMMENTS_RECEIVED": "Comments Received",
+				"NO_DATA": "No engagement yet",
+				"NO_DATA_DESC": "Once your content gets views, votes, or comments, you'll see the mix here."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Top Performing Items",
@@ -3939,7 +3943,32 @@
 				"MORE": "More"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "Submission Status"
+				"TITLE": "Submission Status",
+				"SUBTITLE": "Breakdown of your submissions by current state",
+				"TOTAL_LABEL": "Total",
+				"APPROVED_LABEL": "Approved",
+				"PENDING_LABEL": "Pending",
+				"REJECTED_LABEL": "Rejected",
+				"NO_DATA": "No submissions yet",
+				"NO_DATA_DESC": "Once you submit content, you'll see how it splits across approved, pending, and rejected here."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Submission Timeline",
+				"SUBTITLE": "Monthly submissions over the last 6 months",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "submissions",
+				"PEAK_HINT": "Peak month: {month} with {count} submissions",
+				"NO_DATA": "No submission history",
+				"NO_DATA_DESC": "Submit your first item to start tracking monthly activity."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Weekly Activity",
+				"SUBTITLE": "Submissions, views, and engagement over the last 7 days",
+				"SUBMISSIONS_LABEL": "Submissions",
+				"VIEWS_LABEL": "Views",
+				"ENGAGEMENT_LABEL": "Engagement",
+				"NO_DATA": "No activity this week",
+				"NO_DATA_DESC": "Activity will appear here once your content starts getting views and votes."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Engagement Distribution",

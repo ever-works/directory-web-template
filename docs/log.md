@@ -31,6 +31,36 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
+
+- `spec-026` Extended Spec 026 with §7 covering the visual redesign of the
+  five focus chart cards on `/client/dashboard`: Submission Timeline,
+  Submission Status, Weekly Activity, Community Engagement, and Approval
+  Rate Trend. Acceptance criteria AC-18 through AC-23 added.
+- `spec-026` New shared primitive module
+  `apps/web/components/dashboard/_chart-primitives.tsx` exporting
+  `<ChartCard>`, `<ChartCardSkeleton>`, `<ChartEmptyState>`,
+  `<ChartLegend>` / `<ChartLegendItem>`, `<ChartKpi>`,
+  `<ChartTooltip>`, `useChartAxisProps()`, and `formatCompactNumber()`.
+  Replaces ad-hoc per-chart chrome + Recharts defaults across all five
+  redesigned cards.
+- `spec-026` Replaced the cramped 3-slice pie in Submission Status with
+  a horizontal stacked bar over a per-status row list (icon chip + count
+  + percent). Reads at a glance and scales better with future statuses.
+- `spec-026` Weekly Activity now flows all three series labels
+  ("Submissions", "Views", "Engagement") through `useTranslations()` —
+  previously hard-coded English bypassed the i18n layer entirely.
+- `spec-026` Community Engagement converted from a flat pie with
+  overlapping labels to a donut with the total in the centre + side
+  legend with per-slice value and percent. Stacks below `sm`.
+- `spec-026` Backfilled 29 new chart-redesign i18n keys across all 20
+  non-English locale files with real translations
+  (`SUBMISSION_TIMELINE.*`, `ACTIVITY_CHART.*`, plus extensions to
+  `STATUS_BREAKDOWN.*` and `ENGAGEMENT_CHART.*`). Backfill script used
+  once and removed.
+
+---
+
 ## 2026-05-15 — Spec 026 (EW-627) round 2: layout v2 + avatar fix + i18n backfill
 
 - `spec-026` Extended Spec 026 with §6 covering the new dashboard layout

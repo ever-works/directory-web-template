@@ -3565,9 +3565,13 @@
 			"LOCATION_DISABLED_DESC": "Habilita las funciones de ubicación en la configuración del directorio para ver tus elementos en un mapa y revisar la cobertura geográfica.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Interacción de la comunidad",
+				"SUBTITLE": "Cómo interactúa tu audiencia con tu contenido",
+				"TOTAL_LABEL": "Total",
 				"VIEWS": "Vistas",
 				"VOTES_RECEIVED": "Votos recibidos",
-				"COMMENTS_RECEIVED": "Comentarios recibidos"
+				"COMMENTS_RECEIVED": "Comentarios recibidos",
+				"NO_DATA": "Aún no hay interacción",
+				"NO_DATA_DESC": "Cuando tu contenido obtenga vistas, votos o comentarios, verás la mezcla aquí."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Mejores elementos",
@@ -3674,6 +3678,24 @@
 				"GLOBAL": "Global",
 				"NO_DATA": "Sin datos de ubicación",
 				"NO_DATA_DESC": "Agrega datos de ubicación a tus elementos para ver la cobertura geográfica."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Cronología de envíos",
+				"SUBTITLE": "Envíos mensuales de los últimos 6 meses",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "envíos",
+				"PEAK_HINT": "Mes pico: {month} con {count} envíos",
+				"NO_DATA": "Sin historial de envíos",
+				"NO_DATA_DESC": "Envía tu primer elemento para empezar a seguir la actividad mensual."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Actividad semanal",
+				"SUBTITLE": "Envíos, vistas e interacción durante los últimos 7 días",
+				"SUBMISSIONS_LABEL": "Envíos",
+				"VIEWS_LABEL": "Vistas",
+				"ENGAGEMENT_LABEL": "Interacción",
+				"NO_DATA": "Sin actividad esta semana",
+				"NO_DATA_DESC": "La actividad aparecerá aquí cuando tu contenido empiece a recibir vistas y votos."
 			}
 		}
 	},

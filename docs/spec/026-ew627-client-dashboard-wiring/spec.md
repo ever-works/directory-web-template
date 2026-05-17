@@ -155,7 +155,7 @@ dismissible alert banner, a sticky mobile KPI bar, and four content tabs
   `STATS.{TOTAL_SUBMISSIONS, TOTAL_VIEWS, VOTES_RECEIVED, COMMENTS_RECEIVED}_SHORT` short
   labels are also added to all 21 locales.
 
-### 6.2 Out of scope for v2
+### 6.2 Out of scope for v2 (now superseded for charts by §7)
 
 - A working period selector (`7d / 30d / 90d`). A toggle was prototyped but removed in this
   round because `useDashboardStats()` ignores the value — every period would have shown the
@@ -170,3 +170,84 @@ dismissible alert banner, a sticky mobile KPI bar, and four content tabs
 - Migrating any of `<QuickActions>` / `<DashboardAlertBanner>` / `<DashboardMobileSummary>`
   to a server component. They depend on locale, session, or `localStorage` and are
   intentionally client-only.
+
+## 7. Chart visual redesign
+
+Round 5 redesigns the five primary analytics cards on `/client/dashboard` for a more
+modern, SaaS-grade feel without changing any data flow or component props. A small
+shared primitive module (`apps/web/components/dashboard/_chart-primitives.tsx`) holds
+the chrome so all five cards stay visually consistent.
+
+### 7.1 Shared primitives (`_chart-primitives.tsx`)
+
+- `<ChartCard>` — card chrome with title, optional subtitle, optional `headerRight`
+  slot, and a subtle `hover:border-neutral-300` transition. All five charts use it.
+- `<ChartCardSkeleton>` — accessible skeleton with `aria-busy="true"` for the loading
+  state; takes a `height` and optional `hasHeaderRight` flag.
+- `<ChartEmptyState>` — dashed-border placeholder with circular icon, title, and
+  description; sized to match the chart body so the card doesn't collapse.
+- `<ChartLegend>` / `<ChartLegendItem>` — flexible colored-dot legend with optional
+  trailing value (count or %).
+- `<ChartKpi>` — right-aligned header KPI with optional change indicator.
+- `<ChartTooltip>` — custom Recharts tooltip with backdrop blur, semi-transparent
+  surface, colored series dots, and pluggable formatters; replaces the boxy default.
+- `useChartAxisProps()` — theme-aware axis/grid colours and shared tick props.
+- `formatCompactNumber(n)` — axis-tick formatter (1.2k / 3.4M).
+
+### 7.2 Per-chart redesigns
+
+- **Submission Timeline (`submission-timeline.tsx`)** — gradient-filled bars (using
+  `SEMANTIC_COLORS.submissions`), rounded `[6,6,0,0]` corners, peak-month highlighted
+  via fill opacity; new "Total" KPI in the header; custom tooltip; peak-month hint
+  line below the chart; empty state when total is zero.
+- **Submission Status (`status-breakdown.tsx`)** — replaced the cramped 3-slice pie
+  with a horizontal stacked bar (h-3, rounded) over a per-status row list. Each row
+  has a tinted icon chip (`CheckCircle2`/`Clock`/`XCircle`), count, and percentage,
+  with hover-row affordance. Total KPI in the header. Stacked bar carries an
+  `aria-label` summarising the split.
+- **Weekly Activity (`activity-chart.tsx`)** — switched to a `ComposedChart` so
+  "Views" renders as a soft area in the back while "Submissions" and "Engagement"
+  render as crisp lines; custom legend in the header on desktop (and above the chart
+  on mobile); custom tooltip; all three series labels now flow through
+  `useTranslations()` (previously hard-coded English).
+- **Community Engagement (`engagement-chart.tsx`)** — converted from a flat pie
+  with overlapping labels to a donut with the total in the centre, plus a side
+  legend with per-slice value and percent. Donut + legend stack vertically below
+  `sm`, side-by-side above.
+- **Approval Rate Trend (`approval-trend.tsx`)** — switched from the neutral grey
+  palette to `SEMANTIC_COLORS.success`; trend-direction icon
+  (`TrendingUp`/`TrendingDown`) next to the change value; 50% reference line for
+  context; reformatted tooltip; new footer split (`Approved` / `Total`) replacing
+  the previous one-line summary; richer empty state.
+
+### 7.3 Acceptance criteria (additive)
+
+- **AC-18:** All five chart components consume `<ChartCard>`, `<ChartCardSkeleton>`,
+  `<ChartEmptyState>`, and `<ChartTooltip>` from `_chart-primitives.tsx`. No chart
+  imports the raw `getTooltipStyles` helper from `styles.ts`.
+- **AC-19:** Every chart renders an empty state via `<ChartEmptyState>` when its
+  underlying data is all zeros / empty array.
+- **AC-20:** Every chart-card body is responsive: charts use `ResponsiveContainer`,
+  the engagement donut + side legend stack on `< sm`, and the activity legend moves
+  from the header to above the chart on `< sm`.
+- **AC-21:** All chart titles, subtitles, axis tooltips, legend labels, and empty
+  states are sourced from next-intl keys under `client.dashboard.*` — no hard-coded
+  English in any of the five components.
+- **AC-22:** New i18n keys (29) are present in all 21 locale files with real
+  translations: `SUBMISSION_TIMELINE.*` (7), `ACTIVITY_CHART.*` (7),
+  `STATUS_BREAKDOWN.*` (7 additional beyond `TITLE`), `ENGAGEMENT_CHART.*` (4
+  additional beyond the existing slice labels). `APPROVAL_TREND.*` already covered
+  all needed keys from a prior round.
+- **AC-23:** `pnpm tsc --noEmit` and `pnpm lint` pass for `@ever-works/web` with no
+  new warnings in `components/dashboard/**` or the touched components.
+
+### 7.4 Out of scope for §7
+
+- Reskinning the secondary cards (`<PeriodComparison>`, `<CategoryPerformance>`,
+  `<EngagementOverview>`, `<EngagementRateChart>`, `<EngagementDistribution>`,
+  `<SubmissionCalendar>`, `<TopItems>`). They are not in the user's focus list and
+  the same primitives are available for a follow-up pass when needed.
+- Replacing Recharts with a different chart library. The primitives keep the
+  rendering layer pluggable but no migration is in scope here.
+- A user-facing toggle to choose chart density (compact / comfortable). The single
+  density chosen here matches the rest of the dashboard surface.

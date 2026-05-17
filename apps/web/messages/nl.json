@@ -3538,9 +3538,13 @@
 			"LOCATION_DISABLED_DESC": "Schakel locatiefuncties in de directory-instellingen in om je items op een kaart te zien en de geografische dekking te bekijken.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Community-betrokkenheid",
+				"SUBTITLE": "Hoe je publiek met je content interageert",
+				"TOTAL_LABEL": "Totaal",
 				"VIEWS": "Weergaven",
 				"VOTES_RECEIVED": "Ontvangen stemmen",
-				"COMMENTS_RECEIVED": "Ontvangen reacties"
+				"COMMENTS_RECEIVED": "Ontvangen reacties",
+				"NO_DATA": "Nog geen betrokkenheid",
+				"NO_DATA_DESC": "Wanneer je content weergaven, stemmen of reacties krijgt, zie je hier de mix."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Best presterende items",
@@ -3647,6 +3651,24 @@
 				"GLOBAL": "Globaal",
 				"NO_DATA": "Geen locatiegegevens",
 				"NO_DATA_DESC": "Voeg locatiegegevens toe aan uw items om de geografische dekking te zien."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Inzendings-tijdlijn",
+				"SUBTITLE": "Maandelijkse inzendingen van de afgelopen 6 maanden",
+				"TOTAL_LABEL": "Totaal",
+				"SUBMISSIONS_LABEL": "inzendingen",
+				"PEAK_HINT": "Piekmaand: {month} met {count} inzendingen",
+				"NO_DATA": "Geen inzendings-historie",
+				"NO_DATA_DESC": "Dien je eerste item in om de maandelijkse activiteit bij te houden."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Wekelijkse activiteit",
+				"SUBTITLE": "Inzendingen, weergaven en betrokkenheid van de afgelopen 7 dagen",
+				"SUBMISSIONS_LABEL": "Inzendingen",
+				"VIEWS_LABEL": "Weergaven",
+				"ENGAGEMENT_LABEL": "Betrokkenheid",
+				"NO_DATA": "Geen activiteit deze week",
+				"NO_DATA_DESC": "Activiteit verschijnt hier zodra je content weergaven en stemmen krijgt."
 			}
 		}
 	},

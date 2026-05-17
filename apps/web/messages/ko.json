@@ -3737,9 +3737,13 @@
 			"LOCATION_DISABLED_DESC": "디렉토리 설정에서 위치 기능을 활성화하여 항목을 지도에서 보고 지역 범위를 검토하세요.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "커뮤니티 참여",
+				"SUBTITLE": "시청자가 콘텐츠와 어떻게 상호작용하는지",
+				"TOTAL_LABEL": "합계",
 				"VIEWS": "조회수",
 				"VOTES_RECEIVED": "받은 투표",
-				"COMMENTS_RECEIVED": "받은 댓글"
+				"COMMENTS_RECEIVED": "받은 댓글",
+				"NO_DATA": "아직 참여가 없습니다",
+				"NO_DATA_DESC": "콘텐츠가 조회, 투표, 댓글을 받으면 구성을 여기에서 확인할 수 있습니다."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "상위 성과 항목",
@@ -3811,7 +3815,32 @@
 				"MORE": "많음"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "제출 상태"
+				"TITLE": "제출 상태",
+				"SUBTITLE": "현재 상태별 제출 분포",
+				"TOTAL_LABEL": "합계",
+				"APPROVED_LABEL": "승인됨",
+				"PENDING_LABEL": "대기 중",
+				"REJECTED_LABEL": "거부됨",
+				"NO_DATA": "아직 제출이 없습니다",
+				"NO_DATA_DESC": "콘텐츠를 제출하면 승인, 대기, 거부의 분포가 여기에 표시됩니다."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "제출 타임라인",
+				"SUBTITLE": "지난 6개월간 월별 제출",
+				"TOTAL_LABEL": "합계",
+				"SUBMISSIONS_LABEL": "제출",
+				"PEAK_HINT": "최고 달: {month}, {count}건의 제출",
+				"NO_DATA": "제출 기록이 없습니다",
+				"NO_DATA_DESC": "월간 활동을 추적하려면 첫 항목을 제출하세요."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "주간 활동",
+				"SUBTITLE": "지난 7일간의 제출, 조회 및 참여",
+				"SUBMISSIONS_LABEL": "제출",
+				"VIEWS_LABEL": "조회",
+				"ENGAGEMENT_LABEL": "참여",
+				"NO_DATA": "이번 주에는 활동이 없습니다",
+				"NO_DATA_DESC": "콘텐츠가 조회와 투표를 받기 시작하면 여기에 활동이 표시됩니다."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "참여 분포",

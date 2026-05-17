@@ -3674,9 +3674,13 @@
 			"LOCATION_DISABLED_DESC": "Öğelerinizi haritada görmek ve coğrafi kapsamı incelemek için dizin ayarlarınızda konum özelliklerini etkinleştirin.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Topluluk Etkileşimi",
+				"SUBTITLE": "Hedef kitlenizin içeriğinizle nasıl etkileşime girdiği",
+				"TOTAL_LABEL": "Toplam",
 				"VIEWS": "Görüntülenmeler",
 				"VOTES_RECEIVED": "Alınan Oylar",
-				"COMMENTS_RECEIVED": "Alınan Yorumlar"
+				"COMMENTS_RECEIVED": "Alınan Yorumlar",
+				"NO_DATA": "Henüz etkileşim yok",
+				"NO_DATA_DESC": "İçeriğiniz görüntülenme, oy veya yorum aldığında, karışımı burada göreceksiniz."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "En İyi Performans Gösteren Öğeler",
@@ -3748,7 +3752,32 @@
 				"MORE": "Çok"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "Gönderim Durumu"
+				"TITLE": "Gönderim Durumu",
+				"SUBTITLE": "Gönderimlerinizin mevcut duruma göre dökümü",
+				"TOTAL_LABEL": "Toplam",
+				"APPROVED_LABEL": "Onaylanan",
+				"PENDING_LABEL": "Beklemede",
+				"REJECTED_LABEL": "Reddedilen",
+				"NO_DATA": "Henüz gönderim yok",
+				"NO_DATA_DESC": "İçerik gönderdiğinizde, burada onaylanan, beklemede ve reddedilen arasındaki dağılımı göreceksiniz."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Gönderim Zaman Çizelgesi",
+				"SUBTITLE": "Son 6 ayın aylık gönderimleri",
+				"TOTAL_LABEL": "Toplam",
+				"SUBMISSIONS_LABEL": "gönderim",
+				"PEAK_HINT": "Zirve ay: {month}, {count} gönderim",
+				"NO_DATA": "Gönderim geçmişi yok",
+				"NO_DATA_DESC": "Aylık aktiviteyi takip etmeye başlamak için ilk öğenizi gönderin."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Haftalık Aktivite",
+				"SUBTITLE": "Son 7 gündeki gönderimler, görüntülenmeler ve etkileşim",
+				"SUBMISSIONS_LABEL": "Gönderimler",
+				"VIEWS_LABEL": "Görüntülenmeler",
+				"ENGAGEMENT_LABEL": "Etkileşim",
+				"NO_DATA": "Bu hafta aktivite yok",
+				"NO_DATA_DESC": "İçeriğiniz görüntülenme ve oy almaya başladığında aktivite burada görünecek."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Etkileşim Dağılımı",

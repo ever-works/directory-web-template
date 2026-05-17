@@ -3633,9 +3633,13 @@
 			"LOCATION_DISABLED_DESC": "Activez les fonctionnalités de localisation dans les paramètres de votre annuaire pour voir vos éléments sur une carte et examiner la couverture géographique.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Engagement de la communauté",
+				"SUBTITLE": "Comment votre public interagit avec votre contenu",
+				"TOTAL_LABEL": "Total",
 				"VIEWS": "Vues",
 				"VOTES_RECEIVED": "Votes reçus",
-				"COMMENTS_RECEIVED": "Commentaires reçus"
+				"COMMENTS_RECEIVED": "Commentaires reçus",
+				"NO_DATA": "Aucun engagement pour le moment",
+				"NO_DATA_DESC": "Lorsque votre contenu reçoit des vues, votes ou commentaires, vous verrez la répartition ici."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Éléments les plus performants",
@@ -3742,6 +3746,24 @@
 				"GLOBAL": "Mondial",
 				"NO_DATA": "Aucune donnée de localisation",
 				"NO_DATA_DESC": "Ajoutez des données de localisation à vos éléments pour voir la couverture géographique."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Chronologie des soumissions",
+				"SUBTITLE": "Soumissions mensuelles des 6 derniers mois",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "soumissions",
+				"PEAK_HINT": "Mois record : {month} avec {count} soumissions",
+				"NO_DATA": "Pas d’historique de soumissions",
+				"NO_DATA_DESC": "Soumettez votre premier élément pour commencer à suivre l’activité mensuelle."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Activité hebdomadaire",
+				"SUBTITLE": "Soumissions, vues et engagement des 7 derniers jours",
+				"SUBMISSIONS_LABEL": "Soumissions",
+				"VIEWS_LABEL": "Vues",
+				"ENGAGEMENT_LABEL": "Engagement",
+				"NO_DATA": "Aucune activité cette semaine",
+				"NO_DATA_DESC": "L’activité apparaîtra ici dès que votre contenu recevra des vues et des votes."
 			}
 		}
 	},

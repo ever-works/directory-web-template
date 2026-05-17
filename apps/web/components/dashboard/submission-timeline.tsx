@@ -1,58 +1,112 @@
 "use client";
 
-import { useTheme } from 'next-themes';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getTooltipStyles } from './styles';
+import { useId, useMemo } from "react";
+import { useTranslations } from "next-intl";
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Calendar } from "lucide-react";
+import {
+	ChartCard,
+	ChartCardSkeleton,
+	ChartEmptyState,
+	ChartKpi,
+	ChartTooltip,
+	formatCompactNumber,
+	useChartAxisProps,
+} from "./_chart-primitives";
+import { SEMANTIC_COLORS } from "./styles";
 
 interface SubmissionTimelineData {
-  month: string;
-  submissions: number;
+	month: string;
+	submissions: number;
 }
 
 interface SubmissionTimelineProps {
-  data: SubmissionTimelineData[];
-  isLoading?: boolean;
+	data: SubmissionTimelineData[];
+	isLoading?: boolean;
 }
 
-export function SubmissionTimeline({ data, isLoading = false }: SubmissionTimelineProps) {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  if (isLoading) {
-    return (
-      <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-        <div className="animate-pulse">
-          <div className="h-3.5 bg-neutral-200 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-          <div className="h-62.5 bg-neutral-100 dark:bg-white/5 rounded-lg"></div>
-        </div>
-      </div>
-    );
-  }
+const CHART_HEIGHT = 240;
 
-  return (
-    <div className="bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-5">
-      <h3 className="text-sm font-semibold text-neutral-900 dark:text-white mb-4">
-        Submission Timeline
-      </h3>
-      <ResponsiveContainer width="100%" height={250}>
-        <BarChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(163,163,163,0.15)" />
-          <XAxis 
-            dataKey="month" 
-            stroke="#a3a3a3"
-            fontSize={11}
-          />
-          <YAxis 
-            stroke="#a3a3a3"
-            fontSize={11}
-          />
-          <Tooltip contentStyle={getTooltipStyles(isDark)} />
-          <Bar 
-            dataKey="submissions" 
-            fill={isDark ? '#e5e5e5' : '#171717'}
-            radius={[4, 4, 0, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-} 
+export function SubmissionTimeline({ data, isLoading = false }: SubmissionTimelineProps) {
+	const t = useTranslations("client.dashboard.SUBMISSION_TIMELINE");
+	const gradientId = useId();
+	const { isDark, gridColor, axisProps } = useChartAxisProps();
+
+	const { total, peak, peakMonth, isEmpty } = useMemo(() => {
+		const counts = data.map((d) => d.submissions);
+		const totalVal = counts.reduce((sum, n) => sum + n, 0);
+		const peakVal = counts.length > 0 ? Math.max(...counts) : 0;
+		const peakEntry = data.find((d) => d.submissions === peakVal && peakVal > 0);
+		return {
+			total: totalVal,
+			peak: peakVal,
+			peakMonth: peakEntry?.month ?? "",
+			isEmpty: totalVal === 0,
+		};
+	}, [data]);
+
+	if (isLoading) {
+		return <ChartCardSkeleton height={CHART_HEIGHT} hasHeaderRight />;
+	}
+
+	const barColor = SEMANTIC_COLORS.submissions;
+
+	return (
+		<ChartCard
+			title={t("TITLE")}
+			subtitle={t("SUBTITLE")}
+			headerRight={
+				isEmpty ? undefined : (
+					<ChartKpi value={formatCompactNumber(total)} label={t("TOTAL_LABEL")} />
+				)
+			}
+		>
+			{isEmpty ? (
+				<ChartEmptyState
+					icon={<Calendar className="h-5 w-5" />}
+					title={t("NO_DATA")}
+					description={t("NO_DATA_DESC")}
+					height={CHART_HEIGHT}
+				/>
+			) : (
+				<>
+					<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+						<BarChart data={data} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
+							<defs>
+								<linearGradient id={`timelineFill-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+									<stop offset="0%" stopColor={barColor} stopOpacity={isDark ? 0.9 : 1} />
+									<stop offset="100%" stopColor={barColor} stopOpacity={isDark ? 0.45 : 0.55} />
+								</linearGradient>
+							</defs>
+							<CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
+							<XAxis dataKey="month" {...axisProps} />
+							<YAxis {...axisProps} allowDecimals={false} tickFormatter={formatCompactNumber} width={40} />
+							<Tooltip
+								cursor={{ fill: gridColor }}
+								content={
+									<ChartTooltip
+										valueFormatter={(v) => `${Number(v).toLocaleString()} ${t("SUBMISSIONS_LABEL")}`}
+									/>
+								}
+							/>
+							<Bar dataKey="submissions" name={t("SUBMISSIONS_LABEL")} radius={[6, 6, 0, 0]} maxBarSize={56}>
+								{data.map((entry, i) => (
+									<Cell
+										key={`cell-${i}`}
+										fill={`url(#timelineFill-${gradientId})`}
+										fillOpacity={entry.submissions === peak && peak > 0 ? 1 : 0.75}
+									/>
+								))}
+							</Bar>
+						</BarChart>
+					</ResponsiveContainer>
+					{peak > 0 && (
+						<p className="mt-3 text-[11px] text-neutral-500 dark:text-neutral-400">
+							{t("PEAK_HINT", { count: peak, month: peakMonth })}
+						</p>
+					)}
+				</>
+			)}
+		</ChartCard>
+	);
+}

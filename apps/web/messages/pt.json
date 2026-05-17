@@ -3539,9 +3539,13 @@
 			"LOCATION_DISABLED_DESC": "Ative os recursos de localização nas configurações do diretório para ver seus itens em um mapa e revisar a cobertura geográfica.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Engajamento da comunidade",
+				"SUBTITLE": "Como o seu público interage com o seu conteúdo",
+				"TOTAL_LABEL": "Total",
 				"VIEWS": "Visualizações",
 				"VOTES_RECEIVED": "Votos recebidos",
-				"COMMENTS_RECEIVED": "Comentários recebidos"
+				"COMMENTS_RECEIVED": "Comentários recebidos",
+				"NO_DATA": "Sem engajamento por enquanto",
+				"NO_DATA_DESC": "Quando o seu conteúdo receber visualizações, votos ou comentários, verá a distribuição aqui."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Itens com melhor desempenho",
@@ -3648,6 +3652,24 @@
 				"GLOBAL": "Global",
 				"NO_DATA": "Sem dados de localização",
 				"NO_DATA_DESC": "Adicione dados de localização aos seus itens para ver a cobertura geográfica."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Linha do tempo de envios",
+				"SUBTITLE": "Envios mensais nos últimos 6 meses",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "envios",
+				"PEAK_HINT": "Mês de pico: {month} com {count} envios",
+				"NO_DATA": "Sem histórico de envios",
+				"NO_DATA_DESC": "Envie o seu primeiro item para começar a acompanhar a atividade mensal."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Atividade semanal",
+				"SUBTITLE": "Envios, visualizações e engajamento dos últimos 7 dias",
+				"SUBMISSIONS_LABEL": "Envios",
+				"VIEWS_LABEL": "Visualizações",
+				"ENGAGEMENT_LABEL": "Engajamento",
+				"NO_DATA": "Sem atividade esta semana",
+				"NO_DATA_DESC": "A atividade aparecerá aqui assim que o seu conteúdo começar a receber visualizações e votos."
 			}
 		}
 	},

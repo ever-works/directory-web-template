@@ -3675,9 +3675,13 @@
 			"LOCATION_DISABLED_DESC": "Aktifkan fitur lokasi di pengaturan direktori untuk melihat item Anda di peta dan meninjau cakupan geografis.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Keterlibatan Komunitas",
+				"SUBTITLE": "Bagaimana audiens berinteraksi dengan konten Anda",
+				"TOTAL_LABEL": "Total",
 				"VIEWS": "Tampilan",
 				"VOTES_RECEIVED": "Suara Diterima",
-				"COMMENTS_RECEIVED": "Komentar Diterima"
+				"COMMENTS_RECEIVED": "Komentar Diterima",
+				"NO_DATA": "Belum ada interaksi",
+				"NO_DATA_DESC": "Saat konten Anda mendapatkan tampilan, suara, atau komentar, Anda akan melihat campurannya di sini."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Item Berkinerja Terbaik",
@@ -3749,7 +3753,32 @@
 				"MORE": "Lebih"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "Status Kiriman"
+				"TITLE": "Status Kiriman",
+				"SUBTITLE": "Rincian kiriman Anda berdasarkan status saat ini",
+				"TOTAL_LABEL": "Total",
+				"APPROVED_LABEL": "Disetujui",
+				"PENDING_LABEL": "Menunggu",
+				"REJECTED_LABEL": "Ditolak",
+				"NO_DATA": "Belum ada kiriman",
+				"NO_DATA_DESC": "Setelah Anda mengirim konten, di sini akan terlihat pembagian antara disetujui, menunggu, dan ditolak."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Linimasa Kiriman",
+				"SUBTITLE": "Kiriman bulanan selama 6 bulan terakhir",
+				"TOTAL_LABEL": "Total",
+				"SUBMISSIONS_LABEL": "kiriman",
+				"PEAK_HINT": "Bulan puncak: {month} dengan {count} kiriman",
+				"NO_DATA": "Belum ada riwayat kiriman",
+				"NO_DATA_DESC": "Kirim item pertama Anda untuk mulai melacak aktivitas bulanan."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Aktivitas Mingguan",
+				"SUBTITLE": "Kiriman, tampilan, dan keterlibatan selama 7 hari terakhir",
+				"SUBMISSIONS_LABEL": "Kiriman",
+				"VIEWS_LABEL": "Tampilan",
+				"ENGAGEMENT_LABEL": "Keterlibatan",
+				"NO_DATA": "Tidak ada aktivitas minggu ini",
+				"NO_DATA_DESC": "Aktivitas akan muncul di sini setelah konten Anda mulai mendapatkan tampilan dan suara."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Distribusi Keterlibatan",

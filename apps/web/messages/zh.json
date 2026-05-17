@@ -3570,9 +3570,13 @@
 			"LOCATION_DISABLED_DESC": "在目录设置中启用位置功能，可在地图上查看您的项目并审视地理覆盖范围。",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "社区互动",
+				"SUBTITLE": "您的受众如何与内容互动",
+				"TOTAL_LABEL": "总计",
 				"VIEWS": "浏览量",
 				"VOTES_RECEIVED": "收到的投票",
-				"COMMENTS_RECEIVED": "收到的评论"
+				"COMMENTS_RECEIVED": "收到的评论",
+				"NO_DATA": "暂无互动",
+				"NO_DATA_DESC": "当您的内容获得浏览、投票或评论时，您将在此处看到组合。"
 			},
 			"TOP_ITEMS": {
 				"TITLE": "最佳表现项目",
@@ -3679,6 +3683,24 @@
 				"GLOBAL": "全球",
 				"NO_DATA": "无位置数据",
 				"NO_DATA_DESC": "为您的项目添加位置数据以查看地理覆盖范围。"
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "提交时间线",
+				"SUBTITLE": "过去 6 个月的每月提交",
+				"TOTAL_LABEL": "总计",
+				"SUBMISSIONS_LABEL": "提交",
+				"PEAK_HINT": "高峰月：{month}，共 {count} 次提交",
+				"NO_DATA": "暂无提交历史",
+				"NO_DATA_DESC": "提交您的第一个项目以开始跟踪每月活动。"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "每周活动",
+				"SUBTITLE": "过去 7 天的提交、浏览和互动",
+				"SUBMISSIONS_LABEL": "提交",
+				"VIEWS_LABEL": "浏览",
+				"ENGAGEMENT_LABEL": "互动",
+				"NO_DATA": "本周无活动",
+				"NO_DATA_DESC": "当您的内容开始获得浏览和投票时，活动将出现在这里。"
 			}
 		}
 	},

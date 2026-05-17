@@ -3543,9 +3543,13 @@
 			"LOCATION_DISABLED_DESC": "ディレクトリ設定で位置情報機能を有効にすると、項目を地図上で確認し、地理的な範囲を確認できます。",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "コミュニティのエンゲージメント",
+				"SUBTITLE": "視聴者がコンテンツとどのように関わっているか",
+				"TOTAL_LABEL": "合計",
 				"VIEWS": "表示回数",
 				"VOTES_RECEIVED": "受け取った投票",
-				"COMMENTS_RECEIVED": "受け取ったコメント"
+				"COMMENTS_RECEIVED": "受け取ったコメント",
+				"NO_DATA": "まだエンゲージメントがありません",
+				"NO_DATA_DESC": "コンテンツが表示・投票・コメントを得ると、その内訳がここに表示されます。"
 			},
 			"TOP_ITEMS": {
 				"TITLE": "上位のパフォーマンスアイテム",
@@ -3652,6 +3656,24 @@
 				"GLOBAL": "グローバル",
 				"NO_DATA": "位置情報データなし",
 				"NO_DATA_DESC": "地理的カバレッジを確認するには、アイテムに位置情報を追加してください。"
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "投稿タイムライン",
+				"SUBTITLE": "過去6か月の月別投稿",
+				"TOTAL_LABEL": "合計",
+				"SUBMISSIONS_LABEL": "投稿",
+				"PEAK_HINT": "ピーク月: {month} ({count}件の投稿)",
+				"NO_DATA": "投稿履歴がありません",
+				"NO_DATA_DESC": "月別のアクティビティを追跡するために、最初の項目を投稿してください。"
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "週間アクティビティ",
+				"SUBTITLE": "過去7日間の投稿・表示・エンゲージメント",
+				"SUBMISSIONS_LABEL": "投稿",
+				"VIEWS_LABEL": "表示",
+				"ENGAGEMENT_LABEL": "エンゲージメント",
+				"NO_DATA": "今週のアクティビティはありません",
+				"NO_DATA_DESC": "コンテンツが表示や投票を集め始めると、ここにアクティビティが表示されます。"
 			}
 		}
 	},

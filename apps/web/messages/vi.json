@@ -3691,9 +3691,13 @@
 			"LOCATION_DISABLED_DESC": "Bật tính năng vị trí trong cài đặt thư mục để xem các mục của bạn trên bản đồ và xem phạm vi phủ sóng địa lý.",
 			"ENGAGEMENT_CHART": {
 				"TITLE": "Sự tham gia của cộng đồng",
+				"SUBTITLE": "Cách khán giả tương tác với nội dung của bạn",
+				"TOTAL_LABEL": "Tổng",
 				"VIEWS": "Lượt xem",
 				"VOTES_RECEIVED": "Phiếu bầu nhận được",
-				"COMMENTS_RECEIVED": "Bình luận nhận được"
+				"COMMENTS_RECEIVED": "Bình luận nhận được",
+				"NO_DATA": "Chưa có tương tác",
+				"NO_DATA_DESC": "Khi nội dung của bạn nhận được lượt xem, phiếu bầu hoặc bình luận, bạn sẽ thấy sự kết hợp ở đây."
 			},
 			"TOP_ITEMS": {
 				"TITLE": "Mục hoạt động hàng đầu",
@@ -3765,7 +3769,32 @@
 				"MORE": "Hơn"
 			},
 			"STATUS_BREAKDOWN": {
-				"TITLE": "Trạng thái gửi"
+				"TITLE": "Trạng thái gửi",
+				"SUBTITLE": "Phân tích bài gửi của bạn theo trạng thái hiện tại",
+				"TOTAL_LABEL": "Tổng",
+				"APPROVED_LABEL": "Đã duyệt",
+				"PENDING_LABEL": "Đang chờ",
+				"REJECTED_LABEL": "Bị từ chối",
+				"NO_DATA": "Chưa có bài gửi",
+				"NO_DATA_DESC": "Khi bạn gửi nội dung, bạn sẽ thấy ở đây phân bổ giữa đã duyệt, đang chờ và bị từ chối."
+			},
+			"SUBMISSION_TIMELINE": {
+				"TITLE": "Dòng thời gian bài gửi",
+				"SUBTITLE": "Bài gửi hàng tháng trong 6 tháng qua",
+				"TOTAL_LABEL": "Tổng",
+				"SUBMISSIONS_LABEL": "bài gửi",
+				"PEAK_HINT": "Tháng đỉnh: {month} với {count} bài gửi",
+				"NO_DATA": "Không có lịch sử bài gửi",
+				"NO_DATA_DESC": "Gửi mục đầu tiên để bắt đầu theo dõi hoạt động hàng tháng."
+			},
+			"ACTIVITY_CHART": {
+				"TITLE": "Hoạt động hàng tuần",
+				"SUBTITLE": "Bài gửi, lượt xem và tương tác trong 7 ngày qua",
+				"SUBMISSIONS_LABEL": "Bài gửi",
+				"VIEWS_LABEL": "Lượt xem",
+				"ENGAGEMENT_LABEL": "Tương tác",
+				"NO_DATA": "Tuần này không có hoạt động",
+				"NO_DATA_DESC": "Hoạt động sẽ xuất hiện ở đây khi nội dung của bạn bắt đầu nhận lượt xem và phiếu bầu."
 			},
 			"ENGAGEMENT_DISTRIBUTION": {
 				"TITLE": "Phân phối tương tác",
