@@ -6,6 +6,7 @@ export { NotificationCardSkeleton, NotificationListSkeleton } from './notificati
 export { NotificationEmpty } from './notification-empty';
 export { NotificationList } from './notification-list';
 export { NotificationFilters, type NotificationFiltersState } from './notification-filters';
+export { NotificationSelect, type NotificationSelectOption } from './notification-select';
 export { NotificationBulkActions } from './notification-bulk-actions';
 export { NotificationPreferencesForm } from './notification-preferences-form';
 export { NotificationStreamProvider, useNotificationAnnouncement } from './notification-stream-provider';

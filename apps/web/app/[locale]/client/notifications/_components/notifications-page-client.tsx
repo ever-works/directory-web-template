@@ -106,30 +106,30 @@ export function NotificationsPageClient() {
 						{safeT(t, 'pageSubtitle', 'All activity for your account.')}
 					</p>
 				</div>
-				<div className="flex items-center gap-2 shrink-0">
+				<div className="flex items-center gap-1.5 shrink-0">
 					<button
 						type="button"
 						onClick={() => refetch()}
 						disabled={isFetching}
-						className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors"
+						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors duration-200"
 						aria-label={safeT(t, 'dropdown.refresh', 'Refresh')}
 					>
-						<RefreshCw className={`h-3.5 w-3.5 ${isFetching ? 'animate-spin' : ''}`} />
+						<RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} />
 						<span>{safeT(t, 'refresh', 'Refresh')}</span>
 					</button>
 					<button
 						type="button"
 						onClick={() => markAllRead()}
 						disabled={markPending || (stats.data?.unread ?? 0) === 0}
-						className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors"
+						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors duration-200"
 					>
 						{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
 					</button>
 					<Link
 						href="/client/notifications/preferences"
-						className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-200"
 					>
-						<Settings className="h-3.5 w-3.5" />
+						<Settings className="h-3 w-3" aria-hidden="true" />
 						<span className="hidden sm:inline">{safeT(t, 'preferences.cta', 'Preferences')}</span>
 					</Link>
 				</div>

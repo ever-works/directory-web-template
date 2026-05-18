@@ -18,9 +18,9 @@ export function PreferencesPageClient() {
 					<Link
 						href="/client/notifications"
 						aria-label={safeT(t, 'back', 'Back to notifications')}
-						className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+						className="inline-flex items-center justify-center h-7 sm:h-8 w-7 sm:w-8 rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-200"
 					>
-						<ChevronLeft className="h-4 w-4" />
+						<ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
 					</Link>
 					<div className="min-w-0">
 						<h1 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight">

@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
+import { Clock, Mail } from 'lucide-react';
+
 import {
 	NOTIFICATION_CATEGORIES,
 	NOTIFICATION_CHANNELS,
@@ -15,6 +17,8 @@ import {
 } from '@/lib/notifications';
 import type { NotificationDigest, NotificationPreferencesPayload } from '@/lib/notifications/types';
 import { cn } from '@/lib/utils';
+
+import { NotificationSelect } from './notification-select';
 
 interface NotificationPreferencesFormProps {
 	initial: NotificationPreferencesPayload;
@@ -60,9 +64,14 @@ export function NotificationPreferencesForm({
 		'rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3';
 	const cardHeaderClass = 'px-6 pt-5 pb-3 border-b border-neutral-200 dark:border-white/8';
 	const cardBodyClass = 'px-6 py-5';
-	const inputClass =
-		'h-8 px-2 text-xs rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-500';
 	const labelClass = 'text-xs font-medium text-neutral-600 dark:text-neutral-400';
+	const timeInputClass =
+		'h-7 sm:h-8 px-2.5 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 transition-all duration-200';
+
+	const digestOptions = DIGEST_OPTIONS.map((d) => ({
+		value: d,
+		label: safeT(t, `digest.${d}`, d.charAt(0).toUpperCase() + d.slice(1))
+	}));
 
 	return (
 		<form
@@ -83,46 +92,47 @@ export function NotificationPreferencesForm({
 				</div>
 				<div className={cn(cardBodyClass, 'space-y-4')}>
 					<div className="flex flex-wrap items-center gap-3">
-						<label className={labelClass} htmlFor="digest">
-							{safeT(t, 'emailDigest', 'Email digest')}
-						</label>
-						<select
-							id="digest"
+						<span className={labelClass}>{safeT(t, 'emailDigest', 'Email digest')}</span>
+						<NotificationSelect
 							value={state.emailDigest}
-							onChange={(e) =>
-								setState({ ...state, emailDigest: e.target.value as NotificationDigest })
-							}
-							className={inputClass}
-						>
-							{DIGEST_OPTIONS.map((d) => (
-								<option key={d} value={d}>
-									{safeT(t, `digest.${d}`, d.charAt(0).toUpperCase() + d.slice(1))}
-								</option>
-							))}
-						</select>
+							onChange={(next) => setState({ ...state, emailDigest: next as NotificationDigest })}
+							options={digestOptions}
+							placeholder={safeT(t, 'emailDigest', 'Email digest')}
+							icon={Mail}
+							ariaLabel={safeT(t, 'emailDigest', 'Email digest')}
+							widthClass="w-32 sm:w-36"
+						/>
 					</div>
 
 					<div className="flex flex-wrap items-center gap-3">
-						<label className={labelClass} htmlFor="quiet-from">
-							{safeT(t, 'quietHoursStart', 'Quiet hours start')}
-						</label>
-						<input
-							id="quiet-from"
-							type="time"
-							value={state.quietHoursStart ?? ''}
-							onChange={(e) => setState({ ...state, quietHoursStart: e.target.value || null })}
-							className={inputClass}
-						/>
-						<label className={labelClass} htmlFor="quiet-to">
-							{safeT(t, 'quietHoursEnd', 'Quiet hours end')}
-						</label>
-						<input
-							id="quiet-to"
-							type="time"
-							value={state.quietHoursEnd ?? ''}
-							onChange={(e) => setState({ ...state, quietHoursEnd: e.target.value || null })}
-							className={inputClass}
-						/>
+						<span className={labelClass}>{safeT(t, 'quietHoursStart', 'Quiet hours start')}</span>
+						<div className="relative">
+							<div className="pointer-events-none absolute inset-y-0 left-0 pl-2.5 flex items-center">
+								<Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+							</div>
+							<input
+								id="quiet-from"
+								type="time"
+								value={state.quietHoursStart ?? ''}
+								onChange={(e) => setState({ ...state, quietHoursStart: e.target.value || null })}
+								className={cn(timeInputClass, 'pl-7 pr-2')}
+								aria-label={safeT(t, 'quietHoursStart', 'Quiet hours start')}
+							/>
+						</div>
+						<span className={labelClass}>{safeT(t, 'quietHoursEnd', 'Quiet hours end')}</span>
+						<div className="relative">
+							<div className="pointer-events-none absolute inset-y-0 left-0 pl-2.5 flex items-center">
+								<Clock className="h-3 w-3 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+							</div>
+							<input
+								id="quiet-to"
+								type="time"
+								value={state.quietHoursEnd ?? ''}
+								onChange={(e) => setState({ ...state, quietHoursEnd: e.target.value || null })}
+								className={cn(timeInputClass, 'pl-7 pr-2')}
+								aria-label={safeT(t, 'quietHoursEnd', 'Quiet hours end')}
+							/>
+						</div>
 					</div>
 				</div>
 			</section>
