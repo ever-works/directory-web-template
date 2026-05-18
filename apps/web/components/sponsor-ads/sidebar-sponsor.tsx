@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
+import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
 import { FiFolder, FiExternalLink, FiArrowRight } from 'react-icons/fi';
 import { Megaphone } from 'lucide-react';

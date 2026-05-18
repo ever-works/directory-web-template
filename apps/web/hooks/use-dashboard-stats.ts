@@ -5,6 +5,7 @@ import type {
     ApprovalTrendDataExport,
     SubmissionCalendarDataExport,
     EngagementDistributionData,
+    EngagementSlice,
 } from "@/lib/repositories/client-dashboard.repository";
 
 // Re-export types for component usage
@@ -14,6 +15,7 @@ export type {
     ApprovalTrendDataExport,
     SubmissionCalendarDataExport,
     EngagementDistributionData,
+    EngagementSlice,
 };
 
 interface ActivityData {
@@ -62,7 +64,7 @@ export interface UserStats {
   uniqueItemsInteracted: number;
   totalActivity: number;
   activityChartData: ActivityData[];
-  engagementChartData: { name: string; value: number; color: string }[];
+  engagementChartData: EngagementSlice[];
   submissionTimeline: SubmissionTimelineData[];
   engagementOverview: EngagementOverviewData[];
   statusBreakdown: StatusBreakdownData[];

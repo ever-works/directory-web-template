@@ -40,7 +40,7 @@ import { getClientDashboardRepository } from '@/lib/repositories/client-dashboar
  *                   example: 89
  *                 viewsAvailable:
  *                   type: boolean
- *                   description: "Whether views tracking is available"
+ *                   description: "True when the authenticated user owns at least one item whose engagement can be tracked. False when the user has no submissions yet, so view metrics carry no signal."
  *                   example: false
  *                 recentActivity:
  *                   type: object
@@ -75,11 +75,13 @@ import { getClientDashboardRepository } from '@/lib/repositories/client-dashboar
  *                         type: integer
  *                 engagementChartData:
  *                   type: array
+ *                   description: "Engagement pie slices. The 'shares' slice was removed in EW-627 because shares are not tracked."
  *                   items:
  *                     type: object
  *                     properties:
- *                       name:
+ *                       key:
  *                         type: string
+ *                         enum: ["views", "votesReceived", "commentsReceived"]
  *                       value:
  *                         type: integer
  *                       color:

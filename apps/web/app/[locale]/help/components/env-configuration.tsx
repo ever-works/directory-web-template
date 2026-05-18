@@ -174,13 +174,13 @@ export function EnvConfiguration() {
   ];
 
   const categories = [
-    { id: "all", label: "All Variables", count: envVariables.length },
-    { id: "database", label: "Database", count: envVariables.filter(v => v.category === "database").length },
-    { id: "auth", label: "Authentication", count: envVariables.filter(v => v.category === "auth").length },
-    { id: "payment", label: "Payment", count: envVariables.filter(v => v.category === "payment").length },
-    { id: "email", label: "Email", count: envVariables.filter(v => v.category === "email").length },
-    { id: "analytics", label: "Analytics", count: envVariables.filter(v => v.category === "analytics").length },
-    { id: "deployment", label: "Deployment", count: envVariables.filter(v => v.category === "deployment").length }
+    { id: "all", label: t("ENV_CAT_ALL"), count: envVariables.length },
+    { id: "database", label: t("ENV_CAT_DATABASE"), count: envVariables.filter(v => v.category === "database").length },
+    { id: "auth", label: t("ENV_CAT_AUTH"), count: envVariables.filter(v => v.category === "auth").length },
+    { id: "payment", label: t("ENV_CAT_PAYMENT"), count: envVariables.filter(v => v.category === "payment").length },
+    { id: "email", label: t("ENV_CAT_EMAIL"), count: envVariables.filter(v => v.category === "email").length },
+    { id: "analytics", label: t("ENV_CAT_ANALYTICS"), count: envVariables.filter(v => v.category === "analytics").length },
+    { id: "deployment", label: t("ENV_CAT_DEPLOYMENT"), count: envVariables.filter(v => v.category === "deployment").length }
   ];
 
   const filteredVariables = selectedCategory === "all" 
@@ -258,7 +258,7 @@ export function EnvConfiguration() {
                     {t("ENV_CONFIG_BADGE")}
                   </p>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400">
-                    {filteredVariables.length} variables • {filteredVariables.filter(v => v.required).length} required
+                    {t("ENV_VARS_COUNT", { vars: filteredVariables.length, required: filteredVariables.filter(v => v.required).length })}
                   </p>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export function EnvConfiguration() {
                   onClick={() => setShowSecrets(!showSecrets)}
                   className="h-8 px-3 text-xs font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
                 >
-                  {showSecrets ? "Hide" : "Show"} Secrets
+                  {showSecrets ? t("ENV_HIDE") : t("ENV_SHOW")} {t("ENV_SECRETS")}
                 </button>
                 <button
                   onClick={generateEnvFile}
@@ -386,10 +386,10 @@ export function EnvConfiguration() {
               </h3>
             </div>
             <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-              <p>1. Create a <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">.env.local</code> file in your project root</p>
-              <p>2. Copy the required variables from above</p>
-              <p>3. Set up your database and other services</p>
-              <p>4. Run <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">pnpm dev</code> to start development</p>
+              <p>1. {t("ENV_LOCAL_STEP_1")}</p>
+              <p>2. {t("ENV_LOCAL_STEP_2")}</p>
+              <p>3. {t("ENV_LOCAL_STEP_3")}</p>
+              <p>4. {t("ENV_LOCAL_STEP_4")}</p>
             </div>
           </div>
 
@@ -404,10 +404,10 @@ export function EnvConfiguration() {
               </h3>
             </div>
             <div className="space-y-2 text-xs text-slate-600 dark:text-slate-400">
-              <p>1. Set environment variables in your hosting platform</p>
-              <p>2. Ensure all required variables are configured</p>
-              <p>3. Use production-grade database and services</p>
-              <p>4. Set <code className="bg-slate-100 dark:bg-white/8 px-1 rounded-sm">NODE_ENV=production</code></p>
+              <p>1. {t("ENV_PROD_STEP_1")}</p>
+              <p>2. {t("ENV_PROD_STEP_2")}</p>
+              <p>3. {t("ENV_PROD_STEP_3")}</p>
+              <p>4. {t("ENV_PROD_STEP_4")}</p>
             </div>
           </div>
         </div>

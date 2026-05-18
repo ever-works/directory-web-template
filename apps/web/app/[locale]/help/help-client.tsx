@@ -177,6 +177,15 @@ export default function HelpPageClient() {
     }
   };
 
+  const getDifficultyLabel = (difficulty: string) => {
+    switch (difficulty) {
+      case "beginner": return t("DIFFICULTY_BEGINNER");
+      case "intermediate": return t("DIFFICULTY_INTERMEDIATE");
+      case "advanced": return t("DIFFICULTY_ADVANCED");
+      default: return difficulty;
+    }
+  };
+
   const handleScroll = useCallback(() => {
     setShowProgress(window.scrollY > 100);
   }, []);
@@ -304,7 +313,7 @@ export default function HelpPageClient() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1.5">
                         <span className={`px-1.5 py-0.5 text-[10px] font-medium rounded-full leading-none ${getDifficultyColor(step.difficulty)}`}>
-                          {step.difficulty}
+                          {getDifficultyLabel(step.difficulty)}
                         </span>
                         <span className="text-[10px] text-gray-400 dark:text-gray-500">
                           {step.estimatedTime}
@@ -316,7 +325,7 @@ export default function HelpPageClient() {
                         </span>
                       ) : (
                         <span className="text-[10px] text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
-                          View →
+                          {t("VIEW")} →
                         </span>
                       )}
                     </div>

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
-import { FiChevronRight, FiUser } from 'react-icons/fi';
+import { FiChevronRight, FiUser, FiBarChart2 } from 'react-icons/fi';
 import {
 	getClientProfileByUsername,
 	listPortfolioProjectsForProfile,
@@ -123,20 +123,31 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-6 py-8">
-					{/* Breadcrumb */}
-					<nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
-						<Link
-							href="/client/users"
-							className="inline-flex items-center gap-1.5 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-						>
-							<FiUser className="w-3.5 h-3.5" />
-							{t('PROFILES_BREADCRUMB')}
-						</Link>
-						<FiChevronRight className="w-3.5 h-3.5" />
-						<span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 font-medium text-xs">
-							{profile.displayName}
-						</span>
-					</nav>
+					{/* Breadcrumb + own-profile actions */}
+					<div className="flex items-center justify-between gap-3">
+						<nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+							<Link
+								href="/client/users"
+								className="inline-flex items-center gap-1.5 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+							>
+								<FiUser className="w-3.5 h-3.5" />
+								{t('PROFILES_BREADCRUMB')}
+							</Link>
+							<FiChevronRight className="w-3.5 h-3.5" />
+							<span className="inline-flex items-center px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-200 font-medium text-xs">
+								{profile.displayName}
+							</span>
+						</nav>
+						{isOwn && (
+							<Link
+								href="/client/dashboard"
+								className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+							>
+								<FiBarChart2 className="w-3.5 h-3.5" aria-hidden="true" />
+								{t('BACK_TO_DASHBOARD')}
+							</Link>
+						)}
+					</div>
 
 					{/* 2-column dashboard */}
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">

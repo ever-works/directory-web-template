@@ -31,6 +31,214 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
+
+- `spec-026` Extended Spec 026 with §7 covering the visual redesign of the
+  five focus chart cards on `/client/dashboard`: Submission Timeline,
+  Submission Status, Weekly Activity, Community Engagement, and Approval
+  Rate Trend. Acceptance criteria AC-18 through AC-23 added.
+- `spec-026` New shared primitive module
+  `apps/web/components/dashboard/_chart-primitives.tsx` exporting
+  `<ChartCard>`, `<ChartCardSkeleton>`, `<ChartEmptyState>`,
+  `<ChartLegend>` / `<ChartLegendItem>`, `<ChartKpi>`,
+  `<ChartTooltip>`, `useChartAxisProps()`, and `formatCompactNumber()`.
+  Replaces ad-hoc per-chart chrome + Recharts defaults across all five
+  redesigned cards.
+- `spec-026` Replaced the cramped 3-slice pie in Submission Status with
+  a horizontal stacked bar over a per-status row list (icon chip + count
+  + percent). Reads at a glance and scales better with future statuses.
+- `spec-026` Weekly Activity now flows all three series labels
+  ("Submissions", "Views", "Engagement") through `useTranslations()` —
+  previously hard-coded English bypassed the i18n layer entirely.
+- `spec-026` Community Engagement converted from a flat pie with
+  overlapping labels to a donut with the total in the centre + side
+  legend with per-slice value and percent. Stacks below `sm`.
+- `spec-026` Backfilled 29 new chart-redesign i18n keys across all 20
+  non-English locale files with real translations
+  (`SUBMISSION_TIMELINE.*`, `ACTIVITY_CHART.*`, plus extensions to
+  `STATUS_BREAKDOWN.*` and `ENGAGEMENT_CHART.*`). Backfill script used
+  once and removed.
+
+---
+
+## 2026-05-15 — Spec 026 (EW-627) round 2: layout v2 + avatar fix + i18n backfill
+
+- `spec-026` Extended Spec 026 with §6 covering the new dashboard layout
+  (header / quick actions / alerts / mobile summary / four content tabs),
+  the per-card trend deltas + zero-state CTAs in `StatsCard`, and the
+  avatar fix. Acceptance criteria AC-10 through AC-17 added.
+- `spec-026` Removed the prototype `7d / 30d / 90d` period selector. The
+  control was decorative — `useDashboardStats()` ignored the value and
+  every period rendered the same data. Documented as out-of-scope §6.2;
+  re-introduce when `GET /api/client/dashboard/stats` accepts `?days=N`
+  and the repository plumbs the value through to its date-range queries.
+- `spec-026` Avatar regression fix: `<Avatar>` now sets
+  `unoptimized={true}` for any external `http(s)://` URL so OAuth-provider
+  hostnames not in `next.config.ts > images.remotePatterns` no longer
+  fall through to the gradient initials. Also dropped the unconditional
+  `priority` prop. Avatars are 32–48 px, so optimization buys nothing.
+- `spec-026` Replaced the `t(label).split(' ').slice(-1)[0]` last-word
+  hack in `<DashboardMobileSummary>` with dedicated
+  `client.dashboard.STATS.*_SHORT` keys. The trick produced broken
+  labels in Russian, Arabic, Chinese, and any language where the
+  meaningful word isn't the last token.
+- `spec-026` Backfilled 30 new dashboard root keys + 4 `STATS.*_SHORT`
+  keys across all 20 non-English locale files (`ar`, `bg`, `de`, `es`,
+  `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`, `nl`, `pl`, `pt`, `ru`,
+  `th`, `tr`, `uk`, `vi`, `zh`) with real translations (no
+  English-identical entries). Backfill script used once and removed.
+
+---
+
+## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
+
+- `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering
+  the seven wiring gaps audited in EW-627: hardcoded `Shares` pie slice,
+  always-true `viewsAvailable`, silent fetch errors on `ItemsMapCard` /
+  `GeoStatsCard`, missing placeholder when `locationSettings.enabled` is
+  false, hardcoded English on engagement-chart and top-items headings,
+  loose `StatsCard.value` type, and the always-12-week
+  `engagementOverview` window. Indexed in
+  `docs/spec/README.md` as row 026.
+- `spec-026` API contract: `engagementChartData` items now use a typed
+  `{ key, value, color }` shape (`'views' | 'votesReceived' |
+  'commentsReceived'`) instead of `{ name, value, color }`, and the
+  `Shares` slice is removed. Swagger JSDoc on `GET
+  /api/client/dashboard/stats` updated; re-run `pnpm generate-docs`
+  before release to refresh `public/openapi.json`.
+- `spec-026` Added 10 new strings under `client.dashboard.*`
+  (`LOCATION_DISABLED_TITLE`, `LOCATION_DISABLED_DESC`,
+  `ENGAGEMENT_CHART.{TITLE, VIEWS, VOTES_RECEIVED,
+  COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
+  to all 21 locale files with real translations. Backfill script
+  used once and removed.
+
+---
+
+## 2026-05-14 — Spec 025 (v5): backfill missing LocationSection translations
+
+- `spec-025` Audit of `/items/[slug]` translation coverage surfaced
+  that 8 `itemDetail.*` keys consumed by `LocationSection`
+  (`LOCATION`, `REMOTE_SERVICE`, `REMOTE_SERVICE_DESC`,
+  `GET_DIRECTIONS`, `LOCAL_SERVICE`, `REGIONAL_SERVICE`,
+  `NATIONAL_SERVICE`, `GLOBAL_SERVICE`) existed only in `en.json`.
+  Every non-English locale fell back to English for the entire
+  Location card. This pre-dated the PR.
+- `spec-025` Added the 8 keys to all 20 non-English locale files
+  (`ar`, `bg`, `de`, `es`, `fr`, `he`, `hi`, `id`, `it`, `ja`, `ko`,
+  `nl`, `pl`, `pt`, `ru`, `th`, `tr`, `uk`, `vi`, `zh`). Each
+  locale's values are real translations (no English-identical
+  entries). Keys were inserted right after `STATS_AGE` so they sit
+  next to the existing Location-section neighbours in `en.json`.
+- `spec-025` Wider audit gaps (hard-coded English in
+  `breadcrumb.tsx` / `report-button.tsx` / `favorite-button.tsx` /
+  `CompactVote`, plus untranslated `COMMENTS_*` / Promo / Survey
+  values in several non-Latin locales) remain unaddressed — they
+  are pre-existing and out of scope here. Recommend tracking under
+  a follow-up spec (e.g. `024-items-i18n-cleanup`).
+
+---
+
+## 2026-05-14 — Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
+
+- `spec-025` Per user feedback v3 lost the chart by mistake — the
+  intent was "keep the chart from v2, but keep the sidebar
+  placement from v3, and the smaller/cleaner typography from v3".
+  v4 puts the sparkline back into the sidebar Statistics card.
+- `spec-025` `<ItemStatsSection>` now renders the six existing
+  `text-[11px]` rows AND a small inline SVG sparkline below them,
+  separated by a faint top border. The four chartable rows (Views,
+  Upvotes, Favorites, Comments) became clickable: selecting one
+  tints the row with `theme-primary` (background + text) and
+  re-plots the sparkline from that metric. Rating and Listed rows
+  remain static. Default selection is Views. Sparkline keeps the
+  `theme-primary-500` low-opacity area fill + `theme-primary-600`
+  stroke from v2 but is ~14 row-heights tall so the whole card
+  stays compact and sidebar-shaped.
+- `spec-025` Restored from history: `getItemActivityTimeSeries` +
+  `ItemActivityDay` type in `engagement.queries.ts`, and the
+  `GET /api/items/[slug]/activity?days=N` route. They were removed
+  in v3 and are back exactly as in commit 4780edd. The
+  `ACTIVITY_OVERVIEW` / `ACTIVITY_OVERVIEW_DESCRIPTION` i18n keys
+  remain removed — the sidebar card reuses the existing
+  `itemDetail.STATISTICS` heading.
+
+---
+
+## 2026-05-14 — Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
+
+- `spec-025` Reverted v2's full-width Activity Overview panel and
+  removed the new `/api/items/[slug]/activity` route + the
+  `getItemActivityTimeSeries` query function it depended on. Per user
+  feedback the page should reuse the existing engagement totals from
+  `/api/items/engagement` rather than introducing a time-series surface.
+- `spec-025` `<ItemStatsSection>` is back in the sidebar (directly
+  below the Tags card), and its typography was tightened to
+  `text-[11px]` for both labels and values with `w-3 h-3` icons —
+  matches the compact density of the other sidebar cards.
+- `spec-025` Removed the `ACTIVITY_OVERVIEW` and
+  `ACTIVITY_OVERVIEW_DESCRIPTION` i18n keys from all 21 locales.
+- `spec-025` Spec, index status, and this log entry rolled back to
+  describe the simpler final shape: full-width carousel +
+  compact sidebar stats card.
+
+---
+
+## 2026-05-14 — Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
+
+- `spec-025` Revision in the same PR: the compact sidebar
+  Statistics card shipped in the first iteration is replaced by a
+  **full-width Activity Overview** panel under the two-column grid
+  and above the Similar Products carousel. The panel has six tiles
+  (Views / Upvotes / Favorites / Comments / Avg. rating / Listed) and
+  a sparkline below; clicking a chartable tile (Views / Upvotes /
+  Favorites / Comments) highlights it with a
+  `theme-primary-500 → theme-primary-700` gradient and updates the
+  sparkline. Rating and Listed are static tiles.
+- `spec-025` New endpoint `GET /api/items/[slug]/activity?days=N`
+  returns `{ totals, series[] }` — totals reuse
+  `getEngagementMetricsPerItem`, and a new
+  `getItemActivityTimeSeries(slug, days)` query in
+  `engagement.queries.ts` aggregates `item_views`, `votes`,
+  `favorites`, `comments` into daily buckets for the last N days
+  (clamped 1–90, default 30), filling missing days with zeros.
+- `spec-025` New i18n keys `ACTIVITY_OVERVIEW` and
+  `ACTIVITY_OVERVIEW_DESCRIPTION` added under `itemDetail.*` across
+  all 21 supported locales.
+- `spec-025` `<ItemStatsSection>` is no longer wired into the page
+  but kept on disk (no removal without confirmation). The sidebar
+  is back to its pre-spec composition (Information / Promo / Sponsor
+  / Category / Tags) and the new Activity Overview owns the
+  engagement surface end-to-end.
+
+---
+
+## 2026-05-14 — Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
+
+- `spec-025` On `/items/[slug]`, the old vertical "Similar Products"
+  list in the right sidebar (`SimilarItemsSection`) is replaced by a
+  **full-width horizontal carousel** rendered below the two-column
+  grid, matching the recommended-items UX on `/favorites`
+  (prev/next, dot indicators, gradient edge overlays,
+  ResizeObserver-driven responsive card count). The carousel logic
+  is extracted into a reusable
+  `apps/web/components/shared/items-carousel.tsx`.
+- `spec-025` The freed sidebar slot now hosts a new
+  `<ItemStatsSection>` "Statistics" card showing views, upvotes,
+  favorites, comments, average rating, and a relative "Listed N
+  days ago" timestamp. Metrics are fetched on mount from the existing
+  `/api/items/engagement` endpoint; rows show en-dash placeholders
+  until the response resolves.
+- `spec-025` Adds 9 new i18n keys under `itemDetail.*`
+  (`SIMILAR_PRODUCTS`, `SIMILAR_PRODUCTS_DESCRIPTION`, `STATISTICS`,
+  `STATS_VIEWS`, `STATS_VOTES`, `STATS_FAVORITES`, `STATS_COMMENTS`,
+  `STATS_AVG_RATING`, `STATS_AGE`) across all 21 supported locales.
+- `spec-025` `similar-items-section.tsx` is left in place (no
+  imports) per the project's no-removal-without-confirmation rule;
+  a follow-up PR can delete the file once the new layout has soaked.
+
+---
+
 ## 2026-05-15 — Spec 023: AI Chat default model flipped to free OpenRouter tier
 
 - `spec-023` Plugin schema default `AI_CHAT_MODEL` changed from
@@ -132,6 +340,8 @@ why** at a higher level than per-commit diffs.
   (FR required by Jira AC), and `next/dynamic`-loaded panel so
   the public bundle is preserved when the feature is off.
 - `docs/spec/README.md` Indexed spec 023 (status: _proposed_).
+
+---
 
 ## 2026-05-12 — Spec 022: data-URL avatar fix + Discover-Users relocation
 

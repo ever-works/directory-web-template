@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { ThemeToggler } from '../theme-toggler';
 import { Container } from '../ui/container';
 import { VersionDisplay, VersionTooltip } from '../version';

@@ -111,11 +111,20 @@ export interface SubmissionCalendarDataExport {
     count: number;
 }
 
+export type EngagementSliceKey = 'views' | 'votesReceived' | 'commentsReceived';
+
+export interface EngagementSlice {
+    key: EngagementSliceKey;
+    value: number;
+    color: string;
+}
+
 export interface DashboardStats {
     totalSubmissions: number;
     totalViews: number;
     totalVotesReceived: number;
     totalCommentsReceived: number;
+    /** True when the authenticated user owns at least one item whose engagement can be tracked. */
     viewsAvailable: boolean;
     recentActivity: {
         newSubmissions: number;
@@ -124,7 +133,7 @@ export interface DashboardStats {
     uniqueItemsInteracted: number;
     totalActivity: number;
     activityChartData: ActivityData[];
-    engagementChartData: Array<{ name: string; value: number; color: string }>;
+    engagementChartData: EngagementSlice[];
     submissionTimeline: SubmissionTimelineData[];
     engagementOverview: EngagementOverviewData[];
     statusBreakdown: StatusBreakdownData[];
@@ -149,10 +158,34 @@ const ENGAGEMENT_COLORS = {
     views: '#3B82F6',
     votes: '#10B981',
     comments: '#F59E0B',
-    shares: '#8B5CF6',
 } as const;
 
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/**
+ * Trim engagement overview to the user's real activity window.
+ *
+ * Input is ordered most-recent → oldest (W1, W2, …). Returns an empty array
+ * when the user has no submissions at all; otherwise drops trailing all-zero
+ * weeks (the oldest end) so charts don't show leading empty bars before the
+ * first real activity.
+ */
+function trimEngagementOverview(
+    overview: EngagementOverviewData[],
+    totalSubmissions: number
+): EngagementOverviewData[] {
+    if (totalSubmissions === 0) return [];
+
+    let lastIdxWithActivity = -1;
+    for (let i = 0; i < overview.length; i++) {
+        if (overview[i].votes > 0 || overview[i].comments > 0) {
+            lastIdxWithActivity = i;
+        }
+    }
+
+    if (lastIdxWithActivity === -1) return [];
+    return overview.slice(0, lastIdxWithActivity + 1);
+}
 
 // ===================== User Items Cache =====================
 
@@ -245,12 +278,11 @@ export class ClientDashboardRepository {
         // Inject views into activity chart data
         const activityChartDataWithViews = this.injectViewsIntoActivityData(activityChartData, dailyViewsMap);
 
-        // Build engagement chart data
-        const engagementChartData = [
-            { name: 'Views', value: totalViews, color: ENGAGEMENT_COLORS.views },
-            { name: 'Votes Received', value: votesReceived, color: ENGAGEMENT_COLORS.votes },
-            { name: 'Comments Received', value: commentsReceived, color: ENGAGEMENT_COLORS.comments },
-            { name: 'Shares', value: 0, color: ENGAGEMENT_COLORS.shares }, // Shares not tracked
+        // Build engagement chart data (slice "shares" is intentionally omitted — not tracked yet).
+        const engagementChartData: EngagementSlice[] = [
+            { key: 'views', value: totalViews, color: ENGAGEMENT_COLORS.views },
+            { key: 'votesReceived', value: votesReceived, color: ENGAGEMENT_COLORS.votes },
+            { key: 'commentsReceived', value: commentsReceived, color: ENGAGEMENT_COLORS.comments },
         ];
 
         // Calculate new chart data
@@ -260,12 +292,18 @@ export class ClientDashboardRepository {
         const submissionCalendar = this.calculateSubmissionCalendar(userItems);
         const engagementDistribution = this.calculateEngagementDistribution(userItems, topItemsEngagement, viewsPerItemMap);
 
+        // Trim engagement overview to the real activity window so users with sparse history
+        // don't see a misleading 12-week chart full of leading zeros.
+        const trimmedEngagementOverview = trimEngagementOverview(engagementOverview, userItems.length);
+
         return {
             totalSubmissions: userItems.length,
             totalViews,
             totalVotesReceived: votesReceived,
             totalCommentsReceived: commentsReceived,
-            viewsAvailable: true,
+            // True when the user owns trackable items; the UI uses this to decide whether
+            // view-related metrics are meaningful.
+            viewsAvailable: userItems.length > 0,
             recentActivity: {
                 newSubmissions: recentSubmissions,
                 newViews: recentViews,
@@ -275,7 +313,7 @@ export class ClientDashboardRepository {
             activityChartData: activityChartDataWithViews,
             engagementChartData,
             submissionTimeline,
-            engagementOverview,
+            engagementOverview: trimmedEngagementOverview,
             statusBreakdown,
             topItems,
             // New chart data
@@ -681,7 +719,7 @@ export class ClientDashboardRepository {
             totalViews: 0,
             totalVotesReceived: 0,
             totalCommentsReceived: 0,
-            viewsAvailable: true,
+            viewsAvailable: false,
             recentActivity: {
                 newSubmissions: 0,
                 newViews: 0,
@@ -690,17 +728,12 @@ export class ClientDashboardRepository {
             totalActivity: 0,
             activityChartData: this.getEmptyActivityChartData(),
             engagementChartData: [
-                { name: 'Views', value: 0, color: ENGAGEMENT_COLORS.views },
-                { name: 'Votes Received', value: 0, color: ENGAGEMENT_COLORS.votes },
-                { name: 'Comments Received', value: 0, color: ENGAGEMENT_COLORS.comments },
-                { name: 'Shares', value: 0, color: ENGAGEMENT_COLORS.shares },
+                { key: 'views', value: 0, color: ENGAGEMENT_COLORS.views },
+                { key: 'votesReceived', value: 0, color: ENGAGEMENT_COLORS.votes },
+                { key: 'commentsReceived', value: 0, color: ENGAGEMENT_COLORS.comments },
             ],
             submissionTimeline: this.getEmptySubmissionTimeline(),
-            engagementOverview: Array.from({ length: 12 }, (_, i) => ({
-                week: `W${i + 1}`,
-                votes: 0,
-                comments: 0,
-            })),
+            engagementOverview: [],
             statusBreakdown: [
                 { status: 'Approved', value: 0, color: STATUS_COLORS.Approved },
                 { status: 'Pending', value: 0, color: STATUS_COLORS.Pending },
