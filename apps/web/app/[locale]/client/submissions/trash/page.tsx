@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSessionViaApi } from "@/lib/auth/get-session-via-api";
 import { redirect } from "next/navigation";
 import { TrashContent } from "./trash-content";
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export default async function TrashPage() {
-  const session = await auth();
+  const session = await getSessionViaApi();
 
   // Check if user is authenticated
   if (!session?.user) {

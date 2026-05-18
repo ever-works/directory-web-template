@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { getSessionViaApi } from '@/lib/auth/get-session-via-api';
 import { Container } from '@/components/ui/container';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/i18n/navigation';
@@ -29,7 +29,7 @@ export default async function UsersDirectoryPage({
 	const query = rawQuery?.trim() ?? '';
 	const page = parsePage(params.page);
 
-	const session = await auth();
+	const session = await getSessionViaApi();
 	const viewerUserId = session?.user?.id ?? null;
 
 	const { rows, total, totalPages } = await searchPublicProfiles({
