@@ -11,7 +11,6 @@ import { useNotifications } from '@/hooks/use-notifications';
 import { useMarkNotification } from '@/hooks/use-mark-notification';
 import { useBulkNotifications } from '@/hooks/use-bulk-notifications';
 import { useNotificationStats } from '@/hooks/use-notification-stats';
-import { cn } from '@/lib/utils';
 import type { NotificationTab } from '@/lib/notifications/registry';
 
 import { NotificationTabs } from './notification-tabs';
