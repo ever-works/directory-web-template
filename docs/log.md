@@ -31,6 +31,44 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 027 round 7: revert to client-side signIn on register (final fix)
+
+Rounds 4–6 chased a wrong hypothesis (server-side `auth()` failing on
+Server Components, getSessionViaApi workarounds). The actual smoking
+gun, found via a diagnostic `/api/debug-session-cookies` route: after
+the round-1 server-side `signIn` in `signUp`, the response set
+`__Secure-authjs.session-token` correctly, but the very next request
+(the form's `refreshSession()` calling `/api/auth/session`) **received
+back a Set-Cookie that cleared the session-token**. Auth.js v5
+beta.30's server-action `signIn` writes the cookie along a different
+encrypt-/sign-path than the standard `/api/auth/callback/credentials`
+flow uses to verify; the mismatch makes the verifier think the cookie
+is invalid and clear it.
+
+The sign-in form's path (client-side `signIn('credentials', …)` from
+`next-auth/react`) does NOT have this regression — it goes through
+the same `/api/auth/callback/credentials` endpoint that `/api/auth/session`
+verifies against, so the two stay in agreement.
+
+This round:
+
+- `apps/web/app/[locale]/auth/actions.ts` — `signUp` returns
+  `{ autoLogin: true, … }` again, identical shape to `signInAction`.
+  No more server-side `serverSignIn` call from inside the action.
+  Removes the unused `signIn as serverSignIn` import and the
+  `isNextRedirectError` helper.
+- `apps/web/lib/auth/get-session-via-api.ts` — deleted (no longer used).
+- `apps/web/app/api/debug-session-cookies/route.ts` — deleted
+  (temporary diagnostic, served its purpose).
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash,sponsorships,users,profile/[username]}/page.tsx`
+  — reverted to `await auth()`. Round 2's `force-dynamic` stays
+  (still the right thing). Round 3's `runtime='nodejs'` reverted —
+  it didn't help and wasn't needed.
+
+The round-1 `autoLoginFiredRef` / `successHandledRef` useRef guards
+in `credentials-form.tsx` STAY — they were the actual bug-A fix and
+prevent the double-fire that originally motivated all of this.
+
 ## 2026-05-19 — Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
 
 - Round 3's `runtime = 'nodejs'` still failed: same fetch context,
