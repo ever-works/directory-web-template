@@ -260,6 +260,13 @@
       "when": 1778744473083,
       "tag": "0036_tense_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1779033600000,
+      "tag": "0037_client_notifications",
+      "breakpoints": true
     }
   ]
 }
