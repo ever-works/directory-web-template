@@ -4049,6 +4049,99 @@
 				"VOTES": "Votes will appear as people interact with your content.",
 				"COMMENTS": "Comments will appear once people engage with your content."
 			}
+		},
+		"notifications": {
+			"pageTitle": "Notifications",
+			"aria": {
+				"bellWithCount": "Notifications, {n} unread"
+			},
+			"dropdown": {
+				"title": "Notifications",
+				"markAllRead": "Mark all read",
+				"seeAll": "See all notifications",
+				"aria": {
+					"title": "Notifications",
+					"preferences": "Notification preferences"
+				}
+			},
+			"tabs": {
+				"all": "All",
+				"unread": "Unread",
+				"mentions": "Mentions",
+				"system": "System"
+			},
+			"sections": {
+				"today": "Today",
+				"yesterday": "Yesterday",
+				"thisWeek": "This week",
+				"earlier": "Earlier"
+			},
+			"empty": {
+				"allTitle": "You are all caught up",
+				"allBody": "We will let you know when something new happens.",
+				"unreadTitle": "No unread notifications",
+				"unreadBody": "Everything has been read.",
+				"mentionsTitle": "No mentions yet",
+				"mentionsBody": "Replies and @mentions will show up here.",
+				"systemTitle": "No system notifications",
+				"systemBody": "Account and security alerts will show up here.",
+				"managePreferences": "Manage preferences"
+			},
+			"filters": {
+				"searchPlaceholder": "Search notifications…",
+				"allTypes": "All types",
+				"allPriorities": "All priorities",
+				"reset": "Reset",
+				"aria": {
+					"search": "Search notifications",
+					"type": "Filter by type",
+					"priority": "Filter by priority",
+					"dateFrom": "From date",
+					"dateTo": "To date"
+				}
+			},
+			"bulk": {
+				"selected": "{n} selected",
+				"markRead": "Mark read",
+				"archive": "Archive",
+				"delete": "Delete",
+				"aria": {
+					"clear": "Clear selection"
+				}
+			},
+			"preferences": {
+				"pageTitle": "Notification preferences",
+				"cta": "Preferences",
+				"globalTitle": "Email & quiet hours",
+				"emailDigest": "Email digest",
+				"quietHoursStart": "Quiet hours start",
+				"quietHoursEnd": "Quiet hours end",
+				"columnEvent": "Event",
+				"lockedHint": "Required for account safety",
+				"save": "Save preferences",
+				"saving": "Saving…",
+				"digest": {
+					"instant": "Instant",
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"off": "Off"
+				},
+				"channel": {
+					"in_app": "In-app",
+					"email": "Email",
+					"push": "Push",
+					"sms": "SMS"
+				},
+				"category": {
+					"social": "Social",
+					"item": "Item lifecycle",
+					"moderation": "Moderation",
+					"billing": "Billing",
+					"sponsorship": "Sponsorship",
+					"account": "Account",
+					"system": "System"
+				}
+			}
 		}
 	},
 	"comparisons": {

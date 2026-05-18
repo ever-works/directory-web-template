@@ -17,6 +17,7 @@ import { useCurrentUser } from '@/hooks/use-current-user';
 import { LayoutSwitcher } from '../layout-switcher';
 import { NavigationControls } from '../navigation-controls';
 import { ProfileButton } from './profile-button';
+import { NotificationBell } from '@/components/notifications';
 import { MoreMenu } from './more-menu';
 import { SettingsButton } from '../settings-button';
 import { Container, useContainerWidth } from '../ui/container';
@@ -407,6 +408,9 @@ export default function Header() {
 				<NavbarItem className={STYLES.largeUp}>
 					<NavigationControls />
 				</NavbarItem>
+				<NavbarItem className={STYLES.largeUp}>
+					<NotificationBell />
+				</NavbarItem>
 				<NavbarItem>
 					<div className="scale-90 sm:scale-95 md:scale-100 lg:scale-105 xl:scale-110 transition-transform duration-200">
 						<ProfileButton />
@@ -448,6 +452,9 @@ export default function Header() {
 
 				{/* Mobile: Right Section */}
 				<NavbarContent className="lg:hidden" justify="end">
+					<NavbarItem>
+						<NotificationBell />
+					</NavbarItem>
 					<NavbarItem>
 						<div className="scale-90 transition-transform duration-200">
 							<ProfileButton />
