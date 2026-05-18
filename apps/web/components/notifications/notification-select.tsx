@@ -83,7 +83,8 @@ export function NotificationSelect({
 					align="start"
 					sideOffset={6}
 					className={cn(
-						'z-50 min-w-[10rem] max-h-[280px] overflow-y-auto',
+						'z-50 min-w-[10rem] max-h-[280px]',
+						'overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1',
 						widthClass,
 						'rounded-lg border border-gray-200 dark:border-white/8',
 						'bg-white dark:bg-[#141414]',

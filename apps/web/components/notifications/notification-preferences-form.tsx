@@ -147,7 +147,7 @@ export function NotificationPreferencesForm({
 								{safeT(t, `category.${category}`, fallbackCategory(category))}
 							</h2>
 						</div>
-						<div className="overflow-x-auto">
+						<div className="overflow-x-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:h-1">
 							<table className="w-full text-xs">
 								<thead>
 									<tr className="text-left text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-white/8">
