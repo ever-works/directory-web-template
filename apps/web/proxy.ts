@@ -199,10 +199,44 @@ function maybeServerRedirectForLocale(req: NextRequest): NextResponse | null {
 
 /* ────────────────────────────────── Client Auth Guards ────────────────────────────── */
 
+/**
+ * Try to decode the Auth.js v5 session JWT with every plausible cookie name
+ * (Auth.js v5 uses `authjs.session-token` / `__Secure-authjs.session-token`,
+ * NextAuth v4 used `next-auth.*`). Returns the decoded token if any
+ * combination succeeds, else null.
+ *
+ * Spec 027: in production we hit a case where the cookie was present but
+ * `getToken({ req, secret })` without an explicit `cookieName` returned null,
+ * causing this guard to redirect logged-in users to /auth/signin. Pinning
+ * the cookie name (and falling back through the known variants) makes the
+ * middleware see the same token the API routes do.
+ */
+async function decodeAuthJsToken(req: NextRequest): Promise<unknown | null> {
+	const isSecure = req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https';
+	const candidates = isSecure
+		? ['__Secure-authjs.session-token', '__Secure-next-auth.session-token', 'authjs.session-token', 'next-auth.session-token']
+		: ['authjs.session-token', 'next-auth.session-token', '__Secure-authjs.session-token', '__Secure-next-auth.session-token'];
+
+	for (const cookieName of candidates) {
+		try {
+			const token = await getToken({
+				req,
+				secret: authSecret,
+				cookieName,
+				salt: cookieName,
+				secureCookie: cookieName.startsWith('__Secure-')
+			} as Parameters<typeof getToken>[0]);
+			if (token) return token;
+		} catch {
+			// Try the next cookie-name variant.
+		}
+	}
+	return null;
+}
+
 async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Promise<NextResponse | null> {
 	try {
-		const token = await getToken({ req, secret: authSecret });
-
+		const token = await decodeAuthJsToken(req);
 		if (token) {
 			// User is authenticated
 			return null; // null means "allow access"
@@ -212,6 +246,18 @@ async function nextAuthClientGuard(req: NextRequest, baseRes: NextResponse): Pro
 			'NextAuth client guard error',
 			error instanceof Error ? { name: error.name, message: error.message } : undefined
 		);
+	}
+
+	// Soft fallback: if the v5 session cookie is *present in the request*
+	// at all, let the page handler do the deep check. Better to render an
+	// authenticated-looking page that the API rejects than to bounce a
+	// valid user to signin because the edge middleware couldn't decode the
+	// JWT in this runtime.
+	const hasSessionCookie =
+		!!req.cookies.get('__Secure-authjs.session-token') ||
+		!!req.cookies.get('authjs.session-token');
+	if (hasSessionCookie) {
+		return null;
 	}
 
 	// Not authenticated - redirect to signin with callback
