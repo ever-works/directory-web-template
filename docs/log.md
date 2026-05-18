@@ -31,6 +31,103 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 2: large coverage batch (develop-only, no cascade)
+
+Operator asked for a 30-min batch focused on coverage breadth; do NOT
+cascade to stage/main until coverage is comprehensive. Updated the
+hourly CCDB task #68 prompt to skip the cascade step until further
+notice.
+
+Files added (`apps/web-e2e/tests/...`):
+
+- `admin/admin-route-coverage-matrix.spec.ts` — all 16 admin pages,
+  3 personas (admin OK, client denied, anonymous gated).
+- `admin/admin-api-mutating-rejection.spec.ts` — POST/PATCH/DELETE
+  on admin endpoints reject anonymous with 4xx (not 5xx, not 200).
+- `api/admin-api-coverage-matrix.spec.ts` — 21 admin GET endpoints,
+  anonymous rejection + admin acceptance.
+- `api/user-api-coverage-matrix.spec.ts` — `/api/user/*` per-user
+  GET endpoints, anonymous rejection + authenticated acceptance.
+- `api/http-methods-coverage.spec.ts` — POST/DELETE on GET-only
+  endpoints returns 4xx (not 5xx); OPTIONS doesn't crash.
+- `api/rate-limit-shape.spec.ts` — malformed-auth-input shape +
+  forgot-password no-enumeration check.
+- `client/client-area-route-matrix.spec.ts` — every `/client/*`
+  route loads for the authenticated client.
+- `client/dashboard-route-matrix.spec.ts` — legacy `/dashboard/*`
+  surface (billing + item surveys) — admin + client + anonymous.
+- `client/client-api-mutating-rejection.spec.ts` — mutating
+  `/api/user/*` rejects anonymous.
+- `client/submission-create-flow.spec.ts` — `/submit` form renders
+  for clients, blocks empty submit, gated for anonymous.
+- `auth/auth-flow-comprehensive.spec.ts` — register → dashboard →
+  signout → signin → dashboard round-trip; bad-password error UI;
+  duplicate-email error UI.
+- `auth/form-validation-comprehensive.spec.ts` — HTML5 required-field
+  + email-format validation across signin/register/forgot-password.
+- `auth/callback-url-sanitization.spec.ts` — hostile `?callbackUrl=`
+  values don't open-redirect.
+- `i18n/locale-coverage-matrix.spec.ts` — 6 locales × 6 core pages,
+  assert non-5xx + heading + `<html lang>` matches URL.
+- `public/route-coverage-matrix.spec.ts` (round 1, already shipped),
+  plus this round:
+  - `public/seo-meta-coverage.spec.ts` — title/description/canonical/
+    og:title/JSON-LD on every key page.
+  - `public/sitemap-feeds-shape.spec.ts` — sitemap.xml is XML+urlset,
+    rss/atom/json feeds parse, opengraph-image is an image.
+  - `public/hreflang-coverage.spec.ts` — alternates emitted on every
+    locale-aware page.
+  - `public/meta-rss-discovery.spec.ts` — feed autodiscovery links.
+  - `public/md-mirror-routes.spec.ts` — `.md` mirror of static info
+    pages serves Markdown.
+  - `public/header-footer-completeness.spec.ts` — header + footer
+    render on every sampled page.
+  - `public/security-headers.spec.ts` — nosniff, XFO, HSTS, CSP on
+    every page + API.
+  - `public/caching-headers.spec.ts` — home is CDN-cacheable;
+    auth endpoints aren't.
+  - `public/redirect-canonicalization.spec.ts` — trailing slash,
+    `/en/` prefix, case variants don't 5xx.
+  - `public/concurrent-anonymous-sessions.spec.ts` — two anonymous
+    contexts have independent sessions / CSRF tokens.
+  - `public/links-no-broken-internal.spec.ts` — sampled internal
+    links from every seed page resolve.
+  - `public/images-and-icons.spec.ts` — favicon, logo, accessibility
+    hints on logo.
+  - `public/noscript-fallback.spec.ts` — public pages render with
+    JavaScript disabled.
+  - `public/listing-filter-combinations.spec.ts` — listing filter
+    combinations (search × sort × page).
+  - `public/listing-pagination-edges.spec.ts` — non-numeric / negative
+    / huge page params don't 5xx.
+  - `public/listing-empty-state.spec.ts` — no-result search, empty
+    category, anonymous favorites.
+  - `public/404-and-error-recovery.spec.ts` — 404 renders nav,
+    home link works, non-existent slugs return 4xx not 5xx.
+  - `public/page-stability-fresh-cookies.spec.ts` — every public
+    page survives a completely empty cookie jar.
+  - `public/trailing-rsc-suffix.spec.ts` — `?_rsc=…` RSC prefetch
+    queries don't 5xx (the prefetch pattern Spec 027 caught in
+    network logs).
+  - `public/large-payload-handling.spec.ts` — 5000-char email /
+    1000-char name / 2000-char search query rejected with 4xx.
+  - `public/sponsor-pricing-success-redirect-loop.spec.ts` —
+    `/pricing/success` with no/garbage params doesn't loop.
+  - `public/theme-and-prefs-persistence.spec.ts` — theme toggle +
+    locale cookie persistence across navigation.
+  - `public/accessibility-quick-audit.spec.ts` — axe-core WCAG 2A/AA
+    on home + signin + register; fail on critical/serious only.
+  - `public/performance-budget-public.spec.ts` — total JS bytes
+    transferred on first load is under a generous ceiling; home
+    loads within 10s.
+  - `public/json-api-shapes.spec.ts` — minimum shape contract for
+    public JSON endpoints (version, items.json, csrf, providers,
+    session, current-user, currency).
+
+All changes land on `develop` only via PR; per operator instruction,
+no cascade to stage/main this round. The hourly task #68 picks up
+the next gap iteration.
+
 ## 2026-05-19 — Spec 028 round 1: CI workflow + initial gap-filling specs
 
 - `.github/workflows/e2e.yml` — Postgres-backed, sharded 4-way Playwright
