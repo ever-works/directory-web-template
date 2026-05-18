@@ -27,6 +27,9 @@ import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
 // Force dynamic rendering — page depends on session/follow state
 export const dynamic = 'force-dynamic';
+// Force Node.js runtime so auth()'s DB/bcryptjs-backed JWT callbacks can run
+// (Spec 027).
+export const runtime = 'nodejs';
 
 export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;

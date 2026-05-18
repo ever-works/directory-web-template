@@ -13,6 +13,14 @@ import { getClientProfileByUserId } from "@/lib/db/queries/client.queries";
 // and serve that cached redirect to every authenticated request, causing the
 // post-register "logged in but bounced back to signin" bug. Spec 027.
 export const dynamic = 'force-dynamic';
+// Force Node.js runtime for auth(). Auth.js v5's JWT callbacks pull tenantId
+// from Drizzle (and the credentials provider uses bcryptjs); all three live
+// in serverExternalPackages in next.config.ts and can't be bundled into the
+// Edge runtime. Without this marker, `auth()` here silently returns null
+// even with a valid session cookie attached, while the same cookie still
+// resolves on /api/auth/session (which already pins runtime='nodejs' in
+// app/api/auth/[...nextauth]/route.ts). Spec 027.
+export const runtime = 'nodejs';
 
 export async function generateMetadata({
   params
