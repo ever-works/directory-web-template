@@ -26,7 +26,7 @@ export default async function PreferencesPage() {
 	}
 
 	return (
-		<Container maxWidth="4xl" padding="default" className="py-6">
+		<Container maxWidth="2xl" padding="default" className="py-6">
 			<PreferencesPageClient />
 		</Container>
 	);
