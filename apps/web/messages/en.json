@@ -4054,7 +4054,16 @@
 			"pageTitle": "Notifications",
 			"pageSubtitle": "All activity for your account.",
 			"refresh": "Refresh",
+			"retry": "Retry",
 			"tooltip": "Notifications",
+			"actions": {
+				"open": "Open",
+				"markRead": "Mark as read",
+				"markUnread": "Mark as unread",
+				"dismiss": "Dismiss notification",
+				"criticalLabel": "Critical",
+				"highLabel": "Important"
+			},
 			"errors": {
 				"generic": "Failed to load notifications"
 			},

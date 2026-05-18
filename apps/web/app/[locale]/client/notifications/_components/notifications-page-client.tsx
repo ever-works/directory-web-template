@@ -18,6 +18,10 @@ import {
 } from '@/components/notifications';
 import type { NotificationTab } from '@/lib/notifications/registry';
 import type { BulkAction } from '@/lib/notifications/types';
+import { cn } from '@/lib/utils';
+
+const HEADER_BUTTON =
+	'inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
 
 export function NotificationsPageClient() {
 	const t = useTranslations('client.notifications');
@@ -61,6 +65,7 @@ export function NotificationsPageClient() {
 	const { bulkAction, deleteOne, isPending: bulkPending } = useBulkNotifications();
 
 	const counts = stats.data?.byTab;
+	const unreadCount = stats.data?.unread ?? 0;
 
 	const onSelectChange = (id: string, selected: boolean) => {
 		setSelectedIds((curr) => {
@@ -86,23 +91,20 @@ export function NotificationsPageClient() {
 				: null;
 
 	return (
-		<div>
-			{errorMessage && (
-				<div
-					role="alert"
-					className="mb-4 flex items-center gap-2 p-3 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-800/40"
-				>
-					<AlertCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-					<span>{errorMessage}</span>
-				</div>
-			)}
-
-			<header className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+		<div className="space-y-4">
+			<header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 				<div className="min-w-0">
-					<h1 className="text-base font-semibold text-neutral-900 dark:text-white tracking-tight">
-						{safeT(t, 'pageTitle', 'Notifications')}
-					</h1>
-					<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+					<div className="flex items-center gap-2">
+						<h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white tracking-tight">
+							{safeT(t, 'pageTitle', 'Notifications')}
+						</h1>
+						{unreadCount > 0 && (
+							<span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold tabular-nums">
+								{unreadCount > 99 ? '99+' : unreadCount}
+							</span>
+						)}
+					</div>
+					<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
 						{safeT(t, 'pageSubtitle', 'All activity for your account.')}
 					</p>
 				</div>
@@ -111,38 +113,51 @@ export function NotificationsPageClient() {
 						type="button"
 						onClick={() => refetch()}
 						disabled={isFetching}
-						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors duration-200"
+						className={HEADER_BUTTON}
 						aria-label={safeT(t, 'dropdown.refresh', 'Refresh')}
 					>
-						<RefreshCw className={`h-3 w-3 ${isFetching ? 'animate-spin' : ''}`} />
-						<span>{safeT(t, 'refresh', 'Refresh')}</span>
+						<RefreshCw className={cn('h-3 w-3', isFetching && 'animate-spin')} aria-hidden="true" />
+						<span className="hidden sm:inline">{safeT(t, 'refresh', 'Refresh')}</span>
 					</button>
 					<button
 						type="button"
 						onClick={() => markAllRead()}
-						disabled={markPending || (stats.data?.unread ?? 0) === 0}
-						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 transition-colors duration-200"
+						disabled={markPending || unreadCount === 0}
+						className={HEADER_BUTTON}
 					>
 						{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
 					</button>
-					<Link
-						href="/client/notifications/preferences"
-						className="inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors duration-200"
-					>
+					<Link href="/client/notifications/preferences" className={HEADER_BUTTON}>
 						<Settings className="h-3 w-3" aria-hidden="true" />
 						<span className="hidden sm:inline">{safeT(t, 'preferences.cta', 'Preferences')}</span>
 					</Link>
 				</div>
 			</header>
 
+			{errorMessage && (
+				<div
+					role="alert"
+					className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-800/40 animate-in fade-in slide-in-from-top-1 duration-200"
+				>
+					<AlertCircle className="h-4 w-4 mt-px shrink-0" aria-hidden="true" />
+					<span className="flex-1">{errorMessage}</span>
+					<button
+						type="button"
+						onClick={() => refetch()}
+						className="inline-flex items-center gap-1 h-6 px-2 -my-0.5 rounded-md font-medium border border-red-300 dark:border-red-800/60 hover:bg-red-100 dark:hover:bg-red-950/60 transition-colors"
+					>
+						<RefreshCw className="h-3 w-3" aria-hidden="true" />
+						{safeT(t, 'retry', 'Retry')}
+					</button>
+				</div>
+			)}
+
 			<NotificationTabs value={tab} onChange={setTab} counts={counts} />
 
-			<div className="mb-4">
-				<NotificationFilters value={filters} onChange={setFilters} />
-			</div>
+			<NotificationFilters value={filters} onChange={setFilters} />
 
 			{selectedIds.size > 0 && (
-				<div className="mb-4">
+				<div className="sticky top-[calc(var(--header-height,3.5rem)+0.5rem)] z-10">
 					<NotificationBulkActions
 						selectedCount={selectedIds.size}
 						onAction={runBulk}
@@ -152,7 +167,7 @@ export function NotificationsPageClient() {
 				</div>
 			)}
 
-			<div className="rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 overflow-hidden">
+			<div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.02] overflow-hidden">
 				<NotificationList
 					notifications={notifications}
 					isLoading={isLoading}
