@@ -18,11 +18,10 @@ export const CLIENT_NOTIFICATION_KEYS = {
 	preferences: () => [...CLIENT_NOTIFICATION_KEYS.all, 'preferences'] as const
 };
 
-function stableHash(input: Record<string, unknown>): string {
-	const keys = Object.keys(input).sort();
+function stableHash(input: object): string {
+	const entries = Object.entries(input).sort(([a], [b]) => a.localeCompare(b));
 	const sorted: Record<string, unknown> = {};
-	for (const k of keys) {
-		const v = input[k];
+	for (const [k, v] of entries) {
 		if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) continue;
 		sorted[k] = v;
 	}
