@@ -31,6 +31,30 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 1: CI workflow + initial gap-filling specs
+
+- `.github/workflows/e2e.yml` — Postgres-backed, sharded 4-way Playwright
+  workflow. Runs on push to main/develop/stage and on PR. The repo had
+  311 `.spec.ts` files but no CI workflow; Spec 027 would have been caught
+  before merge if any of them ran. They now do.
+- `apps/web-e2e/tests/client/followers-following.spec.ts` — adds
+  `/client/profile/[username]/followers` and `/following` coverage
+  (previously a gap; spec-022 shipped the routes without specs).
+- `apps/web-e2e/tests/client/settings-subroutes.spec.ts` — matrix of every
+  `/client/settings/profile/*` and `/client/settings/security` sub-page:
+  authenticated client gets non-5xx + heading + no signin-bounce;
+  anonymous gets the signin redirect. Catches the entire class of
+  "shipped a new settings tab and forgot a server fetch" regressions.
+- `apps/web-e2e/tests/public/route-coverage-matrix.spec.ts` — anonymous
+  walk of every public page in the App Router with a "never 5xx"
+  assertion. Includes feed manifests + a 404 sanity check.
+- `apps/web-e2e/tests/api/public-api-coverage-matrix.spec.ts` — twin
+  matrix for API routes: public ones respond JSON, protected ones
+  reject anonymous with 401/403 (not 5xx, not 200).
+- New `docs/spec/028-e2e-coverage-buildout/spec.md` documents the
+  workstream + the hourly self-scheduling agent that fills more gaps
+  iteration by iteration.
+
 ## 2026-05-19 — Spec 027 round 7: revert to client-side signIn on register (final fix)
 
 Rounds 4–6 chased a wrong hypothesis (server-side `auth()` failing on
