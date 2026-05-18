@@ -7,6 +7,9 @@ import { searchPublicProfiles, getFollowingSubset } from '@/lib/db/queries';
 import { ProfileRow } from '@/components/profile/profile-row';
 
 export const dynamic = 'force-dynamic';
+// Force Node.js runtime so auth()'s DB/bcryptjs-backed JWT callbacks can run
+// (Spec 027).
+export const runtime = 'nodejs';
 
 const PAGE_SIZE = 30;
 

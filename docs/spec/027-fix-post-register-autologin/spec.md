@@ -79,29 +79,43 @@ fetch` cannot happen anymore.
   `autoLoginFiredRef` / `successHandledRef` guards, new
   `state.autoLoggedIn` branch.
 - `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash}/page.tsx`
-  — added `export const dynamic = 'force-dynamic'` so Next.js does not
-  pre-render the `redirect('/auth/signin')` branch at build time and
-  serve that cached redirect to authenticated requests. (Sibling
-  `client/sponsorships/page.tsx` and `client/users/page.tsx` already
-  had it; the missing markers on the others were the root cause of the
-  user-visible "logged in but bounced to signin" symptom on every
-  protected client page, including the dashboard.)
+  — added `export const dynamic = 'force-dynamic'` (PR #856) so Next.js
+  does not pre-render the `redirect('/auth/signin')` branch at build
+  time and serve that cached redirect to authenticated requests.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash,sponsorships,users,profile/[username]}/page.tsx`
+  — added `export const runtime = 'nodejs'` so `auth()` actually runs
+  on Node where its DB / bcryptjs callbacks can execute. This is the
+  PR that landed the user-visible fix.
 - Spec + log entry.
 
-## Why both halves of the fix are needed
+## Why three rounds of fix were needed
 
-PR #853 (the first half) issued the session cookie server-side on
-register. Re-running the Playwright repro against demo.ever.works
-after that landed confirmed `POST /auth/register` now ships
-`Set-Cookie: __Secure-authjs.session-token=…` in the response, **but**
-`GET /client/dashboard` still redirected to `/auth/signin`. Meanwhile
-`GET /api/auth/session` and `GET /api/current-user` both returned the
-user happily (proving the cookie + JWT were valid). The asymmetry
-pointed at static pre-rendering: at build time `auth()` returns null
-and the page renders `redirect('/auth/signin')`. Next.js cached that
-redirect as the static result and served it on every later request
-without re-running `auth()`. Marking the page dynamic forces a
-per-request render. PR #856 is the second half.
+**Round 1 — PR #853 (server-side `signIn` on register).** Moved the
+session-cookie issuance off the client. `POST /auth/register` now
+ships `Set-Cookie: __Secure-authjs.session-token=…` in the same
+response as the success body.
+
+**Round 2 — PR #856 (`export const dynamic = 'force-dynamic'`).**
+Caught the auth-gated client pages that were missing the dynamic
+marker (`dashboard`, `settings`, `submissions`, `submissions/trash`).
+Confirmed against demo.ever.works: response is now properly dynamic
+(`cache-control: public, max-age=0, must-revalidate`).
+
+**Round 3 — this PR (`export const runtime = 'nodejs'`).** Even with
+dynamic rendering and a valid cookie attached, `GET /client/dashboard`
+still returned 307 to `/auth/signin`, while
+`GET /api/auth/session` and `GET /api/current-user` from the *same*
+fetch context returned `{user: {...}}` happily. The asymmetry was
+runtime: `app/api/auth/[...nextauth]/route.ts` already pins
+`runtime = 'nodejs'`, but the Server Component pages defaulted to
+whatever Vercel chose — and Auth.js v5's JWT callbacks pull
+`tenantId` from Drizzle (and the credentials provider uses
+`bcryptjs`); all three are in
+`serverExternalPackages` in `next.config.ts` and can't run on the
+Edge runtime. Without `runtime = 'nodejs'`, `auth()` on these pages
+silently returned `null` for valid sessions. Pinning Node.js makes
+all the auth-gated client pages line up with the API routes that
+already work.
 
 ## Verification
 
