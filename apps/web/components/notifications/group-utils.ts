@@ -29,7 +29,9 @@ export function sectionByDay(items: NotificationListItem[], now = new Date()): G
 	};
 
 	for (const n of items) {
+		if (!n || !n.createdAt) continue;
 		const ts = new Date(n.createdAt).getTime();
+		if (Number.isNaN(ts)) continue;
 		if (ts >= startOfToday) buckets.today.push(n);
 		else if (ts >= startOfYesterday) buckets.yesterday.push(n);
 		else if (ts >= startOfWeek) buckets.thisWeek.push(n);

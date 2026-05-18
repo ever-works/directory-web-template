@@ -12,19 +12,24 @@ interface MarkVariables {
 }
 
 async function patchNotification({ id, isRead }: MarkVariables): Promise<NotificationListItem> {
-	const response = await serverClient.patch<NotificationListItem>(`/api/client/notifications/${id}`, { isRead });
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to update notification');
+	const response = await serverClient.patch<{ success: boolean; data: NotificationListItem; error?: string }>(
+		`/api/client/notifications/${id}`,
+		{ isRead }
+	);
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to update notification');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 async function markAllRead(): Promise<{ updatedCount: number }> {
-	const response = await serverClient.post<{ updatedCount: number }>('/api/client/notifications/mark-all-read');
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to mark all read');
+	const response = await serverClient.post<{ success: boolean; data: { updatedCount: number }; error?: string }>(
+		'/api/client/notifications/mark-all-read'
+	);
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to mark all read');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 type ListPages = InfiniteData<NotificationListResponse>;

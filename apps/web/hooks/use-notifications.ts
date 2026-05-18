@@ -50,13 +50,13 @@ function toQueryString(filters: NotificationListQuery, cursor?: string): string 
 }
 
 async function fetchPage(filters: NotificationListQuery, cursor?: string): Promise<NotificationListResponse> {
-	const response = await serverClient.get<NotificationListResponse>(
+	const response = await serverClient.get<{ success: boolean; data: NotificationListResponse; error?: string }>(
 		`/api/client/notifications${toQueryString(filters, cursor)}`
 	);
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to fetch notifications');
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to fetch notifications');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 export function useNotifications(filters: NotificationListQuery = {}) {
@@ -73,7 +73,7 @@ export function useNotifications(filters: NotificationListQuery = {}) {
 
 	const notifications = useMemo<NotificationListItem[]>(() => {
 		if (!query.data) return [];
-		return query.data.pages.flatMap((p) => p.notifications);
+		return query.data.pages.flatMap((p) => p?.notifications ?? []).filter((n): n is NotificationListItem => Boolean(n));
 	}, [query.data]);
 
 	const unreadCount = query.data?.pages[0]?.unreadCount ?? 0;

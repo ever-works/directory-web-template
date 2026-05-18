@@ -7,11 +7,13 @@ import type { NotificationStatsResponse } from '@/lib/notifications/types';
 import { CLIENT_NOTIFICATION_KEYS } from './use-notifications';
 
 async function fetchStats(): Promise<NotificationStatsResponse> {
-	const response = await serverClient.get<NotificationStatsResponse>('/api/client/notifications/stats');
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to fetch stats');
+	const response = await serverClient.get<{ success: boolean; data: NotificationStatsResponse; error?: string }>(
+		'/api/client/notifications/stats'
+	);
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to fetch stats');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 export function useNotificationStats(enabled = true) {

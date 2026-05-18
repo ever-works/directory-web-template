@@ -7,24 +7,27 @@ import type { NotificationPreferencesPayload } from '@/lib/notifications/types';
 import { CLIENT_NOTIFICATION_KEYS } from './use-notifications';
 
 async function fetchPreferences(): Promise<NotificationPreferencesPayload> {
-	const response = await serverClient.get<NotificationPreferencesPayload>(
-		'/api/client/notifications/preferences'
-	);
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to load preferences');
+	const response = await serverClient.get<{
+		success: boolean;
+		data: NotificationPreferencesPayload;
+		error?: string;
+	}>('/api/client/notifications/preferences');
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to load preferences');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 async function savePreferences(payload: NotificationPreferencesPayload): Promise<NotificationPreferencesPayload> {
-	const response = await serverClient.put<NotificationPreferencesPayload>(
-		'/api/client/notifications/preferences',
-		payload
-	);
-	if (!apiUtils.isSuccess(response)) {
-		throw new Error(apiUtils.getErrorMessage(response) || 'Failed to save preferences');
+	const response = await serverClient.put<{
+		success: boolean;
+		data: NotificationPreferencesPayload;
+		error?: string;
+	}>('/api/client/notifications/preferences', payload);
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to save preferences');
 	}
-	return response.data;
+	return response.data.data;
 }
 
 export function useNotificationPreferences() {
