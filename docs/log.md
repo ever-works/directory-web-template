@@ -31,6 +31,22 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 027 client notifications system (PR #852)
+
+- `spec-027` New spec `docs/spec/027-client-notifications/` (spec + plan +
+  tasks) delivering the client-facing surface of
+  [`013-notifications-system`](spec/013-notifications-system/spec.md): header
+  bell + dropdown, `/client/notifications` inbox, `/client/notifications/preferences`
+  matrix, SSE real-time delivery, and a service-layer `dispatch()` that resolves
+  per-user preferences, applies group-key deduplication, and fans out through
+  in-memory pub/sub (Redis-ready).
+- `spec-027` Additive Drizzle migration `0037_client_notifications.sql`: 22
+  new enum values, `priority` / `category` / `actorId` / `groupKey` /
+  `archivedAt` / `deliveredChannels` columns, partial unread index, and a new
+  `notification_preferences` table with JSONB channel matrix + email digest
+  cadence + quiet hours.
+- `index` `docs/spec/README.md` indexed entry 027.
+
 ## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
 
 - `spec-026` Extended Spec 026 with §7 covering the visual redesign of the
