@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useMarkNotification } from '@/hooks/use-mark-notification';
 import { useBulkNotifications } from '@/hooks/use-bulk-notifications';
@@ -69,17 +70,14 @@ export function NotificationDropdown({ onClose, className }: NotificationDropdow
 					>
 						{safeT(t, 'markAllRead', 'Mark all read')}
 					</Button>
-					<Button
-						asChild
-						variant="ghost"
-						size="icon"
-						className="h-7 w-7"
+					<Link
+						href="/client/notifications/preferences"
+						onClick={onClose}
 						aria-label={safeT(t, 'aria.preferences', 'Notification preferences')}
+						className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-7 w-7')}
 					>
-						<Link href="/client/notifications/preferences" onClick={onClose}>
-							<Settings className="h-3.5 w-3.5" />
-						</Link>
-					</Button>
+						<Settings className="h-3.5 w-3.5" />
+					</Link>
 				</div>
 			</header>
 
@@ -101,9 +99,13 @@ export function NotificationDropdown({ onClose, className }: NotificationDropdow
 			</div>
 
 			<footer className="border-t border-border px-3 py-2 text-center">
-				<Button asChild variant="link" size="sm" className="h-auto p-0 text-xs" onClick={onClose}>
-					<Link href="/client/notifications">{safeT(t, 'seeAll', 'See all notifications')}</Link>
-				</Button>
+				<Link
+					href="/client/notifications"
+					onClick={onClose}
+					className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'h-auto p-0 text-xs')}
+				>
+					{safeT(t, 'seeAll', 'See all notifications')}
+				</Link>
 			</footer>
 		</div>
 	);

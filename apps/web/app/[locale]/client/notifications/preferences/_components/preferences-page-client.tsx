@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { ChevronLeft } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { NotificationPreferencesForm, NotificationListSkeleton } from '@/components/notifications';
 import { useNotificationPreferences } from '@/hooks/use-notification-preferences';
 
@@ -16,11 +17,13 @@ export function PreferencesPageClient() {
 		<div className="flex flex-col gap-4">
 			<header className="flex items-center justify-between">
 				<div className="flex items-center gap-2">
-					<Button asChild variant="ghost" size="icon" className="h-7 w-7" aria-label="Back to notifications">
-						<Link href="/client/notifications">
-							<ChevronLeft className="h-4 w-4" />
-						</Link>
-					</Button>
+					<Link
+						href="/client/notifications"
+						aria-label="Back to notifications"
+						className={cn(buttonVariants({ variant: 'ghost', size: 'icon' }), 'h-7 w-7')}
+					>
+						<ChevronLeft className="h-4 w-4" />
+					</Link>
 					<h1 className="text-xl font-semibold">{safeT(t, 'pageTitle', 'Notification preferences')}</h1>
 				</div>
 			</header>

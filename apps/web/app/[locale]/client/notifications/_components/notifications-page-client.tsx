@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Settings } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useNotificationStats } from '@/hooks/use-notification-stats';
 import { useMarkNotification } from '@/hooks/use-mark-notification';
@@ -88,12 +89,13 @@ export function NotificationsPageClient() {
 					>
 						{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
 					</Button>
-					<Button asChild variant="outline" size="sm">
-						<Link href="/client/notifications/preferences" className="inline-flex items-center gap-1">
-							<Settings className="h-3.5 w-3.5" />
-							{safeT(t, 'preferences.cta', 'Preferences')}
-						</Link>
-					</Button>
+					<Link
+						href="/client/notifications/preferences"
+						className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'inline-flex items-center gap-1')}
+					>
+						<Settings className="h-3.5 w-3.5" />
+						{safeT(t, 'preferences.cta', 'Preferences')}
+					</Link>
 				</div>
 			</header>
 

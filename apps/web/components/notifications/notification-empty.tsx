@@ -4,7 +4,8 @@ import { BellOff } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface NotificationEmptyProps {
 	variant?: 'all' | 'unread' | 'mentions' | 'system';
@@ -25,9 +26,12 @@ export function NotificationEmpty({ variant = 'all', showPreferencesLink = true 
 				{safeT(t, bodyKey, 'We will let you know when something new happens.')}
 			</p>
 			{showPreferencesLink && (
-				<Button asChild variant="link" size="sm" className="mt-2 h-auto p-0 text-xs">
-					<Link href="/client/notifications/preferences">{safeT(t, 'managePreferences', 'Manage preferences')}</Link>
-				</Button>
+				<Link
+					href="/client/notifications/preferences"
+					className={cn(buttonVariants({ variant: 'link', size: 'sm' }), 'mt-2 h-auto p-0 text-xs')}
+				>
+					{safeT(t, 'managePreferences', 'Manage preferences')}
+				</Link>
 			)}
 		</div>
 	);
