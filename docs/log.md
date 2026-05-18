@@ -31,6 +31,22 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 027 follow-up: force-dynamic on auth-gated client pages
+
+- After PR #853 landed the server-side signIn fix, re-running the
+  Playwright repro against demo.ever.works showed the session cookie
+  was now being set on `POST /auth/register` — but `/client/dashboard`
+  still redirected to `/auth/signin` even with a valid cookie attached,
+  while `/api/auth/session` and `/api/current-user` happily returned
+  the user. The asymmetry was Next.js statically pre-rendering the
+  no-session `redirect('/auth/signin')` and serving it cached.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash}/page.tsx`
+  — added `export const dynamic = 'force-dynamic'`.
+  `client/sponsorships` and `client/users` already had it; these four
+  were the missing ones.
+- Spec 027 diagnosis updated to document both halves of the fix and
+  why each is necessary on its own.
+
 ## 2026-05-18 — Spec 027: fix post-register auto-login race (template prod)
 
 - `spec-027` filed under `docs/spec/027-fix-post-register-autologin/` and

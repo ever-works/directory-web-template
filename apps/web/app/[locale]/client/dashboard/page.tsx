@@ -8,6 +8,12 @@ import { siteConfig } from "@/lib/config";
 import { Locale } from "@/lib/constants";
 import { getClientProfileByUserId } from "@/lib/db/queries/client.queries";
 
+// Force dynamic rendering — page depends on session cookies. Without this,
+// Next.js can pre-render the no-session redirect to /auth/signin at build time
+// and serve that cached redirect to every authenticated request, causing the
+// post-register "logged in but bounced back to signin" bug. Spec 027.
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params
 }: {
