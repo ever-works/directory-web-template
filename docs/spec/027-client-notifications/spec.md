@@ -72,7 +72,7 @@ notification logic in feature code.
 ### Schema & types
 
 - [ ] **AC-1** Drizzle migration adds `priority`, `category`, `actorId`, `groupKey`, `archivedAt`, `deliveredChannels` to the existing `notifications` table without breaking any existing admin code path.
-- [ ] **AC-2** `notifications` enum is extended with 16 new values (see §6) — every existing value remains valid.
+- [ ] **AC-2** `notifications` enum is extended with 8 new values (see §6) — every existing value remains valid.
 - [ ] **AC-3** A `notifications_user_unread_idx` partial index exists on `(user_id, created_at DESC) WHERE is_read = false AND archived_at IS NULL`; unread-count query uses it (verified via `EXPLAIN`).
 - [ ] **AC-4** A new `notification_preferences` table holds one JSONB matrix row per user with `emailDigest`, `quietHoursStart`, `quietHoursEnd`, `timezone`, `pushEnabled`, `pushTokens`.
 - [ ] **AC-5** `NotificationEvent` is a discriminated TypeScript union; every event variant pins its `data` shape so call-sites cannot pass the wrong payload.
@@ -96,7 +96,7 @@ notification logic in feature code.
 ### UI
 
 - [ ] **AC-16** Header **bell** with capped `99+` badge appears for authenticated users in both desktop and mobile navbars. Pulse animation only on first arrival of a session. Hidden when count is 0.
-- [ ] **AC-17** Dropdown has 4 tabs (**All / Unread / Mentions / System**), day-section headers (Today, Yesterday, This week, Earlier), and a "See all notifications" footer link to `/client/notifications`.
+- [ ] **AC-17** Dropdown has 3 tabs (**All / Unread / System**), day-section headers (Today, Yesterday, This week, Earlier), and a "See all notifications" footer link to `/client/notifications`.
 - [ ] **AC-18** Each card supports optimistic mark-read; failed mutations revert with a toast. Unread state is visually distinct (left border + dot + tinted background).
 - [ ] **AC-19** Card icon and accent color are derived from `(type, priority)` via a single mapping module — no per-component conditionals.
 - [ ] **AC-20** Mobile (`<768 px`): bell opens a full-height drawer; swipe-left on a card reveals Mark-read + Delete actions.
@@ -122,16 +122,15 @@ notification logic in feature code.
 
 ## 6. Type enum additions
 
-New values added to the `notifications.type` enum (existing 7 values are preserved):
+New values added to the `notifications.type` enum (existing 7 values are preserved). v2 trims the original 22-type proposal down to the **8 types with a clear implementation hook** in this codebase — speculative types (mentions, replies, reactions, reviews, ratings, content-lifecycle variants beyond approved/rejected, sponsor_*, subscription renew/cancel, new_login) were removed:
 
 ```
-user_mentioned, comment_received, comment_reply, reaction_received,
-review_received, rating_received, item_approved, item_rejected,
-item_featured, item_published, content_removed, payment_succeeded,
-subscription_renewed, subscription_expiring, subscription_cancelled,
-sponsor_ad_approved, sponsor_ad_rejected, sponsor_ad_expiring,
-security_alert, password_changed, new_login, admin_announcement
+comment_received, item_approved, item_rejected,
+payment_succeeded, subscription_expiring,
+security_alert, password_changed, admin_announcement
 ```
+
+Total notification types: **15** (7 legacy admin + 8 new). The **Mentions tab** was also dropped since no remaining type qualifies — tabs are now **All / Unread / System**.
 
 Priority + category + default channel matrix is encoded in
 `apps/web/lib/notifications/registry.ts` so a single edit changes both UI and dispatch behavior.

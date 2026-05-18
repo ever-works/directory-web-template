@@ -13,7 +13,7 @@ import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { getTenantId } from '@/lib/auth/tenant';
 import { rowToListItem } from '@/lib/services/notification.service';
-import { isKnownType, MENTION_TYPES, NOTIFICATION_PRIORITIES, NOTIFICATION_TYPES } from '@/lib/notifications';
+import { isKnownType, NOTIFICATION_PRIORITIES } from '@/lib/notifications';
 import type { NotificationListResponse } from '@/lib/notifications/types';
 
 const DEFAULT_LIMIT = 25;
@@ -46,12 +46,6 @@ export async function GET(req: NextRequest) {
 			eq(notifications.tenantId, tenantId),
 			sql`${notifications.archivedAt} IS NULL`,
 			tab === 'unread' ? eq(notifications.isRead, false) : undefined,
-			tab === 'mentions'
-				? inArray(
-						notifications.type,
-						Array.from(MENTION_TYPES) as (typeof NOTIFICATION_TYPES)[number][]
-					)
-				: undefined,
 			tab === 'system'
 				? or(
 						eq(notifications.category, 'system'),

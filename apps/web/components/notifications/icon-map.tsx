@@ -79,7 +79,6 @@ const CATEGORY_ICON_COLOR: Record<NotificationCategory, string> = {
 	item: 'text-blue-500',
 	moderation: 'text-orange-500',
 	billing: 'text-red-500',
-	sponsorship: 'text-purple-500',
 	account: 'text-violet-500',
 	system: 'text-neutral-500'
 };

@@ -224,7 +224,6 @@ function groupByCategory(): Record<NotificationCategory, NotificationType[]> {
 		item: [],
 		moderation: [],
 		billing: [],
-		sponsorship: [],
 		account: [],
 		system: []
 	};

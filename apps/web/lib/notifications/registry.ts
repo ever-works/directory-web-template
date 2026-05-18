@@ -8,6 +8,12 @@
  *
  * Adding a new notification type = adding an entry here, expanding the
  * Drizzle enum, and (optionally) a translation in `messages/en.json`.
+ *
+ * Trimmed to 15 types in spec 027 v2: only events with a clear
+ * implementation hook in this codebase ship.  Speculative types
+ * (mentions, replies, reactions, reviews, ratings, content lifecycle
+ * variants beyond approved/rejected, sponsor_*, new_login, subscription
+ * renewal/cancellation) were removed.
  */
 
 export const NOTIFICATION_CATEGORIES = [
@@ -15,7 +21,6 @@ export const NOTIFICATION_CATEGORIES = [
 	'item',
 	'moderation',
 	'billing',
-	'sponsorship',
 	'account',
 	'system'
 ] as const;
@@ -27,7 +32,7 @@ export type NotificationPriority = (typeof NOTIFICATION_PRIORITIES)[number];
 export const NOTIFICATION_CHANNELS = ['in_app', 'email', 'push', 'sms'] as const;
 export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
 
-export const NOTIFICATION_TAB_VALUES = ['all', 'unread', 'mentions', 'system'] as const;
+export const NOTIFICATION_TAB_VALUES = ['all', 'unread', 'system'] as const;
 export type NotificationTab = (typeof NOTIFICATION_TAB_VALUES)[number];
 
 export type ChannelMatrix = Partial<Record<NotificationChannel, boolean>>;
@@ -56,37 +61,22 @@ const FIVE_MIN = 5 * 60 * 1000;
 export const NOTIFICATION_TYPES = [
 	// Social
 	'user_followed',
-	'user_mentioned',
 	'comment_received',
-	'comment_reply',
-	'reaction_received',
-	'review_received',
-	'rating_received',
 	// Item lifecycle
 	'item_submission',
 	'item_approved',
 	'item_rejected',
-	'item_featured',
-	'item_published',
 	// Moderation
 	'comment_reported',
 	'item_reported',
-	'content_removed',
 	// Billing
 	'payment_failed',
 	'payment_succeeded',
-	'subscription_renewed',
 	'subscription_expiring',
-	'subscription_cancelled',
-	// Sponsorship
-	'sponsor_ad_approved',
-	'sponsor_ad_rejected',
-	'sponsor_ad_expiring',
 	// Account & system
 	'user_registered',
 	'security_alert',
 	'password_changed',
-	'new_login',
 	'system_alert',
 	'admin_announcement'
 ] as const;
@@ -99,16 +89,7 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 		priority: 'low',
 		icon: 'UserPlus',
 		locked: false,
-		defaultChannels: { in_app: true, email: true },
-		groupBy: 'type+actor+target',
-		groupWindowMs: FIVE_MIN
-	},
-	user_mentioned: {
-		category: 'social',
-		priority: 'high',
-		icon: 'AtSign',
-		locked: false,
-		defaultChannels: { in_app: true, email: true, push: true }
+		defaultChannels: { in_app: true, email: true }
 	},
 	comment_received: {
 		category: 'social',
@@ -116,38 +97,6 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 		icon: 'MessageSquare',
 		locked: false,
 		defaultChannels: { in_app: true, email: true },
-		groupBy: 'type+target',
-		groupWindowMs: FIVE_MIN
-	},
-	comment_reply: {
-		category: 'social',
-		priority: 'medium',
-		icon: 'CornerDownRight',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	reaction_received: {
-		category: 'social',
-		priority: 'low',
-		icon: 'Heart',
-		locked: false,
-		defaultChannels: { in_app: true },
-		groupBy: 'type+target',
-		groupWindowMs: FIVE_MIN
-	},
-	review_received: {
-		category: 'social',
-		priority: 'medium',
-		icon: 'Star',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	rating_received: {
-		category: 'social',
-		priority: 'low',
-		icon: 'Star',
-		locked: false,
-		defaultChannels: { in_app: true },
 		groupBy: 'type+target',
 		groupWindowMs: FIVE_MIN
 	},
@@ -164,26 +113,12 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 		priority: 'high',
 		icon: 'CheckCircle2',
 		locked: false,
-		defaultChannels: { in_app: true, email: true, push: true }
+		defaultChannels: { in_app: true, email: true }
 	},
 	item_rejected: {
 		category: 'item',
 		priority: 'high',
 		icon: 'XCircle',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	item_featured: {
-		category: 'item',
-		priority: 'medium',
-		icon: 'Sparkles',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	item_published: {
-		category: 'item',
-		priority: 'low',
-		icon: 'Globe',
 		locked: false,
 		defaultChannels: { in_app: true, email: true }
 	},
@@ -202,66 +137,23 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 		locked: false,
 		defaultChannels: { in_app: true, email: true }
 	},
-	content_removed: {
-		category: 'moderation',
-		priority: 'high',
-		icon: 'ShieldAlert',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
 	// Billing --------------------------------------------------------
 	payment_failed: {
 		category: 'billing',
 		priority: 'critical',
 		icon: 'AlertOctagon',
 		locked: true,
-		defaultChannels: { in_app: true, email: true, push: true }
+		defaultChannels: { in_app: true, email: true }
 	},
 	payment_succeeded: {
 		category: 'billing',
 		priority: 'low',
 		icon: 'BadgeCheck',
 		locked: false,
-		defaultChannels: { email: true }
-	},
-	subscription_renewed: {
-		category: 'billing',
-		priority: 'low',
-		icon: 'RefreshCw',
-		locked: false,
-		defaultChannels: { email: true }
+		defaultChannels: { in_app: true, email: true }
 	},
 	subscription_expiring: {
 		category: 'billing',
-		priority: 'high',
-		icon: 'Clock',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	subscription_cancelled: {
-		category: 'billing',
-		priority: 'medium',
-		icon: 'XCircle',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	// Sponsorship ----------------------------------------------------
-	sponsor_ad_approved: {
-		category: 'sponsorship',
-		priority: 'medium',
-		icon: 'Megaphone',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	sponsor_ad_rejected: {
-		category: 'sponsorship',
-		priority: 'high',
-		icon: 'Megaphone',
-		locked: false,
-		defaultChannels: { in_app: true, email: true }
-	},
-	sponsor_ad_expiring: {
-		category: 'sponsorship',
 		priority: 'high',
 		icon: 'Clock',
 		locked: false,
@@ -280,20 +172,13 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 		priority: 'critical',
 		icon: 'ShieldAlert',
 		locked: true,
-		defaultChannels: { in_app: true, email: true, push: true }
+		defaultChannels: { in_app: true, email: true }
 	},
 	password_changed: {
 		category: 'account',
 		priority: 'high',
 		icon: 'KeyRound',
 		locked: true,
-		defaultChannels: { in_app: true, email: true }
-	},
-	new_login: {
-		category: 'account',
-		priority: 'medium',
-		icon: 'LogIn',
-		locked: false,
 		defaultChannels: { in_app: true, email: true }
 	},
 	system_alert: {
@@ -312,13 +197,10 @@ export const NOTIFICATION_REGISTRY: Record<NotificationType, NotificationTypeMet
 	}
 };
 
-/** Types that count toward the Mentions tab. */
-export const MENTION_TYPES: ReadonlySet<NotificationType> = new Set([
-	'user_mentioned',
-	'comment_reply'
-]);
-
-/** Types that count toward the System tab (anything in `account` or `system` category + payment_failed). */
+/**
+ * Types that count toward the System tab — anything in the system or
+ * account category, plus the locked billing alert.
+ */
 export function isSystemType(type: NotificationType): boolean {
 	const meta = NOTIFICATION_REGISTRY[type];
 	if (!meta) return false;

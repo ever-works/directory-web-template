@@ -5,13 +5,12 @@
  */
 
 import { NextResponse } from 'next/server';
-import { and, eq, inArray, or, sql } from 'drizzle-orm';
+import { and, eq, or, sql } from 'drizzle-orm';
 
 import { requireClientAuth, badRequestResponse, serverErrorResponse } from '@/lib/utils/client-auth';
 import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { getTenantId } from '@/lib/auth/tenant';
-import { MENTION_TYPES, NOTIFICATION_TYPES } from '@/lib/notifications';
 import type { NotificationStatsResponse } from '@/lib/notifications/types';
 
 export async function GET() {
@@ -32,10 +31,6 @@ export async function GET() {
 			.select({
 				total: sql<number>`count(*)::int`,
 				unread: sql<number>`count(*) filter (where ${notifications.isRead} = false)::int`,
-				mentions: sql<number>`count(*) filter (where ${inArray(
-					notifications.type,
-					Array.from(MENTION_TYPES) as (typeof NOTIFICATION_TYPES)[number][]
-				)})::int`,
 				system: sql<number>`count(*) filter (where ${or(
 					eq(notifications.category, 'system'),
 					eq(notifications.category, 'account'),
@@ -52,7 +47,6 @@ export async function GET() {
 			byTab: {
 				all: row?.total ?? 0,
 				unread: row?.unread ?? 0,
-				mentions: row?.mentions ?? 0,
 				system: row?.system ?? 0
 			}
 		};

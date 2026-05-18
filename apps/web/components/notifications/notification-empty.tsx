@@ -4,28 +4,16 @@ import { Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface NotificationEmptyProps {
-	variant?: 'all' | 'unread' | 'mentions' | 'system';
+	variant?: 'all' | 'unread' | 'system';
 }
 
 export function NotificationEmpty({ variant = 'all' }: NotificationEmptyProps) {
 	const t = useTranslations('client.notifications.empty');
 
 	const titleKey =
-		variant === 'unread'
-			? 'unreadTitle'
-			: variant === 'mentions'
-				? 'mentionsTitle'
-				: variant === 'system'
-					? 'systemTitle'
-					: 'allTitle';
+		variant === 'unread' ? 'unreadTitle' : variant === 'system' ? 'systemTitle' : 'allTitle';
 	const bodyKey =
-		variant === 'unread'
-			? 'unreadBody'
-			: variant === 'mentions'
-				? 'mentionsBody'
-				: variant === 'system'
-					? 'systemBody'
-					: 'allBody';
+		variant === 'unread' ? 'unreadBody' : variant === 'system' ? 'systemBody' : 'allBody';
 
 	return (
 		<div className="flex flex-col items-center justify-center py-12 px-4">

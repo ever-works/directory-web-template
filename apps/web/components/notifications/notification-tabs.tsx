@@ -14,7 +14,7 @@ interface NotificationTabsProps {
 	className?: string;
 }
 
-const TABS: NotificationTab[] = ['all', 'unread', 'mentions', 'system'];
+const TABS: NotificationTab[] = ['all', 'unread', 'system'];
 
 export function NotificationTabs({ value, onChange, counts, variant = 'page', className }: NotificationTabsProps) {
 	const t = useTranslations('client.notifications.tabs');

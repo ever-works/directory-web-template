@@ -631,33 +631,15 @@ export const notifications = pgTable(
 				'user_followed',
 				'payment_failed',
 				'system_alert',
-				// Client / social
-				'user_mentioned',
+				// Client lifecycle + billing
 				'comment_received',
-				'comment_reply',
-				'reaction_received',
-				'review_received',
-				'rating_received',
-				// Item lifecycle
 				'item_approved',
 				'item_rejected',
-				'item_featured',
-				'item_published',
-				// Moderation
-				'content_removed',
-				// Billing
 				'payment_succeeded',
-				'subscription_renewed',
 				'subscription_expiring',
-				'subscription_cancelled',
-				// Sponsorship
-				'sponsor_ad_approved',
-				'sponsor_ad_rejected',
-				'sponsor_ad_expiring',
 				// Account & system
 				'security_alert',
 				'password_changed',
-				'new_login',
 				'admin_announcement'
 			]
 		}).notNull(),

@@ -12,7 +12,7 @@ import { requireClientAuth, badRequestResponse, serverErrorResponse } from '@/li
 import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
 import { getTenantId } from '@/lib/auth/tenant';
-import { isKnownType, MENTION_TYPES, NOTIFICATION_TYPES } from '@/lib/notifications';
+import { isKnownType } from '@/lib/notifications';
 import type { BulkRequest } from '@/lib/notifications/types';
 
 const VALID_ACTIONS = new Set(['read', 'unread', 'archive', 'delete']);
@@ -36,18 +36,13 @@ export async function POST(req: NextRequest) {
 		const tabClause =
 			body.filter?.tab === 'unread'
 				? eq(notifications.isRead, false)
-				: body.filter?.tab === 'mentions'
-					? inArray(
-							notifications.type,
-							Array.from(MENTION_TYPES) as (typeof NOTIFICATION_TYPES)[number][]
+				: body.filter?.tab === 'system'
+					? or(
+							eq(notifications.category, 'system'),
+							eq(notifications.category, 'account'),
+							eq(notifications.type, 'payment_failed')
 						)
-					: body.filter?.tab === 'system'
-						? or(
-								eq(notifications.category, 'system'),
-								eq(notifications.category, 'account'),
-								eq(notifications.type, 'payment_failed')
-							)
-						: undefined;
+					: undefined;
 
 		const typeClause =
 			body.filter?.type && isKnownType(body.filter.type) ? eq(notifications.type, body.filter.type) : undefined;

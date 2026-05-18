@@ -4076,32 +4076,18 @@
 			"types": {
 				"newBadge": "New",
 				"user_followed": "New follower",
-				"user_mentioned": "Mention",
 				"comment_received": "Comment",
-				"comment_reply": "Reply",
-				"reaction_received": "Reaction",
-				"review_received": "Review",
-				"rating_received": "Rating",
 				"item_submission": "New submission",
 				"item_approved": "Item approved",
 				"item_rejected": "Item rejected",
-				"item_featured": "Item featured",
-				"item_published": "Item published",
 				"comment_reported": "Comment reported",
 				"item_reported": "Item reported",
-				"content_removed": "Content removed",
 				"payment_failed": "Payment issue",
 				"payment_succeeded": "Payment received",
-				"subscription_renewed": "Subscription renewed",
 				"subscription_expiring": "Subscription expiring",
-				"subscription_cancelled": "Subscription cancelled",
-				"sponsor_ad_approved": "Sponsor ad approved",
-				"sponsor_ad_rejected": "Sponsor ad rejected",
-				"sponsor_ad_expiring": "Sponsor ad expiring",
 				"user_registered": "New user",
 				"security_alert": "Security alert",
 				"password_changed": "Password changed",
-				"new_login": "New sign-in",
 				"system_alert": "System alert",
 				"admin_announcement": "Announcement"
 			},
@@ -4109,7 +4095,6 @@
 				"aria": "Notification filters",
 				"all": "All",
 				"unread": "Unread",
-				"mentions": "Mentions",
 				"system": "System"
 			},
 			"sections": {
@@ -4123,8 +4108,6 @@
 				"allBody": "We will let you know when something new happens.",
 				"unreadTitle": "No unread notifications",
 				"unreadBody": "Everything has been read.",
-				"mentionsTitle": "No mentions yet",
-				"mentionsBody": "Replies and @mentions will show up here.",
 				"systemTitle": "No system notifications",
 				"systemBody": "Account and security alerts will show up here.",
 				"managePreferences": "Manage preferences"
@@ -4182,7 +4165,6 @@
 					"item": "Item lifecycle",
 					"moderation": "Moderation",
 					"billing": "Billing",
-					"sponsorship": "Sponsorship",
 					"account": "Account",
 					"system": "System"
 				}
