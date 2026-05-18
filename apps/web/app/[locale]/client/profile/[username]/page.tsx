@@ -1,4 +1,4 @@
-import { getSessionViaApi } from '@/lib/auth/get-session-via-api';
+import { auth } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
@@ -27,9 +27,6 @@ import type { Profile, ProfileSkill } from '@/lib/types/profile';
 
 // Force dynamic rendering — page depends on session/follow state
 export const dynamic = 'force-dynamic';
-// Force Node.js runtime so auth()'s DB/bcryptjs-backed JWT callbacks can run
-// (Spec 027).
-export const runtime = 'nodejs';
 
 export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
 	const { username } = await params;
@@ -39,7 +36,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		notFound();
 	}
 
-	const session = await getSessionViaApi();
+	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
