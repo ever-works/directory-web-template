@@ -16,7 +16,8 @@ import { PromoCodeComponent } from '../promo-code/promo-code';
 import { FavoriteButton } from '../favorite-button';
 import type { ItemData } from '@/lib/content';
 import type { ItemLocationData } from '@/lib/types/item';
-import { SimilarItemsSection } from './similar-items-section';
+import { ItemStatsSection } from './item-stats-section';
+import { ItemsCarousel } from '@/components/shared/items-carousel';
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
@@ -434,13 +435,26 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 							</div>
 						)}
 
-						{meta.allItems && meta.allItems.length > 0 && (
-							<div className="mt-10 border-t border-gray-200 dark:border-white/8 pt-6 border-dashed">
-								<SimilarItemsSection allItems={meta.allItems} />
-							</div>
-						)}
+						<ItemStatsSection itemSlug={meta.slug || meta.name} publishedAt={meta.updated_at} />
 					</div>
 				</div>
+
+				{/* Similar Products — full-width carousel like /favorites */}
+				{meta.allItems && meta.allItems.length > 0 && (
+					<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
+						<div className="mb-6">
+							<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+								{t('itemDetail.SIMILAR_PRODUCTS', { defaultValue: 'Similar Products' })}
+							</h2>
+							<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+								{t('itemDetail.SIMILAR_PRODUCTS_DESCRIPTION', {
+									defaultValue: 'Explore more items related to this one'
+								})}
+							</p>
+						</div>
+						<ItemsCarousel items={meta.allItems} max={12} />
+					</div>
+				)}
 			</Container>
 		</div>
 	);

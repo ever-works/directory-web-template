@@ -209,7 +209,7 @@ vercel --prod`,
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-500 dark:text-slate-400 text-xs">
-                    Step {activeStep + 1} of {steps.length}
+                    {t('STEP_OF', { current: activeStep + 1, total: steps.length })}
                   </span>
                 </div>
                   </div>

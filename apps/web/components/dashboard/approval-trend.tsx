@@ -1,151 +1,159 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 import {
-    AreaChart,
-    Area,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
+	AreaChart,
+	Area,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ReferenceLine,
+	ResponsiveContainer,
 } from "recharts";
+import { TrendingDown, TrendingUp, BadgeCheck } from "lucide-react";
 import type { ApprovalTrendDataExport } from "@/hooks/use-dashboard-stats";
 import {
-    CARD_BASE_STYLES,
-    TITLE_STYLES,
-    SUBTITLE_STYLES,
-    VALUE_STYLES,
-    getTooltipStyles,
-} from "./styles";
+	ChartCard,
+	ChartCardSkeleton,
+	ChartEmptyState,
+	ChartTooltip,
+	useChartAxisProps,
+} from "./_chart-primitives";
+import { SEMANTIC_COLORS } from "./styles";
 
 interface ApprovalTrendProps {
-    data: ApprovalTrendDataExport[];
-    isLoading?: boolean;
+	data: ApprovalTrendDataExport[];
+	isLoading?: boolean;
 }
 
+const CHART_HEIGHT = 220;
+
 export function ApprovalTrend({ data, isLoading = false }: ApprovalTrendProps) {
-    const gradientId = useId();
-    const { resolvedTheme } = useTheme();
-    const isDark = resolvedTheme === 'dark';
-    const areaColor = isDark ? '#e5e5e5' : '#171717';
-    const t = useTranslations("client.dashboard.APPROVAL_TREND");
+	const gradientId = useId();
+	const t = useTranslations("client.dashboard.APPROVAL_TREND");
+	const { gridColor, axisProps } = useChartAxisProps();
 
-    if (isLoading) {
-        return (
-            <div className={CARD_BASE_STYLES}>
-                <div className="animate-pulse">
-                    <div className="h-4 bg-neutral-100 dark:bg-white/8 rounded-sm mb-4 w-1/3"></div>
-                    <div className="h-64 bg-neutral-100 dark:bg-white/8 rounded-sm"></div>
-                </div>
-            </div>
-        );
-    }
+	const { latestRate, rateChange, totalSubmissions, totalApproved, hasAnySubmissions } = useMemo(() => {
+		const latest = data[data.length - 1]?.rate ?? 0;
+		const first = data[0]?.rate ?? 0;
+		const sub = data.reduce((sum, item) => sum + item.total, 0);
+		const app = data.reduce((sum, item) => sum + item.approved, 0);
+		return {
+			latestRate: latest,
+			rateChange: latest - first,
+			totalSubmissions: sub,
+			totalApproved: app,
+			hasAnySubmissions: sub > 0,
+		};
+	}, [data]);
 
-    if (!data || data.length === 0) {
-        return (
-            <div className={CARD_BASE_STYLES}>
-                <h3 className={TITLE_STYLES}>{t("TITLE")}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-center py-8">
-                    {t("NO_DATA")}
-                </p>
-                <p className={`${SUBTITLE_STYLES} text-center`}>
-                    {t("NO_DATA_DESC")}
-                </p>
-            </div>
-        );
-    }
+	if (isLoading) {
+		return <ChartCardSkeleton height={CHART_HEIGHT} hasHeaderRight />;
+	}
 
-    const latestRate = data[data.length - 1]?.rate || 0;
-    const firstRate = data[0]?.rate || 0;
-    const rateChange = latestRate - firstRate;
-    const totalSubmissions = data.reduce((sum, item) => sum + item.total, 0);
-    const totalApproved = data.reduce((sum, item) => sum + item.approved, 0);
+	if (!data || data.length === 0 || !hasAnySubmissions) {
+		return (
+			<ChartCard title={t("TITLE")} subtitle={t("SUBTITLE")}>
+				<ChartEmptyState
+					icon={<BadgeCheck className="h-5 w-5" />}
+					title={t("NO_DATA")}
+					description={t("NO_DATA_DESC")}
+					height={CHART_HEIGHT}
+				/>
+			</ChartCard>
+		);
+	}
 
-    return (
-        <section className={CARD_BASE_STYLES} aria-labelledby="approval-trend-title">
-            <div className="flex items-center justify-between mb-4">
-                <div>
-                    <h3 id="approval-trend-title" className={TITLE_STYLES}>{t("TITLE")}</h3>
-                    <p className={SUBTITLE_STYLES}>{t("SUBTITLE")}</p>
-                </div>
-                <div className="text-right">
-                    <div className={VALUE_STYLES}>{latestRate.toFixed(0)}%</div>
-                    <div
-                        className={`text-xs ${
-                            rateChange >= 0
-                                ? "text-green-600 dark:text-green-400"
-                                : "text-red-600 dark:text-red-400"
-                        }`}
-                    >
-                        {rateChange >= 0 ? "+" : ""}
-                        {rateChange.toFixed(0)}%
-                    </div>
-                </div>
-            </div>
-            <ResponsiveContainer width="100%" height={200}>
-                <AreaChart
-                    data={data}
-                    margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                >
-                    <defs>
-                        <linearGradient
-                            id={`approvalGradient-${gradientId}`}
-                            x1="0"
-                            y1="0"
-                            x2="0"
-                            y2="1"
-                        >
-                            <stop
-                                offset="5%"
-                                stopColor={areaColor}
-                                stopOpacity={0.15}
-                            />
-                            <stop
-                                offset="95%"
-                                stopColor={areaColor}
-                                stopOpacity={0}
-                            />
-                        </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="rgba(163,163,163,0.15)"
-                        vertical={false}
-                    />
-                    <XAxis dataKey="month" stroke="#a3a3a3" fontSize={11} />
-                    <YAxis
-                        stroke="#a3a3a3"
-                        fontSize={11}
-                        domain={[0, 100]}
-                        tickFormatter={(value: number) => `${value}%`}
-                    />
-                    <Tooltip
-                        contentStyle={getTooltipStyles(isDark)}
-                        formatter={(value) => [
-                            `${Number(value).toFixed(1)}%`,
-                            t("APPROVAL_RATE"),
-                        ]}
-                    />
-                    <Area
-                        type="monotone"
-                        dataKey="rate"
-                        stroke={areaColor}
-                        strokeWidth={2}
-                        fill={`url(#approvalGradient-${gradientId})`}
-                    />
-                </AreaChart>
-            </ResponsiveContainer>
-            <div className="mt-4 flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
-                <span>
-                    {t("TOTAL")}: {totalSubmissions}
-                </span>
-                <span>
-                    {t("APPROVED")}: {totalApproved}
-                </span>
-            </div>
-        </section>
-    );
+	const lineColor = SEMANTIC_COLORS.success;
+	const changeIsPositive = rateChange >= 0;
+	const TrendIcon = changeIsPositive ? TrendingUp : TrendingDown;
+
+	return (
+		<ChartCard
+			title={t("TITLE")}
+			subtitle={t("SUBTITLE")}
+			headerRight={
+				<div className="flex flex-col items-end gap-0.5">
+					<div className="flex items-baseline gap-1.5">
+						<span className="text-xl font-semibold text-neutral-900 dark:text-white tabular-nums tracking-tight">
+							{latestRate.toFixed(0)}%
+						</span>
+						<span
+							className={`inline-flex items-center gap-0.5 text-[11px] font-medium tabular-nums ${
+								changeIsPositive
+									? "text-emerald-600 dark:text-emerald-400"
+									: "text-red-500 dark:text-red-400"
+							}`}
+						>
+							<TrendIcon className="h-3 w-3" aria-hidden="true" />
+							{changeIsPositive ? "+" : ""}
+							{rateChange.toFixed(0)}%
+						</span>
+					</div>
+					<span className="text-[11px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+						{t("APPROVAL_RATE")}
+					</span>
+				</div>
+			}
+		>
+			<ResponsiveContainer width="100%" height={CHART_HEIGHT}>
+				<AreaChart data={data} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
+					<defs>
+						<linearGradient id={`approvalGradient-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
+							<stop offset="0%" stopColor={lineColor} stopOpacity={0.25} />
+							<stop offset="100%" stopColor={lineColor} stopOpacity={0} />
+						</linearGradient>
+					</defs>
+					<CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
+					<XAxis dataKey="month" {...axisProps} />
+					<YAxis
+						{...axisProps}
+						domain={[0, 100]}
+						tickFormatter={(value: number) => `${value}%`}
+						width={40}
+					/>
+					<ReferenceLine y={50} stroke={gridColor} strokeDasharray="4 4" />
+					<Tooltip
+						cursor={{ stroke: gridColor, strokeWidth: 1 }}
+						content={
+							<ChartTooltip
+								valueFormatter={(v) => `${Number(v ?? 0).toFixed(0)}%`}
+							/>
+						}
+					/>
+					<Area
+						type="monotone"
+						dataKey="rate"
+						name={t("APPROVAL_RATE")}
+						stroke={lineColor}
+						strokeWidth={2}
+						fill={`url(#approvalGradient-${gradientId})`}
+						activeDot={{ r: 4, strokeWidth: 2, stroke: "#fff" }}
+					/>
+				</AreaChart>
+			</ResponsiveContainer>
+
+			{/* Footer summary */}
+			<div className="mt-4 grid grid-cols-2 gap-3 pt-4 border-t border-neutral-100 dark:border-white/[0.05]">
+				<div>
+					<div className="text-[11px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+						{t("APPROVED")}
+					</div>
+					<div className="mt-1 text-sm font-semibold text-neutral-900 dark:text-white tabular-nums">
+						{totalApproved.toLocaleString()}
+					</div>
+				</div>
+				<div className="text-right">
+					<div className="text-[11px] text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+						{t("TOTAL")}
+					</div>
+					<div className="mt-1 text-sm font-semibold text-neutral-900 dark:text-white tabular-nums">
+						{totalSubmissions.toLocaleString()}
+					</div>
+				</div>
+			</div>
+		</ChartCard>
+	);
 }

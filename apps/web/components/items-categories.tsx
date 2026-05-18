@@ -3,7 +3,7 @@ import { Category } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { Button } from "@heroui/react";
 import Image from "next/image";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useThrottledScroll } from "@/hooks/use-throttled-scroll";
 import { useCategoriesEnabled } from "@/hooks/use-categories-enabled";

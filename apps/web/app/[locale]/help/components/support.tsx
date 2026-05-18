@@ -30,7 +30,7 @@ export function Support() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [chatOpen, setChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
-    { id: 1, type: 'bot', message: 'Hello! How can I help you today?', time: 'Just now' }
+    { id: 1, type: 'bot', message: t('BOT_GREETING'), time: t('JUST_NOW') }
   ]);
   const [inputMessage, setInputMessage] = useState('');
 
@@ -42,13 +42,13 @@ export function Support() {
       Icon: BookOpen,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
-      responseTime: "Instant",
-      availability: "24/7",
+      responseTime: t("RESPONSE_INSTANT"),
+      availability: t("AVAILABILITY_247"),
       features: [
-        "Comprehensive guides",
-        "API documentation",
-        "Code examples",
-        "Video tutorials"
+        t("DOC_FEATURE_1"),
+        t("DOC_FEATURE_2"),
+        t("DOC_FEATURE_3"),
+        t("DOC_FEATURE_4")
       ],
       link: "/docs",
       status: "online"
@@ -60,13 +60,13 @@ export function Support() {
       Icon: Users,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
-      responseTime: "2-4 hours",
-      availability: "24/7",
+      responseTime: t("RESPONSE_2_4H"),
+      availability: t("AVAILABILITY_247"),
       features: [
-        "Discord server",
-        "Community forums",
-        "Peer support",
-        "Knowledge sharing"
+        t("COMM_FEATURE_1"),
+        t("COMM_FEATURE_2"),
+        t("COMM_FEATURE_3"),
+        t("COMM_FEATURE_4")
       ],
       link: "https://discord.gg/ever-works",
       status: "online"
@@ -78,31 +78,31 @@ export function Support() {
       Icon: Mail,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
-      responseTime: "4-8 hours",
-      availability: "Business hours",
+      responseTime: t("RESPONSE_4_8H"),
+      availability: t("AVAILABILITY_BUSINESS"),
       features: [
-        "Priority support",
-        "Technical assistance",
-        "Bug reports",
-        "Feature requests"
+        t("EMAIL_FEATURE_1"),
+        t("EMAIL_FEATURE_2"),
+        t("EMAIL_FEATURE_3"),
+        t("EMAIL_FEATURE_4")
       ],
       link: "mailto:support@ever.works",
       status: "online"
     },
     {
       id: "live-chat",
-      name: "Live Chat",
-      description: "Get instant help from our support team",
+      name: t("LIVE_CHAT"),
+      description: t("LIVE_CHAT_DESC"),
       Icon: MessageSquare,
       color: "text-neutral-900 dark:text-white",
       gradient: "from-neutral-700 to-neutral-900",
-      responseTime: "1-2 minutes",
-      availability: "9 AM - 6 PM EST",
+      responseTime: t("LIVE_CHAT_RESPONSE_TIME"),
+      availability: t("LIVE_CHAT_AVAILABILITY"),
       features: [
-        "Real-time chat",
-        "Screen sharing",
-        "File uploads",
-        "Instant responses"
+        t("LC_FEATURE_1"),
+        t("LC_FEATURE_2"),
+        t("LC_FEATURE_3"),
+        t("LC_FEATURE_4")
       ],
       link: "#",
       status: "online"
@@ -149,12 +149,12 @@ export function Support() {
   ];
 
   const categories = [
-    { id: "all", label: "All Questions", count: faqItems.length },
-    { id: "setup", label: "Setup & Installation", count: faqItems.filter(f => f.category === "setup").length },
-    { id: "requirements", label: "Requirements", count: faqItems.filter(f => f.category === "requirements").length },
-    { id: "customization", label: "Customization", count: faqItems.filter(f => f.category === "customization").length },
-    { id: "deployment", label: "Deployment", count: faqItems.filter(f => f.category === "deployment").length },
-    { id: "payments", label: "Payments", count: faqItems.filter(f => f.category === "payments").length }
+    { id: "all", label: t("FAQ_CAT_ALL"), count: faqItems.length },
+    { id: "setup", label: t("FAQ_CAT_SETUP"), count: faqItems.filter(f => f.category === "setup").length },
+    { id: "requirements", label: t("FAQ_CAT_REQUIREMENTS"), count: faqItems.filter(f => f.category === "requirements").length },
+    { id: "customization", label: t("FAQ_CAT_CUSTOMIZATION"), count: faqItems.filter(f => f.category === "customization").length },
+    { id: "deployment", label: t("FAQ_CAT_DEPLOYMENT"), count: faqItems.filter(f => f.category === "deployment").length },
+    { id: "payments", label: t("FAQ_CAT_PAYMENTS"), count: faqItems.filter(f => f.category === "payments").length }
   ];
 
   const filteredFAQ = selectedCategory === 'all' 
@@ -179,8 +179,8 @@ export function Support() {
       const botResponse = {
         id: chatMessages.length + 2,
         type: 'bot' as const,
-        message: "Thanks for your message! Our support team will get back to you shortly. In the meantime, you can check our documentation for quick answers.",
-        time: 'Just now'
+        message: t('BOT_THANKS_MESSAGE'),
+        time: t('JUST_NOW')
       };
       setChatMessages(prev => [...prev, botResponse]);
     }, 1000);
@@ -200,7 +200,7 @@ export function Support() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-6">
-          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">Support Center</p>
+          <p className="text-xs font-medium uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-2">{t("SUPPORT_CENTER")}</p>
           <h2 className="text-base font-semibold tracking-tight mb-2 text-neutral-900 dark:text-white">
             {t("NEED_HELP")}
           </h2>
@@ -219,16 +219,16 @@ export function Support() {
                   <LifeBuoy className="w-4 h-4 text-white dark:text-neutral-400" />
                 </div>
                 <h3 className="text-sm font-semibold text-slate-900 dark:text-white">
-                  Support Dashboard
+                  {t("SUPPORT_DASHBOARD")}
                 </h3>
               </div>
-              
+
               {/* Tabs */}
               <div className="flex bg-slate-200 dark:bg-white/8 rounded-lg p-1">
                 {[
-                  { id: 'channels', label: 'Support Channels', Icon: Phone },
-                  { id: 'faq', label: 'FAQ', Icon: HelpCircle },
-                  { id: 'chat', label: 'Live Chat', Icon: MessageSquare }
+                  { id: 'channels', label: t('TAB_SUPPORT_CHANNELS'), Icon: Phone },
+                  { id: 'faq', label: t('TAB_FAQ'), Icon: HelpCircle },
+                  { id: 'chat', label: t('TAB_LIVE_CHAT'), Icon: MessageSquare }
                 ].map((tab) => (
                   <button
                     key={tab.id}
@@ -270,7 +270,7 @@ export function Support() {
                             <div className="flex items-center gap-2 mt-1">
                               <div className={`w-2 h-2 rounded-full ${getStatusColor(channel.status)}`}></div>
                               <span className="text-xs text-slate-500 dark:text-slate-400 capitalize">
-                                {channel.status}
+                                {channel.status === 'online' ? t('STATUS_ONLINE') : channel.status === 'busy' ? t('STATUS_BUSY') : t('STATUS_OFFLINE')}
                               </span>
                             </div>
                           </div>
@@ -289,7 +289,7 @@ export function Support() {
                             {channel.responseTime}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
-                            Response Time
+                            {t("RESPONSE_TIME_LABEL")}
                           </div>
                         </div>
                         <div className="text-center">
@@ -297,7 +297,7 @@ export function Support() {
                             {channel.availability}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400">
-                            Availability
+                            {t("AVAILABILITY_LABEL")}
                           </div>
                         </div>
                       </div>
@@ -305,7 +305,7 @@ export function Support() {
                       {/* Features */}
                       <div className="mb-3">
                         <h5 className="text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wider">
-                          Features
+                          {t("FEATURES_LABEL")}
                         </h5>
                         <div className="flex flex-wrap gap-1">
                           {channel.features.map((feature, index) => (
@@ -324,7 +324,7 @@ export function Support() {
                         onClick={() => channel.id === 'live-chat' ? setChatOpen(true) : window.open(channel.link, '_blank')}
                         className="w-full h-8 px-3 text-xs font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors"
                       >
-                        {channel.id === 'live-chat' ? 'Start Chat' : 'Get Help'}
+                        {channel.id === 'live-chat' ? t('START_CHAT') : t('GET_HELP_BTN')}
                       </button>
                     </div>
                   ))}
@@ -390,15 +390,15 @@ export function Support() {
                       <MessageSquare className="w-4 h-4 text-white dark:text-neutral-400" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-slate-900 dark:text-white">Live Chat</h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">Online • Responds in 1-2 minutes</p>
+                      <h4 className="font-semibold text-slate-900 dark:text-white">{t("LIVE_CHAT")}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{t("ONLINE_RESPONDS")}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setChatOpen(!chatOpen)}
                     className="h-8 px-3 text-xs font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                   >
-                    {chatOpen ? 'Close Chat' : 'Start Chat'}
+                    {chatOpen ? t('CLOSE_CHAT') : t('START_CHAT')}
                   </button>
                 </div>
 
@@ -431,14 +431,14 @@ export function Support() {
                           value={inputMessage}
                           onChange={(e) => setInputMessage(e.target.value)}
                           onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                          placeholder="Type your message..."
+                          placeholder={t("TYPE_MESSAGE")}
                           className="flex-1 px-3 py-2 bg-white dark:bg-white/8 border border-slate-200 dark:border-white/8 rounded-lg text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-neutral-900 dark:focus:ring-white/40"
                         />
                         <button
                           onClick={sendMessage}
                           className="h-9 px-3 text-sm font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                         >
-                          Send
+                          {t("SEND_BTN")}
                         </button>
                       </div>
                     </div>
@@ -448,16 +448,16 @@ export function Support() {
                     <div className="text-center">
                       <div className="text-4xl mb-3">💬</div>
                       <h4 className="text-sm font-semibold text-slate-900 dark:text-white mb-2">
-                        Start a conversation
+                        {t("START_CONVERSATION")}
                       </h4>
                       <p className="text-slate-600 dark:text-slate-400 mb-4">
-                        Get instant help from our support team
+                        {t("INSTANT_HELP")}
                       </p>
                       <button
                         onClick={() => setChatOpen(true)}
                         className="h-9 px-4 text-sm font-medium bg-neutral-900 hover:bg-neutral-700 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-900 rounded-lg transition-colors"
                       >
-                        Start Chat
+                        {t("START_CHAT")}
                       </button>
                     </div>
                   </div>
@@ -471,17 +471,17 @@ export function Support() {
         <div className="mt-8 text-center">
           <div className="bg-gray-50 dark:bg-white/3 rounded-xl p-6 border border-gray-100 dark:border-white/6">
             <h3 className="text-base font-semibold mb-2 text-slate-900 dark:text-white">
-              Still Need Help?
+              {t("STILL_NEED_HELP")}
             </h3>
             <p className="text-slate-600 dark:text-slate-400 text-xs mb-4 max-w-2xl mx-auto">
-              Our support team is here to help you succeed with your project
+              {t("STILL_NEED_HELP_DESC")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button className="h-9 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-100 transition-colors">
-                Contact Support
+                {t("CONTACT_SUPPORT")}
               </button>
               <button className="h-9 px-4 text-sm font-medium border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-white/6 transition-colors">
-                View Documentation
+                {t("VIEW_DOCUMENTATION")}
               </button>
             </div>
           </div>

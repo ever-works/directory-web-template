@@ -5,7 +5,7 @@ import { clampAndScrollToTop } from '@/utils/pagination';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useTranslations } from 'next-intl';
 import { Heart, Star, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 import { Category, ItemData, Tag } from '@/lib/content';
 import Item from '../item';
 import { useCurrentUser } from '@/hooks/use-current-user';
