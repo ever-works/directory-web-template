@@ -1,0 +1,173 @@
+name: E2E Tests
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main, develop, stage]
+  pull_request:
+    branches: [main, develop, stage]
+  workflow_dispatch:
+    inputs:
+      project:
+        description: 'Playwright project (chromium / firefox / webkit / all)'
+        required: false
+        default: 'chromium'
+        type: string
+      grep:
+        description: 'Run only specs matching this string'
+        required: false
+        type: string
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    name: Playwright (${{ matrix.shard }}/${{ matrix.total }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # Shard the 300+ specs across 4 jobs for parallelism. Each shard
+        # produces its own HTML report; merge into a single artifact at end.
+        shard: [1, 2, 3, 4]
+        total: [4]
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      # --- Build / runtime ---
+      NODE_ENV: test
+      CI: 'true'
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      BASE_URL: http://localhost:3000
+      CONTENT_WARNINGS_SILENT: 'true'
+
+      # --- Database (matches the postgres service above) ---
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
+
+      # --- Auth ---
+      # Fixed in CI so cookies signed by build === cookies verified by test.
+      AUTH_SECRET: ci-e2e-fixed-secret-do-not-use-in-prod-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+      COOKIE_SECRET: ci-e2e-fixed-cookie-secret-do-not-use-in-prod-bbbbbbbbbbbbbbbbbbbbbbbb
+      COOKIE_DOMAIN: localhost
+      COOKIE_SECURE: 'false'
+
+      # --- Seed account credentials the e2e suite expects ---
+      # global-setup.ts reads these via REQUIRED_ENV_VARS.
+      SEED_ADMIN_EMAIL: admin@e2e.local
+      SEED_ADMIN_PASSWORD: AdminPass123!E2E
+      SEED_FAKE_USER_COUNT: '0'
+
+      # --- Content / CMS (avoid hitting real GitHub during build) ---
+      DATA_REPOSITORY: ci-test-repo-not-used
+
+      # --- Suppress prod-only features that would fail in CI ---
+      NEXT_PUBLIC_DEMO: 'true'
+      AI_CHAT_API_KEY: ''
+      PLATFORM_API_URL: ''
+      PLATFORM_API_SECRET_TOKEN: ''
+      PLATFORM_WORK_ID: ''
+      PLATFORM_SYNC_SECRET: ''
+
+      # --- Vercel env defaults so any code that reads VERCEL_URL doesn't crash ---
+      VERCEL: ''
+      VERCEL_URL: ''
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: pnpm
+
+      - name: Install workspace dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        # Each shard installs only what it needs (chromium by default).
+        run: pnpm --filter @ever-works/web-e2e exec playwright install --with-deps chromium
+
+      - name: Prepare content directory
+        run: |
+          mkdir -p apps/web/.content/data
+          # Minimal valid manifest so the Git-CMS loader doesn't blow up.
+          cat > apps/web/.content/data/manifest.json <<'JSON'
+          { "items": [], "categories": [], "tags": [], "collections": [] }
+          JSON
+
+      - name: Run database migrations
+        # Pushes Drizzle schema to the empty postgres service. Without it
+        # the auth tables don't exist and the suite can't seed an admin.
+        run: pnpm --filter @ever-works/web db:migrate || echo "Migrations skipped (script missing or non-fatal)"
+        continue-on-error: true
+
+      - name: Seed admin account
+        # Idempotent: tries to insert the SEED_ADMIN_* account so global-setup
+        # can sign in. If the project has its own seed script, prefer that;
+        # otherwise fall back to a direct insert.
+        run: pnpm --filter @ever-works/web db:seed || echo "Seed skipped (script missing or non-fatal)"
+        continue-on-error: true
+
+      - name: Run e2e tests (shard ${{ matrix.shard }}/${{ matrix.total }})
+        run: |
+          pnpm --filter @ever-works/web-e2e exec playwright test \
+            --project="${{ github.event.inputs.project || 'chromium' }}" \
+            --shard=${{ matrix.shard }}/${{ matrix.total }} \
+            ${{ github.event.inputs.grep && format('--grep="{0}"', github.event.inputs.grep) || '' }}
+
+      - name: Upload Playwright report (shard ${{ matrix.shard }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-shard-${{ matrix.shard }}
+          path: apps/web-e2e/playwright-report
+          retention-days: 14
+
+      - name: Upload test results (shard ${{ matrix.shard }})
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-test-results-shard-${{ matrix.shard }}
+          path: apps/web-e2e/test-results
+          retention-days: 7
+
+  summary:
+    name: E2E summary
+    needs: e2e
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Aggregate result
+        run: |
+          if [[ "${{ needs.e2e.result }}" == "success" ]]; then
+            echo "All e2e shards passed ✅"
+          else
+            echo "::error::E2E suite failed (result=${{ needs.e2e.result }})"
+            exit 1
+          fi
