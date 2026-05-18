@@ -31,6 +31,21 @@ import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
+import { signIn as serverSignIn } from '@/lib/auth';
+
+// Auth.js v5 throws a NEXT_REDIRECT error (digest starts with "NEXT_REDIRECT;") when
+// signIn() needs to bounce the request. With `redirect: false` this should not happen,
+// but we still need to re-throw it if it does so Next.js can carry out the redirect.
+function isNextRedirectError(err: unknown): boolean {
+	return (
+		!!err &&
+		typeof err === 'object' &&
+		'digest' in err &&
+		typeof (err as { digest?: unknown }).digest === 'string' &&
+		((err as { digest: string }).digest.startsWith('NEXT_REDIRECT') ||
+			(err as { digest: string }).digest.startsWith('NEXT_HTTP_ERROR_FALLBACK'))
+	);
+}
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -298,14 +313,37 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 
-		// Return email for client-side sign-in (SECURITY: password sourced from client form state)
-		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
+		// Server-side sign-in: issues the session cookie in THIS response's Set-Cookie
+		// header so the immediately-following navigation to /client/dashboard already
+		// carries the cookie. This replaces the prior client-side signIn() race where
+		// the auto-login useEffect could double-fire and the second fetch was aborted
+		// by window.location.href navigation, leaving the dashboard render seeing no
+		// session and redirecting back to /auth/signin.
+		let autoLoggedIn = false;
+		try {
+			await serverSignIn('credentials', {
+				email: normalizedEmail,
+				password,
+				redirect: false
+			});
+			autoLoggedIn = true;
+		} catch (err) {
+			if (isNextRedirectError(err)) {
+				// signIn wanted to redirect — propagate so Next.js handles it.
+				throw err;
+			}
+			console.error('[SignUp] server-side signIn failed:', err);
+			// Fall through: the user exists, they can sign in manually below.
+		}
+
+		// Return email so the client can show a friendly message. The session cookie
+		// (if signIn succeeded) is already attached to this response by Auth.js.
 		return {
 			success: true,
-			redirect: '/client/dashboard',
+			redirect: autoLoggedIn ? '/client/dashboard' : '/auth/signin',
 			preserveLocale: true,
-			autoLogin: true,
-			email: normalizedEmail // Only return email, password sourced from client form state
+			autoLoggedIn,
+			email: normalizedEmail
 		};
 	} catch (error) {
 		console.error('SignUp error:', error);

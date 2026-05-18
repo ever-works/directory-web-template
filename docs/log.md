@@ -31,6 +31,23 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 027: fix post-register auto-login race (template prod)
+
+- `spec-027` filed under `docs/spec/027-fix-post-register-autologin/` and
+  indexed in `docs/spec/README.md` as **shipped** (alongside this PR).
+- `apps/web/app/[locale]/auth/actions.ts` — `signUp` now issues the session
+  cookie itself via server-side `signIn()` from Auth.js v5, so the
+  `Set-Cookie` header rides in the same response as the success body;
+  returns `{ autoLoggedIn: true }` instead of asking the client to sign in.
+- `apps/web/app/[locale]/auth/components/credentials-form.tsx` — added
+  `successHandledRef` / `autoLoginFiredRef` `useRef` guards so neither the
+  new server-side path nor the legacy client-side auto-login path can
+  re-fire after `useEffect` re-runs from identity-unstable deps
+  (`refreshSession`, `invalidateAllUserData`, `tCred`). This was the prod
+  smoking gun: a second `signIn` fetch aborted by navigation, surfacing
+  as `TypeError: Failed to fetch` in console and racing the cookie write
+  against the dashboard's `auth()` call.
+
 ## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
 
 - `spec-026` Extended Spec 026 with §7 covering the visual redesign of the
