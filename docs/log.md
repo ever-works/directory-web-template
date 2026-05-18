@@ -31,6 +31,29 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
+
+- Round 3's `runtime = 'nodejs'` still failed: same fetch context,
+  `/api/auth/session` returned `{user: …}` but `/client/dashboard`
+  returned 307 to `/auth/signin` with the same cookie attached. The
+  `auth()` export from Auth.js v5 beta.30 is silently returning null
+  when called from a Server Component page under this app's specific
+  combination of Next 16.2.6 + next-intl plugin + Sentry plugin
+  (suspect either the next-intl `Proxy (Middleware)` strips/reshapes
+  the headers, or Auth.js's `headers().get("cookie")` path doesn't
+  see them; either way the upstream library is the wrong layer to
+  fix in this PR).
+- Workaround: new helper `apps/web/lib/auth/get-session-via-api.ts`
+  that reads cookies via `cookies()` from next/headers and forwards
+  them to `/api/auth/session` (which already works correctly).
+  Returns null on no session; never throws. Cost: one same-region
+  HTTP roundtrip per auth-gated page render — bounded because these
+  pages are already `force-dynamic`.
+- Swapped `await auth()` for `await getSessionViaApi()` on all
+  auth-gated client pages: `dashboard`, `settings`, `submissions`,
+  `submissions/trash`, `sponsorships`, `users`, `profile/[username]`.
+- Spec 027 diagnosis updated; this PR ships the user-visible fix.
+
 ## 2026-05-18 — Spec 027 round 3: runtime='nodejs' on auth-gated client pages
 
 - Round 2's `force-dynamic` patch made the pages dynamic but they STILL

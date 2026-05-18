@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getSessionViaApi } from "@/lib/auth/get-session-via-api";
 import { redirect } from "next/navigation";
 import { DashboardContent } from "@/components/dashboard";
 import { getLocale, getTranslations } from "next-intl/server";
@@ -53,7 +53,7 @@ export async function generateMetadata({
 
 export default async function ClientDashboardPage() {
   const locale = await getLocale();
-  const session = await auth();
+  const session = await getSessionViaApi();
 
   // Check if user is authenticated
   if (!session?.user) {
