@@ -1,19 +1,14 @@
-import { DashboardClientGate } from "./dashboard-client-gate";
-import { getTranslations } from "next-intl/server";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { DashboardContent } from "@/components/dashboard";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Metadata } from "next";
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
 import { siteConfig } from "@/lib/config";
 import { Locale } from "@/lib/constants";
+import { getClientProfileByUserId } from "@/lib/db/queries/client.queries";
 
-// Spec 027: this page used to call `await auth()` server-side and `redirect()`
-// to /auth/signin when null. In Vercel production (Auth.js v5 beta.30 + Next
-// 16 + next-intl) that path silently returns null for valid sessions while
-// /api/auth/session and /api/current-user happily return the user with the
-// same cookie. The asymmetry is documented at length in Spec 027 — we
-// reproduced it in raw fetches and a temporary debug endpoint. Until upstream
-// fixes it, the dashboard does its auth gating on the client via useSession
-// (which hits /api/auth/session, the path that works). Render is a thin
-// server shell that delegates to a client gate.
+// Force dynamic rendering — page depends on session cookies. Spec 027.
 export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({
@@ -45,6 +40,28 @@ export async function generateMetadata({
   };
 }
 
-export default function ClientDashboardPage() {
-  return <DashboardClientGate />;
+export default async function ClientDashboardPage() {
+  const locale = await getLocale();
+  const session = await auth();
+
+  // Check if user is authenticated
+  if (!session?.user) {
+    redirect(`/${locale}/auth/signin`);
+  }
+
+  // Check if user is admin - redirect to admin dashboard
+  if (session.user.isAdmin === true) {
+    redirect(`/${locale}/admin`);
+  }
+
+  // Resolve the viewer's profile username so the header can link to
+  // /client/profile/{username}. May be null if the user has no id (shouldn't
+  // happen after auth but the session type allows it) or no profile row yet
+  // — header hides the button in those cases.
+  const clientProfile = session.user.id
+    ? await getClientProfileByUserId(session.user.id)
+    : null;
+  const profileUsername = clientProfile?.username ?? null;
+
+  return <DashboardContent session={session} profileUsername={profileUsername} />;
 }
