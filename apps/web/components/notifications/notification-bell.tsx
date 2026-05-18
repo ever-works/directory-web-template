@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useNotificationStats } from '@/hooks/use-notification-stats';
 import { cn } from '@/lib/utils';
@@ -18,49 +20,64 @@ export function NotificationBell({ className }: NotificationBellProps) {
 	const t = useTranslations('client.notifications');
 	const { user } = useCurrentUser();
 	const stats = useNotificationStats(Boolean(user?.id));
-	const [open, setOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);
 	const wrapperRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
-		if (!open) return;
+		if (!isOpen) return;
 		const handleClickOutside = (event: MouseEvent) => {
 			if (!wrapperRef.current) return;
-			if (!wrapperRef.current.contains(event.target as Node)) setOpen(false);
+			if (!wrapperRef.current.contains(event.target as Node)) setIsOpen(false);
+		};
+		const handleKey = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') setIsOpen(false);
 		};
 		document.addEventListener('mousedown', handleClickOutside);
-		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, [open]);
+		document.addEventListener('keydown', handleKey);
+		return () => {
+			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener('keydown', handleKey);
+		};
+	}, [isOpen]);
 
 	if (!user?.id) return null;
 
-	const unread = stats.data?.unread ?? 0;
-	const display = unread > 99 ? '99+' : unread > 0 ? String(unread) : null;
-	const ariaLabel = safeT(t, 'aria.bellWithCount', `Notifications, ${unread} unread`).replace('{n}', String(unread));
+	const unreadCount = stats.data?.unread ?? 0;
+	const ariaLabel = safeT(t, 'aria.bellWithCount', `Notifications, ${unreadCount} unread`).replace(
+		'{n}',
+		String(unreadCount)
+	);
 
 	return (
-		<div ref={wrapperRef} className={cn('relative inline-flex', className)}>
-			<button
-				type="button"
+		<div ref={wrapperRef} className={cn('relative', className)}>
+			<Button
+				variant="ghost"
+				size="icon"
+				onClick={() => setIsOpen((v) => !v)}
+				className={cn(
+					'relative transition-all duration-200 border-none',
+					isOpen ? 'bg-primary/10 text-primary hover:bg-primary/20' : 'hover:bg-muted/40'
+				)}
 				aria-label={ariaLabel}
 				aria-haspopup="dialog"
-				aria-expanded={open}
-				onClick={() => setOpen((v) => !v)}
-				className={cn(
-					'relative inline-flex h-9 w-9 items-center justify-center rounded-full text-foreground transition-colors',
-					'hover:bg-muted focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2'
-				)}
+				aria-expanded={isOpen}
+				aria-controls="client-notifications-dropdown"
 			>
-				<Bell className="h-4 w-4" aria-hidden="true" />
-				{display !== null && (
-					<span
-						aria-hidden="true"
-						className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold leading-none text-primary-foreground"
+				<Bell
+					className={cn('h-5 w-5 transition-transform duration-200', isOpen && 'scale-110')}
+					aria-hidden="true"
+				/>
+				{unreadCount > 0 && (
+					<Badge
+						variant="destructive"
+						className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-medium animate-pulse"
 					>
-						{display}
-					</span>
+						{unreadCount > 99 ? '99+' : unreadCount}
+					</Badge>
 				)}
-			</button>
-			{open && <NotificationDropdown onClose={() => setOpen(false)} />}
+			</Button>
+
+			{isOpen && <NotificationDropdown onClose={() => setIsOpen(false)} />}
 		</div>
 	);
 }

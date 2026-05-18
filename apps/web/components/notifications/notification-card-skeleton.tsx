@@ -4,12 +4,18 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function NotificationCardSkeleton() {
 	return (
-		<div className="flex gap-3 rounded-md border-l-2 border-transparent px-3 py-3">
-			<Skeleton className="h-9 w-9 rounded-full" />
-			<div className="flex flex-1 flex-col gap-2">
-				<Skeleton className="h-3 w-2/3" />
-				<Skeleton className="h-3 w-full" />
-				<Skeleton className="h-2 w-16" />
+		<div className="px-4 py-3.5 border-l-[3px] border-transparent">
+			<div className="flex items-start gap-3">
+				<Skeleton className="h-5 w-5 rounded shrink-0" />
+				<div className="flex-1 space-y-2">
+					<div className="flex items-center gap-2">
+						<Skeleton className="h-5 w-20 rounded-md" />
+						<Skeleton className="h-4 w-10 rounded-md" />
+					</div>
+					<Skeleton className="h-4 w-3/4" />
+					<Skeleton className="h-3 w-full" />
+					<Skeleton className="h-3 w-16" />
+				</div>
 			</div>
 		</div>
 	);
@@ -17,7 +23,7 @@ export function NotificationCardSkeleton() {
 
 export function NotificationListSkeleton({ rows = 5 }: { rows?: number }) {
 	return (
-		<div className="flex flex-col gap-1">
+		<div className="divide-y divide-border/50">
 			{Array.from({ length: rows }).map((_, i) => (
 				<NotificationCardSkeleton key={i} />
 			))}

@@ -26,8 +26,7 @@ import {
 	type LucideIcon
 } from 'lucide-react';
 
-import { metaFor, type NotificationPriority, type NotificationType } from '@/lib/notifications';
-import { cn } from '@/lib/utils';
+import { metaFor, type NotificationCategory, type NotificationPriority, type NotificationType } from '@/lib/notifications';
 
 const ICONS: Record<string, LucideIcon> = {
 	AlertOctagon,
@@ -60,34 +59,51 @@ export function getIcon(type: NotificationType | string): LucideIcon {
 	return ICONS[meta.icon] ?? Bell;
 }
 
-const PRIORITY_RING: Record<NotificationPriority, string> = {
-	low: 'bg-muted text-muted-foreground',
-	medium: 'bg-blue-100 text-blue-700 dark:bg-blue-500/15 dark:text-blue-300',
-	high: 'bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300',
-	critical: 'bg-red-100 text-red-700 dark:bg-red-500/15 dark:text-red-300'
+/**
+ * Border accent color applied to the left edge of unread rows.
+ * Mirrors the admin notification dropdown convention.
+ */
+const PRIORITY_BORDER: Record<NotificationPriority, string> = {
+	critical: 'border-red-500',
+	high: 'border-orange-500',
+	medium: 'border-blue-500',
+	low: 'border-neutral-300 dark:border-neutral-600'
 };
 
-export function priorityChipClass(priority: NotificationPriority): string {
-	return PRIORITY_RING[priority] ?? PRIORITY_RING.medium;
+/**
+ * Inline lucide icon color tied to the category. Matches the admin
+ * mapping (item=blue, moderation=orange, billing=red, etc.).
+ */
+const CATEGORY_ICON_COLOR: Record<NotificationCategory, string> = {
+	social: 'text-emerald-500',
+	item: 'text-blue-500',
+	moderation: 'text-orange-500',
+	billing: 'text-red-500',
+	sponsorship: 'text-purple-500',
+	account: 'text-violet-500',
+	system: 'text-neutral-500'
+};
+
+export function priorityBorderClass(priority: NotificationPriority): string {
+	return PRIORITY_BORDER[priority] ?? PRIORITY_BORDER.medium;
+}
+
+export function categoryIconColorClass(category: NotificationCategory): string {
+	return CATEGORY_ICON_COLOR[category] ?? CATEGORY_ICON_COLOR.system;
 }
 
 interface NotificationIconProps {
 	type: NotificationType | string;
-	priority: NotificationPriority;
+	category: NotificationCategory;
 	className?: string;
 }
 
-export function NotificationIcon({ type, priority, className }: NotificationIconProps) {
+export function NotificationIcon({ type, category, className }: NotificationIconProps) {
 	const Icon = getIcon(type);
 	return (
-		<div
-			className={cn(
-				'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
-				priorityChipClass(priority),
-				className
-			)}
-		>
-			<Icon className="h-4 w-4" aria-hidden="true" />
-		</div>
+		<Icon
+			className={`h-5 w-5 ${categoryIconColorClass(category)}${className ? ` ${className}` : ''}`}
+			aria-hidden="true"
+		/>
 	);
 }

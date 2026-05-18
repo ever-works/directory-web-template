@@ -9,5 +9,5 @@ export { NotificationFilters, type NotificationFiltersState } from './notificati
 export { NotificationBulkActions } from './notification-bulk-actions';
 export { NotificationPreferencesForm } from './notification-preferences-form';
 export { NotificationStreamProvider, useNotificationAnnouncement } from './notification-stream-provider';
-export { NotificationIcon, getIcon, priorityChipClass } from './icon-map';
+export { NotificationIcon, getIcon, priorityBorderClass, categoryIconColorClass } from './icon-map';
 export { sectionByDay, describeActors } from './group-utils';

@@ -3,7 +3,6 @@
 import { Archive, CheckCheck, Trash2, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { BulkAction } from '@/lib/notifications/types';
 
@@ -24,56 +23,60 @@ export function NotificationBulkActions({
 }: NotificationBulkActionsProps) {
 	const t = useTranslations('client.notifications.bulk');
 	if (selectedCount === 0) return null;
+
+	const actionButton =
+		'inline-flex items-center gap-1 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors';
+
 	return (
 		<div
+			role="region"
+			aria-label="Bulk actions"
 			className={cn(
-				'sticky top-0 z-10 flex items-center justify-between gap-2 rounded-md border border-border bg-popover px-3 py-2 shadow-sm',
+				'flex items-center justify-between gap-2 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 px-4 py-2.5',
 				className
 			)}
 		>
-			<span className="text-xs font-medium">
+			<span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
 				{safeT(t, 'selected', `${selectedCount} selected`).replace('{n}', String(selectedCount))}
 			</span>
-			<div className="flex items-center gap-1">
-				<Button
-					size="sm"
-					variant="ghost"
-					className="h-7 gap-1 px-2 text-xs"
+			<div className="flex items-center gap-1.5">
+				<button
+					type="button"
 					onClick={() => onAction('read')}
 					disabled={disabled}
+					className={actionButton}
 				>
-					<CheckCheck className="h-3 w-3" />
+					<CheckCheck className="h-3.5 w-3.5" />
 					{safeT(t, 'markRead', 'Mark read')}
-				</Button>
-				<Button
-					size="sm"
-					variant="ghost"
-					className="h-7 gap-1 px-2 text-xs"
+				</button>
+				<button
+					type="button"
 					onClick={() => onAction('archive')}
 					disabled={disabled}
+					className={actionButton}
 				>
-					<Archive className="h-3 w-3" />
+					<Archive className="h-3.5 w-3.5" />
 					{safeT(t, 'archive', 'Archive')}
-				</Button>
-				<Button
-					size="sm"
-					variant="ghost"
-					className="h-7 gap-1 px-2 text-xs text-destructive hover:text-destructive"
+				</button>
+				<button
+					type="button"
 					onClick={() => onAction('delete')}
 					disabled={disabled}
+					className={cn(
+						'inline-flex items-center gap-1 h-8 px-3 text-xs font-medium rounded-md border border-red-200 dark:border-red-900/40 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors'
+					)}
 				>
-					<Trash2 className="h-3 w-3" />
+					<Trash2 className="h-3.5 w-3.5" />
 					{safeT(t, 'delete', 'Delete')}
-				</Button>
-				<Button
-					size="icon"
-					variant="ghost"
-					className="h-7 w-7"
+				</button>
+				<button
+					type="button"
 					onClick={onClear}
 					aria-label={safeT(t, 'aria.clear', 'Clear selection')}
+					className="inline-flex items-center justify-center h-8 w-8 rounded-md text-neutral-500 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
 				>
 					<X className="h-3.5 w-3.5" />
-				</Button>
+				</button>
 			</div>
 		</div>
 	);

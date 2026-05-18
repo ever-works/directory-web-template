@@ -3,9 +3,13 @@
 import { useTranslations } from 'next-intl';
 import { Search, X } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { NOTIFICATION_PRIORITIES, NOTIFICATION_TYPES, type NotificationPriority, type NotificationType } from '@/lib/notifications';
+import {
+	NOTIFICATION_PRIORITIES,
+	NOTIFICATION_TYPES,
+	type NotificationPriority,
+	type NotificationType
+} from '@/lib/notifications';
 import { cn } from '@/lib/utils';
 
 export interface NotificationFiltersState {
@@ -25,8 +29,7 @@ interface NotificationFiltersProps {
 export function NotificationFilters({ value, onChange, className }: NotificationFiltersProps) {
 	const t = useTranslations('client.notifications.filters');
 
-	const reset = () =>
-		onChange({ q: '', types: [], priorities: [], dateFrom: null, dateTo: null });
+	const reset = () => onChange({ q: '', types: [], priorities: [], dateFrom: null, dateTo: null });
 
 	const hasFilters =
 		value.q ||
@@ -35,23 +38,30 @@ export function NotificationFilters({ value, onChange, className }: Notification
 		value.dateFrom ||
 		value.dateTo;
 
+	const selectClass =
+		'h-8 px-2 text-xs rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-white/6 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-500';
+
 	return (
-		<div className={cn('flex flex-wrap items-center gap-2 rounded-md border border-border bg-card px-3 py-2', className)}>
-			<div className="relative w-full max-w-xs">
-				<Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+		<div className={cn('flex flex-wrap items-center gap-2', className)}>
+			<div className="relative w-full sm:w-64">
+				<Search
+					className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+					aria-hidden="true"
+				/>
 				<Input
 					value={value.q}
 					onChange={(e) => onChange({ ...value, q: e.target.value })}
 					placeholder={safeT(t, 'searchPlaceholder', 'Search…')}
-					className="h-8 pl-7 text-xs"
+					className="h-8 pl-7 text-xs border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3"
 					aria-label={safeT(t, 'aria.search', 'Search notifications')}
 				/>
 			</div>
 			<select
-				multiple={false}
 				value={value.types[0] ?? ''}
-				onChange={(e) => onChange({ ...value, types: e.target.value ? [e.target.value as NotificationType] : [] })}
-				className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+				onChange={(e) =>
+					onChange({ ...value, types: e.target.value ? [e.target.value as NotificationType] : [] })
+				}
+				className={selectClass}
 				aria-label={safeT(t, 'aria.type', 'Filter by type')}
 			>
 				<option value="">{safeT(t, 'allTypes', 'All types')}</option>
@@ -64,9 +74,12 @@ export function NotificationFilters({ value, onChange, className }: Notification
 			<select
 				value={value.priorities[0] ?? ''}
 				onChange={(e) =>
-					onChange({ ...value, priorities: e.target.value ? [e.target.value as NotificationPriority] : [] })
+					onChange({
+						...value,
+						priorities: e.target.value ? [e.target.value as NotificationPriority] : []
+					})
 				}
-				className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+				className={selectClass}
 				aria-label={safeT(t, 'aria.priority', 'Filter by priority')}
 			>
 				<option value="">{safeT(t, 'allPriorities', 'All priorities')}</option>
@@ -80,21 +93,25 @@ export function NotificationFilters({ value, onChange, className }: Notification
 				type="date"
 				value={value.dateFrom ?? ''}
 				onChange={(e) => onChange({ ...value, dateFrom: e.target.value || null })}
-				className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+				className={selectClass}
 				aria-label={safeT(t, 'aria.dateFrom', 'From date')}
 			/>
 			<input
 				type="date"
 				value={value.dateTo ?? ''}
 				onChange={(e) => onChange({ ...value, dateTo: e.target.value || null })}
-				className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+				className={selectClass}
 				aria-label={safeT(t, 'aria.dateTo', 'To date')}
 			/>
 			{hasFilters && (
-				<Button variant="ghost" size="sm" className="h-8 gap-1 px-2 text-xs" onClick={reset}>
+				<button
+					type="button"
+					onClick={reset}
+					className="inline-flex items-center gap-1 h-8 px-2 text-xs font-medium rounded-md text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+				>
 					<X className="h-3 w-3" />
 					{safeT(t, 'reset', 'Reset')}
-				</Button>
+				</button>
 			)}
 		</div>
 	);

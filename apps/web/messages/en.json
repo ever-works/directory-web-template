@@ -4052,19 +4052,60 @@
 		},
 		"notifications": {
 			"pageTitle": "Notifications",
+			"pageSubtitle": "All activity for your account.",
+			"refresh": "Refresh",
+			"errors": {
+				"generic": "Failed to load notifications"
+			},
 			"aria": {
 				"bellWithCount": "Notifications, {n} unread"
 			},
 			"dropdown": {
 				"title": "Notifications",
 				"markAllRead": "Mark all read",
-				"seeAll": "See all notifications",
+				"seeAll": "View all notifications",
+				"newBadge": "new",
+				"refresh": "Refresh notifications",
+				"close": "Close notifications panel",
 				"aria": {
 					"title": "Notifications",
 					"preferences": "Notification preferences"
 				}
 			},
+			"types": {
+				"newBadge": "New",
+				"user_followed": "New follower",
+				"user_mentioned": "Mention",
+				"comment_received": "Comment",
+				"comment_reply": "Reply",
+				"reaction_received": "Reaction",
+				"review_received": "Review",
+				"rating_received": "Rating",
+				"item_submission": "New submission",
+				"item_approved": "Item approved",
+				"item_rejected": "Item rejected",
+				"item_featured": "Item featured",
+				"item_published": "Item published",
+				"comment_reported": "Comment reported",
+				"item_reported": "Item reported",
+				"content_removed": "Content removed",
+				"payment_failed": "Payment issue",
+				"payment_succeeded": "Payment received",
+				"subscription_renewed": "Subscription renewed",
+				"subscription_expiring": "Subscription expiring",
+				"subscription_cancelled": "Subscription cancelled",
+				"sponsor_ad_approved": "Sponsor ad approved",
+				"sponsor_ad_rejected": "Sponsor ad rejected",
+				"sponsor_ad_expiring": "Sponsor ad expiring",
+				"user_registered": "New user",
+				"security_alert": "Security alert",
+				"password_changed": "Password changed",
+				"new_login": "New sign-in",
+				"system_alert": "System alert",
+				"admin_announcement": "Announcement"
+			},
 			"tabs": {
+				"aria": "Notification filters",
 				"all": "All",
 				"unread": "Unread",
 				"mentions": "Mentions",
@@ -4111,8 +4152,11 @@
 			},
 			"preferences": {
 				"pageTitle": "Notification preferences",
+				"pageSubtitle": "Pick how and when we notify you.",
+				"back": "Back to notifications",
 				"cta": "Preferences",
 				"globalTitle": "Email & quiet hours",
+				"globalSubtitle": "How and when we contact you.",
 				"emailDigest": "Email digest",
 				"quietHoursStart": "Quiet hours start",
 				"quietHoursEnd": "Quiet hours end",

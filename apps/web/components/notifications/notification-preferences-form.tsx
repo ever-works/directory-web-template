@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 
-import { Button } from '@/components/ui/button';
 import {
 	NOTIFICATION_CATEGORIES,
 	NOTIFICATION_CHANNELS,
@@ -26,7 +25,12 @@ interface NotificationPreferencesFormProps {
 
 const DIGEST_OPTIONS: NotificationDigest[] = ['instant', 'daily', 'weekly', 'off'];
 
-export function NotificationPreferencesForm({ initial, onSave, isSaving, className }: NotificationPreferencesFormProps) {
+export function NotificationPreferencesForm({
+	initial,
+	onSave,
+	isSaving,
+	className
+}: NotificationPreferencesFormProps) {
 	const t = useTranslations('client.notifications.preferences');
 	const [state, setState] = useState<NotificationPreferencesPayload>(initial);
 
@@ -52,56 +56,74 @@ export function NotificationPreferencesForm({ initial, onSave, isSaving, classNa
 		return Boolean(metaFor(type)?.defaultChannels[channel]);
 	};
 
+	const cardClass =
+		'rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3';
+	const cardHeaderClass = 'px-6 pt-5 pb-3 border-b border-neutral-200 dark:border-white/8';
+	const cardBodyClass = 'px-6 py-5';
+	const inputClass =
+		'h-8 px-2 text-xs rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-white/3 text-neutral-700 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-neutral-500';
+	const labelClass = 'text-xs font-medium text-neutral-600 dark:text-neutral-400';
+
 	return (
 		<form
-			className={cn('flex flex-col gap-6', className)}
+			className={cn('space-y-6', className)}
 			onSubmit={(e) => {
 				e.preventDefault();
 				onSave(state);
 			}}
 		>
-			<section className="flex flex-col gap-4 rounded-md border border-border bg-card p-4">
-				<h2 className="text-sm font-semibold">{safeT(t, 'globalTitle', 'Email & quiet hours')}</h2>
-
-				<div className="flex flex-wrap items-center gap-3">
-					<label className="text-xs text-muted-foreground" htmlFor="digest">
-						{safeT(t, 'emailDigest', 'Email digest')}
-					</label>
-					<select
-						id="digest"
-						value={state.emailDigest}
-						onChange={(e) => setState({ ...state, emailDigest: e.target.value as NotificationDigest })}
-						className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-					>
-						{DIGEST_OPTIONS.map((d) => (
-							<option key={d} value={d}>
-								{safeT(t, `digest.${d}`, d.charAt(0).toUpperCase() + d.slice(1))}
-							</option>
-						))}
-					</select>
+			<section className={cardClass}>
+				<div className={cardHeaderClass}>
+					<h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+						{safeT(t, 'globalTitle', 'Email & quiet hours')}
+					</h2>
+					<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+						{safeT(t, 'globalSubtitle', 'How and when we contact you.')}
+					</p>
 				</div>
+				<div className={cn(cardBodyClass, 'space-y-4')}>
+					<div className="flex flex-wrap items-center gap-3">
+						<label className={labelClass} htmlFor="digest">
+							{safeT(t, 'emailDigest', 'Email digest')}
+						</label>
+						<select
+							id="digest"
+							value={state.emailDigest}
+							onChange={(e) =>
+								setState({ ...state, emailDigest: e.target.value as NotificationDigest })
+							}
+							className={inputClass}
+						>
+							{DIGEST_OPTIONS.map((d) => (
+								<option key={d} value={d}>
+									{safeT(t, `digest.${d}`, d.charAt(0).toUpperCase() + d.slice(1))}
+								</option>
+							))}
+						</select>
+					</div>
 
-				<div className="flex flex-wrap items-center gap-3">
-					<label className="text-xs text-muted-foreground" htmlFor="quiet-from">
-						{safeT(t, 'quietHoursStart', 'Quiet hours start')}
-					</label>
-					<input
-						id="quiet-from"
-						type="time"
-						value={state.quietHoursStart ?? ''}
-						onChange={(e) => setState({ ...state, quietHoursStart: e.target.value || null })}
-						className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-					/>
-					<label className="text-xs text-muted-foreground" htmlFor="quiet-to">
-						{safeT(t, 'quietHoursEnd', 'Quiet hours end')}
-					</label>
-					<input
-						id="quiet-to"
-						type="time"
-						value={state.quietHoursEnd ?? ''}
-						onChange={(e) => setState({ ...state, quietHoursEnd: e.target.value || null })}
-						className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-					/>
+					<div className="flex flex-wrap items-center gap-3">
+						<label className={labelClass} htmlFor="quiet-from">
+							{safeT(t, 'quietHoursStart', 'Quiet hours start')}
+						</label>
+						<input
+							id="quiet-from"
+							type="time"
+							value={state.quietHoursStart ?? ''}
+							onChange={(e) => setState({ ...state, quietHoursStart: e.target.value || null })}
+							className={inputClass}
+						/>
+						<label className={labelClass} htmlFor="quiet-to">
+							{safeT(t, 'quietHoursEnd', 'Quiet hours end')}
+						</label>
+						<input
+							id="quiet-to"
+							type="time"
+							value={state.quietHoursEnd ?? ''}
+							onChange={(e) => setState({ ...state, quietHoursEnd: e.target.value || null })}
+							className={inputClass}
+						/>
+					</div>
 				</div>
 			</section>
 
@@ -109,15 +131,19 @@ export function NotificationPreferencesForm({ initial, onSave, isSaving, classNa
 				const items = grouped[category];
 				if (items.length === 0) return null;
 				return (
-					<section key={category} className="flex flex-col gap-2 rounded-md border border-border bg-card p-4">
-						<h2 className="text-sm font-semibold">{safeT(t, `category.${category}`, fallbackCategory(category))}</h2>
+					<section key={category} className={cardClass}>
+						<div className={cardHeaderClass}>
+							<h2 className="text-sm font-semibold text-neutral-900 dark:text-white">
+								{safeT(t, `category.${category}`, fallbackCategory(category))}
+							</h2>
+						</div>
 						<div className="overflow-x-auto">
-							<table className="w-full table-auto text-xs">
+							<table className="w-full text-xs">
 								<thead>
-									<tr className="text-left text-muted-foreground">
-										<th className="py-2 font-medium">{safeT(t, 'columnEvent', 'Event')}</th>
+									<tr className="text-left text-neutral-500 dark:text-neutral-400 border-b border-neutral-200 dark:border-white/8">
+										<th className="px-6 py-2.5 font-medium">{safeT(t, 'columnEvent', 'Event')}</th>
 										{NOTIFICATION_CHANNELS.map((ch) => (
-											<th key={ch} className="px-2 py-2 text-center font-medium">
+											<th key={ch} className="px-3 py-2.5 text-center font-medium">
 												{safeT(t, `channel.${ch}`, fallbackChannel(ch))}
 											</th>
 										))}
@@ -127,12 +153,17 @@ export function NotificationPreferencesForm({ initial, onSave, isSaving, classNa
 									{items.map((type) => {
 										const meta = NOTIFICATION_REGISTRY[type];
 										return (
-											<tr key={type} className="border-t border-border">
-												<td className="py-2">
+											<tr
+												key={type}
+												className="border-b border-neutral-100 dark:border-white/5 last:border-b-0"
+											>
+												<td className="px-6 py-2.5">
 													<div className="flex flex-col">
-														<span className="font-medium text-foreground">{humanise(type)}</span>
+														<span className="font-medium text-neutral-900 dark:text-white">
+															{humanise(type)}
+														</span>
 														{meta.locked && (
-															<span className="text-[10px] text-muted-foreground">
+															<span className="text-[11px] text-neutral-500 dark:text-neutral-400">
 																{safeT(t, 'lockedHint', 'Required for account safety')}
 															</span>
 														)}
@@ -140,16 +171,16 @@ export function NotificationPreferencesForm({ initial, onSave, isSaving, classNa
 												</td>
 												{NOTIFICATION_CHANNELS.map((ch) => {
 													const disabled = meta.locked && ch === 'in_app';
-													const supported = ch !== 'sms'; // SMS not yet wired
+													const supported = ch !== 'sms';
 													return (
-														<td key={ch} className="px-2 py-2 text-center">
+														<td key={ch} className="px-3 py-2.5 text-center">
 															<input
 																type="checkbox"
 																checked={isChecked(type, ch)}
 																disabled={disabled || !supported}
 																onChange={(e) => toggle(type, ch, e.target.checked)}
 																aria-label={`${ch} for ${type}`}
-																className="h-4 w-4 cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+																className="h-3.5 w-3.5 cursor-pointer accent-neutral-900 dark:accent-white disabled:cursor-not-allowed disabled:opacity-40"
 															/>
 														</td>
 													);
@@ -164,10 +195,14 @@ export function NotificationPreferencesForm({ initial, onSave, isSaving, classNa
 				);
 			})}
 
-			<div className="flex justify-end gap-2">
-				<Button type="submit" disabled={isSaving}>
+			<div className="flex justify-end">
+				<button
+					type="submit"
+					disabled={isSaving}
+					className="inline-flex items-center gap-1.5 h-8 px-4 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+				>
 					{isSaving ? safeT(t, 'saving', 'Saving…') : safeT(t, 'save', 'Save preferences')}
-				</Button>
+				</button>
 			</div>
 		</form>
 	);

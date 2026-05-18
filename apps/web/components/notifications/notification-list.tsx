@@ -25,6 +25,7 @@ interface NotificationListProps {
 	selectable?: boolean;
 	selectedIds?: Set<string>;
 	onSelectChange?: (id: string, selected: boolean) => void;
+	/** When true the list is sectioned by day (Today / Yesterday / …). Defaults to a flat divide-y list. */
 	groupByDay?: boolean;
 	className?: string;
 }
@@ -56,7 +57,7 @@ export function NotificationList({
 	selectable,
 	selectedIds,
 	onSelectChange,
-	groupByDay = true,
+	groupByDay = false,
 	className
 }: NotificationListProps) {
 	const t = useTranslations('client.notifications.sections');
@@ -83,32 +84,55 @@ export function NotificationList({
 		return <NotificationEmpty variant={emptyVariant} />;
 	}
 
-	const sections = groupByDay ? sectionByDay(notifications) : [{ key: 'today' as DaySection, notifications }];
+	const renderRow = (n: NotificationListItem) => (
+		<NotificationCard
+			key={n.id}
+			notification={n}
+			onMarkRead={onMarkRead}
+			onMarkUnread={onMarkUnread}
+			onDismiss={onDismiss}
+			selectable={selectable}
+			selected={selectedIds?.has(n.id)}
+			onSelectChange={onSelectChange}
+		/>
+	);
 
+	if (!groupByDay) {
+		return (
+			<div className={className}>
+				<div className="divide-y divide-border/50">{notifications.map(renderRow)}</div>
+				{hasNextPage && (
+					<div
+						ref={sentinelRef}
+						className="px-4 py-3 text-center text-xs text-muted-foreground"
+						aria-hidden={!isFetchingNextPage}
+					>
+						{isFetchingNextPage ? '…' : ''}
+					</div>
+				)}
+			</div>
+		);
+	}
+
+	const sections = sectionByDay(notifications);
 	return (
-		<div role="list" className={cn('flex flex-col', className)}>
+		<div className={cn('divide-y divide-border/50', className)}>
 			{sections.map((section) => (
-				<section key={section.key} className="flex flex-col gap-0.5 px-1 py-1">
-					<h3 className="px-2 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+				<section key={section.key}>
+					<h3 className="px-4 pt-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground bg-gray-50/50 dark:bg-white/2">
 						{safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}
 					</h3>
-					{section.notifications.map((n) => (
-						<NotificationCard
-							key={n.id}
-							notification={n}
-							onMarkRead={onMarkRead}
-							onMarkUnread={onMarkUnread}
-							onDismiss={onDismiss}
-							selectable={selectable}
-							selected={selectedIds?.has(n.id)}
-							onSelectChange={onSelectChange}
-						/>
-					))}
+					<div className="divide-y divide-border/50">
+						{section.notifications.map(renderRow)}
+					</div>
 				</section>
 			))}
-
 			{hasNextPage && (
-				<div ref={sentinelRef} className="px-3 py-4 text-center text-xs text-muted-foreground">
+				<div
+					ref={sentinelRef}
+					className="px-4 py-3 text-center text-xs text-muted-foreground"
+					aria-hidden={!isFetchingNextPage}
+				>
 					{isFetchingNextPage ? '…' : ''}
 				</div>
 			)}
