@@ -1,4 +1,4 @@
-import { getSessionViaApi } from '@/lib/auth/get-session-via-api';
+import { auth } from '@/lib/auth';
 import { Container } from '@/components/ui/container';
 import { Card } from '@/components/ui/card';
 import { Link } from '@/i18n/navigation';
@@ -7,9 +7,6 @@ import { searchPublicProfiles, getFollowingSubset } from '@/lib/db/queries';
 import { ProfileRow } from '@/components/profile/profile-row';
 
 export const dynamic = 'force-dynamic';
-// Force Node.js runtime so auth()'s DB/bcryptjs-backed JWT callbacks can run
-// (Spec 027).
-export const runtime = 'nodejs';
 
 const PAGE_SIZE = 30;
 
@@ -29,7 +26,7 @@ export default async function UsersDirectoryPage({
 	const query = rawQuery?.trim() ?? '';
 	const page = parsePage(params.page);
 
-	const session = await getSessionViaApi();
+	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
 
 	const { rows, total, totalPages } = await searchPublicProfiles({
