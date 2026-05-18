@@ -7,30 +7,15 @@ import { useSettingsModal } from "@/hooks/use-settings-modal";
 import { useTranslations } from "next-intl";
 import { createPortal } from "react-dom";
 
-// Visual treatment matches the `SettingsCard` icon container on `/client/settings`
-// (tinted theme-primary square, 8x8 wrapper, 4x4 icon, theme-primary-600/400 ink).
-// See `apps/web/app/[locale]/client/settings/settings-content.tsx`.
 const BUTTON_CLASSES = cn(
-	"relative inline-flex items-center justify-center",
-	"h-9 w-9",
-	"rounded-lg",
-	"transition-colors duration-150",
-	"cursor-pointer",
-	"group"
-);
-
-const ICON_WRAPPER_CLASSES = cn(
-	"w-8 h-8",
-	"flex items-center justify-center",
-	"rounded-lg",
-	"bg-theme-primary-50 dark:bg-theme-primary-900/30",
-	"group-hover:bg-theme-primary-100 dark:group-hover:bg-theme-primary-800/40",
-	"transition-colors duration-150"
-);
-
-const ICON_CLASSES = cn(
-	"w-4 h-4",
-	"text-theme-primary-600 dark:text-theme-primary-400"
+	"flex items-center gap-1.5",
+	"transition-all duration-200",
+	"font-medium whitespace-nowrap",
+	"text-sm lg:text-base xl:text-lg",
+	"text-gray-700 dark:text-gray-300",
+	"hover:text-theme-primary dark:hover:text-theme-primary",
+	"hover:scale-105",
+	"cursor-pointer"
 );
 
 function SettingsButtonComponent() {
@@ -58,13 +43,11 @@ function SettingsButtonComponent() {
 				onMouseLeave={hideTooltip}
 				onFocus={(e) => showTooltip(e.currentTarget as HTMLButtonElement)}
 				onBlur={hideTooltip}
-				className={BUTTON_CLASSES}
+				className={`${BUTTON_CLASSES} relative inline-flex items-center justify-center h-9 cursor-pointer`}
 				aria-label={t("OPEN_SETTINGS")}
 				type="button"
 			>
-				<span className={ICON_WRAPPER_CLASSES}>
-					<Settings className={ICON_CLASSES} />
-				</span>
+				<Settings className="h-4 w-4 lg:h-5 lg:w-5" />
 			</button>
 			{hovered && typeof document !== 'undefined' && createPortal(
 				<div
