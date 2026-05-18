@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useMarkNotification } from '@/hooks/use-mark-notification';
 import { useBulkNotifications } from '@/hooks/use-bulk-notifications';
