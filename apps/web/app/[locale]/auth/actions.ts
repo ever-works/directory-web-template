@@ -31,21 +31,6 @@ import { generatePasswordResetToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
-import { signIn as serverSignIn } from '@/lib/auth';
-
-// Auth.js v5 throws a NEXT_REDIRECT error (digest starts with "NEXT_REDIRECT;") when
-// signIn() needs to bounce the request. With `redirect: false` this should not happen,
-// but we still need to re-throw it if it does so Next.js can carry out the redirect.
-function isNextRedirectError(err: unknown): boolean {
-	return (
-		!!err &&
-		typeof err === 'object' &&
-		'digest' in err &&
-		typeof (err as { digest?: unknown }).digest === 'string' &&
-		((err as { digest: string }).digest.startsWith('NEXT_REDIRECT') ||
-			(err as { digest: string }).digest.startsWith('NEXT_HTTP_ERROR_FALLBACK'))
-	);
-}
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -313,36 +298,26 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 
-		// Server-side sign-in: issues the session cookie in THIS response's Set-Cookie
-		// header so the immediately-following navigation to /client/dashboard already
-		// carries the cookie. This replaces the prior client-side signIn() race where
-		// the auto-login useEffect could double-fire and the second fetch was aborted
-		// by window.location.href navigation, leaving the dashboard render seeing no
-		// session and redirecting back to /auth/signin.
-		let autoLoggedIn = false;
-		try {
-			await serverSignIn('credentials', {
-				email: normalizedEmail,
-				password,
-				redirect: false
-			});
-			autoLoggedIn = true;
-		} catch (err) {
-			if (isNextRedirectError(err)) {
-				// signIn wanted to redirect — propagate so Next.js handles it.
-				throw err;
-			}
-			console.error('[SignUp] server-side signIn failed:', err);
-			// Fall through: the user exists, they can sign in manually below.
-		}
-
-		// Return email so the client can show a friendly message. The session cookie
-		// (if signIn succeeded) is already attached to this response by Auth.js.
+		// Defer the session-cookie issuance to the client-side signIn() call in the
+		// CredentialsForm useEffect. Earlier rounds of Spec 027 tried doing this
+		// server-side via Auth.js v5's `signIn('credentials', …)` from inside the
+		// signUp server action — that DID set `__Secure-authjs.session-token` in the
+		// response, but the very next `/api/auth/session` (triggered by the form's
+		// `refreshSession()`) silently *cleared* the cookie. Auth.js v5 beta.30's
+		// server-action signIn appears to encrypt/sign the token along a slightly
+		// different code path than the standard `/api/auth/callback/credentials`
+		// endpoint, and the verifier on `/api/auth/session` then can't read it. The
+		// sign-in form's client-side `signIn('credentials', …)` does NOT have this
+		// regression (it goes through `/api/auth/callback/credentials` which is what
+		// every subsequent verify also uses), so mirror that path on register.
+		//
+		// The double-fire race that motivated the original move server-side is now
+		// blocked by the `autoLoginFiredRef` useRef guard in credentials-form.tsx.
 		return {
 			success: true,
-			redirect: autoLoggedIn ? '/client/dashboard' : '/auth/signin',
+			redirect: '/client/dashboard',
 			preserveLocale: true,
-			autoLoggedIn,
+			autoLogin: true,
 			email: normalizedEmail
 		};
 	} catch (error) {
