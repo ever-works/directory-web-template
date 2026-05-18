@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { getSessionViaApi } from '@/lib/auth/get-session-via-api';
 import { redirect } from 'next/navigation';
 import { SponsorshipsContent } from './sponsorships-content';
 import { getSponsorAdPricingConfig } from '@/lib/utils/settings';
@@ -15,7 +15,7 @@ export const runtime = 'nodejs';
 
 export default async function SponsorshipsPage() {
 	const locale = await getLocale();
-	const session = await auth();
+	const session = await getSessionViaApi();
 
 	// Check if user is authenticated
 	if (!session?.user) {

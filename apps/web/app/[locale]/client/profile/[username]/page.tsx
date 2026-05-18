@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { getSessionViaApi } from '@/lib/auth/get-session-via-api';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
@@ -39,7 +39,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		notFound();
 	}
 
-	const session = await auth();
+	const session = await getSessionViaApi();
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
