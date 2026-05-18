@@ -78,7 +78,30 @@ fetch` cannot happen anymore.
 - `apps/web/app/[locale]/auth/components/credentials-form.tsx` —
   `autoLoginFiredRef` / `successHandledRef` guards, new
   `state.autoLoggedIn` branch.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash}/page.tsx`
+  — added `export const dynamic = 'force-dynamic'` so Next.js does not
+  pre-render the `redirect('/auth/signin')` branch at build time and
+  serve that cached redirect to authenticated requests. (Sibling
+  `client/sponsorships/page.tsx` and `client/users/page.tsx` already
+  had it; the missing markers on the others were the root cause of the
+  user-visible "logged in but bounced to signin" symptom on every
+  protected client page, including the dashboard.)
 - Spec + log entry.
+
+## Why both halves of the fix are needed
+
+PR #853 (the first half) issued the session cookie server-side on
+register. Re-running the Playwright repro against demo.ever.works
+after that landed confirmed `POST /auth/register` now ships
+`Set-Cookie: __Secure-authjs.session-token=…` in the response, **but**
+`GET /client/dashboard` still redirected to `/auth/signin`. Meanwhile
+`GET /api/auth/session` and `GET /api/current-user` both returned the
+user happily (proving the cookie + JWT were valid). The asymmetry
+pointed at static pre-rendering: at build time `auth()` returns null
+and the page renders `redirect('/auth/signin')`. Next.js cached that
+redirect as the static result and served it on every later request
+without re-running `auth()`. Marking the page dynamic forces a
+per-request render. PR #856 is the second half.
 
 ## Verification
 

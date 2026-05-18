@@ -2,6 +2,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { SettingsContent } from "./settings-content";
 
+// Force dynamic rendering — page depends on session cookies (Spec 027).
+export const dynamic = 'force-dynamic';
+
 export default async function ClientSettingsPage() {
   const session = await auth();
   
