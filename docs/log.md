@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-18 — Spec 027 round 3: runtime='nodejs' on auth-gated client pages
+
+- Round 2's `force-dynamic` patch made the pages dynamic but they STILL
+  returned 307 to `/auth/signin` for valid sessions. Direct
+  `context.request.get` calls confirmed the cookie was reaching the
+  server and `GET /api/auth/session` from the same fetch context
+  returned `{user: {...}}` happily — but `GET /client/dashboard`
+  returned 307 anyway. The asymmetry was runtime:
+  `app/api/auth/[...nextauth]/route.ts` pins `runtime = 'nodejs'` so
+  Auth.js v5's JWT callbacks (which pull `tenantId` from Drizzle and
+  use `bcryptjs` in the credentials provider — all three in
+  `serverExternalPackages` and unbundlable for the Edge runtime) can
+  actually execute; the Server Component pages defaulted to whatever
+  Vercel chose, so `auth()` there silently returned `null`.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash,sponsorships,users,profile/[username]}/page.tsx`
+  — added `export const runtime = 'nodejs'`.
+- Spec 027 diagnosis updated; this is the round that lands the actual
+  user-visible fix.
+
 ## 2026-05-18 — Spec 027 follow-up: force-dynamic on auth-gated client pages
 
 - After PR #853 landed the server-side signIn fix, re-running the
