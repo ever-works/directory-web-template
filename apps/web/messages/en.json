@@ -4054,11 +4054,12 @@
 			"pageTitle": "Notifications",
 			"pageSubtitle": "All activity for your account.",
 			"refresh": "Refresh",
+			"tooltip": "Notifications",
 			"errors": {
 				"generic": "Failed to load notifications"
 			},
 			"aria": {
-				"bellWithCount": "Notifications, {n} unread"
+				"bellWithCount": "Notifications ({n} unread)"
 			},
 			"dropdown": {
 				"title": "Notifications",

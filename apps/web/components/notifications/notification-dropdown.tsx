@@ -7,7 +7,6 @@ import { useTranslations } from 'next-intl';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNotifications } from '@/hooks/use-notifications';
 import { useMarkNotification } from '@/hooks/use-mark-notification';
 import { useBulkNotifications } from '@/hooks/use-bulk-notifications';
@@ -46,15 +45,23 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 			id="client-notifications-dropdown"
 			role="dialog"
 			aria-label={safeT(t, 'dropdown.aria.title', 'Notifications')}
-			className="absolute right-0 top-12 z-50 w-[420px] max-w-[calc(100vw-1rem)] animate-in slide-in-from-top-2 fade-in duration-200"
+			className={cn(
+				'absolute right-0 top-12 z-50',
+				'w-[420px] max-w-[calc(100vw-1rem)]',
+				'rounded-2xl overflow-hidden',
+				'bg-white dark:bg-[#141414] backdrop-blur-xl',
+				'ring-1 ring-black/5 dark:ring-white/10',
+				'shadow-2xl shadow-black/10 dark:shadow-black/40',
+				'animate-in slide-in-from-top-2 fade-in duration-300'
+			)}
 		>
-			<Card className="shadow-2xl border border-gray-200/80 dark:border-white/8 bg-background/98 backdrop-blur-sm overflow-hidden">
-				<CardHeader className="pb-3 border-b border-gray-100 dark:border-white/8 bg-gray-50/50 dark:bg-white/2">
+			<div className="flex flex-col">
+				<div className="px-4 pt-3.5 pb-3 border-b border-gray-100 dark:border-white/8">
 					<div className="flex items-center justify-between gap-2">
 						<div className="flex items-center gap-2.5 min-w-0">
-							<CardTitle className="text-base font-semibold">
+							<h3 className="text-base font-semibold text-gray-900 dark:text-white">
 								{safeT(t, 'dropdown.title', 'Notifications')}
-							</CardTitle>
+							</h3>
 							{unreadCount > 0 && (
 								<Badge
 									variant="secondary"
@@ -107,42 +114,40 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 							</Button>
 						</div>
 					</div>
-				</CardHeader>
+				</div>
 
 				<NotificationTabs value={tab} onChange={setTab} counts={counts} variant="compact" />
 
-				<CardContent className="p-0">
-					<div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
-						<NotificationList
-							notifications={notifications}
-							isLoading={isLoading}
-							hasNextPage={hasNextPage}
-							isFetchingNextPage={isFetchingNextPage}
-							onLoadMore={() => fetchNextPage()}
-							onMarkRead={markRead}
-							onMarkUnread={markUnread}
-							onDismiss={deleteOne}
-							emptyVariant={tab}
-							groupByDay={false}
-						/>
-					</div>
+				<div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
+					<NotificationList
+						notifications={notifications}
+						isLoading={isLoading}
+						hasNextPage={hasNextPage}
+						isFetchingNextPage={isFetchingNextPage}
+						onLoadMore={() => fetchNextPage()}
+						onMarkRead={markRead}
+						onMarkUnread={markUnread}
+						onDismiss={deleteOne}
+						emptyVariant={tab}
+						groupByDay={false}
+					/>
+				</div>
 
-					{notifications.length > 0 && (
-						<>
-							<div className="border-t border-border/50" />
-							<div className="px-3 py-2.5 bg-gray-50/50 dark:bg-white/2">
-								<Link
-									href="/client/notifications"
-									onClick={onClose}
-									className="block w-full text-center text-sm font-medium h-8 leading-8 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-accent/40 transition-colors"
-								>
-									{safeT(t, 'dropdown.seeAll', 'View all notifications')}
-								</Link>
-							</div>
-						</>
-					)}
-				</CardContent>
-			</Card>
+				{notifications.length > 0 && (
+					<>
+						<div className="border-t border-gray-100 dark:border-white/8" />
+						<div className="px-3 py-2.5">
+							<Link
+								href="/client/notifications"
+								onClick={onClose}
+								className="block w-full text-center text-sm font-medium h-8 leading-8 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+							>
+								{safeT(t, 'dropdown.seeAll', 'View all notifications')}
+							</Link>
+						</div>
+					</>
+				)}
+			</div>
 		</div>
 	);
 }
