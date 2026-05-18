@@ -34,11 +34,23 @@ export async function getSessionViaApi(): Promise<Session | null> {
 		if (!cookieHeader) return null;
 
 		const hdrs = await headers();
-		const host = hdrs.get('x-forwarded-host') ?? hdrs.get('host');
-		if (!host) return null;
-		const proto = hdrs.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+		// Prefer the Vercel deployment's private URL when we're on Vercel.
+		// This bypasses any CDN/Cloudflare layer in front of the public
+		// hostname (demo.ever.works sits behind HTTP Basic at Cloudflare
+		// and a server-internal fetch through the public name 401s).
+		const vercelUrl = process.env.VERCEL_URL || process.env.NEXT_PUBLIC_VERCEL_URL;
+		let baseUrl: string;
+		if (vercelUrl) {
+			baseUrl = vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`;
+		} else {
+			const host = hdrs.get('x-forwarded-host') ?? hdrs.get('host');
+			if (!host) return null;
+			const proto =
+				hdrs.get('x-forwarded-proto') ?? (host.startsWith('localhost') ? 'http' : 'https');
+			baseUrl = `${proto}://${host}`;
+		}
 
-		const resp = await fetch(`${proto}://${host}/api/auth/session`, {
+		const resp = await fetch(`${baseUrl}/api/auth/session`, {
 			headers: { Cookie: cookieHeader },
 			cache: 'no-store'
 		});
