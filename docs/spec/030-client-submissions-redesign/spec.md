@@ -1,10 +1,10 @@
 ---
-id: spec-029-client-submissions-redesign
-title: 'Spec 029 — Client Submissions Page Redesign'
-sidebar_label: '029 Submissions Redesign'
+id: spec-030-client-submissions-redesign
+title: 'Spec 030 — Client Submissions Page Redesign'
+sidebar_label: '030 Submissions Redesign'
 ---
 
-# Feature spec — `029-client-submissions-redesign`
+# Feature spec — `030-client-submissions-redesign`
 
 > **Status:** proposed.
 >
@@ -25,7 +25,7 @@ icons, and the list/card layout is a fixed vertical stack regardless
 of viewport. The result feels noisy compared to the rest of the
 template and does not scale past a few rows.
 
-Spec 029 is a UI-only redesign that aligns the page with the rest of
+Spec 030 is a UI-only redesign that aligns the page with the rest of
 the dashboard's design system, introduces a responsive
 table-on-desktop / cards-on-mobile pattern, polishes the empty /
 loading / error states, adds sort UX, and reuses primitives already

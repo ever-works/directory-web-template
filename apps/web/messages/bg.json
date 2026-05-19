@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Настройки и предпочитания на акаунта",
 		"ADMIN_SETTINGS_DESC": "Управление на конфигурацията и предпочитанията на сайта",
 		"PROFILE_SETTINGS": "Настройки на профила",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Стил на странициране",
 		"PAGINATION_STYLE_DESC": "Изберете как се показва съдържанието при разглеждане на обяви",
 		"PAGINATION_STANDARD_LABEL": "Стандартно",

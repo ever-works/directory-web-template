@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "계정 설정 및 기본 설정",
 		"ADMIN_SETTINGS_DESC": "사이트 구성 및 기본 설정 관리",
 		"PROFILE_SETTINGS": "프로필 설정",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "페이지네이션 스타일",
 		"PAGINATION_STYLE_DESC": "목록 탐색 시 콘텐츠 표시 방식 선택",
 		"PAGINATION_STANDARD_LABEL": "표준",
