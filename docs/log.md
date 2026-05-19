@@ -31,6 +31,67 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
+
+Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+SEO + link shape:
+- `public/rel-next-prev-listing.spec.ts` — rel=next/prev hrefs sane.
+- `public/canonical-link-presence.spec.ts` — canonical href non-empty.
+- `public/robots-disallow-shape.spec.ts` — admin/internal protected.
+- `public/sw-html-payload-shape.spec.ts` — doctype + html/head/body close.
+- `public/preconnect-and-dns-prefetch.spec.ts` — preconnect hrefs well-formed.
+- `public/listing-pagination-link-validity.spec.ts` — pagination links internal.
+
+Detail routes deeper:
+- `public/item-detail-deeper-tolerance.spec.ts` — /items/[slug] weird inputs.
+- `public/collections-detail-deeper.spec.ts` — /collections/[slug] weird.
+- `public/surveys-detail-deeper.spec.ts` — /surveys/[slug] weird.
+- `public/detail-page-rsc-tolerance.spec.ts` — RSC prefetch on detail pages.
+
+i18n / locale prefix:
+- `public/multiple-locale-meta.spec.ts` — each locale title + /about + /discover.
+- `public/admin-locale-prefix.spec.ts` — /<loc>/admin bounces anonymous.
+- `public/client-area-locale-prefix.spec.ts` — /<loc>/client + /<loc>/dashboard.
+
+Header tolerance:
+- `public/fetch-with-priority-hints.spec.ts` — Save-Data, Priority, DPR.
+- `public/dnt-tolerance.spec.ts` — DNT/Sec-GPC/Sec-Fetch-* tolerance.
+- `public/theme-class-tolerance.spec.ts` — html class no "undefined".
+- `public/dom-no-react-errors.spec.ts` — no error overlay text in HTML.
+
+Listing edges:
+- `public/listing-deep-link-share.spec.ts` — bookmarked filter URLs.
+- `public/ai-chat-toggle-tolerance.spec.ts` — ?chat=open/closed survives.
+- `public/listing-prefetch-burst-paths.spec.ts` — parallel burst across routes.
+- `public/error-route-handlers.spec.ts` — /error /not-found /loading direct.
+- `public/submit-and-extract-anon.spec.ts` — /submit anonymous behavior.
+
+JSON / discovery / health:
+- `public/swagger-and-openapi-shape.spec.ts` — no secrets in openapi docs.
+- `public/health-shape.spec.ts` — /api/health no DB URL leak.
+- `public/agent-and-crawl-discovery.spec.ts` — agents.json/ai.txt non-5xx.
+- `public/misc-feed-aliases.spec.ts` — /rss /atom /feed alias non-5xx.
+- `public/public-listing-json-mirror-deeper.spec.ts` — .json mirrors parse.
+
+Admin API sweep + deeper:
+- `public/admin-prefix-api-rejection.spec.ts` — every admin GET 4xx.
+- `public/client-prefix-api-rejection.spec.ts` — every client GET 4xx.
+- `api/admin-settings-deeper.spec.ts` — settings PUT/PATCH/DELETE/OPTIONS.
+- `api/admin-categories-deeper.spec.ts` — categories + reorder + git.
+- `api/admin-users-deeper.spec.ts` — users + check-email/username.
+- `api/admin-items-deeper.spec.ts` — items + bulk + import + export.
+- `api/admin-tags-roles-deeper.spec.ts` — tags + roles + permissions.
+- `api/version-and-tenant-edge.spec.ts` — version/sync/tenant edges.
+- `api/http-overrides-tolerance.spec.ts` — method override no auth bypass.
+- `api/polar-and-solidgate-deeper.spec.ts` — empty/hostile body POSTs.
+
+Branch: `feat/e2e-coverage-1779162628`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
 
 Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
