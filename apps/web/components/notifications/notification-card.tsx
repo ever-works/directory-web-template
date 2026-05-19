@@ -132,7 +132,7 @@ export function NotificationCard({
 			<div
 				{...sharedRowProps}
 				className={cn(
-					'group/row relative flex flex-col gap-2.5 p-4 cursor-pointer',
+					'group/row relative flex h-full min-h-[180px] flex-col gap-2.5 p-4 cursor-pointer',
 					'rounded-xl border border-gray-200 dark:border-white/12 bg-white dark:bg-white/8',
 					'transition-all duration-200',
 					'hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:shadow-none',
@@ -185,7 +185,7 @@ export function NotificationCard({
 				{/* Message */}
 				<p
 					className={cn(
-						'line-clamp-3 text-xs leading-relaxed',
+						'flex-1 line-clamp-3 text-xs leading-relaxed',
 						isRead ? 'text-gray-500 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400'
 					)}
 				>
@@ -193,7 +193,7 @@ export function NotificationCard({
 				</p>
 
 				{/* Footer: type pill fades, actions slide in, time stays */}
-				<div className="relative flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
+				<div className="relative mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
 					<span
 						className={cn(
 							'inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',

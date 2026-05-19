@@ -274,7 +274,7 @@ function NotificationRow({ notification, onClick, onMarkRead, link, t, view = 'l
 			<div
 				{...sharedProps}
 				className={cn(
-					'group/row relative flex flex-col gap-3 p-4 cursor-pointer',
+					'group/row relative flex h-full min-h-[200px] flex-col gap-3 p-4 cursor-pointer',
 					'rounded-xl border bg-white dark:bg-white/[0.02]',
 					'transition-all duration-150',
 					'hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:shadow-none',
@@ -317,7 +317,7 @@ function NotificationRow({ notification, onClick, onMarkRead, link, t, view = 'l
 						{message}
 					</p>
 				</div>
-				<div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
+				<div className="mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
 					<span className="inline-flex items-center rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
 						{typeLabel(type, t)}
 					</span>
@@ -412,14 +412,14 @@ function NotificationRow({ notification, onClick, onMarkRead, link, t, view = 'l
 function RowSkeleton({ view = 'list' }: { view?: NotificationView }) {
 	if (view === 'grid') {
 		return (
-			<div className="flex flex-col gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.02] animate-pulse">
+			<div className="flex h-full min-h-[200px] flex-col gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.02] animate-pulse">
 				<div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-white/8" />
-				<div className="space-y-1.5">
+				<div className="flex-1 space-y-1.5">
 					<div className="h-3.5 w-3/4 bg-gray-100 dark:bg-white/8 rounded" />
 					<div className="h-3 w-full bg-gray-100 dark:bg-white/8 rounded" />
 					<div className="h-3 w-5/6 bg-gray-100 dark:bg-white/8 rounded" />
 				</div>
-				<div className="h-5 w-20 bg-gray-100 dark:bg-white/8 rounded-md" />
+				<div className="mt-auto h-5 w-20 bg-gray-100 dark:bg-white/8 rounded-md" />
 			</div>
 		);
 	}

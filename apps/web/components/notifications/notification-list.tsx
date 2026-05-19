@@ -85,7 +85,10 @@ export function NotificationList({
 	const renderRow = (n: NotificationListItem) => (
 		<div
 			key={n.id}
-			className="animate-in fade-in slide-in-from-bottom-1 duration-200 motion-reduce:animate-none"
+			className={cn(
+				'animate-in fade-in slide-in-from-bottom-1 duration-200 motion-reduce:animate-none',
+				view === 'grid' && 'h-full'
+			)}
 		>
 			<NotificationCard
 				notification={n}
