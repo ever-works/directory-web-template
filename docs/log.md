@@ -31,6 +31,32 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 17: leading-slash + host header + preferences gate (develop-only)
+
+Round 17 of the rolling e2e coverage buildout. 8 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL / host security:
+- `public/listing-with-multiple-leading-slashes.spec.ts` — `//host` no off-site redirect.
+- `public/listing-with-fake-host-header.spec.ts` — Host header spoof no echo.
+
+HTML hygiene:
+- `public/listing-href-not-empty-or-hash.spec.ts` — few `href=""/href="#"`.
+- `public/listing-html-no-script-no-src.spec.ts` — no empty inline scripts.
+- `public/listing-no-deprecated-link-rel.spec.ts` — advisory: deprecated rel.
+- `public/listing-no-broken-anchor-content.spec.ts` — no `{{...}}`/`${...}` in anchors.
+
+Pages:
+- `public/client-settings-preferences-anonymous.spec.ts` — Spec 029 preferences gate.
+
+API:
+- `api/admin-mixed-method-flood.spec.ts` — verb flood × sponsor-ads/comments/etc.
+
+Branch: `feat/e2e-coverage-1779217016`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
 
 Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
