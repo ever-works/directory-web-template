@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { triggerManualSync, getSyncStatus } from "@/lib/services/sync-service";
 import { safeErrorMessage } from '@/lib/utils/api-error';
 
@@ -249,6 +250,14 @@ export async function POST(request: Request) {
   const startTime = Date.now();
 
   try {
+    // Require authentication — manual sync trigger is admin / operator
+    // territory; anonymous callers should not be able to thrash the
+    // git layer.
+    const session = await auth();
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Parse request body for options
     let options = {};
     try {

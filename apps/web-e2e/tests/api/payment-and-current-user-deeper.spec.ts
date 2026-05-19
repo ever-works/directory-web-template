@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 // Payment / current-user / health endpoints anonymous behaviors. Health
-// is allowed to be 200 (probes need it); current-user must 4xx anonymously.
+// is allowed to be 200 (probes need it); current-user mirrors the
+// NextAuth `/api/auth/session` contract (200 with `null` body for
+// anonymous, NOT 4xx).
 
 const PROBES = [
-	{ method: 'GET', path: '/api/current-user', expectGated: true },
+	{ method: 'GET', path: '/api/current-user', expectGated: false },
 	{ method: 'GET', path: '/api/health', expectGated: false },
 	{ method: 'GET', path: '/api/health/database', expectGated: false },
 	{ method: 'POST', path: '/api/payment/account' },

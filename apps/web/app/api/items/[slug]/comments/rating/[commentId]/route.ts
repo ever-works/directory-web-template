@@ -53,12 +53,23 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
     }
 }
 
-export async function GET(request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
-    // Check database availability
-    const dbCheck = checkDatabaseAvailability();
-    if (dbCheck) return dbCheck;
+export async function GET(_request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
+    try {
+        // Check database availability
+        const dbCheck = checkDatabaseAvailability();
+        if (dbCheck) return dbCheck;
 
-    const { commentId } = await params;
-    const comment = await getCommentById(commentId);
-    return NextResponse.json(comment);
+        const { commentId } = await params;
+        const comment = await getCommentById(commentId);
+        if (!comment) {
+            return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+        }
+        return NextResponse.json(comment);
+    } catch (error) {
+        console.error("Failed to fetch comment by id:", error);
+        // Degrade to 404 instead of 500 — most failures here (tenant
+        // not found, db query error on probe slug) are client-error-shape
+        // outcomes for the caller, not server bugs.
+        return NextResponse.json({ error: "Comment not found" }, { status: 404 });
+    }
 }

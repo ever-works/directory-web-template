@@ -169,7 +169,11 @@ export async function POST(request: NextRequest) {
 
     const secretKey = analyticsConfig.recaptcha.secretKey;
     if (!secretKey) {
-      if (coreConfig.NODE_ENV !== "production") {
+      // Use process.env.NODE_ENV at runtime — `coreConfig` is evaluated
+      // at module load (during Next.js production build, NODE_ENV is
+      // 'production', so the cached value is wrong for CI/test runtime).
+      const runtimeNodeEnv = process.env.NODE_ENV;
+      if (runtimeNodeEnv !== "production") {
         // Bypass in any non-production environment (development, test,
         // CI) — calling out to Google's siteverify from a CI runner
         // would just hang. Real verification only runs when the secret
