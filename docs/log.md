@@ -31,6 +31,59 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
+
+Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Auth + CSRF wire:
+- `public/auth-csrf-flow-shape.spec.ts` — POST credentials with csrf, non-5xx.
+- `public/auth-with-bogus-cookies.spec.ts` — every common bogus auth cookie.
+
+SEO shape + listing edges:
+- `public/sitemap-listing-shape.spec.ts` — <loc> URLs, no /admin/ leak.
+- `public/listing-q-injection-shapes.spec.ts` — SQLi/JNDI/log4shell probes.
+- `public/listing-empty-state-page-shape.spec.ts` — empty filter still 200.
+- `public/listing-stable-on-repeat.spec.ts` — 5x sequential GETs stable.
+- `public/listing-form-search.spec.ts` — discover search input present.
+- `public/listing-jsonld-presence.spec.ts` — ld+json count advisory.
+- `public/listing-no-stray-localhost.spec.ts` — no localhost in prod HTML.
+- `public/json-cache-tags-immutability.spec.ts` — public JSON Cache-Control.
+
+Detail / RSC:
+- `public/rsc-suffix-on-detail.spec.ts` — locale × _rsc on detail routes.
+- `public/admin-rsc-suffix.spec.ts` — /admin/* anonymous bounce + _rsc.
+- `public/client-rsc-suffix.spec.ts` — /client/* anonymous bounce + _rsc.
+- `public/admin-detail-survey-edit-rsc.spec.ts` — admin survey + _rsc.
+
+i18n locale prefix deeper:
+- `public/client-i18n-routes-deeper.spec.ts` — locale × client/dashboard.
+- `public/admin-i18n-routes-deeper.spec.ts` — locale × admin sweep.
+
+Trailing slashes / links:
+- `public/trailing-slash-canonicalization.spec.ts` — /about/ no 5xx.
+- `public/links-rel-noopener-noreferrer.spec.ts` — _blank links carry rel.
+
+API rejection:
+- `public/favorites-api-routes-deeper.spec.ts` — favorites verbs anonymous.
+- `public/admin-method-flood.spec.ts` — every verb × top admin endpoints.
+- `api/featured-items-deeper.spec.ts` — featured items query shapes.
+- `api/reference-deeper.spec.ts` — /api/reference query shapes.
+- `api/sponsor-ads-list-deeper.spec.ts` — sponsor-ads list + mutating.
+- `api/admin-collections-comments-deeper.spec.ts` — collections + items.
+- `api/admin-notifications-deeper.spec.ts` — mark-all-read variants.
+- `api/admin-sponsor-ads-deeper.spec.ts` — approve/reject/cancel anonymous.
+- `api/admin-reports-deeper.spec.ts` — reports detail anonymous.
+- `api/stripe-portal-and-products-edges.spec.ts` — stripe portal variants.
+
+Image / SEO:
+- `public/image-with-srcset-shape.spec.ts` — srcset entries well-formed.
+
+Branch: `feat/e2e-coverage-1779166258`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
 
 Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
