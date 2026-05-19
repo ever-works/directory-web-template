@@ -47,6 +47,16 @@ export interface AdminNotificationFilters {
   q?: string;
   dateFrom?: string | null;
   dateTo?: string | null;
+  page?: number;
+  limit?: number;
+}
+
+export interface AdminNotificationListPayload {
+  notifications: Notification[];
+  total: number;
+  page: number;
+  totalPages: number;
+  unreadCount: number;
 }
 
 function toAdminQueryString(filters: AdminNotificationFilters): string {
@@ -55,6 +65,8 @@ function toAdminQueryString(filters: AdminNotificationFilters): string {
   if (filters.q) params.set('q', filters.q);
   if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
   if (filters.dateTo) params.set('dateTo', filters.dateTo);
+  if (filters.limit) params.set('limit', String(filters.limit));
+  if (filters.page && filters.page > 1) params.set('page', String(filters.page));
   (filters.types ?? []).forEach((t) => params.append('type', t));
   (filters.priorities ?? []).forEach((p) => params.append('priority', p));
   const qs = params.toString();
@@ -69,14 +81,16 @@ function stableFilterHash(filters: AdminNotificationFilters): string {
   if (filters.dateTo) norm.dateTo = filters.dateTo;
   if (filters.types && filters.types.length > 0) norm.types = [...filters.types].sort();
   if (filters.priorities && filters.priorities.length > 0) norm.priorities = [...filters.priorities].sort();
+  if (filters.page && filters.page > 1) norm.page = filters.page;
+  if (filters.limit) norm.limit = filters.limit;
   return JSON.stringify(norm);
 }
 
 // API functions using server-api-client
 const notificationApi = {
   // Fetch notifications
-  async fetchNotifications(filters: AdminNotificationFilters = {}): Promise<{ notifications: Notification[]; unreadCount: number }> {
-    const response = await serverClient.get<{ success: boolean; data: { notifications: Notification[]; unreadCount: number }; error?: string }>(
+  async fetchNotifications(filters: AdminNotificationFilters = {}): Promise<AdminNotificationListPayload> {
+    const response = await serverClient.get<{ success: boolean; data: AdminNotificationListPayload; error?: string }>(
       `/api/admin/notifications${toAdminQueryString(filters)}`
     );
 
@@ -148,6 +162,7 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
     refetchIntervalInBackground: false, // Don't poll in background
     staleTime: 2 * 60 * 1000, // 2 minutes instead of 10 seconds
     gcTime: 10 * 60 * 1000, // Increased garbage collection time
+    placeholderData: (prev) => prev,
   });
 
   const markAsReadMutation = useMutation({
@@ -156,7 +171,7 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
       // Update every cached list (any active filter combo) — setQueriesData
       // matches by prefix, so the admin gets snappy feedback regardless of
       // which filter the active page uses.
-      queryClient.setQueriesData<{ notifications: Notification[]; unreadCount: number }>(
+      queryClient.setQueriesData<AdminNotificationListPayload>(
         { queryKey: NOTIFICATION_KEYS.lists() },
         (oldData) => {
           if (!oldData) return oldData;
@@ -181,7 +196,7 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
   const markAllAsReadMutation = useMutation({
     mutationFn: notificationApi.markAllAsRead,
     onSuccess: () => {
-      queryClient.setQueriesData<{ notifications: Notification[]; unreadCount: number }>(
+      queryClient.setQueriesData<AdminNotificationListPayload>(
         { queryKey: NOTIFICATION_KEYS.lists() },
         (oldData) => {
           if (!oldData) return oldData;
@@ -220,10 +235,13 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
   // Computed values with fallbacks
   const notifications = notificationData?.notifications ?? [];
   const unreadCount = notificationData?.unreadCount ?? 0;
-  
+  const total = notificationData?.total ?? notifications.length;
+  const totalPages = notificationData?.totalPages ?? 1;
+  const currentPage = notificationData?.page ?? filters.page ?? 1;
+
   // Calculate stats from notifications
   const stats: NotificationStats = {
-    total: notifications.length,
+    total,
     unread: unreadCount,
     byType: notifications.reduce((acc, notification) => {
       acc[notification.type] = (acc[notification.type] || 0) + 1;
@@ -315,17 +333,21 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
     // Data
     notifications,
     stats,
-    
+    total,
+    totalPages,
+    page: currentPage,
+    unreadCount,
+
     // Loading states
     isLoading,
     isFetching,
     isMarkingAsRead,
     isMarkingAllAsRead,
     isCreating,
-    
+
     // Error handling
     error: error?.message || null,
-    
+
     // Actions
     fetchNotifications,
     markAsRead,
@@ -333,7 +355,7 @@ export function useAdminNotifications(filters: AdminNotificationFilters = {}) {
     createNotification,
     getNotificationLink,
     handleNotificationClick,
-    
+
     // Mutation states
     markAsReadMutation,
     markAllAsReadMutation,

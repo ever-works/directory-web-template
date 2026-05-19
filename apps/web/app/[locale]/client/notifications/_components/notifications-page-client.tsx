@@ -18,9 +18,12 @@ import {
 	type NotificationFiltersState,
 	type NotificationView
 } from '@/components/notifications';
+import { UniversalPagination } from '@/components/universal-pagination';
 import type { NotificationTab } from '@/lib/notifications/registry';
 import type { BulkAction } from '@/lib/notifications/types';
 import { cn } from '@/lib/utils';
+
+const PAGE_SIZE = 25;
 
 const HEADER_BUTTON =
 	'inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
@@ -30,6 +33,7 @@ export function NotificationsPageClient() {
 
 	const [tab, setTab] = useState<NotificationTab>('all');
 	const [view, setView] = useState<NotificationView>('list');
+	const [page, setPage] = useState(1);
 	const [filters, setFilters] = useState<NotificationFiltersState>({
 		q: '',
 		types: [],
@@ -47,22 +51,25 @@ export function NotificationsPageClient() {
 			priority: filters.priorities.length > 0 ? filters.priorities : undefined,
 			dateFrom: filters.dateFrom ?? undefined,
 			dateTo: filters.dateTo ?? undefined,
-			limit: 30
+			page,
+			limit: PAGE_SIZE
 		}),
-		[tab, filters]
+		[tab, filters, page]
 	);
 
-	const {
-		notifications,
-		isLoading,
-		isFetching,
-		isError,
-		error,
-		hasNextPage,
-		isFetchingNextPage,
-		fetchNextPage,
-		refetch
-	} = useNotifications(listFilters);
+	const handleTabChange = (next: NotificationTab) => {
+		setTab(next);
+		setPage(1);
+		setSelectedIds(new Set());
+	};
+
+	const handleFiltersChange = (next: NotificationFiltersState) => {
+		setFilters(next);
+		setPage(1);
+	};
+
+	const { notifications, totalPages, isLoading, isFetching, isError, error, refetch } =
+		useNotifications(listFilters);
 	const stats = useNotificationStats();
 	const { markRead, markUnread, markAllRead, isPending: markPending } = useMarkNotification();
 	const { bulkAction, deleteOne, isPending: bulkPending } = useBulkNotifications();
@@ -155,10 +162,10 @@ export function NotificationsPageClient() {
 				</div>
 			)}
 
-			<NotificationTabs value={tab} onChange={setTab} counts={counts} />
+			<NotificationTabs value={tab} onChange={handleTabChange} counts={counts} />
 
 			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-				<NotificationFilters value={filters} onChange={setFilters} />
+				<NotificationFilters value={filters} onChange={handleFiltersChange} />
 				<NotificationViewToggle value={view} onChange={setView} />
 			</div>
 
@@ -182,9 +189,6 @@ export function NotificationsPageClient() {
 				<NotificationList
 					notifications={notifications}
 					isLoading={isLoading}
-					hasNextPage={hasNextPage}
-					isFetchingNextPage={isFetchingNextPage}
-					onLoadMore={() => fetchNextPage()}
 					onMarkRead={markRead}
 					onMarkUnread={markUnread}
 					onDismiss={deleteOne}
@@ -196,6 +200,8 @@ export function NotificationsPageClient() {
 					view={view}
 				/>
 			</div>
+
+			<UniversalPagination page={page} totalPages={totalPages} onPageChange={setPage} />
 		</div>
 	);
 }

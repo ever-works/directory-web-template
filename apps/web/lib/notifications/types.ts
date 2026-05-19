@@ -87,7 +87,9 @@ export interface NotificationListItem {
 
 export interface NotificationListResponse {
 	notifications: NotificationListItem[];
-	nextCursor: string | null;
+	total: number;
+	page: number;
+	totalPages: number;
 	unreadCount: number;
 }
 
@@ -108,7 +110,7 @@ export interface NotificationListQuery {
 	q?: string;
 	dateFrom?: string;
 	dateTo?: string;
-	cursor?: string;
+	page?: number;
 	limit?: number;
 }
 

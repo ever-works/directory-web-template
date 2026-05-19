@@ -1,12 +1,13 @@
 /**
  * Spec 027 — GET /api/client/notifications
  *
- * Paginated list for the authenticated user, scoped to their tenant.
- * Supports tab filter, type filter, priority filter, search, and date range.
+ * Page-based paginated list for the authenticated user, scoped to
+ * their tenant.  Supports tab filter, type filter, priority filter,
+ * search, and date range.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { and, desc, eq, gte, ilike, inArray, lte, lt, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 
 import { requireClientAuth, badRequestResponse, serverErrorResponse } from '@/lib/utils/client-auth';
 import { db } from '@/lib/db/drizzle';
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
 		const q = url.searchParams.get('q')?.trim() ?? '';
 		const dateFrom = url.searchParams.get('dateFrom');
 		const dateTo = url.searchParams.get('dateTo');
-		const cursor = url.searchParams.get('cursor');
+		const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1);
 		const limit = clampLimit(url.searchParams.get('limit'));
 
 		const where = and(
@@ -59,36 +60,39 @@ export async function GET(req: NextRequest) {
 				? or(ilike(notifications.title, `%${q}%`), ilike(notifications.message, `%${q}%`))
 				: undefined,
 			dateFrom ? gte(notifications.createdAt, new Date(dateFrom)) : undefined,
-			dateTo ? lte(notifications.createdAt, new Date(dateTo)) : undefined,
-			cursor ? lt(notifications.createdAt, new Date(cursor)) : undefined
+			dateTo ? lte(notifications.createdAt, new Date(dateTo)) : undefined
 		);
 
-		const rows = await db
-			.select()
-			.from(notifications)
-			.where(where)
-			.orderBy(desc(notifications.createdAt))
-			.limit(limit + 1);
-
-		const hasMore = rows.length > limit;
-		const trimmed = hasMore ? rows.slice(0, limit) : rows;
-		const nextCursor = hasMore ? trimmed[trimmed.length - 1]!.createdAt.toISOString() : null;
-
-		const unreadResult = await db
-			.select({ count: sql<number>`count(*)::int` })
-			.from(notifications)
-			.where(
-				and(
-					eq(notifications.userId, authResult.userId),
-					eq(notifications.tenantId, tenantId),
-					eq(notifications.isRead, false),
-					sql`${notifications.archivedAt} IS NULL`
+		const [totalResult, rows, unreadResult] = await Promise.all([
+			db.select({ count: count() }).from(notifications).where(where),
+			db
+				.select()
+				.from(notifications)
+				.where(where)
+				.orderBy(desc(notifications.createdAt))
+				.limit(limit)
+				.offset((page - 1) * limit),
+			db
+				.select({ count: count() })
+				.from(notifications)
+				.where(
+					and(
+						eq(notifications.userId, authResult.userId),
+						eq(notifications.tenantId, tenantId),
+						eq(notifications.isRead, false),
+						sql`${notifications.archivedAt} IS NULL`
+					)
 				)
-			);
+		]);
+
+		const total = totalResult[0]?.count ?? 0;
+		const totalPages = Math.max(1, Math.ceil(total / limit));
 
 		const body: NotificationListResponse = {
-			notifications: trimmed.map(rowToListItem),
-			nextCursor,
+			notifications: rows.map(rowToListItem),
+			total,
+			page,
+			totalPages,
 			unreadCount: unreadResult[0]?.count ?? 0
 		};
 

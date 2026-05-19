@@ -25,15 +25,11 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 	const t = useTranslations('client.notifications');
 	const [tab, setTab] = useState<NotificationTab>('all');
 
-	const {
-		notifications,
-		isLoading,
-		isFetching,
-		hasNextPage,
-		isFetchingNextPage,
-		fetchNextPage,
-		refetch
-	} = useNotifications({ tab, limit: 15 });
+	const { notifications, isLoading, isFetching, refetch } = useNotifications({
+		tab,
+		page: 1,
+		limit: 15
+	});
 	const stats = useNotificationStats();
 	const { markRead, markUnread, markAllRead, isPending: isMarking } = useMarkNotification();
 	const { deleteOne } = useBulkNotifications();
@@ -121,9 +117,6 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 					<NotificationList
 						notifications={notifications}
 						isLoading={isLoading}
-						hasNextPage={hasNextPage}
-						isFetchingNextPage={isFetchingNextPage}
-						onLoadMore={() => fetchNextPage()}
 						onMarkRead={markRead}
 						onMarkUnread={markUnread}
 						onDismiss={deleteOne}

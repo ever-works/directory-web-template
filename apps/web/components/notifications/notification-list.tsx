@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 
 import type { NotificationListItem } from '@/lib/notifications/types';
@@ -15,9 +15,6 @@ import { sectionByDay, type DaySection } from './group-utils';
 interface NotificationListProps {
 	notifications: NotificationListItem[];
 	isLoading?: boolean;
-	isFetchingNextPage?: boolean;
-	hasNextPage?: boolean;
-	onLoadMore?: () => void;
 	onMarkRead?: (id: string) => void;
 	onMarkUnread?: (id: string) => void;
 	onDismiss?: (id: string) => void;
@@ -48,9 +45,6 @@ const FALLBACK_LABELS: Record<DaySection, string> = {
 export function NotificationList({
 	notifications,
 	isLoading,
-	isFetchingNextPage,
-	hasNextPage,
-	onLoadMore,
 	onMarkRead,
 	onMarkUnread,
 	onDismiss,
@@ -63,21 +57,7 @@ export function NotificationList({
 	className
 }: NotificationListProps) {
 	const t = useTranslations('client.notifications.sections');
-	const sentinelRef = useRef<HTMLDivElement | null>(null);
 	const listRef = useRef<HTMLDivElement | null>(null);
-
-	useEffect(() => {
-		if (!onLoadMore || !hasNextPage) return;
-		const node = sentinelRef.current;
-		if (!node) return;
-		const observer = new IntersectionObserver((entries) => {
-			for (const entry of entries) {
-				if (entry.isIntersecting) onLoadMore();
-			}
-		});
-		observer.observe(node);
-		return () => observer.disconnect();
-	}, [onLoadMore, hasNextPage, notifications.length]);
 
 	/** Arrow-key navigation between rows when focus is inside the list. */
 	const handleKeyDown = useCallback((event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -134,22 +114,6 @@ export function NotificationList({
 		</div>
 	);
 
-	const Loader = () =>
-		hasNextPage ? (
-			<div
-				ref={sentinelRef}
-				className="flex items-center justify-center px-4 py-3"
-			>
-				{isFetchingNextPage && (
-					<span className="inline-flex items-center gap-1">
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse" />
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse [animation-delay:150ms]" />
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse [animation-delay:300ms]" />
-					</span>
-				)}
-			</div>
-		) : null;
-
 	// Day grouping is only meaningful for the list view — grid uses a
 	// flat tile mosaic.  When view=grid and groupByDay=true we render
 	// section headers above each tile bucket.
@@ -170,7 +134,6 @@ export function NotificationList({
 							<div className={gridContainerClass}>{section.notifications.map(renderRow)}</div>
 						</section>
 					))}
-					<Loader />
 				</div>
 			);
 		}
@@ -179,7 +142,6 @@ export function NotificationList({
 				<div className={view === 'grid' ? gridContainerClass : listContainerClass}>
 					{notifications.map(renderRow)}
 				</div>
-				<Loader />
 			</div>
 		);
 	}
@@ -196,7 +158,6 @@ export function NotificationList({
 					<div className={listContainerClass}>{section.notifications.map(renderRow)}</div>
 				</section>
 			))}
-			<Loader />
 		</div>
 	);
 }

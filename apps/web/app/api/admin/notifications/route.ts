@@ -174,7 +174,8 @@ export async function GET(req: NextRequest) {
 		const dateFrom = url.searchParams.get('dateFrom');
 		const dateTo = url.searchParams.get('dateTo');
 		const limitRaw = url.searchParams.get('limit');
-		const limit = Math.min(Math.max(Number.parseInt(limitRaw ?? '50', 10) || 50, 1), 200);
+		const limit = Math.min(Math.max(Number.parseInt(limitRaw ?? '25', 10) || 25, 1), 200);
+		const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1);
 
 		const scope = and(
 			eq(notifications.userId, session.user.id),
@@ -194,30 +195,39 @@ export async function GET(req: NextRequest) {
 			dateTo ? lte(notifications.createdAt, new Date(dateTo)) : undefined
 		);
 
-		const userNotifications = await db
-			.select()
-			.from(notifications)
-			.where(scope)
-			.orderBy(desc(notifications.createdAt))
-			.limit(limit);
-
-		// Unread count uses base scope only (ignores other filters) so the
-		// header pill stays stable while the list narrows.
-		const unreadCountResult = await db
-			.select({ count: count() })
-			.from(notifications)
-			.where(
-				and(
-					eq(notifications.userId, session.user.id),
-					eq(notifications.isRead, false),
-					eq(notifications.tenantId, tenantId)
+		const [totalResult, userNotifications, unreadCountResult] = await Promise.all([
+			db.select({ count: count() }).from(notifications).where(scope),
+			db
+				.select()
+				.from(notifications)
+				.where(scope)
+				.orderBy(desc(notifications.createdAt))
+				.limit(limit)
+				.offset((page - 1) * limit),
+			// Unread count uses base scope only (ignores other filters) so the
+			// header pill stays stable while the list narrows.
+			db
+				.select({ count: count() })
+				.from(notifications)
+				.where(
+					and(
+						eq(notifications.userId, session.user.id),
+						eq(notifications.isRead, false),
+						eq(notifications.tenantId, tenantId)
+					)
 				)
-			);
+		]);
+
+		const total = totalResult[0]?.count ?? 0;
+		const totalPages = Math.max(1, Math.ceil(total / limit));
 
 		return NextResponse.json({
 			success: true,
 			data: {
 				notifications: userNotifications,
+				total,
+				page,
+				totalPages,
 				unreadCount: unreadCountResult[0]?.count || 0
 			}
 		});

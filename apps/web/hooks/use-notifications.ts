@@ -1,14 +1,9 @@
 'use client';
 
-import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiUtils, serverClient } from '@/lib/api/server-api-client';
-import type {
-	NotificationListItem,
-	NotificationListQuery,
-	NotificationListResponse
-} from '@/lib/notifications/types';
+import type { NotificationListQuery, NotificationListResponse } from '@/lib/notifications/types';
 
 export const CLIENT_NOTIFICATION_KEYS = {
 	all: ['client', 'notifications'] as const,
@@ -28,14 +23,14 @@ function stableHash(input: object): string {
 	return JSON.stringify(sorted);
 }
 
-function toQueryString(filters: NotificationListQuery, cursor?: string): string {
+function toQueryString(filters: NotificationListQuery): string {
 	const params = new URLSearchParams();
 	if (filters.tab) params.set('tab', filters.tab);
 	if (filters.q) params.set('q', filters.q);
 	if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
 	if (filters.dateTo) params.set('dateTo', filters.dateTo);
 	if (filters.limit) params.set('limit', String(filters.limit));
-	if (cursor) params.set('cursor', cursor);
+	if (filters.page && filters.page > 1) params.set('page', String(filters.page));
 	if (filters.type) {
 		const types = Array.isArray(filters.type) ? filters.type : [filters.type];
 		types.forEach((t) => params.append('type', t));
@@ -48,9 +43,9 @@ function toQueryString(filters: NotificationListQuery, cursor?: string): string 
 	return qs ? `?${qs}` : '';
 }
 
-async function fetchPage(filters: NotificationListQuery, cursor?: string): Promise<NotificationListResponse> {
+async function fetchPage(filters: NotificationListQuery): Promise<NotificationListResponse> {
 	const response = await serverClient.get<{ success: boolean; data: NotificationListResponse; error?: string }>(
-		`/api/client/notifications${toQueryString(filters, cursor)}`
+		`/api/client/notifications${toQueryString(filters)}`
 	);
 	if (!apiUtils.isSuccess(response) || !response.data?.data) {
 		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to fetch notifications');
@@ -61,32 +56,30 @@ async function fetchPage(filters: NotificationListQuery, cursor?: string): Promi
 export function useNotifications(filters: NotificationListQuery = {}) {
 	const queryClient = useQueryClient();
 
-	const query = useInfiniteQuery({
+	const query = useQuery({
 		queryKey: CLIENT_NOTIFICATION_KEYS.list(filters),
-		queryFn: ({ pageParam }: { pageParam?: string }) => fetchPage(filters, pageParam),
-		initialPageParam: undefined as string | undefined,
-		getNextPageParam: (last) => last.nextCursor ?? undefined,
+		queryFn: () => fetchPage(filters),
 		staleTime: 30 * 1000,
-		refetchOnWindowFocus: false
+		refetchOnWindowFocus: false,
+		placeholderData: (prev) => prev
 	});
 
-	const notifications = useMemo<NotificationListItem[]>(() => {
-		if (!query.data) return [];
-		return query.data.pages.flatMap((p) => p?.notifications ?? []).filter((n): n is NotificationListItem => Boolean(n));
-	}, [query.data]);
-
-	const unreadCount = query.data?.pages[0]?.unreadCount ?? 0;
+	const notifications = query.data?.notifications ?? [];
+	const total = query.data?.total ?? 0;
+	const totalPages = query.data?.totalPages ?? 1;
+	const page = query.data?.page ?? filters.page ?? 1;
+	const unreadCount = query.data?.unreadCount ?? 0;
 
 	return {
 		notifications,
+		total,
+		totalPages,
+		page,
 		unreadCount,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
 		isError: query.isError,
 		error: query.error,
-		fetchNextPage: query.fetchNextPage,
-		hasNextPage: query.hasNextPage,
-		isFetchingNextPage: query.isFetchingNextPage,
 		refetch: query.refetch,
 		invalidate: () => queryClient.invalidateQueries({ queryKey: CLIENT_NOTIFICATION_KEYS.all })
 	};

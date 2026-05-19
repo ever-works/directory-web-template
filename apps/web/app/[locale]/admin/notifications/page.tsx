@@ -21,8 +21,11 @@ import {
 	type NotificationFiltersState,
 	type NotificationView
 } from '@/components/notifications';
+import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminNotifications } from '@/hooks/use-admin-notifications';
 import { cn } from '@/lib/utils';
+
+const PAGE_SIZE = 25;
 
 /**
  * Admin notifications hub.
@@ -35,6 +38,7 @@ import { cn } from '@/lib/utils';
 export default function AdminNotificationsPage() {
 	const t = useTranslations('admin.NOTIFICATIONS');
 	const [view, setView] = useState<NotificationView>('list');
+	const [page, setPage] = useState(1);
 	const [filters, setFilters] = useState<NotificationFiltersState>({
 		q: '',
 		types: [],
@@ -49,14 +53,22 @@ export default function AdminNotificationsPage() {
 			types: filters.types.length > 0 ? filters.types : undefined,
 			priorities: filters.priorities.length > 0 ? filters.priorities : undefined,
 			dateFrom: filters.dateFrom ?? undefined,
-			dateTo: filters.dateTo ?? undefined
+			dateTo: filters.dateTo ?? undefined,
+			page,
+			limit: PAGE_SIZE
 		}),
-		[filters]
+		[filters, page]
 	);
+
+	const handleFiltersChange = (next: NotificationFiltersState) => {
+		setFilters(next);
+		setPage(1);
+	};
 
 	const {
 		notifications,
 		stats,
+		totalPages,
 		isLoading,
 		isFetching,
 		isMarkingAllAsRead,
@@ -114,7 +126,7 @@ export default function AdminNotificationsPage() {
 				<AdminNotificationStats />
 
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-					<NotificationFilters value={filters} onChange={setFilters} />
+					<NotificationFilters value={filters} onChange={handleFiltersChange} />
 					<NotificationViewToggle value={view} onChange={setView} />
 				</div>
 
@@ -188,6 +200,8 @@ export default function AdminNotificationsPage() {
 						</div>
 					)}
 				</div>
+
+				<UniversalPagination page={page} totalPages={totalPages} onPageChange={setPage} />
 			</div>
 		</Container>
 	);

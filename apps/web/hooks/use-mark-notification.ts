@@ -1,6 +1,6 @@
 'use client';
 
-import { useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 import type { NotificationListItem, NotificationListResponse } from '@/lib/notifications/types';
@@ -32,28 +32,16 @@ async function markAllRead(): Promise<{ updatedCount: number }> {
 	return response.data.data;
 }
 
-type ListPages = InfiniteData<NotificationListResponse>;
-
 function updateListCache(qc: ReturnType<typeof useQueryClient>, id: string, isRead: boolean) {
-	qc.setQueriesData<ListPages>({ queryKey: CLIENT_NOTIFICATION_KEYS.all }, (current) => {
-		if (!current || !('pages' in current)) return current;
+	qc.setQueriesData<NotificationListResponse>({ queryKey: CLIENT_NOTIFICATION_KEYS.all }, (current) => {
+		if (!current || !('notifications' in current)) return current;
+		const nextUnread = Math.max(0, (current.unreadCount ?? 0) + (isRead ? -1 : 1));
 		return {
 			...current,
-			pages: current.pages.map((page) => {
-				const nextUnread = Math.max(
-					0,
-					(page.unreadCount ?? 0) + (isRead ? -1 : 1)
-				);
-				return {
-					...page,
-					unreadCount: nextUnread,
-					notifications: page.notifications.map((n) =>
-						n.id === id
-							? { ...n, isRead, readAt: isRead ? new Date().toISOString() : null }
-							: n
-					)
-				};
-			})
+			unreadCount: nextUnread,
+			notifications: current.notifications.map((n) =>
+				n.id === id ? { ...n, isRead, readAt: isRead ? new Date().toISOString() : null } : n
+			)
 		};
 	});
 }
@@ -68,7 +56,6 @@ export function useMarkNotification() {
 			updateListCache(qc, id, isRead);
 		},
 		onError: (_err, variables) => {
-			// Revert by re-flipping
 			updateListCache(qc, variables.id, !variables.isRead);
 		},
 		onSettled: () => {
@@ -80,18 +67,15 @@ export function useMarkNotification() {
 		mutationFn: markAllRead,
 		onMutate: async () => {
 			await qc.cancelQueries({ queryKey: CLIENT_NOTIFICATION_KEYS.all });
-			qc.setQueriesData<ListPages>({ queryKey: CLIENT_NOTIFICATION_KEYS.all }, (current) => {
-				if (!current || !('pages' in current)) return current;
+			qc.setQueriesData<NotificationListResponse>({ queryKey: CLIENT_NOTIFICATION_KEYS.all }, (current) => {
+				if (!current || !('notifications' in current)) return current;
 				return {
 					...current,
-					pages: current.pages.map((page) => ({
-						...page,
-						unreadCount: 0,
-						notifications: page.notifications.map((n) => ({
-							...n,
-							isRead: true,
-							readAt: n.readAt ?? new Date().toISOString()
-						}))
+					unreadCount: 0,
+					notifications: current.notifications.map((n) => ({
+						...n,
+						isRead: true,
+						readAt: n.readAt ?? new Date().toISOString()
 					}))
 				};
 			});
