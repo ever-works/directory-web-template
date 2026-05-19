@@ -31,6 +31,36 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
+
+Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Locale × RSC bounce:
+- `public/admin-i18n-rsc-bounce.spec.ts` — locale × admin × _rsc anonymous.
+- `public/client-i18n-rsc-bounce.spec.ts` — locale × client × _rsc anonymous.
+- `public/sponsor-checkout-rsc-bounce.spec.ts` — /sponsor + _rsc tolerance.
+
+Perf + CLS + a11y:
+- `public/listing-aspect-ratio-images.spec.ts` — img dimensions vs aspect-ratio.
+- `public/listing-no-cls-from-late-fonts.spec.ts` — no font-display:block/auto.
+- `public/listing-no-dialog-open-without-trigger.spec.ts` — no auto-open dialog.
+- `public/listing-no-fixed-position-blocking.spec.ts` — no fullscreen z>1000 overlay.
+- `public/listing-no-form-without-action.spec.ts` — forms wire submit.
+- `public/auth-pages-input-attributes.spec.ts` — auth inputs email+password.
+
+API + responses:
+- `public/listing-response-status-text.spec.ts` — 200 responses declare CT.
+- `api/auth-session-no-pii-leak.spec.ts` — anon session no hashes/tokens.
+- `api/admin-comments-deeper.spec.ts` — comments CRUD rejection.
+- `api/admin-featured-items-deeper.spec.ts` — featured-items CRUD rejection.
+- `api/admin-companies-deeper.spec.ts` — companies CRUD rejection.
+
+Branch: `feat/e2e-coverage-1779198954`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
 
 Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
