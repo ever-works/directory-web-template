@@ -1,7 +1,10 @@
 'use client';
 
+import * as React from 'react';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { useTranslations } from 'next-intl';
-import { FiSearch, FiX, FiLoader, FiArrowUp, FiArrowDown, FiFilter } from 'react-icons/fi';
+import { FiSearch, FiX, FiLoader, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import { Check, ChevronDown } from 'lucide-react';
 import {
 	CLIENT_STATUS_FILTERS,
 	ClientItemsListParams,
@@ -119,42 +122,11 @@ export function SubmissionFilters({
 
 				{showSort && (
 					<div className="flex items-center gap-1.5">
-						<label htmlFor="submissions-sort" className="sr-only">
-							{t('SORT_BY')}
-						</label>
-						<div className="relative">
-							<FiFilter
-								className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400"
-								aria-hidden="true"
-							/>
-							<select
-								id="submissions-sort"
-								value={sortBy}
-								onChange={(e) => onSortByChange?.(e.target.value as SubmissionSortBy)}
-								disabled={disabled}
-								className={cn(
-									'appearance-none rounded-lg border border-gray-200 bg-white py-2 pl-8 pr-8 text-xs font-medium',
-									'text-gray-700 transition-colors duration-150',
-									'focus:border-theme-primary-500 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/30',
-									'dark:border-white/8 dark:bg-white/5 dark:text-gray-200',
-									disabled && 'cursor-not-allowed opacity-50'
-								)}
-							>
-								{SORT_OPTIONS.map((opt) => (
-									<option key={opt.value} value={opt.value}>
-										{t(opt.labelKey)}
-									</option>
-								))}
-							</select>
-							<svg
-								className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-gray-400"
-								viewBox="0 0 12 12"
-								fill="none"
-								aria-hidden="true"
-							>
-								<path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-							</svg>
-						</div>
+						<SortDropdown
+							sortBy={sortBy}
+							disabled={disabled}
+							onSortByChange={onSortByChange}
+						/>
 						<button
 							type="button"
 							onClick={onSortOrderToggle}
@@ -195,6 +167,96 @@ export function SubmissionFilters({
 				)}
 			</div>
 		</div>
+	);
+}
+
+interface SortDropdownProps {
+	sortBy: SubmissionSortBy;
+	disabled: boolean;
+	onSortByChange?: (sortBy: SubmissionSortBy) => void;
+}
+
+function SortDropdown({ sortBy, disabled, onSortByChange }: SortDropdownProps) {
+	const t = useTranslations('client.submissions');
+	const dropdownId = React.useId().replace(/:/g, '');
+
+	const currentOption = SORT_OPTIONS.find((opt) => opt.value === sortBy);
+	const currentLabel = currentOption ? t(currentOption.labelKey) : t('SORT_BY');
+
+	return (
+		<DropdownMenu.Root modal={false}>
+			<DropdownMenu.Trigger asChild disabled={disabled}>
+				<button
+					type="button"
+					aria-label={t('SORT_BY')}
+					aria-haspopup="menu"
+					aria-controls={dropdownId}
+					className={cn(
+						'group inline-flex h-9 items-center justify-between gap-2 rounded-lg px-3 text-xs font-medium',
+						'min-w-[10rem] sm:min-w-[11rem]',
+						'border border-gray-200 dark:border-white/8',
+						'bg-white dark:bg-white/5',
+						'text-gray-700 dark:text-gray-200',
+						'transition-colors duration-150',
+						'hover:bg-gray-50 hover:text-gray-900',
+						'dark:hover:bg-white/8 dark:hover:text-gray-100',
+						'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500/30',
+						disabled && 'cursor-not-allowed opacity-50'
+					)}
+				>
+					<span className="truncate">{currentLabel}</span>
+					<ChevronDown
+						className="h-3 w-3 shrink-0 text-gray-400 transition-transform group-data-[state=open]:rotate-180"
+						aria-hidden="true"
+					/>
+				</button>
+			</DropdownMenu.Trigger>
+
+			<DropdownMenu.Portal>
+				<DropdownMenu.Content
+					id={dropdownId}
+					align="end"
+					sideOffset={6}
+					className={cn(
+						'z-50 min-w-[11rem]',
+						'rounded-lg border border-gray-200 dark:border-white/8',
+						'bg-white dark:bg-[#141414]',
+						'shadow-lg shadow-black/10 dark:shadow-black/30',
+						'animate-in fade-in zoom-in-95'
+					)}
+					onCloseAutoFocus={(e) => e.preventDefault()}
+				>
+					<DropdownMenu.RadioGroup
+						value={sortBy}
+						onValueChange={(value) => onSortByChange?.(value as SubmissionSortBy)}
+						className="p-1"
+					>
+						{SORT_OPTIONS.map((option) => (
+							<DropdownMenu.RadioItem
+								key={option.value}
+								value={option.value}
+								className={cn(
+									'relative flex cursor-pointer items-center justify-between gap-3 rounded-md px-2 py-1.5 text-xs font-medium outline-none',
+									'text-gray-900 dark:text-gray-100',
+									'transition-colors',
+									'hover:bg-gray-100 dark:hover:bg-white/6',
+									'focus:bg-gray-100 dark:focus:bg-white/6'
+								)}
+							>
+								<span>{t(option.labelKey)}</span>
+								<DropdownMenu.ItemIndicator>
+									<Check
+										className="h-3 w-3 text-theme-primary-500 dark:text-theme-primary-400"
+										aria-hidden="true"
+									/>
+								</DropdownMenu.ItemIndicator>
+							</DropdownMenu.RadioItem>
+						))}
+					</DropdownMenu.RadioGroup>
+					<DropdownMenu.Arrow className="fill-white dark:fill-[#141414]" />
+				</DropdownMenu.Content>
+			</DropdownMenu.Portal>
+		</DropdownMenu.Root>
 	);
 }
 
