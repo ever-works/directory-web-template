@@ -31,6 +31,38 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
+
+Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL / encoding edges:
+- `public/listing-with-multiple-locale-prefixes.spec.ts` — `/en/fr/about` stacks.
+- `public/listing-bom-and-control-chars.spec.ts` — BOM/null/DEL/control chars.
+
+HTML hygiene:
+- `public/listing-overall-page-error-state.spec.ts` — no "undefined"/"NaN"/[object Object] visible.
+- `public/listing-no-deprecated-noscript-block.spec.ts` — noscript < 5KB.
+- `public/listing-form-submit-without-fields.spec.ts` — empty submit no crash.
+
+Perf + budgets:
+- `public/listing-network-resource-budgets.spec.ts` — total JS bytes budget.
+
+Pages:
+- `public/admin-survey-deep-anonymous.spec.ts` — admin survey edit/preview/responses + locale + RSC.
+
+API rejection:
+- `api/admin-collections-deeper.spec.ts` — collections + items nested CRUD.
+
+Icons / manifest:
+- `public/link-favicon-and-apple-touch-icon-shape.spec.ts` — icon hrefs well-formed.
+- `public/manifest-shape.spec.ts` — manifest valid JSON with name.
+
+Branch: `feat/e2e-coverage-1779206154`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
 
 Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
