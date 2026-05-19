@@ -14,8 +14,6 @@ import { getTenantId } from '@/lib/auth/tenant';
 import type { NotificationPreferencesPayload, NotificationDigest } from '@/lib/notifications/types';
 import { NOTIFICATION_CHANNELS, isKnownType } from '@/lib/notifications';
 
-const VALID_DIGEST = new Set<NotificationDigest>(['instant', 'daily', 'weekly', 'off']);
-
 function defaultsPayload(): NotificationPreferencesPayload {
 	return {
 		preferences: {},
@@ -68,10 +66,6 @@ export async function PUT(req: NextRequest) {
 		const body = (await req.json().catch(() => null)) as Partial<NotificationPreferencesPayload> | null;
 		if (!body) return badRequestResponse('Invalid body');
 
-		if (body.emailDigest && !VALID_DIGEST.has(body.emailDigest)) {
-			return badRequestResponse('Invalid emailDigest value');
-		}
-
 		const sanitizedMatrix: NotificationPreferencesPayload['preferences'] = {};
 		if (body.preferences) {
 			for (const [type, channels] of Object.entries(body.preferences)) {
@@ -89,9 +83,10 @@ export async function PUT(req: NextRequest) {
 		const values: typeof notificationPreferences.$inferInsert = {
 			userId: authResult.userId,
 			preferences: sanitizedMatrix,
-			emailDigest: body.emailDigest ?? 'instant',
-			quietHoursStart: body.quietHoursStart ?? null,
-			quietHoursEnd: body.quietHoursEnd ?? null,
+			// Email and quiet hours are not user-configurable via UI — lock to off/null.
+			emailDigest: 'off',
+			quietHoursStart: null,
+			quietHoursEnd: null,
 			timezone: body.timezone ?? 'UTC',
 			pushEnabled: Boolean(body.pushEnabled),
 			pushTokens: [],
