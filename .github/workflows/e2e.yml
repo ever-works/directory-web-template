@@ -113,12 +113,33 @@ jobs:
         run: pnpm --filter @ever-works/web-e2e exec playwright install --with-deps chromium
 
       - name: Prepare content directory
+        # The Git-CMS loader reads `.works/works.yml` for site config and
+        # `categories.yml` / `tags.yml` / `collections.yml` for taxonomies.
+        # Without `.works/works.yml`, `config.auth` is undefined and the
+        # /auth/signin form never renders — global-setup then times out
+        # waiting for `#email`. Skipping the real DATA_REPOSITORY clone in CI
+        # means we have to stub these files ourselves.
         run: |
-          mkdir -p apps/web/.content/data
-          # Minimal valid manifest so the Git-CMS loader doesn't blow up.
-          cat > apps/web/.content/data/manifest.json <<'JSON'
-          { "items": [], "categories": [], "tags": [], "collections": [] }
-          JSON
+          mkdir -p apps/web/.content/.works apps/web/.content/data
+          cat > apps/web/.content/.works/works.yml <<'YAML'
+          company_name: E2E
+          item_name: Item
+          items_name: Items
+          copyright_year: 2026
+          content_table: true
+          pagination:
+            type: standard
+            itemsPerPage: 12
+          auth:
+            credentials: true
+          settings:
+            categories_enabled: true
+            tags_enabled: true
+            companies_enabled: true
+          YAML
+          echo "[]" > apps/web/.content/categories.yml
+          echo "[]" > apps/web/.content/tags.yml
+          echo "[]" > apps/web/.content/collections.yml
 
       - name: Run database migrations
         # Pushes Drizzle schema to the empty postgres service. Without it
@@ -126,12 +147,11 @@ jobs:
         run: pnpm --filter @ever-works/web db:migrate || echo "Migrations skipped (script missing or non-fatal)"
         continue-on-error: true
 
-      - name: Seed admin account
-        # Idempotent: tries to insert the SEED_ADMIN_* account so global-setup
-        # can sign in. If the project has its own seed script, prefer that;
-        # otherwise fall back to a direct insert.
-        run: pnpm --filter @ever-works/web db:seed || echo "Seed skipped (script missing or non-fatal)"
-        continue-on-error: true
+      # Admin seeding happens automatically on first request via
+      # instrumentation.ts (DB Init). It honors SEED_ADMIN_* env vars and
+      # is what created the admin in earlier runs. The standalone `db:seed`
+      # script (cli-seed.ts) currently imports a client-only module and
+      # crashes — no need to invoke it here.
 
       - name: Run e2e tests (shard ${{ matrix.shard }}/${{ matrix.total }})
         run: |
