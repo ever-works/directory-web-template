@@ -14,7 +14,9 @@ import {
 	NotificationList,
 	NotificationFilters,
 	NotificationBulkActions,
-	type NotificationFiltersState
+	NotificationViewToggle,
+	type NotificationFiltersState,
+	type NotificationView
 } from '@/components/notifications';
 import type { NotificationTab } from '@/lib/notifications/registry';
 import type { BulkAction } from '@/lib/notifications/types';
@@ -27,6 +29,7 @@ export function NotificationsPageClient() {
 	const t = useTranslations('client.notifications');
 
 	const [tab, setTab] = useState<NotificationTab>('all');
+	const [view, setView] = useState<NotificationView>('list');
 	const [filters, setFilters] = useState<NotificationFiltersState>({
 		q: '',
 		types: [],
@@ -154,7 +157,10 @@ export function NotificationsPageClient() {
 
 			<NotificationTabs value={tab} onChange={setTab} counts={counts} />
 
-			<NotificationFilters value={filters} onChange={setFilters} />
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<NotificationFilters value={filters} onChange={setFilters} />
+				<NotificationViewToggle value={view} onChange={setView} />
+			</div>
 
 			{selectedIds.size > 0 && (
 				<div className="sticky top-[calc(var(--header-height,3.5rem)+0.5rem)] z-10">
@@ -167,7 +173,12 @@ export function NotificationsPageClient() {
 				</div>
 			)}
 
-			<div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.02] overflow-hidden">
+			<div
+				className={cn(
+					'rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden',
+					view === 'grid' ? 'bg-gray-50/40 dark:bg-white/[0.015]' : 'bg-white dark:bg-white/[0.02]'
+				)}
+			>
 				<NotificationList
 					notifications={notifications}
 					isLoading={isLoading}
@@ -182,6 +193,7 @@ export function NotificationsPageClient() {
 					onSelectChange={onSelectChange}
 					emptyVariant={tab}
 					groupByDay
+					view={view}
 				/>
 			</div>
 		</div>

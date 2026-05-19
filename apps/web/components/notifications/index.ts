@@ -1,7 +1,8 @@
 export { NotificationBell } from './notification-bell';
 export { NotificationDropdown } from './notification-dropdown';
 export { NotificationTabs } from './notification-tabs';
-export { NotificationCard } from './notification-card';
+export { NotificationCard, type NotificationCardView } from './notification-card';
+export { NotificationViewToggle, type NotificationView } from './notification-view-toggle';
 export { NotificationCardSkeleton, NotificationListSkeleton } from './notification-card-skeleton';
 export { NotificationEmpty } from './notification-empty';
 export { NotificationList } from './notification-list';

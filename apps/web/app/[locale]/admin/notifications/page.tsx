@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import {
@@ -14,6 +15,7 @@ import {
 
 import { Container } from '@/components/ui/container';
 import { AdminNotificationStats } from '@/components/admin/admin-notification-stats';
+import { NotificationViewToggle, type NotificationView } from '@/components/notifications';
 import { useAdminNotifications } from '@/hooks/use-admin-notifications';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +29,7 @@ import { cn } from '@/lib/utils';
  */
 export default function AdminNotificationsPage() {
 	const t = useTranslations('admin.NOTIFICATIONS');
+	const [view, setView] = useState<NotificationView>('list');
 	const {
 		notifications,
 		stats,
@@ -86,6 +89,10 @@ export default function AdminNotificationsPage() {
 
 				<AdminNotificationStats />
 
+				<div className="flex justify-end">
+					<NotificationViewToggle value={view} onChange={setView} />
+				</div>
+
 				{error && (
 					<div
 						role="alert"
@@ -104,15 +111,42 @@ export default function AdminNotificationsPage() {
 					</div>
 				)}
 
-				<div className="rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-white/[0.02] overflow-hidden">
+				<div
+					className={cn(
+						'rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden',
+						view === 'grid' ? 'bg-gray-50/40 dark:bg-white/[0.015]' : 'bg-white dark:bg-white/[0.02]'
+					)}
+				>
 					{isLoading ? (
-						<div className="divide-y divide-gray-100 dark:divide-white/8">
-							{Array.from({ length: 5 }).map((_, i) => (
-								<RowSkeleton key={i} />
-							))}
-						</div>
+						view === 'grid' ? (
+							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4">
+								{Array.from({ length: 6 }).map((_, i) => (
+									<RowSkeleton key={i} view="grid" />
+								))}
+							</div>
+						) : (
+							<div className="divide-y divide-gray-100 dark:divide-white/8">
+								{Array.from({ length: 5 }).map((_, i) => (
+									<RowSkeleton key={i} view="list" />
+								))}
+							</div>
+						)
 					) : notifications.length === 0 ? (
 						<EmptyState t={t} />
+					) : view === 'grid' ? (
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4">
+							{notifications.map((n) => (
+								<NotificationRow
+									key={n.id}
+									notification={n}
+									onClick={() => handleNotificationClick(n)}
+									onMarkRead={() => markAsRead(n.id)}
+									link={getNotificationLink(n) ?? null}
+									t={t}
+									view="grid"
+								/>
+							))}
+						</div>
 					) : (
 						<div className="divide-y divide-gray-100 dark:divide-white/8">
 							{notifications.map((n) => (
@@ -123,6 +157,7 @@ export default function AdminNotificationsPage() {
 									onMarkRead={() => markAsRead(n.id)}
 									link={getNotificationLink(n) ?? null}
 									t={t}
+									view="list"
 								/>
 							))}
 						</div>
@@ -148,22 +183,127 @@ interface NotificationRowProps {
 	onMarkRead: () => void;
 	link: string | null;
 	t: ReturnType<typeof useTranslations>;
+	view?: NotificationView;
 }
 
-function NotificationRow({ notification, onClick, onMarkRead, link, t }: NotificationRowProps) {
+function NotificationRow({ notification, onClick, onMarkRead, link, t, view = 'list' }: NotificationRowProps) {
 	const { type, title, message, isRead, createdAt } = notification;
+
+	const sharedProps = {
+		role: 'button' as const,
+		tabIndex: 0,
+		onClick,
+		onKeyDown: (e: React.KeyboardEvent<HTMLDivElement>) => {
+			if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				onClick();
+			}
+		}
+	};
+
+	const actions = (
+		<>
+			{link && (
+				<a
+					href={link}
+					target="_blank"
+					rel="noopener noreferrer"
+					onClick={(e) => e.stopPropagation()}
+					className="inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+				>
+					<ExternalLink className="h-3 w-3" aria-hidden="true" />
+					{safeT(t, 'VIEW_DETAILS', 'View')}
+				</a>
+			)}
+			{!isRead && (
+				<button
+					type="button"
+					onClick={(e) => {
+						e.stopPropagation();
+						onMarkRead();
+					}}
+					className="inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
+				>
+					{safeT(t, 'MARK_READ', 'Mark read')}
+				</button>
+			)}
+		</>
+	);
+
+	if (view === 'grid') {
+		return (
+			<div
+				{...sharedProps}
+				className={cn(
+					'group/row relative flex flex-col gap-3 p-4 cursor-pointer',
+					'rounded-xl border bg-white dark:bg-white/[0.02]',
+					'transition-all duration-150',
+					'hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:shadow-none',
+					'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500',
+					isRead
+						? 'border-gray-200 dark:border-white/8 hover:border-gray-300 dark:hover:border-white/12'
+						: cn('border-gray-200 dark:border-white/10 ring-1 ring-inset', adminPriorityRing(type))
+				)}
+			>
+				<div className="flex items-start justify-between gap-3">
+					<div className="relative">
+						{!isRead && (
+							<span
+								className="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#0a0a0a]"
+								aria-hidden="true"
+							/>
+						)}
+						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-white/6">
+							{renderIcon(type)}
+						</div>
+					</div>
+				</div>
+				<div className="flex-1 min-w-0">
+					<p
+						className={cn(
+							'text-sm leading-snug line-clamp-2',
+							isRead
+								? 'font-normal text-gray-700 dark:text-gray-300'
+								: 'font-semibold text-gray-900 dark:text-white'
+						)}
+					>
+						{title}
+					</p>
+					<p
+						className={cn(
+							'mt-1 line-clamp-3 text-xs leading-relaxed',
+							isRead ? 'text-gray-500' : 'text-gray-600 dark:text-gray-400'
+						)}
+					>
+						{message}
+					</p>
+				</div>
+				<div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
+					<span className="inline-flex items-center rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
+						{typeLabel(type, t)}
+					</span>
+					<time className="text-[11px] font-medium text-gray-500 tabular-nums whitespace-nowrap">
+						{formatDistanceToNow(new Date(createdAt), { addSuffix: false })}
+					</time>
+				</div>
+				<div
+					className={cn(
+						'absolute bottom-3 left-4 flex items-center gap-1',
+						'opacity-0 -translate-y-1 transition-all duration-150',
+						'group-hover/row:opacity-100 group-hover/row:translate-y-0',
+						'group-focus-within/row:opacity-100 group-focus-within/row:translate-y-0',
+						'motion-reduce:opacity-100 motion-reduce:translate-y-0'
+					)}
+				>
+					{actions}
+				</div>
+			</div>
+		);
+	}
 
 	return (
 		<div
-			role="button"
-			tabIndex={0}
-			onClick={onClick}
-			onKeyDown={(e) => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault();
-					onClick();
-				}
-			}}
+			{...sharedProps}
 			className={cn(
 				'group/row relative flex gap-3 px-4 py-3 cursor-pointer transition-colors duration-150 border-l-[3px]',
 				'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-inset',
@@ -222,30 +362,7 @@ function NotificationRow({ notification, onClick, onMarkRead, link, t }: Notific
 							'motion-reduce:opacity-100'
 						)}
 					>
-						{link && (
-							<a
-								href={link}
-								target="_blank"
-								rel="noopener noreferrer"
-								onClick={(e) => e.stopPropagation()}
-								className="inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
-							>
-								<ExternalLink className="h-3 w-3" aria-hidden="true" />
-								{safeT(t, 'VIEW_DETAILS', 'View')}
-							</a>
-						)}
-						{!isRead && (
-							<button
-								type="button"
-								onClick={(e) => {
-									e.stopPropagation();
-									onMarkRead();
-								}}
-								className="inline-flex items-center gap-1 h-6 px-2 text-[10px] font-medium rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
-							>
-								{safeT(t, 'MARK_READ', 'Mark read')}
-							</button>
-						)}
+						{actions}
 					</div>
 				</div>
 			</div>
@@ -253,7 +370,20 @@ function NotificationRow({ notification, onClick, onMarkRead, link, t }: Notific
 	);
 }
 
-function RowSkeleton() {
+function RowSkeleton({ view = 'list' }: { view?: NotificationView }) {
+	if (view === 'grid') {
+		return (
+			<div className="flex flex-col gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.02] animate-pulse">
+				<div className="h-10 w-10 rounded-full bg-gray-100 dark:bg-white/8" />
+				<div className="space-y-1.5">
+					<div className="h-3.5 w-3/4 bg-gray-100 dark:bg-white/8 rounded" />
+					<div className="h-3 w-full bg-gray-100 dark:bg-white/8 rounded" />
+					<div className="h-3 w-5/6 bg-gray-100 dark:bg-white/8 rounded" />
+				</div>
+				<div className="h-5 w-20 bg-gray-100 dark:bg-white/8 rounded-md" />
+			</div>
+		);
+	}
 	return (
 		<div className="flex gap-3 px-4 py-3 border-l-[3px] border-transparent animate-pulse">
 			<div className="h-9 w-9 shrink-0 rounded-full bg-gray-100 dark:bg-white/8" />
@@ -264,6 +394,20 @@ function RowSkeleton() {
 			</div>
 		</div>
 	);
+}
+
+function adminPriorityRing(type: string): string {
+	switch (type) {
+		case 'payment_failed':
+		case 'system_alert':
+			return 'ring-red-500/40';
+		case 'comment_reported':
+			return 'ring-amber-500/40';
+		case 'item_submission':
+			return 'ring-blue-500/30';
+		default:
+			return 'ring-gray-300/40 dark:ring-white/8';
+	}
 }
 
 function EmptyState({ t }: { t: ReturnType<typeof useTranslations> }) {

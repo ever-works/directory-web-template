@@ -4083,6 +4083,13 @@
 			"refresh": "Refresh",
 			"retry": "Retry",
 			"tooltip": "Notifications",
+			"view": {
+				"list": "List view",
+				"grid": "Grid view",
+				"aria": {
+					"group": "Toggle layout"
+				}
+			},
 			"actions": {
 				"open": "Open",
 				"markRead": "Mark as read",

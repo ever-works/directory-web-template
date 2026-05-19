@@ -26,6 +26,8 @@ interface NotificationListProps {
 	selectedIds?: Set<string>;
 	onSelectChange?: (id: string, selected: boolean) => void;
 	groupByDay?: boolean;
+	/** "list" (default) renders divide-y rows; "grid" renders a responsive tile grid. */
+	view?: 'list' | 'grid';
 	className?: string;
 }
 
@@ -57,6 +59,7 @@ export function NotificationList({
 	selectedIds,
 	onSelectChange,
 	groupByDay = false,
+	view = 'list',
 	className
 }: NotificationListProps) {
 	const t = useTranslations('client.notifications.sections');
@@ -92,7 +95,7 @@ export function NotificationList({
 	}, []);
 
 	if (isLoading) {
-		return <NotificationListSkeleton rows={6} />;
+		return <NotificationListSkeleton rows={view === 'grid' ? 6 : 6} view={view} />;
 	}
 
 	if (notifications.length === 0) {
@@ -112,28 +115,63 @@ export function NotificationList({
 				selectable={selectable}
 				selected={selectedIds?.has(n.id)}
 				onSelectChange={onSelectChange}
+				view={view}
 			/>
 		</div>
 	);
 
-	if (!groupByDay) {
+	const gridContainerClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4';
+	const listContainerClass = 'divide-y divide-gray-100 dark:divide-white/8';
+	const Loader = () =>
+		hasNextPage ? (
+			<div
+				ref={sentinelRef}
+				className="flex items-center justify-center px-4 py-3 text-[11px] text-gray-500 dark:text-gray-500"
+			>
+				{isFetchingNextPage && (
+					<span className="inline-flex items-center gap-1.5">
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse" />
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
+					</span>
+				)}
+			</div>
+		) : null;
+
+	// Day grouping is only meaningful for the list view — grid uses a
+	// flat tile mosaic.  When view=grid and groupByDay=true we render
+	// section headers above each tile bucket.
+	if (!groupByDay || view === 'grid') {
+		if (view === 'grid' && groupByDay) {
+			const sections = sectionByDay(notifications);
+			return (
+				<div ref={listRef} onKeyDown={handleKeyDown} className={cn(className)}>
+					{sections.map((section, sectionIdx) => (
+						<section
+							key={section.key}
+							className={cn(sectionIdx > 0 && 'border-t border-gray-100 dark:border-white/8')}
+						>
+							<div className="sticky top-0 z-[1] px-4 py-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-100 dark:border-white/8">
+								<h3 className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+									<span>{safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}</span>
+									<span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gray-100 dark:bg-white/8 px-1 text-[10px] font-medium text-gray-600 dark:text-gray-400 tabular-nums normal-case">
+										{section.notifications.length}
+									</span>
+								</h3>
+							</div>
+							<div className={gridContainerClass}>{section.notifications.map(renderRow)}</div>
+						</section>
+					))}
+					<Loader />
+				</div>
+			);
+		}
 		return (
 			<div ref={listRef} onKeyDown={handleKeyDown} className={className}>
-				<div className="divide-y divide-gray-100 dark:divide-white/8">{notifications.map(renderRow)}</div>
-				{hasNextPage && (
-					<div
-						ref={sentinelRef}
-						className="flex items-center justify-center px-4 py-3 text-[11px] text-gray-500 dark:text-gray-500"
-					>
-						{isFetchingNextPage && (
-							<span className="inline-flex items-center gap-1.5">
-								<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse" />
-								<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
-								<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
-							</span>
-						)}
-					</div>
-				)}
+				<div className={view === 'grid' ? gridContainerClass : listContainerClass}>
+					{notifications.map(renderRow)}
+				</div>
+				<Loader />
 			</div>
 		);
 	}
@@ -151,25 +189,10 @@ export function NotificationList({
 							</span>
 						</h3>
 					</div>
-					<div className="divide-y divide-gray-100 dark:divide-white/8">
-						{section.notifications.map(renderRow)}
-					</div>
+					<div className={listContainerClass}>{section.notifications.map(renderRow)}</div>
 				</section>
 			))}
-			{hasNextPage && (
-				<div
-					ref={sentinelRef}
-					className="flex items-center justify-center px-4 py-3 text-[11px] text-gray-500 dark:text-gray-500"
-				>
-					{isFetchingNextPage && (
-						<span className="inline-flex items-center gap-1.5">
-							<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse" />
-							<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
-							<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
-						</span>
-					)}
-				</div>
-			)}
+			<Loader />
 		</div>
 	);
 }
