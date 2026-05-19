@@ -342,8 +342,8 @@ const LEMONSQUEEZY_LIST_QUERIES = [
 ] as const;
 
 test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
-	for (const path of LEMONSQUEEZY_LIST_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of LEMONSQUEEZY_LIST_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's auth gate fires before any

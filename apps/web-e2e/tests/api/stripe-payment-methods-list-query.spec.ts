@@ -311,8 +311,8 @@ const STRIPE_PAYMENT_METHODS_LIST_QUERIES = [
 ] as const;
 
 test.describe('API: /api/stripe/payment-methods/list query-param surface', () => {
-	for (const path of STRIPE_PAYMENT_METHODS_LIST_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of STRIPE_PAYMENT_METHODS_LIST_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's auth gate fires before any potential
