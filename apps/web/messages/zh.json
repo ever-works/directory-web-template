@@ -530,6 +530,7 @@
 		"ACCOUNT_SETTINGS_DESC": "账户设置和偏好",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "个人资料设置",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "分页样式",
 		"PAGINATION_STYLE_DESC": "选择浏览列表时内容的显示方式",
 		"PAGINATION_STANDARD_LABEL": "标准",

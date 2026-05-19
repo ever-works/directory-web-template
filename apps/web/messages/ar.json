@@ -530,6 +530,7 @@
 		"ACCOUNT_SETTINGS_DESC": "إعدادات الحساب والتفضيلات",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "إعدادات الملف الشخصي",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "نمط الترقيم",
 		"PAGINATION_STYLE_DESC": "اختر كيفية عرض المحتوى عند تصفح القوائم",
 		"PAGINATION_STANDARD_LABEL": "قياسي",

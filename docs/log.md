@@ -50,6 +50,94 @@ why** at a higher level than per-commit diffs.
   dropdown still asks for page 1, limit 15.
 - UX: changing tab or filters resets `page` to 1 on both surfaces.
 
+---
+
+## 2026-05-19 — Spec 028 round 17: leading-slash + host header + preferences gate (develop-only)
+
+Round 17 of the rolling e2e coverage buildout. 8 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL / host security:
+- `public/listing-with-multiple-leading-slashes.spec.ts` — `//host` no off-site redirect.
+- `public/listing-with-fake-host-header.spec.ts` — Host header spoof no echo.
+
+HTML hygiene:
+- `public/listing-href-not-empty-or-hash.spec.ts` — few `href=""/href="#"`.
+- `public/listing-html-no-script-no-src.spec.ts` — no empty inline scripts.
+- `public/listing-no-deprecated-link-rel.spec.ts` — advisory: deprecated rel.
+- `public/listing-no-broken-anchor-content.spec.ts` — no `{{...}}`/`${...}` in anchors.
+
+Pages:
+- `public/client-settings-preferences-anonymous.spec.ts` — Spec 029 preferences gate.
+
+API:
+- `api/admin-mixed-method-flood.spec.ts` — verb flood × sponsor-ads/comments/etc.
+
+Branch: `feat/e2e-coverage-1779217016`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
+
+Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL / encoding edges:
+- `public/listing-with-multiple-locale-prefixes.spec.ts` — `/en/fr/about` stacks.
+- `public/listing-bom-and-control-chars.spec.ts` — BOM/null/DEL/control chars.
+
+HTML hygiene:
+- `public/listing-overall-page-error-state.spec.ts` — no "undefined"/"NaN"/[object Object] visible.
+- `public/listing-no-deprecated-noscript-block.spec.ts` — noscript < 5KB.
+- `public/listing-form-submit-without-fields.spec.ts` — empty submit no crash.
+
+Perf + budgets:
+- `public/listing-network-resource-budgets.spec.ts` — total JS bytes budget.
+
+Pages:
+- `public/admin-survey-deep-anonymous.spec.ts` — admin survey edit/preview/responses + locale + RSC.
+
+API rejection:
+- `api/admin-collections-deeper.spec.ts` — collections + items nested CRUD.
+
+Icons / manifest:
+- `public/link-favicon-and-apple-touch-icon-shape.spec.ts` — icon hrefs well-formed.
+- `public/manifest-shape.spec.ts` — manifest valid JSON with name.
+
+Branch: `feat/e2e-coverage-1779206154`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
+
+Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL malforms:
+- `public/listing-with-double-question-mark.spec.ts` — `?a=b?c=d` tolerance.
+- `public/listing-with-percent-encoded-slash.spec.ts` — `%2F` in segments.
+- `public/listing-with-multi-percent.spec.ts` — double-encoded + emoji segments.
+- `public/paging-overflow-large-pages.spec.ts` — page=10000 on listings.
+
+Client settings deeper:
+- `public/theme-colors-page-protected.spec.ts` — theme-colors anon + RSC + locale.
+- `public/submissions-trash-protected.spec.ts` — trash anon + RSC + locale.
+
+API rejection:
+- `api/admin-clients-search-shapes.spec.ts` — advanced-search anonymous.
+- `api/webhook-content-type-deeper.spec.ts` — webhooks wrong CT / multipart / empty.
+- `api/admin-export-deeper.spec.ts` — items export format/limit variants anon.
+
+HTML hygiene:
+- `public/listing-no-trailing-comma-anchor.spec.ts` — no `<a href="/foo,">`.
+
+Branch: `feat/e2e-coverage-1779202525`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
 
 Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
@@ -936,6 +1024,29 @@ prevent the double-fire that originally motivated all of this.
   smoking gun: a second `signIn` fetch aborted by navigation, surfacing
   as `TypeError: Failed to fetch` in console and racing the cookie write
   against the dashboard's `auth()` call.
+## 2026-05-19 — Spec 029: renumber from 027 → 029 after develop landed 027/028
+
+- `spec-029` Renumbered this spec from `027` → `029` when rebasing on `develop`, because `develop` had concurrently landed `spec-027-fix-post-register-autologin` and `spec-028-e2e-coverage-buildout`. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, and the README index row were rewritten from `027` → `029`. Earlier `spec-027` references in this log that belong to the Preferences-section work were rewritten to `spec-029` / `029-…`; references that belong to the post-register auto-login fix (also numbered 027 on `develop`) were left alone. No code changes in this commit. PR #850.
+
+## 2026-05-18 — Spec 029: e2e coverage + PR-number backfill for Preferences section
+
+- `spec-029` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
+
+## 2026-05-18 — Spec 029: align preference block components with `/client/settings`
+
+- `spec-029` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
+
+## 2026-05-18 — Spec 029: align `SettingsModal` with `/client/settings` visual language
+
+- `spec-029` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-18 — Spec 029: align header `SettingsButton` with `/client/settings` icon style
+
+- `spec-029` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-17 — Spec 029: client-settings Preferences section
+
+- `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
 
 ## 2026-05-18 — Spec 027 client notifications system (PR #852)
 

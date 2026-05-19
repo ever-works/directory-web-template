@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Настройки и предпочтения аккаунта",
 		"ADMIN_SETTINGS_DESC": "Управление конфигурацией сайта и предпочтениями",
 		"PROFILE_SETTINGS": "Настройки профиля",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Стиль пагинации",
 		"PAGINATION_STYLE_DESC": "Выберите, как отображается контент при просмотре списков",
 		"PAGINATION_STANDARD_LABEL": "Стандартная",
