@@ -110,7 +110,14 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Parse body explicitly so malformed JSON / wrong content-type
+    // returns a clean 400 rather than the generic 500 catch.
+    let body: { provider?: unknown; userId?: unknown; customerId?: unknown } = {};
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const { provider, userId, customerId } = body;
     if (!provider) {
       return NextResponse.json(
@@ -271,7 +278,12 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const { id, provider, userId, customerId } = body;
     if (!id) {
       return NextResponse.json(

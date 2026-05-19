@@ -9,9 +9,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
         if (dbCheck) return dbCheck;
 
         const { commentId } = await params;
-        const { rating } = await request.json();
-        console.log("============rating=============>", rating);
-        const comment = await updateCommentRating(commentId, rating);
+        // Parse body explicitly so a malformed JSON / wrong-content-type
+        // request returns 400 instead of falling into the generic 500
+        // catch below.
+        let payload: { rating?: unknown } = {};
+        try {
+            payload = await request.json();
+        } catch {
+            return NextResponse.json(
+                { error: "Invalid JSON body" },
+                { status: 400 }
+            );
+        }
+        const { rating } = payload;
+        const comment = await updateCommentRating(commentId, rating as never);
         return NextResponse.json(comment);
     } catch (error) {
         console.error("Failed to update comment rating:", error);
