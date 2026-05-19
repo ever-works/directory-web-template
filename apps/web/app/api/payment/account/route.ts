@@ -119,21 +119,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
     const { provider, userId, customerId } = body;
-    if (!provider) {
+    if (!provider || typeof provider !== 'string') {
       return NextResponse.json(
         { error: 'Provider is required' },
         { status: 400 }
       );
     }
 
-    if (!userId) {
+    if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    if (!customerId) {
+    if (!customerId || typeof customerId !== 'string') {
       return NextResponse.json(
         { error: 'Customer ID is required' },
         { status: 400 }
@@ -285,28 +285,28 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
     const { id, provider, userId, customerId } = body;
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json(
         { error: 'Account ID is required' },
         { status: 400 }
       );
     }
 
-    if (!provider) {
+    if (!provider || typeof provider !== 'string') {
       return NextResponse.json(
         { error: 'Provider is required' },
         { status: 400 }
       );
     }
 
-    if (!userId) {
+    if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    if (!customerId) {
+    if (!customerId || typeof customerId !== 'string') {
       return NextResponse.json(
         { error: 'Customer ID is required' },
         { status: 400 }
