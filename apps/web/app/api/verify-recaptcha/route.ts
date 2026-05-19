@@ -169,9 +169,13 @@ export async function POST(request: NextRequest) {
 
     const secretKey = analyticsConfig.recaptcha.secretKey;
     if (!secretKey) {
-      if (coreConfig.NODE_ENV === "development") {
+      if (coreConfig.NODE_ENV !== "production") {
+        // Bypass in any non-production environment (development, test,
+        // CI) — calling out to Google's siteverify from a CI runner
+        // would just hang. Real verification only runs when the secret
+        // is provided AND we're in production.
         console.warn(
-          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification in development mode. " +
+          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification (non-production env). " +
           "Set RECAPTCHA_SECRET_KEY to enable verification."
         );
         return NextResponse.json({

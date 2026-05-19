@@ -192,22 +192,23 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 test.describe('API: GET /api/platform/activity-feed — query validation (mode-independent)', () => {
 	// Bad query is rejected with 400 BEFORE the signature check, so it
 	// fires regardless of whether the env is provisioned. Verify the
-	// route doesn't leak a 5xx on garbage input.
+	// route degrades cleanly on garbage input. 400 (zod validation) is the
+	// documented happy path, 503 (not_provisioned) is the documented
+	// graceful-degradation path when PLATFORM_SYNC_SECRET is unset (the
+	// CI case). The forbidden outcome is a 500 with no body.
 
-	test('rejects out-of-range limit with 4xx', async ({ request }) => {
+	test('rejects out-of-range limit with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?limit=999999&types=all`);
-		// 400 if provisioned (zod validation runs first), 503 if not.
-		// Both are < 500 — the contract is "no server errors on bad input".
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 
-	test('rejects invalid types csv with 4xx', async ({ request }) => {
+	test('rejects invalid types csv with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?limit=10&types=bogus`);
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 
-	test('rejects malformed since (not ISO 8601) with 4xx', async ({ request }) => {
+	test('rejects malformed since (not ISO 8601) with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?since=not-a-date&limit=10&types=all`);
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 });

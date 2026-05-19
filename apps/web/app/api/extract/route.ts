@@ -97,22 +97,10 @@ const extractSchema = z.object({
  */
 export async function POST(request: Request) {
 	try {
-		// Parse body first so a malformed JSON / wrong-content-type
-		// request returns a clean 400 instead of either dropping into
-		// the generic 500 catch or being silently swallowed by the
-		// "feature disabled" early-return when the platform API is
-		// unconfigured.
-		let body: unknown = {};
-		try {
-			body = await request.json();
-		} catch {
-			return NextResponse.json(
-				{ success: false, error: 'Invalid JSON body' },
-				{ status: 400 }
-			);
-		}
-
-		// Check if platform API is configured
+		// Check if platform API is configured first. The feature-disabled
+		// gate runs BEFORE body parse so a deployment with the feature
+		// turned off can answer EVERY POST — even bodyless or malformed
+		// ones — with the same 200 feature-disabled envelope.
 		const platformApiUrl = process.env.PLATFORM_API_URL;
 		const platformApiToken = process.env.PLATFORM_API_SECRET_TOKEN;
 
@@ -124,6 +112,18 @@ export async function POST(request: Request) {
 				message:
 					'URL extraction feature is not available. This feature requires PLATFORM_API_URL to be configured.'
 			});
+		}
+
+		// Parse body when the feature IS enabled so malformed JSON gets
+		// a clean 400 instead of falling into the generic 500 catch.
+		let body: unknown = {};
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid JSON body' },
+				{ status: 400 }
+			);
 		}
 
 		const result = extractSchema.safeParse(body);
