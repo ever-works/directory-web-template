@@ -532,6 +532,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Paramètres et préférences du compte",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "Paramètres du profil",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Style de pagination",
 		"PAGINATION_STYLE_DESC": "Choisissez comment le contenu est affiché lors de la navigation dans les listes",
 		"PAGINATION_STANDARD_LABEL": "Standard",

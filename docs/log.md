@@ -977,6 +977,29 @@ prevent the double-fire that originally motivated all of this.
   smoking gun: a second `signIn` fetch aborted by navigation, surfacing
   as `TypeError: Failed to fetch` in console and racing the cookie write
   against the dashboard's `auth()` call.
+## 2026-05-19 — Spec 029: renumber from 027 → 029 after develop landed 027/028
+
+- `spec-029` Renumbered this spec from `027` → `029` when rebasing on `develop`, because `develop` had concurrently landed `spec-027-fix-post-register-autologin` and `spec-028-e2e-coverage-buildout`. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, and the README index row were rewritten from `027` → `029`. Earlier `spec-027` references in this log that belong to the Preferences-section work were rewritten to `spec-029` / `029-…`; references that belong to the post-register auto-login fix (also numbered 027 on `develop`) were left alone. No code changes in this commit. PR #850.
+
+## 2026-05-18 — Spec 029: e2e coverage + PR-number backfill for Preferences section
+
+- `spec-029` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
+
+## 2026-05-18 — Spec 029: align preference block components with `/client/settings`
+
+- `spec-029` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
+
+## 2026-05-18 — Spec 029: align `SettingsModal` with `/client/settings` visual language
+
+- `spec-029` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-18 — Spec 029: align header `SettingsButton` with `/client/settings` icon style
+
+- `spec-029` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-17 — Spec 029: client-settings Preferences section
+
+- `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
 
 ## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
 
