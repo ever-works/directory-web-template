@@ -33,9 +33,19 @@ test.describe('Admin dynamic-segment routes', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			// Auth is gated client-side by AdminLayoutClient, so the redirect to
-			// signin fires AFTER domcontentloaded. Poll until the URL updates.
-			await expect(anon).toHaveURL(/auth\/signin/, { timeout: 30_000 });
+			// Two acceptable gate outcomes:
+			//   1. URL redirects to /auth/signin (server- or client-side)
+			//   2. The page returns 404 (notFound from the server component
+			//      before any sensitive content is rendered, e.g. survey
+			//      [slug]/edit which calls notFound() when the slug is
+			//      missing — the anonymous caller learns nothing more
+			//      than the slug-exists / slug-missing answer they could
+			//      already get from /admin/surveys list).
+			const wasGated = await Promise.race([
+				anon.waitForURL(/auth\/signin/, { timeout: 30_000 }).then(() => true).catch(() => false),
+				Promise.resolve(resp!.status() === 404 || resp!.status() === 401 || resp!.status() === 403)
+			]);
+			expect(wasGated, `${path} should redirect to signin or return 404`).toBe(true);
 			await ctx.close();
 		});
 	}
