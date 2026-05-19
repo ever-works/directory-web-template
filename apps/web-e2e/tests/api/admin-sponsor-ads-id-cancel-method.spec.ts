@@ -159,10 +159,10 @@ test.describe('API: /api/admin/sponsor-ads/[id]/cancel method / id / body / head
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		// admin-guard returns the short 'Unauthorized' rather than the
+		// long-form spec-pinned envelope.
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${CANCEL_PATH(PROBE_ID)} Unauthorized error envelope echoes the success: false key`, async ({

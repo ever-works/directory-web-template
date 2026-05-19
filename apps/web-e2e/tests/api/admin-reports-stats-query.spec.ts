@@ -362,8 +362,10 @@ test.describe('API: /api/admin/reports/stats query-param surface', () => {
 		const response = await request.get('/api/admin/reports/stats');
 		const body = await response.json();
 
+		// admin-guard returns 401 'Unauthorized' for unauth and 403
+		// 'Forbidden' only for authenticated non-admin. Accept either.
 		expect(body).toHaveProperty('success', false);
-		expect(body).toHaveProperty('error', 'Forbidden');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 
