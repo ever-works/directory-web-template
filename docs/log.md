@@ -31,6 +31,34 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
+
+Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL malforms:
+- `public/listing-with-double-question-mark.spec.ts` — `?a=b?c=d` tolerance.
+- `public/listing-with-percent-encoded-slash.spec.ts` — `%2F` in segments.
+- `public/listing-with-multi-percent.spec.ts` — double-encoded + emoji segments.
+- `public/paging-overflow-large-pages.spec.ts` — page=10000 on listings.
+
+Client settings deeper:
+- `public/theme-colors-page-protected.spec.ts` — theme-colors anon + RSC + locale.
+- `public/submissions-trash-protected.spec.ts` — trash anon + RSC + locale.
+
+API rejection:
+- `api/admin-clients-search-shapes.spec.ts` — advanced-search anonymous.
+- `api/webhook-content-type-deeper.spec.ts` — webhooks wrong CT / multipart / empty.
+- `api/admin-export-deeper.spec.ts` — items export format/limit variants anon.
+
+HTML hygiene:
+- `public/listing-no-trailing-comma-anchor.spec.ts` — no `<a href="/foo,">`.
+
+Branch: `feat/e2e-coverage-1779202525`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
 
 Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
