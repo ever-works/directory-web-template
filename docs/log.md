@@ -31,6 +31,90 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 3: hourly continuation batch (develop-only)
+
+Round 3 of the rolling e2e coverage buildout. 28 new spec files added
+on `develop` only (no cascade per operator instructions). Focus areas:
+
+API security matrices:
+- `api/stripe-endpoints-rejection.spec.ts` — Stripe surface + webhook
+  signature rejection.
+- `api/surveys-api-rejection.spec.ts` — surveys read tolerance +
+  mutation rejection.
+- `api/sponsor-ads-api-rejection.spec.ts` — sponsor-ads user API
+  anonymous rejection.
+- `api/items-public-api.spec.ts` — public items.json contract +
+  garbage-query tolerance.
+- `api/cron-and-webhook-security.spec.ts` — cron endpoints require
+  CRON_SECRET; platform activity-feed rejects bad HMAC.
+- `api/recaptcha-tenant-version.spec.ts` — boundary endpoint shapes.
+- `api/comments-votes-favorites-rejection.spec.ts` — engagement
+  endpoints reject anonymous mutations.
+- `api/admin-detail-api-rejection.spec.ts` — admin per-resource GETs
+  reject anonymous.
+- `api/user-profile-mutating.spec.ts` — profile mutating endpoints
+  reject anonymous.
+
+Admin pages + deeper API:
+- `admin/admin-detail-and-survey-routes.spec.ts` — admin dynamic-segment
+  routes for client and survey detail/create.
+- `admin/admin-mutating-api-deeper.spec.ts` — sweep of remaining admin
+  POST/PATCH/DELETE endpoints.
+- `admin/admin-test-mock-endpoint-disabled.spec.ts` — `/api/__test__/*`
+  routes are gated.
+- `admin/admin-i18n-locale.spec.ts` — admin pages in fr/es/de.
+
+Auth coverage:
+- `auth/new-password-flow-tokens.spec.ts` — token-gated auth pages
+  tolerate garbage / SQL-shaped / missing tokens.
+- `auth/admin-signin-page.spec.ts` — `/admin/auth/signin` form +
+  callbackUrl sanitization.
+
+Client coverage:
+- `client/settings-form-elements.spec.ts` — every settings sub-page
+  exposes form elements.
+- `client/public-profile-view.spec.ts` — non-existent profile slugs
+  404, special chars tolerated.
+- `client/client-i18n-locale.spec.ts` — `/client/*` in fr/es/de.
+
+Public coverage:
+- `public/item-detail-and-survey.spec.ts` — item detail + .md mirror +
+  collections/comparisons/pages slug tolerance.
+- `public/paging-deep-routes.spec.ts` — tags/collections paging edge
+  inputs + nested category/tag catch-alls.
+- `public/response-content-types.spec.ts` — HTML pages serve text/html;
+  JSON endpoints serve application/json.
+- `public/listing-sort-and-view-toggle.spec.ts` — sort + view-toggle
+  URL state combinations.
+- `public/static-info-pages-content.spec.ts` — about/help/legal pages
+  have substantive content.
+- `public/xss-payloads-tolerated.spec.ts` — classic XSS payloads in
+  query/slugs/hash don't execute.
+- `public/webfinger-and-discovery.spec.ts` — well-known + llms.txt
+  manifests.
+- `public/swagger-and-openapi.spec.ts` — Swagger/OpenAPI endpoints
+  (if present) respond.
+- `public/focus-and-keyboard-nav.spec.ts` — keyboard tab order +
+  Enter on submit button.
+- `public/viewport-and-mobile.spec.ts` — mobile + tablet rendering
+  without horizontal overflow.
+- `public/listing-json-mirror.spec.ts` — listing JSON peer responds
+  under filter combos.
+- `public/link-from-detail-back-to-list.spec.ts` — forward/back nav
+  preserves URL state.
+- `public/hot-route-perf-budget.spec.ts` — request count + HTML doc
+  size on hot routes.
+- `public/fetch-cache-busting.spec.ts` — tracking params don't break
+  caching.
+- `public/admin-api-prefix-rejection.spec.ts` — unknown /api/admin/*
+  paths reject cleanly.
+- `public/stripe-redirect-routes.spec.ts` — /pricing CTAs don't crash
+  anonymously.
+- `public/dashboard-billing-route.spec.ts` — /dashboard/billing access
+  matrix.
+- `public/ai-chat-disabled-tolerance.spec.ts` — chat plugin disabled
+  state.
+
 ## 2026-05-19 — Spec 028 round 2: large coverage batch (develop-only, no cascade)
 
 Operator asked for a 30-min batch focused on coverage breadth; do NOT
