@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import {
@@ -15,7 +15,12 @@ import {
 
 import { Container } from '@/components/ui/container';
 import { AdminNotificationStats } from '@/components/admin/admin-notification-stats';
-import { NotificationViewToggle, type NotificationView } from '@/components/notifications';
+import {
+	NotificationFilters,
+	NotificationViewToggle,
+	type NotificationFiltersState,
+	type NotificationView
+} from '@/components/notifications';
 import { useAdminNotifications } from '@/hooks/use-admin-notifications';
 import { cn } from '@/lib/utils';
 
@@ -30,6 +35,25 @@ import { cn } from '@/lib/utils';
 export default function AdminNotificationsPage() {
 	const t = useTranslations('admin.NOTIFICATIONS');
 	const [view, setView] = useState<NotificationView>('list');
+	const [filters, setFilters] = useState<NotificationFiltersState>({
+		q: '',
+		types: [],
+		priorities: [],
+		dateFrom: null,
+		dateTo: null
+	});
+
+	const hookFilters = useMemo(
+		() => ({
+			q: filters.q || undefined,
+			types: filters.types.length > 0 ? filters.types : undefined,
+			priorities: filters.priorities.length > 0 ? filters.priorities : undefined,
+			dateFrom: filters.dateFrom ?? undefined,
+			dateTo: filters.dateTo ?? undefined
+		}),
+		[filters]
+	);
+
 	const {
 		notifications,
 		stats,
@@ -42,7 +66,7 @@ export default function AdminNotificationsPage() {
 		markAllAsRead,
 		handleNotificationClick,
 		getNotificationLink
-	} = useAdminNotifications();
+	} = useAdminNotifications(hookFilters);
 
 	const unreadCount = stats?.unread ?? 0;
 
@@ -89,7 +113,8 @@ export default function AdminNotificationsPage() {
 
 				<AdminNotificationStats />
 
-				<div className="flex justify-end">
+				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+					<NotificationFilters value={filters} onChange={setFilters} />
 					<NotificationViewToggle value={view} onChange={setView} />
 				</div>
 
