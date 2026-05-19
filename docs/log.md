@@ -31,6 +31,41 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
+
+Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Locale prefix sweep:
+- `public/auth-locale-prefix-tolerance.spec.ts` — every locale × auth path.
+- `public/items-locale-prefix-tolerance.spec.ts` — detail routes × locale.
+- `public/pricing-locale-prefix.spec.ts` — /<loc>/pricing + sponsor.
+- `public/static-info-locale-prefix.spec.ts` — /<loc>/about/help/etc.
+- `public/favorites-and-newsletter-locale.spec.ts` — favorites/newsletter/map/submit.
+- `api/admin-i18n-locale-prefix.spec.ts` — API endpoints with locale prefix.
+
+SEO/cache headers:
+- `public/hreflang-consistency.spec.ts` — well-formed hreflang.
+- `public/stale-while-revalidate-shape.spec.ts` — directive form parses.
+- `public/listing-resp-vary-header.spec.ts` — Vary tokens valid.
+- `public/listing-prefetch-not-blocking.spec.ts` — prefetch hrefs non-5xx.
+
+Cookie + storage hygiene:
+- `public/listing-set-cookie-flags.spec.ts` — session cookies HttpOnly/Secure.
+- `public/listing-no-localstorage-leak-on-load.spec.ts` — no token/secret keys.
+- `public/service-worker-control.spec.ts` — sw.js JS content-type.
+- `public/non-existent-image-route.spec.ts` — fake image paths non-5xx.
+
+Admin API deeper:
+- `api/admin-clients-and-bulk-deeper.spec.ts` — clients + bulk + dashboard.
+- `api/admin-navigation-and-location-deeper.spec.ts` — navigation/location/analytics.
+- `api/sponsor-ads-checkout-shapes.spec.ts` — sponsor-ads malformed payloads.
+
+Branch: `feat/e2e-coverage-1779180779`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
 
 Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
