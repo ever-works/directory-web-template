@@ -31,6 +31,78 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
+
+Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+OG / SEO / feeds:
+- `public/og-image-and-twitter-card.spec.ts` — og:title/desc + twitter:card.
+- `public/rss-atom-feed-shape.spec.ts` — feed XML/JSON shape contracts.
+- `public/listing-jsonld-itemlist.spec.ts` — listing pages json-ld parses.
+
+Static assets / caching / image optimizer:
+- `public/nextjs-image-route-tolerance.spec.ts` — `/_next/image` hostile inputs.
+- `public/static-chunk-caching.spec.ts` — `/_next/static/*` immutable cache.
+- `public/favicon-detail.spec.ts` — all common favicon paths non-5xx.
+- `public/static-data-routes.spec.ts` — `/_next/data` and chunk probes.
+- `public/service-worker-and-manifest-tolerance.spec.ts` — PWA endpoints.
+- `public/image-domain-allowlist.spec.ts` — homepage `<img src>` resolve.
+
+HTTP method matrix / headers:
+- `public/webhook-method-coverage.spec.ts` — webhooks reject non-POST.
+- `public/options-method-tolerance.spec.ts` — preflight OPTIONS non-5xx.
+- `public/head-method-tolerance.spec.ts` — HEAD requests non-5xx.
+- `public/cors-on-public-api.spec.ts` — no wildcard CORS with credentials.
+- `public/hsts-and-redirect-headers.spec.ts` — HSTS max-age plausible.
+- `public/custom-host-and-x-forwarded.spec.ts` — proxy header tolerance.
+
+Auth / form shape:
+- `public/login-modal-and-form-shape.spec.ts` — email/password inputs render.
+- `public/form-input-types.spec.ts` — type=email / type=password correctness.
+- `public/autocomplete-attributes.spec.ts` — password autocomplete not "off".
+- `public/auth-error-page-shape.spec.ts` — every NextAuth error code non-5xx.
+- `public/auth-callback-routes.spec.ts` — provider callback non-5xx.
+
+a11y deeper:
+- `public/heading-and-landmarks-quick.spec.ts` — main/nav/h1 presence.
+- `public/skip-link-and-focus.spec.ts` — skip link or main[id], Tab works.
+- `public/images-have-alt.spec.ts` — every <img> has alt attribute.
+- `public/html-charset-and-viewport.spec.ts` — meta charset + viewport.
+
+Inline / CSP / chat / extract:
+- `public/inline-script-csp-shape.spec.ts` — unsafe-inline requires nonce.
+- `public/chat-api-protection.spec.ts` — /api/chat anonymous, no key leak.
+- `public/extract-api-protection.spec.ts` — /api/extract SSRF tolerance.
+
+Listing / RSC / preview:
+- `public/listing-rsc-stream-tolerance.spec.ts` — RSC header + _rsc=.
+- `public/nextjs-prefetch-headers.spec.ts` — purpose=prefetch tolerance.
+- `public/listing-no-duplicates.spec.ts` — items.json no duplicate slugs.
+- `public/listing-aria-current-and-state.spec.ts` — weird filter survival.
+- `public/listing-edge-pagination-overshoot.spec.ts` — page 9999 non-5xx.
+- `public/listing-items-engagement-shape.spec.ts` — engagement query shapes.
+- `public/export-routes-tolerance.spec.ts` — items export with bad params.
+- `public/geocode-and-location-deeper.spec.ts` — geocode hostile inputs.
+- `public/public-route-rsc-prefetch-burst.spec.ts` — parallel prefetch burst.
+- `public/preview-mode-and-draft.spec.ts` — /api/preview /api/draft non-200.
+- `public/rate-limit-anonymous-deeper.spec.ts` — rapid auth-adjacent posts.
+- `public/stripe-redirect-and-checkout-routes.spec.ts` — pricing/success vars.
+
+Settings / admin / page protection:
+- `public/settings-deep-paths-protected.spec.ts` — client/settings/* gate.
+- `public/admin-survey-routes-anonymous.spec.ts` — admin/surveys/* gate.
+- `public/admin-detail-pages-anonymous.spec.ts` — /admin/clients/[id] gate.
+
+API deeper:
+- `api/items-comments-rating-deeper.spec.ts` — nested comments/rating.
+- `api/admin-companies-and-comments-deeper.spec.ts` — admin orgs/comments.
+
+Branch: `feat/e2e-coverage-1779159025`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
 
 Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
