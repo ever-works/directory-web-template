@@ -33,7 +33,9 @@ test.describe('Admin dynamic-segment routes', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(anon.url()).toMatch(/auth\/signin/);
+			// Auth is gated client-side by AdminLayoutClient, so the redirect to
+			// signin fires AFTER domcontentloaded. Poll until the URL updates.
+			await expect(anon).toHaveURL(/auth\/signin/, { timeout: 30_000 });
 			await ctx.close();
 		});
 	}

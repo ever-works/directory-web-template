@@ -50,8 +50,13 @@ test.describe('Admin route coverage — client user (denied)', () => {
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
 			// Client should not be able to see admin UI — accept either signin
-			// redirect, /unauthorized, or /client/* fallback.
-			expect(page.url()).toMatch(/(auth\/signin|unauthorized|\/client\/|\/$|admin\/auth\/signin)/);
+			// redirect, /unauthorized, or /client/* fallback. AdminLayoutClient
+			// does this client-side, so poll until the URL settles somewhere
+			// acceptable.
+			await expect(page).toHaveURL(
+				/(auth\/signin|unauthorized|\/client\/|admin\/auth\/signin)/,
+				{ timeout: 30_000 }
+			);
 		});
 	}
 });
@@ -64,7 +69,9 @@ test.describe('Admin route coverage — anonymous (signin gate)', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(anon.url()).toMatch(/auth\/signin/);
+			// AdminLayoutClient redirects to signin client-side after the page
+			// hydrates — wait for that rather than polling once synchronously.
+			await expect(anon).toHaveURL(/auth\/signin/, { timeout: 30_000 });
 			await ctx.close();
 		});
 	}
