@@ -146,9 +146,21 @@ interface RecaptchaApiResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { token } = await request.json();
+    // Parse body explicitly so a malformed JSON / wrong-content-type
+    // request returns a clean 400 instead of falling into the generic
+    // 500 catch below.
+    let parsed: { token?: unknown } = {};
+    try {
+      parsed = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+    const token = parsed?.token;
 
-    if (!token) {
+    if (!token || typeof token !== "string") {
       return NextResponse.json(
         { success: false, error: "ReCAPTCHA token is required" },
         { status: 400 }
