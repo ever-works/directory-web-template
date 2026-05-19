@@ -4,8 +4,19 @@ import { test, expect, devices } from '@playwright/test';
 // fine on desktop but blows up on small screens (overflow, hidden nav,
 // hydration mismatch).
 
+// `defaultBrowserType` is worker-scoped — Playwright rejects it inside a
+// describe — and CI only installs chromium so we must not switch the
+// browser. Strip it from both device spreads and keep only page-scoped
+// fields (viewport, isMobile, hasTouch, userAgent, …).
+const { defaultBrowserType: _omitMobileDBT, ...MOBILE_DEVICE } =
+	devices['iPhone 14'] || devices['iPhone 13'];
+void _omitMobileDBT;
+const { defaultBrowserType: _omitTabletDBT, ...TABLET_DEVICE } =
+	devices['iPad Pro 11'] || devices['iPad Pro 11 (gen 2)'] || devices['iPad Pro'];
+void _omitTabletDBT;
+
 test.describe('Mobile viewport rendering', () => {
-	test.use(devices['iPhone 14'] || devices['iPhone 13']);
+	test.use(MOBILE_DEVICE);
 
 	for (const path of ['/', '/about', '/auth/signin', '/categories']) {
 		test(`mobile ${path} renders without horizontal overflow`, async ({ page }) => {
@@ -30,7 +41,7 @@ test.describe('Mobile viewport rendering', () => {
 });
 
 test.describe('Tablet viewport rendering', () => {
-	test.use(devices['iPad Pro 11'] || devices['iPad Pro 11 (gen 2)'] || devices['iPad Pro']);
+	test.use(TABLET_DEVICE);
 
 	test('tablet home renders without horizontal overflow', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });

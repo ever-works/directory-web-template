@@ -2,8 +2,14 @@ import { test, expect, devices } from '@playwright/test';
 
 // Tablet viewport rendering for key pages.
 
+// Strip `defaultBrowserType` from the device spread so this can sit inside
+// the describe block (worker-scoped options are rejected there) and CI's
+// chromium-only browser install isn't bypassed.
+const { defaultBrowserType: _ignoredDBT, ...IPAD_MINI } = devices['iPad Mini'];
+void _ignoredDBT;
+
 test.describe('Renders on iPad Mini viewport', () => {
-	test.use({ ...devices['iPad Mini'] });
+	test.use(IPAD_MINI);
 
 	const PROBES = ['/', '/about', '/discover/1', '/auth/signin', '/pricing'];
 
