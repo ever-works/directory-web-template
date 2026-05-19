@@ -31,6 +31,38 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
+
+Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+a11y deeper:
+- `public/listing-form-labels.spec.ts` — auth inputs have label/aria/placeholder.
+- `public/listing-tabindex-non-negative.spec.ts` — no positive tabindex.
+- `public/listing-aria-hidden-conflict.spec.ts` — aria-hidden no focusable.
+- `public/listing-no-empty-anchors.spec.ts` — anchors have accessible name.
+- `public/listing-color-contrast-advisory.spec.ts` — body color != bg.
+- `public/listing-no-onclick-on-non-interactive.spec.ts` — no div onclick.
+- `public/listing-buttons-have-types.spec.ts` — buttons declare type.
+- `public/listing-input-autocomplete-shape.spec.ts` — pw autocomplete shape.
+- `public/listing-document-language-set.spec.ts` — html.lang non-empty.
+
+HTML sanity:
+- `public/listing-skeleton-renders.spec.ts` — listing body has content <2s.
+- `public/listing-no-deprecated-html.spec.ts` — no <font/center/marquee/etc.
+- `public/listing-multiple-h1.spec.ts` — at most 3 h1 elements per page.
+- `public/listing-no-duplicate-ids.spec.ts` — unique DOM ids.
+- `public/listing-css-no-blocking-fonts.spec.ts` — no font-display:block.
+
+API shape:
+- `api/stripe-products-shape.spec.ts` — products read + HEAD/OPTIONS.
+- `api/auth-callback-cookie-shape.spec.ts` — wrong-csrf no session cookie.
+
+Branch: `feat/e2e-coverage-1779184408`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
 
 Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
