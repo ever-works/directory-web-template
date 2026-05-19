@@ -426,7 +426,9 @@ test.describe('API: /api/sponsor-ads/checkout POST body / header surface', () =>
 			const body = await response.json();
 			expect(body.error).not.toBe('Sponsor ad not found');
 			expect(body.error).not.toBe('You do not have permission to pay for this sponsor ad');
-			expect(body.error).not.toMatch(/^Sponsor ad is not awaiting payment\./);
+			if (typeof body?.error === 'string') {
+				expect(body.error).not.toMatch(/^Sponsor ad is not awaiting payment\./);
+			}
 		}
 	});
 

@@ -375,7 +375,9 @@ test.describe('API: /api/sponsor-ads/user/[id]/renew POST body / header surface'
 		const body = await response.json();
 		expect(body.error).not.toBe('Sponsor ad not found');
 		expect(body.error).not.toBe('You do not have permission to renew this sponsor ad');
-		expect(body.error).not.toMatch(/^Cannot renew sponsor ad with status:/);
+		if (typeof body?.error === 'string') {
+			expect(body.error).not.toMatch(/^Cannot renew sponsor ad with status:/);
+		}
 		expect(body.error).not.toBe('Payment configuration is incomplete. Please contact support.');
 		expect(body.error).not.toBe('Failed to create checkout URL. Please try again.');
 		expect(body.message).not.toBe('Renewal checkout session created successfully');
@@ -419,7 +421,9 @@ test.describe('API: /api/sponsor-ads/user/[id]/renew POST body / header surface'
 		for (const response of responses) {
 			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
-			expect(body.error).not.toMatch(/^Cannot renew sponsor ad with status:/);
+			if (typeof body?.error === 'string') {
+				expect(body.error).not.toMatch(/^Cannot renew sponsor ad with status:/);
+			}
 			const serialized = JSON.stringify(body);
 			expect(serialized).not.toContain('<script>');
 			expect(serialized).not.toContain('alert(1)');

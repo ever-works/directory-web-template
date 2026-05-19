@@ -343,8 +343,10 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 			expect(body.error).not.toContain('No such customer');
 			expect(body.error).not.toContain('resource_missing');
 			expect(body.error).not.toContain('billing_portal');
-			expect(body.message).not.toContain('No such customer');
-			expect(body.message).not.toContain('resource_missing');
+			if (typeof body?.message === 'string') {
+				expect(body.message).not.toContain('No such customer');
+				expect(body.message).not.toContain('resource_missing');
+			}
 		}
 	});
 
