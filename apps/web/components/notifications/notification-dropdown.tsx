@@ -50,23 +50,24 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 				'absolute right-0 top-12 z-50',
 				'w-[420px] max-w-[calc(100vw-1rem)]',
 				'rounded-2xl overflow-hidden',
-				'bg-white dark:bg-[#141414] backdrop-blur-xl',
+				'bg-white dark:bg-[#141414]',
 				'ring-1 ring-black/5 dark:ring-white/10',
 				'shadow-2xl shadow-black/10 dark:shadow-black/40',
 				'animate-in slide-in-from-top-2 fade-in duration-300'
 			)}
 		>
 			<div className="flex flex-col">
+				{/* Header */}
 				<div className="px-4 pt-3.5 pb-3 border-b border-gray-100 dark:border-white/8">
 					<div className="flex items-center justify-between gap-2">
 						<div className="flex items-center gap-2.5 min-w-0">
-							<h3 className="text-base font-semibold text-gray-900 dark:text-white">
+							<h3 className="text-[13px] font-semibold text-gray-900 dark:text-white">
 								{safeT(t, 'dropdown.title', 'Notifications')}
 							</h3>
 							{unreadCount > 0 && (
 								<Badge
 									variant="secondary"
-									className="px-2 py-0 h-5 text-xs font-medium rounded-md"
+									className="px-2 py-0 h-5 text-[10px] font-medium rounded-md"
 								>
 									{unreadCount} {safeT(t, 'dropdown.newBadge', 'new')}
 								</Badge>
@@ -77,12 +78,12 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 								variant="ghost"
 								size="sm"
 								onClick={() => refetch()}
-								className="h-7 w-7 p-0 rounded-md"
+								className="h-7 w-7 p-0 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 								disabled={isLoading || isFetching}
 								aria-label={safeT(t, 'dropdown.refresh', 'Refresh notifications')}
 							>
 								<RefreshCw
-									className={`h-3.5 w-3.5 ${isLoading || isFetching ? 'animate-spin' : ''}`}
+									className={cn('h-3.5 w-3.5', (isLoading || isFetching) && 'animate-spin')}
 								/>
 							</Button>
 							{unreadCount > 0 && (
@@ -90,7 +91,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 									variant="ghost"
 									size="sm"
 									onClick={() => markAllRead()}
-									className="text-xs h-7 px-2.5 rounded-md font-medium"
+									className="text-[11px] h-7 px-2.5 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 									disabled={isMarking}
 								>
 									{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
@@ -100,7 +101,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 								href="/client/notifications/preferences"
 								onClick={onClose}
 								aria-label={safeT(t, 'dropdown.aria.preferences', 'Notification preferences')}
-								className="inline-flex items-center justify-center h-7 w-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+								className="inline-flex items-center justify-center h-7 w-7 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
 							>
 								<Settings className="h-3.5 w-3.5" />
 							</Link>
@@ -108,7 +109,7 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 								variant="ghost"
 								size="sm"
 								onClick={onClose}
-								className="h-7 w-7 p-0 rounded-md"
+								className="h-7 w-7 p-0 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 								aria-label={safeT(t, 'dropdown.close', 'Close notifications panel')}
 							>
 								<X className="h-3.5 w-3.5" />
@@ -119,7 +120,8 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 
 				<NotificationTabs value={tab} onChange={setTab} counts={counts} variant="compact" />
 
-				<div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
+				{/* Scrollable list */}
+				<div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-300 dark:scrollbar-thumb-white/10 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
 					<NotificationList
 						notifications={notifications}
 						isLoading={isLoading}
@@ -134,19 +136,24 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 					/>
 				</div>
 
+				{/* Footer */}
 				{notifications.length > 0 && (
-					<>
-						<div className="border-t border-gray-100 dark:border-white/8" />
-						<div className="px-3 py-2.5">
-							<Link
-								href="/client/notifications"
-								onClick={onClose}
-								className="block w-full text-center text-sm font-medium h-8 leading-8 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
-							>
-								{safeT(t, 'dropdown.seeAll', 'View all notifications')}
-							</Link>
-						</div>
-					</>
+					<div className="border-t border-gray-100 dark:border-white/8 px-3 py-2">
+						<Link
+							href="/client/notifications"
+							onClick={onClose}
+							className={cn(
+								'flex items-center justify-center w-full h-8 rounded-lg',
+								'text-[13px] font-medium',
+								'text-gray-500 dark:text-gray-400',
+								'hover:text-gray-900 dark:hover:text-white',
+								'hover:bg-gray-100 dark:hover:bg-white/6',
+								'transition-colors duration-150'
+							)}
+						>
+							{safeT(t, 'dropdown.seeAll', 'View all notifications')}
+						</Link>
+					</div>
 				)}
 			</div>
 		</div>
