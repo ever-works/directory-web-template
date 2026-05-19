@@ -31,6 +31,51 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
+
+Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Tracking + framework:
+- `public/listing-with-utm-tracking.spec.ts` — UTM/gclid/fbclid/etc.
+- `public/nextjs-built-in-routes-tolerance.spec.ts` — `_next/*` probes.
+- `public/opengraph-image-routes.spec.ts` — App-Router OG image conventions.
+- `public/favicons-and-pwa-icons-deeper.spec.ts` — mstile/maskable.
+
+Security / hygiene:
+- `public/listing-no-iframe-without-sandbox.spec.ts` — 3p iframes sandbox.
+- `public/listing-no-dangerous-protocols.spec.ts` — no javascript:/data: hrefs.
+- `public/common-attack-paths.spec.ts` — wp-config/aws/cgi-bin/etc not 200.
+- `public/html-no-server-stack-leak.spec.ts` — no /var/task/ etc in HTML.
+- `public/nextjs-error-boundary-rendering.spec.ts` — no raw stack on errors.
+
+Headers / shape:
+- `public/listing-content-type-encoding.spec.ts` — Content-Type charset.
+- `public/range-requests.spec.ts` — Range header tolerance.
+- `public/if-modified-since.spec.ts` — If-Modified-Since / If-None-Match.
+- `public/listing-meta-author-and-keywords.spec.ts` — meta author presence.
+
+Routes + URL:
+- `public/dynamic-route-segments-tolerance.spec.ts` — unusual URL chars.
+- `public/listing-search-redirect-to-detail.spec.ts` — /search /s aliases.
+- `public/listing-with-anchor-fragment.spec.ts` — #fragment tolerance.
+- `public/listing-deep-state-restoration.spec.ts` — back-button history.
+
+a11y + layout:
+- `public/listing-keyboard-navigation.spec.ts` — Tab focuses interactive.
+- `public/listing-favorite-button-shape.spec.ts` — buttons exist on listings.
+- `public/listing-render-on-tablet-viewport.spec.ts` — iPad Mini no overflow.
+- `public/listing-form-input-counts.spec.ts` — auth forms have inputs.
+
+API content types:
+- `api/admin-import-content-types.spec.ts` — content-type matrix anonymous.
+- `api/admin-export-content-types.spec.ts` — Accept header matrix.
+
+Branch: `feat/e2e-coverage-1779173518`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
 
 Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
