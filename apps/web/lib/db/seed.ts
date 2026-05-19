@@ -317,6 +317,22 @@ export async function runSeed(): Promise<void> {
 			}));
 
 			console.log('[Seed] Completed seeding permissions, roles, users, and accounts with predefined data');
+
+			// drizzle-seed's `valuesFromArray` picks each column independently, so the
+			// admin user is not guaranteed to be paired with `hashedPassword` — it can
+			// land on `undefined` and credentials login then fails with "Incorrect
+			// password" even though the user exists. Explicitly pin the password by
+			// email after the bulk insert so this is deterministic.
+			if (usersEmpty) {
+				await db
+					.update(users)
+					.set({ passwordHash: hashedPassword })
+					.where(and(eq(users.email, adminEmail), eq(users.tenantId, tenantId)));
+				await db
+					.update(users)
+					.set({ passwordHash: hashedPassword })
+					.where(and(eq(users.email, 'client1@example.com'), eq(users.tenantId, tenantId)));
+			}
 		}
 
 		// Seed clientProfiles manually to ensure 1:1 mapping with users (unique constraint)
