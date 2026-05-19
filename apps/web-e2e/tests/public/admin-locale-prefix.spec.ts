@@ -11,14 +11,14 @@ test.describe('Admin under locale prefix bounces anonymous', () => {
 			const resp = await page.goto(`/${loc}/admin`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|admin\/auth|\/$)/);
+			await expect(page).toHaveURL(/(auth\/signin|admin\/auth|\/$)/, { timeout: 30_000 });
 		});
 
 		test(`/${loc}/admin/items gates anonymous`, async ({ page }) => {
 			const resp = await page.goto(`/${loc}/admin/items`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|admin\/auth|\/$)/);
+			await expect(page).toHaveURL(/(auth\/signin|admin\/auth|\/$)/, { timeout: 30_000 });
 		});
 	}
 });

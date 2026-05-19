@@ -22,7 +22,10 @@ test.describe('Items.json shape contracts', () => {
 		const items = (Array.isArray(body) ? body : (body as { items?: unknown[] }).items) as
 			| Array<{ slug?: string }>
 			| undefined;
-		if (!items || items.length === 0) test.skip();
+		if (!items || items.length === 0) {
+			test.skip();
+			return;
+		}
 		const slugs = items.map((i) => i.slug).filter((s): s is string => typeof s === 'string');
 		const dup = slugs.filter((s, i) => slugs.indexOf(s) !== i);
 		expect(dup, `duplicate slugs in items.json: ${dup.join(', ')}`).toEqual([]);

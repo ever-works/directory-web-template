@@ -10,7 +10,8 @@ test.describe('/dashboard/billing access', () => {
 		const page = await ctx.newPage();
 		const resp = await page.goto('/dashboard/billing', { waitUntil: 'domcontentloaded' });
 		expect(resp!.status()).toBeLessThan(500);
-		expect(page.url()).toMatch(/auth\/signin/);
+		// Dashboard gate is client-side; poll until the redirect lands.
+		await expect(page).toHaveURL(/auth\/signin/, { timeout: 30_000 });
 		await ctx.close();
 	});
 

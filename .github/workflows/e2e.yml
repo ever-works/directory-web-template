@@ -164,7 +164,12 @@ jobs:
             name: E2E Collection
             description: Placeholder collection for CI
           YAML
-          for slug in sample-item-one sample-item-two sample-item-three; do
+          # Two approved items + one pending so the items-review spec has
+          # something to approve/reject without falling back to its skip
+          # branch on empty content.
+          for entry in 'sample-item-one|approved' 'sample-item-two|approved' 'sample-item-three|pending'; do
+            slug="${entry%%|*}"
+            status="${entry##*|}"
             mkdir -p "apps/web/.content/data/$slug"
             cat > "apps/web/.content/data/$slug/$slug.yml" <<YAML
           name: ${slug}
@@ -175,7 +180,7 @@ jobs:
             - e2e
             - sample
           featured: false
-          status: approved
+          status: ${status}
           updated_at: 2026-01-01 00:00
           YAML
           done

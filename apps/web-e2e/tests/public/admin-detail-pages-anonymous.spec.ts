@@ -14,7 +14,8 @@ test.describe('Admin detail pages anonymous gate', () => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|admin\/auth|\/$)/);
+			// Admin gate is client-side; poll until the redirect lands.
+			await expect(page).toHaveURL(/(auth\/signin|admin\/auth|\/$)/, { timeout: 30_000 });
 		});
 	}
 });

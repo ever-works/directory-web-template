@@ -19,8 +19,9 @@ test.describe('Admin survey routes anonymous gate', () => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			// Admin pages send to /admin/auth/signin via pages.signIn.
-			expect(page.url()).toMatch(/(auth\/signin|admin\/auth|\/$)/);
+			// Admin pages send to /admin/auth/signin via pages.signIn — the
+			// redirect is client-side, so poll until the URL settles.
+			await expect(page).toHaveURL(/(auth\/signin|admin\/auth|\/$)/, { timeout: 30_000 });
 		});
 	}
 });

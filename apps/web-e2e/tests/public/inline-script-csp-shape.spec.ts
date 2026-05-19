@@ -11,7 +11,10 @@ test.describe('CSP shape audit', () => {
 		const csp = (resp.headers()['content-security-policy'] || '').toLowerCase();
 		if (!csp) test.skip();
 		const m = csp.match(/script-src[^;]+/);
-		if (!m) test.skip();
+		if (!m) {
+			test.skip();
+			return;
+		}
 		const scriptSrc = m[0];
 		const allowsUnsafe = scriptSrc.includes("'unsafe-inline'");
 		const hasNonce = /nonce-/.test(scriptSrc);

@@ -14,7 +14,11 @@ test.describe('Client users / sponsorships anonymous gate', () => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|\/auth\/|\/$|\/client\/)/);
+			// Client-area gate is client-side; poll until the redirect lands.
+			await expect(page).toHaveURL(
+				/(auth\/signin|\/auth\/|\/$|\/client\/)/,
+				{ timeout: 30_000 }
+			);
 		});
 	}
 });

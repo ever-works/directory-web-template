@@ -15,7 +15,9 @@ test.describe('Dashboard items-surveys routes — anonymous gate', () => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|\/auth\/|\/$)/);
+			// Dashboard auth gate is client-side; the redirect fires after
+			// hydration, not by the time domcontentloaded resolves.
+			await expect(page).toHaveURL(/(auth\/signin|\/auth\/|\/$)/, { timeout: 30_000 });
 		});
 	}
 });

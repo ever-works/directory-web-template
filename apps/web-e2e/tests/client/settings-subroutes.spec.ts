@@ -48,8 +48,9 @@ test.describe('Client: settings sub-routes coverage matrix', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			// Anonymous must land on signin (callback URL preserves where they came from).
-			expect(anon.url()).toMatch(/\/auth\/signin/);
+			// Anonymous must land on signin (callback URL preserves where they
+			// came from). Client-area gate runs client-side, so poll.
+			await expect(anon).toHaveURL(/\/auth\/signin/, { timeout: 30_000 });
 			await ctx.close();
 		});
 	}

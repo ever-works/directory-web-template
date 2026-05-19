@@ -60,7 +60,8 @@ test.describe('Dashboard routes — anonymous gated', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(anon.url()).toMatch(/auth\/signin/);
+			// Dashboard auth gate is client-side; poll until the redirect lands.
+			await expect(anon).toHaveURL(/auth\/signin/, { timeout: 30_000 });
 			await ctx.close();
 		});
 	}

@@ -12,7 +12,10 @@ test.describe('HSTS shape on HTTPS', () => {
 		const hsts = (resp.headers()['strict-transport-security'] || '').toLowerCase();
 		if (!hsts) test.skip();
 		const m = hsts.match(/max-age=(\d+)/);
-		if (!m) test.skip();
+		if (!m) {
+			test.skip();
+			return;
+		}
 		const maxAge = parseInt(m[1], 10);
 		// At least 30 days.
 		expect(maxAge, `HSTS max-age: ${maxAge}`).toBeGreaterThanOrEqual(60 * 60 * 24 * 30);
