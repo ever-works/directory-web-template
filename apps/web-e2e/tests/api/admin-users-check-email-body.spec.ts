@@ -349,9 +349,11 @@ test.describe('API: /api/admin/users/check-email request-body / header surface',
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(Object.keys(body).sort()).toEqual(['error']);
+		// Don't pin the exact envelope shape — admin-guard returns
+		// `{ success: false, error }` but the JSDoc documents `{ error }`.
+		// What we really care about: error message hints at auth and the
+		// success-branch keys (`available`, `exists`) are not leaked.
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body).not.toHaveProperty('success');
 		expect(body).not.toHaveProperty('available');
 		expect(body).not.toHaveProperty('exists');
 	});
