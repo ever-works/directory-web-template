@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -149,3 +149,4 @@ function safeT(t: ReturnType<typeof useTranslations>, key: string, fallback: str
 		return fallback;
 	}
 }
+
