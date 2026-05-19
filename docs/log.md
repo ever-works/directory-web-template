@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-20 — Spec 027 follow-up: page-based pagination on /client + /admin notifications (PR #852)
+
+- spec-027: `/client/notifications` and `/admin/notifications` long lists
+  now ship with `UniversalPagination` (Page X of Y, prev/next) instead of
+  cursor-based infinite scroll.
+- API: `GET /api/client/notifications` and `GET /api/admin/notifications`
+  switched to offset/limit and return `{notifications, total, page,
+  totalPages, unreadCount}`. Defaults: limit 25, max 100 (client) / 200
+  (admin). Unread count still uses base scope so the header pill is
+  stable while filters narrow.
+- Hooks: `useNotifications` swaps `useInfiniteQuery` → `useQuery` with
+  `placeholderData: prev` for snappy page hops. `useAdminNotifications`
+  now accepts `{page, limit}` and exposes `totalPages` / `total` / `page`.
+- Cache: mark / bulk / SSE mutations rewritten to mutate the flat
+  `NotificationListResponse` shape instead of `InfiniteData<ListPages>`.
+  `NotificationList` dropped its `IntersectionObserver` + sentinel; the
+  dropdown still asks for page 1, limit 15.
+- UX: changing tab or filters resets `page` to 1 on both surfaces.
+
 ## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
 
 Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
