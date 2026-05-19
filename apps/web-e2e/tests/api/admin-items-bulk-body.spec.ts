@@ -516,9 +516,12 @@ test.describe('API: /api/admin/items/bulk method / body / header surface', () =>
 			const body = await response.json();
 			expect(body.results).toBeUndefined();
 			expect(body.summary).toBeUndefined();
-			// The success-branch message templates must
-			// NEVER appear on the unauth branch.
-			expect(body.message).not.toMatch(/^Bulk (approve|reject|delete) completed: \d+ /);
+			// The success-branch message templates must NEVER appear
+			// on the unauth branch. Guard against `message` being
+			// absent (the desired state — toMatch requires a string).
+			if (typeof body?.message === 'string') {
+				expect(body.message).not.toMatch(/^Bulk (approve|reject|delete) completed: \d+ /);
+			}
 		}
 	});
 });
