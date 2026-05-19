@@ -144,6 +144,8 @@ jobs:
             categories_enabled: true
             tags_enabled: true
             companies_enabled: true
+            surveys_enabled: true
+            comparisons_enabled: true
           YAML
           cat > apps/web/.content/categories.yml <<'YAML'
           - id: productivity
