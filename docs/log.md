@@ -31,6 +31,54 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
+
+Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Performance budgets:
+- `public/time-to-first-paint-budget.spec.ts` — DOMContentLoaded < 15s.
+- `public/page-bytes-budget.spec.ts` — HTML payload < 1.5MB.
+- `public/inline-styles-bandwidth.spec.ts` — no 500KB inline <style>.
+- `public/listing-network-request-count.spec.ts` — < 300 requests on /.
+- `public/listing-on-mobile-viewport.spec.ts` — iPhone 12 no horiz overflow.
+
+Console / runtime hygiene:
+- `public/listing-no-console-errors.spec.ts` — no uncaught JS errors.
+- `public/listing-no-failed-requests.spec.ts` — no unexpected 4xx/5xx in nav.
+- `public/listing-image-lazy-loading.spec.ts` — off-fold img loading=lazy.
+- `public/third-party-script-domains.spec.ts` — no http:// scripts.
+
+Sweeps + flood:
+- `public/client-protected-pages-flood.spec.ts` — every /client/* anon.
+- `public/dashboard-protected-pages-flood.spec.ts` — every /dashboard/* anon.
+- `public/detail-routes-flood.spec.ts` — all detail × sample/missing slugs.
+- `public/admin-non-existent-paths.spec.ts` — bogus /admin/* paths.
+- `public/api-non-existent-paths.spec.ts` — bogus /api/* paths not 200.
+- `public/sponsorship-prefix-flow.spec.ts` — /sponsor with providers.
+
+Listing edges:
+- `public/listing-grid-and-list-toggle.spec.ts` — view=grid/list/map/compact.
+- `public/listing-sort-options-tolerance.spec.ts` — every common sort option.
+- `public/listing-filter-clear.spec.ts` — empty filter values tolerance.
+- `public/listing-search-form-shape.spec.ts` — search form is GET method.
+- `public/listing-href-locale-prefix.spec.ts` — /fr/ links preserve prefix.
+- `public/listing-on-detail-page.spec.ts` — detail page renders w/o broken img.
+
+Auth flow shape:
+- `public/signout-flow-shape.spec.ts` — GET/POST signout non-5xx, with csrf.
+
+Error / shape:
+- `public/error-response-json-shape.spec.ts` — 4xx JSON parses as JSON.
+- `public/listing-search-via-url-not-leak-secrets.spec.ts` — no env names leaked.
+- `api/oauth-providers-shape.spec.ts` — providers id/name/type contract.
+- `api/verify-recaptcha-headers.spec.ts` — GET/DELETE/multipart non-5xx.
+
+Branch: `feat/e2e-coverage-1779169892`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
 
 Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
