@@ -241,7 +241,10 @@ export async function runSeed(): Promise<void> {
 										.toLowerCase()
 								),
 								isUnique: true
-							})
+							}),
+							// Without this, drizzle-seed leaves tenantId NULL and any
+							// per-tenant query (e.g. getUserByEmail) misses the row.
+							tenantId: funcs.default({ defaultValue: tenantId })
 						}
 					}
 				}),
@@ -268,7 +271,8 @@ export async function runSeed(): Promise<void> {
 							}),
 							status: funcs.valuesFromArray({
 								values: ['active', 'active']
-							})
+							}),
+							tenantId: funcs.default({ defaultValue: tenantId })
 						}
 					}
 				}),
@@ -288,7 +292,8 @@ export async function runSeed(): Promise<void> {
 							}),
 							passwordHash: funcs.valuesFromArray({
 								values: [hashedPassword, hashedPassword, undefined]
-							})
+							}),
+							tenantId: funcs.default({ defaultValue: tenantId })
 						}
 					}
 				})
@@ -537,8 +542,15 @@ export async function runSeed(): Promise<void> {
 					};
 				});
 
-				await db.insert(paymentAccounts).values(paymentAccountValues).onConflictDoNothing();
-				console.log(`[Seed] ✓ Created ${paymentAccountValues.length} payment accounts`);
+				// `usersWithPayment` is a 70%-random filter that can land empty when
+				// the user pool is small (e.g. E2E with SEED_FAKE_USER_COUNT=0).
+				// `db.insert(...).values([])` throws — guard it.
+				if (paymentAccountValues.length > 0) {
+					await db.insert(paymentAccounts).values(paymentAccountValues).onConflictDoNothing();
+					console.log(`[Seed] ✓ Created ${paymentAccountValues.length} payment accounts`);
+				} else {
+					console.log('[Seed] ⚠️ No payment accounts to insert');
+				}
 			}
 
 			// Seed Subscriptions
