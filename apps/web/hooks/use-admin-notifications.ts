@@ -43,15 +43,15 @@ const NOTIFICATION_KEYS = {
 const notificationApi = {
   // Fetch notifications
   async fetchNotifications(): Promise<{ notifications: Notification[]; unreadCount: number }> {
-    const response = await serverClient.get<{ notifications: Notification[]; unreadCount: number }>(
+    const response = await serverClient.get<{ success: boolean; data: { notifications: Notification[]; unreadCount: number }; error?: string }>(
       "/api/admin/notifications"
     );
-    
-    if (!apiUtils.isSuccess(response)) {
-      throw new Error(apiUtils.getErrorMessage(response));
+
+    if (!apiUtils.isSuccess(response) || !response.data?.data) {
+      throw new Error(response.data?.error || apiUtils.getErrorMessage(response));
     }
-    
-    return response.data;
+
+    return response.data.data;
   },
 
   // Mark notification as read

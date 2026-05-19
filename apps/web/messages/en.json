@@ -2031,7 +2031,19 @@
 				"PERFORMANCE": "Performance",
 				"DATA_EXPORT_REPORTS": "Data Export & Reports",
 				"ADMIN_TOOLS": "Admin Tools",
-				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution"
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution",
+				"SYSTEM_PERFORMANCE": "System Performance",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Data Export & Scheduled Reports"
+			},
+			"SECTION_DESCRIPTIONS": {
+				"GEOGRAPHIC_DISTRIBUTION": "Where your users and items are located across the world.",
+				"SYSTEM_PERFORMANCE": "Real-time cache hit rates, query counts and response time averages.",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Export platform data as CSV or JSON, and manage automated report schedules."
+			},
+			"STATUS": {
+				"TOTAL_SUBMISSIONS": "Total Submissions",
+				"PENDING_REVIEW": "Pending Review",
+				"APPROVED": "Approved"
 			},
 			"ARIA_LABELS": {
 				"DASHBOARD_SECTIONS": "Dashboard sections",
