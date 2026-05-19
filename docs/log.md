@@ -31,6 +31,78 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 4: payment providers + admin sub-systems (develop-only)
+
+Round 4 of the rolling e2e coverage buildout. 22 new spec files added
+on `develop` only (no cascade per operator instructions). Focus areas:
+
+Payment providers + Stripe:
+- `api/polar-endpoints-rejection.spec.ts` — Polar user endpoints +
+  webhook signature gate.
+- `api/lemonsqueezy-endpoints-rejection.spec.ts` — LemonSqueezy +
+  webhook signature gate.
+- `api/solidgate-endpoints-rejection.spec.ts` — Solidgate +
+  webhook signature gate.
+- `api/stripe-payment-methods-rejection.spec.ts` — Stripe payment
+  method + subscription per-id endpoints reject anonymous.
+- `api/payment-account-rejection.spec.ts` — /api/payment/* +
+  sponsor-ads checkout reject anonymous.
+
+Items engagement:
+- `api/items-engagement-public.spec.ts` — votes/comments/views/
+  activity public reads + anonymous mutation rejection.
+- `api/favorites-itemslug-rejection.spec.ts` — favorites slug-keyed
+  mutations require auth.
+
+Client API:
+- `api/client-items-api-rejection.spec.ts` — /api/client/* endpoints
+  reject anonymous (GET + mutating).
+
+Admin sub-systems:
+- `api/admin-roles-and-permissions.spec.ts` — roles + permissions
+  graph endpoints.
+- `api/admin-users-and-validation.spec.ts` — users + check-email /
+  check-username (anti-enumeration).
+- `api/admin-sponsor-ads-and-twentycrm.spec.ts` — admin sponsor-ads
+  CRUD + TwentyCRM config endpoints + settings/map-status.
+- `api/admin-tags-and-export.spec.ts` — admin tags + items
+  export/import.
+- `api/admin-clients-and-search.spec.ts` — admin clients +
+  advanced-search + notifications.
+
+Public utility endpoints:
+- `api/location-and-geocode-public.spec.ts` — location/cities/
+  countries/coordinates/search + geocode tolerance.
+- `api/public-misc-endpoints.spec.ts` — exists probes, featured-items,
+  reference, health/database (no credential leak), items export
+  settings, config/features, /api/internal/db-init rejection.
+
+Public hardening:
+- `public/service-worker-and-pwa.spec.ts` — manifest + sw reachability.
+- `public/favicon-and-apple-touch.spec.ts` — browser icon assets
+  reachable + advertised in <link>.
+- `public/third-party-iframe-tolerance.spec.ts` — page renders when
+  Stripe / reCAPTCHA / analytics are blocked.
+- `public/http-method-on-pages.spec.ts` — HEAD/OPTIONS/PUT/DELETE on
+  pages don't 5xx.
+- `public/directory-traversal-defense.spec.ts` — path-traversal /
+  null-byte / long-slug / homograph probes.
+- `public/meta-robots-controls.spec.ts` — public pages indexable;
+  robots.txt doesn't disallow everything.
+- `public/hash-fragment-tolerance.spec.ts` — unknown / hostile URL
+  hashes don't crash pages; signin doesn't auto-sign-in from a hash.
+- `public/listing-rss-shape.spec.ts` — empty-data feed tolerance
+  (channel meta present even when no items).
+- `public/meta-tags-twitter-and-opengraph.spec.ts` — og:title /
+  og:type / og:image / twitter:image present where expected.
+- `public/rate-limit-search.spec.ts` — 20 rapid /api/items.json
+  requests and parallel /discover searches don't 5xx.
+
+Auth:
+- `auth/oauth-error-page-tolerance.spec.ts` — `/auth/error?error=…`
+  tolerates 16 different codes (including XSS / traversal payloads);
+  /auth/signout + /auth/verify-request render.
+
 ## 2026-05-19 — Spec 028 round 3: hourly continuation batch (develop-only)
 
 Round 3 of the rolling e2e coverage buildout. 28 new spec files added
