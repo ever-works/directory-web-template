@@ -184,8 +184,10 @@ export function SubmissionsContent() {
 							<Link
 								href="/submit"
 								className={cn(
-									'inline-flex h-9 items-center gap-1.5 rounded-lg bg-theme-primary-600 px-3 text-xs font-semibold text-white shadow-sm',
-									'transition-colors hover:bg-theme-primary-700',
+									'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm',
+									'bg-theme-primary-600 text-white hover:bg-theme-primary-700',
+									'dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100',
+									'transition-colors',
 									'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500/40'
 								)}
 							>
