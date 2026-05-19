@@ -31,6 +31,96 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
+
+Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Uncovered pages and deeper boundaries:
+- `public/comparisons-detail-public.spec.ts` — /comparisons/[slug].
+- `public/cms-pages-slug.spec.ts` — /pages/[slug] CMS bucket.
+- `public/categories-detail-tolerance.spec.ts` — /categories/[…] + nested catch-all.
+- `public/tags-detail-tolerance.spec.ts` — /tags/[…] + nested catch-all.
+- `public/discover-deep-pages.spec.ts` — sort/view/q combinations and edge pages.
+- `public/listing-deeper-paging-boundaries.spec.ts` — huge / negative / scientific
+  page numbers.
+- `public/listing-modifier-deeper.spec.ts` — duplicate sort/view params,
+  utm_source noise, repeated keys.
+- `public/listing-search-q-shapes.spec.ts` — control chars, unicode, oversize q.
+- `public/paging-tags-and-collections.spec.ts` — /tags/paging/[N] +
+  /collections/paging/[N] edges.
+- `public/items-detail-survey-slug.spec.ts` — /items/[slug]/surveys/[slug].
+- `public/map-route-tolerance.spec.ts` — /map with bogus zoom/bbox/lat/lng.
+- `public/submit-page-tolerance.spec.ts` — /submit query variations.
+- `public/sponsor-public-routes.spec.ts` — /sponsor with bogus plan/coupon.
+- `public/pricing-success-deeper.spec.ts` — /pricing/success with every provider.
+- `public/auth-pages-deeper-tolerance.spec.ts` — auth pages with bogus tokens,
+  callbackUrls, error codes.
+- `public/favorites-anonymous-tolerance.spec.ts` — /favorites anonymous gate.
+
+Robust input + header tolerance:
+- `public/content-length-and-encoding.spec.ts` — JSON content-type + bogus
+  accept-encoding.
+- `public/cookie-tolerance.spec.ts` — empty / malformed / oversize / bogus
+  session cookies.
+- `public/user-agent-and-referer.spec.ts` — empty/bot/long UA, weird Referer.
+- `public/api-large-query-string.spec.ts` — 10kB qs, 200 params, unicode, NULs.
+- `public/concurrent-rapid-navigation.spec.ts` — rapid navigation + reload x5.
+
+Security / SEO / a11y headers:
+- `public/error-page-status-codes.spec.ts` — bot-path 404s + wp-login, .env etc.
+- `public/sitemap-and-robots-shape.spec.ts` — sitemap.xml/robots.txt/llms.txt
+  shape.
+- `public/static-asset-coverage.spec.ts` — favicon/manifest/etc must non-5xx.
+- `public/structured-data-jsonld.spec.ts` — script[type=ld+json] valid JSON.
+- `public/head-meta-essentials.spec.ts` — title + meta description per route.
+- `public/html-lang-and-dir.spec.ts` — html[lang] presence + ar dir=rtl.
+- `public/html-no-mixed-content.spec.ts` — no http:// asset src on HTTPS.
+- `public/open-redirect-defense.spec.ts` — callbackUrl can't escape origin.
+- `public/response-headers-deeper.spec.ts` — X-Powered-By, Server, frame
+  protection.
+- `public/internal-and-internal-routes-protected.spec.ts` —
+  /api/internal/db-init + /api/__test__/* never 200.
+- `public/session-and-csrf-shape.spec.ts` — wire contracts for
+  /api/auth/session / csrf / providers.
+- `public/language-locale-redirects.spec.ts` — locale prefix tolerance.
+- `public/cms-md-mirror-deeper.spec.ts` — pages/.md + items/.md mirrors.
+- `public/webfinger-and-well-known.spec.ts` — common .well-known probes.
+- `public/http-methods-on-public-api-deeper.spec.ts` — DELETE/PUT/PATCH on
+  public GETs returns 4xx not 5xx.
+- `public/link-from-header-and-nav.spec.ts` — navigation chain + back-button.
+- `public/links-anchors-and-buttons.spec.ts` — no href="undefined", labeled
+  buttons.
+
+Client / dashboard:
+- `client/dashboard-items-surveys-protected.spec.ts` — /dashboard/items/[id]/surveys.
+- `client/client-users-and-sponsorships-protected.spec.ts` — anonymous gate.
+- `client/public-profile-deeper.spec.ts` — /client/profile/[u]/followers/following
+  with weird usernames.
+
+API rejection deeper:
+- `api/admin-detail-deeper.spec.ts` — every admin detail endpoint anonymous.
+- `api/admin-bulk-and-import-rejection.spec.ts` — bulk/import/export endpoints.
+- `api/user-profile-deeper.spec.ts` — /api/user/profile/follow + portfolio.
+- `api/stripe-products-deeper.spec.ts` — stripe products / portal / subs.
+- `api/polar-deeper.spec.ts` — polar checkout / portal / webhook.
+- `api/sponsor-ads-user-deeper.spec.ts` — sponsor-ads user endpoints.
+- `api/items-engagement-deeper.spec.ts` — items engagement nested routes.
+- `api/client-items-and-imports-rejection.spec.ts` — client items + imports.
+- `api/reports-and-surveys-deeper.spec.ts` — reports + surveys deeper.
+- `api/payment-and-current-user-deeper.spec.ts` — payment/account, current-user.
+- `api/auth-nextauth-discovery-deeper.spec.ts` — providers/csrf/session shape.
+- `api/internal-cron-protection.spec.ts` — cron routes require secret.
+- `api/verify-recaptcha-deeper.spec.ts` — synthetic tokens rejected.
+- `api/reference-and-tenant-shape.spec.ts` — no secrets leaked in discovery.
+- `api/body-content-types-rejection.spec.ts` — malformed body / wrong CT
+  across POST endpoints.
+
+Branch: `feat/e2e-coverage-1779156184`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 4: payment providers + admin sub-systems (develop-only)
 
 Round 4 of the rolling e2e coverage buildout. 22 new spec files added
