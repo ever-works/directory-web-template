@@ -142,7 +142,8 @@ const FORBIDDEN_409_PREFIXES = [
 	/^Company with slug '/
 ] as const;
 
-const FORBIDDEN_KEYS = ['data', 'details', 'success'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['data', 'details'] as const;
 
 const BARE_401_MESSAGE = 'Unauthorized';
 const CANONICAL_LONGER_401_MESSAGE = 'Unauthorized. Admin access required.';

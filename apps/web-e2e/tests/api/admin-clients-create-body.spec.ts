@@ -162,7 +162,8 @@ const FORBIDDEN_MESSAGES = [
 	'Client created successfully'
 ] as const;
 
-const FORBIDDEN_KEYS = ['data', 'success'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['data'] as const;
 
 const FORBIDDEN_USER_CREATE_PREFIX = /^Failed to create user:/;
 

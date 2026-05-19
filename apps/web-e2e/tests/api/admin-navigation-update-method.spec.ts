@@ -152,7 +152,8 @@ const FORBIDDEN_MESSAGES = [
 	'Failed to update navigation'
 ] as const;
 
-const FORBIDDEN_KEYS = ['success', 'type', 'items'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['type', 'items'] as const;
 
 const BARE_401_MESSAGE = 'Unauthorized';
 

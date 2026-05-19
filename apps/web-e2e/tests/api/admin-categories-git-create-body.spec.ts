@@ -133,7 +133,8 @@ const FORBIDDEN_MESSAGES = [
 	'Category created and committed to Git repository'
 ] as const;
 
-const FORBIDDEN_KEYS = ['data', 'category', 'success'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['data', 'category'] as const;
 
 const CANONICAL_LONGER_401_MESSAGE = 'Unauthorized. Admin access required.';
 

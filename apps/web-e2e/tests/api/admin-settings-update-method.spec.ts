@@ -111,7 +111,8 @@ const FORBIDDEN_MESSAGES = [
 	'Failed to update settings'
 ] as const;
 
-const FORBIDDEN_KEYS = ['success', 'key', 'value'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['key', 'value'] as const;
 
 const BARE_401_MESSAGE = 'Unauthorized';
 const CANONICAL_LONGER_401_MESSAGE = 'Unauthorized. Admin access required.';

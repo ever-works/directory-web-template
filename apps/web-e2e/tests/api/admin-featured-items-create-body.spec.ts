@@ -139,7 +139,8 @@ const FORBIDDEN_MESSAGES = [
 	'Item featured successfully'
 ] as const;
 
-const FORBIDDEN_KEYS = ['data', 'success'] as const;
+// 'success' removed — admin-guard returns `success: false`, not undefined.
+const FORBIDDEN_KEYS = ['data'] as const;
 
 const HYBRID_401_MESSAGE = 'Unauthorized';
 
