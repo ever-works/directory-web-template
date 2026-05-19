@@ -122,17 +122,29 @@ export function NotificationList({
 
 	const gridContainerClass = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-3 sm:p-4';
 	const listContainerClass = 'divide-y divide-gray-100 dark:divide-white/8';
+
+	const SectionHeader = ({ label, count }: { label: string; count: number }) => (
+		<div className="sticky top-0 z-1 px-4 py-2 bg-white/95 dark:bg-black/95 backdrop-blur-sm border-b border-gray-100 dark:border-white/8">
+			<h3 className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+				<span>{label}</span>
+				<span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-gray-100 dark:bg-white/8 px-1 text-[10px] font-medium text-gray-500 dark:text-gray-400 tabular-nums normal-case">
+					{count}
+				</span>
+			</h3>
+		</div>
+	);
+
 	const Loader = () =>
 		hasNextPage ? (
 			<div
 				ref={sentinelRef}
-				className="flex items-center justify-center px-4 py-3 text-[11px] text-gray-500 dark:text-gray-500"
+				className="flex items-center justify-center px-4 py-3"
 			>
 				{isFetchingNextPage && (
-					<span className="inline-flex items-center gap-1.5">
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse" />
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:150ms]" />
-						<span className="inline-block h-1 w-1 rounded-full bg-gray-400 animate-pulse [animation-delay:300ms]" />
+					<span className="inline-flex items-center gap-1">
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse" />
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse [animation-delay:150ms]" />
+						<span className="inline-block h-1 w-1 rounded-full bg-gray-300 dark:bg-white/20 animate-pulse [animation-delay:300ms]" />
 					</span>
 				)}
 			</div>
@@ -151,14 +163,10 @@ export function NotificationList({
 							key={section.key}
 							className={cn(sectionIdx > 0 && 'border-t border-gray-100 dark:border-white/8')}
 						>
-							<div className="sticky top-0 z-[1] px-4 py-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-100 dark:border-white/8">
-								<h3 className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-									<span>{safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}</span>
-									<span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gray-100 dark:bg-white/8 px-1 text-[10px] font-medium text-gray-600 dark:text-gray-400 tabular-nums normal-case">
-										{section.notifications.length}
-									</span>
-								</h3>
-							</div>
+							<SectionHeader
+								label={safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}
+								count={section.notifications.length}
+							/>
 							<div className={gridContainerClass}>{section.notifications.map(renderRow)}</div>
 						</section>
 					))}
@@ -181,14 +189,10 @@ export function NotificationList({
 		<div ref={listRef} onKeyDown={handleKeyDown} className={cn(className)}>
 			{sections.map((section, sectionIdx) => (
 				<section key={section.key} className={cn(sectionIdx > 0 && 'border-t border-gray-100 dark:border-white/8')}>
-					<div className="sticky top-0 z-[1] px-4 py-2 bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm border-b border-gray-100 dark:border-white/8">
-						<h3 className="inline-flex items-center gap-2 text-[10px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
-							<span>{safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}</span>
-							<span className="inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gray-100 dark:bg-white/8 px-1 text-[10px] font-medium text-gray-600 dark:text-gray-400 tabular-nums normal-case">
-								{section.notifications.length}
-							</span>
-						</h3>
-					</div>
+					<SectionHeader
+						label={safeT(t, SECTION_LABEL_KEY[section.key], FALLBACK_LABELS[section.key])}
+						count={section.notifications.length}
+					/>
 					<div className={listContainerClass}>{section.notifications.map(renderRow)}</div>
 				</section>
 			))}
