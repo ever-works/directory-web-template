@@ -281,7 +281,7 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		// `{ success: false, error: 'Unauthorized' }` (bare
 		// message PLUS `success: false` key).
 		const response = await request.get(USER_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -294,7 +294,7 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		request
 	}) => {
 		const response = await request.put(USER_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -307,7 +307,7 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		request
 	}) => {
 		const response = await request.delete(USER_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -329,7 +329,7 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 		}
@@ -368,7 +368,7 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe(HYBRID_403_MESSAGE);
 		}

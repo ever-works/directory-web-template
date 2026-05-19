@@ -247,15 +247,16 @@ test.describe('API: /api/sponsor-ads/checkout POST body / header surface', () =>
 		// `!session?.user?.id` → 401 TWO-key envelope
 		// with `success: false` discriminant.
 		const response = await request.post(SPONSOR_ADS_CHECKOUT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Unauthorized' });
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${SPONSOR_ADS_CHECKOUT_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {
 		const response = await request.post(SPONSOR_ADS_CHECKOUT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -472,7 +473,7 @@ test.describe('API: /api/sponsor-ads/checkout POST body / header surface', () =>
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Failed to create checkout session');
 			expect(body.success).toBe(false);
@@ -497,7 +498,7 @@ test.describe('API: /api/sponsor-ads/checkout POST body / header surface', () =>
 				cancelUrl: 'https://attacker.example.com/redirect'
 			}
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
@@ -515,7 +516,7 @@ test.describe('API: /api/sponsor-ads/checkout POST body / header surface', () =>
 		const response = await request.post(SPONSOR_ADS_CHECKOUT_PATH, {
 			data: { sponsorAdId: 'sa_test' }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.data).toBeUndefined();

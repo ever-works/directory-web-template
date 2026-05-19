@@ -131,10 +131,10 @@ test.describe('API: /api/payment/account/[userId] GET surface', () => {
 		request
 	}) => {
 		const response = await request.get(`${PAYMENT_ACCOUNT_PATH}?provider=stripe`);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});

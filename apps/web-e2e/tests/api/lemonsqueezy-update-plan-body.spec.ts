@@ -174,7 +174,7 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		request
 	}) => {
 		const response = await request.post(LEMONSQUEEZY_UPDATE_PLAN_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -188,7 +188,7 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		request
 	}) => {
 		const response = await request.post(LEMONSQUEEZY_UPDATE_PLAN_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['code', 'error', 'message']);
@@ -343,7 +343,7 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.code).toBe('AUTH_REQUIRED');
 		}

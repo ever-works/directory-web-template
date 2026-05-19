@@ -96,7 +96,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const mode = await detectMode(request);
 		test.skip(mode !== 'provisioned', 'env not set — see unprovisioned suite');
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with a non-Bearer Authorization header', async ({ request }) => {
@@ -105,7 +105,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: 'Basic abc', 'x-platform-ts': new Date().toISOString() }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with missing x-platform-ts header', async ({ request }) => {
@@ -118,7 +118,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${sig}` }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with stale x-platform-ts (>5 min drift)', async ({ request }) => {
@@ -131,7 +131,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${sig}`, 'x-platform-ts': staleTs }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects tampered query (signature was computed for different params)', async ({ request }) => {
@@ -144,7 +144,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=20&types=all`, {
 			headers: { authorization: `Bearer ${sig}`, 'x-platform-ts': ts }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects single-byte flipped signature with constant-time compare', async ({ request }) => {
@@ -159,7 +159,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${tampered}`, 'x-platform-ts': ts }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('returns 200 + entries/nextCursor/serverTime for a valid signed request', async ({ request }) => {

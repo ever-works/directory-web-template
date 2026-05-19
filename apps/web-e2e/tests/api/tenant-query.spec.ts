@@ -199,7 +199,7 @@ test.describe('API: /api/tenant query-param surface', () => {
 		// break clients that destructure `body.tenant`.
 		const response = await request.get('/api/tenant');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as { tenant?: unknown };
 

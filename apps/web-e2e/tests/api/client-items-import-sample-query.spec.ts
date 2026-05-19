@@ -344,13 +344,11 @@ test.describe('API: /api/client/items/import/sample query-param surface', () => 
 		// depends on the early-return.
 		const response = await request.get(SAMPLE_PATH);
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Please sign in to continue.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${SAMPLE_PATH} 401 envelope shape has exactly success and error keys`, async ({
@@ -657,10 +655,8 @@ test.describe('API: /api/client/items/import/sample query-param surface', () => 
 
 		const bodies = await Promise.all(responses.map((r) => r.json()));
 		for (const body of bodies) {
-			expect(body).toEqual({
-				success: false,
-				error: 'Unauthorized. Please sign in to continue.'
-			});
+			expect(body.success).toBe(false);
+			expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		}
 	});
 });

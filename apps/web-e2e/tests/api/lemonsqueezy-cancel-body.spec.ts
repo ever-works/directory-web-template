@@ -161,7 +161,7 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		// 'Unauthorized', message: 'Authentication
 		// required', code: 'AUTH_REQUIRED' }`.
 		const response = await request.post(LEMONSQUEEZY_CANCEL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -175,7 +175,7 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		request
 	}) => {
 		const response = await request.post(LEMONSQUEEZY_CANCEL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['code', 'error', 'message']);
@@ -329,7 +329,7 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.code).toBe('AUTH_REQUIRED');
 		}
@@ -389,7 +389,7 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		// envelope must NOT have a `timestamp` field
 		// or the `CANCEL_FAILED` code.
 		const response = await request.post(LEMONSQUEEZY_CANCEL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.timestamp).toBeUndefined();

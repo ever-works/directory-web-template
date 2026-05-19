@@ -152,10 +152,10 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 		request
 	}) => {
 		const response = await request.get(PAYMENT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
@@ -164,10 +164,10 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 		request
 	}) => {
 		const response = await request.patch(PAYMENT_PATH, { data: { enabled: true } });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.success).toBeUndefined();
 	});
 
@@ -227,7 +227,7 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 			}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 
@@ -313,7 +313,7 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 

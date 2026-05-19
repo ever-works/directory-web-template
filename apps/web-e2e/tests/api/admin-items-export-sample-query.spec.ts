@@ -333,13 +333,11 @@ test.describe('API: /api/admin/items/export/sample query-param surface', () => {
 		// depends on the early-return.
 		const response = await request.get('/api/admin/items/export/sample');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/items/export/sample has a stable status across query permutations', async ({

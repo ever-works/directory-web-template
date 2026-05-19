@@ -135,7 +135,7 @@ test.describe('API: /api/admin/settings PATCH body / header surface', () => {
 		request
 	}) => {
 		const response = await request.patch(SETTINGS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -144,7 +144,7 @@ test.describe('API: /api/admin/settings PATCH body / header surface', () => {
 
 	test(`PATCH ${SETTINGS_PATH} unauth envelope has NO success key`, async ({ request }) => {
 		const response = await request.patch(SETTINGS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

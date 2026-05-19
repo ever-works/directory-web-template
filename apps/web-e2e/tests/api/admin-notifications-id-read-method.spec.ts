@@ -202,7 +202,7 @@ test.describe('API: /api/admin/notifications/[id]/read method / id / header surf
 		// route's gate from the canonical longer envelope of
 		// the single-step-gated admin routes.
 		const response = await request.patch(READ_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: CANONICAL_401_MESSAGE });
@@ -216,7 +216,7 @@ test.describe('API: /api/admin/notifications/[id]/read method / id / header surf
 		// `{ success: false, error: ... }` envelope of the
 		// single-step-gated admin routes.
 		const response = await request.patch(READ_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

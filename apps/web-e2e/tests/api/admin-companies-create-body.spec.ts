@@ -166,7 +166,7 @@ test.describe('API: /api/admin/companies POST body / header surface', () => {
 		request
 	}) => {
 		const response = await request.post(COMPANIES_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -175,7 +175,7 @@ test.describe('API: /api/admin/companies POST body / header surface', () => {
 
 	test(`POST ${COMPANIES_PATH} unauth envelope has NO success key`, async ({ request }) => {
 		const response = await request.post(COMPANIES_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

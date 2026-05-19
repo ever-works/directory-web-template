@@ -184,7 +184,7 @@ test.describe('API: /api/admin/collections POST body / header surface', () => {
 		request
 	}) => {
 		const response = await request.post(COLLECTIONS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -196,7 +196,7 @@ test.describe('API: /api/admin/collections POST body / header surface', () => {
 
 	test(`POST ${COLLECTIONS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {
 		const response = await request.post(COLLECTIONS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);

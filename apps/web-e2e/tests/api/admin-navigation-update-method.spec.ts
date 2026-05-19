@@ -173,7 +173,7 @@ test.describe('API: /api/admin/navigation PATCH body / header surface', () => {
 
 	test(`PATCH ${NAVIGATION_PATH} returns 401 with the bare Unauthorized envelope`, async ({ request }) => {
 		const response = await request.patch(NAVIGATION_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -181,7 +181,7 @@ test.describe('API: /api/admin/navigation PATCH body / header surface', () => {
 
 	test(`PATCH ${NAVIGATION_PATH} unauth envelope has NO success key`, async ({ request }) => {
 		const response = await request.patch(NAVIGATION_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

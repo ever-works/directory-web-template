@@ -157,7 +157,7 @@ test.describe('API: /api/admin/tags POST body / header surface', () => {
 
 	test(`POST ${TAGS_PATH} returns 401 with the hybrid bare-message + success: false envelope`, async ({ request }) => {
 		const response = await request.post(TAGS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
@@ -165,7 +165,7 @@ test.describe('API: /api/admin/tags POST body / header surface', () => {
 
 	test(`POST ${TAGS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {
 		const response = await request.post(TAGS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);

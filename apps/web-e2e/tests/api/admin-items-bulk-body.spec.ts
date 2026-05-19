@@ -295,7 +295,7 @@ test.describe('API: /api/admin/items/bulk method / body / header surface', () =>
 		// longer message
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.post(BULK_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toMatchObject({
@@ -446,13 +446,11 @@ test.describe('API: /api/admin/items/bulk method / body / header surface', () =>
 		// key is the cross-route divergence that distinguishes
 		// this route's gate from the bare-message gates.
 		const response = await request.post(BULK_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

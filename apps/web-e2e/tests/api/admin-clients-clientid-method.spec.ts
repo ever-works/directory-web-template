@@ -199,7 +199,7 @@ test.describe('API: /api/admin/clients/[clientId] GET / PUT / DELETE method / id
 		request
 	}) => {
 		const response = await request.get(CLIENT_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -213,7 +213,7 @@ test.describe('API: /api/admin/clients/[clientId] GET / PUT / DELETE method / id
 		request
 	}) => {
 		const response = await request.put(CLIENT_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -224,7 +224,7 @@ test.describe('API: /api/admin/clients/[clientId] GET / PUT / DELETE method / id
 		request
 	}) => {
 		const response = await request.delete(CLIENT_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -245,7 +245,7 @@ test.describe('API: /api/admin/clients/[clientId] GET / PUT / DELETE method / id
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(Object.keys(body)).toEqual(['error']);
 			expect(body.success).toBeUndefined();

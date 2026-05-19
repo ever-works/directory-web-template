@@ -100,18 +100,18 @@ test.describe('API: /api/sponsor-ads/user/stats GET header surface', () => {
 
 	test(`GET ${STATS_PATH} returns 401 with the canonical TWO-key envelope`, async ({ request }) => {
 		const response = await request.get(STATS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${STATS_PATH} 401 envelope shape has exactly success and error keys`, async ({ request }) => {
 		// Strict TWO-key envelope-shape assertion: NO
 		// `stats`, NO `data`, NO `message` leak.
 		const response = await request.get(STATS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);

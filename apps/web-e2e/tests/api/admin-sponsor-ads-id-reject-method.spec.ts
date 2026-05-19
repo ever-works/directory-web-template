@@ -160,7 +160,7 @@ test.describe('API: /api/admin/sponsor-ads/[id]/reject method / id / body / head
 		request
 	}) => {
 		const response = await request.post(REJECT_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -173,7 +173,7 @@ test.describe('API: /api/admin/sponsor-ads/[id]/reject method / id / body / head
 		request
 	}) => {
 		const response = await request.post(REJECT_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({

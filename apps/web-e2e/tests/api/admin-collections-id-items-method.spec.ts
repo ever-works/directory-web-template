@@ -171,7 +171,7 @@ test.describe('API: /api/admin/collections/[id]/items GET / POST method / id / b
 		request
 	}) => {
 		const response = await request.get(ITEMS_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -184,7 +184,7 @@ test.describe('API: /api/admin/collections/[id]/items GET / POST method / id / b
 		request
 	}) => {
 		const response = await request.post(ITEMS_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({

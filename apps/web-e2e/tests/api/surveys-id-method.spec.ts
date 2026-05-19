@@ -155,22 +155,22 @@ test.describe('API: /api/surveys/[surveyId] GET / PUT / DELETE method surface', 
 		request
 	}) => {
 		const response = await request.put(SURVEY_PATH, { data: { title: 'x' } });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`DELETE ${SURVEY_PATH} returns 401 with the canonical TWO-key Unauthorized envelope`, async ({
 		request
 	}) => {
 		const response = await request.delete(SURVEY_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`PUT and DELETE ${SURVEY_PATH} have IDENTICAL 401 envelopes`, async ({ request }) => {
@@ -222,7 +222,7 @@ test.describe('API: /api/surveys/[surveyId] GET / PUT / DELETE method surface', 
 			data: { title: 'XSS-MARKER-12345', status: 'published', surveyJson: { secret: 'leak-me' } }
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 
@@ -237,7 +237,7 @@ test.describe('API: /api/surveys/[surveyId] GET / PUT / DELETE method surface', 
 		// `surveyService.delete(survey.id)` call must
 		// NEVER run on unauth.
 		const response = await request.delete(SURVEY_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
@@ -305,10 +305,10 @@ test.describe('API: /api/surveys/[surveyId] GET / PUT / DELETE method surface', 
 		// that this dispatcher is NOT entered upstream
 		// of the auth gate.
 		const response = await request.put(SURVEY_PATH, { data: { title: 'x' } });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Survey not found');
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 });

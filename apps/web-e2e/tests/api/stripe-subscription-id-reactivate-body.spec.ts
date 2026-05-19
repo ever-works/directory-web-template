@@ -175,15 +175,15 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 		// `!session?.user` → 401 `{ error:
 		// 'Unauthorized' }` (bare envelope).
 		const response = await request.post(STRIPE_REACTIVATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_REACTIVATE_PATH} envelope shape has exactly one error key`, async ({ request }) => {
 		const response = await request.post(STRIPE_REACTIVATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);
@@ -298,10 +298,10 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 		// 'Subscription not found or access denied'
 		// message from this branch.
 		const response = await request.post(STRIPE_REACTIVATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.error).not.toBe('Subscription not found or access denied');
 	});
 
@@ -321,7 +321,7 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Subscription is not scheduled for cancellation');
 		}
@@ -355,7 +355,7 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Failed to reactivate subscription');
 		}

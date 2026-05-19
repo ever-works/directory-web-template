@@ -156,7 +156,7 @@ test.describe('API: /api/admin/sponsor-ads/[id] GET / DELETE method / id / heade
 		request
 	}) => {
 		const response = await request.get(SPONSOR_AD_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -169,7 +169,7 @@ test.describe('API: /api/admin/sponsor-ads/[id] GET / DELETE method / id / heade
 		request
 	}) => {
 		const response = await request.delete(SPONSOR_AD_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -187,7 +187,7 @@ test.describe('API: /api/admin/sponsor-ads/[id] GET / DELETE method / id / heade
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 		}

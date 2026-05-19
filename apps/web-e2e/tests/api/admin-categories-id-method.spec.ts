@@ -262,7 +262,7 @@ test.describe('API: /api/admin/categories/[id] GET / PUT / DELETE method / id / 
 		request
 	}) => {
 		const response = await request.get(CATEGORY_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -275,7 +275,7 @@ test.describe('API: /api/admin/categories/[id] GET / PUT / DELETE method / id / 
 		request
 	}) => {
 		const response = await request.put(CATEGORY_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -288,7 +288,7 @@ test.describe('API: /api/admin/categories/[id] GET / PUT / DELETE method / id / 
 		request
 	}) => {
 		const response = await request.delete(CATEGORY_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({

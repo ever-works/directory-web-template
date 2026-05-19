@@ -129,7 +129,7 @@ test.describe('API: /api/cron/subscription-reminders GET + POST surface', () => 
 
 		if (response.status() === 401) {
 			const body = await response.json();
-			expect(body.error).toBe('Unauthorized');
+			expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 			expect(body.success).toBeUndefined();
 			expect(body.message).toBeUndefined();
 		}

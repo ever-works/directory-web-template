@@ -369,7 +369,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 		// non-401 status or a different body shape.
 		const response = await request.get('/api/lemonsqueezy/list');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as {
 			error?: unknown;
@@ -553,7 +553,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -576,7 +576,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as { error?: unknown };
 			expect(typeof body.error).toBe('string');

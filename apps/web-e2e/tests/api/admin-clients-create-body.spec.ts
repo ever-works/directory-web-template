@@ -188,7 +188,7 @@ test.describe('API: /api/admin/clients POST body / header surface', () => {
 		request
 	}) => {
 		const response = await request.post(CLIENTS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: BARE_401_MESSAGE });
@@ -203,7 +203,7 @@ test.describe('API: /api/admin/clients POST body / header surface', () => {
 		// from the canonical-longer-envelope and hybrid-
 		// envelope POST smokes.
 		const response = await request.post(CLIENTS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

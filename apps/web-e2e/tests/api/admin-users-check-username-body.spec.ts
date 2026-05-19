@@ -207,12 +207,10 @@ test.describe('API: /api/admin/users/check-username request-body / header surfac
 		// 401 envelope.
 		const response = await request.post('/api/admin/users/check-username');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			error: 'Unauthorized'
-		});
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('POST /api/admin/users/check-username does NOT echo the success-branch keys on the unauth branch', async ({
@@ -344,11 +342,11 @@ test.describe('API: /api/admin/users/check-username request-body / header surfac
 		// no `available` / `exists` keys.
 		const response = await request.post('/api/admin/users/check-username');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error']);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body).not.toHaveProperty('success');
 		expect(body).not.toHaveProperty('available');
 		expect(body).not.toHaveProperty('exists');

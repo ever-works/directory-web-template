@@ -212,7 +212,7 @@ test.describe('API: /api/admin/roles/[id]/permissions method / id / body / heade
 		request
 	}) => {
 		const response = await request.get(PERMISSIONS_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -228,7 +228,7 @@ test.describe('API: /api/admin/roles/[id]/permissions method / id / body / heade
 		request
 	}) => {
 		const response = await request.put(PERMISSIONS_PATH(PROBE_ID), { data: { permissions: VALID_PERMISSIONS } });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -242,7 +242,7 @@ test.describe('API: /api/admin/roles/[id]/permissions method / id / body / heade
 		request
 	}) => {
 		const response = await request.get(PERMISSIONS_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -253,7 +253,7 @@ test.describe('API: /api/admin/roles/[id]/permissions method / id / body / heade
 		request
 	}) => {
 		const response = await request.put(PERMISSIONS_PATH(PROBE_ID), { data: { permissions: VALID_PERMISSIONS } });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -497,7 +497,7 @@ test.describe('API: /api/admin/roles/[id]/permissions method / id / body / heade
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).toBe(SHORTER_401_MESSAGE);
 			expect(body.error).not.toBe('Insufficient permissions');

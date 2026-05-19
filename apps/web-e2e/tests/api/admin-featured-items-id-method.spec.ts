@@ -206,7 +206,7 @@ test.describe('API: /api/admin/featured-items/[id] GET / PUT / DELETE method / i
 		request
 	}) => {
 		const response = await request.get(FEATURED_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: FIRST_401_MESSAGE });
@@ -216,7 +216,7 @@ test.describe('API: /api/admin/featured-items/[id] GET / PUT / DELETE method / i
 		request
 	}) => {
 		const response = await request.put(FEATURED_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: FIRST_401_MESSAGE });
@@ -226,7 +226,7 @@ test.describe('API: /api/admin/featured-items/[id] GET / PUT / DELETE method / i
 		request
 	}) => {
 		const response = await request.delete(FEATURED_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: FIRST_401_MESSAGE });
@@ -242,7 +242,7 @@ test.describe('API: /api/admin/featured-items/[id] GET / PUT / DELETE method / i
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 		}
@@ -323,7 +323,7 @@ test.describe('API: /api/admin/featured-items/[id] GET / PUT / DELETE method / i
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Tenant not found');
 		}

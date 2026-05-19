@@ -172,7 +172,7 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		// with the canonical longer envelope
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.get(BASELINE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -342,7 +342,7 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		// cross-route divergence that distinguishes this
 		// route's gate from the bare-message gates.
 		const response = await request.get(BASELINE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({

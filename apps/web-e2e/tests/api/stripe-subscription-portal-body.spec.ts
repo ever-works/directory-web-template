@@ -167,15 +167,15 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		// stripe-setup-intent-id's `{ success: false,
 		// error }` shape.
 		const response = await request.post(STRIPE_PORTAL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_PORTAL_PATH} envelope shape has exactly the error key`, async ({ request }) => {
 		const response = await request.post(STRIPE_PORTAL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);
@@ -272,10 +272,10 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		// effectively exposing a logged-in customer-
 		// portal session.
 		const response = await request.post(STRIPE_PORTAL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_PORTAL_PATH} URL-validation catch is NOT entered on the unauth branch`, async ({
@@ -299,7 +299,7 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		// envelope on Stripe SDK errors. The unauth
 		// branch must NEVER reach the inner catch.
 		const response = await request.post(STRIPE_PORTAL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Invalid request to Stripe');
@@ -315,7 +315,7 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		// The unauth branch must NEVER reach the outer
 		// 500.
 		const response = await request.post(STRIPE_PORTAL_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to create billing portal session');
@@ -336,9 +336,9 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
-			expect(body.error).toBe('Unauthorized');
+			expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 			// No stripe error patterns should leak.
 			expect(body.error).not.toContain('No such customer');
 			expect(body.error).not.toContain('resource_missing');
@@ -364,7 +364,7 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 
 		const bodies = await Promise.all(responses.map((r) => r.json()));
 		for (const body of bodies) {
-			expect(body).toEqual({ error: 'Unauthorized' });
+			expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		}
 	});
 

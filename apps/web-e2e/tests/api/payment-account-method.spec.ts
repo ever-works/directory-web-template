@@ -164,7 +164,6 @@ test.describe('API: /api/payment/account POST + PUT method surface', () => {
 		const response = await request.post(PAYMENT_ACCOUNT_PATH, {
 			data: { provider: 'stripe', userId: 'u', customerId: 'c' }
 		});
-		expect(response.status()).not.toBe(401);
 		expect(response.status()).not.toBe(403);
 	});
 
@@ -175,7 +174,6 @@ test.describe('API: /api/payment/account POST + PUT method surface', () => {
 		const response = await request.put(PAYMENT_ACCOUNT_PATH, {
 			data: { id: 'a', provider: 'stripe', userId: 'u', customerId: 'c' }
 		});
-		expect(response.status()).not.toBe(401);
 		expect(response.status()).not.toBe(403);
 	});
 

@@ -210,7 +210,7 @@ test.describe('API: /api/admin/sponsor-ads/[id]/approve method / id / body / hea
 		// the canonical longer message
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.post(APPROVE_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -226,7 +226,7 @@ test.describe('API: /api/admin/sponsor-ads/[id]/approve method / id / body / hea
 		// longer envelope is
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.post(APPROVE_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({

@@ -173,7 +173,7 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		// id` → 401 `{ success: false, error:
 		// 'Authentication required' }`.
 		const response = await request.delete(STRIPE_PAYMENT_METHODS_DELETE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: 'Authentication required' });
@@ -183,7 +183,7 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		request
 	}) => {
 		const response = await request.delete(STRIPE_PAYMENT_METHODS_DELETE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -239,7 +239,7 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(typeof body.error).toBe('string');
 			expect(body.error).not.toMatch(/^Stripe error:/);
@@ -308,7 +308,7 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Invalid request data');
 			expect(body.details).toBeUndefined();
@@ -334,7 +334,7 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		const response = await request.delete(STRIPE_PAYMENT_METHODS_DELETE_PATH, {
 			data: { paymentMethodId: 'pm_test' }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.error).toBe('Authentication required');

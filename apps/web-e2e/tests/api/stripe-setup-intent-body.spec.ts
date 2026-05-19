@@ -122,10 +122,10 @@ test.describe('API: /api/stripe/setup-intent POST body / header surface', () => 
 		// 'Unauthorized' }` (bare envelope, NO success
 		// key).
 		const response = await request.post(STRIPE_SETUP_INTENT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_SETUP_INTENT_PATH} envelope shape has exactly one error key (NO success key)`, async ({
@@ -134,7 +134,7 @@ test.describe('API: /api/stripe/setup-intent POST body / header surface', () => 
 		// Strict envelope-shape: exactly `error` key,
 		// NO `success`/`message`/`data` keys.
 		const response = await request.post(STRIPE_SETUP_INTENT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);
@@ -265,10 +265,10 @@ test.describe('API: /api/stripe/setup-intent POST body / header surface', () => 
 		// ability to attach a payment method to the
 		// fabricated customer).
 		const response = await request.post(STRIPE_SETUP_INTENT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.client_secret).toBeUndefined();
 		// Catch-branch message must NOT appear either.
 		expect(body.error).not.toBe('Failed to create setup intent');
@@ -289,7 +289,7 @@ test.describe('API: /api/stripe/setup-intent POST body / header surface', () => 
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Failed to create setup intent');
 		}

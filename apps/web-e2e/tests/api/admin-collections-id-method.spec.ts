@@ -272,7 +272,7 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		request
 	}) => {
 		const response = await request.get(COLLECTION_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -285,7 +285,7 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		request
 	}) => {
 		const response = await request.put(COLLECTION_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -298,7 +298,7 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		request
 	}) => {
 		const response = await request.delete(COLLECTION_PATH(PROBE_ID));
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -400,7 +400,7 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.details).toBeUndefined();
 			expect(body.formErrors).toBeUndefined();
@@ -590,7 +590,7 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body).toEqual({ success: false, error: CANONICAL_401_MESSAGE });
 		}

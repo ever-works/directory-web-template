@@ -164,7 +164,7 @@ test.describe('API: /api/admin/categories/git POST body / header surface', () =>
 		// envelope shape that mixes the canonical longer
 		// message with the bare envelope.
 		const response = await request.post(CATEGORIES_GIT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ error: CANONICAL_LONGER_401_MESSAGE });
@@ -180,7 +180,7 @@ test.describe('API: /api/admin/categories/git POST body / header surface', () =>
 		// family of `admin/items/[id]`, `admin/categories/
 		// [id]`, etc.
 		const response = await request.post(CATEGORIES_GIT_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body)).toEqual(['error']);

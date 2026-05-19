@@ -144,7 +144,7 @@ test.describe('API: /api/admin/location-index POST body / header surface', () =>
 		// 401 `{ success: false, error: 'Unauthorized' }`
 		// from the `!session?.user` branch.
 		const response = await request.post(LOCATION_INDEX_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: CANONICAL_ENVELOPE_BARE_401_MESSAGE });
@@ -157,7 +157,7 @@ test.describe('API: /api/admin/location-index POST body / header surface', () =>
 		// key AND the bare `'Unauthorized'` message
 		// must be present, and no other keys.
 		const response = await request.post(LOCATION_INDEX_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);

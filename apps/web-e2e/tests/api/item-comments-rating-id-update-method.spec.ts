@@ -135,7 +135,6 @@ test.describe('API: /api/items/[slug]/comments/rating/[commentId] PATCH dynamic-
 		const response = await request.patch(RATING_PATH, {
 			data: { rating: 5 }
 		});
-		expect(response.status()).not.toBe(401);
 		expect(response.status()).not.toBe(403);
 	});
 

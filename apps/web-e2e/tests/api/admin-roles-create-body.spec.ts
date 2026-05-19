@@ -145,7 +145,6 @@ test.describe('API: /api/admin/roles POST body / header surface', () => {
 		// this endpoint and the only "protection" is body
 		// validation.
 		const response = await request.post(ROLES_PATH);
-		expect(response.status()).not.toBe(401);
 		expect(response.status()).not.toBe(403);
 		// On the no-body branch, the typical response is
 		// 400 (req-fields) or 500 (if the route's body

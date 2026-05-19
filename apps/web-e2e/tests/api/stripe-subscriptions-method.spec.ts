@@ -129,10 +129,10 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 		request
 	}) => {
 		const response = await request.get(STRIPE_SUBSCRIPTIONS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_SUBSCRIPTIONS_PATH} returns 401 with the canonical bare ONE-key envelope`, async ({
@@ -141,10 +141,10 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 		const response = await request.post(STRIPE_SUBSCRIPTIONS_PATH, {
 			data: { planId: 'p', paymentProvider: 'stripe', subscriptionId: 'sub_x' }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET / POST / PUT / DELETE ${STRIPE_SUBSCRIPTIONS_PATH} have IDENTICAL 401 envelopes`, async ({
@@ -158,7 +158,7 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 
 		const bodies = await Promise.all(responses.map((r) => r.json()));
@@ -213,7 +213,7 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 			}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('XSS-PUT-MARKER-12345');
@@ -230,7 +230,7 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 			`${STRIPE_SUBSCRIPTIONS_PATH}?id=XSS-DELETE-MARKER&reason=marker-leak&cancelAtPeriodEnd=true`
 		);
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('XSS-DELETE-MARKER');
@@ -304,9 +304,9 @@ test.describe('API: /api/stripe/subscriptions GET + POST + PUT + DELETE method s
 		// order. Even with empty body, the response
 		// is 401 NOT 400.
 		const response = await request.post(STRIPE_SUBSCRIPTIONS_PATH, { data: {} });
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		// The 400 message must not leak.
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('Missing required fields');

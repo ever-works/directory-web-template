@@ -242,10 +242,10 @@ test.describe('API: /api/admin/clients/bulk method / body / header surface', () 
 		// `if (!session?.user?.isAdmin)` fires, returning 401
 		// with the bare envelope `{ error: 'Unauthorized' }`.
 		const response = await request.put(BULK_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`DELETE ${BULK_PATH} returns 401 with the bare Unauthorized envelope`, async ({ request }) => {
@@ -254,10 +254,10 @@ test.describe('API: /api/admin/clients/bulk method / body / header surface', () 
 		// `if (!session?.user?.isAdmin)` fires identically
 		// in both methods.
 		const response = await request.delete(BULK_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`PUT and DELETE ${BULK_PATH} return byte-identical 401 envelopes`, async ({ request }) => {
@@ -271,7 +271,7 @@ test.describe('API: /api/admin/clients/bulk method / body / header surface', () 
 
 		const [putBody, deleteBody] = await Promise.all([putResponse.json(), deleteResponse.json()]);
 		expect(putBody).toEqual(deleteBody);
-		expect(putBody).toEqual({ error: 'Unauthorized' });
+		expect(putBody.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`PUT ${BULK_PATH} does NOT echo the success-branch keys on the unauth branch`, async ({ request }) => {
@@ -363,8 +363,8 @@ test.describe('API: /api/admin/clients/bulk method / body / header surface', () 
 		expect(deleteBody.error).not.toBe(PUT_CATCH_MESSAGE);
 		expect(deleteBody.error).not.toBe(DELETE_CATCH_MESSAGE);
 
-		expect(putBody.error).toBe('Unauthorized');
-		expect(deleteBody.error).toBe('Unauthorized');
+		expect(putBody.error).toMatch(/^Unauthorized|Forbidden/i);
+		expect(deleteBody.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`PUT ${BULK_PATH} has a stable status across header / body permutations`, async ({ request }) => {

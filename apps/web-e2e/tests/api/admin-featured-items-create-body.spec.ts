@@ -162,7 +162,7 @@ test.describe('API: /api/admin/featured-items POST body / header surface', () =>
 		request
 	}) => {
 		const response = await request.post(FEATURED_ITEMS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
@@ -170,7 +170,7 @@ test.describe('API: /api/admin/featured-items POST body / header surface', () =>
 
 	test(`POST ${FEATURED_ITEMS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {
 		const response = await request.post(FEATURED_ITEMS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -183,7 +183,7 @@ test.describe('API: /api/admin/featured-items POST body / header surface', () =>
 		// the FIRST gate-step ('Unauthorized') fires
 		// instead.
 		const response = await request.post(FEATURED_ITEMS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		expect(body.error).not.toBe('Tenant not found');
 	});

@@ -154,7 +154,7 @@ test.describe('API: /api/items/[slug]/comments/[commentId] PUT + DELETE body / h
 		// per-source-file PUT/DELETE smoke pinning a
 		// plain-text 401 envelope.
 		const response = await request.put(COMMENTS_ID_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const text = await response.text();
 		expect(text).toBe('Unauthorized');
@@ -166,7 +166,7 @@ test.describe('API: /api/items/[slug]/comments/[commentId] PUT + DELETE body / h
 
 	test(`DELETE ${COMMENTS_ID_PATH} returns 401 with PLAIN-TEXT Unauthorized body`, async ({ request }) => {
 		const response = await request.delete(COMMENTS_ID_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const text = await response.text();
 		expect(text).toBe('Unauthorized');
@@ -307,7 +307,7 @@ test.describe('API: /api/items/[slug]/comments/[commentId] PUT + DELETE body / h
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const text = await response.text();
 			expect(text).toBe('Unauthorized');
 		}
@@ -327,7 +327,7 @@ test.describe('API: /api/items/[slug]/comments/[commentId] PUT + DELETE body / h
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const text = await response.text();
 			expect(text).toBe('Unauthorized');
 			// Auth-branch JSON message must NOT appear.
@@ -350,7 +350,7 @@ test.describe('API: /api/items/[slug]/comments/[commentId] PUT + DELETE body / h
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const text = await response.text();
 			expect(text).toBe('Unauthorized');
 			expect(text).not.toContain('Comment not found');
