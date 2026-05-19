@@ -47,7 +47,7 @@ export default function AdminNotificationsPage() {
 	const unreadCount = stats?.unread ?? 0;
 
 	return (
-		<Container maxWidth="7xl" padding="default" className="py-6">
+		<Container maxWidth="7xl" padding="default" useGlobalWidth>
 			<div className="space-y-6">
 				<header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
 					<div className="min-w-0">
