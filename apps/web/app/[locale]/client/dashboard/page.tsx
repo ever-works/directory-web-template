@@ -8,6 +8,9 @@ import { siteConfig } from "@/lib/config";
 import { Locale } from "@/lib/constants";
 import { getClientProfileByUserId } from "@/lib/db/queries/client.queries";
 
+// Force dynamic rendering — page depends on session cookies. Spec 027.
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({
   params
 }: {
