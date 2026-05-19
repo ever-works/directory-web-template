@@ -152,6 +152,8 @@ jobs:
             name: Productivity
           - id: testing
             name: Testing
+          - id: web-development
+            name: Web Development
           YAML
           cat > apps/web/.content/tags.yml <<'YAML'
           - id: e2e

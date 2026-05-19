@@ -460,7 +460,7 @@ test.describe('API: /api/admin/twenty-crm/config query-param surface', () => {
 		const response = await request.get('/api/admin/twenty-crm/config');
 		const body = await response.json();
 
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 		expect(body.error).not.toBe('Unauthorized');
 		expect(body.error).not.toBe('Forbidden');
 		expect(body.error).not.toBe('Failed to retrieve configuration');

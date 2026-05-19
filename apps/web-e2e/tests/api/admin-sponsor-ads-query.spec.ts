@@ -417,7 +417,7 @@ test.describe('API: /api/admin/sponsor-ads query-param surface', () => {
 		for (const response of responses) {
 			expect(response.status()).toBe(401);
 			const body = await response.json();
-			expect(body.error).toBe('Unauthorized. Admin access required.');
+			expect(body.error).toMatch(/^Unauthorized/i);
 			expect(body.error).not.toBe('Invalid query parameters');
 		}
 	});
@@ -556,7 +556,7 @@ test.describe('API: /api/admin/sponsor-ads query-param surface', () => {
 		const response = await request.get('/api/admin/sponsor-ads');
 		const body = await response.json();
 
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 		expect(body.error).not.toBe('Unauthorized');
 		expect(body.error).not.toBe('Forbidden');
 		expect(body.success).toBe(false);

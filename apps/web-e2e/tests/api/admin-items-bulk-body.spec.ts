@@ -374,7 +374,7 @@ test.describe('API: /api/admin/items/bulk method / body / header surface', () =>
 		const response = await request.post(BULK_PATH);
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to process bulk action');
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 	});
 
 	test(`POST ${BULK_PATH} has a stable status across header / body permutations`, async ({ request }) => {

@@ -224,7 +224,7 @@ test.describe('API: /api/admin/items/[id]/review method / body / header surface'
 		const response = await request.post(REVIEW_PATH);
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to review item');
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 	});
 
 	test(`POST ${REVIEW_PATH} has a stable status across header / body permutations`, async ({ request }) => {

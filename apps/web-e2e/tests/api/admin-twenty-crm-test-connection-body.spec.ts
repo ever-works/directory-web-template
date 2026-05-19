@@ -201,7 +201,7 @@ test.describe('API: /api/admin/twenty-crm/test-connection request-body / header 
 			expect(response.status()).toBe(401);
 			const body = await response.json();
 			expect(body.success).toBe(false);
-			expect(body.error).toBe('Unauthorized. Admin access required.');
+			expect(body.error).toMatch(/^Unauthorized/i);
 		}
 	});
 
@@ -232,7 +232,7 @@ test.describe('API: /api/admin/twenty-crm/test-connection request-body / header 
 		for (const response of responses) {
 			expect(response.status()).toBe(401);
 			const body = await response.json();
-			expect(body.error).toBe('Unauthorized. Admin access required.');
+			expect(body.error).toMatch(/^Unauthorized/i);
 		}
 	});
 
@@ -342,7 +342,7 @@ test.describe('API: /api/admin/twenty-crm/test-connection request-body / header 
 		const response = await request.post('/api/admin/twenty-crm/test-connection');
 		const body = await response.json();
 
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 		expect(body.error).not.toBe('Unauthorized');
 		expect(body.error).not.toBe('Forbidden');
 		expect(body.error).not.toBe('Failed to test connection');

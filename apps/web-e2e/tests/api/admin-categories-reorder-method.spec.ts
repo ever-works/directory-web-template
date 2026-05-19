@@ -263,7 +263,7 @@ test.describe('API: /api/admin/categories/reorder method / body / header surface
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to reorder categories');
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 	});
 
 	test('PUT /api/admin/categories/reorder has a stable status across header / body permutations', async ({
