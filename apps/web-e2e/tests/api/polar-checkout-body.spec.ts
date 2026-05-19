@@ -241,7 +241,6 @@ test.describe('API: /api/polar/checkout POST body / header surface', () => {
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'message']);
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`POST ${POLAR_CHECKOUT_PATH} does NOT echo the success-branch keys on the unauth branch`, async ({

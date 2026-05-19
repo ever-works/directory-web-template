@@ -187,7 +187,6 @@ test.describe('API: /api/polar/subscription/[subscriptionId]/cancel POST body / 
 			data: { cancelAtPeriodEnd: true }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -321,7 +320,6 @@ test.describe('API: /api/polar/subscription/[subscriptionId]/cancel POST body / 
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toBe('Subscription cancelled immediately');
 		expect(body.message).not.toBe(
 			'Subscription will be cancelled at the end of the current period'

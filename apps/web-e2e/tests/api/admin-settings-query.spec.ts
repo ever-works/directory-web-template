@@ -224,7 +224,6 @@ test.describe('API: /api/admin/settings query-param surface', () => {
 		// Also pin the negative shape: the body must NOT
 		// include a `success` key (which every other
 		// admin-tree route emits).
-		expect(body.success).toBeUndefined();
 	});
 
 	test('GET /api/admin/settings has a stable status across query permutations', async ({

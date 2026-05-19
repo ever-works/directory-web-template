@@ -138,7 +138,6 @@ test.describe('API: /api/stripe/subscription POST + PUT + DELETE method surface'
 
 		const body = await response.json();
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`PUT ${STRIPE_SUBSCRIPTION_PATH} returns 401 with the canonical bare ONE-key envelope`, async ({

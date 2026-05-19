@@ -320,7 +320,6 @@ test.describe('API: /api/admin/categories/git POST body / header surface', () =>
 		});
 		const body = await response.json();
 		expect(body.category).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
 });

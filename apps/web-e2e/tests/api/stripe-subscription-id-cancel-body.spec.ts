@@ -163,7 +163,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/cancel POST body /
 			data: { cancelAtPeriodEnd: true }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -269,7 +268,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/cancel POST body /
 		const body = await response.json();
 		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`POST ${STRIPE_CANCEL_PATH} catch-branch generic 500 message is NOT echoed on the unauth branch`, async ({

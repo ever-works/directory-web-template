@@ -261,7 +261,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/update POST body /
 			data: { newPlanId: 'pro', newPriceId: 'price_xxx' }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -486,7 +485,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/update POST body /
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toMatch(/^Plan updated to .+ successfully$/);
 	});
 

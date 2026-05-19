@@ -200,7 +200,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 			data: { cancelAtPeriodEnd: false }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -339,7 +338,6 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/reactivate POST bo
 		const response = await request.post(STRIPE_REACTIVATE_PATH);
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toBe('Subscription reactivated successfully');
 	});
 

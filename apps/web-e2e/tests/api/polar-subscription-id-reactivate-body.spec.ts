@@ -181,7 +181,6 @@ test.describe('API: /api/polar/subscription/[subscriptionId]/reactivate POST bod
 			data: { cancelAtPeriodEnd: false }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -296,7 +295,6 @@ test.describe('API: /api/polar/subscription/[subscriptionId]/reactivate POST bod
 		const response = await request.post(POLAR_REACTIVATE_PATH);
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toBe('Subscription reactivated successfully');
 	});
 

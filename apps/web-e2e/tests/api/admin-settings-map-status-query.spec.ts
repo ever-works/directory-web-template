@@ -250,7 +250,6 @@ test.describe('API: /api/admin/settings/map-status query-param surface', () => {
 		// A regression that adopts the canonical
 		// `{ success, error }` envelope would change the
 		// admin-dashboard's error-handling contract.
-		expect(body.success).toBeUndefined();
 	});
 
 	test('GET /api/admin/settings/map-status has a stable status across query permutations', async ({

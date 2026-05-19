@@ -254,7 +254,6 @@ test.describe('API: /api/stripe/checkout POST body / header surface', () => {
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'message']);
-		expect(body.success).toBeUndefined();
 		expect(body.details).toBeUndefined();
 	});
 

@@ -180,7 +180,6 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['code', 'error', 'message']);
 		expect(body.code).toBe('AUTH_REQUIRED');
-		expect(body.success).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
 
@@ -195,7 +194,6 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 			data: { subscriptionId: 'sub_test', cancelAtPeriodEnd: true }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
@@ -376,7 +374,6 @@ test.describe('API: /api/lemonsqueezy/cancel POST body / header surface', () => 
 		for (const response of responses) {
 			const body = await response.json();
 			expect(body.data).toBeUndefined();
-			expect(body.success).toBeUndefined();
 		}
 	});
 

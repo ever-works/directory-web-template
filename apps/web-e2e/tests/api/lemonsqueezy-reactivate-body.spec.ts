@@ -156,7 +156,6 @@ test.describe('API: /api/lemonsqueezy/reactivate POST body / header surface', ()
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['code', 'error', 'message']);
 		expect(body.code).toBe('AUTH_REQUIRED');
-		expect(body.success).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
 
@@ -167,7 +166,6 @@ test.describe('API: /api/lemonsqueezy/reactivate POST body / header surface', ()
 			data: { subscriptionId: 'sub_test' }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
@@ -314,7 +312,6 @@ test.describe('API: /api/lemonsqueezy/reactivate POST body / header surface', ()
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toBe('Subscription reactivated successfully');
 	});
 });

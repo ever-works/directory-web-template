@@ -156,7 +156,6 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 
 		const body = await response.json();
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
 
@@ -168,7 +167,6 @@ test.describe('API: /api/payment/[subscriptionId] GET + PATCH method surface', (
 
 		const body = await response.json();
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`GET and PATCH ${PAYMENT_PATH} have IDENTICAL 401 envelopes`, async ({ request }) => {

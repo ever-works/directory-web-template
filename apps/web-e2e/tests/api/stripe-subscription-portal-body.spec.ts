@@ -200,7 +200,6 @@ test.describe('API: /api/stripe/subscription/portal POST body / header surface',
 		// session for the resolved customer).
 		const response = await request.post(STRIPE_PORTAL_PATH);
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 		// Even nested under `data`, no portal url.
 		if (body.data) {

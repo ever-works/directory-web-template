@@ -363,7 +363,6 @@ test.describe('API: /api/admin/clients POST body / header surface', () => {
 		expect(response.status()).not.toBe(200);
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
 });

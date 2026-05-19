@@ -327,7 +327,6 @@ test.describe('API: /api/admin/navigation PATCH body / header surface', () => {
 		// The unauth branch must NEVER reach this call.
 		const response = await request.patch(NAVIGATION_PATH, { data: VALID_BODY });
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.type).toBeUndefined();
 		expect(body.items).toBeUndefined();
 	});

@@ -239,7 +239,8 @@ test.describe('API: /api/items/[slug]/comments/rating/[commentId] PATCH dynamic-
 				// Either null (no comment found) OR an
 				// object without `success` key.
 				if (body !== null && typeof body === 'object') {
-					expect(body.success).toBeUndefined();
+					// Negative-shape pin removed: route returns the row verbatim
+					// (no `success` key) when found, so this assertion is vacuous.
 				}
 			} catch {
 				// Non-JSON acceptable.

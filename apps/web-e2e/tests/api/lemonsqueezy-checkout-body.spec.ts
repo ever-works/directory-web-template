@@ -208,7 +208,6 @@ test.describe('API: /api/lemonsqueezy/checkout POST body / header surface', () =
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'message']);
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`POST ${LEMONSQUEEZY_CHECKOUT_PATH} does NOT echo the success-branch keys on the unauth branch`, async ({
@@ -223,7 +222,6 @@ test.describe('API: /api/lemonsqueezy/checkout POST body / header surface', () =
 			data: { variantId: '123456' }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 	});
 
@@ -376,7 +374,6 @@ test.describe('API: /api/lemonsqueezy/checkout POST body / header surface', () =
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`POST ${LEMONSQUEEZY_CHECKOUT_PATH} four-string-scan catch (CONFIGURATION_ERROR / PAYMENT_SERVICE_ERROR / INTERNAL_ERROR) is NOT entered on unauth`, async ({

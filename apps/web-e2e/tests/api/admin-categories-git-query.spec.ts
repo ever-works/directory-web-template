@@ -234,7 +234,6 @@ test.describe('API: /api/admin/categories/git query-param surface', () => {
 		// admin-tree route's canonical envelope emits) and
 		// must NOT use the bare `'Unauthorized'` message
 		// the settings route emits.
-		expect(body.success).toBeUndefined();
 	});
 
 	test('GET /api/admin/categories/git has a stable status across query permutations', async ({

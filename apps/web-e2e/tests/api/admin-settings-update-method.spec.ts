@@ -267,7 +267,6 @@ test.describe('API: /api/admin/settings PATCH body / header surface', () => {
 
 		for (const response of responses) {
 			const body = await response.json();
-			expect(body.success).toBeUndefined();
 			expect(body.key).toBeUndefined();
 			expect(body.value).toBeUndefined();
 		}

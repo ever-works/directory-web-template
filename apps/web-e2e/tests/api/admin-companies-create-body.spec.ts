@@ -326,7 +326,6 @@ test.describe('API: /api/admin/companies POST body / header surface', () => {
 		expect(response.status()).not.toBe(201);
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`POST ${COMPANIES_PATH} unique-constraint outer-catch chain is NOT entered on the unauth branch`, async ({

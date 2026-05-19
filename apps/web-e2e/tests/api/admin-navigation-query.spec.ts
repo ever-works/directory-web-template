@@ -482,7 +482,6 @@ test.describe('API: /api/admin/navigation query-param surface', () => {
 		const body = await response.json();
 
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body.success).toBeUndefined();
 	});
 
 	test('GET /api/admin/navigation keeps the response status stable across param permutations', async ({

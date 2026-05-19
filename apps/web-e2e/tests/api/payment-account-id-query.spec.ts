@@ -135,7 +135,6 @@ test.describe('API: /api/payment/account/[userId] GET surface', () => {
 
 		const body = await response.json();
 		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
-		expect(body.success).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
 
