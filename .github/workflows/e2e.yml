@@ -124,7 +124,9 @@ jobs:
         # Without `.works/works.yml`, `config.auth` is undefined and the
         # /auth/signin form never renders — global-setup then times out
         # waiting for `#email`. Skipping the real DATA_REPOSITORY clone in CI
-        # means we have to stub these files ourselves.
+        # means we have to stub these files ourselves. We also seed a few
+        # minimal items so the admin list/filter UI tests have something to
+        # render against.
         run: |
           mkdir -p apps/web/.content/.works apps/web/.content/data
           cat > apps/web/.content/.works/works.yml <<'YAML'
@@ -143,9 +145,38 @@ jobs:
             tags_enabled: true
             companies_enabled: true
           YAML
-          echo "[]" > apps/web/.content/categories.yml
-          echo "[]" > apps/web/.content/tags.yml
-          echo "[]" > apps/web/.content/collections.yml
+          cat > apps/web/.content/categories.yml <<'YAML'
+          - id: productivity
+            name: Productivity
+          - id: testing
+            name: Testing
+          YAML
+          cat > apps/web/.content/tags.yml <<'YAML'
+          - id: e2e
+            name: E2E
+          - id: sample
+            name: Sample
+          YAML
+          cat > apps/web/.content/collections.yml <<'YAML'
+          - id: e2e-collection
+            name: E2E Collection
+            description: Placeholder collection for CI
+          YAML
+          for slug in sample-item-one sample-item-two sample-item-three; do
+            mkdir -p "apps/web/.content/data/$slug"
+            cat > "apps/web/.content/data/$slug/$slug.yml" <<YAML
+          name: ${slug}
+          description: CI placeholder item ${slug}
+          source_url: https://example.com/${slug}
+          category: Productivity
+          tags:
+            - e2e
+            - sample
+          featured: false
+          status: approved
+          updated_at: 2026-01-01 00:00
+          YAML
+          done
 
       - name: Run database migrations
         # Pushes Drizzle schema to the empty postgres service. Without it
