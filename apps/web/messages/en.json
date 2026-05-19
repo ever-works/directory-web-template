@@ -1927,6 +1927,10 @@
 			"VIEW_DETAILS": "View Details",
 			"VIEW_ALL_NOTIFICATIONS": "View All Notifications",
 			"NEW_BADGE": "NEW",
+			"ERROR_LOADING": "Error loading notifications",
+			"TRY_AGAIN": "Try Again",
+			"REFRESH": "Refresh notifications",
+			"CLOSE": "Close notifications panel",
 			"NOTIFICATION_TYPES": {
 				"REPORTED_COMMENT": "Reported Comment",
 				"NEW_USER": "New User",

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { Bell } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
-import { useCurrentUser } from '@/hooks/use-current-user';
+import { useUserUtils } from '@/hooks/use-user-utils';
 import { useNotificationStats } from '@/hooks/use-notification-stats';
 import { cn } from '@/lib/utils';
 
@@ -25,8 +25,10 @@ interface NotificationBellProps {
  */
 export function NotificationBell({ className }: NotificationBellProps) {
 	const t = useTranslations('client.notifications');
-	const { user } = useCurrentUser();
-	const stats = useNotificationStats(Boolean(user?.id));
+	const { user, isAdmin } = useUserUtils();
+	// Admins use the dedicated AdminNotifications bell rendered in the admin layout.
+	const isEnabled = Boolean(user?.id) && !isAdmin;
+	const stats = useNotificationStats(isEnabled);
 	const [isOpen, setIsOpen] = useState(false);
 	const [hovered, setHovered] = useState(false);
 	const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
@@ -50,7 +52,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
 		};
 	}, [isOpen]);
 
-	if (!user?.id) return null;
+	if (!isEnabled) return null;
 
 	const unreadCount = stats.data?.unread ?? 0;
 	const tooltipLabel =

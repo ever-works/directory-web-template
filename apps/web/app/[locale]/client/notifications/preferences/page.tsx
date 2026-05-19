@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
+import { isAdmin } from '@/lib/db/roles';
 import { PreferencesPageClient } from './_components/preferences-page-client';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,10 @@ export default async function PreferencesPage() {
 	const session = await auth();
 	if (!session?.user?.id) {
 		redirect('/auth/sign-in?callbackUrl=/client/notifications/preferences');
+	}
+	// Admins use the dedicated /admin/notifications surface.
+	if (await isAdmin(session.user.id)) {
+		redirect('/admin/notifications');
 	}
 
 	return (

@@ -176,7 +176,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                     onClick={() => fetchNotifications()}
                     className="h-7 w-7 p-0 rounded-md"
                     disabled={isLoading || isFetching}
-                    aria-label="Refresh notifications"
+                    aria-label={t('REFRESH')}
                   >
                     <RefreshCw className={`h-3.5 w-3.5 ${(isLoading || isFetching) ? "animate-spin" : ""}`} />
                   </Button>
@@ -196,7 +196,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                     size="sm"
                     onClick={() => setIsOpen(false)}
                     className="h-7 w-7 p-0 rounded-md"
-                    aria-label="Close notifications panel"
+                    aria-label={t('CLOSE')}
                   >
                     <X className="h-3.5 w-3.5" />
                   </Button>
@@ -209,7 +209,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                 {error ? (
                   <div className="flex flex-col items-center justify-center py-12 px-4">
                     <AlertCircle className="h-8 w-8 text-destructive mb-3" />
-                    <h3 className="font-medium text-sm text-foreground mb-1">Error loading notifications</h3>
+                    <h3 className="font-medium text-sm text-foreground mb-1">{t('ERROR_LOADING')}</h3>
                     <p className="text-xs text-muted-foreground text-center mb-3">
                       {error}
                     </p>
@@ -220,7 +220,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                       className="text-xs"
                     >
                       <RefreshCw className="h-3 w-3 mr-1" />
-                      Try Again
+                      {t('TRY_AGAIN')}
                     </Button>
                   </div>
                 ) : isLoading ? (
