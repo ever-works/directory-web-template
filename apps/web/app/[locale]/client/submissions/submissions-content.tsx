@@ -171,7 +171,7 @@ export function SubmissionsContent() {
 							<Link
 								href="/client/submissions/trash"
 								className={cn(
-									'inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700',
+									'inline-flex py-2 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700',
 									'transition-colors hover:bg-gray-50 hover:text-gray-900',
 									'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500/40',
 									'dark:border-white/8 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/8 dark:hover:text-gray-100'
@@ -184,7 +184,7 @@ export function SubmissionsContent() {
 							<Link
 								href="/submit"
 								className={cn(
-									'inline-flex h-9 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm',
+									'inline-flex py-2 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold shadow-sm',
 									'bg-theme-primary-600 text-white hover:bg-theme-primary-700',
 									'dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100',
 									'transition-colors',
