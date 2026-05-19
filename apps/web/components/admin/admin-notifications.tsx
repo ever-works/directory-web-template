@@ -106,22 +106,6 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
     }
   };
 
-  // Get notification priority color
-  const getNotificationPriorityColor = (type: string) => {
-    switch (type) {
-      case "payment_failed":
-      case "system_alert":
-        return "border-red-500";
-      case "comment_reported":
-        return "border-orange-500";
-      case "item_submission":
-        return "border-blue-500";
-      case "user_registered":
-        return "border-green-500";
-      default:
-        return "border-gray-300";
-    }
-  };
 
 
 
@@ -279,20 +263,20 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                     </p>
                   </div>
                 ) : (
-                  <div className="divide-y divide-border/50">
+                  <div className="border-t border-gray-100 dark:border-white/8">
                     {notifications.map((notification) => (
                       <div
                         role="button"
                         aria-label={`${notification.type} notification: ${notification.title || notification.message}`}
                         tabIndex={0}
                         key={notification.id}
-                        className={`relative px-4 py-3.5 cursor-pointer transition-all duration-150 border-l-[3px] ${
-                          getNotificationPriorityColor(notification.type)
-                        } ${
+                        className={cn(
+                          "group/row relative flex gap-3 px-4 py-3 cursor-pointer transition-colors duration-150",
+                          "focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-inset",
                           !notification.isRead
-                            ? "bg-primary/4 hover:bg-primary/8"
-                            : "hover:bg-muted/40"
-                        }`}
+                            ? "bg-primary/3 hover:bg-primary/6 dark:bg-white/2 dark:hover:bg-white/4"
+                            : "hover:bg-gray-50 dark:hover:bg-white/3"
+                        )}
                         onClick={() => handleNotificationClick(notification)}
                         onKeyDown={(e) => {
                           if (e.key === "Enter" || e.key === " ") {
@@ -301,87 +285,79 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                           }
                         }}
                       >
-                        {/* Unread indicator */}
-                        {!notification.isRead && (
-                          <div className="absolute top-4 left-2 w-2 h-2 bg-primary rounded-full"></div>
-                        )}
-                        
-                        <div className="flex items-start gap-3">
-                          <div className="shrink-0 mt-0.5">
+                        {/* Icon with unread dot */}
+                        <div className="relative shrink-0 pt-0.5">
+                          {!notification.isRead && (
+                            <span className="absolute -left-1 top-2 h-1.5 w-1.5 rounded-full bg-primary" aria-hidden="true" />
+                          )}
+                          <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/6 transition-transform duration-200 group-hover/row:scale-105">
                             {getNotificationIcon(notification.type)}
                           </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <Badge 
-                                    variant="outline" 
-                                    className="text-xs px-2 py-0 h-5 font-normal"
-                                  >
-                                    {getNotificationTypeLabel(notification.type)}
-                                  </Badge>
-                                  {!notification.isRead && (
-                                    <Badge 
-                                      variant="default" 
-                                      className="text-xs px-1.5 py-0 h-4 font-normal"
-                                    >
-                                      {t('NEW_BADGE')}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <h4 className={`font-medium text-sm leading-snug ${
-                                  !notification.isRead 
-                                    ? "text-foreground" 
-                                    : "text-muted-foreground"
-                                }`}>
-                                  {notification.title}
-                                </h4>
-                              </div>
-                              
-                              <div className="flex items-center gap-1">
-                                {!notification.isRead && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-6 w-6 p-0 hover:bg-primary/20"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      markAsRead(notification.id);
-                                    }}
-                                    disabled={isMarkingAsRead}
-                                  >
-                                    <Check className="h-3 w-3" />
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                            
-                            <p className="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">
-                              {notification.message}
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-3">
+                            <p className={cn(
+                              "text-[13px] leading-snug truncate",
+                              !notification.isRead ? "font-semibold text-gray-900 dark:text-white" : "font-normal text-gray-700 dark:text-gray-300"
+                            )}>
+                              {notification.title}
                             </p>
-                            
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(notification.createdAt), {
-                                  addSuffix: true,
-                                  locale: enUS,
-                                })}
-                              </span>
-                              
+                            <time
+                              className="shrink-0 text-[11px] text-gray-500 dark:text-gray-500 tabular-nums whitespace-nowrap mt-0.5"
+                              title={new Date(notification.createdAt).toLocaleString()}
+                            >
+                              {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: false, locale: enUS })
+                                .replace('about ', '').replace(' ago', '')}
+                            </time>
+                          </div>
+
+                          <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+                            {notification.message}
+                          </p>
+
+                          {/* Meta row */}
+                          <div className="mt-1.5 flex items-center justify-between gap-2">
+                            <span className="inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-4 text-[10px] font-medium text-gray-600 dark:text-gray-400">
+                              {getNotificationTypeLabel(notification.type)}
+                            </span>
+
+                            <div className={cn(
+                              "flex items-center gap-0.5 shrink-0",
+                              "opacity-0 -translate-x-1 transition-all duration-150",
+                              "group-hover/row:opacity-100 group-hover/row:translate-x-0",
+                              "group-focus-within/row:opacity-100 group-focus-within/row:translate-x-0",
+                              "motion-reduce:opacity-100 motion-reduce:translate-x-0"
+                            )}>
                               {getNotificationLink(notification) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs hover:bg-primary/10"
+                                <button
+                                  type="button"
+                                  aria-label={t('VIEW_DETAILS')}
+                                  title={t('VIEW_DETAILS')}
+                                  className="inline-flex items-center justify-center h-6 w-6 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/8 hover:text-gray-900 dark:hover:text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     window.open(getNotificationLink(notification)!, "_blank");
                                   }}
                                 >
-                                  <ExternalLink className="h-3 w-3 mr-1" />
-                                  {t('VIEW_DETAILS')}
-                                </Button>
+                                  <ExternalLink className="h-3 w-3" aria-hidden="true" />
+                                </button>
+                              )}
+                              {!notification.isRead && (
+                                <button
+                                  type="button"
+                                  aria-label={t('MARK_ALL_READ')}
+                                  title={t('MARK_ALL_READ')}
+                                  className="inline-flex items-center justify-center h-6 w-6 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/8 hover:text-gray-900 dark:hover:text-white transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    markAsRead(notification.id);
+                                  }}
+                                  disabled={isMarkingAsRead}
+                                >
+                                  <Check className="h-3 w-3" aria-hidden="true" />
+                                </button>
                               )}
                             </div>
                           </div>
@@ -395,7 +371,7 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
               {/* Footer with view all link */}
               {notifications.length > 0 && (
                 <>
-                  <div className="border-t border-border/50" />
+                  <div className="border-t border-gray-100 dark:border-white/8" />
                   <div className="px-3 py-2.5 bg-gray-50/50 dark:bg-white/2">
                     <Button
                       variant="ghost"
