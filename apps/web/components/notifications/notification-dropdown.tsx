@@ -74,24 +74,22 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 							)}
 						</div>
 						<div className="flex items-center gap-0.5 shrink-0">
-							<Button
-								variant="ghost"
-								size="sm"
+							<button
 								onClick={() => refetch()}
-								className="h-7 w-7 p-0 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+								className="h-7 cursor-pointer w-7 p-0 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
 								disabled={isLoading || isFetching}
 								aria-label={safeT(t, 'dropdown.refresh', 'Refresh notifications')}
 							>
 								<RefreshCw
 									className={cn('h-3.5 w-3.5', (isLoading || isFetching) && 'animate-spin')}
 								/>
-							</Button>
+							</button>
 							{unreadCount > 0 && (
 								<Button
 									variant="ghost"
 									size="sm"
 									onClick={() => markAllRead()}
-									className="text-[11px] h-7 px-2.5 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+									className="text-[11px] h-7 px-2.5 rounded-md font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
 									disabled={isMarking}
 								>
 									{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
@@ -101,19 +99,17 @@ export function NotificationDropdown({ onClose }: NotificationDropdownProps) {
 								href="/client/notifications/preferences"
 								onClick={onClose}
 								aria-label={safeT(t, 'dropdown.aria.preferences', 'Notification preferences')}
-								className="inline-flex items-center justify-center h-7 w-7 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
+								className="inline-flex items-center justify-center h-7 w-7 mr-3 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
 							>
 								<Settings className="h-3.5 w-3.5" />
 							</Link>
-							<Button
-								variant="ghost"
-								size="sm"
+							<button
 								onClick={onClose}
-								className="h-7 w-7 p-0 rounded-md text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+								className="h-5 w-5 cursor-pointer p-0 border-none rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors"
 								aria-label={safeT(t, 'dropdown.close', 'Close notifications panel')}
 							>
 								<X className="h-3.5 w-3.5" />
-							</Button>
+							</button>
 						</div>
 					</div>
 				</div>
