@@ -1919,12 +1919,14 @@
 		},
 		"NOTIFICATIONS": {
 			"TITLE": "Notifications",
+			"SUBTITLE": "Submissions, reports and platform activity that need attention.",
 			"NEW": "new",
+			"MARK_READ": "Mark read",
 			"MARK_ALL_READ": "Mark all read",
 			"LOADING": "Loading notifications...",
 			"NO_NOTIFICATIONS": "No notifications",
 			"ALL_CAUGHT_UP": "You're all caught up! New notifications will appear here.",
-			"VIEW_DETAILS": "View Details",
+			"VIEW_DETAILS": "View",
 			"VIEW_ALL_NOTIFICATIONS": "View All Notifications",
 			"NEW_BADGE": "NEW",
 			"ERROR_LOADING": "Error loading notifications",
@@ -1932,6 +1934,7 @@
 			"REFRESH": "Refresh notifications",
 			"CLOSE": "Close notifications panel",
 			"NOTIFICATION_TYPES": {
+				"NEW_SUBMISSION": "New submission",
 				"REPORTED_COMMENT": "Reported Comment",
 				"NEW_USER": "New User",
 				"PAYMENT_ISSUE": "Payment Issue",
