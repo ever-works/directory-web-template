@@ -153,9 +153,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error setting up payment account:', error);
+    // Most caller-supplied-data failures here (unknown user / unknown
+    // provider / foreign-key violations) are client errors, not server
+    // errors. Surface as 400 so unauthenticated probes don't see 5xx.
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Failed to set up payment account' },
+      { status: 400 }
     );
   }
 }
@@ -326,9 +329,11 @@ export async function PUT(request: NextRequest) {
 
   } catch (error) {
     console.error('Error updating payment account:', error);
+    // Caller-supplied-data failures (unknown user / unknown provider /
+    // foreign-key violations) are client errors. Surface as 400.
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Failed to update payment account' },
+      { status: 400 }
     );
   }
 }
