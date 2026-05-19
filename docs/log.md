@@ -31,6 +31,37 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
+
+Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Sitemap / SEO:
+- `public/sitemap-index-shape.spec.ts` — nested sitemap URLs absolute non-5xx.
+- `public/sitemap-images-and-news.spec.ts` — image/news/video sitemap variants.
+- `public/sitemap-images-and-news-extras.spec.ts` — sitemap alias paths.
+- `public/listing-meta-canonical-not-trailing-slash.spec.ts` — canonical host.
+
+Error rendering:
+- `public/error-status-content-types.spec.ts` — 404 returns HTML + body.
+- `public/listing-redirect-status.spec.ts` — redirect chains end non-5xx.
+
+HTML hygiene:
+- `public/listing-html-validity-essentials.spec.ts` — no script src=undefined, no [object Object], few >null<.
+- `public/listing-css-no-display-none-on-h1.spec.ts` — h1 attached to DOM.
+- `public/listing-no-render-blocking-js.spec.ts` — head scripts async/defer.
+- `public/listing-button-keyboard-activation.spec.ts` — Enter/Space no JS error.
+- `public/listing-favicon-ico-content-type.spec.ts` — favicon image content-type.
+
+Admin / API:
+- `public/admin-api-non-2xx-on-options.spec.ts` — admin OPTIONS no wildcard CORS.
+- `api/admin-twentycrm-deeper.spec.ts` — twenty-crm config/test-connection rejection.
+
+Branch: `feat/e2e-coverage-1779188051`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
 ## 2026-05-19 — Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
 
 Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
