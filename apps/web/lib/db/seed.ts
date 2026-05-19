@@ -95,12 +95,29 @@ export async function runSeed(): Promise<void> {
 
 	// Bootstrap: ensure a default tenant exists before resolving tenantId.
 	// On a fresh deployment the tenant table is empty, so getTenantId() would
-	// return null and the seed would abort.  Insert a default row first.
-	const [defaultTenant] = await db
-		.insert(tenant)
-		.values({ name: 'Default', status: 'active' })
-		.onConflictDoNothing()
-		.returning();
+	// return null and the seed would abort.
+	//
+	// IMPORTANT: don't blindly INSERT here — instrumentation.ts already calls
+	// `ensureTenantExists('default', 'Default')` from `getTenantId()`, which
+	// creates a row with id literal `'default'`. A second naive INSERT (with
+	// `$defaultFn` generating a UUID) would create a duplicate tenant; seeded
+	// users would point at the UUID while login resolves to the `'default'`
+	// row, and no user is ever findable. Find-or-create instead.
+	const [existingDefault] = await db
+		.select()
+		.from(tenant)
+		.where(eq(tenant.id, 'default'))
+		.limit(1);
+
+	const defaultTenant =
+		existingDefault ??
+		(
+			await db
+				.insert(tenant)
+				.values({ id: 'default', name: 'Default', status: 'active' })
+				.onConflictDoNothing()
+				.returning()
+		)[0];
 
 	const tenantId = defaultTenant?.id ?? (await getTenantId());
 	if (!tenantId) throw new Error('Tenant ID not found');
