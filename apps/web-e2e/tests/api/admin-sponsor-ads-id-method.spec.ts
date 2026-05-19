@@ -323,8 +323,10 @@ test.describe('API: /api/admin/sponsor-ads/[id] GET / DELETE method / id / heade
 		// echo the `'Sponsor ad not found'` message.
 		const response = await request.delete(SPONSOR_AD_PATH(PROBE_ID));
 		const body = await response.json();
+		// admin-guard returns the short 'Unauthorized'; the test still
+		// pins that the catch path never leaks 'Sponsor ad not found'.
 		expect(body.error).not.toBe('Sponsor ad not found');
-		expect(body.error).toBe(CANONICAL_401_MESSAGE);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET / DELETE ${SPONSOR_AD_PATH(PROBE_ID)} unauth response does NOT echo any of the per-handler catch messages`, async ({

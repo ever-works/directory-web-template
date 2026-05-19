@@ -97,6 +97,21 @@ const extractSchema = z.object({
  */
 export async function POST(request: Request) {
 	try {
+		// Parse body first so a malformed JSON / wrong-content-type
+		// request returns a clean 400 instead of either dropping into
+		// the generic 500 catch or being silently swallowed by the
+		// "feature disabled" early-return when the platform API is
+		// unconfigured.
+		let body: unknown = {};
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid JSON body' },
+				{ status: 400 }
+			);
+		}
+
 		// Check if platform API is configured
 		const platformApiUrl = process.env.PLATFORM_API_URL;
 		const platformApiToken = process.env.PLATFORM_API_SECRET_TOKEN;
@@ -111,7 +126,6 @@ export async function POST(request: Request) {
 			});
 		}
 
-		const body = await request.json();
 		const result = extractSchema.safeParse(body);
 
 		if (!result.success) {
