@@ -26,7 +26,7 @@ test.describe('Client: Settings', () => {
 		await page.waitForURL(/\/auth\/signin/);
 	});
 
-	// Spec 027: the Preferences section embeds the same controls as
+	// Spec 029: the Preferences section embeds the same controls as
 	// `SettingsModal` (Layout / Container Width / Pagination Style + demo-only
 	// blocks). Always-on blocks must render inline on `/client/settings`.
 	test('settings page shows Preferences section with always-on layout controls', async ({ clientPage }) => {

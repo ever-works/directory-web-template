@@ -1,10 +1,10 @@
 ---
-id: spec-027-client-settings-preferences-section
-title: 'Spec 027 — Client Settings: Preferences Section (settings-modal contents on /client/settings)'
-sidebar_label: '027 Settings Preferences'
+id: spec-029-client-settings-preferences-section
+title: 'Spec 029 — Client Settings: Preferences Section (settings-modal contents on /client/settings)'
+sidebar_label: '029 Settings Preferences'
 ---
 
-# Feature spec — `027-client-settings-preferences-section`
+# Feature spec — `029-client-settings-preferences-section`
 
 > **Status:** proposed.
 >
@@ -23,7 +23,7 @@ button. The dedicated `/client/settings` hub — the surface a user
 naturally navigates to when looking for their settings — does not
 expose these controls at all.
 
-Spec 027 makes those same controls reachable directly from
+Spec 029 makes those same controls reachable directly from
 `/client/settings` by adding a new **Preferences** section to the hub
 that mounts the existing block components inline. The modal continues
 to exist unchanged for users who prefer the quick-access surface.

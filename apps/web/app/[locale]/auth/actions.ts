@@ -298,14 +298,27 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 
-		// Return email for client-side sign-in (SECURITY: password sourced from client form state)
-		// This ensures cookies are properly set in the browser context (fixes Vercel deployment issue)
+		// Defer the session-cookie issuance to the client-side signIn() call in the
+		// CredentialsForm useEffect. Earlier rounds of Spec 027 tried doing this
+		// server-side via Auth.js v5's `signIn('credentials', …)` from inside the
+		// signUp server action — that DID set `__Secure-authjs.session-token` in the
+		// response, but the very next `/api/auth/session` (triggered by the form's
+		// `refreshSession()`) silently *cleared* the cookie. Auth.js v5 beta.30's
+		// server-action signIn appears to encrypt/sign the token along a slightly
+		// different code path than the standard `/api/auth/callback/credentials`
+		// endpoint, and the verifier on `/api/auth/session` then can't read it. The
+		// sign-in form's client-side `signIn('credentials', …)` does NOT have this
+		// regression (it goes through `/api/auth/callback/credentials` which is what
+		// every subsequent verify also uses), so mirror that path on register.
+		//
+		// The double-fire race that motivated the original move server-side is now
+		// blocked by the `autoLoginFiredRef` useRef guard in credentials-form.tsx.
 		return {
 			success: true,
 			redirect: '/client/dashboard',
 			preserveLocale: true,
 			autoLogin: true,
-			email: normalizedEmail // Only return email, password sourced from client form state
+			email: normalizedEmail
 		};
 	} catch (error) {
 		console.error('SignUp error:', error);

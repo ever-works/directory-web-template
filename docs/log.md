@@ -31,26 +31,975 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-18 — Spec 027: e2e coverage + PR-number backfill for Preferences section
+## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
 
-- `spec-027` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
-- `spec-027` Renumbered this spec from `026` → `027` because `develop` landed `spec-026-ew627-client-dashboard-wiring` concurrently. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, README index row, and every earlier `spec-026` reference in this log were rewritten to `spec-027` / `027-…`. No code changes in this commit. PR #850.
+Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
 
-## 2026-05-18 — Spec 027: align preference block components with `/client/settings`
+URL / encoding edges:
+- `public/listing-with-multiple-locale-prefixes.spec.ts` — `/en/fr/about` stacks.
+- `public/listing-bom-and-control-chars.spec.ts` — BOM/null/DEL/control chars.
 
-- `spec-027` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
+HTML hygiene:
+- `public/listing-overall-page-error-state.spec.ts` — no "undefined"/"NaN"/[object Object] visible.
+- `public/listing-no-deprecated-noscript-block.spec.ts` — noscript < 5KB.
+- `public/listing-form-submit-without-fields.spec.ts` — empty submit no crash.
 
-## 2026-05-18 — Spec 027: align `SettingsModal` with `/client/settings` visual language
+Perf + budgets:
+- `public/listing-network-resource-budgets.spec.ts` — total JS bytes budget.
 
-- `spec-027` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
+Pages:
+- `public/admin-survey-deep-anonymous.spec.ts` — admin survey edit/preview/responses + locale + RSC.
 
-## 2026-05-18 — Spec 027: align header `SettingsButton` with `/client/settings` icon style
+API rejection:
+- `api/admin-collections-deeper.spec.ts` — collections + items nested CRUD.
 
-- `spec-027` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
+Icons / manifest:
+- `public/link-favicon-and-apple-touch-icon-shape.spec.ts` — icon hrefs well-formed.
+- `public/manifest-shape.spec.ts` — manifest valid JSON with name.
 
-## 2026-05-17 — Spec 027: client-settings Preferences section
+Branch: `feat/e2e-coverage-1779206154`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
 
-- `spec-027` Drafted spec at `docs/spec/027-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
+---
+
+## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
+
+Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+URL malforms:
+- `public/listing-with-double-question-mark.spec.ts` — `?a=b?c=d` tolerance.
+- `public/listing-with-percent-encoded-slash.spec.ts` — `%2F` in segments.
+- `public/listing-with-multi-percent.spec.ts` — double-encoded + emoji segments.
+- `public/paging-overflow-large-pages.spec.ts` — page=10000 on listings.
+
+Client settings deeper:
+- `public/theme-colors-page-protected.spec.ts` — theme-colors anon + RSC + locale.
+- `public/submissions-trash-protected.spec.ts` — trash anon + RSC + locale.
+
+API rejection:
+- `api/admin-clients-search-shapes.spec.ts` — advanced-search anonymous.
+- `api/webhook-content-type-deeper.spec.ts` — webhooks wrong CT / multipart / empty.
+- `api/admin-export-deeper.spec.ts` — items export format/limit variants anon.
+
+HTML hygiene:
+- `public/listing-no-trailing-comma-anchor.spec.ts` — no `<a href="/foo,">`.
+
+Branch: `feat/e2e-coverage-1779202525`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
+
+Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Locale × RSC bounce:
+- `public/admin-i18n-rsc-bounce.spec.ts` — locale × admin × _rsc anonymous.
+- `public/client-i18n-rsc-bounce.spec.ts` — locale × client × _rsc anonymous.
+- `public/sponsor-checkout-rsc-bounce.spec.ts` — /sponsor + _rsc tolerance.
+
+Perf + CLS + a11y:
+- `public/listing-aspect-ratio-images.spec.ts` — img dimensions vs aspect-ratio.
+- `public/listing-no-cls-from-late-fonts.spec.ts` — no font-display:block/auto.
+- `public/listing-no-dialog-open-without-trigger.spec.ts` — no auto-open dialog.
+- `public/listing-no-fixed-position-blocking.spec.ts` — no fullscreen z>1000 overlay.
+- `public/listing-no-form-without-action.spec.ts` — forms wire submit.
+- `public/auth-pages-input-attributes.spec.ts` — auth inputs email+password.
+
+API + responses:
+- `public/listing-response-status-text.spec.ts` — 200 responses declare CT.
+- `api/auth-session-no-pii-leak.spec.ts` — anon session no hashes/tokens.
+- `api/admin-comments-deeper.spec.ts` — comments CRUD rejection.
+- `api/admin-featured-items-deeper.spec.ts` — featured-items CRUD rejection.
+- `api/admin-companies-deeper.spec.ts` — companies CRUD rejection.
+
+Branch: `feat/e2e-coverage-1779198954`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
+
+Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Sitemap / SEO:
+- `public/sitemap-index-shape.spec.ts` — nested sitemap URLs absolute non-5xx.
+- `public/sitemap-images-and-news.spec.ts` — image/news/video sitemap variants.
+- `public/sitemap-images-and-news-extras.spec.ts` — sitemap alias paths.
+- `public/listing-meta-canonical-not-trailing-slash.spec.ts` — canonical host.
+
+Error rendering:
+- `public/error-status-content-types.spec.ts` — 404 returns HTML + body.
+- `public/listing-redirect-status.spec.ts` — redirect chains end non-5xx.
+
+HTML hygiene:
+- `public/listing-html-validity-essentials.spec.ts` — no script src=undefined, no [object Object], few >null<.
+- `public/listing-css-no-display-none-on-h1.spec.ts` — h1 attached to DOM.
+- `public/listing-no-render-blocking-js.spec.ts` — head scripts async/defer.
+- `public/listing-button-keyboard-activation.spec.ts` — Enter/Space no JS error.
+- `public/listing-favicon-ico-content-type.spec.ts` — favicon image content-type.
+
+Admin / API:
+- `public/admin-api-non-2xx-on-options.spec.ts` — admin OPTIONS no wildcard CORS.
+- `api/admin-twentycrm-deeper.spec.ts` — twenty-crm config/test-connection rejection.
+
+Branch: `feat/e2e-coverage-1779188051`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
+
+Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+a11y deeper:
+- `public/listing-form-labels.spec.ts` — auth inputs have label/aria/placeholder.
+- `public/listing-tabindex-non-negative.spec.ts` — no positive tabindex.
+- `public/listing-aria-hidden-conflict.spec.ts` — aria-hidden no focusable.
+- `public/listing-no-empty-anchors.spec.ts` — anchors have accessible name.
+- `public/listing-color-contrast-advisory.spec.ts` — body color != bg.
+- `public/listing-no-onclick-on-non-interactive.spec.ts` — no div onclick.
+- `public/listing-buttons-have-types.spec.ts` — buttons declare type.
+- `public/listing-input-autocomplete-shape.spec.ts` — pw autocomplete shape.
+- `public/listing-document-language-set.spec.ts` — html.lang non-empty.
+
+HTML sanity:
+- `public/listing-skeleton-renders.spec.ts` — listing body has content <2s.
+- `public/listing-no-deprecated-html.spec.ts` — no <font/center/marquee/etc.
+- `public/listing-multiple-h1.spec.ts` — at most 3 h1 elements per page.
+- `public/listing-no-duplicate-ids.spec.ts` — unique DOM ids.
+- `public/listing-css-no-blocking-fonts.spec.ts` — no font-display:block.
+
+API shape:
+- `api/stripe-products-shape.spec.ts` — products read + HEAD/OPTIONS.
+- `api/auth-callback-cookie-shape.spec.ts` — wrong-csrf no session cookie.
+
+Branch: `feat/e2e-coverage-1779184408`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
+
+Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Locale prefix sweep:
+- `public/auth-locale-prefix-tolerance.spec.ts` — every locale × auth path.
+- `public/items-locale-prefix-tolerance.spec.ts` — detail routes × locale.
+- `public/pricing-locale-prefix.spec.ts` — /<loc>/pricing + sponsor.
+- `public/static-info-locale-prefix.spec.ts` — /<loc>/about/help/etc.
+- `public/favorites-and-newsletter-locale.spec.ts` — favorites/newsletter/map/submit.
+- `api/admin-i18n-locale-prefix.spec.ts` — API endpoints with locale prefix.
+
+SEO/cache headers:
+- `public/hreflang-consistency.spec.ts` — well-formed hreflang.
+- `public/stale-while-revalidate-shape.spec.ts` — directive form parses.
+- `public/listing-resp-vary-header.spec.ts` — Vary tokens valid.
+- `public/listing-prefetch-not-blocking.spec.ts` — prefetch hrefs non-5xx.
+
+Cookie + storage hygiene:
+- `public/listing-set-cookie-flags.spec.ts` — session cookies HttpOnly/Secure.
+- `public/listing-no-localstorage-leak-on-load.spec.ts` — no token/secret keys.
+- `public/service-worker-control.spec.ts` — sw.js JS content-type.
+- `public/non-existent-image-route.spec.ts` — fake image paths non-5xx.
+
+Admin API deeper:
+- `api/admin-clients-and-bulk-deeper.spec.ts` — clients + bulk + dashboard.
+- `api/admin-navigation-and-location-deeper.spec.ts` — navigation/location/analytics.
+- `api/sponsor-ads-checkout-shapes.spec.ts` — sponsor-ads malformed payloads.
+
+Branch: `feat/e2e-coverage-1779180779`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
+
+Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Tracking + framework:
+- `public/listing-with-utm-tracking.spec.ts` — UTM/gclid/fbclid/etc.
+- `public/nextjs-built-in-routes-tolerance.spec.ts` — `_next/*` probes.
+- `public/opengraph-image-routes.spec.ts` — App-Router OG image conventions.
+- `public/favicons-and-pwa-icons-deeper.spec.ts` — mstile/maskable.
+
+Security / hygiene:
+- `public/listing-no-iframe-without-sandbox.spec.ts` — 3p iframes sandbox.
+- `public/listing-no-dangerous-protocols.spec.ts` — no javascript:/data: hrefs.
+- `public/common-attack-paths.spec.ts` — wp-config/aws/cgi-bin/etc not 200.
+- `public/html-no-server-stack-leak.spec.ts` — no /var/task/ etc in HTML.
+- `public/nextjs-error-boundary-rendering.spec.ts` — no raw stack on errors.
+
+Headers / shape:
+- `public/listing-content-type-encoding.spec.ts` — Content-Type charset.
+- `public/range-requests.spec.ts` — Range header tolerance.
+- `public/if-modified-since.spec.ts` — If-Modified-Since / If-None-Match.
+- `public/listing-meta-author-and-keywords.spec.ts` — meta author presence.
+
+Routes + URL:
+- `public/dynamic-route-segments-tolerance.spec.ts` — unusual URL chars.
+- `public/listing-search-redirect-to-detail.spec.ts` — /search /s aliases.
+- `public/listing-with-anchor-fragment.spec.ts` — #fragment tolerance.
+- `public/listing-deep-state-restoration.spec.ts` — back-button history.
+
+a11y + layout:
+- `public/listing-keyboard-navigation.spec.ts` — Tab focuses interactive.
+- `public/listing-favorite-button-shape.spec.ts` — buttons exist on listings.
+- `public/listing-render-on-tablet-viewport.spec.ts` — iPad Mini no overflow.
+- `public/listing-form-input-counts.spec.ts` — auth forms have inputs.
+
+API content types:
+- `api/admin-import-content-types.spec.ts` — content-type matrix anonymous.
+- `api/admin-export-content-types.spec.ts` — Accept header matrix.
+
+Branch: `feat/e2e-coverage-1779173518`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
+
+Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Performance budgets:
+- `public/time-to-first-paint-budget.spec.ts` — DOMContentLoaded < 15s.
+- `public/page-bytes-budget.spec.ts` — HTML payload < 1.5MB.
+- `public/inline-styles-bandwidth.spec.ts` — no 500KB inline <style>.
+- `public/listing-network-request-count.spec.ts` — < 300 requests on /.
+- `public/listing-on-mobile-viewport.spec.ts` — iPhone 12 no horiz overflow.
+
+Console / runtime hygiene:
+- `public/listing-no-console-errors.spec.ts` — no uncaught JS errors.
+- `public/listing-no-failed-requests.spec.ts` — no unexpected 4xx/5xx in nav.
+- `public/listing-image-lazy-loading.spec.ts` — off-fold img loading=lazy.
+- `public/third-party-script-domains.spec.ts` — no http:// scripts.
+
+Sweeps + flood:
+- `public/client-protected-pages-flood.spec.ts` — every /client/* anon.
+- `public/dashboard-protected-pages-flood.spec.ts` — every /dashboard/* anon.
+- `public/detail-routes-flood.spec.ts` — all detail × sample/missing slugs.
+- `public/admin-non-existent-paths.spec.ts` — bogus /admin/* paths.
+- `public/api-non-existent-paths.spec.ts` — bogus /api/* paths not 200.
+- `public/sponsorship-prefix-flow.spec.ts` — /sponsor with providers.
+
+Listing edges:
+- `public/listing-grid-and-list-toggle.spec.ts` — view=grid/list/map/compact.
+- `public/listing-sort-options-tolerance.spec.ts` — every common sort option.
+- `public/listing-filter-clear.spec.ts` — empty filter values tolerance.
+- `public/listing-search-form-shape.spec.ts` — search form is GET method.
+- `public/listing-href-locale-prefix.spec.ts` — /fr/ links preserve prefix.
+- `public/listing-on-detail-page.spec.ts` — detail page renders w/o broken img.
+
+Auth flow shape:
+- `public/signout-flow-shape.spec.ts` — GET/POST signout non-5xx, with csrf.
+
+Error / shape:
+- `public/error-response-json-shape.spec.ts` — 4xx JSON parses as JSON.
+- `public/listing-search-via-url-not-leak-secrets.spec.ts` — no env names leaked.
+- `api/oauth-providers-shape.spec.ts` — providers id/name/type contract.
+- `api/verify-recaptcha-headers.spec.ts` — GET/DELETE/multipart non-5xx.
+
+Branch: `feat/e2e-coverage-1779169892`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
+
+Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Auth + CSRF wire:
+- `public/auth-csrf-flow-shape.spec.ts` — POST credentials with csrf, non-5xx.
+- `public/auth-with-bogus-cookies.spec.ts` — every common bogus auth cookie.
+
+SEO shape + listing edges:
+- `public/sitemap-listing-shape.spec.ts` — <loc> URLs, no /admin/ leak.
+- `public/listing-q-injection-shapes.spec.ts` — SQLi/JNDI/log4shell probes.
+- `public/listing-empty-state-page-shape.spec.ts` — empty filter still 200.
+- `public/listing-stable-on-repeat.spec.ts` — 5x sequential GETs stable.
+- `public/listing-form-search.spec.ts` — discover search input present.
+- `public/listing-jsonld-presence.spec.ts` — ld+json count advisory.
+- `public/listing-no-stray-localhost.spec.ts` — no localhost in prod HTML.
+- `public/json-cache-tags-immutability.spec.ts` — public JSON Cache-Control.
+
+Detail / RSC:
+- `public/rsc-suffix-on-detail.spec.ts` — locale × _rsc on detail routes.
+- `public/admin-rsc-suffix.spec.ts` — /admin/* anonymous bounce + _rsc.
+- `public/client-rsc-suffix.spec.ts` — /client/* anonymous bounce + _rsc.
+- `public/admin-detail-survey-edit-rsc.spec.ts` — admin survey + _rsc.
+
+i18n locale prefix deeper:
+- `public/client-i18n-routes-deeper.spec.ts` — locale × client/dashboard.
+- `public/admin-i18n-routes-deeper.spec.ts` — locale × admin sweep.
+
+Trailing slashes / links:
+- `public/trailing-slash-canonicalization.spec.ts` — /about/ no 5xx.
+- `public/links-rel-noopener-noreferrer.spec.ts` — _blank links carry rel.
+
+API rejection:
+- `public/favorites-api-routes-deeper.spec.ts` — favorites verbs anonymous.
+- `public/admin-method-flood.spec.ts` — every verb × top admin endpoints.
+- `api/featured-items-deeper.spec.ts` — featured items query shapes.
+- `api/reference-deeper.spec.ts` — /api/reference query shapes.
+- `api/sponsor-ads-list-deeper.spec.ts` — sponsor-ads list + mutating.
+- `api/admin-collections-comments-deeper.spec.ts` — collections + items.
+- `api/admin-notifications-deeper.spec.ts` — mark-all-read variants.
+- `api/admin-sponsor-ads-deeper.spec.ts` — approve/reject/cancel anonymous.
+- `api/admin-reports-deeper.spec.ts` — reports detail anonymous.
+- `api/stripe-portal-and-products-edges.spec.ts` — stripe portal variants.
+
+Image / SEO:
+- `public/image-with-srcset-shape.spec.ts` — srcset entries well-formed.
+
+Branch: `feat/e2e-coverage-1779166258`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
+
+Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+SEO + link shape:
+- `public/rel-next-prev-listing.spec.ts` — rel=next/prev hrefs sane.
+- `public/canonical-link-presence.spec.ts` — canonical href non-empty.
+- `public/robots-disallow-shape.spec.ts` — admin/internal protected.
+- `public/sw-html-payload-shape.spec.ts` — doctype + html/head/body close.
+- `public/preconnect-and-dns-prefetch.spec.ts` — preconnect hrefs well-formed.
+- `public/listing-pagination-link-validity.spec.ts` — pagination links internal.
+
+Detail routes deeper:
+- `public/item-detail-deeper-tolerance.spec.ts` — /items/[slug] weird inputs.
+- `public/collections-detail-deeper.spec.ts` — /collections/[slug] weird.
+- `public/surveys-detail-deeper.spec.ts` — /surveys/[slug] weird.
+- `public/detail-page-rsc-tolerance.spec.ts` — RSC prefetch on detail pages.
+
+i18n / locale prefix:
+- `public/multiple-locale-meta.spec.ts` — each locale title + /about + /discover.
+- `public/admin-locale-prefix.spec.ts` — /<loc>/admin bounces anonymous.
+- `public/client-area-locale-prefix.spec.ts` — /<loc>/client + /<loc>/dashboard.
+
+Header tolerance:
+- `public/fetch-with-priority-hints.spec.ts` — Save-Data, Priority, DPR.
+- `public/dnt-tolerance.spec.ts` — DNT/Sec-GPC/Sec-Fetch-* tolerance.
+- `public/theme-class-tolerance.spec.ts` — html class no "undefined".
+- `public/dom-no-react-errors.spec.ts` — no error overlay text in HTML.
+
+Listing edges:
+- `public/listing-deep-link-share.spec.ts` — bookmarked filter URLs.
+- `public/ai-chat-toggle-tolerance.spec.ts` — ?chat=open/closed survives.
+- `public/listing-prefetch-burst-paths.spec.ts` — parallel burst across routes.
+- `public/error-route-handlers.spec.ts` — /error /not-found /loading direct.
+- `public/submit-and-extract-anon.spec.ts` — /submit anonymous behavior.
+
+JSON / discovery / health:
+- `public/swagger-and-openapi-shape.spec.ts` — no secrets in openapi docs.
+- `public/health-shape.spec.ts` — /api/health no DB URL leak.
+- `public/agent-and-crawl-discovery.spec.ts` — agents.json/ai.txt non-5xx.
+- `public/misc-feed-aliases.spec.ts` — /rss /atom /feed alias non-5xx.
+- `public/public-listing-json-mirror-deeper.spec.ts` — .json mirrors parse.
+
+Admin API sweep + deeper:
+- `public/admin-prefix-api-rejection.spec.ts` — every admin GET 4xx.
+- `public/client-prefix-api-rejection.spec.ts` — every client GET 4xx.
+- `api/admin-settings-deeper.spec.ts` — settings PUT/PATCH/DELETE/OPTIONS.
+- `api/admin-categories-deeper.spec.ts` — categories + reorder + git.
+- `api/admin-users-deeper.spec.ts` — users + check-email/username.
+- `api/admin-items-deeper.spec.ts` — items + bulk + import + export.
+- `api/admin-tags-roles-deeper.spec.ts` — tags + roles + permissions.
+- `api/version-and-tenant-edge.spec.ts` — version/sync/tenant edges.
+- `api/http-overrides-tolerance.spec.ts` — method override no auth bypass.
+- `api/polar-and-solidgate-deeper.spec.ts` — empty/hostile body POSTs.
+
+Branch: `feat/e2e-coverage-1779162628`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
+
+Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+OG / SEO / feeds:
+- `public/og-image-and-twitter-card.spec.ts` — og:title/desc + twitter:card.
+- `public/rss-atom-feed-shape.spec.ts` — feed XML/JSON shape contracts.
+- `public/listing-jsonld-itemlist.spec.ts` — listing pages json-ld parses.
+
+Static assets / caching / image optimizer:
+- `public/nextjs-image-route-tolerance.spec.ts` — `/_next/image` hostile inputs.
+- `public/static-chunk-caching.spec.ts` — `/_next/static/*` immutable cache.
+- `public/favicon-detail.spec.ts` — all common favicon paths non-5xx.
+- `public/static-data-routes.spec.ts` — `/_next/data` and chunk probes.
+- `public/service-worker-and-manifest-tolerance.spec.ts` — PWA endpoints.
+- `public/image-domain-allowlist.spec.ts` — homepage `<img src>` resolve.
+
+HTTP method matrix / headers:
+- `public/webhook-method-coverage.spec.ts` — webhooks reject non-POST.
+- `public/options-method-tolerance.spec.ts` — preflight OPTIONS non-5xx.
+- `public/head-method-tolerance.spec.ts` — HEAD requests non-5xx.
+- `public/cors-on-public-api.spec.ts` — no wildcard CORS with credentials.
+- `public/hsts-and-redirect-headers.spec.ts` — HSTS max-age plausible.
+- `public/custom-host-and-x-forwarded.spec.ts` — proxy header tolerance.
+
+Auth / form shape:
+- `public/login-modal-and-form-shape.spec.ts` — email/password inputs render.
+- `public/form-input-types.spec.ts` — type=email / type=password correctness.
+- `public/autocomplete-attributes.spec.ts` — password autocomplete not "off".
+- `public/auth-error-page-shape.spec.ts` — every NextAuth error code non-5xx.
+- `public/auth-callback-routes.spec.ts` — provider callback non-5xx.
+
+a11y deeper:
+- `public/heading-and-landmarks-quick.spec.ts` — main/nav/h1 presence.
+- `public/skip-link-and-focus.spec.ts` — skip link or main[id], Tab works.
+- `public/images-have-alt.spec.ts` — every <img> has alt attribute.
+- `public/html-charset-and-viewport.spec.ts` — meta charset + viewport.
+
+Inline / CSP / chat / extract:
+- `public/inline-script-csp-shape.spec.ts` — unsafe-inline requires nonce.
+- `public/chat-api-protection.spec.ts` — /api/chat anonymous, no key leak.
+- `public/extract-api-protection.spec.ts` — /api/extract SSRF tolerance.
+
+Listing / RSC / preview:
+- `public/listing-rsc-stream-tolerance.spec.ts` — RSC header + _rsc=.
+- `public/nextjs-prefetch-headers.spec.ts` — purpose=prefetch tolerance.
+- `public/listing-no-duplicates.spec.ts` — items.json no duplicate slugs.
+- `public/listing-aria-current-and-state.spec.ts` — weird filter survival.
+- `public/listing-edge-pagination-overshoot.spec.ts` — page 9999 non-5xx.
+- `public/listing-items-engagement-shape.spec.ts` — engagement query shapes.
+- `public/export-routes-tolerance.spec.ts` — items export with bad params.
+- `public/geocode-and-location-deeper.spec.ts` — geocode hostile inputs.
+- `public/public-route-rsc-prefetch-burst.spec.ts` — parallel prefetch burst.
+- `public/preview-mode-and-draft.spec.ts` — /api/preview /api/draft non-200.
+- `public/rate-limit-anonymous-deeper.spec.ts` — rapid auth-adjacent posts.
+- `public/stripe-redirect-and-checkout-routes.spec.ts` — pricing/success vars.
+
+Settings / admin / page protection:
+- `public/settings-deep-paths-protected.spec.ts` — client/settings/* gate.
+- `public/admin-survey-routes-anonymous.spec.ts` — admin/surveys/* gate.
+- `public/admin-detail-pages-anonymous.spec.ts` — /admin/clients/[id] gate.
+
+API deeper:
+- `api/items-comments-rating-deeper.spec.ts` — nested comments/rating.
+- `api/admin-companies-and-comments-deeper.spec.ts` — admin orgs/comments.
+
+Branch: `feat/e2e-coverage-1779159025`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
+
+Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
+`develop` only (no cascade per operator instructions). Focus areas:
+
+Uncovered pages and deeper boundaries:
+- `public/comparisons-detail-public.spec.ts` — /comparisons/[slug].
+- `public/cms-pages-slug.spec.ts` — /pages/[slug] CMS bucket.
+- `public/categories-detail-tolerance.spec.ts` — /categories/[…] + nested catch-all.
+- `public/tags-detail-tolerance.spec.ts` — /tags/[…] + nested catch-all.
+- `public/discover-deep-pages.spec.ts` — sort/view/q combinations and edge pages.
+- `public/listing-deeper-paging-boundaries.spec.ts` — huge / negative / scientific
+  page numbers.
+- `public/listing-modifier-deeper.spec.ts` — duplicate sort/view params,
+  utm_source noise, repeated keys.
+- `public/listing-search-q-shapes.spec.ts` — control chars, unicode, oversize q.
+- `public/paging-tags-and-collections.spec.ts` — /tags/paging/[N] +
+  /collections/paging/[N] edges.
+- `public/items-detail-survey-slug.spec.ts` — /items/[slug]/surveys/[slug].
+- `public/map-route-tolerance.spec.ts` — /map with bogus zoom/bbox/lat/lng.
+- `public/submit-page-tolerance.spec.ts` — /submit query variations.
+- `public/sponsor-public-routes.spec.ts` — /sponsor with bogus plan/coupon.
+- `public/pricing-success-deeper.spec.ts` — /pricing/success with every provider.
+- `public/auth-pages-deeper-tolerance.spec.ts` — auth pages with bogus tokens,
+  callbackUrls, error codes.
+- `public/favorites-anonymous-tolerance.spec.ts` — /favorites anonymous gate.
+
+Robust input + header tolerance:
+- `public/content-length-and-encoding.spec.ts` — JSON content-type + bogus
+  accept-encoding.
+- `public/cookie-tolerance.spec.ts` — empty / malformed / oversize / bogus
+  session cookies.
+- `public/user-agent-and-referer.spec.ts` — empty/bot/long UA, weird Referer.
+- `public/api-large-query-string.spec.ts` — 10kB qs, 200 params, unicode, NULs.
+- `public/concurrent-rapid-navigation.spec.ts` — rapid navigation + reload x5.
+
+Security / SEO / a11y headers:
+- `public/error-page-status-codes.spec.ts` — bot-path 404s + wp-login, .env etc.
+- `public/sitemap-and-robots-shape.spec.ts` — sitemap.xml/robots.txt/llms.txt
+  shape.
+- `public/static-asset-coverage.spec.ts` — favicon/manifest/etc must non-5xx.
+- `public/structured-data-jsonld.spec.ts` — script[type=ld+json] valid JSON.
+- `public/head-meta-essentials.spec.ts` — title + meta description per route.
+- `public/html-lang-and-dir.spec.ts` — html[lang] presence + ar dir=rtl.
+- `public/html-no-mixed-content.spec.ts` — no http:// asset src on HTTPS.
+- `public/open-redirect-defense.spec.ts` — callbackUrl can't escape origin.
+- `public/response-headers-deeper.spec.ts` — X-Powered-By, Server, frame
+  protection.
+- `public/internal-and-internal-routes-protected.spec.ts` —
+  /api/internal/db-init + /api/__test__/* never 200.
+- `public/session-and-csrf-shape.spec.ts` — wire contracts for
+  /api/auth/session / csrf / providers.
+- `public/language-locale-redirects.spec.ts` — locale prefix tolerance.
+- `public/cms-md-mirror-deeper.spec.ts` — pages/.md + items/.md mirrors.
+- `public/webfinger-and-well-known.spec.ts` — common .well-known probes.
+- `public/http-methods-on-public-api-deeper.spec.ts` — DELETE/PUT/PATCH on
+  public GETs returns 4xx not 5xx.
+- `public/link-from-header-and-nav.spec.ts` — navigation chain + back-button.
+- `public/links-anchors-and-buttons.spec.ts` — no href="undefined", labeled
+  buttons.
+
+Client / dashboard:
+- `client/dashboard-items-surveys-protected.spec.ts` — /dashboard/items/[id]/surveys.
+- `client/client-users-and-sponsorships-protected.spec.ts` — anonymous gate.
+- `client/public-profile-deeper.spec.ts` — /client/profile/[u]/followers/following
+  with weird usernames.
+
+API rejection deeper:
+- `api/admin-detail-deeper.spec.ts` — every admin detail endpoint anonymous.
+- `api/admin-bulk-and-import-rejection.spec.ts` — bulk/import/export endpoints.
+- `api/user-profile-deeper.spec.ts` — /api/user/profile/follow + portfolio.
+- `api/stripe-products-deeper.spec.ts` — stripe products / portal / subs.
+- `api/polar-deeper.spec.ts` — polar checkout / portal / webhook.
+- `api/sponsor-ads-user-deeper.spec.ts` — sponsor-ads user endpoints.
+- `api/items-engagement-deeper.spec.ts` — items engagement nested routes.
+- `api/client-items-and-imports-rejection.spec.ts` — client items + imports.
+- `api/reports-and-surveys-deeper.spec.ts` — reports + surveys deeper.
+- `api/payment-and-current-user-deeper.spec.ts` — payment/account, current-user.
+- `api/auth-nextauth-discovery-deeper.spec.ts` — providers/csrf/session shape.
+- `api/internal-cron-protection.spec.ts` — cron routes require secret.
+- `api/verify-recaptcha-deeper.spec.ts` — synthetic tokens rejected.
+- `api/reference-and-tenant-shape.spec.ts` — no secrets leaked in discovery.
+- `api/body-content-types-rejection.spec.ts` — malformed body / wrong CT
+  across POST endpoints.
+
+Branch: `feat/e2e-coverage-1779156184`. Admin-merged once CI passes. No
+cascade to `stage` / `main` per operator instructions.
+
+---
+
+## 2026-05-19 — Spec 028 round 4: payment providers + admin sub-systems (develop-only)
+
+Round 4 of the rolling e2e coverage buildout. 22 new spec files added
+on `develop` only (no cascade per operator instructions). Focus areas:
+
+Payment providers + Stripe:
+- `api/polar-endpoints-rejection.spec.ts` — Polar user endpoints +
+  webhook signature gate.
+- `api/lemonsqueezy-endpoints-rejection.spec.ts` — LemonSqueezy +
+  webhook signature gate.
+- `api/solidgate-endpoints-rejection.spec.ts` — Solidgate +
+  webhook signature gate.
+- `api/stripe-payment-methods-rejection.spec.ts` — Stripe payment
+  method + subscription per-id endpoints reject anonymous.
+- `api/payment-account-rejection.spec.ts` — /api/payment/* +
+  sponsor-ads checkout reject anonymous.
+
+Items engagement:
+- `api/items-engagement-public.spec.ts` — votes/comments/views/
+  activity public reads + anonymous mutation rejection.
+- `api/favorites-itemslug-rejection.spec.ts` — favorites slug-keyed
+  mutations require auth.
+
+Client API:
+- `api/client-items-api-rejection.spec.ts` — /api/client/* endpoints
+  reject anonymous (GET + mutating).
+
+Admin sub-systems:
+- `api/admin-roles-and-permissions.spec.ts` — roles + permissions
+  graph endpoints.
+- `api/admin-users-and-validation.spec.ts` — users + check-email /
+  check-username (anti-enumeration).
+- `api/admin-sponsor-ads-and-twentycrm.spec.ts` — admin sponsor-ads
+  CRUD + TwentyCRM config endpoints + settings/map-status.
+- `api/admin-tags-and-export.spec.ts` — admin tags + items
+  export/import.
+- `api/admin-clients-and-search.spec.ts` — admin clients +
+  advanced-search + notifications.
+
+Public utility endpoints:
+- `api/location-and-geocode-public.spec.ts` — location/cities/
+  countries/coordinates/search + geocode tolerance.
+- `api/public-misc-endpoints.spec.ts` — exists probes, featured-items,
+  reference, health/database (no credential leak), items export
+  settings, config/features, /api/internal/db-init rejection.
+
+Public hardening:
+- `public/service-worker-and-pwa.spec.ts` — manifest + sw reachability.
+- `public/favicon-and-apple-touch.spec.ts` — browser icon assets
+  reachable + advertised in <link>.
+- `public/third-party-iframe-tolerance.spec.ts` — page renders when
+  Stripe / reCAPTCHA / analytics are blocked.
+- `public/http-method-on-pages.spec.ts` — HEAD/OPTIONS/PUT/DELETE on
+  pages don't 5xx.
+- `public/directory-traversal-defense.spec.ts` — path-traversal /
+  null-byte / long-slug / homograph probes.
+- `public/meta-robots-controls.spec.ts` — public pages indexable;
+  robots.txt doesn't disallow everything.
+- `public/hash-fragment-tolerance.spec.ts` — unknown / hostile URL
+  hashes don't crash pages; signin doesn't auto-sign-in from a hash.
+- `public/listing-rss-shape.spec.ts` — empty-data feed tolerance
+  (channel meta present even when no items).
+- `public/meta-tags-twitter-and-opengraph.spec.ts` — og:title /
+  og:type / og:image / twitter:image present where expected.
+- `public/rate-limit-search.spec.ts` — 20 rapid /api/items.json
+  requests and parallel /discover searches don't 5xx.
+
+Auth:
+- `auth/oauth-error-page-tolerance.spec.ts` — `/auth/error?error=…`
+  tolerates 16 different codes (including XSS / traversal payloads);
+  /auth/signout + /auth/verify-request render.
+
+## 2026-05-19 — Spec 028 round 3: hourly continuation batch (develop-only)
+
+Round 3 of the rolling e2e coverage buildout. 28 new spec files added
+on `develop` only (no cascade per operator instructions). Focus areas:
+
+API security matrices:
+- `api/stripe-endpoints-rejection.spec.ts` — Stripe surface + webhook
+  signature rejection.
+- `api/surveys-api-rejection.spec.ts` — surveys read tolerance +
+  mutation rejection.
+- `api/sponsor-ads-api-rejection.spec.ts` — sponsor-ads user API
+  anonymous rejection.
+- `api/items-public-api.spec.ts` — public items.json contract +
+  garbage-query tolerance.
+- `api/cron-and-webhook-security.spec.ts` — cron endpoints require
+  CRON_SECRET; platform activity-feed rejects bad HMAC.
+- `api/recaptcha-tenant-version.spec.ts` — boundary endpoint shapes.
+- `api/comments-votes-favorites-rejection.spec.ts` — engagement
+  endpoints reject anonymous mutations.
+- `api/admin-detail-api-rejection.spec.ts` — admin per-resource GETs
+  reject anonymous.
+- `api/user-profile-mutating.spec.ts` — profile mutating endpoints
+  reject anonymous.
+
+Admin pages + deeper API:
+- `admin/admin-detail-and-survey-routes.spec.ts` — admin dynamic-segment
+  routes for client and survey detail/create.
+- `admin/admin-mutating-api-deeper.spec.ts` — sweep of remaining admin
+  POST/PATCH/DELETE endpoints.
+- `admin/admin-test-mock-endpoint-disabled.spec.ts` — `/api/__test__/*`
+  routes are gated.
+- `admin/admin-i18n-locale.spec.ts` — admin pages in fr/es/de.
+
+Auth coverage:
+- `auth/new-password-flow-tokens.spec.ts` — token-gated auth pages
+  tolerate garbage / SQL-shaped / missing tokens.
+- `auth/admin-signin-page.spec.ts` — `/admin/auth/signin` form +
+  callbackUrl sanitization.
+
+Client coverage:
+- `client/settings-form-elements.spec.ts` — every settings sub-page
+  exposes form elements.
+- `client/public-profile-view.spec.ts` — non-existent profile slugs
+  404, special chars tolerated.
+- `client/client-i18n-locale.spec.ts` — `/client/*` in fr/es/de.
+
+Public coverage:
+- `public/item-detail-and-survey.spec.ts` — item detail + .md mirror +
+  collections/comparisons/pages slug tolerance.
+- `public/paging-deep-routes.spec.ts` — tags/collections paging edge
+  inputs + nested category/tag catch-alls.
+- `public/response-content-types.spec.ts` — HTML pages serve text/html;
+  JSON endpoints serve application/json.
+- `public/listing-sort-and-view-toggle.spec.ts` — sort + view-toggle
+  URL state combinations.
+- `public/static-info-pages-content.spec.ts` — about/help/legal pages
+  have substantive content.
+- `public/xss-payloads-tolerated.spec.ts` — classic XSS payloads in
+  query/slugs/hash don't execute.
+- `public/webfinger-and-discovery.spec.ts` — well-known + llms.txt
+  manifests.
+- `public/swagger-and-openapi.spec.ts` — Swagger/OpenAPI endpoints
+  (if present) respond.
+- `public/focus-and-keyboard-nav.spec.ts` — keyboard tab order +
+  Enter on submit button.
+- `public/viewport-and-mobile.spec.ts` — mobile + tablet rendering
+  without horizontal overflow.
+- `public/listing-json-mirror.spec.ts` — listing JSON peer responds
+  under filter combos.
+- `public/link-from-detail-back-to-list.spec.ts` — forward/back nav
+  preserves URL state.
+- `public/hot-route-perf-budget.spec.ts` — request count + HTML doc
+  size on hot routes.
+- `public/fetch-cache-busting.spec.ts` — tracking params don't break
+  caching.
+- `public/admin-api-prefix-rejection.spec.ts` — unknown /api/admin/*
+  paths reject cleanly.
+- `public/stripe-redirect-routes.spec.ts` — /pricing CTAs don't crash
+  anonymously.
+- `public/dashboard-billing-route.spec.ts` — /dashboard/billing access
+  matrix.
+- `public/ai-chat-disabled-tolerance.spec.ts` — chat plugin disabled
+  state.
+
+## 2026-05-19 — Spec 028 round 2: large coverage batch (develop-only, no cascade)
+
+Operator asked for a 30-min batch focused on coverage breadth; do NOT
+cascade to stage/main until coverage is comprehensive. Updated the
+hourly CCDB task #68 prompt to skip the cascade step until further
+notice.
+
+Files added (`apps/web-e2e/tests/...`):
+
+- `admin/admin-route-coverage-matrix.spec.ts` — all 16 admin pages,
+  3 personas (admin OK, client denied, anonymous gated).
+- `admin/admin-api-mutating-rejection.spec.ts` — POST/PATCH/DELETE
+  on admin endpoints reject anonymous with 4xx (not 5xx, not 200).
+- `api/admin-api-coverage-matrix.spec.ts` — 21 admin GET endpoints,
+  anonymous rejection + admin acceptance.
+- `api/user-api-coverage-matrix.spec.ts` — `/api/user/*` per-user
+  GET endpoints, anonymous rejection + authenticated acceptance.
+- `api/http-methods-coverage.spec.ts` — POST/DELETE on GET-only
+  endpoints returns 4xx (not 5xx); OPTIONS doesn't crash.
+- `api/rate-limit-shape.spec.ts` — malformed-auth-input shape +
+  forgot-password no-enumeration check.
+- `client/client-area-route-matrix.spec.ts` — every `/client/*`
+  route loads for the authenticated client.
+- `client/dashboard-route-matrix.spec.ts` — legacy `/dashboard/*`
+  surface (billing + item surveys) — admin + client + anonymous.
+- `client/client-api-mutating-rejection.spec.ts` — mutating
+  `/api/user/*` rejects anonymous.
+- `client/submission-create-flow.spec.ts` — `/submit` form renders
+  for clients, blocks empty submit, gated for anonymous.
+- `auth/auth-flow-comprehensive.spec.ts` — register → dashboard →
+  signout → signin → dashboard round-trip; bad-password error UI;
+  duplicate-email error UI.
+- `auth/form-validation-comprehensive.spec.ts` — HTML5 required-field
+  + email-format validation across signin/register/forgot-password.
+- `auth/callback-url-sanitization.spec.ts` — hostile `?callbackUrl=`
+  values don't open-redirect.
+- `i18n/locale-coverage-matrix.spec.ts` — 6 locales × 6 core pages,
+  assert non-5xx + heading + `<html lang>` matches URL.
+- `public/route-coverage-matrix.spec.ts` (round 1, already shipped),
+  plus this round:
+  - `public/seo-meta-coverage.spec.ts` — title/description/canonical/
+    og:title/JSON-LD on every key page.
+  - `public/sitemap-feeds-shape.spec.ts` — sitemap.xml is XML+urlset,
+    rss/atom/json feeds parse, opengraph-image is an image.
+  - `public/hreflang-coverage.spec.ts` — alternates emitted on every
+    locale-aware page.
+  - `public/meta-rss-discovery.spec.ts` — feed autodiscovery links.
+  - `public/md-mirror-routes.spec.ts` — `.md` mirror of static info
+    pages serves Markdown.
+  - `public/header-footer-completeness.spec.ts` — header + footer
+    render on every sampled page.
+  - `public/security-headers.spec.ts` — nosniff, XFO, HSTS, CSP on
+    every page + API.
+  - `public/caching-headers.spec.ts` — home is CDN-cacheable;
+    auth endpoints aren't.
+  - `public/redirect-canonicalization.spec.ts` — trailing slash,
+    `/en/` prefix, case variants don't 5xx.
+  - `public/concurrent-anonymous-sessions.spec.ts` — two anonymous
+    contexts have independent sessions / CSRF tokens.
+  - `public/links-no-broken-internal.spec.ts` — sampled internal
+    links from every seed page resolve.
+  - `public/images-and-icons.spec.ts` — favicon, logo, accessibility
+    hints on logo.
+  - `public/noscript-fallback.spec.ts` — public pages render with
+    JavaScript disabled.
+  - `public/listing-filter-combinations.spec.ts` — listing filter
+    combinations (search × sort × page).
+  - `public/listing-pagination-edges.spec.ts` — non-numeric / negative
+    / huge page params don't 5xx.
+  - `public/listing-empty-state.spec.ts` — no-result search, empty
+    category, anonymous favorites.
+  - `public/404-and-error-recovery.spec.ts` — 404 renders nav,
+    home link works, non-existent slugs return 4xx not 5xx.
+  - `public/page-stability-fresh-cookies.spec.ts` — every public
+    page survives a completely empty cookie jar.
+  - `public/trailing-rsc-suffix.spec.ts` — `?_rsc=…` RSC prefetch
+    queries don't 5xx (the prefetch pattern Spec 027 caught in
+    network logs).
+  - `public/large-payload-handling.spec.ts` — 5000-char email /
+    1000-char name / 2000-char search query rejected with 4xx.
+  - `public/sponsor-pricing-success-redirect-loop.spec.ts` —
+    `/pricing/success` with no/garbage params doesn't loop.
+  - `public/theme-and-prefs-persistence.spec.ts` — theme toggle +
+    locale cookie persistence across navigation.
+  - `public/accessibility-quick-audit.spec.ts` — axe-core WCAG 2A/AA
+    on home + signin + register; fail on critical/serious only.
+  - `public/performance-budget-public.spec.ts` — total JS bytes
+    transferred on first load is under a generous ceiling; home
+    loads within 10s.
+  - `public/json-api-shapes.spec.ts` — minimum shape contract for
+    public JSON endpoints (version, items.json, csrf, providers,
+    session, current-user, currency).
+
+All changes land on `develop` only via PR; per operator instruction,
+no cascade to stage/main this round. The hourly task #68 picks up
+the next gap iteration.
+
+## 2026-05-19 — Spec 028 round 1: CI workflow + initial gap-filling specs
+
+- `.github/workflows/e2e.yml` — Postgres-backed, sharded 4-way Playwright
+  workflow. Runs on push to main/develop/stage and on PR. The repo had
+  311 `.spec.ts` files but no CI workflow; Spec 027 would have been caught
+  before merge if any of them ran. They now do.
+- `apps/web-e2e/tests/client/followers-following.spec.ts` — adds
+  `/client/profile/[username]/followers` and `/following` coverage
+  (previously a gap; spec-022 shipped the routes without specs).
+- `apps/web-e2e/tests/client/settings-subroutes.spec.ts` — matrix of every
+  `/client/settings/profile/*` and `/client/settings/security` sub-page:
+  authenticated client gets non-5xx + heading + no signin-bounce;
+  anonymous gets the signin redirect. Catches the entire class of
+  "shipped a new settings tab and forgot a server fetch" regressions.
+- `apps/web-e2e/tests/public/route-coverage-matrix.spec.ts` — anonymous
+  walk of every public page in the App Router with a "never 5xx"
+  assertion. Includes feed manifests + a 404 sanity check.
+- `apps/web-e2e/tests/api/public-api-coverage-matrix.spec.ts` — twin
+  matrix for API routes: public ones respond JSON, protected ones
+  reject anonymous with 401/403 (not 5xx, not 200).
+- New `docs/spec/028-e2e-coverage-buildout/spec.md` documents the
+  workstream + the hourly self-scheduling agent that fills more gaps
+  iteration by iteration.
+
+## 2026-05-19 — Spec 027 round 7: revert to client-side signIn on register (final fix)
+
+Rounds 4–6 chased a wrong hypothesis (server-side `auth()` failing on
+Server Components, getSessionViaApi workarounds). The actual smoking
+gun, found via a diagnostic `/api/debug-session-cookies` route: after
+the round-1 server-side `signIn` in `signUp`, the response set
+`__Secure-authjs.session-token` correctly, but the very next request
+(the form's `refreshSession()` calling `/api/auth/session`) **received
+back a Set-Cookie that cleared the session-token**. Auth.js v5
+beta.30's server-action `signIn` writes the cookie along a different
+encrypt-/sign-path than the standard `/api/auth/callback/credentials`
+flow uses to verify; the mismatch makes the verifier think the cookie
+is invalid and clear it.
+
+The sign-in form's path (client-side `signIn('credentials', …)` from
+`next-auth/react`) does NOT have this regression — it goes through
+the same `/api/auth/callback/credentials` endpoint that `/api/auth/session`
+verifies against, so the two stay in agreement.
+
+This round:
+
+- `apps/web/app/[locale]/auth/actions.ts` — `signUp` returns
+  `{ autoLogin: true, … }` again, identical shape to `signInAction`.
+  No more server-side `serverSignIn` call from inside the action.
+  Removes the unused `signIn as serverSignIn` import and the
+  `isNextRedirectError` helper.
+- `apps/web/lib/auth/get-session-via-api.ts` — deleted (no longer used).
+- `apps/web/app/api/debug-session-cookies/route.ts` — deleted
+  (temporary diagnostic, served its purpose).
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash,sponsorships,users,profile/[username]}/page.tsx`
+  — reverted to `await auth()`. Round 2's `force-dynamic` stays
+  (still the right thing). Round 3's `runtime='nodejs'` reverted —
+  it didn't help and wasn't needed.
+
+The round-1 `autoLoginFiredRef` / `successHandledRef` useRef guards
+in `credentials-form.tsx` STAY — they were the actual bug-A fix and
+prevent the double-fire that originally motivated all of this.
+
+## 2026-05-19 — Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
+
+- Round 3's `runtime = 'nodejs'` still failed: same fetch context,
+  `/api/auth/session` returned `{user: …}` but `/client/dashboard`
+  returned 307 to `/auth/signin` with the same cookie attached. The
+  `auth()` export from Auth.js v5 beta.30 is silently returning null
+  when called from a Server Component page under this app's specific
+  combination of Next 16.2.6 + next-intl plugin + Sentry plugin
+  (suspect either the next-intl `Proxy (Middleware)` strips/reshapes
+  the headers, or Auth.js's `headers().get("cookie")` path doesn't
+  see them; either way the upstream library is the wrong layer to
+  fix in this PR).
+- Workaround: new helper `apps/web/lib/auth/get-session-via-api.ts`
+  that reads cookies via `cookies()` from next/headers and forwards
+  them to `/api/auth/session` (which already works correctly).
+  Returns null on no session; never throws. Cost: one same-region
+  HTTP roundtrip per auth-gated page render — bounded because these
+  pages are already `force-dynamic`.
+- Swapped `await auth()` for `await getSessionViaApi()` on all
+  auth-gated client pages: `dashboard`, `settings`, `submissions`,
+  `submissions/trash`, `sponsorships`, `users`, `profile/[username]`.
+- Spec 027 diagnosis updated; this PR ships the user-visible fix.
+
+## 2026-05-18 — Spec 027 round 3: runtime='nodejs' on auth-gated client pages
+
+- Round 2's `force-dynamic` patch made the pages dynamic but they STILL
+  returned 307 to `/auth/signin` for valid sessions. Direct
+  `context.request.get` calls confirmed the cookie was reaching the
+  server and `GET /api/auth/session` from the same fetch context
+  returned `{user: {...}}` happily — but `GET /client/dashboard`
+  returned 307 anyway. The asymmetry was runtime:
+  `app/api/auth/[...nextauth]/route.ts` pins `runtime = 'nodejs'` so
+  Auth.js v5's JWT callbacks (which pull `tenantId` from Drizzle and
+  use `bcryptjs` in the credentials provider — all three in
+  `serverExternalPackages` and unbundlable for the Edge runtime) can
+  actually execute; the Server Component pages defaulted to whatever
+  Vercel chose, so `auth()` there silently returned `null`.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash,sponsorships,users,profile/[username]}/page.tsx`
+  — added `export const runtime = 'nodejs'`.
+- Spec 027 diagnosis updated; this is the round that lands the actual
+  user-visible fix.
+
+## 2026-05-18 — Spec 027 follow-up: force-dynamic on auth-gated client pages
+
+- After PR #853 landed the server-side signIn fix, re-running the
+  Playwright repro against demo.ever.works showed the session cookie
+  was now being set on `POST /auth/register` — but `/client/dashboard`
+  still redirected to `/auth/signin` even with a valid cookie attached,
+  while `/api/auth/session` and `/api/current-user` happily returned
+  the user. The asymmetry was Next.js statically pre-rendering the
+  no-session `redirect('/auth/signin')` and serving it cached.
+- `apps/web/app/[locale]/client/{dashboard,settings,submissions,submissions/trash}/page.tsx`
+  — added `export const dynamic = 'force-dynamic'`.
+  `client/sponsorships` and `client/users` already had it; these four
+  were the missing ones.
+- Spec 027 diagnosis updated to document both halves of the fix and
+  why each is necessary on its own.
+
+## 2026-05-18 — Spec 027: fix post-register auto-login race (template prod)
+
+- `spec-027` filed under `docs/spec/027-fix-post-register-autologin/` and
+  indexed in `docs/spec/README.md` as **shipped** (alongside this PR).
+- `apps/web/app/[locale]/auth/actions.ts` — `signUp` now issues the session
+  cookie itself via server-side `signIn()` from Auth.js v5, so the
+  `Set-Cookie` header rides in the same response as the success body;
+  returns `{ autoLoggedIn: true }` instead of asking the client to sign in.
+- `apps/web/app/[locale]/auth/components/credentials-form.tsx` — added
+  `successHandledRef` / `autoLoginFiredRef` `useRef` guards so neither the
+  new server-side path nor the legacy client-side auto-login path can
+  re-fire after `useEffect` re-runs from identity-unstable deps
+  (`refreshSession`, `invalidateAllUserData`, `tCred`). This was the prod
+  smoking gun: a second `signIn` fetch aborted by navigation, surfacing
+  as `TypeError: Failed to fetch` in console and racing the cookie write
+  against the dashboard's `auth()` call.
+## 2026-05-19 — Spec 029: renumber from 027 → 029 after develop landed 027/028
+
+- `spec-029` Renumbered this spec from `027` → `029` when rebasing on `develop`, because `develop` had concurrently landed `spec-027-fix-post-register-autologin` and `spec-028-e2e-coverage-buildout`. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, and the README index row were rewritten from `027` → `029`. Earlier `spec-027` references in this log that belong to the Preferences-section work were rewritten to `spec-029` / `029-…`; references that belong to the post-register auto-login fix (also numbered 027 on `develop`) were left alone. No code changes in this commit. PR #850.
+
+## 2026-05-18 — Spec 029: e2e coverage + PR-number backfill for Preferences section
+
+- `spec-029` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
+
+## 2026-05-18 — Spec 029: align preference block components with `/client/settings`
+
+- `spec-029` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
+
+## 2026-05-18 — Spec 029: align `SettingsModal` with `/client/settings` visual language
+
+- `spec-029` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-18 — Spec 029: align header `SettingsButton` with `/client/settings` icon style
+
+- `spec-029` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
+
+## 2026-05-17 — Spec 029: client-settings Preferences section
+
+- `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
 
 ## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
 

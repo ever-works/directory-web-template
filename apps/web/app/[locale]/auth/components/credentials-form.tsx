@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signInAction, signUp } from '../actions';
 import { ActionState } from '@/lib/auth/middleware';
-import { PropsWithChildren, useActionState, useEffect, useState, useTransition } from 'react';
+import { PropsWithChildren, useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { User, Lock, Mail, Eye, EyeOff } from 'lucide-react';
 import { Button, cn } from '@heroui/react';
 import { useConfig } from '../../config';
@@ -63,6 +63,14 @@ export function CredentialsForm({
 	const [authSyncError, setAuthSyncError] = useState<string | null>(null);
 	// Store password locally for autoLogin - NEVER returned from server for security
 	const [pendingPassword, setPendingPassword] = useState<string | null>(null);
+	// Once-only guard for the auto-login useEffect. Without this, identity-unstable
+	// deps (refreshSession, invalidateAllUserData, tCred) re-fire the effect after a
+	// successful signIn, kicking off a second signIn fetch that gets aborted by the
+	// subsequent navigation and surfaces as `TypeError: Failed to fetch` in console.
+	const autoLoginFiredRef = useRef(false);
+	// Same idea for the post-success navigation: avoid double-navigating if the effect
+	// re-fires after we've already started window.location.href / router.push.
+	const successHandledRef = useRef(false);
 
 	// Helper to get translated error message based on error code
 	const getTranslatedErrorMessage = (errorCode: string | undefined): string => {
@@ -108,13 +116,45 @@ export function CredentialsForm({
 			});
 		}
 
-		// Auto-login flow for login/registration (client-side signIn to ensure cookies are set properly on Vercel)
-		// For login: use state.email (from server) + pendingPassword (from form state)
-		// For signup: use state.credentials (still returned from signUp action)
+		// New (preferred) path: server action already established the session — the
+		// Set-Cookie was attached to this response. All we need is to refresh useSession's
+		// cache and navigate. No second signIn fetch, no race against navigation.
+		if (state.autoLoggedIn) {
+			if (successHandledRef.current) return;
+			successHandledRef.current = true;
+			const doRedirect = async () => {
+				setAuthSyncError(null);
+				try {
+					await refreshSession();
+				} catch (err) {
+					console.error('Post-signup session refresh failed:', err);
+					// Don't block the redirect — server cookie is already set.
+				}
+				invalidateAllUserData();
+
+				const redirectPath = redirect || callbackUrlProp || state.redirect || '/client/dashboard';
+				const shouldPrefixLocale =
+					state.preserveLocale && locale !== 'en' && !redirectPath.startsWith(`/${locale}`);
+				const finalRedirectPath = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
+
+				if (onSuccess) onSuccess();
+				window.location.href = finalRedirectPath;
+			};
+			void doRedirect();
+			return;
+		}
+
+		// Legacy path: server returned `autoLogin: true` and expects the client to call
+		// signIn() itself. Used by signInAction (the login form). The ref guard is the
+		// fix for the production bug where this effect double-fired and the second fetch
+		// was aborted by navigation — leaving a "Failed to fetch" in console and an
+		// inconsistent cookie state.
 		const autoLoginEmail = state.email || state.credentials?.email;
 		const autoLoginPassword = pendingPassword || state.credentials?.password;
 
 		if (state.autoLogin && autoLoginEmail && autoLoginPassword) {
+			if (autoLoginFiredRef.current) return;
+			autoLoginFiredRef.current = true;
 			const doAutoLogin = async () => {
 				setAuthSyncError(null);
 				try {
@@ -128,6 +168,7 @@ export function CredentialsForm({
 					if (res?.error) {
 						console.error('Auto-login failed:', res.error);
 						setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+						autoLoginFiredRef.current = false; // allow a retry on user resubmit
 						return;
 					}
 
@@ -148,6 +189,7 @@ export function CredentialsForm({
 				} catch (err) {
 					console.error('Auto-login error:', err);
 					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+					autoLoginFiredRef.current = false; // allow a retry on user resubmit
 				}
 			};
 			void doAutoLogin();
@@ -186,6 +228,7 @@ export function CredentialsForm({
 		state.redirect,
 		state.preserveLocale,
 		state.autoLogin,
+		state.autoLoggedIn,
 		state.credentials,
 		state.email,
 		redirect,
