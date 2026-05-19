@@ -31,6 +31,15 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-19 — Spec 029: `/client/submissions` UI redesign (UI-only, develop-only)
+
+- spec-029: drafted `docs/spec/029-client-submissions-redesign/spec.md`
+  proposing a UI-only redesign of the client submissions page —
+  responsive table/cards layout, KPI stats cards, status segmented
+  tabs + sort UX, polished empty / error / skeleton states. No
+  backend or hook contract changes.
+- docs/spec: indexed spec 029 in `docs/spec/README.md`.
+
 ## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
 
 Round 13 of the rolling e2e coverage buildout. 13 new spec files added on

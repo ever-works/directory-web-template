@@ -2,8 +2,14 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { PageContainer } from '@/components/ui/container';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { FiFileText, FiPlus, FiChevronLeft, FiChevronRight, FiTrash2 } from 'react-icons/fi';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+	FiFileText,
+	FiPlus,
+	FiChevronLeft,
+	FiChevronRight,
+	FiTrash2,
+} from 'react-icons/fi';
 import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import {
@@ -14,124 +20,42 @@ import {
 	EditSubmissionModal,
 	SubmissionDetailModal,
 	toSubmission,
-	Submission
+	Submission,
+	StatusTabs,
 } from '@/components/submissions';
 import { useClientItems, useClientItemFilters } from '@/hooks';
 import { ClientUpdateItemInput } from '@/lib/validations/client-item';
 import { Button } from '@/components/ui/button';
 import { BulkSubmitButton } from '@/components/submit/bulk-submit-button';
-import { ClientStatusFilter, CLIENT_STATUS_FILTERS } from '@/lib/types/client-item';
-import { ClientItemStats } from '@/lib/types/client-item';
-
-// ─── Status breakdown bar ──────────────────────────────────────────────────
-
-function StatusBreakdownBar({ stats }: { stats: ClientItemStats }) {
-	const total = stats.approved + stats.pending + stats.rejected;
-	if (total === 0) return null;
-
-	const approvedPct = (stats.approved / total) * 100;
-	const pendingPct = (stats.pending / total) * 100;
-	const rejectedPct = (stats.rejected / total) * 100;
-
-	return (
-		<div className="space-y-1.5">
-			<div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-				{stats.approved > 0 && (
-					<div
-						className="bg-green-400 dark:bg-green-500 first:rounded-l-full last:rounded-r-full transition-all duration-500"
-						style={{ width: `${approvedPct}%` }}
-					/>
-				)}
-				{stats.pending > 0 && (
-					<div
-						className="bg-amber-400 dark:bg-amber-500 first:rounded-l-full last:rounded-r-full transition-all duration-500"
-						style={{ width: `${pendingPct}%` }}
-					/>
-				)}
-				{stats.rejected > 0 && (
-					<div
-						className="bg-red-400 dark:bg-red-500 first:rounded-l-full last:rounded-r-full transition-all duration-500"
-						style={{ width: `${rejectedPct}%` }}
-					/>
-				)}
-			</div>
-			<div className="flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400">
-				{stats.approved > 0 && (
-					<span className="flex items-center gap-1">
-						<span className="w-2 h-2 rounded-full bg-green-400 dark:bg-green-500" />
-						{stats.approved} approved
-					</span>
-				)}
-				{stats.pending > 0 && (
-					<span className="flex items-center gap-1">
-						<span className="w-2 h-2 rounded-full bg-amber-400 dark:bg-amber-500" />
-						{stats.pending} pending
-					</span>
-				)}
-				{stats.rejected > 0 && (
-					<span className="flex items-center gap-1">
-						<span className="w-2 h-2 rounded-full bg-red-400 dark:bg-red-500" />
-						{stats.rejected} rejected
-					</span>
-				)}
-			</div>
-		</div>
-	);
-}
-
-// ─── Inline status chips ───────────────────────────────────────────────────
-
-interface StatusChipsProps {
-	status: ClientStatusFilter;
-	statusCounts: { all: number; approved: number; pending: number; rejected: number };
-	disabled: boolean;
-	onStatusChange: (s: ClientStatusFilter) => void;
-}
-
-function StatusChips({ status, statusCounts, disabled, onStatusChange }: StatusChipsProps) {
-	const tStatus = useTranslations('admin.ITEM_FORM');
-
-	return (
-		<div className="flex items-center gap-1.5 flex-wrap">
-			{CLIENT_STATUS_FILTERS.map((filter) => {
-				const isActive = status === filter.value;
-				const count = statusCounts[filter.value as keyof typeof statusCounts];
-				return (
-					<button
-						key={filter.value}
-						onClick={() => onStatusChange(filter.value)}
-						disabled={disabled}
-						className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium transition-colors duration-150 ${
-							isActive
-								? 'bg-theme-primary-600 text-white'
-								: 'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/8'
-						} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-					>
-						{tStatus(`STATUS_OPTIONS.${filter.labelKey}`)}
-						<span
-							className={`text-[10px] font-semibold ${isActive ? 'opacity-80' : 'text-gray-500 dark:text-gray-500'}`}
-						>
-							{count}
-						</span>
-					</button>
-				);
-			})}
-		</div>
-	);
-}
-
-// ─── Page ──────────────────────────────────────────────────────────────────
+import { cn } from '@/lib/utils';
 
 export function SubmissionsContent() {
 	const t = useTranslations('client.submissions');
 
-	const { status, search, page, params, setStatus, setSearch, setPage, isSearching, nextPage, prevPage } =
-		useClientItemFilters();
+	const {
+		status,
+		search,
+		page,
+		params,
+		sortBy,
+		sortOrder,
+		hasActiveFilters,
+		setStatus,
+		setSearch,
+		setPage,
+		setSortBy,
+		toggleSortOrder,
+		resetFilters,
+		isSearching,
+		nextPage,
+		prevPage,
+	} = useClientItemFilters();
 
 	const {
 		items,
 		stats,
-		total: _total,
+		total,
+		limit,
 		totalPages,
 		isLoading,
 		isFetching,
@@ -139,7 +63,9 @@ export function SubmissionsContent() {
 		updateItem,
 		deleteItem,
 		isUpdating,
-		isDeleting
+		isDeleting,
+		error,
+		refetch,
 	} = useClientItems(params);
 
 	const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null);
@@ -155,7 +81,10 @@ export function SubmissionsContent() {
 	const handleView = useCallback(
 		(id: string) => {
 			const item = items.find((i) => i.id === id);
-			if (item) { setSelectedSubmission(toSubmission(item)); setDetailModalOpen(true); }
+			if (item) {
+				setSelectedSubmission(toSubmission(item));
+				setDetailModalOpen(true);
+			}
 		},
 		[items]
 	);
@@ -163,7 +92,11 @@ export function SubmissionsContent() {
 	const handleEdit = useCallback(
 		(id: string) => {
 			const item = items.find((i) => i.id === id);
-			if (item) { setSelectedSubmission(toSubmission(item)); setActionItemId(id); setEditModalOpen(true); }
+			if (item) {
+				setSelectedSubmission(toSubmission(item));
+				setActionItemId(id);
+				setEditModalOpen(true);
+			}
 		},
 		[items]
 	);
@@ -171,7 +104,11 @@ export function SubmissionsContent() {
 	const handleDelete = useCallback(
 		(id: string) => {
 			const item = items.find((i) => i.id === id);
-			if (item) { setSelectedSubmission(toSubmission(item)); setActionItemId(id); setDeleteDialogOpen(true); }
+			if (item) {
+				setSelectedSubmission(toSubmission(item));
+				setActionItemId(id);
+				setDeleteDialogOpen(true);
+			}
 		},
 		[items]
 	);
@@ -180,7 +117,10 @@ export function SubmissionsContent() {
 		async (data: ClientUpdateItemInput) => {
 			if (!actionItemId) return;
 			const success = await updateItem(actionItemId, data);
-			if (success) { setEditModalOpen(false); setActionItemId(null); }
+			if (success) {
+				setEditModalOpen(false);
+				setActionItemId(null);
+			}
 		},
 		[actionItemId, updateItem]
 	);
@@ -188,135 +128,166 @@ export function SubmissionsContent() {
 	const handleConfirmDelete = useCallback(async () => {
 		if (!actionItemId) return;
 		const success = await deleteItem(actionItemId);
-		if (success) { setDeleteDialogOpen(false); setActionItemId(null); }
+		if (success) {
+			setDeleteDialogOpen(false);
+			setActionItemId(null);
+		}
 	}, [actionItemId, deleteItem]);
 
 	const statusCounts = {
 		all: stats.total,
 		approved: stats.approved,
 		pending: stats.pending,
-		rejected: stats.rejected
+		rejected: stats.rejected,
 	};
 
+	const start = total === 0 ? 0 : (page - 1) * limit + 1;
+	const end = Math.min(page * limit, total);
+
 	return (
-		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
+		<div className="min-h-screen bg-gray-50 dark:bg-[#0a0a0a]">
 			<PageContainer maxWidth="7xl" padding="default">
-				<div className="py-8 space-y-6">
+				<div className="space-y-6 py-6 sm:py-8">
 					{/* Page Header */}
-					<div className="flex items-center justify-between gap-4">
+					<header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 						<div className="flex items-center gap-3">
-							<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
-								<FiFileText className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
+							<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-theme-primary-100 dark:bg-theme-primary-900/40">
+								<FiFileText
+									className="h-5 w-5 text-theme-primary-600 dark:text-theme-primary-400"
+									aria-hidden="true"
+								/>
 							</div>
-							<div>
-								<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+							<div className="min-w-0">
+								<h1 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-gray-100 sm:text-xl">
 									{t('PAGE_TITLE')}
 								</h1>
-								<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{t('PAGE_DESCRIPTION')}</p>
+								<p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">
+									{t('PAGE_DESCRIPTION')}
+								</p>
 							</div>
 						</div>
 
-						<div className="flex items-center gap-2 shrink-0">
+						<div className="flex flex-wrap items-center gap-2">
 							<Link
 								href="/client/submissions/trash"
-								className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg hover:bg-gray-50 dark:hover:bg-white/8 hover:text-gray-900 dark:hover:text-gray-100 transition-all duration-150"
+								className={cn(
+									'inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700',
+									'transition-colors hover:bg-gray-50 hover:text-gray-900',
+									'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500/40',
+									'dark:border-white/8 dark:bg-white/5 dark:text-gray-300 dark:hover:bg-white/8 dark:hover:text-gray-100'
+								)}
 							>
-								<FiTrash2 className="w-3.5 h-3.5" />
+								<FiTrash2 className="h-3.5 w-3.5" aria-hidden="true" />
 								<span className="hidden sm:inline">{t('TRASH')}</span>
 							</Link>
 							<BulkSubmitButton />
 							<Link
 								href="/submit"
-								className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
+								className={cn(
+									'inline-flex h-9 items-center gap-1.5 rounded-lg bg-theme-primary-600 px-3 text-xs font-semibold text-white shadow-sm',
+									'transition-colors hover:bg-theme-primary-700',
+									'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500/40'
+								)}
 							>
-								<FiPlus className="w-3.5 h-3.5" />
+								<FiPlus className="h-3.5 w-3.5" aria-hidden="true" />
 								<span className="hidden sm:inline">{t('NEW_SUBMISSION')}</span>
-								<span className="sm:hidden">New</span>
+								<span className="sm:hidden">{t('NEW_SUBMISSION_SHORT')}</span>
 							</Link>
 						</div>
-					</div>
+					</header>
 
 					{/* Stats Cards */}
 					<SubmissionStatsCards stats={stats} isLoading={isStatsLoading} />
 
-					{/* Status breakdown bar */}
-					{!isStatsLoading && stats.total > 0 && (
-						<StatusBreakdownBar stats={stats} />
-					)}
-
 					{/* Submissions card */}
-					<Card className="border border-gray-200 dark:border-white/6 bg-white dark:bg-[#111111] shadow-sm">
-						{/* Card header — title + inline status chips + action buttons */}
-						<CardHeader className="pb-0 pt-4 px-4">
-							<div className="flex flex-col sm:flex-row sm:items-center gap-3">
-								<h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 shrink-0">
-									<FiFileText className="w-4 h-4 text-theme-primary-500" />
-									{t('YOUR_SUBMISSIONS')}
-								</h2>
-								<StatusChips
-									status={status}
-									statusCounts={statusCounts}
-									disabled={isLoading}
-									onStatusChange={setStatus}
-								/>
-							</div>
-						</CardHeader>
-
-						<CardContent className="p-4 space-y-4">
-							{/* Search only — status tabs suppressed since chips are in header */}
-							<SubmissionFilters
+					<Card className="overflow-hidden border-gray-200 bg-white dark:border-white/8 dark:bg-[#111111]">
+						<div className="flex flex-col gap-3 border-b border-gray-200 px-4 py-3 dark:border-white/8 sm:flex-row sm:items-center sm:justify-between">
+							<StatusTabs
 								status={status}
-								search={search}
-								onStatusChange={setStatus}
-								onSearchChange={setSearch}
-								isSearching={isSearching}
-								disabled={isLoading}
-								hideStatusTabs={true}
 								statusCounts={statusCounts}
+								disabled={isLoading}
+								onStatusChange={setStatus}
 							/>
-
-							<SubmissionList
-								items={items}
-								isLoading={isLoading}
-								onView={handleView}
-								onEdit={handleEdit}
-								onDelete={handleDelete}
-								deletingId={isDeleting ? actionItemId : null}
-								updatingId={isUpdating ? actionItemId : null}
-								emptyStateTitle={t('EMPTY_STATE_TITLE')}
-								emptyStateDescription={t('EMPTY_STATE_DESC')}
-								emptyStateActionLabel={t('SUBMIT_FIRST_PROJECT')}
-							/>
-
-							{totalPages > 1 && (
-								<div className="flex items-center justify-between pt-3 border-t border-gray-100 dark:border-white/[0.05]">
-									<p className="text-xs text-gray-500 dark:text-gray-400">
-										{t('SHOWING_PAGE', { page, totalPages })}
-									</p>
-									<div className="flex items-center gap-1.5">
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={prevPage}
-											disabled={page === 1 || isFetching}
-											className="h-7 px-2 text-xs"
-										>
-											<FiChevronLeft className="w-3.5 h-3.5" />
-											{t('PREVIOUS')}
-										</Button>
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={nextPage}
-											disabled={page >= totalPages || isFetching}
-											className="h-7 px-2 text-xs"
-										>
-											{t('NEXT')}
-											<FiChevronRight className="w-3.5 h-3.5" />
-										</Button>
-									</div>
-								</div>
+							{total > 0 && (
+								<p className="text-xs text-gray-500 dark:text-gray-400">
+									{t('SHOWING_RESULTS', { start, end, total })}
+								</p>
 							)}
+						</div>
+
+						<CardContent className="p-4 pt-3">
+							<div className="space-y-4">
+								<SubmissionFilters
+									status={status}
+									search={search}
+									sortBy={sortBy}
+									sortOrder={sortOrder}
+									onStatusChange={setStatus}
+									onSearchChange={setSearch}
+									onSortByChange={setSortBy}
+									onSortOrderToggle={toggleSortOrder}
+									isSearching={isSearching}
+									disabled={isLoading}
+									hideStatusTabs
+									statusCounts={statusCounts}
+									onReset={resetFilters}
+									hasActiveFilters={hasActiveFilters}
+								/>
+
+								<div className="-mx-4">
+									<SubmissionList
+										items={items}
+										isLoading={isLoading}
+										onView={handleView}
+										onEdit={handleEdit}
+										onDelete={handleDelete}
+										deletingId={isDeleting ? actionItemId : null}
+										updatingId={isUpdating ? actionItemId : null}
+										emptyStateTitle={t('EMPTY_STATE_TITLE')}
+										emptyStateDescription={t('EMPTY_STATE_DESC')}
+										emptyStateActionLabel={t('SUBMIT_FIRST_PROJECT')}
+										hasActiveFilters={hasActiveFilters}
+										onClearFilters={resetFilters}
+										error={error}
+										onRetry={() => refetch()}
+									/>
+								</div>
+
+								{totalPages > 1 && !isLoading && !error && items.length > 0 && (
+									<div className="flex items-center justify-between gap-3 border-t border-gray-100 pt-3 dark:border-white/6">
+										<p className="text-xs text-gray-500 dark:text-gray-400">
+											{t('SHOWING_PAGE', { page, totalPages })}
+										</p>
+										<nav
+											aria-label={t('PAGINATION_NAV')}
+											className="flex items-center gap-1.5"
+										>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={prevPage}
+												disabled={page === 1 || isFetching}
+												aria-label={t('PREVIOUS')}
+												className="h-8 px-2 text-xs"
+											>
+												<FiChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
+												<span className="hidden sm:inline">{t('PREVIOUS')}</span>
+											</Button>
+											<Button
+												variant="outline"
+												size="sm"
+												onClick={nextPage}
+												disabled={page >= totalPages || isFetching}
+												aria-label={t('NEXT')}
+												className="h-8 px-2 text-xs"
+											>
+												<span className="hidden sm:inline">{t('NEXT')}</span>
+												<FiChevronRight className="h-3.5 w-3.5" aria-hidden="true" />
+											</Button>
+										</nav>
+									</div>
+								)}
+							</div>
 						</CardContent>
 					</Card>
 				</div>
