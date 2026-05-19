@@ -12,14 +12,15 @@ import type { NotificationCardView } from './notification-card';
 export function NotificationCardSkeleton({ view = 'list' }: { view?: NotificationCardView }) {
 	if (view === 'grid') {
 		return (
-			<div className="flex flex-col gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/[0.02]">
-				<div className="flex items-start justify-between gap-3">
-					<Skeleton className="h-10 w-10 rounded-full" />
+			<div className="flex flex-col gap-2.5 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-white/2">
+				<div className="flex items-start gap-3">
+					<Skeleton className="h-9 w-9 rounded-lg shrink-0" />
+					<Skeleton className="flex-1 h-3.5 rounded mt-0.5" />
 				</div>
-				<div className="flex-1 space-y-1.5">
-					<Skeleton className="h-3.5 w-3/4 rounded" />
+				<div className="space-y-1.5">
 					<Skeleton className="h-3 w-full rounded" />
 					<Skeleton className="h-3 w-5/6 rounded" />
+					<Skeleton className="h-3 w-2/3 rounded" />
 				</div>
 				<div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
 					<Skeleton className="h-5 w-20 rounded-md" />
@@ -30,8 +31,8 @@ export function NotificationCardSkeleton({ view = 'list' }: { view?: Notificatio
 	}
 
 	return (
-		<div className="flex gap-3 px-4 py-3 border-l-[3px] border-transparent">
-			<Skeleton className="h-9 w-9 shrink-0 rounded-full" />
+		<div className="flex gap-3 px-4 py-3">
+			<Skeleton className="h-9 w-9 shrink-0 rounded-lg" />
 			<div className="flex-1 min-w-0">
 				<div className="flex items-start justify-between gap-2">
 					<div className="flex-1 space-y-1.5">
@@ -40,9 +41,8 @@ export function NotificationCardSkeleton({ view = 'list' }: { view?: Notificatio
 					</div>
 					<Skeleton className="h-3 w-8 shrink-0 rounded" />
 				</div>
-				<div className="mt-2 flex items-center gap-2">
-					<Skeleton className="h-5 w-20 rounded-md" />
-					<Skeleton className="h-5 w-12 rounded-md" />
+				<div className="mt-1.5 flex items-center gap-2">
+					<Skeleton className="h-4 w-20 rounded-md" />
 				</div>
 			</div>
 		</div>

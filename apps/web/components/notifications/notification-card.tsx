@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { NotificationListItem } from '@/lib/notifications/types';
 
-import { NotificationIcon, priorityBorderClass } from './icon-map';
+import { NotificationIcon } from './icon-map';
 
 export type NotificationCardView = 'list' | 'grid';
 
@@ -24,17 +24,12 @@ interface NotificationCardProps {
 }
 
 /**
- * Spec 027 v3 — notification row / tile.
+ * Spec 027 v4 — notification row / tile.
  *
- * - `view="list"` (default): full-width row, icon left, title/message
- *   stack centre, time + hover actions right.  Used inside the
- *   inbox's divide-y card and the dropdown.
- * - `view="grid"`: square tile, icon top-left, title bold, three-line
- *   message clamp, meta footer (type pill + relative time).  Used by
- *   the inbox when the user toggles to grid.
- *
- * Both variants share the same data accessors, unread state contract,
- * keyboard activation (Enter/Space), and motion-reduce behaviour.
+ * - `view="list"` (default): full-width row with subtle unread tint.
+ *   Icon sits in a rounded square, hover reveals contextual actions.
+ * - `view="grid"`: compact tile — icon + title share the header row,
+ *   message below, footer fades type pill → actions on hover.
  */
 export function NotificationCard({
 	notification,
@@ -67,7 +62,7 @@ export function NotificationCard({
 	const typeLabel = safeT(t, type, humanise(type));
 	const createdAtDate = new Date(createdAt);
 	const relativeTime = formatDistanceToNow(createdAtDate, { addSuffix: false });
-	const absoluteTime = format(createdAtDate, "PPpp");
+	const absoluteTime = format(createdAtDate, 'PPpp');
 	const shortRel = shortRelative(relativeTime);
 
 	const sharedRowProps = {
@@ -80,15 +75,14 @@ export function NotificationCard({
 		onKeyDown: handleKeyDown
 	};
 
-	const priorityChip = priority === 'critical'
-		? <span className="inline-flex items-center rounded-md bg-red-100 dark:bg-red-500/10 px-1.5 py-0 h-5 text-[10px] font-medium text-red-700 dark:text-red-300">
-			{safeT(tActions, 'criticalLabel', 'Critical')}
-		</span>
-		: priority === 'high' && !isRead
-			? <span className="inline-flex items-center rounded-md bg-amber-100 dark:bg-amber-500/10 px-1.5 py-0 h-5 text-[10px] font-medium text-amber-700 dark:text-amber-300">
-				{safeT(tActions, 'highLabel', 'Important')}
-			</span>
-			: null;
+	// Only surface critical priority — lower levels add visual noise.
+	const criticalDot =
+		priority === 'critical' ? (
+			<span
+				className="inline-block h-1.5 w-1.5 rounded-full bg-red-500 shrink-0 self-center"
+				aria-label={safeT(tActions, 'criticalLabel', 'Critical')}
+			/>
+		) : null;
 
 	const actions = (
 		<>
@@ -104,7 +98,11 @@ export function NotificationCard({
 				</RowAction>
 			)}
 			<RowAction
-				label={isRead ? safeT(tActions, 'markUnread', 'Mark as unread') : safeT(tActions, 'markRead', 'Mark as read')}
+				label={
+					isRead
+						? safeT(tActions, 'markUnread', 'Mark as unread')
+						: safeT(tActions, 'markRead', 'Mark as read')
+				}
 				onClick={(e) => {
 					e.stopPropagation();
 					if (isRead) onMarkUnread?.(id);
@@ -134,14 +132,12 @@ export function NotificationCard({
 			<div
 				{...sharedRowProps}
 				className={cn(
-					'group/row relative flex flex-col gap-3 p-4 cursor-pointer',
-					'rounded-xl border bg-white dark:bg-white/[0.02]',
-					'transition-all duration-150',
+					'group/row relative flex flex-col gap-2.5 p-4 cursor-pointer',
+					'rounded-xl border border-gray-200 dark:border-white/12 bg-white dark:bg-white/8',
+					'transition-all duration-200',
 					'hover:shadow-md hover:-translate-y-0.5 motion-reduce:transform-none motion-reduce:shadow-none',
 					'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500',
-					isRead
-						? 'border-gray-200 dark:border-white/8 hover:border-gray-300 dark:hover:border-white/12'
-						: cn('border-gray-200 dark:border-white/10 ring-1 ring-inset', priorityRingClass(priority))
+					!isRead && 'shadow-sm'
 				)}
 			>
 				{selectable && (
@@ -155,65 +151,76 @@ export function NotificationCard({
 					/>
 				)}
 
-				<div className="flex items-start justify-between gap-3">
-					<div className="relative">
+				{/* Header: icon + title in one row */}
+				<div className="flex items-start gap-3">
+					<div className="relative shrink-0">
 						{!isRead && (
 							<span
-								className="absolute -left-1 -top-1 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#0a0a0a]"
+								className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-white dark:ring-[#0a0a0a]"
 								aria-hidden="true"
 							/>
 						)}
-						<div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 dark:bg-white/6 transition-transform duration-200 group-hover/row:scale-105">
+						<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/6 transition-transform duration-200 group-hover/row:scale-105">
 							<NotificationIcon type={type} category={category} />
 						</div>
 					</div>
-					{priorityChip}
+
+					<div className="flex-1 min-w-0 pt-0.5">
+						<div className="flex items-center gap-1.5">
+							<p
+								className={cn(
+									'flex-1 min-w-0 text-[13px] leading-snug line-clamp-2',
+									isRead
+										? 'font-normal text-gray-700 dark:text-gray-300'
+										: 'font-semibold text-gray-900 dark:text-white'
+								)}
+							>
+								{title}
+							</p>
+							{criticalDot}
+						</div>
+					</div>
 				</div>
 
-				<div className="flex-1 min-w-0">
-					<p
-						className={cn(
-							'text-sm leading-snug line-clamp-2',
-							isRead
-								? 'font-normal text-gray-700 dark:text-gray-300'
-								: 'font-semibold text-gray-900 dark:text-white'
-						)}
-					>
-						{title}
-					</p>
-					<p
-						className={cn(
-							'mt-1 line-clamp-3 text-xs leading-relaxed',
-							isRead ? 'text-gray-500' : 'text-gray-600 dark:text-gray-400'
-						)}
-					>
-						{message}
-					</p>
-				</div>
+				{/* Message */}
+				<p
+					className={cn(
+						'line-clamp-3 text-xs leading-relaxed',
+						isRead ? 'text-gray-500 dark:text-gray-500' : 'text-gray-600 dark:text-gray-400'
+					)}
+				>
+					{message}
+				</p>
 
-				<div className="flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
-					<span className="inline-flex items-center rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
+				{/* Footer: type pill fades, actions slide in, time stays */}
+				<div className="relative flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
+					<span
+						className={cn(
+							'inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',
+							'transition-opacity duration-150 group-hover/row:opacity-0 motion-reduce:opacity-100'
+						)}
+					>
 						{typeLabel}
 					</span>
+
+					<div
+						className={cn(
+							'absolute left-0 flex items-center gap-0.5',
+							'opacity-0 transition-opacity duration-150',
+							'group-hover/row:opacity-100 group-focus-within/row:opacity-100',
+							'motion-reduce:opacity-100'
+						)}
+					>
+						{actions}
+					</div>
+
 					<time
 						dateTime={createdAt}
 						title={absoluteTime}
-						className="text-[11px] font-medium text-gray-500 tabular-nums whitespace-nowrap"
+						className="text-[11px] text-gray-500 dark:text-gray-500 tabular-nums whitespace-nowrap shrink-0"
 					>
 						{shortRel}
 					</time>
-				</div>
-
-				<div
-					className={cn(
-						'absolute bottom-3 left-4 flex items-center gap-0.5',
-						'opacity-0 -translate-y-1 transition-all duration-150',
-						'group-hover/row:opacity-100 group-hover/row:translate-y-0',
-						'group-focus-within/row:opacity-100 group-focus-within/row:translate-y-0',
-						'motion-reduce:opacity-100 motion-reduce:translate-y-0'
-					)}
-				>
-					{actions}
 				</div>
 			</div>
 		);
@@ -226,11 +233,10 @@ export function NotificationCard({
 			className={cn(
 				'group/row relative flex gap-3 px-4 py-3 cursor-pointer',
 				'transition-colors duration-150',
-				'border-l-[3px]',
 				'focus:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary-500 focus-visible:ring-inset',
 				isRead
-					? 'border-transparent hover:bg-gray-50 dark:hover:bg-white/3'
-					: cn(priorityBorderClass(priority), 'bg-primary/[0.03] hover:bg-primary/[0.06] dark:bg-white/[0.02] dark:hover:bg-white/4')
+					? 'hover:bg-gray-50 dark:hover:bg-white/3'
+					: 'bg-primary/3 hover:bg-primary/6 dark:bg-white/2 dark:hover:bg-white/4'
 			)}
 		>
 			{selectable && (
@@ -246,31 +252,36 @@ export function NotificationCard({
 				</div>
 			)}
 
+			{/* Icon with unread dot */}
 			<div className="relative shrink-0 pt-0.5">
 				{!isRead && (
 					<span
-						className="absolute -left-1 top-1.5 h-1.5 w-1.5 rounded-full bg-primary ring-2 ring-white dark:ring-[#0a0a0a]"
+						className="absolute -left-1 top-2 h-1.5 w-1.5 rounded-full bg-primary"
 						aria-hidden="true"
 					/>
 				)}
-				<div className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-100 dark:bg-white/6 transition-transform duration-200 group-hover/row:scale-105">
+				<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 dark:bg-white/6 transition-transform duration-200 group-hover/row:scale-105">
 					<NotificationIcon type={type} category={category} />
 				</div>
 			</div>
 
+			{/* Content */}
 			<div className="min-w-0 flex-1">
-				<div className="flex items-start justify-between gap-2">
+				<div className="flex items-start justify-between gap-3">
 					<div className="min-w-0 flex-1">
-						<p
-							className={cn(
-								'text-sm leading-snug',
-								isRead
-									? 'font-normal text-gray-700 dark:text-gray-300'
-									: 'font-semibold text-gray-900 dark:text-white'
-							)}
-						>
-							{title}
-						</p>
+						<div className="flex items-center gap-1.5">
+							<p
+								className={cn(
+									'text-[13px] leading-snug truncate',
+									isRead
+										? 'font-normal text-gray-700 dark:text-gray-300'
+										: 'font-semibold text-gray-900 dark:text-white'
+								)}
+							>
+								{title}
+							</p>
+							{criticalDot}
+						</div>
 						<p
 							className={cn(
 								'mt-0.5 line-clamp-2 text-xs leading-relaxed',
@@ -284,19 +295,17 @@ export function NotificationCard({
 					<time
 						dateTime={createdAt}
 						title={absoluteTime}
-						className="shrink-0 text-[11px] font-medium text-gray-500 dark:text-gray-500 tabular-nums whitespace-nowrap"
+						className="shrink-0 text-[11px] text-gray-500 dark:text-gray-500 tabular-nums whitespace-nowrap mt-0.5"
 					>
 						{shortRel}
 					</time>
 				</div>
 
-				<div className="mt-2 flex items-center justify-between gap-2">
-					<div className="flex items-center gap-2 min-w-0">
-						<span className="inline-flex items-center rounded-md border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/4 px-1.5 py-0 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400">
-							{typeLabel}
-						</span>
-						{priorityChip}
-					</div>
+				{/* Meta row: type pill left, actions right */}
+				<div className="mt-1.5 flex items-center justify-between gap-2">
+					<span className="inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-4 text-[10px] font-medium text-gray-600 dark:text-gray-400">
+						{typeLabel}
+					</span>
 
 					<div
 						className={cn(
@@ -341,19 +350,6 @@ function RowAction({ label, onClick, variant = 'default', children }: RowActionP
 			{children}
 		</button>
 	);
-}
-
-function priorityRingClass(priority: 'low' | 'medium' | 'high' | 'critical'): string {
-	switch (priority) {
-		case 'critical':
-			return 'ring-red-500/40';
-		case 'high':
-			return 'ring-amber-500/40';
-		case 'medium':
-			return 'ring-blue-500/30';
-		default:
-			return 'ring-gray-300/40 dark:ring-white/8';
-	}
 }
 
 function shortRelative(input: string): string {
