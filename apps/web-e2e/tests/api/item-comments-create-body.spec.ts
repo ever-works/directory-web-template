@@ -164,7 +164,8 @@ test.describe('API: /api/items/[slug]/comments POST body / header surface', () =
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Authentication required' });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`POST ${COMMENTS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {

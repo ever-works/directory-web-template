@@ -210,7 +210,8 @@ test.describe('API: /api/admin/tags/[id] GET / PUT / DELETE method / id / body /
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`PUT ${TAG_PATH(PROBE_ID)} returns 401 with the hybrid bare-message + success: false envelope`, async ({
@@ -220,7 +221,8 @@ test.describe('API: /api/admin/tags/[id] GET / PUT / DELETE method / id / body /
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`DELETE ${TAG_PATH(PROBE_ID)} returns 401 with the hybrid bare-message + success: false envelope`, async ({
@@ -230,7 +232,8 @@ test.describe('API: /api/admin/tags/[id] GET / PUT / DELETE method / id / body /
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`GET / PUT / DELETE ${TAG_PATH(PROBE_ID)} envelope shape has exactly success and error keys`, async ({

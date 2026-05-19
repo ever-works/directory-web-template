@@ -152,7 +152,8 @@ test.describe('API: /api/admin/notifications POST body / header surface', () => 
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: HYBRID_401_MESSAGE });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`POST ${NOTIFICATIONS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {

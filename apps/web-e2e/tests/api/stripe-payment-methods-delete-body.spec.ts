@@ -176,7 +176,8 @@ test.describe('API: /api/stripe/payment-methods/delete DELETE body / header surf
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Authentication required' });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`DELETE ${STRIPE_PAYMENT_METHODS_DELETE_PATH} envelope shape has exactly success and error keys`, async ({

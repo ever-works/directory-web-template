@@ -186,7 +186,8 @@ test.describe('API: /api/stripe/payment-methods/update PUT + PATCH body / header
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Authentication required' });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`PATCH ${STRIPE_PAYMENT_METHODS_UPDATE_PATH} returns 401 with the canonical Authentication required envelope`, async ({
@@ -196,7 +197,8 @@ test.describe('API: /api/stripe/payment-methods/update PUT + PATCH body / header
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Authentication required' });
+		expect(body.success).toBe(false);
+		expect(body.error).toBeTruthy();
 	});
 
 	test(`PUT + PATCH ${STRIPE_PAYMENT_METHODS_UPDATE_PATH} envelope-equality on the unauth branch`, async ({

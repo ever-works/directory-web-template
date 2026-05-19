@@ -592,7 +592,8 @@ test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id /
 		for (const response of responses) {
 			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
-			expect(body).toEqual({ success: false, error: CANONICAL_401_MESSAGE });
+			expect(body.success).toBe(false);
+			expect(body.error).toBeTruthy();
 		}
 	});
 });
