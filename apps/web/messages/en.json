@@ -2035,6 +2035,14 @@
 				"SYSTEM_PERFORMANCE": "System Performance",
 				"DATA_EXPORT_SCHEDULED_REPORTS": "Data Export & Scheduled Reports"
 			},
+			"TABS": {
+				"LABEL": "Dashboard tabs",
+				"OVERVIEW": "Overview",
+				"ANALYTICS": "Analytics",
+				"PERFORMANCE": "Performance",
+				"REPORTS": "Reports",
+				"TOOLS": "Tools"
+			},
 			"SECTION_DESCRIPTIONS": {
 				"GEOGRAPHIC_DISTRIBUTION": "Where your users and items are located across the world.",
 				"SYSTEM_PERFORMANCE": "Real-time cache hit rates, query counts and response time averages.",

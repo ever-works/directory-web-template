@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Bell, X, Check, ExternalLink, RefreshCw, AlertCircle, UserPlus, CreditCard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { useAdminNotifications } from "@/hooks/use-admin-notifications";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 interface AdminNotificationsProps {
   className?: string;
@@ -19,7 +20,10 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
   const router = useRouter();
   const t = useTranslations('admin.NOTIFICATIONS');
   const [isOpen, setIsOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
   
   // Use the useAdminNotifications hook
   const {
@@ -121,54 +125,93 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
 
 
 
-  return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
-      {/* Notification Bell */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsOpen(!isOpen)}
-        className={`relative transition-all duration-200 border-none ${
-          isOpen 
-            ? "bg-primary/10 text-primary hover:bg-primary/2" 
-            : "hover:bg-muted/2"
-        }`}
-        aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-controls="admin-notifications-dropdown"
-      >
-        <Bell className={`h-5 w-5 transition-transform duration-200 ${
-          isOpen ? "scale-110" : ""
-        }`} />
-        {unreadCount > 0 && (
-          <Badge 
-            variant="destructive" 
-            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs font-medium animate-pulse"
-          >
-            {unreadCount > 99 ? "99+" : unreadCount}
-          </Badge>
-        )}
-      </Button>
+  const tooltipLabel = unreadCount > 0
+    ? `${t('TITLE')} (${unreadCount} ${t('NEW')})`
+    : t('TITLE');
 
-      {/* Notifications Dropdown */}
-      {isOpen && (
-        <div
-          id="admin-notifications-dropdown"
-          role="menu"
-          className="absolute right-0 top-12 w-[420px] z-50 animate-in slide-in-from-top-2 fade-in duration-200"
+  const showTooltip = () => {
+    const btn = buttonRef.current;
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    setTooltipPos({ top: rect.bottom + 8, left: rect.left + rect.width / 2 });
+    setHovered(true);
+  };
+  const hideTooltip = () => setHovered(false);
+
+  return (
+    <>
+      <div className={cn("relative", className)} ref={dropdownRef}>
+        <button
+          ref={buttonRef}
+          type="button"
+          onClick={() => {
+            hideTooltip();
+            setIsOpen(!isOpen);
+          }}
+          onMouseEnter={showTooltip}
+          onMouseLeave={hideTooltip}
+          onFocus={showTooltip}
+          onBlur={hideTooltip}
+          aria-label={tooltipLabel}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls="admin-notifications-dropdown"
+          className={cn(
+            "relative inline-flex items-center justify-center h-9 cursor-pointer",
+            "flex items-center gap-1.5 transition-all duration-200",
+            "font-medium whitespace-nowrap",
+            "text-sm lg:text-base xl:text-lg",
+            "text-gray-700 dark:text-gray-300",
+            "hover:text-theme-primary dark:hover:text-theme-primary",
+            "hover:scale-105"
+          )}
         >
-          <Card className="shadow-2xl border border-gray-200/80 dark:border-white/8 bg-background/98 backdrop-blur-sm overflow-hidden">
-            <CardHeader className="pb-3 border-b border-gray-100 dark:border-white/8 bg-gray-50/50 dark:bg-white/2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <CardTitle className="text-base font-semibold">{t('TITLE')}</CardTitle>
-                  {unreadCount > 0 && (
-                    <Badge variant="secondary" className="px-2 py-0 h-5 text-xs font-medium rounded-md">
-                      {unreadCount} {t('NEW')}
-                    </Badge>
-                  )}
-                </div>
+          <Bell className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden="true" />
+          {unreadCount > 0 && (
+            <span
+              className={cn(
+                "absolute -top-0.5 -right-0.5",
+                "min-w-[16px] h-4 px-1",
+                "inline-flex items-center justify-center",
+                "rounded-full",
+                "bg-red-500 text-white",
+                "text-[10px] font-semibold leading-none tabular-nums",
+                "ring-2 ring-white dark:ring-[#0a0a0a]",
+                "animate-pulse"
+              )}
+              aria-hidden="true"
+            >
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+        </button>
+
+        {/* Notifications Dropdown */}
+        {isOpen && (
+          <div
+            id="admin-notifications-dropdown"
+            role="menu"
+            className={cn(
+              "absolute right-0 top-12 z-50",
+              "w-[420px] max-w-[calc(100vw-1rem)]",
+              "rounded-2xl overflow-hidden",
+              "bg-white dark:bg-[#141414] backdrop-blur-xl",
+              "ring-1 ring-black/5 dark:ring-white/10",
+              "shadow-2xl shadow-black/10 dark:shadow-black/40",
+              "animate-in slide-in-from-top-2 fade-in duration-300"
+            )}
+          >
+            <div className="flex flex-col">
+              <div className="px-4 pt-3.5 pb-3 border-b border-gray-100 dark:border-white/8">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="text-base font-semibold text-gray-900 dark:text-white">{t('TITLE')}</h3>
+                    {unreadCount > 0 && (
+                      <Badge variant="secondary" className="px-2 py-0 h-5 text-xs font-medium rounded-md">
+                        {unreadCount} {t('NEW')}
+                      </Badge>
+                    )}
+                  </div>
                 <div className="flex items-center gap-0.5">
                   <Button
                     variant="ghost"
@@ -202,9 +245,8 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                   </Button>
                 </div>
               </div>
-            </CardHeader>
-            
-            <CardContent className="p-0">
+              </div>
+
               <div className="max-h-[400px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1">
                 {error ? (
                   <div className="flex flex-col items-center justify-center py-12 px-4">
@@ -367,10 +409,20 @@ export function AdminNotifications({ className }: AdminNotificationsProps) {
                   </div>
                 </>
               )}
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {hovered && !isOpen && typeof document !== 'undefined' && createPortal(
+        <div
+          className="fixed z-[9999] px-2 py-1 rounded-lg shadow-xl text-xs font-medium border pointer-events-none bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 border-gray-800 dark:border-gray-300"
+          style={{ top: tooltipPos.top, left: tooltipPos.left, transform: 'translateX(-50%)' }}
+        >
+          {tooltipLabel}
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 }
