@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 import { getCommentById, updateCommentRating } from "@/lib/db/queries";
 import { checkDatabaseAvailability } from "@/lib/utils/database-check";
 
@@ -7,6 +8,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
         // Check database availability
         const dbCheck = checkDatabaseAvailability();
         if (dbCheck) return dbCheck;
+
+        // Require authentication — without this gate any anonymous caller
+        // could mutate any comment's rating.
+        const session = await auth();
+        if (!session?.user) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
 
         const { commentId } = await params;
         // Parse body explicitly so a malformed JSON / wrong-content-type
@@ -22,7 +33,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
             );
         }
         const { rating } = payload;
-        const comment = await updateCommentRating(commentId, rating as never);
+        if (typeof rating !== "number" || rating < 1 || rating > 5) {
+            return NextResponse.json(
+                { error: "Rating must be a number between 1 and 5" },
+                { status: 400 }
+            );
+        }
+        const comment = await updateCommentRating(commentId, rating);
+        if (!comment) {
+            return NextResponse.json(
+                { error: "Comment not found" },
+                { status: 404 }
+            );
+        }
         return NextResponse.json(comment);
     } catch (error) {
         console.error("Failed to update comment rating:", error);
