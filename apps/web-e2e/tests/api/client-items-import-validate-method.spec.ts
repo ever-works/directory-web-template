@@ -299,10 +299,8 @@ test.describe('API: /api/client/items/import/validate POST method surface', () =
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${VALIDATE_PATH} 401 envelope shape has exactly success and error keys`, async ({

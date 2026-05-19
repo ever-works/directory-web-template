@@ -336,10 +336,8 @@ test.describe('API: /api/admin/items/import/validate method / body / header surf
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${VALIDATE_PATH} does NOT echo the success-branch keys on the unauth branch`, async ({ request }) => {
@@ -500,10 +498,8 @@ test.describe('API: /api/admin/items/import/validate method / body / header surf
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

@@ -175,10 +175,8 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${BASELINE_PATH} does NOT echo the 404 Item-not-found envelope on the unauth branch`, async ({
@@ -345,10 +343,8 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

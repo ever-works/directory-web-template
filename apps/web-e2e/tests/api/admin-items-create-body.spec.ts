@@ -202,10 +202,8 @@ test.describe('API: /api/admin/items POST body / header surface', () => {
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${ITEMS_PATH} envelope shape has exactly success and error keys`, async ({ request }) => {

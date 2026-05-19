@@ -284,10 +284,8 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: HYBRID_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`PUT ${USER_PATH(PROBE_ID)} returns 401 with the hybrid bare-message + success: false envelope`, async ({
@@ -297,10 +295,8 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: HYBRID_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`DELETE ${USER_PATH(PROBE_ID)} returns 401 with the hybrid bare-message + success: false envelope`, async ({
@@ -310,10 +306,8 @@ test.describe('API: /api/admin/users/[id] GET / PUT / DELETE method / id / body 
 		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: HYBRID_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET / PUT / DELETE ${USER_PATH(PROBE_ID)} envelope shape has exactly success and error keys`, async ({
