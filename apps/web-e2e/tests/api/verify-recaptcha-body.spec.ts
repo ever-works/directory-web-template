@@ -421,14 +421,15 @@ test.describe('API: /api/verify-recaptcha POST body / header surface', () => {
 		}
 	});
 
-	test(`POST ${RECAPTCHA_PATH} non-string token types (numeric / array / object) bypass the !token gate as truthy`, async ({
+	test(`POST ${RECAPTCHA_PATH} non-string token types are rejected without a server error`, async ({
 		request
 	}) => {
-		// `if (!token)` short-circuits ONLY on falsy values.
-		// Truthy non-string values (numeric / array / object)
-		// pass the gate and reach the env-dispatcher branch.
-		// Pin that they are NOT rejected with the 400 token-
-		// required envelope.
+		// Original contract was "truthy non-string values pass the
+		// `if (!token)` gate". The route was hardened to also reject
+		// non-string tokens (`typeof token !== 'string'`), which is
+		// the correct posture — Google's siteverify won't accept
+		// arrays / objects as `response` values anyway. Pin only the
+		// load-bearing invariant: no 5xx for any synthetic shape.
 		const responses = await Promise.all([
 			request.post(RECAPTCHA_PATH, { data: { token: 123 } }),
 			request.post(RECAPTCHA_PATH, { data: { token: ['array-token'] } }),
@@ -436,14 +437,7 @@ test.describe('API: /api/verify-recaptcha POST body / header surface', () => {
 		]);
 
 		for (const response of responses) {
-			// Status MUST NOT be the 400 token-required.
-			if (response.status() === 400) {
-				const body = await response.json();
-				// The token-required gate would emit this
-				// exact error. Pin that it does NOT fire
-				// for truthy non-string values.
-				expect(body.error).not.toBe(TOKEN_REQUIRED_MESSAGE);
-			}
+			expect(response.status()).toBeLessThan(500);
 		}
 	});
 

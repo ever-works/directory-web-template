@@ -300,7 +300,12 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/update POST body /
 
 		for (const response of responses) {
 			const body = await response.json();
-			expect(body.message).not.toMatch(/^Plan updated to .+ successfully$/);
+			// Pin: the unauth branch must NEVER carry the success message.
+			// (`toMatch` requires a string, so guard against the unauth
+			// envelope's `message` being absent — that's the desired state.)
+			if (typeof body?.message === 'string') {
+				expect(body.message).not.toMatch(/^Plan updated to .+ successfully$/);
+			}
 		}
 	});
 
@@ -485,7 +490,11 @@ test.describe('API: /api/stripe/subscription/[subscriptionId]/update POST body /
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.message).not.toMatch(/^Plan updated to .+ successfully$/);
+		// Guard the regex against an absent `message` (the desired state on
+		// the unauth envelope — toMatch requires a string).
+		if (typeof body?.message === 'string') {
+			expect(body.message).not.toMatch(/^Plan updated to .+ successfully$/);
+		}
 	});
 
 	test(`POST ${STRIPE_UPDATE_PATH} catch-branch generic-500 is NOT echoed on the unauth branch`, async ({

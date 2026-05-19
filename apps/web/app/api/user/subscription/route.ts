@@ -325,8 +325,17 @@ export async function GET() {
 
   } catch (error) {
     console.error('Error fetching user subscription:', error);
+    const message = error instanceof Error ? error.message : '';
+    // Stripe not configured — return a 200 "no subscription" envelope
+    // rather than a 5xx. The whole subscription panel is optional.
+    if (/Stripe configuration is incomplete/i.test(message)) {
+      return NextResponse.json({
+        hasActiveSubscription: false,
+        message: 'Subscription feature is not configured.',
+      });
+    }
     return NextResponse.json(
-      { error: 'Failed to fetch subscription data' }, 
+      { error: 'Failed to fetch subscription data' },
       { status: 500 }
     );
   }
