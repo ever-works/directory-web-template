@@ -21,12 +21,16 @@ function toEpochMs(v: Date | string | null | undefined): number {
   return Number.isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
-// Stable name key — fall back to slug when `name` is missing so items
-// without an explicit display name still sort deterministically (the
-// git-CMS path leaves `name` blank on seed fixtures and the sort
-// previously returned the original order for everything).
+// Stable name key — fall back to slug when `name` is missing OR empty
+// so items without an explicit display name still sort
+// deterministically. The git-CMS path leaves `name` as an empty string
+// on seed fixtures, and `?? slug` doesn't catch that ('' is a defined
+// value), so the sort comparator was returning 0 for every pair and
+// the page kept its source-array order regardless of asc/desc.
 function nameKey(it: ItemData): string {
-  return (it.name ?? it.slug ?? '').toLowerCase();
+  const name = (it.name || '').trim();
+  if (name) return name.toLowerCase();
+  return (it.slug || '').toLowerCase();
 }
 
 export function sortItems(items: ItemData[], sort?: string): ItemData[] {

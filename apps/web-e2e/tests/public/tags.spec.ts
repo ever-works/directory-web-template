@@ -35,16 +35,22 @@ test.describe('Public: Tags — landing page (/tags)', () => {
 
 	test('clicking a tag card navigates to home with ?tags= filter', async ({ page }) => {
 		await page.goto('/tags', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+		// Wait for hydration to settle — the tag card's onClick is wired
+		// at hydrate-time, and clicking the SSR HTML before React attaches
+		// the handler is a silent no-op (the URL never changes and the
+		// subsequent waitForURL blows its timeout).
+		await page.waitForLoadState('networkidle').catch(() => undefined);
 		const firstCard = page.locator('[role="button"][aria-label^="View items tagged"]').first();
-		await expect(firstCard).toBeVisible();
+		await expect(firstCard).toBeVisible({ timeout: 15_000 });
 		const ariaLabel = await firstCard.getAttribute('aria-label');
 		expect(ariaLabel, 'expected aria-label on tag card').toBeTruthy();
 
-		await firstCard.click();
-		// `TagsCards.handleClick` pushes `/?tags=<id>`. next-intl may
-		// strip the default-locale prefix, leaving `/?tags=…` OR
-		// `/en?tags=…`. Either is acceptable — just assert the param.
-		await page.waitForURL((url) => url.searchParams.has('tags'), { timeout: PAGE_READY_TIMEOUT });
+		// Race the click against the URL change so a fast navigation
+		// can't slip past the assertion.
+		await Promise.all([
+			page.waitForURL((url) => url.searchParams.has('tags'), { timeout: PAGE_READY_TIMEOUT }),
+			firstCard.click()
+		]);
 		expect(page.url()).toMatch(/[?&]tags=/);
 	});
 
