@@ -667,30 +667,43 @@
 		},
 		"DANGER_ZONE_CARD": {
 			"TITLE": "Danger Zone",
-			"DESCRIPTION": "Irreversible account actions"
+			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
 			"TITLE": "Danger Zone",
-			"SUBTITLE": "Irreversible actions that affect your account permanently.",
-			"BACK_TO_SETTINGS": "Back to Settings",
-			"WARNING_TITLE": "Heads up",
-			"WARNING_BODY": "The actions on this page cannot be undone. Please read the consequences carefully before confirming.",
+			"SUBTITLE": "Permanent actions that cannot be undone. Please read carefully before continuing.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"IRREVERSIBLE_BADGE": "Irreversible",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete account",
-				"DESCRIPTION": "Permanently delete your account, profile, submissions, and sponsorships. You will be signed out immediately and will not be able to sign in again with these credentials.",
-				"CTA": "Delete my account",
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be permanently deleted",
+				"LOSS_ITEM_1": "Sign-in credentials and your account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA": "Delete account…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Delete your account?",
-					"WARNING": "This action is irreversible. Your account, profile, submissions, and sponsorships will be deleted. You will be signed out and redirected to the sign-in page.",
-					"PASSWORD_LABEL": "Confirm your password",
-					"PASSWORD_PLACEHOLDER": "Enter your current password",
-					"CONFIRM_CTA": "Delete my account permanently",
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
 					"DELETING": "Deleting account…",
 					"CANCEL_CTA": "Cancel"
 				},
 				"ERRORS": {
 					"PASSWORD_REQUIRED": "Password is required.",
 					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
 					"UNKNOWN": "Failed to delete account. Please try again."
 				}
 			}
