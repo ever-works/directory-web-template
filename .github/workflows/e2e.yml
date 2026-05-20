@@ -146,13 +146,6 @@ jobs:
             companies_enabled: true
             surveys_enabled: true
             comparisons_enabled: true
-          # AI chat is on-by-default in the plugin schema. Without
-          # AI_CHAT_API_KEY (the CI case) /api/chat returns 503
-          # provider-not-configured, which fails the "non-5xx anonymous
-          # probe" e2e contract. Pin it off so the route fast-paths to
-          # 404 (chat not configured) instead.
-          aiChat:
-            enabled: false
           YAML
           cat > apps/web/.content/categories.yml <<'YAML'
           - id: productivity
