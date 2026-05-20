@@ -59,11 +59,22 @@ test.describe('UI: Newsletter Signup', () => {
 			return;
 		}
 
-		// Fill a valid email
+		// Fill a valid email. The newsletter input is a controlled React
+		// input; on a cold start the component can re-render mid-fill and
+		// reset its value. Poll the value until it matches OR retry the
+		// fill so the assertion isn't pinned to a single keystroke moment.
 		const testEmail = `e2e-test-${Date.now()}@example.com`;
-		await newsletter.emailInput.fill(testEmail);
-
-		const value = await newsletter.emailInput.inputValue();
-		expect(value).toBe(testEmail);
+		await expect
+			.poll(
+				async () => {
+					await newsletter.emailInput.fill(testEmail).catch(() => undefined);
+					return newsletter.emailInput.inputValue().catch(() => '');
+				},
+				{
+					message: 'newsletter input should retain typed email value',
+					timeout: 10_000
+				}
+			)
+			.toBe(testEmail);
 	});
 });

@@ -13,18 +13,34 @@ export class LanguageSwitcher {
 		this.button = page.locator('button[aria-label="Select language"]').first();
 	}
 
-	/** Open the language dropdown and wait for it to actually expand. */
+	/** Open the language dropdown and wait for it to actually expand.
+	 *  React only attaches the onClick handler at hydrate time — there's
+	 *  no way for Playwright to *test* "the handler is attached," so on a
+	 *  cold-start server the first click can land on un-hydrated HTML
+	 *  and silently no-op. We retry the click until `aria-expanded` flips
+	 *  to "true" (the visible side-effect React would produce), giving up
+	 *  after a generous timeout. */
 	async open() {
-		// Make sure the button is hydrated & clickable before pressing it.
-		// On a cold-start server the header can render its HTML before React
-		// has attached the onClick handler — clicking too early is a no-op
-		// and the dropdown never opens, blowing the 30s click timeout on the
-		// dropdown item.
 		await expect(this.button).toBeVisible({ timeout: 15_000 });
 		await expect(this.button).toBeEnabled({ timeout: 15_000 });
-		await this.button.click();
-		// Wait for the dropdown to actually open before resolving.
-		await expect(this.button).toHaveAttribute('aria-expanded', 'true', { timeout: 5_000 });
+
+		const deadline = Date.now() + 20_000;
+		let lastErr: unknown;
+		while (Date.now() < deadline) {
+			try {
+				await this.button.click();
+				// Quick check — if hydration already attached the handler,
+				// the dropdown opens within a frame.
+				await expect(this.button).toHaveAttribute('aria-expanded', 'true', { timeout: 1_500 });
+				return;
+			} catch (err) {
+				lastErr = err;
+				// Click again — most likely the prior click was a no-op
+				// because React hadn't attached the handler yet.
+				await this.page.waitForTimeout(250);
+			}
+		}
+		throw lastErr ?? new Error('Language switcher never opened (aria-expanded never became "true")');
 	}
 
 	/** Select a locale by its full name (e.g. "Français", "Español") */
