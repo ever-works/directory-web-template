@@ -171,21 +171,29 @@ jobs:
           YAML
           # Two approved items + one pending so the items-review spec has
           # something to approve/reject without falling back to its skip
-          # branch on empty content.
+          # branch on empty content. Every renderable field is set so
+          # the listing components don't surface "undefined" text — the
+          # listing-overall-page-error-state spec asserts < 3 occurrences
+          # of "undefined" in the visible body.
           for entry in 'sample-item-one|approved' 'sample-item-two|approved' 'sample-item-three|pending'; do
             slug="${entry%%|*}"
             status="${entry##*|}"
             mkdir -p "apps/web/.content/data/$slug"
             cat > "apps/web/.content/data/$slug/$slug.yml" <<YAML
-          name: ${slug}
+          name: Sample ${slug}
           description: CI placeholder item ${slug}
           source_url: https://example.com/${slug}
-          category: Productivity
+          icon_url: https://example.com/${slug}/icon.png
+          category: productivity
           tags:
             - e2e
             - sample
           featured: false
           status: ${status}
+          submitted_by: admin@e2e.local
+          submitted_at: 2026-01-01 00:00
+          reviewed_by: admin@e2e.local
+          reviewed_at: 2026-01-01 00:00
           updated_at: 2026-01-01 00:00
           YAML
           done
