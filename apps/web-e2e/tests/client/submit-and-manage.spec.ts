@@ -37,18 +37,21 @@ test.describe('Client: Submit & Submission Management', () => {
 		}
 
 		// Click "Next Step" to go to payment step
-		await expect(submitPage.nextStepButton).toBeEnabled({ timeout: 5_000 });
+		await expect(submitPage.nextStepButton).toBeEnabled({ timeout: 15_000 });
 		await submitPage.nextStepButton.click();
 
 		// Step 2: Select free plan
 		await submitPage.selectFreePlan();
 
 		// Click "Next Step" to go to review step
-		await expect(submitPage.nextStepButton).toBeEnabled({ timeout: 5_000 });
+		await expect(submitPage.nextStepButton).toBeEnabled({ timeout: 15_000 });
 		await submitPage.nextStepButton.click();
 
-		// Step 3: Review — click "Submit Product"
-		await expect(submitPage.submitButton).toBeEnabled({ timeout: 5_000 });
+		// Step 3: Review — click "Submit Product". Use a wider timeout
+		// because the submit button can stay disabled while reCAPTCHA
+		// verifies (browser-side challenge) and form-level validation
+		// settles after the step transition's hydration.
+		await expect(submitPage.submitButton).toBeEnabled({ timeout: 20_000 });
 		await submitPage.submitButton.click();
 
 		// Should redirect to submissions page

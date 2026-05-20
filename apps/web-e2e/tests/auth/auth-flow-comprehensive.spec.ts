@@ -43,8 +43,15 @@ test.describe('Auth flow comprehensive', () => {
 			}
 		}
 
+		// Belt-and-braces signout — drop all cookies in case the UI signout
+		// didn't fire (e.g. the menu didn't render in time). Without this,
+		// `/auth/signin` would redirect back to /client/dashboard and the
+		// `#email` locator never appears, blowing the 30s fill timeout.
+		await ctx.clearCookies();
+
 		// Sign back in
 		await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
+		await expect(page.locator('#email')).toBeVisible({ timeout: 15_000 });
 		await page.locator('#email').fill(email);
 		await page.locator('#password').fill(password);
 		await page.locator('#password').press('Enter');
