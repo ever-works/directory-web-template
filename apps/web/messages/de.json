@@ -666,23 +666,26 @@
 			}
 		},
 		"DANGER_ZONE_CARD": {
-			"TITLE": "Danger Zone",
+			"TITLE": "Danger zone",
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger Zone",
-			"SUBTITLE": "Permanent actions that cannot be undone. Please read carefully before continuing.",
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
 			"BACK_TO_SETTINGS": "Back to settings",
-			"IRREVERSIBLE_BADGE": "Irreversible",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
 			"DELETE_ACCOUNT": {
 				"TITLE": "Delete this account",
 				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be permanently deleted",
-				"LOSS_ITEM_1": "Sign-in credentials and your account email",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
 				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
 				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
 				"LOSS_ITEM_4": "Sponsorships and billing references",
 				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
 				"CTA": "Delete account…",
 				"CONFIRM_MODAL": {
 					"TITLE": "Permanently delete your account",
