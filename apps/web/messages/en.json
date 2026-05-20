@@ -1920,15 +1920,22 @@
 		},
 		"NOTIFICATIONS": {
 			"TITLE": "Notifications",
+			"SUBTITLE": "Submissions, reports and platform activity that need attention.",
 			"NEW": "new",
+			"MARK_READ": "Mark read",
 			"MARK_ALL_READ": "Mark all read",
 			"LOADING": "Loading notifications...",
 			"NO_NOTIFICATIONS": "No notifications",
 			"ALL_CAUGHT_UP": "You're all caught up! New notifications will appear here.",
-			"VIEW_DETAILS": "View Details",
+			"VIEW_DETAILS": "View",
 			"VIEW_ALL_NOTIFICATIONS": "View All Notifications",
 			"NEW_BADGE": "NEW",
+			"ERROR_LOADING": "Error loading notifications",
+			"TRY_AGAIN": "Try Again",
+			"REFRESH": "Refresh notifications",
+			"CLOSE": "Close notifications panel",
 			"NOTIFICATION_TYPES": {
+				"NEW_SUBMISSION": "New submission",
 				"REPORTED_COMMENT": "Reported Comment",
 				"NEW_USER": "New User",
 				"PAYMENT_ISSUE": "Payment Issue",
@@ -2025,7 +2032,27 @@
 				"PERFORMANCE": "Performance",
 				"DATA_EXPORT_REPORTS": "Data Export & Reports",
 				"ADMIN_TOOLS": "Admin Tools",
-				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution"
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution",
+				"SYSTEM_PERFORMANCE": "System Performance",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Data Export & Scheduled Reports"
+			},
+			"TABS": {
+				"LABEL": "Dashboard tabs",
+				"OVERVIEW": "Overview",
+				"ANALYTICS": "Analytics",
+				"PERFORMANCE": "Performance",
+				"REPORTS": "Reports",
+				"TOOLS": "Tools"
+			},
+			"SECTION_DESCRIPTIONS": {
+				"GEOGRAPHIC_DISTRIBUTION": "Where your users and items are located across the world.",
+				"SYSTEM_PERFORMANCE": "Real-time cache hit rates, query counts and response time averages.",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Export platform data as CSV or JSON, and manage automated report schedules."
+			},
+			"STATUS": {
+				"TOTAL_SUBMISSIONS": "Total Submissions",
+				"PENDING_REVIEW": "Pending Review",
+				"APPROVED": "Approved"
 			},
 			"ARIA_LABELS": {
 				"DASHBOARD_SECTIONS": "Dashboard sections",
@@ -4049,6 +4076,142 @@
 				"VIEWS": "Views will appear once your content is approved.",
 				"VOTES": "Votes will appear as people interact with your content.",
 				"COMMENTS": "Comments will appear once people engage with your content."
+			}
+		},
+		"notifications": {
+			"pageTitle": "Notifications",
+			"pageSubtitle": "All activity for your account.",
+			"refresh": "Refresh",
+			"retry": "Retry",
+			"tooltip": "Notifications",
+			"view": {
+				"list": "List view",
+				"grid": "Grid view",
+				"aria": {
+					"group": "Toggle layout"
+				}
+			},
+			"actions": {
+				"open": "Open",
+				"markRead": "Mark as read",
+				"markUnread": "Mark as unread",
+				"dismiss": "Dismiss notification",
+				"criticalLabel": "Critical",
+				"highLabel": "Important"
+			},
+			"errors": {
+				"generic": "Failed to load notifications"
+			},
+			"aria": {
+				"bellWithCount": "Notifications ({n} unread)"
+			},
+			"dropdown": {
+				"title": "Notifications",
+				"markAllRead": "Mark all read",
+				"seeAll": "View all notifications",
+				"newBadge": "new",
+				"refresh": "Refresh notifications",
+				"close": "Close notifications panel",
+				"aria": {
+					"title": "Notifications",
+					"preferences": "Notification preferences"
+				}
+			},
+			"types": {
+				"newBadge": "New",
+				"user_followed": "New follower",
+				"comment_received": "Comment",
+				"item_submission": "New submission",
+				"item_approved": "Item approved",
+				"item_rejected": "Item rejected",
+				"comment_reported": "Comment reported",
+				"item_reported": "Item reported",
+				"payment_failed": "Payment issue",
+				"payment_succeeded": "Payment received",
+				"subscription_expiring": "Subscription expiring",
+				"user_registered": "New user",
+				"security_alert": "Security alert",
+				"password_changed": "Password changed",
+				"system_alert": "System alert",
+				"admin_announcement": "Announcement"
+			},
+			"tabs": {
+				"aria": "Notification filters",
+				"all": "All",
+				"unread": "Unread",
+				"system": "System"
+			},
+			"sections": {
+				"today": "Today",
+				"yesterday": "Yesterday",
+				"thisWeek": "This week",
+				"earlier": "Earlier"
+			},
+			"empty": {
+				"allTitle": "You are all caught up",
+				"allBody": "We will let you know when something new happens.",
+				"unreadTitle": "No unread notifications",
+				"unreadBody": "Everything has been read.",
+				"systemTitle": "No system notifications",
+				"systemBody": "Account and security alerts will show up here.",
+				"managePreferences": "Manage preferences"
+			},
+			"filters": {
+				"searchPlaceholder": "Search notifications…",
+				"allTypes": "All types",
+				"allPriorities": "All priorities",
+				"reset": "Reset",
+				"aria": {
+					"search": "Search notifications",
+					"type": "Filter by type",
+					"priority": "Filter by priority",
+					"dateFrom": "From date",
+					"dateTo": "To date"
+				}
+			},
+			"bulk": {
+				"selected": "{n} selected",
+				"markRead": "Mark read",
+				"archive": "Archive",
+				"delete": "Delete",
+				"aria": {
+					"clear": "Clear selection"
+				}
+			},
+			"preferences": {
+				"pageTitle": "Notification preferences",
+				"pageSubtitle": "Pick how and when we notify you.",
+				"back": "Back to notifications",
+				"cta": "Preferences",
+				"globalTitle": "Email & quiet hours",
+				"globalSubtitle": "How and when we contact you.",
+				"emailDigest": "Email digest",
+				"quietHoursStart": "Quiet hours start",
+				"quietHoursEnd": "Quiet hours end",
+				"columnEvent": "Event",
+				"lockedHint": "Required for account safety",
+				"save": "Save preferences",
+				"saving": "Saving…",
+				"digest": {
+					"instant": "Instant",
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"off": "Off"
+				},
+				"channel": {
+					"in_app": "In-app",
+					"email": "Email",
+					"push": "Push",
+					"sms": "SMS"
+				},
+				"category": {
+					"social": "Social",
+					"item": "Item lifecycle",
+					"moderation": "Moderation",
+					"billing": "Billing",
+					"account": "Account",
+					"system": "System"
+				}
 			}
 		}
 	},

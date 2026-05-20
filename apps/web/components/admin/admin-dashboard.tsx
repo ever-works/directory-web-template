@@ -234,19 +234,19 @@ export function AdminDashboard() {
                                             <div className="lg:col-span-3 grid grid-cols-1 gap-4 sm:grid-cols-3 content-start">
                                                 {[
                                                     {
-                                                        label: 'Total Submissions',
+                                                        label: t('STATUS.TOTAL_SUBMISSIONS'),
                                                         value: stats?.totalSubmissions ?? 0,
                                                         color: 'text-theme-primary',
                                                         bg: 'bg-theme-primary/8 dark:bg-theme-primary/10',
                                                     },
                                                     {
-                                                        label: 'Pending Review',
+                                                        label: t('STATUS.PENDING_REVIEW'),
                                                         value: stats?.pendingSubmissions ?? 0,
                                                         color: 'text-amber-600 dark:text-amber-400',
                                                         bg: 'bg-amber-50 dark:bg-amber-900/20',
                                                     },
                                                     {
-                                                        label: 'Approved',
+                                                        label: t('STATUS.APPROVED'),
                                                         value:
                                                             (stats?.totalSubmissions ?? 0) -
                                                             (stats?.pendingSubmissions ?? 0),
@@ -317,8 +317,8 @@ export function AdminDashboard() {
                                     <GroupLabel>{t('SECTIONS.GEOGRAPHIC_DISTRIBUTION')}</GroupLabel>
                                     <Section
                                         icon={Activity}
-                                        title="Geographic Distribution"
-                                        description="Where your users and items are located across the world."
+                                        title={t('SECTIONS.GEOGRAPHIC_DISTRIBUTION')}
+                                        description={t('SECTION_DESCRIPTIONS.GEOGRAPHIC_DISTRIBUTION')}
                                     >
                                         <AdminErrorBoundary>
                                             <GeographicSection />
@@ -335,8 +335,8 @@ export function AdminDashboard() {
                                     <GroupLabel>{t('SECTIONS.PERFORMANCE')}</GroupLabel>
                                     <Section
                                         icon={Gauge}
-                                        title="System Performance"
-                                        description="Real-time cache hit rates, query counts and response time averages."
+                                        title={t('SECTIONS.SYSTEM_PERFORMANCE')}
+                                        description={t('SECTION_DESCRIPTIONS.SYSTEM_PERFORMANCE')}
                                     >
                                         <AdminErrorBoundary>
                                             <AdminPerformanceMonitor />
@@ -353,8 +353,8 @@ export function AdminDashboard() {
                                     <GroupLabel>{t('SECTIONS.DATA_EXPORT_REPORTS')}</GroupLabel>
                                     <Section
                                         icon={FileDown}
-                                        title="Data Export & Scheduled Reports"
-                                        description="Export platform data as CSV or JSON, and manage automated report schedules."
+                                        title={t('SECTIONS.DATA_EXPORT_SCHEDULED_REPORTS')}
+                                        description={t('SECTION_DESCRIPTIONS.DATA_EXPORT_SCHEDULED_REPORTS')}
                                     >
                                         <AdminErrorBoundary>
                                             <AdminDataExport />

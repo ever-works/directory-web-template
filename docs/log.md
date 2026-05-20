@@ -31,6 +31,27 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-20 — Spec 027 follow-up: page-based pagination on /client + /admin notifications (PR #852)
+
+- spec-027: `/client/notifications` and `/admin/notifications` long lists
+  now ship with `UniversalPagination` (Page X of Y, prev/next) instead of
+  cursor-based infinite scroll.
+- API: `GET /api/client/notifications` and `GET /api/admin/notifications`
+  switched to offset/limit and return `{notifications, total, page,
+  totalPages, unreadCount}`. Defaults: limit 25, max 100 (client) / 200
+  (admin). Unread count still uses base scope so the header pill is
+  stable while filters narrow.
+- Hooks: `useNotifications` swaps `useInfiniteQuery` → `useQuery` with
+  `placeholderData: prev` for snappy page hops. `useAdminNotifications`
+  now accepts `{page, limit}` and exposes `totalPages` / `total` / `page`.
+- Cache: mark / bulk / SSE mutations rewritten to mutate the flat
+  `NotificationListResponse` shape instead of `InfiniteData<ListPages>`.
+  `NotificationList` dropped its `IntersectionObserver` + sentinel; the
+  dropdown still asks for page 1, limit 15.
+- UX: changing tab or filters resets `page` to 1 on both surfaces.
+
+---
+
 ## 2026-05-19 — Spec 028 round 17: leading-slash + host header + preferences gate (develop-only)
 
 Round 17 of the rolling e2e coverage buildout. 8 new spec files added on
@@ -1026,6 +1047,22 @@ prevent the double-fire that originally motivated all of this.
 ## 2026-05-17 — Spec 029: client-settings Preferences section
 
 - `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
+
+## 2026-05-18 — Spec 027 client notifications system (PR #852)
+
+- `spec-027` New spec `docs/spec/027-client-notifications/` (spec + plan +
+  tasks) delivering the client-facing surface of
+  [`013-notifications-system`](spec/013-notifications-system/spec.md): header
+  bell + dropdown, `/client/notifications` inbox, `/client/notifications/preferences`
+  matrix, SSE real-time delivery, and a service-layer `dispatch()` that resolves
+  per-user preferences, applies group-key deduplication, and fans out through
+  in-memory pub/sub (Redis-ready).
+- `spec-027` Additive Drizzle migration `0037_client_notifications.sql`: 22
+  new enum values, `priority` / `category` / `actorId` / `groupKey` /
+  `archivedAt` / `deliveredChannels` columns, partial unread index, and a new
+  `notification_preferences` table with JSONB channel matrix + email digest
+  cadence + quiet hours.
+- `index` `docs/spec/README.md` indexed entry 027.
 
 ## 2026-05-17 — Spec 026 (EW-627) round 5: chart visual redesign
 
