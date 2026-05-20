@@ -21,7 +21,10 @@ test.describe('Anonymous signout flow shape', () => {
 		const csrf = await request.get('/api/auth/csrf');
 		const body = (await csrf.json().catch(() => null)) as { csrfToken?: string } | null;
 		const token = body?.csrfToken;
-		if (!token) test.skip();
+		if (!token) {
+			test.skip();
+			return;
+		}
 		const form = new URLSearchParams({ csrfToken: token! }).toString();
 		const resp = await request.post('/api/auth/signout', {
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },

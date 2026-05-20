@@ -10,10 +10,16 @@ test.describe('h1 is visible on first paint', () => {
 		test(`${path} h1 (if present) is visible`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const h1 = page.locator('h1').first();
 			const count = await page.locator('h1').count();
-			if (count === 0) test.skip();
+			if (count === 0) {
+				test.skip();
+				return;
+			}
 			// Don't enforce visible (some pages hide h1 in screen reader only
 			// classes with sr-only). Just verify it's in the DOM.
 			await expect(h1).toBeAttached();

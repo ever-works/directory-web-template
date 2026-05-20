@@ -25,9 +25,11 @@ export class AdminCompaniesPage extends BasePage {
 		return this.companyFormModal.locator('input').first();
 	}
 
-	/** Cancel button in company form. */
+	/** Cancel button in company form. Use `.first()` to disambiguate when
+	 * the modal also has a sibling "cancel" close affordance (the X button
+	 * sometimes carries an aria-label matching /cancel/i). */
 	get cancelButton() {
-		return this.companyFormModal.getByRole('button', { name: /cancel/i });
+		return this.companyFormModal.getByRole('button', { name: /cancel/i }).first();
 	}
 
 	/** Create company button. */

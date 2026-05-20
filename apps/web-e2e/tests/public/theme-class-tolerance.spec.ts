@@ -7,7 +7,10 @@ test.describe('Theme class tolerance', () => {
 	test('/ html class allows light/dark theming', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const cls = await page.locator('html').getAttribute('class').catch(() => null);
 		// Must NOT contain literal "undefined" or "null"
 		if (cls) {

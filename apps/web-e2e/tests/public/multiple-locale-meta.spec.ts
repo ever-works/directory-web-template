@@ -10,7 +10,10 @@ test.describe('Locale variants produce a title', () => {
 		test(`/${loc} has non-empty title`, async ({ page }) => {
 			const resp = await page.goto(`/${loc}`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const t = (await page.title()).trim();
 			expect(t, `/${loc} title`).not.toBe('');
 		});

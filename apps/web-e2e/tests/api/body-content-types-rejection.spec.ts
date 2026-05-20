@@ -21,6 +21,14 @@ const POST_ENDPOINTS = [
 	'/api/client/items'
 ];
 
+// Endpoints whose documented contract is "feature-disabled gate fires
+// BEFORE body parse" — they answer EVERY POST with a 200 + a degraded
+// envelope when the underlying feature isn't configured (which is the
+// case in CI). For these, only the non-5xx invariant applies; the
+// "must be 4xx for text/plain" assertion is incompatible with the
+// route's own documented behavior.
+const FEATURE_DISABLED_OK_PATHS = new Set<string>(['/api/extract']);
+
 test.describe('POST malformed-body tolerance', () => {
 	for (const path of POST_ENDPOINTS) {
 		test(`${path} with text/plain garbage non-5xx`, async ({ request }) => {
@@ -29,7 +37,9 @@ test.describe('POST malformed-body tolerance', () => {
 				data: 'this is not json'
 			});
 			expect(resp.status(), `${path}`).toBeLessThan(500);
-			expect(resp.status()).toBeGreaterThanOrEqual(400);
+			if (!FEATURE_DISABLED_OK_PATHS.has(path)) {
+				expect(resp.status()).toBeGreaterThanOrEqual(400);
+			}
 		});
 
 		test(`${path} with empty body non-5xx`, async ({ request }) => {

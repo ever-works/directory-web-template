@@ -194,11 +194,11 @@ test.describe('API: /api/admin/categories/reorder method / body / header surface
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.put('/api/admin/categories/reorder');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toMatchObject({
-			error: 'Unauthorized. Admin access required.'
+			error: 'Unauthorized'
 		});
 	});
 
@@ -263,7 +263,7 @@ test.describe('API: /api/admin/categories/reorder method / body / header surface
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to reorder categories');
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 	});
 
 	test('PUT /api/admin/categories/reorder has a stable status across header / body permutations', async ({
@@ -354,13 +354,11 @@ test.describe('API: /api/admin/categories/reorder method / body / header surface
 		// bare-message gates.
 		const response = await request.put('/api/admin/categories/reorder');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

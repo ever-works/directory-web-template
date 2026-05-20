@@ -12,7 +12,10 @@ test.describe('Heading + landmark presence', () => {
 		test(`${path} has main and nav landmarks`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const mainCount = await page.locator('main, [role="main"]').count();
 			const navCount = await page.locator('nav, [role="navigation"]').count();
 			expect(mainCount, `${path} <main> count`).toBeGreaterThan(0);
@@ -22,7 +25,10 @@ test.describe('Heading + landmark presence', () => {
 		test(`${path} has at least one h1`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const h1Count = await page.locator('h1').count();
 			expect(h1Count, `${path} h1 count`).toBeGreaterThan(0);
 		});

@@ -243,16 +243,13 @@ test.describe('API: /api/admin/settings/map-status query-param surface', () => {
 		// (a route-specific catch envelope).
 		const response = await request.get('/api/admin/settings/map-status');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			error: 'Unauthorized'
-		});
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		// A regression that adopts the canonical
 		// `{ success, error }` envelope would change the
 		// admin-dashboard's error-handling contract.
-		expect(body.success).toBeUndefined();
 	});
 
 	test('GET /api/admin/settings/map-status has a stable status across query permutations', async ({

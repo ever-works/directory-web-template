@@ -9,34 +9,34 @@ import { test, expect } from '@playwright/test';
 const XSS_MARKERS = ['<script>window.__xssMarker=true</script>', '"><img src=x onerror=window.__xssMarker=true>'];
 
 test.describe('XSS payload tolerance', () => {
-	for (const payload of XSS_MARKERS) {
+	for (const [i, payload] of XSS_MARKERS.entries()) {
 		const encoded = encodeURIComponent(payload);
 
-		test(`search ?q=<xss> does not execute`, async ({ page }) => {
+		test(`#${i} search ?q=<xss> does not execute`, async ({ page }) => {
 			await page.goto(`/discover/1?q=${encoded}`, { waitUntil: 'domcontentloaded' });
 			const fired = await page.evaluate(() => (window as any).__xssMarker === true);
 			expect(fired, 'XSS marker should NOT be set').toBe(false);
 		});
 
-		test(`category slug <xss> does not execute`, async ({ page }) => {
+		test(`#${i} category slug <xss> does not execute`, async ({ page }) => {
 			await page.goto(`/categories/${encoded}`, { waitUntil: 'domcontentloaded' });
 			const fired = await page.evaluate(() => (window as any).__xssMarker === true);
 			expect(fired).toBe(false);
 		});
 
-		test(`tag slug <xss> does not execute`, async ({ page }) => {
+		test(`#${i} tag slug <xss> does not execute`, async ({ page }) => {
 			await page.goto(`/tags/${encoded}`, { waitUntil: 'domcontentloaded' });
 			const fired = await page.evaluate(() => (window as any).__xssMarker === true);
 			expect(fired).toBe(false);
 		});
 
-		test(`item slug <xss> does not execute`, async ({ page }) => {
+		test(`#${i} item slug <xss> does not execute`, async ({ page }) => {
 			await page.goto(`/items/${encoded}`, { waitUntil: 'domcontentloaded' });
 			const fired = await page.evaluate(() => (window as any).__xssMarker === true);
 			expect(fired).toBe(false);
 		});
 
-		test(`signin ?callbackUrl=<xss> does not execute`, async ({ page }) => {
+		test(`#${i} signin ?callbackUrl=<xss> does not execute`, async ({ page }) => {
 			await page.goto(`/auth/signin?callbackUrl=${encoded}`, {
 				waitUntil: 'domcontentloaded'
 			});

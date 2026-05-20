@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { externalClient, apiUtils } from "@/lib/api/server-api-client";
-import { coreConfig, analyticsConfig } from "@/lib/config/config-service";
+import { analyticsConfig } from "@/lib/config/config-service";
 
 /**
  * @swagger
@@ -146,9 +146,21 @@ interface RecaptchaApiResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    const { token } = await request.json();
+    // Parse body explicitly so a malformed JSON / wrong-content-type
+    // request returns a clean 400 instead of falling into the generic
+    // 500 catch below.
+    let parsed: { token?: unknown } = {};
+    try {
+      parsed = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON body" },
+        { status: 400 }
+      );
+    }
+    const token = parsed?.token;
 
-    if (!token) {
+    if (!token || typeof token !== "string") {
       return NextResponse.json(
         { success: false, error: "ReCAPTCHA token is required" },
         { status: 400 }
@@ -157,9 +169,17 @@ export async function POST(request: NextRequest) {
 
     const secretKey = analyticsConfig.recaptcha.secretKey;
     if (!secretKey) {
-      if (coreConfig.NODE_ENV === "development") {
+      // When the secret isn't configured we still want to fail OPEN in
+      // any non-production *or* CI/E2E environment — calling Google's
+      // siteverify from a CI runner just hangs. `process.env.NODE_ENV`
+      // is forced to "production" by `next start`, so we also check the
+      // CI / E2E_TEST flags that the e2e workflow sets.
+      const runtimeNodeEnv = process.env.NODE_ENV;
+      const isCi = process.env.CI === "true" || process.env.CI === "1";
+      const isE2e = process.env.E2E_TEST === "true" || process.env.E2E_TEST === "1";
+      if (runtimeNodeEnv !== "production" || isCi || isE2e) {
         console.warn(
-          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification in development mode. " +
+          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification (non-production / CI env). " +
           "Set RECAPTCHA_SECRET_KEY to enable verification."
         );
         return NextResponse.json({

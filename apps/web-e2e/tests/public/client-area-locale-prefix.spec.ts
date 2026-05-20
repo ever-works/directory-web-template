@@ -10,21 +10,21 @@ test.describe('Client / dashboard under locale prefix bounces anonymous', () => 
 			const resp = await page.goto(`/${loc}/client/dashboard`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|\/auth\/|\/$|\/client\/)/);
+			await expect(page).toHaveURL(/(auth\/signin|\/auth\/|\/$|\/client\/)/, { timeout: 30_000 });
 		});
 
 		test(`/${loc}/dashboard/billing bounces anonymous`, async ({ page }) => {
 			const resp = await page.goto(`/${loc}/dashboard/billing`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|\/auth\/|\/$|\/dashboard\/)/);
+			await expect(page).toHaveURL(/(auth\/signin|\/auth\/|\/$|\/dashboard\/)/, { timeout: 30_000 });
 		});
 
 		test(`/${loc}/favorites bounces anonymous`, async ({ page }) => {
 			const resp = await page.goto(`/${loc}/favorites`, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			expect(page.url()).toMatch(/(auth\/signin|\/auth\/|\/$|\/favorites|\/$)/);
+			await expect(page).toHaveURL(/(auth\/signin|\/auth\/|\/$|\/favorites|\/$)/, { timeout: 30_000 });
 		});
 	}
 });

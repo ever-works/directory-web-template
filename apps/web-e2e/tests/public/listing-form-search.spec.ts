@@ -8,7 +8,10 @@ test.describe('Listing search input presence', () => {
 	test('/discover/1 has a search-style input', async ({ page }) => {
 		const resp = await page.goto('/discover/1', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const search = page
 			.locator('input[type="search"], input[role="searchbox"], [role="search"] input, [data-testid="search"], input[name="q"]')
 			.first();
@@ -18,7 +21,10 @@ test.describe('Listing search input presence', () => {
 	test('/ home has a search-style input OR none', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const count = await page
 			.locator('input[type="search"], input[role="searchbox"], input[name="q"]')
 			.count();

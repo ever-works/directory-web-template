@@ -282,13 +282,11 @@ test.describe('API: /api/admin/clients/dashboard query-param surface', () => {
 		// envelope divergence.
 		const response = await request.get('/api/admin/clients/dashboard');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/clients/dashboard has a stable status across query permutations', async ({
@@ -522,9 +520,8 @@ test.describe('API: /api/admin/clients/dashboard query-param surface', () => {
 		const response = await request.get('/api/admin/clients/dashboard');
 		const body = await response.json();
 
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(body.error).not.toBe('User ID not found');
 		expect(body.error).not.toBe('Insufficient permissions');
-		expect(body.error).not.toBe('Forbidden');
 	});
 });

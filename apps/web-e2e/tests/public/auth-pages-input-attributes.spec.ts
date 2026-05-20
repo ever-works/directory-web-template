@@ -7,7 +7,10 @@ test.describe('Auth form input attributes (advisory)', () => {
 	test('/auth/signin email input declares inputmode=email or type=email', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const ok = await page.evaluate(() => {
 			const candidates = Array.from(document.querySelectorAll<HTMLInputElement>('input'));
 			return candidates.some((i) => {
@@ -24,7 +27,10 @@ test.describe('Auth form input attributes (advisory)', () => {
 	test('/auth/signin password input is type=password', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const ok = await page.evaluate(() => {
 			return Array.from(document.querySelectorAll<HTMLInputElement>('input'))
 				.some((i) => i.type === 'password');

@@ -22,6 +22,11 @@ const USER_PROFILE_ENDPOINTS = [
 	{ method: 'GET', path: '/api/user/plan-status' }
 ];
 
+// Endpoints that intentionally serve anonymous users (currency
+// detection works for everyone, no auth gate). These must still avoid
+// 5xx but a 2xx is the documented happy path.
+const ANONYMOUS_OK = new Set<string>(['GET /api/user/currency']);
+
 test.describe('User profile API anonymous rejection (deeper)', () => {
 	for (const { method, path } of USER_PROFILE_ENDPOINTS) {
 		test(`${method} ${path} rejects anonymous`, async ({ request }) => {
@@ -31,7 +36,9 @@ test.describe('User profile API anonymous rejection (deeper)', () => {
 			});
 			const status = resp.status();
 			expect(status, `${method} ${path}`).toBeLessThan(500);
-			expect(status).toBeGreaterThanOrEqual(400);
+			if (!ANONYMOUS_OK.has(`${method} ${path}`)) {
+				expect(status).toBeGreaterThanOrEqual(400);
+			}
 		});
 	}
 });

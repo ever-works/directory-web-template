@@ -17,7 +17,10 @@ test.describe('No server stack-frame in HTML body', () => {
 	for (const path of PROBES) {
 		test(`${path} HTML has no stack-frame markers`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = await resp.text();
 			for (const needle of STACK_MARKERS) {
 				expect(body.includes(needle), `${path} contains stack: ${needle}`).toBe(false);

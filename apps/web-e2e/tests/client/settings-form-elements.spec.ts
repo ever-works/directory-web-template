@@ -35,13 +35,10 @@ test.describe('Client settings sub-page form rendering', () => {
 	});
 
 	test('security page exposes a password change form', async ({ page }) => {
-		await page.goto('/client/settings/security', { waitUntil: 'domcontentloaded' });
-		// We accept either a "change password" button or password inputs.
-		const passwordRelated = page
-			.locator('input[type="password"], button:has-text(/password|security|change/i)')
-			.first();
-		// Don't strictly require — some themes split it across tabs.
-		const count = await passwordRelated.count();
-		expect(count).toBeGreaterThanOrEqual(0);
+		const resp = await page.goto('/client/settings/security', { waitUntil: 'domcontentloaded' });
+		// Page just needs to render without a server error. Some themes
+		// split password change across tabs, others embed it inline —
+		// don't pin on a specific structure.
+		expect(resp!.status()).toBeLessThan(500);
 	});
 });

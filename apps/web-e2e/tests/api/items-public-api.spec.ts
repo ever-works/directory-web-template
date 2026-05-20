@@ -5,16 +5,16 @@ import { test, expect } from '@playwright/test';
 // shape" regressions before they hit users.
 
 test.describe('Items public API contract', () => {
-	test('GET /api/items.json returns array (or { items })', async ({ request }) => {
-		const resp = await request.get('/api/items.json');
+	test('GET /items.json returns array (or { items })', async ({ request }) => {
+		const resp = await request.get('/items.json');
 		expect(resp.status()).toBeLessThan(400);
 		const body = await resp.json();
 		const items = Array.isArray(body) ? body : (body.items ?? body.data ?? []);
 		expect(Array.isArray(items)).toBe(true);
 	});
 
-	test('GET /api/items.json respects ?limit cap', async ({ request }) => {
-		const resp = await request.get('/api/items.json?limit=2');
+	test('GET /items.json respects ?limit cap', async ({ request }) => {
+		const resp = await request.get('/items.json?limit=2');
 		expect(resp.status()).toBeLessThan(400);
 		const body = await resp.json();
 		const items = Array.isArray(body) ? body : (body.items ?? body.data ?? []);
@@ -25,13 +25,13 @@ test.describe('Items public API contract', () => {
 		}
 	});
 
-	test('GET /api/items.json with garbage query params does not 5xx', async ({ request }) => {
-		const resp = await request.get('/api/items.json?q=zzz&page=abc&sort=invalid');
+	test('GET /items.json with garbage query params does not 5xx', async ({ request }) => {
+		const resp = await request.get('/items.json?q=zzz&page=abc&sort=invalid');
 		expect(resp.status()).toBeLessThan(500);
 	});
 
-	test('GET /api/items.json on non-existent slug filter returns empty/4xx', async ({ request }) => {
-		const resp = await request.get('/api/items.json?category=zz-fake-category');
+	test('GET /items.json on non-existent slug filter returns empty/4xx', async ({ request }) => {
+		const resp = await request.get('/items.json?category=zz-fake-category');
 		expect(resp.status()).toBeLessThan(500);
 	});
 });

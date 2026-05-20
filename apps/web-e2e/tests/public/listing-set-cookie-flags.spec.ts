@@ -24,7 +24,10 @@ test.describe('Set-Cookie hygiene', () => {
 		});
 
 		test(`${path} cookies on https declare Secure`, async ({ request, baseURL }) => {
-			if (!baseURL || !baseURL.startsWith('https://')) test.skip();
+			if (!baseURL || !baseURL.startsWith('https://')) {
+				test.skip();
+				return;
+			}
 			const resp = await request.get(path);
 			const setCookies = resp.headersArray()
 				.filter((h) => h.name.toLowerCase() === 'set-cookie')

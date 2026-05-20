@@ -3,11 +3,15 @@ import { test, expect } from '@playwright/test';
 // Filtered listings that return zero results should render an empty-state
 // UI — NOT a 404, NOT a 5xx. We don't assert on the empty-state copy.
 
+// Static (non-time-dependent) sentinels so the generated test IDs
+// are stable across Playwright workers — `Date.now()` produced
+// different IDs per worker and the runner reported 0ms-duration
+// failures (test never actually ran).
 const EMPTY_QUERIES = [
-	'/discover/1?q=zzzqxnoresults-' + Date.now(),
-	'/discover/1?tag=does-not-exist-' + Date.now(),
-	'/discover/1?category=does-not-exist-' + Date.now(),
-	'/categories?q=does-not-exist-' + Date.now()
+	'/discover/1?q=zzzqxnoresults-ci',
+	'/discover/1?tag=does-not-exist-ci',
+	'/discover/1?category=does-not-exist-ci',
+	'/categories?q=does-not-exist-ci'
 ];
 
 test.describe('Empty-state listing shape', () => {

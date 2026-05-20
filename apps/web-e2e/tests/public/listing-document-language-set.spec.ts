@@ -9,7 +9,10 @@ test.describe('document.documentElement.lang is set', () => {
 		test(`${path} html lang is non-empty`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const lang = await page.evaluate(() => document.documentElement.lang);
 			expect(lang, `${path} html.lang`).not.toBe('');
 			expect(lang, `${path} html.lang`).not.toBe('undefined');

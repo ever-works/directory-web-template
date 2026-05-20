@@ -16,9 +16,15 @@ test.describe('Error JSON shape', () => {
 	for (const path of PROBES) {
 		test(`GET ${path} 4xx body parses as JSON if CT is json`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() < 400) test.skip();
+			if (resp.status() < 400) {
+				test.skip();
+				return;
+			}
 			const ct = (resp.headers()['content-type'] || '').toLowerCase();
-			if (!ct.includes('application/json')) test.skip();
+			if (!ct.includes('application/json')) {
+				test.skip();
+				return;
+			}
 			const txt = await resp.text();
 			expect(() => JSON.parse(txt)).not.toThrow();
 		});

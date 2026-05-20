@@ -8,7 +8,10 @@ test.describe('Buttons activatable via Enter/Space', () => {
 		// Find the first button-ish role we can hit.
 		const button = page.locator('button').first();
 		const count = await page.locator('button').count();
-		if (count === 0) test.skip();
+		if (count === 0) {
+			test.skip();
+			return;
+		}
 		// Focus the button and press Enter — we don't assert on a side
 		// effect; we just verify no JS crash.
 		await button.focus();

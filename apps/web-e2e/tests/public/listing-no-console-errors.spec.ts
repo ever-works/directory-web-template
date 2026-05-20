@@ -12,7 +12,10 @@ test.describe('No uncaught JS errors during navigation', () => {
 			page.on('pageerror', (err) => uncaught.push(String(err.message || err)));
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			// Settle a bit so any deferred scripts fire.
 			await page.waitForTimeout(800);
 			expect(uncaught, `uncaught errors on ${path}: ${uncaught.join(' | ')}`).toEqual([]);

@@ -69,6 +69,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		title: `${siteConfig.name} | ${siteConfig.tagline}`,
 		description: siteConfig.description,
 		keywords: siteConfig.keywords,
+		// Override the root layout's `robots: 'noindex'` (which is
+		// scoped to `not-found.tsx`) so public listing/detail pages
+		// are indexable by default. Individual pages can still set
+		// their own `robots` via their own `generateMetadata`.
+		robots: { index: true, follow: true },
 		openGraph: {
 			title: `${siteConfig.name} | ${siteConfig.tagline}`,
 			description: siteConfig.description,

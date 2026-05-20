@@ -78,7 +78,13 @@ jobs:
       SEED_FAKE_USER_COUNT: '0'
 
       # --- Content / CMS (avoid hitting real GitHub during build) ---
-      DATA_REPOSITORY: ci-test-repo-not-used
+      # Use a valid-format URL so `ItemRepository.getGitService()` doesn't
+      # throw "Invalid DATA_REPOSITORY format" on every item/category API
+      # call (which the route then catches as a 500). The placeholder repo
+      # is never actually cloned (apps/web/scripts/clone.cjs no-ops on
+      # fetch errors and we pre-create the `.content` stub below).
+      DATA_REPOSITORY: https://github.com/ever-works/ci-fixture-empty
+      GH_TOKEN: ci-fixture-token-not-used
 
       # --- Suppress prod-only features that would fail in CI ---
       NEXT_PUBLIC_DEMO: 'true'
@@ -113,12 +119,107 @@ jobs:
         run: pnpm --filter @ever-works/web-e2e exec playwright install --with-deps chromium
 
       - name: Prepare content directory
+        # The Git-CMS loader reads `.works/works.yml` for site config and
+        # `categories.yml` / `tags.yml` / `collections.yml` for taxonomies.
+        # Without `.works/works.yml`, `config.auth` is undefined and the
+        # /auth/signin form never renders — global-setup then times out
+        # waiting for `#email`. Skipping the real DATA_REPOSITORY clone in CI
+        # means we have to stub these files ourselves. We also seed a few
+        # minimal items so the admin list/filter UI tests have something to
+        # render against.
         run: |
-          mkdir -p apps/web/.content/data
-          # Minimal valid manifest so the Git-CMS loader doesn't blow up.
-          cat > apps/web/.content/data/manifest.json <<'JSON'
-          { "items": [], "categories": [], "tags": [], "collections": [] }
-          JSON
+          mkdir -p apps/web/.content/.works apps/web/.content/data
+          cat > apps/web/.content/.works/works.yml <<'YAML'
+          company_name: E2E
+          item_name: Item
+          items_name: Items
+          copyright_year: 2026
+          content_table: true
+          pagination:
+            type: standard
+            # Low itemsPerPage so our small 3-item CI seed produces
+            # multi-page output — the discover pagination test asserts
+            # `<nav aria-label="pagination">` is rendered.
+            itemsPerPage: 2
+          auth:
+            credentials: true
+          settings:
+            categories_enabled: true
+            tags_enabled: true
+            companies_enabled: true
+            surveys_enabled: true
+            comparisons_enabled: true
+          YAML
+          cat > apps/web/.content/categories.yml <<'YAML'
+          - id: productivity
+            name: Productivity
+          - id: testing
+            name: Testing
+          - id: web-development
+            name: Web Development
+          YAML
+          cat > apps/web/.content/tags.yml <<'YAML'
+          - id: e2e
+            name: E2E
+          - id: sample
+            name: Sample
+          YAML
+          cat > apps/web/.content/collections.yml <<'YAML'
+          - id: e2e-collection
+            name: E2E Collection
+            description: Placeholder collection for CI
+          YAML
+          # Two approved items + one pending so the items-review spec has
+          # something to approve/reject without falling back to its skip
+          # branch on empty content. Every renderable field is set so
+          # the listing components don't surface "undefined" text — the
+          # listing-overall-page-error-state spec asserts < 3 occurrences
+          # of "undefined" in the visible body.
+          for entry in 'sample-item-one|approved' 'sample-item-two|approved' 'sample-item-three|pending'; do
+            slug="${entry%%|*}"
+            status="${entry##*|}"
+            mkdir -p "apps/web/.content/data/$slug"
+            cat > "apps/web/.content/data/$slug/$slug.yml" <<YAML
+          name: Sample ${slug}
+          description: CI placeholder item ${slug}
+          source_url: https://example.com/${slug}
+          icon_url: https://example.com/${slug}/icon.png
+          category: productivity
+          tags:
+            - e2e
+            - sample
+          featured: false
+          status: ${status}
+          submitted_by: admin@e2e.local
+          submitted_at: 2026-01-01 00:00
+          reviewed_by: admin@e2e.local
+          reviewed_at: 2026-01-01 00:00
+          updated_at: 2026-01-01 00:00
+          YAML
+          done
+          # The runtime's hasUsableContent() check requires a `.git`
+          # directory inside `.content/` when DATA_REPOSITORY is set. We
+          # don't actually want CI to clone the real data repo (it
+          # would 401 on the placeholder), so initialize a git repo
+          # here with a dummy `origin` remote matching DATA_REPOSITORY
+          # so isomorphic-git's pull/sync calls have a remote name to
+          # resolve (they swallow network errors on fetch but throw a
+          # MissingParameterError when no remote exists at all).
+          git init --quiet apps/web/.content
+          git -C apps/web/.content remote add origin "$DATA_REPOSITORY"
+          # Persist committer identity in the repo's local config so
+          # runtime calls (isomorphic-git's git.pull) that need a
+          # committer name don't crash with MissingNameError.
+          git -C apps/web/.content config user.email "ci@e2e.local"
+          git -C apps/web/.content config user.name "ci"
+          git -C apps/web/.content config commit.gpgsign false
+          git -C apps/web/.content add .
+          git -C apps/web/.content commit --quiet -m "ci: seed content stub"
+          # Pretend `main` is at this commit on origin too — the git
+          # service walks refs/remotes/origin/main when computing
+          # version / commit info.
+          git -C apps/web/.content branch -M main
+          git -C apps/web/.content update-ref refs/remotes/origin/main HEAD
 
       - name: Run database migrations
         # Pushes Drizzle schema to the empty postgres service. Without it
@@ -126,12 +227,11 @@ jobs:
         run: pnpm --filter @ever-works/web db:migrate || echo "Migrations skipped (script missing or non-fatal)"
         continue-on-error: true
 
-      - name: Seed admin account
-        # Idempotent: tries to insert the SEED_ADMIN_* account so global-setup
-        # can sign in. If the project has its own seed script, prefer that;
-        # otherwise fall back to a direct insert.
-        run: pnpm --filter @ever-works/web db:seed || echo "Seed skipped (script missing or non-fatal)"
-        continue-on-error: true
+      # Admin seeding happens automatically on first request via
+      # instrumentation.ts (DB Init). It honors SEED_ADMIN_* env vars and
+      # is what created the admin in earlier runs. The standalone `db:seed`
+      # script (cli-seed.ts) currently imports a client-only module and
+      # crashes — no need to invoke it here.
 
       - name: Run e2e tests (shard ${{ matrix.shard }}/${{ matrix.total }})
         run: |

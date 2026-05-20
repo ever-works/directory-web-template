@@ -9,7 +9,10 @@ test.describe('No duplicate DOM ids', () => {
 		test(`${path} ids are unique`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const dups = await page.evaluate(() => {
 				const ids = Array.from(document.querySelectorAll('[id]'))
 					.map((el) => el.getAttribute('id'))

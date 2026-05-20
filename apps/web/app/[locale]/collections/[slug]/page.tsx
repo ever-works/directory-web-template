@@ -9,7 +9,12 @@ import { getLocalizedUrl } from "@/lib/seo/hreflang";
 import { generateBreadcrumbSchema, generateCollectionSchema } from "@/lib/seo/schema";
 import type { Locale } from "@/lib/constants";
 
-// Enable ISR with 10 minutes revalidation
+// Force dynamic rendering — the page consults dynamic APIs
+// (cookies / db state inside collectionRepository) during render
+// and a static build chokes with DYNAMIC_SERVER_USAGE.
+// `revalidate` is no-op under force-dynamic but kept for the day
+// the dynamic-usage chain is removed.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export async function generateMetadata({

@@ -257,8 +257,14 @@ export async function GET() {
 
   } catch (error) {
     console.error('Error fetching user payments:', error);
+    const message = error instanceof Error ? error.message : '';
+    // Stripe not configured — return a 200 "no payments" envelope
+    // rather than a 5xx. The payment-history panel is optional.
+    if (/Stripe configuration is incomplete/i.test(message)) {
+      return NextResponse.json({ payments: [] });
+    }
     return NextResponse.json(
-      { error: 'Failed to fetch payment data' }, 
+      { error: 'Failed to fetch payment data' },
       { status: 500 }
     );
   }

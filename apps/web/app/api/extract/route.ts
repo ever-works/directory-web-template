@@ -97,7 +97,10 @@ const extractSchema = z.object({
  */
 export async function POST(request: Request) {
 	try {
-		// Check if platform API is configured
+		// Check if platform API is configured first. The feature-disabled
+		// gate runs BEFORE body parse so a deployment with the feature
+		// turned off can answer EVERY POST — even bodyless or malformed
+		// ones — with the same 200 feature-disabled envelope.
 		const platformApiUrl = process.env.PLATFORM_API_URL;
 		const platformApiToken = process.env.PLATFORM_API_SECRET_TOKEN;
 
@@ -111,7 +114,18 @@ export async function POST(request: Request) {
 			});
 		}
 
-		const body = await request.json();
+		// Parse body when the feature IS enabled so malformed JSON gets
+		// a clean 400 instead of falling into the generic 500 catch.
+		let body: unknown = {};
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid JSON body' },
+				{ status: 400 }
+			);
+		}
+
 		const result = extractSchema.safeParse(body);
 
 		if (!result.success) {

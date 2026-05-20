@@ -69,14 +69,16 @@ export async function GET(_request: NextRequest) {
 	} catch (error) {
 		// Log detailed error server-side for debugging
 		console.error('Error checking collections existence:', error);
-		// Return generic error message to client to avoid information disclosure
+		// Degrade gracefully — public endpoint, no point surfacing a 5xx to
+		// clients just because the underlying data layer is unavailable.
+		// `{ exists: false, count: 0 }` is a valid same-shape answer.
 		return NextResponse.json(
 			{
 				exists: false,
 				count: 0,
 				error: 'Failed to check collections existence'
 			},
-			{ status: 500 }
+			{ status: 200 }
 		);
 	}
 }

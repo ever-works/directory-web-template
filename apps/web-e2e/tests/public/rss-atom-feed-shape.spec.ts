@@ -7,7 +7,10 @@ test.describe('RSS / Atom feed shape', () => {
 	test('/rss.xml is XML and has <rss> root', async ({ request }) => {
 		const resp = await request.get('/rss.xml');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.text();
 		expect(body.startsWith('<?xml')).toBe(true);
 		// Accept either <rss> or <feed> (some sites swap them on /rss.xml).
@@ -17,7 +20,10 @@ test.describe('RSS / Atom feed shape', () => {
 	test('/atom.xml is XML and has <feed> root', async ({ request }) => {
 		const resp = await request.get('/atom.xml');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.text();
 		expect(body.startsWith('<?xml')).toBe(true);
 		expect(/<feed/i.test(body), 'atom root present').toBe(true);
@@ -26,7 +32,10 @@ test.describe('RSS / Atom feed shape', () => {
 	test('/feed.json declares jsonfeed version', async ({ request }) => {
 		const resp = await request.get('/feed.json');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.json().catch(() => null);
 		expect(body, 'feed body').toBeTruthy();
 		// JSON Feed 1.x requires "version" field.

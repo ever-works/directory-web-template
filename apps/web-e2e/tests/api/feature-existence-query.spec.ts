@@ -201,8 +201,8 @@ const FEATURE_EXISTENCE_QUERIES = [
 ] as const;
 
 test.describe('API: Public feature-existence endpoints query-param surface', () => {
-	for (const path of FEATURE_EXISTENCE_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of FEATURE_EXISTENCE_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// `categories/exists` and `surveys/exists` deliberately

@@ -9,7 +9,10 @@ test.describe('No full-screen blocker on first paint', () => {
 	test('/ has no fullscreen z-index 9999 overlay', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		await page.waitForTimeout(500);
 		const blockers = await page.evaluate(() => {
 			const blockers: string[] = [];

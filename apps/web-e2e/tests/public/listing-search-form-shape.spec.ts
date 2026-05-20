@@ -8,7 +8,10 @@ test.describe('Search form shape', () => {
 	test('/ search form (if present) is GET with q input', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const forms = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('form'))
 				.filter((f) => f.querySelector('input[name="q"]'))

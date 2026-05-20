@@ -7,7 +7,10 @@ test.describe('Sitemap listing shape', () => {
 	test('/sitemap.xml lists at least one absolute URL', async ({ request }) => {
 		const resp = await request.get('/sitemap.xml');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.text();
 		const matches = body.match(/<loc>(https?:[^<]+)<\/loc>/g);
 		expect(matches, 'sitemap.xml has at least one <loc>').toBeTruthy();
@@ -16,7 +19,10 @@ test.describe('Sitemap listing shape', () => {
 
 	test('/sitemap.xml does not include /api/ or /admin/', async ({ request }) => {
 		const resp = await request.get('/sitemap.xml');
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.text();
 		expect(body.toLowerCase()).not.toContain('<loc>https://');
 		// The above might give false negatives — instead validate per URL.

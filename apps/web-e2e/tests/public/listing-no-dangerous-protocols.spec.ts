@@ -11,7 +11,10 @@ test.describe('No dangerous protocols on key pages', () => {
 		test(`${path} no javascript:/data:html/vbscript: hrefs`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const bad = await page.evaluate(
 				(proto) => {
 					const sels = ['a[href]', 'script[src]', 'iframe[src]', 'img[src]'];

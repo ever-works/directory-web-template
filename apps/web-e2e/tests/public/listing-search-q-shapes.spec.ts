@@ -34,8 +34,8 @@ const Q_PROBES = [
 ];
 
 test.describe('Listing /discover/1?q=<shape> tolerance', () => {
-	for (const q of Q_PROBES) {
-		test(`q=${JSON.stringify(q.slice(0, 24))} non-5xx`, async ({ request }) => {
+	for (const [i, q] of Q_PROBES.entries()) {
+		test(`#${i} q=${JSON.stringify(q.slice(0, 24))} non-5xx`, async ({ request }) => {
 			const resp = await request.get('/discover/1?q=' + encodeURIComponent(q));
 			expect(resp.status()).toBeLessThan(500);
 		});

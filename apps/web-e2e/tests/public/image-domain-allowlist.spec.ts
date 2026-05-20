@@ -8,7 +8,10 @@ test.describe('Homepage <img> sources resolve', () => {
 	test('every <img src> on / resolves to a real asset', async ({ page, request }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const srcs = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('img[src]'))
 				.map((img) => img.getAttribute('src') || '')

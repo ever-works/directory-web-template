@@ -7,7 +7,10 @@ test.describe('Preconnect / dns-prefetch shape', () => {
 	test('/ preconnect hrefs are well-formed', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const hrefs = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('link[rel="preconnect"],link[rel="dns-prefetch"]'))
 				.map((el) => el.getAttribute('href') || '')

@@ -9,7 +9,10 @@ test.describe('Form inputs have accessible names', () => {
 		test(`${path} inputs have label/aria-label/placeholder`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const unnamed = await page.evaluate(() => {
 				const inputs = Array.from(document.querySelectorAll<HTMLInputElement>('input'))
 					.filter((i) => !['hidden', 'submit', 'button'].includes(i.type));

@@ -6,7 +6,10 @@ test.describe('Service worker shape', () => {
 	test('/sw.js when 200 is JavaScript content-type', async ({ request }) => {
 		const resp = await request.get('/sw.js');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() !== 200) test.skip();
+		if (resp.status() !== 200) {
+			test.skip();
+			return;
+		}
 		const ct = (resp.headers()['content-type'] || '').toLowerCase();
 		expect(ct).toMatch(/javascript|ecmascript/);
 	});
@@ -14,7 +17,10 @@ test.describe('Service worker shape', () => {
 	test('/service-worker.js when 200 is JavaScript content-type', async ({ request }) => {
 		const resp = await request.get('/service-worker.js');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() !== 200) test.skip();
+		if (resp.status() !== 200) {
+			test.skip();
+			return;
+		}
 		const ct = (resp.headers()['content-type'] || '').toLowerCase();
 		expect(ct).toMatch(/javascript|ecmascript/);
 	});

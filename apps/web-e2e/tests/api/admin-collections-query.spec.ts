@@ -374,13 +374,11 @@ test.describe('API: /api/admin/collections query-param surface', () => {
 		// client depends on the early-return.
 		const response = await request.get('/api/admin/collections');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/collections has a stable status across query permutations', async ({

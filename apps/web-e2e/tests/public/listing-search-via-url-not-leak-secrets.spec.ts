@@ -16,7 +16,10 @@ const SENSITIVE = [
 test.describe('Listing pages do not echo server env names', () => {
 	test('GET / does not include secret env names', async ({ request }) => {
 		const resp = await request.get('/');
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = (await resp.text()).toLowerCase();
 		for (const needle of SENSITIVE) {
 			expect(body.includes(needle.toLowerCase() + '='), `/ contains ${needle}=`).toBe(false);
@@ -25,7 +28,10 @@ test.describe('Listing pages do not echo server env names', () => {
 
 	test('GET /api/items.json does not echo secrets', async ({ request }) => {
 		const resp = await request.get('/api/items.json');
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = (await resp.text()).toLowerCase();
 		for (const needle of SENSITIVE) {
 			expect(body.includes(needle.toLowerCase() + '='), `items.json contains ${needle}=`).toBe(false);

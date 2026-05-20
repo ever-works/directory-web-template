@@ -21,12 +21,16 @@ test.describe('NextAuth discovery endpoints — deeper', () => {
 		});
 	}
 
-	test('GET /api/auth/session anonymous returns shape', async ({ request }) => {
+	test('GET /api/auth/session anonymous returns valid JSON shape', async ({ request }) => {
 		const resp = await request.get('/api/auth/session');
 		expect(resp.status()).toBe(200);
-		const body = await resp.json().catch(() => null);
-		// May be {} for no session or { user: null }; in either case JSON parseable.
-		expect(body).not.toBeNull();
+		// NextAuth v5 returns the literal `null` body for unauthenticated
+		// sessions (not `{}`). Accept any of: null, {}, { user: null }.
+		const text = await resp.text();
+		expect(text.length).toBeGreaterThan(0);
+		// Must parse — invalid JSON would have thrown.
+		const body = JSON.parse(text);
+		expect(body === null || typeof body === 'object').toBe(true);
 	});
 
 	test('GET /api/auth/csrf returns csrfToken-shaped JSON', async ({ request }) => {

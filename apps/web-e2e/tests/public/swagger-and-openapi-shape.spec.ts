@@ -29,7 +29,10 @@ test.describe('Swagger / OpenAPI probe tolerance', () => {
 
 		test(`${path} body does not leak server secrets`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const txt = await resp.text();
 			for (const needle of FORBIDDEN_NEEDLES) {
 				expect(txt.toLowerCase().includes(needle.toLowerCase()), `${path} leaks ${needle}`).toBe(

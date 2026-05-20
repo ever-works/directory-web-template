@@ -10,7 +10,10 @@ test.describe('h1 count sanity', () => {
 		test(`${path} has <=3 h1 elements`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const count = await page.locator('h1').count();
 			expect(count, `${path} h1 count = ${count}`).toBeLessThanOrEqual(3);
 		});

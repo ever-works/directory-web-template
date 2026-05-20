@@ -10,7 +10,10 @@ test.describe('No deprecated HTML tags', () => {
 	for (const path of PROBES) {
 		test(`${path} no deprecated tags`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = (await resp.text()).toLowerCase();
 			for (const tag of DEPRECATED) {
 				expect(body.includes(tag), `${path} contains ${tag}`).toBe(false);

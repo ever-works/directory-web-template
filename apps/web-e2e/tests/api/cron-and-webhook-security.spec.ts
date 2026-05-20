@@ -43,12 +43,15 @@ test.describe('Platform webhook endpoint security', () => {
 		expect([401, 403, 404, 503]).toContain(status);
 	});
 
-	test('GET /api/platform/activity-feed with bad HMAC rejects with 4xx', async ({ request }) => {
+	test('GET /api/platform/activity-feed with bad HMAC rejects with 4xx or 503', async ({ request }) => {
 		const resp = await request.get('/api/platform/activity-feed', {
 			headers: { 'x-signature': 'garbage' }
 		});
 		const status = resp.status();
 		expect(status).toBeGreaterThanOrEqual(400);
-		expect(status).toBeLessThan(500);
+		// 503 (not_provisioned) is the documented graceful-degradation
+		// outcome when PLATFORM_SYNC_SECRET is unset (the CI case);
+		// matches the sibling "without HMAC" test above.
+		expect([400, 401, 403, 404, 503]).toContain(status);
 	});
 });

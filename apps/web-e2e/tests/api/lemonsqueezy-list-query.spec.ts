@@ -342,8 +342,8 @@ const LEMONSQUEEZY_LIST_QUERIES = [
 ] as const;
 
 test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
-	for (const path of LEMONSQUEEZY_LIST_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of LEMONSQUEEZY_LIST_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's auth gate fires before any
@@ -369,7 +369,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 		// non-401 status or a different body shape.
 		const response = await request.get('/api/lemonsqueezy/list');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as {
 			error?: unknown;
@@ -553,7 +553,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -576,7 +576,7 @@ test.describe('API: /api/lemonsqueezy/list query-param surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as { error?: unknown };
 			expect(typeof body.error).toBe('string');

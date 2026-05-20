@@ -10,7 +10,10 @@ test.describe('HTML coarse validity', () => {
 	for (const path of PROBES) {
 		test(`${path} HTML has no obviously broken patterns`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = await resp.text();
 			// 1. No literal "undefined" in script src
 			expect(body).not.toMatch(/<script[^>]+src=["']?undefined/);

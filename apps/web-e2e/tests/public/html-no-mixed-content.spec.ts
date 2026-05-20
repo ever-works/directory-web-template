@@ -11,9 +11,15 @@ test.describe('Mixed-content audit', () => {
 		test(`${path} has no plain http:// asset src`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			// Only care if WE are on HTTPS — otherwise nothing to mix.
-			if (!page.url().startsWith('https://')) test.skip();
+			if (!page.url().startsWith('https://')) {
+				test.skip();
+				return;
+			}
 
 			const bad = await page.evaluate(() => {
 				const collect = (sel: string, attr: string) =>

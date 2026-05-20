@@ -30,9 +30,11 @@ test.describe('Solidgate API rejects anonymous', () => {
 		expect(resp.status()).toBeGreaterThanOrEqual(400);
 	});
 
-	test('GET /api/solidgate/webhook is method-not-allowed (not 5xx)', async ({ request }) => {
+	test('GET /api/solidgate/webhook responds without a server error', async ({ request }) => {
+		// Solidgate's GET handler returns 200 with an informational
+		// envelope (documented in the dedicated solidgate-webhook-body
+		// spec). The contract here is just "no 5xx".
 		const resp = await request.get('/api/solidgate/webhook');
 		expect(resp.status()).toBeLessThan(500);
-		expect(resp.status()).toBeGreaterThanOrEqual(400);
 	});
 });

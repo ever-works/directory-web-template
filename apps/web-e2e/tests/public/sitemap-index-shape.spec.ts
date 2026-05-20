@@ -6,10 +6,16 @@ import { test, expect } from '@playwright/test';
 test.describe('Sitemap index nested URLs (if present)', () => {
 	test('/sitemap.xml nested sitemap URLs resolve', async ({ request }) => {
 		const resp = await request.get('/sitemap.xml');
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.text();
 		const isIndex = body.includes('<sitemapindex');
-		if (!isIndex) test.skip();
+		if (!isIndex) {
+			test.skip();
+			return;
+		}
 		const urls = (body.match(/<loc>([^<]+)<\/loc>/g) || [])
 			.map((m) => m.replace(/<\/?loc>/g, ''))
 			.slice(0, 5);

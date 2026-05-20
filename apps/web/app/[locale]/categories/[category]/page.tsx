@@ -108,6 +108,11 @@ export default async function CategoryListing({
   const { categories, tags, items: allItems } = await getCachedItems({ lang: locale });
   const { id: resolvedCategory, matched: matchedCategory } = resolveCategoryId(categories, category);
 
+  // Unknown category slug → proper 404 (not a soft-404 with empty list).
+  if (!matchedCategory) {
+    notFound();
+  }
+
   // Server-side: filter by the path-encoded category PLUS any URL filters
   // (search, additional tags), sort, then slice for the current page. See
   // Spec 020 for why this is a hard requirement — previously this route

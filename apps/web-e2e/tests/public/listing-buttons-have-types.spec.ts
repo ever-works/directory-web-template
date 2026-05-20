@@ -7,7 +7,10 @@ test.describe('Button type attribute on auth forms', () => {
 	test('/auth/signin buttons inside forms have type', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const missing = await page.evaluate(() => {
 			const formBtns = Array.from(document.querySelectorAll('form button'));
 			// We allow no-type if there's only one button per form (clear submit).

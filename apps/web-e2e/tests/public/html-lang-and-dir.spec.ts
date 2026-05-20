@@ -17,7 +17,10 @@ test.describe('html lang attribute coverage', () => {
 		test(`${path || '/'} html has lang attribute`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const got = await page.locator('html').getAttribute('lang').catch(() => null);
 			expect(got, `html[lang] on ${path}`).toBeTruthy();
 			if (got) {
@@ -29,7 +32,10 @@ test.describe('html lang attribute coverage', () => {
 	test('ar locale html has dir=rtl', async ({ page }) => {
 		const resp = await page.goto('/ar', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const dir = await page.locator('html').getAttribute('dir').catch(() => null);
 		// Many setups omit dir entirely and rely on CSS — we just verify
 		// that IF it's set, it's "rtl" for arabic.

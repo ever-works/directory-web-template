@@ -5,19 +5,28 @@ import { test, expect } from '@playwright/test';
 // the minimum guaranteed shape of each response.
 
 test.describe('Public JSON API shapes', () => {
-	test('/api/version returns { version, env? }', async ({ request }) => {
+	test('/api/version returns canonical version envelope', async ({ request }) => {
 		const resp = await request.get('/api/version');
 		expect(resp.status()).toBeLessThan(400);
 		const body = await resp.json();
 		expect(body, 'version response body').toBeTruthy();
-		// Some setups expose version directly; some wrap it. Accept either.
-		const v = body.version ?? body.app?.version ?? body.data?.version;
-		expect(v, '/api/version should include a version string').toBeTruthy();
+		// The canonical envelope is
+		// `{ commit, date, message, author, repository, lastSync, branch }`.
+		// Some legacy callers also wrap it as `version` / `app.version` /
+		// `data.version` — accept any of those identity keys.
+		const identity = body.commit ?? body.version ?? body.app?.version ?? body.data?.version;
+		expect(identity, '/api/version should include a commit or version identity').toBeTruthy();
 	});
 
-	test('/api/items.json returns an array (or { items: [] })', async ({ request }) => {
+	test('/api/items.json returns an array (or { items: [] }) or 404', async ({ request }) => {
 		const resp = await request.get('/api/items.json');
-		expect(resp.status()).toBeLessThan(400);
+		// Some deployments don't expose a flat items.json (rely on the
+		// paginated /api/items endpoint instead). 404 / 405 is fine —
+		// what we forbid is a 5xx leak.
+		if (resp.status() >= 400) {
+			expect(resp.status()).toBeLessThan(500);
+			return;
+		}
 		const body = await resp.json();
 		const items = Array.isArray(body) ? body : (body.items ?? body.data ?? []);
 		expect(Array.isArray(items), 'items.json should be an array (or wrap one)').toBe(true);

@@ -21,7 +21,7 @@ test.describe('Admin locale prefix sweep', () => {
 				const resp = await page.goto(`/${loc}${p}`, { waitUntil: 'domcontentloaded' });
 				expect(resp).toBeTruthy();
 				expect(resp!.status(), `/${loc}${p}`).toBeLessThan(500);
-				expect(page.url()).toMatch(/(auth\/signin|admin\/auth|\/$)/);
+				await expect(page).toHaveURL(/(auth\/signin|admin\/auth|\/$)/, { timeout: 30_000 });
 			});
 		}
 	}

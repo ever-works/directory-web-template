@@ -4,9 +4,16 @@ import { test, expect } from '@playwright/test';
 // 200/500). The 404 page may render localized chrome but the HTTP status
 // must be 404.
 
-const LOCALES = ['', 'de', 'fr', 'es', 'it', 'pt', 'ja'];
+// Only the locales actually configured in this template — `it`, `pt`,
+// `ja` aren't shipped, so /<unknown-locale>/... renders the
+// default-locale 404 page (not a per-locale 404) and the test was
+// over-asserting.
+const LOCALES = ['', 'de', 'fr', 'es'];
 
-const UNKNOWN_PATH = '/this-page-does-not-exist-' + Math.random().toString(36).slice(2, 10);
+// Static path — `Math.random()` produced non-deterministic test IDs
+// across Playwright workers (same issue as `Date.now()` in the
+// listing-empty-state spec).
+const UNKNOWN_PATH = '/this-page-does-not-exist-ci-sentinel';
 
 test.describe('Localized 404: unknown paths return 404 per locale', () => {
 	for (const locale of LOCALES) {

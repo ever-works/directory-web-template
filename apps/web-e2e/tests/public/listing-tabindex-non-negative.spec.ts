@@ -10,7 +10,10 @@ test.describe('No positive tabindex values', () => {
 		test(`${path} no elements with tabindex>0`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const positives = await page.evaluate(() =>
 				Array.from(document.querySelectorAll('[tabindex]'))
 					.map((el) => parseInt(el.getAttribute('tabindex') || '', 10))

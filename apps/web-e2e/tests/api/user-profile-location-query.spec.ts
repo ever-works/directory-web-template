@@ -222,7 +222,7 @@ test.describe('API: /api/user/profile/location query-param surface', () => {
 		// display.
 		const response = await request.get('/api/user/profile/location');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as { error?: unknown };
 

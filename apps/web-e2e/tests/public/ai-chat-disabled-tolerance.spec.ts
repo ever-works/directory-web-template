@@ -16,12 +16,13 @@ test.describe('AI chat — graceful disabled state', () => {
 		const resp = await request.post('/api/chat', {
 			data: { messages: [{ role: 'user', content: 'hi' }] }
 		});
-		// 503 (disabled), 401 (auth required), 403 (rate-limited / not allowed)
-		// are all valid. Just no 5xx / 200 leak.
+		// Documented contract: 503 (provider-not-configured) when
+		// AI_CHAT_API_KEY is missing; 401 / 403 for auth/persona
+		// gates; 4xx for validation errors. What we must NEVER see
+		// is any OTHER 5xx (500, 502, 504, …) or a 200 leak.
 		const status = resp.status();
-		expect(status).toBeLessThan(500);
+		expect(status === 503 || status < 500).toBeTruthy();
 		if (status >= 200 && status < 300) {
-			// Probably a streaming response — we accept it but log.
 			console.log(`/api/chat returned ${status}; AI may be configured in this env`);
 		}
 	});

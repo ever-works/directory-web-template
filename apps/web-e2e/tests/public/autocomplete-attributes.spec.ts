@@ -10,7 +10,10 @@ test.describe('Autocomplete attributes on auth forms', () => {
 	test('signin form password autocomplete is not "off"', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const wrong = await page.evaluate((bad) => {
 			return Array.from(document.querySelectorAll('input[type="password"]'))
 				.map((el) => (el as HTMLInputElement).getAttribute('autocomplete') || '')
@@ -22,7 +25,10 @@ test.describe('Autocomplete attributes on auth forms', () => {
 	test('register form password autocomplete is not "off"', async ({ page }) => {
 		const resp = await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const wrong = await page.evaluate((bad) => {
 			return Array.from(document.querySelectorAll('input[type="password"]'))
 				.map((el) => (el as HTMLInputElement).getAttribute('autocomplete') || '')

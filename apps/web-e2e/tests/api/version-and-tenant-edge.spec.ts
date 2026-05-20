@@ -7,7 +7,10 @@ test.describe('Version + tenant + sync edges', () => {
 	test('GET /api/version returns JSON with content', async ({ request }) => {
 		const resp = await request.get('/api/version');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = await resp.json().catch(() => null);
 		expect(body).toBeTruthy();
 	});

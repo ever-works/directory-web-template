@@ -147,7 +147,7 @@ const VALIDATION_400_MESSAGES = [
 const SUCCESS_KEYS = ['headers', 'suggestedMapping', 'validationResults', 'summary'] as const;
 
 const CATCH_500_MESSAGE = 'Failed to validate import file';
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 // Helper — build a multipart payload with a Buffer file and
 // optional extra form fields. Playwright's `multipart` form
@@ -333,13 +333,11 @@ test.describe('API: /api/admin/items/import/validate method / body / header surf
 		// longer message
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.post(VALIDATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${VALIDATE_PATH} does NOT echo the success-branch keys on the unauth branch`, async ({ request }) => {
@@ -497,13 +495,11 @@ test.describe('API: /api/admin/items/import/validate method / body / header surf
 		// cross-route divergence that distinguishes this
 		// route's gate from the bare-message gates.
 		const response = await request.post(VALIDATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

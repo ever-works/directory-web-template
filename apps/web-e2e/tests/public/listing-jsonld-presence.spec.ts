@@ -10,7 +10,10 @@ test.describe('JSON-LD presence (advisory)', () => {
 		test(`${path} has at least one application/ld+json script (if any)`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const count = await page.locator('script[type="application/ld+json"]').count();
 			// Advisory — log how many were found.
 			console.log(`${path}: json-ld script count = ${count}`);

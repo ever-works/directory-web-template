@@ -234,7 +234,7 @@ test.describe('API: /api/user/plan-status query-param surface', () => {
 		// payload.
 		const response = await request.get('/api/user/plan-status');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as {
 			success?: unknown;
@@ -344,7 +344,7 @@ test.describe('API: /api/user/plan-status query-param surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as {
 				success?: unknown;

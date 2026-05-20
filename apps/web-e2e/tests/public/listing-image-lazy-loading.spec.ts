@@ -7,7 +7,10 @@ test.describe('Off-fold images use lazy loading', () => {
 	test('/discover/1 below-fold images mostly have loading=lazy', async ({ page }) => {
 		const resp = await page.goto('/discover/1', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const stats = await page.evaluate(() => {
 			const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img'));
 			const vh = window.innerHeight;
@@ -20,7 +23,10 @@ test.describe('Off-fold images use lazy loading', () => {
 			}
 			return off;
 		});
-		if (stats.length === 0) test.skip();
+		if (stats.length === 0) {
+			test.skip();
+			return;
+		}
 		const lazy = stats.filter((s) => s.loading === 'lazy').length;
 		console.log(`/discover/1: ${lazy}/${stats.length} off-fold images use lazy loading`);
 		expect(lazy / stats.length).toBeGreaterThan(0.0);

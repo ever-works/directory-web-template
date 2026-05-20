@@ -21,7 +21,10 @@ test.describe('No React error overlay in HTML', () => {
 		test(`${path} HTML body does not contain React error markers`, async ({ request }) => {
 			const resp = await request.get(path);
 			expect(resp.status()).toBeLessThan(500);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = await resp.text();
 			for (const needle of NO_ERROR_TEXT) {
 				expect(body.toLowerCase().includes(needle.toLowerCase()), `${path} contains "${needle}"`).toBe(

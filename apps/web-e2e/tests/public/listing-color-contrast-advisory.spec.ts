@@ -6,7 +6,10 @@ test.describe('Body text color contrast (advisory)', () => {
 	test('/ body text and bg are not identical', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const sample = await page.evaluate(() => {
 			const body = document.body;
 			const style = getComputedStyle(body);

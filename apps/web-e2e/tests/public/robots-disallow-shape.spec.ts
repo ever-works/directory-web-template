@@ -10,7 +10,10 @@ test.describe('robots.txt disallow shape', () => {
 	}) => {
 		const resp = await request.get('/robots.txt');
 		expect(resp.status()).toBeLessThan(500);
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = (await resp.text()).toLowerCase();
 		// If robots.txt is non-trivial, disallow /admin or /api/internal.
 		if (body.length > 50) {

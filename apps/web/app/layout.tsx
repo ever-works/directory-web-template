@@ -24,6 +24,11 @@ const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ||
 	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
 const appUrl = cleanUrl(rawUrl);
 
+// Root metadata used by `not-found.tsx` and any path outside `[locale]`.
+// The `robots: 'noindex'` here is scoped to the not-found page — child
+// layouts (e.g. `[locale]/layout.tsx`) override it via `generateMetadata`
+// so public listings are indexable. If you change this default, also
+// update those overrides.
 export const metadata: Metadata = {
 	metadataBase: new URL(appUrl),
 	title: `404 - Page Not Found | ${siteConfig.name}`,

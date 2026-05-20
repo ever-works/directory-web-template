@@ -95,25 +95,24 @@ export async function GET() {
     // Parse DATA_REPOSITORY URL to extract owner and repo
     const dataRepo = process.env.DATA_REPOSITORY;
     if (!dataRepo) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable." 
-        },
-        { status: 500 }
-      );
+      // Missing configuration isn't a server error — return a 200 with
+      // `configured: false` so the admin UI can show "Git sync not set
+      // up" rather than crashing with a 5xx.
+      return NextResponse.json({
+        success: false,
+        configured: false,
+        error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+      });
     }
 
     // Extract owner and repo from URL like: https://github.com/ever-co/awesome-time-tracking-data
     const match = dataRepo.match(/https:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
     if (!match) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo" 
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: false,
+        configured: false,
+        error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+      });
     }
 
     const [, owner, repo] = match;
@@ -125,13 +124,11 @@ export async function GET() {
     };
 
     if (!gitConfig.token) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: "GitHub token not configured. Please set GITHUB_TOKEN environment variable." 
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: false,
+        configured: false,
+        error: "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
+      });
     }
 
     // Create Git service

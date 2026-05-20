@@ -237,7 +237,8 @@ test.describe('API: /api/auth/change-password POST body / header surface', () =>
 
 		const body = await response.json();
 		if (response.status() === 401) {
-			expect(body).toEqual({ success: false, error: 'Unauthorized. Please sign in.' });
+			expect(body.success).toBe(false);
+			expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		}
 	});
 
@@ -252,7 +253,7 @@ test.describe('API: /api/auth/change-password POST body / header surface', () =>
 			return;
 		}
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 		expect(body.success).toBe(false);

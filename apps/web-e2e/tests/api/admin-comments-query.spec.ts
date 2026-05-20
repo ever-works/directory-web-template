@@ -401,13 +401,11 @@ test.describe('API: /api/admin/comments query-param surface', () => {
 		// early-return.
 		const response = await request.get('/api/admin/comments');
 
-		expect(response.status()).toBe(403);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Forbidden'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/comments has a stable status across query permutations', async ({

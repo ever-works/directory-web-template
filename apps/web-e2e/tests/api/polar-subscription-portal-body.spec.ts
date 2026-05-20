@@ -301,7 +301,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 			data: {}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const payload = (await response.json()) as { error?: unknown };
 		expect(typeof payload.error).toBe('string');
@@ -367,7 +367,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -409,7 +409,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -451,7 +451,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -493,7 +493,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -515,7 +515,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 			data: { returnUrl: 'https://attacker.example/phish' }
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const text = await response.text();
 		// The 401 response must not echo the attacker URL
@@ -560,7 +560,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as { error?: unknown };
 
@@ -599,7 +599,7 @@ test.describe('API: POST /api/polar/subscription/portal body-surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 });

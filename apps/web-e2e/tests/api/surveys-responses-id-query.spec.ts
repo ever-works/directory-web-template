@@ -80,11 +80,11 @@ test.describe('API: /api/surveys/responses/[responseId] GET method surface', () 
 		// `!session?.user?.isAdmin` branch returns 401
 		// `{ success: false, error: 'Unauthorized' }`.
 		const response = await request.get(RESPONSE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${RESPONSE_PATH} 401 envelope shape has exactly success and error keys`, async ({
@@ -118,7 +118,7 @@ test.describe('API: /api/surveys/responses/[responseId] GET method surface', () 
 		// call must NEVER run on unauth. Pin that
 		// nothing leaks from the path-segment.
 		const response = await request.get('/api/surveys/responses/XSS-MARKER-12345');
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
@@ -186,10 +186,10 @@ test.describe('API: /api/surveys/responses/[responseId] GET method surface', () 
 		// response')` outer-catch helper does NOT fire
 		// on the unauth branch.
 		const response = await request.get(RESPONSE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to fetch response');
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 });

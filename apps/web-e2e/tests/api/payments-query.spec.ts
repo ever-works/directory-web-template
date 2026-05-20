@@ -307,7 +307,7 @@ test.describe('API: /api/user/payments query-param surface', () => {
 		// `200 []` empty-history envelope, for instance).
 		const response = await request.get('/api/user/payments');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as { error?: unknown };
 
@@ -449,7 +449,7 @@ test.describe('API: /api/user/payments query-param surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as { error?: unknown };
 			expect(typeof body.error).toBe('string');

@@ -48,11 +48,18 @@ async function globalSetup(config: FullConfig) {
 	const browser = await chromium.launch();
 
 	// Generate admin auth state
+	let adminContext;
+	let adminPage;
 	try {
-		const adminContext = await browser.newContext();
-		const adminPage = await adminContext.newPage();
+		adminContext = await browser.newContext();
+		adminPage = await adminContext.newPage();
 
 		await adminPage.goto(`${baseURL}/auth/signin`, { timeout: 60_000 });
+		// Wait for the form to actually render. The signin form is gated on
+		// `config.auth.credentials` (loaded from .content/.works/works.yml).
+		// If that file is missing the form never appears — surface that as a
+		// clear error here instead of as an opaque locator timeout below.
+		await adminPage.locator('#email').waitFor({ state: 'visible', timeout: 30_000 });
 		await adminPage.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
 		await adminPage.locator('#password').fill(TEST_DATA.ADMIN_PASSWORD);
 		await adminPage.getByRole('button', { name: /sign in/i }).click();
@@ -63,6 +70,29 @@ async function globalSetup(config: FullConfig) {
 		await adminContext.close();
 		console.log('[global-setup] Admin auth state saved');
 	} catch (error) {
+		// Capture diagnostics before tearing down so CI artifacts include
+		// enough context to debug (URL, page snippet, screenshot).
+		if (adminPage) {
+			try {
+				const diagDir = path.resolve(__dirname, 'test-results');
+				if (!fs.existsSync(diagDir)) fs.mkdirSync(diagDir, { recursive: true });
+				await adminPage
+					.screenshot({ path: path.join(diagDir, 'global-setup-admin-failure.png'), fullPage: true })
+					.catch(() => undefined);
+				const url = adminPage.url();
+				const bodySnippet = await adminPage
+					.locator('body')
+					.innerText({ timeout: 5_000 })
+					.catch(() => '<unable to read body>');
+				fs.writeFileSync(
+					path.join(diagDir, 'global-setup-admin-failure.txt'),
+					`url: ${url}\n\n--- body (first 2000 chars) ---\n${bodySnippet.slice(0, 2000)}\n`,
+				);
+				console.error(`[global-setup] Admin failure at ${url}. Body excerpt: ${bodySnippet.slice(0, 300)}`);
+			} catch {
+				// Diagnostics are best-effort.
+			}
+		}
 		await browser.close();
 		throw new Error(`[global-setup] Failed to create admin auth state: ${error}`);
 	}

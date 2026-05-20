@@ -10,7 +10,10 @@ test.describe('HTML pages announce charset', () => {
 		test(`${path} Content-Type includes charset`, async ({ request }) => {
 			const resp = await request.get(path);
 			expect(resp.status()).toBeLessThan(500);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const ct = (resp.headers()['content-type'] || '').toLowerCase();
 			// Either charset is declared in Content-Type, or a <meta charset> is
 			// in the document. Servers usually send "text/html; charset=utf-8".
