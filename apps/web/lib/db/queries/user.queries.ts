@@ -129,6 +129,23 @@ export async function updateUserVerification(email: string, verified: boolean) {
 }
 
 /**
+ * Hard delete a user. Cascade-deletes everything the user owns (accounts,
+ * clientProfiles, submissions, sponsorships, activityLogs.userId, …). Audit
+ * columns elsewhere that reference users.id with onDelete: 'set null'
+ * (actor_id, reviewed_by, performed_by) keep their rows; only the user link
+ * is nulled, so audit history of OTHER actors' actions is preserved.
+ *
+ * Use this for self-service account deletion from the client Danger Zone.
+ * Use `softDeleteUser` only when the caller specifically wants the email
+ * mangling / deletedAt sentinel behaviour instead.
+ */
+export async function hardDeleteUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db.delete(users).where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
  * Soft delete a user by marking as deleted
  * @param userId - User ID to delete
  *

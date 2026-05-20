@@ -18,8 +18,8 @@ import {
 	getUserByEmail,
 	getVerificationTokenByToken,
 	getVerificationTokenByEmail,
+	hardDeleteUser,
 	logActivity,
-	softDeleteUser,
 	updateUser,
 	updateUserPassword,
 	updateUserVerification,
@@ -396,8 +396,13 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 		return { error: 'Incorrect password. Account deletion failed.' };
 	}
 
-	await logActivity(ActivityType.DELETE_ACCOUNT, dbUser.id, 'user');
-	await softDeleteUser(dbUser.id);
+	// Hard delete: FK cascade rules on the schema clear out the user's owned
+	// rows (accounts, clientProfiles, submissions, sponsorships, …) while audit
+	// columns referencing users.id with onDelete:'set null' (actor_id,
+	// reviewed_by, performed_by) keep the other actors' history intact. We do
+	// NOT write a DELETE_ACCOUNT activity log row first — activityLogs.userId
+	// cascades, so that row would be wiped immediately anyway.
+	await hardDeleteUser(dbUser.id);
 
 	// Clear the session cookie without letting NextAuth issue its own redirect —
 	// its redirectTo path doesn't propagate reliably through useActionState, and

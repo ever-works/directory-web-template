@@ -71,9 +71,9 @@ existing backend behaviour untouched.
 
 ## 4. Non-Goals
 
-- **Minimal backend changes only.** `logActivity` and the redirect
-  target stay exactly as they are. Three targeted fixes were needed
-  for the UI to actually deliver the feature:
+- **Backend changes are limited to `deleteAccount` itself plus one
+  new query helper.** Four touch-ups were needed for the UI to
+  actually deliver the feature:
   1. **Password verifier:** `deleteAccount` was admin-only — it
      checked `users.passwordHash` via `comparePasswords`, and always
      failed for client users whose hash lives on
@@ -81,13 +81,19 @@ existing backend behaviour untouched.
      now mirrors `signInAction` — it tries
      `verifyClientPassword(email, password)` first and falls back
      to the admin path.
-  2. **Soft-delete coverage:** `softDeleteUser` only mangled
-     `users.email`, but the credentials provider authenticates
-     against `accounts.email + accounts.passwordHash`. After
-     deletion the user could still log in. `softDeleteUser` now
-     transactionally also mangles the user's accounts.email and
-     nulls accounts.passwordHash, so the credentials lookup
-     immediately fails for soft-deleted accounts.
+  2. **Hard delete instead of soft delete.** The user-facing
+     contract of "delete my account" is irreversible removal, not a
+     `deletedAt` sentinel + email mangling. Added a new
+     `hardDeleteUser` query and switched `deleteAccount` to call it.
+     The schema's FK rules cascade-delete everything the user owns
+     (accounts, clientProfiles, submissions, sponsorships, …) while
+     audit columns referencing `users.id` with `onDelete:'set null'`
+     (`actor_id`, `reviewed_by`, `performed_by`) keep their rows so
+     other actors' audit history is preserved. The pre-delete
+     `logActivity(DELETE_ACCOUNT)` call is dropped — `activityLogs`
+     cascades, so that row would be wiped immediately anyway.
+     `softDeleteUser` is left in place for any caller that still
+     wants the sentinel-row behaviour.
   3. **Sign-out + redirect chain:** the old chain relied on
      `NextAuthService.signOut()` (which returns `Promise<any>` with
      no explicit value) and then destructured `{ error }`, which
@@ -95,6 +101,12 @@ existing backend behaviour untouched.
      Replaced with `signOut({ redirect: false })` + explicit
      `redirect('/auth/signin')`, so the client always lands on the
      sign-in page after a successful delete.
+  4. **Soft-delete safety net (deferred bug fix).** While
+     investigating bug 2 we also fixed `softDeleteUser` to mangle
+     the user's `accounts.email` and null `accounts.passwordHash`
+     in the same transaction. The credentials provider now cannot
+     mint a session for a soft-deleted row either, in case some
+     other code path keeps using `softDeleteUser`.
 - **No GDPR data takeout.** Export-then-delete is a separate
   follow-up — this spec only exposes the existing soft-delete flow.
 - **No account deactivation.** A soft-pause (suspend without
