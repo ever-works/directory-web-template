@@ -18,7 +18,14 @@ export class AdminBulkActionsPage extends BasePage {
 		super(page);
 		this.heading = page.getByRole('heading').first();
 		this.selectAllCheckbox = page.locator('[aria-label*="Select all" i], [aria-label*="SELECT_ALL" i]').first();
-		this.bulkActionBar = page.locator('[role="toolbar"]').first();
+		// The bulk-action component renders `role="toolbar"` with an
+		// aria-label sourced from i18n key BULK_ACTIONS (English:
+		// "Bulk actions"). Match that specifically so we don't pick
+		// up unrelated toolbars elsewhere on the page.
+		this.bulkActionBar = page
+			.locator('[role="toolbar"][aria-label*="ulk" i]')
+			.or(page.locator('[role="toolbar"]'))
+			.first();
 		this.approveButton = page.getByRole('button', { name: /approve/i }).first();
 		this.rejectButton = page.getByRole('button', { name: /reject/i }).first();
 		this.deleteButton = page.getByRole('button', { name: /delete/i }).first();
