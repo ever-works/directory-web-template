@@ -50,8 +50,28 @@ export class ClientSubmitPage extends BasePage {
 		await this.page.getByRole('button', { name: tagName, exact: true }).click();
 	}
 
-	/** Select the free plan on the payment step. */
+	/** Select the free plan on the payment step. Wait for the
+	 *  payment-step CTA to actually render and become enabled before
+	 *  clicking — cold-start hydration can paint the disabled
+	 *  placeholder before the React handler attaches. */
 	async selectFreePlan() {
-		await this.page.getByRole('button', { name: /get started free|select free/i }).first().click();
+		const freePlanBtn = this.page
+			.getByRole('button', { name: /get started free|select free/i })
+			.first();
+		await freePlanBtn.waitFor({ state: 'visible', timeout: 15_000 });
+		// Use a short Playwright-side retry loop — the button can briefly
+		// flip to disabled while the pricing widget hydrates.
+		const deadline = Date.now() + 10_000;
+		let lastErr: unknown;
+		while (Date.now() < deadline) {
+			try {
+				await freePlanBtn.click({ timeout: 2_000 });
+				return;
+			} catch (err) {
+				lastErr = err;
+				await this.page.waitForTimeout(250);
+			}
+		}
+		throw lastErr ?? new Error('Free plan button never became clickable');
 	}
 }

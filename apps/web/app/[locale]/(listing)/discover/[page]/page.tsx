@@ -6,7 +6,13 @@ import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
 
-// Enable ISR with 10 minutes revalidation
+// Force dynamic — the route reads `searchParams` (q / sort / tags /
+// categories) to filter & sort items server-side, and ISR was caching
+// /discover/1 without including searchParams in the cache key, so
+// `?sort=name-desc` was serving the default-order cached HTML. With
+// `force-dynamic` every searchParam combo is rendered fresh; the
+// catalogue itself stays cached via `getCachedItems`.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Searchable / sortable variants live at `?q=…&sort=…` — unbounded combos,
