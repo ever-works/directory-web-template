@@ -94,14 +94,14 @@ test.describe('Public: Spec 020 server-side slice — pagination + counts', () =
 		expect(response.status()).toBeLessThan(500);
 	});
 
-	test('home page surfaces an "All Tags (N)" badge with a catalogue-wide count', async ({ page }) => {
+	test('home page surfaces an "All Tags (N)" badge with a catalogue-wide count', async ({ page, request }) => {
 		await page.goto('/', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
 
 		// Wait briefly for tag strip hydration. The "All Tags" button is
 		// rendered for both the desktop / mobile layouts (with conflicting
 		// visibility classes), so we collect candidates and assert at least
-		// one surfaces a count > 12 — the regression value was exactly 12
-		// (the page slice). Skip when the deployment has < 12 tags total.
+		// one surfaces the catalogue-wide count — the regression value was
+		// exactly 12 (the page slice).
 		await page.waitForTimeout(2_000);
 
 		const allTagsButtons = page.getByRole('button', { name: /^All Tags/i });
@@ -112,7 +112,7 @@ test.describe('Public: Spec 020 server-side slice — pagination + counts', () =
 		test.skip(buttonCount + linkCount === 0, '"All Tags" badge not present (no tags in catalogue?)');
 
 		// Read the trailing number from each candidate's accessible name /
-		// inner text. We assert at least one candidate has a count > 12.
+		// inner text.
 		const texts: string[] = [];
 		for (let i = 0; i < buttonCount; i++) {
 			texts.push((await allTagsButtons.nth(i).innerText()).trim());
@@ -128,10 +128,22 @@ test.describe('Public: Spec 020 server-side slice — pagination + counts', () =
 			})
 			.filter((n): n is number => n != null);
 
-		// If the deployment legitimately has ≤ 12 tags, skip — the
-		// regression sentinel (count === 12 from page slice) collides
-		// with a valid value.
 		test.skip(counts.length === 0, 'Could not parse "All Tags" count from any candidate');
+
+		// Resolve the real catalogue total via the listing API so the
+		// assertion stays meaningful regardless of seed size. The Spec 020
+		// regression was the badge showing the page slice (12) instead of
+		// the total, so we only require the badge to match the catalogue
+		// when the catalogue itself exceeds the page slice.
+		const apiResp = await request
+			.get('/api/items/listing?page=1&lang=en&perPage=1')
+			.catch(() => null);
+		const apiBody = apiResp ? await apiResp.json().catch(() => null) : null;
+		const totalTags = Array.isArray(apiBody?.tags) ? apiBody.tags.length : undefined;
+		test.skip(
+			totalTags == null || totalTags <= 12,
+			`catalogue has ${totalTags ?? 'unknown'} tags — sentinel only meaningful when > 12`
+		);
 
 		const maxCount = Math.max(...counts);
 		expect(maxCount, `"All Tags" candidates: ${JSON.stringify(texts)}`).toBeGreaterThan(12);

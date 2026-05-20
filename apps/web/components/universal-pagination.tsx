@@ -22,6 +22,7 @@ export function UniversalPagination({ page, totalPages, onPageChange, className 
 
 			{/* Modern compact pagination */}
 			<Pagination
+				aria-label="pagination"
 				showControls
 				total={totalPages}
 				page={page}

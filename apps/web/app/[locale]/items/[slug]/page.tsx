@@ -30,6 +30,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug, locale } = await params;
 
+	// See note next to MAX_SLUG_LENGTH below — short-circuit before the
+	// git-CMS lookup so a 2KB slug returns a clean noindex envelope
+	// instead of crashing inside `realpath`.
+	if (slug.length > 255) {
+		return {
+			metadataBase: new URL(appUrl),
+			title: `Not Found | ${siteConfig.name}`,
+			description: '',
+			robots: { index: false, follow: false }
+		};
+	}
+
 	try {
 		const item = await getCachedItem(slug, { lang: locale });
 
@@ -131,8 +143,18 @@ export async function generateMetadata({
 //   return (await Promise.all(params)).flat();
 // }
 
+// Filesystems (ext4, NTFS) cap a single path segment at ~255 bytes. A
+// pathological 2KB slug bubbles up as `ENAMETOOLONG` from `realpath`
+// inside the git-CMS lookup and 500s. Reject anything obviously too
+// long up-front — see `directory-traversal-defense.spec.ts`.
+const MAX_SLUG_LENGTH = 255;
+
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
+
+	if (slug.length > MAX_SLUG_LENGTH) {
+		return notFound();
+	}
 
 	try {
 		const item = await getCachedItem(slug, { lang: locale });
