@@ -66,11 +66,6 @@ export default async function ClientProfilePage({
 		return (
 			<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 				<Container maxWidth="7xl" padding="default" useGlobalWidth>
-					{previewAsPublic && (
-						<div className="pt-6">
-							<PreviewBanner exitHref={exitPreviewHref} t={t} />
-						</div>
-					)}
 					<div className="py-8 max-w-md mx-auto">
 						<div className="rounded-2xl border border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111] shadow-sm p-8 text-center space-y-3">
 							<div className="mx-auto w-10 h-10 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
@@ -199,8 +194,6 @@ export default async function ClientProfilePage({
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-6 py-8">
-					{previewAsPublic && <PreviewBanner exitHref={exitPreviewHref} t={t} />}
-
 					{/* Breadcrumb + own-profile actions */}
 					<div className="flex items-center justify-between gap-3">
 						<nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
@@ -371,29 +364,3 @@ export default async function ClientProfilePage({
 	);
 }
 
-function PreviewBanner({
-	exitHref,
-	t
-}: {
-	exitHref: string;
-	t: Awaited<ReturnType<typeof getTranslations<'profile'>>>;
-}) {
-	return (
-		<div
-			role="status"
-			className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-theme-primary-200 dark:border-theme-primary-800 bg-theme-primary-50 dark:bg-theme-primary-900/30 text-theme-primary-800 dark:text-theme-primary-100"
-		>
-			<div className="flex items-center gap-2 min-w-0">
-				<FiEye className="w-4 h-4 shrink-0" aria-hidden="true" />
-				<p className="text-xs sm:text-sm font-medium truncate">{t('PREVIEW_BANNER_TEXT')}</p>
-			</div>
-			<Link
-				href={exitHref}
-				className="inline-flex items-center gap-1.5 px-2.5 h-7 text-xs font-medium rounded-md border border-theme-primary-300 dark:border-theme-primary-700 bg-white/70 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.08] transition-colors shrink-0"
-			>
-				<FiArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
-				{t('EXIT_PREVIEW')}
-			</Link>
-		</div>
-	);
-}
