@@ -198,6 +198,73 @@ export async function getClientProfileByUsername(username: string): Promise<Clie
 }
 
 /**
+ * Columns that are SAFE to expose on the public profile page. Anything not in
+ * this list (email, phone, moderation/billing flags, tenant id, raw geo, etc.)
+ * MUST NOT cross the server/client boundary or appear in the public render.
+ */
+export type PublicClientProfile = Pick<
+	ClientProfile,
+	| 'id'
+	| 'userId'
+	| 'username'
+	| 'displayName'
+	| 'name'
+	| 'bio'
+	| 'jobTitle'
+	| 'company'
+	| 'industry'
+	| 'website'
+	| 'location'
+	| 'avatar'
+	| 'coverColor'
+	| 'interests'
+	| 'skills'
+	| 'profileVisibility'
+	| 'locationPrivacy'
+	| 'emailVerified'
+	| 'totalSubmissions'
+	| 'createdAt'
+	| 'updatedAt'
+>;
+
+const PUBLIC_PROFILE_KEYS: readonly (keyof PublicClientProfile)[] = [
+	'id',
+	'userId',
+	'username',
+	'displayName',
+	'name',
+	'bio',
+	'jobTitle',
+	'company',
+	'industry',
+	'website',
+	'location',
+	'avatar',
+	'coverColor',
+	'interests',
+	'skills',
+	'profileVisibility',
+	'locationPrivacy',
+	'emailVerified',
+	'totalSubmissions',
+	'createdAt',
+	'updatedAt'
+] as const;
+
+/**
+ * Project a full ClientProfile down to its public-safe subset. Use at the
+ * server/client boundary so downstream code physically cannot leak PII.
+ */
+export function toPublicClientProfile(profile: ClientProfile): PublicClientProfile {
+	const out = {} as PublicClientProfile;
+	for (const key of PUBLIC_PROFILE_KEYS) {
+		// `as never` keeps TS happy across the heterogeneous keys.
+		(out as Record<string, unknown>)[key] = profile[key] as never;
+	}
+	return out;
+}
+
+/**
  * Find client profile by user ID
  * @param userId - User ID
  * @returns Client profile or null if not found

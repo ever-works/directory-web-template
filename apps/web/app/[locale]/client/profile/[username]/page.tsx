@@ -12,7 +12,8 @@ import {
 	getRecentCommentsByClientProfile,
 	getRecentFavoritesByUser,
 	listFollowing,
-	listFollowers
+	listFollowers,
+	toPublicClientProfile
 } from '@/lib/db/queries';
 import {
 	ProfilePanel,
@@ -38,14 +39,20 @@ export default async function ClientProfilePage({
 	const { username } = await params;
 	const sp = await searchParams;
 	const t = await getTranslations('profile');
-	const clientProfile = await getClientProfileByUsername(username);
-	if (!clientProfile) {
+	const rawProfile = await getClientProfileByUsername(username);
+	if (!rawProfile) {
 		notFound();
 	}
 
 	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
-	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
+	const isOwn = !!viewerUserId && viewerUserId === rawProfile.userId;
+
+	// Project to the public-safe column set BEFORE any rendering. Owner and
+	// non-owner alike render the same fields here, and the type system now
+	// prevents downstream code from touching email / phone / moderation flags
+	// / tenant id / billing fields.
+	const clientProfile = toPublicClientProfile(rawProfile);
 
 	// Owner-only "preview as public" mode. Toggled via `?preview=public`; ignored
 	// for non-owners (their experience is already the public one). Inside preview
@@ -95,14 +102,17 @@ export default async function ClientProfilePage({
 		);
 	}
 
+	// Activity feed (recent comments / favorites / follows) is rendered ONLY to
+	// the owner — matches LinkedIn / GitHub / Upwork, where browsing behaviour
+	// isn't exposed on a public profile. Skip the fetches entirely otherwise.
 	const [portfolioRows, stats, viewerFollows, recentComments, recentFavorites, outgoingFollows, incomingFollows] = await Promise.all([
 		listPortfolioProjectsForProfile(clientProfile.id),
 		getProfileStats({ userId: clientProfile.userId, clientProfileId: clientProfile.id }),
 		viewerUserId && !isOwn ? isFollowing(viewerUserId, clientProfile.userId) : Promise.resolve(false),
-		getRecentCommentsByClientProfile(clientProfile.id, 10),
-		getRecentFavoritesByUser(clientProfile.userId, 10),
-		listFollowing(clientProfile.userId, 8, 0),
-		listFollowers(clientProfile.userId, 8, 0)
+		effectiveIsOwn ? getRecentCommentsByClientProfile(clientProfile.id, 10) : Promise.resolve([]),
+		effectiveIsOwn ? getRecentFavoritesByUser(clientProfile.userId, 10) : Promise.resolve([]),
+		effectiveIsOwn ? listFollowing(clientProfile.userId, 8, 0) : Promise.resolve([]),
+		effectiveIsOwn ? listFollowers(clientProfile.userId, 8, 0) : Promise.resolve([])
 	]);
 
 	const recentFollows: RecentFollow[] = [
@@ -146,12 +156,20 @@ export default async function ClientProfilePage({
 		.map((part) => part.trim())
 		.filter(Boolean);
 
+	// Honour the existing locationPrivacy setting for the free-form `location`
+	// text too — previously it only gated lat/long, which let "Private" users
+	// still leak their city via the plain text field.
+	const locationVisible = effectiveIsOwn || clientProfile.locationPrivacy !== 'private';
+
 	const profile: Profile = {
-		username: clientProfile.username || clientProfile.email?.split('@')[0] || 'user',
-		displayName: clientProfile.displayName || clientProfile.name || clientProfile.email?.split('@')[0] || 'User',
+		// No email-local-part fallback: leaking the local-part of a stranger's
+		// email is an identity disclosure. `name` is set at signup, so the
+		// 'user' / 'User' floor is essentially unreachable in practice.
+		username: clientProfile.username || 'user',
+		displayName: clientProfile.displayName || clientProfile.name || 'User',
 		bio: clientProfile.bio || '',
 		avatar: clientProfile.avatar || '',
-		location: clientProfile.location || '',
+		location: locationVisible ? clientProfile.location || '' : '',
 		company: clientProfile.company || '',
 		jobTitle: clientProfile.jobTitle || '',
 		skills,
@@ -283,22 +301,26 @@ export default async function ClientProfilePage({
 								<AboutSection profile={profile} isOwn={effectiveIsOwn} />
 							</section>
 
-							{/* Recent activity */}
-							<section aria-labelledby="activity-heading" className="space-y-4">
-								<h2
-									id="activity-heading"
-									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
-								>
-									{t('RECENT_ACTIVITY_SECTION')}
-								</h2>
-								<RecentActivitySection
-									comments={recentComments}
-									favorites={recentFavorites}
-									follows={recentFollows}
-									isOwn={effectiveIsOwn}
-									displayName={profile.displayName}
-								/>
-							</section>
+							{/* Recent activity — owner-only. The feed exposes comment text,
+								favourited items and the inbound/outbound follow ledger; none
+								of that belongs on a public profile (cf. LinkedIn/GitHub/Upwork). */}
+							{effectiveIsOwn && (
+								<section aria-labelledby="activity-heading" className="space-y-4">
+									<h2
+										id="activity-heading"
+										className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+									>
+										{t('RECENT_ACTIVITY_SECTION')}
+									</h2>
+									<RecentActivitySection
+										comments={recentComments}
+										favorites={recentFavorites}
+										follows={recentFollows}
+										isOwn={effectiveIsOwn}
+										displayName={profile.displayName}
+									/>
+								</section>
+							)}
 
 							{/* Skills */}
 							<section aria-labelledby="skills-heading" className="space-y-4">

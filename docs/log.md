@@ -43,6 +43,17 @@ why** at a higher level than per-commit diffs.
 - `PATCH /api/user/profile` now accepts `profileVisibility`.
 - Public profile page `/client/profile/[username]` shows a "this profile
   is private" placeholder to non-owners when visibility is `private`.
+- Owner-only "Preview public view" toggle on the profile page
+  (`?preview=public`) renders the page exactly as a visitor sees it.
+- Privacy hardening on the public profile render:
+  - Stopped leaking email local-part as username/displayName fallback.
+  - `RecentActivitySection` (comments, favourites, follow ledger) is
+    now owner-only — matches LinkedIn/GitHub/Upwork.
+  - Free-form `location` text now respects `locationPrivacy` ('private'
+    hides it from non-owners, same as lat/long).
+  - New `toPublicClientProfile()` projection in `client.queries.ts`
+    drops `email`, `phone`, `notes`, `tags`, `tenantId`, `twoFactorEnabled`,
+    moderation flags, billing flags and raw geo from the page payload.
 - Owners always see their own profile regardless of setting.
 - Spec doc deferred per request — feature ships PR-only.
 
