@@ -71,8 +71,15 @@ existing backend behaviour untouched.
 
 ## 4. Non-Goals
 
-- **No backend changes.** `deleteAccount`, `softDeleteUser`,
-  `logActivity`, and the redirect target stay exactly as they are.
+- **Minimal backend change only.** `softDeleteUser`, `logActivity`,
+  and the redirect target stay exactly as they are. `deleteAccount`
+  itself gets one targeted fix: its password verifier was
+  admin-only (checked `users.passwordHash` via `comparePasswords`)
+  and always failed for client users whose hash lives on
+  `accounts.passwordHash` (provider='credentials'). The action now
+  mirrors `signInAction` — it tries `verifyClientPassword(email,
+  password)` first and falls back to the admin path — so deletion
+  actually works for the audience this spec ships to.
 - **No GDPR data takeout.** Export-then-delete is a separate
   follow-up — this spec only exposes the existing soft-delete flow.
 - **No account deactivation.** A soft-pause (suspend without

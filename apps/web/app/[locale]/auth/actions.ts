@@ -382,7 +382,15 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 		return { error: 'User not found' };
 	}
 
-	const isPasswordValid = await comparePasswords(password, dbUser.passwordHash);
+	// Two password stores coexist (mirrors signInAction):
+	// - Client users (the common case): hash lives on accounts.passwordHash
+	//   (provider='credentials'), verified via verifyClientPassword.
+	// - Admin users: hash lives on users.passwordHash, verified directly.
+	// Try the client path first, then fall back to the admin path so this
+	// works for either user type without forcing the caller to know which.
+	const isClientPasswordValid = await verifyClientPassword(user.email!, password);
+	const isPasswordValid =
+		isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash));
 	if (!isPasswordValid) {
 		return { error: 'Incorrect password. Account deletion failed.' };
 	}
