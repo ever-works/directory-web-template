@@ -199,9 +199,14 @@ jobs:
           # MissingParameterError when no remote exists at all).
           git init --quiet apps/web/.content
           git -C apps/web/.content remote add origin "$DATA_REPOSITORY"
-          git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci config commit.gpgsign false
+          # Persist committer identity in the repo's local config so
+          # runtime calls (isomorphic-git's git.pull) that need a
+          # committer name don't crash with MissingNameError.
+          git -C apps/web/.content config user.email "ci@e2e.local"
+          git -C apps/web/.content config user.name "ci"
+          git -C apps/web/.content config commit.gpgsign false
           git -C apps/web/.content add .
-          git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci commit --quiet -m "ci: seed content stub"
+          git -C apps/web/.content commit --quiet -m "ci: seed content stub"
           # Pretend `main` is at this commit on origin too — the git
           # service walks refs/remotes/origin/main when computing
           # version / commit info.

@@ -17,12 +17,15 @@ test.describe('Admin: Settings Management', () => {
 		await settingsPage.navigate();
 		await settingsPage.waitForPageReady();
 
-		// Accordion triggers may render with `[data-state]` (Radix
-		// pattern) or as buttons / details/summary. Wait for *any*
-		// admin settings content to be present, then check the
-		// accordion attribute is present somewhere with a matching
-		// section name.
-		await expect(adminPage.getByRole('heading').first()).toBeVisible({ timeout: 15_000 });
+		// The page first renders a `LoadingSkeleton` while
+		// `useSWR`-ish state initializes, then the real Accordion.
+		// Wait until the first Radix accordion trigger is in the
+		// DOM (it sets data-state="closed" on render) before
+		// counting — `domcontentloaded` is too early.
+		await expect(
+			adminPage.locator('[data-state]').first()
+		).toBeVisible({ timeout: 20_000 });
+
 		const accordionTriggers = adminPage
 			.locator('[data-state], button[aria-controls], details > summary')
 			.filter({ hasText: /general|homepage|header|footer|monetization|location|navigation|preferences|appearance|content/i });

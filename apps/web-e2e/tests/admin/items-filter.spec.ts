@@ -63,14 +63,16 @@ test.describe('Admin: Item Search & Filter', () => {
 		const approvedCount = await statusBadges.count();
 
 		// Either items are shown with approved status, or empty state.
-		// If items are shown, the number of "Approved" badges should match
-		// or exceed the number of item headings (a page can render an item
-		// twice with the same badge in collapsed layouts; what we're
-		// asserting is "no rejected/pending leaked into the Approved tab").
+		// We can't reliably correlate badge count vs h4 count because the
+		// page renders h4 for both item names AND section sub-headings.
+		// The load-bearing assertion is "the Approved tab filter took
+		// effect" — we make sure NO row carries a Rejected / Pending
+		// badge while we're viewing the Approved tab.
 		if (approvedCount > 0) {
-			const itemHeadings = adminPage.locator('h4');
-			const itemCount = await itemHeadings.count();
-			expect(approvedCount, 'approved badges should cover every shown item').toBeGreaterThanOrEqual(itemCount);
+			const rejectedBadges = await adminPage.locator('span').filter({ hasText: /^Rejected$/ }).count();
+			const pendingBadges = await adminPage.locator('span').filter({ hasText: /^Pending$/ }).count();
+			expect(rejectedBadges, 'no Rejected badge should appear on the Approved tab').toBe(0);
+			expect(pendingBadges, 'no Pending badge should appear on the Approved tab').toBe(0);
 		}
 
 		// Switch to "All" tab — should show all items again
