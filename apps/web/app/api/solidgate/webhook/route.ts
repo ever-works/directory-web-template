@@ -173,18 +173,19 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Handle GET requests - method not allowed
- * Webhooks must use POST. Returning 405 rather than a 200 informational
- * envelope makes the contract explicit (and matches the standard
- * Solidgate / Stripe webhook posture).
+ * Handle GET requests - return informative message
+ * Webhooks should use POST method. We keep the 200 informational
+ * envelope rather than a 405 because the dedicated `solidgate-webhook-
+ * body` spec pins it as a documented behavior.
  */
 export async function GET() {
 	return NextResponse.json(
 		{
-			error: 'Method Not Allowed',
-			message: 'This endpoint accepts POST requests from Solidgate webhooks'
+			message: 'Solidgate webhook endpoint',
+			instructions: 'This endpoint accepts POST requests from Solidgate webhooks',
+			method: 'POST'
 		},
-		{ status: 405, headers: { Allow: 'POST' } }
+		{ status: 200 }
 	);
 }
 
