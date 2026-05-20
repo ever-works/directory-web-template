@@ -10,6 +10,7 @@ import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
+import { siteConfig } from '@/lib/config';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
@@ -25,9 +26,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
   const tPages = await getTranslations({ locale, namespace: 'pages' });
 
+  // Include the site name so the rendered <title> clears the SEO 10-char
+  // floor enforced by `each-page-document-title-length.spec.ts` even when
+  // the translated label (e.g. "About Us") is short.
   return {
     metadataBase: new URL(appUrl),
-    title: tFooter('ABOUT_US'),
+    title: `${tFooter('ABOUT_US')} | ${siteConfig.name}`,
     description: tPages('ABOUT_PAGE_META_DESCRIPTION'),
     alternates: {
       canonical: getLocalizedUrl('/about', locale as Locale),

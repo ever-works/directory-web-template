@@ -164,11 +164,15 @@ Container.displayName = "Container";
 /**
  * Preset container variants for common use cases
  */
+// `as="div"` because the global `<main>` lives in `ConditionalLayout`.
+// Rendering a second `<main>` here breaks the html5-main-landmark a11y
+// contract (one `main` per document) — see e2e
+// `each-page-html5-main-landmark.spec.ts`.
 export const PageContainer = forwardRef<
   HTMLDivElement,
   Omit<ContainerProps, "as">
 >((props, ref) => (
-  <Container ref={ref} as="main" maxWidth="7xl" useGlobalWidth {...props} />
+  <Container ref={ref} as="div" maxWidth="7xl" useGlobalWidth {...props} />
 ));
 
 PageContainer.displayName = "PageContainer";
