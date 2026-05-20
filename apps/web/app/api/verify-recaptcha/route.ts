@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { externalClient, apiUtils } from "@/lib/api/server-api-client";
-import { coreConfig, analyticsConfig } from "@/lib/config/config-service";
+import { analyticsConfig } from "@/lib/config/config-service";
 
 /**
  * @swagger
@@ -169,17 +169,17 @@ export async function POST(request: NextRequest) {
 
     const secretKey = analyticsConfig.recaptcha.secretKey;
     if (!secretKey) {
-      // Use process.env.NODE_ENV at runtime — `coreConfig` is evaluated
-      // at module load (during Next.js production build, NODE_ENV is
-      // 'production', so the cached value is wrong for CI/test runtime).
+      // When the secret isn't configured we still want to fail OPEN in
+      // any non-production *or* CI/E2E environment — calling Google's
+      // siteverify from a CI runner just hangs. `process.env.NODE_ENV`
+      // is forced to "production" by `next start`, so we also check the
+      // CI / E2E_TEST flags that the e2e workflow sets.
       const runtimeNodeEnv = process.env.NODE_ENV;
-      if (runtimeNodeEnv !== "production") {
-        // Bypass in any non-production environment (development, test,
-        // CI) — calling out to Google's siteverify from a CI runner
-        // would just hang. Real verification only runs when the secret
-        // is provided AND we're in production.
+      const isCi = process.env.CI === "true" || process.env.CI === "1";
+      const isE2e = process.env.E2E_TEST === "true" || process.env.E2E_TEST === "1";
+      if (runtimeNodeEnv !== "production" || isCi || isE2e) {
         console.warn(
-          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification (non-production env). " +
+          "[ReCAPTCHA] WARNING: Secret key not configured — bypassing verification (non-production / CI env). " +
           "Set RECAPTCHA_SECRET_KEY to enable verification."
         );
         return NextResponse.json({

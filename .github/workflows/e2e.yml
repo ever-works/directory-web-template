@@ -186,6 +186,16 @@ jobs:
           updated_at: 2026-01-01 00:00
           YAML
           done
+          # The runtime's hasUsableContent() check requires a `.git`
+          # directory inside `.content/` when DATA_REPOSITORY is set. We
+          # don't actually want CI to clone the real data repo (it
+          # would 401 on the placeholder), so initialize an empty git
+          # repo here. That satisfies the check and tells the runtime
+          # "content is already synced — don't sync again".
+          git init --quiet apps/web/.content
+          git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci config commit.gpgsign false
+          git -C apps/web/.content add .
+          git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci commit --quiet -m "ci: seed content stub"
 
       - name: Run database migrations
         # Pushes Drizzle schema to the empty postgres service. Without it
