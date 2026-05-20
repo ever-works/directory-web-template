@@ -21,7 +21,9 @@ export class ClientSubmitPage extends BasePage {
 		// The main link URL input has type="url" inside the LinkInput component
 		this.linkUrlInput = page.locator('input[type="url"]').first();
 		this.categoriesButton = page.locator('#categories');
-		this.nextStepButton = page.getByRole('button', { name: /next step/i });
+		// Exact match — the page also has a marketing "Continue to Next Step"
+		// CTA button that would tie the locator in strict mode.
+		this.nextStepButton = page.getByRole('button', { name: 'Next Step', exact: true });
 		this.previousButton = page.getByRole('button', { name: /previous/i });
 		this.submitButton = page.getByRole('button', { name: /submit product/i });
 	}

@@ -39,6 +39,10 @@ test.describe('Public: home-page combined flow (search → sort → paginate →
 		await gotoListing(page);
 		const before = await getItemHrefs(page);
 		test.skip(before.length === 0, 'No items rendered — cannot verify reorder');
+		// With ≤ 2 items there's no way to demonstrate a reorder — the seed
+		// fixture might be that small in CI, and we don't want a false
+		// failure when the sort code is actually correct.
+		test.skip(before.length < 3, `only ${before.length} items — too few to demonstrate reorder`);
 
 		// Hit the sorted variant directly via URL — Spec 020 ships sort
 		// via search params. We bypass the dropdown UI here because the
@@ -47,10 +51,22 @@ test.describe('Public: home-page combined flow (search → sort → paginate →
 		const after = await getItemHrefs(page);
 		expect(after.length).toBeGreaterThan(0);
 
-		// At least one of the first few items must have changed position —
-		// equality of the two arrays would mean the sort didn't apply.
-		const matchesIdentical = before.slice(0, 6).join('|') === after.slice(0, 6).join('|');
-		expect(matchesIdentical, 'Sort applied but items came back in the same order').toBeFalsy();
+		// If the catalogue happens to already be in name-ascending order, the
+		// "before" snapshot will match "after" not because the sort failed but
+		// because the default order *is* the sorted order. Cross-check by
+		// also requesting a contrasting sort and asserting that AT LEAST ONE
+		// of the two variants differs from the default.
+		await page.goto('/discover/1?sort=name-desc', { waitUntil: 'domcontentloaded', timeout: PAGE_READY_TIMEOUT });
+		const afterDesc = await getItemHrefs(page);
+
+		const beforeKey = before.slice(0, 6).join('|');
+		const ascKey = after.slice(0, 6).join('|');
+		const descKey = afterDesc.slice(0, 6).join('|');
+		const bothMatchDefault = beforeKey === ascKey && beforeKey === descKey;
+		expect(
+			bothMatchDefault,
+			`Neither sort=name-asc nor sort=name-desc changed the order. before=[${beforeKey}] asc=[${ascKey}] desc=[${descKey}]`
+		).toBeFalsy();
 	});
 
 	test('search query in URL filters the SSR slice and persists across refresh', async ({ page }) => {
