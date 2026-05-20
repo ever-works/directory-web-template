@@ -2,112 +2,130 @@
 
 import { useTranslations } from 'next-intl';
 import { FiFileText, FiCheck, FiClock, FiX } from 'react-icons/fi';
+import { IconType } from 'react-icons';
 import { Card, CardContent } from '@/components/ui/card';
 import { ClientItemStats } from '@/lib/types/client-item';
+import { cn } from '@/lib/utils';
 
 export interface SubmissionStatsCardsProps {
-  stats: ClientItemStats;
-  isLoading?: boolean;
+	stats: ClientItemStats;
+	isLoading?: boolean;
 }
 
 interface StatCardConfig {
-  key: keyof ClientItemStats;
-  labelKey: string;
-  icon: typeof FiFileText;
-  colorClass: string;
-  hoverShadow: string;
-  iconBg: string;
+	key: keyof ClientItemStats;
+	labelKey: string;
+	icon: IconType;
 }
 
-const statCardsConfig: StatCardConfig[] = [
-  {
-    key: 'total',
-    labelKey: 'TOTAL_SUBMISSIONS',
-    icon: FiFileText,
-    colorClass: 'text-blue-600 dark:text-blue-400',
-    hoverShadow: 'hover:shadow-blue-500/10',
-    iconBg: 'from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40',
-  },
-  {
-    key: 'approved',
-    labelKey: 'APPROVED',
-    icon: FiCheck,
-    colorClass: 'text-green-600 dark:text-green-400',
-    hoverShadow: 'hover:shadow-green-500/10',
-    iconBg: 'from-green-100 to-green-200 dark:from-green-900/40 dark:to-green-800/40',
-  },
-  {
-    key: 'pending',
-    labelKey: 'PENDING',
-    icon: FiClock,
-    colorClass: 'text-yellow-600 dark:text-yellow-400',
-    hoverShadow: 'hover:shadow-yellow-500/10',
-    iconBg: 'from-yellow-100 to-yellow-200 dark:from-yellow-900/40 dark:to-yellow-800/40',
-  },
-  {
-    key: 'rejected',
-    labelKey: 'REJECTED',
-    icon: FiX,
-    colorClass: 'text-red-600 dark:text-red-400',
-    hoverShadow: 'hover:shadow-red-500/10',
-    iconBg: 'from-red-100 to-red-200 dark:from-red-900/40 dark:to-red-800/40',
-  },
+const STAT_CARDS: StatCardConfig[] = [
+	{ key: 'total', labelKey: 'TOTAL_SUBMISSIONS', icon: FiFileText },
+	{ key: 'approved', labelKey: 'APPROVED', icon: FiCheck },
+	{ key: 'pending', labelKey: 'PENDING', icon: FiClock },
+	{ key: 'rejected', labelKey: 'REJECTED', icon: FiX },
 ];
 
-export function SubmissionStatsCards({ stats, isLoading = false }: SubmissionStatsCardsProps) {
-  const t = useTranslations('client.submissions');
+const ICON_BG = 'bg-gray-100 dark:bg-white/8';
+const ICON_COLOR = 'text-gray-600 dark:text-gray-300';
+const VALUE_COLOR = 'text-gray-900 dark:text-gray-100';
+const RING_HOVER = 'group-hover:ring-gray-200 dark:group-hover:ring-white/10';
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      {statCardsConfig.map((config) => {
-        const Icon = config.icon;
-        const value = stats[config.key];
-
-        return (
-          <Card
-            key={config.key}
-            className={`hover:shadow-lg ${config.hoverShadow} border border-gray-200 dark:border-white/6 transition-all duration-300 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs`}
-          >
-            <CardContent className="p-6">
-              <div className="text-center">
-                <div className={`flex items-center justify-center w-12 h-12 bg-linear-to-br ${config.iconBg} rounded-xl mb-3 mx-auto`}>
-                  <Icon className={`w-6 h-6 ${config.colorClass}`} />
-                </div>
-                {isLoading ? (
-                  <div className="h-8 w-12 bg-gray-200 dark:bg-white/8 rounded mx-auto mb-1 animate-pulse" />
-                ) : (
-                  <div className={`text-2xl font-bold ${config.key === 'total' ? 'text-gray-900 dark:text-gray-100' : config.colorClass}`}>
-                    {value}
-                  </div>
-                )}
-                <div className="text-sm text-gray-600 dark:text-gray-400">{t(config.labelKey)}</div>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </div>
-  );
+function formatPercent(part: number, total: number): string {
+	if (!total) return '0%';
+	const pct = Math.round((part / total) * 100);
+	return `${pct}%`;
 }
 
-// Skeleton version for loading state
+export function SubmissionStatsCards({ stats, isLoading = false }: SubmissionStatsCardsProps) {
+	const t = useTranslations('client.submissions');
+
+	return (
+		<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+			{STAT_CARDS.map((config) => {
+				const Icon = config.icon;
+				const value = stats[config.key];
+				const isTotal = config.key === 'total';
+				const sharePct =
+					!isTotal && stats.total > 0 ? formatPercent(value, stats.total) : null;
+
+				return (
+					<Card
+						key={config.key}
+						className={cn(
+							'group relative overflow-hidden border-gray-200 dark:border-white/8',
+							'bg-white dark:bg-[#111111]',
+							'ring-1 ring-transparent transition-all duration-200',
+							'hover:shadow-md hover:-translate-y-px',
+							RING_HOVER
+						)}
+					>
+						<CardContent className="p-4 sm:p-5">
+							<div className="flex items-start justify-between gap-3">
+								<div className="min-w-0 flex-1">
+									<p className="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">
+										{t(config.labelKey)}
+									</p>
+									{isLoading ? (
+										<div className="mt-2 h-8 w-16 rounded-md bg-gray-200/70 dark:bg-white/8 animate-pulse" />
+									) : (
+										<div
+											className={cn(
+												'mt-1.5 text-2xl sm:text-3xl font-semibold tabular-nums tracking-tight',
+												VALUE_COLOR
+											)}
+										>
+											{value.toLocaleString()}
+										</div>
+									)}
+									{isLoading ? (
+										<div className="mt-2 h-3 w-20 rounded-md bg-gray-200/70 dark:bg-white/8 animate-pulse" />
+									) : (
+										<p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+											{sharePct
+												? t('OF_TOTAL_PERCENT', { percent: sharePct })
+												: isTotal
+												? t('ALL_TIME')
+												: ' '}
+										</p>
+									)}
+								</div>
+								<div
+									className={cn(
+										'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+										ICON_BG
+									)}
+								>
+									<Icon className={cn('h-4 w-4', ICON_COLOR)} aria-hidden="true" />
+								</div>
+							</div>
+						</CardContent>
+					</Card>
+				);
+			})}
+		</div>
+	);
+}
+
 export function SubmissionStatsCardsSkeleton() {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-      {Array.from({ length: 4 }).map((_, index) => (
-        <Card
-          key={index}
-          className="border border-gray-200 dark:border-white/6 bg-white/95 dark:bg-[#141414]/95 backdrop-blur-xs"
-        >
-          <CardContent className="p-6">
-            <div className="text-center animate-pulse">
-              <div className="w-12 h-12 bg-gray-200 dark:bg-white/8 rounded-xl mb-3 mx-auto" />
-              <div className="h-8 w-12 bg-gray-200 dark:bg-white/8 rounded mx-auto mb-2" />
-              <div className="h-4 w-24 bg-gray-200 dark:bg-white/8 rounded mx-auto" />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
+	return (
+		<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+			{Array.from({ length: 4 }).map((_, index) => (
+				<Card
+					key={index}
+					className="border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111]"
+				>
+					<CardContent className="p-4 sm:p-5">
+						<div className="flex items-start justify-between gap-3 animate-pulse">
+							<div className="min-w-0 flex-1 space-y-2">
+								<div className="h-3 w-24 rounded bg-gray-200/70 dark:bg-white/8" />
+								<div className="h-8 w-16 rounded bg-gray-200/70 dark:bg-white/8" />
+								<div className="h-3 w-20 rounded bg-gray-200/70 dark:bg-white/8" />
+							</div>
+							<div className="h-9 w-9 shrink-0 rounded-lg bg-gray-200/70 dark:bg-white/8" />
+						</div>
+					</CardContent>
+				</Card>
+			))}
+		</div>
+	);
 }

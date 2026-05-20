@@ -50,6 +50,17 @@ why** at a higher level than per-commit diffs.
   dropdown still asks for page 1, limit 15.
 - UX: changing tab or filters resets `page` to 1 on both surfaces.
 
+## 2026-05-19 — Spec 030: `/client/submissions` UI redesign (UI-only, develop-only)
+
+- spec-030: drafted `docs/spec/030-client-submissions-redesign/spec.md`
+  proposing a UI-only redesign of the client submissions page —
+  responsive table/cards layout, KPI stats cards, status segmented
+  tabs + sort UX, polished empty / error / skeleton states. No
+  backend or hook contract changes. Renumbered from 029 → 030 during
+  conflict resolution to avoid collision with the merged spec
+  `029-client-settings-preferences-section`.
+- docs/spec: indexed spec 030 in `docs/spec/README.md`.
+
 ---
 
 ## 2026-05-19 — Spec 028 round 17: leading-slash + host header + preferences gate (develop-only)
