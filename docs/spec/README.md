@@ -51,6 +51,7 @@ or architectural change.
 | 028 | [`e2e-coverage-buildout`](028-e2e-coverage-buildout/spec.md) | in-progress   | Add the missing GitHub Actions e2e workflow (the 311 existing specs were never CI-gated) + a rolling hourly agent session that fills coverage gaps spec-by-spec; cascades each iteration develop→stage→main so demo.ever.works is exercised end-to-end |
 | 029 | [`client-settings-preferences-section`](029-client-settings-preferences-section/spec.md) | proposed      | Mount the `SettingsModal` controls (Layout, Container Width, Pagination Style + demo-only DB mode / Checkout Provider / DB warning) inline as a new **Preferences** section on `/client/settings`; modal stays as-is for shortcut access |
 | 030 | [`client-submissions-redesign`](030-client-submissions-redesign/spec.md) | proposed | UI-only redesign of `/client/submissions`: responsive table-on-desktop / cards-on-mobile, polished KPI stats cards, status segmented tabs + sort UX, dedicated empty / filtered-empty / error / skeleton states, reuses existing design-system primitives — no functional changes |
+| 031 | [`client-danger-zone`](031-client-danger-zone/spec.md) | proposed | Add a red-accented **Danger Zone** section to `/client/settings` and a dedicated `/client/settings/danger-zone` page that exposes the existing `deleteAccount` server action via a password-confirmed modal (EW-635) |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.
