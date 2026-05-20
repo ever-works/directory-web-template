@@ -189,13 +189,21 @@ jobs:
           # The runtime's hasUsableContent() check requires a `.git`
           # directory inside `.content/` when DATA_REPOSITORY is set. We
           # don't actually want CI to clone the real data repo (it
-          # would 401 on the placeholder), so initialize an empty git
-          # repo here. That satisfies the check and tells the runtime
-          # "content is already synced — don't sync again".
+          # would 401 on the placeholder), so initialize a git repo
+          # here with a dummy `origin` remote matching DATA_REPOSITORY
+          # so isomorphic-git's pull/sync calls have a remote name to
+          # resolve (they swallow network errors on fetch but throw a
+          # MissingParameterError when no remote exists at all).
           git init --quiet apps/web/.content
+          git -C apps/web/.content remote add origin "$DATA_REPOSITORY"
           git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci config commit.gpgsign false
           git -C apps/web/.content add .
           git -C apps/web/.content -c user.email=ci@e2e.local -c user.name=ci commit --quiet -m "ci: seed content stub"
+          # Pretend `main` is at this commit on origin too — the git
+          # service walks refs/remotes/origin/main when computing
+          # version / commit info.
+          git -C apps/web/.content branch -M main
+          git -C apps/web/.content update-ref refs/remotes/origin/main HEAD
 
       - name: Run database migrations
         # Pushes Drizzle schema to the empty postgres service. Without it
