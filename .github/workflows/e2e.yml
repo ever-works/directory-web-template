@@ -137,7 +137,10 @@ jobs:
           content_table: true
           pagination:
             type: standard
-            itemsPerPage: 12
+            # Low itemsPerPage so our small 3-item CI seed produces
+            # multi-page output — the discover pagination test asserts
+            # `<nav aria-label="pagination">` is rendered.
+            itemsPerPage: 2
           auth:
             credentials: true
           settings:
