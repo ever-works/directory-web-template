@@ -1,0 +1,86 @@
+'use client';
+
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
+import { apiUtils, serverClient } from '@/lib/api/server-api-client';
+import type { NotificationListQuery, NotificationListResponse } from '@/lib/notifications/types';
+
+export const CLIENT_NOTIFICATION_KEYS = {
+	all: ['client', 'notifications'] as const,
+	list: (filters: NotificationListQuery) =>
+		[...CLIENT_NOTIFICATION_KEYS.all, 'list', stableHash(filters)] as const,
+	stats: () => [...CLIENT_NOTIFICATION_KEYS.all, 'stats'] as const,
+	preferences: () => [...CLIENT_NOTIFICATION_KEYS.all, 'preferences'] as const
+};
+
+function stableHash(input: object): string {
+	const entries = Object.entries(input).sort(([a], [b]) => a.localeCompare(b));
+	const sorted: Record<string, unknown> = {};
+	for (const [k, v] of entries) {
+		if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) continue;
+		sorted[k] = v;
+	}
+	return JSON.stringify(sorted);
+}
+
+function toQueryString(filters: NotificationListQuery): string {
+	const params = new URLSearchParams();
+	if (filters.tab) params.set('tab', filters.tab);
+	if (filters.q) params.set('q', filters.q);
+	if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
+	if (filters.dateTo) params.set('dateTo', filters.dateTo);
+	if (filters.limit) params.set('limit', String(filters.limit));
+	if (filters.page && filters.page > 1) params.set('page', String(filters.page));
+	if (filters.type) {
+		const types = Array.isArray(filters.type) ? filters.type : [filters.type];
+		types.forEach((t) => params.append('type', t));
+	}
+	if (filters.priority) {
+		const ps = Array.isArray(filters.priority) ? filters.priority : [filters.priority];
+		ps.forEach((p) => params.append('priority', p));
+	}
+	const qs = params.toString();
+	return qs ? `?${qs}` : '';
+}
+
+async function fetchPage(filters: NotificationListQuery): Promise<NotificationListResponse> {
+	const response = await serverClient.get<{ success: boolean; data: NotificationListResponse; error?: string }>(
+		`/api/client/notifications${toQueryString(filters)}`
+	);
+	if (!apiUtils.isSuccess(response) || !response.data?.data) {
+		throw new Error(response.data?.error || apiUtils.getErrorMessage(response) || 'Failed to fetch notifications');
+	}
+	return response.data.data;
+}
+
+export function useNotifications(filters: NotificationListQuery = {}) {
+	const queryClient = useQueryClient();
+
+	const query = useQuery({
+		queryKey: CLIENT_NOTIFICATION_KEYS.list(filters),
+		queryFn: () => fetchPage(filters),
+		staleTime: 30 * 1000,
+		refetchOnWindowFocus: false,
+		placeholderData: (prev) => prev
+	});
+
+	const notifications = query.data?.notifications ?? [];
+	const total = query.data?.total ?? 0;
+	const totalPages = query.data?.totalPages ?? 1;
+	const page = query.data?.page ?? filters.page ?? 1;
+	const unreadCount = query.data?.unreadCount ?? 0;
+
+	return {
+		notifications,
+		total,
+		totalPages,
+		page,
+		unreadCount,
+		isLoading: query.isLoading,
+		isFetching: query.isFetching,
+		isError: query.isError,
+		error: query.error,
+		refetch: query.refetch,
+		invalidate: () => queryClient.invalidateQueries({ queryKey: CLIENT_NOTIFICATION_KEYS.all })
+	};
+}

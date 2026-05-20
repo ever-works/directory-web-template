@@ -3,6 +3,7 @@ import { Crown } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { memo, lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import type { RefObject } from "react";
 import { Avatar } from "../header/avatar";
 import { cn } from "@/lib/utils";
@@ -134,11 +135,36 @@ ProfileButtonTrigger.displayName = "ProfileButtonTrigger";
 
 function ProfileButton() {
   const t = useTranslations();
+  const pathname = usePathname();
   const { isProfileMenuOpen, menuRef, buttonRef, toggleMenu, closeMenu } = useProfileMenu();
   const { handleLogout, isLoggingOut } = useLogoutOverlay();
   const { user, profilePath, isAdmin, displayRole, onlineStatus, isLoading } = useUserUtils();
   const warnedRef = useRef(false);
   const [isNavigating, setIsNavigating] = useState(false);
+  const navigationStartedAtRef = useRef<string | null>(null);
+
+  // Clear the full-screen "Loading…" overlay once the route actually changes.
+  // The menu only calls onNavigationStart (sets isNavigating=true) — it never
+  // invoked the matching end callback, so the overlay used to stick forever
+  // on /client/dashboard, /client/profile/*, /client/settings, etc.
+  useEffect(() => {
+    if (!isNavigating) return;
+    if (navigationStartedAtRef.current && navigationStartedAtRef.current !== pathname) {
+      setIsNavigating(false);
+      navigationStartedAtRef.current = null;
+      closeMenu();
+      return;
+    }
+    // Safety net: same-route clicks (or a swallowed router.push) won't change
+    // pathname, so guarantee the overlay clears after a short timeout instead
+    // of hanging the UI.
+    const timeoutId = setTimeout(() => {
+      setIsNavigating(false);
+      navigationStartedAtRef.current = null;
+      closeMenu();
+    }, 4000);
+    return () => clearTimeout(timeoutId);
+  }, [pathname, isNavigating, closeMenu]);
 
   // Custom close handler that respects navigation state
   const handleMenuClose = () => {
@@ -149,11 +175,13 @@ function ProfileButton() {
 
   // Navigation state handler to be passed to menu
   const handleNavigationStart = () => {
+    navigationStartedAtRef.current = pathname;
     setIsNavigating(true);
   };
 
   const handleNavigationEnd = () => {
     setIsNavigating(false);
+    navigationStartedAtRef.current = null;
     closeMenu();
   };
 

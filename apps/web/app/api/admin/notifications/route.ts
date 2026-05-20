@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { db } from '@/lib/db/drizzle';
 import { notifications } from '@/lib/db/schema';
-import { eq, and, desc, count } from 'drizzle-orm';
+import { eq, and, desc, count, gte, ilike, inArray, lte, or } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { isKnownType, NOTIFICATION_PRIORITIES } from '@/lib/notifications';
 
 /**
  * @swagger
@@ -150,7 +151,7 @@ import { requireAdminSession } from '@/lib/auth/admin-guard';
  *                   type: string
  *                   example: "Internal server error"
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
 	try {
 		const authResult = await requireAdminSession();
 		if (authResult instanceof NextResponse) return authResult;
@@ -161,29 +162,72 @@ export async function GET() {
 			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
 		}
 
-		// Get notifications for the admin user
-		const userNotifications = await db
-			.select()
-			.from(notifications)
-			.where(and(eq(notifications.userId, session.user.id), eq(notifications.tenantId, tenantId)))
-			.orderBy(desc(notifications.createdAt))
-			.limit(50);
-
-		const unreadCountResult = await db
-			.select({ count: count() })
-			.from(notifications)
-			.where(
-				and(
-					eq(notifications.userId, session.user.id),
-					eq(notifications.isRead, false),
-					eq(notifications.tenantId, tenantId)
-				)
+		const url = new URL(req.url);
+		const tab = url.searchParams.get('tab') ?? 'all';
+		const typeParams = url.searchParams.getAll('type').filter(isKnownType);
+		const priorityParams = url.searchParams
+			.getAll('priority')
+			.filter((p): p is (typeof NOTIFICATION_PRIORITIES)[number] =>
+				(NOTIFICATION_PRIORITIES as readonly string[]).includes(p)
 			);
+		const q = url.searchParams.get('q')?.trim() ?? '';
+		const dateFrom = url.searchParams.get('dateFrom');
+		const dateTo = url.searchParams.get('dateTo');
+		const limitRaw = url.searchParams.get('limit');
+		const limit = Math.min(Math.max(Number.parseInt(limitRaw ?? '25', 10) || 25, 1), 200);
+		const page = Math.max(1, Number.parseInt(url.searchParams.get('page') ?? '1', 10) || 1);
+
+		const scope = and(
+			eq(notifications.userId, session.user.id),
+			eq(notifications.tenantId, tenantId),
+			tab === 'unread' ? eq(notifications.isRead, false) : undefined,
+			tab === 'system'
+				? or(
+						eq(notifications.category, 'system'),
+						eq(notifications.category, 'account'),
+						eq(notifications.type, 'payment_failed')
+					)
+				: undefined,
+			typeParams.length > 0 ? inArray(notifications.type, typeParams) : undefined,
+			priorityParams.length > 0 ? inArray(notifications.priority, priorityParams) : undefined,
+			q ? or(ilike(notifications.title, `%${q}%`), ilike(notifications.message, `%${q}%`)) : undefined,
+			dateFrom ? gte(notifications.createdAt, new Date(dateFrom)) : undefined,
+			dateTo ? lte(notifications.createdAt, new Date(dateTo)) : undefined
+		);
+
+		const [totalResult, userNotifications, unreadCountResult] = await Promise.all([
+			db.select({ count: count() }).from(notifications).where(scope),
+			db
+				.select()
+				.from(notifications)
+				.where(scope)
+				.orderBy(desc(notifications.createdAt))
+				.limit(limit)
+				.offset((page - 1) * limit),
+			// Unread count uses base scope only (ignores other filters) so the
+			// header pill stays stable while the list narrows.
+			db
+				.select({ count: count() })
+				.from(notifications)
+				.where(
+					and(
+						eq(notifications.userId, session.user.id),
+						eq(notifications.isRead, false),
+						eq(notifications.tenantId, tenantId)
+					)
+				)
+		]);
+
+		const total = totalResult[0]?.count ?? 0;
+		const totalPages = Math.max(1, Math.ceil(total / limit));
 
 		return NextResponse.json({
 			success: true,
 			data: {
 				notifications: userNotifications,
+				total,
+				page,
+				totalPages,
 				unreadCount: unreadCountResult[0]?.count || 0
 			}
 		});
