@@ -55,15 +55,35 @@ export class AdminItemsPage extends BasePage {
 		await this.searchBar.clear();
 	}
 
-	/** Get an item row by its name text. */
+	/** Get an item row by its name text — scoped to the row container
+	 *  (`div.group`) so we don't accidentally match the footer when an
+	 *  item name coincidentally appears outside the list. */
 	getItemByName(name: string): Locator {
-		return this.page.locator('h4').filter({ hasText: name }).first().locator('..').locator('..');
+		return this.page
+			.locator('div.group')
+			.filter({ has: this.page.locator('h4').filter({ hasText: name }) })
+			.first();
 	}
 
 	/** Open the actions menu (three-dot) for a specific item by name. */
 	async openActionsMenu(itemName: string) {
 		const itemRow = this.getItemByName(itemName);
-		await itemRow.getByRole('button', { name: /actions/i }).click();
+		// Hover first — some themes hide the menu trigger until row
+		// hover. The actions button has aria-label sourced from i18n
+		// key ACTIONS (English: "Actions"). If the role match fails
+		// (icon-only theme), fall back to the rightmost icon button.
+		await itemRow.hover().catch(() => {});
+		const byRole = itemRow.getByRole('button', { name: /actions/i }).first();
+		const hasByRole = await byRole.isVisible({ timeout: 2_000 }).catch(() => false);
+		if (hasByRole) {
+			await byRole.click();
+			return;
+		}
+		const iconButton = itemRow
+			.locator('button')
+			.filter({ has: this.page.locator('svg') })
+			.last();
+		await iconButton.click();
 	}
 
 	/** Click an action from an open dropdown menu. */
