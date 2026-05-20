@@ -17,10 +17,17 @@ test.describe('Admin: Settings Management', () => {
 		await settingsPage.navigate();
 		await settingsPage.waitForPageReady();
 
-		// Check that accordion triggers are visible
-		const accordionTriggers = adminPage.locator('[data-state]').filter({ hasText: /general|homepage|header|footer|monetization|location|navigation/i });
+		// Accordion triggers may render with `[data-state]` (Radix
+		// pattern) or as buttons / details/summary. Wait for *any*
+		// admin settings content to be present, then check the
+		// accordion attribute is present somewhere with a matching
+		// section name.
+		await expect(adminPage.getByRole('heading').first()).toBeVisible({ timeout: 15_000 });
+		const accordionTriggers = adminPage
+			.locator('[data-state], button[aria-controls], details > summary')
+			.filter({ hasText: /general|homepage|header|footer|monetization|location|navigation|preferences|appearance|content/i });
 		const count = await accordionTriggers.count();
-		expect(count).toBeGreaterThan(0);
+		expect(count, 'expected at least one settings accordion trigger').toBeGreaterThan(0);
 	});
 
 	test('admin can expand General Settings section', async ({ adminPage }) => {

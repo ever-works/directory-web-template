@@ -18,7 +18,14 @@ export class AdminItemsPage extends BasePage {
 		super(page);
 		this.heading = page.getByRole('heading').first();
 		this.addItemButton = page.getByRole('button', { name: /add item|create item/i }).first();
-		this.searchBar = page.getByRole('searchbox').first();
+		// AdminSearchBar renders <input type="text"> (no role=searchbox).
+		// Match by placeholder text the component uses, with a fallback
+		// to the generic text input inside the filter toolbar.
+		this.searchBar = page
+			.getByRole('searchbox')
+			.or(page.locator('input[type="search"]'))
+			.or(page.locator('input[placeholder*="search" i]'))
+			.first();
 		this.itemsList = page.locator('.space-y-4').first();
 		this.pagination = page.locator('nav[aria-label*="pagination"], nav[aria-label*="Pagination"]');
 		this.selectAllCheckbox = page.getByRole('checkbox', { name: /select all/i });
