@@ -40,14 +40,14 @@ export async function requireAdminSession(): Promise<{ session: AdminSession } |
 
     if (!session?.user) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized. Admin access required.' },
         { status: 401 }
       );
     }
 
     if (!session.user.id) {
       return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
+        { success: false, error: 'Unauthorized. Admin access required.' },
         { status: 401 }
       );
     }
@@ -55,7 +55,7 @@ export async function requireAdminSession(): Promise<{ session: AdminSession } |
     const userIsAdmin = await isAdminCached(session.user.id);
     if (!userIsAdmin) {
       return NextResponse.json(
-        { success: false, error: 'Forbidden' },
+        { success: false, error: 'Forbidden. Admin access required.' },
         { status: 403 }
       );
     }
