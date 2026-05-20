@@ -4,12 +4,17 @@ import { test, expect } from '@playwright/test';
 // should NOT change page caching / rendering. Catches the class of "a
 // random tracking param creates a new cache entry" misconfigurations.
 
+// `_=<timestamp>` was previously included here but the dynamic
+// `Date.now()` produces non-deterministic test IDs across Playwright
+// workers (the module is re-imported per worker), which Playwright
+// reports as 0ms-duration failures. We test the same cache-busting
+// behaviour by using a stable sentinel below.
 const TRACKING_PARAMS = [
 	'utm_source=test&utm_medium=email&utm_campaign=launch',
 	'fbclid=fake-facebook-click-id',
 	'gclid=fake-google-click-id',
 	'ref=newsletter',
-	'_=' + Date.now()
+	'_=ci-cache-buster'
 ];
 
 const PAGES_TO_PROBE = ['/', '/about', '/categories'];
