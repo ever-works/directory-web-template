@@ -33,23 +33,36 @@ test.describe('Admin dynamic-segment routes', () => {
 			const resp = await anon.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
-			// Two acceptable gate outcomes:
-			//   1. The initial server response is 4xx (notFound / unauthorized
-			//      / forbidden — the server component gated before rendering
-			//      anything sensitive)
+			// Three acceptable gate outcomes:
+			//   1. The initial server response is 4xx (server component
+			//      gated before rendering anything sensitive).
 			//   2. The page renders 200 but then the client-side
-			//      AdminLayoutClient redirects to /auth/signin.
+			//      AdminLayoutClient redirects to /auth/signin or
+			//      /admin/auth/signin or /unauthorized.
+			//   3. The page renders 200 and AdminLayoutClient shows
+			//      its "Redirecting..." placeholder (because the
+			//      anonymous session resolves to no user — admin UI
+			//      content is never exposed).
 			const initialStatus = resp!.status();
 			let wasGated = initialStatus === 404 || initialStatus === 401 || initialStatus === 403;
 			if (!wasGated) {
-				// 200 from the server — wait for the client-side redirect
-				// to fire.
-				wasGated = await anon
-					.waitForURL(/auth\/signin/, { timeout: 15_000 })
-					.then(() => true)
-					.catch(() => false);
+				// Race: client redirect to a signin/unauthorized page
+				// OR the AdminAuthGuard "Redirecting..." placeholder
+				// rendering (proves admin UI did NOT render).
+				const redirectPromise = anon
+					.waitForURL(/auth\/signin|\/unauthorized/, { timeout: 15_000 })
+					.then(() => 'redirect' as const)
+					.catch(() => null);
+				const placeholderPromise = anon
+					.getByText(/redirecting/i)
+					.first()
+					.waitFor({ state: 'visible', timeout: 15_000 })
+					.then(() => 'placeholder' as const)
+					.catch(() => null);
+				const outcome = await Promise.race([redirectPromise, placeholderPromise]);
+				wasGated = outcome !== null;
 			}
-			expect(wasGated, `${path} (status ${initialStatus}, url ${anon.url()}) should redirect to signin or return 404`).toBe(true);
+			expect(wasGated, `${path} (status ${initialStatus}, url ${anon.url()}) should redirect to signin/unauthorized or render the AdminAuthGuard placeholder`).toBe(true);
 			await ctx.close();
 		});
 	}

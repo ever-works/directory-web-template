@@ -25,17 +25,21 @@ test.describe('Boundary endpoints', () => {
 		expect(resp.status()).toBeLessThan(500);
 	});
 
-	test('GET /api/version returns version or documented 404', async ({ request }) => {
+	test('GET /api/version returns version envelope or documented 404', async ({ request }) => {
 		const resp = await request.get('/api/version');
-		// Happy path: 200 with `{ version }`. Degraded path (no
-		// DATA_REPOSITORY content cloned): documented 404 with
-		// `{ error: 'Data repository not found' }`. Both branches are
-		// load-bearing — what we must NEVER see is a 5xx.
+		// Happy path: 200 with the canonical envelope
+		// `{ commit, date, message, author, repository, lastSync, branch }`.
+		// Degraded path (no DATA_REPOSITORY content cloned): documented
+		// 404 with `{ error: 'Data repository not found' }`. What we
+		// must NEVER see is a 5xx.
 		expect(resp.status()).toBeLessThan(500);
 		if (resp.status() < 400) {
 			const body = await resp.json();
-			const v = body.version ?? body.app?.version ?? body.data?.version;
-			expect(v, 'version field').toBeTruthy();
+			// The canonical identity field is `commit`; some legacy
+			// builds also expose `version` / `app.version` / `data.version`.
+			const identity =
+				body.commit ?? body.version ?? body.app?.version ?? body.data?.version;
+			expect(identity, 'version/commit identity field').toBeTruthy();
 		}
 	});
 
