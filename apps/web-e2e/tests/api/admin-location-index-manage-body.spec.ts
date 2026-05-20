@@ -119,7 +119,7 @@ const FORBIDDEN_MESSAGES = [
 
 const FORBIDDEN_KEYS = ['data', 'cleared'] as const;
 
-const CANONICAL_ENVELOPE_BARE_401_MESSAGE = 'Unauthorized';
+const CANONICAL_ENVELOPE_BARE_401_MESSAGE = 'Unauthorized. Admin access required.';
 
 test.describe('API: /api/admin/location-index POST body / header surface', () => {
 	for (const { headers, label } of ADMIN_LOCATION_INDEX_MANAGE_HEADERS) {
