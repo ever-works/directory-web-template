@@ -63,7 +63,7 @@ export default async function TagListing({
 
   // Unknown tag slug → proper 404 (not a soft-404 with full item list).
   const knownTag = tags.some(
-    (t) => t.id === decodedTag || t.slug === decodedTag || t.name?.toLowerCase() === decodedTag.toLowerCase()
+    (t) => t.id === decodedTag || t.name?.toLowerCase() === decodedTag.toLowerCase()
   );
   if (!knownTag) {
     notFound();
