@@ -34,18 +34,22 @@ test.describe('Admin dynamic-segment routes', () => {
 			expect(resp).toBeTruthy();
 			expect(resp!.status()).toBeLessThan(500);
 			// Two acceptable gate outcomes:
-			//   1. URL redirects to /auth/signin (server- or client-side)
-			//   2. The page returns 404 (notFound from the server component
-			//      before any sensitive content is rendered, e.g. survey
-			//      [slug]/edit which calls notFound() when the slug is
-			//      missing — the anonymous caller learns nothing more
-			//      than the slug-exists / slug-missing answer they could
-			//      already get from /admin/surveys list).
-			const wasGated = await Promise.race([
-				anon.waitForURL(/auth\/signin/, { timeout: 30_000 }).then(() => true).catch(() => false),
-				Promise.resolve(resp!.status() === 404 || resp!.status() === 401 || resp!.status() === 403)
-			]);
-			expect(wasGated, `${path} should redirect to signin or return 404`).toBe(true);
+			//   1. The initial server response is 4xx (notFound / unauthorized
+			//      / forbidden — the server component gated before rendering
+			//      anything sensitive)
+			//   2. The page renders 200 but then the client-side
+			//      AdminLayoutClient redirects to /auth/signin.
+			const initialStatus = resp!.status();
+			let wasGated = initialStatus === 404 || initialStatus === 401 || initialStatus === 403;
+			if (!wasGated) {
+				// 200 from the server — wait for the client-side redirect
+				// to fire.
+				wasGated = await anon
+					.waitForURL(/auth\/signin/, { timeout: 15_000 })
+					.then(() => true)
+					.catch(() => false);
+			}
+			expect(wasGated, `${path} (status ${initialStatus}, url ${anon.url()}) should redirect to signin or return 404`).toBe(true);
 			await ctx.close();
 		});
 	}
