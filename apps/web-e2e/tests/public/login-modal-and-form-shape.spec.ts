@@ -52,11 +52,21 @@ test.describe('Signin form shape', () => {
 		// With `?token=fake` it ends up on the "invalid token" branch and
 		// shows no password inputs — that's a valid end-state for the form
 		// shape contract, not a bug. We only assert here that the page
-		// settled on EITHER the password form OR the invalid-token UI; the
-		// "invalid token" copy is a recognizable substring across locales.
-		await page.waitForTimeout(800);
-		const pwds = await page.locator('input[type="password"]').count();
-		const invalid = await page.getByText(/invalid|expired|incorrect|fail/i).count();
-		expect(pwds + invalid, `password form or invalid-token UI on /auth/new-password (pwds=${pwds} invalid=${invalid})`).toBeGreaterThan(0);
+		// settled on EITHER the password form OR the invalid-token UI;
+		// poll until one of those settles (the token verification is a
+		// server action and 800ms is sometimes not enough on a cold start).
+		await expect
+			.poll(
+				async () => {
+					const pwds = await page.locator('input[type="password"]').count();
+					const invalid = await page.getByText(/invalid|expired|incorrect|fail/i).count();
+					return pwds + invalid;
+				},
+				{
+					message: 'expected /auth/new-password to settle into password form OR invalid-token UI',
+					timeout: 15_000
+				}
+			)
+			.toBeGreaterThan(0);
 	});
 });

@@ -43,7 +43,14 @@ test.describe('UI: Newsletter Signup', () => {
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
 
 		const newsletter = new Newsletter(page);
-		await page.locator('footer').first().scrollIntoViewIfNeeded();
+		// `footer` is rendered lazily — on a cold start the element can
+		// re-mount between scrollIntoView and the visibility check, which
+		// reports "Element is not attached to the DOM". Wait for it
+		// explicitly and silently swallow scroll-time detach errors; the
+		// subsequent isVisible() check is the real gate.
+		const footer = page.locator('footer').first();
+		await footer.waitFor({ state: 'attached', timeout: 5_000 }).catch(() => undefined);
+		await footer.scrollIntoViewIfNeeded({ timeout: 5_000 }).catch(() => undefined);
 
 		const isVisible = await newsletter.emailInput.isVisible().catch(() => false);
 

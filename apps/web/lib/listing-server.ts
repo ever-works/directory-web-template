@@ -21,16 +21,26 @@ function toEpochMs(v: Date | string | null | undefined): number {
   return Number.isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
+// Stable name key — fall back to slug when `name` is missing so items
+// without an explicit display name still sort deterministically (the
+// git-CMS path leaves `name` blank on seed fixtures and the sort
+// previously returned the original order for everything).
+function nameKey(it: ItemData): string {
+  return (it.name ?? it.slug ?? '').toLowerCase();
+}
+
 export function sortItems(items: ItemData[], sort?: string): ItemData[] {
   if (!sort) return items;
   const copy = items.slice();
   switch (sort) {
     case 'name':
     case 'name-asc':
-      return copy.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+    case 'alphabetical':
+      return copy.sort((a, b) => nameKey(a).localeCompare(nameKey(b)));
     case 'name-desc':
-      return copy.sort((a, b) => (b.name ?? '').localeCompare(a.name ?? ''));
+      return copy.sort((a, b) => nameKey(b).localeCompare(nameKey(a)));
     case 'recent':
+    case 'newest':
     case 'updated':
     case 'date-desc':
       return copy.sort((a, b) => toEpochMs(b.updatedAt) - toEpochMs(a.updatedAt));

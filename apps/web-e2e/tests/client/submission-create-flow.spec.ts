@@ -48,12 +48,20 @@ test.describe('Submission create flow (form-level)', () => {
 	test('client can navigate from dashboard to submit page', async ({ page }) => {
 		await page.goto('/client/dashboard', { waitUntil: 'domcontentloaded' });
 		const submitLink = page.getByRole('link', { name: /new submission|submit/i }).first();
+		// Wait for the link to hydrate before checking visibility; on a
+		// cold-start server the dashboard SSR can land before React has
+		// attached handlers, and a too-early click is a no-op.
+		await submitLink.waitFor({ state: 'visible', timeout: 15_000 }).catch(() => undefined);
 		if (!(await submitLink.isVisible().catch(() => false))) {
 			test.skip(true, 'Dashboard does not expose a submit link by accessible name');
 			return;
 		}
-		await submitLink.click();
-		await page.waitForURL(/\/(submit|client\/submissions\/new)/, { timeout: 30_000 });
+		// Race the click against the URL change so we don't miss a fast
+		// navigation between the click and the assertion.
+		await Promise.all([
+			page.waitForURL(/\/(submit|client\/submissions\/new)/, { timeout: 30_000 }),
+			submitLink.click()
+		]);
 	});
 
 	// Suppress unused-import lint by referencing TEST_DATA at least once.
