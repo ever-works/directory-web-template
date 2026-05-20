@@ -150,8 +150,8 @@ existing backend behaviour untouched.
     - `DELETE_ACCOUNT.CONFIRM_MODAL.CANCEL_CTA`
     - `DELETE_ACCOUNT.ERRORS.INCORRECT_PASSWORD`
     - `DELETE_ACCOUNT.ERRORS.UNKNOWN`
-  Mirror the same key set into every other locale's
-  `settings.json` with the English fallback string.
+      Mirror the same key set into every other locale's
+      `settings.json` with the English fallback string.
 - **Accessibility:** the destructive CTA must have a non-colour
   affordance (icon + explicit verb in the label) so colour-blind
   users still see it as destructive. The confirmation modal must

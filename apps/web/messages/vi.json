@@ -730,6 +730,36 @@
 				"DELETE_PROJECT": "Xóa dự án"
 			},
 			"DELETE_CONFIRM": "Bạn có chắc chắn muốn xóa \"{title}\" không?"
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger Zone",
+			"DESCRIPTION": "Irreversible account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger Zone",
+			"SUBTITLE": "Irreversible actions that affect your account permanently.",
+			"BACK_TO_SETTINGS": "Back to Settings",
+			"WARNING_TITLE": "Heads up",
+			"WARNING_BODY": "The actions on this page cannot be undone. Please read the consequences carefully before confirming.",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete account",
+				"DESCRIPTION": "Permanently delete your account, profile, submissions, and sponsorships. You will be signed out immediately and will not be able to sign in again with these credentials.",
+				"CTA": "Delete my account",
+				"CONFIRM_MODAL": {
+					"TITLE": "Delete your account?",
+					"WARNING": "This action is irreversible. Your account, profile, submissions, and sponsorships will be deleted. You will be signed out and redirected to the sign-in page.",
+					"PASSWORD_LABEL": "Confirm your password",
+					"PASSWORD_PLACEHOLDER": "Enter your current password",
+					"CONFIRM_CTA": "Delete my account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"UNKNOWN": "Failed to delete account. Please try again."
+				}
+			}
 		}
 	},
 	"newsletter": {
