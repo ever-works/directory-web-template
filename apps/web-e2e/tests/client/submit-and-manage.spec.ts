@@ -23,17 +23,28 @@ test.describe('Client: Submit & Submission Management', () => {
 			description: testDescription,
 		});
 
-		// Select a category if the combobox is visible
+		// Select a category. The combobox is rendered whenever categories
+		// are enabled in settings; when present, category is a REQUIRED
+		// field and the Submit button stays disabled until something is
+		// selected. Retry the open+pick interaction up to 10s so a
+		// cold-start combobox that hasn't hydrated yet still resolves.
 		const categoriesBtn = submitPage.categoriesButton;
 		const isCategoriesVisible = await categoriesBtn.isVisible().catch(() => false);
 		if (isCategoriesVisible) {
-			await categoriesBtn.click();
-			// Click the first available option
-			const firstOption = clientPage.getByRole('option').first();
-			const isOptionVisible = await firstOption.isVisible().catch(() => false);
-			if (isOptionVisible) {
-				await firstOption.click();
+			const deadline = Date.now() + 10_000;
+			let selected = false;
+			while (Date.now() < deadline && !selected) {
+				try {
+					await categoriesBtn.click({ timeout: 2_000 });
+					const firstOption = clientPage.getByRole('option').first();
+					await firstOption.waitFor({ state: 'visible', timeout: 2_000 });
+					await firstOption.click();
+					selected = true;
+				} catch {
+					await clientPage.waitForTimeout(250);
+				}
 			}
+			expect(selected, 'category combobox is visible — selection is required for Submit').toBe(true);
 		}
 
 		// Click "Next Step" to go to payment step
