@@ -159,13 +159,19 @@ export function SettingsContent() {
 		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="max-w-xl mx-auto py-8 space-y-5">
-					{/* Page header label */}
-					<div className="flex items-center gap-2 px-0.5">
+					{/*
+						Page header label. Wrapped in an <h1> for a11y so
+						`getByRole('heading', { level: 1 })` reaches it (the
+						e2e settings spec asserts that contract). The
+						existing label styling is preserved via the inner
+						<span> + icon — only the semantic role changes.
+					*/}
+					<h1 className="flex items-center gap-2 px-0.5 m-0">
 						<FiSettings className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
 						<span className="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest">
 							{t('PROFILE_SETTINGS')}
 						</span>
-					</div>
+					</h1>
 
 					{/* User identity card */}
 					<UserIdentityCard user={user} isLoading={isLoading} />

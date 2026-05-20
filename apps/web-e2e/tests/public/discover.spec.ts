@@ -80,17 +80,30 @@ test.describe('Public: Discover / Directory Listing', () => {
 		await expect(page.locator('body')).toBeVisible();
 	});
 
-	test('HeroUI pagination strip is present on multi-page listings', async ({ page }) => {
+	test('HeroUI pagination strip is present on multi-page listings', async ({ page, request }) => {
 		const discoverPage = new DiscoverPage(page);
 		await discoverPage.navigate(1);
 		await discoverPage.waitForPageReady();
 
+		// `getItemCount` counts every `a[href*="/items/"]` on the page,
+		// which includes related-item links, mobile + desktop card
+		// variants, etc. — so it's NOT a reliable signal of "how many
+		// items are in the catalogue." Use the listing API for that, and
+		// skip when the catalogue is small enough to fit on a single page.
+		const apiResp = await request.get('/api/items/listing?page=1&lang=en&perPage=1').catch(() => null);
+		const apiBody = apiResp ? await apiResp.json().catch(() => null) : null;
+		const totalItems = typeof apiBody?.total === 'number'
+			? apiBody.total
+			: Array.isArray(apiBody?.items)
+				? apiBody.items.length
+				: undefined;
+
 		const itemCount = await discoverPage.getItemCount();
 		test.skip(itemCount === 0, 'No items rendered');
-		// Pagination only renders when there's more than one page. The
-		// default page slice is 12, so a catalogue with ≤ 12 items is a
-		// single-page listing — no pagination nav, by design.
-		test.skip(itemCount <= 12, `single-page listing (${itemCount} ≤ 12 items) — no pagination to assert`);
+		test.skip(
+			totalItems == null || totalItems <= 12,
+			`catalogue has ${totalItems ?? 'unknown'} items — single-page listing renders no pagination by design`
+		);
 
 		// The HeroUI Pagination component carries `aria-label="pagination"`.
 		const paginationNav = page.locator('nav[aria-label*="pagination" i]');
