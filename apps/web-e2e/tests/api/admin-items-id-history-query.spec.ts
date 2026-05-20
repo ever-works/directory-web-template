@@ -139,7 +139,7 @@ const ADMIN_ITEMS_HISTORY_DYNAMIC_IDS = [
 const VALIDATION_400_PREFIX = 'Invalid action filter(s):';
 const NOT_FOUND_404_MESSAGE = 'Item not found';
 const CATCH_500_MESSAGE = 'Failed to fetch item history';
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/items/[id]/history method / query / header surface', () => {
 	for (const { headers, label } of ADMIN_ITEMS_HISTORY_HEADERS) {

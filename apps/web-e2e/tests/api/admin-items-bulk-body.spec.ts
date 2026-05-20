@@ -299,7 +299,7 @@ test.describe('API: /api/admin/items/bulk method / body / header surface', () =>
 
 		const body = await response.json();
 		expect(body).toMatchObject({
-			error: 'Unauthorized. Admin access required.'
+			error: 'Unauthorized'
 		});
 	});
 

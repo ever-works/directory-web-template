@@ -172,7 +172,7 @@ test.describe('API: /api/admin/items/[id]/review method / body / header surface'
 
 		const body = await response.json();
 		expect(body).toMatchObject({
-			error: 'Unauthorized. Admin access required.'
+			error: 'Unauthorized'
 		});
 	});
 

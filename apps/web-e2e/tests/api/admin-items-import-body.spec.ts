@@ -196,7 +196,7 @@ const ADMIN_ITEMS_IMPORT_BODIES = [
 const VALIDATION_400_MESSAGES = ['Missing or invalid rows array.', 'Missing import options.'] as const;
 
 const CATCH_500_MESSAGE = 'Failed to execute import';
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/items/import method / body / header surface', () => {
 	for (const { headers, label } of ADMIN_ITEMS_IMPORT_HEADERS) {

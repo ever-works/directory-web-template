@@ -147,7 +147,7 @@ const VALIDATION_400_MESSAGES = [
 const SUCCESS_KEYS = ['headers', 'suggestedMapping', 'validationResults', 'summary'] as const;
 
 const CATCH_500_MESSAGE = 'Failed to validate import file';
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 // Helper — build a multipart payload with a Buffer file and
 // optional extra form fields. Playwright's `multipart` form

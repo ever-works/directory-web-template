@@ -224,7 +224,7 @@ const FORBIDDEN_MESSAGES = [
 	'Invalid collection payload'
 ] as const;
 
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/collections/[id] GET / PUT / DELETE method / id / body / header surface', () => {
 	for (const id of COLLECTION_IDS) {

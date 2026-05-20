@@ -132,7 +132,7 @@ const FORBIDDEN_MESSAGES = [
 
 const FORBIDDEN_KEYS = ['data', 'category'] as const;
 
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/categories POST body / header surface', () => {
 	for (const { headers, label } of ADMIN_CATEGORIES_CREATE_HEADERS) {

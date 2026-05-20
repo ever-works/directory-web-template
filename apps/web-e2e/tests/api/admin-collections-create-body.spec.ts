@@ -162,7 +162,7 @@ const FORBIDDEN_MESSAGES = [
 
 const FORBIDDEN_KEYS = ['data', 'collection', 'message'] as const;
 
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 const BARE_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/collections POST body / header surface', () => {
