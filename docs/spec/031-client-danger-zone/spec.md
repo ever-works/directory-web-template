@@ -71,15 +71,30 @@ existing backend behaviour untouched.
 
 ## 4. Non-Goals
 
-- **Minimal backend change only.** `softDeleteUser`, `logActivity`,
-  and the redirect target stay exactly as they are. `deleteAccount`
-  itself gets one targeted fix: its password verifier was
-  admin-only (checked `users.passwordHash` via `comparePasswords`)
-  and always failed for client users whose hash lives on
-  `accounts.passwordHash` (provider='credentials'). The action now
-  mirrors `signInAction` — it tries `verifyClientPassword(email,
-  password)` first and falls back to the admin path — so deletion
-  actually works for the audience this spec ships to.
+- **Minimal backend changes only.** `logActivity` and the redirect
+  target stay exactly as they are. Three targeted fixes were needed
+  for the UI to actually deliver the feature:
+  1. **Password verifier:** `deleteAccount` was admin-only — it
+     checked `users.passwordHash` via `comparePasswords`, and always
+     failed for client users whose hash lives on
+     `accounts.passwordHash` (provider='credentials'). The action
+     now mirrors `signInAction` — it tries
+     `verifyClientPassword(email, password)` first and falls back
+     to the admin path.
+  2. **Soft-delete coverage:** `softDeleteUser` only mangled
+     `users.email`, but the credentials provider authenticates
+     against `accounts.email + accounts.passwordHash`. After
+     deletion the user could still log in. `softDeleteUser` now
+     transactionally also mangles the user's accounts.email and
+     nulls accounts.passwordHash, so the credentials lookup
+     immediately fails for soft-deleted accounts.
+  3. **Sign-out + redirect chain:** the old chain relied on
+     `NextAuthService.signOut()` (which returns `Promise<any>` with
+     no explicit value) and then destructured `{ error }`, which
+     threw before the final `redirect('/auth/signin')` could fire.
+     Replaced with `signOut({ redirect: false })` + explicit
+     `redirect('/auth/signin')`, so the client always lands on the
+     sign-in page after a successful delete.
 - **No GDPR data takeout.** Export-then-delete is a separate
   follow-up — this spec only exposes the existing soft-delete flow.
 - **No account deactivation.** A soft-pause (suspend without

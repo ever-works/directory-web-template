@@ -1,6 +1,6 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { users, clientProfiles, roles, userRoles, type NewUser, type User } from '../schema';
+import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -131,17 +131,34 @@ export async function updateUserVerification(email: string, verified: boolean) {
 /**
  * Soft delete a user by marking as deleted
  * @param userId - User ID to delete
+ *
+ * Also neuters the user's rows in the `accounts` table so the credentials
+ * provider (which authenticates against accounts.email + accounts.passwordHash
+ * via verifyClientPassword) cannot mint a fresh session for a soft-deleted
+ * user. Without this, login by the original email keeps succeeding because
+ * the accounts row is untouched.
  */
 export async function softDeleteUser(userId: string) {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
-	return db
-		.update(users)
-		.set({
-			deletedAt: sql`CURRENT_TIMESTAMP`,
-			email: sql`CONCAT(email, '-', id, '-deleted')`
-		})
-		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+
+	return db.transaction(async (tx) => {
+		await tx
+			.update(users)
+			.set({
+				deletedAt: sql`CURRENT_TIMESTAMP`,
+				email: sql`CONCAT(email, '-', id, '-deleted')`
+			})
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+
+		await tx
+			.update(accounts)
+			.set({
+				email: sql`CONCAT(COALESCE(${accounts.email}, ''), '-', ${accounts.userId}, '-deleted')`,
+				passwordHash: null
+			})
+			.where(and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)));
+	});
 }
 
 /**

@@ -8,6 +8,7 @@ import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
 import { redirect } from 'next/navigation';
+import { signOut } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
 import {
@@ -376,7 +377,7 @@ const deleteAccountSchema = z.object({
 });
 
 export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async (data, _, user) => {
-	const { password, provider } = data;
+	const { password } = data;
 	const dbUser = await getUserByEmail(user.email!).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
@@ -396,15 +397,15 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 	}
 
 	await logActivity(ActivityType.DELETE_ACCOUNT, dbUser.id, 'user');
-
 	await softDeleteUser(dbUser.id);
-	const authService = authServiceFactory(provider);
-	const { error } = await authService.signOut();
 
-	if (error) {
-		return { error: `Failed to sign out: ${error}` };
-	}
-
+	// Clear the session cookie without letting NextAuth issue its own redirect —
+	// its redirectTo path doesn't propagate reliably through useActionState, and
+	// the `await ... .signOut()` wrapper used to return undefined which made the
+	// caller's destructure throw before we ever reached redirect(). Call signOut
+	// with redirect:false, then issue the redirect ourselves so the client lands
+	// on /auth/signin every time.
+	await signOut({ redirect: false });
 	redirect('/auth/signin');
 });
 
