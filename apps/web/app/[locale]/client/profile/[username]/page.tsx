@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
-import { FiChevronRight, FiUser, FiBarChart2, FiLock } from 'react-icons/fi';
+import { FiChevronRight, FiUser, FiBarChart2, FiLock, FiEye, FiArrowLeft } from 'react-icons/fi';
 import {
 	getClientProfileByUsername,
 	listPortfolioProjectsForProfile,
@@ -28,8 +28,15 @@ import type { Profile, ProfileSkill } from '@/lib/types/profile';
 // Force dynamic rendering — page depends on session/follow state
 export const dynamic = 'force-dynamic';
 
-export default async function ClientProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function ClientProfilePage({
+	params,
+	searchParams
+}: {
+	params: Promise<{ username: string }>;
+	searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
 	const { username } = await params;
+	const sp = await searchParams;
 	const t = await getTranslations('profile');
 	const clientProfile = await getClientProfileByUsername(username);
 	if (!clientProfile) {
@@ -40,13 +47,23 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
 
-	// Owner-only privacy gate. If the profile is private and the viewer isn't the owner,
-	// render a "this profile is private" placeholder instead of leaking any profile data.
+	// Owner-only "preview as public" mode. Toggled via `?preview=public`; ignored
+	// for non-owners (their experience is already the public one). Inside preview
+	// mode we render exactly as a visitor would, including the private placeholder.
+	const previewAsPublic = isOwn && sp.preview === 'public';
+	const effectiveIsOwn = isOwn && !previewAsPublic;
+
 	const isPrivate = clientProfile.profileVisibility === 'private';
-	if (isPrivate && !isOwn) {
+	if (isPrivate && !effectiveIsOwn) {
+		const exitPreviewHref = `/client/profile/${username}`;
 		return (
 			<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 				<Container maxWidth="7xl" padding="default" useGlobalWidth>
+					{previewAsPublic && (
+						<div className="pt-6">
+							<PreviewBanner exitHref={exitPreviewHref} t={t} />
+						</div>
+					)}
 					<div className="py-8 max-w-md mx-auto">
 						<div className="rounded-2xl border border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111] shadow-sm p-8 text-center space-y-3">
 							<div className="mx-auto w-10 h-10 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
@@ -60,11 +77,15 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 							</p>
 							<div className="pt-2">
 								<Link
-									href="/client/users"
+									href={previewAsPublic ? exitPreviewHref : '/client/users'}
 									className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
 								>
-									<FiUser className="w-3.5 h-3.5" />
-									{t('PROFILES_BREADCRUMB')}
+									{previewAsPublic ? (
+										<FiArrowLeft className="w-3.5 h-3.5" />
+									) : (
+										<FiUser className="w-3.5 h-3.5" />
+									)}
+									{previewAsPublic ? t('EXIT_PREVIEW') : t('PROFILES_BREADCRUMB')}
 								</Link>
 							</div>
 						</div>
@@ -153,10 +174,15 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		submissions: []
 	};
 
+	const previewHref = `/client/profile/${username}?preview=public`;
+	const exitPreviewHref = `/client/profile/${username}`;
+
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="space-y-6 py-8">
+					{previewAsPublic && <PreviewBanner exitHref={exitPreviewHref} t={t} />}
+
 					{/* Breadcrumb + own-profile actions */}
 					<div className="flex items-center justify-between gap-3">
 						<nav className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
@@ -173,13 +199,32 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 							</span>
 						</nav>
 						{isOwn && (
-							<Link
-								href="/client/dashboard"
-								className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
-							>
-								<FiBarChart2 className="w-3.5 h-3.5" aria-hidden="true" />
-								{t('BACK_TO_DASHBOARD')}
-							</Link>
+							<div className="flex items-center gap-2">
+								{previewAsPublic ? (
+									<Link
+										href={exitPreviewHref}
+										className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-theme-primary-300 dark:border-theme-primary-700 text-theme-primary-700 dark:text-theme-primary-300 bg-theme-primary-50 dark:bg-theme-primary-900/30 hover:bg-theme-primary-100 dark:hover:bg-theme-primary-900/50 transition-colors"
+									>
+										<FiArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+										{t('EXIT_PREVIEW')}
+									</Link>
+								) : (
+									<Link
+										href={previewHref}
+										className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+									>
+										<FiEye className="w-3.5 h-3.5" aria-hidden="true" />
+										{t('PREVIEW_PUBLIC_VIEW')}
+									</Link>
+								)}
+								<Link
+									href="/client/dashboard"
+									className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+								>
+									<FiBarChart2 className="w-3.5 h-3.5" aria-hidden="true" />
+									{t('BACK_TO_DASHBOARD')}
+								</Link>
+							</div>
 						)}
 					</div>
 
@@ -189,7 +234,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 						<aside className="lg:col-span-4 xl:col-span-3 space-y-6 lg:sticky lg:top-6 lg:self-start">
 							<ProfilePanel
 								profile={profile}
-								isOwn={isOwn}
+								isOwn={effectiveIsOwn}
 								isAuthenticated={!!viewerUserId}
 								initialIsFollowing={viewerFollows}
 								verified={!!clientProfile.emailVerified}
@@ -235,7 +280,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 								>
 									{t('ABOUT_SECTION')}
 								</h2>
-								<AboutSection profile={profile} isOwn={isOwn} />
+								<AboutSection profile={profile} isOwn={effectiveIsOwn} />
 							</section>
 
 							{/* Recent activity */}
@@ -250,7 +295,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 									comments={recentComments}
 									favorites={recentFavorites}
 									follows={recentFollows}
-									isOwn={isOwn}
+									isOwn={effectiveIsOwn}
 									displayName={profile.displayName}
 								/>
 							</section>
@@ -264,7 +309,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 									>
 										{t('SKILLS_EXPERTISE_SECTION')}
 									</h2>
-									{isOwn && (
+									{effectiveIsOwn && (
 										<Link
 											href="/client/settings/profile/basic-info"
 											className="text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
@@ -285,7 +330,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 									>
 										{t('PORTFOLIO_SECTION')}
 									</h2>
-									{isOwn && (
+									{effectiveIsOwn && (
 										<Link
 											href="/client/settings/profile/portfolio"
 											className="text-sm text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
@@ -300,6 +345,33 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 					</div>
 				</div>
 			</Container>
+		</div>
+	);
+}
+
+function PreviewBanner({
+	exitHref,
+	t
+}: {
+	exitHref: string;
+	t: Awaited<ReturnType<typeof getTranslations<'profile'>>>;
+}) {
+	return (
+		<div
+			role="status"
+			className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-theme-primary-200 dark:border-theme-primary-800 bg-theme-primary-50 dark:bg-theme-primary-900/30 text-theme-primary-800 dark:text-theme-primary-100"
+		>
+			<div className="flex items-center gap-2 min-w-0">
+				<FiEye className="w-4 h-4 shrink-0" aria-hidden="true" />
+				<p className="text-xs sm:text-sm font-medium truncate">{t('PREVIEW_BANNER_TEXT')}</p>
+			</div>
+			<Link
+				href={exitHref}
+				className="inline-flex items-center gap-1.5 px-2.5 h-7 text-xs font-medium rounded-md border border-theme-primary-300 dark:border-theme-primary-700 bg-white/70 dark:bg-white/[0.04] hover:bg-white dark:hover:bg-white/[0.08] transition-colors shrink-0"
+			>
+				<FiArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+				{t('EXIT_PREVIEW')}
+			</Link>
 		</div>
 	);
 }
