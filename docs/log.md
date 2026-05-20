@@ -31,6 +31,21 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-20 — Profile visibility toggle (Upwork-style)
+
+- New `client_profiles.profile_visibility` column (`public` | `private`,
+  default `public`). Migration `0038_add_client_profile_visibility.sql`,
+  additive and idempotent.
+- New settings page at `/client/settings/profile/visibility` with an
+  Upwork-style toggle plus side-by-side "Public / Private" radio cards
+  spelling out the trade-offs (directory listing, link visibility,
+  follower/portfolio exposure).
+- `PATCH /api/user/profile` now accepts `profileVisibility`.
+- Public profile page `/client/profile/[username]` shows a "this profile
+  is private" placeholder to non-owners when visibility is `private`.
+- Owners always see their own profile regardless of setting.
+- Spec doc deferred per request — feature ships PR-only.
+
 ## 2026-05-20 — Spec 027 follow-up: page-based pagination on /client + /admin notifications (PR #852)
 
 - spec-027: `/client/notifications` and `/admin/notifications` long lists

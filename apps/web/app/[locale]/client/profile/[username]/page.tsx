@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
-import { FiChevronRight, FiUser, FiBarChart2 } from 'react-icons/fi';
+import { FiChevronRight, FiUser, FiBarChart2, FiLock } from 'react-icons/fi';
 import {
 	getClientProfileByUsername,
 	listPortfolioProjectsForProfile,
@@ -39,6 +39,40 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === clientProfile.userId;
+
+	// Owner-only privacy gate. If the profile is private and the viewer isn't the owner,
+	// render a "this profile is private" placeholder instead of leaking any profile data.
+	const isPrivate = clientProfile.profileVisibility === 'private';
+	if (isPrivate && !isOwn) {
+		return (
+			<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
+				<Container maxWidth="7xl" padding="default" useGlobalWidth>
+					<div className="py-8 max-w-md mx-auto">
+						<div className="rounded-2xl border border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111] shadow-sm p-8 text-center space-y-3">
+							<div className="mx-auto w-10 h-10 rounded-full bg-gray-100 dark:bg-white/6 flex items-center justify-center">
+								<FiLock className="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" />
+							</div>
+							<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+								{t('PRIVATE_TITLE')}
+							</h1>
+							<p className="text-sm text-gray-500 dark:text-gray-400">
+								{t('PRIVATE_DESCRIPTION')}
+							</p>
+							<div className="pt-2">
+								<Link
+									href="/client/users"
+									className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+								>
+									<FiUser className="w-3.5 h-3.5" />
+									{t('PROFILES_BREADCRUMB')}
+								</Link>
+							</div>
+						</div>
+					</div>
+				</Container>
+			</div>
+		);
+	}
 
 	const [portfolioRows, stats, viewerFollows, recentComments, recentFavorites, outgoingFollows, incomingFollows] = await Promise.all([
 		listPortfolioProjectsForProfile(clientProfile.id),
@@ -114,7 +148,7 @@ export default async function ClientProfilePage({ params }: { params: Promise<{ 
 		})),
 		themeColor: '#3B82F6',
 		coverColor: clientProfile.coverColor || '',
-		isPublic: true,
+		isPublic: !isPrivate,
 		memberSince: clientProfile.createdAt?.toISOString().split('T')[0] || '2024-01-01',
 		submissions: []
 	};
