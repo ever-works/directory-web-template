@@ -34,8 +34,14 @@ test.describe('Smoke: Core navigation', () => {
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
 
 		const signInLink = page.getByRole('link', { name: /sign in/i }).first();
-		await expect(signInLink).toBeVisible();
-		await signInLink.click();
+		await expect(signInLink).toBeVisible({ timeout: 15_000 });
+		// Race the click against the URL change explicitly. Without this
+		// the assertion can fire before the cold-server navigation actually
+		// commits and we time out at the default 5s.
+		await Promise.all([
+			page.waitForURL(/\/auth\/signin/, { timeout: 30_000 }),
+			signInLink.click()
+		]);
 		await expect(page).toHaveURL(/\/auth\/signin/);
 	});
 });

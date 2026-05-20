@@ -12,9 +12,26 @@ export class ScrollToTop {
 		this.button = page.locator('button[aria-label="Scroll to top"]');
 	}
 
-	/** Scroll down to trigger the button to appear */
+	/** Scroll down to trigger the button to appear. Wait for the page
+	 *  to actually have enough content to scroll first, then use
+	 *  scrollTo (absolute) so the result is deterministic regardless of
+	 *  where the page currently is. */
 	async scrollDown(pixels = 500) {
-		await this.page.evaluate((px) => window.scrollBy(0, px), pixels);
+		// Wait until the document is at least `pixels + viewport` tall —
+		// on minimal-data seeds the listing can render before its tall
+		// children mount, and scrolling on a short doc silently does
+		// nothing. Cap the wait so the test still fails fast on a truly
+		// short page.
+		await this.page
+			.waitForFunction(
+				([px]) => document.documentElement.scrollHeight > (px as number) + window.innerHeight,
+				[pixels] as const,
+				{ timeout: 3_000 }
+			)
+			.catch(() => {
+				/* page may legitimately be shorter — fall through */
+			});
+		await this.page.evaluate((px) => window.scrollTo({ top: px, behavior: 'instant' as ScrollBehavior }), pixels);
 	}
 
 	/** Click the scroll-to-top button */

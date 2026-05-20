@@ -87,6 +87,10 @@ test.describe('Public: Discover / Directory Listing', () => {
 
 		const itemCount = await discoverPage.getItemCount();
 		test.skip(itemCount === 0, 'No items rendered');
+		// Pagination only renders when there's more than one page. The
+		// default page slice is 12, so a catalogue with ≤ 12 items is a
+		// single-page listing — no pagination nav, by design.
+		test.skip(itemCount <= 12, `single-page listing (${itemCount} ≤ 12 items) — no pagination to assert`);
 
 		// The HeroUI Pagination component carries `aria-label="pagination"`.
 		const paginationNav = page.locator('nav[aria-label*="pagination" i]');
