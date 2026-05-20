@@ -10,7 +10,10 @@ test.describe('Listing skeleton renders quickly', () => {
 		test(`${path} body has content within 2s`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 15_000 });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const text = await page.locator('body').textContent({ timeout: 2_000 });
 			expect((text || '').trim().length, `${path} body content`).toBeGreaterThan(0);
 		});

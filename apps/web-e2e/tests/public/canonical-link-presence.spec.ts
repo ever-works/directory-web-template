@@ -10,13 +10,19 @@ test.describe('Canonical link presence', () => {
 		test(`${path} has canonical with non-empty href`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const href = await page
 				.locator('link[rel="canonical"]')
 				.first()
 				.getAttribute('href')
 				.catch(() => null);
-			if (!href) test.skip();
+			if (!href) {
+				test.skip();
+				return;
+			}
 			expect(href).not.toBe('undefined');
 			expect(href).not.toBe('null');
 			expect(href!.length).toBeGreaterThan(0);

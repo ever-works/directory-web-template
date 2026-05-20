@@ -6,9 +6,15 @@ test.describe('Empty form submit tolerance', () => {
 	test('signin with empty form does not crash', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const submitBtn = page.locator('button[type="submit"], button:has-text(""), form button').first();
-		if ((await submitBtn.count()) === 0) test.skip();
+		if ((await submitBtn.count()) === 0) {
+			test.skip();
+			return;
+		}
 		const uncaught: string[] = [];
 		page.on('pageerror', (e) => uncaught.push(String(e.message || e)));
 		await submitBtn.click().catch(() => {});
@@ -19,9 +25,15 @@ test.describe('Empty form submit tolerance', () => {
 	test('forgot-password with empty form does not crash', async ({ page }) => {
 		const resp = await page.goto('/auth/forgot-password', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const submitBtn = page.locator('button[type="submit"], form button').first();
-		if ((await submitBtn.count()) === 0) test.skip();
+		if ((await submitBtn.count()) === 0) {
+			test.skip();
+			return;
+		}
 		const uncaught: string[] = [];
 		page.on('pageerror', (e) => uncaught.push(String(e.message || e)));
 		await submitBtn.click().catch(() => {});

@@ -9,7 +9,10 @@ test.describe('Web manifest shape', () => {
 		test(`${path} (if 200) is valid JSON with name`, async ({ request }) => {
 			const resp = await request.get(path);
 			expect(resp.status()).toBeLessThan(500);
-			if (resp.status() !== 200) test.skip();
+			if (resp.status() !== 200) {
+				test.skip();
+				return;
+			}
 			const txt = await resp.text();
 			let body: unknown;
 			try {

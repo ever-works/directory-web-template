@@ -9,7 +9,10 @@ test.describe('CSP shape audit', () => {
 	}) => {
 		const resp = await request.get('/');
 		const csp = (resp.headers()['content-security-policy'] || '').toLowerCase();
-		if (!csp) test.skip();
+		if (!csp) {
+			test.skip();
+			return;
+		}
 		const m = csp.match(/script-src[^;]+/);
 		if (!m) {
 			test.skip();
@@ -26,7 +29,10 @@ test.describe('CSP shape audit', () => {
 	test('signin CSP if present forbids unsafe-eval', async ({ request }) => {
 		const resp = await request.get('/auth/signin');
 		const csp = (resp.headers()['content-security-policy'] || '').toLowerCase();
-		if (!csp) test.skip();
+		if (!csp) {
+			test.skip();
+			return;
+		}
 		expect(csp.includes("'unsafe-eval'"), "auth signin CSP should not allow 'unsafe-eval'").toBe(
 			false
 		);

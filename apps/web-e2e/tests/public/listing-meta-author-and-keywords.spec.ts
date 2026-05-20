@@ -9,7 +9,10 @@ test.describe('Meta author/keywords/generator presence', () => {
 		test(`${path} meta author exists or is absent (non-empty if present)`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const author = await page.locator('meta[name="author"]').first().getAttribute('content').catch(() => null);
 			if (author !== null && author !== undefined) {
 				expect(author.trim()).not.toBe('');

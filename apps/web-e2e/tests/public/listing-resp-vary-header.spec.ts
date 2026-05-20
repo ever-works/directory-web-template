@@ -9,9 +9,15 @@ test.describe('Vary header well-formed (advisory)', () => {
 	for (const path of PROBES) {
 		test(`${path} Vary header parseable if present`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const vary = resp.headers()['vary'] || '';
-			if (!vary) test.skip();
+			if (!vary) {
+				test.skip();
+				return;
+			}
 			const tokens = vary.split(',').map((s) => s.trim()).filter(Boolean);
 			for (const t of tokens) {
 				expect(t, `${path} Vary token: ${t}`).toMatch(/^[A-Za-z0-9-]+$/);

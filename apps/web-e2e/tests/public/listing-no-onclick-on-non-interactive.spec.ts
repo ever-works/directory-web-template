@@ -9,7 +9,10 @@ test.describe('Click handlers on semantic elements', () => {
 		test(`${path} no onclick attribute on div/span (advisory)`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const bad = await page.evaluate(() =>
 				Array.from(document.querySelectorAll('[onclick]'))
 					.filter((el) => ['DIV', 'SPAN'].includes(el.tagName) && !el.getAttribute('role'))

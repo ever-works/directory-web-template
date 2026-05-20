@@ -8,7 +8,10 @@ test.describe('Locale prefix preserved in nav hrefs', () => {
 	test('anchors on /fr/discover/1 mostly preserve /fr/', async ({ page }) => {
 		const resp = await page.goto('/fr/discover/1', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const hrefs = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('a[href^="/"]'))
 				.map((a) => a.getAttribute('href') || '')
@@ -29,7 +32,10 @@ test.describe('Locale prefix preserved in nav hrefs', () => {
 				!h.startsWith('/auth/')
 		);
 		// Don't enforce — log fraction.
-		if (internalPageish.length === 0) test.skip();
+		if (internalPageish.length === 0) {
+			test.skip();
+			return;
+		}
 		const withFr = internalPageish.filter((h) => h.startsWith('/fr/') || h === '/fr');
 		console.log(
 			`/fr/discover/1: ${withFr.length}/${internalPageish.length} internal hrefs preserve /fr/`

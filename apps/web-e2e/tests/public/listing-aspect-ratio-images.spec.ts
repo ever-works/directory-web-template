@@ -7,7 +7,10 @@ test.describe('Images declare dimensions (advisory)', () => {
 	test('/ images mostly declare width/height OR aspect-ratio CSS', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const stats = await page.evaluate(() => {
 			const imgs = Array.from(document.querySelectorAll<HTMLImageElement>('img')).slice(0, 30);
 			return imgs.map((img) => {
@@ -17,7 +20,10 @@ test.describe('Images declare dimensions (advisory)', () => {
 				return { has: !!(w && h) || (ar && ar !== 'auto') };
 			});
 		});
-		if (stats.length === 0) test.skip();
+		if (stats.length === 0) {
+			test.skip();
+			return;
+		}
 		const ok = stats.filter((s) => s.has).length;
 		console.log(`/ img dimensions: ${ok}/${stats.length}`);
 		// Soft floor — at least 50% of images have explicit dimensions.

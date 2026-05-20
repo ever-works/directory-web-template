@@ -11,7 +11,10 @@ test.describe('rel=next/prev listing pagination', () => {
 		test(`${path} rel=next href if present is internal`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const hrefs = await page.evaluate(() => ({
 				next: document.querySelector('link[rel="next"]')?.getAttribute('href') || null,
 				prev: document.querySelector('link[rel="prev"]')?.getAttribute('href') || null

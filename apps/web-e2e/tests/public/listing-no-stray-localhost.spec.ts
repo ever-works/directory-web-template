@@ -18,9 +18,15 @@ test.describe('No stray dev / localhost strings', () => {
 	for (const path of PROBES) {
 		test(`${path} body does not include dev strings`, async ({ request, baseURL }) => {
 			// Only enforce if running against non-localhost (CI / prod-like).
-			if (baseURL && baseURL.includes('localhost')) test.skip();
+			if (baseURL && baseURL.includes('localhost')) {
+				test.skip();
+				return;
+			}
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = (await resp.text()).toLowerCase();
 			for (const needle of BAD_NEEDLES) {
 				expect(body.includes(needle.toLowerCase()), `${path} contains "${needle}"`).toBe(false);

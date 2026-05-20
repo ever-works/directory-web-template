@@ -7,7 +7,10 @@ test.describe('Font @font-face declares non-block font-display', () => {
 	test('/ stylesheets have no font-display:block or :auto', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		// Sample inline <style> only (cross-origin stylesheets blocked).
 		const blocked = await page.evaluate(() => {
 			const styles = Array.from(document.querySelectorAll('style'))

@@ -11,7 +11,10 @@ test.describe('Credentials callback wire contract', () => {
 		expect(csrfResp.status()).toBe(200);
 		const body = (await csrfResp.json().catch(() => null)) as { csrfToken?: string } | null;
 		const token = body?.csrfToken;
-		if (!token) test.skip();
+		if (!token) {
+			test.skip();
+			return;
+		}
 		const form = new URLSearchParams({
 			csrfToken: token!,
 			email: 'no-such-user@example.com',

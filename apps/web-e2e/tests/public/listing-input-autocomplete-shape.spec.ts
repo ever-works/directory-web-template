@@ -7,7 +7,10 @@ test.describe('Password autocomplete values', () => {
 	test('/auth/signin password autocomplete=current-password (or unset)', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const values = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('input[type="password"]'))
 				.map((el) => (el as HTMLInputElement).getAttribute('autocomplete'))
@@ -22,7 +25,10 @@ test.describe('Password autocomplete values', () => {
 	test('/auth/register password autocomplete=new-password (or unset)', async ({ page }) => {
 		const resp = await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const values = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('input[type="password"]'))
 				.map((el) => (el as HTMLInputElement).getAttribute('autocomplete'))

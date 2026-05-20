@@ -9,7 +9,10 @@ test.describe('Icon link element shape', () => {
 		test(`${path} icon link hrefs well-formed`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const bad = await page.evaluate(() =>
 				Array.from(document.querySelectorAll('link[rel*="icon"]'))
 					.map((l) => l.getAttribute('href') || '')

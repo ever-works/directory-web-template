@@ -17,7 +17,10 @@ test.describe('Renders on iPad Mini viewport', () => {
 		test(`${path} renders without horizontal overflow on iPad`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			await expect(page.locator('body')).toBeVisible();
 			const overflow = await page.evaluate(() => document.body.scrollWidth - window.innerWidth);
 			expect(overflow, `${path} iPad horiz overflow: ${overflow}`).toBeLessThan(30);

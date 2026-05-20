@@ -24,7 +24,10 @@ test.describe('Static chunk cache headers', () => {
 			});
 			return el ? el.getAttribute('src') || el.getAttribute('href') : null;
 		});
-		if (!href) test.skip();
+		if (!href) {
+			test.skip();
+			return;
+		}
 		const resp = await request.get(href!);
 		expect(resp.status()).toBeLessThan(500);
 		if (resp.status() < 400) {

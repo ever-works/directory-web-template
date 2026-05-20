@@ -11,7 +11,10 @@ test.describe('JSON-LD structured data parseable', () => {
 		test(`${path} JSON-LD is valid JSON if present`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();
 			for (const [i, raw] of scripts.entries()) {
 				try {

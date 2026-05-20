@@ -12,7 +12,10 @@ test.describe('No bad literals in visible text (advisory)', () => {
 		test(`${path} no bad literal visible text`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const text = ((await page.locator('body').textContent()) || '').toLowerCase();
 			for (const bad of BAD_LITERALS) {
 				const lower = bad.toLowerCase();

@@ -7,7 +7,10 @@ test.describe('Form input types', () => {
 	test('signin email input has type=email', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const types = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('input[name="email"]')).map(
 				(i) => (i as HTMLInputElement).type
@@ -22,7 +25,10 @@ test.describe('Form input types', () => {
 	test('signin password input has type=password', async ({ page }) => {
 		const resp = await page.goto('/auth/signin', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const types = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('input[name="password"]')).map(
 				(i) => (i as HTMLInputElement).type

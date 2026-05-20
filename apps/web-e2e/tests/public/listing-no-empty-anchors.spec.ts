@@ -10,7 +10,10 @@ test.describe('Anchors have accessible names', () => {
 		test(`${path} <a> elements have accessible names (advisory)`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const unnamed = await page.evaluate(() => {
 				return Array.from(document.querySelectorAll('a'))
 					.filter((a) => {

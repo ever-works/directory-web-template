@@ -10,7 +10,10 @@ test.describe('aria-hidden does not hide focusable children', () => {
 		test(`${path} aria-hidden trees have no focusable descendants`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const violations = await page.evaluate(() => {
 				const hidden = Array.from(document.querySelectorAll('[aria-hidden="true"]'));
 				const bad: string[] = [];

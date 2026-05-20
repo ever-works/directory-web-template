@@ -10,7 +10,10 @@ test.describe('Listing JSON-LD parseable', () => {
 		test(`${path} JSON-LD scripts all parse`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const scripts = await page.locator('script[type="application/ld+json"]').allTextContents();
 			for (const [i, raw] of scripts.entries()) {
 				const trimmed = raw.trim();

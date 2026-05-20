@@ -9,7 +9,10 @@ test.describe('Network request count budget', () => {
 		page.on('request', (req) => requests.push(req.url()));
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		// Settle 1s for deferred scripts.
 		await page.waitForTimeout(1000);
 		console.log(`/ network request count: ${requests.length}`);

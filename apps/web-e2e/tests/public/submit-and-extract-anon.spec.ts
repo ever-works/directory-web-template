@@ -13,7 +13,10 @@ test.describe('Submit page anonymous behavior', () => {
 	test('/submit has a form, OR bounces to signin', async ({ page }) => {
 		const resp = await page.goto('/submit', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const onSignin = page.url().includes('/auth/signin');
 		const formCount = await page.locator('form').count();
 		expect(onSignin || formCount > 0, 'either signin bounce or form present').toBe(true);

@@ -7,7 +7,10 @@ test.describe('Inline <style> block size sanity', () => {
 	test('/ has no inline <style> block > 500KB', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const sizes = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('style')).map((s) => s.textContent?.length || 0)
 		);
@@ -18,7 +21,10 @@ test.describe('Inline <style> block size sanity', () => {
 	test('/discover/1 has no inline <style> block > 800KB', async ({ page }) => {
 		const resp = await page.goto('/discover/1', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const sizes = await page.evaluate(() =>
 			Array.from(document.querySelectorAll('style')).map((s) => s.textContent?.length || 0)
 		);

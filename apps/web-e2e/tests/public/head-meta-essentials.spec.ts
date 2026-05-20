@@ -21,7 +21,10 @@ test.describe('Head meta presence (title + description)', () => {
 		test(`${path} has <title> and meta description`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const title = (await page.title()).trim();
 			expect(title, `${path} title`).not.toBe('');
 			const desc = await page.locator('meta[name="description"]').first().getAttribute('content').catch(() => null);

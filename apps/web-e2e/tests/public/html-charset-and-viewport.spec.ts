@@ -10,7 +10,10 @@ test.describe('html charset / viewport', () => {
 		test(`${path} has meta charset and viewport`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const charset = await page.locator('meta[charset]').first().getAttribute('charset').catch(() => null);
 			expect(charset, `${path} meta charset`).toBeTruthy();
 			if (charset) expect(charset.toLowerCase()).toContain('utf');

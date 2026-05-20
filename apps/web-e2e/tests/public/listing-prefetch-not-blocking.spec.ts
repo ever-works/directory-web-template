@@ -6,7 +6,10 @@ test.describe('Prefetch links non-5xx when fetched', () => {
 	test('/ prefetch/preload hrefs respond non-5xx', async ({ page, request }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const hrefs = await page.evaluate(() =>
 			Array.from(
 				document.querySelectorAll('link[rel="prefetch"][href], link[rel="preload"][href]')

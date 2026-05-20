@@ -10,7 +10,10 @@ test.describe('noscript block size budget', () => {
 		test(`${path} noscript content < 5KB`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const sizes = await page.evaluate(() =>
 				Array.from(document.querySelectorAll('noscript')).map((n) => n.textContent?.length || 0)
 			);

@@ -8,7 +8,10 @@ import { test, expect } from '@playwright/test';
 test.describe('Font loading strategy', () => {
 	test('/ has no inline font-display:block', async ({ request }) => {
 		const resp = await request.get('/');
-		if (resp.status() >= 400) test.skip();
+		if (resp.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const body = (await resp.text()).toLowerCase();
 		// next/font generated CSS uses font-display:swap. Manual @font-face
 		// with font-display:block is the FOIT regression we're checking.

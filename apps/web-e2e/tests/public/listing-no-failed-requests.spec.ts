@@ -30,7 +30,10 @@ test.describe('No failed requests during navigation', () => {
 			});
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			await page.waitForTimeout(800);
 			const summary = failures.map((f) => `${f.status} ${f.url}`).join(' | ');
 			expect(failures, `failures on ${path}: ${summary}`).toEqual([]);

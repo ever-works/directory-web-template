@@ -14,7 +14,10 @@ test.describe('Initial HTML payload size budget', () => {
 	for (const { path, maxBytes } of PAGES) {
 		test(`${path} HTML under ${maxBytes} bytes`, async ({ request }) => {
 			const resp = await request.get(path);
-			if (resp.status() >= 400) test.skip();
+			if (resp.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const body = await resp.body();
 			expect(body.length, `${path} bytes=${body.length}`).toBeLessThan(maxBytes);
 		});

@@ -7,7 +7,10 @@ test.describe('Head scripts declare async/defer/module', () => {
 	test('/ head scripts non-blocking', async ({ page }) => {
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		const blocking = await page.evaluate(() => {
 			return Array.from(document.head.querySelectorAll('script[src]'))
 				.filter((s) => {

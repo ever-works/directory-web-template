@@ -6,11 +6,17 @@ import { test, expect } from '@playwright/test';
 
 test.describe('HSTS shape on HTTPS', () => {
 	test('/ has HSTS or is on http', async ({ request, baseURL }) => {
-		if (!baseURL || !baseURL.startsWith('https://')) test.skip();
+		if (!baseURL || !baseURL.startsWith('https://')) {
+			test.skip();
+			return;
+		}
 		const resp = await request.get('/');
 		expect(resp.status()).toBeLessThan(500);
 		const hsts = (resp.headers()['strict-transport-security'] || '').toLowerCase();
-		if (!hsts) test.skip();
+		if (!hsts) {
+			test.skip();
+			return;
+		}
 		const m = hsts.match(/max-age=(\d+)/);
 		if (!m) {
 			test.skip();

@@ -17,7 +17,10 @@ test.describe('Initial resource byte budgets (advisory)', () => {
 		});
 		const resp = await page.goto('/', { waitUntil: 'domcontentloaded' });
 		expect(resp).toBeTruthy();
-		if (resp!.status() >= 400) test.skip();
+		if (resp!.status() >= 400) {
+			test.skip();
+			return;
+		}
 		await page.waitForTimeout(800);
 		const totalJs = responses.reduce((acc, r) => acc + (r.size || 0), 0);
 		console.log(`/ total JS bytes (header sum): ${totalJs}`);

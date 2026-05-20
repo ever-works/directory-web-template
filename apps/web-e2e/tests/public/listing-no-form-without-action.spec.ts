@@ -10,7 +10,10 @@ test.describe('Forms have action or handler', () => {
 		test(`${path} forms wire up submit`, async ({ page }) => {
 			const resp = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(resp).toBeTruthy();
-			if (resp!.status() >= 400) test.skip();
+			if (resp!.status() >= 400) {
+				test.skip();
+				return;
+			}
 			const orphans = await page.evaluate(() => {
 				return Array.from(document.querySelectorAll('form'))
 					.filter((f) => {
