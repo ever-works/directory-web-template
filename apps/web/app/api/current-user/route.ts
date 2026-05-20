@@ -102,11 +102,20 @@ import { getClientProfileById } from '@/lib/db/queries/client.queries';
  *                 summary: "No authenticated user"
  *                 value: null
  */
+// Per-user response — must never be cached by a shared CDN. Set the
+// header explicitly so the public caching contract (e2e) sees it
+// regardless of the runtime default.
+const NO_CACHE_HEADERS = {
+	'Cache-Control': 'no-store, no-cache, must-revalidate, private, max-age=0'
+};
+
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
 	const session = await auth();
 
 	if (!session?.user) {
-		return NextResponse.json(null);
+		return NextResponse.json(null, { headers: NO_CACHE_HEADERS });
 	}
 
 	// Prefer the freshly-saved avatar and display name from `client_profiles`
@@ -137,5 +146,5 @@ export async function GET() {
 		tenantId: session.user.tenantId
 	};
 
-	return NextResponse.json(safeUser);
+	return NextResponse.json(safeUser, { headers: NO_CACHE_HEADERS });
 }

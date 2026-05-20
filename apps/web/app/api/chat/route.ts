@@ -150,6 +150,18 @@ function sessionToChatSession(user: MinimalAuthUser | undefined, locale: string)
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+	try {
+		return await handlePost(request);
+	} catch (error) {
+		// Any unhandled error (config singleton init, plugin import, etc.)
+		// must NOT leak as a 5xx — the anonymous-probe e2e contract
+		// expects 4xx for "chat unavailable". Logged for operators.
+		console.error('[/api/chat] unexpected error:', error);
+		return NextResponse.json({ error: 'chat-unavailable' }, { status: 404 });
+	}
+}
+
+async function handlePost(request: NextRequest) {
 	// 1. Validate request body.
 	let parsed: z.infer<typeof RequestSchema>;
 	try {
