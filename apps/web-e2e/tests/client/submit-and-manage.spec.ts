@@ -25,20 +25,25 @@ test.describe('Client: Submit & Submission Management', () => {
 
 		await clientPage.waitForLoadState('networkidle').catch(() => undefined);
 
-		// Select a category if the combobox is rendered.
+		// Select a category if the combobox is rendered. Use a generous
+		// wait — the combobox can take >5s to appear on a cold-start
+		// runner because the categories list is fetched async via React
+		// Query. We can't tell "categoriesEnabled is false" apart from
+		// "categories are still loading" without instrumentation, so
+		// give the combobox a fair shake.
 		const categoriesBtn = submitPage.categoriesButton;
 		const categoriesAppeared = await categoriesBtn
-			.waitFor({ state: 'visible', timeout: 5_000 })
+			.waitFor({ state: 'visible', timeout: 15_000 })
 			.then(() => true)
 			.catch(() => false);
 		if (categoriesAppeared) {
-			const deadline = Date.now() + 10_000;
+			const deadline = Date.now() + 15_000;
 			let selected = false;
 			while (Date.now() < deadline && !selected) {
 				try {
 					await categoriesBtn.click({ timeout: 2_000 });
 					const firstOption = clientPage.getByRole('option').first();
-					await firstOption.waitFor({ state: 'visible', timeout: 2_000 });
+					await firstOption.waitFor({ state: 'visible', timeout: 3_000 });
 					await firstOption.click();
 					selected = true;
 				} catch {
@@ -66,9 +71,14 @@ test.describe('Client: Submit & Submission Management', () => {
 		try {
 			await expect(submitPage.submitButton).toBeEnabled({ timeout: 20_000 });
 		} catch (err) {
-			const missing = await submitPage.submitButton.getAttribute('data-missing-required-fields');
-			const completed = await submitPage.submitButton.getAttribute('data-completed-required');
-			const total = await submitPage.submitButton.getAttribute('data-total-required');
+			// Bound the diagnostic reads so they can't extend the failure
+			// time by another 30s each (Playwright's default getAttribute
+			// timeout). If the button is gone, treat the values as
+			// "unknown" rather than waiting.
+			const fast = { timeout: 1_500 };
+			const missing = await submitPage.submitButton.getAttribute('data-missing-required-fields', fast).catch(() => '<unreadable>');
+			const completed = await submitPage.submitButton.getAttribute('data-completed-required', fast).catch(() => '?');
+			const total = await submitPage.submitButton.getAttribute('data-total-required', fast).catch(() => '?');
 			throw new Error(
 				`Submit button stayed disabled. missing-required-fields="${missing}" completed=${completed}/${total}. Original error: ${(err as Error).message}`
 			);
