@@ -40,6 +40,10 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 			search: deferredSearch
 		},
 		{
+			// Only fire the items query while the modal is actually open —
+			// before, the queries ran on every page render because the modal
+			// stays mounted for its open / close animation.
+			enabled: isOpen,
 			// We don't render any stats here, so skip the parallel
 			// /api/admin/items/stats request — it was halving the modal's
 			// effective bandwidth on open and on every search keystroke.
@@ -47,11 +51,18 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 		}
 	);
 
+	// Re-seed selection / search / page only when the modal transitions
+	// closed → open, so a late-arriving `initialSelected` (e.g. a future
+	// lazy fetch of assigned slugs) can't wipe user clicks mid-session.
+	const wasOpenRef = useRef(false);
 	useEffect(() => {
-		if (isOpen) {
+		if (isOpen && !wasOpenRef.current) {
 			setSelectedIds(new Set(initialSelected));
+			setSearch('');
+			setPage(1);
 		}
-	}, [initialSelected, isOpen]);
+		wasOpenRef.current = isOpen;
+	}, [isOpen, initialSelected]);
 
 	const selectedCount = useMemo(() => selectedIds.size, [selectedIds]);
 

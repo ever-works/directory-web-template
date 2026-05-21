@@ -256,7 +256,13 @@ export default function AdminCollectionsPage() {
 
 	const handleAssignSave = useCallback(
 		async (itemSlugs: string[]) => {
-			if (!selectedCollection) return;
+			if (!selectedCollection) {
+				// Should never happen — the modal can only open via `handleAssign`,
+				// which always sets `selectedCollection` first. Log instead of
+				// silently swallowing so we'd notice if the assumption ever broke.
+				console.error('Assign Items: no collection selected, skipping save');
+				return;
+			}
 			await assignItems(selectedCollection.id, itemSlugs);
 		},
 		[assignItems, selectedCollection]
@@ -464,17 +470,18 @@ export default function AdminCollectionsPage() {
 				</div>
 			)}
 
-			{/* Lazy-mounted so the items list / stats queries only fire when
-			    the admin actually opens the picker, not on every page render. */}
-			{assignIsOpen && (
-				<AssignItemsModal
-					isOpen={assignIsOpen}
-					onClose={() => setAssignIsOpen(false)}
-					collectionName={selectedCollection?.name || t('THIS_COLLECTION')}
-					initialSelected={assignInitialIds}
-					onSave={handleAssignSave}
-				/>
-			)}
+			{/* Modal stays mounted so its `isOpen` transition drives the open
+			    / close animation and the `useAdminItems` query only fires when
+			    the modal is actually open (gated by `enabled: isOpen` inside
+			    the component). Lazy-unmounting it skipped the exit animation
+			    and broke the Assign Items flow. */}
+			<AssignItemsModal
+				isOpen={assignIsOpen}
+				onClose={() => setAssignIsOpen(false)}
+				collectionName={selectedCollection?.name || t('THIS_COLLECTION')}
+				initialSelected={assignInitialIds}
+				onSave={handleAssignSave}
+			/>
 		</Container>
 	);
 }
