@@ -89,6 +89,13 @@ export function BasicInfoStep({
 			if (setFormData) {
 				setFormData((formPrev) => ({
 					...formPrev,
+					// `formData.category` (singular string|null) is the
+					// canonical field the form validator and submit handler
+					// read — pin it to the FIRST selected id (or null when
+					// the user clears the selection). We also keep
+					// `categories` (plural) in sync for any consumer that
+					// reads the full multi-select picker state.
+					category: newSelected[0] ?? null,
 					categories: newSelected
 				}));
 			}

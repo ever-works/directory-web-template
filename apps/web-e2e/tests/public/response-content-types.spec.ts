@@ -11,7 +11,9 @@ const JSON_ENDPOINTS = [
 	'/api/auth/csrf',
 	'/api/auth/session',
 	'/api/current-user',
-	'/api/items.json',
+	// Lives at `/items.json` (root-level metadata-image-style route), not
+	// under `/api/`. See `apps/web/app/items.json/route.ts`.
+	'/items.json',
 	'/api/user/currency'
 ];
 

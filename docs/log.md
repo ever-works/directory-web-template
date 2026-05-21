@@ -42,6 +42,32 @@ why** at a higher level than per-commit diffs.
   activity log flow into the UI for the first time. Tracked under
   [EW-635](https://evertech.atlassian.net/browse/EW-635). PR pending.
 
+## 2026-05-20 — Profile visibility toggle (Upwork-style)
+
+- New `client_profiles.profile_visibility` column (`public` | `private`,
+  default `public`). Migration `0038_add_client_profile_visibility.sql`,
+  additive and idempotent.
+- New settings page at `/client/settings/profile/visibility` with an
+  Upwork-style toggle plus side-by-side "Public / Private" radio cards
+  spelling out the trade-offs (directory listing, link visibility,
+  follower/portfolio exposure).
+- `PATCH /api/user/profile` now accepts `profileVisibility`.
+- Public profile page `/client/profile/[username]` shows a "this profile
+  is private" placeholder to non-owners when visibility is `private`.
+- Owner-only "Preview public view" toggle on the profile page
+  (`?preview=public`) renders the page exactly as a visitor sees it.
+- Privacy hardening on the public profile render:
+  - Stopped leaking email local-part as username/displayName fallback.
+  - `RecentActivitySection` (comments, favourites, follow ledger) is
+    now owner-only — matches LinkedIn/GitHub/Upwork.
+  - Free-form `location` text now respects `locationPrivacy` ('private'
+    hides it from non-owners, same as lat/long).
+  - New `toPublicClientProfile()` projection in `client.queries.ts`
+    drops `email`, `phone`, `notes`, `tags`, `tenantId`, `twoFactorEnabled`,
+    moderation flags, billing flags and raw geo from the page payload.
+- Owners always see their own profile regardless of setting.
+- Spec doc deferred per request — feature ships PR-only.
+
 ## 2026-05-20 — Spec 027 follow-up: page-based pagination on /client + /admin notifications (PR #852)
 
 - spec-027: `/client/notifications` and `/admin/notifications` long lists

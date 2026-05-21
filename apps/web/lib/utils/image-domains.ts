@@ -49,6 +49,15 @@ export function generateImageRemotePatterns() {
 			protocol: 'https' as const,
 			hostname: 'images.unsplash.com',
 			pathname: '/**'
+		},
+		// Seed/example data uses `https://example.com/...` for placeholder
+		// icons. Without this pattern the listing page emits dozens of
+		// `_next/image?url=https%3A%2F%2Fexample.com%2F...` requests that
+		// 400 — caught by e2e `listing-no-failed-requests`.
+		{
+			protocol: 'https' as const,
+			hostname: 'example.com',
+			pathname: '/**'
 		}
 	];
 

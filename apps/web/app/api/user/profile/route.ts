@@ -25,6 +25,7 @@ function serializeProfile(profile: NonNullable<Awaited<ReturnType<typeof getClie
 		skills: (profile.skills as unknown as Array<{ name: string; category: string; proficiency: number }>) ?? [],
 		avatar: profile.avatar ?? '',
 		coverColor: profile.coverColor ?? '',
+		profileVisibility: profile.profileVisibility ?? 'public',
 		createdAt: profile.createdAt,
 		updatedAt: profile.updatedAt
 	};
@@ -127,6 +128,7 @@ export async function PATCH(request: NextRequest) {
 		if (input.skills !== undefined) data.skills = input.skills ?? null;
 		if (input.avatar !== undefined) data.avatar = input.avatar || null;
 		if (input.coverColor !== undefined) data.coverColor = input.coverColor || null;
+		if (input.profileVisibility !== undefined) data.profileVisibility = input.profileVisibility;
 
 		const updated = await updateClientProfile(session.user.clientProfileId, data);
 		if (!updated) {

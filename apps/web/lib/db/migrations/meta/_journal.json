@@ -267,6 +267,13 @@
       "when": 1779033600000,
       "tag": "0037_client_notifications",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1779309516837,
+      "tag": "0038_add_client_profile_visibility",
+      "breakpoints": true
     }
   ]
 }

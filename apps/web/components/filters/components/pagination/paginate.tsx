@@ -66,6 +66,7 @@ export function Paginate({
 
             <div className="relative bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs border border-gray-200/50 dark:border-white/4 rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 dark:shadow-lg dark:shadow-theme-primary-500/20 dark:shadow-theme-primary-500/20">
               <Pagination
+                aria-label="pagination"
                 showControls
                 total={total}
                 initialPage={initialPage}

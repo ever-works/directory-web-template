@@ -29,8 +29,11 @@
 		"HOME": "Home",
 		"ABOUT": "About",
 		"NO_TAGS_FOUND": "No tags found",
+		"NO_TAGS_DESCRIPTION": "No tags are available right now. Check back later.",
 		"NO_CATEGORIES_FOUND": "No categories found",
+		"NO_CATEGORIES_DESCRIPTION": "No categories are available right now. Check back later.",
 		"NO_RESULTS_FOUND": "No results found",
+		"NO_RESULTS_DESCRIPTION": "Try adjusting your filters or searching for something else.",
 		"LAYOUT": "Layout",
 		"LAYOUT_SELECTION": "Layout Selection",
 		"CHOOSE_PREFERRED_DESIGN": "Choose your preferred homepage design",
@@ -646,6 +649,10 @@
 			"LOCATION": {
 				"TITLE": "Location Settings",
 				"DESCRIPTION": "Set your default location for nearby search and manage location privacy"
+			},
+			"VISIBILITY": {
+				"TITLE": "Profile Visibility",
+				"DESCRIPTION": "Choose who can see your profile — public to everyone or private and hidden from search"
 			}
 		},
 		"LOCATION_SETTINGS": {
@@ -668,6 +675,33 @@
 			"SAVED": "Location saved successfully",
 			"CLEARED": "Location cleared",
 			"SAVE_ERROR": "Failed to save location"
+		},
+		"VISIBILITY_SETTINGS": {
+			"TITLE": "Profile Visibility",
+			"DESCRIPTION": "Decide who can find and view your public profile page",
+			"BACK": "Back to Settings",
+			"CARD_TITLE": "Profile Visibility",
+			"CARD_HELP": "Public profiles appear in search and can be viewed by anyone. Private profiles are visible only to you.",
+			"TOGGLE_LABEL": "Public profile",
+			"TOGGLE_HELP_PUBLIC": "Your profile is visible to everyone. Anyone with the link can see your bio, portfolio, and activity.",
+			"TOGGLE_HELP_PRIVATE": "Your profile is hidden. Visitors will see a privacy notice and your activity is not shown to others.",
+			"STATUS_PUBLIC": "Public",
+			"STATUS_PRIVATE": "Private",
+			"VIEW_PUBLIC_PROFILE": "View your public profile",
+			"PUBLIC_TITLE": "Public",
+			"PUBLIC_DESCRIPTION": "Anyone can find and view your profile.",
+			"PUBLIC_BULLET_1": "Shows up in the people directory",
+			"PUBLIC_BULLET_2": "Visible to logged-out visitors",
+			"PUBLIC_BULLET_3": "Followers, portfolio, and activity are visible",
+			"PRIVATE_TITLE": "Private",
+			"PRIVATE_DESCRIPTION": "Only you can see your profile. Visitors get a privacy notice.",
+			"PRIVATE_BULLET_1": "Hidden from the people directory",
+			"PRIVATE_BULLET_2": "Direct links show a privacy notice",
+			"PRIVATE_BULLET_3": "You can still browse, follow, and comment",
+			"FOOTER_HELP": "Changes take effect immediately. You can switch back to public at any time.",
+			"SAVED_PUBLIC": "Your profile is now public",
+			"SAVED_PRIVATE": "Your profile is now private",
+			"SAVE_ERROR": "Failed to update profile visibility"
 		},
 		"SECURITY_PAGE": {
 			"TITLE": "Security Settings",
@@ -1532,6 +1566,7 @@
 		"USAGE_NEXT_BACKUPS": "Implement backups"
 	},
 	"success": {
+		"NEW_SUBMISSION": "Your submission was received and is pending review.",
 		"SUBSCRIPTION_ACTIVATED": "Subscription Activated!",
 		"SUBMISSION_RECEIVED": "Submission Received!",
 		"SUBSCRIPTION_SUCCESS_MESSAGE": "Your premium subscription has been successfully activated",
@@ -1814,6 +1849,10 @@
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
 		"BACK_TO_DASHBOARD": "Dashboard",
+		"PRIVATE_TITLE": "This profile is private",
+		"PRIVATE_DESCRIPTION": "The owner has hidden this profile from public view. Only they can see its contents.",
+		"PREVIEW_PUBLIC_VIEW": "Preview public view",
+		"EXIT_PREVIEW": "Exit preview",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -3754,10 +3793,35 @@
 		"SPONSORED": "Sponsored",
 		"LEARN_MORE": "Learn more"
 	},
+	"usersDirectory": {
+		"HERO_TITLE": "Community",
+		"HERO_SUBTITLE": "Discover people building and sharing in this directory.",
+		"RESULTS_FOR": "Results for \"{query}\"",
+		"PROFILES_COUNT": "{count, plural, =0 {No profiles} =1 {# profile} other {# profiles}}",
+		"SEARCH_PLACEHOLDER": "Search by name, username, role, location…",
+		"SEARCH_BUTTON": "Search",
+		"CLEAR_SEARCH": "Clear search",
+		"VIEW_LIST": "List",
+		"VIEW_GRID": "Grid",
+		"VIEW_TOGGLE_LABEL": "Layout",
+		"EMPTY_TITLE_QUERY": "No profiles match your search",
+		"EMPTY_TITLE_DEFAULT": "No profiles yet",
+		"EMPTY_DESC_QUERY": "Try a broader query or clear filters to see everyone.",
+		"EMPTY_DESC_DEFAULT": "Once people join the community, they'll show up here.",
+		"EMPTY_CTA_BROWSE_ALL": "Browse everyone",
+		"PAGINATION_PREV": "Previous",
+		"PAGINATION_NEXT": "Next",
+		"PAGINATION_PAGE_OF": "Page {current} of {total}",
+		"FOLLOW": "Follow",
+		"FOLLOWING": "Following",
+		"VIEW_PROFILE": "View profile",
+		"YOU_BADGE": "You"
+	},
 	"client": {
 		"submissions": {
 			"PAGE_TITLE": "Submissions Management",
 			"PAGE_DESCRIPTION": "Track and manage your directory submissions.",
+			"NEW_SUBMISSION": "New Submission",
 			"FILTER_ALL": "All",
 			"FILTER_APPROVED": "Approved",
 			"FILTER_PENDING": "Pending",
@@ -3890,6 +3954,8 @@
 		"sponsorships": {
 			"PAGE_TITLE": "My Sponsorships",
 			"PAGE_DESCRIPTION": "Track and manage your sponsor ad submissions.",
+			"STATUS_FILTER": "Filter by status",
+			"INTERVAL_FILTER": "Filter by billing interval",
 			"YOUR_SPONSORSHIPS": "Your Sponsorships",
 			"NEW_SPONSORSHIP": "New Sponsorship",
 			"TOTAL_SPONSORSHIPS": "Total",
