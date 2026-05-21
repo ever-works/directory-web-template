@@ -154,8 +154,10 @@ test.describe('Client: Submit & Submission Management', () => {
 		const editModal = submissionsPage.editModal;
 		await expect(editModal).toBeVisible();
 
-		// Update the description
-		const descriptionInput = editModal.locator('#description');
+		// Update the description. The edit modal's fields are prefixed
+		// `submission-` to distinguish them from the submit-form fields
+		// on /submit (which use `#name` / `#description`).
+		const descriptionInput = editModal.locator('#submission-description');
 		await descriptionInput.clear();
 		await descriptionInput.fill(updatedDescription);
 

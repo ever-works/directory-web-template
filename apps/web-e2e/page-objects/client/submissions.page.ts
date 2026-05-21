@@ -55,9 +55,12 @@ export class ClientSubmissionsPage extends BasePage {
 		return this.page.locator('[role="dialog"]').first();
 	}
 
-	/** Get the edit submission modal. */
+	/** Get the edit submission modal. Filters on the `#submission-name`
+	 *  input which is unique to this dialog (the `#name` field on the
+	 *  submit form lives on a different route, but the locator regressed
+	 *  when the edit modal's inputs were renamed to `submission-*`). */
 	get editModal() {
-		return this.page.locator('[role="dialog"]').filter({ has: this.page.locator('#name') });
+		return this.page.locator('[role="dialog"]').filter({ has: this.page.locator('#submission-name') });
 	}
 
 	/** Get the delete confirmation dialog. */
