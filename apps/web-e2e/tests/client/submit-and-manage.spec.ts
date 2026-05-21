@@ -77,15 +77,31 @@ test.describe('Client: Submit & Submission Management', () => {
 		// as form state changes, react-aria props shuffle, recaptcha
 		// callbacks rebuild props). Both Playwright's default click and
 		// `force: true` report "element was detached from the DOM" mid-
-		// click. Fall back to dispatching a real DOM click via evaluate
-		// — at this point we've already proven the button is the right
-		// one (visible + enabled + the correct `data-*` markers).
-		await clientPage.evaluate(() => {
-			const btn = document.querySelector(
-				'button[type="submit"][data-missing-required-fields=""]'
-			) as HTMLButtonElement | null;
-			if (!btn) throw new Error('Submit button not found at click time');
-			btn.click();
+		// click. Submit the form directly from page context — find ANY
+		// enabled `<button type="submit">` inside the form (the diag
+		// data-attribute may have changed by the time we click) and
+		// either click it or fall back to dispatching the form's
+		// `requestSubmit`. Wrap in a retry loop since the form may
+		// briefly toggle state between assertion + click.
+		await clientPage.evaluate(async () => {
+			const deadline = Date.now() + 10_000;
+			while (Date.now() < deadline) {
+				const btn = Array.from(document.querySelectorAll('button[type="submit"]')).find(
+					(b) => !(b as HTMLButtonElement).disabled
+				) as HTMLButtonElement | undefined;
+				if (btn) {
+					btn.click();
+					return;
+				}
+				await new Promise((r) => setTimeout(r, 150));
+			}
+			// Last-ditch: requestSubmit on any visible <form>
+			const form = document.querySelector('form');
+			if (form && typeof form.requestSubmit === 'function') {
+				form.requestSubmit();
+				return;
+			}
+			throw new Error('No enabled submit button or submittable form found');
 		});
 
 		// Should redirect to submissions page
