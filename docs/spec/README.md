@@ -52,6 +52,7 @@ or architectural change.
 | 029 | [`client-settings-preferences-section`](029-client-settings-preferences-section/spec.md) | proposed      | Mount the `SettingsModal` controls (Layout, Container Width, Pagination Style + demo-only DB mode / Checkout Provider / DB warning) inline as a new **Preferences** section on `/client/settings`; modal stays as-is for shortcut access |
 | 030 | [`client-submissions-redesign`](030-client-submissions-redesign/spec.md) | proposed | UI-only redesign of `/client/submissions`: responsive table-on-desktop / cards-on-mobile, polished KPI stats cards, status segmented tabs + sort UX, dedicated empty / filtered-empty / error / skeleton states, reuses existing design-system primitives — no functional changes |
 | 031 | [`client-danger-zone`](031-client-danger-zone/spec.md) | proposed | Add a red-accented **Danger Zone** section to `/client/settings` and a dedicated `/client/settings/danger-zone` page that exposes the existing `deleteAccount` server action via a password-confirmed modal (EW-635) |
+| 032 | [`collection-icon-picker`](032-collection-icon-picker/spec.md) | in-progress | Replace the bare Icon (emoji or URL) input on `/admin/collections` Create / Edit modal with a GitHub-/Discord-style picker: `:` trigger, debounced (deferred) search, keyboard nav, recent emojis, preview tile; URL passthrough preserved, zero new deps |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.

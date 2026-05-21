@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Save, X, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest, COLLECTION_VALIDATION } from "@/types/collection";
+import { EmojiIconInput } from "./emoji-icon-input";
 
 interface CollectionFormProps {
   collection?: Collection;
@@ -233,14 +234,17 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
             />
           </Field>
 
-          <Field label="Icon (emoji or URL)">
-            <input
-              type="text"
-              placeholder="🤖"
+          <Field
+            label="Icon (emoji or URL)"
+            hint="Type : to search emojis (e.g. :rocket) or paste an image URL"
+          >
+            <EmojiIconInput
+              id="collection-icon"
               value={formData.icon_url}
-              onChange={(e) => handleChange("icon_url", e.target.value)}
+              onChange={(next) => handleChange("icon_url", next)}
               disabled={isLoading}
-              className={INPUT_BASE}
+              inputClassName={cn(INPUT_BASE, "pr-9")}
+              aria-label="Collection icon"
             />
           </Field>
         </div>

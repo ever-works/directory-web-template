@@ -31,6 +31,26 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-21 — Spec 032: Collection icon picker — implementation
+
+- spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped
+  the implementation in the same PR. Replaces the bare **Icon (emoji or URL)**
+  input on the `/admin/collections` Create / Edit modal with a co-located
+  `EmojiIconInput` (`apps/web/components/admin/collections/emoji-icon-input.tsx`
+  + curated `emoji-data.ts`). Typing `:` opens a GitHub-/Discord-style
+  suggestion popover with keyboard nav (arrows, Enter/Tab, Esc, Home/End),
+  debounced-via-`useDeferredValue` search, exact-shortname auto-replace on
+  trailing space, a recent-picks chip backed by a versioned-key
+  `localStorage` store (`evw_admin_collections_recent_emojis_v1`,
+  16-entry cap), and a 40×40 preview tile that renders the value as an emoji
+  glyph or, for `https://…` / `/relative` / `data:image/…` values, an
+  `<img>`. Existing URL paste behaviour is unchanged and the underlying
+  `icon_url` field still stores a single Unicode glyph or a raw URL — no
+  backend changes. Zero new dependencies: the curated dataset is ~300
+  entries inline. PR: TBA.
+
+---
+
 ## 2026-05-20 — Spec 031: client Danger Zone (account deletion UI) — draft
 
 - spec-031: drafted `docs/spec/031-client-danger-zone/spec.md` proposing
