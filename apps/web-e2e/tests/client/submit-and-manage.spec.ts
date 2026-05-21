@@ -73,7 +73,13 @@ test.describe('Client: Submit & Submission Management', () => {
 				`Submit button stayed disabled. missing-required-fields="${missing}" completed=${completed}/${total}. Original error: ${(err as Error).message}`
 			);
 		}
-		await submitPage.submitButton.click();
+		// The review-step button re-renders when it transitions from
+		// disabled to enabled (className changes, React-aria props
+		// shuffle), and Playwright's default click can race that
+		// re-render with "element was detached from the DOM." `force:
+		// true` skips the stability check; we've already proven the
+		// button is visible+enabled via the assertion above.
+		await submitPage.submitButton.click({ force: true });
 
 		// Should redirect to submissions page
 		await clientPage.waitForURL(/\/client\/submissions/, {
