@@ -3743,6 +3743,30 @@
 		"SPONSORED": "Sponsored",
 		"LEARN_MORE": "Learn more"
 	},
+	"usersDirectory": {
+		"HERO_TITLE": "Community",
+		"HERO_SUBTITLE": "Discover people building and sharing in this directory.",
+		"RESULTS_FOR": "Results for \"{query}\"",
+		"PROFILES_COUNT": "{count, plural, =0 {No profiles} =1 {# profile} other {# profiles}}",
+		"SEARCH_PLACEHOLDER": "Search by name, username, role, location…",
+		"SEARCH_BUTTON": "Search",
+		"CLEAR_SEARCH": "Clear search",
+		"VIEW_LIST": "List",
+		"VIEW_GRID": "Grid",
+		"VIEW_TOGGLE_LABEL": "Layout",
+		"EMPTY_TITLE_QUERY": "No profiles match your search",
+		"EMPTY_TITLE_DEFAULT": "No profiles yet",
+		"EMPTY_DESC_QUERY": "Try a broader query or clear filters to see everyone.",
+		"EMPTY_DESC_DEFAULT": "Once people join the community, they'll show up here.",
+		"EMPTY_CTA_BROWSE_ALL": "Browse everyone",
+		"PAGINATION_PREV": "Previous",
+		"PAGINATION_NEXT": "Next",
+		"PAGINATION_PAGE_OF": "Page {current} of {total}",
+		"FOLLOW": "Follow",
+		"FOLLOWING": "Following",
+		"VIEW_PROFILE": "View profile",
+		"YOU_BADGE": "You"
+	},
 	"client": {
 		"submissions": {
 			"PAGE_TITLE": "Submissions Management",
