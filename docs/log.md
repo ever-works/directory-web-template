@@ -31,6 +31,17 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-20 — Spec 031: client Danger Zone (account deletion UI) — draft
+
+- spec-031: drafted `docs/spec/031-client-danger-zone/spec.md` proposing
+  a new red-accented **Danger Zone** section at the bottom of
+  `/client/settings`, plus a dedicated `/client/settings/danger-zone`
+  sub-page that exposes the existing `deleteAccount` server action
+  (`apps/web/app/[locale]/auth/actions.ts`) via a password-confirmed
+  modal. No backend changes — wires the already-shipped soft-delete +
+  activity log flow into the UI for the first time. Tracked under
+  [EW-635](https://evertech.atlassian.net/browse/EW-635). PR pending.
+
 ## 2026-05-20 — Profile visibility toggle (Upwork-style)
 
 - New `client_profiles.profile_visibility` column (`public` | `private`,

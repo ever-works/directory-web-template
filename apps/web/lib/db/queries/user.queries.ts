@@ -1,6 +1,6 @@
 import { eq, sql, and } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { users, clientProfiles, roles, userRoles, type NewUser, type User } from '../schema';
+import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -129,19 +129,53 @@ export async function updateUserVerification(email: string, verified: boolean) {
 }
 
 /**
+ * Hard delete a user. Cascade-deletes everything the user owns (accounts,
+ * clientProfiles, submissions, sponsorships, activityLogs.userId, …). Audit
+ * columns elsewhere that reference users.id with onDelete: 'set null'
+ * (actor_id, reviewed_by, performed_by) keep their rows; only the user link
+ * is nulled, so audit history of OTHER actors' actions is preserved.
+ *
+ * Use this for self-service account deletion from the client Danger Zone.
+ * Use `softDeleteUser` only when the caller specifically wants the email
+ * mangling / deletedAt sentinel behaviour instead.
+ */
+export async function hardDeleteUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db.delete(users).where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
  * Soft delete a user by marking as deleted
  * @param userId - User ID to delete
+ *
+ * Also neuters the user's rows in the `accounts` table so the credentials
+ * provider (which authenticates against accounts.email + accounts.passwordHash
+ * via verifyClientPassword) cannot mint a fresh session for a soft-deleted
+ * user. Without this, login by the original email keeps succeeding because
+ * the accounts row is untouched.
  */
 export async function softDeleteUser(userId: string) {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
-	return db
-		.update(users)
-		.set({
-			deletedAt: sql`CURRENT_TIMESTAMP`,
-			email: sql`CONCAT(email, '-', id, '-deleted')`
-		})
-		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+
+	return db.transaction(async (tx) => {
+		await tx
+			.update(users)
+			.set({
+				deletedAt: sql`CURRENT_TIMESTAMP`,
+				email: sql`CONCAT(email, '-', id, '-deleted')`
+			})
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+
+		await tx
+			.update(accounts)
+			.set({
+				email: sql`CONCAT(COALESCE(${accounts.email}, ''), '-', ${accounts.userId}, '-deleted')`,
+				passwordHash: null
+			})
+			.where(and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)));
+	});
 }
 
 /**

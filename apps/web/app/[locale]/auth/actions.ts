@@ -8,6 +8,7 @@ import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
 import { redirect } from 'next/navigation';
+import { signOut } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
 import {
@@ -17,8 +18,8 @@ import {
 	getUserByEmail,
 	getVerificationTokenByToken,
 	getVerificationTokenByEmail,
+	hardDeleteUser,
 	logActivity,
-	softDeleteUser,
 	updateUser,
 	updateUserPassword,
 	updateUserVerification,
@@ -376,27 +377,40 @@ const deleteAccountSchema = z.object({
 });
 
 export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async (data, _, user) => {
-	const { password, provider } = data;
+	const { password } = data;
 	const dbUser = await getUserByEmail(user.email!).catch(() => null);
 	if (!dbUser) {
 		return { error: 'User not found' };
 	}
 
-	const isPasswordValid = await comparePasswords(password, dbUser.passwordHash);
+	// Two password stores coexist (mirrors signInAction):
+	// - Client users (the common case): hash lives on accounts.passwordHash
+	//   (provider='credentials'), verified via verifyClientPassword.
+	// - Admin users: hash lives on users.passwordHash, verified directly.
+	// Try the client path first, then fall back to the admin path so this
+	// works for either user type without forcing the caller to know which.
+	const isClientPasswordValid = await verifyClientPassword(user.email!, password);
+	const isPasswordValid =
+		isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash));
 	if (!isPasswordValid) {
 		return { error: 'Incorrect password. Account deletion failed.' };
 	}
 
-	await logActivity(ActivityType.DELETE_ACCOUNT, dbUser.id, 'user');
+	// Hard delete: FK cascade rules on the schema clear out the user's owned
+	// rows (accounts, clientProfiles, submissions, sponsorships, …) while audit
+	// columns referencing users.id with onDelete:'set null' (actor_id,
+	// reviewed_by, performed_by) keep the other actors' history intact. We do
+	// NOT write a DELETE_ACCOUNT activity log row first — activityLogs.userId
+	// cascades, so that row would be wiped immediately anyway.
+	await hardDeleteUser(dbUser.id);
 
-	await softDeleteUser(dbUser.id);
-	const authService = authServiceFactory(provider);
-	const { error } = await authService.signOut();
-
-	if (error) {
-		return { error: `Failed to sign out: ${error}` };
-	}
-
+	// Clear the session cookie without letting NextAuth issue its own redirect —
+	// its redirectTo path doesn't propagate reliably through useActionState, and
+	// the `await ... .signOut()` wrapper used to return undefined which made the
+	// caller's destructure throw before we ever reached redirect(). Call signOut
+	// with redirect:false, then issue the redirect ourselves so the client lands
+	// on /auth/signin every time.
+	await signOut({ redirect: false });
 	redirect('/auth/signin');
 });
 
