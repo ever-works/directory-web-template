@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Save, X, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest, COLLECTION_VALIDATION } from "@/types/collection";
 import { EmojiIconInput } from "./emoji-icon-input";
 
@@ -126,17 +126,28 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     setErrors({});
   }, [collection, mode]);
 
+  // ID is auto-generated from the Name on create; on edit it's fixed and
+  // shown read-only. Derive once per render so submit and preview agree.
+  const generatedId = useMemo(
+    () => (mode === "create" ? slugify(formData.name) : formData.id),
+    [formData.id, formData.name, mode]
+  );
+
   const validate = () => {
     const nextErrors: Record<string, string> = {};
 
-    if (!formData.id.trim()) {
-      nextErrors.id = "ID is required";
-    } else if (!/^[a-z0-9-]+$/.test(formData.id.trim())) {
-      nextErrors.id = "Use lowercase letters, numbers, and hyphens";
-    } else if (formData.id.trim().length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
-      nextErrors.id = `ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
-    } else if (formData.id.trim().length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
-      nextErrors.id = `ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+    if (mode === "edit") {
+      // ID is locked at creation and never edited from this form, but keep
+      // a defensive sanity check in case the value is somehow malformed.
+      if (!formData.id.trim()) {
+        nextErrors.id = "ID is required";
+      } else if (!/^[a-z0-9-]+$/.test(formData.id.trim())) {
+        nextErrors.id = "Use lowercase letters, numbers, and hyphens";
+      } else if (formData.id.trim().length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
+        nextErrors.id = `ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
+      } else if (formData.id.trim().length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
+        nextErrors.id = `ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+      }
     }
 
     if (!formData.name.trim()) {
@@ -145,6 +156,17 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
       nextErrors.name = `Name must be at least ${COLLECTION_VALIDATION.NAME_MIN_LENGTH} characters`;
     } else if (formData.name.trim().length > COLLECTION_VALIDATION.NAME_MAX_LENGTH) {
       nextErrors.name = `Name must be under ${COLLECTION_VALIDATION.NAME_MAX_LENGTH} characters`;
+    } else if (mode === "create") {
+      // The auto-generated ID is derived from the name, so we surface
+      // ID-length / character errors on the Name field instead of on a
+      // hidden ID input.
+      if (!generatedId) {
+        nextErrors.name = "Name must contain letters or numbers to generate an ID";
+      } else if (generatedId.length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
+        nextErrors.name = `Name is too short — the generated ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
+      } else if (generatedId.length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
+        nextErrors.name = `Name is too long — the generated ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+      }
     }
 
     if (formData.description.trim().length > COLLECTION_VALIDATION.DESCRIPTION_MAX_LENGTH) {
@@ -168,7 +190,7 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
 
     const payload = mode === "edit"
       ? ({ ...formData, slug: formData.id, id: formData.id } as UpdateCollectionRequest)
-      : ({ ...formData, slug: formData.id } as CreateCollectionRequest);
+      : ({ ...formData, id: generatedId, slug: generatedId } as CreateCollectionRequest);
 
     await onSubmit(payload);
   };
@@ -204,26 +226,40 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
-        {/* Collection ID */}
-        <Field
-          label="Collection ID"
-          required
-          hint="Lowercase, URL-friendly identifier (used as slug)"
-          error={errors.id}
-        >
-          <input
-            type="text"
-            placeholder="e.g. frontend-frameworks"
-            value={formData.id}
-            onChange={(e) => handleChange("id", e.target.value)}
-            disabled={mode === "edit" || isLoading}
-            className={errors.id ? INPUT_ERROR : INPUT_BASE}
-          />
-        </Field>
+        {/* Collection ID — read-only in edit mode (locked at creation),
+            auto-generated from Name on create (no input rendered). */}
+        {mode === "edit" ? (
+          <Field
+            label="Collection ID"
+            hint="Locked at creation. Auto-generated from the name."
+            error={errors.id}
+          >
+            <input
+              type="text"
+              value={formData.id}
+              disabled
+              readOnly
+              aria-readonly="true"
+              className={cn(
+                errors.id ? INPUT_ERROR : INPUT_BASE,
+                "font-mono opacity-70 cursor-not-allowed"
+              )}
+            />
+          </Field>
+        ) : null}
 
         {/* Name + Icon row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Name" required error={errors.name}>
+          <Field
+            label="Name"
+            required
+            error={errors.name}
+            hint={
+              mode === "create" && !errors.name && generatedId
+                ? `URL slug · /collections/${generatedId}`
+                : undefined
+            }
+          >
             <input
               type="text"
               placeholder="Collection name"
