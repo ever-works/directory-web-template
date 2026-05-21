@@ -410,6 +410,10 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
         };
 
         const completed = requiredFields.filter(isFieldComplete).length;
+        // Exposed via a `data-missing-required-fields` attribute on the
+        // disabled Submit button so e2e specs (and devs inspecting the
+        // DOM) can see exactly why the submit button is disabled without
+        // diving into React state.
         const missing = requiredFields.filter((f) => !isFieldComplete(f));
 
         return {
