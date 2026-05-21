@@ -50,6 +50,7 @@ export function ProfileRow({
 				'border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111]',
 				'shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_-12px_rgba(0,0,0,0.08)]',
 				'hover:border-theme-primary-300 dark:hover:border-theme-primary-700/70',
+				'hover:bg-theme-primary-50/20 dark:hover:bg-theme-primary-900/5',
 				'transition-all duration-200 ease-out'
 			)}
 		>
@@ -85,7 +86,7 @@ export function ProfileRow({
 						{displayName}
 					</Link>
 					{isViewer && (
-						<span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-900/40 dark:text-theme-primary-300">
+						<span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded-full bg-theme-primary-50 text-theme-primary-700 dark:bg-theme-primary-900/40 dark:text-theme-primary-300">
 							You
 						</span>
 					)}
