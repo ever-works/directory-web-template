@@ -28,7 +28,9 @@ function parsePage(input: string | string[] | undefined): number {
 
 function parseView(input: string | string[] | undefined): View {
 	const v = Array.isArray(input) ? input[0] : input;
-	return v === 'grid' ? 'grid' : 'list';
+	// Default is grid (gallery of cards, mirroring the /following layout).
+	// Pass `?view=list` to switch to the dense row layout.
+	return v === 'list' ? 'list' : 'grid';
 }
 
 /**
@@ -79,7 +81,8 @@ export default async function UsersDirectoryPage({
 		pathname: '/client/users',
 		query: {
 			...(query ? { q: query } : {}),
-			...(view === 'grid' ? { view: 'grid' } : {}),
+			// Grid is the default — only persist the URL param when it's `list`.
+			...(view === 'list' ? { view: 'list' } : {}),
 			...(page > 1 ? { page } : {}),
 			...overrides
 		}
@@ -116,8 +119,8 @@ export default async function UsersDirectoryPage({
 							<div className="flex flex-col sm:flex-row gap-3 p-3 sm:p-3">
 								{/* Search form — GET so the URL stays the source of truth */}
 								<form method="GET" className="flex flex-1 gap-2 min-w-0">
-									{/* Preserve view across searches */}
-									{view === 'grid' && <input type="hidden" name="view" value="grid" />}
+									{/* Preserve view across searches (grid is the default; only list needs persisting). */}
+									{view === 'list' && <input type="hidden" name="view" value="list" />}
 									<div className="relative flex-1 min-w-0">
 										<FiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
 										<input
@@ -154,19 +157,6 @@ export default async function UsersDirectoryPage({
 								>
 									<Link
 										href={buildHref({ view: undefined, page: undefined })}
-										aria-current={view === 'list' ? 'page' : undefined}
-										className={cn(
-											'inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-medium transition-all',
-											view === 'list'
-												? 'bg-white dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm'
-												: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
-										)}
-									>
-										<FiList className="w-3.5 h-3.5" aria-hidden="true" />
-										<span className="hidden xs:inline sm:inline">{t('VIEW_LIST')}</span>
-									</Link>
-									<Link
-										href={buildHref({ view: 'grid', page: undefined })}
 										aria-current={view === 'grid' ? 'page' : undefined}
 										className={cn(
 											'inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-medium transition-all',
@@ -177,6 +167,19 @@ export default async function UsersDirectoryPage({
 									>
 										<FiGrid className="w-3.5 h-3.5" aria-hidden="true" />
 										<span className="hidden xs:inline sm:inline">{t('VIEW_GRID')}</span>
+									</Link>
+									<Link
+										href={buildHref({ view: 'list', page: undefined })}
+										aria-current={view === 'list' ? 'page' : undefined}
+										className={cn(
+											'inline-flex items-center gap-1.5 px-3 h-9 rounded-lg text-xs font-medium transition-all',
+											view === 'list'
+												? 'bg-white dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm'
+												: 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
+										)}
+									>
+										<FiList className="w-3.5 h-3.5" aria-hidden="true" />
+										<span className="hidden xs:inline sm:inline">{t('VIEW_LIST')}</span>
 									</Link>
 								</div>
 							</div>
