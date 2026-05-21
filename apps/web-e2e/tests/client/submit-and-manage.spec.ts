@@ -23,14 +23,22 @@ test.describe('Client: Submit & Submission Management', () => {
 			description: testDescription,
 		});
 
+		// Wait briefly for the basic-info step to settle. Categories
+		// settings only become readable after the page hydrates, and
+		// `categoriesBtn.isVisible()` raced ahead of that on cold start.
+		await clientPage.waitForLoadState('networkidle').catch(() => undefined);
+
 		// Select a category. The combobox is rendered whenever categories
-		// are enabled in settings; when present, category is a REQUIRED
-		// field and the Submit button stays disabled until something is
-		// selected. Retry the open+pick interaction up to 10s so a
-		// cold-start combobox that hasn't hydrated yet still resolves.
+		// are enabled in settings; when present, category is REQUIRED and
+		// the Submit button stays disabled forever until something is
+		// selected. Wait for the combobox with a short timeout — if it
+		// genuinely never renders, categories are disabled and we move on.
 		const categoriesBtn = submitPage.categoriesButton;
-		const isCategoriesVisible = await categoriesBtn.isVisible().catch(() => false);
-		if (isCategoriesVisible) {
+		const categoriesAppeared = await categoriesBtn
+			.waitFor({ state: 'visible', timeout: 5_000 })
+			.then(() => true)
+			.catch(() => false);
+		if (categoriesAppeared) {
 			const deadline = Date.now() + 10_000;
 			let selected = false;
 			while (Date.now() < deadline && !selected) {
