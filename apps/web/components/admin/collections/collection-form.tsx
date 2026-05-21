@@ -126,11 +126,20 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     setErrors({});
   }, [collection, mode]);
 
-  // ID is auto-generated from the Name on create; on edit it's fixed and
-  // shown read-only. Derive once per render so submit and preview agree.
+  // On create the ID is a numeric timestamp (machine identifier) generated
+  // once per form session; the slug is derived separately from the name so
+  // URLs stay human-friendly. On edit, the ID is fixed and shown read-only.
+  // `useMemo([])` with an empty dep array on `Date.now()` gives one stable
+  // id per modal session — open / close cycles remount the form and produce
+  // a fresh id.
   const generatedId = useMemo(
-    () => (mode === "create" ? slugify(formData.name) : formData.id),
-    [formData.id, formData.name, mode]
+    () => (mode === "create" ? String(Date.now()) : formData.id),
+    // Intentionally omit Date.now() from deps — we want it captured once.
+    [formData.id, mode]
+  );
+  const generatedSlug = useMemo(
+    () => (mode === "create" ? slugify(formData.name) : collection?.slug ?? formData.id),
+    [collection?.slug, formData.id, formData.name, mode]
   );
 
   const validate = () => {
@@ -141,10 +150,6 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
       // a defensive sanity check in case the value is somehow malformed.
       if (!formData.id.trim()) {
         nextErrors.id = "ID is required";
-      } else if (!/^[a-z0-9-]+$/.test(formData.id.trim())) {
-        nextErrors.id = "Use lowercase letters, numbers, and hyphens";
-      } else if (formData.id.trim().length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
-        nextErrors.id = `ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
       } else if (formData.id.trim().length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
         nextErrors.id = `ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
       }
@@ -157,15 +162,12 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     } else if (formData.name.trim().length > COLLECTION_VALIDATION.NAME_MAX_LENGTH) {
       nextErrors.name = `Name must be under ${COLLECTION_VALIDATION.NAME_MAX_LENGTH} characters`;
     } else if (mode === "create") {
-      // The auto-generated ID is derived from the name, so we surface
-      // ID-length / character errors on the Name field instead of on a
-      // hidden ID input.
-      if (!generatedId) {
-        nextErrors.name = "Name must contain letters or numbers to generate an ID";
-      } else if (generatedId.length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
-        nextErrors.name = `Name is too short — the generated ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
-      } else if (generatedId.length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
-        nextErrors.name = `Name is too long — the generated ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+      // The URL slug is derived from the name. Surface slug-shape errors on
+      // the Name field rather than on a hidden slug input.
+      if (!generatedSlug) {
+        nextErrors.name = "Name must contain letters or numbers to build a URL slug";
+      } else if (generatedSlug.length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
+        nextErrors.name = `Name is too long — the URL slug must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
       }
     }
 
@@ -190,7 +192,7 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
 
     const payload = mode === "edit"
       ? ({ ...formData, slug: formData.id, id: formData.id } as UpdateCollectionRequest)
-      : ({ ...formData, id: generatedId, slug: generatedId } as CreateCollectionRequest);
+      : ({ ...formData, id: generatedId, slug: generatedSlug } as CreateCollectionRequest);
 
     await onSubmit(payload);
   };
@@ -255,8 +257,8 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
             required
             error={errors.name}
             hint={
-              mode === "create" && !errors.name && generatedId
-                ? `URL slug · /collections/${generatedId}`
+              mode === "create" && !errors.name && generatedSlug
+                ? `URL slug · /collections/${generatedSlug}`
                 : undefined
             }
           >
