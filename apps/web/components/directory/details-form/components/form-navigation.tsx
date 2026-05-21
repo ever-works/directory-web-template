@@ -11,6 +11,7 @@ interface FormNavigationProps {
 	canProceed: boolean;
 	completedRequiredFields: number;
 	requiredFieldsCount: number;
+	missingRequiredFields?: string[];
 	onPrevious: () => void;
 	onNext: () => void;
 	onBack: () => void;
@@ -22,6 +23,7 @@ export function FormNavigation({
 	canProceed,
 	completedRequiredFields,
 	requiredFieldsCount,
+	missingRequiredFields = [],
 	onPrevious,
 	onNext,
 	onBack,
@@ -98,6 +100,13 @@ export function FormNavigation({
 					<Button
 						type="submit"
 						disabled={completedRequiredFields < requiredFieldsCount || isSubmitting}
+						// data-missing-required-fields exposes the actual list of
+						// unfilled required fields so e2e specs (and devs
+						// inspecting the DOM) can see exactly why the submit
+						// button is disabled without diving into React state.
+						data-missing-required-fields={missingRequiredFields.join(',')}
+						data-completed-required={completedRequiredFields}
+						data-total-required={requiredFieldsCount}
 						className={cn(
 							completedRequiredFields < requiredFieldsCount || isSubmitting
 								? NAVIGATION_CLASSES.button.submit.disabled

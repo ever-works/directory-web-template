@@ -389,7 +389,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
     }, [currentStep]);
   
     // Global progress calculation
-    const { progressPercentage, completedRequiredFields, requiredFieldsCount, requiredFields } =
+    const { progressPercentage, completedRequiredFields, requiredFieldsCount, requiredFields, missingRequiredFields } =
       useMemo(() => {
         // Required fields: name, mainLink, description (category only if enabled)
         const requiredFields: string[] = categoriesEnabled
@@ -400,22 +400,24 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
           requiredFields.push("location");
         }
 
-        const completed = requiredFields.filter(
-          (field) => {
-            if (field === "location") {
-              const loc = formData.location;
-              if (!loc) return false;
-              return loc.is_remote || (loc.latitude !== undefined && loc.longitude !== undefined);
-            }
-            return formData[field] && formData[field].toString().trim();
+        const isFieldComplete = (field: string): boolean => {
+          if (field === "location") {
+            const loc = formData.location;
+            if (!loc) return false;
+            return loc.is_remote || (loc.latitude !== undefined && loc.longitude !== undefined);
           }
-        ).length;
+          return Boolean(formData[field] && formData[field].toString().trim());
+        };
+
+        const completed = requiredFields.filter(isFieldComplete).length;
+        const missing = requiredFields.filter((f) => !isFieldComplete(f));
 
         return {
           requiredFieldsCount: requiredFields.length,
           completedRequiredFields: completed,
           progressPercentage: (completed / requiredFields.length) * 100,
           requiredFields,
+          missingRequiredFields: missing,
         };
       }, [formData, categoriesEnabled, locationRequired]);
   
@@ -441,6 +443,7 @@ export function useDetailForm(initialData: Partial<FormData>, onSubmit: (data: F
         completedRequiredFields,
         requiredFieldsCount,
         requiredFields,
+        missingRequiredFields,
         getIconComponent,
         validateStep,
        setCurrentStep,
