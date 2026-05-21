@@ -1,7 +1,7 @@
 'use client';
 
 import { Container } from '@/components/ui/container';
-import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard, FiMapPin, FiSettings } from 'react-icons/fi';
+import { FiUser, FiDroplet, FiBriefcase, FiFileText, FiArrowRight, FiCreditCard, FiMapPin, FiSettings, FiEye } from 'react-icons/fi';
 import { Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
@@ -196,6 +196,12 @@ export function SettingsContent() {
 							description={t('SETTINGS_CARDS.PORTFOLIO.DESCRIPTION')}
 							icon={<FiBriefcase className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
 							href="/client/settings/profile/portfolio"
+						/>
+						<SettingsCard
+							title={t('SETTINGS_CARDS.VISIBILITY.TITLE')}
+							description={t('SETTINGS_CARDS.VISIBILITY.DESCRIPTION')}
+							icon={<FiEye className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />}
+							href="/client/settings/profile/visibility"
 						/>
 					</SettingsSection>
 

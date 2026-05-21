@@ -227,6 +227,13 @@ export const clientProfiles = pgTable(
 		defaultCity: text('default_city'),
 		defaultCountry: text('default_country'),
 		locationPrivacy: text('location_privacy').default('private'),
+		// Profile visibility — controls whether the public `/client/profile/<username>`
+		// page is reachable by other users. Owner always sees their own profile.
+		profileVisibility: text('profile_visibility', {
+			enum: ['public', 'private']
+		})
+			.notNull()
+			.default('public'),
 		twoFactorEnabled: boolean('two_factor_enabled').default(false),
 		emailVerified: boolean('email_verified').default(false),
 		totalSubmissions: integer('total_submissions').default(0),
