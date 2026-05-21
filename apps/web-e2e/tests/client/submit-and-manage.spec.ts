@@ -197,10 +197,19 @@ test.describe('Client: Submit & Submission Management', () => {
 		// Dialog should close
 		await expect(deleteDialog).toBeHidden({ timeout: 10_000 });
 
-		// Submission count should decrease (or show empty state)
+		// Submission count should decrease (or show empty state). The
+		// list refreshes via React Query revalidation, which can lag
+		// the dialog-close by a beat — poll for the count to drop
+		// instead of reading a single snapshot. Skip the assertion
+		// entirely if we started with only one submission (no concept
+		// of "decreased" then).
 		if (initialCount > 1) {
-			const newCount = await clientPage.locator('h3').count();
-			expect(newCount).toBeLessThan(initialCount);
+			await expect
+				.poll(() => clientPage.locator('h3').count(), {
+					message: `submission count should drop below ${initialCount} after delete`,
+					timeout: 10_000
+				})
+				.toBeLessThan(initialCount);
 		}
 	});
 });
