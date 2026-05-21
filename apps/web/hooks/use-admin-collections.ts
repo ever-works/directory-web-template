@@ -107,6 +107,7 @@ export function useAdminCollections(params: CollectionListParams = {}) {
   const {
     data: collectionsData,
     isLoading,
+    isFetching,
     refetch,
   } = useQuery({
     queryKey: QUERY_KEYS.collectionsList(params),
@@ -206,6 +207,7 @@ export function useAdminCollections(params: CollectionListParams = {}) {
     totalPages: collectionsData?.totalPages || 1,
     limit: collectionsData?.limit || params.limit || 10,
     isLoading,
+    isFetching,
     isSubmitting:
       createMutation.isPending || updateMutation.isPending || deleteMutation.isPending || assignItemsMutation.isPending,
     createCollection: handleCreate,
