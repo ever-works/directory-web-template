@@ -104,6 +104,24 @@ export function useAdminCollections(params: CollectionListParams = {}) {
     queryClient.invalidateQueries({ queryKey: QUERY_KEYS.collections });
   }, [queryClient]);
 
+  /**
+   * Write-through patch over every cached list query so the UI updates
+   * synchronously when a mutation resolves, without waiting for the
+   * background refetch triggered by `invalidateCollections()`.
+   *
+   * Filters to `['admin', 'collections', 'list', …]` so we never accidentally
+   * mutate the detail or items query caches, which have different shapes.
+   */
+  const patchListCaches = useCallback(
+    (mutate: (list: CollectionsListResponse) => CollectionsListResponse) => {
+      queryClient.setQueriesData<CollectionsListResponse>(
+        { queryKey: [...QUERY_KEYS.collections, 'list'] },
+        (oldData) => (oldData ? mutate(oldData) : oldData)
+      );
+    },
+    [queryClient]
+  );
+
   const {
     data: collectionsData,
     isLoading,
@@ -120,6 +138,18 @@ export function useAdminCollections(params: CollectionListParams = {}) {
     mutationFn: createCollection,
     onSuccess: (data: CollectionMutationResponse) => {
       toast.success(data.message || 'Collection created successfully');
+      if (data.collection) {
+        const created = data.collection;
+        patchListCaches((list) => {
+          // Avoid duplicates if React Query already inserted the row.
+          if (list.collections.some((c) => c.id === created.id)) return list;
+          return {
+            ...list,
+            collections: [created, ...list.collections],
+            total: list.total + 1,
+          };
+        });
+      }
       invalidateCollections();
     },
     onError: (error: any) => {
@@ -131,6 +161,15 @@ export function useAdminCollections(params: CollectionListParams = {}) {
     mutationFn: ({ id, data }: { id: string; data: UpdateCollectionRequest }) => updateCollection(id, data),
     onSuccess: (data: CollectionMutationResponse) => {
       toast.success(data.message || 'Collection updated successfully');
+      if (data.collection) {
+        const updated = data.collection;
+        patchListCaches((list) => ({
+          ...list,
+          collections: list.collections.map((c) =>
+            c.id === updated.id ? { ...c, ...updated } : c
+          ),
+        }));
+      }
       invalidateCollections();
     },
     onError: (error: any) => {
@@ -140,8 +179,16 @@ export function useAdminCollections(params: CollectionListParams = {}) {
 
   const deleteMutation = useMutation({
     mutationFn: deleteCollection,
-    onSuccess: () => {
+    onSuccess: (_response, deletedId) => {
       toast.success('Collection deleted successfully');
+      patchListCaches((list) => {
+        if (!list.collections.some((c) => c.id === deletedId)) return list;
+        return {
+          ...list,
+          collections: list.collections.filter((c) => c.id !== deletedId),
+          total: Math.max(0, list.total - 1),
+        };
+      });
       invalidateCollections();
     },
     onError: (error: any) => {
@@ -151,8 +198,16 @@ export function useAdminCollections(params: CollectionListParams = {}) {
 
   const assignItemsMutation = useMutation({
     mutationFn: ({ id, itemSlugs }: { id: string; itemSlugs: string[] }) => assignCollectionItems(id, { itemIds: itemSlugs }),
-    onSuccess: (data: { success: boolean; message?: string }) => {
+    onSuccess: (data: { success: boolean; message?: string }, vars) => {
       toast.success(data.message || 'Collection items updated');
+      patchListCaches((list) => ({
+        ...list,
+        collections: list.collections.map((c) =>
+          c.id === vars.id
+            ? { ...c, item_count: vars.itemSlugs.length, items: vars.itemSlugs }
+            : c
+        ),
+      }));
       invalidateCollections();
     },
     onError: (error: any) => {
