@@ -128,8 +128,10 @@ test.describe('Client: Submit & Submission Management', () => {
 		const detailModal = submissionsPage.detailModal;
 		await expect(detailModal).toBeVisible();
 
-		// Close the modal
-		const closeButton = detailModal.getByRole('button', { name: /close/i });
+		// Close the modal. The dialog has TWO close buttons (the header
+		// "X" with aria-label="Close modal", and a footer "Close"
+		// button) — strict-mode match the explicit aria-labelled one.
+		const closeButton = detailModal.getByRole('button', { name: 'Close modal' });
 		await closeButton.click();
 		await expect(detailModal).toBeHidden();
 	});
