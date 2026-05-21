@@ -164,8 +164,28 @@ const bulkAction = async (data: BulkActionRequest): Promise<BulkActionResponse> 
   return response.data;
 };
 
+export interface UseAdminItemsOptions {
+  /**
+   * When false, skip the secondary `/api/admin/items/stats` query. Most
+   * full admin surfaces want the stats counter; lightweight consumers
+   * (e.g. the Assign Items picker modal) only need the paginated list and
+   * pay double network cost without this flag.
+   *
+   * Default: true (preserve existing behaviour for every other caller).
+   */
+  enableStats?: boolean;
+  /**
+   * When false, suspend both queries entirely — used for lazy-mounted
+   * consumers that want to defer the first fetch until the consumer is
+   * actually visible. Defaults to true.
+   */
+  enabled?: boolean;
+}
+
 // Hook
-export function useAdminItems(params: ItemsListParams = {}) {
+export function useAdminItems(params: ItemsListParams = {}, options: UseAdminItemsOptions = {}) {
+  const { enableStats = true, enabled = true } = options;
+
   // Extract filter params for stats query
   const statsParams: StatsFilterParams = {
     search: params.search,
@@ -183,6 +203,7 @@ export function useAdminItems(params: ItemsListParams = {}) {
   } = useQuery({
     queryKey: QUERY_KEYS.itemsList(params),
     queryFn: () => fetchItems(params),
+    enabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchInterval: 5 * 60 * 1000, // 5 minutes - reduced from 30 seconds
@@ -198,6 +219,7 @@ export function useAdminItems(params: ItemsListParams = {}) {
   } = useQuery({
     queryKey: QUERY_KEYS.itemStats(statsParams),
     queryFn: () => fetchItemStats(statsParams),
+    enabled: enabled && enableStats,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });

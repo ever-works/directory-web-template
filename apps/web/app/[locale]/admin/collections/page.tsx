@@ -27,6 +27,7 @@ import {
 	UpdateCollectionRequest,
 } from '@/types/collection';
 import { Container } from '@/components/ui/container';
+import { isLikelyEmoji, isLikelyUrl } from '@/lib/utils/icon-detection';
 import { useAdminCollections } from '@/hooks/use-admin-collections';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { CollectionForm } from '@/components/admin/collections/collection-form';
@@ -46,20 +47,6 @@ const ICON_GRADIENTS = [
 	'bg-linear-to-br from-teal-500 to-teal-600',
 	'bg-linear-to-br from-rose-500 to-rose-600',
 ];
-
-const URL_PATTERN = /^(?:https?:\/\/|\/|data:image\/)/i;
-
-function isLikelyUrl(value?: string): value is string {
-	return !!value && URL_PATTERN.test(value.trim());
-}
-
-function isLikelyEmoji(value?: string): value is string {
-	if (!value) return false;
-	const trimmed = value.trim();
-	// Single grapheme cluster (emoji glyphs ≤ ~4 code points), no whitespace,
-	// and not a URL — good enough heuristic without `Intl.Segmenter`.
-	return trimmed.length > 0 && trimmed.length <= 6 && !/\s/.test(trimmed) && !isLikelyUrl(trimmed);
-}
 
 function CollectionAvatar({ collection, gradient }: { collection: Collection; gradient: string }) {
 	const [imgError, setImgError] = useState(false);
@@ -466,13 +453,17 @@ export default function AdminCollectionsPage() {
 				</div>
 			)}
 
-			<AssignItemsModal
-				isOpen={assignIsOpen}
-				onClose={() => setAssignIsOpen(false)}
-				collectionName={selectedCollection?.name || t('THIS_COLLECTION')}
-				initialSelected={assignInitialIds}
-				onSave={handleAssignSave}
-			/>
+			{/* Lazy-mounted so the items list / stats queries only fire when
+			    the admin actually opens the picker, not on every page render. */}
+			{assignIsOpen && (
+				<AssignItemsModal
+					isOpen={assignIsOpen}
+					onClose={() => setAssignIsOpen(false)}
+					collectionName={selectedCollection?.name || t('THIS_COLLECTION')}
+					initialSelected={assignInitialIds}
+					onSave={handleAssignSave}
+				/>
+			)}
 		</Container>
 	);
 }
