@@ -71,7 +71,11 @@ export function EmojiIconInput({
 	const inputRef = useRef<HTMLInputElement>(null);
 	const listRef = useRef<HTMLUListElement>(null);
 
-	const [isOpen, setIsOpen] = useState(false);
+	// `manualOpen` is the user opening the picker via the trailing toggle
+	// without a `:` in the value. It lives in state so opening / closing
+	// never mutates the controlled `value` (otherwise an Esc / outside-click
+	// would leave a stray `:` in `icon_url`).
+	const [manualOpen, setManualOpen] = useState(false);
 	const [activeIndex, setActiveIndex] = useState(0);
 	const [recent, setRecent] = useState<readonly string[]>([]);
 	// Defer reads of localStorage until after mount to avoid SSR mismatch.
@@ -84,6 +88,7 @@ export function EmojiIconInput({
 	const colonMatch = useMemo(() => COLON_TRIGGER.exec(value), [value]);
 	const query = colonMatch ? colonMatch[1] : "";
 	const deferredQuery = useDeferredValue(query);
+	const isOpen = !!colonMatch || manualOpen;
 
 	const suggestions = useMemo<EmojiEntry[]>(() => {
 		if (deferredQuery.length > 0) {
@@ -99,15 +104,13 @@ export function EmojiIconInput({
 		return [...recentEntries, ...filler];
 	}, [deferredQuery, recent]);
 
-	// Open the popover whenever the user is in the middle of a `:query`.
+	// Reset the active option to the top each time the open-set changes so
+	// the highlight never lands past the end of a shrunken result list.
 	useEffect(() => {
-		if (colonMatch) {
-			setIsOpen(true);
+		if (isOpen) {
 			setActiveIndex(0);
-		} else {
-			setIsOpen(false);
 		}
-	}, [colonMatch]);
+	}, [isOpen, deferredQuery]);
 
 	// Reset activeIndex if the result list shrinks past the current cursor.
 	useEffect(() => {
@@ -126,13 +129,15 @@ export function EmojiIconInput({
 	}, [activeIndex, isOpen]);
 
 	// Click outside closes the popover. Use `mousedown` so it fires before
-	// the input's blur runs the rest of the toolbar logic.
+	// the input's blur runs the rest of the toolbar logic. We only need to
+	// clear the manual-open flag — a `:query` in the value naturally stops
+	// matching once focus moves away from the input.
 	useEffect(() => {
 		if (!isOpen) return;
 		function handleDocMouseDown(event: MouseEvent) {
 			if (!wrapperRef.current) return;
 			if (!wrapperRef.current.contains(event.target as Node)) {
-				setIsOpen(false);
+				setManualOpen(false);
 			}
 		}
 		document.addEventListener("mousedown", handleDocMouseDown);
@@ -160,7 +165,7 @@ export function EmojiIconInput({
 				next = replacement;
 			}
 			onChange(next);
-			setIsOpen(false);
+			setManualOpen(false);
 
 			setRecent((prev) => {
 				const filtered = prev.filter((c) => c !== replacement);
@@ -210,7 +215,10 @@ export function EmojiIconInput({
 			}
 			case "Escape":
 				event.preventDefault();
-				setIsOpen(false);
+				// Escape only closes the manual-open path. If a `:query` is
+				// still in the value, the popover will re-open the moment
+				// the regex matches again — leave the input untouched.
+				setManualOpen(false);
 				break;
 			default:
 				break;
@@ -238,7 +246,7 @@ export function EmojiIconInput({
 					saveRecent(updated);
 					return updated;
 				});
-				setIsOpen(false);
+				setManualOpen(false);
 				return;
 			}
 		}
@@ -285,18 +293,13 @@ export function EmojiIconInput({
 						onClick={() => {
 							if (disabled) return;
 							if (isOpen) {
-								setIsOpen(false);
+								setManualOpen(false);
 							} else {
-								// Insert a `:` if the value doesn't end in one already so the
-								// trigger regex matches; otherwise just open.
-								const trimmed = value.replace(/:\w*$/, "");
-								const next =
-									trimmed.length > 0 && !/\s$/.test(trimmed) ? trimmed + " :" : trimmed + ":";
-								onChange(next);
-								window.requestAnimationFrame(() => {
-									inputRef.current?.focus();
-									setIsOpen(true);
-								});
+								// Open the picker without touching the controlled value —
+								// otherwise a no-op open/close would leave a stray `:` in
+								// `icon_url`.
+								setManualOpen(true);
+								window.requestAnimationFrame(() => inputRef.current?.focus());
 							}
 						}}
 						aria-label={isOpen ? "Close emoji picker" : "Open emoji picker"}
@@ -342,17 +345,28 @@ function IconPreview({
 	const baseClass =
 		"shrink-0 w-10 h-10 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/3 flex items-center justify-center overflow-hidden";
 
+	// Track image-load errors via React state so a subsequent valid URL is
+	// rendered cleanly (no stale `display:none` left over from the previous
+	// broken `<img>`). Reset whenever the URL itself changes.
+	const trimmedUrl = looksLikeUrl ? value.trim() : "";
+	const [imgError, setImgError] = useState(false);
+	useEffect(() => {
+		setImgError(false);
+	}, [trimmedUrl]);
+
 	if (looksLikeUrl) {
 		return (
 			<div className={baseClass} aria-hidden="true">
-				<img
-					src={value.trim()}
-					alt=""
-					className="w-full h-full object-cover"
-					onError={(e) => {
-						(e.currentTarget as HTMLImageElement).style.display = "none";
-					}}
-				/>
+				{imgError ? (
+					<ImageIcon className="w-4 h-4 text-gray-400" />
+				) : (
+					<img
+						src={trimmedUrl}
+						alt=""
+						className="w-full h-full object-cover"
+						onError={() => setImgError(true)}
+					/>
+				)}
 			</div>
 		);
 	}
