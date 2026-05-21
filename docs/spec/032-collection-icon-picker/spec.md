@@ -13,7 +13,9 @@ sidebar_label: '032 Collection Icon Picker'
 > **Constitution articles invoked:** III (Spec Before Code),
 > V (Performance Budget), IX (Test Coverage Bar — Definition of Done).
 >
-> **Jira:** EW (link added once filed).
+> **Jira:** [EW-646](https://evertech.atlassian.net/browse/EW-646).
+>
+> **PR:** [#920](https://github.com/ever-works/directory-web-template/pull/920).
 
 ## 1. Summary
 

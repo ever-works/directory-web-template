@@ -47,7 +47,7 @@ why** at a higher level than per-commit diffs.
   `<img>`. Existing URL paste behaviour is unchanged and the underlying
   `icon_url` field still stores a single Unicode glyph or a raw URL — no
   backend changes. Zero new dependencies: the curated dataset is ~300
-  entries inline. PR: TBA.
+  entries inline. Jira: EW-646. PR: #920.
 
 ---
 
