@@ -208,12 +208,23 @@ export default function AdminCollectionsPage() {
 
 	const handleFormSubmit = useCallback(
 		async (data: CreateCollectionRequest | UpdateCollectionRequest) => {
-			if (formMode === 'create') {
-				const success = await createCollection(data as CreateCollectionRequest);
-				if (success) closeForm();
-			} else if (selectedCollection) {
-				const success = await updateCollection(selectedCollection.id, data as UpdateCollectionRequest);
-				if (success) closeForm();
+			// Always wrap in try/catch so a throw in the success / cache-invalidate
+			// path can't leak past `closeForm()` and leave the modal open after a
+			// successful create or update. The hook toasts success/error already.
+			try {
+				let succeeded = false;
+				if (formMode === 'create') {
+					succeeded = await createCollection(data as CreateCollectionRequest);
+				} else if (selectedCollection) {
+					succeeded = await updateCollection(selectedCollection.id, data as UpdateCollectionRequest);
+				}
+				if (succeeded) {
+					closeForm();
+				}
+			} catch (error) {
+				// Mutation hook already surfaces an error toast; keep the modal
+				// open so the operator can review the form and retry.
+				console.error('Collection submit failed', error);
 			}
 		},
 		[closeForm, createCollection, formMode, selectedCollection, updateCollection]
