@@ -10,7 +10,13 @@ const NOISE_PATTERNS = [
 	/\/api\/user\/profile/,
 	/\/api\/user\/subscription/,
 	/\/api\/user\/plan-status/,
-	/\/api\/user\/currency/
+	/\/api\/user\/currency/,
+	// `_next/image` proxies arbitrary upstream URLs from item icons.
+	// When the seed data points at a placeholder host (example.com,
+	// missing CDN), the upstream 404 propagates as a 4xx here. That
+	// is an upstream-data issue, not a bug in our routing — the
+	// image-domain-allowlist spec covers asset-level reachability.
+	/\/_next\/image\?/
 ];
 
 const PAGES = ['/', '/about', '/discover/1'];

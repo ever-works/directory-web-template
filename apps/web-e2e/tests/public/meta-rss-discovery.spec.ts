@@ -4,26 +4,25 @@ import { test, expect } from '@playwright/test';
 // via <link rel="alternate" type="application/rss+xml" ...>. Without
 // this, feed readers can't find the directory's content.
 
+async function readLinkHref(
+	page: import('@playwright/test').Page,
+	selector: string
+): Promise<string | null> {
+	const loc = page.locator(selector).first();
+	if ((await loc.count()) === 0) return null;
+	return await loc.getAttribute('href');
+}
+
 test.describe('Feed autodiscovery <link>s', () => {
 	for (const path of ['/', '/about', '/categories']) {
 		test(`${path} advertises RSS / Atom / JSON Feed`, async ({ page }) => {
 			await page.goto(path, { waitUntil: 'domcontentloaded' });
 
-			const rss = await page
-				.locator('link[type="application/rss+xml"]')
-				.first()
-				.getAttribute('href')
-				.catch(() => null);
-			const atom = await page
-				.locator('link[type="application/atom+xml"]')
-				.first()
-				.getAttribute('href')
-				.catch(() => null);
-			const json = await page
-				.locator('link[type="application/feed+json"]')
-				.first()
-				.getAttribute('href')
-				.catch(() => null);
+			// Probe existence before `getAttribute` — the default locator
+			// wait would otherwise burn 30s per absent link tag.
+			const rss = await readLinkHref(page, 'link[type="application/rss+xml"]');
+			const atom = await readLinkHref(page, 'link[type="application/atom+xml"]');
+			const json = await readLinkHref(page, 'link[type="application/feed+json"]');
 
 			// Spec 010+ added all three. We require at least one (RSS is the
 			// minimum useful baseline).

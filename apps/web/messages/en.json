@@ -29,8 +29,11 @@
 		"HOME": "Home",
 		"ABOUT": "About",
 		"NO_TAGS_FOUND": "No tags found",
+		"NO_TAGS_DESCRIPTION": "No tags are available right now. Check back later.",
 		"NO_CATEGORIES_FOUND": "No categories found",
+		"NO_CATEGORIES_DESCRIPTION": "No categories are available right now. Check back later.",
 		"NO_RESULTS_FOUND": "No results found",
+		"NO_RESULTS_DESCRIPTION": "Try adjusting your filters or searching for something else.",
 		"LAYOUT": "Layout",
 		"LAYOUT_SELECTION": "Layout Selection",
 		"CHOOSE_PREFERRED_DESIGN": "Choose your preferred homepage design",
@@ -1486,6 +1489,7 @@
 		"USAGE_NEXT_BACKUPS": "Implement backups"
 	},
 	"success": {
+		"NEW_SUBMISSION": "Your submission was received and is pending review.",
 		"SUBSCRIPTION_ACTIVATED": "Subscription Activated!",
 		"SUBMISSION_RECEIVED": "Submission Received!",
 		"SUBSCRIPTION_SUCCESS_MESSAGE": "Your premium subscription has been successfully activated",
@@ -3712,6 +3716,7 @@
 		"submissions": {
 			"PAGE_TITLE": "Submissions Management",
 			"PAGE_DESCRIPTION": "Track and manage your directory submissions.",
+			"NEW_SUBMISSION": "New Submission",
 			"FILTER_ALL": "All",
 			"FILTER_APPROVED": "Approved",
 			"FILTER_PENDING": "Pending",
@@ -3844,6 +3849,8 @@
 		"sponsorships": {
 			"PAGE_TITLE": "My Sponsorships",
 			"PAGE_DESCRIPTION": "Track and manage your sponsor ad submissions.",
+			"STATUS_FILTER": "Filter by status",
+			"INTERVAL_FILTER": "Filter by billing interval",
 			"YOUR_SPONSORSHIPS": "Your Sponsorships",
 			"NEW_SPONSORSHIP": "New Sponsorship",
 			"TOTAL_SPONSORSHIPS": "Total",

@@ -2,7 +2,10 @@ import { getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
 
-// Enable ISR with 10 minutes revalidation
+// Force dynamic — getCachedItems consults request-scoped APIs
+// during render. Static rendering throws DYNAMIC_SERVER_USAGE → 5xx
+// on the paging probes.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)

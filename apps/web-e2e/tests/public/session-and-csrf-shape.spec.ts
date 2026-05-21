@@ -9,8 +9,19 @@ test.describe('Auth session / CSRF wire contract', () => {
 		expect(resp.status()).toBe(200);
 		const ct = (resp.headers()['content-type'] || '').toLowerCase();
 		expect(ct).toContain('application/json');
-		const body = await resp.json().catch(() => null);
-		expect(body, 'session body parseable').not.toBeNull();
+		// NextAuth v5 returns the literal JSON value `null` for an
+		// anonymous request — that parses as JS null but is a valid
+		// JSON body. So we assert "the response body is parseable JSON
+		// (either null or an object)", not "the parsed value is non-null".
+		const raw = await resp.text();
+		let parsed: unknown;
+		try {
+			parsed = JSON.parse(raw);
+		} catch {
+			throw new Error(`session body is not valid JSON: ${raw.slice(0, 200)}`);
+		}
+		const ok = parsed === null || (typeof parsed === 'object' && parsed !== undefined);
+		expect(ok, `session body shape (got ${JSON.stringify(parsed)})`).toBe(true);
 	});
 
 	test('/api/auth/csrf returns a 64+ character token', async ({ request }) => {

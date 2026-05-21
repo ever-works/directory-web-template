@@ -6,7 +6,13 @@ import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
 
-// Enable ISR with 10 minutes revalidation
+// Force dynamic — the route reads `searchParams` (q / sort / tags /
+// categories) to filter & sort items server-side, and ISR was caching
+// /discover/1 without including searchParams in the cache key, so
+// `?sort=name-desc` was serving the default-order cached HTML. With
+// `force-dynamic` every searchParam combo is rendered fresh; the
+// catalogue itself stays cached via `getCachedItems`.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Searchable / sortable variants live at `?q=…&sort=…` — unbounded combos,
@@ -14,12 +20,21 @@ export const revalidate = 600;
 // searchParams stay statically generated / ISR cached. See Spec 020.
 export const dynamicParams = true;
 
+// Next.js delivers repeated query params as arrays (e.g. `?q=a&q=b` →
+// `q: ['a', 'b']`). Accept the wider shape and squash to a single string
+// at read time so downstream filter/sort code (typed for `string`) can't
+// trip on it.
 type SearchParams = {
-  q?: string;
-  sort?: string;
-  tags?: string;
-  categories?: string;
+  q?: string | string[];
+  sort?: string | string[];
+  tags?: string | string[];
+  categories?: string | string[];
 };
+
+function first(v: string | string[] | undefined): string | undefined {
+  if (Array.isArray(v)) return v[0];
+  return v;
+}
 
 export async function generateMetadata({
   params,
@@ -80,11 +95,11 @@ export default async function DiscoverListing({
   // gets its own cacheable URL. Default pages (no searchParams) stay
   // statically generated.
   const filtered = filterItems(allItems, {
-    searchTerm: sp.q,
-    selectedTags: parseCsv(sp.tags),
-    selectedCategories: parseCsv(sp.categories),
+    searchTerm: first(sp.q),
+    selectedTags: parseCsv(first(sp.tags)),
+    selectedCategories: parseCsv(first(sp.categories)),
   });
-  const sorted = sortItems(filtered, sp.sort);
+  const sorted = sortItems(filtered, first(sp.sort));
   const total = sorted.length;
   const pageItems = sorted.slice(start, start + PER_PAGE);
 

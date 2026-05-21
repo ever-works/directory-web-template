@@ -16,10 +16,13 @@ test.describe('Public HTML: og:image is an absolute URL', () => {
 			const response = await page.goto(path, { waitUntil: 'domcontentloaded' });
 			expect(response, path).not.toBeNull();
 			if (response!.status() >= 400) return;
-			const ogImage = await page
-				.locator('meta[property="og:image"]')
-				.first()
-				.getAttribute('content');
+			// Probe for existence before reading the attribute —
+			// `locator.getAttribute()` waits for the element by default
+			// and would time out at 30s on pages that legitimately don't
+			// emit og:image.
+			const ogLocator = page.locator('meta[property="og:image"]').first();
+			if ((await ogLocator.count()) === 0) return;
+			const ogImage = await ogLocator.getAttribute('content');
 			if (ogImage === null) return;
 			const trimmed = ogImage.trim();
 			expect(trimmed, `og:image non-empty on ${path}`).not.toBe('');

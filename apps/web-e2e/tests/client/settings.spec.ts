@@ -36,9 +36,13 @@ test.describe('Client: Settings', () => {
 
 		// Each block exposes an h3 heading via its own translated label.
 		// Match on role + name regex so the assertion is locale-tolerant for
-		// English fixtures and stable against unrelated copy changes.
+		// English fixtures and stable against unrelated copy changes. The
+		// width-toggle block ships with `CONTAINER_WIDTH = "Content Width"`
+		// in en.json, so the regex accepts either "container" or "content".
 		await expect(clientPage.getByRole('heading', { level: 3, name: /layout/i }).first()).toBeVisible();
-		await expect(clientPage.getByRole('heading', { level: 3, name: /container width/i }).first()).toBeVisible();
+		await expect(
+			clientPage.getByRole('heading', { level: 3, name: /(container|content) width/i }).first()
+		).toBeVisible();
 		await expect(clientPage.getByRole('heading', { level: 3, name: /pagination/i }).first()).toBeVisible();
 	});
 });
