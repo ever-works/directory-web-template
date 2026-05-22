@@ -78,10 +78,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 
 	const isBusy = isSubmitting || isSubmittingForm || isCreatingUser || isUpdatingUser;
 
-	const adminRoles = roles.filter((r) => r.status === 'active' && r.isAdmin);
-	const normalRoles = roles.filter((r) => r.status === 'active' && !r.isAdmin);
 	const selectedRoleData = roles.find((r) => r.id === formData.role);
-	const selectedCategory = selectedRoleData ? (selectedRoleData.isAdmin ? 'admin' : 'user') : null;
 
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
