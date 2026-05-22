@@ -78,8 +78,6 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 
 	const isBusy = isSubmitting || isSubmittingForm || isCreatingUser || isUpdatingUser;
 
-	const selectedRoleData = roles.find((r) => r.id === formData.role);
-
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (isSubmittingForm) return;
