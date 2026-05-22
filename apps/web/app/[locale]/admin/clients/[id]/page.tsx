@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
-import { getClientProfileById, getLastLoginActivity } from '@/lib/db/queries';
+import { getClientProfileById, getLastLoginActivity, listPortfolioProjectsForProfile, getProfileStats } from '@/lib/db/queries';
+import type { PortfolioItem } from '@/lib/types/profile';
 
 import { ClientDetailContent } from './client-detail-content';
 
@@ -20,8 +21,23 @@ export default async function ClientDetailPage({ params }: { params: Promise<Par
 		notFound();
 	}
 
-	const lastLogin = await getLastLoginActivity(profile.id, 'client');
 	const locale = paramLocale || 'en';
 
-	return <ClientDetailContent profile={profile} lastLogin={lastLogin} locale={locale} />;
+	const [lastLogin, portfolioRows, stats] = await Promise.all([
+		getLastLoginActivity(profile.id, 'client'),
+		listPortfolioProjectsForProfile(profile.id),
+		getProfileStats({ userId: profile.userId, clientProfileId: profile.id })
+	]);
+
+	const portfolio: PortfolioItem[] = portfolioRows.map((p) => ({
+		id: p.id,
+		title: p.title,
+		description: p.description ?? '',
+		imageUrl: p.imageUrl ?? '',
+		externalUrl: p.externalUrl ?? '',
+		tags: (p.tags ?? []) as string[],
+		isFeatured: !!p.isFeatured
+	}));
+
+	return <ClientDetailContent profile={profile} lastLogin={lastLogin} locale={locale} portfolio={portfolio} stats={stats} />;
 }
