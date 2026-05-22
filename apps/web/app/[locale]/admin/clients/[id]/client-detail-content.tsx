@@ -154,7 +154,7 @@ export function ClientDetailContent({ profile, lastLogin, locale, portfolio, sta
 						</Link>
 						<Link
 							href={`/${encodeURIComponent(locale)}/admin/clients?edit=${encodeURIComponent(profile.id)}`}
-							className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md bg-theme-primary-600 text-white hover:bg-theme-primary-700 transition-colors"
+							className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md bg-black  text-white dark:bg-white dark:text-black hover:bg-theme-primary-700 transition-colors"
 						>
 							<Edit className="w-3.5 h-3.5" aria-hidden="true" />
 							{t('EDIT_CLIENT')}
