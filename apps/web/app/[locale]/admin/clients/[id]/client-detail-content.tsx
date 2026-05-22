@@ -2,389 +2,66 @@
 
 import { type ClientProfile } from '@/lib/db/schema';
 import { Link } from '@/i18n/navigation';
-import { Button, Card, CardBody, Chip } from '@heroui/react';
 import {
 	ArrowLeft,
+	Edit,
 	Mail,
+	Shield,
+	CreditCard,
+	Clock,
 	User,
 	Building2,
 	Globe,
 	Phone,
 	MapPin,
-	Calendar,
-	Shield,
-	CreditCard,
-	Clock,
 	Languages,
-	Star,
-	ExternalLink,
-	Edit
+	ExternalLink
 } from 'lucide-react';
+import { Button, Chip } from '@heroui/react';
+import { Container } from '@/components/ui/container';
+import {
+	ProfilePanel,
+	ProfileStatsStrip,
+	AboutSection,
+	SkillsSection,
+	PortfolioSection
+} from '@/components/profile';
 import { getPlanColor, getStatusColor, toDateTime } from '../utils/client-helpers';
-
 import { useTranslations } from 'next-intl';
+import type { Profile, ProfileSkill, PortfolioItem } from '@/lib/types/profile';
+import type { ProfileStats } from '@/lib/db/queries/profile-stats.queries';
 
 interface ClientDetailContentProps {
 	profile: ClientProfile;
 	lastLogin: { timestamp: Date } | null;
 	locale: string;
+	portfolio: PortfolioItem[];
+	stats: ProfileStats;
 }
 
-export function ClientDetailContent({ profile, lastLogin, locale }: ClientDetailContentProps) {
-	const t = useTranslations('admin.ADMIN_CLIENT_DETAIL_PAGE');
+/* ─── helper components ─────────────────────────────────────────────────────── */
 
+function SectionCard({
+	icon,
+	title,
+	children
+}: {
+	icon: React.ReactNode;
+	title: string;
+	children: React.ReactNode;
+}) {
 	return (
-		<div className="min-h-screen bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a]">
-			{/* Modern Gradient Header */}
-			<div className="bg-linear-to-r from-white via-gray-50 to-white dark:from-[#0a0a0a] dark:via-[#0a0a0a] dark:to-[#0a0a0a] border-b border-gray-100 dark:border-white/6 shadow-lg">
-				<div className="max-w-7xl mx-auto px-6 py-8">
-					<div className="flex items-center justify-between mb-6">
-						<Link
-							href={`/${encodeURIComponent(locale)}/admin/clients`}
-							className="inline-flex items-center px-2 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white bg-white dark:bg-white/5 rounded-sm transition-colors"
-						>
-							<ArrowLeft aria-hidden="true" className="w-4 h-4 mr-1" />
-							{t('BACK_TO_CLIENTS')}
-						</Link>
-						<div className="flex items-center space-x-3">
-							<Link
-								href={`/${encodeURIComponent(locale)}/admin/clients?edit=${encodeURIComponent(profile.id)}`}
-								className="inline-flex items-center px-2 py-1 bg-linear-to-r from-theme-primary to-theme-accent text-white shadow-lg hover:shadow-xl rounded-sm transition-all duration-300"
-							>
-								<Edit aria-hidden="true" className="w-4 h-4 mr-1" />
-								{t('EDIT_CLIENT')}
-							</Link>
-						</div>
-					</div>
-
-					{/* Client Header Card */}
-					<div className="bg-white dark:bg-white/5 rounded-2xl shadow-xl border border-gray-100 dark:border-white/6 p-8">
-						<div className="flex flex-col lg:flex-row lg:items-start gap-6">
-							<div className="flex items-center space-x-6">
-								<div className="relative">
-									<div className="w-20 h-20 bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl">
-										<span className="text-2xl font-bold text-white">
-											{(profile.displayName || profile.username || 'U').charAt(0).toUpperCase()}
-										</span>
-									</div>
-									<div className="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 border-2 border-white dark:border-white/6 rounded-full flex items-center justify-center">
-										<div className="w-2 h-2 bg-white rounded-full"></div>
-									</div>
-								</div>
-								<div className="flex-1">
-									<div className="flex items-center space-x-3 mb-2">
-										<h1 className="text-3xl font-bold bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-											{profile.displayName || profile.username || 'Unnamed Client'}
-										</h1>
-										{profile.company && (
-											<span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium">
-												{profile.company}
-											</span>
-										)}
-									</div>
-									<div className="flex items-center space-x-4 mb-3">
-										<span className="text-gray-600 dark:text-gray-400 font-mono text-sm">
-											#{profile.id.slice(0, 8)}
-										</span>
-										<Chip
-											size="sm"
-											color={getStatusColor(profile.status || 'active')}
-											variant="flat"
-											className="shadow-xs"
-										>
-											{(profile.status || 'active').charAt(0).toUpperCase() +
-												(profile.status || 'active').slice(1)}
-										</Chip>
-										<Chip
-											size="sm"
-											color={getPlanColor(profile.plan || 'free')}
-											variant="flat"
-											className="shadow-xs"
-										>
-											{(profile.plan || 'free').charAt(0).toUpperCase() +
-												(profile.plan || 'free').slice(1)}
-										</Chip>
-									</div>
-									{profile.jobTitle && (
-										<p className="text-gray-600 dark:text-gray-400 mb-2">{profile.jobTitle}</p>
-									)}
-									<div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-										<div className="flex items-center space-x-2">
-											<Calendar aria-hidden="true" className="w-4 h-4" />
-											<span>
-												{t('JOINED')} {toDateTime(profile.createdAt, locale)}
-											</span>
-										</div>
-										<div className="flex items-center space-x-2">
-											<Star aria-hidden="true" className="w-4 h-4" />
-											<span>
-												{profile.totalSubmissions || 0} {t('SUBMISSIONS')}
-											</span>
-										</div>
-										<div className="flex items-center space-x-2">
-											<Clock aria-hidden="true" className="w-4 h-4" />
-											<span>
-												{t('LAST_LOGIN')}{' '}
-												{lastLogin ? toDateTime(lastLogin.timestamp, locale) : 'Never'}
-											</span>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+		<div className="rounded-2xl border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 shadow-sm overflow-hidden">
+			<div className="px-5 py-4 border-b border-neutral-100 dark:border-white/6 flex items-center gap-2.5">
+				{icon}
+				<h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{title}</h2>
 			</div>
-
-			{/* Content Area */}
-			<div className="max-w-7xl mx-auto px-6 py-8">
-				<div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-					{/* Main Content */}
-					<div className="lg:col-span-2 space-y-8">
-						{/* Profile Information */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/4 backdrop-blur-xs">
-							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
-									<div className="flex items-center space-x-3">
-										<User aria-hidden="true" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-										<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-											{t('PROFILE_INFORMATION')}
-										</h2>
-									</div>
-								</div>
-								<div className="p-6">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-										<ModernField
-											icon={<User aria-hidden="true" className="w-4 h-4 text-blue-500" />}
-											label={t('DISPLAY_NAME')}
-											value={profile.displayName || 'Not provided'}
-										/>
-										<ModernField
-											icon={<User aria-hidden="true" className="w-4 h-4 text-green-500" />}
-											label={t('USERNAME')}
-											value={profile.username ? `@${profile.username}` : 'Not set'}
-										/>
-										<ModernField
-											icon={<Building2 aria-hidden="true" className="w-4 h-4 text-purple-500" />}
-											label={t('COMPANY')}
-											value={profile.company || 'Not provided'}
-										/>
-										<ModernField
-											icon={<Building2 aria-hidden="true" className="w-4 h-4 text-orange-500" />}
-											label={t('JOB_TITLE')}
-											value={profile.jobTitle || 'Not provided'}
-										/>
-										<ModernField
-											icon={<Shield aria-hidden="true" className="w-4 h-4 text-indigo-500" />}
-											label={t('ACCOUNT_TYPE')}
-											value={
-												(profile.accountType || 'individual').charAt(0).toUpperCase() +
-												(profile.accountType || 'individual').slice(1)
-											}
-										/>
-										<ModernField
-											icon={<CreditCard aria-hidden="true" className="w-4 h-4 text-pink-500" />}
-											label={t('SUBSCRIPTION_PLAN')}
-											value={
-												(profile.plan || 'free').charAt(0).toUpperCase() +
-												(profile.plan || 'free').slice(1)
-											}
-										/>
-									</div>
-									{profile.bio && (
-										<div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/6">
-											<div className="flex items-center space-x-2 mb-3">
-												<User
-													aria-hidden="true"
-													className="w-4 h-4 text-gray-600 dark:text-gray-400"
-												/>
-												<span className="text-sm font-medium text-gray-900 dark:text-white">
-													{t('BIO')}
-												</span>
-											</div>
-											<div className="bg-linear-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 border border-blue-100 dark:border-blue-800">
-												<p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-													{profile.bio}
-												</p>
-											</div>
-										</div>
-									)}
-								</div>
-							</CardBody>
-						</Card>
-
-						{/* Contact Information */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/4 backdrop-blur-xs">
-							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
-									<div className="flex items-center space-x-3">
-										<Mail
-											aria-hidden="true"
-											className="w-5 h-5 text-green-600 dark:text-green-400"
-										/>
-										<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-											{t('CONTACT_DETAILS')}
-										</h2>
-									</div>
-								</div>
-								<div className="p-6">
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-										<ModernField
-											icon={<Phone aria-hidden="true" className="w-4 h-4 text-green-500" />}
-											label={t('PHONE')}
-											value={profile.phone || 'Not provided'}
-										/>
-										<ModernField
-											icon={<Globe aria-hidden="true" className="w-4 h-4 text-blue-500" />}
-											label={t('WEBSITE')}
-											value={profile.website || 'Not provided'}
-											isLink={!!profile.website}
-										/>
-										<ModernField
-											icon={<MapPin aria-hidden="true" className="w-4 h-4 text-red-500" />}
-											label={t('LOCATION')}
-											value={profile.location || 'Not provided'}
-										/>
-										<ModernField
-											icon={<Building2 aria-hidden="true" className="w-4 h-4 text-purple-500" />}
-											label={t('INDUSTRY')}
-											value={profile.industry || 'Not specified'}
-										/>
-										<ModernField
-											icon={<Languages aria-hidden="true" className="w-4 h-4 text-orange-500" />}
-											label={t('LANGUAGE')}
-											value={profile.language?.toUpperCase() || 'EN'}
-										/>
-										<ModernField
-											icon={<Clock aria-hidden="true" className="w-4 h-4 text-indigo-500" />}
-											label={t('TIMEZONE')}
-											value={profile.timezone || 'UTC'}
-										/>
-									</div>
-								</div>
-							</CardBody>
-						</Card>
-					</div>
-
-					{/* Sidebar */}
-					<div className="space-y-8">
-						{/* Account Status */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/4 backdrop-blur-xs">
-							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
-									<div className="flex items-center space-x-3">
-										<Shield
-											aria-hidden="true"
-											className="w-5 h-5 text-purple-600 dark:text-purple-400"
-										/>
-										<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-											{t('SECURITY_STATUS')}
-										</h2>
-									</div>
-								</div>
-								<div className="p-6 space-y-4">
-									<div className="flex items-center justify-between p-4 bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-100 dark:border-green-800">
-										<div className="flex items-center space-x-3">
-											<Mail
-												aria-hidden="true"
-												className="w-5 h-5 text-green-600 dark:text-green-400"
-											/>
-											<span className="font-medium text-gray-900 dark:text-white">
-												{t('EMAIL_VERIFIED')}
-											</span>
-										</div>
-										<Chip
-											size="sm"
-											color={profile.emailVerified ? 'success' : 'danger'}
-											variant="flat"
-											className="shadow-xs"
-										>
-											{profile.emailVerified ? 'Verified' : 'Unverified'}
-										</Chip>
-									</div>
-									<div className="flex items-center justify-between p-4 bg-linear-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
-										<div className="flex items-center space-x-3">
-											<Shield
-												aria-hidden="true"
-												className="w-5 h-5 text-blue-600 dark:text-blue-400"
-											/>
-											<span className="font-medium text-gray-900 dark:text-white">
-												{t('TWO_FACTOR_AUTH')}
-											</span>
-										</div>
-										<Chip
-											size="sm"
-											color={profile.twoFactorEnabled ? 'success' : 'default'}
-											variant="flat"
-											className="shadow-xs"
-										>
-											{profile.twoFactorEnabled ? t('ENABLED') : t('DISABLED')}
-										</Chip>
-									</div>
-									<div className="pt-4 border-t border-gray-100 dark:border-white/6">
-										<div className="text-center">
-											<div className="p-4 bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg">
-												<div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-													{profile.totalSubmissions || 0}
-												</div>
-												<div className="text-sm text-gray-600 dark:text-gray-400">
-													{t('SUBMISSIONS')}
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</CardBody>
-						</Card>
-
-						{/* Billing & Subscription */}
-						<Card className="border-0 shadow-xl bg-white/80 dark:bg-white/4 backdrop-blur-xs">
-							<CardBody className="p-0">
-								<div className="px-6 py-4 border-b border-gray-100 dark:border-white/6 bg-linear-to-r from-gray-50 to-white dark:from-[#0a0a0a] dark:to-[#0a0a0a]">
-									<div className="flex items-center space-x-3">
-										<CreditCard
-											aria-hidden="true"
-											className="w-5 h-5 text-green-600 dark:text-green-400"
-										/>
-										<h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-											{t('BILLING_PLANS')}
-										</h2>
-									</div>
-								</div>
-								<div className="p-6">
-									<div className="text-center py-8">
-										<div className="w-16 h-16 bg-linear-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-											<CreditCard
-												aria-hidden="true"
-												className="w-8 h-8 text-green-600 dark:text-green-400"
-											/>
-										</div>
-										<h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-											{t('NO_BILLING_SETUP')}
-										</h3>
-										<p className="text-gray-500 dark:text-gray-400 mb-4 text-sm">
-											Payment and subscription details will appear here once configured.
-										</p>
-										<Button
-											color="primary"
-											variant="flat"
-											size="sm"
-											className="bg-linear-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transition-all duration-300"
-										>
-											{t('SET_UP_BILLING')}
-										</Button>
-									</div>
-								</div>
-							</CardBody>
-						</Card>
-					</div>
-				</div>
-			</div>
+			{children}
 		</div>
 	);
 }
 
-export function ModernField({
+function InfoField({
 	icon,
 	label,
 	value,
@@ -396,26 +73,384 @@ export function ModernField({
 	isLink?: boolean;
 }) {
 	return (
-		<div className="p-4 bg-linear-to-r from-gray-50/50 to-white/50 dark:from-[#0a0a0a]/50 dark:to-[#0a0a0a]/50 rounded-xl border border-gray-100 dark:border-white/6 hover:shadow-md transition-all duration-200">
-			<div className="flex items-center space-x-3 mb-2">
-				{icon}
-				<span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
+		<div className="p-3.5 rounded-xl bg-neutral-50 dark:bg-white/3 border border-neutral-100 dark:border-white/6 hover:border-neutral-200 dark:hover:border-white/10 transition-colors">
+			<div className="flex items-center gap-2 mb-1.5">
+				<span className="text-neutral-400 dark:text-neutral-500">{icon}</span>
+				<span className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+					{label}
+				</span>
 			</div>
-			<div className="text-gray-900 dark:text-white font-medium">
-				{isLink && value && value !== 'Not provided' ? (
+			<div className="text-sm font-medium text-neutral-900 dark:text-neutral-100 pl-0.5">
+				{isLink && value && value !== '—' ? (
 					<a
 						href={/^https?:\/\//i.test(value) || value.startsWith('mailto:') ? value : `https://${value}`}
 						target="_blank"
 						rel="noopener noreferrer"
-						className="text-blue-600 dark:text-blue-400 hover:underline flex items-center space-x-1"
+						className="text-theme-primary-600 dark:text-theme-primary-400 hover:underline inline-flex items-center gap-1"
 					>
-						<span>{value}</span>
-						<ExternalLink aria-hidden="true" className="w-3 h-3" />
+						{value}
+						<ExternalLink className="w-3 h-3" />
 					</a>
 				) : (
-					value || '—'
+					<span className={!value ? 'text-neutral-400 dark:text-neutral-500' : ''}>{value || '—'}</span>
 				)}
 			</div>
+		</div>
+	);
+}
+
+/* ─── main component ─────────────────────────────────────────────────────────── */
+
+export function ClientDetailContent({ profile, lastLogin, locale, portfolio, stats }: ClientDetailContentProps) {
+	const t = useTranslations('admin.ADMIN_CLIENT_DETAIL_PAGE');
+	const tProfile = useTranslations('profile');
+
+	const rawSkills = (profile.skills ?? []) as Array<{ name?: unknown; category?: unknown; proficiency?: unknown }>;
+	const skills: ProfileSkill[] = rawSkills
+		.filter((s) => typeof s?.name === 'string' && (s.name as string).trim().length > 0)
+		.map((s) => ({
+			name: String(s.name),
+			category: typeof s.category === 'string' ? s.category : 'Other',
+			proficiency: typeof s.proficiency === 'number' ? s.proficiency : 0
+		}));
+
+	const interests = (profile.interests ?? '')
+		.split(',')
+		.map((part) => part.trim())
+		.filter(Boolean);
+
+	const profileData: Profile = {
+		username: profile.username || 'user',
+		displayName: profile.displayName || profile.name || 'User',
+		bio: profile.bio || '',
+		avatar: profile.avatar || '',
+		location: profile.location || '',
+		company: profile.company || '',
+		jobTitle: profile.jobTitle || '',
+		skills,
+		interests,
+		website: profile.website || '',
+		socialLinks: [],
+		portfolio,
+		themeColor: '#3B82F6',
+		coverColor: profile.coverColor || '',
+		isPublic: profile.profileVisibility !== 'private',
+		memberSince: profile.createdAt?.toISOString().split('T')[0] || '2024-01-01',
+		submissions: []
+	};
+
+	return (
+		<div className="min-h-screen">
+			<Container maxWidth="7xl" padding="default" useGlobalWidth>
+				<div className="space-y-6">
+					{/* Admin navigation header */}
+					<div className="flex items-center justify-between gap-3">
+						<Link
+							href={`/${encodeURIComponent(locale)}/admin/clients`}
+							className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+						>
+							<ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
+							{t('BACK_TO_CLIENTS')}
+						</Link>
+						<Link
+							href={`/${encodeURIComponent(locale)}/admin/clients?edit=${encodeURIComponent(profile.id)}`}
+							className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md bg-theme-primary-600 text-white hover:bg-theme-primary-700 transition-colors"
+						>
+							<Edit className="w-3.5 h-3.5" aria-hidden="true" />
+							{t('EDIT_CLIENT')}
+						</Link>
+					</div>
+
+					{/* 2-column layout */}
+					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+						{/* ── Left column ─────────────────────────────── */}
+						<aside className="lg:col-span-4 xl:col-span-3 space-y-6 lg:sticky lg:top-6 lg:self-start">
+							<ProfilePanel
+								profile={profileData}
+								isOwn={false}
+								isAuthenticated={false}
+								initialIsFollowing={false}
+								verified={!!profile.emailVerified}
+								stats={{
+									favorites: stats.favorites,
+									portfolio: stats.portfolio,
+									followers: stats.followers,
+									following: stats.following
+								}}
+								hideActions
+							/>
+
+							{/* ── Security & Account Status ── */}
+							<div className="rounded-xl border border-neutral-200 dark:border-white/8 bg-white dark:bg-white/3 overflow-hidden">
+								{/* Header */}
+								<div className="px-4 py-3 border-b border-neutral-100 dark:border-white/6 flex items-center gap-2">
+									<div className="p-1 rounded-md bg-theme-primary-50 dark:bg-theme-primary-500/10">
+										<Shield
+											className="w-3.5 h-3.5 text-theme-primary-600 dark:text-theme-primary-400"
+											aria-hidden="true"
+										/>
+									</div>
+									<h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+										{t('SECURITY_STATUS')}
+									</h2>
+								</div>
+								<div className="divide-y divide-neutral-100 dark:divide-white/5">
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('EMAIL_VERIFIED')}</span>
+										<Chip size="sm" color={profile.emailVerified ? 'success' : 'danger'} variant="flat">
+											{profile.emailVerified ? 'Verified' : 'Unverified'}
+										</Chip>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('TWO_FACTOR_AUTH')}</span>
+										<Chip size="sm" color={profile.twoFactorEnabled ? 'success' : 'default'} variant="flat">
+											{profile.twoFactorEnabled ? t('ENABLED') : t('DISABLED')}
+										</Chip>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">Account Status</span>
+										<Chip size="sm" color={getStatusColor(profile.status || 'active')} variant="flat">
+											{(profile.status || 'active').charAt(0).toUpperCase() +
+												(profile.status || 'active').slice(1)}
+										</Chip>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('SUBSCRIPTION_PLAN')}</span>
+										<Chip size="sm" color={getPlanColor(profile.plan || 'free')} variant="flat">
+											{(profile.plan || 'free').charAt(0).toUpperCase() +
+												(profile.plan || 'free').slice(1)}
+										</Chip>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('SUBMISSIONS')}</span>
+										<span className="text-xs font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+											{profile.totalSubmissions ?? 0}
+										</span>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('LAST_LOGIN')}</span>
+										<span className="text-xs text-neutral-700 dark:text-neutral-300">
+											{lastLogin ? toDateTime(lastLogin.timestamp, locale) : '—'}
+										</span>
+									</div>
+									<div className="flex items-center justify-between px-4 py-2.5">
+										<span className="text-xs text-neutral-500 dark:text-neutral-400">{t('JOINED')}</span>
+										<span className="text-xs text-neutral-700 dark:text-neutral-300">
+											{toDateTime(profile.createdAt, locale)}
+										</span>
+									</div>
+								</div>
+							</div>
+
+							{/* ── Billing & Subscription ── */}
+							<SectionCard
+								icon={
+									<div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-white/8">
+										<CreditCard
+											className="w-4 h-4 text-neutral-500 dark:text-neutral-400"
+											aria-hidden="true"
+										/>
+									</div>
+								}
+								title={t('BILLING_PLANS')}
+							>
+								<div className="p-6 text-center">
+									<div className="w-12 h-12 bg-neutral-100 dark:bg-white/8 rounded-2xl flex items-center justify-center mx-auto mb-3">
+										<CreditCard
+											className="w-6 h-6 text-neutral-500 dark:text-neutral-400"
+											aria-hidden="true"
+										/>
+									</div>
+									<h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+										{t('NO_BILLING_SETUP')}
+									</h3>
+									<p className="text-xs text-neutral-500 dark:text-neutral-400 mb-4 leading-relaxed">
+										Payment and subscription details will appear here once configured.
+									</p>
+									<Button color="primary" variant="flat" size="sm">
+										{t('SET_UP_BILLING')}
+									</Button>
+								</div>
+							</SectionCard>
+						</aside>
+
+						{/* ── Right column ─────────────────────────────── */}
+						<main className="lg:col-span-8 xl:col-span-9 space-y-6 min-w-0">
+							{/* Stats strips */}
+							<ProfileStatsStrip
+								stats={{
+									comments: stats.comments,
+									favorites: stats.favorites,
+									portfolio: stats.portfolio,
+									followers: stats.followers,
+									following: stats.following,
+									submissions: profile.totalSubmissions ?? 0
+								}}
+								username={profileData.username}
+								variant="headline"
+							/>
+							<ProfileStatsStrip
+								stats={{
+									comments: stats.comments,
+									favorites: stats.favorites,
+									portfolio: stats.portfolio,
+									followers: stats.followers,
+									following: stats.following,
+									submissions: profile.totalSubmissions ?? 0
+								}}
+								username={profileData.username}
+								variant="compact"
+							/>
+
+							{/* ── Profile Information ── */}
+							<SectionCard
+								icon={
+									<div className="p-1.5 rounded-lg bg-theme-primary-50 dark:bg-theme-primary-500/10">
+										<User
+											className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400"
+											aria-hidden="true"
+										/>
+									</div>
+								}
+								title={t('PROFILE_INFORMATION')}
+							>
+								<div className="p-5">
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+										<InfoField
+											icon={<User className="w-3.5 h-3.5" />}
+											label={t('DISPLAY_NAME')}
+											value={profile.displayName || '—'}
+										/>
+										<InfoField
+											icon={<User className="w-3.5 h-3.5" />}
+											label={t('USERNAME')}
+											value={profile.username ? `@${profile.username}` : '—'}
+										/>
+										<InfoField
+											icon={<Building2 className="w-3.5 h-3.5" />}
+											label={t('COMPANY')}
+											value={profile.company || '—'}
+										/>
+										<InfoField
+											icon={<Building2 className="w-3.5 h-3.5" />}
+											label={t('JOB_TITLE')}
+											value={profile.jobTitle || '—'}
+										/>
+										<InfoField
+											icon={<Shield className="w-3.5 h-3.5" />}
+											label={t('ACCOUNT_TYPE')}
+											value={
+												(profile.accountType || 'individual').charAt(0).toUpperCase() +
+												(profile.accountType || 'individual').slice(1)
+											}
+										/>
+										<InfoField
+											icon={<CreditCard className="w-3.5 h-3.5" />}
+											label={t('SUBSCRIPTION_PLAN')}
+											value={
+												(profile.plan || 'free').charAt(0).toUpperCase() +
+												(profile.plan || 'free').slice(1)
+											}
+										/>
+									</div>
+									{profile.bio && (
+										<div className="mt-4 pt-4 border-t border-neutral-100 dark:border-white/6">
+											<p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-2">
+												{t('BIO')}
+											</p>
+											<p className="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed p-3 rounded-xl bg-neutral-50 dark:bg-white/3 border border-neutral-100 dark:border-white/6">
+												{profile.bio}
+											</p>
+										</div>
+									)}
+								</div>
+							</SectionCard>
+
+							{/* ── Contact Details ── */}
+							<SectionCard
+								icon={
+									<div className="p-1.5 rounded-lg bg-theme-primary-50 dark:bg-theme-primary-500/10">
+										<Mail
+											className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400"
+											aria-hidden="true"
+										/>
+									</div>
+								}
+								title={t('CONTACT_DETAILS')}
+							>
+								<div className="p-5">
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+										<InfoField
+											icon={<Phone className="w-3.5 h-3.5" />}
+											label={t('PHONE')}
+											value={profile.phone || '—'}
+										/>
+										<InfoField
+											icon={<Globe className="w-3.5 h-3.5" />}
+											label={t('WEBSITE')}
+											value={profile.website || '—'}
+											isLink={!!profile.website}
+										/>
+										<InfoField
+											icon={<MapPin className="w-3.5 h-3.5" />}
+											label={t('LOCATION')}
+											value={profile.location || '—'}
+										/>
+										<InfoField
+											icon={<Building2 className="w-3.5 h-3.5" />}
+											label={t('INDUSTRY')}
+											value={profile.industry || '—'}
+										/>
+										<InfoField
+											icon={<Languages className="w-3.5 h-3.5" />}
+											label={t('LANGUAGE')}
+											value={profile.language?.toUpperCase() || 'EN'}
+										/>
+										<InfoField
+											icon={<Clock className="w-3.5 h-3.5" />}
+											label={t('TIMEZONE')}
+											value={profile.timezone || 'UTC'}
+										/>
+									</div>
+								</div>
+							</SectionCard>
+
+							{/* ── About (bio + interests) ── */}
+							<section aria-labelledby="about-heading" className="space-y-4">
+								<h2
+									id="about-heading"
+									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+								>
+									{tProfile('ABOUT_SECTION')}
+								</h2>
+								<AboutSection profile={profileData} isOwn={false} />
+							</section>
+
+							{/* ── Skills ── */}
+							<section aria-labelledby="skills-heading" className="space-y-4">
+								<h2
+									id="skills-heading"
+									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+								>
+									{tProfile('SKILLS_EXPERTISE_SECTION')}
+								</h2>
+								<SkillsSection profile={profileData} />
+							</section>
+
+							{/* ── Portfolio ── */}
+							<section aria-labelledby="portfolio-heading" className="space-y-4">
+								<h2
+									id="portfolio-heading"
+									className="text-lg font-semibold text-gray-900 dark:text-gray-100"
+								>
+									{tProfile('PORTFOLIO_SECTION')}
+								</h2>
+								<PortfolioSection profile={profileData} />
+							</section>
+						</main>
+					</div>
+				</div>
+			</Container>
 		</div>
 	);
 }
