@@ -2117,6 +2117,10 @@
 			"USERNAME_TAKEN": "Tên người dùng đã được sử dụng",
 			"EMAIL_AVAILABLE": "Email có sẵn",
 			"EMAIL_TAKEN": "Email đã được sử dụng",
+			"CLOSE": "Đóng",
+			"NO_TITLE_SET": "Chưa có chức danh",
+			"VIEW_PROFILE": "Xem hồ sơ",
+			"MEMBER_SINCE": "Thành viên từ",
 			"ERRORS": {
 				"SELECT_ROLE": "Vui lòng chọn một vai trò",
 				"USERNAME_TAKEN": "Tên người dùng đã được sử dụng",

@@ -2117,6 +2117,10 @@
 			"USERNAME_TAKEN": "Kullanıcı adı zaten alınmış",
 			"EMAIL_AVAILABLE": "E-posta müsait",
 			"EMAIL_TAKEN": "E-posta zaten alınmış",
+			"CLOSE": "Kapat",
+			"NO_TITLE_SET": "Unvan belirtilmemiş",
+			"VIEW_PROFILE": "Profili görüntüle",
+			"MEMBER_SINCE": "Üye tarihi",
 			"ERRORS": {
 				"SELECT_ROLE": "Lütfen bir rol seçin",
 				"USERNAME_TAKEN": "Kullanıcı adı zaten alınmış",

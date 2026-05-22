@@ -1,13 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useCreateUser, useUpdateUser, useCheckUsername, useCheckEmail } from '@/hooks/use-users';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useCreateUser, useUpdateUser } from '@/hooks/use-users';
 import { useActiveRoles } from '@/hooks/use-active-roles';
 import { UserData, CreateUserRequest, UpdateUserRequest } from '@/lib/types/user';
 import { toast } from 'sonner';
-import { Eye, EyeOff, Loader2, Save, X, Users } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Eye, EyeOff, Loader2, Save, X, Users, ChevronDown, Check, ShieldCheck, UserCircle, Mail, Calendar, ExternalLink } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { Avatar } from '@/components/header/avatar';
 
 interface UserFormProps {
 	user?: UserData;
@@ -25,29 +28,27 @@ const INPUT_BASE = cn(
 	'transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed'
 );
 
-const SELECT_BASE = cn(INPUT_BASE, 'appearance-none');
+const DROPDOWN_TRIGGER = cn(
+	INPUT_BASE,
+	'flex items-center justify-between cursor-pointer'
+);
 
 export default function UserForm({ user, onSuccess, isSubmitting = false, onCancel }: UserFormProps) {
 	const t = useTranslations('admin.USER_FORM');
+	const locale = useLocale();
 
 	const createUserMutation = useCreateUser();
 	const updateUserMutation = useUpdateUser();
-	const checkUsernameMutation = useCheckUsername();
-	const checkEmailMutation = useCheckEmail();
 
 	const isCreatingUser = createUserMutation.isPending;
 	const isUpdatingUser = updateUserMutation.isPending;
 	const { roles, loading: rolesLoading, getActiveRoles } = useActiveRoles();
 
 	const [showPassword, setShowPassword] = useState(false);
-	const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-	const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
-	const [checkingUsername, setCheckingUsername] = useState(false);
-	const [checkingEmail, setCheckingEmail] = useState(false);
 	const [isSubmittingForm, setIsSubmittingForm] = useState(false);
+	const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+	const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
-	const initialEmail = user?.email || '';
-	const initialUsername = user?.username || '';
 	const isEditing = !!user;
 
 	useEffect(() => {
@@ -57,13 +58,14 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 	}, [getActiveRoles]);
 
 	const [formData, setFormData] = useState({
-		username: user?.username || '',
-		email: user?.email || '',
-		name: user?.name || '',
-		title: user?.title || '',
-		avatar: user?.avatar || '',
 		role: user?.role || '',
 		status: user?.status || 'active',
+		// create-only fields
+		username: '',
+		email: '',
+		name: '',
+		title: '',
+		avatar: '',
 		password: '',
 	});
 
@@ -71,55 +73,23 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 		setFormData((prev) => ({ ...prev, [field]: value }));
 	};
 
-	useEffect(() => {
-		const check = async () => {
-			if (isEditing && formData.username === initialUsername) { setUsernameAvailable(null); return; }
-			if (!formData.username || formData.username.length < 3) { setUsernameAvailable(null); return; }
-			setCheckingUsername(true);
-			try {
-				const result = await checkUsernameMutation.mutateAsync({ username: formData.username, excludeId: user?.id });
-				setUsernameAvailable(result);
-			} catch { setUsernameAvailable(null); }
-			finally { setCheckingUsername(false); }
-		};
-		const id = setTimeout(check, 500);
-		return () => clearTimeout(id);
-	}, [formData.username, user?.id, checkUsernameMutation, isEditing, initialUsername]);
-
-	useEffect(() => {
-		const check = async () => {
-			if (isEditing && formData.email === initialEmail) { setEmailAvailable(null); return; }
-			if (!formData.email || !formData.email.includes('@')) { setEmailAvailable(null); return; }
-			setCheckingEmail(true);
-			try {
-				const result = await checkEmailMutation.mutateAsync({ email: formData.email, excludeId: user?.id });
-				setEmailAvailable(result);
-			} catch { setEmailAvailable(null); }
-			finally { setCheckingEmail(false); }
-		};
-		const id = setTimeout(check, 500);
-		return () => clearTimeout(id);
-	}, [formData.email, user?.id, checkEmailMutation, isEditing, initialEmail]);
-
 	const isBusy = isSubmitting || isSubmittingForm || isCreatingUser || isUpdatingUser;
+
+	const adminRoles = roles.filter((r) => r.status === 'active' && r.isAdmin);
+	const normalRoles = roles.filter((r) => r.status === 'active' && !r.isAdmin);
+	const selectedRoleData = roles.find((r) => r.id === formData.role);
+	const selectedCategory = selectedRoleData ? (selectedRoleData.isAdmin ? 'admin' : 'user') : null;
 
 	const onSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		if (isSubmittingForm) return;
 		if (!formData.role) { toast.error(t('ERRORS.SELECT_ROLE')); return; }
-		if (isEditing) {
-			if (formData.username !== initialUsername && usernameAvailable === false) { toast.error(t('ERRORS.USERNAME_TAKEN')); return; }
-			if (formData.email !== initialEmail && emailAvailable === false) { toast.error(t('ERRORS.EMAIL_TAKEN')); return; }
-		} else {
-			if (usernameAvailable === false) { toast.error(t('ERRORS.USERNAME_TAKEN')); return; }
-			if (emailAvailable === false) { toast.error(t('ERRORS.EMAIL_TAKEN')); return; }
-		}
 		setIsSubmittingForm(true);
 		try {
 			if (isEditing) {
 				const updateData: UpdateUserRequest = {
-					username: formData.username, email: formData.email, name: formData.name,
-					title: formData.title, avatar: formData.avatar, role: formData.role, status: formData.status,
+					role: formData.role,
+					status: formData.status,
 				};
 				await updateUserMutation.mutateAsync({ id: user.id, userData: updateData });
 				onSuccess(updateData);
@@ -139,12 +109,10 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 		}
 	};
 
-	const initials = formData.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() || 'U';
-
 	return (
-		<div className="bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl overflow-hidden shadow-2xl shadow-black/20">
+		<div className="bg-white dark:bg-[#121212] border border-gray-100 dark:border-white/8 rounded-2xl shadow-2xl shadow-black/20">
 			{/* Header */}
-			<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
+			<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/8 bg-gray-50/60 dark:bg-white/1.5 rounded-t-2xl flex items-center justify-between">
 				<div className="flex items-center gap-3">
 					<div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-white/8 flex items-center justify-center shrink-0">
 						<Users className="w-4 h-4 text-gray-500 dark:text-gray-400" />
@@ -163,7 +131,7 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 						type="button"
 						onClick={onCancel}
 						disabled={isBusy}
-						aria-label="Close"
+						aria-label={t('CLOSE')}
 						className="w-8 h-8 inline-flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:text-gray-300 dark:hover:bg-white/8 transition-colors disabled:opacity-50"
 					>
 						<X className="w-4 h-4" />
@@ -172,106 +140,61 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 			</div>
 
 			<form onSubmit={onSubmit} className="p-5 space-y-5">
-				{/* Avatar row */}
-				<div className="flex items-center gap-4">
-					<div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-white/8 flex items-center justify-center text-gray-600 dark:text-gray-300 text-lg font-semibold shrink-0 border border-gray-200 dark:border-white/8">
-						{initials}
-					</div>
-					<div className="flex-1">
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('AVATAR_URL')}</label>
-						<input
-							type="text"
-							placeholder={t('AVATAR_PLACEHOLDER')}
-							value={formData.avatar}
-							onChange={(e) => handleInputChange('avatar', e.target.value)}
-							disabled={isBusy}
-							className={INPUT_BASE}
-						/>
-					</div>
-				</div>
-
-				{/* Name + Title */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-							{t('FULL_NAME')} <span className="text-red-500">*</span>
-						</label>
-						<input
-							type="text"
-							placeholder={t('FULL_NAME_PLACEHOLDER')}
-							value={formData.name}
-							onChange={(e) => handleInputChange('name', e.target.value)}
-							disabled={isBusy}
-							required
-							className={INPUT_BASE}
-						/>
-					</div>
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">{t('TITLE_FIELD')}</label>
-						<input
-							type="text"
-							placeholder={t('TITLE_PLACEHOLDER')}
-							value={formData.title}
-							onChange={(e) => handleInputChange('title', e.target.value)}
-							disabled={isBusy}
-							className={INPUT_BASE}
-						/>
-					</div>
-				</div>
-
-				{/* Username + Email */}
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-							{t('USERNAME')} <span className="text-red-500">*</span>
-						</label>
-						<div className="relative">
-							<input
-								type="text"
-								placeholder={t('USERNAME_PLACEHOLDER')}
-								value={formData.username}
-								onChange={(e) => handleInputChange('username', e.target.value)}
-								disabled={isBusy}
-								required
-								className={INPUT_BASE}
+				{/* User identity card (edit mode) — LinkedIn-style */}
+				{isEditing && (
+					<div className="rounded-xl border border-gray-100 dark:border-white/6 bg-gray-50 dark:bg-white/4 overflow-hidden">
+						<div className="p-4 flex gap-3.5 items-start">
+							<Avatar
+								src={user.avatar}
+								alt={user.name || user.email || ''}
+								fallback={(user.name?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase()}
+								size="lg"
 							/>
-							{checkingUsername && (
-								<Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-gray-400" />
-							)}
+							<div className="min-w-0 flex-1">
+								<div className="flex items-start justify-between gap-2">
+									<div className="min-w-0">
+										<p className="text-sm font-semibold text-gray-900 dark:text-white truncate leading-tight">
+											{user.name || '—'}
+										</p>
+										{user.title ? (
+											<p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user.title}</p>
+										) : (
+											<p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 italic">{t('NO_TITLE_SET')}</p>
+										)}
+									</div>
+									<Link
+										href={`/${locale}/client/profile/${user.username}`}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white dark:bg-white/8 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/12 transition-colors shrink-0"
+									>
+										<UserCircle className="w-3 h-3" />
+										{t('VIEW_PROFILE')}
+										<ExternalLink className="w-3 h-3" />
+									</Link>
+								</div>
+
+								<div className="mt-2.5 flex flex-col gap-1.5">
+									<span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+										<Mail className="w-3 h-3 shrink-0" />
+										{user.email}
+									</span>
+									{(user.roleName || user.role) && (
+										<span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+											<ShieldCheck className="w-3 h-3 shrink-0" />
+											{user.roleName || user.role}
+										</span>
+									)}
+									<span className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+										<Calendar className="w-3 h-3 shrink-0" />
+										{t('MEMBER_SINCE')}{' '}
+										{new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+									</span>
+								</div>
+							</div>
 						</div>
-						{usernameAvailable === true && (
-							<p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('USERNAME_AVAILABLE')}</p>
-						)}
-						{usernameAvailable === false && (
-							<p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('USERNAME_TAKEN')}</p>
-						)}
 					</div>
-					<div>
-						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-							{t('EMAIL')} <span className="text-red-500">*</span>
-						</label>
-						<div className="relative">
-							<input
-								type="email"
-								placeholder={t('EMAIL_PLACEHOLDER')}
-								value={formData.email}
-								onChange={(e) => handleInputChange('email', e.target.value)}
-								disabled={isBusy}
-								required
-								className={INPUT_BASE}
-							/>
-							{checkingEmail && (
-								<Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 animate-spin text-gray-400" />
-							)}
-						</div>
-						{emailAvailable === true && (
-							<p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">{t('EMAIL_AVAILABLE')}</p>
-						)}
-						{emailAvailable === false && (
-							<p className="text-xs text-red-600 dark:text-red-400 mt-1">{t('EMAIL_TAKEN')}</p>
-						)}
-					</div>
-				</div>
+				)}
 
 				{/* Password (create only) */}
 				{!isEditing && (
@@ -307,17 +230,43 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 						<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
 							{t('ROLE')} <span className="text-red-500">*</span>
 						</label>
-						<select
-							value={formData.role}
-							onChange={(e) => handleInputChange('role', e.target.value)}
-							disabled={rolesLoading || isBusy}
-							className={SELECT_BASE}
-						>
-							<option value="">{rolesLoading ? t('LOADING_ROLES') : t('SELECT_ROLE')}</option>
-							{roles.filter((r) => r.status === 'active').map((role) => (
-								<option key={role.id} value={role.id}>{role.name}</option>
-							))}
-						</select>
+						<DropdownMenu.Root modal={false} open={roleDropdownOpen} onOpenChange={setRoleDropdownOpen}>
+							<DropdownMenu.Trigger asChild>
+								<button
+									type="button"
+									disabled={rolesLoading || isBusy}
+									className={DROPDOWN_TRIGGER}
+								>
+									<span className={cn('truncate pr-2', !formData.role && 'text-gray-400 dark:text-gray-500')}>
+										{rolesLoading
+											? t('LOADING_ROLES')
+											: formData.role
+												? (roles.find((r) => r.id === formData.role)?.name ?? t('SELECT_ROLE'))
+												: t('SELECT_ROLE')}
+									</span>
+									<ChevronDown className={cn('h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200', roleDropdownOpen && 'rotate-180')} />
+								</button>
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content
+								sideOffset={8}
+								align="start"
+								className="z-9999 min-w-(--radix-dropdown-menu-trigger-width) bg-white dark:bg-[#121212] border border-gray-200 dark:border-white/6 rounded-lg shadow-lg shadow-black/10 dark:shadow-black/30 overflow-hidden animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 origin-top-left"
+							>
+								<div className="p-1">
+									{roles.filter((r) => r.status === 'active').map((role) => (
+										<DropdownMenu.Item
+											key={role.id}
+											onSelect={() => handleInputChange('role', role.id)}
+											className="relative flex items-center justify-between px-3 py-2 text-sm text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-colors hover:bg-gray-100 dark:hover:bg-white/6 data-highlighted:bg-gray-100 dark:data-highlighted:bg-white/6"
+										>
+											<span>{role.name}</span>
+											{formData.role === role.id && <Check className="h-4 w-4 text-gray-900 dark:text-white" />}
+										</DropdownMenu.Item>
+									))}
+								</div>
+								<DropdownMenu.Arrow className="fill-white dark:fill-[#121212]" />
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
 					</div>
 
 					{isEditing && (
@@ -325,21 +274,45 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
 								{t('STATUS')} <span className="text-red-500">*</span>
 							</label>
-							<select
-								value={formData.status}
-								onChange={(e) => handleInputChange('status', e.target.value)}
-								disabled={isBusy}
-								className={SELECT_BASE}
-							>
-								<option value="active">{t('ACTIVE')}</option>
-								<option value="inactive">{t('INACTIVE')}</option>
-							</select>
+							<DropdownMenu.Root modal={false} open={statusDropdownOpen} onOpenChange={setStatusDropdownOpen}>
+								<DropdownMenu.Trigger asChild>
+									<button
+										type="button"
+										disabled={isBusy}
+										className={DROPDOWN_TRIGGER}
+									>
+										<span className="truncate pr-2">
+											{formData.status === 'active' ? t('ACTIVE') : t('INACTIVE')}
+										</span>
+										<ChevronDown className={cn('h-4 w-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200', statusDropdownOpen && 'rotate-180')} />
+									</button>
+								</DropdownMenu.Trigger>
+								<DropdownMenu.Content
+									sideOffset={8}
+									align="start"
+									className="z-9999 min-w-(--radix-dropdown-menu-trigger-width) bg-white dark:bg-[#121212] border border-gray-200 dark:border-white/6 rounded-lg shadow-lg shadow-black/10 dark:shadow-black/30 overflow-hidden animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 origin-top-left"
+								>
+									<div className="p-1">
+										{(['active', 'inactive'] as const).map((status) => (
+											<DropdownMenu.Item
+												key={status}
+												onSelect={() => handleInputChange('status', status)}
+												className="relative flex items-center justify-between px-3 py-2 text-sm text-gray-900 dark:text-gray-100 rounded-md cursor-pointer outline-none transition-colors hover:bg-gray-100 dark:hover:bg-white/6 data-highlighted:bg-gray-100 dark:data-highlighted:bg-white/6"
+											>
+												<span>{status === 'active' ? t('ACTIVE') : t('INACTIVE')}</span>
+												{formData.status === status && <Check className="h-4 w-4 text-gray-900 dark:text-white" />}
+											</DropdownMenu.Item>
+										))}
+									</div>
+									<DropdownMenu.Arrow className="fill-white dark:fill-[#121212]" />
+								</DropdownMenu.Content>
+							</DropdownMenu.Root>
 						</div>
 					)}
 				</div>
 
 				{/* Actions */}
-				<div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-white/8 -mx-5 -mb-5 px-5 pb-5 mt-5 bg-gray-50/60 dark:bg-white/1.5">
+				<div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100 dark:border-white/8 -mx-5 -mb-5 px-5 pb-5 mt-5 bg-gray-50/60 dark:bg-white/1.5 rounded-b-2xl">
 					{onCancel && (
 						<button
 							type="button"

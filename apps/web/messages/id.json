@@ -2118,6 +2118,10 @@
 			"USERNAME_TAKEN": "Username sudah digunakan",
 			"EMAIL_AVAILABLE": "Email tersedia",
 			"EMAIL_TAKEN": "Email sudah digunakan",
+			"CLOSE": "Tutup",
+			"NO_TITLE_SET": "Tidak ada jabatan",
+			"VIEW_PROFILE": "Lihat profil",
+			"MEMBER_SINCE": "Anggota sejak",
 			"ERRORS": {
 				"SELECT_ROLE": "Harap pilih peran",
 				"USERNAME_TAKEN": "Username sudah digunakan",

@@ -2180,6 +2180,10 @@
 			"USERNAME_TAKEN": "Имя пользователя уже занято",
 			"EMAIL_AVAILABLE": "Email доступен",
 			"EMAIL_TAKEN": "Email уже используется",
+			"CLOSE": "Закрыть",
+			"NO_TITLE_SET": "Должность не указана",
+			"VIEW_PROFILE": "Просмотреть профиль",
+			"MEMBER_SINCE": "Участник с",
 			"ERRORS": {
 				"SELECT_ROLE": "Пожалуйста, выберите роль",
 				"USERNAME_TAKEN": "Имя пользователя уже занято",

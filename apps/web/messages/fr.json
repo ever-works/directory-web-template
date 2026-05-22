@@ -2182,6 +2182,10 @@
 			"USERNAME_TAKEN": "Nom d'utilisateur déjà pris",
 			"EMAIL_AVAILABLE": "E-mail disponible",
 			"EMAIL_TAKEN": "E-mail déjà pris",
+			"CLOSE": "Fermer",
+			"NO_TITLE_SET": "Aucun titre défini",
+			"VIEW_PROFILE": "Voir le profil",
+			"MEMBER_SINCE": "Membre depuis",
 			"ERRORS": {
 				"SELECT_ROLE": "Veuillez sélectionner un rôle",
 				"USERNAME_TAKEN": "Nom d'utilisateur déjà pris",
