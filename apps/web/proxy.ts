@@ -411,7 +411,9 @@ export default async function proxy(req: NextRequest) {
 
 	const { prefix: localePrefix, pathWithoutLocale } = resolveLocalePrefix(originalPathname);
 
-	// Protect /client/* routes - require authentication and redirect admins to /admin
+	// Protect /client/* routes - require authentication and redirect admins to /admin.
+	// Exception: /client/profile/* is viewable by admins (e.g. "View profile" from admin panel).
+	const isProfileRoute = pathWithoutLocale.startsWith('/client/profile/');
 	if (pathWithoutLocale === '/client' || pathWithoutLocale.startsWith('/client/')) {
 		if (cfg.provider === 'next-auth') {
 			// Check if user is authenticated
@@ -419,14 +421,16 @@ export default async function proxy(req: NextRequest) {
 			if (authRedirect) {
 				return authRedirect; // Not authenticated, redirect to signin
 			}
-			// User is authenticated - check if admin (redirect to /admin)
-			const token = await getToken({ req, secret: authSecret });
-			if (token?.isAdmin === true) {
-				const url = req.nextUrl.clone();
-				url.pathname = `${localePrefix}/admin`;
-				const redirectRes = NextResponse.redirect(url);
-				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
-				return redirectRes;
+			// User is authenticated - check if admin (redirect to /admin, unless viewing a profile)
+			if (!isProfileRoute) {
+				const token = await getToken({ req, secret: authSecret });
+				if (token?.isAdmin === true) {
+					const url = req.nextUrl.clone();
+					url.pathname = `${localePrefix}/admin`;
+					const redirectRes = NextResponse.redirect(url);
+					intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+					return redirectRes;
+				}
 			}
 		} else if (cfg.provider === 'supabase') {
 			// Check if user is authenticated
@@ -434,43 +438,8 @@ export default async function proxy(req: NextRequest) {
 			if (authRedirect) {
 				return authRedirect; // Not authenticated, redirect to signin
 			}
-			// For Supabase, check user metadata for admin flag
-			const { createServerClient } = await import('@supabase/ssr');
-			const {
-				data: { user }
-			} = await createServerClient(
-				process.env.NEXT_PUBLIC_SUPABASE_URL!,
-				process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-				{
-					cookies: {
-						getAll() {
-							return req.cookies.getAll();
-						},
-						setAll(cookiesToSet: CookieToSet[]) {
-							cookiesToSet.forEach((cookie) => intlResponse.cookies.set(cookie));
-						}
-					}
-				}
-			).auth.getUser();
-
-			const isAdmin = user?.user_metadata?.isAdmin === true || user?.user_metadata?.role === 'admin';
-			if (isAdmin) {
-				const url = req.nextUrl.clone();
-				url.pathname = `${localePrefix}/admin`;
-				const redirectRes = NextResponse.redirect(url);
-				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
-				return redirectRes;
-			}
-		} else if (cfg.provider === 'both') {
-			// Check NextAuth first for authentication
-			const nextAuthRedirect = await nextAuthClientGuard(req, intlResponse);
-			if (nextAuthRedirect) {
-				// NextAuth says not authenticated - try Supabase
-				const supabaseRedirect = await supabaseClientGuard(req, intlResponse);
-				if (supabaseRedirect) {
-					return supabaseRedirect; // Neither authenticated, redirect to signin
-				}
-				// User is authenticated via Supabase - check Supabase admin status
+			// For Supabase, check user metadata for admin flag (skip for profile routes)
+			if (!isProfileRoute) {
 				const { createServerClient } = await import('@supabase/ssr');
 				const {
 					data: { user }
@@ -488,24 +457,65 @@ export default async function proxy(req: NextRequest) {
 						}
 					}
 				).auth.getUser();
-				const isSupabaseAdmin = user?.user_metadata?.isAdmin === true || user?.user_metadata?.role === 'admin';
-				if (isSupabaseAdmin) {
+
+				const isAdmin = user?.user_metadata?.isAdmin === true || user?.user_metadata?.role === 'admin';
+				if (isAdmin) {
 					const url = req.nextUrl.clone();
 					url.pathname = `${localePrefix}/admin`;
 					const redirectRes = NextResponse.redirect(url);
 					intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
 					return redirectRes;
 				}
+			}
+		} else if (cfg.provider === 'both') {
+			// Check NextAuth first for authentication
+			const nextAuthRedirect = await nextAuthClientGuard(req, intlResponse);
+			if (nextAuthRedirect) {
+				// NextAuth says not authenticated - try Supabase
+				const supabaseRedirect = await supabaseClientGuard(req, intlResponse);
+				if (supabaseRedirect) {
+					return supabaseRedirect; // Neither authenticated, redirect to signin
+				}
+				// User is authenticated via Supabase - check Supabase admin status (skip for profile routes)
+				if (!isProfileRoute) {
+					const { createServerClient } = await import('@supabase/ssr');
+					const {
+						data: { user }
+					} = await createServerClient(
+						process.env.NEXT_PUBLIC_SUPABASE_URL!,
+						process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+						{
+							cookies: {
+								getAll() {
+									return req.cookies.getAll();
+								},
+								setAll(cookiesToSet: CookieToSet[]) {
+									cookiesToSet.forEach((cookie) => intlResponse.cookies.set(cookie));
+								}
+							}
+						}
+					).auth.getUser();
+					const isSupabaseAdmin = user?.user_metadata?.isAdmin === true || user?.user_metadata?.role === 'admin';
+					if (isSupabaseAdmin) {
+						const url = req.nextUrl.clone();
+						url.pathname = `${localePrefix}/admin`;
+						const redirectRes = NextResponse.redirect(url);
+						intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+						return redirectRes;
+					}
+				}
 				return intlResponse;
 			}
-			// User is authenticated via NextAuth - check NextAuth admin status
-			const token = await getToken({ req, secret: authSecret });
-			if (token?.isAdmin === true) {
-				const url = req.nextUrl.clone();
-				url.pathname = `${localePrefix}/admin`;
-				const redirectRes = NextResponse.redirect(url);
-				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
-				return redirectRes;
+			// User is authenticated via NextAuth - check NextAuth admin status (skip for profile routes)
+			if (!isProfileRoute) {
+				const token = await getToken({ req, secret: authSecret });
+				if (token?.isAdmin === true) {
+					const url = req.nextUrl.clone();
+					url.pathname = `${localePrefix}/admin`;
+					const redirectRes = NextResponse.redirect(url);
+					intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
+					return redirectRes;
+				}
 			}
 		}
 		return intlResponse;

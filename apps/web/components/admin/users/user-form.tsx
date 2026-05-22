@@ -8,7 +8,7 @@ import { UserData, CreateUserRequest, UpdateUserRequest } from '@/lib/types/user
 import { toast } from 'sonner';
 import { Eye, EyeOff, Loader2, Save, X, Users, ChevronDown, Check, ShieldCheck, UserCircle, Mail, Calendar, ExternalLink } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
-import Link from 'next/link';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/header/avatar';
 
@@ -36,6 +36,9 @@ const DROPDOWN_TRIGGER = cn(
 export default function UserForm({ user, onSuccess, isSubmitting = false, onCancel }: UserFormProps) {
 	const t = useTranslations('admin.USER_FORM');
 	const locale = useLocale();
+	const profileHref = locale === DEFAULT_LOCALE
+		? `/client/profile/${user?.username}`
+		: `/${locale}/client/profile/${user?.username}`;
 
 	const createUserMutation = useCreateUser();
 	const updateUserMutation = useUpdateUser();
@@ -162,16 +165,15 @@ export default function UserForm({ user, onSuccess, isSubmitting = false, onCanc
 											<p className="text-xs text-gray-400 dark:text-gray-500 truncate mt-0.5 italic">{t('NO_TITLE_SET')}</p>
 										)}
 									</div>
-									<Link
-										href={`/${locale}/client/profile/${user.username}`}
-										target="_blank"
+									<a
+										href={profileHref}
 										rel="noopener noreferrer"
 										className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-lg bg-white dark:bg-white/8 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/12 transition-colors shrink-0"
 									>
 										<UserCircle className="w-3 h-3" />
 										{t('VIEW_PROFILE')}
 										<ExternalLink className="w-3 h-3" />
-									</Link>
+									</a>
 								</div>
 
 								<div className="mt-2.5 flex flex-col gap-1.5">
