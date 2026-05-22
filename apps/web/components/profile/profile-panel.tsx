@@ -30,6 +30,7 @@ interface ProfilePanelProps {
 	initialIsFollowing: boolean;
 	verified?: boolean;
 	stats?: { favorites: number; portfolio: number; followers: number; following: number };
+	hideActions?: boolean;
 }
 
 const COMPLETENESS_FIELD_KEYS = {
@@ -80,7 +81,8 @@ export function ProfilePanel({
 	isAuthenticated,
 	initialIsFollowing,
 	verified,
-	stats
+	stats,
+	hideActions
 }: ProfilePanelProps) {
 	const t = useTranslations('profile');
 	const [imageError, setImageError] = useState(false);
@@ -335,10 +337,10 @@ export function ProfilePanel({
 					</div>
 				)}
 
-				<div className="border-t border-neutral-100 dark:border-white/6" />
+				{!hideActions && <div className="border-t border-neutral-100 dark:border-white/6" />}
 
 				{/* Actions */}
-				{isOwn ? (
+				{!hideActions && (isOwn ? (
 					<Link
 						href="/client/settings/profile/basic-info"
 						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-black dark:bg-white text-white dark:text-black shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
@@ -365,7 +367,7 @@ export function ProfilePanel({
 							</Link>
 						)}
 					</div>
-				)}
+				))}
 			</div>
 		</Card>
 	);
