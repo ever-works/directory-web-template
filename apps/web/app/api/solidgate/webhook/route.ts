@@ -174,7 +174,9 @@ export async function POST(request: NextRequest) {
 
 /**
  * Handle GET requests - return informative message
- * Webhooks should use POST method
+ * Webhooks should use POST method. We keep the 200 informational
+ * envelope rather than a 405 because the dedicated `solidgate-webhook-
+ * body` spec pins it as a documented behavior.
  */
 export async function GET() {
 	return NextResponse.json(

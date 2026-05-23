@@ -242,7 +242,17 @@ export async function POST(
     try {
         const { surveyId } = await params;
 
-        const body = await request.json();
+        // Parse body explicitly so malformed JSON / wrong content-type
+        // returns 400 instead of falling into the generic 500 catch.
+        let body: { data?: unknown } | null = null;
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json(
+                { success: false, error: 'Invalid JSON body' },
+                { status: 400 }
+            );
+        }
 
         if (!body || typeof body.data !== 'object' || body.data == null) {
             return NextResponse.json(

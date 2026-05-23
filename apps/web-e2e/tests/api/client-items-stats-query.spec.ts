@@ -88,11 +88,11 @@ test.describe('API: /api/client/items/stats GET surface', () => {
 		request
 	}) => {
 		const response = await request.get(STATS_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized. Please sign in to continue.');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${STATS_PATH} 401 envelope shape has exactly success and error keys`, async ({

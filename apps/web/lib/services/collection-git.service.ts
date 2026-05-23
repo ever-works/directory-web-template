@@ -48,8 +48,8 @@ export class CollectionGitService {
   }
 
   private async syncWithRemote(): Promise<void> {
+    const gitExists = await this.directoryExists(path.join(this.config.dataDir, '.git'));
     try {
-      const gitExists = await this.directoryExists(path.join(this.config.dataDir, '.git'));
       if (gitExists) {
         await this.pull();
       } else {
@@ -57,8 +57,14 @@ export class CollectionGitService {
       }
     } catch (error) {
       console.error('❌ Git sync failed:', error);
-      console.warn('⚠️ Collection Git service may be operating on stale data after sync failure');
-      throw error;
+      // If we already have a local `.git` (cloned or initialized
+      // out-of-band, e.g. in CI), a pull-time auth or network error
+      // is non-fatal — fall back to whatever local YAML is on disk.
+      // Only re-throw when there's no local content to fall back to.
+      if (!gitExists) {
+        throw error;
+      }
+      console.warn('⚠️ Collection Git service falling back to local YAML after sync failure');
     }
   }
 

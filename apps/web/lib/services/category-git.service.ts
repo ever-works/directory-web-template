@@ -190,7 +190,12 @@ export class CategoryGitService {
     try {
       const categoriesPath = this.getCategoriesFilePath();
       const content = await fs.readFile(categoriesPath, 'utf-8');
-      return yaml.parse(content) || [];
+      const raw: any[] = yaml.parse(content) || [];
+      return raw.map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        isActive: cat.isActive !== undefined ? cat.isActive : true,
+      }));
     } catch (error) {
       console.error('❌ Failed to read categories:', error);
       return [];
@@ -203,7 +208,12 @@ export class CategoryGitService {
   async writeCategories(categories: CategoryData[]): Promise<void> {
     try {
       const categoriesPath = this.getCategoriesFilePath();
-      const content = yaml.stringify(categories);
+      const normalized = categories.map((cat) => ({
+        id: cat.id,
+        name: cat.name,
+        isActive: cat.isActive,
+      }));
+      const content = yaml.stringify(normalized);
       
       // Write to local file first (always succeed)
       await fs.writeFile(categoriesPath, content, 'utf-8');
@@ -271,6 +281,7 @@ export class CategoryGitService {
     const newCategory: CategoryData = {
       id: data.id,
       name: data.name?.trim() || '',
+      isActive: data.isActive ?? true,
     };
     
     categories.push(newCategory);
@@ -301,6 +312,7 @@ export class CategoryGitService {
     const updatedCategory: CategoryData = {
       ...categories[categoryIndex],
       name: data.name?.trim() || categories[categoryIndex].name,
+      isActive: data.isActive !== undefined ? data.isActive : categories[categoryIndex].isActive,
     };
     
     categories[categoryIndex] = updatedCategory;

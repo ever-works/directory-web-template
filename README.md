@@ -79,8 +79,19 @@ monorepo/
 ```
 apps/web/
 ├── .content/             # Git-based CMS content directory
+│   ├── .works/           # Work configuration (works.yml)
+│   ├── data/             # Directory items (one folder per item: <slug>.yml + <slug>.md)
+│   ├── pages/            # Static pages (Markdown)
+│   ├── markdown/         # Header/footer inline Markdown blocks
+│   ├── blocks/           # Reusable page blocks (locale-aware)
+│   ├── comparisons/      # Item-vs-item comparison content
+│   ├── kb/               # Per-Work Knowledge Base (platform-internal, not rendered publicly)
+│   ├── kb-originals/     # Original uploaded source files (only when storage = github-storage)
+│   ├── categories.yml    # Category definitions
+│   ├── collections.yml   # Collection metadata
+│   ├── tags.yml          # Tag definitions
+│   ├── references.yml    # Shared citations / sources
 │   ├── posts/            # Blog posts
-│   ├── categories/       # Category definitions
 │   └── assets/           # Media files related to content
 ├── app/
 │   ├── [locale]/         # Internationalized routes

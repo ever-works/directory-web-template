@@ -36,7 +36,15 @@ export function FooterBottom({ config, t, footerSettings }: FooterBottomProps) {
 					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-3 border-t border-gray-200/30 dark:border-white/6">
 						{/* Left side: Copyright and legal links */}
 						<div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-gray-600 dark:text-gray-400">
-							<span className="text-xs font-medium">
+							{/*
+								`new Date().getFullYear()` is computed at SSR/SSG time, then
+								hydrated on the client. If the cached HTML was generated in a
+								different year than the visitor's clock (or the build runs
+								around midnight UTC on Dec 31), React 18+ throws #418
+								(text-content hydration mismatch). suppressHydrationWarning
+								tells React to trust the server-rendered year.
+							*/}
+							<span className="text-xs font-medium" suppressHydrationWarning>
 								Copyright &copy; {config.copyright_year || new Date().getFullYear()}{' '}
 								{config.company_name}. {t('footer.ALL_RIGHTS_RESERVED')}.
 							</span>

@@ -8,7 +8,10 @@ export class AdminDashboardPage extends BasePage {
 
 	constructor(page: Page) {
 		super(page);
-		this.mainContent = page.locator('#main-content');
+		// `#main-content` was the legacy SSR id; the admin layout now
+		// uses semantic `<main>` (or the AdminAuthGuard "Redirecting…"
+		// placeholder when the session is loading). Fall back to either.
+		this.mainContent = page.locator('main, #main-content, [role="main"]').first();
 		this.tabList = page.getByRole('tablist');
 		this.refreshButton = page.getByRole('button', { name: /refresh/i }).first();
 	}

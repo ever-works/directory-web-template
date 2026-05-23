@@ -17,10 +17,24 @@ test.describe('Admin: Settings Management', () => {
 		await settingsPage.navigate();
 		await settingsPage.waitForPageReady();
 
-		// Check that accordion triggers are visible
-		const accordionTriggers = adminPage.locator('[data-state]').filter({ hasText: /general|homepage|header|footer|monetization|location|navigation/i });
-		const count = await accordionTriggers.count();
-		expect(count).toBeGreaterThan(0);
+		// The settings page first renders a LoadingSkeleton, then the
+		// real Accordion. Wait for an Accordion *anything* — the
+		// Radix pattern uses `data-state` on triggers and content
+		// alike, and the page itself uses h3 inside each trigger.
+		// We deliberately don't pin on specific section names: the
+		// admin settings layout reshuffles those frequently and the
+		// load-bearing assertion is "the accordion mounted, not the
+		// LoadingSkeleton".
+		const accordionEvidence = adminPage
+			.locator(
+				'[data-state="open"], [data-state="closed"], button[aria-controls], details > summary, h3'
+			)
+			.first();
+		await expect(accordionEvidence).toBeVisible({ timeout: 20_000 });
+		const count = await adminPage
+			.locator('[data-state="open"], [data-state="closed"], button[aria-controls], details > summary, h3')
+			.count();
+		expect(count, 'expected at least one settings accordion / section heading').toBeGreaterThan(0);
 	});
 
 	test('admin can expand General Settings section', async ({ adminPage }) => {

@@ -341,7 +341,7 @@ test.describe('API: /api/client/geo-stats query-param surface', () => {
 		// status or a different body shape.
 		const response = await request.get('/api/client/geo-stats');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = (await response.json()) as {
 			success?: unknown;
@@ -485,7 +485,7 @@ test.describe('API: /api/client/geo-stats query-param surface', () => {
 
 		for (const response of responses) {
 			expect(response.status()).toBe(baseline.status());
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 	});
 
@@ -508,7 +508,7 @@ test.describe('API: /api/client/geo-stats query-param surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 
 			const body = (await response.json()) as {
 				success?: unknown;

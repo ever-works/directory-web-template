@@ -2,7 +2,10 @@ import { CollectionsList } from "@/components/collections";
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta } from "@/lib/paginate";
 
-// Enable ISR with 10 minutes revalidation
+// Force dynamic — collectionRepository / getCachedItems consult
+// request-scoped APIs during render. Static rendering throws
+// DYNAMIC_SERVER_USAGE → 5xx on the paging probes.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)

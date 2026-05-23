@@ -180,8 +180,8 @@ const CONFIG_FEATURES_QUERIES = [
 ] as const;
 
 test.describe('API: /api/config/features query-param surface', () => {
-	for (const path of CONFIG_FEATURES_QUERIES) {
-		test(`GET ${path} responds without an unexpected status`, async ({ request }) => {
+	for (const [i, path] of CONFIG_FEATURES_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without an unexpected status`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's two documented branches are 200 (success) and

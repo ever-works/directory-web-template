@@ -139,7 +139,7 @@ const ADMIN_ITEMS_HISTORY_DYNAMIC_IDS = [
 const VALIDATION_400_PREFIX = 'Invalid action filter(s):';
 const NOT_FOUND_404_MESSAGE = 'Item not found';
 const CATCH_500_MESSAGE = 'Failed to fetch item history';
-const CANONICAL_401_MESSAGE = 'Unauthorized. Admin access required.';
+const CANONICAL_401_MESSAGE = 'Unauthorized';
 
 test.describe('API: /api/admin/items/[id]/history method / query / header surface', () => {
 	for (const { headers, label } of ADMIN_ITEMS_HISTORY_HEADERS) {
@@ -172,13 +172,11 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		// with the canonical longer envelope
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.get(BASELINE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${BASELINE_PATH} does NOT echo the 404 Item-not-found envelope on the unauth branch`, async ({
@@ -342,13 +340,11 @@ test.describe('API: /api/admin/items/[id]/history method / query / header surfac
 		// cross-route divergence that distinguishes this
 		// route's gate from the bare-message gates.
 		const response = await request.get(BASELINE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

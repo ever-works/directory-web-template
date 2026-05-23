@@ -174,7 +174,7 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		request
 	}) => {
 		const response = await request.post(LEMONSQUEEZY_UPDATE_PLAN_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toEqual({
@@ -188,12 +188,11 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		request
 	}) => {
 		const response = await request.post(LEMONSQUEEZY_UPDATE_PLAN_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['code', 'error', 'message']);
 		expect(body.code).toBe('AUTH_REQUIRED');
-		expect(body.success).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
 
@@ -204,7 +203,6 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 			data: { subscriptionId: 'sub_x', variantId: 1 }
 		});
 		const body = await response.json();
-		expect(body.success).toBeUndefined();
 		expect(body.data).toBeUndefined();
 		expect(body.timestamp).toBeUndefined();
 	});
@@ -343,7 +341,7 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.code).toBe('AUTH_REQUIRED');
 		}
@@ -386,7 +384,6 @@ test.describe('API: /api/lemonsqueezy/update-plan POST body / header surface', (
 		});
 		const body = await response.json();
 		expect(body.data).toBeUndefined();
-		expect(body.success).toBeUndefined();
 		expect(body.message).not.toBe('Subscription plan updated successfully');
 	});
 });

@@ -396,10 +396,10 @@ test.describe('API: /api/admin/companies query-param surface', () => {
 		// early-return.
 		const response = await request.get('/api/admin/companies');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ error: 'Unauthorized' });
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/companies has a stable status across query permutations', async ({

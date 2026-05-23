@@ -12,17 +12,18 @@ test.describe('Admin: Item Review (Approve/Reject)', () => {
 		await itemsPage.selectStatusTab('Pending');
 		await adminPage.waitForTimeout(1_000);
 
-		// Check if there are any pending items
-		const pendingItems = adminPage.locator('h4');
-		const count = await pendingItems.count();
-
+		// Scope to item rows only — bare `h4` would also match the
+		// footer ("Connect with us") which would cause the actions-menu
+		// click to time out on a non-row element.
+		const itemRows = adminPage.locator('div.group').filter({ has: adminPage.locator('h4') });
+		const count = await itemRows.count();
 		if (count === 0) {
 			test.skip(true, 'No pending items available to approve');
 			return;
 		}
 
 		// Get the first pending item's name
-		const firstItemName = await pendingItems.first().textContent();
+		const firstItemName = (await itemRows.first().locator('h4').first().textContent())?.trim();
 		expect(firstItemName).toBeTruthy();
 
 		// Open actions menu and click "Approve"
@@ -51,17 +52,16 @@ test.describe('Admin: Item Review (Approve/Reject)', () => {
 		await itemsPage.selectStatusTab('Pending');
 		await adminPage.waitForTimeout(1_000);
 
-		// Check if there are any pending items
-		const pendingItems = adminPage.locator('h4');
-		const count = await pendingItems.count();
-
+		// Scope to item rows only — see approve test for context.
+		const itemRows = adminPage.locator('div.group').filter({ has: adminPage.locator('h4') });
+		const count = await itemRows.count();
 		if (count === 0) {
 			test.skip(true, 'No pending items available to reject');
 			return;
 		}
 
 		// Get the first pending item's name
-		const firstItemName = await pendingItems.first().textContent();
+		const firstItemName = (await itemRows.first().locator('h4').first().textContent())?.trim();
 		expect(firstItemName).toBeTruthy();
 
 		// Open actions menu and click "Reject"

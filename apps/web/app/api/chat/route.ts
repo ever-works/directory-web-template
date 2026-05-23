@@ -150,6 +150,20 @@ function sessionToChatSession(user: MinimalAuthUser | undefined, locale: string)
 // ---------------------------------------------------------------------------
 
 export async function POST(request: NextRequest) {
+	try {
+		return await handlePost(request);
+	} catch (error) {
+		// Any unhandled error (config singleton init, plugin import,
+		// etc.) degrades to the documented 503 "chat unavailable"
+		// envelope — the same status the explicit provider-not-configured
+		// branch returns, so external probes see one consistent
+		// unavailability code rather than a leaked 500.
+		console.error('[/api/chat] unexpected error:', error);
+		return NextResponse.json({ error: 'chat-temporarily-unavailable' }, { status: 503 });
+	}
+}
+
+async function handlePost(request: NextRequest) {
 	// 1. Validate request body.
 	let parsed: z.infer<typeof RequestSchema>;
 	try {

@@ -532,6 +532,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Paramètres et préférences du compte",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "Paramètres du profil",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Style de pagination",
 		"PAGINATION_STYLE_DESC": "Choisissez comment le contenu est affiché lors de la navigation dans les listes",
 		"PAGINATION_STANDARD_LABEL": "Standard",
@@ -650,6 +651,52 @@
 					"CURRENT_INCORRECT": "Le mot de passe actuel est incorrect",
 					"SAME_PASSWORD": "Le nouveau mot de passe doit être différent du mot de passe actuel",
 					"GENERIC_ERROR": "Une erreur s'est produite lors de la mise à jour de votre mot de passe. Veuillez réessayer."
+				}
+			}
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger zone",
+			"DESCRIPTION": "Permanent account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
+				"CTA": "Delete account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
+					"UNKNOWN": "Failed to delete account. Please try again."
 				}
 			}
 		}
@@ -2135,6 +2182,10 @@
 			"USERNAME_TAKEN": "Nom d'utilisateur déjà pris",
 			"EMAIL_AVAILABLE": "E-mail disponible",
 			"EMAIL_TAKEN": "E-mail déjà pris",
+			"CLOSE": "Fermer",
+			"NO_TITLE_SET": "Aucun titre défini",
+			"VIEW_PROFILE": "Voir le profil",
+			"MEMBER_SINCE": "Membre depuis",
 			"ERRORS": {
 				"SELECT_ROLE": "Veuillez sélectionner un rôle",
 				"USERNAME_TAKEN": "Nom d'utilisateur déjà pris",
@@ -3098,7 +3149,8 @@
 			"DELETE": "Supprimer",
 			"WARNING_DISABLED_TITLE": "Categories are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Categories are hidden from the public site including navigation, filters, and item pages. You can still manage categories here, but they won't be visible to users until re-enabled.",
-			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"
+			"WARNING_DISABLED_ACTION": "Go to Settings to Enable",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Enable Categories",
@@ -3347,7 +3399,12 @@
 			"ID_TOO_LONG": "L'ID ne doit pas dépasser 50 caractères",
 			"NAME_REQUIRED": "Le nom de la catégorie est requis",
 			"NAME_TOO_SHORT": "Le nom doit contenir au moins {min} caractères",
-			"NAME_TOO_LONG": "Le nom ne doit pas dépasser {max} caractères"
+			"NAME_TOO_LONG": "Le nom ne doit pas dépasser {max} caractères",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Aucune étiquette trouvée.",

@@ -3,25 +3,29 @@
 export interface CategoryData {
   id: string;
   name: string;
+  isActive: boolean;
 }
 
 export interface CategoryWithCount extends CategoryData {
   count?: number;
-  isInactive?: boolean;
 }
 
 export interface CreateCategoryRequest {
   id: string;
   name: string;
+  isActive?: boolean;
 }
 
-export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
+export interface UpdateCategoryRequest {
   id: string;
+  name?: string;
+  isActive?: boolean;
 }
 
 export interface CategoryListResponse {
   categories: CategoryWithCount[];
   total: number;
+  activeTotal: number;
   page: number;
   limit: number;
   totalPages: number;
@@ -35,6 +39,7 @@ export interface CategoryResponse {
 
 export interface CategoryListOptions {
   includeInactive?: boolean;
+  onlyInactive?: boolean;
   sortBy?: 'name' | 'id';
   sortOrder?: 'asc' | 'desc';
   page?: number;

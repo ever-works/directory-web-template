@@ -186,6 +186,7 @@ export async function GET(request: NextRequest) {
     const { page, limit } = paginationResult;
 
     const includeInactive = searchParams.get('includeInactive') === 'true';
+    const onlyInactive = searchParams.get('onlyInactive') === 'true';
     const sortByParam = searchParams.get('sortBy');
     const sortBy = (sortByParam === 'name' || sortByParam === 'id') ? sortByParam : 'name';
     const sortOrderParam = searchParams.get('sortOrder');
@@ -193,6 +194,7 @@ export async function GET(request: NextRequest) {
 
     const options: CategoryListOptions = {
       includeInactive,
+      onlyInactive,
       sortBy,
       sortOrder,
       page,
@@ -207,6 +209,7 @@ export async function GET(request: NextRequest) {
       data: result.categories,
       meta: {
         total: result.total,
+        activeTotal: result.activeTotal,
         page: result.page,
         limit: result.limit,
         totalPages: result.totalPages,
@@ -215,6 +218,7 @@ export async function GET(request: NextRequest) {
       // frontend consumers. See EW-606.
       categories: result.categories,
       total: result.total,
+      activeTotal: result.activeTotal,
       page: result.page,
       limit: result.limit,
       totalPages: result.totalPages,
@@ -346,6 +350,7 @@ export async function POST(request: NextRequest) {
     const createData: CreateCategoryRequest = {
       id: body.id,
       name: body.name,
+      isActive: body.isActive ?? true,
     };
 
     // Validate required fields

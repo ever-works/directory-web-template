@@ -1,0 +1,216 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { AlertCircle, RefreshCw, Settings } from 'lucide-react';
+
+import { useNotifications } from '@/hooks/use-notifications';
+import { useNotificationStats } from '@/hooks/use-notification-stats';
+import { useMarkNotification } from '@/hooks/use-mark-notification';
+import { useBulkNotifications } from '@/hooks/use-bulk-notifications';
+import {
+	NotificationTabs,
+	NotificationList,
+	NotificationFilters,
+	NotificationBulkActions,
+	NotificationViewToggle,
+	type NotificationFiltersState,
+	type NotificationView
+} from '@/components/notifications';
+import { UniversalPagination } from '@/components/universal-pagination';
+import type { NotificationTab } from '@/lib/notifications/registry';
+import type { BulkAction } from '@/lib/notifications/types';
+import { cn } from '@/lib/utils';
+
+const PAGE_SIZE = 25;
+
+const HEADER_BUTTON =
+	'inline-flex items-center gap-1.5 h-7 sm:h-8 px-2.5 sm:px-3 text-[10px] sm:text-xs font-medium rounded-lg border border-gray-300 dark:border-white/6 bg-gray-50 dark:bg-white/4 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/6 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200';
+
+export function NotificationsPageClient() {
+	const t = useTranslations('client.notifications');
+
+	const [tab, setTab] = useState<NotificationTab>('all');
+	const [view, setView] = useState<NotificationView>('list');
+	const [page, setPage] = useState(1);
+	const [filters, setFilters] = useState<NotificationFiltersState>({
+		q: '',
+		types: [],
+		priorities: [],
+		dateFrom: null,
+		dateTo: null
+	});
+	const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+	const listFilters = useMemo(
+		() => ({
+			tab,
+			q: filters.q || undefined,
+			type: filters.types.length > 0 ? filters.types : undefined,
+			priority: filters.priorities.length > 0 ? filters.priorities : undefined,
+			dateFrom: filters.dateFrom ?? undefined,
+			dateTo: filters.dateTo ?? undefined,
+			page,
+			limit: PAGE_SIZE
+		}),
+		[tab, filters, page]
+	);
+
+	const handleTabChange = (next: NotificationTab) => {
+		setTab(next);
+		setPage(1);
+		setSelectedIds(new Set());
+	};
+
+	const handleFiltersChange = (next: NotificationFiltersState) => {
+		setFilters(next);
+		setPage(1);
+	};
+
+	const { notifications, totalPages, isLoading, isFetching, isError, error, refetch } =
+		useNotifications(listFilters);
+	const stats = useNotificationStats();
+	const { markRead, markUnread, markAllRead, isPending: markPending } = useMarkNotification();
+	const { bulkAction, deleteOne, isPending: bulkPending } = useBulkNotifications();
+
+	const counts = stats.data?.byTab;
+	const unreadCount = stats.data?.unread ?? 0;
+
+	const onSelectChange = (id: string, selected: boolean) => {
+		setSelectedIds((curr) => {
+			const next = new Set(curr);
+			if (selected) next.add(id);
+			else next.delete(id);
+			return next;
+		});
+	};
+
+	const runBulk = (action: BulkAction) => {
+		const ids = Array.from(selectedIds);
+		if (ids.length === 0) return;
+		bulkAction({ ids, action });
+		setSelectedIds(new Set());
+	};
+
+	const errorMessage =
+		isError && error instanceof Error
+			? error.message
+			: isError
+				? safeT(t, 'errors.generic', 'Failed to load notifications')
+				: null;
+
+	return (
+		<div className="space-y-4">
+			<header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+				<div className="min-w-0">
+					<div className="flex items-center gap-2">
+						<h1 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white tracking-tight">
+							{safeT(t, 'pageTitle', 'Notifications')}
+						</h1>
+						{unreadCount > 0 && (
+							<span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold tabular-nums">
+								{unreadCount > 99 ? '99+' : unreadCount}
+							</span>
+						)}
+					</div>
+					<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+						{safeT(t, 'pageSubtitle', 'All activity for your account.')}
+					</p>
+				</div>
+				<div className="flex items-center gap-1.5 shrink-0">
+					<button
+						type="button"
+						onClick={() => refetch()}
+						disabled={isFetching}
+						className={HEADER_BUTTON}
+						aria-label={safeT(t, 'dropdown.refresh', 'Refresh')}
+					>
+						<RefreshCw className={cn('h-3 w-3', isFetching && 'animate-spin')} aria-hidden="true" />
+						<span className="hidden sm:inline">{safeT(t, 'refresh', 'Refresh')}</span>
+					</button>
+					<button
+						type="button"
+						onClick={() => markAllRead()}
+						disabled={markPending || unreadCount === 0}
+						className={HEADER_BUTTON}
+					>
+						{safeT(t, 'dropdown.markAllRead', 'Mark all read')}
+					</button>
+					<Link href="/client/notifications/preferences" className={HEADER_BUTTON}>
+						<Settings className="h-3 w-3" aria-hidden="true" />
+						<span className="hidden sm:inline">{safeT(t, 'preferences.cta', 'Preferences')}</span>
+					</Link>
+				</div>
+			</header>
+
+			{errorMessage && (
+				<div
+					role="alert"
+					className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-800/40 animate-in fade-in slide-in-from-top-1 duration-200"
+				>
+					<AlertCircle className="h-4 w-4 mt-px shrink-0" aria-hidden="true" />
+					<span className="flex-1">{errorMessage}</span>
+					<button
+						type="button"
+						onClick={() => refetch()}
+						className="inline-flex items-center gap-1 h-6 px-2 -my-0.5 rounded-md font-medium border border-red-300 dark:border-red-800/60 hover:bg-red-100 dark:hover:bg-red-950/60 transition-colors"
+					>
+						<RefreshCw className="h-3 w-3" aria-hidden="true" />
+						{safeT(t, 'retry', 'Retry')}
+					</button>
+				</div>
+			)}
+
+			<NotificationTabs value={tab} onChange={handleTabChange} counts={counts} />
+
+			<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+				<NotificationFilters value={filters} onChange={handleFiltersChange} />
+				<NotificationViewToggle value={view} onChange={setView} />
+			</div>
+
+			{selectedIds.size > 0 && (
+				<div className="sticky top-[calc(var(--header-height,3.5rem)+0.5rem)] z-10">
+					<NotificationBulkActions
+						selectedCount={selectedIds.size}
+						onAction={runBulk}
+						onClear={() => setSelectedIds(new Set())}
+						disabled={bulkPending}
+					/>
+				</div>
+			)}
+
+			<div
+				className={cn(
+					'rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden',
+					view === 'grid' ? 'bg-gray-50/40 dark:bg-white/[0.015]' : 'bg-white dark:bg-white/[0.02]'
+				)}
+			>
+				<NotificationList
+					notifications={notifications}
+					isLoading={isLoading}
+					onMarkRead={markRead}
+					onMarkUnread={markUnread}
+					onDismiss={deleteOne}
+					selectable
+					selectedIds={selectedIds}
+					onSelectChange={onSelectChange}
+					emptyVariant={tab}
+					groupByDay
+					view={view}
+				/>
+			</div>
+
+			<UniversalPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+		</div>
+	);
+}
+
+function safeT(t: ReturnType<typeof useTranslations>, key: string, fallback: string): string {
+	try {
+		const v = t(key);
+		return v && v !== key ? v : fallback;
+	} catch {
+		return fallback;
+	}
+}

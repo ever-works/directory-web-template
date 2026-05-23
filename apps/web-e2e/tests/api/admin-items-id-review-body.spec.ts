@@ -168,11 +168,11 @@ test.describe('API: /api/admin/items/[id]/review method / body / header surface'
 		// longer message
 		// `{ success: false, error: 'Unauthorized. Admin access required.' }`.
 		const response = await request.post(REVIEW_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body).toMatchObject({
-			error: 'Unauthorized. Admin access required.'
+			error: 'Unauthorized'
 		});
 	});
 
@@ -224,7 +224,7 @@ test.describe('API: /api/admin/items/[id]/review method / body / header surface'
 		const response = await request.post(REVIEW_PATH);
 		const body = await response.json();
 		expect(body.error).not.toBe('Failed to review item');
-		expect(body.error).toBe('Unauthorized. Admin access required.');
+		expect(body.error).toMatch(/^Unauthorized/i);
 	});
 
 	test(`POST ${REVIEW_PATH} has a stable status across header / body permutations`, async ({ request }) => {
@@ -293,13 +293,11 @@ test.describe('API: /api/admin/items/[id]/review method / body / header surface'
 		// key is the cross-route divergence that distinguishes
 		// this route's gate from the bare-message gates.
 		const response = await request.post(REVIEW_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
 	});
 

@@ -51,11 +51,21 @@ test.describe('Admin: Companies Management', () => {
 		// Click Create Company
 		await companiesPage.createCompanyButton.click();
 
-		// Modal should close
+		// Modal should close — that's the "create succeeded" signal.
 		await expect(companiesPage.companyFormModal).toBeHidden({ timeout: 10_000 });
 
-		// Company should appear in the list
-		await expect(adminPage.getByText(companyName).first()).toBeVisible({ timeout: 10_000 });
+		// Company should appear in the list — best effort, with a
+		// reload fallback for builds that don't auto-refetch after
+		// write when the remote git push fails (local YAML saved).
+		const companyVisible = await adminPage
+			.getByText(companyName)
+			.first()
+			.isVisible({ timeout: 5_000 })
+			.catch(() => false);
+		if (!companyVisible) {
+			await adminPage.reload({ waitUntil: 'domcontentloaded' });
+			await expect(adminPage.getByText(companyName).first()).toBeVisible({ timeout: 10_000 });
+		}
 	});
 
 	test('admin can open delete company confirmation', async ({ adminPage }) => {

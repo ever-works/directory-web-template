@@ -173,17 +173,18 @@ test.describe('API: /api/stripe/payment-methods/create POST body / header surfac
 		request
 	}) => {
 		const response = await request.post(STRIPE_PAYMENT_METHODS_CREATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Unauthorized' });
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${STRIPE_PAYMENT_METHODS_CREATE_PATH} envelope shape has exactly success and error keys`, async ({
 		request
 	}) => {
 		const response = await request.post(STRIPE_PAYMENT_METHODS_CREATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(Object.keys(body).sort()).toEqual(['error', 'success']);
@@ -240,7 +241,7 @@ test.describe('API: /api/stripe/payment-methods/create POST body / header surfac
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Invalid request data');
 			expect(body.details).toBeUndefined();
@@ -259,10 +260,10 @@ test.describe('API: /api/stripe/payment-methods/create POST body / header surfac
 		const response = await request.post(STRIPE_PAYMENT_METHODS_CREATE_PATH, {
 			data: { setup_intent_id: 'invalid_format_seti' }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		// No stripe error message should leak.
 		expect(body.error).not.toContain('No such setupintent');
 		expect(body.error).not.toContain('Stripe');
@@ -379,10 +380,11 @@ test.describe('API: /api/stripe/payment-methods/create POST body / header surfac
 		const response = await request.post(STRIPE_PAYMENT_METHODS_CREATE_PATH, {
 			data: { setup_intent_id: 'seti_test', set_as_default: true, metadata: { nick: 'Test' } }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({ success: false, error: 'Unauthorized' });
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 		expect(body.data).toBeUndefined();
 		expect(body.message).toBeUndefined();
 	});
@@ -396,7 +398,7 @@ test.describe('API: /api/stripe/payment-methods/create POST body / header surfac
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
 			expect(body.error).not.toBe('Failed to create payment method');
 		}

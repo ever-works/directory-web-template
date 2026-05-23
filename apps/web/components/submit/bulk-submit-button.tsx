@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { ClientImportModal } from "./client-import-modal";
 
 const buttonClass = cn(
-	"inline-flex items-center gap-2 px-4 py-2",
+	"inline-flex items-center gap-2 px-4 py-2 text-xs",
 	"bg-gray-100 dark:bg-white/5",
 	"hover:bg-gray-200 dark:hover:bg-white/8",
 	"text-gray-600 dark:text-gray-400",

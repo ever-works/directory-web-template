@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Pengaturan dan preferensi akun",
 		"ADMIN_SETTINGS_DESC": "Kelola konfigurasi dan preferensi situs",
 		"PROFILE_SETTINGS": "Pengaturan Profil",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Gaya Paginasi",
 		"PAGINATION_STYLE_DESC": "Pilih bagaimana konten ditampilkan saat menjelajahi daftar",
 		"PAGINATION_STANDARD_LABEL": "Standar",
@@ -729,6 +730,52 @@
 				"DELETE_PROJECT": "Hapus proyek"
 			},
 			"DELETE_CONFIRM": "Apakah Anda yakin ingin menghapus \"{title}\"?"
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger zone",
+			"DESCRIPTION": "Permanent account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
+				"CTA": "Delete account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
+					"UNKNOWN": "Failed to delete account. Please try again."
+				}
+			}
 		}
 	},
 	"newsletter": {
@@ -2071,6 +2118,10 @@
 			"USERNAME_TAKEN": "Username sudah digunakan",
 			"EMAIL_AVAILABLE": "Email tersedia",
 			"EMAIL_TAKEN": "Email sudah digunakan",
+			"CLOSE": "Tutup",
+			"NO_TITLE_SET": "Tidak ada jabatan",
+			"VIEW_PROFILE": "Lihat profil",
+			"MEMBER_SINCE": "Anggota sejak",
 			"ERRORS": {
 				"SELECT_ROLE": "Harap pilih peran",
 				"USERNAME_TAKEN": "Username sudah digunakan",
@@ -3058,7 +3109,8 @@
 			"DELETE": "Hapus",
 			"WARNING_DISABLED_TITLE": "Kategori saat ini dinonaktifkan di seluruh situs",
 			"WARNING_DISABLED_MESSAGE": "Kategori disembunyikan dari situs publik termasuk navigasi, filter, dan halaman item. Anda masih dapat mengelola kategori di sini, tetapi tidak akan terlihat oleh pengguna hingga diaktifkan kembali.",
-			"WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan"
+			"WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Aktifkan Kategori",
@@ -3307,7 +3359,12 @@
 			"ID_TOO_LONG": "ID harus maksimal 50 karakter",
 			"NAME_REQUIRED": "Nama kategori diperlukan",
 			"NAME_TOO_SHORT": "Nama harus minimal {min} karakter",
-			"NAME_TOO_LONG": "Nama harus maksimal {max} karakter"
+			"NAME_TOO_LONG": "Nama harus maksimal {max} karakter",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Tidak ada tag ditemukan.",

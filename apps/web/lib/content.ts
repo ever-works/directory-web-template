@@ -1304,7 +1304,12 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		items: items.sort((a, b) => {
 			if (a.featured && !b.featured) return -1;
 			if (!a.featured && b.featured) return 1;
-			return b.updatedAt.getTime() - a.updatedAt.getTime();
+			// updatedAt is supposed to be a Date but cache rehydration
+			// (and items not loaded through safeReadFile) can leave it
+			// as a string or undefined. Coerce defensively.
+			const aTime = a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt ?? 0).getTime();
+			const bTime = b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt ?? 0).getTime();
+			return bTime - aTime;
 		}),
 		categories: Array.from(categories.values()),
 		tags: sortedTags,

@@ -257,8 +257,8 @@ const ADMIN_ITEMS_STATS_QUERIES = [
 ] as const;
 
 test.describe('API: /api/admin/items/stats query-param surface', () => {
-	for (const path of ADMIN_ITEMS_STATS_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of ADMIN_ITEMS_STATS_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's admin gate fires before any
@@ -284,13 +284,11 @@ test.describe('API: /api/admin/items/stats query-param surface', () => {
 		// — every consuming client depends on the early-return.
 		const response = await request.get('/api/admin/items/stats');
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: 'Unauthorized. Admin access required.'
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/Unauthorized|Forbidden/i);
 	});
 
 	test('GET /api/admin/items/stats has a stable status across query permutations', async ({

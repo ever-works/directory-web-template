@@ -28,6 +28,12 @@
 		"DISCOVER": "Discover",
 		"HOME": "Home",
 		"ABOUT": "About",
+		"NO_TAGS_FOUND": "No tags found",
+		"NO_TAGS_DESCRIPTION": "No tags are available right now. Check back later.",
+		"NO_CATEGORIES_FOUND": "No categories found",
+		"NO_CATEGORIES_DESCRIPTION": "No categories are available right now. Check back later.",
+		"NO_RESULTS_FOUND": "No results found",
+		"NO_RESULTS_DESCRIPTION": "Try adjusting your filters or searching for something else.",
 		"LAYOUT": "Layout",
 		"LAYOUT_SELECTION": "Layout Selection",
 		"CHOOSE_PREFERRED_DESIGN": "Choose your preferred homepage design",
@@ -586,6 +592,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Account settings and preferences",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "Profile Settings",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Pagination Style",
 		"PAGINATION_STYLE_DESC": "Choose how content is displayed when browsing listings",
 		"PAGINATION_STANDARD_LABEL": "Standard",
@@ -642,6 +649,10 @@
 			"LOCATION": {
 				"TITLE": "Location Settings",
 				"DESCRIPTION": "Set your default location for nearby search and manage location privacy"
+			},
+			"VISIBILITY": {
+				"TITLE": "Profile Visibility",
+				"DESCRIPTION": "Choose who can see your profile — public to everyone or private and hidden from search"
 			}
 		},
 		"LOCATION_SETTINGS": {
@@ -664,6 +675,33 @@
 			"SAVED": "Location saved successfully",
 			"CLEARED": "Location cleared",
 			"SAVE_ERROR": "Failed to save location"
+		},
+		"VISIBILITY_SETTINGS": {
+			"TITLE": "Profile Visibility",
+			"DESCRIPTION": "Decide who can find and view your public profile page",
+			"BACK": "Back to Settings",
+			"CARD_TITLE": "Profile Visibility",
+			"CARD_HELP": "Public profiles appear in search and can be viewed by anyone. Private profiles are visible only to you.",
+			"TOGGLE_LABEL": "Public profile",
+			"TOGGLE_HELP_PUBLIC": "Your profile is visible to everyone. Anyone with the link can see your bio, portfolio, and activity.",
+			"TOGGLE_HELP_PRIVATE": "Your profile is hidden. Visitors will see a privacy notice and your activity is not shown to others.",
+			"STATUS_PUBLIC": "Public",
+			"STATUS_PRIVATE": "Private",
+			"VIEW_PUBLIC_PROFILE": "View your public profile",
+			"PUBLIC_TITLE": "Public",
+			"PUBLIC_DESCRIPTION": "Anyone can find and view your profile.",
+			"PUBLIC_BULLET_1": "Shows up in the people directory",
+			"PUBLIC_BULLET_2": "Visible to logged-out visitors",
+			"PUBLIC_BULLET_3": "Followers, portfolio, and activity are visible",
+			"PRIVATE_TITLE": "Private",
+			"PRIVATE_DESCRIPTION": "Only you can see your profile. Visitors get a privacy notice.",
+			"PRIVATE_BULLET_1": "Hidden from the people directory",
+			"PRIVATE_BULLET_2": "Direct links show a privacy notice",
+			"PRIVATE_BULLET_3": "You can still browse, follow, and comment",
+			"FOOTER_HELP": "Changes take effect immediately. You can switch back to public at any time.",
+			"SAVED_PUBLIC": "Your profile is now public",
+			"SAVED_PRIVATE": "Your profile is now private",
+			"SAVE_ERROR": "Failed to update profile visibility"
 		},
 		"SECURITY_PAGE": {
 			"TITLE": "Security Settings",
@@ -758,6 +796,52 @@
 				"DELETE_PROJECT": "Delete project"
 			},
 			"DELETE_CONFIRM": "Are you sure you want to delete \"{title}\"?"
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger zone",
+			"DESCRIPTION": "Permanent account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
+				"CTA": "Delete account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
+					"UNKNOWN": "Failed to delete account. Please try again."
+				}
+			}
 		}
 	},
 	"newsletter": {
@@ -1482,6 +1566,7 @@
 		"USAGE_NEXT_BACKUPS": "Implement backups"
 	},
 	"success": {
+		"NEW_SUBMISSION": "Your submission was received and is pending review.",
 		"SUBSCRIPTION_ACTIVATED": "Subscription Activated!",
 		"SUBMISSION_RECEIVED": "Submission Received!",
 		"SUBSCRIPTION_SUCCESS_MESSAGE": "Your premium subscription has been successfully activated",
@@ -1764,6 +1849,10 @@
 		"VIEW_SUBMISSION": "View submission",
 		"PROFILES_BREADCRUMB": "Profiles",
 		"BACK_TO_DASHBOARD": "Dashboard",
+		"PRIVATE_TITLE": "This profile is private",
+		"PRIVATE_DESCRIPTION": "The owner has hidden this profile from public view. Only they can see its contents.",
+		"PREVIEW_PUBLIC_VIEW": "Preview public view",
+		"EXIT_PREVIEW": "Exit preview",
 		"ABOUT_SECTION": "About",
 		"RECENT_ACTIVITY_SECTION": "Recent activity",
 		"SKILLS_EXPERTISE_SECTION": "Skills & expertise",
@@ -1919,15 +2008,22 @@
 		},
 		"NOTIFICATIONS": {
 			"TITLE": "Notifications",
+			"SUBTITLE": "Submissions, reports and platform activity that need attention.",
 			"NEW": "new",
+			"MARK_READ": "Mark read",
 			"MARK_ALL_READ": "Mark all read",
 			"LOADING": "Loading notifications...",
 			"NO_NOTIFICATIONS": "No notifications",
 			"ALL_CAUGHT_UP": "You're all caught up! New notifications will appear here.",
-			"VIEW_DETAILS": "View Details",
+			"VIEW_DETAILS": "View",
 			"VIEW_ALL_NOTIFICATIONS": "View All Notifications",
 			"NEW_BADGE": "NEW",
+			"ERROR_LOADING": "Error loading notifications",
+			"TRY_AGAIN": "Try Again",
+			"REFRESH": "Refresh notifications",
+			"CLOSE": "Close notifications panel",
 			"NOTIFICATION_TYPES": {
+				"NEW_SUBMISSION": "New submission",
 				"REPORTED_COMMENT": "Reported Comment",
 				"NEW_USER": "New User",
 				"PAYMENT_ISSUE": "Payment Issue",
@@ -2024,7 +2120,27 @@
 				"PERFORMANCE": "Performance",
 				"DATA_EXPORT_REPORTS": "Data Export & Reports",
 				"ADMIN_TOOLS": "Admin Tools",
-				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution"
+				"GEOGRAPHIC_DISTRIBUTION": "Geographic Distribution",
+				"SYSTEM_PERFORMANCE": "System Performance",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Data Export & Scheduled Reports"
+			},
+			"TABS": {
+				"LABEL": "Dashboard tabs",
+				"OVERVIEW": "Overview",
+				"ANALYTICS": "Analytics",
+				"PERFORMANCE": "Performance",
+				"REPORTS": "Reports",
+				"TOOLS": "Tools"
+			},
+			"SECTION_DESCRIPTIONS": {
+				"GEOGRAPHIC_DISTRIBUTION": "Where your users and items are located across the world.",
+				"SYSTEM_PERFORMANCE": "Real-time cache hit rates, query counts and response time averages.",
+				"DATA_EXPORT_SCHEDULED_REPORTS": "Export platform data as CSV or JSON, and manage automated report schedules."
+			},
+			"STATUS": {
+				"TOTAL_SUBMISSIONS": "Total Submissions",
+				"PENDING_REVIEW": "Pending Review",
+				"APPROVED": "Approved"
 			},
 			"ARIA_LABELS": {
 				"DASHBOARD_SECTIONS": "Dashboard sections",
@@ -2166,6 +2282,10 @@
 			"USERNAME_TAKEN": "Username is already taken",
 			"EMAIL_AVAILABLE": "Email is available",
 			"EMAIL_TAKEN": "Email is already taken",
+			"CLOSE": "Close",
+			"NO_TITLE_SET": "No title set",
+			"VIEW_PROFILE": "View profile",
+			"MEMBER_SINCE": "Member since",
 			"ERRORS": {
 				"SELECT_ROLE": "Please select a role",
 				"USERNAME_TAKEN": "Username is already taken",
@@ -3200,6 +3320,7 @@
 			"ID_LABEL": "ID:",
 			"INACTIVE": "Inactive",
 			"ACTIVE": "Active",
+			"FILTER_ALL": "All",
 			"NO_CATEGORIES_FOUND": "No categories found",
 			"NO_CATEGORIES_DESCRIPTION": "Create your first category to start organizing your content.",
 			"CREATE_FIRST_CATEGORY": "Create First Category",
@@ -3563,7 +3684,12 @@
 			"ID_TOO_LONG": "ID must be no more than 50 characters",
 			"NAME_REQUIRED": "Category name is required",
 			"NAME_TOO_SHORT": "Name must be at least {min} characters",
-			"NAME_TOO_LONG": "Name must be no more than {max} characters"
+			"NAME_TOO_LONG": "Name must be no more than {max} characters",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "No tags found.",
@@ -3677,10 +3803,35 @@
 		"SPONSORED": "Sponsored",
 		"LEARN_MORE": "Learn more"
 	},
+	"usersDirectory": {
+		"HERO_TITLE": "Community",
+		"HERO_SUBTITLE": "Discover people building and sharing in this directory.",
+		"RESULTS_FOR": "Results for \"{query}\"",
+		"PROFILES_COUNT": "{count, plural, =0 {No profiles} =1 {# profile} other {# profiles}}",
+		"SEARCH_PLACEHOLDER": "Search by name, username, role, location…",
+		"SEARCH_BUTTON": "Search",
+		"CLEAR_SEARCH": "Clear search",
+		"VIEW_LIST": "List",
+		"VIEW_GRID": "Grid",
+		"VIEW_TOGGLE_LABEL": "Layout",
+		"EMPTY_TITLE_QUERY": "No profiles match your search",
+		"EMPTY_TITLE_DEFAULT": "No profiles yet",
+		"EMPTY_DESC_QUERY": "Try a broader query or clear filters to see everyone.",
+		"EMPTY_DESC_DEFAULT": "Once people join the community, they'll show up here.",
+		"EMPTY_CTA_BROWSE_ALL": "Browse everyone",
+		"PAGINATION_PREV": "Previous",
+		"PAGINATION_NEXT": "Next",
+		"PAGINATION_PAGE_OF": "Page {current} of {total}",
+		"FOLLOW": "Follow",
+		"FOLLOWING": "Following",
+		"VIEW_PROFILE": "View profile",
+		"YOU_BADGE": "You"
+	},
 	"client": {
 		"submissions": {
 			"PAGE_TITLE": "Submissions Management",
 			"PAGE_DESCRIPTION": "Track and manage your directory submissions.",
+			"NEW_SUBMISSION": "New Submission",
 			"FILTER_ALL": "All",
 			"FILTER_APPROVED": "Approved",
 			"FILTER_PENDING": "Pending",
@@ -3786,11 +3937,35 @@
 			"COMMUNITY_SCORE": "Community Score",
 			"YOUR_SUBMISSIONS": "Your Submissions",
 			"TRASH": "Trash",
-			"BULK_IMPORT": "Bulk Import"
+			"BULK_IMPORT": "Bulk Import",
+			"NEW_SUBMISSION": "New Submission",
+			"NEW_SUBMISSION_SHORT": "New",
+			"OF_TOTAL_PERCENT": "{percent} of total",
+			"ALL_TIME": "All time",
+			"SORT_BY": "Sort by",
+			"SORT_RECENTLY_UPDATED": "Recently updated",
+			"SORT_RECENTLY_SUBMITTED": "Recently submitted",
+			"SORT_TITLE": "Title",
+			"SORT_STATUS": "Status",
+			"SORT_ASC": "Sort ascending",
+			"SORT_DESC": "Sort descending",
+			"CLEAR_SEARCH": "Clear search",
+			"CLEAR_FILTERS": "Clear filters",
+			"FILTER_BY_STATUS": "Filter by status",
+			"NO_RESULTS_TITLE": "No matching submissions",
+			"NO_RESULTS_DESC": "Try clearing filters or adjusting your search.",
+			"COL_SUBMISSION": "Submission",
+			"COL_STATUS": "Status",
+			"COL_CATEGORY": "Category",
+			"COL_METRICS": "Metrics",
+			"COL_ACTIONS": "Actions",
+			"PAGINATION_NAV": "Pagination"
 		},
 		"sponsorships": {
 			"PAGE_TITLE": "My Sponsorships",
 			"PAGE_DESCRIPTION": "Track and manage your sponsor ad submissions.",
+			"STATUS_FILTER": "Filter by status",
+			"INTERVAL_FILTER": "Filter by billing interval",
 			"YOUR_SPONSORSHIPS": "Your Sponsorships",
 			"NEW_SPONSORSHIP": "New Sponsorship",
 			"TOTAL_SPONSORSHIPS": "Total",
@@ -4048,6 +4223,142 @@
 				"VIEWS": "Views will appear once your content is approved.",
 				"VOTES": "Votes will appear as people interact with your content.",
 				"COMMENTS": "Comments will appear once people engage with your content."
+			}
+		},
+		"notifications": {
+			"pageTitle": "Notifications",
+			"pageSubtitle": "All activity for your account.",
+			"refresh": "Refresh",
+			"retry": "Retry",
+			"tooltip": "Notifications",
+			"view": {
+				"list": "List view",
+				"grid": "Grid view",
+				"aria": {
+					"group": "Toggle layout"
+				}
+			},
+			"actions": {
+				"open": "Open",
+				"markRead": "Mark as read",
+				"markUnread": "Mark as unread",
+				"dismiss": "Dismiss notification",
+				"criticalLabel": "Critical",
+				"highLabel": "Important"
+			},
+			"errors": {
+				"generic": "Failed to load notifications"
+			},
+			"aria": {
+				"bellWithCount": "Notifications ({n} unread)"
+			},
+			"dropdown": {
+				"title": "Notifications",
+				"markAllRead": "Mark all read",
+				"seeAll": "View all notifications",
+				"newBadge": "new",
+				"refresh": "Refresh notifications",
+				"close": "Close notifications panel",
+				"aria": {
+					"title": "Notifications",
+					"preferences": "Notification preferences"
+				}
+			},
+			"types": {
+				"newBadge": "New",
+				"user_followed": "New follower",
+				"comment_received": "Comment",
+				"item_submission": "New submission",
+				"item_approved": "Item approved",
+				"item_rejected": "Item rejected",
+				"comment_reported": "Comment reported",
+				"item_reported": "Item reported",
+				"payment_failed": "Payment issue",
+				"payment_succeeded": "Payment received",
+				"subscription_expiring": "Subscription expiring",
+				"user_registered": "New user",
+				"security_alert": "Security alert",
+				"password_changed": "Password changed",
+				"system_alert": "System alert",
+				"admin_announcement": "Announcement"
+			},
+			"tabs": {
+				"aria": "Notification filters",
+				"all": "All",
+				"unread": "Unread",
+				"system": "System"
+			},
+			"sections": {
+				"today": "Today",
+				"yesterday": "Yesterday",
+				"thisWeek": "This week",
+				"earlier": "Earlier"
+			},
+			"empty": {
+				"allTitle": "You are all caught up",
+				"allBody": "We will let you know when something new happens.",
+				"unreadTitle": "No unread notifications",
+				"unreadBody": "Everything has been read.",
+				"systemTitle": "No system notifications",
+				"systemBody": "Account and security alerts will show up here.",
+				"managePreferences": "Manage preferences"
+			},
+			"filters": {
+				"searchPlaceholder": "Search notifications…",
+				"allTypes": "All types",
+				"allPriorities": "All priorities",
+				"reset": "Reset",
+				"aria": {
+					"search": "Search notifications",
+					"type": "Filter by type",
+					"priority": "Filter by priority",
+					"dateFrom": "From date",
+					"dateTo": "To date"
+				}
+			},
+			"bulk": {
+				"selected": "{n} selected",
+				"markRead": "Mark read",
+				"archive": "Archive",
+				"delete": "Delete",
+				"aria": {
+					"clear": "Clear selection"
+				}
+			},
+			"preferences": {
+				"pageTitle": "Notification preferences",
+				"pageSubtitle": "Pick how and when we notify you.",
+				"back": "Back to notifications",
+				"cta": "Preferences",
+				"globalTitle": "Email & quiet hours",
+				"globalSubtitle": "How and when we contact you.",
+				"emailDigest": "Email digest",
+				"quietHoursStart": "Quiet hours start",
+				"quietHoursEnd": "Quiet hours end",
+				"columnEvent": "Event",
+				"lockedHint": "Required for account safety",
+				"save": "Save preferences",
+				"saving": "Saving…",
+				"digest": {
+					"instant": "Instant",
+					"daily": "Daily",
+					"weekly": "Weekly",
+					"off": "Off"
+				},
+				"channel": {
+					"in_app": "In-app",
+					"email": "Email",
+					"push": "Push",
+					"sms": "SMS"
+				},
+				"category": {
+					"social": "Social",
+					"item": "Item lifecycle",
+					"moderation": "Moderation",
+					"billing": "Billing",
+					"account": "Account",
+					"system": "System"
+				}
 			}
 		}
 	},
