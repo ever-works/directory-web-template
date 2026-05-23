@@ -3,20 +3,23 @@
 export interface CategoryData {
   id: string;
   name: string;
+  isActive: boolean;
 }
 
 export interface CategoryWithCount extends CategoryData {
   count?: number;
-  isInactive?: boolean;
 }
 
 export interface CreateCategoryRequest {
   id: string;
   name: string;
+  isActive?: boolean;
 }
 
-export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
+export interface UpdateCategoryRequest {
   id: string;
+  name?: string;
+  isActive?: boolean;
 }
 
 export interface CategoryListResponse {
