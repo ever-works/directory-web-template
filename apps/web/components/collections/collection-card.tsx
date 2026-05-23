@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Collection } from '@/types/collection';
 import Image from 'next/image';
+import { CollectionIcon } from './collection-icon';
 
 interface CollectionCardProps {
 	collection: Collection;
@@ -72,17 +73,17 @@ export function CollectionCard({ collection }: CollectionCardProps) {
 			{/* Content container */}
 			<div className="relative z-10 pt-4">
 				{/* Icon with reduced glow */}
-				<div className="relative mb-4 text-4xl transition-all duration-500">
+				<div className="relative mb-4 transition-all duration-500">
 					<div
-						className="absolute -inset-3 bg-theme-primary/10 rounded-full blur-md 
+						className="absolute -inset-3 bg-theme-primary/10 rounded-full blur-md
           opacity-0 group-hover:opacity-70 transition-opacity duration-500"
 					/>
-					<span
-						className="relative z-10 group-hover:text-theme-primary 
-          transition-colors duration-300"
-					>
-						{collection.icon_url || '📦'}
-					</span>
+					<CollectionIcon
+						iconUrl={collection.icon_url}
+						fallback="📦"
+						className="relative z-10 w-14 h-14 text-4xl group-hover:text-theme-primary transition-colors duration-300"
+						alt={collection.name}
+					/>
 				</div>
 
 				{/* Title */}

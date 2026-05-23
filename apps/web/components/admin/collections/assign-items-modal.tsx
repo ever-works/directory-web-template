@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import { Input, Checkbox } from '@heroui/react';
-import { Search, Save, X } from 'lucide-react';
+import { Search, Save, X, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from '@/components/ui/modal';
@@ -28,25 +28,41 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 	const [saving, setSaving] = useState(false);
 	const listRef = useRef<HTMLDivElement | null>(null);
 
-	const { items, total, totalPages, isLoading, isSubmitting, refetch } = useAdminItems({
-		page,
-		limit: PageSize,
-		search
-	});
+	// `useDeferredValue` keeps the input responsive and collapses multiple
+	// keystrokes into one query — previously every character fired a fresh
+	// /api/admin/items request, which is the main reason this modal felt slow.
+	const deferredSearch = useDeferredValue(search);
 
+	const { items, total, totalPages, isLoading, isFetching, isSubmitting } = useAdminItems(
+		{
+			page,
+			limit: PageSize,
+			search: deferredSearch
+		},
+		{
+			// Only fire the items query while the modal is actually open —
+			// before, the queries ran on every page render because the modal
+			// stays mounted for its open / close animation.
+			enabled: isOpen,
+			// We don't render any stats here, so skip the parallel
+			// /api/admin/items/stats request — it was halving the modal's
+			// effective bandwidth on open and on every search keystroke.
+			enableStats: false
+		}
+	);
+
+	// Re-seed selection / search / page only when the modal transitions
+	// closed → open, so a late-arriving `initialSelected` (e.g. a future
+	// lazy fetch of assigned slugs) can't wipe user clicks mid-session.
+	const wasOpenRef = useRef(false);
 	useEffect(() => {
-		if (isOpen) {
+		if (isOpen && !wasOpenRef.current) {
 			setSelectedIds(new Set(initialSelected));
+			setSearch('');
+			setPage(1);
 		}
-	}, [initialSelected, isOpen]);
-
-	// Refetch when modal opens - React Query already refetches automatically when page/search change
-	// (they're part of the query key in useAdminItems)
-	useEffect(() => {
-		if (isOpen) {
-			refetch();
-		}
-	}, [isOpen, refetch]);
+		wasOpenRef.current = isOpen;
+	}, [isOpen, initialSelected]);
 
 	const selectedCount = useMemo(() => selectedIds.size, [selectedIds]);
 
@@ -103,8 +119,11 @@ export function AssignItemsModal({ isOpen, onClose, collectionName: _collectionN
 								}}
 								className="sm:w-80"
 							/>
-							<div className="text-sm text-gray-600 dark:text-gray-400">
-								{tListing('FILTER_STATUS', { filtered: items.length, total })}
+							<div className="text-sm text-gray-600 dark:text-gray-400 inline-flex items-center gap-1.5">
+								{isFetching && !isLoading ? (
+									<Loader2 className="w-3.5 h-3.5 animate-spin text-gray-400" aria-hidden="true" />
+								) : null}
+								<span>{tListing('FILTER_STATUS', { filtered: items.length, total })}</span>
 							</div>
 						</div>
 
