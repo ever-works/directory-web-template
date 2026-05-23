@@ -75,24 +75,27 @@ export class CategoryRepository {
   async findAllPaginated(options: CategoryListOptions = {}): Promise<{
     categories: CategoryWithCount[];
     total: number;
+    activeTotal: number;
     page: number;
     limit: number;
     totalPages: number;
   }> {
     const { page = 1, limit = 10, ...filterOptions } = options;
-    
-    // Get all filtered and sorted categories
-    const allCategories = await this.findAll(filterOptions);
+
+    // Get all filtered and sorted categories (always include inactive for full counts)
+    const allCategories = await this.findAll({ ...filterOptions, includeInactive: true });
     const total = allCategories.length;
-    
+    const activeTotal = allCategories.filter((c) => !c.isInactive).length;
+
     // Calculate pagination
     const offset = (page - 1) * limit;
     const paginatedCategories = allCategories.slice(offset, offset + limit);
     const totalPages = Math.ceil(total / limit);
-    
+
     return {
       categories: paginatedCategories,
       total,
+      activeTotal,
       page,
       limit,
       totalPages,
