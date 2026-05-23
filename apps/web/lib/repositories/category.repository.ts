@@ -55,9 +55,11 @@ export class CategoryRepository {
     const gitService = await this.getGitService();
     const categories: CategoryWithCount[] = await gitService.readCategories();
 
-    const filteredCategories = options.includeInactive
-      ? categories
-      : categories.filter((c) => c.isActive);
+    const filteredCategories = options.onlyInactive
+      ? categories.filter((c) => !c.isActive)
+      : options.includeInactive
+        ? categories
+        : categories.filter((c) => c.isActive);
 
     return this.sortCategories(filteredCategories, options);
   }
@@ -79,10 +81,12 @@ export class CategoryRepository {
     const allWithInactive = await this.findAll({ ...filterOptions, includeInactive: true });
     const activeTotal = allWithInactive.filter((c) => c.isActive).length;
 
-    // Respect the caller's includeInactive flag for the paginated slice.
-    const filteredForPage = filterOptions.includeInactive === true
-      ? allWithInactive
-      : allWithInactive.filter((c) => c.isActive);
+    // Respect the caller's status filter for the paginated slice.
+    const filteredForPage = filterOptions.onlyInactive
+      ? allWithInactive.filter((c) => !c.isActive)
+      : filterOptions.includeInactive === true
+        ? allWithInactive
+        : allWithInactive.filter((c) => c.isActive);
 
     const total = filteredForPage.length;
     const offset = (page - 1) * limit;

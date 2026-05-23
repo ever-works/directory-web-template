@@ -186,6 +186,7 @@ export async function GET(request: NextRequest) {
     const { page, limit } = paginationResult;
 
     const includeInactive = searchParams.get('includeInactive') === 'true';
+    const onlyInactive = searchParams.get('onlyInactive') === 'true';
     const sortByParam = searchParams.get('sortBy');
     const sortBy = (sortByParam === 'name' || sortByParam === 'id') ? sortByParam : 'name';
     const sortOrderParam = searchParams.get('sortOrder');
@@ -193,6 +194,7 @@ export async function GET(request: NextRequest) {
 
     const options: CategoryListOptions = {
       includeInactive,
+      onlyInactive,
       sortBy,
       sortOrder,
       page,

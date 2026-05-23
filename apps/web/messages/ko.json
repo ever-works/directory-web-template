@@ -3171,7 +3171,8 @@
 			"DELETE": "삭제",
 			"WARNING_DISABLED_TITLE": "카테고리가 현재 사이트 전체에서 비활성화됨",
 			"WARNING_DISABLED_MESSAGE": "카테고리는 탐색, 필터, 항목 페이지를 포함한 공개 사이트에서 숨겨져 있습니다. 여기서는 여전히 카테고리를 관리할 수 있지만, 재활성화될 때까지 사용자에게 보이지 않습니다.",
-			"WARNING_DISABLED_ACTION": "활성화하려면 설정으로 이동"
+			"WARNING_DISABLED_ACTION": "활성화하려면 설정으로 이동",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "카테고리 활성화",

@@ -3320,6 +3320,7 @@
 			"ID_LABEL": "ID:",
 			"INACTIVE": "Inactive",
 			"ACTIVE": "Active",
+			"FILTER_ALL": "All",
 			"NO_CATEGORIES_FOUND": "No categories found",
 			"NO_CATEGORIES_DESCRIPTION": "Create your first category to start organizing your content.",
 			"CREATE_FIRST_CATEGORY": "Create First Category",

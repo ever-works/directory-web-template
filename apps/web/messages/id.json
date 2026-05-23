@@ -3109,7 +3109,8 @@
 			"DELETE": "Hapus",
 			"WARNING_DISABLED_TITLE": "Kategori saat ini dinonaktifkan di seluruh situs",
 			"WARNING_DISABLED_MESSAGE": "Kategori disembunyikan dari situs publik termasuk navigasi, filter, dan halaman item. Anda masih dapat mengelola kategori di sini, tetapi tidak akan terlihat oleh pengguna hingga diaktifkan kembali.",
-			"WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan"
+			"WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Aktifkan Kategori",

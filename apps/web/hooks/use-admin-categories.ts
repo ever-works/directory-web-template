@@ -24,6 +24,7 @@ const fetchCategories = async (params: CategoryListOptions = {}): Promise<Catego
   const searchParams = new URLSearchParams();
   
   if (params.includeInactive) searchParams.set('includeInactive', 'true');
+  if (params.onlyInactive) searchParams.set('onlyInactive', 'true');
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.sortBy) searchParams.set('sortBy', params.sortBy);

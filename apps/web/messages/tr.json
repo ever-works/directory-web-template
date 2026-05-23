@@ -3108,7 +3108,8 @@
 			"DELETE": "Sil",
 			"WARNING_DISABLED_TITLE": "Kategoriler şu anda site genelinde devre dışı",
 			"WARNING_DISABLED_MESSAGE": "Kategoriler, gezinti, filtreler ve öğe sayfaları dahil kamuya açık siteden gizlenmiştir. Burada kategorileri yönetmeye devam edebilirsiniz, ancak yeniden etkinleştirilene kadar kullanıcılar tarafından görülemeyecektir.",
-			"WARNING_DISABLED_ACTION": "Etkinleştirmek için Ayarlara Git"
+			"WARNING_DISABLED_ACTION": "Etkinleştirmek için Ayarlara Git",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Kategorileri Etkinleştir",

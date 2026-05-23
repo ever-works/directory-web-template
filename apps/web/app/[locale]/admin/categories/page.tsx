@@ -19,10 +19,17 @@ export default function AdminCategoriesPage() {
 
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const [currentPage, setCurrentPage] = useState(1);
+	const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 	const limit = viewMode === 'grid' ? 12 : 10;
 	const [selectedCategory, setSelectedCategory] = useState<CategoryData | null>(null);
 	const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
 	const [isOpen, setIsOpen] = useState(false);
+
+	const filterParams = statusFilter === 'inactive'
+		? { includeInactive: true, onlyInactive: true }
+		: statusFilter === 'active'
+			? { includeInactive: false }
+			: { includeInactive: true };
 
 	const {
 		categories,
@@ -39,7 +46,7 @@ export default function AdminCategoriesPage() {
 		params: {
 			page: currentPage,
 			limit,
-			includeInactive: true,
+			...filterParams,
 			sortBy: 'name',
 			sortOrder: 'asc'
 		}
@@ -94,6 +101,11 @@ export default function AdminCategoriesPage() {
 		setCurrentPage(newPage);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 	}, []);
+
+	const handleStatusFilter = (filter: 'all' | 'active' | 'inactive') => {
+		setStatusFilter(filter);
+		setCurrentPage(1);
+	};
 
 	const { isInitialLoad } = useNavigation();
 	const shouldShowSkeleton = isInitialLoad && isLoading;
@@ -257,8 +269,28 @@ export default function AdminCategoriesPage() {
 
 			{/* Categories List */}
 			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
-				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
-					<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('CATEGORIES_TITLE')}</h3>
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex flex-wrap items-center justify-between gap-3">
+					<div className="flex items-center gap-3">
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('CATEGORIES_TITLE')}</h3>
+						{/* Status filter tabs */}
+						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
+							{(['all', 'active', 'inactive'] as const).map((f) => (
+								<button
+									key={f}
+									type="button"
+									onClick={() => handleStatusFilter(f)}
+									className={cn(
+										'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+										statusFilter === f
+											? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+											: 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+									)}
+								>
+									{f === 'all' ? t('FILTER_ALL') : f === 'active' ? t('ACTIVE') : t('INACTIVE')}
+								</button>
+							))}
+						</div>
+					</div>
 					<div className="flex items-center gap-3">
 						<span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
 							{categories.length} / {totalCategories} {t('CATEGORIES_COUNT')}
