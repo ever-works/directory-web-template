@@ -53,20 +53,13 @@ export class CategoryRepository {
    */
   async findAll(options: CategoryListOptions = {}): Promise<CategoryWithCount[]> {
     const gitService = await this.getGitService();
-    const categories = await gitService.readCategories();
-    
-    let filteredCategories = categories;
+    const categories: CategoryWithCount[] = await gitService.readCategories();
 
-    // All categories are considered active since we removed isActive field
-    // This filter is kept for backward compatibility but always returns all categories
-    if (!options.includeInactive) {
-      filteredCategories = categories; // All categories are active
-    }
+    const filteredCategories = options.includeInactive
+      ? categories
+      : categories.filter((c) => !c.isInactive);
 
-    // Sort categories
-    filteredCategories = this.sortCategories(filteredCategories, options);
-
-    return filteredCategories;
+    return this.sortCategories(filteredCategories, options);
   }
 
   /**
@@ -82,14 +75,18 @@ export class CategoryRepository {
   }> {
     const { page = 1, limit = 10, ...filterOptions } = options;
 
-    // Get all filtered and sorted categories (always include inactive for full counts)
-    const allCategories = await this.findAll({ ...filterOptions, includeInactive: true });
-    const total = allCategories.length;
-    const activeTotal = allCategories.filter((c) => !c.isInactive).length;
+    // Fetch the full unfiltered list once for accurate global counts.
+    const allWithInactive = await this.findAll({ ...filterOptions, includeInactive: true });
+    const activeTotal = allWithInactive.filter((c) => !c.isInactive).length;
 
-    // Calculate pagination
+    // Respect the caller's includeInactive flag for the paginated slice.
+    const filteredForPage = filterOptions.includeInactive === true
+      ? allWithInactive
+      : allWithInactive.filter((c) => !c.isInactive);
+
+    const total = filteredForPage.length;
     const offset = (page - 1) * limit;
-    const paginatedCategories = allCategories.slice(offset, offset + limit);
+    const paginatedCategories = filteredForPage.slice(offset, offset + limit);
     const totalPages = Math.ceil(total / limit);
 
     return {
@@ -244,10 +241,13 @@ export class CategoryRepository {
   private sortCategories(categories: CategoryData[], options: CategoryListOptions): CategoryData[] {
     const { sortBy = 'name', sortOrder = 'asc' } = options;
 
-    return categories.sort((a, b) => {
+    return [...categories].sort((a, b) => {
       let comparison = 0;
 
       switch (sortBy) {
+        case 'id':
+          comparison = a.id.localeCompare(b.id);
+          break;
         case 'name':
         default:
           comparison = a.name.localeCompare(b.name);
