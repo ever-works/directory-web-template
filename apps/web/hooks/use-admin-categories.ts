@@ -24,6 +24,7 @@ const fetchCategories = async (params: CategoryListOptions = {}): Promise<Catego
   const searchParams = new URLSearchParams();
   
   if (params.includeInactive) searchParams.set('includeInactive', 'true');
+  if (params.onlyInactive) searchParams.set('onlyInactive', 'true');
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.limit) searchParams.set('limit', params.limit.toString());
   if (params.sortBy) searchParams.set('sortBy', params.sortBy);
@@ -39,13 +40,13 @@ const fetchCategories = async (params: CategoryListOptions = {}): Promise<Catego
 };
 
 const fetchCategory = async (id: string): Promise<CategoryData> => {
-  const response = await serverClient.get<{ success: boolean; category: CategoryData }>(`/api/admin/categories/${id}`);
-  
+  const response = await serverClient.get<{ success: boolean; data: CategoryData }>(`/api/admin/categories/${id}`);
+
   if (!apiUtils.isSuccess(response)) {
     throw new Error(apiUtils.getErrorMessage(response));
   }
-  
-  return response.data.category;
+
+  return response.data.data;
 };
 
 const createCategory = async (data: CreateCategoryRequest): Promise<CategoryData> => {
@@ -59,13 +60,13 @@ const createCategory = async (data: CreateCategoryRequest): Promise<CategoryData
 };
 
 const updateCategory = async (id: string, data: UpdateCategoryRequest): Promise<CategoryData> => {
-  const response = await serverClient.put<{ success: boolean; category: CategoryData }>(`/api/admin/categories/${id}`, data);
-  
+  const response = await serverClient.put<{ success: boolean; data: CategoryData }>(`/api/admin/categories/${id}`, data);
+
   if (!apiUtils.isSuccess(response)) {
     throw new Error(apiUtils.getErrorMessage(response));
   }
-  
-  return response.data.category;
+
+  return response.data.data;
 };
 
 const deleteCategory = async (id: string, hard = false): Promise<void> => {
@@ -97,6 +98,7 @@ export interface UseAdminCategoriesReturn {
   // Data
   categories: CategoryWithCount[];
   total: number;
+  activeTotal: number;
   page: number;
   totalPages: number;
   limit: number;
@@ -207,6 +209,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}): Use
     // Data
     categories: categoriesData?.categories || [],
     total: categoriesData?.total || 0,
+    activeTotal: categoriesData?.activeTotal ?? categoriesData?.total ?? 0,
     page: categoriesData?.page || 1,
     totalPages: categoriesData?.totalPages || 1,
     limit: categoriesData?.limit || 10,

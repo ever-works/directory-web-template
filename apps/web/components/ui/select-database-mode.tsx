@@ -32,32 +32,25 @@ const SelectDatabaseMode: React.FC<SelectDatabaseModeProps> = ({ className, disa
 	return (
 		<div
 			className={cn(
-				'group p-5 rounded-xl',
-				'bg-white/80 dark:bg-white/[0.04]',
-				'border border-gray-200/50 dark:border-white/[0.07]',
+				'p-4 rounded-xl',
+				'bg-white dark:bg-[#111111]',
+				'border border-gray-200 dark:border-white/6',
 				'shadow-sm',
-				'transition-all duration-200',
 				className
 			)}
 		>
 			<div className="flex flex-col md:flex-row items-start justify-between gap-4">
 				{/* Icon + Title/Description */}
 				<div className="flex items-start gap-3 flex-1 min-w-0 w-full">
-					{/* Icon container with emerald gradient and glassmorphism */}
-					<div
-						className={cn(
-							'bg-gray-100 dark:bg-white/5 p-2 rounded-lg flex-shrink-0',
-						)}
-					>
-						<Database className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+					<div className="shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-theme-primary-50 dark:bg-theme-primary-900/30">
+						<Database className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
 					</div>
 
-					{/* Text content with improved typography */}
 					<div className="flex-1 min-w-0">
-						<h3 className="text-base font-semibold tracking-tight leading-tight text-gray-900 dark:text-gray-100">
+						<h3 className="text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
 							{t('DATABASE_MODE')}
 						</h3>
-						<p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mt-1">
+						<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
 							{t('DATABASE_MODE_DESC')}
 						</p>
 					</div>

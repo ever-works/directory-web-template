@@ -26,6 +26,11 @@ const dataUrlSchema = z
 	.startsWith('data:image/', { message: 'Avatar must be an image data URL' })
 	.max(AVATAR_DATA_URL_MAX_LENGTH, { message: 'Avatar exceeds maximum size' });
 
+/** Profile visibility — public profile is reachable by anyone vs. owner-only. */
+export const profileVisibilityValues = ['public', 'private'] as const;
+export const profileVisibilitySchema = z.enum(profileVisibilityValues);
+export type ProfileVisibility = z.infer<typeof profileVisibilitySchema>;
+
 /** Schema for `PATCH /api/user/profile`. All fields optional. */
 export const updateProfileSchema = z.object({
 	displayName: z.string().trim().min(1).max(100).optional(),
@@ -38,7 +43,8 @@ export const updateProfileSchema = z.object({
 	interests: z.string().max(200).nullable().optional(),
 	skills: z.array(skillSchema).max(50).nullable().optional(),
 	avatar: z.union([dataUrlSchema, z.literal(''), z.null()]).optional(),
-	coverColor: z.string().max(30).nullable().optional()
+	coverColor: z.string().max(30).nullable().optional(),
+	profileVisibility: profileVisibilitySchema.optional()
 });
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 

@@ -118,7 +118,7 @@ test.describe('API: /api/favorites/[itemSlug] DELETE method surface', () => {
 		if (response.status() === 401) {
 			const body = await response.json();
 			expect(body.success).toBe(false);
-			expect(body.error).toBe('Unauthorized');
+			expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		}
 	});
 

@@ -2,6 +2,7 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Collection } from "@/types/collection";
+import { CollectionIcon } from "./collection-icon";
 import { ItemData, Tag } from "@/lib/content";
 import { Container, useContainerWidth } from "@/components/ui/container";
 import { ListingClient } from "@/components/shared-card/listing-client";
@@ -95,7 +96,12 @@ function CollectionHero(props: CollectionHeroProps) {
       title={
         <div className="flex flex-col items-center gap-4">
           {collection.icon_url && (
-            <div className={iconClassName}>{collection.icon_url}</div>
+            <CollectionIcon
+              iconUrl={collection.icon_url}
+              fallback="📦"
+              className={iconClassName}
+              alt={collection.name}
+            />
           )}
           <span className="bg-linear-to-r from-theme-primary via-purple-500 to-theme-primary bg-clip-text text-transparent inline-block leading-tight">
             {collection.name}

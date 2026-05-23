@@ -50,18 +50,28 @@ test.describe('Admin: Collections Management', () => {
 		await collectionsPage.navigate();
 		await collectionsPage.waitForPageReady();
 
-		// Wait for collections to load — look for collection name headings
-		const firstCollection = adminPage.locator('h4, h3').first();
-		await expect(firstCollection).toBeVisible({ timeout: 10_000 });
-		const originalName = await firstCollection.textContent();
+		// Restrict the row-name lookup to actual collection rows (the
+		// page renders each row inside a `div.group` whose innermost
+		// `<h4>` carries the collection name). Searching for any
+		// `h3/h4` previously matched footer headings ("Connect with us")
+		// when the collections list was empty / still loading.
+		const collectionRowLocator = adminPage.locator('div.group').filter({ has: adminPage.locator('h4') });
+		const rowCount = await collectionRowLocator.count();
+		if (rowCount === 0) {
+			test.skip(true, 'No collections present to edit');
+			return;
+		}
+		const firstRow = collectionRowLocator.first();
+		const firstHeading = firstRow.locator('h4').first();
+		await expect(firstHeading).toBeVisible({ timeout: 10_000 });
+		const originalName = (await firstHeading.textContent())?.trim();
 		expect(originalName).toBeTruthy();
 
-		// Hover over the collection row to reveal action buttons
-		const collectionRow = adminPage.locator('div.group').filter({ hasText: originalName!.trim() }).first();
-		await collectionRow.hover();
+		// Hover over the actual collection row to reveal action buttons
+		await firstRow.hover();
 
-		// Click the Edit button
-		const editButton = collectionRow.getByRole('button', { name: /edit/i }).first();
+		// Click the Edit button on that row
+		const editButton = firstRow.getByRole('button', { name: /edit/i }).first();
 		await editButton.click();
 
 		// Collection form modal should open
@@ -85,10 +95,18 @@ test.describe('Admin: Collections Management', () => {
 		await collectionsPage.navigate();
 		await collectionsPage.waitForPageReady();
 
-		// Wait for collections to load
-		const firstCollection = adminPage.locator('h4, h3').first();
-		await expect(firstCollection).toBeVisible({ timeout: 10_000 });
-		const collectionName = await firstCollection.textContent();
+		// Restrict the row-name lookup to actual collection rows (see
+		// edit test for context — `h3/h4` alone leaks the footer).
+		const collectionRowLocator = adminPage.locator('div.group').filter({ has: adminPage.locator('h4') });
+		const rowCount = await collectionRowLocator.count();
+		if (rowCount === 0) {
+			test.skip(true, 'No collections present to delete');
+			return;
+		}
+		const firstRow = collectionRowLocator.first();
+		const firstHeading = firstRow.locator('h4').first();
+		await expect(firstHeading).toBeVisible({ timeout: 10_000 });
+		const collectionName = (await firstHeading.textContent())?.trim();
 		expect(collectionName).toBeTruthy();
 
 		// Set up dialog handler to accept the native confirm
@@ -96,16 +114,15 @@ test.describe('Admin: Collections Management', () => {
 			await dialog.accept();
 		});
 
-		// Hover to reveal action buttons
-		const collectionRow = adminPage.locator('div.group').filter({ hasText: collectionName!.trim() }).first();
-		await collectionRow.hover();
-
-		// Click the Delete button
-		const deleteButton = collectionRow.getByRole('button', { name: /delete/i }).first();
+		// Hover to reveal action buttons + click Delete on the actual row
+		await firstRow.hover();
+		const deleteButton = firstRow.getByRole('button', { name: /delete/i }).first();
 		await deleteButton.click();
 
-		// The collection should be removed from the list
-		await expect(adminPage.getByText(collectionName!.trim()).first()).toBeHidden({ timeout: 10_000 });
+		// The collection should be removed from the list (look inside
+		// the row container, not the whole page — the page chrome may
+		// contain the same word incidentally).
+		await expect(adminPage.locator('div.group').filter({ hasText: collectionName! }).first()).toBeHidden({ timeout: 10_000 });
 	});
 
 	test('collections page displays stats cards', async ({ adminPage }) => {

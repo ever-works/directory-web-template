@@ -20,7 +20,9 @@ export const SearchInput = ({ searchTerm, setSearchTerm, className }: SearchInpu
           <Search className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </div>
         <input
-          type="text"
+          type="search"
+          role="searchbox"
+          aria-label="Search"
           placeholder="Search..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

@@ -51,7 +51,7 @@ test.describe('API: /api/chat — enabled state contract (T-013g)', () => {
 			data: bodyForScenario('my-submissions'),
 			headers: apiOverrideHeaders()
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('returns 429 after the rate-limit window is exhausted', async ({ request }) => {

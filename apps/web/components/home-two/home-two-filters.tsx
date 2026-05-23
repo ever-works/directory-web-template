@@ -164,11 +164,9 @@ export function HomeTwoFilters({
         <div className="text-xs text-gray-600 dark:text-gray-400">
           {filteredCount !== undefined && totalCount !== undefined ? (
             filteredCount === totalCount ? (
-              <span>Showing {totalCount} items</span>
+              <span>{t('SHOWING_TOTAL_ITEMS', { total: totalCount })}</span>
             ) : (
-              <span>
-                Showing {filteredCount} of {totalCount} items
-              </span>
+              <span>{t('FILTER_STATUS', { filtered: filteredCount, total: totalCount })}</span>
             )
           ) : null}
         </div>

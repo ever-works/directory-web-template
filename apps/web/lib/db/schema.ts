@@ -227,6 +227,13 @@ export const clientProfiles = pgTable(
 		defaultCity: text('default_city'),
 		defaultCountry: text('default_country'),
 		locationPrivacy: text('location_privacy').default('private'),
+		// Profile visibility — controls whether the public `/client/profile/<username>`
+		// page is reachable by other users. Owner always sees their own profile.
+		profileVisibility: text('profile_visibility', {
+			enum: ['public', 'private']
+		})
+			.notNull()
+			.default('public'),
 		twoFactorEnabled: boolean('two_factor_enabled').default(false),
 		emailVerified: boolean('email_verified').default(false),
 		totalSubmissions: integer('total_submissions').default(0),
@@ -623,13 +630,24 @@ export const notifications = pgTable(
 			.references(() => users.id, { onDelete: 'cascade' }),
 		type: text('type', {
 			enum: [
+				// Legacy values (admin) — preserved
 				'item_submission',
 				'comment_reported',
 				'item_reported',
 				'user_registered',
 				'user_followed',
 				'payment_failed',
-				'system_alert'
+				'system_alert',
+				// Client lifecycle + billing
+				'comment_received',
+				'item_approved',
+				'item_rejected',
+				'payment_succeeded',
+				'subscription_expiring',
+				// Account & system
+				'security_alert',
+				'password_changed',
+				'admin_announcement'
 			]
 		}).notNull(),
 		title: text('title').notNull(),
@@ -637,6 +655,19 @@ export const notifications = pgTable(
 		data: text('data'),
 		isRead: boolean('is_read').notNull().default(false),
 		readAt: timestamp('read_at', { mode: 'date' }),
+		// Added in spec 027 (client notifications)
+		priority: text('priority', { enum: ['low', 'medium', 'high', 'critical'] })
+			.notNull()
+			.default('medium'),
+		category: text('category', {
+			enum: ['social', 'item', 'moderation', 'billing', 'sponsorship', 'account', 'system']
+		})
+			.notNull()
+			.default('system'),
+		actorId: text('actor_id').references(() => users.id, { onDelete: 'set null' }),
+		groupKey: text('group_key'),
+		archivedAt: timestamp('archived_at', { mode: 'date' }),
+		deliveredChannels: text('delivered_channels').array(),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
 		tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
@@ -646,9 +677,36 @@ export const notifications = pgTable(
 		typeIndex: index('notifications_type_idx').on(table.type),
 		isReadIndex: index('notifications_is_read_idx').on(table.isRead),
 		createdAtIndex: index('notifications_created_at_idx').on(table.createdAt),
-		tenantIdIdx: index('notifications_tenant_id_idx').on(table.tenantId)
+		tenantIdIdx: index('notifications_tenant_id_idx').on(table.tenantId),
+		// Hot-path partial index for "unread for this user" — drives bell badge + Unread tab
+		userUnreadIdx: index('notifications_user_unread_idx')
+			.on(table.userId, table.createdAt)
+			.where(sql`is_read = false AND archived_at IS NULL`),
+		groupKeyIdx: index('notifications_group_key_idx').on(table.userId, table.groupKey)
 	})
 );
+
+// ######################### Notification Preferences (spec 027) #########################
+export const notificationPreferences = pgTable('notification_preferences', {
+	userId: text('user_id')
+		.primaryKey()
+		.references(() => users.id, { onDelete: 'cascade' }),
+	// JSONB matrix: { 'user_mentioned': { in_app: true, email: true, push: true, sms: false }, ... }
+	preferences: jsonb('preferences').notNull().default({}),
+	emailDigest: text('email_digest', { enum: ['instant', 'daily', 'weekly', 'off'] })
+		.notNull()
+		.default('instant'),
+	quietHoursStart: text('quiet_hours_start'),
+	quietHoursEnd: text('quiet_hours_end'),
+	timezone: text('timezone').notNull().default('UTC'),
+	pushEnabled: boolean('push_enabled').notNull().default(false),
+	pushTokens: jsonb('push_tokens').notNull().default([]),
+	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+	tenantId: text('tenant_id').references(() => tenant.id, { onDelete: 'cascade' })
+});
+
+export type NotificationPreferences = typeof notificationPreferences.$inferSelect;
+export type NewNotificationPreferences = typeof notificationPreferences.$inferInsert;
 
 export type Comment = typeof comments.$inferSelect;
 export type NewComment = typeof comments.$inferInsert;

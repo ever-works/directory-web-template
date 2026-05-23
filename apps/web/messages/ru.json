@@ -557,6 +557,7 @@
 		"ACCOUNT_SETTINGS_DESC": "Настройки и предпочтения аккаунта",
 		"ADMIN_SETTINGS_DESC": "Управление конфигурацией сайта и предпочтениями",
 		"PROFILE_SETTINGS": "Настройки профиля",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "Стиль пагинации",
 		"PAGINATION_STYLE_DESC": "Выберите, как отображается контент при просмотре списков",
 		"PAGINATION_STANDARD_LABEL": "Стандартная",
@@ -729,6 +730,52 @@
 				"DELETE_PROJECT": "Удалить проект"
 			},
 			"DELETE_CONFIRM": "Вы уверены, что хотите удалить \"{title}\"?"
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger zone",
+			"DESCRIPTION": "Permanent account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
+				"CTA": "Delete account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
+					"UNKNOWN": "Failed to delete account. Please try again."
+				}
+			}
 		}
 	},
 	"newsletter": {
@@ -2133,6 +2180,10 @@
 			"USERNAME_TAKEN": "Имя пользователя уже занято",
 			"EMAIL_AVAILABLE": "Email доступен",
 			"EMAIL_TAKEN": "Email уже используется",
+			"CLOSE": "Закрыть",
+			"NO_TITLE_SET": "Должность не указана",
+			"VIEW_PROFILE": "Просмотреть профиль",
+			"MEMBER_SINCE": "Участник с",
 			"ERRORS": {
 				"SELECT_ROLE": "Пожалуйста, выберите роль",
 				"USERNAME_TAKEN": "Имя пользователя уже занято",
@@ -3120,7 +3171,8 @@
 			"DELETE": "Удалить",
 			"WARNING_DISABLED_TITLE": "Категории в настоящее время отключены на всем сайте",
 			"WARNING_DISABLED_MESSAGE": "Категории скрыты с публичного сайта, включая навигацию, фильтры и страницы элементов. Вы по-прежнему можете управлять категориями здесь, но они не будут видны пользователям, пока функция не будет включена.",
-			"WARNING_DISABLED_ACTION": "Перейти в настройки для включения"
+			"WARNING_DISABLED_ACTION": "Перейти в настройки для включения",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Включить категории",
@@ -3369,7 +3421,12 @@
 			"ID_TOO_LONG": "ID должен содержать не более 50 символов",
 			"NAME_REQUIRED": "Название категории обязательно",
 			"NAME_TOO_SHORT": "Название должно содержать не менее {min} символов",
-			"NAME_TOO_LONG": "Название должно содержать не более {max} символов"
+			"NAME_TOO_LONG": "Название должно содержать не более {max} символов",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Теги не найдены.",

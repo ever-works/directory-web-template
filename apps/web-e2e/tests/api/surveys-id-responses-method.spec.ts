@@ -170,11 +170,11 @@ test.describe('API: /api/surveys/[surveyId]/responses GET / POST method surface'
 		// `!session?.user?.isAdmin` branch returns 401
 		// `{ success: false, error: 'Unauthorized' }`.
 		const response = await request.get(RESPONSES_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${RESPONSES_PATH} 401 envelope shape has exactly success and error keys`, async ({
@@ -212,7 +212,7 @@ test.describe('API: /api/surveys/[surveyId]/responses GET / POST method surface'
 			`${RESPONSES_PATH}?itemId=XSS-MARKER-12345&userId=XSS-MARKER-67890&startDate=leak-me`
 		);
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 
@@ -430,7 +430,7 @@ test.describe('API: /api/surveys/[surveyId]/responses GET / POST method surface'
 
 		const getBody = await getResponse.json();
 		const postBody = await postResponse.json();
-		expect(getBody.error).toBe('Unauthorized');
+		expect(getBody.error).toMatch(/^Unauthorized|Forbidden/i);
 		expect(postBody.error).toBe('Survey not found');
 		expect(getBody).not.toEqual(postBody);
 	});

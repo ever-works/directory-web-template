@@ -354,10 +354,13 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			{/* Sponsor Ads Block - Modern Centered Design */}
 			<div className="mt-40 mb-12 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
 				<div className="relative">
-					{/* Animated Radar Circles at Top — clipped to top half only */}
-					<div className="absolute -top-20 left-1/2 -translate-x-1/2 pointer-events-none">
+					{/* Animated Radar Circles at Top — clipped to top half only.
+						`max-w-[100vw]` keeps the 650px decoration from forcing
+						horizontal page scroll on mobile viewports (caught by
+						`listing-no-horizontal-overflow-mobile`). */}
+					<div className="absolute -top-20 left-1/2 -translate-x-1/2 pointer-events-none max-w-[100vw] overflow-hidden">
 						{/* overflow-hidden clips the bottom half of all circles */}
-						<div className="relative overflow-hidden w-[650px] h-[350px]">
+						<div className="relative overflow-hidden w-[650px] h-[350px] max-w-[100vw]">
 							<div className="absolute bottom-0 left-1/2 w-0 h-0">
 								<div
 									className="absolute -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full border border-theme-primary-400/20 dark:border-theme-primary-500/45 animate-ping"

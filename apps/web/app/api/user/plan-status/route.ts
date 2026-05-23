@@ -104,7 +104,22 @@ export async function GET(_request: NextRequest) {
 		});
 	} catch (error) {
 		console.error('[PlanStatus] Error getting plan status:', error);
-
+		const message = error instanceof Error ? error.message : '';
+		// Stripe / billing not configured — degrade gracefully to 200
+		// "no plan" rather than a 5xx that breaks every page that pulls
+		// plan status to decide whether to show upgrade CTAs.
+		if (/Stripe configuration is incomplete/i.test(message)) {
+			return NextResponse.json({
+				success: true,
+				data: {
+					planType: 'free',
+					hasActivePlan: false,
+					canAccessPlanFeatures: true,
+					warningMessage: null,
+					status: 'no_billing_configured'
+				}
+			});
+		}
 		return NextResponse.json(
 			{
 				success: false,

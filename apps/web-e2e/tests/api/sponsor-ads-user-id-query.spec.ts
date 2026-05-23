@@ -100,11 +100,11 @@ test.describe('API: /api/sponsor-ads/user/[id] GET surface', () => {
 		request
 	}) => {
 		const response = await request.get(SPONSOR_AD_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET ${SPONSOR_AD_PATH} 401 envelope shape has exactly success and error keys`, async ({

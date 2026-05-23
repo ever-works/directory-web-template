@@ -248,8 +248,8 @@ const ADMIN_DASHBOARD_STATS_QUERIES = [
 ] as const;
 
 test.describe('API: /api/admin/dashboard/stats query-param surface', () => {
-	for (const path of ADMIN_DASHBOARD_STATS_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+	for (const [i, path] of ADMIN_DASHBOARD_STATS_QUERIES.entries()) {
+		test(`#${i} GET ${path} responds without a server error`, async ({ request }) => {
 			const response = await request.get(path);
 
 			// The route's admin gate fires before any potential

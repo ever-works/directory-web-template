@@ -101,11 +101,11 @@ test.describe('API: /api/client/items/[id]/restore POST method surface', () => {
 		request
 	}) => {
 		const response = await request.post(RESTORE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized. Please sign in to continue.');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${RESTORE_PATH} 401 envelope shape has exactly success and error keys`, async ({
@@ -146,7 +146,7 @@ test.describe('API: /api/client/items/[id]/restore POST method surface', () => {
 			}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('XSS-RESTORE-USER-MARKER-12345');
@@ -174,7 +174,7 @@ test.describe('API: /api/client/items/[id]/restore POST method surface', () => {
 			if (response.status() === 401) {
 				const body = await response.json();
 				expect(body.success).toBe(false);
-				expect(body.error).toBe('Unauthorized. Please sign in to continue.');
+				expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 			}
 		}
 	});

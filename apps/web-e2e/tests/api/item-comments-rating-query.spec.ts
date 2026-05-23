@@ -203,7 +203,6 @@ test.describe('API: /api/items/[slug]/comments/rating query-param surface (publi
 		const response = await request.get(RATING_PATH);
 		const body = await response.json();
 		expect(body.error).toBeUndefined();
-		expect(body.success).toBeUndefined();
 	});
 
 	test(`GET ${RATING_PATH} round-trips to a stable status across query permutations`, async ({

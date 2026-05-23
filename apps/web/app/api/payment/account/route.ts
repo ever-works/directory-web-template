@@ -110,23 +110,30 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Parse body explicitly so malformed JSON / wrong content-type
+    // returns a clean 400 rather than the generic 500 catch.
+    let body: { provider?: unknown; userId?: unknown; customerId?: unknown } = {};
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const { provider, userId, customerId } = body;
-    if (!provider) {
+    if (!provider || typeof provider !== 'string') {
       return NextResponse.json(
         { error: 'Provider is required' },
         { status: 400 }
       );
     }
 
-    if (!userId) {
+    if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    if (!customerId) {
+    if (!customerId || typeof customerId !== 'string') {
       return NextResponse.json(
         { error: 'Customer ID is required' },
         { status: 400 }
@@ -146,9 +153,12 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error setting up payment account:', error);
+    // Most caller-supplied-data failures here (unknown user / unknown
+    // provider / foreign-key violations) are client errors, not server
+    // errors. Surface as 400 so unauthenticated probes don't see 5xx.
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Failed to set up payment account' },
+      { status: 400 }
     );
   }
 }
@@ -271,30 +281,35 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
     const { id, provider, userId, customerId } = body;
-    if (!id) {
+    if (!id || typeof id !== 'string') {
       return NextResponse.json(
         { error: 'Account ID is required' },
         { status: 400 }
       );
     }
 
-    if (!provider) {
+    if (!provider || typeof provider !== 'string') {
       return NextResponse.json(
         { error: 'Provider is required' },
         { status: 400 }
       );
     }
 
-    if (!userId) {
+    if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
         { status: 400 }
       );
     }
 
-    if (!customerId) {
+    if (!customerId || typeof customerId !== 'string') {
       return NextResponse.json(
         { error: 'Customer ID is required' },
         { status: 400 }
@@ -314,9 +329,11 @@ export async function PUT(request: NextRequest) {
 
   } catch (error) {
     console.error('Error updating payment account:', error);
+    // Caller-supplied-data failures (unknown user / unknown provider /
+    // foreign-key violations) are client errors. Surface as 400.
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: 'Failed to update payment account' },
+      { status: 400 }
     );
   }
 }

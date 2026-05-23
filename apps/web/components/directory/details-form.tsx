@@ -59,6 +59,7 @@ export function DetailsForm({
 		prevStep,
 		completedRequiredFields,
 		requiredFieldsCount,
+		missingRequiredFields,
 		getIconComponent,
 		validateStep,
 		setCurrentStep,
@@ -161,6 +162,7 @@ export function DetailsForm({
 							canProceed={canProceed}
 							completedRequiredFields={completedRequiredFields}
 							requiredFieldsCount={requiredFieldsCount}
+							missingRequiredFields={missingRequiredFields}
 							onPrevious={prevStep}
 							onNext={nextStep}
 							onBack={onBack}

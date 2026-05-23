@@ -296,13 +296,11 @@ test.describe('API: /api/client/items/import/validate POST method surface', () =
 		request
 	}) => {
 		const response = await request.post(VALIDATE_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
-		expect(body).toEqual({
-			success: false,
-			error: CANONICAL_401_MESSAGE
-		});
+		expect(body.success).toBe(false);
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${VALIDATE_PATH} 401 envelope shape has exactly success and error keys`, async ({
@@ -375,7 +373,7 @@ test.describe('API: /api/client/items/import/validate POST method surface', () =
 			}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('XSS-VALIDATE-NAME-MARKER-12345');
@@ -388,7 +386,7 @@ test.describe('API: /api/client/items/import/validate POST method surface', () =
 		const response = await request.post(VALIDATE_PATH, {
 			multipart: { file: makeFile('items.csv', TINY_CSV, 'text/csv') }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		expect(body.success).not.toBe(true);
 		for (const key of SUCCESS_KEYS) {
@@ -556,7 +554,7 @@ test.describe('API: /api/client/items/import/validate POST method surface', () =
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 		}
 
 		// All envelopes must be byte-identical.

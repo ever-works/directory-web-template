@@ -530,6 +530,7 @@
 		"ACCOUNT_SETTINGS_DESC": "账户设置和偏好",
 		"ADMIN_SETTINGS_DESC": "Manage site configuration and preferences",
 		"PROFILE_SETTINGS": "个人资料设置",
+		"PREFERENCES": "Preferences",
 		"PAGINATION_STYLE": "分页样式",
 		"PAGINATION_STYLE_DESC": "选择浏览列表时内容的显示方式",
 		"PAGINATION_STANDARD_LABEL": "标准",
@@ -660,6 +661,52 @@
 					"ONE_LOWERCASE": "一个小写字母",
 					"ONE_NUMBER": "一个数字",
 					"ONE_SPECIAL": "一个特殊字符"
+				}
+			}
+		},
+		"DANGER_ZONE_CARD": {
+			"TITLE": "Danger zone",
+			"DESCRIPTION": "Permanent account actions"
+		},
+		"DANGER_ZONE_PAGE": {
+			"TITLE": "Danger zone",
+			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
+			"BACK_TO_SETTINGS": "Back to settings",
+			"INTRO_LABEL": "Heads up",
+			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
+			"IRREVERSIBLE_BADGE": "Destructive",
+			"DELETE_ACCOUNT": {
+				"TITLE": "Delete this account",
+				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
+				"LOSS_TITLE": "What will be removed",
+				"LOSS_ITEM_1": "Sign-in credentials and account email",
+				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
+				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
+				"LOSS_ITEM_4": "Sponsorships and billing references",
+				"LOSS_ITEM_5": "Comments, favourites, and activity history",
+				"CTA_HELPER": "Two-step confirmation required.",
+				"CTA": "Delete account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Permanently delete your account",
+					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
+					"ACCOUNT_HEADING": "Account to delete",
+					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"EMAIL_LABEL": "Type your email to confirm",
+					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
+					"EMAIL_PLACEHOLDER": "you@example.com",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CONFIRM_CTA": "Delete account permanently",
+					"DELETING": "Deleting account…",
+					"CANCEL_CTA": "Cancel"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
+					"EMAIL_REQUIRED": "Please type your email to confirm.",
+					"EMAIL_MISMATCH": "Email does not match the account above.",
+					"UNKNOWN": "Failed to delete account. Please try again."
 				}
 			}
 		}
@@ -2076,6 +2123,10 @@
 			"USERNAME_TAKEN": "用户名已被占用",
 			"EMAIL_AVAILABLE": "邮箱可用",
 			"EMAIL_TAKEN": "邮箱已被占用",
+			"CLOSE": "关闭",
+			"NO_TITLE_SET": "未设置职称",
+			"VIEW_PROFILE": "查看资料",
+			"MEMBER_SINCE": "成员自",
 			"ERRORS": {
 				"SELECT_ROLE": "请选择角色",
 				"USERNAME_TAKEN": "用户名已被占用",
@@ -3039,7 +3090,8 @@
 			"DELETE": "删除",
 			"WARNING_DISABLED_TITLE": "Categories are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Categories are hidden from the public site including navigation, filters, and item pages. You can still manage categories here, but they won't be visible to users until re-enabled.",
-			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"
+			"WARNING_DISABLED_ACTION": "Go to Settings to Enable",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Enable Categories",
@@ -3288,7 +3340,12 @@
 			"ID_TOO_LONG": "ID不能超过50个字符",
 			"NAME_REQUIRED": "分类名称是必需的",
 			"NAME_TOO_SHORT": "名称必须至少{min}个字符",
-			"NAME_TOO_LONG": "名称不能超过{max}个字符"
+			"NAME_TOO_LONG": "名称不能超过{max}个字符",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "未找到标签。",

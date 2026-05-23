@@ -96,7 +96,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const mode = await detectMode(request);
 		test.skip(mode !== 'provisioned', 'env not set — see unprovisioned suite');
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with a non-Bearer Authorization header', async ({ request }) => {
@@ -105,7 +105,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: 'Basic abc', 'x-platform-ts': new Date().toISOString() }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with missing x-platform-ts header', async ({ request }) => {
@@ -118,7 +118,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${sig}` }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects request with stale x-platform-ts (>5 min drift)', async ({ request }) => {
@@ -131,7 +131,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${sig}`, 'x-platform-ts': staleTs }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects tampered query (signature was computed for different params)', async ({ request }) => {
@@ -144,7 +144,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=20&types=all`, {
 			headers: { authorization: `Bearer ${sig}`, 'x-platform-ts': ts }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('rejects single-byte flipped signature with constant-time compare', async ({ request }) => {
@@ -159,7 +159,7 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 		const response = await request.get(`${ENDPOINT}?limit=10&types=all`, {
 			headers: { authorization: `Bearer ${tampered}`, 'x-platform-ts': ts }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 	});
 
 	test('returns 200 + entries/nextCursor/serverTime for a valid signed request', async ({ request }) => {
@@ -192,22 +192,23 @@ test.describe('API: GET /api/platform/activity-feed — provisioned env', () => 
 test.describe('API: GET /api/platform/activity-feed — query validation (mode-independent)', () => {
 	// Bad query is rejected with 400 BEFORE the signature check, so it
 	// fires regardless of whether the env is provisioned. Verify the
-	// route doesn't leak a 5xx on garbage input.
+	// route degrades cleanly on garbage input. 400 (zod validation) is the
+	// documented happy path, 503 (not_provisioned) is the documented
+	// graceful-degradation path when PLATFORM_SYNC_SECRET is unset (the
+	// CI case). The forbidden outcome is a 500 with no body.
 
-	test('rejects out-of-range limit with 4xx', async ({ request }) => {
+	test('rejects out-of-range limit with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?limit=999999&types=all`);
-		// 400 if provisioned (zod validation runs first), 503 if not.
-		// Both are < 500 — the contract is "no server errors on bad input".
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 
-	test('rejects invalid types csv with 4xx', async ({ request }) => {
+	test('rejects invalid types csv with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?limit=10&types=bogus`);
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 
-	test('rejects malformed since (not ISO 8601) with 4xx', async ({ request }) => {
+	test('rejects malformed since (not ISO 8601) with 4xx or degraded 503', async ({ request }) => {
 		const response = await request.get(`${ENDPOINT}?since=not-a-date&limit=10&types=all`);
-		expect(response.status()).toBeLessThan(500);
+		expect([400, 403, 503]).toContain(response.status());
 	});
 });

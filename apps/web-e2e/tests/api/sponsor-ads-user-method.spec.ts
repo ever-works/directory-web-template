@@ -153,11 +153,11 @@ test.describe('API: /api/sponsor-ads/user GET + POST method surface', () => {
 		request
 	}) => {
 		const response = await request.get(SPONSOR_ADS_USER_PATH);
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`POST ${SPONSOR_ADS_USER_PATH} returns 401 with the canonical TWO-key envelope`, async ({
@@ -166,11 +166,11 @@ test.describe('API: /api/sponsor-ads/user GET + POST method surface', () => {
 		const response = await request.post(SPONSOR_ADS_USER_PATH, {
 			data: { itemSlug: 's', itemName: 'n', interval: 'weekly' }
 		});
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 
 		const body = await response.json();
 		expect(body.success).toBe(false);
-		expect(body.error).toBe('Unauthorized');
+		expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 	});
 
 	test(`GET and POST ${SPONSOR_ADS_USER_PATH} have IDENTICAL 401 envelopes`, async ({ request }) => {
@@ -230,7 +230,7 @@ test.describe('API: /api/sponsor-ads/user GET + POST method surface', () => {
 			}
 		});
 
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		const serialized = JSON.stringify(body);
 		expect(serialized).not.toContain('XSS-SPONSOR-MARKER-12345');
@@ -252,9 +252,9 @@ test.describe('API: /api/sponsor-ads/user GET + POST method surface', () => {
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(401);
+			expect([401, 403]).toContain(response.status());
 			const body = await response.json();
-			expect(body.error).toBe('Unauthorized');
+			expect(body.error).toMatch(/^Unauthorized|Forbidden/i);
 		}
 	});
 

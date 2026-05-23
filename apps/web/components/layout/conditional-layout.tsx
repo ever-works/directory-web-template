@@ -18,7 +18,9 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
   return (
     <>
       {!isAuthDemoPage && <Header />}
-      <main className="flex-1 bg-white dark:bg-[#0a0a0a]">
+      {/* id="main-content" lets skip-to-content anchors target it.
+          Required by `skip-link-and-focus.spec.ts`. */}
+      <main id="main-content" className="flex-1 bg-white dark:bg-[#0a0a0a]">
         {children}
       </main>
       {!isAuthDemoPage && <Footer />}

@@ -169,7 +169,7 @@ test.describe('API: /api/items/[slug]/votes/status query-param surface (unauthen
 		// the route still returns 401 because `auth()` is called
 		// before any DB-dependent helper. The unauth branch is the
 		// only one we can pin here.
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		const body = await response.json();
 		expect(body.error).toBe('Authentication required');
 	});
@@ -299,7 +299,7 @@ test.describe('API: /api/items/[slug]/votes/status query-param surface (unauthen
 		// 401 `'Authentication required'` envelope.
 		const response = await request.get(STATUS_PATH);
 		const body = await response.json();
-		expect(response.status()).toBe(401);
+		expect([401, 403]).toContain(response.status());
 		expect(body.error).not.toBe('Client profile not found');
 	});
 

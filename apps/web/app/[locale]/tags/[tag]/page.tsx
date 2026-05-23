@@ -58,14 +58,22 @@ export default async function TagListing({
   // Fetch all items (filtering will be done client-side via FilterURLParser)
   const { categories, tags, items } = await getCachedItems({ lang: locale });
 
+  // Decode the tag from URL
+  const decodedTag = decodeURIComponent(tag);
+
+  // Unknown tag slug → proper 404 (not a soft-404 with full item list).
+  const knownTag = tags.some(
+    (t) => t.id === decodedTag || t.name?.toLowerCase() === decodedTag.toLowerCase()
+  );
+  if (!knownTag) {
+    notFound();
+  }
+
   // Calculate pagination info
   const total = items.length;
   const page = 1;
   const start = 0;
   const basePath = `/`; // Use root path for filter URL generation
-
-  // Decode the tag from URL
-  const decodedTag = decodeURIComponent(tag);
 
   const tCommon = await getTranslations({ locale, namespace: "common" });
   const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;

@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Save, X, Layers } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest, COLLECTION_VALIDATION } from "@/types/collection";
+import { EmojiIconInput } from "./emoji-icon-input";
 
 interface CollectionFormProps {
   collection?: Collection;
@@ -125,17 +126,33 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
     setErrors({});
   }, [collection, mode]);
 
+  // On create the ID is a numeric timestamp (machine identifier) generated
+  // once per form session; the slug is derived separately from the name so
+  // URLs stay human-friendly. On edit, the ID is fixed and shown read-only.
+  // `useMemo([])` with an empty dep array on `Date.now()` gives one stable
+  // id per modal session — open / close cycles remount the form and produce
+  // a fresh id.
+  const generatedId = useMemo(
+    () => (mode === "create" ? String(Date.now()) : formData.id),
+    // Intentionally omit Date.now() from deps — we want it captured once.
+    [formData.id, mode]
+  );
+  const generatedSlug = useMemo(
+    () => (mode === "create" ? slugify(formData.name) : collection?.slug ?? formData.id),
+    [collection?.slug, formData.id, formData.name, mode]
+  );
+
   const validate = () => {
     const nextErrors: Record<string, string> = {};
 
-    if (!formData.id.trim()) {
-      nextErrors.id = "ID is required";
-    } else if (!/^[a-z0-9-]+$/.test(formData.id.trim())) {
-      nextErrors.id = "Use lowercase letters, numbers, and hyphens";
-    } else if (formData.id.trim().length < COLLECTION_VALIDATION.ID_MIN_LENGTH) {
-      nextErrors.id = `ID must be at least ${COLLECTION_VALIDATION.ID_MIN_LENGTH} characters`;
-    } else if (formData.id.trim().length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
-      nextErrors.id = `ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+    if (mode === "edit") {
+      // ID is locked at creation and never edited from this form, but keep
+      // a defensive sanity check in case the value is somehow malformed.
+      if (!formData.id.trim()) {
+        nextErrors.id = "ID is required";
+      } else if (formData.id.trim().length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
+        nextErrors.id = `ID must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+      }
     }
 
     if (!formData.name.trim()) {
@@ -144,6 +161,14 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
       nextErrors.name = `Name must be at least ${COLLECTION_VALIDATION.NAME_MIN_LENGTH} characters`;
     } else if (formData.name.trim().length > COLLECTION_VALIDATION.NAME_MAX_LENGTH) {
       nextErrors.name = `Name must be under ${COLLECTION_VALIDATION.NAME_MAX_LENGTH} characters`;
+    } else if (mode === "create") {
+      // The URL slug is derived from the name. Surface slug-shape errors on
+      // the Name field rather than on a hidden slug input.
+      if (!generatedSlug) {
+        nextErrors.name = "Name must contain letters or numbers to build a URL slug";
+      } else if (generatedSlug.length > COLLECTION_VALIDATION.ID_MAX_LENGTH) {
+        nextErrors.name = `Name is too long — the URL slug must be under ${COLLECTION_VALIDATION.ID_MAX_LENGTH} characters`;
+      }
     }
 
     if (formData.description.trim().length > COLLECTION_VALIDATION.DESCRIPTION_MAX_LENGTH) {
@@ -167,7 +192,7 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
 
     const payload = mode === "edit"
       ? ({ ...formData, slug: formData.id, id: formData.id } as UpdateCollectionRequest)
-      : ({ ...formData, slug: formData.id } as CreateCollectionRequest);
+      : ({ ...formData, id: generatedId, slug: generatedSlug } as CreateCollectionRequest);
 
     await onSubmit(payload);
   };
@@ -203,26 +228,40 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
       </div>
 
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
-        {/* Collection ID */}
-        <Field
-          label="Collection ID"
-          required
-          hint="Lowercase, URL-friendly identifier (used as slug)"
-          error={errors.id}
-        >
-          <input
-            type="text"
-            placeholder="e.g. frontend-frameworks"
-            value={formData.id}
-            onChange={(e) => handleChange("id", e.target.value)}
-            disabled={mode === "edit" || isLoading}
-            className={errors.id ? INPUT_ERROR : INPUT_BASE}
-          />
-        </Field>
+        {/* Collection ID — read-only in edit mode (locked at creation),
+            auto-generated from Name on create (no input rendered). */}
+        {mode === "edit" ? (
+          <Field
+            label="Collection ID"
+            hint="Locked at creation. Auto-generated from the name."
+            error={errors.id}
+          >
+            <input
+              type="text"
+              value={formData.id}
+              disabled
+              readOnly
+              aria-readonly="true"
+              className={cn(
+                errors.id ? INPUT_ERROR : INPUT_BASE,
+                "font-mono opacity-70 cursor-not-allowed"
+              )}
+            />
+          </Field>
+        ) : null}
 
         {/* Name + Icon row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Name" required error={errors.name}>
+          <Field
+            label="Name"
+            required
+            error={errors.name}
+            hint={
+              mode === "create" && !errors.name && generatedSlug
+                ? `URL slug · /collections/${generatedSlug}`
+                : undefined
+            }
+          >
             <input
               type="text"
               placeholder="Collection name"
@@ -233,14 +272,17 @@ export function CollectionForm({ collection, mode, isLoading, onSubmit, onCancel
             />
           </Field>
 
-          <Field label="Icon (emoji or URL)">
-            <input
-              type="text"
-              placeholder="🤖"
+          <Field
+            label="Icon (emoji or URL)"
+            hint="Type : to search emojis (e.g. :rocket) or paste an image URL"
+          >
+            <EmojiIconInput
+              id="collection-icon"
               value={formData.icon_url}
-              onChange={(e) => handleChange("icon_url", e.target.value)}
+              onChange={(next) => handleChange("icon_url", next)}
               disabled={isLoading}
-              className={INPUT_BASE}
+              inputClassName={cn(INPUT_BASE, "pr-9")}
+              aria-label="Collection icon"
             />
           </Field>
         </div>

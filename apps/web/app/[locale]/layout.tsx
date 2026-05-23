@@ -69,6 +69,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		title: `${siteConfig.name} | ${siteConfig.tagline}`,
 		description: siteConfig.description,
 		keywords: siteConfig.keywords,
+		// Override the root layout's `robots: 'noindex'` (which is
+		// scoped to `not-found.tsx`) so public listing/detail pages
+		// are indexable by default. Individual pages can still set
+		// their own `robots` via their own `generateMetadata`.
+		robots: { index: true, follow: true },
 		openGraph: {
 			title: `${siteConfig.name} | ${siteConfig.tagline}`,
 			description: siteConfig.description,
@@ -77,16 +82,11 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		},
 		alternates: {
 			canonical: locale === DEFAULT_LOCALE ? '/' : `/${locale}`,
-			languages: generateHreflangAlternates('/'),
-			// Feed autodiscovery for RSS 2.0, Atom 1.0, and JSON Feed 1.1.
-			// Emitted at the locale-layout level so every page picks up
-			// the same `<link rel="alternate">` triplet for clients that
-			// hop links from any subpage.
-			types: {
-				'application/rss+xml': `${appUrl}/rss.xml`,
-				'application/atom+xml': `${appUrl}/atom.xml`,
-				'application/feed+json': `${appUrl}/feed.json`
-			}
+			languages: generateHreflangAlternates('/')
+			// NOTE: feed autodiscovery <link rel="alternate"> tags are emitted
+			// directly in JSX below — placing them in `alternates.types` here
+			// would be replaced by any child page that defines its own
+			// `alternates` (Next.js does not deep-merge `alternates`).
 		}
 	};
 }
@@ -159,6 +159,15 @@ export default async function RootLayout({
 	// Determine if the current locale is RTL
 	return (
 		<>
+			{/*
+				Feed autodiscovery. React + Next.js hoists these <link>
+				tags into <head> automatically. Emitted in JSX (not via
+				`alternates.types`) because Next.js replaces — never
+				deep-merges — `alternates` when a child page defines it.
+			*/}
+			<link rel="alternate" type="application/rss+xml" href={`${appUrl}/rss.xml`} />
+			<link rel="alternate" type="application/atom+xml" href={`${appUrl}/atom.xml`} />
+			<link rel="alternate" type="application/feed+json" href={`${appUrl}/feed.json`} />
 			{/* Organization and WebSite JSON-LD schemas for Knowledge Panel and search features */}
 			<script
 				type="application/ld+json"

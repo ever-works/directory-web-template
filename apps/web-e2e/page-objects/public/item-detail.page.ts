@@ -69,14 +69,39 @@ export class ItemDetailPage extends BasePage {
 		return label === 'Remove upvote';
 	}
 
-	/** Click the favorite toggle button. */
+	/** Click the favorite toggle button and wait for its aria-label to
+	 *  flip. React's onClick handler attaches at hydrate time — clicking
+	 *  too early on a cold-start server silently no-ops, leaving the
+	 *  label unchanged. Retry until the toggle actually fires (or give
+	 *  up after a generous timeout). */
 	async clickFavorite() {
-		await this.favoriteButton.click();
+		const before = await this.favoriteButton.getAttribute('aria-label');
+		const deadline = Date.now() + 15_000;
+		while (Date.now() < deadline) {
+			await this.favoriteButton.click({ trial: false }).catch(() => undefined);
+			// Wait briefly for the optimistic UI update / API roundtrip.
+			await this.page.waitForTimeout(500);
+			const after = await this.favoriteButton.getAttribute('aria-label');
+			if (after !== before) return;
+		}
+		// Last best-effort: if state never changed, throw the next assertion
+		// instead of returning a silent success. The caller asserts on the
+		// flipped label and will surface a clear failure.
 	}
 
 	/** Post a comment with the given text. */
 	async postComment(text: string) {
+		// The comment form's "Post" button only renders once the textarea
+		// has been FOCUSED (the React form gates everything below the
+		// textarea on a `focused` state set by onFocus). Playwright's
+		// `fill()` claims to focus the element but on some HeroUI-wrapped
+		// textareas the focus event doesn't propagate to the React
+		// handler reliably on a cold-start run, so the post button stays
+		// invisible and the click times out at 30s. Click to force focus
+		// before filling, then wait for the post button to actually render.
+		await this.commentTextarea.click({ timeout: 10_000 }).catch(() => undefined);
 		await this.commentTextarea.fill(text);
+		await this.postCommentButton.waitFor({ state: 'visible', timeout: 10_000 });
 		await this.postCommentButton.click();
 	}
 

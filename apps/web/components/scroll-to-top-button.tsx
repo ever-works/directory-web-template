@@ -33,10 +33,16 @@ export function ScrollToTopButton({
       const scrolled = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
       const progress = Math.min(scrolled / maxScroll, 1);
-      
+
       setScrollProgress(progress);
       setIsVisible(scrolled > showAfter);
     };
+
+    // Initial check — if the page is already scrolled past `showAfter`
+    // when this component hydrates (back/forward navigation, deep link,
+    // or anything that scrolled before hydration completed) we want the
+    // button visible without waiting for the next scroll event.
+    toggleVisibility();
 
     const throttledToggleVisibility = throttle(toggleVisibility, 16); // ~60fps
     window.addEventListener('scroll', throttledToggleVisibility);

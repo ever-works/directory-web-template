@@ -5,6 +5,7 @@ import { Plus, Edit, Trash2, Users, UserCheck, UserX, Shield, ShieldCheck, Loade
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import UserForm from "@/components/admin/users/user-form";
+import { Avatar } from "@/components/header/avatar";
 import { UserData } from "@/lib/types/user";
 import { useAdminUsers } from "@/hooks/use-admin-users";
 import { useNavigation } from "@/components/providers";
@@ -20,27 +21,6 @@ import {
   type ActiveFilter,
 } from "@/components/admin/shared";
 
-function getAvatarColor(identifier: string): string {
-  const colors = [
-    "from-blue-500 to-blue-600",
-    "from-green-500 to-green-600",
-    "from-purple-500 to-purple-600",
-    "from-red-500 to-red-600",
-    "from-yellow-500 to-yellow-600",
-    "from-indigo-500 to-indigo-600",
-    "from-pink-500 to-pink-600",
-    "from-teal-500 to-teal-600",
-    "from-orange-500 to-orange-600",
-    "from-cyan-500 to-cyan-600",
-    "from-emerald-500 to-emerald-600",
-    "from-violet-500 to-violet-600"
-  ];
-  let hash = 0;
-  for (let i = 0; i < identifier.length; i++) {
-    hash = identifier.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
 
 export default function AdminUsersPage() {
   const PAGE_SIZE = 10;
@@ -370,9 +350,12 @@ export default function AdminUsersPage() {
               {displayUsers.map((user) => (
                 <div key={user.id} className="group relative flex flex-col gap-3 p-4 rounded-xl border border-gray-100 dark:border-white/6 bg-white dark:bg-white/2 hover:border-gray-200 dark:hover:border-white/10 hover:shadow-sm transition-all duration-200">
                   <div className="flex items-start justify-between">
-                    <div className={cn("w-10 h-10 rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm shrink-0", getAvatarColor(user.name || user.email || user.id))}>
-                      {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
-                    </div>
+                    <Avatar
+                      src={user.avatar}
+                      alt={user.name || user.email || ''}
+                      fallback={(user.name?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase()}
+                      size="md"
+                    />
                     <div className="flex items-center gap-1.5">
                       <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset",
                         user.status === "active" ? "bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20" : "bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8")}>
@@ -408,9 +391,12 @@ export default function AdminUsersPage() {
               {displayUsers.map((user) => (
                 <div key={user.id} className="group flex flex-col gap-3 md:flex-row md:items-center md:justify-between px-5 py-4 hover:bg-gray-50/80 dark:hover:bg-white/2.5 transition-colors duration-150">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className={cn("w-10 h-10 rounded-full bg-linear-to-br flex items-center justify-center text-white font-semibold text-sm shrink-0", getAvatarColor(user.name || user.email || user.id))}>
-                      {(user.name?.charAt(0) || user.email?.charAt(0) || "U").toUpperCase()}
-                    </div>
+                    <Avatar
+                      src={user.avatar}
+                      alt={user.name || user.email || ''}
+                      fallback={(user.name?.charAt(0) || user.email?.charAt(0) || 'U').toUpperCase()}
+                      size="md"
+                    />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.name}</h4>
@@ -461,33 +447,16 @@ export default function AdminUsersPage() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1"
           onClick={(e) => e.target === e.currentTarget && !isSubmitting && setIsFormOpen(false)}
+          role="dialog"
+          aria-modal="true"
         >
-          <div className="relative bg-white dark:bg-[#121212] rounded-2xl shadow-xl max-w-4xl w-full my-8 overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-white/6">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">
-                {formMode === "create" ? t("CREATE_NEW_USER") : t("EDIT_USER")}
-              </h2>
-              {!isSubmitting && (
-                <button
-                  type="button"
-                  onClick={() => setIsFormOpen(false)}
-                  className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/6 transition-colors"
-                  aria-label="Close"
-                >
-                  <svg className="w-4 h-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-            </div>
-            <div className="overflow-y-auto max-h-[calc(90vh-4rem)] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full -mr-2 [&::-webkit-scrollbar]:w-1">
-              <UserForm
-                user={selectedUser || undefined}
-                onSuccess={() => setIsFormOpen(false)}
-                isSubmitting={isSubmitting}
-                onCancel={() => setIsFormOpen(false)}
-              />
-            </div>
+          <div className="relative max-w-4xl w-full my-8">
+            <UserForm
+              user={selectedUser || undefined}
+              onSuccess={() => setIsFormOpen(false)}
+              isSubmitting={isSubmitting}
+              onCancel={() => setIsFormOpen(false)}
+            />
           </div>
         </div>
       )}
