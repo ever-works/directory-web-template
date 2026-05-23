@@ -1,4 +1,4 @@
-import { TagData, CreateTagRequest, UpdateTagRequest, TagListResponse } from '@/lib/types/tag';
+import { TagData, CreateTagRequest, UpdateTagRequest, TagListResponse, TagListOptions } from '@/lib/types/tag';
 import { createTagGitService } from '@/lib/services/tag-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
@@ -45,9 +45,9 @@ export class TagRepository {
     return this.sortTags(tags);
   }
 
-  async findAllPaginated(page: number = 1, limit: number = 10): Promise<TagListResponse> {
+  async findAllPaginated(options: TagListOptions = {}): Promise<TagListResponse> {
     const gitService = await this.getGitService();
-    return await gitService.getTagsPaginated(page, limit);
+    return await gitService.getTagsPaginated(options);
   }
 
   async findById(id: string): Promise<TagData | null> {
