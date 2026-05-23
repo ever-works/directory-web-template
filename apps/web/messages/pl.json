@@ -2091,6 +2091,10 @@
 			"USERNAME_TAKEN": "Username is already taken",
 			"EMAIL_AVAILABLE": "Email is available",
 			"EMAIL_TAKEN": "Email is already taken",
+			"CLOSE": "Zamknij",
+			"NO_TITLE_SET": "Brak tytułu",
+			"VIEW_PROFILE": "Zobacz profil",
+			"MEMBER_SINCE": "Członek od",
 			"ERRORS": {
 				"SELECT_ROLE": "Please select a role",
 				"USERNAME_TAKEN": "Username is already taken",

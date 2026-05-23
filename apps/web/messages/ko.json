@@ -2180,6 +2180,10 @@
 			"USERNAME_TAKEN": "사용자 이름이 이미 사용 중",
 			"EMAIL_AVAILABLE": "이메일 사용 가능",
 			"EMAIL_TAKEN": "이메일이 이미 사용 중",
+			"CLOSE": "닫기",
+			"NO_TITLE_SET": "직책 없음",
+			"VIEW_PROFILE": "프로필 보기",
+			"MEMBER_SINCE": "가입일",
 			"ERRORS": {
 				"SELECT_ROLE": "역할을 선택해 주세요",
 				"USERNAME_TAKEN": "사용자 이름이 이미 사용 중",

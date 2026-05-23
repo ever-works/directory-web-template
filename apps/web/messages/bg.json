@@ -2117,6 +2117,10 @@
 			"USERNAME_TAKEN": "Потребителското име е заето",
 			"EMAIL_AVAILABLE": "Имейлът е свободен",
 			"EMAIL_TAKEN": "Имейлът е зает",
+			"CLOSE": "Затвори",
+			"NO_TITLE_SET": "Няма зададено заглавие",
+			"VIEW_PROFILE": "Виж профила",
+			"MEMBER_SINCE": "Член от",
 			"ERRORS": {
 				"SELECT_ROLE": "Моля, изберете роля",
 				"USERNAME_TAKEN": "Потребителското име е заето",

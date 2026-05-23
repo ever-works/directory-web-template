@@ -2125,6 +2125,10 @@
 			"USERNAME_TAKEN": "Benutzername ist bereits vergeben",
 			"EMAIL_AVAILABLE": "E-Mail ist verfügbar",
 			"EMAIL_TAKEN": "E-Mail ist bereits vergeben",
+			"CLOSE": "Schließen",
+			"NO_TITLE_SET": "Kein Titel gesetzt",
+			"VIEW_PROFILE": "Profil anzeigen",
+			"MEMBER_SINCE": "Mitglied seit",
 			"ERRORS": {
 				"SELECT_ROLE": "Bitte wählen Sie eine Rolle aus",
 				"USERNAME_TAKEN": "Benutzername ist bereits vergeben",

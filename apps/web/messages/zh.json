@@ -2123,6 +2123,10 @@
 			"USERNAME_TAKEN": "用户名已被占用",
 			"EMAIL_AVAILABLE": "邮箱可用",
 			"EMAIL_TAKEN": "邮箱已被占用",
+			"CLOSE": "关闭",
+			"NO_TITLE_SET": "未设置职称",
+			"VIEW_PROFILE": "查看资料",
+			"MEMBER_SINCE": "成员自",
 			"ERRORS": {
 				"SELECT_ROLE": "请选择角色",
 				"USERNAME_TAKEN": "用户名已被占用",

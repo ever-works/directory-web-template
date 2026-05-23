@@ -2028,6 +2028,10 @@
 			"USERNAME_TAKEN": "Username is already taken",
 			"EMAIL_AVAILABLE": "Email is available",
 			"EMAIL_TAKEN": "Email is already taken",
+			"CLOSE": "ปิด",
+			"NO_TITLE_SET": "ไม่มีตำแหน่ง",
+			"VIEW_PROFILE": "ดูโปรไฟล์",
+			"MEMBER_SINCE": "สมาชิกตั้งแต่",
 			"ERRORS": {
 				"SELECT_ROLE": "Please select a role",
 				"USERNAME_TAKEN": "Username is already taken",

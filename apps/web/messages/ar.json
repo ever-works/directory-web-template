@@ -2111,6 +2111,10 @@
 			"USERNAME_TAKEN": "اسم المستخدم مستخدم بالفعل",
 			"EMAIL_AVAILABLE": "البريد الإلكتروني متاح",
 			"EMAIL_TAKEN": "البريد الإلكتروني مستخدم بالفعل",
+			"CLOSE": "إغلاق",
+			"NO_TITLE_SET": "لم يتم تعيين لقب",
+			"VIEW_PROFILE": "عرض الملف الشخصي",
+			"MEMBER_SINCE": "عضو منذ",
 			"ERRORS": {
 				"SELECT_ROLE": "يرجى اختيار دور",
 				"USERNAME_TAKEN": "اسم المستخدم مستخدم بالفعل",

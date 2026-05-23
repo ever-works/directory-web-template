@@ -2028,6 +2028,10 @@
 			"USERNAME_TAKEN": "Username is already taken",
 			"EMAIL_AVAILABLE": "Email is available",
 			"EMAIL_TAKEN": "Email is already taken",
+			"CLOSE": "बंद करें",
+			"NO_TITLE_SET": "कोई पद नहीं",
+			"VIEW_PROFILE": "प्रोफ़ाइल देखें",
+			"MEMBER_SINCE": "सदस्य बने",
 			"ERRORS": {
 				"SELECT_ROLE": "Please select a role",
 				"USERNAME_TAKEN": "Username is already taken",

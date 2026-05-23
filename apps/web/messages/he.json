@@ -2022,6 +2022,10 @@
 			"USERNAME_TAKEN": "Username is already taken",
 			"EMAIL_AVAILABLE": "Email is available",
 			"EMAIL_TAKEN": "Email is already taken",
+			"CLOSE": "סגור",
+			"NO_TITLE_SET": "אין תואר",
+			"VIEW_PROFILE": "הצג פרופיל",
+			"MEMBER_SINCE": "חבר מאז",
 			"ERRORS": {
 				"SELECT_ROLE": "Please select a role",
 				"USERNAME_TAKEN": "Username is already taken",

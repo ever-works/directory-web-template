@@ -2114,6 +2114,10 @@
 			"USERNAME_TAKEN": "Nombre de usuario ya está en uso",
 			"EMAIL_AVAILABLE": "Correo electrónico disponible",
 			"EMAIL_TAKEN": "Correo electrónico ya está en uso",
+			"CLOSE": "Cerrar",
+			"NO_TITLE_SET": "Sin título",
+			"VIEW_PROFILE": "Ver perfil",
+			"MEMBER_SINCE": "Miembro desde",
 			"ERRORS": {
 				"SELECT_ROLE": "Por favor seleccione un rol",
 				"USERNAME_TAKEN": "Nombre de usuario ya está en uso",
