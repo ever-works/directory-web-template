@@ -3171,7 +3171,8 @@
 			"DELETE": "삭제",
 			"WARNING_DISABLED_TITLE": "카테고리가 현재 사이트 전체에서 비활성화됨",
 			"WARNING_DISABLED_MESSAGE": "카테고리는 탐색, 필터, 항목 페이지를 포함한 공개 사이트에서 숨겨져 있습니다. 여기서는 여전히 카테고리를 관리할 수 있지만, 재활성화될 때까지 사용자에게 보이지 않습니다.",
-			"WARNING_DISABLED_ACTION": "활성화하려면 설정으로 이동"
+			"WARNING_DISABLED_ACTION": "활성화하려면 설정으로 이동",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "카테고리 활성화",
@@ -3420,7 +3421,12 @@
 			"ID_TOO_LONG": "ID는 최대 50자까지 가능합니다",
 			"NAME_REQUIRED": "카테고리 이름은 필수입니다",
 			"NAME_TOO_SHORT": "이름은 최소 {min}자 이상이어야 합니다",
-			"NAME_TOO_LONG": "이름은 최대 {max}자까지 가능합니다"
+			"NAME_TOO_LONG": "이름은 최대 {max}자까지 가능합니다",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "태그를 찾을 수 없습니다.",

@@ -3108,7 +3108,8 @@
 			"DELETE": "Изтрий",
 			"WARNING_DISABLED_TITLE": "Категориите в момента са деактивирани за целия сайт",
 			"WARNING_DISABLED_MESSAGE": "Категориите са скрити от публичния сайт, включително навигацията, филтрите и страниците с елементи. Можете да продължите да ги управлявате тук, но те няма да са видими за потребителите, докато не се активират отново.",
-			"WARNING_DISABLED_ACTION": "Отидете в Настройки, за да активирате"
+			"WARNING_DISABLED_ACTION": "Отидете в Настройки, за да активирате",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Активирайте категории",
@@ -3359,7 +3360,12 @@
 			"ID_TOO_LONG": "ID трябва да е не повече от 50 символа",
 			"NAME_REQUIRED": "Името на категорията е задължително",
 			"NAME_TOO_SHORT": "Името трябва да е поне {min} символа",
-			"NAME_TOO_LONG": "Името трябва да е не повече от {max} символа"
+			"NAME_TOO_LONG": "Името трябва да е не повече от {max} символа",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Няма намерени етикети.",

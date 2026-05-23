@@ -3171,7 +3171,8 @@
 			"DELETE": "Удалить",
 			"WARNING_DISABLED_TITLE": "Категории в настоящее время отключены на всем сайте",
 			"WARNING_DISABLED_MESSAGE": "Категории скрыты с публичного сайта, включая навигацию, фильтры и страницы элементов. Вы по-прежнему можете управлять категориями здесь, но они не будут видны пользователям, пока функция не будет включена.",
-			"WARNING_DISABLED_ACTION": "Перейти в настройки для включения"
+			"WARNING_DISABLED_ACTION": "Перейти в настройки для включения",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_SETTINGS_PAGE": {
 			"CATEGORIES_ENABLED_LABEL": "Включить категории",
@@ -3420,7 +3421,12 @@
 			"ID_TOO_LONG": "ID должен содержать не более 50 символов",
 			"NAME_REQUIRED": "Название категории обязательно",
 			"NAME_TOO_SHORT": "Название должно содержать не менее {min} символов",
-			"NAME_TOO_LONG": "Название должно содержать не более {max} символов"
+			"NAME_TOO_LONG": "Название должно содержать не более {max} символов",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Теги не найдены.",
