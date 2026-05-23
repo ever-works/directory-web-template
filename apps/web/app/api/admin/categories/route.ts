@@ -207,6 +207,7 @@ export async function GET(request: NextRequest) {
       data: result.categories,
       meta: {
         total: result.total,
+        activeTotal: result.activeTotal,
         page: result.page,
         limit: result.limit,
         totalPages: result.totalPages,
@@ -215,6 +216,7 @@ export async function GET(request: NextRequest) {
       // frontend consumers. See EW-606.
       categories: result.categories,
       total: result.total,
+      activeTotal: result.activeTotal,
       page: result.page,
       limit: result.limit,
       totalPages: result.totalPages,
