@@ -39,13 +39,13 @@ const fetchCategories = async (params: CategoryListOptions = {}): Promise<Catego
 };
 
 const fetchCategory = async (id: string): Promise<CategoryData> => {
-  const response = await serverClient.get<{ success: boolean; category: CategoryData }>(`/api/admin/categories/${id}`);
-  
+  const response = await serverClient.get<{ success: boolean; data: CategoryData }>(`/api/admin/categories/${id}`);
+
   if (!apiUtils.isSuccess(response)) {
     throw new Error(apiUtils.getErrorMessage(response));
   }
-  
-  return response.data.category;
+
+  return response.data.data;
 };
 
 const createCategory = async (data: CreateCategoryRequest): Promise<CategoryData> => {
@@ -59,13 +59,13 @@ const createCategory = async (data: CreateCategoryRequest): Promise<CategoryData
 };
 
 const updateCategory = async (id: string, data: UpdateCategoryRequest): Promise<CategoryData> => {
-  const response = await serverClient.put<{ success: boolean; category: CategoryData }>(`/api/admin/categories/${id}`, data);
-  
+  const response = await serverClient.put<{ success: boolean; data: CategoryData }>(`/api/admin/categories/${id}`, data);
+
   if (!apiUtils.isSuccess(response)) {
     throw new Error(apiUtils.getErrorMessage(response));
   }
-  
-  return response.data.category;
+
+  return response.data.data;
 };
 
 const deleteCategory = async (id: string, hard = false): Promise<void> => {
