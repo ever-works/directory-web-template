@@ -3359,7 +3359,12 @@
 			"ID_TOO_LONG": "ID трябва да е не повече от 50 символа",
 			"NAME_REQUIRED": "Името на категорията е задължително",
 			"NAME_TOO_SHORT": "Името трябва да е поне {min} символа",
-			"NAME_TOO_LONG": "Името трябва да е не повече от {max} символа"
+			"NAME_TOO_LONG": "Името трябва да е не повече от {max} символа",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Няма намерени етикети.",

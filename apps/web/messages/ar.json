@@ -3329,7 +3329,12 @@
 			"ID_TOO_LONG": "يجب ألا يزيد المعرف عن 50 حرف",
 			"NAME_REQUIRED": "اسم الفئة مطلوب",
 			"NAME_TOO_SHORT": "يجب أن يكون الاسم {min} حرف على الأقل",
-			"NAME_TOO_LONG": "يجب ألا يزيد الاسم عن {max} حرف"
+			"NAME_TOO_LONG": "يجب ألا يزيد الاسم عن {max} حرف",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "لم يتم العثور على علامات.",

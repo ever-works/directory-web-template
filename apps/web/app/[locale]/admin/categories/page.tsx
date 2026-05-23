@@ -327,12 +327,12 @@ export default function AdminCategoriesPage() {
 									</div>
 									<span className={cn(
 										'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset',
-										category.isInactive
+										!category.isActive
 											? 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
 											: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
 									)}>
 										<span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
-										{category.isInactive ? t('INACTIVE') : t('ACTIVE')}
+										{!category.isActive ? t('INACTIVE') : t('ACTIVE')}
 									</span>
 								</div>
 								<div className="flex-1 min-w-0">
@@ -383,12 +383,12 @@ export default function AdminCategoriesPage() {
 											</h4>
 											<span className={cn(
 												'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold ring-1 ring-inset',
-												category.isInactive
+												!category.isActive
 													? 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
 													: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
 											)}>
 												<span className="w-1 h-1 rounded-full bg-current opacity-75 shrink-0" />
-												{category.isInactive ? t('INACTIVE') : t('ACTIVE')}
+												{!category.isActive ? t('INACTIVE') : t('ACTIVE')}
 											</span>
 										</div>
 										<p className="text-xs text-gray-400 dark:text-gray-500 font-mono">

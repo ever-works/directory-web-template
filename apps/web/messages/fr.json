@@ -3398,7 +3398,12 @@
 			"ID_TOO_LONG": "L'ID ne doit pas dépasser 50 caractères",
 			"NAME_REQUIRED": "Le nom de la catégorie est requis",
 			"NAME_TOO_SHORT": "Le nom doit contenir au moins {min} caractères",
-			"NAME_TOO_LONG": "Le nom ne doit pas dépasser {max} caractères"
+			"NAME_TOO_LONG": "Le nom ne doit pas dépasser {max} caractères",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Aucune étiquette trouvée.",

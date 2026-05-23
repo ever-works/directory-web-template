@@ -3420,7 +3420,12 @@
 			"ID_TOO_LONG": "ID должен содержать не более 50 символов",
 			"NAME_REQUIRED": "Название категории обязательно",
 			"NAME_TOO_SHORT": "Название должно содержать не менее {min} символов",
-			"NAME_TOO_LONG": "Название должно содержать не более {max} символов"
+			"NAME_TOO_LONG": "Название должно содержать не более {max} символов",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Теги не найдены.",

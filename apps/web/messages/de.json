@@ -3341,7 +3341,12 @@
 			"ID_TOO_LONG": "ID darf nicht mehr als 50 Zeichen haben",
 			"NAME_REQUIRED": "Kategoriename ist erforderlich",
 			"NAME_TOO_SHORT": "Name muss mindestens {min} Zeichen haben",
-			"NAME_TOO_LONG": "Name darf nicht mehr als {max} Zeichen haben"
+			"NAME_TOO_LONG": "Name darf nicht mehr als {max} Zeichen haben",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Keine Tags gefunden.",

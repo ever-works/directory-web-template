@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Save, X, FolderTree, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CategoryData, CreateCategoryRequest, UpdateCategoryRequest, CATEGORY_VALIDATION } from "@/lib/types/category";
@@ -71,8 +71,15 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false, 
   const [formData, setFormData] = useState({
     id: category?.id || '',
     name: category?.name || '',
+    isActive: category?.isActive ?? true,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    if (category) {
+      setFormData({ id: category.id, name: category.name, isActive: category.isActive });
+    }
+  }, [category]);
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -104,8 +111,8 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false, 
     if (!validateForm()) return;
     try {
       const submitData = mode === 'edit'
-        ? { ...formData } as UpdateCategoryRequest
-        : formData as CreateCategoryRequest;
+        ? ({ id: formData.id, name: formData.name, isActive: formData.isActive }) as UpdateCategoryRequest
+        : ({ id: formData.id, name: formData.name, isActive: formData.isActive }) as CreateCategoryRequest;
       await onSubmit(submitData);
     } catch (error) {
       console.error('Form submission error:', error);
@@ -192,6 +199,38 @@ export function CategoryForm({ category, onSubmit, onCancel, isLoading = false, 
             maxLength={CATEGORY_VALIDATION.NAME_MAX_LENGTH}
             className={errors.name ? INPUT_ERROR : INPUT_BASE}
           />
+        </Field>
+
+        {/* Active / Inactive Toggle */}
+        <Field label={t('STATUS')}>
+          <div className="flex items-center gap-3 mt-1">
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, isActive: !prev.isActive }))}
+              role="switch"
+              aria-checked={formData.isActive}
+              disabled={isLoading}
+              className={cn(
+                "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
+                "focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-white focus:ring-offset-2 dark:focus:ring-offset-gray-900",
+                "disabled:opacity-50",
+                formData.isActive ? 'bg-gray-900 dark:bg-white' : 'bg-gray-200 dark:bg-white/[0.12]'
+              )}
+            >
+              <span className={cn(
+                "inline-block h-3.5 w-3.5 transform rounded-full transition-transform",
+                formData.isActive
+                  ? 'translate-x-[18px] bg-white dark:bg-gray-900'
+                  : 'translate-x-[3px] bg-white dark:bg-gray-400'
+              )} />
+            </button>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              {formData.isActive ? t('ACTIVE') : t('INACTIVE')}
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {formData.isActive ? t('ACTIVE_DESCRIPTION') : t('INACTIVE_DESCRIPTION')}
+          </p>
         </Field>
 
         {/* Actions */}

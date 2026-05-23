@@ -3339,7 +3339,12 @@
 			"ID_TOO_LONG": "ID không được quá 50 ký tự",
 			"NAME_REQUIRED": "Tên danh mục là bắt buộc",
 			"NAME_TOO_SHORT": "Tên phải có ít nhất {min} ký tự",
-			"NAME_TOO_LONG": "Tên không được nhiều hơn {max} ký tự"
+			"NAME_TOO_LONG": "Tên không được nhiều hơn {max} ký tự",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Không tìm thấy thẻ nào.",

@@ -256,6 +256,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const updateData: UpdateCategoryRequest = {
       id,
       name: body.name,
+      isActive: body.isActive,
     };
 
     // Update category

@@ -3358,7 +3358,12 @@
 			"ID_TOO_LONG": "ID harus maksimal 50 karakter",
 			"NAME_REQUIRED": "Nama kategori diperlukan",
 			"NAME_TOO_SHORT": "Nama harus minimal {min} karakter",
-			"NAME_TOO_LONG": "Nama harus maksimal {max} karakter"
+			"NAME_TOO_LONG": "Nama harus maksimal {max} karakter",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "Tidak ada tag ditemukan.",

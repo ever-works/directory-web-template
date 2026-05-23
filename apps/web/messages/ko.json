@@ -3420,7 +3420,12 @@
 			"ID_TOO_LONG": "ID는 최대 50자까지 가능합니다",
 			"NAME_REQUIRED": "카테고리 이름은 필수입니다",
 			"NAME_TOO_SHORT": "이름은 최소 {min}자 이상이어야 합니다",
-			"NAME_TOO_LONG": "이름은 최대 {max}자까지 가능합니다"
+			"NAME_TOO_LONG": "이름은 최대 {max}자까지 가능합니다",
+			"STATUS": "Status",
+			"ACTIVE": "Active",
+			"INACTIVE": "Inactive",
+			"ACTIVE_DESCRIPTION": "This category is visible and available",
+			"INACTIVE_DESCRIPTION": "This category is hidden from the public"
 		},
 		"TAGS_GRID_CLIENT": {
 			"NO_TAGS_FOUND": "태그를 찾을 수 없습니다.",

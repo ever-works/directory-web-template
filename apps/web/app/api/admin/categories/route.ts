@@ -348,6 +348,7 @@ export async function POST(request: NextRequest) {
     const createData: CreateCategoryRequest = {
       id: body.id,
       name: body.name,
+      isActive: body.isActive ?? true,
     };
 
     // Validate required fields
