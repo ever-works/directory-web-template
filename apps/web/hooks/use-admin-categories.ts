@@ -97,6 +97,7 @@ export interface UseAdminCategoriesReturn {
   // Data
   categories: CategoryWithCount[];
   total: number;
+  activeTotal: number;
   page: number;
   totalPages: number;
   limit: number;
@@ -207,6 +208,7 @@ export function useAdminCategories(options: UseAdminCategoriesOptions = {}): Use
     // Data
     categories: categoriesData?.categories || [],
     total: categoriesData?.total || 0,
+    activeTotal: categoriesData?.activeTotal ?? categoriesData?.total ?? 0,
     page: categoriesData?.page || 1,
     totalPages: categoriesData?.totalPages || 1,
     limit: categoriesData?.limit || 10,
