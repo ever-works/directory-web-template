@@ -22,6 +22,7 @@ export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {
 export interface CategoryListResponse {
   categories: CategoryWithCount[];
   total: number;
+  activeTotal: number;
   page: number;
   limit: number;
   totalPages: number;
