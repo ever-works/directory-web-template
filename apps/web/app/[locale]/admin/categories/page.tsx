@@ -27,6 +27,7 @@ export default function AdminCategoriesPage() {
 	const {
 		categories,
 		total: totalCategories,
+		activeTotal: activeCategories,
 		page,
 		totalPages,
 		isLoading,
@@ -97,7 +98,6 @@ export default function AdminCategoriesPage() {
 	const { isInitialLoad } = useNavigation();
 	const shouldShowSkeleton = isInitialLoad && isLoading;
 
-	const activeCategories = categories.filter((c) => !c.isInactive).length;
 	const activePercent = totalCategories > 0 ? Math.round((activeCategories / totalCategories) * 100) : 0;
 
 	if (shouldShowSkeleton) {
