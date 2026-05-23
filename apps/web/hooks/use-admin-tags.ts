@@ -139,10 +139,8 @@ export function useCreateTag() {
   return useMutation({
     mutationFn: tagsApi.createTag,
     onSuccess: (data) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Add the new tag to the cache
       queryClient.setQueryData(tagsKeys.detail(data.tag.id), data.tag);
     },
     onError: (error) => {
@@ -155,13 +153,11 @@ export function useUpdateTag() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTagData }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateTagData }) =>
       tagsApi.updateTag(id, data),
     onSuccess: (data, variables) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Update the specific tag in cache
       queryClient.setQueryData(tagsKeys.detail(variables.id), data.tag);
     },
     onError: (error) => {
@@ -176,10 +172,8 @@ export function useDeleteTag() {
   return useMutation({
     mutationFn: tagsApi.deleteTag,
     onSuccess: (_, tagId) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Remove the tag from cache
       queryClient.removeQueries({ queryKey: tagsKeys.detail(tagId) });
     },
     onError: (error) => {
