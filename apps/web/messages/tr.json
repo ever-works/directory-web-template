@@ -2699,7 +2699,7 @@
       "WARNING_DISABLED_TITLE": "Etiketler şu anda site genelinde devre dışı",
       "WARNING_DISABLED_MESSAGE": "Etiketler, gezinti, filtreler ve öğe sayfaları dahil kamuya açık siteden gizlenmiştir. Burada etiketleri yönetmeye devam edebilirsiniz, ancak yeniden etkinleştirilene kadar kullanıcılar tarafından görülemeyecektir.",
       "WARNING_DISABLED_ACTION": "Etkinleştirmek için Ayarlara Git",
-      "FILTER_ALL": "Tümü"
+      "FILTER_ALL": "All"
     },
     "ADMIN_ROLES_PAGE": {
       "TITLE": "Rol Yönetimi",

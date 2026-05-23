@@ -2700,7 +2700,7 @@
       "WARNING_DISABLED_TITLE": "Tag saat ini dinonaktifkan di seluruh situs",
       "WARNING_DISABLED_MESSAGE": "Tag disembunyikan dari situs publik termasuk navigasi, filter, dan halaman item. Anda masih dapat mengelola tag di sini, tetapi tidak akan terlihat oleh pengguna hingga diaktifkan kembali.",
       "WARNING_DISABLED_ACTION": "Pergi ke Pengaturan untuk Mengaktifkan",
-      "FILTER_ALL": "Semua"
+      "FILTER_ALL": "All"
     },
     "ADMIN_ROLES_PAGE": {
       "TITLE": "Manajemen Peran",

@@ -2611,7 +2611,7 @@
       "WARNING_DISABLED_TITLE": "Tags are currently disabled site-wide",
       "WARNING_DISABLED_MESSAGE": "Tags are hidden from the public site including navigation, filters, and item pages. You can still manage tags here, but they won't be visible to users until re-enabled.",
       "WARNING_DISABLED_ACTION": "Go to Settings to Enable",
-      "FILTER_ALL": "सभी"
+      "FILTER_ALL": "All"
     },
     "ADMIN_ROLES_PAGE": {
       "TITLE": "Role Management",
