@@ -57,7 +57,7 @@ export class CategoryRepository {
 
     const filteredCategories = options.includeInactive
       ? categories
-      : categories.filter((c) => !c.isInactive);
+      : categories.filter((c) => c.isActive);
 
     return this.sortCategories(filteredCategories, options);
   }
@@ -77,12 +77,12 @@ export class CategoryRepository {
 
     // Fetch the full unfiltered list once for accurate global counts.
     const allWithInactive = await this.findAll({ ...filterOptions, includeInactive: true });
-    const activeTotal = allWithInactive.filter((c) => !c.isInactive).length;
+    const activeTotal = allWithInactive.filter((c) => c.isActive).length;
 
     // Respect the caller's includeInactive flag for the paginated slice.
     const filteredForPage = filterOptions.includeInactive === true
       ? allWithInactive
-      : allWithInactive.filter((c) => !c.isInactive);
+      : allWithInactive.filter((c) => c.isActive);
 
     const total = filteredForPage.length;
     const offset = (page - 1) * limit;
