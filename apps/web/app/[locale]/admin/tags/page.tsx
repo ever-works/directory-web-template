@@ -117,7 +117,7 @@ export default function AdminTagsPage() {
 
 	const shouldShowSkeleton = isInitialLoad && isLoading;
 	const totalTags = tagsData?.total || 0;
-	const activeTags = tagsData?.tags?.filter((tag) => tag.isActive).length ?? 0;
+	const activeTags = tagsData?.activeTotal ?? 0;
 	const activePercent = totalTags > 0 ? Math.round((activeTags / totalTags) * 100) : 0;
 
 	if (shouldShowSkeleton) {

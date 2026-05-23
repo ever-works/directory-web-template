@@ -8,6 +8,7 @@ import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 export interface TagsResponse {
   tags: TagData[];
   total: number;
+  activeTotal: number;
   page: number;
   limit: number;
   totalPages: number;

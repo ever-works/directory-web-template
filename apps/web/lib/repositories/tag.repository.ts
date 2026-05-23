@@ -128,7 +128,7 @@ export class TagRepository {
   }
 
   private sortTags(tags: TagData[]): TagData[] {
-    return tags.sort((a, b) => a.name.localeCompare(b.name));
+    return [...tags].sort((a, b) => a.name.localeCompare(b.name));
   }
 }
 

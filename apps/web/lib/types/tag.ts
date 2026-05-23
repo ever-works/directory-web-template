@@ -21,6 +21,7 @@ export type UpdateTagRequest = Partial<Omit<CreateTagRequest, 'id'>>;
 export interface TagListResponse {
   tags: TagWithCount[];
   total: number;
+  activeTotal: number;
   page: number;
   limit: number;
   totalPages: number;

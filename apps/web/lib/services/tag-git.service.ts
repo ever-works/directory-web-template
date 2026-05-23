@@ -219,11 +219,13 @@ export class TagGitService {
   async getTagsPaginated(page: number = 1, limit: number = 10): Promise<{
     tags: TagData[];
     total: number;
+    activeTotal: number;
     page: number;
     limit: number;
     totalPages: number;
   }> {
     const allTags = await this.readTags();
+    const activeTotal = allTags.filter((t) => t.isActive).length;
     const total = allTags.length;
     const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
@@ -233,6 +235,7 @@ export class TagGitService {
     return {
       tags,
       total,
+      activeTotal,
       page,
       limit,
       totalPages,
