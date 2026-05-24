@@ -2699,7 +2699,8 @@
 			"DELETE_CONFIRMATION": "Bạn có chắc chắn muốn xóa thẻ này không?",
 			"WARNING_DISABLED_TITLE": "Thẻ hiện bị vô hiệu hóa trên toàn trang web",
 			"WARNING_DISABLED_MESSAGE": "Thẻ bị ẩn khỏi trang web công cộng bao gồm điều hướng, bộ lọc và trang mục. ",
-			"WARNING_DISABLED_ACTION": "Đi tới Cài đặt để bật"
+			"WARNING_DISABLED_ACTION": "Đi tới Cài đặt để bật",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_ROLES_PAGE": {
 			"TITLE": "Quản lý vai trò",

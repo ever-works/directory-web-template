@@ -8,6 +8,8 @@ import { apiUtils, serverClient } from '@/lib/api/server-api-client';
 export interface TagsResponse {
   tags: TagData[];
   total: number;
+  allTotal: number;
+  activeTotal: number;
   page: number;
   limit: number;
   totalPages: number;
@@ -28,7 +30,8 @@ export interface UpdateTagData extends TagData {}
 export const tagsKeys = {
   all: ['tags'] as const,
   lists: () => [...tagsKeys.all, 'list'] as const,
-  list: (page: number, limit: number) => [...tagsKeys.lists(), { page, limit }] as const,
+  list: (page: number, limit: number, filter?: { includeInactive?: boolean; onlyInactive?: boolean }) =>
+    [...tagsKeys.lists(), { page, limit, ...filter }] as const,
   allTags: () => [...tagsKeys.all, 'all'] as const,
   details: () => [...tagsKeys.all, 'detail'] as const,
   detail: (id: string) => [...tagsKeys.details(), id] as const,
@@ -37,13 +40,21 @@ export const tagsKeys = {
 // API functions
 const tagsApi = {
   // Get tags with pagination
-  getTags: async (page: number = 1, limit: number = 10): Promise<TagsResponse> => {
-    const response = await serverClient.get<{ success: boolean; data: TagsResponse }>(`/api/admin/tags?page=${page}&limit=${limit}`);
-    
+  getTags: async (
+    page: number = 1,
+    limit: number = 10,
+    filter: { includeInactive?: boolean; onlyInactive?: boolean } = {}
+  ): Promise<TagsResponse> => {
+    const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+    if (filter.includeInactive === false) params.set('includeInactive', 'false');
+    if (filter.onlyInactive) params.set('onlyInactive', 'true');
+
+    const response = await serverClient.get<{ success: boolean; data: TagsResponse }>(`/api/admin/tags?${params}`);
+
     if (!apiUtils.isSuccess(response)) {
       throw new Error(response.error || 'Failed to fetch tags');
     }
-    
+
     return response.data.data;
   },
 
@@ -100,12 +111,16 @@ const tagsApi = {
 };
 
 // Custom hooks
-export function useTags(page: number = 1, limit: number = 10) {
+export function useTags(
+  page: number = 1,
+  limit: number = 10,
+  filter: { includeInactive?: boolean; onlyInactive?: boolean } = {}
+) {
   return useQuery({
-    queryKey: tagsKeys.list(page, limit),
-    queryFn: () => tagsApi.getTags(page, limit),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
+    queryKey: tagsKeys.list(page, limit, filter),
+    queryFn: () => tagsApi.getTags(page, limit, filter),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 }
 
@@ -124,10 +139,8 @@ export function useCreateTag() {
   return useMutation({
     mutationFn: tagsApi.createTag,
     onSuccess: (data) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Add the new tag to the cache
       queryClient.setQueryData(tagsKeys.detail(data.tag.id), data.tag);
     },
     onError: (error) => {
@@ -140,13 +153,11 @@ export function useUpdateTag() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTagData }) => 
+    mutationFn: ({ id, data }: { id: string; data: UpdateTagData }) =>
       tagsApi.updateTag(id, data),
     onSuccess: (data, variables) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Update the specific tag in cache
       queryClient.setQueryData(tagsKeys.detail(variables.id), data.tag);
     },
     onError: (error) => {
@@ -161,10 +172,8 @@ export function useDeleteTag() {
   return useMutation({
     mutationFn: tagsApi.deleteTag,
     onSuccess: (_, tagId) => {
-      // Invalidate and refetch tags lists
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: tagsKeys.lists() });
-      
-      // Remove the tag from cache
       queryClient.removeQueries({ queryKey: tagsKeys.detail(tagId) });
     },
     onError: (error) => {
