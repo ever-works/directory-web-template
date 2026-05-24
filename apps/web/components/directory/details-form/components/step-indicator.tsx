@@ -84,11 +84,20 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 
 						{/* Thin animated connector between steps */}
 						{index < steps.length - 1 && (
-							<div className={cn(STEP_INDICATOR_CLASSES.connector.base, STEP_INDICATOR_CLASSES.connector.default, 'relative overflow-hidden')}>
+							<div className={cn(STEP_INDICATOR_CLASSES.connector.base, STEP_INDICATOR_CLASSES.connector.default, 'relative')}>
+								{/* Fill bar */}
 								<div
 									className="absolute inset-0 h-full bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
 									style={{ transform: `scaleX(${connectorFill / 100})` }}
 								/>
+								{/* Flowing dots on the active connector */}
+								{isActive && [0, 1, 2].map((i) => (
+									<div
+										key={i}
+										className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-theme-primary-400 shadow-sm shadow-theme-primary-500/50 animate-dot-flow"
+										style={{ animationDelay: `${i * 0.6}s` }}
+									/>
+								))}
 							</div>
 						)}
 					</div>
