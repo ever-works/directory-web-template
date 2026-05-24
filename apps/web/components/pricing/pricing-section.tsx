@@ -351,7 +351,11 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				)}
 			</div>
 
-			{/* Sponsor Ads Block - Modern Centered Design */}
+			{/* Sponsor Ads Block - Modern Centered Design.
+				Only shown on the standalone /pricing page — hidden in the
+				submit (review) flow where this section is rendered as the
+				payment step. */}
+			{!isReview && (
 			<div className="mt-40 mb-12 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
 				<div className="relative">
 					{/* Animated Radar Circles at Top — clipped to top half only.
@@ -460,6 +464,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					</div>
 				</div>
 			</div>
+
+			)}
 
 			{/* Enhanced Continue Section */}
 			{selectedPlan && (
