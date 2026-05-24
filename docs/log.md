@@ -31,13 +31,16 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-24 — /submit: hide Sponsor Ads block in payment step
+## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
 
 - `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
-  promo block behind `!isReview` so it renders only on the standalone
-  `/pricing` page, not when `PricingSection` is embedded as the submit-flow
-  payment step (`PaymentStep` passes `isReview`). Matches the existing
-  `!isReview` gating used for the section's decorative background and header.
+  promo block, the "Enhanced Continue Section" (its own continue-to-/submit
+  CTA), and the "Trust Section" behind `!isReview` so they render only on the
+  standalone `/pricing` page, not when `PricingSection` is embedded as the
+  submit-flow payment step (`PaymentStep` passes `isReview`). Matches the
+  existing `!isReview` gating used for the section's decorative background and
+  header; the submit flow has its own form navigation, so the continue CTA was
+  redundant there.
 
 ## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
 
