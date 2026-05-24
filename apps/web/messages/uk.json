@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL-адреса відео (YouTube або Vimeo)",
+			"VIDEO_PREVIEW": "Попередній перегляд відео",
+			"STEP_TITLE_BASIC_INFO": "Основна інформація",
+			"STEP_TITLE_PAYMENT": "Оплата",
+			"STEP_TITLE_REVIEW": "Перегляд",
+			"TOAST_INVALID_URL": "Вкажіть дійсну URL-адресу для вашого елемента.",
+			"TOAST_SUBMIT_SUCCESS": "Елемент успішно надіслано!",
+			"TOAST_SUBMIT_FAILED": "Не вдалося надіслати елемент",
+			"TOAST_SUBMIT_ERROR": "Помилка під час надсилання форми. Спробуйте ще раз.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",

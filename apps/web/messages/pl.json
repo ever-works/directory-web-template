@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Adres URL wideo (YouTube lub Vimeo)",
+			"VIDEO_PREVIEW": "Podgląd wideo",
+			"STEP_TITLE_BASIC_INFO": "Podstawowe informacje",
+			"STEP_TITLE_PAYMENT": "Płatność",
+			"STEP_TITLE_REVIEW": "Przegląd",
+			"TOAST_INVALID_URL": "Podaj prawidłowy adres URL dla swojego elementu.",
+			"TOAST_SUBMIT_SUCCESS": "Element został pomyślnie przesłany!",
+			"TOAST_SUBMIT_FAILED": "Nie udało się przesłać elementu",
+			"TOAST_SUBMIT_ERROR": "Błąd podczas przesyłania formularza. Spróbuj ponownie.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",

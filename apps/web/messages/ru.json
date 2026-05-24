@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Проверка и публикация"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL видео (YouTube или Vimeo)",
+			"VIDEO_PREVIEW": "Предпросмотр видео",
+			"STEP_TITLE_BASIC_INFO": "Основная информация",
+			"STEP_TITLE_PAYMENT": "Оплата",
+			"STEP_TITLE_REVIEW": "Проверка",
+			"TOAST_INVALID_URL": "Укажите действительный URL для вашего элемента.",
+			"TOAST_SUBMIT_SUCCESS": "Элемент успешно отправлен!",
+			"TOAST_SUBMIT_FAILED": "Не удалось отправить элемент",
+			"TOAST_SUBMIT_ERROR": "Ошибка при отправке формы. Попробуйте ещё раз.",
 			"TITLE": "Расскажите о вашем продукте",
 			"DESCRIPTION": "Поделитесь деталями, которые помогут пользователям найти и понять ваш замечательный продукт",
 			"STEP_INDICATOR": "Шаг {step} из 3 · Детали продукта",

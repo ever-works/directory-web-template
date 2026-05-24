@@ -31,6 +31,23 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
+
+- `apps/web/components/submit/submit-form-client.tsx`,
+  `apps/web/components/directory/details-form/steps/basic-info-step.tsx`,
+  `.../components/step-indicator.tsx`, `.../details-form.tsx`,
+  `.../validation/form-validators.ts`: replaced the last hard-coded English
+  strings on the submit page with `next-intl` keys — the four submit toast
+  messages (invalid URL / success / failed / generic error), the Video URL
+  field label, the video-preview iframe title, the rich-text editor
+  placeholder (reused existing `DETAILED_INTRODUCTION_PLACEHOLDER`), and the
+  three step-indicator/header titles (Basic Information / Payment / Review,
+  via a new `titleKey` on each `StepDefinition`). Added 9 new
+  `directory.DETAILS_FORM` keys (`VIDEO_URL_LABEL`, `VIDEO_PREVIEW`,
+  `STEP_TITLE_BASIC_INFO/PAYMENT/REVIEW`,
+  `TOAST_INVALID_URL/SUBMIT_SUCCESS/SUBMIT_FAILED/SUBMIT_ERROR`) across all 21
+  locale files. No behaviour change.
+
 ## 2026-05-24 — Fix: /submit drops location and extra categories
 
 - `apps/web/components/submit/submit-form-client.tsx`: the submit handler built

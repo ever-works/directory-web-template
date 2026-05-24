@@ -730,6 +730,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "כתובת URL של הסרטון (YouTube או Vimeo)",
+			"VIDEO_PREVIEW": "תצוגה מקדימה של הסרטון",
+			"STEP_TITLE_BASIC_INFO": "מידע בסיסי",
+			"STEP_TITLE_PAYMENT": "תשלום",
+			"STEP_TITLE_REVIEW": "סקירה",
+			"TOAST_INVALID_URL": "אנא ספק כתובת URL תקינה עבור הפריט שלך.",
+			"TOAST_SUBMIT_SUCCESS": "הפריט נשלח בהצלחה!",
+			"TOAST_SUBMIT_FAILED": "שליחת הפריט נכשלה",
+			"TOAST_SUBMIT_ERROR": "שגיאה בשליחת הטופס. אנא נסה שוב.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",

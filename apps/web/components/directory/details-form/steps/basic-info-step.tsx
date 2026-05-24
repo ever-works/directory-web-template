@@ -362,7 +362,7 @@ export function BasicInfoStep({
 					{/* Video URL */}
 					<div className="space-y-3">
 						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
-							Video URL (YouTube or Vimeo)
+							{t('directory.DETAILS_FORM.VIDEO_URL_LABEL')}
 						</label>
 						<div className="relative">
 							<input
@@ -381,7 +381,7 @@ export function BasicInfoStep({
 								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
 									<iframe
 										src={getVideoEmbedUrl(formData.video_url)}
-										title="Video Preview"
+										title={t('directory.DETAILS_FORM.VIDEO_PREVIEW')}
 										style={{ border: 0 }}
 										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 										allowFullScreen
@@ -525,7 +525,7 @@ export function BasicInfoStep({
 									}
 									editor={editor}
 									role="presentation"
-									placeholder="Write your introduction here..."
+									placeholder={t('directory.DETAILS_FORM.DETAILED_INTRODUCTION_PLACEHOLDER')}
 								/>
 							)}
 						</div>

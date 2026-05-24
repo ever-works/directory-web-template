@@ -25,7 +25,10 @@ export interface FormData {
 
 export interface StepDefinition {
 	id: number;
+	/** English fallback title; UI should render `titleKey` via next-intl. */
 	title: string;
+	/** i18n message key for the step title (namespace-qualified). */
+	titleKey: string;
 	description: string;
 	icon?: LucideIcon;
 	/** Required fields that gate navigation to the next step */
@@ -39,6 +42,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 	{
 		id: 1,
 		title: 'Basic Information',
+		titleKey: 'directory.DETAILS_FORM.STEP_TITLE_BASIC_INFO',
 		description: 'Basic Information Description',
 		fields: ['name', 'link'],
 		progressFields: ['name', 'link', 'description', 'introduction', 'tags', 'category', 'video_url'],
@@ -47,6 +51,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 	{
 		id: 2,
 		title: 'Payment',
+		titleKey: 'directory.DETAILS_FORM.STEP_TITLE_PAYMENT',
 		description: 'Payment Description',
 		fields: ['selectedPlan'],
 		color: 'from-purple-500 to-pink-500'
@@ -54,6 +59,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 	{
 		id: 3,
 		title: 'Review',
+		titleKey: 'directory.DETAILS_FORM.STEP_TITLE_REVIEW',
 		description: 'Review Description',
 		fields: [],
 		color: 'from-orange-500 to-red-500'

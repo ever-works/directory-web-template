@@ -875,6 +875,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video URL (YouTube or Vimeo)",
+			"VIDEO_PREVIEW": "Video Preview",
+			"STEP_TITLE_BASIC_INFO": "Basic Information",
+			"STEP_TITLE_PAYMENT": "Payment",
+			"STEP_TITLE_REVIEW": "Review",
+			"TOAST_INVALID_URL": "Please provide a valid URL for your item.",
+			"TOAST_SUBMIT_SUCCESS": "Item submitted successfully!",
+			"TOAST_SUBMIT_FAILED": "Failed to submit item",
+			"TOAST_SUBMIT_ERROR": "Error submitting form. Please try again.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",

@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Tinjau & Terbitkan"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL Video (YouTube atau Vimeo)",
+			"VIDEO_PREVIEW": "Pratinjau Video",
+			"STEP_TITLE_BASIC_INFO": "Informasi Dasar",
+			"STEP_TITLE_PAYMENT": "Pembayaran",
+			"STEP_TITLE_REVIEW": "Tinjauan",
+			"TOAST_INVALID_URL": "Harap berikan URL yang valid untuk item Anda.",
+			"TOAST_SUBMIT_SUCCESS": "Item berhasil dikirim!",
+			"TOAST_SUBMIT_FAILED": "Gagal mengirim item",
+			"TOAST_SUBMIT_ERROR": "Terjadi kesalahan saat mengirim formulir. Silakan coba lagi.",
 			"TITLE": "Ceritakan Tentang Produk Anda",
 			"DESCRIPTION": "Bagikan detail yang akan membantu pengguna menemukan dan memahami produk luar biasa Anda",
 			"STEP_INDICATOR": "Langkah {step} dari 3 · Detail Produk",

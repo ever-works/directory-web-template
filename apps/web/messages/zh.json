@@ -742,6 +742,15 @@
 			"REVIEW_PUBLISH": "审核和发布"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "视频网址（YouTube 或 Vimeo）",
+			"VIDEO_PREVIEW": "视频预览",
+			"STEP_TITLE_BASIC_INFO": "基本信息",
+			"STEP_TITLE_PAYMENT": "支付",
+			"STEP_TITLE_REVIEW": "审核",
+			"TOAST_INVALID_URL": "请为您的项目提供有效的网址。",
+			"TOAST_SUBMIT_SUCCESS": "项目提交成功！",
+			"TOAST_SUBMIT_FAILED": "项目提交失败",
+			"TOAST_SUBMIT_ERROR": "提交表单时出错。请重试。",
 			"TITLE": "告诉我们您的产品",
 			"DESCRIPTION": "分享详情，帮助用户发现和了解您出色的产品",
 			"STEP_INDICATOR": "第 {step} 步，共 3 步 · 产品详情",

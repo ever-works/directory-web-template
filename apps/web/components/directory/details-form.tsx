@@ -99,7 +99,8 @@ export function DetailsForm({
 							</span>
 							<span className="w-px h-3 bg-theme-primary-300 dark:bg-theme-primary-600 mx-0.5" />
 							<span className={HEADER_CLASSES.badgeText}>
-								{STEP_DEFINITIONS[currentStep - 1]?.title}
+								{STEP_DEFINITIONS[currentStep - 1] &&
+									t(STEP_DEFINITIONS[currentStep - 1].titleKey)}
 							</span>
 						</div>
 

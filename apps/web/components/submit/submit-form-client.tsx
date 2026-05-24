@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DetailsForm } from "@/components/directory/details-form";
 import { useRouter } from "next/navigation";
+import { useTranslations } from 'next-intl';
 import { toast } from "sonner";
 import type { Category, ItemData, Tag as TagType } from '@/lib/content';
 import type { FormData } from '@/components/directory/details-form/validation/form-validators';
@@ -19,6 +20,7 @@ interface SubmitFormClientProps {
 
 export function SubmitFormClient({ initialData, locale }: SubmitFormClientProps) {
   const router = useRouter();
+  const t = useTranslations('directory.DETAILS_FORM');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleFormSubmit = async (data: FormData) => {
@@ -31,7 +33,7 @@ export function SubmitFormClient({ initialData, locale }: SubmitFormClientProps)
       const sourceUrl = mainLink?.url || data.link;
 
       if (!sourceUrl) {
-        toast.error('Please provide a valid URL for your item.');
+        toast.error(t('TOAST_INVALID_URL'));
         setIsSubmitting(false);
         return;
       }
@@ -77,17 +79,17 @@ export function SubmitFormClient({ initialData, locale }: SubmitFormClientProps)
       const result: ClientCreateItemResponse = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to submit item');
+        throw new Error(result.error || t('TOAST_SUBMIT_FAILED'));
       }
 
-      toast.success(result.message || 'Item submitted successfully!');
+      toast.success(result.message || t('TOAST_SUBMIT_SUCCESS'));
 
       // Redirect to submissions page
       router.push(`/${locale}/client/submissions`);
 
     } catch (error) {
       console.error('Error submitting form:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Error submitting form. Please try again.';
+      const errorMessage = error instanceof Error ? error.message : t('TOAST_SUBMIT_ERROR');
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);

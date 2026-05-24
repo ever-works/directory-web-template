@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, Type, CreditCard, Eye } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { STEP_INDICATOR_CLASSES, STEP_DEFINITIONS } from '../validation/form-validators';
 import type { StepDefinition } from '../validation/form-validators';
@@ -18,6 +19,7 @@ const STEP_ICONS = {
 };
 
 export function StepIndicator({ currentStep, onStepClick, completedFields }: StepIndicatorProps) {
+	const t = useTranslations();
 	const steps: StepDefinition[] = STEP_DEFINITIONS.map((step) => ({
 		...step,
 		icon: STEP_ICONS[step.id as keyof typeof STEP_ICONS]
@@ -96,7 +98,7 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 									!isActive && !isCompleted && STEP_INDICATOR_CLASSES.label.default
 								)}
 							>
-								{step.title}
+								{t(step.titleKey)}
 							</span>
 						</div>
 

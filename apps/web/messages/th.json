@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL วิดีโอ (YouTube หรือ Vimeo)",
+			"VIDEO_PREVIEW": "ตัวอย่างวิดีโอ",
+			"STEP_TITLE_BASIC_INFO": "ข้อมูลพื้นฐาน",
+			"STEP_TITLE_PAYMENT": "การชำระเงิน",
+			"STEP_TITLE_REVIEW": "ตรวจสอบ",
+			"TOAST_INVALID_URL": "โปรดระบุ URL ที่ถูกต้องสำหรับรายการของคุณ",
+			"TOAST_SUBMIT_SUCCESS": "ส่งรายการสำเร็จแล้ว!",
+			"TOAST_SUBMIT_FAILED": "ส่งรายการไม่สำเร็จ",
+			"TOAST_SUBMIT_ERROR": "เกิดข้อผิดพลาดในการส่งแบบฟอร์ม โปรดลองอีกครั้ง",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
