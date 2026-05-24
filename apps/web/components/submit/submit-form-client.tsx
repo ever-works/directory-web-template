@@ -36,13 +36,34 @@ export function SubmitFormClient({ initialData, locale }: SubmitFormClientProps)
         return;
       }
 
+      // The category picker is multi-select and stores every chosen id in the
+      // plural `categories` array, while the singular `category` field only
+      // holds the FIRST selected id. Submitting `category` alone silently drops
+      // any additional categories the user picked (and that the Review step
+      // shows back to them), so prefer the full array when it is present.
+      const selectedCategories = Array.isArray(data.categories)
+        ? (data.categories as unknown[]).filter(
+            (c): c is string => typeof c === 'string' && c.trim().length > 0
+          )
+        : [];
+      const category: ClientCreateItemRequest['category'] =
+        selectedCategories.length > 0
+          ? selectedCategories
+          : typeof data.category === 'string' && data.category.trim()
+            ? data.category
+            : null;
+
       // Transform form data to API format
       const payload: ClientCreateItemRequest = {
         name: data.name,
         description: data.description,
         source_url: sourceUrl,
-        category: data.category,
+        category,
         tags: data.tags || [],
+        // Location is collected by LocationFields (and can be a required gate
+        // when `requireLocationOnSubmit` is enabled) and is persisted by the
+        // API/repository — include it so it is not silently discarded.
+        ...(data.location ? { location: data.location } : {}),
       };
 
       const response = await fetch('/api/client/items', {

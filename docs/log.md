@@ -31,6 +31,20 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-24 — Fix: /submit drops location and extra categories
+
+- `apps/web/components/submit/submit-form-client.tsx`: the submit handler built
+  its API payload from the singular `category` field (first selected id only)
+  and omitted `location` entirely, so a multi-category selection silently lost
+  every category after the first, and any location collected by `LocationFields`
+  (including when `requireLocationOnSubmit` gates the form) was discarded before
+  reaching `POST /api/client/items`. The payload now sends the full
+  `categories` array when present and includes `location` when set — both are
+  already supported by `ClientCreateItemRequest` and persisted by
+  `ClientItemRepository.createAsClient`. UI-only fix; no API/schema changes.
+
+---
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped
