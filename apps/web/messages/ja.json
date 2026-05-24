@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "抽出",
-			"EXTRACTING": "抽出中..."
+			"EXTRACTING": "抽出中...",
+				"URL_FORMAT_HINT": "URLはhttps://またはhttp://で始まる必要があります"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

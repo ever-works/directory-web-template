@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Extrair",
-			"EXTRACTING": "Extraindo..."
+			"EXTRACTING": "Extraindo...",
+				"URL_FORMAT_HINT": "O URL deve começar com https:// ou http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

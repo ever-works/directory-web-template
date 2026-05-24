@@ -772,7 +772,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "חלץ",
-			"EXTRACTING": "מחלץ..."
+			"EXTRACTING": "מחלץ...",
+				"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

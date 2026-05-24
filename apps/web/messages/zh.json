@@ -784,7 +784,8 @@
 			"REMOVE_LINK": "删除链接",
 			"REVIEW_AND_SUBMIT": "审核并提交",
 			"EXTRACT": "提取",
-			"EXTRACTING": "正在提取..."
+			"EXTRACTING": "正在提取...",
+				"URL_FORMAT_HINT": "URL必须以https://或http://开头"
 		},
 		"PAYMENT": {
 			"TITLE": "完成您的订单",

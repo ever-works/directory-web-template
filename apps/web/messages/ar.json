@@ -772,7 +772,8 @@
 			"REMOVE_LINK": "إزالة الرابط",
 			"REVIEW_AND_SUBMIT": "مراجعة وإرسال",
 			"EXTRACT": "استخراج",
-			"EXTRACTING": "جاري الاستخراج..."
+			"EXTRACTING": "جاري الاستخراج...",
+				"URL_FORMAT_HINT": "يجب أن يبدأ الرابط بـ https:// أو http://"
 		},
 		"PAYMENT": {
 			"TITLE": "إتمام طلبك",

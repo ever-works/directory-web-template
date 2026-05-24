@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "Xóa liên kết",
 			"REVIEW_AND_SUBMIT": "Xem xét và gửi",
 			"EXTRACT": "Trích xuất",
-			"EXTRACTING": "Đang trích xuất..."
+			"EXTRACTING": "Đang trích xuất...",
+				"URL_FORMAT_HINT": "URL phải bắt đầu bằng https:// hoặc http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Hoàn tất đơn hàng của bạn",

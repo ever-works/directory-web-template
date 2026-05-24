@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "निकालें",
-			"EXTRACTING": "निकाला जा रहा है..."
+			"EXTRACTING": "निकाला जा रहा है...",
+				"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

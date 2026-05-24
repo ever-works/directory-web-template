@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Wyodrębnij",
-			"EXTRACTING": "Wyodrębnianie..."
+			"EXTRACTING": "Wyodrębnianie...",
+				"URL_FORMAT_HINT": "URL musi zaczynać się od https:// lub http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

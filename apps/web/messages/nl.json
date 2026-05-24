@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Extraheren",
-			"EXTRACTING": "Extraheren..."
+			"EXTRACTING": "Extraheren...",
+				"URL_FORMAT_HINT": "URL moet beginnen met https:// of http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

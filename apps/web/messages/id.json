@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "Hapus tautan",
 			"REVIEW_AND_SUBMIT": "Tinjau & Kirim",
 			"EXTRACT": "Ekstrak",
-			"EXTRACTING": "Mengekstrak..."
+			"EXTRACTING": "Mengekstrak...",
+				"URL_FORMAT_HINT": "URL harus dimulai dengan https:// atau http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Selesaikan Pesanan Anda",

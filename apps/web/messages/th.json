@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "ดึงข้อมูล",
-			"EXTRACTING": "กำลังดึงข้อมูล..."
+			"EXTRACTING": "กำลังดึงข้อมูล...",
+				"URL_FORMAT_HINT": "URL ต้องเริ่มต้นด้วย https:// หรือ http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

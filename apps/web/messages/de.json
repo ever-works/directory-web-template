@@ -785,7 +785,8 @@
 			"REMOVE_LINK": "Link entfernen",
 			"REVIEW_AND_SUBMIT": "Überprüfen & Absenden",
 			"EXTRACT": "Extrahieren",
-			"EXTRACTING": "Extrahieren..."
+			"EXTRACTING": "Extrahieren...",
+				"URL_FORMAT_HINT": "URL muss mit https:// oder http:// beginnen"
 		},
 		"PAYMENT": {
 			"TITLE": "Bestellung abschließen",

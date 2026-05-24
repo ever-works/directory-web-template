@@ -162,7 +162,7 @@ export function LinkInput({
 											<div className="relative flex items-center justify-center w-5 h-5 rounded-full bg-amber-400 cursor-default">
 												<span className="text-white text-[10px] font-bold leading-none">!</span>
 												<span className="pointer-events-none absolute bottom-full right-0 mb-2 w-max max-w-[200px] rounded-md bg-gray-900 dark:bg-white px-2.5 py-1.5 text-[11px] leading-snug text-white dark:text-gray-900 shadow-sm z-20 whitespace-normal">
-													URL must start with https:// or http://
+													{t('directory.DETAILS_FORM.URL_FORMAT_HINT')}
 													<span className="absolute top-full right-2.5 border-4 border-transparent border-t-gray-900 dark:border-t-white" />
 												</span>
 											</div>

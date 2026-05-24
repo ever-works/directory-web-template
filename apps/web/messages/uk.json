@@ -773,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Витягти",
-			"EXTRACTING": "Витягнення..."
+			"EXTRACTING": "Витягнення...",
+				"URL_FORMAT_HINT": "URL має починатися з https:// або http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

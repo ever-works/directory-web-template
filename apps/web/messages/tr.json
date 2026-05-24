@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "Bağlantıyı kaldır",
 			"REVIEW_AND_SUBMIT": "İncele ve Gönder",
 			"EXTRACT": "Çıkar",
-			"EXTRACTING": "Çıkarılıyor..."
+			"EXTRACTING": "Çıkarılıyor...",
+				"URL_FORMAT_HINT": "URL, https:// veya http:// ile başlamalıdır"
 		},
 		"PAYMENT": {
 			"TITLE": "Siparişinizi Tamamlayın",

@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "Удалить ссылку",
 			"REVIEW_AND_SUBMIT": "Проверить и отправить",
 			"EXTRACT": "Извлечь",
-			"EXTRACTING": "Извлечение..."
+			"EXTRACTING": "Извлечение...",
+				"URL_FORMAT_HINT": "URL должен начинаться с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завершите ваш заказ",

@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "Премахни връзката",
 			"REVIEW_AND_SUBMIT": "Преглед и изпращане",
 			"EXTRACT": "Извлечи",
-			"EXTRACTING": "Извличане..."
+			"EXTRACTING": "Извличане...",
+				"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завършете вашата поръчка",

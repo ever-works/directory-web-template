@@ -851,7 +851,8 @@
 			"REMOVE_LINK": "링크 제거",
 			"REVIEW_AND_SUBMIT": "검토 및 제출",
 			"EXTRACT": "추출",
-			"EXTRACTING": "추출 중..."
+			"EXTRACTING": "추출 중...",
+				"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
 		},
 		"PAYMENT": {
 			"TITLE": "주문 완료",
