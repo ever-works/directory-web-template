@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, useEffect, useRef } from 'react';
-import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X } from 'lucide-react';
+import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X, Video } from 'lucide-react';
 import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';
@@ -360,11 +360,14 @@ export function BasicInfoStep({
 					)}
 
 					{/* Video URL */}
-					<div className="space-y-3">
+					<div className="space-y-2">
 						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
 							{t('directory.DETAILS_FORM.VIDEO_URL_LABEL')}
 						</label>
 						<div className="relative">
+							<div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+								<Video className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+							</div>
 							<input
 								id="video_url"
 								name="video_url"
@@ -372,9 +375,12 @@ export function BasicInfoStep({
 								value={formData.video_url || ''}
 								onChange={handleInputChange}
 								placeholder="https://www.youtube.com/watch?v=..."
-								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
+								className={cn(FORM_FIELD_CLASSES.input.base, 'pl-9')}
 							/>
 						</div>
+						<p className="text-[11px] text-gray-400 dark:text-gray-500">
+							YouTube &amp; Vimeo supported
+						</p>
 						{/* Video Preview - only for whitelisted hosts */}
 						{formData.video_url && isValidVideoUrl(formData.video_url) && (
 							<div className={VIDEO_PREVIEW_CLASSES.container}>

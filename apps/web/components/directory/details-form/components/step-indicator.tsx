@@ -84,9 +84,9 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 
 						{/* Thin animated connector between steps */}
 						{index < steps.length - 1 && (
-							<div className={cn(STEP_INDICATOR_CLASSES.connector.base, 'relative overflow-hidden')}>
+							<div className={cn(STEP_INDICATOR_CLASSES.connector.base, STEP_INDICATOR_CLASSES.connector.default, 'relative overflow-hidden')}>
 								<div
-									className="absolute inset-0 left-0 bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
+									className="absolute inset-0 h-full bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
 									style={{ transform: `scaleX(${connectorFill / 100})` }}
 								/>
 							</div>
