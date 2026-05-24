@@ -103,7 +103,7 @@ export const HEADER_CLASSES = {
 	badgeIcon: 'w-6 h-6 rounded-lg bg-theme-primary-500 flex items-center justify-center shadow-sm shadow-theme-primary-500/30',
 	badgeIconInner: 'w-3.5 h-3.5 text-white',
 	badgeText: 'text-xs font-semibold tracking-wide text-theme-primary-700 dark:text-theme-primary-400',
-	title: 'text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-theme-primary-800 to-purple-800 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent tracking-tight',
+	title: 'text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-theme-primary-700 to-theme-primary-500 dark:from-white dark:via-theme-primary-200 dark:to-blue-300 bg-clip-text text-transparent tracking-tight',
 	description: 'text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed'
 };
 
@@ -114,96 +114,79 @@ export const BACKGROUND_CLASSES = {
 	blob3: 'absolute -bottom-8 left-1/4 w-96 h-96 bg-linear-to-r from-green-500/10 via-blue-500/10 to-indigo-500/10 dark:from-green-600/20 dark:via-blue-600/20 dark:to-indigo-600/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000'
 };
 
-const FIELD_BASE = 'w-full px-3 py-2 rounded-lg bg-white dark:bg-white/3 border border-gray-200 dark:border-white/6 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 transition-all focus:outline-none focus:ring-1 focus:ring-theme-primary-500/50 focus:border-theme-primary-500 hover:border-gray-300 dark:hover:border-white/8';
+const FIELD_BASE = 'w-full px-3 py-2 text-sm rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 transition-all duration-150 focus:outline-none focus:ring-1 focus:ring-theme-primary-500/40 focus:border-theme-primary-400 dark:focus:border-theme-primary-500 hover:border-gray-300 dark:hover:border-white/15';
 
 export const FORM_FIELD_CLASSES = {
-	label: 'block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5',
+	label: 'block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5',
 	input: {
 		base: FIELD_BASE,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/6'
+		focused: 'ring-1 ring-theme-primary-500/40 border-theme-primary-400'
 	},
 	textarea: {
 		base: `${FIELD_BASE} resize-none`,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/6'
+		focused: 'ring-1 ring-theme-primary-500/40 border-theme-primary-400'
 	},
 	select: {
 		base: `${FIELD_BASE} appearance-none cursor-pointer`,
-		focused: 'ring-1 ring-theme-primary-500/50 border-gray-200 dark:border-white/6'
+		focused: 'ring-1 ring-theme-primary-500/40 border-theme-primary-400'
 	},
 	videoInput: {
 		base: `${FIELD_BASE} pr-12`,
-		focus: 'focus:ring-1 focus:ring-theme-primary-500/50 focus:border-gray-200 dark:focus:border-gray-700/50'
+		focus: 'focus:ring-1 focus:ring-theme-primary-500/40 focus:border-theme-primary-400'
 	}
 };
 
 export const TAG_CLASSES = {
-	container: 'flex flex-wrap gap-3 items-start',
+	container: 'flex flex-wrap gap-2 items-start',
 	button: {
-		base: 'px-2 cursor-pointer py-1 text-xs font-medium rounded-full transition-all duration-200 border border-gray-200 dark:border-white/6 bg-white dark:bg-[#0a0a0a]/70 text-gray-900 dark:text-white hover:shadow-sm capitalize',
-		selected: 'text-white cursor-pointer  border-transparent shadow-lg bg-theme-primary-500 dark:bg-theme-primary-600',
-		unselected:
-			'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/6 hover:bg-gray-200 dark:hover:bg-white/6 hover:border-gray-300 dark:hover:border-white/8'
+		base: 'px-2.5 py-0.5 cursor-pointer text-xs font-medium rounded-full transition-colors duration-150 border capitalize',
+		selected: 'bg-theme-primary-500 text-white border-theme-primary-500 dark:bg-theme-primary-600 dark:border-theme-primary-600',
+		unselected: 'bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/8 hover:border-gray-300 dark:hover:border-white/12'
 	},
-	showMore:
-		'px-2 cursor-pointer py-1 text-xs text-white font-medium rounded-xl transition-all duration-300 border-1 bg-theme-primary-500 dark:bg-theme-primary-600 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-white/6 hover:bg-theme-primary-700 hover:border-gray-300 dark:hover:border-white/8 flex items-center gap-2',
+	showMore: 'px-2.5 py-0.5 cursor-pointer text-xs font-medium rounded-full transition-colors duration-150 border bg-white dark:bg-white/5 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/8 flex items-center gap-1.5',
 	selectedSummary: {
-		container:
-			'p-4 bg-theme-primary-50 dark:bg-white/5 rounded-2xl border border-theme-primary-200 dark:border-theme-primary-800',
+		container: 'p-3.5 bg-theme-primary-50/60 dark:bg-white/5 rounded-xl border border-theme-primary-100 dark:border-white/8',
 		header: 'flex items-center gap-2 mb-2',
-		icon: 'w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400',
-		label: 'text-sm font-semibold text-theme-primary-700 dark:text-theme-primary-300',
-		tags: 'flex flex-wrap gap-2',
-		tag: 'px-3 py-1 text-xs font-medium bg-theme-primary-500 text-white rounded-lg capitalize'
+		icon: 'w-3.5 h-3.5 text-theme-primary-500 dark:text-theme-primary-400',
+		label: 'text-xs font-semibold text-theme-primary-700 dark:text-theme-primary-300',
+		tags: 'flex flex-wrap gap-1.5',
+		tag: 'px-2 py-0.5 text-xs font-medium bg-theme-primary-500 text-white rounded-full capitalize'
 	}
 };
 
 export const STEP_CARD_CLASSES = {
-	wrapper: 'relative group animate-fade-in-up',
-	background: 'absolute inset-0 bg-theme-primary-500/20 opacity-0 transition-opacity duration-500',
-	content: 'relative py-8',
+	wrapper: 'relative animate-fade-in-up',
+	background: '',
+	content: 'relative rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-white/3 shadow-sm p-6 md:p-8',
 	header: {
-		wrapper: 'flex items-center gap-3 mb-8',
-		icon: 'w-12 h-12 rounded-2xl bg-theme-primary-500 flex items-center justify-center',
-		iconInner: 'w-6 h-6 text-white',
-		title: 'text-2xl font-bold text-gray-900 dark:text-white'
+		wrapper: 'flex items-center gap-3 mb-6',
+		icon: 'w-10 h-10 rounded-xl bg-theme-primary-500/10 dark:bg-theme-primary-500/20 flex items-center justify-center flex-shrink-0',
+		iconInner: 'w-5 h-5 text-theme-primary-500 dark:text-theme-primary-400',
+		title: 'text-xl font-semibold text-gray-900 dark:text-white'
 	},
 	reviewCard: {
-		wrapper: 'relative group animate-fade-in-up',
-		glow: 'absolute inset-0 bg-linear-to-r from-orange-500/20 to-red-500/20 dark:from-orange-400/30 dark:to-red-400/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500',
-		content:
-			'relative bg-white/95 dark:bg-white/5 backdrop-blur-xl rounded-3xl border border-white/20 dark:border-white/4 p-8 shadow-2xl',
+		wrapper: 'relative animate-fade-in-up',
+		glow: '',
+		content: 'relative rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-white/3 shadow-sm p-6 md:p-8',
 		header: {
-			wrapper: 'flex items-center gap-3 mb-8',
-			icon: 'w-12 h-12 rounded-2xl bg-linear-to-r from-orange-500 to-red-500 flex items-center justify-center',
-			iconInner: 'w-6 h-6 text-white',
-			title: 'text-2xl font-bold text-gray-900 dark:text-white'
+			wrapper: 'flex items-start gap-3 mb-4',
+			icon: 'w-10 h-10 rounded-xl bg-theme-primary-500/10 dark:bg-theme-primary-500/20 flex items-center justify-center flex-shrink-0',
+			iconInner: 'w-5 h-5 text-theme-primary-500 dark:text-theme-primary-400',
+			title: 'text-xl font-semibold text-gray-900 dark:text-white'
 		},
-		field: 'p-4 bg-gray-50 dark:bg-white/5 rounded-xl',
+		field: 'p-4 bg-gray-50 dark:bg-white/3 rounded-xl border border-gray-100 dark:border-white/6',
 		fieldTitle: 'font-semibold text-gray-900 dark:text-white mb-2',
-		fieldValue: 'text-gray-600 dark:text-gray-300'
+		fieldValue: 'text-sm text-gray-600 dark:text-gray-300'
 	}
 };
 
 export const NAVIGATION_CLASSES = {
 	container: 'flex flex-col sm:flex-row justify-between gap-4 pt-8 items-center animate-fade-in-up',
 	button: {
-		base: 'h-12 px-4 sm:h-13 cursor-pointer sm:px-6 !border-none rounded-xl font-semibold text-sm sm:text-base transition-colors duration-200',
-		next: {
-			enabled:
-				'min-w-[140px] sm:min-w-45 bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm',
-			disabled:
-				'min-w-[140px] sm:min-w-45 bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
-		},
-		prev: {
-			enabled:
-				'min-w-[140px] !ring-none cursor-pointer sm:min-w-45 bg-theme-primary-500 text-white hover:bg-theme-primary-600 shadow-sm !border-none',
-		},
-		submit: {
-			enabled:
-				'min-w-[140px] sm:min-w-45 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white shadow-sm hover:from-green-600 hover:via-emerald-600 hover:to-green-700',
-			disabled:
-				'min-w-[140px] sm:min-w-45 bg-gray-200 dark:bg-white/8 text-gray-400 dark:text-gray-400 cursor-not-allowed'
-		}
+		base: 'inline-flex items-center justify-center gap-2 h-10 min-w-36 px-5 rounded-lg text-sm font-medium transition-colors duration-200 cursor-pointer select-none',
+		primary: 'bg-black text-white dark:bg-white dark:text-black',
+		disabled: 'bg-gray-100 dark:bg-white/6 text-gray-400 dark:text-white/30 pointer-events-none',
+		submit: 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700',
 	}
 };
 

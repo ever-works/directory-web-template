@@ -39,7 +39,7 @@ export function LinkInput({
 			{/* Product Links */}
 			<div className="space-y-5">
 				<div className="flex items-center justify-between">
-					<span className="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+					<span className="block text-xs font-medium text-gray-600 dark:text-gray-400">
 						{t('directory.DETAILS_FORM.PRODUCT_LINK')} *
 					</span>
 					<span className="text-xs font-medium px-2.5 py-1 rounded-full bg-theme-primary-50 dark:bg-theme-primary-900/20 text-theme-primary-600 dark:text-theme-primary-400 border border-theme-primary-200/60 dark:border-theme-primary-700/40">
@@ -92,7 +92,7 @@ export function LinkInput({
 														? t('directory.DETAILS_FORM.MAIN_WEBSITE_LABEL')
 														: t('directory.DETAILS_FORM.LINK_LABEL_PLACEHOLDER')
 												}
-												className="w-full h-9 px-3 text-sm font-medium bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-lg outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-theme-primary-500 dark:focus:border-theme-primary-400 focus:ring-1 focus:ring-theme-primary-500/30 transition-all duration-200"
+												className="w-full h-9 px-3 text-sm bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25 focus:border-theme-primary-400 dark:focus:border-theme-primary-500 focus:ring-1 focus:ring-theme-primary-500/40 transition-all duration-150"
 											/>
 										</div>
 
@@ -124,7 +124,7 @@ export function LinkInput({
 											pattern="^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)$"
 											required={isMain}
 											className={cn(
-												'w-full h-10 px-4 pr-12 text-sm bg-white dark:bg-white/5 border border-gray-200 dark:border-white/8 rounded-xl transition-all duration-200 outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500',
+												'w-full h-9 px-3 pr-12 text-sm bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-lg transition-all duration-150 outline-none text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/25',
 												isMain && onExtract && 'pr-28',
 												focusedField === `link-${link.id}` &&
 													'border-theme-primary-500 dark:border-theme-primary-400 ring-1 ring-theme-primary-500/30',

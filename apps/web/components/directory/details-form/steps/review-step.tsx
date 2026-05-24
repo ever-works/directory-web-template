@@ -1,6 +1,7 @@
 'use client';
 
 import { Eye, Link, Tag, Type, FileText, MapPin, Globe, CheckCircle2 } from 'lucide-react';
+import { STEP_CARD_CLASSES } from '../validation/form-validators';
 import type { FormData } from '../validation/form-validators';
 
 interface ReviewStepProps {
@@ -20,14 +21,14 @@ function ReviewField({
 }) {
 	return (
 		<div className="flex gap-4 p-4 rounded-xl bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/6 transition-colors">
-			<div className="flex-shrink-0 w-9 h-9 rounded-lg bg-theme-primary-500/10 dark:bg-theme-primary-500/20 flex items-center justify-center">
+			<div className="shrink-0 w-9 h-9 rounded-lg bg-theme-primary-500/10 dark:bg-theme-primary-500/20 flex items-center justify-center">
 				<Icon className="w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400" />
 			</div>
 			<div className="min-w-0 flex-1">
 				<p className="text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500 mb-1">
 					{label}
 				</p>
-				<div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed break-words">
+				<div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed wrap-break-word">
 					{children}
 				</div>
 			</div>
@@ -50,18 +51,15 @@ export function ReviewStep({ formData, t }: ReviewStepProps) {
 	const mainLink = formData.links?.find((l) => l.type === 'main')?.url || formData.link;
 
 	return (
-		<div className="relative group animate-fade-in-up">
-			{/* Subtle theme-matching glow */}
-			<div className="absolute inset-0 bg-linear-to-r from-theme-primary-500/10 to-purple-500/10 dark:from-theme-primary-400/20 dark:to-purple-400/20 rounded-3xl blur-2xl dark:opacity-20 opacity-90 transition-opacity duration-500 pointer-events-none" />
-
-			<div className="relative py-8">
+		<div className={STEP_CARD_CLASSES.wrapper}>
+			<div className={STEP_CARD_CLASSES.content}>
 				{/* Header */}
-				<div className="flex items-center gap-3 mb-8">
-					<div className="w-12 h-12 rounded-2xl bg-theme-primary-500 flex items-center justify-center shadow-lg shadow-theme-primary-500/30">
-						<Eye className="w-6 h-6 text-white" />
+				<div className="flex items-start gap-3 mb-4">
+					<div className={STEP_CARD_CLASSES.header.icon}>
+						<Eye className={STEP_CARD_CLASSES.header.iconInner} />
 					</div>
 					<div>
-						<h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+						<h3 className={STEP_CARD_CLASSES.header.title}>
 							{t('directory.DETAILS_FORM.REVIEW_AND_SUBMIT')}
 						</h3>
 						<p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
@@ -71,7 +69,7 @@ export function ReviewStep({ formData, t }: ReviewStepProps) {
 				</div>
 
 				{/* Completion badge */}
-				<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50 mb-8">
+				<div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700/50 mb-6">
 					<CheckCircle2 className="w-4 h-4 text-green-500" />
 					<span className="text-xs font-semibold text-green-700 dark:text-green-400">
 						{t('directory.REVIEW.TITLE')}
