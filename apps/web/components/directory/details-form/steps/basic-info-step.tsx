@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, useEffect, useRef } from 'react';
-import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X, Video } from 'lucide-react';
+import { FileText, Star, Plus, ChevronUp, ChevronDown, Search, X, Video } from 'lucide-react';
 import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';
@@ -159,9 +159,6 @@ export function BasicInfoStep({
 			<div className={STEP_CARD_CLASSES.background} />
 			<div className={STEP_CARD_CLASSES.content}>
 				<div className={STEP_CARD_CLASSES.header.wrapper}>
-					<div className={STEP_CARD_CLASSES.header.icon}>
-						<Type className={STEP_CARD_CLASSES.header.iconInner} />
-					</div>
 					<h3 className={STEP_CARD_CLASSES.header.title}>{t('directory.DETAILS_FORM.BASIC_INFORMATION')}</h3>
 				</div>
 
