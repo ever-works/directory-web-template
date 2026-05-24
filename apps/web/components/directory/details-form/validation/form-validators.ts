@@ -67,26 +67,25 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 ];
 
 export const STEP_INDICATOR_CLASSES = {
-	wrapper: 'flex items-center justify-between mb-8 -mt-3',
+	wrapper: 'flex items-start mb-8',
 	stepContainer: 'flex flex-col items-center',
 	button: {
-		base: 'w-10 h-10 cursor-pointer rounded-full mt-4 flex items-center justify-center transition-all duration-300 mb-2',
-		active: 'shadow-lg',
-		completed: 'bg-green-500 text-white shadow-lg',
-		accessible:
-			'bg-gray-100 dark:bg-white/5 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-white/6',
-		inaccessible: 'bg-gray-200 dark:bg-white/8 text-gray-400'
+		base: 'w-8 h-8 cursor-pointer rounded-full flex items-center justify-center transition-all duration-200',
+		active: 'bg-theme-primary-500 text-white shadow-sm shadow-theme-primary-500/25',
+		completed: 'bg-theme-primary-500 text-white',
+		accessible: 'bg-gray-100 dark:bg-white/8 text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-white/12',
+		inaccessible: 'bg-gray-100 dark:bg-white/5 text-gray-300 dark:text-gray-600'
 	},
 	label: {
-		base: 'text-xs font-medium text-center',
-		active: 'text-theme-primary-600 dark:text-theme-primary-400',
-		completed: 'text-green-600 dark:text-green-400',
-		default: 'text-gray-500 dark:text-gray-400'
+		base: 'text-[11px] font-medium text-center mt-1.5 leading-tight',
+		active: 'text-gray-900 dark:text-white',
+		completed: 'text-gray-500 dark:text-gray-400',
+		default: 'text-gray-400 dark:text-gray-500'
 	},
 	connector: {
-		base: 'flex-1 h-[2px] mx-4 rounded-full transition-colors duration-300',
-		completed: 'dark:bg-theme-primary-500 bg-theme-primary-400',
-		active: 'bg-gradient-to-r from-theme-primary-500 to-theme-primary-200 dark:to-theme-primary-800',
+		base: 'flex-1 h-px mx-3 mt-4 transition-colors duration-300',
+		completed: 'bg-theme-primary-500',
+		active: 'bg-gray-200 dark:bg-white/8',
 		default: 'bg-gray-200 dark:bg-white/8'
 	}
 };
@@ -98,13 +97,12 @@ export const PROGRESS_BAR_CLASSES = {
 };
 
 export const HEADER_CLASSES = {
-	wrapper: 'text-center mb-16 animate-fade-in-up',
-	badge: 'inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-theme-primary-50 dark:bg-theme-primary-900/20 border border-theme-primary-200/70 dark:border-theme-primary-700/40 mb-6 shadow-sm',
-	badgeIcon: 'w-6 h-6 rounded-lg bg-theme-primary-500 flex items-center justify-center shadow-sm shadow-theme-primary-500/30',
-	badgeIconInner: 'w-3.5 h-3.5 text-white',
-	badgeText: 'text-xs font-semibold tracking-wide text-theme-primary-700 dark:text-theme-primary-400',
-	title: 'text-4xl md:text-5xl font-bold mb-4 bg-linear-to-r from-gray-900 via-theme-primary-700 to-theme-primary-500 dark:from-white dark:via-theme-primary-200 dark:to-blue-300 bg-clip-text text-transparent tracking-tight',
-	description: 'text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed'
+	wrapper: 'text-center mb-8 animate-fade-in-up',
+	badge: 'inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-gray-100 dark:bg-white/6 border border-gray-200 dark:border-white/8 mb-4',
+	badgeText: 'text-[11px] font-medium tracking-wider text-gray-500 dark:text-gray-400 uppercase',
+	badgeSeparator: 'w-px h-3 bg-gray-300 dark:bg-white/15',
+	title: 'text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-2 tracking-tight',
+	description: 'text-sm text-gray-500 dark:text-gray-400 max-w-xl mx-auto leading-relaxed'
 };
 
 export const BACKGROUND_CLASSES = {

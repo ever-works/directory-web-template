@@ -1,6 +1,5 @@
 'use client';
 
-import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useDetailForm } from '@/hooks/use-detail-form';
 import { useEditorFieldSync } from '@/lib/editor/hooks/use-editor-sync';
@@ -85,19 +84,16 @@ export function DetailsForm({
 				<GridBackground className="w-full h-full" />
 			</div>
 			<Container maxWidth="7xl" padding="default">
-				<div className="relative z-10 px-2 py-12">
-					{/* Enhanced Header Section */}
+				<div className="relative z-10 px-2 py-8">
+					{/* Header Section */}
 					<div className={HEADER_CLASSES.wrapper}>
 						<div className={HEADER_CLASSES.badge}>
-							<div className={HEADER_CLASSES.badgeIcon}>
-								<Sparkles className={HEADER_CLASSES.badgeIconInner} />
-							</div>
 							<span className={HEADER_CLASSES.badgeText}>
 								{t('directory.DETAILS_FORM.STEP_INDICATOR', {
 									step: currentStep
 								})}
 							</span>
-							<span className="w-px h-3 bg-theme-primary-300 dark:bg-theme-primary-600 mx-0.5" />
+							<span className={HEADER_CLASSES.badgeSeparator} />
 							<span className={HEADER_CLASSES.badgeText}>
 								{STEP_DEFINITIONS[currentStep - 1] &&
 									t(STEP_DEFINITIONS[currentStep - 1].titleKey)}
@@ -110,7 +106,7 @@ export function DetailsForm({
 					</div>
 
 					{/* Steps Indicator */}
-					<div className="mb-12 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+					<div className="mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
 						<div className="max-w-7xl mx-auto">
 							<StepIndicator
 								currentStep={currentStep}

@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Type, CreditCard, Eye } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { STEP_INDICATOR_CLASSES, STEP_DEFINITIONS } from '../validation/form-validators';
@@ -12,23 +12,13 @@ interface StepIndicatorProps {
 	completedFields?: Set<string>;
 }
 
-const STEP_ICONS = {
-	1: Type,
-	2: CreditCard,
-	3: Eye
-};
-
 export function StepIndicator({ currentStep, onStepClick, completedFields }: StepIndicatorProps) {
 	const t = useTranslations();
-	const steps: StepDefinition[] = STEP_DEFINITIONS.map((step) => ({
-		...step,
-		icon: STEP_ICONS[step.id as keyof typeof STEP_ICONS]
-	}));
+	const steps: StepDefinition[] = STEP_DEFINITIONS;
 
 	return (
 		<div className={STEP_INDICATOR_CLASSES.wrapper}>
 			{steps.map((step, index) => {
-				const IconComponent = step.icon || Type;
 				const isActive = currentStep === step.id;
 				const isAccessible = currentStep >= step.id;
 
@@ -57,10 +47,8 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 					connectorFill = Math.round((filledFields / totalFields) * 100);
 				}
 
-
-
 				return (
-					<div key={step.id} className="flex items-center flex-1 last:flex-none">
+					<div key={step.id} className="flex items-start flex-1 last:flex-none">
 						{/* Step circle + label */}
 						<div className={STEP_INDICATOR_CLASSES.stepContainer}>
 							<button
@@ -69,25 +57,17 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 								type="button"
 								className={cn(
 									STEP_INDICATOR_CLASSES.button.base,
-									isActive && STEP_INDICATOR_CLASSES.button.active,
-									isCompleted
-										? STEP_INDICATOR_CLASSES.button.completed
-										: isActive
-										? 'bg-theme-primary-500 text-white shadow-lg shadow-theme-primary-500/30'
+									isCompleted || isActive
+										? STEP_INDICATOR_CLASSES.button.active
 										: isAccessible
 										? STEP_INDICATOR_CLASSES.button.accessible
 										: STEP_INDICATOR_CLASSES.button.inaccessible
 								)}
 							>
 								{isCompleted ? (
-									<Check className="w-5 h-5 text-white" />
+									<Check className="w-3.5 h-3.5 text-white" />
 								) : (
-									<IconComponent
-										className={cn(
-											'w-5 h-5',
-											isActive ? 'text-white' : isAccessible ? 'text-theme-primary-500' : 'text-gray-400'
-										)}
-									/>
+									<span className="text-xs font-semibold tabular-nums">{step.id}</span>
 								)}
 							</button>
 							<span
@@ -102,11 +82,11 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 							</span>
 						</div>
 
-						{/* Animated fill connector between steps */}
+						{/* Thin animated connector between steps */}
 						{index < steps.length - 1 && (
-							<div className="relative flex-1 mx-4 h-1.5 bg-gray-200 dark:bg-white/8 rounded-full overflow-hidden">
+							<div className={cn(STEP_INDICATOR_CLASSES.connector.base, 'relative overflow-hidden')}>
 								<div
-									className="absolute inset-0 left-0 rounded-full bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
+									className="absolute inset-0 left-0 bg-theme-primary-500 origin-left transform-gpu transition-transform duration-500 ease-out"
 									style={{ transform: `scaleX(${connectorFill / 100})` }}
 								/>
 							</div>
