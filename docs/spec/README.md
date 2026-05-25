@@ -53,6 +53,7 @@ or architectural change.
 | 030 | [`client-submissions-redesign`](030-client-submissions-redesign/spec.md) | proposed | UI-only redesign of `/client/submissions`: responsive table-on-desktop / cards-on-mobile, polished KPI stats cards, status segmented tabs + sort UX, dedicated empty / filtered-empty / error / skeleton states, reuses existing design-system primitives — no functional changes |
 | 031 | [`client-danger-zone`](031-client-danger-zone/spec.md) | proposed | Add a red-accented **Danger Zone** section to `/client/settings` and a dedicated `/client/settings/danger-zone` page that exposes the existing `deleteAccount` server action via a password-confirmed modal (EW-635) |
 | 032 | [`collection-icon-picker`](032-collection-icon-picker/spec.md) | in-progress | Replace the bare Icon (emoji or URL) input on `/admin/collections` Create / Edit modal with a GitHub-/Discord-style picker: `:` trigger, debounced (deferred) search, keyboard nav, recent emojis, preview tile; URL passthrough preserved, zero new deps |
+| 034 | [`billing-payments-response-shape`](034-billing-payments-response-shape/spec.md) | shipped | Fix `TypeError: providerPayments.reduce is not a function` crash on `/client/settings/profile/billing`: `GET /api/user/payments` returned `{ payments: [] }` (object) on the "Stripe not configured" path instead of a bare array; return `[]` to honour the array contract + harden `useBillingData` to coerce non-arrays to `[]` |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.

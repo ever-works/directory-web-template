@@ -165,7 +165,10 @@ export function useBillingData() {
 
   // Combined data
   const subscription = subscriptionQuery.data || null;
-  const payments = paymentsQuery.data || [];
+  // Coerce to an array defensively: a misbehaving endpoint (e.g. one that
+  // returns a `{ payments: [] }` envelope instead of a bare array) must never
+  // crash array consumers like `useProviderPayment`'s reduce/filter/map.
+  const payments = Array.isArray(paymentsQuery.data) ? paymentsQuery.data : [];
 
   return {
     // Data

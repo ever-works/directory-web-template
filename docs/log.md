@@ -31,6 +31,19 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-25 — Spec 034: Billing payments response-shape crash fix
+
+- spec-034: fixed `TypeError: providerPayments.reduce is not a function` on
+  `/client/settings/profile/billing`. `GET /api/user/payments`
+  (`apps/web/app/api/user/payments/route.ts`) returned the object
+  `{ payments: [] }` on the "Stripe configuration is incomplete" branch while
+  every other path returns a bare array; `useBillingData`'s `|| []` guard
+  never fired for the truthy object, so `useProviderPayment` ran `.reduce` on
+  a non-array and crashed the page. Fix: that branch now returns `[]`, and
+  `apps/web/hooks/use-billing-data.ts` derives `payments` via
+  `Array.isArray(...)` so any non-array payload degrades to an empty list
+  rather than crashing. No deps/schema changes. (PR: TBD)
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped
