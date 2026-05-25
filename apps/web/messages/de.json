@@ -975,7 +975,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Zahlung abschließen"
+		"COMPLETE_PAYMENT": "Zahlung abschließen",
+		"flowSelector": {
+			"title": "Zahlungszeitpunkt",
+			"subtitle": "Wählen Sie, wann Ihre Einreichung berechnet wird",
+			"payNow": {
+				"title": "Jetzt bezahlen",
+				"description": "Zahlung wird sofort verarbeitet. Bevorzugte Prüfungs-Warteschlange.",
+				"benefits": [
+					"Sofortige Verarbeitung",
+					"Bevorzugte Prüfung",
+					"Schnellere Freigabe"
+				]
+			},
+			"payLater": {
+				"title": "Später bezahlen",
+				"description": "Wird erst berechnet, nachdem Ihre Einreichung genehmigt wurde.",
+				"benefits": [
+					"Keine Vorabkosten",
+					"Prüfung vor Zahlung",
+					"Risikofrei"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1648,7 +1670,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Keine Abonnement-Historie",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Ihre Abonnement-Historie wird hier angezeigt, sobald Sie aktive Abonnements haben.",
 		"OVERVIEW_EMPTY_STATE": "Keine kürzliche Aktivität",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Ihre kürzliche Abrechnungsaktivität wird hier angezeigt, sobald Sie Transaktionen haben."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Ihre kürzliche Abrechnungsaktivität wird hier angezeigt, sobald Sie Transaktionen haben.",
+		"SAVE_PER_YEAR": "Sparen Sie {amount}/Jahr"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Grundinformationen",

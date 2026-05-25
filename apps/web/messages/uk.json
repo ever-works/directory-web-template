@@ -958,7 +958,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Завершити оплату"
+		"COMPLETE_PAYMENT": "Завершити оплату",
+		"flowSelector": {
+			"title": "Час оплати",
+			"subtitle": "Виберіть, коли списати оплату за вашу заявку",
+			"payNow": {
+				"title": "Сплатити зараз",
+				"description": "Платіж обробляється негайно. Пріоритетна черга на розгляд.",
+				"benefits": [
+					"Миттєва обробка",
+					"Пріоритетний розгляд",
+					"Швидше схвалення"
+				]
+			},
+			"payLater": {
+				"title": "Сплатити пізніше",
+				"description": "Списання лише після схвалення вашої заявки.",
+				"benefits": [
+					"Без передоплати",
+					"Розгляд до оплати",
+					"Без ризику"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,7 +1637,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Заощаджуйте {amount}/рік"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",

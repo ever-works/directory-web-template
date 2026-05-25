@@ -959,7 +959,29 @@
 			"failed": "Paiement échoué",
 			"pending": "Paiement en attente"
 		},
-		"COMPLETE_PAYMENT": "Finaliser le paiement"
+		"COMPLETE_PAYMENT": "Finaliser le paiement",
+		"flowSelector": {
+			"title": "Moment du paiement",
+			"subtitle": "Choisissez quand être débité pour votre soumission",
+			"payNow": {
+				"title": "Payer maintenant",
+				"description": "Paiement traité immédiatement. File de révision prioritaire.",
+				"benefits": [
+					"Traitement immédiat",
+					"Révision prioritaire",
+					"Approbation plus rapide"
+				]
+			},
+			"payLater": {
+				"title": "Payer plus tard",
+				"description": "Débité uniquement après l'approbation de votre soumission.",
+				"benefits": [
+					"Aucun coût initial",
+					"Révision avant paiement",
+					"Sans risque"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Maintenant disponible sur GitHub",
@@ -1706,7 +1728,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Aucun historique d'abonnement",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Votre historique d'abonnement apparaîtra ici une fois que vous aurez des abonnements actifs.",
 		"OVERVIEW_EMPTY_STATE": "Aucune activité récente",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Votre activité de facturation récente apparaîtra ici une fois que vous aurez des transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Votre activité de facturation récente apparaîtra ici une fois que vous aurez des transactions.",
+		"SAVE_PER_YEAR": "Économisez {amount}/an"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Informations de base",

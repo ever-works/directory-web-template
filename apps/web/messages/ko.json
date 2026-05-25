@@ -1036,7 +1036,29 @@
 			"failed": "결제 실패",
 			"pending": "결제 보류 중"
 		},
-		"COMPLETE_PAYMENT": "결제 완료"
+		"COMPLETE_PAYMENT": "결제 완료",
+		"flowSelector": {
+			"title": "결제 시점",
+			"subtitle": "제출물에 대한 청구 시점을 선택하세요",
+			"payNow": {
+				"title": "지금 결제",
+				"description": "결제가 즉시 처리됩니다. 우선 검토 대기열.",
+				"benefits": [
+					"즉시 처리",
+					"우선 검토",
+					"더 빠른 승인"
+				]
+			},
+			"payLater": {
+				"title": "나중에 결제",
+				"description": "제출물이 승인된 후에만 청구됩니다.",
+				"benefits": [
+					"선결제 없음",
+					"결제 전 검토",
+					"위험 없음"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "프로페셔널 디렉토리 플랫폼 빌더",
@@ -1704,7 +1726,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "구독 기록 없음",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "활성 구독이 있으면 구독 기록이 여기에 표시됩니다.",
 		"OVERVIEW_EMPTY_STATE": "최근 활동 없음",
-		"OVERVIEW_EMPTY_DESCRIPTION": "거래가 있으면 최근 결제 활동이 여기에 표시됩니다."
+		"OVERVIEW_EMPTY_DESCRIPTION": "거래가 있으면 최근 결제 활동이 여기에 표시됩니다.",
+		"SAVE_PER_YEAR": "연간 {amount} 절약"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "기본 정보",

@@ -962,7 +962,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "إكمال الدفع"
+		"COMPLETE_PAYMENT": "إكمال الدفع",
+		"flowSelector": {
+			"title": "توقيت الدفع",
+			"subtitle": "اختر متى يتم تحصيل الرسوم مقابل طلبك",
+			"payNow": {
+				"title": "ادفع الآن",
+				"description": "تتم معالجة الدفع فورًا. قائمة مراجعة ذات أولوية.",
+				"benefits": [
+					"معالجة فورية",
+					"مراجعة ذات أولوية",
+					"موافقة أسرع"
+				]
+			},
+			"payLater": {
+				"title": "ادفع لاحقًا",
+				"description": "يتم التحصيل فقط بعد الموافقة على طلبك.",
+				"benefits": [
+					"بدون تكلفة مقدمة",
+					"مراجعة قبل الدفع",
+					"بدون مخاطر"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1635,7 +1657,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "لا يوجد سجل اشتراكات",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "سيظهر سجل اشتراكاتك هنا بمجرد أن يكون لديك اشتراكات نشطة.",
 		"OVERVIEW_EMPTY_STATE": "لا توجد نشاطات حديثة",
-		"OVERVIEW_EMPTY_DESCRIPTION": "ستظهر نشاطات الفوترة الحديثة الخاصة بك هنا بمجرد أن يكون لديك معاملات."
+		"OVERVIEW_EMPTY_DESCRIPTION": "ستظهر نشاطات الفوترة الحديثة الخاصة بك هنا بمجرد أن يكون لديك معاملات.",
+		"SAVE_PER_YEAR": "وفّر {amount}/سنة"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "المعلومات الأساسية",

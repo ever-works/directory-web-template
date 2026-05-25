@@ -958,7 +958,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "ชำระเงินให้เสร็จสิ้น"
+		"COMPLETE_PAYMENT": "ชำระเงินให้เสร็จสิ้น",
+		"flowSelector": {
+			"title": "ช่วงเวลาการชำระเงิน",
+			"subtitle": "เลือกว่าจะเรียกเก็บเงินสำหรับการส่งของคุณเมื่อใด",
+			"payNow": {
+				"title": "ชำระเงินทันที",
+				"description": "ดำเนินการชำระเงินทันที คิวการตรวจสอบแบบมีลำดับความสำคัญ",
+				"benefits": [
+					"ดำเนินการทันที",
+					"ตรวจสอบก่อนใคร",
+					"อนุมัติเร็วขึ้น"
+				]
+			},
+			"payLater": {
+				"title": "ชำระเงินภายหลัง",
+				"description": "เรียกเก็บเงินหลังจากการส่งของคุณได้รับการอนุมัติแล้วเท่านั้น",
+				"benefits": [
+					"ไม่มีค่าใช้จ่ายล่วงหน้า",
+					"ตรวจสอบก่อนชำระเงิน",
+					"ไม่มีความเสี่ยง"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1552,7 +1574,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "ประหยัด {amount}/ปี"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",

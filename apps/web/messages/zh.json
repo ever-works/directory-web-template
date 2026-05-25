@@ -974,7 +974,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "完成支付"
+		"COMPLETE_PAYMENT": "完成支付",
+		"flowSelector": {
+			"title": "付款时间",
+			"subtitle": "选择何时为您的提交收费",
+			"payNow": {
+				"title": "立即付款",
+				"description": "立即处理付款。优先审核队列。",
+				"benefits": [
+					"即时处理",
+					"优先审核",
+					"更快批准"
+				]
+			},
+			"payLater": {
+				"title": "稍后付款",
+				"description": "仅在您的提交获批后收费。",
+				"benefits": [
+					"无预付费用",
+					"付款前审核",
+					"无风险"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1647,7 +1669,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "无订阅历史",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "一旦您有活跃订阅，您的订阅历史将显示在这里。",
 		"OVERVIEW_EMPTY_STATE": "无最近活动",
-		"OVERVIEW_EMPTY_DESCRIPTION": "一旦您有交易，您最近的账单活动将显示在这里。"
+		"OVERVIEW_EMPTY_DESCRIPTION": "一旦您有交易，您最近的账单活动将显示在这里。",
+		"SAVE_PER_YEAR": "每年节省 {amount}"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "基本信息",

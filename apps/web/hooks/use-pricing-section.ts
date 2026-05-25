@@ -349,9 +349,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			const monthlyTotal = plan.price * 12;
 			const yearlyPrice = calculatePrice(plan);
 			const savings = monthlyTotal - yearlyPrice;
-			return `Save ${formatAmountWithSymbol(savings, currency)}/year`;
+			return tBilling('SAVE_PER_YEAR', { amount: formatAmountWithSymbol(savings, currency) });
 		},
-		[billingInterval, calculatePrice, currency]
+		[billingInterval, calculatePrice, currency, tBilling]
 	);
 
 	/**

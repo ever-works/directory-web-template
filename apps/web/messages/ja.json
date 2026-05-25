@@ -958,7 +958,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "支払いを完了する"
+		"COMPLETE_PAYMENT": "支払いを完了する",
+		"flowSelector": {
+			"title": "支払いのタイミング",
+			"subtitle": "提出物の請求タイミングを選択してください",
+			"payNow": {
+				"title": "今すぐ支払う",
+				"description": "支払いは即時処理されます。優先審査キュー。",
+				"benefits": [
+					"即時処理",
+					"優先審査",
+					"より早い承認"
+				]
+			},
+			"payLater": {
+				"title": "後で支払う",
+				"description": "提出物が承認された後にのみ請求されます。",
+				"benefits": [
+					"初期費用なし",
+					"支払い前に審査",
+					"リスクなし"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,7 +1637,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "年間 {amount} 節約"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",

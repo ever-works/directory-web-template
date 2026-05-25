@@ -958,7 +958,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "भुगतान पूरा करें"
+		"COMPLETE_PAYMENT": "भुगतान पूरा करें",
+		"flowSelector": {
+			"title": "भुगतान का समय",
+			"subtitle": "चुनें कि आपकी प्रविष्टि के लिए शुल्क कब लिया जाए",
+			"payNow": {
+				"title": "अभी भुगतान करें",
+				"description": "भुगतान तुरंत संसाधित होता है। प्राथमिकता समीक्षा कतार।",
+				"benefits": [
+					"तत्काल प्रसंस्करण",
+					"प्राथमिकता समीक्षा",
+					"तेज़ स्वीकृति"
+				]
+			},
+			"payLater": {
+				"title": "बाद में भुगतान करें",
+				"description": "शुल्क केवल आपकी प्रविष्टि स्वीकृत होने के बाद लिया जाता है।",
+				"benefits": [
+					"कोई अग्रिम लागत नहीं",
+					"भुगतान से पहले समीक्षा",
+					"जोखिम-मुक्त"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1552,7 +1574,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "बचाएं {amount}/वर्ष"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",

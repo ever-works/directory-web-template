@@ -958,7 +958,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Completa il pagamento"
+		"COMPLETE_PAYMENT": "Completa il pagamento",
+		"flowSelector": {
+			"title": "Tempistica di pagamento",
+			"subtitle": "Scegli quando ricevere l'addebito per il tuo invio",
+			"payNow": {
+				"title": "Paga ora",
+				"description": "Pagamento elaborato immediatamente. Coda di revisione prioritaria.",
+				"benefits": [
+					"Elaborazione immediata",
+					"Revisione prioritaria",
+					"Approvazione più rapida"
+				]
+			},
+			"payLater": {
+				"title": "Paga dopo",
+				"description": "Addebitato solo dopo l'approvazione del tuo invio.",
+				"benefits": [
+					"Nessun costo iniziale",
+					"Revisione prima del pagamento",
+					"Senza rischi"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,7 +1637,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Risparmia {amount}/anno"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",
