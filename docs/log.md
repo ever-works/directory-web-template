@@ -49,7 +49,7 @@ why** at a higher level than per-commit diffs.
   they are hidden from visitors and in `?preview=public`). New English keys
   added under the `profile` namespace in `messages/en.json`; other locales
   inherit via the `deepmerge(en, locale)` fallback in `i18n/request.ts`. No
-  new queries, hooks, dependencies, or schema changes. (PR: TBD)
+  new queries, hooks, dependencies, or schema changes. (PR: #930, draft)
 
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
