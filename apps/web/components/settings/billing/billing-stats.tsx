@@ -11,23 +11,25 @@ import {
 	BarChart3,
 	Zap,
 	Crown,
-	Loader2
+	Loader2,
+	ArrowUpRight
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 import { toast } from 'sonner';
 import { useLocale } from 'next-intl';
 import { formatCurrencyAmount } from '@/lib/utils/currency-format';
 
-// Dashboard design-system tokens (mirrors `components/dashboard/styles.ts` and
-// `stats-card.tsx`): neutral palette, white/3 dark surface, monochrome icon
-// tiles. Keeps the billing KPIs visually identical to the client dashboard.
-const STAT_CARD = 'bg-white dark:bg-white/3 rounded-xl p-5 border border-neutral-200 dark:border-white/8';
-const STAT_LABEL = 'text-xs font-medium text-neutral-500 dark:text-neutral-400';
-const STAT_VALUE = 'text-xl font-semibold text-neutral-900 dark:text-white tracking-tight';
-const STAT_DESC = 'mt-1.5 text-xs text-neutral-400 dark:text-neutral-500';
-const STAT_ICON_TILE = 'p-2 bg-neutral-100 dark:bg-white/8 rounded-lg';
-const STAT_ICON = 'h-4 w-4 text-neutral-500 dark:text-neutral-400';
-const PANEL = 'bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl p-5';
+const CARD = 'bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8';
+const LABEL = 'text-xs font-medium text-neutral-500 dark:text-neutral-400';
+const VALUE = 'text-xl font-semibold text-neutral-900 dark:text-white tracking-tight';
+const DESC = 'mt-1 text-xs text-neutral-400 dark:text-neutral-500';
+const ICON_TILE = 'p-2 bg-neutral-100 dark:bg-white/8 rounded-lg shrink-0';
+const ICON = 'h-4 w-4 text-neutral-500 dark:text-neutral-400';
+const PANEL = `${CARD} p-5`;
+const OUTLINE_BTN =
+	'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors';
+const PRIMARY_BTN =
+	'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
 interface BillingStatsProps {
 	planName: string;
@@ -42,7 +44,6 @@ interface BillingStatsProps {
 	nextBillingDate?: string;
 	daysUntilRenewal?: number;
 	currentPeriodEnd?: string;
-	/** Switches the billing page to the Payment History tab. */
 	onViewHistory?: () => void;
 }
 
@@ -51,19 +52,27 @@ interface StatTileProps {
 	value: string;
 	description: string;
 	icon: React.ComponentType<{ className?: string }>;
+	badge?: { label: string; color: string };
 }
 
-function StatTile({ label, value, description, icon: Icon }: StatTileProps) {
+function StatTile({ label, value, description, icon: Icon, badge }: StatTileProps) {
 	return (
-		<div className={STAT_CARD}>
+		<div className={`${CARD} p-5`}>
 			<div className="flex items-start justify-between mb-3">
-				<h3 className={STAT_LABEL}>{label}</h3>
-				<div className={STAT_ICON_TILE} aria-hidden="true">
-					<Icon className={STAT_ICON} />
+				<span className={LABEL}>{label}</span>
+				<div className={ICON_TILE} aria-hidden="true">
+					<Icon className={ICON} />
 				</div>
 			</div>
-			<p className={STAT_VALUE}>{value}</p>
-			<p className={STAT_DESC}>{description}</p>
+			<p className={VALUE}>{value}</p>
+			<div className="flex items-center justify-between mt-1 gap-2">
+				<p className={DESC}>{description}</p>
+				{badge && (
+					<span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${badge.color}`}>
+						{badge.label}
+					</span>
+				)}
+			</div>
 		</div>
 	);
 }
@@ -88,29 +97,12 @@ export function BillingStats({
 
 	const getRenewalStatus = () => {
 		if (!daysUntilRenewal) return null;
-
 		if (daysUntilRenewal <= 7) {
-			return {
-				color: 'text-red-600 dark:text-red-400',
-				icon: Clock,
-				label: 'Renewing Soon',
-				urgency: 'high'
-			};
+			return { color: 'text-red-600 dark:text-red-400', icon: Clock, label: 'Renewing Soon', urgency: 'high' };
 		} else if (daysUntilRenewal <= 30) {
-			return {
-				color: 'text-amber-600 dark:text-amber-400',
-				icon: Calendar,
-				label: 'Upcoming Renewal',
-				urgency: 'medium'
-			};
-		} else {
-			return {
-				color: 'text-emerald-600 dark:text-emerald-400',
-				icon: Calendar,
-				label: 'Active',
-				urgency: 'low'
-			};
+			return { color: 'text-amber-600 dark:text-amber-400', icon: Calendar, label: 'Upcoming Renewal', urgency: 'medium' };
 		}
+		return { color: 'text-emerald-600 dark:text-emerald-400', icon: Calendar, label: 'Active', urgency: 'low' };
 	};
 
 	const renewalStatus = getRenewalStatus();
@@ -120,9 +112,7 @@ export function BillingStats({
 		try {
 			const result = await createBillingPortalSession.mutateAsync();
 			const portalUrl = result?.data?.url;
-			if (!portalUrl) {
-				throw new Error('Portal URL not available in response');
-			}
+			if (!portalUrl) throw new Error('Portal URL not available in response');
 			toast.success('Redirecting to billing portal...', { id: toastId, duration: 2000 });
 			window.location.href = portalUrl;
 		} catch (error) {
@@ -134,12 +124,12 @@ export function BillingStats({
 
 	return (
 		<div className="space-y-4">
-			{/* Main KPI grid — mirrors the dashboard StatsCard grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+			{/* KPI grid */}
+			<div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
 				<StatTile
 					label="Total Spent"
 					value={formatCurrencyAmount(totalSpent, currency, locale)}
-					description={totalPayments > 0 ? `${totalPayments} transactions` : 'No transactions yet'}
+					description={totalPayments > 0 ? `${totalPayments} transaction${totalPayments !== 1 ? 's' : ''}` : 'No transactions yet'}
 					icon={DollarSign}
 				/>
 				<StatTile
@@ -147,77 +137,75 @@ export function BillingStats({
 					value={String(activePayments)}
 					description={activePayments > 0 ? 'Successfully processed' : 'No active payments'}
 					icon={CreditCard}
+					badge={activePayments > 0 ? { label: 'Live', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' } : undefined}
 				/>
 				<StatTile
 					label="Monthly Average"
 					value={formatCurrencyAmount(monthlyAverage, currency, locale)}
-					description={totalPayments > 0 ? 'Based on all payments' : 'Calculated from transactions'}
+					description={totalPayments > 0 ? 'Based on all payments' : 'No data yet'}
 					icon={BarChart3}
 				/>
 				<StatTile
 					label="Plan Status"
 					value={hasActiveSubscription ? 'Active' : 'Free'}
-					description={hasActiveSubscription ? planName : 'Basic Plan'}
+					description={planName}
 					icon={Crown}
+					badge={
+						hasActiveSubscription
+							? { label: 'Pro', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' }
+							: { label: 'Free', color: 'bg-neutral-100 text-neutral-500 dark:bg-white/8 dark:text-neutral-400' }
+					}
 				/>
 			</div>
 
-			{/* Additional Metrics Row */}
+			{/* Additional Metrics Row — only rendered when optional props are passed */}
 			{(lastMonthSpent !== undefined || growthRate !== undefined || renewalStatus) && (
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-					{/* Monthly Comparison */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 					{lastMonthSpent !== undefined && (
 						<div className={PANEL}>
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Monthly Comparison</h4>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Monthly Comparison</span>
 								<Calendar className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3 text-sm">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-neutral-500 dark:text-neutral-400">This Month:</span>
+									<span className={LABEL}>This month</span>
 									<span className="font-semibold text-neutral-900 dark:text-white">
 										{formatCurrencyAmount(totalSpent, currency, locale)}
 									</span>
 								</div>
 								<div className="flex justify-between items-center">
-									<span className="text-neutral-500 dark:text-neutral-400">Last Month:</span>
+									<span className={LABEL}>Last month</span>
 									<span className="font-semibold text-neutral-900 dark:text-white">
-										{formatCurrencyAmount(lastMonthSpent || 0, currency, locale)}
+										{formatCurrencyAmount(lastMonthSpent, currency, locale)}
 									</span>
 								</div>
-								<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06]">
-									<div className="flex justify-between items-center">
-										<span className="text-neutral-500 dark:text-neutral-400">Change:</span>
-										<span
-											className={`font-semibold ${
-												lastMonthSpent && lastMonthSpent > totalSpent
-													? 'text-emerald-600 dark:text-emerald-400'
-													: 'text-red-600 dark:text-red-400'
-											}`}
-										>
-											{lastMonthSpent && lastMonthSpent > totalSpent ? '↓' : '↑'}{' '}
-											{formatCurrencyAmount(
-												Math.abs((lastMonthSpent || 0) - totalSpent),
-												currency,
-												locale
-											)}
-										</span>
-									</div>
+								<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06] flex justify-between items-center">
+									<span className={LABEL}>Change</span>
+									<span
+										className={`font-semibold ${
+											lastMonthSpent > totalSpent
+												? 'text-emerald-600 dark:text-emerald-400'
+												: 'text-red-600 dark:text-red-400'
+										}`}
+									>
+										{lastMonthSpent > totalSpent ? '↓' : '↑'}{' '}
+										{formatCurrencyAmount(Math.abs(lastMonthSpent - totalSpent), currency, locale)}
+									</span>
 								</div>
 							</div>
 						</div>
 					)}
 
-					{/* Growth Rate */}
 					{growthRate !== undefined && (
 						<div className={PANEL}>
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Growth Rate</h4>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Growth Rate</span>
 								<TrendingUp className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3 text-sm">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-neutral-500 dark:text-neutral-400">Monthly Growth:</span>
+									<span className={LABEL}>Monthly growth</span>
 									<span
 										className={`font-semibold ${
 											growthRate > 0
@@ -230,33 +218,32 @@ export function BillingStats({
 									</span>
 								</div>
 								<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06]">
-									<div className="text-xs text-neutral-500 dark:text-neutral-400">
+									<p className={DESC}>
 										{growthRate > 0
-											? 'Your spending is increasing month over month'
+											? 'Spending increasing month over month'
 											: growthRate < 0
-												? 'Your spending has decreased compared to last month'
-												: 'Your spending remains consistent'}
-									</div>
+												? 'Spending decreased vs last month'
+												: 'Spending is consistent'}
+									</p>
 								</div>
 							</div>
 						</div>
 					)}
 
-					{/* Renewal Status */}
 					{renewalStatus && (
 						<div className={PANEL}>
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Renewal Status</h4>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Renewal Status</span>
 								<renewalStatus.icon className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3 text-sm">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-neutral-500 dark:text-neutral-400">Status:</span>
+									<span className={LABEL}>Status</span>
 									<span className={`font-semibold ${renewalStatus.color}`}>{renewalStatus.label}</span>
 								</div>
 								{nextBillingDate && (
 									<div className="flex justify-between items-center">
-										<span className="text-neutral-500 dark:text-neutral-400">Next Billing:</span>
+										<span className={LABEL}>Next billing</span>
 										<span className="font-semibold text-neutral-900 dark:text-white">
 											{new Date(nextBillingDate).toLocaleDateString()}
 										</span>
@@ -264,28 +251,26 @@ export function BillingStats({
 								)}
 								{currentPeriodEnd && (
 									<div className="flex justify-between items-center">
-										<span className="text-neutral-500 dark:text-neutral-400">Period Ends:</span>
+										<span className={LABEL}>Period ends</span>
 										<span className="font-semibold text-neutral-900 dark:text-white">
 											{new Date(currentPeriodEnd).toLocaleDateString()}
 										</span>
 									</div>
 								)}
 								{daysUntilRenewal && (
-									<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06]">
-										<div className="flex justify-between items-center">
-											<span className="text-neutral-500 dark:text-neutral-400">Days Left:</span>
-											<span
-												className={`font-semibold ${
-													renewalStatus.urgency === 'high'
-														? 'text-red-600 dark:text-red-400'
-														: renewalStatus.urgency === 'medium'
-															? 'text-amber-600 dark:text-amber-400'
-															: 'text-emerald-600 dark:text-emerald-400'
-												}`}
-											>
-												{daysUntilRenewal} days
-											</span>
-										</div>
+									<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06] flex justify-between items-center">
+										<span className={LABEL}>Days left</span>
+										<span
+											className={`font-semibold ${
+												renewalStatus.urgency === 'high'
+													? 'text-red-600 dark:text-red-400'
+													: renewalStatus.urgency === 'medium'
+														? 'text-amber-600 dark:text-amber-400'
+														: 'text-emerald-600 dark:text-emerald-400'
+											}`}
+										>
+											{daysUntilRenewal}d
+										</span>
 									</div>
 								)}
 							</div>
@@ -294,55 +279,41 @@ export function BillingStats({
 				</div>
 			)}
 
-			{/* Quick Actions */}
-			<div className={PANEL}>
-				<div className="flex items-center justify-between gap-4 flex-wrap">
-					<div className="flex items-center gap-3">
-						<div className={STAT_ICON_TILE}>
-							<Zap className={STAT_ICON} />
-						</div>
-						<div>
-							<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Quick Actions</h4>
-							<p className="text-xs text-neutral-500 dark:text-neutral-400">
-								Manage your billing and subscription
-							</p>
-						</div>
+			{/* Quick Actions bar */}
+			<div className={`${PANEL} flex items-center justify-between gap-4 flex-wrap`}>
+				<div className="flex items-center gap-3">
+					<div className={ICON_TILE}>
+						<Zap className={ICON} />
 					</div>
-
-					<div className="flex items-center gap-2">
-						<button
-							onClick={onViewHistory}
-							className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
-						>
-							<Calendar className="h-3.5 w-3.5" />
-							View History
-						</button>
-
-						<button
-							onClick={handleManagePlan}
-							disabled={isCreateBillingPortalSessionPending}
-							className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							{isCreateBillingPortalSessionPending ? (
-								<>
-									<Loader2 className="h-3.5 w-3.5 animate-spin" />
-									Opening...
-								</>
-							) : (
-								<>
-									<CreditCard className="h-3.5 w-3.5" />
-									Manage Plan
-								</>
-							)}
-						</button>
+					<div>
+						<p className="text-xs font-semibold text-neutral-900 dark:text-white">Quick Actions</p>
+						<p className={DESC}>Manage your billing and subscription</p>
 					</div>
+				</div>
+				<div className="flex items-center gap-2">
+					<button onClick={onViewHistory} className={OUTLINE_BTN}>
+						<ArrowUpRight className="h-3.5 w-3.5" />
+						View History
+					</button>
+					<button onClick={handleManagePlan} disabled={isCreateBillingPortalSessionPending} className={PRIMARY_BTN}>
+						{isCreateBillingPortalSessionPending ? (
+							<>
+								<Loader2 className="h-3.5 w-3.5 animate-spin" />
+								Opening…
+							</>
+						) : (
+							<>
+								<CreditCard className="h-3.5 w-3.5" />
+								Manage Plan
+							</>
+						)}
+					</button>
 				</div>
 			</div>
 		</div>
 	);
 }
 
-// Enhanced version with more detailed metrics
 export function DetailedBillingStats({
 	planName,
 	totalSpent,
@@ -359,11 +330,11 @@ export function DetailedBillingStats({
 }: BillingStatsProps) {
 	const locale = useLocale();
 
-	const ROW = 'flex items-center justify-between p-3 bg-neutral-50 dark:bg-white/[0.04] rounded-lg border border-neutral-100 dark:border-white/[0.06]';
+	const ROW =
+		'flex items-center justify-between p-3 bg-neutral-50 dark:bg-white/[0.04] rounded-lg border border-neutral-100 dark:border-white/[0.06]';
 
 	return (
 		<div className="space-y-4">
-			{/* Main Stats Grid */}
 			<BillingStats
 				planName={planName}
 				totalSpent={totalSpent}
@@ -379,53 +350,48 @@ export function DetailedBillingStats({
 				currentPeriodEnd={currentPeriodEnd}
 			/>
 
-			{/* Additional Insights */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-				{/* Payment Trends */}
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
 				<div className={PANEL}>
-					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Payment Trends</h4>
+					<div className="flex items-center justify-between mb-3">
+						<span className="text-xs font-semibold text-neutral-900 dark:text-white">Payment Trends</span>
 						<TrendingUp className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 					</div>
-					<div className="space-y-3 text-sm">
+					<div className="space-y-2">
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Average Transaction:</span>
-							<span className="font-semibold text-neutral-900 dark:text-white">
-								{totalPayments > 0
-									? formatCurrencyAmount(totalSpent / totalPayments, currency, locale)
-									: 'N/A'}
+							<span className={LABEL}>Average transaction</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
+								{totalPayments > 0 ? formatCurrencyAmount(totalSpent / totalPayments, currency, locale) : 'N/A'}
 							</span>
 						</div>
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Success Rate:</span>
-							<span className="font-semibold text-emerald-600 dark:text-emerald-400">
+							<span className={LABEL}>Success rate</span>
+							<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
 								{totalPayments > 0 ? Math.round((activePayments / totalPayments) * 100) : 0}%
 							</span>
 						</div>
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Total Transactions:</span>
-							<span className="font-semibold text-neutral-900 dark:text-white">{totalPayments}</span>
+							<span className={LABEL}>Total transactions</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">{totalPayments}</span>
 						</div>
 					</div>
 				</div>
 
-				{/* Subscription Insights */}
 				<div className={PANEL}>
-					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-sm font-semibold text-neutral-900 dark:text-white">Subscription Insights</h4>
+					<div className="flex items-center justify-between mb-3">
+						<span className="text-xs font-semibold text-neutral-900 dark:text-white">Subscription Insights</span>
 						<Users className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 					</div>
-					<div className="space-y-3 text-sm">
+					<div className="space-y-2">
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Plan Type:</span>
-							<span className="font-semibold text-neutral-900 dark:text-white">
+							<span className={LABEL}>Plan type</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
 								{hasActiveSubscription ? 'Premium' : 'Free'}
 							</span>
 						</div>
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Status:</span>
+							<span className={LABEL}>Status</span>
 							<span
-								className={`font-semibold ${
+								className={`text-xs font-semibold ${
 									hasActiveSubscription
 										? 'text-emerald-600 dark:text-emerald-400'
 										: 'text-neutral-500 dark:text-neutral-400'
@@ -435,8 +401,8 @@ export function DetailedBillingStats({
 							</span>
 						</div>
 						<div className={ROW}>
-							<span className="text-neutral-500 dark:text-neutral-400">Monthly Cost:</span>
-							<span className="font-semibold text-neutral-900 dark:text-white">
+							<span className={LABEL}>Monthly cost</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
 								{hasActiveSubscription ? formatCurrencyAmount(monthlyAverage, currency, locale) : 'Free'}
 							</span>
 						</div>
