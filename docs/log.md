@@ -42,7 +42,7 @@ why** at a higher level than per-commit diffs.
   a non-array and crashed the page. Fix: that branch now returns `[]`, and
   `apps/web/hooks/use-billing-data.ts` derives `payments` via
   `Array.isArray(...)` so any non-array payload degrades to an empty list
-  rather than crashing. No deps/schema changes. (PR: TBD)
+  rather than crashing. No deps/schema changes. (PR: #931, draft)
 
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
