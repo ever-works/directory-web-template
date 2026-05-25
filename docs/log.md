@@ -31,6 +31,26 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-25 — Spec 033: Client profile Security & Billing blocks
+
+- spec-033: drafted `docs/spec/033-client-profile-security-billing/spec.md`
+  and shipped the implementation in the same PR (EW-648). Adds two
+  **owner-only** read-only blocks to the bottom of the right column on
+  `/[locale]/client/profile/[username]`: **Security & Status**
+  (`apps/web/components/profile/sections/security-status-section.tsx` —
+  email verification, two-factor, account status, member-since, link to
+  `/client/settings/security`) and **Billing & Plans**
+  (`billing-plans-section.tsx` — plan, account type, currency, links to
+  `/client/settings/profile/billing` + `/pricing`, Upgrade CTA on the free
+  plan). Both are pure async server components fed from data already loaded
+  by the page; the account-private fields (`status`, `plan`, `accountType`,
+  `twoFactorEnabled`, `currency`) that `toPublicClientProfile` strips are
+  read from the unprojected `rawProfile`, gated by `effectiveIsOwn` (so
+  they are hidden from visitors and in `?preview=public`). New English keys
+  added under the `profile` namespace in `messages/en.json`; other locales
+  inherit via the `deepmerge(en, locale)` fallback in `i18n/request.ts`. No
+  new queries, hooks, dependencies, or schema changes. (PR: TBD)
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped
