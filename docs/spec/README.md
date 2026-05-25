@@ -53,6 +53,7 @@ or architectural change.
 | 030 | [`client-submissions-redesign`](030-client-submissions-redesign/spec.md) | proposed | UI-only redesign of `/client/submissions`: responsive table-on-desktop / cards-on-mobile, polished KPI stats cards, status segmented tabs + sort UX, dedicated empty / filtered-empty / error / skeleton states, reuses existing design-system primitives — no functional changes |
 | 031 | [`client-danger-zone`](031-client-danger-zone/spec.md) | proposed | Add a red-accented **Danger Zone** section to `/client/settings` and a dedicated `/client/settings/danger-zone` page that exposes the existing `deleteAccount` server action via a password-confirmed modal (EW-635) |
 | 032 | [`collection-icon-picker`](032-collection-icon-picker/spec.md) | in-progress | Replace the bare Icon (emoji or URL) input on `/admin/collections` Create / Edit modal with a GitHub-/Discord-style picker: `:` trigger, debounced (deferred) search, keyboard nav, recent emojis, preview tile; URL passthrough preserved, zero new deps |
+| 033 | [`client-billing-ui-consistency`](033-client-billing-ui-consistency/spec.md) | in-progress | UI-only alignment of `/client/settings/profile/billing` with sibling settings pages: reuse the shared `Card` primitive instead of hardcoded card surfaces, adopt the canonical back-link + icon-tile header, and route remaining hardcoded strings through the `billing` i18n namespace — no functional changes (EW-649) |
 
 > **Status legend:**
 > *proposed* = spec drafted, not yet planned/approved.

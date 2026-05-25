@@ -1778,7 +1778,13 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"FREE": "Free",
+		"UPGRADE": "Upgrade",
+		"RENEWS_ON": "Renews {date}",
+		"UPGRADE_UNLOCK_FEATURES": "Upgrade to unlock all features",
+		"DAYS_LEFT": "{days}d left",
+		"DAYS_TOTAL": "/{days}d"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",

@@ -31,6 +31,20 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-26 — Spec 033: Client Billing page UI consistency
+
+- spec-033: drafted `docs/spec/033-client-billing-ui-consistency/spec.md` and
+  shipped the implementation in the same PR (EW-649). UI-only alignment of
+  `/client/settings/profile/billing` with its sibling settings pages:
+  replaced the hardcoded card surfaces (`bg-white dark:bg-[#111111] …`) with
+  the shared `@/components/ui/card` `Card` primitive, restructured the header
+  to the canonical back-link row + icon-tile/title block with actions on the
+  right, and routed the remaining hardcoded strings through the `billing`
+  i18n namespace (new keys `FREE`, `UPGRADE`, `RENEWS_ON`,
+  `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in `messages/en.json`,
+  non-English locales fall back via the existing `deepmerge` config). No
+  functional/data changes.
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped

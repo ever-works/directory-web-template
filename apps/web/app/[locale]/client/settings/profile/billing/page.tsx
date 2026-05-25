@@ -5,6 +5,7 @@ import { SubscriptionCard } from '@/components/settings/billing/subscription-car
 import { SubscriptionHistoryCard } from '@/components/settings/billing/subscription-history-card';
 import { SubscriptionActions } from '@/components/settings/billing/subscription-actions';
 import { Container } from '@/components/ui/container';
+import { Card } from '@/components/ui/card';
 import { CreditCard, ChevronRight, Plus, Download, RefreshCw, Crown, Zap } from 'lucide-react';
 import { BillingStats } from '@/components/settings/billing/billing-stats';
 import { TabNavigation } from '@/components/settings/billing/tab-navigation';
@@ -24,6 +25,7 @@ import { PaymentProvider } from '@/lib/constants';
 // ─── Days Remaining Bar ────────────────────────────────────────────────────
 
 function DaysRemainingBar({ endDate }: { endDate: string }) {
+	const t = useTranslations('billing');
 	const end = new Date(endDate);
 	const now = new Date();
 	const daysLeft = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
@@ -35,8 +37,8 @@ function DaysRemainingBar({ endDate }: { endDate: string }) {
 	return (
 		<div className="space-y-1 min-w-[100px]">
 			<div className="flex justify-between text-[10px] text-gray-500 dark:text-gray-400">
-				<span>{daysLeft}d left</span>
-				<span>/{totalDays}d</span>
+				<span>{t('DAYS_LEFT', { days: daysLeft })}</span>
+				<span>{t('DAYS_TOTAL', { days: totalDays })}</span>
 			</div>
 			<div className="w-full h-1.5 bg-gray-100 dark:bg-white/8 rounded-full overflow-hidden">
 				<div
@@ -60,8 +62,9 @@ interface PlanCardProps {
 }
 
 function PlanCard({ planName, hasActiveSubscription, currentPeriodEnd, onUpgrade }: PlanCardProps) {
+	const t = useTranslations('billing');
 	return (
-		<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+		<Card className="p-4">
 			<div className="flex items-center justify-between gap-4 flex-wrap">
 				<div className="flex items-center gap-3">
 					<div
@@ -89,22 +92,23 @@ function PlanCard({ planName, hasActiveSubscription, currentPeriodEnd, onUpgrade
 										: 'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400'
 								}`}
 							>
-								{hasActiveSubscription ? 'Active' : 'Free'}
+								{hasActiveSubscription ? t('ACTIVE') : t('FREE')}
 							</span>
 						</div>
 						{currentPeriodEnd && hasActiveSubscription && (
 							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-								Renews{' '}
-								{new Date(currentPeriodEnd).toLocaleDateString('en-US', {
-									month: 'short',
-									day: 'numeric',
-									year: 'numeric'
+								{t('RENEWS_ON', {
+									date: new Date(currentPeriodEnd).toLocaleDateString('en-US', {
+										month: 'short',
+										day: 'numeric',
+										year: 'numeric'
+									})
 								})}
 							</p>
 						)}
 						{!hasActiveSubscription && (
 							<p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-								Upgrade to unlock all features
+								{t('UPGRADE_UNLOCK_FEATURES')}
 							</p>
 						)}
 					</div>
@@ -120,12 +124,12 @@ function PlanCard({ planName, hasActiveSubscription, currentPeriodEnd, onUpgrade
 							className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white text-xs font-medium rounded-lg transition-colors"
 						>
 							<Zap className="w-3.5 h-3.5" />
-							Upgrade
+							{t('UPGRADE')}
 						</button>
 					)}
 				</div>
 			</div>
-		</div>
+		</Card>
 	);
 }
 
@@ -219,8 +223,8 @@ export default function BillingPage() {
 		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="py-8 space-y-6">
-					{/* Header */}
-					<div className="flex items-center justify-between">
+					{/* Back link */}
+					<div>
 						<Link
 							href="/client/settings"
 							className="inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
@@ -228,6 +232,23 @@ export default function BillingPage() {
 							<FiArrowLeft className="w-3.5 h-3.5" />
 							{t('BACK_TO_SETTINGS')}
 						</Link>
+					</div>
+
+					{/* Page Header */}
+					<div className="flex items-center justify-between gap-4 flex-wrap">
+						<div className="flex items-center gap-3">
+							<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
+								<CreditCard className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
+							</div>
+							<div>
+								<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
+									{t('BILLING_SUBSCRIPTION_TITLE')}
+								</h1>
+								<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+									{t('BILLING_SUBSCRIPTION_SUBTITLE')}
+								</p>
+							</div>
+						</div>
 						<div className="flex items-center gap-2">
 							<button
 								onClick={refresh}
@@ -241,21 +262,6 @@ export default function BillingPage() {
 								<Download className="w-3.5 h-3.5" />
 								{t('EXPORT')}
 							</button>
-						</div>
-					</div>
-
-					{/* Page title */}
-					<div className="flex items-center gap-3">
-						<div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-900/40 rounded-xl flex items-center justify-center">
-							<CreditCard className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
-						</div>
-						<div>
-							<h1 className="text-base font-semibold text-gray-900 dark:text-gray-100 tracking-tight">
-								{t('BILLING_SUBSCRIPTION_TITLE')}
-							</h1>
-							<p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-								{t('BILLING_SUBSCRIPTION_SUBTITLE')}
-							</p>
 						</div>
 					</div>
 
@@ -300,7 +306,7 @@ export default function BillingPage() {
 							{activeTab === 'overview' && (
 								<div className="space-y-4">
 									{/* Current Subscription */}
-									<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+									<Card className="p-4">
 										<div className="flex items-center justify-between mb-4">
 											<h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 												{t('CURRENT_SUBSCRIPTION')}
@@ -330,10 +336,10 @@ export default function BillingPage() {
 										) : (
 											<SubscriptionEmptyState />
 										)}
-									</div>
+									</Card>
 
 									{/* Recent Activity */}
-									<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+									<Card className="p-4">
 										<h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
 											{t('RECENT_ACTIVITY')}
 										</h2>
@@ -399,7 +405,7 @@ export default function BillingPage() {
 												)}
 											</div>
 										)}
-									</div>
+									</Card>
 								</div>
 							)}
 
@@ -415,19 +421,19 @@ export default function BillingPage() {
 									{filteredPayments.length === 0 ? (
 										<PaymentsEmptyState />
 									) : (
-										<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+										<Card className="p-4">
 											<div className="space-y-3">
 												{filteredPayments.map((payment) => (
 													<PaymentCard key={payment.id} payment={payment} />
 												))}
 											</div>
-										</div>
+										</Card>
 									)}
 								</div>
 							)}
 
 							{activeTab === 'subscriptions' && (
-								<div className="bg-white dark:bg-[#111111] border border-gray-200 dark:border-white/6 rounded-xl p-4 shadow-sm">
+								<Card className="p-4">
 									<div className="flex items-center justify-between mb-4">
 										<h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
 											{t('SUBSCRIPTION_HISTORY')}
@@ -451,7 +457,7 @@ export default function BillingPage() {
 											))}
 										</div>
 									)}
-								</div>
+								</Card>
 							)}
 						</div>
 					)}
