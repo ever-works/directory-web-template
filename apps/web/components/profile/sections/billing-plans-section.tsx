@@ -90,7 +90,7 @@ export async function BillingPlansSection({ plan, accountType, currency }: Billi
 										{planLabel}
 									</span>
 									<span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${config.badge}`}>
-										{config.badgeText}
+										{planLabel}
 									</span>
 								</div>
 								<p className="text-[11px] text-neutral-500 dark:text-neutral-400 mt-0.5">
