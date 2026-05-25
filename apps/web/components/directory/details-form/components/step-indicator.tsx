@@ -3,6 +3,8 @@
 import { Check } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { useCategoriesEnabled } from '@/hooks/use-categories-enabled';
+import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { STEP_INDICATOR_CLASSES, STEP_DEFINITIONS } from '../validation/form-validators';
 import type { StepDefinition } from '../validation/form-validators';
 
@@ -14,6 +16,8 @@ interface StepIndicatorProps {
 
 export function StepIndicator({ currentStep, onStepClick, completedFields }: StepIndicatorProps) {
 	const t = useTranslations();
+	const { categoriesEnabled } = useCategoriesEnabled();
+	const { tagsEnabled } = useTagsEnabled();
 	const steps: StepDefinition[] = STEP_DEFINITIONS;
 
 	return (
@@ -22,26 +26,30 @@ export function StepIndicator({ currentStep, onStepClick, completedFields }: Ste
 				const isActive = currentStep === step.id;
 				const isAccessible = currentStep >= step.id;
 
-				// Use progressFields (all trackable) for connector fill; fields gates navigation
-				const trackFields = (step.progressFields && step.progressFields.length > 0)
+				// Fields that count toward this step's progress. Drop fields
+				// that aren't applicable for this instance (Categories / Tags
+				// can be disabled in settings) so the bar can still reach 100%.
+				const trackFields = ((step.progressFields && step.progressFields.length > 0)
 					? step.progressFields
-					: step.fields;
+					: step.fields
+				).filter((f) =>
+					(f !== 'category' || categoriesEnabled) && (f !== 'tags' || tagsEnabled)
+				);
 
 				const totalFields = trackFields.length;
-				const filledFields = totalFields > 0
-					? trackFields.filter((f) => completedFields?.has(f)).length
-					: 0;
+				const filledFields = trackFields.filter((f) => completedFields?.has(f)).length;
+				const isPast = currentStep > step.id;
 
-				// Step is "completed" when all required (navigation) fields are filled
-				const navFields = step.fields;
-				const stepCompletedFromFields = navFields.length > 0
-					? navFields.every((f) => completedFields?.has(f))
-					: false;
-				const isCompleted = stepCompletedFromFields || currentStep > step.id;
+				// The step is "completed" only when every applicable tracked
+				// field is filled (not merely the navigation gate), so the
+				// indicator reflects real progress instead of jumping to 100%
+				// as soon as the first couple of inputs are entered.
+				const isCompleted = isPast || (totalFields > 0 && filledFields === totalFields);
 
-				// fill % for the connector that follows this step
+				// fill % for the connector that follows this step — proportional
+				// to how many tracked fields are filled.
 				let connectorFill = 0;
-				if (stepCompletedFromFields || currentStep > step.id) {
+				if (isPast) {
 					connectorFill = 100;
 				} else if (totalFields > 0) {
 					connectorFill = Math.round((filledFields / totalFields) * 100);

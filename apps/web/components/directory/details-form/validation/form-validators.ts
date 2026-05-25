@@ -45,7 +45,7 @@ export const STEP_DEFINITIONS: StepDefinition[] = [
 		titleKey: 'directory.DETAILS_FORM.STEP_TITLE_BASIC_INFO',
 		description: 'Basic Information Description',
 		fields: ['name', 'link'],
-		progressFields: ['name', 'link', 'description', 'introduction', 'tags', 'category', 'video_url'],
+		progressFields: ['link', 'name', 'category', 'tags', 'description'],
 		color: 'from-theme-primary-500 to-purple-500'
 	},
 	{

@@ -31,6 +31,19 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-24 — /submit: fix step-1 progress jumping to 100%
+
+- `apps/web/components/directory/details-form/components/step-indicator.tsx`
+  + `.../validation/form-validators.ts`: step 1's progress bar/checkmark
+  jumped straight to 100% once Product Name + URL were filled, because the
+  connector fill short-circuited to 100% on the navigation-gate fields
+  (`['name','link']`). Reworked it to be proportional to the actually-tracked
+  fields and reset step 1's `progressFields` to the five visible inputs
+  (`link`, `name`, `category`, `tags`, `description`). Category/Tags are
+  filtered out of the count when those features are disabled in settings, so
+  the bar can still reach 100%. The step is now marked complete only when all
+  applicable tracked fields are filled.
+
 ## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
 
 - `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
