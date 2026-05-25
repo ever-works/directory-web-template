@@ -47,9 +47,11 @@ why** at a higher level than per-commit diffs.
   `twoFactorEnabled`, `currency`) that `toPublicClientProfile` strips are
   read from the unprojected `rawProfile`, gated by `effectiveIsOwn` (so
   they are hidden from visitors and in `?preview=public`). New English keys
-  added under the `profile` namespace in `messages/en.json`; other locales
-  inherit via the `deepmerge(en, locale)` fallback in `i18n/request.ts`. No
-  new queries, hooks, dependencies, or schema changes. (PR: #930, draft)
+  added under the `profile` namespace in `messages/en.json` and translated
+  into all 20 other locales (ar, bg, de, es, fr, he, hi, id, it, ja, ko, nl,
+  pl, pt, ru, th, tr, uk, vi, zh); the `deepmerge(en, locale)` fallback in
+  `i18n/request.ts` remains as a safety net. No new queries, hooks,
+  dependencies, or schema changes. (PR: #930, draft)
 
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 

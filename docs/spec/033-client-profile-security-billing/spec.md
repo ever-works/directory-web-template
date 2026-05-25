@@ -104,10 +104,11 @@ two-column dashboard):
   `twoFactorEnabled`, `currency`) with sensible fallbacks
   (`'active'` / `'free'` / `'individual'` / `'USD'`). `memberSince`
   reuses the value already computed for the `Profile` object.
-- **i18n:** new keys under `profile` in `messages/en.json`. Other
-  locales inherit via the `deepmerge(en, locale)` fallback in
-  `i18n/request.ts`, so no per-locale edits are required for
-  correctness.
+- **i18n:** new keys under `profile` added to `messages/en.json` and
+  **translated into all 20 other locales** (ar, bg, de, es, fr, he, hi,
+  id, it, ja, ko, nl, pl, pt, ru, th, tr, uk, vi, zh). The
+  `deepmerge(en, locale)` fallback in `i18n/request.ts` still guarantees
+  English as a safety net, but every string now has a native translation.
 
 ## 6. Acceptance criteria
 
