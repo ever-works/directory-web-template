@@ -7,6 +7,11 @@ interface SearchAndFiltersProps {
   onRefresh: () => void;
   isRefreshing: boolean;
   totalResults: number;
+  /** Selected status filters, lifted to the page so they actually filter. */
+  selectedStatuses?: string[];
+  onStatusChange?: (statuses: string[]) => void;
+  /** Export the currently-filtered payments (CSV). */
+  onExport?: () => void;
 }
 
 interface FilterOption {
@@ -28,23 +33,38 @@ export function SearchAndFilters({
   onSearchChange,
   onRefresh,
   isRefreshing,
-  totalResults
+  totalResults,
+  selectedStatuses,
+  onStatusChange,
+  onExport
 }: SearchAndFiltersProps) {
   const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  // Controlled by the page when `onStatusChange` is provided; otherwise local.
+  const [localFilters, setLocalFilters] = useState<string[]>([]);
+  const selectedFilters = selectedStatuses ?? localFilters;
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
+  const setFilters = (next: string[]) => {
+    if (onStatusChange) onStatusChange(next);
+    else setLocalFilters(next);
+  };
+
   const handleFilterToggle = (filterValue: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filterValue) 
-        ? prev.filter(f => f !== filterValue)
-        : [...prev, filterValue]
+    setFilters(
+      selectedFilters.includes(filterValue)
+        ? selectedFilters.filter((f) => f !== filterValue)
+        : [...selectedFilters, filterValue]
     );
   };
 
   const clearAllFilters = () => {
-    setSelectedFilters([]);
+    setFilters([]);
     onSearchChange('');
+  };
+
+  const openDateRange = () => {
+    setShowFilters(true);
+    setShowAdvancedFilters(true);
   };
 
   const hasActiveFilters = selectedFilters.length > 0 || searchTerm.length > 0;
@@ -223,11 +243,18 @@ export function SearchAndFilters({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 text-sm text-neutral-600 dark:text-neutral-400">
             <span>Quick actions:</span>
-            <button className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 font-medium underline">
+            <button
+              onClick={onExport}
+              disabled={!onExport || totalResults === 0}
+              className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 font-medium underline disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed"
+            >
               <Download className="w-3 h-3" />
               Export Results
             </button>
-            <button className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 font-medium underline">
+            <button
+              onClick={openDateRange}
+              className="inline-flex items-center gap-1 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-200 font-medium underline"
+            >
               <Calendar className="w-3 h-3" />
               Date Range
             </button>

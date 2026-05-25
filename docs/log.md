@@ -31,6 +31,18 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-26 — Spec 033: Client Billing — wire placeholder actions
+
+- spec-033: connected previously-dead billing controls to real behaviour
+  (EW-649). Export / Export Results → client-side CSV via new
+  `lib/utils/billing-csv.ts`; View History → Payment History tab; status
+  filter checkboxes lifted to the page and actually applied; Date Range →
+  opens advanced filters; payment-card Download → `invoiceUrl`; LemonSqueezy
+  Cancel Plan → `POST /api/lemonsqueezy/cancel` via existing
+  `useSubscriptionActions` (confirm + toast + refresh; removed `console.log`
+  + orphan modal state); Modify Plan → `/pricing`; View Details → details
+  disclosure; Contact Support → `mailto:`. No new API routes.
+
 ## 2026-05-26 — Spec 033: Client Billing page UI consistency
 
 - spec-033: drafted `docs/spec/033-client-billing-ui-consistency/spec.md` and

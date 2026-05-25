@@ -42,6 +42,8 @@ interface BillingStatsProps {
 	nextBillingDate?: string;
 	daysUntilRenewal?: number;
 	currentPeriodEnd?: string;
+	/** Switches the billing page to the Payment History tab. */
+	onViewHistory?: () => void;
 }
 
 interface StatTileProps {
@@ -78,7 +80,8 @@ export function BillingStats({
 	growthRate,
 	nextBillingDate,
 	daysUntilRenewal,
-	currentPeriodEnd
+	currentPeriodEnd,
+	onViewHistory
 }: BillingStatsProps) {
 	const { createBillingPortalSession, isCreateBillingPortalSessionPending } = useSubscription();
 	const locale = useLocale();
@@ -307,7 +310,10 @@ export function BillingStats({
 					</div>
 
 					<div className="flex items-center gap-2">
-						<button className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors">
+						<button
+							onClick={onViewHistory}
+							className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
+						>
 							<Calendar className="h-3.5 w-3.5" />
 							View History
 						</button>

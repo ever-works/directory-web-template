@@ -21,6 +21,7 @@ import { Link } from '@/i18n/navigation';
 import { useTranslations } from 'next-intl';
 import { useProviderPayment } from '@/hooks/use-provider-payment';
 import { PaymentProvider } from '@/lib/constants';
+import { exportPaymentsCsv } from '@/lib/utils/billing-csv';
 
 // ─── Dashboard design-system tokens ─────────────────────────────────────────
 // Mirrors `components/dashboard/styles.ts` so this page matches the rest of
@@ -161,15 +162,21 @@ export default function BillingPage() {
 
 	const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'subscriptions'>('overview');
 	const [searchTerm, setSearchTerm] = useState('');
+	const [statusFilters, setStatusFilters] = useState<string[]>([]);
 
-	const filteredPayments = payments.filter(
-		(payment) =>
-			payment?.plan?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			payment?.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			payment?.status?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			payment?.planId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			payment?.subscriptionId.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	const filteredPayments = payments.filter((payment) => {
+		const term = searchTerm.toLowerCase();
+		const matchesSearch =
+			!term ||
+			payment?.plan?.toLowerCase().includes(term) ||
+			payment?.description?.toLowerCase().includes(term) ||
+			payment?.status?.toLowerCase().includes(term) ||
+			payment?.planId?.toLowerCase().includes(term) ||
+			payment?.subscriptionId.toLowerCase().includes(term);
+		const matchesStatus =
+			statusFilters.length === 0 || statusFilters.includes((payment?.status || '').toLowerCase());
+		return matchesSearch && matchesStatus;
+	});
 
 	if (!subscription && !loading) {
 		return (
@@ -266,7 +273,11 @@ export default function BillingPage() {
 									{isRefreshing ? t('REFRESHING') : t('REFRESH_ALL')}
 								</span>
 							</Button>
-							<button className={PRIMARY_CTA}>
+							<button
+								className={`${PRIMARY_CTA} disabled:opacity-50 disabled:cursor-not-allowed`}
+								onClick={() => exportPaymentsCsv(payments)}
+								disabled={payments.length === 0}
+							>
 								<Download className="h-3.5 w-3.5" />
 								<span className="hidden sm:inline">{t('EXPORT')}</span>
 							</button>
@@ -302,6 +313,7 @@ export default function BillingPage() {
 								currency={subscription?.currentSubscription?.currency || 'USD'}
 								planName={subscription?.currentSubscription?.planName || 'Basic Plan'}
 								currentPeriodEnd={subscription?.currentSubscription?.currentPeriodEnd || ''}
+								onViewHistory={() => setActiveTab('payments')}
 							/>
 
 							<TabNavigation
@@ -421,6 +433,9 @@ export default function BillingPage() {
 										onRefresh={refreshPayments}
 										isRefreshing={isRefreshingPayments}
 										totalResults={filteredPayments.length}
+										selectedStatuses={statusFilters}
+										onStatusChange={setStatusFilters}
+										onExport={() => exportPaymentsCsv(filteredPayments)}
 									/>
 									{filteredPayments.length === 0 ? (
 										<PaymentsEmptyState />
@@ -428,7 +443,7 @@ export default function BillingPage() {
 										<div className={CARD}>
 											<div className="space-y-3">
 												{filteredPayments.map((payment) => (
-													<PaymentCard key={payment.id} payment={payment} />
+													<PaymentCard key={payment.id} payment={payment} onChanged={refreshPayments} />
 												))}
 											</div>
 										</div>

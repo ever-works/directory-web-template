@@ -1,8 +1,12 @@
 'use client';
 
 import { Calendar, Clock, TrendingUp, XCircle, CheckCircle, AlertCircle, Crown } from 'lucide-react';
+import { useState } from 'react';
 import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { formatCurrencyAmount } from '@/lib/utils/currency-format';
+
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SOCIAL_EMAIL || 'ever@ever.works';
 
 interface SubscriptionHistoryItem {
 	id: string;
@@ -91,6 +95,7 @@ const getPlanIcon = (planName: string) => {
 
 export function SubscriptionHistoryCard({ subscription }: { subscription: SubscriptionHistoryItem }) {
 	const locale = useLocale();
+	const [showDetails, setShowDetails] = useState(false);
 	const statusConfig = getStatusConfig(subscription.status);
 	const StatusIcon = statusConfig.icon;
 	const PlanIcon = getPlanIcon(subscription.planName);
@@ -213,16 +218,23 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 
 					{/* Action Buttons */}
 					<div className="flex flex-col gap-2">
-						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 transition-colors dark:text-neutral-300">
+						<button
+							onClick={() => setShowDetails((v) => !v)}
+							aria-expanded={showDetails}
+							className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 transition-colors dark:text-neutral-300"
+						>
 							<Calendar className="w-3 h-3" />
-							View Details
+							{showDetails ? 'Hide Details' : 'View Details'}
 						</button>
 
 						{isActive && (
-							<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-linear-to-r from-neutral-800 to-neutral-900 rounded-lg hover:from-neutral-900 hover:to-neutral-950 transition-all duration-200 dark:text-neutral-300 dark:bg-white/8">
+							<Link
+								href="/pricing"
+								className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-linear-to-r from-neutral-800 to-neutral-900 rounded-lg hover:from-neutral-900 hover:to-neutral-950 transition-all duration-200 dark:text-neutral-300 dark:bg-white/8"
+							>
 								<TrendingUp className="w-3 h-3" />
 								Manage
-							</button>
+							</Link>
 						)}
 					</div>
 				</div>
@@ -244,16 +256,54 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 					</div>
 
 					<div className="flex items-center gap-2">
-						<button className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300">
-							View History
+						<button
+							onClick={() => setShowDetails((v) => !v)}
+							className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300"
+						>
+							{showDetails ? 'Hide Details' : 'View Details'}
 						</button>
 
-						<button className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300">
+						<a
+							href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Subscription question — ${subscription.id}`)}`}
+							className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300"
+						>
 							Contact Support
-						</button>
+						</a>
 					</div>
 				</div>
 			</div>
+			{showDetails && (
+				<dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+					<div className="flex justify-between gap-3">
+						<dt className="text-neutral-500 dark:text-neutral-400">Plan</dt>
+						<dd className="font-medium text-neutral-900 dark:text-neutral-100">{subscription.planName}</dd>
+					</div>
+					<div className="flex justify-between gap-3">
+						<dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
+						<dd className="font-medium text-neutral-900 dark:text-neutral-100">{statusConfig.label}</dd>
+					</div>
+					<div className="flex justify-between gap-3">
+						<dt className="text-neutral-500 dark:text-neutral-400">Started</dt>
+						<dd className="font-medium text-neutral-900 dark:text-neutral-100">{formatDate(subscription.startDate)}</dd>
+					</div>
+					<div className="flex justify-between gap-3">
+						<dt className="text-neutral-500 dark:text-neutral-400">Ends</dt>
+						<dd className="font-medium text-neutral-900 dark:text-neutral-100">{formatDate(subscription.endDate)}</dd>
+					</div>
+					{subscription.cancelledAt && (
+						<div className="flex justify-between gap-3">
+							<dt className="text-neutral-500 dark:text-neutral-400">Cancelled</dt>
+							<dd className="font-medium text-neutral-900 dark:text-neutral-100">{formatDate(subscription.cancelledAt)}</dd>
+						</div>
+					)}
+					{subscription.cancelReason && (
+						<div className="flex justify-between gap-3">
+							<dt className="text-neutral-500 dark:text-neutral-400">Reason</dt>
+							<dd className="font-medium text-neutral-900 dark:text-neutral-100">{subscription.cancelReason}</dd>
+						</div>
+					)}
+				</dl>
+			)}
 		</div>
 	);
 }

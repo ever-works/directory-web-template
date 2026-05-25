@@ -1,9 +1,14 @@
 'use client';
 
-import { CreditCard, Calendar, DollarSign, ExternalLink, Download, CheckCircle, Clock, AlertCircle, X, Edit3 } from 'lucide-react';
+import { CreditCard, Calendar, DollarSign, ExternalLink, Download, CheckCircle, Clock, AlertCircle, X, Edit3, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useLocale } from 'next-intl';
+import { toast } from 'sonner';
+import { Link } from '@/i18n/navigation';
 import { formatCurrencyAmount } from '@/lib/utils/currency-format';
+import { useSubscriptionActions } from '@/hooks/use-lemonsqueezy-subscription';
+
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SOCIAL_EMAIL || 'ever@ever.works';
 
 interface PaymentHistoryItem {
   id: string;
@@ -87,13 +92,28 @@ const getProviderIcon = (provider: string) => {
   }
 };
 
-export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
+export function PaymentCard({ payment, onChanged }: { payment: PaymentHistoryItem; onChanged?: () => void }) {
   const locale = useLocale();
-  const [isModifyModalOpen, setIsModifyModalOpen] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
+  const { cancelSubscription } = useSubscriptionActions();
   const statusConfig = getStatusConfig(payment.status);
   const StatusIcon = statusConfig.icon;
   const isPaid = payment.status.toLowerCase() === 'paid';
   const isPending = payment.status.toLowerCase() === 'pending';
+  const isLemonSqueezy =
+    !!payment.subscriptionId && payment.paymentProvider.toLowerCase() === 'lemonsqueezy';
+
+  const handleCancelLemonSqueezy = async () => {
+    if (!window.confirm('Cancel this subscription at the end of the current billing period?')) return;
+    const toastId = toast.loading('Cancelling subscription...');
+    try {
+      await cancelSubscription.mutateAsync({ subscriptionId: payment.subscriptionId, cancelAtPeriodEnd: true });
+      toast.success('Subscription will be cancelled at the end of the period', { id: toastId });
+      onChanged?.();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to cancel subscription', { id: toastId });
+    }
+  };
 
 
   return (
@@ -191,42 +211,36 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
               </a>
             )}
             
-            <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 dark:hover:bg-white/6 transition-colors border border-neutral-200 dark:border-white/6">
-              <Download className="w-3 h-3" />
-              Download
-            </button>
-            
+            {payment.invoiceUrl && (
+              <a
+                href={payment.invoiceUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 dark:hover:bg-white/6 transition-colors border border-neutral-200 dark:border-white/6"
+              >
+                <Download className="w-3 h-3" />
+                Download
+              </a>
+            )}
+
             {/* Subscription Management Buttons - Only for LemonSqueezy */}
-            {(() => {
-              console.log('Checking subscription conditions:', {
-                hasSubscriptionId: !!payment.subscriptionId,
-                paymentProvider: payment.paymentProvider,
-                isLemonSqueezy: payment.paymentProvider.toLowerCase() === 'lemonsqueezy',
-                shouldShow: payment.subscriptionId && payment.paymentProvider.toLowerCase() === 'lemonsqueezy'
-              });
-              return payment.subscriptionId && payment.paymentProvider.toLowerCase() === 'lemonsqueezy';
-            })() && (
+            {isLemonSqueezy && (
               <>
-                <button 
+                <Link
+                  href="/pricing"
                   className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors border border-emerald-200 dark:border-emerald-700/50"
-                  onClick={() => {
-                    console.log('Modify Plan button clicked, current state:', isModifyModalOpen);
-                    setIsModifyModalOpen(true);
-                    console.log('Modal should be open now');
-                  }}
                 >
                   <Edit3 className="w-3 h-3" />
                   Modify Plan
-                </button>
-                
-                <button 
-                  className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border border-red-200 dark:border-red-700/50"
-                  onClick={() => {
-                    // TODO: Implement cancel subscription logic for LemonSqueezy
-                    console.log('Cancel LemonSqueezy subscription:', payment.subscriptionId);
-                  }}
+                </Link>
+
+                <button
+                  onClick={handleCancelLemonSqueezy}
+                  disabled={cancelSubscription.isPending}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors border border-red-200 dark:border-red-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <X className="w-3 h-3" />
+                  {cancelSubscription.isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <X className="w-3 h-3" />}
                   Cancel Plan
                 </button>
               </>
@@ -255,16 +269,56 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline">
-              View Details
+            <button
+              onClick={() => setShowDetails((v) => !v)}
+              aria-expanded={showDetails}
+              className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline"
+            >
+              {showDetails ? 'Hide Details' : 'View Details'}
             </button>
-            
-            <button className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline">
+
+            <a
+              href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Billing question — payment ${payment.id}`)}`}
+              className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline"
+            >
               Contact Support
-            </button>
+            </a>
           </div>
         </div>
-      </div> 
+
+        {showDetails && (
+          <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-neutral-500 dark:text-neutral-400">Date</dt>
+              <dd className="font-medium text-neutral-900 dark:text-neutral-100">{formatDate(payment.date)}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-neutral-500 dark:text-neutral-400">Amount</dt>
+              <dd className="font-medium text-neutral-900 dark:text-neutral-100">
+                {formatCurrencyAmount(payment.amount, payment.currency, locale)}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-neutral-500 dark:text-neutral-400">Status</dt>
+              <dd className="font-medium text-neutral-900 dark:text-neutral-100">{statusConfig.label}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-neutral-500 dark:text-neutral-400">Provider</dt>
+              <dd className="font-medium text-neutral-900 dark:text-neutral-100">{payment.paymentProvider}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-neutral-500 dark:text-neutral-400">Billing</dt>
+              <dd className="font-medium text-neutral-900 dark:text-neutral-100">{payment.billingInterval}</dd>
+            </div>
+            {payment.invoiceNumber && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-neutral-500 dark:text-neutral-400">Invoice</dt>
+                <dd className="font-medium text-neutral-900 dark:text-neutral-100">{payment.invoiceNumber}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+      </div>
     </div>
   );
-} 
+}

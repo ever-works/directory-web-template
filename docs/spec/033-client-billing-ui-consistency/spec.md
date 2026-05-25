@@ -103,13 +103,38 @@ translated, so that the settings area reads in my language.
 - [ ] AC-7: No behavioural change — tabs, refresh, export, manage-plan,
       loading and empty states behave exactly as before.
 
+## 6b. Action wiring (follow-up, same PR)
+
+Previously-dead placeholder controls were connected to real behaviour:
+
+- **Export** (header) and **Export Results** (search) → client-side CSV
+  download via `lib/utils/billing-csv.ts` (`exportPaymentsCsv`), exporting
+  all / filtered payments respectively. No new endpoint.
+- **View History** (KPI block) → switches to the Payment History tab
+  (`onViewHistory` → `setActiveTab('payments')`).
+- **Status filter checkboxes** were selected but never applied; lifted to
+  the page (`selectedStatuses`/`onStatusChange`) and now filter the list.
+- **Date Range** → opens the advanced-filters panel (no longer inert).
+- **Download** (payment card) → downloads `invoiceUrl` (shown only when an
+  invoice URL exists).
+- **Cancel Plan** (LemonSqueezy) → real `POST /api/lemonsqueezy/cancel`
+  via the existing `useSubscriptionActions` hook (confirm + toast +
+  refresh); removed the `console.log` placeholder and the orphaned
+  `isModifyModalOpen` state.
+- **Modify Plan** (LemonSqueezy) → links to `/pricing` (canonical
+  plan-change surface; no in-card plan picker existed).
+- **View Details** (payment + subscription-history cards) → toggles a
+  details disclosure.
+- **Contact Support** → `mailto:` the configured support address with a
+  context-bearing subject.
+
 ## 7. Out-of-Scope Considerations
 
-- The `View History` / `Export` buttons remain placeholders (pre-existing
-  behaviour) — wiring them is out of scope.
 - Descriptive sub-line copy inside `billing-stats.tsx` (e.g.
   "Successfully processed") stays in English as before; full i18n of
   those strings is a follow-up.
+- A dedicated date-range/amount filter UI (the advanced panel still says
+  "coming soon") and server-side invoice/PDF generation are future work.
 
 ## 8. UX Notes (if applicable)
 
