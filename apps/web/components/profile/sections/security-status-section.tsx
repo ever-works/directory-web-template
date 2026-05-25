@@ -92,7 +92,7 @@ export async function SecurityStatusSection({
 				<span className="w-7 h-7 rounded-lg bg-theme-primary-50 dark:bg-theme-primary-500/10 flex items-center justify-center shrink-0">
 					<FiShield className="w-3.5 h-3.5 text-theme-primary-600 dark:text-theme-primary-400" aria-hidden="true" />
 				</span>
-				<h3 className="text-xs font-semibold text-neutral-900 dark:text-neutral-100">
+				<h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
 					{t("SECURITY_STATUS_SECTION")}
 				</h3>
 			</div>
