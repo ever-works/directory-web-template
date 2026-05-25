@@ -24,8 +24,9 @@ Recent Activity + Skills + Portfolio) but exposes **nothing about the
 account's security posture or billing/plan**. Both are account-private
 and only meaningful to the profile owner.
 
-This spec adds two **owner-only** read-only blocks to the bottom of the
-right column:
+This spec adds two **owner-only** read-only blocks near the top of the
+page, directly under the breadcrumb / own-profile actions row (above the
+two-column dashboard):
 
 1. **Security & Status** — email verification, two-factor, account
    lifecycle status, and member-since, with a link into security
@@ -53,9 +54,10 @@ right column:
 ## 3. Goals
 
 - An authenticated user viewing **their own** profile sees a Security &
-  Status block and a Billing & Plans block at the bottom of the right
-  column, laid out as a responsive two-up grid (stacked on small
-  screens).
+  Status block and a Billing & Plans block near the top of the page,
+  directly under the breadcrumb / own-profile actions row and above the
+  two-column dashboard, laid out as a responsive two-up grid (stacked on
+  small screens).
 - Non-owners never see either block; the owner does not see them in
   **public-preview** mode (`?preview=public`).
 - **Security & Status** shows:
